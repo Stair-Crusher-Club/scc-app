@@ -1,0 +1,7 @@
+{
+  "replaceAttrValues": {
+    "#000": "currentColor",
+    "#f00": "{props.pointColor}",
+    "#ff0000": "{props.pointColor}"
+  }
+}

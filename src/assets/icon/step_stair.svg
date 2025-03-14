@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none">
+  <g clip-path="url(#a)">
+    <rect width="24" height="24" x="4" y="4" fill="#fff" rx="4"/>
+    <rect width="24" height="24" x="4" y="4" fill="#DB0B24" stroke="#000" stroke-width="2.67" rx="4"/>
+    <path fill="#fff" fill-rule="evenodd" d="M22.7 10.4a.2.2 0 0 0-.2.2v3.8a.2.2 0 0 1-.2.2h-3.6a.2.2 0 0 0-.2.2v3.8a.2.2 0 0 1-.2.2h-3.6a.2.2 0 0 0-.2.2v3.8a.2.2 0 0 1-.2.2h-3.6a.2.2 0 0 0-.2.2v3.3c0 .11.09.2.2.2h16.6a.2.2 0 0 0 .2-.2V10.6a.2.2 0 0 0-.2-.2h-4.6Z" clip-rule="evenodd"/>
+    <path fill="#000" fill-rule="evenodd" d="M19.83 11.93V10.6a2.87 2.87 0 0 1 2.87-2.87h4.6a2.87 2.87 0 0 1 2.87 2.87v15.9a2.87 2.87 0 0 1-2.87 2.87H10.7a2.87 2.87 0 0 1-2.87-2.87v-3.3a2.87 2.87 0 0 1 2.87-2.87h1.13V19a2.87 2.87 0 0 1 2.87-2.87h1.13V14.8a2.87 2.87 0 0 1 2.87-2.87h1.13Zm2.67-1.33c0-.11.09-.2.2-.2h4.6c.11 0 .2.09.2.2v15.9a.2.2 0 0 1-.2.2H10.7a.2.2 0 0 1-.2-.2v-3.3c0-.11.09-.2.2-.2h3.6a.2.2 0 0 0 .2-.2V19c0-.11.09-.2.2-.2h3.6a.2.2 0 0 0 .2-.2v-3.8c0-.11.09-.2.2-.2h3.6a.2.2 0 0 0 .2-.2v-3.8Z" clip-rule="evenodd"/>
+  </g>
+  <rect width="24" height="24" x="4" y="4" stroke="#000" stroke-linejoin="round" stroke-width="2.67" rx="4"/>
+  <defs>
+    <clipPath id="a">
+      <rect width="24" height="24" x="4" y="4" fill="#fff" rx="4"/>
+    </clipPath>
+  </defs>
+</svg>

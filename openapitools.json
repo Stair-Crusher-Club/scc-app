@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "6.2.0",
+    "generators": {
+      "dev": {
+        "generatorName": "typescript-axios",
+        "glob": "subprojects/scc-api/api-spec.yaml",
+        "output": "#{cwd}/src/generated-sources/openapi",
+        "additionalProperties": {
+          "supportsES6": "true"
+        },
+        "skipValidateSpec": true,
+        "serverVariables": {
+          "env": "api.dev"
+        }
+      },
+      "production": {
+        "generatorName": "typescript-axios",
+        "glob": "subprojects/scc-api/api-spec.yaml",
+        "output": "#{cwd}/src/generated-sources/openapi",
+        "additionalProperties": {
+          "supportsES6": "true"
+        },
+        "skipValidateSpec": true,
+        "serverVariables": {
+          "env": "api"
+        }
+      }
+    }
+  }
+}

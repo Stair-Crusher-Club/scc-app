@@ -1,0 +1,129 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+# Get version name from version.properties
+def get_version_name()
+  version_file = File.read(File.expand_path("../app/version.properties"))
+  version_file.match(/version=(.+)/)[1].strip
+end
+
+# Calculate version code from version name
+def get_version_code()
+  version_name = get_version_name()
+  major, minor, patch = version_name.split(".").map(&:to_i)
+  return major * 1000000 + minor * 10000 + patch * 100 + 1
+end
+
+# Update version in version.properties
+def update_version(version_name: nil, version_code: nil)
+  if version_name != nil
+    File.write(File.expand_path("../app/version.properties"), "version=#{version_name}")
+  end
+end
+
+# Calculate next version code based on version name
+def next_build_number(version_name:)
+  major, minor, patch = version_name.split(".").map(&:to_i)
+  return major * 100000 + minor * 1000 + patch * 100 + 1
+end
+
+def target_identifier(scheme:)
+    case scheme
+    when "sandbox"
+      "club.staircrusher.sandbox"
+    when "production"
+      "club.staircrusher"
+    end
+end
+
+def target_configuration(type:, scheme:)
+    case scheme
+    when "sandbox"
+      "Sandbox#{type}"
+    when "production"
+      "Production#{type}"
+    end
+end
+
+platform :android do
+  desc "Set firebase configuration json."
+  lane :configure_firebase do |options|
+    # Firebase
+    sh("cp #{File.expand_path("../../subprojects/scc-frontend-build-configurations/#{options[:scheme]}/google-services.json")} ../app/src/#{options[:scheme]}/")
+  end
+
+  desc "Upload a APK/AAB file to Firebase App Distribution"
+  lane :distribute do |options|
+    config = read_json(
+      json_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/#{options[:scheme]}/android.json")
+    )
+    version_code = get_version_code()
+    if options[:scheme] == "sandbox"
+      output_dir = "sandbox/release"
+    else
+      output_dir = "ProductionRelease"
+    end
+    
+    is_sandbox = options[:scheme] == "sandbox"
+    artifact_type = is_sandbox ? "APK" : "AAB"
+    file_extension = is_sandbox ? "apk" : "aab"
+    output_name = "#{version_code}-app-#{options[:scheme]}-release.#{file_extension}"
+    output_path = is_sandbox ? 
+      File.expand_path("../app/build/outputs/apk/#{output_dir}/#{output_name}") :
+      File.expand_path("../app/build/outputs/bundle/#{output_dir}/#{output_name}")
+
+    firebase_app_distribution(
+      app: config[:firebase_app_id],
+      firebase_cli_token: config[:firebase_cli_token],
+      android_artifact_type: artifact_type,
+      android_artifact_path: output_path,
+      groups: "Product",
+      release_notes: "Version #{get_version_name()} (#{version_code})",
+    )
+  end
+
+  lane :bundle do |options|
+    # DebugApk 만들면서 생긴 파일들 삭제
+    sh("rm -rf #{File.expand_path("../app/src/main/assets/index.android.bundle")}")
+    sh("rm -rf #{File.expand_path("../app/src/main/res/raw")}")
+    sh("rm -rf #{File.expand_path("../app/build")}")
+
+    configure_firebase(scheme: options[:scheme])
+    version_code = next_build_number(version_name: options[:version])
+    update_version(version_name: options[:version], version_code: version_code)
+    configuration = target_configuration(type: "Release", scheme: options[:scheme])
+    
+    # For sandbox, build APK instead of AAB
+    if options[:scheme] == "sandbox"
+      gradle(task: "clean assemble#{configuration}")
+    else
+      gradle(task: "clean bundle#{configuration}")
+    end
+  end
+
+  lane :release_candidate do |options|
+    version = options[:version] || prompt(text: "What version do you want to build? ex) 0.1.4")
+    unless version.to_s.strip.empty?
+      matched = version.match(/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/)
+      if matched.nil?
+        UI.user_error!("Version is wrong. You should specify correct version like 0.1.4, 1.13.12")
+      end
+    end
+    bundle(scheme: options[:scheme], version: version)
+    distribute(scheme: options[:scheme])
+  end
+end
