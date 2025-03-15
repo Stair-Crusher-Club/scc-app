@@ -165,6 +165,13 @@ platform :ios do
     rbuild(scheme: options[:scheme])
     export_appstore(scheme: options[:scheme])
     export_firebase(scheme: options[:scheme])
+
+    # Add git tag with version name for production only
+    if options[:scheme] == "production"
+      tag_name = "v#{options[:version]}-ios"
+      sh("git tag #{tag_name}")
+      sh("git push origin #{tag_name}")
+    end
   end
 
   lane :release_candidate do |options|
@@ -178,5 +185,12 @@ platform :ios do
     export(scheme: options[:scheme], version: version)
     firebase(scheme: options[:scheme], version: version)
     itc(scheme: options[:scheme])
+
+    # Add git tag with version name for production only
+    if options[:scheme] == "production"
+      tag_name = "v#{version}-ios"
+      sh("git tag #{tag_name}")
+      sh("git push origin #{tag_name}")
+    end
   end
 end
