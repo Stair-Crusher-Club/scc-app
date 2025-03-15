@@ -16,6 +16,7 @@
 - [React Native 개발 환경](https://reactnative.dev/docs/environment-setup#installing-dependencies)
 - [Cocoapods](https://cocoapods.org/): iOS 라이브러리 관리
 - [ios-deploy](https://github.com/ios-control/ios-deploy): (선택사항) CLI를 통한 iOS 앱 설치/실행용
+- [Yarn](https://yarnpkg.com/): 패키지 관리자
 
 ### 설치 방법
 
@@ -33,28 +34,28 @@ git submodule update
 
 3. 의존성 설치
 ```sh
-npm install
+yarn install
 cd ios && pod install && cd ..
 ```
 
 4. API 코드 생성
 ```sh
-npm run codegen
+yarn codegen
 ```
 이 명령어는 `subprojects/scc-api/api-spec.yaml` OpenAPI 명세를 기반으로 TypeScript API 클라이언트 코드를 생성합니다. API 명세가 변경될 때마다 실행해주세요.
 
 5. 개발 서버 실행
 ```sh
-npm start
+yarn start
 ```
 
 6. 앱 실행
 ```sh
 # iOS
-npm run ios
+yarn ios
 
 # Android
-npm run android
+yarn android
 ```
 
 ## 배포
@@ -64,8 +65,8 @@ npm run android
 [hot-updater](https://github.com/invertase/hot-updater)를 사용한 OTA 업데이트:
 
 ```sh
-npm run ota-deploy:sandbox -- -i # 개발 환경
-npm run ota-deploy:production -- -i # 운영 환경
+yarn ota-deploy:sandbox -i # 개발 환경
+yarn ota-deploy:production -i # 운영 환경
 ```
 
 ### 앱스토어/플레이스토어 배포
@@ -75,12 +76,12 @@ npm run ota-deploy:production -- -i # 운영 환경
 ```sh
 # Android
 cd android
-fastlane android release_candidate scheme:sanbdox # 개발 환경
+fastlane android release_candidate scheme:sandbox # 개발 환경
 fastlane android release_candidate scheme:production # 운영 환경
 
 # iOS
 cd ios
-fastlane ios release_candidate scheme:sanbdox # 개발 환경
+fastlane ios release_candidate scheme:sandbox # 개발 환경
 fastlane ios release_candidate scheme:production # 운영 환경
 ```
 
