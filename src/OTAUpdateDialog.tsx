@@ -12,6 +12,7 @@ import {color} from './constant/color';
 
 const OTAProgress = ({progress}: {progress: number}) => {
   const [componentWidth, setComponentWidth] = useState(0);
+  const progressPercentage = Math.min(Math.round(progress * 100), 100);
 
   const progressValue = useSharedValue(0);
   const progressStyle = useAnimatedStyle(() => {
@@ -21,9 +22,9 @@ const OTAProgress = ({progress}: {progress: number}) => {
   });
   useEffect(() => {
     progressValue.value = withTiming(
-      componentWidth * (Math.min(progress, 100) / 100),
+      componentWidth * (progressPercentage / 100),
     );
-  }, [componentWidth, progress, progressValue]);
+  }, [componentWidth, progressPercentage, progressValue]);
 
   return (
     <S.ProgressContainer
@@ -35,11 +36,11 @@ const OTAProgress = ({progress}: {progress: number}) => {
         style={{
           width: componentWidth,
         }}>
-        {`${progress}%`}
+        {`${progressPercentage}%`}
       </S.ProgressText>
       <S.ProgressBar style={progressStyle}>
         <S.FilledProgressText style={{width: componentWidth}}>
-          {`${progress}%`}
+          {`${progressPercentage}%`}
         </S.FilledProgressText>
       </S.ProgressBar>
     </S.ProgressContainer>
@@ -63,7 +64,7 @@ export default function OTAUpdateDialog({progress}: {progress: number}) {
         }
       </S.Title>
       <S.StatusContainer>
-        {progress === 0 || progress === 100 ? (
+        {progress === 0 || progress === 1 ? (
           <ActivityIndicator size="large" color={color.brandColor} />
         ) : (
           <OTAProgress progress={progress} />
