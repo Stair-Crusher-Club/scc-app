@@ -2,7 +2,7 @@ import {HotUpdater} from '@hot-updater/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import analytics from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import globalAxios, {AxiosError} from 'axios';
+import globalAxios, {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
 import {useEffect, useState} from 'react';
 import {StatusBar} from 'react-native';
 import Config from 'react-native-config';
@@ -19,6 +19,7 @@ import {color} from '@/constant/color';
 import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {useAppsflyerSetup} from '@/utils/useAppsflyerSetup';
+import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
 
 const queryClient = new QueryClient();
 
@@ -43,8 +44,11 @@ const App = () => {
 
   useAppsflyerSetup();
   useEffect(() => {
+    // Request logging interceptor
     const requestInterceptorId = globalAxios.interceptors.request.use(
-      async config => {
+      async (config: InternalAxiosRequestConfig) => {
+        logRequest(config);
+
         if (accessToken) {
           config.headers.set('Content-Type', 'application/json');
           if (!config.headers.get('Authorization')) {
@@ -56,16 +60,24 @@ const App = () => {
         } else {
           config.headers.set('Content-Type', 'application/json');
           config.headers.set('Accept', 'application/json');
-          // config.headers.delete('Authorization'); // 가입할 때 커스텀으로 넣어주는 헤더가 있어, 삭제하지 않음
         }
         return config;
       },
+      error => {
+        logError(error, 'Request Interceptor');
+        return Promise.reject(error);
+      },
     );
+
+    // Response logging interceptor
     const responseInterceptorId = globalAxios.interceptors.response.use(
       response => {
+        logResponse(response);
         return response;
       },
       (error: AxiosError) => {
+        logError(error, 'Response Interceptor');
+
         if (error.response && error.response.status === 401) {
           setAccessToken(null);
         }
