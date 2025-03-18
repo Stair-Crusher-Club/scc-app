@@ -1,8 +1,10 @@
+import messaging from '@react-native-firebase/messaging';
 import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
 import React, {useEffect, useRef} from 'react';
+import {Linking} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
 import Logger from '@/logging/Logger';
@@ -35,6 +37,17 @@ const RootScreen = () => {
           'https://scc.airbridge.io/',
           'https://app.staircrusher.club/',
         ],
+        getInitialURL: async () => {
+          const url = await Linking.getInitialURL();
+          if (url) {
+            return url;
+          }
+          const message = await messaging().getInitialNotification();
+          if (message) {
+            return message.data?._d;
+          }
+          return null;
+        },
         config: {
           initialRouteName: 'Main' as any, // for preventing type error
           screens: {

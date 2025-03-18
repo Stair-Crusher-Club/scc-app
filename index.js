@@ -11,21 +11,10 @@ import 'react-native-url-polyfill/auto';
 import App from './App';
 import {name as appName} from './app.json';
 
-async function openDeeplinkIfPossible(deeplink) {
-  if (deeplink) {
-    Linking.openURL(deeplink);
-  }
-}
-
-// When the application is opened from a quit state.
-messaging()
-  .getInitialNotification()
-  .then(async remoteMessage => {
-    await openDeeplinkIfPossible(remoteMessage?.data?._d);
-  });
-
 messaging().onNotificationOpenedApp(async remoteMessage => {
-  await openDeeplinkIfPossible(remoteMessage?.data?._d);
+  if (remoteMessage?.data?._d) {
+    Linking.openURL(remoteMessage?.data?._d);
+  }
 });
 
 // Check if app was launched in the background and conditionally render null if so
