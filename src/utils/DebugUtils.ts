@@ -15,7 +15,7 @@ export const logDebug = (...args: any[]) => {
 
 export const logRequest = (config: InternalAxiosRequestConfig) => {
   if (!isAPILoggingEnabled) return;
-  
+
   const {method, url, data, headers} = config;
   console.log('🚀 API Request:', {
     method: method?.toUpperCase(),

@@ -2,7 +2,7 @@ import {HotUpdater} from '@hot-updater/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import analytics from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import globalAxios, {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
+import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {useEffect, useState} from 'react';
 import {StatusBar} from 'react-native';
 import Config from 'react-native-config';
@@ -18,8 +18,8 @@ import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
-import {useAppsflyerSetup} from '@/utils/useAppsflyerSetup';
 import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
+import {useAppsflyerSetup} from '@/utils/useAppsflyerSetup';
 
 const queryClient = new QueryClient();
 
