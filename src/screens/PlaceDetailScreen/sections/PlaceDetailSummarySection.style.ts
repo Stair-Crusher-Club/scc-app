@@ -5,14 +5,15 @@ import {font} from '@/constant/font';
 
 export const Section = styled.View({
   flex: 1,
-  paddingVertical: 32,
-  paddingHorizontal: 30,
+  paddingVertical: 20,
+  paddingHorizontal: 20,
   backgroundColor: color.white,
-  gap: 20,
 });
 
 export const SubSection = styled.View({
   flex: 1,
+  gap: 4,
+  alignItems: 'flex-start',
 });
 
 export const Row = styled.View({
@@ -36,13 +37,16 @@ export const Address = styled.Text({
 export const Separator = styled.View({
   height: 1,
   backgroundColor: color.gray20,
+  marginTop: 20,
+  marginBottom: 12,
 });
 
-export const Summary = styled.View({
+export const Summary = styled.TouchableOpacity({
   flex: 1,
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 16,
+  justifyContent: 'center',
+  gap: 4,
 });
 
 export const VerticalSeparator = styled.View({

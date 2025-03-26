@@ -1,3 +1,4 @@
+import {useBackHandler} from '@react-native-community/hooks';
 import React from 'react';
 import {Modal, Pressable, Text} from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -21,6 +22,13 @@ const PlaceDetailImageZoomViewer = ({
   onPressCloseButton,
 }: PlaceDetailImageZoomViewerProps) => {
   const safeAreaInsets = useSafeAreaInsets();
+  useBackHandler(() => {
+    if (isVisible) {
+      onPressCloseButton();
+      return true;
+    }
+    return false;
+  });
   return (
     <Modal visible={isVisible} animationType={'fade'}>
       <Pressable
