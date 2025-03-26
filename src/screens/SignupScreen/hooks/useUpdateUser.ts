@@ -212,6 +212,23 @@ export function useUpdateUser({
     }));
   }, [formValue.mobilityTools]);
 
+  useEffect(() => {
+    if (
+      formValue.isNewsLetterSubscriptionAgreed ===
+      initialFormValues.isNewsLetterSubscriptionAgreed
+    ) {
+      setFormState(prev => ({
+        ...prev,
+        isNewsLetterSubscriptionAgreed: undefined,
+      }));
+      return;
+    }
+    setFormState(prev => ({
+      ...prev,
+      isNewsLetterSubscriptionAgreed: 'VALID',
+    }));
+  }, [formValue.isNewsLetterSubscriptionAgreed]);
+
   const updateField = async (field: keyof UserFormValue, value: any) => {
     setFormValue(prev => ({
       ...prev,

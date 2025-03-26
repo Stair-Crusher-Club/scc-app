@@ -10,6 +10,7 @@ const GUEST_USER = {
   email: '',
   nickname: '둘러보는 중',
   mobilityTools: [],
+  isNewsLetterSubscriptionAgreed: null,
 };
 
 export default function useMe() {

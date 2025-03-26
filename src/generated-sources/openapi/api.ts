@@ -2493,6 +2493,12 @@ export interface User {
      * @memberof User
      */
     'mobilityTools': Array<UserMobilityToolDto>;
+    /**
+     * 뉴스레터 구독 동의 여부
+     * @type {boolean}
+     * @memberof User
+     */
+    'isNewsLetterSubscriptionAgreed': boolean | null;
 }
 /**
  * 

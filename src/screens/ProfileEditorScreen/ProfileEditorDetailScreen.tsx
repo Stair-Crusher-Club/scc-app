@@ -34,7 +34,8 @@ export default function ProfileEditorDetailScreen({
       email: userInfo?.email ?? '',
       birthYear: userInfo?.birthYear?.toString() ?? '',
       mobilityTools: userInfo?.mobilityTools ?? [],
-      isNewsLetterSubscriptionAgreed: false,
+      isNewsLetterSubscriptionAgreed:
+        userInfo?.isNewsLetterSubscriptionAgreed ?? false,
     },
   });
 
@@ -80,9 +81,20 @@ export default function ProfileEditorDetailScreen({
       case 'email':
         return (
           <UserEmailForm
-            value={formValue.email}
-            state={formState.email}
+            value={{
+              email: formValue.email,
+              isNewsLetterSubscriptionAgreed:
+                formValue.isNewsLetterSubscriptionAgreed,
+            }}
+            state={{
+              email: formState.email,
+              isNewsLetterSubscriptionAgreed:
+                formState.isNewsLetterSubscriptionAgreed,
+            }}
             onChangeText={value => updateField('email', value)}
+            onChangeNewsLetterSubscriptionAgreed={value =>
+              updateField('isNewsLetterSubscriptionAgreed', value)
+            }
             isClearable={true}
           />
         );
@@ -106,7 +118,16 @@ export default function ProfileEditorDetailScreen({
   };
   const isValid = match(field)
     .with('nickname', () => formState.nickname === 'VALID')
-    .with('email', () => formState.email === 'VALID')
+    .with(
+      'email',
+      () =>
+        (formState.email === 'VALID' &&
+          formState.isNewsLetterSubscriptionAgreed === 'VALID') ||
+        (formState.email === 'VALID' &&
+          formState.isNewsLetterSubscriptionAgreed === undefined) ||
+        (formState.email === undefined &&
+          formState.isNewsLetterSubscriptionAgreed === 'VALID'),
+    )
     .with('birthYear', () => formState.birthYear === 'VALID')
     .with('mobilityTools', () => formState.mobilityTools === 'VALID')
     .exhaustive();

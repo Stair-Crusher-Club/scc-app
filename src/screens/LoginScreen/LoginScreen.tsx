@@ -211,6 +211,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
         id: '0',
         nickname: '비회원',
         mobilityTools: [],
+        isNewsLetterSubscriptionAgreed: null,
       };
       setUserInfo(guestUser);
       setAccessToken(tokens.accessToken);
