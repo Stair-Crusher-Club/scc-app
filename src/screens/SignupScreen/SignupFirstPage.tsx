@@ -48,10 +48,20 @@ export default function SignupFirstPage({
         />
         <UserEmailForm
           ref={emailInputRef}
-          value={formValue.email}
-          state={formState.email}
+          value={{
+            email: formValue.email,
+            isNewsLetterSubscriptionAgreed:
+              formValue.isNewsLetterSubscriptionAgreed,
+          }}
+          state={{
+            email: formState.email,
+            isNewsLetterSubscriptionAgreed:
+              formState.isNewsLetterSubscriptionAgreed,
+          }}
+          onChangeNewsLetterSubscriptionAgreed={value =>
+            updateField('isNewsLetterSubscriptionAgreed', value)
+          }
           onChangeText={value => updateField('email', value)}
-          onSubmitEditing={() => birthYearRef.current?.show()}
         />
         <UserBirthYearForm
           ref={birthYearRef}

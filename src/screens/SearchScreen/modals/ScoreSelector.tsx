@@ -41,17 +41,6 @@ export default function ScoreSelector({
   );
 }
 
-function CheckBox({checked}: {checked?: boolean}) {
-  if (checked) {
-    return (
-      <Check>
-        <CheckIcon color={color.white} width={20} height={20} />
-      </Check>
-    );
-  }
-  return <Uncheck />;
-}
-
 const Container = styled.View`
   width: 100%;
   flex-direction: column;
@@ -72,6 +61,17 @@ const Label = styled.Text`
   font-family: ${font.pretendardMedium};
   color: ${color.gray100};
 `;
+
+function CheckBox({checked}: {checked: boolean}) {
+  if (checked) {
+    return (
+      <Check>
+        <CheckIcon color={color.white} width={20} height={20} />
+      </Check>
+    );
+  }
+  return <Uncheck />;
+}
 
 const Uncheck = styled.View`
   width: 24px;
