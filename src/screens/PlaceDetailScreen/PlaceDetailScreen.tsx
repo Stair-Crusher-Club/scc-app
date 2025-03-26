@@ -22,7 +22,12 @@ import PlaceDetailSummarySection from './sections/PlaceDetailSummarySection';
 export interface PlaceDetailScreenParams {
   placeInfo:
     | {placeId: string}
-    | {place: Place; building: Building; isAccessibilityRegistrable?: boolean};
+    | {
+        place: Place;
+        building: Building;
+        isAccessibilityRegistrable?: boolean;
+        accessibilityScore?: number;
+      };
   event?: 'submit-place' | 'submit-building';
 }
 
@@ -48,6 +53,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         'isAccessibilityRegistrable' in placeInfo
           ? placeInfo.isAccessibilityRegistrable
           : undefined,
+      accessibilityScore:
+        'accessibilityScore' in placeInfo
+          ? placeInfo.accessibilityScore
+          : undefined,
     },
     queryKey: ['PlaceDetail', placeId],
     queryFn: async ({queryKey}) => {
@@ -56,6 +65,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         place: result.data.place,
         building: result.data.building,
         isAccessibilityRegistrable: result.data.isAccessibilityRegistrable,
+        accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
       };
     },
   });
@@ -117,6 +127,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <PlaceDetailCoverImage accessibility={accessibilityPost} />
             <PlaceDetailSummarySection
               accessibility={accessibilityPost}
+              accessibilityScore={data?.accessibilityScore}
               place={place}
             />
             <S.SectionSeparator />
