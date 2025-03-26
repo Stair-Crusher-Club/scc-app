@@ -14,16 +14,6 @@ import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
-import {DetailIcon as ElevatorIcon} from '../components/BuildingElevatorInfo';
-import {DetailIcon as BuildingStepIcon} from '../components/BuildingEntranceStepInfo';
-import {DetailIcon as StepIcon} from '../components/PlaceEntranceStepInfo';
-import {DetailIcon as FloorIcon} from '../components/PlaceFloorInfo';
-import {
-  getPlaceEntranceStepType,
-  getFloorAccessibility,
-  getBuildingEntranceStepType,
-  getBuildingElevatorType,
-} from '../components/PlaceInfo.utils';
 import * as S from './PlaceDetailSummarySection.style';
 
 interface PlaceDetailSummarySectionProps {
@@ -94,40 +84,6 @@ const PlaceDetailSummarySection = ({
 };
 
 export default PlaceDetailSummarySection;
-
-function PlaceIcons({accessibility}: {accessibility: AccessibilityInfoDto}) {
-  // 정보가 등록되지 않은 경우
-  if (!accessibility.placeAccessibility) {
-    return <S.Empty>-</S.Empty>;
-  }
-
-  const floorAccessibility = getFloorAccessibility(accessibility);
-  const stepType = getPlaceEntranceStepType(accessibility);
-
-  return (
-    <>
-      <FloorIcon floorAccessibility={floorAccessibility} />
-      <StepIcon entranceStepType={stepType} />
-    </>
-  );
-}
-
-function BuildingIcons({accessibility}: {accessibility: AccessibilityInfoDto}) {
-  // 정보가 등록되지 않은 경우
-  if (!accessibility.buildingAccessibility) {
-    return <S.Empty>-</S.Empty>;
-  }
-
-  const entrannceType = getBuildingEntranceStepType(accessibility);
-  const elevatorType = getBuildingElevatorType(accessibility);
-
-  return (
-    <>
-      <BuildingStepIcon entranceStepType={entrannceType} />
-      <ElevatorIcon elevatorType={elevatorType} />
-    </>
-  );
-}
 
 const ButtonText = styled.Text`
   color: ${color.gray80};
