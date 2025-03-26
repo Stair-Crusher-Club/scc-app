@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {Pressable, useWindowDimensions, View} from 'react-native';
+import {Pressable, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
@@ -11,22 +11,35 @@ import * as S from './PlaceDetailCoverImage.style';
 interface SlideData {
   type: string;
   url: string;
+  thumbnailUrl: string | undefined;
 }
 interface Props {
   accessibility?: AccessibilityInfoDto;
 }
 const PlaceDetailCoverImage = ({accessibility}: Props) => {
   const placeImages = (accessibility?.placeAccessibility?.images ?? []).map(
-    image => ({type: '장소 입구', url: image.imageUrl}),
+    image => ({
+      type: '장소 입구',
+      url: image.imageUrl,
+      thumbnailUrl: image.thumbnailUrl,
+    }),
   );
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
   const [isImageModalVisible, setImageModalVisible] = useState(false);
   const buildingImages = (
-    accessibility?.buildingAccessibility?.entranceImageUrls ?? []
-  ).map(url => ({type: '건물 입구', url}));
+    accessibility?.buildingAccessibility?.entranceImages ?? []
+  ).map(image => ({
+    type: '건물 입구',
+    url: image.imageUrl,
+    thumbnailUrl: image.thumbnailUrl,
+  }));
   const elevatorImages = (
-    accessibility?.buildingAccessibility?.elevatorImageUrls ?? []
-  ).map(url => ({type: '엘리베이터', url}));
+    accessibility?.buildingAccessibility?.elevatorImages ?? []
+  ).map(image => ({
+    type: '엘리베이터',
+    url: image.imageUrl,
+    thumbnailUrl: image.thumbnailUrl,
+  }));
   const thumbnailImages = [
     ...placeImages,
     ...buildingImages,
@@ -41,7 +54,10 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
     return (
       <LogClick elementName="place_detail_cover_image">
         <Pressable onPress={() => onPressImage(index)}>
-          <S.CoverImage resizeMethod="resize" source={{uri: item.url}} />
+          <S.CoverImage
+            resizeMethod="resize"
+            source={{uri: item.thumbnailUrl ?? item.url}}
+          />
           <S.ImageType>
             <S.SlideText>{item.type}</S.SlideText>
           </S.ImageType>

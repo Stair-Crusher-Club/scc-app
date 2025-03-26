@@ -61,7 +61,11 @@ const PlaceDetailSummarySection = ({
       </S.SubSection>
       <S.Separator />
       <S.Row>
-        <LogClick elementName="place_detail_summary_section_save_button">
+        <LogClick
+          elementName="place_detail_summary_section_toggle_favorite_button"
+          params={{
+            isFavoritePlace: accessibility.isFavoritePlace,
+          }}>
           <S.Summary onPress={onBookmark}>
             {accessibility.isFavoritePlace ? (
               <BookmarkIconOn />
