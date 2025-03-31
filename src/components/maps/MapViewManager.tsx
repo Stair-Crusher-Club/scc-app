@@ -51,7 +51,12 @@ interface NativeCommands {
 }
 
 export const Commands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['animateCamera', 'fitToElements', 'animateToRegion', 'setPositionMode'],
+  supportedCommands: [
+    'animateCamera',
+    'fitToElements',
+    'animateToRegion',
+    'setPositionMode',
+  ],
 });
 
 export const MapViewManager = codegenNativeComponent<NativeProps>(
