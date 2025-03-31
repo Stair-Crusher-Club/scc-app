@@ -57,6 +57,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const onMyLocationPress = () => {
+    mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
       position => {
         const location = {
@@ -64,7 +65,6 @@ const FRefInputComp = <T extends MarkerItem>(
           longitude: position.coords.longitude,
         };
         setCurrentLocation(location);
-        mapRef.current?.animateCamera(location, 200);
       },
       error => {
         console.log(error);

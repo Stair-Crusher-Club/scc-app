@@ -18,6 +18,7 @@ export interface MapViewHandle {
   fitToElements: () => void;
   animateToRegion: (region: Region, padding: number, duration: number) => void;
   animateCamera: (center: LatLng, duration: number) => void;
+  setPositionMode: (mode: 'normal' | 'direction' | 'compass') => void;
 }
 
 const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
@@ -56,6 +57,9 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
               padding,
               duration,
             );
+        },
+        setPositionMode: (mode: 'normal' | 'direction' | 'compass') => {
+          mapRef.current && Commands.setPositionMode(mapRef.current, mode);
         },
       }),
       [mapRef],
