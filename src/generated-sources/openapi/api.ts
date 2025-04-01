@@ -2498,7 +2498,7 @@ export interface User {
      * @type {boolean}
      * @memberof User
      */
-    'isNewsLetterSubscriptionAgreed': boolean | null;
+    'isNewsLetterSubscriptionAgreed': boolean;
 }
 /**
  * 
