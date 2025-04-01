@@ -190,6 +190,15 @@ class MapView(
         )
     }
 
+    fun setPositionMode(mode: String) {
+        val m = map ?: return
+        when (mode) {
+            "normal" -> m.locationTrackingMode = LocationTrackingMode.NoFollow
+            "direction" -> m.locationTrackingMode = LocationTrackingMode.Follow
+            "compass" -> m.locationTrackingMode = LocationTrackingMode.Face
+        }
+    }
+
     override fun requestLayout() {
         super.requestLayout()
         post(measureAndLayout)

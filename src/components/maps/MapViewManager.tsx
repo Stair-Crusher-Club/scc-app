@@ -44,10 +44,19 @@ interface NativeCommands {
     padding: number,
     duration: number,
   ) => void;
+  setPositionMode: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    mode: 'normal' | 'direction' | 'compass',
+  ) => void;
 }
 
 export const Commands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['animateCamera', 'fitToElements', 'animateToRegion'],
+  supportedCommands: [
+    'animateCamera',
+    'fitToElements',
+    'animateToRegion',
+    'setPositionMode',
+  ],
 });
 
 export const MapViewManager = codegenNativeComponent<NativeProps>(

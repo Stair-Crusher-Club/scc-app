@@ -26,5 +26,6 @@ RCT_EXPORT_VIEW_PROPERTY(onMarkerPress, RCTDirectEventBlock)
 RCT_EXTERN_METHOD(animateCamera:(nonnull NSNumber *)reactTag camera:(NSDictionary)json duration:(CGFloat)duration)
 RCT_EXTERN_METHOD(animateToRegion:(nonnull NSNumber *)reactTag region:(NSDictionary)json padding:(CGFloat)padding duration:(CGFloat)duration)
 RCT_EXTERN_METHOD(fitToElements:(nonnull NSNumber *)reactTag)
+RCT_EXTERN_METHOD(setPositionMode:(nonnull NSNumber *)reactTag mode:(NSString *)mode)
 
 @end
