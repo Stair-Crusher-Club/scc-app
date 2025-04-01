@@ -1188,6 +1188,18 @@ export interface KakaoTokensDto {
      * @memberof KakaoTokensDto
      */
     'idToken': string;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof KakaoTokensDto
+     */
+    'accessTokenExpiresAt'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof KakaoTokensDto
+     */
+    'refreshTokenExpiresAt'?: EpochMillisTimestamp;
 }
 /**
  * 
