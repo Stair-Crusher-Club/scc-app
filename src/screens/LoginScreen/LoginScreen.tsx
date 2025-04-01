@@ -115,7 +115,19 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       // loginWithKakaoAccount() 는 웹뷰를 통해 로그인 - 이메일/비밀번호를 통한 로그인
       // login()은 카카오톡 앱을 통해 로그인!
       const kakaoTokens = await login();
-      const res = await api.loginWithKakaoPost({kakaoTokens});
+      const res = await api.loginWithKakaoPost({
+        kakaoTokens: {
+          accessToken: kakaoTokens.accessToken,
+          refreshToken: kakaoTokens.refreshToken,
+          idToken: kakaoTokens.idToken,
+          accessTokenExpiresAt: {
+            value: kakaoTokens.accessTokenExpiresAt.getTime(),
+          },
+          refreshTokenExpiresAt: {
+            value: kakaoTokens.refreshTokenExpiresAt.getTime(),
+          },
+        },
+      });
       const kakaoProfile = await getProfile();
       const {authTokens, user} = res.data;
 
