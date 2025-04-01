@@ -33,6 +33,7 @@ class MapViewManager(
             "animateCamera" to COMMAND_ANIMATE_CAMERA,
             "fitToElements" to COMMAND_FIT_TO_ELEMENTS,
             "animateToRegion" to COMMAND_ANIMATE_TO_REGION,
+            "setPositionMode" to COMMAND_SET_POSITION_MODE,
         )
 
     /**
@@ -73,6 +74,13 @@ class MapViewManager(
                     val sw =
                         LatLng(southWest.getDouble("latitude"), southWest.getDouble("longitude"))
                     root.animateToRegion(LatLngBounds(sw, ne), padding, duration)
+                }
+            }
+
+            "setPositionMode" -> {
+                args?.let {
+                    val mode = args.getString(0)
+                    root.setPositionMode(mode)
                 }
             }
         }
@@ -156,6 +164,7 @@ class MapViewManager(
         private const val COMMAND_ANIMATE_CAMERA = 0
         private const val COMMAND_FIT_TO_ELEMENTS = 1
         private const val COMMAND_ANIMATE_TO_REGION = 2
+        private const val COMMAND_SET_POSITION_MODE = 3
         private const val REACT_CLASS = "RNTMapView"
     }
 

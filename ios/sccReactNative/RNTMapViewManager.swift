@@ -48,4 +48,19 @@ class RNTMapViewManager: RCTViewManager {
     }
   }
 
+  @objc func setPositionMode(_ node: NSNumber, mode: String) {
+    DispatchQueue.main.async { [weak self] in
+      guard let component = (self?.bridge.uiManager.view(forReactTag: node) as? RNTMapView) else { return }
+      switch mode {
+      case "normal":
+        component.positionMode = .normal
+      case "direction":
+        component.positionMode = .direction
+      case "compass":
+        component.positionMode = .compass
+      default:
+        component.positionMode = .disabled
+      }
+    }
+  }
 }
