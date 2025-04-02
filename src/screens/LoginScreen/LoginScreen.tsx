@@ -115,16 +115,23 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       // loginWithKakaoAccount() 는 웹뷰를 통해 로그인 - 이메일/비밀번호를 통한 로그인
       // login()은 카카오톡 앱을 통해 로그인!
       const kakaoTokens = await login();
+      // 라이브러리에서 반환하는게 Date 가 아닌 utc 시간 문자열이라 변환
+      const fixedAccessTokenExpiresAt = new Date(
+        kakaoTokens.accessTokenExpiresAt,
+      );
+      const fixedRefreshTokenExpiresAt = new Date(
+        kakaoTokens.refreshTokenExpiresAt,
+      );
       const res = await api.loginWithKakaoPost({
         kakaoTokens: {
           accessToken: kakaoTokens.accessToken,
           refreshToken: kakaoTokens.refreshToken,
           idToken: kakaoTokens.idToken,
           accessTokenExpiresAt: {
-            value: kakaoTokens.accessTokenExpiresAt.getTime(),
+            value: fixedAccessTokenExpiresAt.getTime(),
           },
           refreshTokenExpiresAt: {
-            value: kakaoTokens.refreshTokenExpiresAt.getTime(),
+            value: fixedRefreshTokenExpiresAt.getTime(),
           },
         },
       });
