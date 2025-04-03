@@ -5,12 +5,7 @@ import {
 import crashlytics from '@react-native-firebase/crashlytics';
 import {getProfile, login} from '@react-native-seoul/kakao-login';
 import React, {useState} from 'react';
-import {
-  ImageSourcePropType,
-  Platform,
-  StatusBar,
-  useWindowDimensions,
-} from 'react-native';
+import {ImageSourcePropType, Platform, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import {useRecoilState, useSetRecoilState} from 'recoil';
 
@@ -279,7 +274,6 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       isHeaderVisible={false}
       safeAreaEdges={['top', 'bottom']}
       style={{backgroundColor: 'white'}}>
-      <StatusBar barStyle="dark-content" />
       <S.Container>
         <S.SlideContainer>
           <Carousel

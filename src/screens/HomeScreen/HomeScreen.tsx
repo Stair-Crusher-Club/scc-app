@@ -178,13 +178,22 @@ const HomeScreen = ({navigation}: any) => {
       return () => subscription.remove();
     }, []),
   );
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('light-content');
+      StatusBar.setBackgroundColor('rgba(29, 133, 255, 0.8)');
+      return () => {
+        StatusBar.setBarStyle('dark-content');
+        StatusBar.setBackgroundColor('white');
+      };
+    }, []),
+  );
 
   return (
     <ScreenLayout
       isHeaderVisible={false}
       safeAreaEdges={['top']}
       style={{backgroundColor: 'rgba(29, 133, 255, 0.8)'}}>
-      <StatusBar translucent barStyle="light-content" />
       <S.Header>
         <CrusherClubLogo />
       </S.Header>
