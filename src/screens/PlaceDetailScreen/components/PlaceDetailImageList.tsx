@@ -28,17 +28,26 @@ export default function ImageList({images}: Props) {
     <ImageListView>
       <LogClick
         elementName="place_detail_image"
-        params={{image_index: '0', image_url: images[0]?.imageUrl}}>
+        params={{
+          image_index: '0',
+          image_url: images[0]?.thumbnailUrl ?? images[0]?.imageUrl,
+        }}>
         <ImageBox image={images[0]} onPress={() => onPressImage(0)} />
       </LogClick>
       <LogClick
         elementName="place_detail_image"
-        params={{image_index: '1', image_url: images[1]?.imageUrl}}>
+        params={{
+          image_index: '1',
+          image_url: images[1]?.thumbnailUrl ?? images[1]?.imageUrl,
+        }}>
         <ImageBox image={images[1]} onPress={() => onPressImage(1)} />
       </LogClick>
       <LogClick
         elementName="place_detail_image"
-        params={{image_index: '2', image_url: images[2]?.imageUrl}}>
+        params={{
+          image_index: '2',
+          image_url: images[2]?.thumbnailUrl ?? images[2]?.imageUrl,
+        }}>
         <ImageBox
           image={images[2]}
           hiddenImageLength={hiddenImages.length}
