@@ -134,6 +134,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <PlaceDetailEntranceSection
               accessibility={accessibilityPost}
               place={place}
+              isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+              onRegister={() =>
+                navigation.navigate('PlaceForm', {place, building})
+              }
             />
             <S.SectionSeparator />
             <PlaceDetailBuildingSection

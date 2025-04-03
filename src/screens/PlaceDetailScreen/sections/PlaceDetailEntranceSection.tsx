@@ -2,8 +2,10 @@ import dayjs from 'dayjs';
 import React from 'react';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
+import {SccButton} from '@/components/atoms';
 import {CommentBlock} from '@/components/molecules';
 import {color} from '@/constant/color';
+import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -18,17 +20,41 @@ import * as S from './PlaceDetailEntranceSection.style';
 interface Props {
   accessibility?: AccessibilityInfoDto;
   place: Place;
+  isAccessibilityRegistrable?: boolean;
+  onRegister?: () => void;
 }
 
 export default function PlaceDetailEntranceSection({
   accessibility,
   place,
+  isAccessibilityRegistrable,
+  onRegister,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
   if (!accessibility?.placeAccessibility) {
-    return null;
+    return (
+      <S.Section>
+        <S.Row>
+          <S.Title>매장 입구 정보</S.Title>
+        </S.Row>
+        <ImageList images={[]} />
+        <PlaceFloorInfo accessibility={undefined} />
+        <PlaceEntranceStepInfo accessibility={undefined} />
+        <PlaceDoorInfo accessibility={undefined} />
+        <SccButton
+          text={
+            isAccessibilityRegistrable
+              ? '정보 등록하기'
+              : '서비스 지역이 아닙니다'
+          }
+          fontFamily={font.pretendardBold}
+          isDisabled={!isAccessibilityRegistrable}
+          onPress={onRegister}
+        />
+      </S.Section>
+    );
   }
 
   const {images, registeredUserName, createdAt} =
