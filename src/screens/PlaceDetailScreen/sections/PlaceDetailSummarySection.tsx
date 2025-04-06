@@ -23,12 +23,12 @@ interface PlaceDetailSummarySectionProps {
 }
 
 const PlaceDetailSummarySection = ({
-  accessibility,
   place,
   accessibilityScore,
 }: PlaceDetailSummarySectionProps) => {
   // TODO: FIX with server given value
   const isFavoritePlace = false;
+
   const onShare = () => {
     ShareUtils.sharePlace(place);
   };
@@ -41,9 +41,10 @@ const PlaceDetailSummarySection = ({
   const onBookmark = () => {
     ToastUtils.show('준비중입니다.');
   };
-  if (!accessibility?.placeAccessibility) {
-    return (
-      <S.Section>
+
+  return (
+    <S.Section>
+      <>
         <S.SubSection>
           <ScoreLabel score={accessibilityScore} />
           <S.Row>
@@ -81,49 +82,7 @@ const PlaceDetailSummarySection = ({
             </S.Summary>
           </LogClick>
         </S.Row>
-      </S.Section>
-    );
-  }
-
-  return (
-    <S.Section>
-      <S.SubSection>
-        <ScoreLabel score={accessibilityScore} />
-        <S.Row>
-          <S.SectionTitle>{place.name}</S.SectionTitle>
-        </S.Row>
-        <S.Address>{place.address}</S.Address>
-        <LogClick elementName="place_detail_summary_section_copy_button">
-          <CopyButton onPress={onCopy}>
-            <CopyIcon />
-            <CopyText>복사</CopyText>
-          </CopyButton>
-        </LogClick>
-      </S.SubSection>
-      <S.Separator />
-      <S.Row>
-        <LogClick
-          elementName="place_detail_summary_section_toggle_favorite_button"
-          params={{
-            isFavoritePlace: isFavoritePlace,
-          }}>
-          <S.Summary onPress={onBookmark}>
-            {isFavoritePlace ? (
-              <BookmarkIconOn />
-            ) : (
-              <BookmarkIconOff color={color.gray80} />
-            )}
-            <ButtonText>저장</ButtonText>
-          </S.Summary>
-        </LogClick>
-        <S.VerticalSeparator />
-        <LogClick elementName="place_detail_summary_section_share_button">
-          <S.Summary onPress={onShare}>
-            <ShareIcon />
-            <ButtonText>공유</ButtonText>
-          </S.Summary>
-        </LogClick>
-      </S.Row>
+      </>
     </S.Section>
   );
 };
