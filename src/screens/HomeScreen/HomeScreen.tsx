@@ -181,10 +181,14 @@ const HomeScreen = ({navigation}: any) => {
   useFocusEffect(
     useCallback(() => {
       StatusBar.setBarStyle('light-content');
-      StatusBar.setBackgroundColor('rgba(29, 133, 255, 0.8)');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor('rgba(29, 133, 255, 0.8)');
+      }
       return () => {
         StatusBar.setBarStyle('dark-content');
-        StatusBar.setBackgroundColor('white');
+        if (Platform.OS === 'android') {
+          StatusBar.setBackgroundColor('white');
+        }
       };
     }, []),
   );
