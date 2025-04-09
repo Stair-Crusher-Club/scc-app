@@ -1,24 +1,16 @@
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {AxiosError} from 'axios';
+import {useQuery} from '@tanstack/react-query';
 import {isEmpty} from 'lodash';
 import React, {useState} from 'react';
-import {useRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
-import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {font} from '@/constant/font';
-import {
-  ApiErrorResponse,
-  JoinChallengeRequestDto,
-  JoinChallengeResponseDto,
-} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import ToastUtils from '@/utils/ToastUtils';
 
 import * as S from './ChallengeDetailScreen.style';
 import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
@@ -37,9 +29,7 @@ const ChallengeDetailScreen = ({
   const {challengeId} = route.params;
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
-  const [loading, setLoading] = useRecoilState(loadingState);
 
-  const queryClient = useQueryClient();
   const {data} = useQuery({
     queryKey: ['ChallengeDetail', challengeId],
     queryFn: async ({queryKey}) =>
@@ -51,23 +41,10 @@ const ChallengeDetailScreen = ({
   const hasJoined = data?.hasJoined ?? false;
   const hasPasscode = data?.hasPasscode ?? false;
 
-  const joinChallenge = useMutation<
-    JoinChallengeResponseDto,
-    AxiosError<ApiErrorResponse>,
-    JoinChallengeRequestDto,
-    unknown
-  >({
-    mutationKey: ['ChallengeDetail', challengeId],
-    mutationFn: async ({passcode}) =>
-      (await api.joinChallengePost({challengeId, passcode})).data,
-    onSettled: () => setLoading(new Map(loading).set('ChallengeDetail', false)),
-    onMutate: () => setLoading(new Map(loading).set('ChallengeDetail', true)),
-    onError: error => ToastUtils.showOnApiError(error),
-    onSuccess: _ =>
-      queryClient.invalidateQueries({
-        queryKey: ['ChallengeDetail', challengeId],
-      }),
-  });
+  const joinChallenge = usePost(
+    ['ChallengeDetail', challengeId],
+    api.joinChallengePost,
+  );
 
   return (
     <LogParamsProvider params={{challenge_id: challengeId}}>

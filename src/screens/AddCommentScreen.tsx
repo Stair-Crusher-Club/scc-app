@@ -6,6 +6,7 @@ import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
+import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {AccessibilityTypes} from '@/models/AccessibilityTypes';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -20,25 +21,26 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
   const {api} = useAppComponents();
   const {type, id} = route.params;
   const [comment, setComment] = useState('');
-
-  const registerComment = async () => {
-    try {
-      if (type === 'place') {
-        await api.registerPlaceAccessibilityCommentPost({
-          comment,
-          placeId: id,
-        });
-      } else {
-        await api.registerBuildingAccessibilityCommentPost({
-          comment,
-          buildingId: id,
-        });
-      }
-      navigation.goBack();
-    } catch (error: any) {
-      ToastUtils.showOnApiError(error);
+  const registerComment = usePost<{
+    type: 'place' | 'building';
+    comment: string;
+    id: string;
+  }>(['AddComment', type, id], async params => {
+    if (params.type === 'place') {
+      await api.registerPlaceAccessibilityCommentPost({
+        comment: params.comment,
+        placeId: params.id,
+      });
+    } else {
+      await api.registerBuildingAccessibilityCommentPost({
+        comment: params.comment,
+        buildingId: params.id,
+      });
     }
-  };
+    ToastUtils.show('의견이 등록되었습니다.');
+    navigation.goBack();
+  });
+
   let logParams = {};
   if (type === 'place') {
     logParams = {place_id: id};
@@ -80,7 +82,9 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
         <SccButton
           style={styles.registerButton}
           text="등록하기"
-          onPress={registerComment}
+          onPress={() => {
+            registerComment.mutate({type, comment, id});
+          }}
         />
       </ScreenLayout>
     </LogParamsProvider>

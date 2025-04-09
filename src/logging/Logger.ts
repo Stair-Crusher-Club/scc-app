@@ -61,7 +61,7 @@ const Logger = {
   },
 
   async logError(error: Error) {
-    crashlytics().recordError(error)
+    crashlytics().recordError(error);
   },
 };
 

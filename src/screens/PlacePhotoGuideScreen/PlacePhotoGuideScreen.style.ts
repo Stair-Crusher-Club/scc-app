@@ -41,7 +41,6 @@ export const GuideMessageContent = styled.Text({
   color: color.white,
   fontSize: 14,
   lineHeight: '22px',
-  textIndent: '-20px',
 });
 
 export const More = styled.Text({

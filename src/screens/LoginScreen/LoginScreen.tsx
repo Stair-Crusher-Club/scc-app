@@ -14,8 +14,8 @@ import {accessTokenAtom, userInfoAtom} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {ScreenProps} from '@/navigation/Navigation.screens';
 import Logger from '@/logging/Logger';
+import {ScreenProps} from '@/navigation/Navigation.screens';
 import ToastUtils from '@/utils/ToastUtils';
 
 import * as S from './LoginScreen.style';
