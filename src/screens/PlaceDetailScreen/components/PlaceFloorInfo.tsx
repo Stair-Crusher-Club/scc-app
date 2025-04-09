@@ -17,6 +17,7 @@ import {FloorAccessibilityType, getFloorAccessibility} from './PlaceInfo.utils';
 interface Props {
   accessibility?: AccessibilityInfoDto;
 }
+
 export default function PlaceFloorInfo({accessibility}: Props) {
   if (!accessibility) {
     return (
@@ -27,23 +28,20 @@ export default function PlaceFloorInfo({accessibility}: Props) {
     );
   }
 
-  const floorAccessibility = getFloorAccessibility(accessibility);
-  const messages = getMessages(accessibility);
+  const floorInfo = getFloorAccessibility(accessibility);
   return (
-    <>
-      <S.InfoContainer>
-        <S.InfoWrapper>
-          <S.Type>층 정보</S.Type>
-          <S.Title>{messages?.title}</S.Title>
-          {messages?.description && (
-            <S.Description>{messages?.description}</S.Description>
-          )}
-        </S.InfoWrapper>
-        <S.DetailedIconWrapper>
-          <DetailIcon floorAccessibility={floorAccessibility} />
-        </S.DetailedIconWrapper>
-      </S.InfoContainer>
-    </>
+    <S.InfoContainer>
+      <S.InfoWrapper>
+        <S.Type>층 정보</S.Type>
+        <S.Title>{floorInfo.title}</S.Title>
+        {floorInfo.description && (
+          <S.Description>{floorInfo.description}</S.Description>
+        )}
+      </S.InfoWrapper>
+      <S.DetailedIconWrapper>
+        <DetailIcon floorAccessibility={floorInfo.type} />
+      </S.DetailedIconWrapper>
+    </S.InfoContainer>
   );
 }
 
@@ -69,51 +67,6 @@ export function DetailIcon({
       return <FloorUndergroundBadIcon color="#000" />;
     case FloorAccessibilityType.UnknownButNotOnGround:
       return <FloorNot1FIcon color="#000" />;
-    default:
-      return null;
-  }
-}
-
-function getMessages(accessibility: AccessibilityInfoDto) {
-  const floorAccessibility = getFloorAccessibility(accessibility);
-  const floors = accessibility.placeAccessibility?.floors ?? [];
-  const floorName = floors[0] < 1 ? `지하 ${-floors[0]}층` : `${floors[0]}층`;
-
-  switch (floorAccessibility) {
-    case FloorAccessibilityType.GroundFloor:
-      return {title: '1층'};
-    case FloorAccessibilityType.GroundAndMoreFloors:
-      return {
-        title: '1-2층을 포함한 여러층',
-        description: '계단 외 이동 방법 있음',
-      };
-    case FloorAccessibilityType.GroundAndMoreFloorsWithStairOnly:
-      return {
-        title: '1-2층을 포함한 여러층',
-        description: '계단으로만 이동 가능',
-      };
-    case FloorAccessibilityType.UpperWithElevator:
-      return {
-        title: floorName,
-        description: '엘리베이터로 이동 가능',
-      };
-    case FloorAccessibilityType.UpperWithoutElevator:
-      return {
-        title: floorName,
-        description: '계단으로만 이동 가능',
-      };
-    case FloorAccessibilityType.UndergroundWithElevator:
-      return {
-        title: floorName,
-        description: '엘리베이터로 이동 가능',
-      };
-    case FloorAccessibilityType.UndergroundWithoutElevator:
-      return {
-        title: floorName,
-        description: '계단으로만 이동 가능',
-      };
-    case FloorAccessibilityType.UnknownButNotOnGround:
-      return {title: '1층 아님'};
     default:
       return null;
   }
