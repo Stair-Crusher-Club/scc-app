@@ -12,6 +12,7 @@ import {hasShownGuideForEnterancePhotoAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
+import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
@@ -104,8 +105,8 @@ export default function CameraScreen({
         );
       }
     } catch (error: any) {
+      Logger.logError(error);
       if (error instanceof CameraCaptureError) {
-        // TODO: 로그 남기기
         ToastUtils.show('사진 촬영을 실패했습니다. ' + error.cause?.message);
       } else {
         ToastUtils.show('사진 촬영을 실패했습니다. ' + error.message);

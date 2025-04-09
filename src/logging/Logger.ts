@@ -1,4 +1,5 @@
 import analytics from '@react-native-firebase/analytics';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {logDebug} from '@/utils/DebugUtils';
 
@@ -57,6 +58,10 @@ const Logger = {
     analytics().logEvent('upload_image', {
       ...metric,
     });
+  },
+
+  async logError(error: Error) {
+    crashlytics().recordError(error)
   },
 };
 

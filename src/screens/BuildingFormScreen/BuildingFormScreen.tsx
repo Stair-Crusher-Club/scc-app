@@ -17,6 +17,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
@@ -214,13 +215,12 @@ async function register(
         comment: values.comment || undefined,
       });
     } catch (error: any) {
-      console.log(error, JSON.stringify(error));
       ToastUtils.showOnApiError(error);
       return false;
     }
     return true;
   } catch (error: any) {
-    console.log(error);
+    Logger.logError(error);
     ToastUtils.show('사진 업로드를 실패했습니다.');
     return false;
   }

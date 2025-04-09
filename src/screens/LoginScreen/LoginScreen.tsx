@@ -2,7 +2,6 @@ import {
   appleAuth,
   appleAuthAndroid,
 } from '@invertase/react-native-apple-authentication';
-import crashlytics from '@react-native-firebase/crashlytics';
 import {getProfile, login} from '@react-native-seoul/kakao-login';
 import React, {useState} from 'react';
 import {ImageSourcePropType, Platform, useWindowDimensions} from 'react-native';
@@ -16,6 +15,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import Logger from '@/logging/Logger';
 import ToastUtils from '@/utils/ToastUtils';
 
 import * as S from './LoginScreen.style';
@@ -136,7 +136,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       await afterSocialLogin(user, authTokens, kakaoProfile.email);
     } catch (e: any) {
       // user cancelled kakao log
-      crashlytics().log(`KakaoLogin failed: ${e.message}`);
+      Logger.logError(e);
       ToastUtils.show('로그인 중 문제가 발생했습니다.');
     }
   }

@@ -1,4 +1,3 @@
-import crashlytics from '@react-native-firebase/crashlytics';
 import {floor} from 'lodash';
 import {Image as ImageCompressor} from 'react-native-compressor';
 
@@ -44,12 +43,11 @@ const ImageFileUtils = {
       };
     } else {
       const resultString = await result.text();
-      crashlytics().log(
+      const error = new Error(
         `Upload image to ${result.url} is failed. cause: ${resultString}`,
       );
-      throw new Error(
-        `Upload image to ${result.url} is failed. cause: ${resultString}`,
-      );
+      Logger.logError(error);
+      throw error;
     }
   },
   async uploadImages(api: DefaultApi, images: ImageFile[] = []) {

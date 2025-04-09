@@ -39,10 +39,11 @@ const ExternalAccessibilityDetailScreen = ({
   const {api} = useAppComponents();
   const {data} = useQuery({
     queryKey: ['toiletDetails', externalAccessibilityId],
-    queryFn: async () =>
-      api.getExternalAccessibilityPost({
+    queryFn: async () => {
+      return await api.getExternalAccessibilityPost({
         externalAccessibilityId: externalAccessibilityId,
-      }),
+      });
+    },
   });
   const toiletDetails = data?.data && mapToToiletDetails(data?.data);
   if (toiletDetails === undefined) {
