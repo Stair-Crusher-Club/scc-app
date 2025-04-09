@@ -14,19 +14,16 @@ const ToastUtils = {
   },
   showOnApiError(error: any): Toast {
     let message;
-    if (error instanceof String) {
+    if (typeof error === 'string') {
       message = error;
-    }
-    if (
+    } else if (
       error instanceof AxiosError &&
-      error.response?.data?.msg instanceof String // msg from ApiErrorResponse
+      typeof error.response?.data?.msg === 'string'
     ) {
       message = error.response?.data?.msg;
-    }
-    if (error instanceof Error) {
+    } else if (error instanceof Error) {
       message = error.message;
     }
-    console.log(error);
     return this.show(message);
   },
 };
