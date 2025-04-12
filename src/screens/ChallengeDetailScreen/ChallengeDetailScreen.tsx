@@ -7,6 +7,10 @@ import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {font} from '@/constant/font';
+import {
+  JoinChallengeRequestDto,
+  JoinChallengeResponseDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -41,10 +45,13 @@ const ChallengeDetailScreen = ({
   const hasJoined = data?.hasJoined ?? false;
   const hasPasscode = data?.hasPasscode ?? false;
 
-  const joinChallenge = usePost(
-    ['ChallengeDetail', challengeId],
-    api.joinChallengePost,
-  );
+  const joinChallenge = usePost<
+    JoinChallengeRequestDto,
+    JoinChallengeResponseDto
+  >(['ChallengeDetail', challengeId], async params => {
+    const result = await api.joinChallengePost(params);
+    return result.data;
+  });
 
   return (
     <LogParamsProvider params={{challenge_id: challengeId}}>
