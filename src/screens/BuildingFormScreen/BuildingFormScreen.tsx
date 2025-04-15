@@ -1,8 +1,8 @@
+import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo, useState} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
-import {useRecoilState} from 'recoil';
 
 import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -62,7 +62,7 @@ export default function BuildingFormScreen({
   const elevatorSection = React.useRef<View>(null);
   const {api} = useAppComponents();
 
-  const [loading, setLoading] = useRecoilState(loadingState);
+  const [loading, setLoading] = useAtom(loadingState);
 
   async function submit() {
     const isValid = await form.trigger();

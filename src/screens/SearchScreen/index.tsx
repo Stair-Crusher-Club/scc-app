@@ -1,6 +1,6 @@
+import {useAtom, useSetAtom} from 'jotai';
 import React, {useEffect, useRef, useState} from 'react';
 import {Keyboard, Linking, View} from 'react-native';
-import {useRecoilState} from 'recoil';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
@@ -37,20 +37,20 @@ export interface SearchScreenParams {
 const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   const {initKeyword} = route.params;
   const ref = useRef<SearchMapViewHandle>(null);
-  const [, setFilter] = useRecoilState(filterAtom);
-  const [searchQuery, setSearchQuery] = useRecoilState(searchQueryAtom);
+  const setFilter = useSetAtom(filterAtom);
+  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
 
   const {data, isLoading, updateQuery, setOnFetchCompleted} =
     useSearchRequest();
 
-  const [, setDraftCameraRegion] = useRecoilState(draftCameraRegionAtom);
-  const [, setDraftKeyword] = useRecoilState(draftKeywordAtom);
-  const [, setFilterModalState] = useRecoilState(filterModalStateAtom);
-  const [viewState, setViewState] = useRecoilState(viewStateAtom);
+  const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
+  const setDraftKeyword = useSetAtom(draftKeywordAtom);
+  const setFilterModalState = useSetAtom(filterModalStateAtom);
+  const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
   const [showGeolocationPermission, setShowGeolocationPermission] =
     useState(false);
-  const [, setSearchHistories] = useRecoilState(searchHistoriesAtom);
+  const setSearchHistories = useSetAtom(searchHistoriesAtom);
 
   const onQueryUpdate = (
     queryUpdate: Partial<SearchQuery>,

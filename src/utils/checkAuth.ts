@@ -1,12 +1,12 @@
 import {NavigationProp, useNavigation} from '@react-navigation/native';
-import {useRecoilValue} from 'recoil';
+import {useAtomValue} from 'jotai';
 
-import {isGuestUserSelector} from '@/atoms/User';
+import {isGuestUserAtom} from '@/atoms/User';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 
 export function useCheckAuth() {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
-  const isGuestUser = useRecoilValue(isGuestUserSelector);
+  const isGuestUser = useAtomValue(isGuestUserAtom);
 
   const checkAuth = async (onAuth: () => void, onFailed?: () => void) => {
     // 비회원이라면 로그인 페이지를 열고

@@ -1,16 +1,13 @@
-import {atom} from 'recoil';
+import {atom} from 'jotai';
 
 import {atomForLocal} from '@/atoms/atomForLocal';
 import {User} from '@/generated-sources/openapi';
 
-export const userInfoAtom = atomForLocal<User | null>('userInfo');
+export const userInfoAtom = atomForLocal<User>('userInfo');
 
-export const accessTokenAtom = atomForLocal<string | null>('scc-token');
+export const accessTokenAtom = atomForLocal<string>('scc-token');
 
 export const featureFlagAtom = atom<{
   isMapVisible: boolean;
   isToiletVisible: boolean;
-} | null>({
-  key: 'featureFlagAtom',
-  default: null,
-});
+} | null>(null);
