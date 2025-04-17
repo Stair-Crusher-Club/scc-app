@@ -1,11 +1,8 @@
-import {atom} from 'recoil';
+import {atom} from 'jotai';
 
 import {Region} from '@/components/maps/Types.tsx';
 
-export const searchKeywordAtom = atom<string>({
-  key: 'searchKeywordAtomMap',
-  default: '',
-});
+export const searchKeywordAtom = atom<string>('');
 
 export type FilterOptions = {
   sortOption: SortOption;
@@ -32,27 +29,18 @@ export enum ScoreUnder {
 export type FilterType = keyof FilterOptions;
 
 export const filterAtom = atom<FilterOptions>({
-  key: 'searchFilterAtom',
-  default: {
-    sortOption: SortOption.ACCURACY,
-    scoreUnder: null,
-    hasSlope: null,
-    isRegistered: null,
-  },
+  sortOption: SortOption.ACCURACY,
+  scoreUnder: null,
+  hasSlope: null,
+  isRegistered: null,
 });
 
 export const viewStateAtom = atom<{
   type: 'map' | 'list';
   inputMode: boolean;
-}>({
-  key: 'viewStateAtom',
-  default: {type: 'map', inputMode: true},
-});
+}>({type: 'map', inputMode: true});
 
-export const filterModalStateAtom = atom<FilterType | 'All' | null>({
-  key: 'filterModalStateAtom',
-  default: null,
-});
+export const filterModalStateAtom = atom<FilterType | 'All' | null>(null);
 
 export type SearchQuery = {
   text: string | null;
@@ -61,16 +49,11 @@ export type SearchQuery = {
 };
 
 export const searchQueryAtom = atom<SearchQuery>({
-  key: 'searchQueryAtom',
-  default: {text: null, location: null, radiusMeter: null},
+  text: null,
+  location: null,
+  radiusMeter: null,
 });
 
-export const draftCameraRegionAtom = atom<Region | null>({
-  key: 'draftCameraRegionAtom',
-  default: null,
-});
+export const draftCameraRegionAtom = atom<Region | null>(null);
 
-export const draftKeywordAtom = atom<string | null>({
-  key: 'draftKeywordAtom',
-  default: null,
-});
+export const draftKeywordAtom = atom<string | null>(null);

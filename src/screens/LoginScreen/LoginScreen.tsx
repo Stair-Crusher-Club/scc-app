@@ -3,10 +3,10 @@ import {
   appleAuthAndroid,
 } from '@invertase/react-native-apple-authentication';
 import {getProfile, login} from '@react-native-seoul/kakao-login';
+import {useAtom, useSetAtom} from 'jotai';
 import React, {useState} from 'react';
 import {ImageSourcePropType, Platform, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import {useRecoilState, useSetRecoilState} from 'recoil';
 
 import AppleLogo from '@/assets/icon/ic_logo_apple.svg';
 import KakaoLogo from '@/assets/icon/ic_logo_kakao.svg';
@@ -74,8 +74,8 @@ export interface LoginScreenParams {
 
 export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   const {api} = useAppComponents();
-  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
-  const setUserInfo = useSetRecoilState(userInfoAtom);
+  const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
+  const setUserInfo = useSetAtom(userInfoAtom);
   const [activeSlide, setActiveSlide] = useState(0);
   const {asModal} = route.params ?? {};
 

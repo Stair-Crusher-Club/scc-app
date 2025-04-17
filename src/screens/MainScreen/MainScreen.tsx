@@ -1,6 +1,6 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {useAtomValue} from 'jotai';
 import React, {useEffect} from 'react';
-import {useRecoilValue} from 'recoil';
 
 import {accessTokenAtom} from '@/atoms/Auth';
 import {color} from '@/constant/color';
@@ -20,7 +20,7 @@ const Tab = createBottomTabNavigator();
 export interface MainScreenParams {}
 
 export default function MainScreen({navigation}: ScreenProps<'Main'>) {
-  const accessToken = useRecoilValue(accessTokenAtom);
+  const accessToken = useAtomValue(accessTokenAtom);
   const checkAuth = useCheckAuth();
 
   useEffect(() => {

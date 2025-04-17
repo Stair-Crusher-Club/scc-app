@@ -1,8 +1,8 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
+import {useSetAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, View} from 'react-native';
-import {useSetRecoilState} from 'recoil';
 
 import {accessTokenAtom, userInfoAtom} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -28,8 +28,8 @@ export default function SignupScreen({
   route,
   navigation,
 }: ScreenProps<'Signup'>) {
-  const setAccessToken = useSetRecoilState(accessTokenAtom);
-  const setUserInfo = useSetRecoilState(userInfoAtom);
+  const setAccessToken = useSetAtom(accessTokenAtom);
+  const setUserInfo = useSetAtom(userInfoAtom);
   const {formValue, updateField, formState, submit} = useUpdateUser({
     accessToken: route.params.token,
   });

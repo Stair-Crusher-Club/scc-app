@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
+import {useAtomValue} from 'jotai';
 import React, {useRef, useState} from 'react';
 import {TextInput, TouchableOpacity} from 'react-native';
-import {useRecoilValue} from 'recoil';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -25,7 +25,7 @@ const ToiletMapScreen = ({navigation}: ScreenProps<'ToiletMap'>) => {
     null,
   );
   const [text, setText] = useState('화장실');
-  const currentLocation = useRecoilValue(currentLocationAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
   const [refreshedLocation, setRefreshedLocation] = useState<
     | {
         latitude: number;

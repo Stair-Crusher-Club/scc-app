@@ -1,5 +1,5 @@
+import {useSetAtom} from 'jotai';
 import React, {useState} from 'react';
-import {useSetRecoilState} from 'recoil';
 
 import {accessTokenAtom} from '@/atoms/Auth';
 import {SccButton} from '@/components/atoms';
@@ -14,7 +14,7 @@ import * as S from './BottomButtons.style';
 export default function BottomButtons() {
   const {api} = useAppComponents();
   const navigation = useNavigation();
-  const setAccessToken = useSetRecoilState(accessTokenAtom);
+  const setAccessToken = useSetAtom(accessTokenAtom);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
   async function logout() {

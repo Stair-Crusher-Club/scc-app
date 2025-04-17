@@ -1,5 +1,5 @@
+import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 import {match} from 'ts-pattern';
 
@@ -43,9 +43,9 @@ const SearchMapView = forwardRef<
 
   const mapViewRef =
     useRef<ItemMapViewHandle<MarkerItem & PlaceListItem>>(null);
-  const [searchQuery, _] = useRecoilState(searchQueryAtom);
-  const viewState = useRecoilValue(viewStateAtom);
-  const setDraftCameraRegion = useSetRecoilState(draftCameraRegionAtom);
+  const [searchQuery, _] = useAtom(searchQueryAtom);
+  const viewState = useAtomValue(viewStateAtom);
+  const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
   const datasForUI: (MarkerItem & PlaceListItem)[] = useMemo(() => {
     return data?.map(addMarkerInfo) ?? [];
   }, [data]);

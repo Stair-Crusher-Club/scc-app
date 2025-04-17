@@ -1,7 +1,7 @@
+import {useAtom} from 'jotai';
 import {debounce} from 'lodash';
 import React, {useCallback, useEffect} from 'react';
 import {TouchableOpacity} from 'react-native';
-import {useRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -22,10 +22,10 @@ export default function SearchInputText({
   onTextUpdate: (text: string, isPreviewChange: boolean) => void;
   autoFocus?: boolean;
 }) {
-  const [draftKeyword, setDraftKeyword] = useRecoilState(draftKeywordAtom);
-  const [searchQuery, _] = useRecoilState(searchQueryAtom);
+  const [draftKeyword, setDraftKeyword] = useAtom(draftKeywordAtom);
+  const [searchQuery, _] = useAtom(searchQueryAtom);
   const navigation = useNavigation();
-  const [viewState, setViewState] = useRecoilState(viewStateAtom);
+  const [viewState, setViewState] = useAtom(viewStateAtom);
   const debounceSearch = useCallback(
     debounce(
       (keyword: string) => {

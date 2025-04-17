@@ -1,4 +1,4 @@
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useAtomValue, useSetAtom} from 'jotai';
 
 import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 import {
@@ -9,9 +9,9 @@ import {
 } from '@/screens/SearchScreen/atoms';
 
 export function useUpdateSearchQuery() {
-  const setSearchQuery = useSetRecoilState(searchQueryAtom);
-  const draftCameraRegion = useRecoilValue(draftCameraRegionAtom);
-  const draftKeyword = useRecoilValue(draftKeywordAtom);
+  const setSearchQuery = useSetAtom(searchQueryAtom);
+  const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
+  const draftKeyword = useAtomValue(draftKeywordAtom);
 
   const updateQuery = (queryUpdate: Partial<SearchQuery>) => {
     const query: Partial<SearchQuery> = queryUpdate;

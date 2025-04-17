@@ -1,5 +1,5 @@
+import {useAtomValue} from 'jotai';
 import React from 'react';
-import {useRecoilValue} from 'recoil';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location';
@@ -16,7 +16,7 @@ export default function SearchItemSummary({
   item: PlaceListItem;
   onPress: () => void;
 }) {
-  const currentLocation = useRecoilValue(currentLocationAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
   const distanceText = (() => {
     let distance;
     if (currentLocation && item.building.location) {

@@ -1,5 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
 import {FlashList} from '@shopify/flash-list';
+import {useSetAtom} from 'jotai';
 import React, {
   forwardRef,
   ForwardedRef,
@@ -10,7 +11,6 @@ import React, {
 } from 'react';
 import {View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import MyLocationIcon from '@/assets/icon/ic_my_location.svg';
@@ -51,7 +51,7 @@ const FRefInputComp = <T extends MarkerItem>(
 ) => {
   const mapRef = useRef<MapViewHandle>(null);
   const cardsRef = useRef<FlashList<T>>(null);
-  const [, setCurrentLocation] = useRecoilState(currentLocationAtom);
+  const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [cardHeight, setCardHeight] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();

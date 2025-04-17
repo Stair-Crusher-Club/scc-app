@@ -1,6 +1,6 @@
+import {useAtom} from 'jotai';
 import React from 'react';
 import {TouchableOpacity} from 'react-native';
-import {useRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import XIcon from '@/assets/icon/ic_x.svg';
@@ -13,8 +13,7 @@ export default function SearchHistories({
 }: {
   onPressHistory: (search: string) => void;
 }) {
-  const [searchHistories, setSearchHistories] =
-    useRecoilState(searchHistoriesAtom);
+  const [searchHistories, setSearchHistories] = useAtom(searchHistoriesAtom);
   if (searchHistories === null || searchHistories.length === 0) {
     return null;
   }

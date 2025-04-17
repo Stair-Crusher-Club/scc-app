@@ -1,6 +1,6 @@
 import {useRoute} from '@react-navigation/native';
+import {useAtomValue} from 'jotai';
 import React, {useEffect} from 'react';
-import {useRecoilValue} from 'recoil';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location.ts';
@@ -48,7 +48,7 @@ export default function ItemMap<T extends MarkerItem>({
   onCameraIdle?: (region: Region) => void;
 }) {
   const [firstFittingDone, setFirstFittingDone] = React.useState(false);
-  const currentLocation = useRecoilValue(currentLocationAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
   const route = useRoute();
   useEffect(() => {
     if (items.length > 0 && !firstFittingDone) {

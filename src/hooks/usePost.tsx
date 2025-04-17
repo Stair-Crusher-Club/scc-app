@@ -1,5 +1,5 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {useRecoilState} from 'recoil';
+import {useAtom} from 'jotai';
 
 import {loadingState} from '@/components/LoadingView';
 import ToastUtils from '@/utils/ToastUtils';
@@ -9,7 +9,7 @@ export default function usePost<TParams = unknown, TResult = unknown>(
   apiFn: (params: TParams) => Promise<TResult>,
 ) {
   const queryClient = useQueryClient();
-  const [loading, setLoading] = useRecoilState(loadingState);
+  const [loading, setLoading] = useAtom(loadingState);
   return useMutation({
     mutationKey: mutationKey,
     mutationFn: async (params: TParams) => await apiFn(params),

@@ -1,6 +1,6 @@
+import {useSetAtom} from 'jotai';
 import React from 'react';
 import {ScrollView} from 'react-native';
-import {useSetRecoilState} from 'recoil';
 
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -13,7 +13,7 @@ import GuideItem from './GuideItem';
 export default function GuideForFirstVisitScreen({
   navigation,
 }: ScreenProps<'GuideForFirstVisit'>) {
-  const setHasShownGuideForFirstVisit = useSetRecoilState(
+  const setHasShownGuideForFirstVisit = useSetAtom(
     hasShownGuideForFirstVisitAtom,
   );
   const onTapConfirmButton = () => {

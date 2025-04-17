@@ -1,6 +1,6 @@
+import {useAtomValue} from 'jotai';
 import React from 'react';
 import {TouchableOpacity} from 'react-native';
-import {useRecoilValue} from 'recoil';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
@@ -19,7 +19,7 @@ import ToastUtils from '@/utils/ToastUtils.ts';
 
 export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   const navigation = useNavigation();
-  const currentLocation = useRecoilValue(currentLocationAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
   const distanceText = (() => {
     let distance;
     if (currentLocation && item.location) {

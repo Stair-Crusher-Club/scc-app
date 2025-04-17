@@ -3,12 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import analytics from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
+import {Provider, useAtomValue, useSetAtom} from 'jotai';
 import {useEffect, useState} from 'react';
 import {StatusBar} from 'react-native';
 import Config from 'react-native-config';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {RecoilRoot, useRecoilValue, useSetRecoilState} from 'recoil';
 
 import {AppComponentsProvider} from '@/AppComponentsContext';
 import OTAUpdateDialog from '@/OTAUpdateDialog';
@@ -25,7 +25,7 @@ const queryClient = new QueryClient();
 
 const AppWithProviders = () => {
   return (
-    <RecoilRoot>
+    <Provider>
       <SafeAreaProvider>
         <AppComponentsProvider
           api={new DefaultApi(new Configuration({basePath: Config.BASE_URL}))}>
@@ -34,13 +34,13 @@ const AppWithProviders = () => {
           </QueryClientProvider>
         </AppComponentsProvider>
       </SafeAreaProvider>
-    </RecoilRoot>
+    </Provider>
   );
 };
 
 const App = () => {
-  const accessToken = useRecoilValue(accessTokenAtom);
-  const setAccessToken = useSetRecoilState(accessTokenAtom);
+  const accessToken = useAtomValue(accessTokenAtom);
+  const setAccessToken = useSetAtom(accessTokenAtom);
 
   useAppsflyerSetup();
   useEffect(() => {

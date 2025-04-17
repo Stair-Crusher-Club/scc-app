@@ -1,9 +1,9 @@
 import ImageEditor from '@react-native-community/image-editor';
+import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
 import {Dimensions, Platform} from 'react-native';
 import {DragSortableView} from 'react-native-drag-sort';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
-import {useRecoilValue} from 'recoil';
 
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
@@ -41,7 +41,7 @@ export default function CameraScreen({
   const {camera, hasPermission, device, setDevice} = useCamera();
   const [photoFiles, setPhotoFiles] = useState<ImageFile[]>([]);
   const [flash, setFlash] = useState<'on' | 'off'>('off');
-  const hasShownGuideForEnterancePhoto = useRecoilValue(
+  const hasShownGuideForEnterancePhoto = useAtomValue(
     hasShownGuideForEnterancePhotoAtom,
   );
 

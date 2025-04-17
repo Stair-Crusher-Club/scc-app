@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
+import {useAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {useRecoilState} from 'recoil';
 
 import {loadingState} from '@/components/LoadingView';
 import {color} from '@/constant/color';
@@ -21,7 +21,7 @@ interface PlaceDetailFeedbackSectionProps {
 export const PlaceDetailFeedbackSection = ({
   accessibility,
 }: PlaceDetailFeedbackSectionProps) => {
-  const [loading, setLoading] = useRecoilState(loadingState);
+  const [loading, setLoading] = useAtom(loadingState);
   const navigation = useNavigation();
   const {api} = useAppComponents();
   const [isUpvoted, setIsUpvoted] = useState(false);

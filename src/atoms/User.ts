@@ -1,4 +1,4 @@
-import {selector} from 'recoil';
+import {atom} from 'jotai';
 
 import {userInfoAtom} from '@/atoms/Auth';
 import {atomForLocalNonNull} from '@/atoms/atomForLocal';
@@ -23,10 +23,7 @@ export const hasShownGuideForFirstVisitAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
-export const isGuestUserSelector = selector({
-  key: 'isGuestUser',
-  get: ({get}) => {
-    const userInfo = get(userInfoAtom);
-    return userInfo?.id === '0';
-  },
+export const isGuestUserAtom = atom(get => {
+  const userInfo = get(userInfoAtom);
+  return userInfo?.id === '0';
 });
