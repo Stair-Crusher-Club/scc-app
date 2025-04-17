@@ -34,5 +34,7 @@ export function atomForLocalNonNull<T>(atomKey: string, defaultValue: T) {
       storage.delete(key);
     },
   };
-  return atomWithStorage<T>(atomKey, defaultValue, valueStore);
+  return atomWithStorage<T>(atomKey, defaultValue, valueStore, {
+    getOnInit: true,
+  });
 }
