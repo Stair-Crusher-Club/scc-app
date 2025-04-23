@@ -2072,7 +2072,13 @@ export interface ReportAccessibilityPostRequest {
      * @type {string}
      * @memberof ReportAccessibilityPostRequest
      */
-    'reason'?: string;
+    'reason': string;
+    /**
+     * 신고 상세 내용
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'detail'?: string;
 }
 /**
  * 

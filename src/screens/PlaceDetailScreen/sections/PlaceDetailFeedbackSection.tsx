@@ -117,12 +117,13 @@ export const PlaceDetailFeedbackSection = ({
           onPressCloseButton={() => {
             setIsNegativeFeedbackOptionModalVisible(false);
           }}
-          onPressSubmitButton={async (placeId, reason) => {
+          onPressSubmitButton={async (placeId, reason, text) => {
             setIsNegativeFeedbackOptionModalVisible(false);
             setLoading(new Map(loading).set('PlaceDetail', true));
             await api.reportAccessibilityPost({
               placeId,
               reason,
+              detail: text,
             });
             setLoading(new Map(loading).set('PlaceDetail', false));
             ToastUtils.show('신고가 접수되었습니다.');

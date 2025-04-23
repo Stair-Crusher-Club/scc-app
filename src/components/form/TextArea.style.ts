@@ -15,7 +15,7 @@ export const TextAreaContainer = styled.View<{
     : color.gray30,
   borderWidth: 1,
   borderRadius: 20,
-  paddingHorizontal: 25,
+  paddingHorizontal: 24,
   paddingVertical: 20,
 }));
 export const Input = styled(TextInput)({
