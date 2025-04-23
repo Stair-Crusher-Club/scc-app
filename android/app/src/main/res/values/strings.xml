@@ -1,6 +1,4 @@
 <resources>
     <string name="app_name">계단뿌셔클럽</string>
-    <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
-    <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
     <string name="kakao_app_key">@string/KAKAO_APP_KEY</string>
 </resources>
