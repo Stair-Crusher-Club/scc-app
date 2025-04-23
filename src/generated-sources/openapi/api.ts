@@ -123,6 +123,21 @@ export interface AccessibilityRegistererDto {
 /**
  * 
  * @export
+ * @enum {string}
+ */
+
+export const AccessibilityReportReason = {
+    InaccurateInfo: 'INACCURATE_INFO',
+    Closed: 'CLOSED',
+    BadUser: 'BAD_USER'
+} as const;
+
+export type AccessibilityReportReason = typeof AccessibilityReportReason[keyof typeof AccessibilityReportReason];
+
+
+/**
+ * 
+ * @export
  * @interface ApiErrorResponse
  */
 export interface ApiErrorResponse {

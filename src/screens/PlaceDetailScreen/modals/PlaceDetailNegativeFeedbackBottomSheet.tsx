@@ -2,17 +2,23 @@ import React, {useCallback, useState} from 'react';
 import {Modal, View} from 'react-native';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+import {match} from 'ts-pattern';
 
 import {SccButton} from '@/components/atoms';
 import TextArea from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {AccessibilityReportReason} from '@/generated-sources/openapi';
 
 interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
   placeId: string;
   onPressCloseButton: () => void;
-  onPressSubmitButton: (placeId: string, reason: string, text: string) => void;
+  onPressSubmitButton: (
+    placeId: string,
+    reason: AccessibilityReportReason,
+    text: string,
+  ) => void;
 }
 
 const PlaceDetailNegativeFeedbackBottomSheet = ({
@@ -23,16 +29,17 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 }: PlaceDetailNegativeFeedbackBottomSheetProps) => {
   const safeAreaInsets = useSafeAreaInsets();
   const [step, setStep] = useState<'select' | 'text'>('select');
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedReason, setSelectedReason] =
+    useState<AccessibilityReportReason | null>(null);
   const [text, setText] = useState<string | null>(null);
-  const options = [
-    '틀린 정보가 있어요',
-    '폐점된 곳이에요',
-    '이 정복자를 차단할래요',
+  const reasons: AccessibilityReportReason[] = [
+    'INACCURATE_INFO',
+    'CLOSED',
+    'BAD_USER',
   ];
 
   const onClear = useCallback(() => {
-    setSelectedOption(null);
+    setSelectedReason(null);
     setStep('select');
     setText(null);
   }, []);
@@ -48,19 +55,23 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
           </Title>
           {step === 'select' && (
             <OptionSelector>
-              {options.map((option, index) => {
-                const isSelected = option === selectedOption;
+              {reasons.map((reason, index) => {
+                const isSelected = reason === selectedReason;
                 return (
-                  <View key={option}>
+                  <View key={reason}>
                     {index > 0 && <SpaceBetweenOptions />}
                     <SccButton
-                      key={option}
-                      text={option}
+                      key={reason}
+                      text={match(reason)
+                        .with('INACCURATE_INFO', () => '틀린 정보가 있어요')
+                        .with('CLOSED', () => '폐점된 곳이에요')
+                        .with('BAD_USER', () => '이 정복자를 차단할래요')
+                        .exhaustive()}
                       textColor={isSelected ? 'brandColor' : 'gray70'}
                       buttonColor="white"
                       borderColor={isSelected ? 'blue50' : 'gray30'}
                       onPress={() => {
-                        setSelectedOption(option);
+                        setSelectedReason(reason);
                       }}
                     />
                   </View>
@@ -97,14 +108,14 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
               textColor="white"
               buttonColor="brandColor"
               fontFamily={font.pretendardBold}
-              isDisabled={selectedOption === null}
+              isDisabled={selectedReason === null}
               onPress={() => {
                 if (step === 'select') {
                   setStep('text');
                 } else {
                   onClear();
-                  if (selectedOption) {
-                    onPressSubmitButton(placeId, selectedOption, text ?? '');
+                  if (selectedReason) {
+                    onPressSubmitButton(placeId, selectedReason, text ?? '');
                   }
                 }
               }}
