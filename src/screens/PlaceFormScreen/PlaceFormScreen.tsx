@@ -1,8 +1,8 @@
+import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView} from 'react-native';
-import {useRecoilState} from 'recoil';
 
 import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -53,7 +53,7 @@ export default function PlaceFormScreen({
   const {api} = useAppComponents();
   const {place, building} = route.params;
   const form = useForm<FormValues>();
-  const [loading, setLoading] = useRecoilState(loadingState);
+  const [loading, setLoading] = useAtom(loadingState);
 
   async function submit() {
     const isValid = await form.trigger();

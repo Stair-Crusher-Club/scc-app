@@ -1,6 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
+import {useAtomValue, useSetAtom} from 'jotai';
 import Lottie from 'lottie-react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
@@ -12,15 +13,11 @@ import {
   StatusBar,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {
-  hasShownGuideForFirstVisitAtom,
-  isGuestUserSelector,
-} from '@/atoms/User';
+import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
@@ -45,8 +42,8 @@ export interface HomeScreenParams {}
 const HomeScreen = ({navigation}: any) => {
   const {api} = useAppComponents();
 
-  const accessToken = useRecoilValue(accessTokenAtom);
-  const setCurrentLocation = useSetRecoilState(currentLocationAtom);
+  const accessToken = useAtomValue(accessTokenAtom);
+  const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [showGeolocationPermission, setShowGeolocationPermission] =
     useState(false);
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
@@ -75,10 +72,10 @@ const HomeScreen = ({navigation}: any) => {
   });
   const versionStatusMessage = data?.message;
   const versionStatus = data?.status;
-  const hasShownGuideForFirstVisit = useRecoilValue(
+  const hasShownGuideForFirstVisit = useAtomValue(
     hasShownGuideForFirstVisitAtom,
   );
-  const isGuestUser = useRecoilValue(isGuestUserSelector);
+  const isGuestUser = useAtomValue(isGuestUserAtom);
 
   useEffect(() => {
     if (!hasShownGuideForFirstVisit) {

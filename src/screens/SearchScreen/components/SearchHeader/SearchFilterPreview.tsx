@@ -1,6 +1,6 @@
+import {useAtomValue, useSetAtom} from 'jotai';
 import React from 'react';
 import {Keyboard, ScrollView} from 'react-native';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
@@ -16,8 +16,8 @@ import {
 
 export default function SearchFilterPreview() {
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
-    useRecoilValue(filterAtom);
-  const setFilterModalState = useSetRecoilState(filterModalStateAtom);
+    useAtomValue(filterAtom);
+  const setFilterModalState = useSetAtom(filterModalStateAtom);
   const isScoreUnderActive = scoreUnder !== null;
   const isHasSlopeActive = hasSlope !== null;
   const isIsCompletedActive = isRegistered !== null;

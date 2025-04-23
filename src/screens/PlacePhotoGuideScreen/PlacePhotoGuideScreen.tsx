@@ -1,6 +1,6 @@
+import {useSetAtom} from 'jotai';
 import React, {useEffect} from 'react';
 import {Image, Pressable} from 'react-native';
-import {useSetRecoilState} from 'recoil';
 
 import ExitIcon from '@/assets/icon/ic_exit.svg';
 import {hasShownGuideForEnterancePhotoAtom} from '@/atoms/User';
@@ -13,7 +13,7 @@ import * as S from './PlacePhotoGuideScreen.style';
 export default function PlacePhotoGuideScreen({
   navigation,
 }: ScreenProps<'PlacePhotoGuide'>) {
-  const setHasShownGuideForEnterancePhoto = useSetRecoilState(
+  const setHasShownGuideForEnterancePhoto = useSetAtom(
     hasShownGuideForEnterancePhotoAtom,
   );
   useEffect(() => {

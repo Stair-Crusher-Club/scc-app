@@ -1,6 +1,6 @@
+import {useAtom, useAtomValue} from 'jotai';
 import React, {memo, useState} from 'react';
 import {TouchableOpacity, View} from 'react-native';
-import {useRecoilState, useRecoilValue} from 'recoil';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -36,10 +36,10 @@ function SearchItemCard({
 }) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
-  const currentLocation = useRecoilValue(currentLocationAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
   const [isFavorite] = useState(item.place.isFavorite);
   const [hasBeenRegisteredAccessibility, setHasBeenRegisteredAccessibility] =
-    useRecoilState(hasBeenRegisteredAccessibilityAtom);
+    useAtom(hasBeenRegisteredAccessibilityAtom);
   const registerStatus: 'UNAVAILABLE' | 'NONE' | 'BOTH' | 'PLACE_ONLY' =
     (() => {
       if (!item.isAccessibilityRegistrable) {

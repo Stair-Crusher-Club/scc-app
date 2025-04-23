@@ -1,22 +1,18 @@
+import {atom, useAtomValue} from 'jotai';
 import Lottie from 'lottie-react-native';
 import React, {useCallback, useEffect, useRef} from 'react';
 import {Animated, BackHandler, Dimensions} from 'react-native';
-import {atom, selector, useRecoilValue} from 'recoil';
 
 import {color} from '@/constant/color';
 
-export const loadingState = atom<Map<string, boolean>>({
-  key: 'loadingState',
-  default: new Map<string, boolean>(),
-});
+// Create a map atom to store loading states
+export const loadingState = atom<Map<string, boolean>>(new Map());
 
-export const isLoadingVisibleState = selector({
-  key: 'isLoadingVisibleState',
-  get: ({get}) => {
-    const state = get(loadingState);
-    // every(true) 로 선언하면 빈배열은 무조건 true. 그래서 every(false) 조건을 사용했다.
-    return ![...state.values()].every(l => l === false);
-  },
+// Create a derived atom to check if any loading is active
+export const isLoadingVisibleState = atom(get => {
+  const state = get(loadingState);
+  // every(true) 로 선언하면 빈배열은 무조건 true. 그래서 every(false) 조건을 사용했다.
+  return ![...state.values()].every(l => l === false);
 });
 
 interface LoadingViewProps {}
@@ -42,31 +38,33 @@ export const LoadingView = ({}: LoadingViewProps) => {
     }).start();
   }, [fadeAnim]);
 
-  const hardwardBackPressBlock = useCallback(() => {
-    return true;
-  }, []);
+  const hardwardBackPressBlock = useCallback(() => true, []);
 
-  const isLoadingVisible = useRecoilValue(isLoadingVisibleState);
-  // 안드로이드에서 로딩이 보이고 있을 때 back button 을 막는다.
-  if (isLoadingVisible) {
-    BackHandler.addEventListener('hardwareBackPress', hardwardBackPressBlock);
-  } else {
-    BackHandler.removeEventListener(
-      'hardwareBackPress',
-      hardwardBackPressBlock,
-    );
-  }
+  const isLoadingVisible = useAtomValue(isLoadingVisibleState);
 
-  const loadingLottie = useRef<Lottie>(null);
   useEffect(() => {
     if (isLoadingVisible) {
+      BackHandler.addEventListener('hardwareBackPress', hardwardBackPressBlock);
       fadeIn();
       loadingLottie.current?.play();
     } else {
+      BackHandler.removeEventListener(
+        'hardwareBackPress',
+        hardwardBackPressBlock,
+      );
       fadeOut();
       loadingLottie.current?.pause();
     }
-  }, [fadeAnim, fadeIn, fadeOut, isLoadingVisible]);
+
+    return () => {
+      BackHandler.removeEventListener(
+        'hardwareBackPress',
+        hardwardBackPressBlock,
+      );
+    };
+  }, [isLoadingVisible, fadeIn, fadeOut, hardwardBackPressBlock]);
+
+  const loadingLottie = useRef<Lottie>(null);
 
   return (
     <Animated.View

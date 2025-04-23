@@ -1,7 +1,7 @@
 import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
+import {useAtomValue} from 'jotai';
 import {useRef} from 'react';
-import {useRecoilValue} from 'recoil';
 
 import {PlaceListItem, SearchPlaceSortDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -18,8 +18,8 @@ import ToastUtils from '@/utils/ToastUtils.ts';
 export default function useSearchRequest() {
   const {api} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
-    useRecoilValue(filterAtom);
-  const {text, location, radiusMeter} = useRecoilValue(searchQueryAtom);
+    useAtomValue(filterAtom);
+  const {text, location, radiusMeter} = useAtomValue(searchQueryAtom);
   const route = useRoute();
   const {data, isFetching, refetch} = useQuery({
     initialData: [],

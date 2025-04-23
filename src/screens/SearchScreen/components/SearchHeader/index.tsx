@@ -1,6 +1,6 @@
+import {useAtom} from 'jotai';
 import React from 'react';
 import {View} from 'react-native';
-import {useRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color.ts';
@@ -28,8 +28,8 @@ export default function SearchHeader({
     },
   ) => void;
 }) {
-  const [viewState] = useRecoilState(viewStateAtom);
-  const [searchQuery] = useRecoilState(searchQueryAtom);
+  const [viewState] = useAtom(viewStateAtom);
+  const [searchQuery] = useAtom(searchQueryAtom);
   const checkAuth = useCheckAuth();
   return (
     <Container>

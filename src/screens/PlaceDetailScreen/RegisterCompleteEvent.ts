@@ -1,16 +1,13 @@
-import {atom, useRecoilState} from 'recoil';
+import {atom, useAtom} from 'jotai';
 
 export type RegisterCompleteEvent = 'submit-place' | 'submit-building';
 
 export const registerCompleteEventState = atom<
   Map<string, RegisterCompleteEvent>
->({
-  key: 'registerCompleteEventState',
-  default: new Map<string, RegisterCompleteEvent>(),
-});
+>(new Map());
 
 export const useRegisterCompleteEventState = () => {
-  const [state, setState] = useRecoilState(registerCompleteEventState);
+  const [state, setState] = useAtom(registerCompleteEventState);
 
   const registerCompleteEvent = (
     key: string,

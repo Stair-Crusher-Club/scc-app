@@ -1,6 +1,6 @@
+import {useAtom} from 'jotai';
 import React, {useState} from 'react';
 import {Text} from 'react-native';
-import {useRecoilState} from 'recoil';
 import styled from 'styled-components/native';
 
 import InfoIcon from '@/assets/icon/ic_info.svg';
@@ -20,8 +20,8 @@ import ScoreSelector from '@/screens/SearchScreen/modals/ScoreSelector.tsx';
 
 // TODO: 가까운 순 선택 시 위치권한이 없으면 설정으로 이동하는 BottomSheet 를 보여준다.
 export default function FilterModal() {
-  const [savedFilter, setSavedFilter] = useRecoilState(filterAtom);
-  const [state, setFilterModalState] = useRecoilState(filterModalStateAtom);
+  const [savedFilter, setSavedFilter] = useAtom(filterAtom);
+  const [state, setFilterModalState] = useAtom(filterModalStateAtom);
 
   const [draftSortOption, setDraftSortOption] =
     useState<FilterOptions['sortOption']>();

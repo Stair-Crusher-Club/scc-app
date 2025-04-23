@@ -1,9 +1,6 @@
-import {atom} from 'recoil';
+import {atom} from 'jotai';
 
 export const currentLocationAtom = atom<{
   latitude: number;
   longitude: number;
-} | null>({
-  key: 'currentLocationAtom',
-  default: null,
-});
+} | null>(null);
