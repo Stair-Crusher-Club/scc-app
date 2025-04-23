@@ -44,12 +44,22 @@ yarn codegen
 ```
 이 명령어는 `subprojects/scc-api/api-spec.yaml` OpenAPI 명세를 기반으로 TypeScript API 클라이언트 코드를 생성합니다. API 명세가 변경될 때마다 실행해주세요.
 
-5. 개발 서버 실행
+5. Firebase 설정 파일 복사
+```sh
+# 운영 환경 빌드
+cp subprojects/scc-frontend-build-configurations/production/google-services.json android/app/src/production/
+
+# 개발 환경 빌드
+cp subprojects/scc-frontend-build-configurations/sandbox/google-services.json android/app/src/sandbox/
+```
+이 단계는 Android 앱 빌드 전에 필수적으로 수행해야 합니다. Firebase 설정 파일은 빌드 환경별로 다르며, 빌드 프로세스 시작 전에 해당 위치에 있어야 합니다.
+
+6. 개발 서버 실행
 ```sh
 yarn start
 ```
 
-6. 앱 실행
+7. 앱 실행
 ```sh
 # iOS
 yarn ios

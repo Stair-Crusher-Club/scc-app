@@ -69,9 +69,6 @@ yarn-error.log
 # testing
 /coverage
 
-# AppCenter
-AppCenter-Config.plist
-
 # env selected by mode : sandbox/production 중 하나가 복사된다.
 .env
 .xcode.env.local
