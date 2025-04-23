@@ -123,6 +123,21 @@ export interface AccessibilityRegistererDto {
 /**
  * 
  * @export
+ * @enum {string}
+ */
+
+export const AccessibilityReportReason = {
+    InaccurateInfo: 'INACCURATE_INFO',
+    Closed: 'CLOSED',
+    BadUser: 'BAD_USER'
+} as const;
+
+export type AccessibilityReportReason = typeof AccessibilityReportReason[keyof typeof AccessibilityReportReason];
+
+
+/**
+ * 
+ * @export
  * @interface ApiErrorResponse
  */
 export interface ApiErrorResponse {
@@ -2072,7 +2087,13 @@ export interface ReportAccessibilityPostRequest {
      * @type {string}
      * @memberof ReportAccessibilityPostRequest
      */
-    'reason'?: string;
+    'reason': string;
+    /**
+     * 신고 상세 내용
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'detail'?: string;
 }
 /**
  * 
