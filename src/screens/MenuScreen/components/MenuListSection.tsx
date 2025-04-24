@@ -15,6 +15,10 @@ export default function MenuListSection() {
     navigation.navigate('Conquerer');
   }
 
+  function goToFavoritePlaces() {
+    navigation.navigate('FavoritePlaces');
+  }
+
   function goToReviews() {
     navigation.navigate('Webview', {
       fixedTitle: '뿌클로드: 이동약자를 위한 진짜 리뷰',
@@ -40,6 +44,12 @@ export default function MenuListSection() {
           </S.MenuItem>
         </TouchableOpacity>
       </LogClick>
+      <TouchableOpacity onPress={goToFavoritePlaces}>
+        <S.MenuItem>
+          <S.MenuTitle>내가 저장한 장소</S.MenuTitle>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </TouchableOpacity>
       <LogClick elementName="menu_challenge">
         <TouchableOpacity style={{display: 'none'}}>
           <S.MenuItem>

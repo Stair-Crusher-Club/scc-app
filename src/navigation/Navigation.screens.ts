@@ -10,9 +10,9 @@ import BuildingFormScreen, {
   BuildingFormScreenParams,
 } from '@/screens/BuildingFormScreen';
 import {
-  PlaceCamera,
   BuildingCamera,
   CameraScreenParams,
+  PlaceCamera,
 } from '@/screens/CameraScreen';
 import ChallengeDetailScreen, {
   ChallengeDetailScreenParams,
@@ -25,6 +25,7 @@ import ConquererScreen from '@/screens/ConquererScreen';
 import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
+import FavoritePlacesScreen from '@/screens/FavoritePlacesScreen';
 import GuideForFirstVisitScreen from '@/screens/GuideForFirstVisitScreen';
 import IntroScreen from '@/screens/IntroScreen';
 import LoginScreen, {LoginScreenParams} from '@/screens/LoginScreen';
@@ -80,6 +81,11 @@ export const MainNavigationScreens: {
   },
   {name: 'Camera/Building', component: BuildingCamera},
   {name: 'Camera/Place', component: PlaceCamera},
+  {
+    name: 'FavoritePlaces',
+    component: FavoritePlacesScreen,
+    options: {headerShown: true, headerTitle: '내가 저장한 장소'},
+  },
   {
     name: 'PlaceForm',
     component: PlaceFormScreen,
@@ -174,6 +180,8 @@ export type ScreenParams = {
   Conquerer: undefined;
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
+  FavoritePlaces: undefined;
+
   Setting: undefined;
   MapTest: undefined;
   ToiletMap: undefined;
