@@ -32,10 +32,11 @@ import * as S from './SearchScreen.style';
 
 export interface SearchScreenParams {
   initKeyword: string;
+  toMap?: boolean;
 }
 
 const SearchScreen = ({route}: ScreenProps<'Search'>) => {
-  const {initKeyword} = route.params;
+  const {initKeyword, toMap} = route.params;
   const ref = useRef<SearchMapViewHandle>(null);
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
@@ -105,6 +106,12 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
     onQueryUpdate({text: initKeyword}, {shouldAnimate: true});
   }, [initKeyword]);
 
+  useEffect(() => {
+    if (toMap) {
+      setViewState({type: 'map', inputMode: false});
+    }
+  }, [toMap]);
+
   // 화면 나갈 때 상태 돌려놓기
   useEffect(() => {
     return navigation.addListener('beforeRemove', () => {
@@ -130,7 +137,10 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
         search_query_text: searchQuery.text,
       }}>
       <S.SearchScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
-        <SearchHeader onQueryUpdate={onQueryUpdate} autoFocus={!initKeyword} />
+        <SearchHeader
+          onQueryUpdate={onQueryUpdate}
+          autoFocus={!initKeyword && !toMap}
+        />
         <View
           style={{
             width: '100%',

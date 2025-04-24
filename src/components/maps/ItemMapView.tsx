@@ -171,21 +171,23 @@ const FRefInputComp = <T extends MarkerItem>(
         <MyLocationButton onPress={onMyLocationPress} activeOpacity={0.7}>
           <MyLocationIcon width={24} height={24} />
         </MyLocationButton>
-        <ItemMapList<T>
-          ref={cardsRef}
-          searchResults={items}
-          onLayout={event => {
-            event.nativeEvent.layout.height !== cardHeight &&
-              setCardHeight(event.nativeEvent.layout.height);
-          }}
-          onCardPress={item =>
-            navigation.navigate('PlaceDetail', {
-              placeInfo: {placeId: item.id},
-            })
-          }
-          onFocusedItemChange={item => item && onItemSelect(item, false)}
-          ItemCard={ItemCard}
-        />
+        {items.length > 0 && (
+          <ItemMapList<T>
+            ref={cardsRef}
+            searchResults={items}
+            onLayout={event => {
+              event.nativeEvent.layout.height !== cardHeight &&
+                setCardHeight(event.nativeEvent.layout.height);
+            }}
+            onCardPress={item =>
+              navigation.navigate('PlaceDetail', {
+                placeInfo: {placeId: item.id},
+              })
+            }
+            onFocusedItemChange={item => item && onItemSelect(item, false)}
+            ItemCard={ItemCard}
+          />
+        )}
       </View>
     </Container>
   );
