@@ -12,6 +12,7 @@ import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
 import {LogClick} from '@/logging/LogClick';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {LogViewAndClick} from '@/logging/LogViewAndClick';
@@ -22,7 +23,6 @@ import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
-import ToastUtils from '@/utils/ToastUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -36,8 +36,9 @@ function SearchItemCard({
 }) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+  const {api} = useAppComponents();
   const currentLocation = useAtomValue(currentLocationAtom);
-  const [isFavorite] = useState(item.place.isFavorite);
+  const [isFavorite, setIsFavorite] = useState(item.place.isFavorite);
   const [hasBeenRegisteredAccessibility, setHasBeenRegisteredAccessibility] =
     useAtom(hasBeenRegisteredAccessibilityAtom);
   const registerStatus: 'UNAVAILABLE' | 'NONE' | 'BOTH' | 'PLACE_ONLY' =
@@ -93,18 +94,17 @@ function SearchItemCard({
     ShareUtils.sharePlace(item.place);
   };
   const onFavorite = async () => {
-    ToastUtils.show('준비 중입니다.');
-    // const nextIsFavorite = !isFavorite;
-    // setIsFavorite(nextIsFavorite);
-    // try {
-    //   if (nextIsFavorite) {
-    //     await api.createPlaceFavoritePost({placeId: item.place.id});
-    //   } else {
-    //     await api.deletePlaceFavoritePost({placeId: item.place.id});
-    //   }
-    // } catch (e) {
-    //   setIsFavorite(isFavorite);
-    // }
+    const nextIsFavorite = !isFavorite;
+    setIsFavorite(nextIsFavorite);
+    try {
+      if (nextIsFavorite) {
+        await api.createPlaceFavoritePost({placeId: item.place.id});
+      } else {
+        await api.deletePlaceFavoritePost({placeId: item.place.id});
+      }
+    } catch (e) {
+      setIsFavorite(!nextIsFavorite);
+    }
   };
   const onRegister = (isBuilding: boolean) => {
     checkAuth(() => {
