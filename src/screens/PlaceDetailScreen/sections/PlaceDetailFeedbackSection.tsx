@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {useAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
 
@@ -84,11 +83,7 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const isDeletable =
-    accessibility.placeAccessibility?.deletionInfo !== null &&
-    dayjs(accessibility.placeAccessibility?.createdAt.value).isAfter(
-      dayjs().subtract(4, 'hours'),
-    ); // FIXME: login check
+  const isDeletable = !!accessibility.placeAccessibility?.deletionInfo; // FIXME: login check
 
   return (
     <S.PlaceDetailFeedbackSection>
