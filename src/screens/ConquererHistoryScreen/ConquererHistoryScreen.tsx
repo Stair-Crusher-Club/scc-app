@@ -1,20 +1,58 @@
+import {FlashList} from '@shopify/flash-list';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import React from 'react';
-import {ScrollView} from 'react-native';
+import styled from 'styled-components/native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
+import useAppComponents from '@/hooks/useAppComponents';
+import ConqueredPlaceItem from '@/screens/ConquererHistoryScreen/sections/ConqueredPlaceItem';
 
 import AchivementsSection from './sections/AchivementsSection';
-import ConquerByMonthSection from './sections/ConquerByMonthSection';
 
 export default function ConquererHistoryScreen() {
+  const {api} = useAppComponents();
+  const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
+    useInfiniteQuery({
+      queryKey: ['ConqueredPlaces'],
+      queryFn: async ({pageParam}) =>
+        (
+          await api.listConqueredPlacesPost({
+            nextToken: pageParam,
+            limit: 20,
+          })
+        ).data,
+      getNextPageParam: lastPage => {
+        return lastPage.nextToken;
+      },
+      initialPageParam: undefined as string | undefined,
+    });
+  const places = data?.pages.flatMap(page => page.items ?? []);
+
   return (
     <ScreenLayout isHeaderVisible={true}>
-      <ScrollView
-        contentContainerStyle={{flexGrow: 1}}
-        style={{backgroundColor: 'white'}}>
-        <AchivementsSection />
-        <ConquerByMonthSection />
-      </ScrollView>
+      <ListContainer>
+        <FlashList
+          contentContainerStyle={{backgroundColor: 'white'}}
+          ListHeaderComponent={
+            <AchivementsSection
+              totalNumberOfPlaces={data?.pages[0].totalNumberOfItems ?? 0}
+            />
+          }
+          data={places}
+          renderItem={({item}) => <ConqueredPlaceItem p={item} />}
+          estimatedItemSize={50}
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.1}
+        />
+      </ListContainer>
     </ScreenLayout>
   );
 }
+
+const ListContainer = styled.View`
+  flex: 1;
+`;
