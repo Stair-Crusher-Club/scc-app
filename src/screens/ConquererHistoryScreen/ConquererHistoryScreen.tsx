@@ -46,7 +46,7 @@ export default function ConquererHistoryScreen() {
               fetchNextPage();
             }
           }}
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.5}
         />
       </ListContainer>
     </ScreenLayout>
