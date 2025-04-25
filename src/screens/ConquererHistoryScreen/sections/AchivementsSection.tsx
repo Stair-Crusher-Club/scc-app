@@ -1,17 +1,12 @@
-import {useQuery} from '@tanstack/react-query';
 import React from 'react';
-
-import useAppComponents from '@/hooks/useAppComponents';
 
 import * as S from './AchivementsSection.style';
 
-export default function AchivementsSection() {
-  const {api} = useAppComponents();
-  const {data} = useQuery({
-    queryKey: ['ConqueredPlaces'],
-    queryFn: async () => (await api.listConqueredPlacesPost({})).data,
-  });
-
+export default function AchivementsSection({
+  totalNumberOfPlaces,
+}: {
+  totalNumberOfPlaces: number;
+}) {
   return (
     <S.AchivementsSection>
       <S.Image
@@ -23,7 +18,7 @@ export default function AchivementsSection() {
       </S.TextWrapper>
       <S.TextWrapper>
         <S.Text>총 </S.Text>
-        <S.Total>{(data?.totalNumberOfItems ?? 0).toLocaleString()}</S.Total>
+        <S.Total>{totalNumberOfPlaces.toLocaleString()}</S.Total>
         <S.Text> 장소 정복 중</S.Text>
       </S.TextWrapper>
     </S.AchivementsSection>

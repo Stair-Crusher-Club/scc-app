@@ -11,11 +11,12 @@ import * as S from './CrusherHistorySection.style';
 export default function CrusherHistorySection() {
   const {api} = useAppComponents();
   const {data} = useQuery({
-    queryKey: ['ConqueredPlaces'],
-    queryFn: async () => (await api.listConqueredPlacesPost({})).data,
+    queryKey: ['ConqueredPlacesForNumberOfItems'],
+    queryFn: async () =>
+      (await api.listConqueredPlacesPost({limit: 1})).data?.totalNumberOfItems,
   });
   const navigation = useNavigation();
-  const totalNumberOfPlaces = data?.totalNumberOfItems ?? 0;
+  const totalNumberOfPlaces = data ?? 0;
 
   return (
     <S.CrusherHistorySection>

@@ -30,8 +30,6 @@ export default function WeeklyConquererSection() {
       ? today.subtract(6, 'day')
       : today.startOf('week').add(1, 'day');
 
-  console.log(data?.thisWeekConqueredWeekdays);
-
   return (
     <S.WeeklyConquererSection>
       <S.ThisWeekStatus>
