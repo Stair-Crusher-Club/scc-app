@@ -1,4 +1,4 @@
-import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 import React from 'react';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
