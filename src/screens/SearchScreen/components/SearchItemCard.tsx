@@ -1,5 +1,5 @@
 import {useAtom, useAtomValue} from 'jotai';
-import React, {memo, useState} from 'react';
+import React, {memo} from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -12,7 +12,7 @@ import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
-import useAppComponents from '@/hooks/useAppComponents';
+import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {LogClick} from '@/logging/LogClick';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {LogViewAndClick} from '@/logging/LogViewAndClick';
@@ -36,11 +36,11 @@ function SearchItemCard({
 }) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
-  const {api} = useAppComponents();
   const currentLocation = useAtomValue(currentLocationAtom);
-  const [isFavorite, setIsFavorite] = useState(item.place.isFavorite);
+  const isFavorite = item.place.isFavorite;
   const [hasBeenRegisteredAccessibility, setHasBeenRegisteredAccessibility] =
     useAtom(hasBeenRegisteredAccessibilityAtom);
+  const toggleFavorite = useToggleFavoritePlace();
   const registerStatus: 'UNAVAILABLE' | 'NONE' | 'BOTH' | 'PLACE_ONLY' =
     (() => {
       if (!item.isAccessibilityRegistrable) {
@@ -93,19 +93,14 @@ function SearchItemCard({
   const onShare = () => {
     ShareUtils.sharePlace(item.place);
   };
-  const onFavorite = async () => {
-    const nextIsFavorite = !isFavorite;
-    setIsFavorite(nextIsFavorite);
-    try {
-      if (nextIsFavorite) {
-        await api.createPlaceFavoritePost({placeId: item.place.id});
-      } else {
-        await api.deletePlaceFavoritePost({placeId: item.place.id});
-      }
-    } catch (e) {
-      setIsFavorite(!nextIsFavorite);
-    }
+
+  const onFavorite = () => {
+    toggleFavorite.mutate({
+      currentIsFavorite: isFavorite,
+      placeId: item.place.id,
+    });
   };
+
   const onRegister = (isBuilding: boolean) => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);

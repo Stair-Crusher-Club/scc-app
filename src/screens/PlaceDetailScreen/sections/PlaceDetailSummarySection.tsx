@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, {useState} from 'react';
+import React from 'react';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -9,7 +9,7 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
-import useAppComponents from '@/hooks/useAppComponents';
+import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {LogClick} from '@/logging/LogClick';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import ShareUtils from '@/utils/ShareUtils';
@@ -28,8 +28,8 @@ const PlaceDetailSummarySection = ({
   place,
   accessibilityScore,
 }: PlaceDetailSummarySectionProps) => {
-  const {api} = useAppComponents();
-  const [isFavorite, setIsFavorite] = useState(place.isFavorite);
+  const isFavorite = place.isFavorite;
+  const toggleFavorite = useToggleFavoritePlace();
 
   const onShare = () => {
     ShareUtils.sharePlace(place);
@@ -40,18 +40,11 @@ const PlaceDetailSummarySection = ({
     ToastUtils.show('주소가 복사되었습니다.');
   };
 
-  const onFavorite = async () => {
-    const nextIsFavorite = !isFavorite;
-    setIsFavorite(nextIsFavorite);
-    try {
-      if (nextIsFavorite) {
-        await api.createPlaceFavoritePost({placeId: place.id});
-      } else {
-        await api.deletePlaceFavoritePost({placeId: place.id});
-      }
-    } catch (e) {
-      setIsFavorite(!nextIsFavorite);
-    }
+  const onFavorite = () => {
+    toggleFavorite.mutate({
+      currentIsFavorite: isFavorite,
+      placeId: place.id,
+    });
   };
 
   if (!accessibility?.placeAccessibility) {
