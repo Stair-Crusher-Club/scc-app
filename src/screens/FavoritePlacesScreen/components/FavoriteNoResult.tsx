@@ -7,7 +7,7 @@ import {font} from '@/constant/font';
 export default function FavoriteNoResult() {
   return (
     <Container>
-      <NoResultText>북마크한 장소가 없습니다.</NoResultText>
+      <NoResultText>저장한 장소가 없습니다.</NoResultText>
     </Container>
   );
 }
