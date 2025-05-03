@@ -2,12 +2,12 @@ import Geolocation from '@react-native-community/geolocation';
 import {FlashList} from '@shopify/flash-list';
 import {useSetAtom} from 'jotai';
 import React, {
-  forwardRef,
   ForwardedRef,
+  forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
-  useEffect,
 } from 'react';
 import {View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -54,6 +54,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [cardHeight, setCardHeight] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const onMyLocationPress = () => {
@@ -73,7 +74,19 @@ const FRefInputComp = <T extends MarkerItem>(
   };
   useEffect(() => {
     if (items.length > 0) {
+      if (selectedItemId) {
+        const newIndex = items.findIndex(item => item.id === selectedItemId);
+        if (newIndex !== -1) {
+          setCurrentItemIndex(newIndex);
+          cardsRef.current?.scrollToOffset({
+            offset: newIndex * ITEM_SIZE,
+            animated: false,
+          });
+          return;
+        }
+      }
       onItemSelect(items[0], false);
+      setCurrentItemIndex(0);
     }
   }, [items]);
 
@@ -109,10 +122,10 @@ const FRefInputComp = <T extends MarkerItem>(
     },
   }));
 
-  // byMarker is true when the item is selected by marker press else selected by card list
   function onItemSelect(item: T, shouldAnimateToPoint: boolean) {
     selectedItemId !== item.id && setSelectedItemId(item.id);
     const index = items.findIndex(it => it.id === item.id);
+    setCurrentItemIndex(index);
     cardsRef.current?.scrollToOffset({
       offset: index * ITEM_SIZE,
       animated: false,
@@ -185,6 +198,7 @@ const FRefInputComp = <T extends MarkerItem>(
           }
           onFocusedItemChange={item => item && onItemSelect(item, false)}
           ItemCard={ItemCard}
+          initialScrollIndex={currentItemIndex}
         />
       </View>
     </Container>

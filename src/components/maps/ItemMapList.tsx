@@ -14,6 +14,7 @@ type Props<T> = {
   onLayout?: (event: LayoutChangeEvent) => void;
   onCardPress?: (item: T) => void;
   ItemCard: React.FC<{item: T; onPress?: () => void}>;
+  initialScrollIndex?: number;
 };
 
 function ItemMapList<T extends {id: string}>(
@@ -23,6 +24,7 @@ function ItemMapList<T extends {id: string}>(
     onLayout,
     onCardPress,
     ItemCard,
+    initialScrollIndex = 0,
   }: Props<T>,
   ref: Ref<FlashList<T>>,
 ) {
@@ -49,6 +51,7 @@ function ItemMapList<T extends {id: string}>(
         snapToOffsets={searchResults.map((_, index) => index * ITEM_SIZE)}
         decelerationRate="fast"
         onLayout={onLayout}
+        initialScrollIndex={initialScrollIndex}
         onMomentumScrollEnd={({nativeEvent}) => {
           const index = Math.floor(
             (nativeEvent.contentOffset.x + ITEM_SIZE / 2) / ITEM_SIZE,
