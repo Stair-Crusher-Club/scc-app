@@ -1,6 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
 import {FlashList} from '@shopify/flash-list';
-import {useSetAtom} from 'jotai';
+import {useAtomValue, useSetAtom} from 'jotai';
 import React, {
   ForwardedRef,
   forwardRef,
@@ -24,6 +24,7 @@ import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation.ts';
+import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
@@ -52,9 +53,11 @@ const FRefInputComp = <T extends MarkerItem>(
   const mapRef = useRef<MapViewHandle>(null);
   const cardsRef = useRef<FlashList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
+  const {text, location: searchLocation} = useAtomValue(searchQueryAtom);
+  const {sortOption, scoreUnder, hasSlope, isRegistered} =
+    useAtomValue(filterAtom);
   const [cardHeight, setCardHeight] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const onMyLocationPress = () => {
@@ -72,23 +75,12 @@ const FRefInputComp = <T extends MarkerItem>(
       },
     );
   };
+
   useEffect(() => {
     if (items.length > 0) {
-      if (selectedItemId) {
-        const newIndex = items.findIndex(item => item.id === selectedItemId);
-        if (newIndex !== -1) {
-          setCurrentItemIndex(newIndex);
-          cardsRef.current?.scrollToOffset({
-            offset: newIndex * ITEM_SIZE,
-            animated: false,
-          });
-          return;
-        }
-      }
       onItemSelect(items[0], false);
-      setCurrentItemIndex(0);
     }
-  }, [items]);
+  }, [text, searchLocation, sortOption, scoreUnder, hasSlope, isRegistered]);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
@@ -125,7 +117,6 @@ const FRefInputComp = <T extends MarkerItem>(
   function onItemSelect(item: T, shouldAnimateToPoint: boolean) {
     selectedItemId !== item.id && setSelectedItemId(item.id);
     const index = items.findIndex(it => it.id === item.id);
-    setCurrentItemIndex(index);
     cardsRef.current?.scrollToOffset({
       offset: index * ITEM_SIZE,
       animated: false,
@@ -198,7 +189,6 @@ const FRefInputComp = <T extends MarkerItem>(
           }
           onFocusedItemChange={item => item && onItemSelect(item, false)}
           ItemCard={ItemCard}
-          initialScrollIndex={currentItemIndex}
         />
       </View>
     </Container>
