@@ -15,6 +15,7 @@ export const color = {
   brand5: '#EFF6FF',
   brand10: '#E5F1FF',
   brand20: '#80BBFF',
+  blue5: '#EFF0F2',
   blue10: '#C7E0FF',
   blue20: '#8EC2FF',
   blue30: '#67AEFF',

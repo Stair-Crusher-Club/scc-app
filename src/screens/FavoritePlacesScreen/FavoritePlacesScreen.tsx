@@ -2,6 +2,7 @@ import React from 'react';
 import {ScrollView, View} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {color} from '@/constant/color';
 
 import FavoriteListView from './components/FavoriteListView';
 
@@ -11,13 +12,13 @@ export default function FavoritePlacesScreen() {
       <View
         style={{
           borderBottomWidth: 1,
-          borderBottomColor: '#EFF0F2',
+          borderBottomColor: color.blue5,
         }}
       />
       <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: color.white,
         }}>
         <FavoriteListView />
       </ScrollView>
