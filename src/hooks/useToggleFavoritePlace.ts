@@ -1,13 +1,17 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {useAtomValue} from 'jotai';
+import {useAtom, useAtomValue} from 'jotai';
 
+import {loadingState} from '@/components/LoadingView';
 import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
+import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
 
 export function useToggleFavoritePlace() {
   const {api} = useAppComponents();
+  const [loading, setLoading] = useAtom(loadingState);
   const queryClient = useQueryClient();
+
   const {text, location} = useAtomValue(searchQueryAtom);
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
     useAtomValue(filterAtom);
@@ -26,7 +30,8 @@ export function useToggleFavoritePlace() {
         return await api.createPlaceFavoritePost({placeId});
       }
     },
-    onSettled: (_data, _err, variables) => {
+    onMutate: () => setLoading(new Map(loading).set('FavoritePlace', true)),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({queryKey: ['FavoritePlaces']});
 
       queryClient.invalidateQueries({
@@ -39,6 +44,12 @@ export function useToggleFavoritePlace() {
           {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
         ],
       });
+    },
+    onError: error => {
+      ToastUtils.showOnApiError(error);
+    },
+    onSettled: () => {
+      setLoading(new Map(loading).set('FavoritePlace', false));
     },
   });
 }
