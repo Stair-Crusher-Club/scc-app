@@ -9,6 +9,7 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
+import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {LogClick} from '@/logging/LogClick';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import ShareUtils from '@/utils/ShareUtils';
@@ -27,8 +28,9 @@ const PlaceDetailSummarySection = ({
   place,
   accessibilityScore,
 }: PlaceDetailSummarySectionProps) => {
-  // TODO: FIX with server given value
-  const isFavoritePlace = false;
+  const isFavorite = place.isFavorite;
+  const toggleFavorite = useToggleFavoritePlace();
+
   const onShare = () => {
     ShareUtils.sharePlace(place);
   };
@@ -38,9 +40,13 @@ const PlaceDetailSummarySection = ({
     ToastUtils.show('주소가 복사되었습니다.');
   };
 
-  const onBookmark = () => {
-    ToastUtils.show('준비중입니다.');
+  const onFavorite = () => {
+    toggleFavorite.mutate({
+      currentIsFavorite: isFavorite,
+      placeId: place.id,
+    });
   };
+
   if (!accessibility?.placeAccessibility) {
     return (
       <S.Section>
@@ -62,11 +68,11 @@ const PlaceDetailSummarySection = ({
           <LogClick
             elementName="place_detail_summary_section_toggle_favorite_button"
             params={{
-              isFavoritePlace: isFavoritePlace,
+              isFavoritePlace: isFavorite,
             }}>
-            <S.Summary onPress={onBookmark}>
-              {isFavoritePlace ? (
-                <BookmarkIconOn />
+            <S.Summary onPress={onFavorite}>
+              {isFavorite ? (
+                <BookmarkIconOn color={color.brandColor} />
               ) : (
                 <BookmarkIconOff color={color.gray80} />
               )}
@@ -105,11 +111,11 @@ const PlaceDetailSummarySection = ({
         <LogClick
           elementName="place_detail_summary_section_toggle_favorite_button"
           params={{
-            isFavoritePlace: isFavoritePlace,
+            isFavoritePlace: isFavorite,
           }}>
-          <S.Summary onPress={onBookmark}>
-            {isFavoritePlace ? (
-              <BookmarkIconOn />
+          <S.Summary onPress={onFavorite}>
+            {isFavorite ? (
+              <BookmarkIconOn color={color.brandColor} />
             ) : (
               <BookmarkIconOff color={color.gray80} />
             )}

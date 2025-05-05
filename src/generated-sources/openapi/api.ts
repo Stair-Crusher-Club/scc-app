@@ -1381,44 +1381,44 @@ export interface ListConqueredPlacesResponseDto {
 /**
  * 
  * @export
- * @interface ListPlaceFavoritesByUserRequestDto
+ * @interface ListPlaceFavoritesRequestDto
  */
-export interface ListPlaceFavoritesByUserRequestDto {
+export interface ListPlaceFavoritesRequestDto {
     /**
      * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
      * @type {string}
-     * @memberof ListPlaceFavoritesByUserRequestDto
+     * @memberof ListPlaceFavoritesRequestDto
      */
     'nextToken'?: string;
     /**
      * 
      * @type {number}
-     * @memberof ListPlaceFavoritesByUserRequestDto
+     * @memberof ListPlaceFavoritesRequestDto
      */
     'limit'?: number;
 }
 /**
  * 
  * @export
- * @interface ListPlaceFavoritesByUserResponseDto
+ * @interface ListPlaceFavoritesResponseDto
  */
-export interface ListPlaceFavoritesByUserResponseDto {
+export interface ListPlaceFavoritesResponseDto {
     /**
      * 즐겨찾기한 장소의 전체 갯수
      * @type {number}
-     * @memberof ListPlaceFavoritesByUserResponseDto
+     * @memberof ListPlaceFavoritesResponseDto
      */
     'totalNumberOfItems': number;
     /**
      * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
      * @type {string}
-     * @memberof ListPlaceFavoritesByUserResponseDto
+     * @memberof ListPlaceFavoritesResponseDto
      */
     'nextToken'?: string;
     /**
      * 
      * @type {Array<PlaceFavorite>}
-     * @memberof ListPlaceFavoritesByUserResponseDto
+     * @memberof ListPlaceFavoritesResponseDto
      */
     'items': Array<PlaceFavorite>;
 }
@@ -3606,6 +3606,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 
+         * @summary 즐겨찾기한 장소 목록을 조회한다.
+         * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPlaceFavoritesPost: async (listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listPlaceFavoritesRequestDto' is not null or undefined
+            assertParamExists('listPlaceFavoritesPost', 'listPlaceFavoritesRequestDto', listPlaceFavoritesRequestDto)
+            const localVarPath = `/listPlaceFavorites`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listPlaceFavoritesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * \'이 건물에 다른 점포 등록하기\'를 눌렀을 때 호출된다.
          * @summary 특정 건물의 점포를 조회한다.
          * @param {ListPlacesInBuildingPostRequest} listPlacesInBuildingPostRequest 
@@ -4537,6 +4577,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 
+         * @summary 즐겨찾기한 장소 목록을 조회한다.
+         * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listPlaceFavoritesPost(listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListPlaceFavoritesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listPlaceFavoritesPost(listPlaceFavoritesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * \'이 건물에 다른 점포 등록하기\'를 눌렀을 때 호출된다.
          * @summary 특정 건물의 점포를 조회한다.
          * @param {ListPlacesInBuildingPostRequest} listPlacesInBuildingPostRequest 
@@ -4976,6 +5027,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listConqueredPlacesPost(listConqueredPlacesRequestDto: ListConqueredPlacesRequestDto, options?: any): AxiosPromise<ListConqueredPlacesResponseDto> {
             return localVarFp.listConqueredPlacesPost(listConqueredPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 즐겨찾기한 장소 목록을 조회한다.
+         * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPlaceFavoritesPost(listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options?: any): AxiosPromise<ListPlaceFavoritesResponseDto> {
+            return localVarFp.listPlaceFavoritesPost(listPlaceFavoritesRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * \'이 건물에 다른 점포 등록하기\'를 눌렀을 때 호출된다.
@@ -5452,6 +5513,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listConqueredPlacesPost(listConqueredPlacesRequestDto: ListConqueredPlacesRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listConqueredPlacesPost(listConqueredPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 즐겨찾기한 장소 목록을 조회한다.
+     * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listPlaceFavoritesPost(listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listPlaceFavoritesPost(listPlaceFavoritesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

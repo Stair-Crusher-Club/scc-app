@@ -1,13 +1,13 @@
 import Geolocation from '@react-native-community/geolocation';
 import {FlashList} from '@shopify/flash-list';
-import {useSetAtom} from 'jotai';
+import {useAtomValue, useSetAtom} from 'jotai';
 import React, {
-  forwardRef,
   ForwardedRef,
+  forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
-  useEffect,
 } from 'react';
 import {View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -24,6 +24,7 @@ import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation.ts';
+import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
@@ -52,6 +53,9 @@ const FRefInputComp = <T extends MarkerItem>(
   const mapRef = useRef<MapViewHandle>(null);
   const cardsRef = useRef<FlashList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
+  const {text, location: searchLocation} = useAtomValue(searchQueryAtom);
+  const {sortOption, scoreUnder, hasSlope, isRegistered} =
+    useAtomValue(filterAtom);
   const [cardHeight, setCardHeight] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
@@ -71,11 +75,12 @@ const FRefInputComp = <T extends MarkerItem>(
       },
     );
   };
+
   useEffect(() => {
     if (items.length > 0) {
       onItemSelect(items[0], false);
     }
-  }, [items]);
+  }, [text, searchLocation, sortOption, scoreUnder, hasSlope, isRegistered]);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
@@ -109,7 +114,6 @@ const FRefInputComp = <T extends MarkerItem>(
     },
   }));
 
-  // byMarker is true when the item is selected by marker press else selected by card list
   function onItemSelect(item: T, shouldAnimateToPoint: boolean) {
     selectedItemId !== item.id && setSelectedItemId(item.id);
     const index = items.findIndex(it => it.id === item.id);
