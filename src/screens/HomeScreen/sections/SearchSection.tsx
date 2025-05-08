@@ -20,19 +20,21 @@ export default function SearchSection() {
   return (
     <Contents>
       <Title>어느 장소를 정복할까요?</Title>
-      <LogClick elementName="place_search_input">
-        <SearchInputContainer>
+      <SearchInputContainer>
+        <LogClick elementName="place_search_map_direct">
           <Pressable onPress={() => goToSearch('', true)}>
             <MapIcon width={24} height={24} />
           </Pressable>
+        </LogClick>
+        <LogClick elementName="place_search_input">
           <Pressable
             onPress={() => goToSearch('')}
             style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
             <SearchInputText>장소, 주소 검색</SearchInputText>
             <SearchIcon width={24} height={24} color={color.gray70} />
           </Pressable>
-        </SearchInputContainer>
-      </LogClick>
+        </LogClick>
+      </SearchInputContainer>
       <SearchCategoryContainer>
         <SearchCategory onPressKeyword={goToSearch} />
       </SearchCategoryContainer>
