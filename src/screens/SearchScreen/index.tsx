@@ -84,7 +84,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
             result.map(it => ({
               ...it,
               id: it.place.id,
-              location: it.building.location,
+              location: it.place.location,
               displayName: it.place.name,
             })),
           );

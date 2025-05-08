@@ -82,7 +82,7 @@ function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
   return {
     ...item,
     id: item.place.id,
-    location: item.building.location,
+    location: item.place.location,
     displayName: item.place.name,
     markerIcon: {
       icon: match<string | undefined, MarkerIcon>(item.place.category)
