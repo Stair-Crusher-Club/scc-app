@@ -1404,7 +1404,7 @@ export interface ListPlaceFavoritesRequestDto {
  */
 export interface ListPlaceFavoritesResponseDto {
     /**
-     * 즐겨찾기한 장소의 전체 갯수
+     * 즐겨찾기한 장소의 전체 개수
      * @type {number}
      * @memberof ListPlaceFavoritesResponseDto
      */
@@ -1417,10 +1417,10 @@ export interface ListPlaceFavoritesResponseDto {
     'nextToken'?: string;
     /**
      * 
-     * @type {Array<PlaceFavorite>}
+     * @type {Array<PlaceListItem>}
      * @memberof ListPlaceFavoritesResponseDto
      */
-    'items': Array<PlaceFavorite>;
+    'items': Array<PlaceListItem>;
 }
 /**
  * 
@@ -1574,6 +1574,12 @@ export interface Place {
      * @memberof Place
      */
     'address': string;
+    /**
+     * 
+     * @type {Location}
+     * @memberof Place
+     */
+    'location'?: Location;
     /**
      * 점포의 카테고리
      * @type {PlaceCategoryDto}

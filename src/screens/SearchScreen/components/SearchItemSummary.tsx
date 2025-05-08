@@ -19,10 +19,10 @@ export default function SearchItemSummary({
   const currentLocation = useAtomValue(currentLocationAtom);
   const distanceText = (() => {
     let distance;
-    if (currentLocation && item.building.location) {
+    if (currentLocation && item.place.location) {
       distance = distanceInMeter(currentLocation, {
-        latitude: item.building.location.lat,
-        longitude: item.building.location.lng,
+        latitude: item.place.location.lat,
+        longitude: item.place.location.lng,
       });
     } else {
       distance = undefined;
