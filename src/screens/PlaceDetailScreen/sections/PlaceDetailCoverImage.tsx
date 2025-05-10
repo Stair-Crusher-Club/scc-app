@@ -1,10 +1,12 @@
-import React, {useRef, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import React, {useRef} from 'react';
 import {Pressable, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import {LogClick} from '@/logging/LogClick';
-import PlaceDetailImageZoomViewer from '@/screens/PlaceDetailScreen/modals/PlaceDetailImageZoomViewer';
+import {ScreenParams} from '@/navigation/Navigation.screens';
 
 import * as S from './PlaceDetailCoverImage.style';
 
@@ -17,6 +19,7 @@ interface Props {
   accessibility?: AccessibilityInfoDto;
 }
 const PlaceDetailCoverImage = ({accessibility}: Props) => {
+  const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const placeImages = (accessibility?.placeAccessibility?.images ?? []).map(
     image => ({
       type: '장소 입구',
@@ -25,7 +28,6 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
     }),
   );
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
-  const [isImageModalVisible, setImageModalVisible] = useState(false);
   const buildingImages = (
     accessibility?.buildingAccessibility?.entranceImages ?? []
   ).map(image => ({
@@ -47,7 +49,10 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
   ];
   const onPressImage = (index: number) => {
     initialFocusedIndex.current = index;
-    setImageModalVisible(true);
+    navigation.navigate('ImageZoomViewer', {
+      imageUrls: thumbnailImages.map(image => image.url),
+      index: index,
+    });
   };
 
   function renderItem({item, index}: {item: SlideData; index: number}) {
@@ -81,12 +86,6 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
         loop
         renderItem={renderItem}
         panGestureHandlerProps={{activeOffsetX: [-10, 10]}}
-      />
-      <PlaceDetailImageZoomViewer
-        isVisible={isImageModalVisible}
-        imageUrls={thumbnailImages.map(image => image.url)}
-        index={initialFocusedIndex.current}
-        onPressCloseButton={() => setImageModalVisible(false)}
       />
     </S.CoverImageContainer>
   );

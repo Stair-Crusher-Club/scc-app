@@ -18,7 +18,6 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
-import PlaceDetailImageZoomViewer from '../PlaceDetailScreen/modals/PlaceDetailImageZoomViewer';
 import CameraDeviceSelect from './CameraDeviceSelect';
 import CameraNotAuthorized from './CameraNotAuthorized';
 import CameraPreview from './CameraPreview';
@@ -34,7 +33,6 @@ export default function CameraScreen({
   route,
   navigation,
 }: ScreenProps<'Camera/Place'>) {
-  const [isImageModalVisible, setImageModalVisible] = useState(false);
   const initialFocusedIndex = React.useRef(0);
   const windowHeight = Dimensions.get('window').height;
   const cameraMaxHeight = windowHeight > 0 ? windowHeight / 2 : 360;
@@ -85,7 +83,12 @@ export default function CameraScreen({
 
   function openPreview(index: number) {
     initialFocusedIndex.current = index;
-    setImageModalVisible(true);
+    navigation.navigate('ImageZoomViewer', {
+      imageUrls: photoFiles.map(file =>
+        ImageFileUtils.filepathFromImageFile(file),
+      ),
+      index: index,
+    });
   }
 
   // 사진 촬영에는 약간의 딜레이가 있으나, 로딩 레이어를 띄우지는 않는다.
@@ -183,14 +186,6 @@ export default function CameraScreen({
           </S.FlashButton>
         )}
       </S.ActionsWrapper>
-      <PlaceDetailImageZoomViewer
-        index={initialFocusedIndex.current}
-        isVisible={isImageModalVisible}
-        imageUrls={photoFiles.map(file =>
-          ImageFileUtils.filepathFromImageFile(file),
-        )}
-        onPressCloseButton={() => setImageModalVisible(false)}
-      />
     </ScreenLayout>
   );
 }
