@@ -1,4 +1,5 @@
-import React, {useCallback, useState} from 'react';
+import {useBackHandler} from '@react-native-community/hooks';
+import React, {useCallback, useState, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
@@ -14,6 +15,8 @@ export interface WebViewScreenParams {
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   const {fixedTitle, url} = route.params;
+  const webViewRef = useRef<WebView>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
 
   const [title, setTitle] = useState<string | undefined>(
     fixedTitle || undefined,
@@ -26,6 +29,17 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   const handleMessage = useCallback((message: WebViewMessageEvent) => {
     setTitle(message.nativeEvent.data);
   }, []);
+
+  const handleBackPress = useCallback(() => {
+    if (canGoBack && webViewRef.current) {
+      webViewRef.current.goBack();
+      return true;
+    }
+    return false;
+  }, [canGoBack]);
+
+  useBackHandler(handleBackPress);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <CloseAppBar
@@ -34,10 +48,14 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         onTapCloseButton={onTapCloseButton}
       />
       <WebView
+        ref={webViewRef}
         style={styles.webview}
         source={{uri: url}}
         injectedJavaScript="window.postMessage(document.title)"
         onMessage={handleMessage}
+        onNavigationStateChange={navState => {
+          setCanGoBack(navState.canGoBack);
+        }}
       />
     </SafeAreaView>
   );
