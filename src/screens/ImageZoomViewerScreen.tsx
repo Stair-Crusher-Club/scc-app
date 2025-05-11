@@ -1,36 +1,32 @@
 import {useBackHandler} from '@react-native-community/hooks';
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {Modal, Pressable, Text} from 'react-native';
+import {Pressable, Text} from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import {IImageInfo} from 'react-native-image-zoom-viewer/built/image-viewer.type';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import {color} from '@/constant/color';
+import {ScreenProps} from '@/navigation/Navigation.screens';
 
-interface PlaceDetailImageZoomViewerProps {
-  isVisible: boolean;
+export type ImageZoomViewerScreenParams = {
   imageUrls: string[];
   index?: number;
-  onPressCloseButton: () => void;
-}
+};
 
-const PlaceDetailImageZoomViewer = ({
-  isVisible,
-  imageUrls,
-  index,
-  onPressCloseButton,
-}: PlaceDetailImageZoomViewerProps) => {
+const ImageZoomViewerScreen = ({route}: ScreenProps<'ImageZoomViewer'>) => {
+  const navigation = useNavigation();
   const safeAreaInsets = useSafeAreaInsets();
+  const {imageUrls, index = 0} = route.params as ImageZoomViewerScreenParams;
+
   useBackHandler(() => {
-    if (isVisible) {
-      onPressCloseButton();
-      return true;
-    }
-    return false;
+    navigation.goBack();
+    return true;
   });
+
   return (
-    <Modal visible={isVisible} animationType={'fade'}>
+    <>
       <Pressable
         style={{
           marginTop: safeAreaInsets.top,
@@ -39,16 +35,12 @@ const PlaceDetailImageZoomViewer = ({
           left: 20,
           zIndex: 999,
         }}
-        onPress={onPressCloseButton}>
+        onPress={() => navigation.goBack()}>
         <LeftArrowIcon width={24} height={24} color={color.white} />
       </Pressable>
 
       <ImageViewer
-        index={index || 0}
-        swipeDownThreshold={40}
-        enableSwipeDown
-        onSwipeDown={onPressCloseButton}
-        /** 다이내믹아일랜드 처리가 제대로 안 되어있고 라이브러리는 deprecated라 대체 */
+        index={index}
         renderIndicator={(idx, all) => {
           return (
             <Text
@@ -65,12 +57,12 @@ const PlaceDetailImageZoomViewer = ({
             </Text>
           );
         }}
-        imageUrls={imageUrls.map(url => {
+        imageUrls={imageUrls.map((url: string) => {
           return {url} as IImageInfo;
         })}
       />
-    </Modal>
+    </>
   );
 };
 
-export default PlaceDetailImageZoomViewer;
+export default ImageZoomViewerScreen;

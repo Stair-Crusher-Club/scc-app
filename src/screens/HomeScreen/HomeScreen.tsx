@@ -5,7 +5,6 @@ import {useAtomValue, useSetAtom} from 'jotai';
 import Lottie from 'lottie-react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  BackHandler,
   Linking,
   PermissionsAndroid,
   Platform,
@@ -13,6 +12,7 @@ import {
   StatusBar,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import {useBackHandler} from '@react-native-community/hooks';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';
@@ -157,24 +157,18 @@ const HomeScreen = ({navigation}: any) => {
   };
 
   const lastBackPressTime = useRef<number>(0);
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        if (lastBackPressTime.current + 2000 >= Date.now()) {
-          return false;
-        } else {
-          ToastUtils.show('뒤로가기 버튼을 한번 더 누르면 종료됩니다.');
-          lastBackPressTime.current = Date.now();
-          return true;
-        }
-      };
-      const subscription = BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress,
-      );
-      return () => subscription.remove();
-    }, []),
-  );
+  const handleBackPress = useCallback(() => {
+    if (lastBackPressTime.current + 2000 >= Date.now()) {
+      return false;
+    } else {
+      ToastUtils.show('뒤로가기 버튼을 한번 더 누르면 종료됩니다.');
+      lastBackPressTime.current = Date.now();
+      return true;
+    }
+  }, []);
+
+  useBackHandler(handleBackPress);
+
   useFocusEffect(
     useCallback(() => {
       StatusBar.setBarStyle('light-content');

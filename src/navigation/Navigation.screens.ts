@@ -27,6 +27,9 @@ import ExternalAccessibilityDetailScreen, {
 } from '@/screens/ExternalAccessibilityDetailScreen';
 import FavoritePlacesScreen from '@/screens/FavoritePlacesScreen';
 import GuideForFirstVisitScreen from '@/screens/GuideForFirstVisitScreen';
+import ImageZoomViewerScreen, {
+  ImageZoomViewerScreenParams,
+} from '@/screens/ImageZoomViewerScreen';
 import IntroScreen from '@/screens/IntroScreen';
 import LoginScreen, {LoginScreenParams} from '@/screens/LoginScreen';
 import MainScreen from '@/screens/MainScreen';
@@ -151,6 +154,11 @@ export const MainNavigationScreens: {
     name: 'ToiletMap',
     component: ToiletMapScreen,
   },
+  {
+    name: 'ImageZoomViewer',
+    component: ImageZoomViewerScreen,
+    options: {presentation: 'fullScreenModal'},
+  },
 ];
 
 export type ScreenParams = {
@@ -190,6 +198,7 @@ export type ScreenParams = {
   GuideForFirstVisit: undefined;
   PlacePhotoGuide: undefined;
   Webview: WebViewScreenParams;
+  ImageZoomViewer: ImageZoomViewerScreenParams;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =
