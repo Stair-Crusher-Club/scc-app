@@ -3,7 +3,7 @@ name: OTA Deployment
 on:
   push:
     branches:
-      - main
+      - sanggggg/add-cd-sandbox
 
 jobs:
   deploy:
