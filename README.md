@@ -70,9 +70,25 @@ yarn android
 
 ## 배포
 
-### OTA 업데이트
+### 자동 배포 (GitHub Actions)
 
-[hot-updater](https://github.com/invertase/hot-updater)를 사용한 OTA 업데이트:
+프로젝트는 GitHub Actions를 통해 자동으로 OTA 업데이트를 배포합니다:
+
+1. **개발 환경 배포**
+   - `sanggggg/add-cd-sandbox` 브랜치에 푸시하면 자동으로 개발 환경에 배포됩니다.
+   - 배포 결과는 Slack `scc-server` 채널에 알림이 전송됩니다.
+
+2. **운영 환경 배포**
+   - 새로운 버전 태그를 푸시하면 자동으로 운영 환경에 배포됩니다.
+   ```sh
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+   - 배포 결과는 Slack `scc-server` 채널에 알림이 전송됩니다.
+
+### 수동 OTA 업데이트
+
+[hot-updater](https://github.com/invertase/hot-updater)를 사용한 수동 OTA 업데이트:
 
 ```sh
 yarn ota-deploy:sandbox -i # 개발 환경

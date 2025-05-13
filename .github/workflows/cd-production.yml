@@ -1,0 +1,56 @@
+name: Production OTA Deployment
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Get iOS version from Info.plist
+        id: get_ios_version
+        run: |
+          IOS_VERSION=$(grep -A1 "<key>CFBundleShortVersionString</key>" ios/sccReactNative/Info.plist | grep "<string>" | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
+          echo "IOS_VERSION=$IOS_VERSION" >> $GITHUB_ENV
+
+      - name: Get Android version from version.properties
+        id: get_android_version
+        run: |
+          ANDROID_VERSION=$(cat android/app/version.properties | grep version | cut -d'=' -f2)
+          echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
+
+      - name: Deploy iOS OTA
+        run: yarn ota-deploy:production -p ios -t ${{ env.IOS_VERSION }} -f
+
+      - name: Deploy Android OTA
+        run: yarn ota-deploy:production -p android -t ${{ env.ANDROID_VERSION }} -f
+
+      - name: Notify Slack on Success
+        if: success()
+        run: |
+          CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[PROD] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}, Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        run: |
+          CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[PROD] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}, Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }} 
