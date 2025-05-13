@@ -42,3 +42,29 @@ jobs:
 
       - name: Deploy Android OTA
         run: yarn ota-deploy:sandbox -p android -t ${{ env.ANDROID_VERSION }} -f
+
+      - name: Notify Slack on Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: 'scc-server'
+          slack-message: |
+            ✅ [DEV] Scc-App OTA Deployment Successful
+            iOS Version: ${{ env.IOS_VERSION }}
+            Android Version: ${{ env.ANDROID_VERSION }}
+            Commit: ${{ github.sha }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: 'scc-server'
+          slack-message: |
+            ❌ [DEV] Scc-App OTA Deployment Failed
+            iOS Version: ${{ env.IOS_VERSION }}
+            Android Version: ${{ env.ANDROID_VERSION }}
+            Check the workflow run for more details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
