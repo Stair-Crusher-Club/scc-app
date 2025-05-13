@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,10 +38,6 @@ jobs:
 
       - name: Deploy iOS OTA
         run: yarn ota-deploy:sandbox -p ios -t ${{ env.IOS_VERSION }} -f
-        env:
-          GITHUB_SHA: ${{ github.sha }}
 
       - name: Deploy Android OTA
         run: yarn ota-deploy:sandbox -p android -t ${{ env.ANDROID_VERSION }} -f
-        env:
-          GITHUB_SHA: ${{ github.sha }} 
