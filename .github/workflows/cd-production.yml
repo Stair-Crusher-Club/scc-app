@@ -1,9 +1,9 @@
-name: OTA Deployment
+name: Production OTA Deployment
 
 on:
   push:
-    branches:
-      - sanggggg/add-cd-sandbox
+    tags:
+      - 'v*'
 
 jobs:
   deploy:
@@ -37,20 +37,20 @@ jobs:
           ANDROID_VERSION=$(cat android/app/version.properties | grep version | cut -d'=' -f2)
           echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
 
-      # - name: Deploy iOS OTA
-      #   run: yarn ota-deploy:sandbox -p ios -t ${{ env.IOS_VERSION }} -f
+      - name: Deploy iOS OTA
+        run: yarn ota-deploy:production -p ios -t ${{ env.IOS_VERSION }} -f
 
-      # - name: Deploy Android OTA
-      #   run: yarn ota-deploy:sandbox -p android -t ${{ env.ANDROID_VERSION }} -f
+      - name: Deploy Android OTA
+        run: yarn ota-deploy:production -p android -t ${{ env.ANDROID_VERSION }} -f
 
       - name: Notify Slack on Success
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#36a64f\",\"title\":\"[DEV] Scc-App OTA Deployment Successful\", \"text\":\"<!subteam^S052B9W7129> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#36a64f\",\"title\":\"[PROD] Scc-App OTA Deployment Successful\", \"text\":\"<!subteam^S052B9W7129> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}, Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
       - name: Notify Slack on Failure
         if: failure()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[DEV] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9W7129> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[PROD] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9W7129> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}, Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }} 
