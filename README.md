@@ -47,7 +47,7 @@ yarn codegen
 5. Firebase 설정 파일 복사
 ```sh
 # 운영 환경 빌드
-cp subprojects/scc-frontend-build-configurations/production/google-services.json android/app/src/release/
+cp subprojects/scc-frontend-build-configurations/production/google-services.json android/app/src/production/
 
 # 개발 환경 빌드
 cp subprojects/scc-frontend-build-configurations/sandbox/google-services.json android/app/src/sandbox/
