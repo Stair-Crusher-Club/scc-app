@@ -1,3 +1,4 @@
+import {useBackHandler} from '@react-native-community/hooks';
 import messaging from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
@@ -12,13 +13,13 @@ import {
   StatusBar,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import {useBackHandler} from '@react-native-community/hooks';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {color} from '@/constant/color';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
   ListChallengesItemDto,
@@ -173,7 +174,7 @@ const HomeScreen = ({navigation}: any) => {
     useCallback(() => {
       StatusBar.setBarStyle('light-content');
       if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor('rgba(29, 133, 255, 0.8)');
+        StatusBar.setBackgroundColor(color.brand);
       }
       return () => {
         StatusBar.setBarStyle('dark-content');
@@ -188,7 +189,7 @@ const HomeScreen = ({navigation}: any) => {
     <ScreenLayout
       isHeaderVisible={false}
       safeAreaEdges={['top']}
-      style={{backgroundColor: 'rgba(29, 133, 255, 0.8)'}}>
+      style={{backgroundColor: color.brand}}>
       <S.Header>
         <CrusherClubLogo />
       </S.Header>

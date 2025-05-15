@@ -35,6 +35,8 @@ export const color = {
 
   red: '#DB0B24',
 
+  brand: '#0E64D3',
+
   link: '#1067CD',
   lightOrange: '#FFA14B',
   orange: '#F67600',
