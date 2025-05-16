@@ -28,7 +28,10 @@ export const PlaceDetailFeedbackSection = ({
     isNegativeFeedbackOptionModalVisible,
     setIsNegativeFeedbackOptionModalVisible,
   ] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isPlaceDeleteModalVisible, setIsPlaceDeleteModalVisible] =
+    useState(false);
+  const [isBuildingDeleteModalVisible, setIsBuildingDeleteModalVisible] =
+    useState(false);
   const checkAuth = useCheckAuth();
 
   useEffect(() => {
@@ -60,10 +63,27 @@ export const PlaceDetailFeedbackSection = ({
     }
     setLoading(new Map(loading).set('PlaceDetail', true));
 
-    const placeId = accessibility.placeAccessibility.id;
-    const success = await deletePlace(api, placeId);
+    const placeAccessibilityId = accessibility.placeAccessibility.id;
+    const success = await deletePlace(api, placeAccessibilityId);
 
-    setIsDeleteModalVisible(false);
+    setIsPlaceDeleteModalVisible(false);
+    setLoading(new Map(loading).set('PlaceDetail', false));
+
+    if (success) {
+      navigation.navigate('Main');
+    }
+  };
+
+  const handleDeleteBuilding = async () => {
+    if (!accessibility.buildingAccessibility) {
+      return;
+    }
+    setLoading(new Map(loading).set('PlaceDetail', true));
+
+    const buildingAccessibilityId = accessibility.buildingAccessibility.id;
+    const success = await deleteBuilding(api, buildingAccessibilityId);
+
+    setIsBuildingDeleteModalVisible(false);
     setLoading(new Map(loading).set('PlaceDetail', false));
 
     if (success) {
@@ -77,13 +97,21 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const showDeleteConfirmBottomSheet = () => {
+  const showPlaceDeleteConfirmBottomSheet = () => {
     checkAuth(() => {
-      setIsDeleteModalVisible(true);
+      setIsPlaceDeleteModalVisible(true);
     });
   };
 
-  const isDeletable = !!accessibility.placeAccessibility?.deletionInfo; // FIXME: login check
+  const showBuildingDeleteConfirmBottomSheet = () => {
+    checkAuth(() => {
+      setIsBuildingDeleteModalVisible(true);
+    });
+  };
+
+  const isPlaceDeletable = !!accessibility.placeAccessibility?.isDeletable; // FIXME: login check
+  const isBuildingDeletable =
+    !!accessibility.buildingAccessibility?.isDeletable;
 
   return (
     <S.PlaceDetailFeedbackSection>
@@ -98,10 +126,17 @@ export const PlaceDetailFeedbackSection = ({
           <S.ButtonText color={color.gray70}>신고할래요 👎</S.ButtonText>
         </S.DefaultButton>
       </S.Buttons>
-      {isDeletable && (
+      {isPlaceDeletable && (
         <S.Buttons>
-          <S.DeleteButton onPress={showDeleteConfirmBottomSheet}>
-            <S.DeleteButtonText>등록된 정보 삭제하기</S.DeleteButtonText>
+          <S.DeleteButton onPress={showPlaceDeleteConfirmBottomSheet}>
+            <S.DeleteButtonText>장소 정보 삭제하기</S.DeleteButtonText>
+          </S.DeleteButton>
+        </S.Buttons>
+      )}
+      {isBuildingDeletable && (
+        <S.Buttons>
+          <S.DeleteButton onPress={showBuildingDeleteConfirmBottomSheet}>
+            <S.DeleteButtonText>건물 정보 삭제하기</S.DeleteButtonText>
           </S.DeleteButton>
         </S.Buttons>
       )}
@@ -126,10 +161,14 @@ export const PlaceDetailFeedbackSection = ({
         />
       )}
       <PlaceDetailDeleteBottomSheet
-        isVisible={isDeleteModalVisible}
-        deletionInfo={accessibility.placeAccessibility?.deletionInfo}
-        onPressCancelButton={() => setIsDeleteModalVisible(false)}
+        isVisible={isPlaceDeleteModalVisible}
+        onPressCancelButton={() => setIsPlaceDeleteModalVisible(false)}
         onPressConfirmButton={handleDeletePlace}
+      />
+      <PlaceDetailDeleteBottomSheet
+        isVisible={isBuildingDeleteModalVisible}
+        onPressCancelButton={() => setIsBuildingDeleteModalVisible(false)}
+        onPressConfirmButton={handleDeleteBuilding}
       />
     </S.PlaceDetailFeedbackSection>
   );
@@ -158,15 +197,34 @@ async function updateUpvoteStatus(
   }
 }
 
-async function deletePlace(api: DefaultApi, placeId: string): Promise<boolean> {
+async function deletePlace(
+  api: DefaultApi,
+  placeAccessibilityId: string,
+): Promise<boolean> {
   try {
-    await api.deleteAccessibilityPost({
-      placeAccessibilityId: placeId,
+    await api.deletePlaceAccessibilityPost({
+      placeAccessibilityId: placeAccessibilityId,
     });
     ToastUtils.show('장소 정보를 삭제했습니다.');
     return true;
   } catch (e) {
     ToastUtils.show('삭제할 수 없는 장소입니다.');
+    return false;
+  }
+}
+
+async function deleteBuilding(
+  api: DefaultApi,
+  buildingAccessibilityId: string,
+): Promise<boolean> {
+  try {
+    await api.deleteBuildingAccessibilityPost({
+      buildingAccessibilityId: buildingAccessibilityId,
+    });
+    ToastUtils.show('건물 정보를 삭제했습니다.');
+    return true;
+  } catch (e) {
+    ToastUtils.show('삭제할 수 없는 건물입니다.');
     return false;
   }
 }
