@@ -140,10 +140,11 @@ const HomeScreen = ({navigation}: any) => {
     });
   }, [isGuestUser]);
 
-  const goToIntro = () => {
+  const goToGuide = () => {
     navigation.navigate('Webview', {
-      fixedTitle: '등록 전 꼭 읽어 주세요',
-      url: 'https://agnica.notion.site/2c64dfee581b4cb0bfefd94489eccb3c',
+      fixedTitle: '정보 등록/조회 가이드',
+      url: 'https://admin.staircrusher.club/public/guide',
+      headerVariant: 'navigation',
     });
   };
   const openStore = () => {
@@ -201,8 +202,8 @@ const HomeScreen = ({navigation}: any) => {
                 {'일상 속의 계단정보를\n함께 모아요!'}
               </S.Title>
               <LogClick elementName="scc_description">
-                <S.Description allowFontScaling={false} onPress={goToIntro}>
-                  {'계단정보가 왜 필요한가요? >'}
+                <S.Description allowFontScaling={false} onPress={goToGuide}>
+                  {'계단정보 등록 조회 방법 알아보기 >'}
                 </S.Description>
               </LogClick>
             </S.TitleContainer>
