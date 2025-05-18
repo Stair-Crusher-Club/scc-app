@@ -1,6 +1,7 @@
-import {useAtom} from 'jotai';
+import {useAtom, useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
 
+import {accessTokenAtom} from '@/atoms/Auth';
 import {loadingState} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import {AccessibilityInfoDto, DefaultApi} from '@/generated-sources/openapi';
@@ -20,6 +21,7 @@ interface PlaceDetailFeedbackSectionProps {
 export const PlaceDetailFeedbackSection = ({
   accessibility,
 }: PlaceDetailFeedbackSectionProps) => {
+  const accessToken = useAtomValue(accessTokenAtom);
   const [loading, setLoading] = useAtom(loadingState);
   const navigation = useNavigation();
   const {api} = useAppComponents();
@@ -81,7 +83,8 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const isDeletable = !!accessibility.placeAccessibility?.deletionInfo; // FIXME: login check
+  const isDeletable =
+    accessToken && !!accessibility.placeAccessibility?.deletionInfo;
 
   return (
     <S.PlaceDetailFeedbackSection>
