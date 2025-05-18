@@ -51,13 +51,13 @@ export function getFloorAccessibility(accessibility: AccessibilityInfoDto): {
     if (accessibility.placeAccessibility?.isStairOnlyOption) {
       return {
         type: FloorAccessibilityType.GroundAndMoreFloorsWithStairOnly,
-        title: '1-2층을 포함한 여러층',
+        title: '1층을 포함한 여러층',
         description: '계단으로만 이동 가능',
       };
     } else {
       return {
         type: FloorAccessibilityType.GroundAndMoreFloors,
-        title: '1-2층을 포함한 여러층',
+        title: '1층을 포함한 여러층',
         description: '계단 외 이동 방법 있음',
       };
     }
