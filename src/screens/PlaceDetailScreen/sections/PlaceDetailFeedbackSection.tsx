@@ -32,19 +32,17 @@ export const PlaceDetailFeedbackSection = ({
   const checkAuth = useCheckAuth();
 
   useEffect(() => {
-    // TODO: 건물 정보에 대한 정확해요가 맞는지, 장소가 아니라.
-    setIsUpvoted(accessibility.buildingAccessibility?.isUpvoted ?? false);
+    setIsUpvoted(accessibility.placeAccessibility?.isUpvoted ?? false);
   }, [accessibility]);
 
   const toggleUpvote = async () => {
     checkAuth(async () => {
-      // TODO: 빌딩 정보가 없으면 upvote 불가
-      const buildingAccessibilityId = accessibility?.buildingAccessibility?.id;
-      if (buildingAccessibilityId) {
+      const placeAccessibilityId = accessibility?.placeAccessibility?.id;
+      if (placeAccessibilityId) {
         setIsUpvoted(!isUpvoted);
         const success = await updateUpvoteStatus(
           api,
-          buildingAccessibilityId,
+          placeAccessibilityId,
           !isUpvoted,
         );
         if (!success) {
@@ -83,7 +81,7 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const isDeletable = !!accessibility.placeAccessibility?.deletionInfo; // FIXME: login check
+  const isDeletable = !!accessibility.placeAccessibility?.deletionInfo;
 
   return (
     <S.PlaceDetailFeedbackSection>
@@ -137,17 +135,17 @@ export const PlaceDetailFeedbackSection = ({
 
 async function updateUpvoteStatus(
   api: DefaultApi,
-  buildingAccessibilityId: string,
+  placeAccessibilityId: string,
   newUpvotedStatus: boolean,
 ) {
   try {
     if (newUpvotedStatus === false) {
-      await api.cancelBuildingAccessibilityUpvotePost({
-        buildingAccessibilityId,
+      await api.cancelPlaceAccessibilityUpvotePost({
+        placeAccessibilityId,
       });
     } else {
-      await api.giveBuildingAccessibilityUpvotePost({
-        buildingAccessibilityId,
+      await api.givePlaceAccessibilityUpvotePost({
+        placeAccessibilityId,
       });
     }
     ToastUtils.show('좋은 의견 감사합니다!');
