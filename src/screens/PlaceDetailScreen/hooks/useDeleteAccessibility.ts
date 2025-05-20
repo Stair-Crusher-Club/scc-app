@@ -39,7 +39,7 @@ export function useDeleteAccessibility(
         ],
       });
 
-      navigation.navigate('Main');
+      navigation.goBack();
     },
     onError: (_error, variables) => {
       if (variables.type === 'place') {
