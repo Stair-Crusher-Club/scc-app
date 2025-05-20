@@ -54,26 +54,13 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const deleteAccessibility = useDeleteAccessibility(
-    async ({type, accessibilityDto}) => {
-      if (type === 'place') {
-        if (!accessibilityDto.placeAccessibility) {
-          return;
-        }
-        await api.deletePlaceAccessibilityPost({
-          placeAccessibilityId: accessibilityDto.placeAccessibility.id,
-        });
-        setIsPlaceDeleteModalVisible(false);
-      } else {
-        if (!accessibilityDto.buildingAccessibility) {
-          return;
-        }
-        await api.deleteBuildingAccessibilityPost({
-          buildingAccessibilityId: accessibilityDto.buildingAccessibility.id,
-        });
-        setIsBuildingDeleteModalVisible(false);
-      }
-    },
+  const deletePlaceAccessibility = useDeleteAccessibility(
+    'place',
+    accessibility,
+  );
+  const deleteBuildingAccessibility = useDeleteAccessibility(
+    'building',
+    accessibility,
   );
 
   const showNegativeFeedbackBottomSheet = () => {
@@ -148,22 +135,18 @@ export const PlaceDetailFeedbackSection = ({
       <PlaceDetailDeleteBottomSheet
         isVisible={isPlaceDeleteModalVisible}
         onPressCancelButton={() => setIsPlaceDeleteModalVisible(false)}
-        onPressConfirmButton={() =>
-          deleteAccessibility.mutate({
-            type: 'place',
-            accessibilityDto: accessibility,
-          })
-        }
+        onPressConfirmButton={() => {
+          deletePlaceAccessibility.mutate();
+          setIsPlaceDeleteModalVisible(false);
+        }}
       />
       <PlaceDetailDeleteBottomSheet
         isVisible={isBuildingDeleteModalVisible}
         onPressCancelButton={() => setIsBuildingDeleteModalVisible(false)}
-        onPressConfirmButton={() =>
-          deleteAccessibility.mutate({
-            type: 'building',
-            accessibilityDto: accessibility,
-          })
-        }
+        onPressConfirmButton={() => {
+          deleteBuildingAccessibility.mutate();
+          setIsBuildingDeleteModalVisible(false);
+        }}
       />
     </S.PlaceDetailFeedbackSection>
   );
