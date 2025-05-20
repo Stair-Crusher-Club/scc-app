@@ -5,6 +5,7 @@ import {loadingState} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import {AccessibilityInfoDto, DefaultApi} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import usePost from '@/hooks/usePost';
 import useNavigation from '@/navigation/useNavigation';
 import ToastUtils from '@/utils/ToastUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -55,39 +56,54 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const handleDeletePlace = async () => {
-    if (!accessibility.placeAccessibility) {
-      return;
-    }
-    setLoading(new Map(loading).set('PlaceDetail', true));
+  const deleteAccessibility = usePost<{
+    type: 'place' | 'building';
+  }>(
+    [
+      'DeleteAccessibility',
+      accessibility.placeAccessibility?.id ?? '',
+      accessibility.buildingAccessibility?.id ?? '',
+    ],
+    async params => {
+      if (params.type === 'place' && !accessibility.placeAccessibility) {
+        return;
+      }
+      if (params.type === 'building' && !accessibility.buildingAccessibility) {
+        return;
+      }
+      setLoading(new Map(loading).set('PlaceDetail', true));
 
-    const placeAccessibilityId = accessibility.placeAccessibility.id;
-    const success = await deletePlace(api, placeAccessibilityId);
+      let hasFailed = false;
+      if (params.type === 'place') {
+        try {
+          await api.deletePlaceAccessibilityPost({
+            placeAccessibilityId: accessibility.placeAccessibility!!.id,
+          });
+          ToastUtils.show('장소 정보를 삭제했습니다.');
+        } catch (error) {
+          hasFailed = true;
+          ToastUtils.show('삭제할 수 없는 장소입니다.');
+        }
+      } else {
+        try {
+          await api.deleteBuildingAccessibilityPost({
+            buildingAccessibilityId: accessibility.buildingAccessibility!!.id,
+          });
+          ToastUtils.show('건물 정보를 삭제했습니다.');
+        } catch (error) {
+          hasFailed = true;
+          ToastUtils.show('삭제할 수 없는 건물입니다.');
+        }
+      }
 
-    setIsPlaceDeleteModalVisible(false);
-    setLoading(new Map(loading).set('PlaceDetail', false));
-
-    if (success) {
-      navigation.navigate('Main');
-    }
-  };
-
-  const handleDeleteBuilding = async () => {
-    if (!accessibility.buildingAccessibility) {
-      return;
-    }
-    setLoading(new Map(loading).set('PlaceDetail', true));
-
-    const buildingAccessibilityId = accessibility.buildingAccessibility.id;
-    const success = await deleteBuilding(api, buildingAccessibilityId);
-
-    setIsBuildingDeleteModalVisible(false);
-    setLoading(new Map(loading).set('PlaceDetail', false));
-
-    if (success) {
-      navigation.navigate('Main');
-    }
-  };
+      setIsPlaceDeleteModalVisible(false);
+      setIsBuildingDeleteModalVisible(false);
+      setLoading(new Map(loading).set('PlaceDetail', false));
+      if (!hasFailed) {
+        navigation.navigate('Main');
+      }
+    },
+  );
 
   const showNegativeFeedbackBottomSheet = () => {
     checkAuth(() => {
@@ -161,12 +177,14 @@ export const PlaceDetailFeedbackSection = ({
       <PlaceDetailDeleteBottomSheet
         isVisible={isPlaceDeleteModalVisible}
         onPressCancelButton={() => setIsPlaceDeleteModalVisible(false)}
-        onPressConfirmButton={handleDeletePlace}
+        onPressConfirmButton={() => deleteAccessibility.mutate({type: 'place'})}
       />
       <PlaceDetailDeleteBottomSheet
         isVisible={isBuildingDeleteModalVisible}
         onPressCancelButton={() => setIsBuildingDeleteModalVisible(false)}
-        onPressConfirmButton={handleDeleteBuilding}
+        onPressConfirmButton={() =>
+          deleteAccessibility.mutate({type: 'building'})
+        }
       />
     </S.PlaceDetailFeedbackSection>
   );
@@ -191,38 +209,6 @@ async function updateUpvoteStatus(
     return true;
   } catch (error: any) {
     ToastUtils.showOnApiError(error);
-    return false;
-  }
-}
-
-async function deletePlace(
-  api: DefaultApi,
-  placeAccessibilityId: string,
-): Promise<boolean> {
-  try {
-    await api.deletePlaceAccessibilityPost({
-      placeAccessibilityId: placeAccessibilityId,
-    });
-    ToastUtils.show('장소 정보를 삭제했습니다.');
-    return true;
-  } catch (e) {
-    ToastUtils.show('삭제할 수 없는 장소입니다.');
-    return false;
-  }
-}
-
-async function deleteBuilding(
-  api: DefaultApi,
-  buildingAccessibilityId: string,
-): Promise<boolean> {
-  try {
-    await api.deleteBuildingAccessibilityPost({
-      buildingAccessibilityId: buildingAccessibilityId,
-    });
-    ToastUtils.show('건물 정보를 삭제했습니다.');
-    return true;
-  } catch (e) {
-    ToastUtils.show('삭제할 수 없는 건물입니다.');
     return false;
   }
 }
