@@ -39,6 +39,12 @@ export function useDeleteAccessibility(
         ],
       });
 
+      if (variables.type === 'place') {
+        ToastUtils.show('장소 정보를 삭제했습니다.');
+      } else {
+        ToastUtils.show('건물 정보를 삭제했습니다.');
+      }
+
       navigation.goBack();
     },
     onError: (_error, variables) => {
