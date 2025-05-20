@@ -107,7 +107,7 @@ const Placeholder = styled.View`
   flex: 0 0 33.333%;
   justify-content: center;
   align-items: center;
-  background-color: #eaeaef;
+  background-color: ${color.gray10};
 `;
 
 const ImageContainer = styled.Pressable`
