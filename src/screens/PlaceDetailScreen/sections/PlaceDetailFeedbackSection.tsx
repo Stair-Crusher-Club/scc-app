@@ -5,11 +5,10 @@ import {loadingState} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import {AccessibilityInfoDto, DefaultApi} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import usePost from '@/hooks/usePost';
-import useNavigation from '@/navigation/useNavigation';
 import ToastUtils from '@/utils/ToastUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import {useDeleteAccessibility} from '../hooks/useDeleteAccessibility';
 import PlaceDetailDeleteBottomSheet from '../modals/PlaceDetailDeleteBottomSheet';
 import PlaceDetailNegativeFeedbackBottomSheet from '../modals/PlaceDetailNegativeFeedbackBottomSheet';
 import * as S from './PlaceDetailFeedbackSection.style';
@@ -22,7 +21,6 @@ export const PlaceDetailFeedbackSection = ({
   accessibility,
 }: PlaceDetailFeedbackSectionProps) => {
   const [loading, setLoading] = useAtom(loadingState);
-  const navigation = useNavigation();
   const {api} = useAppComponents();
   const [isUpvoted, setIsUpvoted] = useState(false);
   const [
@@ -56,51 +54,24 @@ export const PlaceDetailFeedbackSection = ({
     });
   };
 
-  const deleteAccessibility = usePost<{
-    type: 'place' | 'building';
-  }>(
-    [
-      'DeleteAccessibility',
-      accessibility.placeAccessibility?.id ?? '',
-      accessibility.buildingAccessibility?.id ?? '',
-    ],
-    async params => {
-      if (params.type === 'place' && !accessibility.placeAccessibility) {
-        return;
-      }
-      if (params.type === 'building' && !accessibility.buildingAccessibility) {
-        return;
-      }
-      setLoading(new Map(loading).set('PlaceDetail', true));
-
-      let hasFailed = false;
-      if (params.type === 'place') {
-        try {
-          await api.deletePlaceAccessibilityPost({
-            placeAccessibilityId: accessibility.placeAccessibility!!.id,
-          });
-          ToastUtils.show('장소 정보를 삭제했습니다.');
-        } catch (error) {
-          hasFailed = true;
-          ToastUtils.show('삭제할 수 없는 장소입니다.');
+  const deleteAccessibility = useDeleteAccessibility(
+    async ({type, accessibilityDto}) => {
+      if (type === 'place') {
+        if (!accessibilityDto.placeAccessibility) {
+          return;
         }
+        await api.deletePlaceAccessibilityPost({
+          placeAccessibilityId: accessibilityDto.placeAccessibility.id,
+        });
+        setIsPlaceDeleteModalVisible(false);
       } else {
-        try {
-          await api.deleteBuildingAccessibilityPost({
-            buildingAccessibilityId: accessibility.buildingAccessibility!!.id,
-          });
-          ToastUtils.show('건물 정보를 삭제했습니다.');
-        } catch (error) {
-          hasFailed = true;
-          ToastUtils.show('삭제할 수 없는 건물입니다.');
+        if (!accessibilityDto.buildingAccessibility) {
+          return;
         }
-      }
-
-      setIsPlaceDeleteModalVisible(false);
-      setIsBuildingDeleteModalVisible(false);
-      setLoading(new Map(loading).set('PlaceDetail', false));
-      if (!hasFailed) {
-        navigation.navigate('Main');
+        await api.deleteBuildingAccessibilityPost({
+          buildingAccessibilityId: accessibilityDto.buildingAccessibility.id,
+        });
+        setIsBuildingDeleteModalVisible(false);
       }
     },
   );
@@ -177,13 +148,21 @@ export const PlaceDetailFeedbackSection = ({
       <PlaceDetailDeleteBottomSheet
         isVisible={isPlaceDeleteModalVisible}
         onPressCancelButton={() => setIsPlaceDeleteModalVisible(false)}
-        onPressConfirmButton={() => deleteAccessibility.mutate({type: 'place'})}
+        onPressConfirmButton={() =>
+          deleteAccessibility.mutate({
+            type: 'place',
+            accessibilityDto: accessibility,
+          })
+        }
       />
       <PlaceDetailDeleteBottomSheet
         isVisible={isBuildingDeleteModalVisible}
         onPressCancelButton={() => setIsBuildingDeleteModalVisible(false)}
         onPressConfirmButton={() =>
-          deleteAccessibility.mutate({type: 'building'})
+          deleteAccessibility.mutate({
+            type: 'building',
+            accessibilityDto: accessibility,
+          })
         }
       />
     </S.PlaceDetailFeedbackSection>
