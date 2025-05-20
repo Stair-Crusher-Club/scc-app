@@ -14,7 +14,7 @@ export default function PlaceDetailAppBar() {
     <S.AppBar>
       <Pressable onPress={() => navigation.goBack()}>
         <S.BackButton>
-          <LeftArrowIcon width={24} height={24} color={color.black} />
+          <LeftArrowIcon width={15} height={15} color={color.black} />
         </S.BackButton>
       </Pressable>
     </S.AppBar>

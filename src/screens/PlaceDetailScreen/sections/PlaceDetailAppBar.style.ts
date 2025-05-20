@@ -9,14 +9,13 @@ export const AppBar = styled(SafeAreaView)({
   flexDirection: 'row',
   alignItems: 'center',
   paddingVertical: 10,
-  paddingHorizontal: 8,
+  paddingHorizontal: 20,
 });
 
 export const BackButton = styled.View({
   alignItems: 'center',
   justifyContent: 'center',
-  width: 40,
-  height: 40,
+  width: 24,
+  height: 24,
   borderRadius: 20,
-  backgroundColor: 'white',
 });
