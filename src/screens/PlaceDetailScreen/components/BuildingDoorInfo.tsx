@@ -45,7 +45,6 @@ export default function BuildingDoorInfo({accessibility}: Props) {
           <DetailIcon doorType={doorTypes[0]} />
         </S.DetailedIconWrapper>
       </S.InfoContainer>
-      <S.Separator />
     </>
   );
 }
