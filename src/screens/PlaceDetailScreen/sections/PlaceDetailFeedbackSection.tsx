@@ -9,7 +9,7 @@ import ToastUtils from '@/utils/ToastUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import {useDeleteAccessibility} from '../hooks/useDeleteAccessibility';
-import PlaceDetailDeleteBottomSheet from '../modals/PlaceDetailDeleteBottomSheet';
+import DeleteBottomSheet from '../modals/DeleteBottomSheet';
 import PlaceDetailNegativeFeedbackBottomSheet from '../modals/PlaceDetailNegativeFeedbackBottomSheet';
 import * as S from './PlaceDetailFeedbackSection.style';
 
@@ -132,16 +132,22 @@ export const PlaceDetailFeedbackSection = ({
           }}
         />
       )}
-      <PlaceDetailDeleteBottomSheet
+      <DeleteBottomSheet
         isVisible={isPlaceDeleteModalVisible}
+        confirmText={
+          '이 장소의 계단정보와 댓글이 모두 삭제됩니다. 정말 삭제할까요?'
+        }
         onPressCancelButton={() => setIsPlaceDeleteModalVisible(false)}
         onPressConfirmButton={() => {
           deletePlaceAccessibility.mutate();
           setIsPlaceDeleteModalVisible(false);
         }}
       />
-      <PlaceDetailDeleteBottomSheet
+      <DeleteBottomSheet
         isVisible={isBuildingDeleteModalVisible}
+        confirmText={
+          '이 건물의 계단정보와 댓글이 모두 삭제됩니다. 정말 삭제할까요?'
+        }
         onPressCancelButton={() => setIsBuildingDeleteModalVisible(false)}
         onPressConfirmButton={() => {
           deleteBuildingAccessibility.mutate();

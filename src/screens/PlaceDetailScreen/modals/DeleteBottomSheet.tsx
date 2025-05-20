@@ -9,12 +9,14 @@ import {font} from '@/constant/font';
 
 interface Props {
   isVisible: boolean;
+  confirmText: string;
   onPressCancelButton: () => void;
   onPressConfirmButton: () => void;
 }
 
-const PlaceDetailDeleteBottomSheet = ({
+const DeleteBottomSheet = ({
   isVisible,
+  confirmText,
   onPressCancelButton,
   onPressConfirmButton,
 }: Props) => {
@@ -32,9 +34,7 @@ const PlaceDetailDeleteBottomSheet = ({
             <DangerousIcon />
           </View>
           <View style={styles.warningMessageContainer}>
-            <Text style={styles.warningMessage}>
-              이 장소의 계단정보와 댓글이 모두 삭제됩니다. 정말 삭제할까요?
-            </Text>
+            <Text style={styles.warningMessage}>{confirmText}</Text>
           </View>
           <View style={styles.buttonContainer}>
             <SccButton
@@ -61,7 +61,7 @@ const PlaceDetailDeleteBottomSheet = ({
   );
 };
 
-export default PlaceDetailDeleteBottomSheet;
+export default DeleteBottomSheet;
 
 const styles = StyleSheet.create({
   container: {
