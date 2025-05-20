@@ -33,10 +33,7 @@ export function useDeleteAccessibility(
       });
 
       queryClient.invalidateQueries({
-        queryKey: [
-          'search',
-          {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
-        ],
+        queryKey: ['search'],
       });
 
       if (variables.type === 'place') {
