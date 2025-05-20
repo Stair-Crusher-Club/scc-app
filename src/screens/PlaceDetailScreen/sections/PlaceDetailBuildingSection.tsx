@@ -124,6 +124,10 @@ function NoBuildingInfoSection({
               ? '정보 등록하기'
               : '서비스 지역이 아닙니다'
           }
+          style={{
+            borderRadius: 10,
+          }}
+          fontSize={18}
           fontFamily={font.pretendardBold}
           isDisabled={!isAccessibilityRegistrable}
           onPress={() =>
