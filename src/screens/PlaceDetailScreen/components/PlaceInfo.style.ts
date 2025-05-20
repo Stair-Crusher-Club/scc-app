@@ -63,7 +63,7 @@ export const DetailedIconWrapper = styled.View({
   alignItems: 'center',
   width: 60,
   height: 60,
-  borderRadius: 20,
+  borderRadius: 14,
   backgroundColor: color.gray10,
 });
 
