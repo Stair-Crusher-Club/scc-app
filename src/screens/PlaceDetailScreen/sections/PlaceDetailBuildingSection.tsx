@@ -64,28 +64,30 @@ export default function PlaceDetailEntranceSection({
         </S.Row>
         <S.Address>{place.address}</S.Address>
       </S.SubSection>
-      <ImageList images={images} />
-      <BuildingEntranceStepInfo accessibility={accessibility} />
-      <BuildingElevatorInfo accessibility={accessibility} />
-      <BuildingDoorInfo accessibility={accessibility} />
-      <S.Comments>
-        {comments.map(comment => (
-          <CommentBlock key={comment.id} info={comment} />
-        ))}
-        <LogClick elementName="place_detail_add_comment_button">
-          <S.AddCommentButton
-            onPress={() => checkAuth(() => handlePressAddComment())}>
-            <PlusIcon width={12} height={12} />
-            <S.AddCommentText>의견 추가하기</S.AddCommentText>
-          </S.AddCommentButton>
-        </LogClick>
-      </S.Comments>
-      <PlaceDetailCrusher
-        crusherGroupIcon={
-          accessibility.placeAccessibility?.challengeCrusherGroup?.icon
-        }
-        crusherName={registeredUserName}
-      />
+      <S.InfoContent>
+        <ImageList images={images} />
+        <BuildingEntranceStepInfo accessibility={accessibility} />
+        <BuildingElevatorInfo accessibility={accessibility} />
+        <BuildingDoorInfo accessibility={accessibility} />
+        <S.Comments>
+          {comments.map(comment => (
+            <CommentBlock key={comment.id} info={comment} />
+          ))}
+          <LogClick elementName="place_detail_add_comment_button">
+            <S.AddCommentButton
+              onPress={() => checkAuth(() => handlePressAddComment())}>
+              <PlusIcon width={12} height={12} />
+              <S.AddCommentText>의견 추가하기</S.AddCommentText>
+            </S.AddCommentButton>
+          </LogClick>
+        </S.Comments>
+        <PlaceDetailCrusher
+          crusherGroupIcon={
+            accessibility.placeAccessibility?.challengeCrusherGroup?.icon
+          }
+          crusherName={registeredUserName}
+        />
+      </S.InfoContent>
     </S.Section>
   );
 }
@@ -110,25 +112,26 @@ function NoBuildingInfoSection({
         </S.Row>
         <S.Address>{place.address}</S.Address>
       </S.SubSection>
-      <ImageList images={[]} />
-      <S.Separator />
-      <BuildingEntranceStepInfo />
-      <BuildingElevatorInfo />
-      <BuildingDoorInfo />
-      <SccButton
-        text={
-          isAccessibilityRegistrable
-            ? '정보 등록하기'
-            : '서비스 지역이 아닙니다'
-        }
-        fontFamily={font.pretendardBold}
-        isDisabled={!isAccessibilityRegistrable}
-        onPress={() =>
-          checkAuth(() =>
-            navigation.navigate('BuildingForm', {place, building}),
-          )
-        }
-      />
+      <S.EmptyInfoContent>
+        <ImageList images={[]} />
+        <BuildingEntranceStepInfo />
+        <BuildingElevatorInfo />
+        <BuildingDoorInfo />
+        <SccButton
+          text={
+            isAccessibilityRegistrable
+              ? '정보 등록하기'
+              : '서비스 지역이 아닙니다'
+          }
+          fontFamily={font.pretendardBold}
+          isDisabled={!isAccessibilityRegistrable}
+          onPress={() =>
+            checkAuth(() =>
+              navigation.navigate('BuildingForm', {place, building}),
+            )
+          }
+        />
+      </S.EmptyInfoContent>
     </S.Section>
   );
 }

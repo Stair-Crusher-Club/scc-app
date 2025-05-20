@@ -150,8 +150,8 @@ const CopyButton = styled.TouchableOpacity`
 `;
 
 const CopyText = styled.Text`
-  color: ${color.brandColor};
+  color: ${color.blue50};
   font-family: ${font.pretendardMedium};
-  font-size: 14px;
+  font-size: 13px;
   text-decoration-line: underline;
 `;

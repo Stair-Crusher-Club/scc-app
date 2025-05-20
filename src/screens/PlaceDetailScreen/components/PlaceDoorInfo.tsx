@@ -6,13 +6,13 @@ import HingedDoorIcon from '@/assets/icon/door_hinged.svg';
 import NoneDoorIcon from '@/assets/icon/door_none.svg';
 import RevolvingDoorIcon from '@/assets/icon/door_revolving.svg';
 import SlidingDoorIcon from '@/assets/icon/door_sliding.svg';
-import CheckIcon from '@/assets/icon/ic_check.svg';
 import {doorTypeMap} from '@/constant/options';
 import {
   AccessibilityInfoDto,
   EntranceDoorType,
 } from '@/generated-sources/openapi';
 
+import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 
 interface Props {
@@ -21,12 +21,7 @@ interface Props {
 export default function PlaceDoorInfo({accessibility}: Props) {
   // 장소 정보 자체가 없는 경우는 회색 체크 상태로 노출
   if (!accessibility) {
-    return (
-      <S.InfoContainer>
-        <CheckIcon color="#D0D0D9" />
-        <S.Title>출입문 유형</S.Title>
-      </S.InfoContainer>
-    );
+    return <EmptyInfo type="출입문 유형" />;
   }
 
   const doorTypes = accessibility.placeAccessibility?.entranceDoorTypes ?? [];

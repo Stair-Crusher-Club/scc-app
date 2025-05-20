@@ -8,9 +8,9 @@ import FloorUndergroundBadIcon from '@/assets/icon/floor_underground_bad.svg';
 import FloorUndergroundGoodIcon from '@/assets/icon/floor_underground_good.svg';
 import FloorUpperBadIcon from '@/assets/icon/floor_upper_bad.svg';
 import FloorUpperGoodIcon from '@/assets/icon/floor_upper_good.svg';
-import CheckIcon from '@/assets/icon/ic_check.svg';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
+import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 import {FloorAccessibilityType, getFloorAccessibility} from './PlaceInfo.utils';
 
@@ -20,12 +20,7 @@ interface Props {
 
 export default function PlaceFloorInfo({accessibility}: Props) {
   if (!accessibility) {
-    return (
-      <S.InfoContainer>
-        <CheckIcon color="#D0D0D9" />
-        <S.Title>층 정보</S.Title>
-      </S.InfoContainer>
-    );
+    return <EmptyInfo type="층 정보" />;
   }
 
   const floorInfo = getFloorAccessibility(accessibility);
