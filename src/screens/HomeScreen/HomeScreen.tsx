@@ -1,3 +1,4 @@
+import {useBackHandler} from '@react-native-community/hooks';
 import messaging from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
@@ -12,7 +13,6 @@ import {
   StatusBar,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import {useBackHandler} from '@react-native-community/hooks';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';

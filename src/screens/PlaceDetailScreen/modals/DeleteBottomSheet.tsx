@@ -6,24 +6,21 @@ import DangerousIcon from '@/assets/icon/ic_dangerous.svg';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceAccessibilityDeletionInfo} from '@/generated-sources/openapi';
 
 interface Props {
   isVisible: boolean;
-  deletionInfo?: PlaceAccessibilityDeletionInfo;
+  confirmText: string;
   onPressCancelButton: () => void;
   onPressConfirmButton: () => void;
 }
 
-const PlaceDetailDeleteBottomSheet = ({
+const DeleteBottomSheet = ({
   isVisible,
-  deletionInfo,
+  confirmText,
   onPressCancelButton,
   onPressConfirmButton,
 }: Props) => {
   const safeAreaInsets = useSafeAreaInsets(); // TODO: Modal 안에서 SafeAreaView 가 동작하지 않아서 넣은 값.
-
-  const isLastPlaceOfBuilding = deletionInfo?.isLastInBuilding;
 
   return (
     <Modal visible={isVisible} transparent={true} animationType="fade">
@@ -37,11 +34,7 @@ const PlaceDetailDeleteBottomSheet = ({
             <DangerousIcon />
           </View>
           <View style={styles.warningMessageContainer}>
-            <Text style={styles.warningMessage}>
-              {isLastPlaceOfBuilding
-                ? '이 장소의 계단정보와 건물 정보, 댓글이 모두 삭제됩니다. 정말 삭제할까요?'
-                : '이 장소의 계단정보와 댓글이 모두 삭제됩니다. 정말 삭제할까요?'}
-            </Text>
+            <Text style={styles.warningMessage}>{confirmText}</Text>
           </View>
           <View style={styles.buttonContainer}>
             <SccButton
@@ -68,7 +61,7 @@ const PlaceDetailDeleteBottomSheet = ({
   );
 };
 
-export default PlaceDetailDeleteBottomSheet;
+export default DeleteBottomSheet;
 
 const styles = StyleSheet.create({
   container: {
