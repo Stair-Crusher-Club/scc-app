@@ -84,7 +84,7 @@ export default function PlaceDetailEntranceSection({
           ))}
           <S.AddCommentButton
             onPress={() => checkAuth(() => handlePressAddComment())}>
-            <PlusIcon width={12} height={12} color={color.blue60} />
+            <PlusIcon width={12} height={12} color={color.blue50} />
             <S.AddCommentText>의견 추가하기</S.AddCommentText>
           </S.AddCommentButton>
         </S.Comments>

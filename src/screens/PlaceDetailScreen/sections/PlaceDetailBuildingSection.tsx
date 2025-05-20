@@ -4,6 +4,7 @@ import React from 'react';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {SccButton} from '@/components/atoms';
 import {CommentBlock} from '@/components/molecules';
+import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
   AccessibilityInfoDto,
@@ -76,7 +77,7 @@ export default function PlaceDetailEntranceSection({
           <LogClick elementName="place_detail_add_comment_button">
             <S.AddCommentButton
               onPress={() => checkAuth(() => handlePressAddComment())}>
-              <PlusIcon width={12} height={12} />
+              <PlusIcon width={12} height={12} color={color.blue50} />
               <S.AddCommentText>의견 추가하기</S.AddCommentText>
             </S.AddCommentButton>
           </LogClick>
