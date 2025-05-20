@@ -1,10 +1,9 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {useAtom, useAtomValue} from 'jotai';
+import {useAtom} from 'jotai';
 
 import {loadingState} from '@/components/LoadingView';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
-import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
 import ToastUtils from '@/utils/ToastUtils';
 
 export function useDeleteAccessibility(
@@ -16,10 +15,6 @@ export function useDeleteAccessibility(
   const [loading, setLoading] = useAtom(loadingState);
   const queryClient = useQueryClient();
   const navigation = useNavigation();
-
-  const {text, location} = useAtomValue(searchQueryAtom);
-  const {sortOption, scoreUnder, hasSlope, isRegistered} =
-    useAtomValue(filterAtom);
 
   return useMutation({
     mutationFn: mutationFn,
