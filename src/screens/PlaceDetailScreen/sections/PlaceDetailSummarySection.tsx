@@ -94,7 +94,14 @@ const PlaceDetailSummarySection = ({
   return (
     <S.Section>
       <S.SubSection>
-        <ScoreLabel score={accessibilityScore} />
+        <ScoreLabel
+          score={accessibilityScore}
+          isProcessing={
+            accessibilityScore === undefined &&
+            accessibility.placeAccessibility !== undefined &&
+            accessibility.buildingAccessibility === undefined
+          }
+        />
         <S.Row>
           <S.SectionTitle>{place.name}</S.SectionTitle>
         </S.Row>

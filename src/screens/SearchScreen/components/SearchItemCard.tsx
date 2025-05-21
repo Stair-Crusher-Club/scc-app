@@ -132,6 +132,11 @@ function SearchItemCard({
               <ScoreLabel
                 score={item.accessibilityInfo?.accessibilityScore}
                 isIconVisible
+                isProcessing={
+                  item.accessibilityInfo?.accessibilityScore === undefined &&
+                  item.hasPlaceAccessibility &&
+                  !item.hasBuildingAccessibility
+                }
               />
               <IconArea>
                 <TouchableOpacity

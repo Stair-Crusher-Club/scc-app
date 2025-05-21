@@ -42,6 +42,11 @@ export default function SearchItemSummary({
         <ScoreLabel
           score={item.accessibilityInfo?.accessibilityScore}
           isIconVisible={false}
+          isProcessing={
+            item.accessibilityInfo?.accessibilityScore === undefined &&
+            item.hasPlaceAccessibility &&
+            !item.hasBuildingAccessibility
+          }
         />
       )}
       <TitleArea>
