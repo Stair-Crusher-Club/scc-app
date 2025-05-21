@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import React from 'react';
+import {View} from 'react-native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {SccButton} from '@/components/atoms';
@@ -70,24 +71,26 @@ export default function PlaceDetailEntranceSection({
         <BuildingEntranceStepInfo accessibility={accessibility} />
         <BuildingElevatorInfo accessibility={accessibility} />
         <BuildingDoorInfo accessibility={accessibility} />
-        <S.Comments>
-          {comments.map(comment => (
-            <CommentBlock key={comment.id} info={comment} />
-          ))}
-          <LogClick elementName="place_detail_add_comment_button">
-            <S.AddCommentButton
-              onPress={() => checkAuth(() => handlePressAddComment())}>
-              <PlusIcon width={12} height={12} color={color.blue50} />
-              <S.AddCommentText>의견 추가하기</S.AddCommentText>
-            </S.AddCommentButton>
-          </LogClick>
-        </S.Comments>
-        <PlaceDetailCrusher
-          crusherGroupIcon={
-            accessibility.placeAccessibility?.challengeCrusherGroup?.icon
-          }
-          crusherName={registeredUserName}
-        />
+        <View>
+          <S.Comments>
+            {comments.map(comment => (
+              <CommentBlock key={comment.id} info={comment} />
+            ))}
+            <LogClick elementName="place_detail_add_comment_button">
+              <S.AddCommentButton
+                onPress={() => checkAuth(() => handlePressAddComment())}>
+                <PlusIcon width={12} height={12} color={color.blue50} />
+                <S.AddCommentText>의견 추가하기</S.AddCommentText>
+              </S.AddCommentButton>
+            </LogClick>
+          </S.Comments>
+          <PlaceDetailCrusher
+            crusherGroupIcon={
+              accessibility.placeAccessibility?.challengeCrusherGroup?.icon
+            }
+            crusherName={registeredUserName}
+          />
+        </View>
       </S.InfoContent>
     </S.Section>
   );

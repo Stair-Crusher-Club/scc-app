@@ -87,7 +87,7 @@ export const AddCommentButton = styled.Pressable({
   borderWidth: 1,
   borderRadius: 12,
   borderColor: color.gray30,
-  marginTop: 20,
+  marginBottom: 16,
 });
 export const AddCommentText = styled.Text({
   color: color.blue50,
