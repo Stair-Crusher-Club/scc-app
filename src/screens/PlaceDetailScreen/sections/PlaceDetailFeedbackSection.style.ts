@@ -32,11 +32,13 @@ const Button = styled.Pressable({
 export const DefaultButton = styled(Button)({
   borderWidth: 1,
   borderColor: color.gray30,
+  borderRadius: 12,
 });
 export const UpvoteButton = styled(Button)<{upvoted: boolean}>(({upvoted}) => ({
   borderWidth: 1,
   borderColor: upvoted ? color.blue30 : color.gray30,
   backgroundColor: upvoted ? color.blue30a15 : undefined,
+  borderRadius: 12,
 }));
 export const DeleteButton = styled(Button)({
   marginTop: 40,

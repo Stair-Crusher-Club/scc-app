@@ -1,6 +1,8 @@
 import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import {color} from '@/constant/color';
+
 export const AppBar = styled(SafeAreaView)({
   position: 'absolute',
   top: 0,
@@ -18,5 +20,5 @@ export const BackButton = styled.View({
   width: 40,
   height: 40,
   borderRadius: 20,
-  backgroundColor: 'white',
+  backgroundColor: color.white,
 });

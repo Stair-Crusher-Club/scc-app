@@ -8,7 +8,7 @@ export const Section = styled.View({
   paddingVertical: 32,
   paddingHorizontal: 20,
   backgroundColor: color.white,
-  gap: 32,
+  gap: 16,
 });
 
 export const SubSection = styled.View({
@@ -22,23 +22,31 @@ export const Row = styled.View({
 });
 
 export const Title = styled.Text({
-  fontSize: 24,
-  lineHeight: '36px',
+  fontSize: 20,
+  lineHeight: '26px',
   fontFamily: font.pretendardBold,
 });
 
 export const Updated = styled.Text({
   fontSize: 14,
   fontFamily: font.pretendardRegular,
-  color: color.gray80,
+  color: color.gray50,
 });
 
 export const Address = styled.Text({
+  fontSize: 12,
   marginTop: 4,
-  fontSize: 16,
-  lineHeight: '25px',
+  lineHeight: '14px',
   fontFamily: font.pretendardRegular,
   color: color.gray80,
+});
+
+export const EmptyInfoContent = styled.View({
+  gap: 20,
+});
+
+export const InfoContent = styled.View({
+  gap: 30,
 });
 
 export const Separator = styled.View({
@@ -79,10 +87,10 @@ export const AddCommentButton = styled.Pressable({
   borderWidth: 1,
   borderRadius: 12,
   borderColor: color.gray30,
-  marginTop: 20,
+  marginBottom: 16,
 });
 export const AddCommentText = styled.Text({
-  color: color.blue60,
+  color: color.blue50,
   fontSize: 16,
   fontFamily: font.pretendardMedium,
   marginLeft: 4,

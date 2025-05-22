@@ -92,5 +92,5 @@ export const CrusherLabel = styled.Text({
 export const CrusherName = styled.Text({
   color: color.gray100,
   fontSize: 14,
-  fontFamily: font.pretendardBold,
+  fontFamily: font.pretendardMedium,
 });

@@ -3,9 +3,9 @@ import React from 'react';
 import ElevatorDifficultIcon from '@/assets/icon/elevator_difficult.svg';
 import ElevatorEasyIcon from '@/assets/icon/elevator_easy.svg';
 import ElevatorNoneIcon from '@/assets/icon/elevator_not_exist.svg';
-import CheckIcon from '@/assets/icon/ic_check.svg';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
+import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 import {
   ElevatorType,
@@ -18,12 +18,7 @@ interface Props {
 }
 export default function BuildingElevatorInfo({accessibility}: Props) {
   if (!accessibility) {
-    return (
-      <S.InfoContainer>
-        <CheckIcon color="#D0D0D9" />
-        <S.Title>엘리베이터 정보</S.Title>
-      </S.InfoContainer>
-    );
+    return <EmptyInfo type="엘리베이터 정보" />;
   }
 
   const elevatorType = getBuildingElevatorType(accessibility);

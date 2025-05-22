@@ -7,9 +7,12 @@ import PositionedModal from '@/components/PositionedModal';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-type Status = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown';
+type Status = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
 
-const ColorMap: Record<Status, {background: string; text: string}> = {
+const ColorMap: Record<
+  Status,
+  {background: string; text: string; border?: string}
+> = {
   '0': {background: '#E6F4EB', text: '#06903B'},
   '1': {background: '#F0F9E7', text: '#64C40F'},
   '2': {background: '#FFF9E6', text: '#FFC109'},
@@ -17,17 +20,20 @@ const ColorMap: Record<Status, {background: string; text: string}> = {
   '4': {background: '#FFEEE9', text: '#FF5722'},
   '5': {background: '#FCE9E9', text: '#E52123'},
   unknown: {background: '#E7E8E9', text: '#9A9B9F'},
+  progress: {background: '#ffffff', text: '#FFC109', border: '#FFC109'},
 };
 
 export default function ScoreLabel({
   score,
   isIconVisible,
 }: {
-  score?: number;
+  score?: number | 'processing';
   isIconVisible?: boolean;
 }) {
   const status: Status = (() => {
-    if (score === undefined) {
+    if (score === 'processing') {
+      return 'progress';
+    } else if (score === undefined) {
       return 'unknown';
     } else if (score <= 0) {
       return '0';
@@ -57,7 +63,9 @@ export default function ScoreLabel({
       }>
       <ScoreLabelArea status={status} isIconVisible={isIconVisible}>
         <ScoreLabelText status={status}>
-          접근레벨 {score === undefined ? '-' : score}
+          {score === 'processing'
+            ? '계산중(건물정보 필요)'
+            : `접근레벨 ${score === undefined ? '-' : score}`}
         </ScoreLabelText>
         {isIconVisible && <InfoIcon color={ColorMap[status].text} />}
       </ScoreLabelArea>
@@ -72,8 +80,13 @@ const ScoreLabelArea = styled.View<{
   display: flex;
   flex-direction: row;
   background-color: ${({status}) => ColorMap[status].background};
+  border: 1px solid
+    ${({status}) =>
+      ColorMap[status].border
+        ? ColorMap[status].border
+        : ColorMap[status].background};
   align-items: center;
-  border-radius: 8px;
+  border-radius: 6px;
   padding-left: ${props => (props.isIconVisible ? 8 : 6)}px;
   padding-right: 6px;
   padding-top: 4px;

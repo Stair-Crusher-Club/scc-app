@@ -17,6 +17,7 @@ import {
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 
 export type SearchMapViewHandle = {
   fitToItems: (_items: MarkerItem[]) => void;
@@ -91,9 +92,14 @@ function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
         .with('CONVENIENCE_STORE', () => 'conv')
         .with('PHARMACY', () => 'phar')
         .otherwise(() => 'default'),
-      level: match<number | undefined, MarkerLevel>(
-        item.accessibilityInfo?.accessibilityScore,
+      level: match<number | undefined | 'processing', MarkerLevel>(
+        getPlaceAccessibilityScore({
+          score: item.accessibilityInfo?.accessibilityScore,
+          hasPlaceAccessibility: item.hasPlaceAccessibility,
+          hasBuildingAccessibility: item.hasBuildingAccessibility,
+        }),
       )
+        .with('processing', () => 'progress')
         .with(undefined, () => 'none')
         .when(
           score => score <= 0,

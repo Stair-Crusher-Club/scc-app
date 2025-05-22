@@ -23,14 +23,14 @@ export const Row = styled.View({
 });
 
 export const SectionTitle = styled.Text({
-  fontSize: 28,
+  fontSize: 20,
   lineHeight: '44px',
   fontFamily: font.pretendardBold,
 });
 
 export const Address = styled.Text({
   marginTop: 4,
-  fontSize: 16,
+  fontSize: 14,
   fontFamily: font.pretendardRegular,
 });
 
