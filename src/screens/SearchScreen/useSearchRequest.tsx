@@ -72,7 +72,7 @@ export default function useSearchRequest() {
       return result;
     },
   });
-  const onFetchCompleted = useRef<(result: PlaceListItem[]) => void>();
+  const onFetchCompleted = useRef<(result: PlaceListItem[]) => void>(() => {});
   const {updateQuery} = useUpdateSearchQuery();
   const setOnFetchCompleted: (
     callback: (result: PlaceListItem[]) => void,
