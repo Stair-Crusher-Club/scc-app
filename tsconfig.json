@@ -3,7 +3,7 @@
   "compilerOptions": {
     "skipLibCheck": true,
     "jsx": "react-native",
-    "types": ["@types/styled-components-react-native", "jest"],
+    "types": ["jest"],
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]
