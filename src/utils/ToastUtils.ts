@@ -1,6 +1,8 @@
 import {AxiosError} from 'axios';
 import Toast, {ToastOptions} from 'react-native-root-toast';
 
+import {font} from '@/constant/font';
+
 const ToastUtils = {
   show(message: string, options?: ToastOptions): Toast {
     return Toast.show(message, {
@@ -10,6 +12,9 @@ const ToastUtils = {
       animation: true,
       opacity: 0.85,
       delay: 0,
+      textStyle: {
+        fontFamily: font.pretendardMedium,
+      },
       ...options,
     });
   },
