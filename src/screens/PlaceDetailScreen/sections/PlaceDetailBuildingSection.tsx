@@ -54,7 +54,7 @@ export default function PlaceDetailEntranceSection({
   const comments = accessibility.buildingAccessibilityComments;
 
   function handlePressAddComment() {
-    navigation.navigate('AddComment', {type: 'building', id: place.id});
+    navigation.navigate('AddComment', {type: 'building', id: building.id});
   }
 
   return (
