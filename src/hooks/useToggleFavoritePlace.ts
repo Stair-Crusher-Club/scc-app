@@ -1,6 +1,5 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
-import {useState} from 'react';
 import {Dimensions} from 'react-native';
 
 import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
@@ -13,13 +12,12 @@ const {width: SCREEN_WIDTH} = Dimensions.get('window');
 export function useToggleFavoritePlace() {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
-  const [loading, setLoading] = useState(false);
 
   const {text, location} = useAtomValue(searchQueryAtom);
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
     useAtomValue(filterAtom);
 
-  const {mutate} = useMutation({
+  const {mutate, isPending} = useMutation({
     mutationFn: async ({
       currentIsFavorite,
       placeId,
@@ -33,7 +31,6 @@ export function useToggleFavoritePlace() {
         return await api.createPlaceFavoritePost({placeId});
       }
     },
-    onMutate: () => setLoading(true),
     onSuccess: (_data, variables) => {
       if (!variables.currentIsFavorite) {
         ToastUtils.show('[메뉴 → 저장한 장소]에서 확인 가능해요', {
@@ -64,11 +61,10 @@ export function useToggleFavoritePlace() {
     onError: error => {
       ToastUtils.showOnApiError(error);
     },
-    onSettled: () => setLoading(false),
   });
 
   const safeMutate = (args: {currentIsFavorite?: boolean; placeId: string}) => {
-    if (loading) return;
+    if (isPending) return;
     mutate(args);
   };
 
