@@ -4,7 +4,10 @@ import {LogClick} from './LogClick';
 import {LogView} from './LogView';
 
 interface Props {
-  children: ReactElement;
+  children: ReactElement<{
+    onClick?: (...args: any[]) => any;
+    onPress?: (...args: any[]) => any;
+  }>;
   elementName: string;
   params?: Record<string, any>;
 }
