@@ -79,7 +79,7 @@ function Item<T extends {id: string}>({
 // Higher Order Function 의 타이핑이 제대로 먹지 않아 강제로 캐스팅 해준다.
 const TypedForwardRef = forwardRef(ItemMapList) as <T extends {id: string}>(
   props: Props<T> & {ref?: Ref<FlashList<T>>},
-) => JSX.Element;
+) => React.ReactElement;
 
 export default TypedForwardRef;
 
