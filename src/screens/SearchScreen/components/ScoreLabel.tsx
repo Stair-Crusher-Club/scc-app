@@ -7,7 +7,7 @@ import PositionedModal from '@/components/PositionedModal';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-type Status = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'processing';
+type Status = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
 
 const ColorMap: Record<
   Status,
@@ -20,21 +20,20 @@ const ColorMap: Record<
   '4': {background: '#FFEEE9', text: '#FF5722'},
   '5': {background: '#FCE9E9', text: '#E52123'},
   unknown: {background: '#E7E8E9', text: '#9A9B9F'},
-  processing: {background: '#ffffff', text: '#FFC109', border: '#FFC109'},
+  progress: {background: '#ffffff', text: '#FFC109', border: '#FFC109'},
 };
 
 export default function ScoreLabel({
   score,
   isIconVisible,
-  isProcessing,
 }: {
-  score?: number;
+  score?: number | 'processing';
   isIconVisible?: boolean;
   isProcessing?: boolean;
 }) {
   const status: Status = (() => {
-    if (isProcessing) {
-      return 'processing';
+    if (score === 'processing') {
+      return 'progress';
     } else if (score === undefined) {
       return 'unknown';
     } else if (score <= 0) {
@@ -65,7 +64,7 @@ export default function ScoreLabel({
       }>
       <ScoreLabelArea status={status} isIconVisible={isIconVisible}>
         <ScoreLabelText status={status}>
-          {isProcessing
+          {score === 'processing'
             ? '계산중(건물정보 필요)'
             : `접근레벨 ${score === undefined ? '-' : score}`}
         </ScoreLabelText>
