@@ -87,7 +87,7 @@ export default function CameraScreen({
       if (taken) {
         const {cropped, size} = await cropToRect(taken);
         setPhotoFiles(photos =>
-          photos.concat({uri: cropped, width: size, height: size}),
+          photos.concat({uri: cropped.uri, width: size, height: size}),
         );
       }
     } catch (error: any) {

@@ -33,7 +33,7 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
     },
     ref,
   ) => {
-    const mapRef = useRef<React.ComponentRef<HostComponent<NativeProps>>>();
+    const mapRef = useRef<React.ComponentRef<HostComponent<NativeProps>>>(null);
 
     useImperativeHandle(
       ref,
