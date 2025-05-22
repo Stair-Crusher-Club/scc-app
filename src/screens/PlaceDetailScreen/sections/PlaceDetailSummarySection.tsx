@@ -14,6 +14,7 @@ import {LogClick} from '@/logging/LogClick';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 
 import * as S from './PlaceDetailSummarySection.style';
 
@@ -95,12 +96,11 @@ const PlaceDetailSummarySection = ({
     <S.Section>
       <S.SubSection>
         <ScoreLabel
-          score={accessibilityScore}
-          isProcessing={
-            accessibilityScore === undefined &&
-            accessibility.placeAccessibility !== undefined &&
-            accessibility.buildingAccessibility === undefined
-          }
+          score={getPlaceAccessibilityScore({
+            score: accessibilityScore,
+            hasPlaceAccessibility: !!accessibility.placeAccessibility,
+            hasBuildingAccessibility: !!accessibility.buildingAccessibility,
+          })}
         />
         <S.Row>
           <S.SectionTitle>{place.name}</S.SectionTitle>

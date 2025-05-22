@@ -29,7 +29,6 @@ export default function ScoreLabel({
 }: {
   score?: number | 'processing';
   isIconVisible?: boolean;
-  isProcessing?: boolean;
 }) {
   const status: Status = (() => {
     if (score === 'processing') {

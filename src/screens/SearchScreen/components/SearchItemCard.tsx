@@ -23,6 +23,7 @@ import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -130,13 +131,12 @@ function SearchItemCard({
           <InfoArea>
             <LabelIconArea>
               <ScoreLabel
-                score={item.accessibilityInfo?.accessibilityScore}
+                score={getPlaceAccessibilityScore({
+                  score: item.accessibilityInfo?.accessibilityScore,
+                  hasPlaceAccessibility: item.hasPlaceAccessibility,
+                  hasBuildingAccessibility: item.hasBuildingAccessibility,
+                })}
                 isIconVisible
-                isProcessing={
-                  item.accessibilityInfo?.accessibilityScore === undefined &&
-                  item.hasPlaceAccessibility &&
-                  !item.hasBuildingAccessibility
-                }
               />
               <IconArea>
                 <TouchableOpacity

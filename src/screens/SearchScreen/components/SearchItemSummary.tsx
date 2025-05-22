@@ -8,6 +8,7 @@ import {font} from '@/constant/font';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 
 export default function SearchItemSummary({
   item,
@@ -40,13 +41,12 @@ export default function SearchItemSummary({
         </NoInfoText>
       ) : (
         <ScoreLabel
-          score={item.accessibilityInfo?.accessibilityScore}
+          score={getPlaceAccessibilityScore({
+            score: item.accessibilityInfo?.accessibilityScore,
+            hasPlaceAccessibility: item.hasPlaceAccessibility,
+            hasBuildingAccessibility: item.hasBuildingAccessibility,
+          })}
           isIconVisible={false}
-          isProcessing={
-            item.accessibilityInfo?.accessibilityScore === undefined &&
-            item.hasPlaceAccessibility &&
-            !item.hasBuildingAccessibility
-          }
         />
       )}
       <TitleArea>
