@@ -201,7 +201,7 @@ const FRefOutputComp = forwardRef(FRefInputComp) as <T extends MarkerItem>(
   p: ItemMapViewProps<T> & {
     ref?: ForwardedRef<ItemMapViewHandle<T>>;
   },
-) => JSX.Element;
+) => React.ReactElement;
 
 export default FRefOutputComp;
 

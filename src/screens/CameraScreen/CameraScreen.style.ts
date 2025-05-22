@@ -24,8 +24,8 @@ export const SubmitButton = styled.Text(({disabled}: {disabled?: boolean}) => ({
   opacity: disabled ? 0.3 : 1,
 }));
 
-export const CameraContainer = styled.View(
-  ({maxHeight}: {maxHeight?: number}) => ({
+export const CameraContainer = styled.View<{maxHeight?: number}>(
+  ({maxHeight}) => ({
     width: '100%',
     maxHeight: maxHeight,
     backgroundColor: 'black',
