@@ -39,14 +39,14 @@ export default function MenuListSection() {
       <LogClick elementName="menu_conquerer_report">
         <TouchableOpacity onPress={goToConquerer}>
           <S.MenuItem>
-            <S.MenuTitle>정복활동 리포트</S.MenuTitle>
+            <S.MenuTitle>정복한 장소</S.MenuTitle>
             <RightAngleArrowIcon color={color.gray50} />
           </S.MenuItem>
         </TouchableOpacity>
       </LogClick>
       <TouchableOpacity onPress={goToFavoritePlaces}>
         <S.MenuItem>
-          <S.MenuTitle>내가 저장한 장소</S.MenuTitle>
+          <S.MenuTitle>저장한 장소</S.MenuTitle>
           <RightAngleArrowIcon color={color.gray50} />
         </S.MenuItem>
       </TouchableOpacity>
