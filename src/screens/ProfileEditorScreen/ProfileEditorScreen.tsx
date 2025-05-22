@@ -101,7 +101,7 @@ const FieldValueWrapper = styled.View`
 
 const FieldValue = styled.Text`
   flex-shrink: 1;
-  font-size: 14px;
+  font-size: 16px;
   font-family: ${font.pretendardMedium};
   color: ${color.black};
 `;
