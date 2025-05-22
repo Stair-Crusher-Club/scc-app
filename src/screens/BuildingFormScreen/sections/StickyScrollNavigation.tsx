@@ -4,9 +4,9 @@ import {ScrollView, View} from 'react-native';
 import * as S from './StickyScrollNavigation.style';
 
 interface Props {
-  scrollContainer: React.RefObject<ScrollView>;
+  scrollContainer: React.RefObject<ScrollView | null>;
   scrollY: number;
-  menus: {label: string; ref: React.RefObject<View>}[];
+  menus: {label: string; ref: React.RefObject<View | null>}[];
 }
 export default function StickyScrollNavigation({
   scrollContainer,

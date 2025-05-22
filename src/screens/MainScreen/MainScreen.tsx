@@ -46,7 +46,9 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '홈',
           headerShown: false,
-          tabBarIcon: HomeIcon,
+          tabBarIcon: ({focused}) => (
+            <HomeIcon pointColor={focused ? color.gray90 : color.gray70} />
+          ),
         }}
       />
       <Tab.Screen
@@ -55,7 +57,9 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '챌린지',
           headerShown: false,
-          tabBarIcon: ChallengeIcon,
+          tabBarIcon: ({focused}) => (
+            <ChallengeIcon pointColor={focused ? color.gray90 : color.gray70} />
+          ),
         }}
       />
       <Tab.Screen
@@ -70,7 +74,9 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '메뉴',
           headerShown: false,
-          tabBarIcon: MenuIcon,
+          tabBarIcon: ({focused}) => (
+            <MenuIcon pointColor={focused ? color.gray90 : color.gray70} />
+          ),
         }}
       />
     </Tab.Navigator>
