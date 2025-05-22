@@ -1,7 +1,12 @@
 import {atom, useAtomValue} from 'jotai';
 import Lottie from 'lottie-react-native';
 import React, {useCallback, useEffect, useRef} from 'react';
-import {Animated, BackHandler, Dimensions} from 'react-native';
+import {
+  Animated,
+  BackHandler,
+  Dimensions,
+  NativeEventSubscription,
+} from 'react-native';
 
 import {color} from '@/constant/color';
 
@@ -41,26 +46,24 @@ export const LoadingView = ({}: LoadingViewProps) => {
   const hardwardBackPressBlock = useCallback(() => true, []);
 
   const isLoadingVisible = useAtomValue(isLoadingVisibleState);
+  const backHandler = useRef<NativeEventSubscription | null>(null);
 
   useEffect(() => {
     if (isLoadingVisible) {
-      BackHandler.addEventListener('hardwareBackPress', hardwardBackPressBlock);
-      fadeIn();
-      loadingLottie.current?.play();
-    } else {
-      BackHandler.removeEventListener(
+      backHandler.current = BackHandler.addEventListener(
         'hardwareBackPress',
         hardwardBackPressBlock,
       );
+      fadeIn();
+      loadingLottie.current?.play();
+    } else {
+      backHandler.current?.remove();
       fadeOut();
       loadingLottie.current?.pause();
     }
 
     return () => {
-      BackHandler.removeEventListener(
-        'hardwareBackPress',
-        hardwardBackPressBlock,
-      );
+      backHandler.current?.remove();
     };
   }, [isLoadingVisible, fadeIn, fadeOut, hardwardBackPressBlock]);
 

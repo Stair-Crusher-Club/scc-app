@@ -7,50 +7,55 @@ import {font} from '@/constant/font';
 export const TextAreaContainer = styled.View<{
   focused?: boolean;
   hasError?: boolean;
-}>(props => ({
-  borderColor: props.hasError
-    ? color.red
-    : props.focused
-    ? color.brandColor
-    : color.gray30,
-  borderWidth: 1,
-  borderRadius: 20,
-  paddingHorizontal: 24,
-  paddingVertical: 20,
-}));
-export const Input = styled(TextInput)({
-  color: 'black',
-  fontSize: 16,
-  fontFamily: font.pretendardRegular,
-  paddingVertical: 0,
-  textAlignVertical: 'top',
-});
+}>`
+  border-color: ${(props: { focused?: boolean; hasError?: boolean }) =>
+    props.hasError
+      ? color.red
+      : props.focused
+      ? color.brandColor
+      : color.gray30};
+  border-width: 1px;
+  border-radius: 20px;
+  padding-horizontal: 24px;
+  padding-vertical: 20px;
+`;
 
-export const InputWithLabelContainer = styled.View({
-  gap: 10,
-});
+export const Input = styled(TextInput)`
+  color: black;
+  font-size: 16px;
+  font-family: ${font.pretendardRegular};
+  padding-vertical: 0;
+  text-align-vertical: top;
+`;
 
-export const LabelWrapper = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 2,
-});
-export const Label = styled.Text({
-  fontSize: 16,
-  lineHeight: '24px',
-  fontFamily: font.pretendardBold,
-});
-export const Optional = styled.Text({
-  fontSize: 16,
-  lineHeight: '24px',
-  fontFamily: font.pretendardRegular,
-  color: color.gray70,
-});
+export const InputWithLabelContainer = styled.View`
+  gap: 10px;
+`;
 
-export const ErrorWrapper = styled.View({});
-export const ErrorMessage = styled.Text({
-  fontSize: 14,
-  lineHeight: '21px',
-  fontFamily: font.pretendardRegular,
-  color: color.red,
-});
+export const LabelWrapper = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+`;
+
+export const Label = styled.Text`
+  font-size: 16px;
+  line-height: 24px;
+  font-family: ${font.pretendardBold};
+`;
+
+export const Optional = styled.Text`
+  font-size: 16px;
+  line-height: 24px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray70};
+`;
+
+export const ErrorWrapper = styled.View``;
+
+export const ErrorMessage = styled.Text`
+  font-size: 14px;
+  line-height: 21px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.red};
+`;
