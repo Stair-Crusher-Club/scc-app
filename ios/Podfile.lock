@@ -1579,9 +1579,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-config (1.5.1):
-    - react-native-config/App (= 1.5.1)
-  - react-native-config/App (1.5.1):
+  - react-native-config (1.5.5):
+    - react-native-config/App (= 1.5.5)
+  - react-native-config/App (1.5.5):
     - React-Core
   - react-native-geolocation (3.4.0):
     - DoubleConversion
@@ -1607,9 +1607,31 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-image-editor (2.3.0):
-    - React
+  - react-native-image-editor (4.3.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
     - React-RCTImage
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-mmkv (2.12.2):
     - DoubleConversion
     - glog
@@ -2108,7 +2130,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNDeviceInfo (10.6.0):
+  - RNDeviceInfo (14.0.4):
     - React-Core
   - RNFBAnalytics (22.2.0):
     - Firebase/Analytics (= 11.12.0)
@@ -2151,7 +2173,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGestureHandler (2.16.1):
+  - RNGestureHandler (2.25.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2812,9 +2834,9 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ca2804a25fdcefffa0aa942aa23ab53b99614a34
   react-native-appsflyer: d52a08a5e687e4c2aca78519b0e258e1a82fad0a
   react-native-compressor: 046bbb4555c344a464378511568cc4e57651ee5e
-  react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
+  react-native-config: 3367df9c1f25bb96197007ec531c7087ed4554c3
   react-native-geolocation: 2cd348a829e84fff7bbb98b6e66b0093a3aa8e1a
-  react-native-image-editor: 9361a215c3991cafbe5e7f28cbbad6e72c9c2705
+  react-native-image-editor: 106f23b3b7ef648405f96354e9ab3eee049ed603
   react-native-mmkv: c73421805791ab5981570ba9dfe39417b0fb815b
   react-native-safe-area-context: 00d03dc688ba86664be66f9e3f203fc7d747d899
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
@@ -2853,13 +2875,13 @@ SPEC CHECKSUMS:
   RNAppleAuthentication: 0571c08da8c327ae2afc0261b48b4a515b0286a6
   RNCAsyncStorage: 3070bd18200c569f2ce2d1f43ac3bbf6d956d19b
   RNCClipboard: 9250faa957e583ab8bd4a2a65ac8e4e2decb4913
-  RNDeviceInfo: 475a4c447168d0ad4c807e48ef5e0963a0f4eb1b
+  RNDeviceInfo: feea80a690d2bde1fe51461cf548039258bd03f2
   RNFBAnalytics: d08502529331aa10068b0a8d67500782753b192b
   RNFBApp: fa5825b36d8362ce9b993cac8bf070d116848640
   RNFBCrashlytics: 14dcfb073e7d9f41189400128e203d5314a8c606
   RNFBMessaging: 32a107c0463048f1c03df06ab235bf56e976299a
   RNFlashList: f5b1593ff341398ee0242b65c90ce2eb47f7a5c2
-  RNGestureHandler: 0976c1b611ceb436eed469b2491184d3031ff9a6
+  RNGestureHandler: 5d8431415d4b8518e86e289e9ad5bb9be78f6dba
   RNReanimated: 8b24b49fc13fce9a6e1729ccff645a63d2b7a6d1
   RNScreens: c5c07a86e4088ce92f0d3854082250dfa9c61f75
   RNSVG: 50819276c95d91ccd8fbe5cfea7e09a416c9beaa
