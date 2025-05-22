@@ -75,7 +75,7 @@ export const MainNavigationScreens: {
   {
     name: 'Conquerer',
     component: ConquererScreen,
-    options: {headerShown: true, headerTitle: '정복활동 리포트'},
+    options: {headerShown: true, headerTitle: '정복한 장소'},
   },
   {
     name: 'Conquerer/History',
@@ -87,7 +87,7 @@ export const MainNavigationScreens: {
   {
     name: 'FavoritePlaces',
     component: FavoritePlacesScreen,
-    options: {headerShown: true, headerTitle: '내가 저장한 장소'},
+    options: {headerShown: true, headerTitle: '저장한 장소'},
   },
   {
     name: 'PlaceForm',

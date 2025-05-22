@@ -14,6 +14,13 @@ export const MenuItem = styled.View({
   paddingRight: 15,
 });
 
+export const MenuTitleWrapper = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 10,
+});
+
 export const MenuTitle = styled.Text(({disabled}) => ({
   fontFamily: font.pretendardRegular,
   fontSize: 16,

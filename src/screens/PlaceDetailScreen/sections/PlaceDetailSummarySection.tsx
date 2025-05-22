@@ -42,7 +42,7 @@ const PlaceDetailSummarySection = ({
   };
 
   const onFavorite = () => {
-    toggleFavorite.mutate({
+    toggleFavorite({
       currentIsFavorite: isFavorite,
       placeId: place.id,
     });

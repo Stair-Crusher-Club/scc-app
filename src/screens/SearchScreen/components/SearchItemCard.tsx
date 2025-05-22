@@ -96,7 +96,7 @@ function SearchItemCard({
   };
 
   const onFavorite = () => {
-    toggleFavorite.mutate({
+    toggleFavorite({
       currentIsFavorite: isFavorite,
       placeId: item.place.id,
     });
