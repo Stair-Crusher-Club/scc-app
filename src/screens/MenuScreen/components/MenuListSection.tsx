@@ -2,6 +2,11 @@ import React from 'react';
 import {TouchableOpacity} from 'react-native';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
+import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
+import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
+import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
+import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
+import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {color} from '@/constant/color';
 import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
@@ -39,14 +44,20 @@ export default function MenuListSection() {
       <LogClick elementName="menu_conquerer_report">
         <TouchableOpacity onPress={goToConquerer}>
           <S.MenuItem>
-            <S.MenuTitle>정복한 장소</S.MenuTitle>
+            <S.MenuTitleWrapper>
+              <MenuFlagIcon />
+              <S.MenuTitle>정복한 장소</S.MenuTitle>
+            </S.MenuTitleWrapper>
             <RightAngleArrowIcon color={color.gray50} />
           </S.MenuItem>
         </TouchableOpacity>
       </LogClick>
       <TouchableOpacity onPress={goToFavoritePlaces}>
         <S.MenuItem>
-          <S.MenuTitle>저장한 장소</S.MenuTitle>
+          <S.MenuTitleWrapper>
+            <MenuBookmarkIcon />
+            <S.MenuTitle>저장한 장소</S.MenuTitle>
+          </S.MenuTitleWrapper>
           <RightAngleArrowIcon color={color.gray50} />
         </S.MenuItem>
       </TouchableOpacity>
@@ -71,7 +82,10 @@ export default function MenuListSection() {
       <LogClick elementName="menu_seoul_toilet">
         <TouchableOpacity onPress={goToToilet}>
           <S.MenuItem>
-            <S.MenuTitle>서울 장애인 화장실 정보</S.MenuTitle>
+            <S.MenuTitleWrapper>
+              <MenuWheelChairIcon />
+              <S.MenuTitle>서울 장애인 화장실 정보</S.MenuTitle>
+            </S.MenuTitleWrapper>
             <RightAngleArrowIcon color={color.gray50} />
           </S.MenuItem>
         </TouchableOpacity>
@@ -79,7 +93,10 @@ export default function MenuListSection() {
       <LogClick elementName="menu_bbucleroad">
         <TouchableOpacity onPress={goToReviews}>
           <S.MenuItem>
-            <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
+            <S.MenuTitleWrapper>
+              <MenuReviewIcon />
+              <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
+            </S.MenuTitleWrapper>
             <RightAngleArrowIcon color={color.gray50} />
           </S.MenuItem>
         </TouchableOpacity>
@@ -96,7 +113,10 @@ export default function MenuListSection() {
       <LogClick elementName="menu_settings">
         <TouchableOpacity onPress={goToSettings}>
           <S.MenuItem>
-            <S.MenuTitle>설정</S.MenuTitle>
+            <S.MenuTitleWrapper>
+              <MenuSettingIcon />
+              <S.MenuTitle>설정</S.MenuTitle>
+            </S.MenuTitleWrapper>
             <RightAngleArrowIcon color={color.gray50} />
           </S.MenuItem>
         </TouchableOpacity>
