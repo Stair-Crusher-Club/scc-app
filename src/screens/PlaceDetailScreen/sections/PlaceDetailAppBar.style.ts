@@ -1,6 +1,8 @@
 import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import {color} from '@/constant/color';
+
 export const AppBar = styled(SafeAreaView)({
   position: 'absolute',
   top: 0,
@@ -9,13 +11,14 @@ export const AppBar = styled(SafeAreaView)({
   flexDirection: 'row',
   alignItems: 'center',
   paddingVertical: 10,
-  paddingHorizontal: 20,
+  paddingHorizontal: 8,
 });
 
 export const BackButton = styled.View({
   alignItems: 'center',
   justifyContent: 'center',
-  width: 24,
-  height: 24,
+  width: 40,
+  height: 40,
   borderRadius: 20,
+  backgroundColor: color.white,
 });
