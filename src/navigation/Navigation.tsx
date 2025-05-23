@@ -13,17 +13,21 @@ import * as S from './Navigation.style';
 
 const Stack = createNativeStackNavigator<ScreenParams>();
 
+type NavigationHeaderProps = {
+  navigation:
+    | NativeStackNavigationProp<ScreenParams, keyof ScreenParams>
+    | undefined;
+  title: string;
+};
+
 export const NavigationHeader = ({
   navigation,
   title,
-}: {
-  navigation: NativeStackNavigationProp<any, any>;
-  title: string;
-}) => {
+}: NavigationHeaderProps) => {
   return (
     <S.Container edges={['top']}>
       <S.ContentsContainer>
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable onPress={() => navigation?.goBack()}>
           <LeftArrowIcon width={24} height={24} color={color.black} />
         </Pressable>
         <S.Title>{title}</S.Title>

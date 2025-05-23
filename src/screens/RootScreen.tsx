@@ -16,7 +16,7 @@ const RootScreen = () => {
     SplashScreen.hide();
   }, []);
 
-  const routeNameRef = useRef<string>();
+  const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
 
   return (
@@ -44,7 +44,8 @@ const RootScreen = () => {
           }
           const message = await messaging().getInitialNotification();
           if (message) {
-            return message.data?._d;
+            const data = message.data as {_d: string};
+            return data?._d;
           }
           return null;
         },
