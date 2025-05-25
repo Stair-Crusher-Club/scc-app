@@ -1,13 +1,10 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
-import {Dimensions} from 'react-native';
 
 import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
-
-const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 export function useToggleFavoritePlace() {
   const {api} = useAppComponents();
@@ -33,16 +30,7 @@ export function useToggleFavoritePlace() {
     },
     onSuccess: (_data, variables) => {
       if (!variables.currentIsFavorite) {
-        ToastUtils.show('[메뉴 → 저장한 장소]에서 확인 가능해요', {
-          containerStyle: {
-            flex: 1,
-            width: SCREEN_WIDTH - 30,
-            borderRadius: 20,
-            height: 56,
-            justifyContent: 'center',
-            alignItems: 'center',
-          },
-        });
+        ToastUtils.show('[메뉴 → 저장한 장소]에서 확인 가능해요');
       }
 
       queryClient.invalidateQueries({queryKey: ['FavoritePlaces']});

@@ -4,7 +4,6 @@ import {useAtom} from 'jotai';
 import {loadingState} from '@/components/LoadingView';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import useNavigation from '@/navigation/useNavigation';
 import ToastUtils from '@/utils/ToastUtils';
 
 export function useDeleteAccessibility(
@@ -14,7 +13,6 @@ export function useDeleteAccessibility(
   const {api} = useAppComponents();
   const [loading, setLoading] = useAtom(loadingState);
   const queryClient = useQueryClient();
-  const navigation = useNavigation();
 
   return useMutation({
     mutationFn: async () => {
@@ -49,8 +47,6 @@ export function useDeleteAccessibility(
       } else {
         ToastUtils.show('건물 정보를 삭제했습니다.');
       }
-
-      navigation.goBack();
     },
     onError: (_error, _variables) => {
       if (type === 'place') {

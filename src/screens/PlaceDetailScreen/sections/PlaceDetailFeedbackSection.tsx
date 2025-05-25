@@ -100,14 +100,18 @@ export const PlaceDetailFeedbackSection = ({
       </S.Buttons>
       {isPlaceDeletable && (
         <S.Buttons>
-          <S.DeleteButton onPress={showPlaceDeleteConfirmBottomSheet}>
+          <S.DeleteButton
+            style={{marginTop: 40}}
+            onPress={showPlaceDeleteConfirmBottomSheet}>
             <S.DeleteButtonText>장소 정보 삭제하기</S.DeleteButtonText>
           </S.DeleteButton>
         </S.Buttons>
       )}
       {isBuildingDeletable && (
         <S.Buttons>
-          <S.DeleteButton onPress={showBuildingDeleteConfirmBottomSheet}>
+          <S.DeleteButton
+            style={{marginTop: 16}}
+            onPress={showBuildingDeleteConfirmBottomSheet}>
             <S.DeleteButtonText>건물 정보 삭제하기</S.DeleteButtonText>
           </S.DeleteButton>
         </S.Buttons>

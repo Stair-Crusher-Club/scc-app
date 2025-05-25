@@ -73,7 +73,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const building = data?.building;
 
   const {data: accessibilityPost, isLoading} = useQuery({
-    queryKey: ['PlaceAccessibility', placeId],
+    queryKey: ['PlaceDetail', placeId, 'Accessibility'],
     queryFn: async ({queryKey}) =>
       (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
   });

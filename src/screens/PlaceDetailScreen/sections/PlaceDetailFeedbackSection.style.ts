@@ -41,7 +41,6 @@ export const UpvoteButton = styled(Button)<{upvoted: boolean}>(({upvoted}) => ({
   borderRadius: 12,
 }));
 export const DeleteButton = styled(Button)({
-  marginTop: 40,
   backgroundColor: color.gray10,
   height: 56,
 });

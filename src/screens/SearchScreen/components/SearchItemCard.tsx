@@ -140,6 +140,11 @@ function SearchItemCard({
               />
               <IconArea>
                 <TouchableOpacity
+                  style={{
+                    paddingLeft: 5,
+                    paddingRight: 5,
+                    paddingBottom: 5,
+                  }}
                   activeOpacity={0.6}
                   onPress={() => checkAuth(onFavorite)}>
                   {isFavorite ? (
@@ -157,6 +162,10 @@ function SearchItemCard({
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity
+                  style={{
+                    paddingLeft: 5,
+                    paddingBottom: 5,
+                  }}
                   activeOpacity={0.6}
                   onPress={() => checkAuth(onShare)}>
                   <ShareIcon width={24} height={24} />
@@ -285,9 +294,9 @@ const LabelIconArea = styled.View`
   width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
 `;
 
 const TitleArea = styled.View`
@@ -311,7 +320,6 @@ const IconArea = styled.View`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
 `;
 
 const Container = styled.Pressable<{isHeightFlex?: boolean}>`
