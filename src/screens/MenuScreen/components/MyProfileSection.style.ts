@@ -7,18 +7,21 @@ export const MyProfileSection = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  paddingVertical: 30,
-  paddingHorizontal: 40,
+  paddingVertical: 20,
+  paddingLeft: 20,
+  paddingRight: 20,
 });
 
 export const Nickname = styled.Text({
   fontFamily: font.pretendardBold,
-  fontSize: 24,
+  fontSize: 18,
+  marginBottom: 4,
 });
 
 export const Email = styled.Text({
   fontFamily: font.pretendardRegular,
   fontSize: 14,
+  color: color.gray80,
 });
 
 export const EditProfileButton = styled.View({
@@ -29,7 +32,7 @@ export const EditProfileButton = styled.View({
 });
 
 export const ButtonText = styled.Text({
-  fontFamily: font.pretendardRegular,
+  fontFamily: font.pretendardBold,
   fontSize: 14,
   lineHeight: '22px',
 });
