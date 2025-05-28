@@ -41,6 +41,7 @@
     "@types/lodash": "^4.14.186",
     "axios": "^1.8.2",
     "dayjs": "^1.11.11",
+    "fast-json-stable-stringify": "^2.1.0",
     "jotai": "^2.12.3",
     "lodash": "^4.17.21",
     "lottie-react-native": "^5.1.4",
