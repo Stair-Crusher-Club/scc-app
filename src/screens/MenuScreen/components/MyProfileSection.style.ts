@@ -7,14 +7,14 @@ export const MyProfileSection = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  paddingVertical: 20,
-  paddingLeft: 20,
+  paddingVertical: 24,
+  paddingLeft: 24,
   paddingRight: 20,
 });
 
 export const Nickname = styled.Text({
   fontFamily: font.pretendardBold,
-  fontSize: 18,
+  fontSize: 20,
   marginBottom: 4,
 });
 
@@ -32,7 +32,7 @@ export const EditProfileButton = styled.View({
 });
 
 export const ButtonText = styled.Text({
-  fontFamily: font.pretendardBold,
+  fontFamily: font.pretendardSemibold,
   fontSize: 14,
   lineHeight: '22px',
 });
