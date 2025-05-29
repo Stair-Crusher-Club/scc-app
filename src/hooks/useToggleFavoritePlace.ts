@@ -42,8 +42,6 @@ export function useToggleFavoritePlace() {
         {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
       ]);
 
-      console.log(previousSearchData);
-
       queryClient.setQueryData<PlaceListItem[]>(
         [
           'search',
