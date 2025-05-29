@@ -10,7 +10,7 @@ export const MenuItem = styled.View({
   justifyContent: 'space-between',
   alignItems: 'center',
   paddingVertical: 20,
-  paddingLeft: 25,
+  paddingLeft: 20,
   paddingRight: 15,
 });
 

@@ -24,7 +24,7 @@ export const Row = styled.View({
 
 export const SectionTitle = styled.Text({
   fontSize: 20,
-  lineHeight: '44px',
+  lineHeight: '26px',
   fontFamily: font.pretendardBold,
 });
 

@@ -6,7 +6,7 @@ import {font} from '@/constant/font';
 export const PlaceDetailFeedbackSection = styled.View({
   backgroundColor: color.white,
   paddingVertical: 30,
-  paddingHorizontal: 40,
+  paddingHorizontal: 20,
 });
 
 export const SectionTitle = styled.Text({
@@ -23,7 +23,7 @@ export const Buttons = styled.View({
 });
 
 const Button = styled.Pressable({
-  borderRadius: 20,
+  borderRadius: 12,
   justifyContent: 'center',
   alignItems: 'center',
   flex: 1,

@@ -1,7 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef} from 'react';
-import {Pressable, useWindowDimensions} from 'react-native';
+import {Image, Pressable, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
@@ -80,13 +80,20 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
 
   return (
     <S.CoverImageContainer>
-      <Carousel
-        data={thumbnailImages}
-        width={windowWidth}
-        loop
-        renderItem={renderItem}
-        panGestureHandlerProps={{activeOffsetX: [-10, 10]}}
-      />
+      {thumbnailImages.length === 0 ? (
+        <Image
+          source={require('@/assets/img/place_detail_example.png')}
+          style={{width: '100%', height: '100%'}}
+        />
+      ) : (
+        <Carousel
+          data={thumbnailImages}
+          width={windowWidth}
+          loop
+          renderItem={renderItem}
+          panGestureHandlerProps={{activeOffsetX: [-10, 10]}}
+        />
+      )}
     </S.CoverImageContainer>
   );
 };
