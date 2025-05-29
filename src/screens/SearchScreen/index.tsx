@@ -1,3 +1,4 @@
+import {useBackHandler} from '@react-native-community/hooks';
 import {useAtom, useSetAtom} from 'jotai';
 import React, {useEffect, useRef, useState} from 'react';
 import {Keyboard, Linking, View} from 'react-native';
@@ -128,6 +129,14 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
       setDraftKeyword(null);
     });
   }, [navigation]);
+
+  useBackHandler(() => {
+    if (viewState.type === 'list' && !viewState.inputMode) {
+      setViewState(prev => ({type: 'map', inputMode: false}));
+      return true;
+    }
+    return false;
+  });
 
   return (
     <LogParamsProvider
