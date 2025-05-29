@@ -107,7 +107,7 @@ export const PlaceDetailFeedbackSection = ({
           </S.DeleteButton>
         </S.Buttons>
       )}
-      {!isBuildingDeletable && (
+      {isBuildingDeletable && (
         <S.Buttons>
           <S.DeleteButton
             style={{marginTop: 16}}
