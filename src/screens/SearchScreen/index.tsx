@@ -132,7 +132,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
 
   useBackHandler(() => {
     if (viewState.type === 'list' && !viewState.inputMode) {
-      setViewState(prev => ({type: 'map', inputMode: false}));
+      setViewState(prev => ({...prev, type: 'map', inputMode: false}));
       return true;
     }
     return false;
