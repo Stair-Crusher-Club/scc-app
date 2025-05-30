@@ -1,6 +1,5 @@
 import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
-import stringify from 'fast-json-stable-stringify';
 import {useAtomValue} from 'jotai';
 import {useRef} from 'react';
 
@@ -72,7 +71,6 @@ export default function useSearchRequest() {
       onFetchCompleted.current = undefined;
       return result;
     },
-    queryKeyHashFn: stringify,
   });
   const onFetchCompleted = useRef<(result: PlaceListItem[]) => void>();
   const {updateQuery} = useUpdateSearchQuery();
