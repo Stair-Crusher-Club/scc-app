@@ -1,4 +1,4 @@
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {QueryKey, useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 
 import {PlaceListItem} from '@/generated-sources/openapi';
@@ -22,6 +22,7 @@ export function useToggleFavoritePlace() {
     }: {
       currentIsFavorite?: boolean;
       placeId: string;
+      searchQueryKey?: QueryKey;
     }) => {
       if (currentIsFavorite) {
         return await api.deletePlaceFavoritePost({placeId});
@@ -30,23 +31,20 @@ export function useToggleFavoritePlace() {
       }
     },
     onMutate: async variables => {
+      if (variables.searchQueryKey === undefined) {
+        return;
+      }
+
       await queryClient.cancelQueries({
-        queryKey: [
-          'search',
-          {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
-        ],
+        queryKey: variables.searchQueryKey,
       });
 
-      const previousSearchData = queryClient.getQueryData<PlaceListItem[]>([
-        'search',
-        {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
-      ]);
+      const previousSearchData = queryClient.getQueryData<PlaceListItem[]>(
+        variables.searchQueryKey,
+      );
 
       queryClient.setQueryData<PlaceListItem[]>(
-        [
-          'search',
-          {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
-        ],
+        variables.searchQueryKey,
         oldData => {
           if (!oldData) return oldData;
 
@@ -79,15 +77,15 @@ export function useToggleFavoritePlace() {
         queryKey: ['PlaceDetail', variables.placeId],
       });
     },
-    onError: (error, _variables, context) => {
+    onError: (error, variables, context) => {
       ToastUtils.showOnApiError(error);
 
-      if (context?.previousSearchData) {
+      if (
+        context?.previousSearchData &&
+        variables.searchQueryKey !== undefined
+      ) {
         queryClient.setQueryData(
-          [
-            'search',
-            {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
-          ],
+          variables.searchQueryKey,
           context.previousSearchData,
         );
       }
@@ -96,7 +94,13 @@ export function useToggleFavoritePlace() {
 
   const safeMutate = (args: {currentIsFavorite?: boolean; placeId: string}) => {
     if (isPending) return;
-    mutate(args);
+    mutate({
+      ...args,
+      searchQueryKey: [
+        'search',
+        {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
+      ],
+    });
   };
 
   return safeMutate;
