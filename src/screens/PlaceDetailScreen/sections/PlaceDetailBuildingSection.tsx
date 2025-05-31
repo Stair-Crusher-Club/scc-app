@@ -90,7 +90,7 @@ export default function PlaceDetailEntranceSection({
           </S.Comments>
           <PlaceDetailCrusher
             crusherGroupIcon={
-              accessibility.placeAccessibility?.challengeCrusherGroup?.icon
+              accessibility.buildingAccessibility?.challengeCrusherGroup?.icon
             }
             crusherName={registeredUserName}
           />
