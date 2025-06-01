@@ -165,7 +165,7 @@ export function getBuildingElevatorType(
   accessibility: AccessibilityInfoDto,
 ): ElevatorType {
   const hasElevator = accessibility.buildingAccessibility?.hasElevator;
-  const stairInfo = accessibility.buildingAccessibility?.entranceStairInfo;
+  const stairInfo = accessibility.buildingAccessibility?.elevatorStairInfo;
 
   if (!hasElevator) {
     return ElevatorType.NoElevator;
