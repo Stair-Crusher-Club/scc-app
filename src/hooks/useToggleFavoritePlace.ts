@@ -1,6 +1,7 @@
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {QueryKey, useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 
+import {PlaceListItem} from '@/generated-sources/openapi';
 import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -21,12 +22,49 @@ export function useToggleFavoritePlace() {
     }: {
       currentIsFavorite?: boolean;
       placeId: string;
+      searchQueryKey?: QueryKey;
     }) => {
       if (currentIsFavorite) {
         return await api.deletePlaceFavoritePost({placeId});
       } else {
         return await api.createPlaceFavoritePost({placeId});
       }
+    },
+    onMutate: async variables => {
+      if (variables.searchQueryKey === undefined) {
+        return;
+      }
+
+      await queryClient.cancelQueries({
+        queryKey: variables.searchQueryKey,
+      });
+
+      const previousSearchData = queryClient.getQueryData<PlaceListItem[]>(
+        variables.searchQueryKey,
+      );
+
+      queryClient.setQueryData<PlaceListItem[]>(
+        variables.searchQueryKey,
+        oldData => {
+          if (!oldData) return oldData;
+
+          return oldData.map(data =>
+            data.place.id === variables.placeId
+              ? {
+                  ...data,
+                  place: {
+                    ...data.place,
+                    isFavorite: !variables.currentIsFavorite,
+                  },
+                }
+              : data,
+          );
+        },
+      );
+
+      return {
+        previousSearchData,
+      };
     },
     onSuccess: (_data, variables) => {
       if (!variables.currentIsFavorite) {
@@ -38,22 +76,31 @@ export function useToggleFavoritePlace() {
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', variables.placeId],
       });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          'search',
-          {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
-        ],
-      });
     },
-    onError: error => {
+    onError: (error, variables, context) => {
       ToastUtils.showOnApiError(error);
+
+      if (
+        context?.previousSearchData &&
+        variables.searchQueryKey !== undefined
+      ) {
+        queryClient.setQueryData(
+          variables.searchQueryKey,
+          context.previousSearchData,
+        );
+      }
     },
   });
 
   const safeMutate = (args: {currentIsFavorite?: boolean; placeId: string}) => {
     if (isPending) return;
-    mutate(args);
+    mutate({
+      ...args,
+      searchQueryKey: [
+        'search',
+        {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
+      ],
+    });
   };
 
   return safeMutate;

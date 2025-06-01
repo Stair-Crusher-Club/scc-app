@@ -71,7 +71,6 @@ export default function useSearchRequest() {
       onFetchCompleted.current = undefined;
       return result;
     },
-    queryKeyHashFn: queryKey => JSON.stringify(queryKey),
   });
   const onFetchCompleted = useRef<(result: PlaceListItem[]) => void>();
   const {updateQuery} = useUpdateSearchQuery();
