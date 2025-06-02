@@ -2115,11 +2115,11 @@ export interface ReportAccessibilityPostRequest {
      */
     'placeId': string;
     /**
-     * 신고 사유
-     * @type {string}
+     * 
+     * @type {AccessibilityReportReason}
      * @memberof ReportAccessibilityPostRequest
      */
-    'reason': string;
+    'reason': AccessibilityReportReason;
     /**
      * 신고 상세 내용
      * @type {string}
