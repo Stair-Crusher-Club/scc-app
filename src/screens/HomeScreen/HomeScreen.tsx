@@ -203,7 +203,7 @@ const HomeScreen = ({navigation}: any) => {
               </S.Title>
               <LogClick elementName="scc_description">
                 <S.Description allowFontScaling={false} onPress={goToGuide}>
-                  {'계단정보 등록 조회 방법 알아보기 >'}
+                  {'계단뿌셔클럽 이용가이드'}
                 </S.Description>
               </LogClick>
             </S.TitleContainer>
