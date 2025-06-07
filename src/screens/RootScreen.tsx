@@ -71,6 +71,9 @@ const RootScreen = () => {
             ChallengeDetail: {
               path: 'challenge/:challengeId',
             },
+            Webview: {
+              path: 'webview',
+            },
           },
         },
       }}

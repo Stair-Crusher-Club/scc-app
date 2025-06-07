@@ -1,4 +1,3 @@
-import {useBackHandler} from '@react-native-community/hooks';
 import messaging from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
