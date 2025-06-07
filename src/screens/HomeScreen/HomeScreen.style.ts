@@ -12,8 +12,6 @@ export const Header = styled.View({
   height: 48,
   alignItems: 'center',
   justifyContent: 'center',
-  borderBottomWidth: 1,
-  borderBottomColor: 'rgba(255,255,255,0.15)',
 });
 
 export const ContentsContainer = styled.View({
@@ -30,7 +28,7 @@ export const TitleContainer = styled.View(() => ({
   paddingBottom: 16,
   paddingLeft: 20,
   paddingRight: 20,
-  backgroundColor: 'rgba(29, 133, 255, 0.8)',
+  backgroundColor: color.brand,
 }));
 
 export const Title = styled.Text({

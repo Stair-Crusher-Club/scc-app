@@ -19,6 +19,7 @@ import {accessTokenAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {color} from '@/constant/color';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
   ListChallengesItemDto,
@@ -139,10 +140,11 @@ const HomeScreen = ({navigation}: any) => {
     });
   }, [isGuestUser]);
 
-  const goToIntro = () => {
+  const goToGuide = () => {
     navigation.navigate('Webview', {
-      fixedTitle: '등록 전 꼭 읽어 주세요',
-      url: 'https://agnica.notion.site/2c64dfee581b4cb0bfefd94489eccb3c',
+      fixedTitle: '정보 등록/조회 가이드',
+      url: 'https://admin.staircrusher.club/public/guide',
+      headerVariant: 'navigation',
     });
   };
   const openStore = () => {
@@ -183,7 +185,7 @@ const HomeScreen = ({navigation}: any) => {
     useCallback(() => {
       StatusBar.setBarStyle('light-content');
       if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor('rgba(29, 133, 255, 0.8)');
+        StatusBar.setBackgroundColor(color.brand);
       }
       return () => {
         StatusBar.setBarStyle('dark-content');
@@ -198,7 +200,7 @@ const HomeScreen = ({navigation}: any) => {
     <ScreenLayout
       isHeaderVisible={false}
       safeAreaEdges={['top']}
-      style={{backgroundColor: 'rgba(29, 133, 255, 0.8)'}}>
+      style={{backgroundColor: color.brand}}>
       <S.Header>
         <CrusherClubLogo />
       </S.Header>
@@ -210,8 +212,8 @@ const HomeScreen = ({navigation}: any) => {
                 {'일상 속의 계단정보를\n함께 모아요!'}
               </S.Title>
               <LogClick elementName="scc_description">
-                <S.Description allowFontScaling={false} onPress={goToIntro}>
-                  {'계단정보가 왜 필요한가요? >'}
+                <S.Description allowFontScaling={false} onPress={goToGuide}>
+                  {'계단뿌셔클럽 이용가이드'}
                 </S.Description>
               </LogClick>
             </S.TitleContainer>
