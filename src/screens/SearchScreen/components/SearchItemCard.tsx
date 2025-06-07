@@ -23,6 +23,7 @@ import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -95,7 +96,7 @@ function SearchItemCard({
   };
 
   const onFavorite = () => {
-    toggleFavorite.mutate({
+    toggleFavorite({
       currentIsFavorite: isFavorite,
       placeId: item.place.id,
     });
@@ -130,11 +131,20 @@ function SearchItemCard({
           <InfoArea>
             <LabelIconArea>
               <ScoreLabel
-                score={item.accessibilityInfo?.accessibilityScore}
+                score={getPlaceAccessibilityScore({
+                  score: item.accessibilityInfo?.accessibilityScore,
+                  hasPlaceAccessibility: item.hasPlaceAccessibility,
+                  hasBuildingAccessibility: item.hasBuildingAccessibility,
+                })}
                 isIconVisible
               />
               <IconArea>
                 <TouchableOpacity
+                  style={{
+                    paddingLeft: 5,
+                    paddingRight: 5,
+                    paddingBottom: 5,
+                  }}
                   activeOpacity={0.6}
                   onPress={() => checkAuth(onFavorite)}>
                   {isFavorite ? (
@@ -152,6 +162,10 @@ function SearchItemCard({
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity
+                  style={{
+                    paddingLeft: 5,
+                    paddingBottom: 5,
+                  }}
                   activeOpacity={0.6}
                   onPress={() => checkAuth(onShare)}>
                   <ShareIcon width={24} height={24} />
@@ -280,9 +294,9 @@ const LabelIconArea = styled.View`
   width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
 `;
 
 const TitleArea = styled.View`
@@ -306,7 +320,6 @@ const IconArea = styled.View`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
 `;
 
 const Container = styled.Pressable<{isHeightFlex?: boolean}>`

@@ -10,8 +10,15 @@ export const MenuItem = styled.View({
   justifyContent: 'space-between',
   alignItems: 'center',
   paddingVertical: 20,
-  paddingLeft: 25,
+  paddingLeft: 20,
   paddingRight: 15,
+});
+
+export const MenuTitleWrapper = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 10,
 });
 
 export const MenuTitle = styled.Text(({disabled}) => ({

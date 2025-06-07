@@ -9,6 +9,10 @@ export const InfoContainer = styled.View({
   gap: 10,
 });
 
+export const EmptyInfoContainer = styled.View({
+  gap: 2,
+});
+
 export const SummaryIconWrapper = styled.View({
   alignSelf: 'flex-start',
 });
@@ -18,24 +22,39 @@ export const InfoWrapper = styled.View({
 });
 
 export const Type = styled.Text({
-  fontFamily: font.pretendardMedium,
+  fontFamily: font.pretendardBold,
   fontSize: 14,
+  lineHeight: '22px',
+  color: color.gray80,
+  marginBottom: 8,
+});
+
+export const EmptyType = styled.Text({
+  fontFamily: font.pretendardSemibold,
+  fontSize: 14,
+  lineHeight: '22px',
   color: color.gray80,
   marginBottom: 4,
 });
 
 export const Title = styled.Text({
-  fontFamily: font.pretendardBold,
+  fontFamily: font.pretendardMedium,
   fontSize: 18,
-  lineHeight: '29px',
-  color: color.black,
+  lineHeight: '27px',
+  color: color.gray100,
 });
 
 export const Description = styled.Text({
   fontFamily: font.pretendardRegular,
   fontSize: 16,
-  lineHeight: '25px',
-  color: color.gray90,
+  lineHeight: '27px',
+  color: color.gray70,
+});
+
+export const EmptyDescription = styled.Text({
+  fontFamily: font.pretendardRegular,
+  fontSize: 14,
+  color: color.gray40,
 });
 
 export const DetailedIconWrapper = styled.View({
@@ -44,7 +63,7 @@ export const DetailedIconWrapper = styled.View({
   alignItems: 'center',
   width: 60,
   height: 60,
-  borderRadius: 20,
+  borderRadius: 14,
   backgroundColor: color.gray10,
 });
 

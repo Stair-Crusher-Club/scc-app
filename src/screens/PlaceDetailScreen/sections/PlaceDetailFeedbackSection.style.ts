@@ -6,7 +6,7 @@ import {font} from '@/constant/font';
 export const PlaceDetailFeedbackSection = styled.View({
   backgroundColor: color.white,
   paddingVertical: 30,
-  paddingHorizontal: 40,
+  paddingHorizontal: 20,
 });
 
 export const SectionTitle = styled.Text({
@@ -23,7 +23,7 @@ export const Buttons = styled.View({
 });
 
 const Button = styled.Pressable({
-  borderRadius: 20,
+  borderRadius: 12,
   justifyContent: 'center',
   alignItems: 'center',
   flex: 1,
@@ -32,14 +32,15 @@ const Button = styled.Pressable({
 export const DefaultButton = styled(Button)({
   borderWidth: 1,
   borderColor: color.gray30,
+  borderRadius: 12,
 });
 export const UpvoteButton = styled(Button)<{upvoted: boolean}>(({upvoted}) => ({
   borderWidth: 1,
   borderColor: upvoted ? color.blue30 : color.gray30,
   backgroundColor: upvoted ? color.blue30a15 : undefined,
+  borderRadius: 12,
 }));
 export const DeleteButton = styled(Button)({
-  marginTop: 40,
   backgroundColor: color.gray10,
   height: 56,
 });

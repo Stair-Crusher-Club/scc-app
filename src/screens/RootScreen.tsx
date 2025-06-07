@@ -7,6 +7,7 @@ import React, {useEffect, useRef} from 'react';
 import {Linking} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
+import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {logDebug} from '@/utils/DebugUtils';
@@ -18,6 +19,7 @@ const RootScreen = () => {
 
   const routeNameRef = useRef<string>();
   const navigationRef = useNavigationContainerRef();
+  const globalLogParams = useLogParams();
 
   return (
     <NavigationContainer
@@ -82,6 +84,7 @@ const RootScreen = () => {
             prevScreenName: previousScreenName,
             currScreenName: currentScreenName,
             extraParams: {
+              ...globalLogParams,
               routeParams: state?.routes.at(-1)?.params ?? {},
             },
           });

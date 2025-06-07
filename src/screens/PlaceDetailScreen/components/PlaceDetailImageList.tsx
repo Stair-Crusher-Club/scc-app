@@ -107,7 +107,7 @@ const Placeholder = styled.View`
   flex: 0 0 33.333%;
   justify-content: center;
   align-items: center;
-  background-color: #eaeaef;
+  background-color: ${color.gray10};
 `;
 
 const ImageContainer = styled.Pressable`
@@ -116,13 +116,19 @@ const ImageContainer = styled.Pressable`
 `;
 
 const MoreImage = styled.View`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   justify-content: center;
   align-items: center;
-  background-color: ${color.blacka60};
+  background-color: ${color.blacka70};
+  height: 20px;
 `;
 
 const MoreImageCount = styled.Text`
   color: ${color.white};
-  font-size: 20px;
+  font-size: 12px;
+  line-height: 14px;
   font-family: ${font.pretendardBold};
 `;

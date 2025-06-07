@@ -1,3 +1,4 @@
+import {useQueryClient} from '@tanstack/react-query';
 import React, {useState} from 'react';
 import {ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 
@@ -14,38 +15,45 @@ import ToastUtils from '@/utils/ToastUtils';
 
 export interface AddCommentScreenParams {
   type: AccessibilityTypes;
-  id: string; // placeId or buildingId (not accessibilityId)
+  placeId: string;
+  buildingId?: string;
 }
 
 const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
   const {api} = useAppComponents();
-  const {type, id} = route.params;
+  const {type, placeId, buildingId} = route.params;
+  const id = buildingId ?? placeId;
   const [comment, setComment] = useState('');
+  const queryClient = useQueryClient();
   const registerComment = usePost<{
     type: 'place' | 'building';
     comment: string;
     id: string;
   }>(['AddComment', type, id], async params => {
     if (params.type === 'place') {
+      console.log('placeId', id);
       await api.registerPlaceAccessibilityCommentPost({
         comment: params.comment,
-        placeId: params.id,
+        placeId: id,
       });
     } else {
       await api.registerBuildingAccessibilityCommentPost({
         comment: params.comment,
-        buildingId: params.id,
+        buildingId: id,
       });
     }
+    queryClient.invalidateQueries({
+      queryKey: ['PlaceDetail', placeId],
+    });
     ToastUtils.show('의견이 등록되었습니다.');
     navigation.goBack();
   });
 
   let logParams = {};
   if (type === 'place') {
-    logParams = {place_id: id};
+    logParams = {place_id: placeId};
   } else {
-    logParams = {building_id: id};
+    logParams = {building_id: buildingId};
   }
 
   return (

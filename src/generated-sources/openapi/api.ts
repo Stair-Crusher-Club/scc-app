@@ -301,6 +301,12 @@ export interface BuildingAccessibility {
      */
     'registeredUserName'?: string;
     /**
+     * 삭제 가능 여부
+     * @type {boolean}
+     * @memberof BuildingAccessibility
+     */
+    'isDeletable': boolean;
+    /**
      * 
      * @type {ChallengeCrusherGroupDto}
      * @memberof BuildingAccessibility
@@ -651,6 +657,19 @@ export interface DeleteAccessibilityPostRequest {
      * @memberof DeleteAccessibilityPostRequest
      */
     'placeAccessibilityId': string;
+}
+/**
+ * 
+ * @export
+ * @interface DeleteBuildingAccessibilityPostRequest
+ */
+export interface DeleteBuildingAccessibilityPostRequest {
+    /**
+     * 삭제할 건물 정보의 아이디
+     * @type {string}
+     * @memberof DeleteBuildingAccessibilityPostRequest
+     */
+    'buildingAccessibilityId': string;
 }
 /**
  * 
@@ -1674,9 +1693,16 @@ export interface PlaceAccessibility {
      */
     'registeredUserName'?: string;
     /**
+     * 삭제 가능 여부
+     * @type {boolean}
+     * @memberof PlaceAccessibility
+     */
+    'isDeletable': boolean;
+    /**
      * 
      * @type {PlaceAccessibilityDeletionInfo}
      * @memberof PlaceAccessibility
+     * @deprecated
      */
     'deletionInfo'?: PlaceAccessibilityDeletionInfo;
     /**
@@ -1746,7 +1772,7 @@ export interface PlaceAccessibilityDeletionInfo {
      * @type {boolean}
      * @memberof PlaceAccessibilityDeletionInfo
      */
-    'isLastInBuilding': boolean;
+    'isLastInBuilding'?: boolean;
 }
 /**
  * 
@@ -2089,11 +2115,11 @@ export interface ReportAccessibilityPostRequest {
      */
     'placeId': string;
     /**
-     * 신고 사유
-     * @type {string}
+     * 
+     * @type {AccessibilityReportReason}
      * @memberof ReportAccessibilityPostRequest
      */
-    'reason': string;
+    'reason': AccessibilityReportReason;
     /**
      * 신고 상세 내용
      * @type {string}
@@ -2760,12 +2786,93 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 등록한 접근성 정보를 삭제한다. 기본적으로는 장소 정보만 삭제하지만, 삭제하는 장소 정보가 해당 건물의 마지막 장소 정보일 경우 건물 정보도 함께 삭제한다. 
          * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         deleteAccessibilityPost: async (deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'deleteAccessibilityPostRequest' is not null or undefined
             assertParamExists('deleteAccessibilityPost', 'deleteAccessibilityPostRequest', deleteAccessibilityPostRequest)
             const localVarPath = `/deleteAccessibility`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deleteAccessibilityPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 등록한 건물의 접근성 정보를 삭제한다. 
+         * @param {DeleteBuildingAccessibilityPostRequest} deleteBuildingAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBuildingAccessibilityPost: async (deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deleteBuildingAccessibilityPostRequest' is not null or undefined
+            assertParamExists('deleteBuildingAccessibilityPost', 'deleteBuildingAccessibilityPostRequest', deleteBuildingAccessibilityPostRequest)
+            const localVarPath = `/deleteBuildingAccessibility`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deleteBuildingAccessibilityPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 등록한 장소의 접근성 정보를 삭제한다. 
+         * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deletePlaceAccessibilityPost: async (deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deleteAccessibilityPostRequest' is not null or undefined
+            assertParamExists('deletePlaceAccessibilityPost', 'deleteAccessibilityPostRequest', deleteAccessibilityPostRequest)
+            const localVarPath = `/deletePlaceAccessibility`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4349,10 +4456,33 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 등록한 접근성 정보를 삭제한다. 기본적으로는 장소 정보만 삭제하지만, 삭제하는 장소 정보가 해당 건물의 마지막 장소 정보일 경우 건물 정보도 함께 삭제한다. 
          * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async deleteAccessibilityPost(deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAccessibilityPost(deleteAccessibilityPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 등록한 건물의 접근성 정보를 삭제한다. 
+         * @param {DeleteBuildingAccessibilityPostRequest} deleteBuildingAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 등록한 장소의 접근성 정보를 삭제한다. 
+         * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deletePlaceAccessibilityPost(deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deletePlaceAccessibilityPost(deleteAccessibilityPostRequest, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -4823,10 +4953,31 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary 등록한 접근성 정보를 삭제한다. 기본적으로는 장소 정보만 삭제하지만, 삭제하는 장소 정보가 해당 건물의 마지막 장소 정보일 경우 건물 정보도 함께 삭제한다. 
          * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         deleteAccessibilityPost(deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.deleteAccessibilityPost(deleteAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 등록한 건물의 접근성 정보를 삭제한다. 
+         * @param {DeleteBuildingAccessibilityPostRequest} deleteBuildingAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options?: any): AxiosPromise<void> {
+            return localVarFp.deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 등록한 장소의 접근성 정보를 삭제한다. 
+         * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deletePlaceAccessibilityPost(deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options?: any): AxiosPromise<void> {
+            return localVarFp.deletePlaceAccessibilityPost(deleteAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5266,11 +5417,36 @@ export class DefaultApi extends BaseAPI {
      * @summary 등록한 접근성 정보를 삭제한다. 기본적으로는 장소 정보만 삭제하지만, 삭제하는 장소 정보가 해당 건물의 마지막 장소 정보일 경우 건물 정보도 함께 삭제한다. 
      * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
     public deleteAccessibilityPost(deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteAccessibilityPost(deleteAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 등록한 건물의 접근성 정보를 삭제한다. 
+     * @param {DeleteBuildingAccessibilityPostRequest} deleteBuildingAccessibilityPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 등록한 장소의 접근성 정보를 삭제한다. 
+     * @param {DeleteAccessibilityPostRequest} deleteAccessibilityPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public deletePlaceAccessibilityPost(deleteAccessibilityPostRequest: DeleteAccessibilityPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deletePlaceAccessibilityPost(deleteAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

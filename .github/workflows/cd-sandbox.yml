@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,11 +46,13 @@ jobs:
       - name: Notify Slack on Success
         if: success()
         run: |
+          COMMIT_MESSAGE_HEADER=$(git log -1 --pretty=format:"%s")
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[DEV] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}, Commit: ${{ github.sha }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[DEV] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nCommit: $COMMIT_MESSAGE_HEADER (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
       - name: Notify Slack on Failure
         if: failure()
         run: |
+          COMMIT_MESSAGE_HEADER=$(git log -1 --pretty=format:"%s")
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[DEV] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}, Commit: ${{ github.sha }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[DEV] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nCommit: $COMMIT_MESSAGE_HEADER (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}

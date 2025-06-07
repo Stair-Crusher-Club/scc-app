@@ -6,6 +6,7 @@ import {useAtomValue, useSetAtom} from 'jotai';
 import Lottie from 'lottie-react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
+  BackHandler,
   Linking,
   PermissionsAndroid,
   Platform,
@@ -169,7 +170,17 @@ const HomeScreen = ({navigation}: any) => {
     }
   }, []);
 
-  useBackHandler(handleBackPress);
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackPress,
+      );
+      return () => {
+        subscription.remove();
+      };
+    }, []),
+  );
 
   useFocusEffect(
     useCallback(() => {

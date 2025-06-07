@@ -1,11 +1,11 @@
 import React from 'react';
 
-import CheckIcon from '@/assets/icon/ic_check.svg';
 import StepFlatIcon from '@/assets/icon/step_flat.svg';
 import StepSlopeIcon from '@/assets/icon/step_slope.svg';
 import StepStairIcon from '@/assets/icon/step_stair.svg';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
+import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 import {
   EntranceStepType,
@@ -18,12 +18,7 @@ interface Props {
 }
 export default function BuildingEntranceStepInfo({accessibility}: Props) {
   if (!accessibility) {
-    return (
-      <S.InfoContainer>
-        <CheckIcon color="#D0D0D9" />
-        <S.Title>입구 정보</S.Title>
-      </S.InfoContainer>
-    );
+    return <EmptyInfo type="입구 정보" />;
   }
 
   const entranceStepType = getBuildingEntranceStepType(accessibility);

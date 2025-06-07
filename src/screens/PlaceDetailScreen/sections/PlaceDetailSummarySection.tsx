@@ -14,6 +14,7 @@ import {LogClick} from '@/logging/LogClick';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 
 import * as S from './PlaceDetailSummarySection.style';
 
@@ -41,7 +42,7 @@ const PlaceDetailSummarySection = ({
   };
 
   const onFavorite = () => {
-    toggleFavorite.mutate({
+    toggleFavorite({
       currentIsFavorite: isFavorite,
       placeId: place.id,
     });
@@ -94,7 +95,13 @@ const PlaceDetailSummarySection = ({
   return (
     <S.Section>
       <S.SubSection>
-        <ScoreLabel score={accessibilityScore} />
+        <ScoreLabel
+          score={getPlaceAccessibilityScore({
+            score: accessibilityScore,
+            hasPlaceAccessibility: !!accessibility.placeAccessibility,
+            hasBuildingAccessibility: !!accessibility.buildingAccessibility,
+          })}
+        />
         <S.Row>
           <S.SectionTitle>{place.name}</S.SectionTitle>
         </S.Row>
@@ -150,8 +157,8 @@ const CopyButton = styled.TouchableOpacity`
 `;
 
 const CopyText = styled.Text`
-  color: ${color.brandColor};
+  color: ${color.blue50};
   font-family: ${font.pretendardMedium};
-  font-size: 14px;
+  font-size: 13px;
   text-decoration-line: underline;
 `;
