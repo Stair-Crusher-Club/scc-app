@@ -7,6 +7,8 @@ import {HomeBannerDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
+import CoachMarkBanner from '@/screens/HomeScreen/components/CoachMarkBanner';
+import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 const BannerSection = () => {
@@ -22,12 +24,20 @@ const BannerSection = () => {
   return (
     <Container>
       {banners &&
-        banners.map(banner => <Banner key={banner.id} banner={banner} />)}
+        banners.map((banner, index) => (
+          <Banner isFirst={index === 0} key={banner.id} banner={banner} />
+        ))}
     </Container>
   );
 };
 
-const Banner = ({banner}: {banner: HomeBannerDto}) => {
+const Banner = ({
+  banner,
+  isFirst,
+}: {
+  banner: HomeBannerDto;
+  isFirst: boolean;
+}) => {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
   const [aspectRatio, setAspectRatio] = useState(0);
@@ -46,6 +56,23 @@ const Banner = ({banner}: {banner: HomeBannerDto}) => {
       url: banner.clickPageUrl,
     });
   };
+
+  if (isFirst) {
+    return (
+      <LogClick
+        elementName="home_banner"
+        params={{banner_key: banner.loggingKey}}>
+        <CoachMarkTarget id="banner" renderItem={CoachMarkBanner}>
+          <Pressable onPress={() => checkAuth(openBanner)}>
+            <BannerImage
+              source={{uri: banner.imageUrl}}
+              aspectRatio={aspectRatio}
+            />
+          </Pressable>
+        </CoachMarkTarget>
+      </LogClick>
+    );
+  }
 
   return (
     <LogClick

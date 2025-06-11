@@ -17,7 +17,11 @@ import DeviceInfo from 'react-native-device-info';
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
+import {
+  hasShownCoachMarkForFirstVisitAtom,
+  hasShownGuideForFirstVisitAtom,
+  isGuestUserAtom,
+} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -30,6 +34,9 @@ import useMe from '@/hooks/useMe';
 import {LogClick} from '@/logging/LogClick';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
+import CoachMarkGuideLink from '@/screens/HomeScreen/components/CoachMarkGuideLink';
+import CoachMarkOverlay from '@/screens/HomeScreen/components/CoachMarkOverlay';
+import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -71,6 +78,11 @@ const HomeScreen = ({navigation}: any) => {
       return result;
     },
   });
+
+  const hasShownCoachMarkForFirstVisit = useAtomValue(
+    hasShownCoachMarkForFirstVisitAtom,
+  );
+
   const versionStatusMessage = data?.message;
   const versionStatus = data?.status;
   const hasShownGuideForFirstVisit = useAtomValue(
@@ -197,66 +209,77 @@ const HomeScreen = ({navigation}: any) => {
   );
 
   return (
-    <ScreenLayout
-      isHeaderVisible={false}
-      safeAreaEdges={['top']}
-      style={{backgroundColor: color.brand}}>
-      <S.Header>
-        <CrusherClubLogo />
-      </S.Header>
-      <S.Container>
-        <ScrollView bounces={false}>
-          <S.ContentsContainer>
-            <S.TitleContainer>
-              <S.Title allowFontScaling={false}>
-                {'일상 속의 계단정보를\n함께 모아요!'}
-              </S.Title>
-              <LogClick elementName="scc_description">
-                <S.Description allowFontScaling={false} onPress={goToGuide}>
-                  {'계단뿌셔클럽 이용가이드'}
-                </S.Description>
-              </LogClick>
-            </S.TitleContainer>
-            <S.MainImage source={require('@/assets/img/bg_scc_main.png')} />
-            <SearchSection />
-            <BannerSection />
-          </S.ContentsContainer>
-        </ScrollView>
-        <GeolocationPermissionBottomSheet
-          isVisible={showGeolocationPermission}
-          onConfirmButtonPressed={() => {
-            Linking.openSettings();
-            setShowGeolocationPermission(false);
-          }}
-          onCloseButtonPressed={() => {
-            setShowGeolocationPermission(false);
-          }}
-        />
-        <ChallengeUpcomingBottomSheet
-          selectedUpcomingChallenge={selectedUpcomingChallenge}
-          onPressConfirmButton={() => {
-            setSelectedUpcomingChallenge(undefined);
-          }}
-        />
-        {(versionStatus ===
-          GetClientVersionStatusResponseDtoStatusEnum.UpgradeNeeded ||
-          versionStatus ===
-            GetClientVersionStatusResponseDtoStatusEnum.UpgradeRecommended) && (
-          <AppUpgradeNeededBottomSheet
-            isVisible={showAppUpgradeNeeded}
-            isRequired={
-              versionStatus ===
-              GetClientVersionStatusResponseDtoStatusEnum.UpgradeNeeded
-            }
-            message={versionStatusMessage ?? ''}
-            onConfirmButtonPressed={openStore}
+    <>
+      <ScreenLayout
+        isHeaderVisible={false}
+        safeAreaEdges={['top']}
+        style={{backgroundColor: color.brand}}>
+        <S.Header>
+          <CrusherClubLogo />
+        </S.Header>
+        <S.Container>
+          <ScrollView bounces={false}>
+            <S.ContentsContainer>
+              <S.TitleContainer>
+                <S.Title allowFontScaling={false}>
+                  {'일상 속의 계단정보를\n함께 모아요!'}
+                </S.Title>
+                <LogClick elementName="scc_description">
+                  <CoachMarkTarget
+                    id="guide"
+                    style={{
+                      alignSelf: 'flex-start',
+                    }}
+                    renderItem={CoachMarkGuideLink}>
+                    <S.Description allowFontScaling={false} onPress={goToGuide}>
+                      {'계단뿌셔클럽 이용가이드'}
+                    </S.Description>
+                  </CoachMarkTarget>
+                </LogClick>
+              </S.TitleContainer>
+              <S.MainImage source={require('@/assets/img/bg_scc_main.png')} />
+              <SearchSection />
+              <BannerSection />
+            </S.ContentsContainer>
+          </ScrollView>
+          <GeolocationPermissionBottomSheet
+            isVisible={showGeolocationPermission}
+            onConfirmButtonPressed={() => {
+              Linking.openSettings();
+              setShowGeolocationPermission(false);
+            }}
             onCloseButtonPressed={() => {
-              setShowAppUpgradeNeeded(false);
+              setShowGeolocationPermission(false);
             }}
           />
-        )}
-      </S.Container>
-    </ScreenLayout>
+          <ChallengeUpcomingBottomSheet
+            selectedUpcomingChallenge={selectedUpcomingChallenge}
+            onPressConfirmButton={() => {
+              setSelectedUpcomingChallenge(undefined);
+            }}
+          />
+          {(versionStatus ===
+            GetClientVersionStatusResponseDtoStatusEnum.UpgradeNeeded ||
+            versionStatus ===
+              GetClientVersionStatusResponseDtoStatusEnum.UpgradeRecommended) && (
+            <AppUpgradeNeededBottomSheet
+              isVisible={showAppUpgradeNeeded}
+              isRequired={
+                versionStatus ===
+                GetClientVersionStatusResponseDtoStatusEnum.UpgradeNeeded
+              }
+              message={versionStatusMessage ?? ''}
+              onConfirmButtonPressed={openStore}
+              onCloseButtonPressed={() => {
+                setShowAppUpgradeNeeded(false);
+              }}
+            />
+          )}
+        </S.Container>
+      </ScreenLayout>
+
+      <CoachMarkOverlay visible={!hasShownCoachMarkForFirstVisit} />
+    </>
   );
 };
 

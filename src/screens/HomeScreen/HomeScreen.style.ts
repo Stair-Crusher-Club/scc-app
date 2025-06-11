@@ -35,13 +35,14 @@ export const Title = styled.Text({
   color: color.white,
   fontSize: 24,
   fontFamily: font.pretendardBold,
+  marginBottom: 14,
 });
 
 export const Description = styled.Text({
-  marginTop: 14,
   marginLeft: 2,
   color: color.white,
   fontFamily: font.pretendardSemibold,
   fontSize: 13,
   textDecorationLine: 'underline',
+  alignSelf: 'flex-start',
 });
