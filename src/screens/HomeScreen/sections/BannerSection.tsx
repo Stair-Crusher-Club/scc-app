@@ -24,20 +24,23 @@ const BannerSection = () => {
   return (
     <Container>
       {banners &&
-        banners.map((banner, index) => (
-          <Banner isFirst={index === 0} key={banner.id} banner={banner} />
-        ))}
+        banners.map((banner, index) =>
+          index === 0 ? (
+            <CoachMarkTarget
+              id="banner"
+              key={banner.id}
+              renderItem={CoachMarkBanner}>
+              <Banner banner={banner} />
+            </CoachMarkTarget>
+          ) : (
+            <Banner key={banner.id} banner={banner} />
+          ),
+        )}
     </Container>
   );
 };
 
-const Banner = ({
-  banner,
-  isFirst,
-}: {
-  banner: HomeBannerDto;
-  isFirst: boolean;
-}) => {
+const Banner = ({banner}: {banner: HomeBannerDto}) => {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
   const [aspectRatio, setAspectRatio] = useState(0);
@@ -56,23 +59,6 @@ const Banner = ({
       url: banner.clickPageUrl,
     });
   };
-
-  if (isFirst) {
-    return (
-      <LogClick
-        elementName="home_banner"
-        params={{banner_key: banner.loggingKey}}>
-        <CoachMarkTarget id="banner" renderItem={CoachMarkBanner}>
-          <Pressable onPress={() => checkAuth(openBanner)}>
-            <BannerImage
-              source={{uri: banner.imageUrl}}
-              aspectRatio={aspectRatio}
-            />
-          </Pressable>
-        </CoachMarkTarget>
-      </LogClick>
-    );
-  }
 
   return (
     <LogClick
