@@ -1,0 +1,71 @@
+import {useSetAtom} from 'jotai';
+import React from 'react';
+import {Dimensions, Modal} from 'react-native';
+import Svg, {Mask, Rect} from 'react-native-svg';
+
+import {hasShownCoachMarkForFirstVisitAtom} from '@/atoms/User';
+import {useCoachMark} from '@/screens/HomeScreen/contexts/CoachMarkContext';
+
+const {width, height} = Dimensions.get('window');
+
+export default function CoachMarkOverlay({
+  visible,
+  padding = 12,
+}: {
+  visible: boolean;
+  padding?: number;
+}) {
+  const {items} = useCoachMark();
+  const hasShownCoachMarkForFirstVisit = useSetAtom(
+    hasShownCoachMarkForFirstVisitAtom,
+  );
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent={true}>
+      <Svg
+        onPress={() => {
+          hasShownCoachMarkForFirstVisit(true);
+        }}
+        width={width}
+        height={height}
+        style={{position: 'absolute'}}>
+        <Mask id="coach-mark-target-mask">
+          <Rect width={width} height={height} fill="white" />
+          {items.map(rect => (
+            <Rect
+              key={rect.id}
+              x={rect.x - padding}
+              y={rect.y - padding}
+              width={rect.width + padding * 2}
+              height={rect.height + padding * 2}
+              rx={rect.rx ?? 9}
+              ry={rect.ry ?? 9}
+              fill="black"
+            />
+          ))}
+        </Mask>
+
+        <Rect
+          width={width}
+          height={height}
+          fill="rgba(0,0,0,0.7)"
+          mask="url(#coach-mark-target-mask)"
+        />
+      </Svg>
+
+      {items.map(({id, renderItem, x, y, width: hWidth}, index) => (
+        <React.Fragment key={`coach-description-${id}-${index}`}>
+          {renderItem?.({
+            x,
+            y,
+            width: hWidth,
+          })}
+        </React.Fragment>
+      ))}
+    </Modal>
+  );
+}

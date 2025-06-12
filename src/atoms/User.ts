@@ -23,6 +23,14 @@ export const hasShownGuideForFirstVisitAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
+export const hasShownCoachMarkForFirstVisitAtom = atomForLocalNonNull<boolean>(
+  'hasShownCoachMarkForFirstVisit',
+  false,
+);
+
+export const hasShownMapIconTooltipForFirstVisitAtom =
+  atomForLocalNonNull<boolean>('hasShownMapIconTooltipForFirstVisit', false);
+
 export const isGuestUserAtom = atom(get => {
   const userInfo = get(userInfoAtom);
   return userInfo?.id === '0';
