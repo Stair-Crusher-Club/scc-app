@@ -46,6 +46,8 @@ export const color = {
   orange30: '#FF9D0A',
   orange40: '#F67600',
 
+  yellow: '#FFD900',
+
   success: '#00E794',
   success10: '#E1FCF2',
   success30: '#12AC74',

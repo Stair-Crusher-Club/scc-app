@@ -7,6 +7,8 @@ import {HomeBannerDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
+import CoachMarkBanner from '@/screens/HomeScreen/components/CoachMarkBanner';
+import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 const BannerSection = () => {
@@ -22,7 +24,18 @@ const BannerSection = () => {
   return (
     <Container>
       {banners &&
-        banners.map(banner => <Banner key={banner.id} banner={banner} />)}
+        banners.map((banner, index) =>
+          index === 0 ? (
+            <CoachMarkTarget
+              id="banner"
+              key={banner.id}
+              renderItem={CoachMarkBanner}>
+              <Banner banner={banner} />
+            </CoachMarkTarget>
+          ) : (
+            <Banner key={banner.id} banner={banner} />
+          ),
+        )}
     </Container>
   );
 };
