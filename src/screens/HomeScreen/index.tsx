@@ -4,10 +4,10 @@ import Screen from './HomeScreen';
 
 export type {HomeScreenParams} from './HomeScreen';
 
-export default function HomeScreen() {
+export default function HomeScreen(props: any) {
   return (
     <CoachMarkProvider>
-      <Screen />
+      <Screen {...props} />
     </CoachMarkProvider>
   );
 }
