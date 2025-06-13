@@ -1,11 +1,12 @@
 import React, {forwardRef} from 'react';
 import {
-  TextInput,
-  TouchableOpacity,
-  ReturnKeyTypeOptions,
   NativeSyntheticEvent,
-  TextInputFocusEventData,
+  ReturnKeyTypeOptions,
   StyleSheet,
+  TextInput,
+  TextInputFocusEventData,
+  TextInputProps,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import styled from 'styled-components/native';
@@ -68,7 +69,7 @@ const SignupInput = forwardRef<TextInput, Props>(
       localRef.current?.focus();
     };
 
-    const renderInput = () => (
+    const renderInput = (props?: TextInputProps) => (
       <TextInput
         ref={localRef}
         value={value}
@@ -81,6 +82,7 @@ const SignupInput = forwardRef<TextInput, Props>(
         returnKeyType={returnKeyType}
         editable={!onPress}
         style={styles.input}
+        {...props}
       />
     );
 
@@ -98,7 +100,9 @@ const SignupInput = forwardRef<TextInput, Props>(
                 alignItems: 'center',
                 paddingRight: 11,
               }}>
-              {renderInput()}
+              {renderInput({
+                pointerEvents: 'none',
+              })}
               <ArrowDownIcon width={20} height={20} />
             </TouchableOpacity>
           ) : (
