@@ -39,7 +39,7 @@ export const Navigation = () => {
       screenOptions={({navigation}) => ({
         headerShown: false,
         // eslint-disable-next-line react/no-unstable-nested-components
-        header: ({options}) => {
+        header: ({options, navigation}) => {
           if (options.headerTitle === '장소 검색') {
             return null;
           }
