@@ -282,7 +282,9 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
             loop
             renderItem={renderSlide}
             onProgressChange={(_, i) => setActiveSlide(i)}
-            panGestureHandlerProps={{activeOffsetX: [-10, 10]}}
+            onConfigurePanGesture={gestureChain => {
+              gestureChain.activeOffsetX([-10, 10]);
+            }}
             autoPlay={true}
             autoPlayInterval={5000}
           />
