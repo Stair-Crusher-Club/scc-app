@@ -1,6 +1,6 @@
 import {useAtom} from 'jotai';
 import React, {useState} from 'react';
-import {Text} from 'react-native';
+import {Dimensions, ScrollView, Text} from 'react-native';
 import styled from 'styled-components/native';
 
 import InfoIcon from '@/assets/icon/ic_info.svg';
@@ -17,6 +17,8 @@ import {
 } from '@/screens/SearchScreen/atoms';
 import ChipSelector from '@/screens/SearchScreen/modals/ChipSelector';
 import ScoreSelector from '@/screens/SearchScreen/modals/ScoreSelector.tsx';
+
+const {height} = Dimensions.get('window');
 
 // TODO: 가까운 순 선택 시 위치권한이 없으면 설정으로 이동하는 BottomSheet 를 보여준다.
 export default function FilterModal() {
@@ -71,7 +73,16 @@ export default function FilterModal() {
       onPressBackground={() => {
         setFilterModalState(null);
       }}>
-      <Container>
+      <ScrollView
+        style={{
+          maxHeight: (height * 80) / 100,
+        }}
+        contentContainerStyle={{
+          gap: 36,
+          paddingVertical: 24,
+          paddingHorizontal: 20,
+        }}
+        showsVerticalScrollIndicator={false}>
         {(state === 'All' || state === 'sortOption') && (
           <FilterItem>
             <FilterLabel>정렬</FilterLabel>
@@ -182,7 +193,7 @@ export default function FilterModal() {
             />
           </FilterItem>
         )}
-      </Container>
+      </ScrollView>
       <Divider />
       <ButtonBox>
         {state === 'All' && (
@@ -213,17 +224,6 @@ export default function FilterModal() {
   );
 }
 
-const Container = styled.View`
-  overflow: visible;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-top: 24px;
-  padding-bottom: 24px;
-  padding-left: 20px;
-  padding-right: 20px;
-  gap: 36px;
-`;
 const ButtonBox = styled.View`
   padding-top: 20px;
   padding-left: 20px;
