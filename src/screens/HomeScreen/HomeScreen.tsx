@@ -278,7 +278,9 @@ const HomeScreen = ({navigation}: any) => {
         </S.Container>
       </ScreenLayout>
 
-      <CoachMarkOverlay visible={!hasShownCoachMarkForFirstVisit} />
+      <CoachMarkOverlay
+        visible={!hasShownCoachMarkForFirstVisit && hasShownGuideForFirstVisit}
+      />
     </>
   );
 };
