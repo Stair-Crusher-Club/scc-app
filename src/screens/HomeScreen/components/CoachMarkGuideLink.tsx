@@ -26,7 +26,7 @@ export default function CoachMarkGuideLink({
           left: x + width + 50,
         }}>
         <S.Description>
-          <Text style={{color: color.yellow}}>이용 가이드</Text>
+          <Text style={{color: color.yellow}}>사용설명서</Text>
           {'를 확인해서\n계단뿌셔클럽을 알아보세요'}
         </S.Description>
       </View>

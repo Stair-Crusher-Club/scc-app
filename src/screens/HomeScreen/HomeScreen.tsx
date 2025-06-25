@@ -154,7 +154,7 @@ const HomeScreen = ({navigation}: any) => {
 
   const goToGuide = () => {
     navigation.navigate('Webview', {
-      fixedTitle: '정보 등록/조회 가이드',
+      fixedTitle: '계단뿌셔클럽 앱 사용설명서',
       url: 'https://admin.staircrusher.club/public/guide',
       headerVariant: 'navigation',
     });
@@ -232,7 +232,7 @@ const HomeScreen = ({navigation}: any) => {
                     }}
                     renderItem={CoachMarkGuideLink}>
                     <S.Description allowFontScaling={false} onPress={goToGuide}>
-                      {'계단뿌셔클럽 이용가이드'}
+                      {'계단뿌셔클럽 사용설명서'}
                     </S.Description>
                   </CoachMarkTarget>
                 </LogClick>
