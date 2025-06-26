@@ -1,3 +1,4 @@
+import {useIsFocused} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
 import {InteractionManager, StatusBar, View, ViewStyle} from 'react-native';
 
@@ -5,6 +6,8 @@ import {
   CoachMark,
   useCoachMark,
 } from '@/screens/HomeScreen/contexts/CoachMarkContext';
+
+const COACH_MARK_MEASURE_DELAY_MS = 20;
 
 interface CoachMarkTargetProps extends CoachMark {
   children: React.ReactNode;
@@ -23,43 +26,52 @@ export default function CoachMarkTarget({
   const ref = useRef<View>(null);
   const {register} = useCoachMark();
   const topInset = StatusBar.currentHeight || 0;
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (!layoutReady) {
+    if (!layoutReady || !isFocused) {
       return;
     }
 
+    let timeoutId: NodeJS.Timeout | undefined;
     const task = InteractionManager?.runAfterInteractions(() => {
-      requestAnimationFrame(() => {
-        if (!ref.current?.measure) {
-          return;
-        }
-
-        ref.current?.measure((_x, _y, width, height, pageX, pageY) => {
-          if (![pageX, pageY, width, height].every(Number.isFinite)) {
-            return null;
+      timeoutId = setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (!ref.current?.measure) {
+            return;
           }
 
-          const renderWithLayout = () => {
-            return renderItem?.({x: pageX, y: pageY + topInset, width});
-          };
+          ref.current?.measure((_x, _y, width, height, pageX, pageY) => {
+            if (![pageX, pageY, width, height].every(Number.isFinite)) {
+              return null;
+            }
 
-          register({
-            id,
-            rx,
-            ry,
-            x: pageX,
-            y: pageY + topInset,
-            width,
-            height,
-            renderItem: renderWithLayout,
+            const renderWithLayout = () => {
+              return renderItem?.({x: pageX, y: pageY + topInset, width});
+            };
+
+            register({
+              id,
+              rx,
+              ry,
+              x: pageX,
+              y: pageY + topInset,
+              width,
+              height,
+              renderItem: renderWithLayout,
+            });
           });
         });
-      });
+      }, COACH_MARK_MEASURE_DELAY_MS);
     });
 
-    return () => task.cancel();
-  }, [layoutReady]);
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      task.cancel();
+    };
+  }, [layoutReady, isFocused]);
 
   return (
     <View
