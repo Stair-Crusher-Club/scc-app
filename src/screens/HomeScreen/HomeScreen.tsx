@@ -17,11 +17,7 @@ import DeviceInfo from 'react-native-device-info';
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {
-  hasShownCoachMarkForFirstVisitAtom,
-  hasShownGuideForFirstVisitAtom,
-  isGuestUserAtom,
-} from '@/atoms/User';
+import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -78,10 +74,6 @@ const HomeScreen = ({navigation}: any) => {
       return result;
     },
   });
-
-  const hasShownCoachMarkForFirstVisit = useAtomValue(
-    hasShownCoachMarkForFirstVisitAtom,
-  );
 
   const versionStatusMessage = data?.message;
   const versionStatus = data?.status;
@@ -278,9 +270,7 @@ const HomeScreen = ({navigation}: any) => {
         </S.Container>
       </ScreenLayout>
 
-      <CoachMarkOverlay
-        visible={!hasShownCoachMarkForFirstVisit && hasShownGuideForFirstVisit}
-      />
+      <CoachMarkOverlay />
     </>
   );
 };
