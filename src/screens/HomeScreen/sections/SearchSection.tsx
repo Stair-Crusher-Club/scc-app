@@ -58,7 +58,11 @@ export default function SearchSection() {
               maxWidth: 50,
             }}
             renderItem={CoachMarkMapButton}>
-            <Pressable onPress={() => goToSearch('', true)}>
+            <Pressable
+              onPress={() => {
+                goToSearch('', true);
+                setHasShownMapIconTooltipForFirstVisit(true);
+              }}>
               <MapIcon width={24} height={24} />
             </Pressable>
           </CoachMarkTarget>
