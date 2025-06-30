@@ -69,6 +69,8 @@ export function useToggleFavoritePlace() {
     onSuccess: (_data, variables) => {
       if (!variables.currentIsFavorite) {
         ToastUtils.show('[메뉴 → 저장한 장소]에서 확인 가능해요');
+      } else {
+        ToastUtils.show('[저장한 장소]에서 해제했어요');
       }
 
       queryClient.invalidateQueries({queryKey: ['FavoritePlaces']});
