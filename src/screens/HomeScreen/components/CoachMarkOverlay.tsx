@@ -1,24 +1,67 @@
-import {useSetAtom} from 'jotai';
-import React from 'react';
+import {useIsFocused} from '@react-navigation/native';
+import {useQuery} from '@tanstack/react-query';
+import {useAtom, useAtomValue} from 'jotai';
+import React, {useEffect, useState} from 'react';
 import {Dimensions, Modal} from 'react-native';
 import Svg, {Mask, Rect} from 'react-native-svg';
 
-import {hasShownCoachMarkForFirstVisitAtom} from '@/atoms/User';
+import {
+  hasShownCoachMarkForFirstVisitAtom,
+  hasShownGuideForFirstVisitAtom,
+} from '@/atoms/User';
+import useAppComponents from '@/hooks/useAppComponents';
 import {useCoachMark} from '@/screens/HomeScreen/contexts/CoachMarkContext';
 
 const {width, height} = Dimensions.get('window');
 
-export default function CoachMarkOverlay({
-  visible,
-  padding = 12,
-}: {
-  visible: boolean;
-  padding?: number;
-}) {
+const COACH_MARK_DELAY_MS = 200;
+
+export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
+  const {api} = useAppComponents();
   const {items} = useCoachMark();
-  const hasShownCoachMarkForFirstVisit = useSetAtom(
-    hasShownCoachMarkForFirstVisitAtom,
+  const [visible, setVisible] = useState(false);
+  const isFocused = useIsFocused();
+  const {data} = useQuery({
+    queryKey: ['BannerSection', 'HomeBanners'],
+    queryFn: async () => (await api.getHomeBanners()).data,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const hasShownGuideForFirstVisit = useAtomValue(
+    hasShownGuideForFirstVisitAtom,
   );
+  const [hasShownCoachMarkForFirstVisit, setHasShownCoachMarkForFirstVisit] =
+    useAtom(hasShownCoachMarkForFirstVisitAtom);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | undefined;
+    if (
+      isFocused &&
+      hasShownGuideForFirstVisit &&
+      !hasShownCoachMarkForFirstVisit &&
+      data?.banners.length
+    ) {
+      timeoutId = setTimeout(() => {
+        setVisible(true);
+      }, COACH_MARK_DELAY_MS);
+      return;
+    }
+
+    if (visible) {
+      setVisible(false);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [
+    isFocused,
+    hasShownGuideForFirstVisit,
+    hasShownCoachMarkForFirstVisit,
+    data?.banners.length,
+  ]);
 
   return (
     <Modal
@@ -28,7 +71,7 @@ export default function CoachMarkOverlay({
       statusBarTranslucent={true}>
       <Svg
         onPress={() => {
-          hasShownCoachMarkForFirstVisit(true);
+          setHasShownCoachMarkForFirstVisit(true);
         }}
         width={width}
         height={height}

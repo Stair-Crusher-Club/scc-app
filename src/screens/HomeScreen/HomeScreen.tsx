@@ -17,11 +17,7 @@ import DeviceInfo from 'react-native-device-info';
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {
-  hasShownCoachMarkForFirstVisitAtom,
-  hasShownGuideForFirstVisitAtom,
-  isGuestUserAtom,
-} from '@/atoms/User';
+import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -78,10 +74,6 @@ const HomeScreen = ({navigation}: any) => {
       return result;
     },
   });
-
-  const hasShownCoachMarkForFirstVisit = useAtomValue(
-    hasShownCoachMarkForFirstVisitAtom,
-  );
 
   const versionStatusMessage = data?.message;
   const versionStatus = data?.status;
@@ -154,7 +146,7 @@ const HomeScreen = ({navigation}: any) => {
 
   const goToGuide = () => {
     navigation.navigate('Webview', {
-      fixedTitle: '정보 등록/조회 가이드',
+      fixedTitle: '계단뿌셔클럽 앱 사용설명서',
       url: 'https://admin.staircrusher.club/public/guide',
       headerVariant: 'navigation',
     });
@@ -232,7 +224,7 @@ const HomeScreen = ({navigation}: any) => {
                     }}
                     renderItem={CoachMarkGuideLink}>
                     <S.Description allowFontScaling={false} onPress={goToGuide}>
-                      {'계단뿌셔클럽 이용가이드'}
+                      {'계단뿌셔클럽 사용설명서'}
                     </S.Description>
                   </CoachMarkTarget>
                 </LogClick>
@@ -278,7 +270,7 @@ const HomeScreen = ({navigation}: any) => {
         </S.Container>
       </ScreenLayout>
 
-      <CoachMarkOverlay visible={!hasShownCoachMarkForFirstVisit} />
+      <CoachMarkOverlay />
     </>
   );
 };
