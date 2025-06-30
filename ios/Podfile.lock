@@ -1080,8 +1080,10 @@ PODS:
     - React-Core
   - react-native-geolocation (3.0.6):
     - React-Core
-  - react-native-image-editor (2.3.0):
-    - React
+  - react-native-image-editor (4.3.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
     - React-RCTImage
   - react-native-mmkv (2.12.2):
     - glog
@@ -1647,7 +1649,7 @@ SPEC CHECKSUMS:
   react-native-compressor: 5b4428113afb17ea4556d4bf8f58f47bb468ecfc
   react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
   react-native-geolocation: 0f7fe8a4c2de477e278b0365cce27d089a8c5903
-  react-native-image-editor: 9361a215c3991cafbe5e7f28cbbad6e72c9c2705
+  react-native-image-editor: d57cec9bd34dc6bc4fd48db56820ff1ff2aa9c7b
   react-native-mmkv: 1fdc81aa70c1aba09370718e6a63a09cbbbac8d2
   react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
