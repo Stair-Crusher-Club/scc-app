@@ -15,6 +15,7 @@ import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 import * as S from './PlaceDetailSummarySection.style';
 
@@ -31,6 +32,7 @@ const PlaceDetailSummarySection = ({
 }: PlaceDetailSummarySectionProps) => {
   const isFavorite = place.isFavorite;
   const toggleFavorite = useToggleFavoritePlace();
+  const checkAuth = useCheckAuth();
 
   const onShare = () => {
     ShareUtils.sharePlace(place);
@@ -71,7 +73,7 @@ const PlaceDetailSummarySection = ({
             params={{
               isFavoritePlace: isFavorite,
             }}>
-            <S.Summary onPress={onFavorite}>
+            <S.Summary onPress={() => checkAuth(onFavorite)}>
               {isFavorite ? (
                 <BookmarkIconOn color={color.brandColor} />
               ) : (
@@ -120,7 +122,7 @@ const PlaceDetailSummarySection = ({
           params={{
             isFavoritePlace: isFavorite,
           }}>
-          <S.Summary onPress={onFavorite}>
+          <S.Summary onPress={() => checkAuth(onFavorite)}>
             {isFavorite ? (
               <BookmarkIconOn color={color.brandColor} />
             ) : (
