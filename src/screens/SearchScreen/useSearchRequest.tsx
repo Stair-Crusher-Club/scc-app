@@ -68,7 +68,7 @@ export default function useSearchRequest() {
         ToastUtils.show('검색 결과가 없습니다.');
       }
       onFetchCompleted.current?.(result);
-      onFetchCompleted.current = undefined;
+      onFetchCompleted.current = () => {};
       return result;
     },
   });
