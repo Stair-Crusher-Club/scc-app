@@ -1,7 +1,7 @@
 /**
  * @format
  */
-import messaging from '@react-native-firebase/messaging';
+import {getMessaging} from '@react-native-firebase/messaging';
 import React from 'react';
 import {AppRegistry, Linking} from 'react-native';
 // https://github.com/facebook/react-native/issues/23922#issuecomment-648096619
@@ -11,7 +11,7 @@ import 'react-native-url-polyfill/auto';
 import App from './App';
 import {name as appName} from './app.json';
 
-messaging().onNotificationOpenedApp(async remoteMessage => {
+getMessaging().onNotificationOpenedApp(async remoteMessage => {
   if (remoteMessage?.data?._d) {
     Linking.openURL(remoteMessage?.data?._d);
   }

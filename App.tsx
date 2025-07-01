@@ -1,6 +1,6 @@
 import {HotUpdater} from '@hot-updater/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import analytics from '@react-native-firebase/analytics';
+import {getAnalytics} from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
@@ -129,7 +129,7 @@ const AppWithMigration = () => {
 export default HotUpdater.wrap({
   source: Config.HOT_UPDATER_URL ?? '',
   onError: error => {
-    analytics().logEvent('HotUpdaterError', {
+    getAnalytics().logEvent('HotUpdaterError', {
       error: error.message,
     });
   },
