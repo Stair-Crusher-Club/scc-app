@@ -6,6 +6,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <HotUpdater/HotUpdater.h>
 #import <React/RCTLinkingManager.h>
+#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 
 @implementation AppDelegate
 
@@ -16,6 +17,7 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
+  self.dependencyProvider = [RCTAppDependencyProvider new];
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
@@ -34,10 +36,10 @@
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
-  return [self getBundleURL];
+  return [self bundleURL];
 }
 
-- (NSURL *)getBundleURL
+- (NSURL *)bundleURL
 {
   return [HotUpdater bundleURL];
 }
@@ -58,6 +60,11 @@
  return [RCTLinkingManager application:application
                   continueUserActivity:userActivity
                     restorationHandler:restorationHandler];
+}
+
+- (BOOL)bridgelessEnabled
+{
+  return YES;
 }
 
 @end
