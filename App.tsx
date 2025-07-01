@@ -19,7 +19,6 @@ import {color} from '@/constant/color';
 import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
-import {useAppsflyerSetup} from '@/utils/useAppsflyerSetup';
 
 const queryClient = new QueryClient();
 
@@ -42,7 +41,6 @@ const App = () => {
   const accessToken = useAtomValue(accessTokenAtom);
   const setAccessToken = useSetAtom(accessTokenAtom);
 
-  useAppsflyerSetup();
   useEffect(() => {
     // Request logging interceptor
     const requestInterceptorId = globalAxios.interceptors.request.use(
