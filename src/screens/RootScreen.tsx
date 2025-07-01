@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+import {getMessaging} from '@react-native-firebase/messaging';
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -44,7 +44,7 @@ const RootScreen = () => {
           if (url) {
             return url;
           }
-          const message = await messaging().getInitialNotification();
+          const message = await getMessaging().getInitialNotification();
           if (message) {
             const data = message.data as {_d: string};
             return data?._d;

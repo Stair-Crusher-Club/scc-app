@@ -46,9 +46,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '홈',
           headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <HomeIcon pointColor={focused ? color.gray90 : color.gray70} />
-          ),
+          tabBarIcon: ({color}) => <HomeIcon color={color} />,
         }}
       />
       <Tab.Screen
@@ -57,9 +55,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '챌린지',
           headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <ChallengeIcon pointColor={focused ? color.gray90 : color.gray70} />
-          ),
+          tabBarIcon: ({color}) => <ChallengeIcon color={color} />,
         }}
       />
       <Tab.Screen
@@ -67,16 +63,16 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         component={MenuScreen}
         listeners={{
           tabPress: e => {
-            e.preventDefault();
-            checkAuth(() => navigation.navigate('Menu'));
+            checkAuth(
+              () => {},
+              () => e.preventDefault(),
+            );
           },
         }}
         options={{
           title: '메뉴',
           headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <MenuIcon pointColor={focused ? color.gray90 : color.gray70} />
-          ),
+          tabBarIcon: ({color}) => <MenuIcon color={color} />,
         }}
       />
     </Tab.Navigator>
