@@ -10,8 +10,8 @@ export const DeviceTypes = styled.View({
   gap: 10,
 });
 
-export const DeviceTypeButton = styled.Pressable(
-  ({selected}: {selected: boolean}) => ({
+export const DeviceTypeButton = styled.Pressable<{selected: boolean}>(
+  ({selected}) => ({
     width: 36,
     height: 36,
     borderRadius: 18,

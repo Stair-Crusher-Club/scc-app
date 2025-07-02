@@ -7,7 +7,7 @@ export function useThrottledEffect(
   deps: React.DependencyList,
   delay: number,
 ) {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>(null);
   useEffect(() => {
     // Clear previous timeout
     if (timeoutRef.current) {

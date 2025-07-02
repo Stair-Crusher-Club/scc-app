@@ -1,4 +1,7 @@
-import messaging from '@react-native-firebase/messaging';
+import {
+  AuthorizationStatus,
+  getMessaging,
+} from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import {useAtomValue, useSetAtom} from 'jotai';
@@ -112,10 +115,10 @@ const HomeScreen = ({navigation}: any) => {
 
   useEffect(() => {
     const requestIOSUserPermission = async () => {
-      const authStatus = await messaging().requestPermission();
+      const authStatus = await getMessaging().requestPermission();
       const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        authStatus === AuthorizationStatus.AUTHORIZED ||
+        authStatus === AuthorizationStatus.PROVISIONAL;
       if (enabled) {
         console.log('Authorization status:', authStatus);
       }
@@ -133,11 +136,11 @@ const HomeScreen = ({navigation}: any) => {
   useEffect(() => {
     if (!isGuestUser) {
       (async () => {
-        const pushToken = await messaging().getToken();
+        const pushToken = await getMessaging().getToken();
         await api.updatePushTokenPost({pushToken});
       })();
     }
-    return messaging().onTokenRefresh(pushToken => {
+    return getMessaging().onTokenRefresh(pushToken => {
       (async () => {
         await api.updatePushTokenPost({pushToken});
       })();

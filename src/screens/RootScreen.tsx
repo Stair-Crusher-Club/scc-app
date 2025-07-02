@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+import {getMessaging} from '@react-native-firebase/messaging';
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -17,7 +17,7 @@ const RootScreen = () => {
     SplashScreen.hide();
   }, []);
 
-  const routeNameRef = useRef<string>();
+  const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
 
@@ -44,9 +44,10 @@ const RootScreen = () => {
           if (url) {
             return url;
           }
-          const message = await messaging().getInitialNotification();
+          const message = await getMessaging().getInitialNotification();
           if (message) {
-            return message.data?._d;
+            const data = message.data as {_d: string};
+            return data?._d;
           }
           return null;
         },

@@ -1,4 +1,4 @@
-import analytics from '@react-native-firebase/analytics';
+import {getAnalytics} from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 
 import {logDebug} from '@/utils/DebugUtils';
@@ -17,7 +17,7 @@ interface ScreenViewParams {
 
 const Logger = {
   async setUserId(userId: string) {
-    analytics().setUserProperties({userId});
+    getAnalytics().setUserProperties({userId});
   },
 
   /**
@@ -25,7 +25,7 @@ const Logger = {
    */
   async logElementView(params: ElementEventParams) {
     logDebug('logElementView', params);
-    analytics().logEvent('element_view', {
+    getAnalytics().logEvent('element_view', {
       ...(params.extraParams || {}),
       element_name: params.name,
       screen_name: params.currScreenName,
@@ -37,7 +37,7 @@ const Logger = {
    */
   async logElementClick(params: ElementEventParams) {
     logDebug('logElementClick', params);
-    analytics().logEvent('element_click', {
+    getAnalytics().logEvent('element_click', {
       ...(params.extraParams || {}),
       element_name: params.name,
       screen_name: params.currScreenName,
@@ -46,7 +46,7 @@ const Logger = {
 
   async logScreenView(params: ScreenViewParams) {
     logDebug('logScreenView', params);
-    analytics().logScreenView({
+    getAnalytics().logScreenView({
       ...(params.extraParams || {}),
       previous_screen_name: params.prevScreenName,
       screen_name: params.currScreenName,
@@ -55,7 +55,7 @@ const Logger = {
   },
 
   async logUploadImage(metric: Record<string, number>) {
-    analytics().logEvent('upload_image', {
+    getAnalytics().logEvent('upload_image', {
       ...metric,
     });
   },

@@ -1,6 +1,6 @@
 import {HotUpdater} from '@hot-updater/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import analytics from '@react-native-firebase/analytics';
+import {getAnalytics} from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
@@ -19,7 +19,6 @@ import {color} from '@/constant/color';
 import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
-import {useAppsflyerSetup} from '@/utils/useAppsflyerSetup';
 
 const queryClient = new QueryClient();
 
@@ -42,7 +41,6 @@ const App = () => {
   const accessToken = useAtomValue(accessTokenAtom);
   const setAccessToken = useSetAtom(accessTokenAtom);
 
-  useAppsflyerSetup();
   useEffect(() => {
     // Request logging interceptor
     const requestInterceptorId = globalAxios.interceptors.request.use(
@@ -131,7 +129,7 @@ const AppWithMigration = () => {
 export default HotUpdater.wrap({
   source: Config.HOT_UPDATER_URL ?? '',
   onError: error => {
-    analytics().logEvent('HotUpdaterError', {
+    getAnalytics().logEvent('HotUpdaterError', {
       error: error.message,
     });
   },
