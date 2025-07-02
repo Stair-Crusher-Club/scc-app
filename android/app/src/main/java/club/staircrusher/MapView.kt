@@ -1,12 +1,8 @@
 package club.staircrusher
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.util.Log
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.ThemedReactContext
 import com.mrousavy.camera.core.utils.runOnUiThread
@@ -17,7 +13,6 @@ import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
-import com.naver.maps.map.overlay.LocationOverlay
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 
@@ -45,7 +40,7 @@ class MapView(
     private var currentSelectedMarker: Pair<Marker, MarkerData>? = null
 
     init {
-        lifecycleListener = object : LifecycleEventListener {
+        lifecycleListener = (object : LifecycleEventListener {
             override fun onHostResume() {
                 synchronized(this@MapView) {
                     if (!isDestroyed) {
@@ -67,8 +62,10 @@ class MapView(
             override fun onHostDestroy() {
                 this@MapView.doDestroy()
             }
+        }).also {
+            reactContext.addLifecycleEventListener(it)
         }
-        reactContext.addLifecycleEventListener(lifecycleListener)
+
         getMapAsync {
             map = it
             it.addOnCameraIdleListener {
@@ -219,8 +216,8 @@ class MapView(
         }
         isDestroyed = true
 
-        if (lifecycleListener != null) {
-            reactContext.removeLifecycleEventListener(lifecycleListener)
+        lifecycleListener?.let {
+            reactContext.removeLifecycleEventListener(it)
             lifecycleListener = null
         }
         if (!isPaused) {

@@ -11,6 +11,7 @@ project.ext.envConfigFiles = [
         sandboxdebug     : file("../../subprojects/scc-frontend-build-configurations/sandbox/.env"),
         sandboxrelease   : file("../../subprojects/scc-frontend-build-configurations/sandbox/.env"),
 ]
+project.ext.defaultEnvFile = file("../../subprojects/scc-frontend-build-configurations/sandbox/.env")
 
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
