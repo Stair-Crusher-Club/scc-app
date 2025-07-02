@@ -23,8 +23,10 @@ export const DeviceTypeButton = styled.Pressable<{selected: boolean}>(
   }),
 );
 
-export const DeviceTypeText = styled.Text<{selected: boolean}>(({selected}) => ({
-  color: selected ? color.white : color.gray70,
-  fontSize: 11,
-  fontFamily: font.pretendardBold,
-}));
+export const DeviceTypeText = styled.Text<{selected: boolean}>(
+  ({selected}) => ({
+    color: selected ? color.white : color.gray70,
+    fontSize: 11,
+    fontFamily: font.pretendardBold,
+  }),
+);

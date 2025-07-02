@@ -8,7 +8,7 @@ export const TextAreaContainer = styled.View<{
   focused?: boolean;
   hasError?: boolean;
 }>`
-  border-color: ${(props: { focused?: boolean; hasError?: boolean }) =>
+  border-color: ${(props: {focused?: boolean; hasError?: boolean}) =>
     props.hasError
       ? color.red
       : props.focused
