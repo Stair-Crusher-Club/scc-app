@@ -36,7 +36,7 @@ export const Navigation = () => {
   return (
     <Stack.Navigator
       initialRouteName="Intro"
-      screenOptions={({navigation}) => ({
+      screenOptions={() => ({
         headerShown: false,
         // eslint-disable-next-line react/no-unstable-nested-components
         header: ({options, navigation}) => {

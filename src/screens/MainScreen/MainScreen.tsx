@@ -17,6 +17,17 @@ import MenuScreen from '../MenuScreen';
 
 const Tab = createBottomTabNavigator();
 
+// Move tab bar icon components outside to avoid ESLint warnings
+const HomeTabIcon = (props: {color: string}) => (
+  <HomeIcon color={props.color} />
+);
+const ChallengeTabIcon = (props: {color: string}) => (
+  <ChallengeIcon color={props.color} />
+);
+const MenuTabIcon = (props: {color: string}) => (
+  <MenuIcon color={props.color} />
+);
+
 export interface MainScreenParams {}
 
 export default function MainScreen({navigation}: ScreenProps<'Main'>) {
@@ -46,7 +57,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '홈',
           headerShown: false,
-          tabBarIcon: ({color}) => <HomeIcon color={color} />,
+          tabBarIcon: HomeTabIcon,
         }}
       />
       <Tab.Screen
@@ -55,7 +66,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '챌린지',
           headerShown: false,
-          tabBarIcon: ({color}) => <ChallengeIcon color={color} />,
+          tabBarIcon: ChallengeTabIcon,
         }}
       />
       <Tab.Screen
@@ -72,7 +83,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         options={{
           title: '메뉴',
           headerShown: false,
-          tabBarIcon: ({color}) => <MenuIcon color={color} />,
+          tabBarIcon: MenuTabIcon,
         }}
       />
     </Tab.Navigator>
