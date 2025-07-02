@@ -4,8 +4,8 @@ import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView} from 'react-native';
 
+import {FormScreenLayout} from '@/components/FormScreenLayout';
 import {loadingState} from '@/components/LoadingView';
-import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {
   Building,
@@ -119,7 +119,7 @@ export default function PlaceFormScreen({
 
   return (
     <LogParamsProvider params={{place_id: place.id}}>
-      <ScreenLayout isHeaderVisible={true} safeAreaEdges={['bottom']}>
+      <FormScreenLayout>
         <ScrollView>
           <FormProvider {...form}>
             <HeaderSection place={place} />
@@ -138,7 +138,7 @@ export default function PlaceFormScreen({
             </S.SubmitButtonWrapper>
           </FormProvider>
         </ScrollView>
-      </ScreenLayout>
+      </FormScreenLayout>
     </LogParamsProvider>
   );
 }
