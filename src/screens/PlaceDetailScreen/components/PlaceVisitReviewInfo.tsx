@@ -8,7 +8,6 @@ import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
 
 import EmptyInfo from './EmptyInfo';
-import * as S from './PlaceInfo.style';
 
 interface Props {
   accessibility?: AccessibilityInfoDto;

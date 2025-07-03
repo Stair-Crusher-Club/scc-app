@@ -2,7 +2,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef} from 'react';
 import {Image} from 'react-native';
-import styled, { css } from 'styled-components/native';
+import styled, {css} from 'styled-components/native';
 
 import DefaultImg from '@/assets/img/default_img.svg';
 import {color} from '@/constant/color.ts';

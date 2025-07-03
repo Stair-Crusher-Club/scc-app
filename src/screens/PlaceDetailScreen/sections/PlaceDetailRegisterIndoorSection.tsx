@@ -5,15 +5,11 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
-import * as S from './PlaceDetailEntranceSection.style';
-
 interface Props {
   accessibility?: AccessibilityInfoDto;
 }
 
-export default function PlaceDetailRegisterIndoorSection({
-  accessibility,
-}: Props) {
+export default function PlaceDetailRegisterIndoorSection({}: Props) {
   const placeName = '장소명';
   return (
     <View

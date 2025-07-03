@@ -24,11 +24,12 @@ export default function PlaceIndoorInfo({accessibility}: Props) {
       </S.InfoWrapper>
       <S.InfoWrapper>
         <S.Type>주문방법</S.Type>
-        <S.Title>입식, 좌식(신발 벗고 앉는 구조)</S.Title>
+        <S.Title>카운터 방문주문, 매장입구 키오스크 주문</S.Title>
       </S.InfoWrapper>
       <S.InfoWrapper>
         <S.Type>특이사항</S.Type>
-        <S.Title>입식, 좌식(신발 벗고 앉는 구조)</S.Title>
+        <S.Title>휠체어 이용 가능한 좌석 수 3개 이상, 
+        직원 도움 없이 이동 가능</S.Title>
       </S.InfoWrapper>
     </View>
   );

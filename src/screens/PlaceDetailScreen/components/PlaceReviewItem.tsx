@@ -1,11 +1,5 @@
 import {useState} from 'react';
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  NativeSyntheticEvent,
-  TextLayoutEventData,
-} from 'react-native';
+import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
 import MoreIcon from '@/assets/icon/ic_more.svg';

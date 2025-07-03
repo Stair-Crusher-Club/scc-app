@@ -3,9 +3,7 @@ import React from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {SccButton} from '@/components/atoms';
-import {CommentBlock} from '@/components/molecules';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -13,7 +11,6 @@ import {
   Building,
   Place,
 } from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 

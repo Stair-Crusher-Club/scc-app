@@ -150,4 +150,3 @@ const ChipNumberText = styled.Text`
   font-family: ${() => font.pretendardMedium};
   color: ${color.gray100};
 `;
-

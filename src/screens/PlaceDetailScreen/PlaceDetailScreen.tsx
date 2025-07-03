@@ -9,6 +9,8 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
+import PlaceDetailRegisterIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
+import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 
 import * as S from './PlaceDetailScreen.style';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
@@ -19,8 +21,6 @@ import PlaceDetailCoverImage from './sections/PlaceDetailCoverImage';
 import PlaceDetailEntranceSection from './sections/PlaceDetailEntranceSection';
 import {PlaceDetailFeedbackSection} from './sections/PlaceDetailFeedbackSection';
 import PlaceDetailSummarySection from './sections/PlaceDetailSummarySection';
-import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
-import PlaceDetailRegisterIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
 
 export interface PlaceDetailScreenParams {
   placeInfo:
@@ -145,7 +145,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <S.SectionSeparator />
             <PlaceDetailIndoorSection accessibility={accessibilityPost} />
             <S.SectionSeparator />
-            <PlaceDetailRegisterIndoorSection accessibility={accessibilityPost} />
+            <PlaceDetailRegisterIndoorSection
+              accessibility={accessibilityPost}
+            />
             <S.SectionSeparator />
             <PlaceDetailToiletSection accessibility={accessibilityPost} />
             <S.SectionSeparator />
