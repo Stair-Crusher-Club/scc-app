@@ -1,23 +1,35 @@
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoDto,
+  PlaceReviewDto,
+  RecommendedMobilityTypeDto,
+} from '@/generated-sources/openapi';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
+import {MOBILITY_TYPE_LABELS} from '@/screens/PlaceDetailScreen/constants/labels';
 
 import EmptyInfo from './EmptyInfo';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  reviews: PlaceReviewDto[];
 }
 
-export default function PlaceVisitReviewInfo({accessibility}: Props) {
-  if (!accessibility) {
-    return <EmptyInfo type="매장 내부 정보" />;
-  }
-
+export default function PlaceVisitReviewInfo({reviews}: Props) {
+  const [sortType, setSortType] = useState<'latest' | 'oldest'>('latest');
+  const [targetMobilityType, setTargetMobilityType] =
+    useState<RecommendedMobilityTypeDto | null>(null);
+  const sortedReviews = useMemo(() => {
+    if (targetMobilityType) {
+      return reviews.filter(review =>
+        review.recommendedMobilityTypes.includes(targetMobilityType),
+      );
+    }
+    return reviews;
+  }, [reviews, sortType]);
   return (
     <>
       <ChipList>
@@ -26,12 +38,17 @@ export default function PlaceVisitReviewInfo({accessibility}: Props) {
           <DownIcon width={12} height={12} color={color.black} />
         </Chip>
         <Chip isActive={false} onPress={() => {}}>
-          <ChipText isActive={false}>수전동휠체어</ChipText>
+          <ChipText isActive={false}>
+            {targetMobilityType
+              ? MOBILITY_TYPE_LABELS[targetMobilityType]
+              : '추천대상'}
+          </ChipText>
           <DownIcon width={12} height={12} color={color.black} />
         </Chip>
       </ChipList>
-      <PlaceReviewItem />
-      <PlaceReviewItem />
+      {sortedReviews.map(review => (
+        <PlaceReviewItem key={review.id} review={review} />
+      ))}
     </>
   );
 }

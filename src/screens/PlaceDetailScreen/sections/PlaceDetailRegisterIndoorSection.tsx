@@ -3,14 +3,14 @@ import {Text, TouchableOpacity, View} from 'react-native';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  place: Place;
 }
 
-export default function PlaceDetailRegisterIndoorSection({}: Props) {
-  const placeName = '장소명';
+export default function PlaceDetailRegisterIndoorSection({place}: Props) {
+  const placeName = place.name;
   return (
     <View
       style={{

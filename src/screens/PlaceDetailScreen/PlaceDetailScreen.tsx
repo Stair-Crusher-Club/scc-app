@@ -80,6 +80,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     queryFn: async ({queryKey}) =>
       (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
   });
+  const {data: reviewPost} = useQuery({
+    queryKey: ['PlaceDetail', placeId, 'Review'],
+    queryFn: async ({queryKey}) =>
+      (await api.listPlaceReviewsPost({placeId: queryKey[1]})).data,
+  });
+  const {data: toiletPost} = useQuery({
+    queryKey: ['PlaceDetail', placeId, 'Toilet'],
+    queryFn: async ({queryKey}) =>
+      (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
+  });
 
   useEffect(() => {
     // 등록된 정보 확인 후에 띄워주기
@@ -143,13 +153,20 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               }
             />
             <S.SectionSeparator />
-            <PlaceDetailIndoorSection accessibility={accessibilityPost} />
+            {reviewPost && reviewPost.length > 0 && (
+              <>
+                <PlaceDetailIndoorSection reviews={reviewPost} />
+                <S.SectionSeparator />
+              </>
+            )}
+            <PlaceDetailRegisterIndoorSection place={place} />
             <S.SectionSeparator />
-            <PlaceDetailRegisterIndoorSection
-              accessibility={accessibilityPost}
-            />
-            <S.SectionSeparator />
-            <PlaceDetailToiletSection accessibility={accessibilityPost} />
+            {toiletPost && toiletPost.length > 0 && (
+              <>
+                <PlaceDetailToiletSection toiletReviews={toiletPost} />
+                <S.SectionSeparator />
+              </>
+            )}
             <S.SectionSeparator />
             <PlaceDetailBuildingSection
               accessibility={accessibilityPost}

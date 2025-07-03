@@ -1,7 +1,10 @@
 import React from 'react';
 import {View} from 'react-native';
 
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoDto,
+  ToiletReviewDto,
+} from '@/generated-sources/openapi';
 import PlaceToiletInfo from '@/screens/PlaceDetailScreen/components/PlaceToiletInfo';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -11,20 +14,10 @@ import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  toiletReviews: ToiletReviewDto[];
 }
 
-export default function PlaceDetailToiletSection({accessibility}: Props) {
-  const checkAuth = useCheckAuth();
-  if (!accessibility?.buildingAccessibility) {
-    return null;
-  }
-
-  const {entranceImages, elevatorImages, registeredUserName} =
-    accessibility.buildingAccessibility;
-  const images = [...(entranceImages ?? []), ...(elevatorImages ?? [])];
-  const comments = accessibility.buildingAccessibilityComments;
-
+export default function PlaceDetailToiletSection({toiletReviews}: Props) {
   function handlePressAddComment() {
     // navigation.navigate('AddComment', {
     //   type: 'building',
@@ -32,6 +25,7 @@ export default function PlaceDetailToiletSection({accessibility}: Props) {
     //   placeId: place.id,
     // });
   }
+  const toilet = toiletReviews[0];
 
   return (
     <S.Section>
@@ -39,9 +33,9 @@ export default function PlaceDetailToiletSection({accessibility}: Props) {
         <S.Title>장애인 화장실 정보</S.Title>
       </S.SubSection>
       <S.InfoContent>
-        <ImageList images={images} roundCorners />
-        <PlaceToiletInfo accessibility={accessibility} />
-        <View>
+        <ImageList images={toilet.images} roundCorners />
+        <PlaceToiletInfo toilet={toilet} />
+        {/* <View>
           <PlaceDetailCommentSection
             comments={comments}
             onAddComment={handlePressAddComment}
@@ -54,7 +48,7 @@ export default function PlaceDetailToiletSection({accessibility}: Props) {
             }
             crusherNames={registeredUserName ? [registeredUserName] : []}
           />
-        </View>
+        </View> */}
       </S.InfoContent>
     </S.Section>
   );

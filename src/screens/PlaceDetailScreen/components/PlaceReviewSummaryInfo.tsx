@@ -1,20 +1,34 @@
-import React from 'react';
+import dayjs from 'dayjs';
+import React, {useMemo} from 'react';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoDto,
+  PlaceReviewDto,
+  SpaciousTypeDto,
+} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  reviews: PlaceReviewDto[];
 }
 
-export default function PlaceReviewSummaryInfo({accessibility}: Props) {
-  if (!accessibility) {
+export default function PlaceReviewSummaryInfo({reviews}: Props) {
+  const {top3, restText} = useMemo(
+    () => getTopMobilityTypesAndRestText(reviews, MOBILITY_TYPE_LABELS),
+    [reviews],
+  );
+  const spaciousTypeCounts = useMemo(
+    () => getSpaciousTypeCounts(reviews),
+    [reviews],
+  );
+
+  if (reviews.length === 0) {
     return <EmptyInfo type="매장 내부 정보" />;
   }
 
@@ -23,30 +37,26 @@ export default function PlaceReviewSummaryInfo({accessibility}: Props) {
       <HeaderRow>
         <HeaderLeft>
           <S.BigTitle>방문 리뷰</S.BigTitle>
-          <ReviewCount>12</ReviewCount>
+          <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
-        <ReviewButton>
+        <ReviewButton
+          onPress={() => {
+            // TODO: 리뷰 작성하기 버튼 클릭 시 리뷰 작성 화면으로 이동
+          }}>
           <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
         </ReviewButton>
       </HeaderRow>
       <SectionColumn style={{marginTop: 16}}>
         <SectionTitle>추천대상</SectionTitle>
         <TextBoxRow>
-          <TextBox
-            label={'수동휠체어\n사용 추천'}
-            content="3명"
-            isHighlighted={true}
-          />
-          <TextBox
-            label={'전동휠체어\n사용 추천'}
-            content="3명"
-            isHighlighted={false}
-          />
-          <TextBox
-            label={'유아차 휠체어\n사용 추천'}
-            content="3명"
-            isHighlighted={false}
-          />
+          {top3.map(([type, count], idx) => (
+            <TextBox
+              key={type}
+              label={MOBILITY_TYPE_LABELS[type] || type}
+              content={`${count}명`}
+              isHighlighted={idx === 0}
+            />
+          ))}
         </TextBoxRow>
         <Text
           style={{
@@ -55,34 +65,29 @@ export default function PlaceReviewSummaryInfo({accessibility}: Props) {
             color: color.gray90,
             fontFamily: font.pretendardRegular,
           }}>
-          • 고령자(1명) / 추천하지 않음(0명)
+          {restText}
         </Text>
       </SectionColumn>
       <SectionColumn style={{marginTop: 24}}>
         <SectionTitle>내부공간</SectionTitle>
         <TextBoxThinRow>
-          <TextBox
-            label={'이용하기 원활해요'}
-            content="3명"
-            isHighlighted={true}
-            thin
-          />
-          <TextBox
-            label={'이용하기 원활해요'}
-            content="3명"
-            isHighlighted={false}
-            thin
-          />
-          <TextBox
-            label={'이용하기 원활해요'}
-            content="3명"
-            isHighlighted={false}
-            thin
-          />
+          {spaciousTypeCounts.map(([type, count], idx) => (
+            <TextBox
+              key={type}
+              label={SPACIOUS_TYPE_LABELS[type] || type}
+              content={`${count}명`}
+              isHighlighted={idx === 0}
+              thin
+            />
+          ))}
         </TextBoxThinRow>
       </SectionColumn>
       <FooterRow style={{marginTop: 24}}>
-        <FooterDate>2025.06.12</FooterDate>
+        <FooterDate>
+          {dayjs(Math.max(...reviews.map(r => r.createdAt.value))).format(
+            'YYYY.MM.DD',
+          )}
+        </FooterDate>
       </FooterRow>
     </Container>
   );
@@ -211,3 +216,59 @@ const TextBoxContent = styled.Text<{thin?: boolean}>`
   color: ${color.blue50};
   text-align: center;
 `;
+
+// 이동수단 타입 한글 라벨 매핑
+const MOBILITY_TYPE_LABELS: Record<string, string> = {
+  MANUAL_WHEELCHAIR: '수동휠체어\n사용 추천',
+  ELECTRIC_WHEELCHAIR: '전동휠체어\n사용 추천',
+  STROLLER: '유아차 휠체어\n사용 추천',
+  ELDERLY: '고령자\n사용 추천',
+  NOT_SURE: '잘 모르겠음',
+  NONE: '추천하지 않음',
+};
+
+// 내부공간 타입 한글 라벨 매핑
+const SPACIOUS_TYPE_LABELS: Record<string, string> = {
+  WIDE: '매우 원활해요',
+  ENOUGH: '원활해요',
+  LIMITED: '조금 불편해요',
+  TIGHT: '매우 불편해요',
+};
+
+function getSpaciousTypeCounts(reviews: PlaceReviewDto[]) {
+  const count: Record<string, number> = {};
+  reviews.forEach(r => {
+    const type = r.spaciousType;
+    if (type) {
+      if (!count[type]) count[type] = 0;
+      count[type]++;
+    }
+  });
+  const order: SpaciousTypeDto[] = ['WIDE', 'ENOUGH', 'LIMITED', 'TIGHT'];
+  return order
+    .filter(type => count[type])
+    .map(type => [type, count[type]] as [string, number]);
+}
+
+function getTopMobilityTypesAndRestText(
+  reviews: PlaceReviewDto[],
+  MOBILITY_TYPE_LABELS: Record<string, string>,
+) {
+  const count: Record<string, number> = {};
+  reviews.forEach(r => {
+    r.recommendedMobilityTypes?.forEach(type => {
+      if (!count[type]) count[type] = 0;
+      count[type]++;
+    });
+  });
+  const sorted = Object.entries(count).sort((a, b) => b[1] - a[1]);
+  const top3 = sorted.slice(0, 3);
+  const top3Types = top3.map(([type]) => type);
+  const rest = sorted
+    .filter(([type]) => !top3Types.includes(type))
+    .map(([type, cnt]) => `${MOBILITY_TYPE_LABELS[type] || type}(${cnt}명)`);
+  return {
+    top3,
+    restText: rest.length > 0 ? `• ${rest.join(' / ')}` : '',
+  };
+}

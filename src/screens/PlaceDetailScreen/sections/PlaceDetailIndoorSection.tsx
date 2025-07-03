@@ -3,17 +3,20 @@ import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoDto,
+  PlaceReviewDto,
+} from '@/generated-sources/openapi';
 import PlaceIndoorInfo from '@/screens/PlaceDetailScreen/components/PlaceIndoorInfo';
 import PlaceReviewSummaryInfo from '@/screens/PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '@/screens/PlaceDetailScreen/components/PlaceVisitReviewInfo';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  reviews: PlaceReviewDto[];
 }
 
-export default function PlaceDetailIndoorSection({accessibility}: Props) {
-  if (!accessibility?.placeAccessibility) {
+export default function PlaceDetailIndoorSection({reviews}: Props) {
+  if (reviews.length === 0) {
     return null;
   }
 
@@ -26,11 +29,11 @@ export default function PlaceDetailIndoorSection({accessibility}: Props) {
         paddingHorizontal: 20,
         backgroundColor: color.white,
       }}>
-      <PlaceIndoorInfo accessibility={accessibility} />
+      <PlaceIndoorInfo reviews={reviews} />
       <Divider />
-      <PlaceReviewSummaryInfo accessibility={accessibility} />
+      <PlaceReviewSummaryInfo reviews={reviews} />
       <Divider />
-      <PlaceVisitReviewInfo accessibility={accessibility} />
+      <PlaceVisitReviewInfo reviews={reviews} />
     </View>
   );
 }
