@@ -5,11 +5,7 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  AccessibilityInfoDto,
-  PlaceReviewDto,
-  SpaciousTypeDto,
-} from '@/generated-sources/openapi';
+import {PlaceReviewDto, SpaciousTypeDto} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
@@ -20,7 +16,7 @@ interface Props {
 
 export default function PlaceReviewSummaryInfo({reviews}: Props) {
   const {top3, restText} = useMemo(
-    () => getTopMobilityTypesAndRestText(reviews, MOBILITY_TYPE_LABELS),
+    () => getTopMobilityTypesAndRestText(reviews),
     [reviews],
   );
   const spaciousTypeCounts = useMemo(
@@ -250,10 +246,7 @@ function getSpaciousTypeCounts(reviews: PlaceReviewDto[]) {
     .map(type => [type, count[type]] as [string, number]);
 }
 
-function getTopMobilityTypesAndRestText(
-  reviews: PlaceReviewDto[],
-  MOBILITY_TYPE_LABELS: Record<string, string>,
-) {
+function getTopMobilityTypesAndRestText(reviews: PlaceReviewDto[]) {
   const count: Record<string, number> = {};
   reviews.forEach(r => {
     r.recommendedMobilityTypes?.forEach(type => {

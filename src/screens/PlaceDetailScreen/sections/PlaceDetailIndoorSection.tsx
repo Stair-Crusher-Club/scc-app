@@ -3,10 +3,7 @@ import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {
-  AccessibilityInfoDto,
-  PlaceReviewDto,
-} from '@/generated-sources/openapi';
+import {PlaceReviewDto} from '@/generated-sources/openapi';
 import PlaceIndoorInfo from '@/screens/PlaceDetailScreen/components/PlaceIndoorInfo';
 import PlaceReviewSummaryInfo from '@/screens/PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '@/screens/PlaceDetailScreen/components/PlaceVisitReviewInfo';

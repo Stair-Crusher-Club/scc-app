@@ -5,21 +5,20 @@ import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  AccessibilityInfoDto,
   PlaceReviewDto,
   RecommendedMobilityTypeDto,
 } from '@/generated-sources/openapi';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
 import {MOBILITY_TYPE_LABELS} from '@/screens/PlaceDetailScreen/constants/labels';
 
-import EmptyInfo from './EmptyInfo';
-
 interface Props {
   reviews: PlaceReviewDto[];
 }
 
 export default function PlaceVisitReviewInfo({reviews}: Props) {
+  // eslint-disable-next-line
   const [sortType, setSortType] = useState<'latest' | 'oldest'>('latest');
+  // eslint-disable-next-line
   const [targetMobilityType, setTargetMobilityType] =
     useState<RecommendedMobilityTypeDto | null>(null);
   const sortedReviews = useMemo(() => {

@@ -1,12 +1,8 @@
 import React from 'react';
 import {View} from 'react-native';
 
-import {
-  AccessibilityInfoDto,
-  PlaceReviewDto,
-} from '@/generated-sources/openapi';
+import {PlaceReviewDto} from '@/generated-sources/openapi';
 
-import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 
 interface Props {

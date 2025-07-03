@@ -1,16 +1,12 @@
 import React from 'react';
 import {View} from 'react-native';
 
-import {
-  AccessibilityInfoDto,
-  ToiletReviewDto,
-} from '@/generated-sources/openapi';
+import {ToiletReviewDto} from '@/generated-sources/openapi';
 import {
   ENTRANCE_DOOR_TYPE_LABELS,
   TOILET_LOCATION_TYPE_LABELS,
 } from '@/screens/PlaceDetailScreen/constants/labels';
 
-import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 
 interface Props {

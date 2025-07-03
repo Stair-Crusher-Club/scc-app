@@ -1,16 +1,9 @@
 import React from 'react';
-import {View} from 'react-native';
 
-import {
-  AccessibilityInfoDto,
-  ToiletReviewDto,
-} from '@/generated-sources/openapi';
+import {ToiletReviewDto} from '@/generated-sources/openapi';
 import PlaceToiletInfo from '@/screens/PlaceDetailScreen/components/PlaceToiletInfo';
-import {useCheckAuth} from '@/utils/checkAuth';
 
-import PlaceDetailCommentSection from '../components/PlaceDetailCommentSection';
 import ImageList from '../components/PlaceDetailImageList';
-import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props {
@@ -18,13 +11,13 @@ interface Props {
 }
 
 export default function PlaceDetailToiletSection({toiletReviews}: Props) {
-  function handlePressAddComment() {
-    // navigation.navigate('AddComment', {
-    //   type: 'building',
-    //   buildingId: building.id,
-    //   placeId: place.id,
-    // });
-  }
+  // function handlePressAddComment() {
+  // navigation.navigate('AddComment', {
+  //   type: 'building',
+  //   buildingId: building.id,
+  //   placeId: place.id,
+  // });
+  // }
   const toilet = toiletReviews[0];
 
   return (
