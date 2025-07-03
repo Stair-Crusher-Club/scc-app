@@ -40,6 +40,9 @@ import PlaceFormScreen, {
   PlaceFormScreenParams,
 } from '@/screens/PlaceFormScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
+import PlaceReviewFormScreen, {
+  PlaceReviewFormScreenParams,
+} from '@/screens/PlaceReviewFormScreen';
 import {ProfileEditorDetailScreen} from '@/screens/ProfileEditorScreen';
 import {ProfileEditorDetailScreenParams} from '@/screens/ProfileEditorScreen/ProfileEditorDetailScreen';
 import ProfileEditorScreen from '@/screens/ProfileEditorScreen/ProfileEditorScreen';
@@ -47,6 +50,7 @@ import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
+import ToiletReviewFormScreen from '@/screens/ToiletReviewFormScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export const MainNavigationScreens: {
@@ -159,6 +163,16 @@ export const MainNavigationScreens: {
     component: ImageZoomViewerScreen,
     options: {presentation: 'fullScreenModal'},
   },
+  {
+    name: 'ReviewForm/Place',
+    component: PlaceReviewFormScreen,
+    options: {headerShown: true, headerTitle: '방문 후기 작성하기'},
+  },
+  {
+    name: 'ReviewForm/Toilet',
+    component: ToiletReviewFormScreen,
+    options: {headerShown: true, headerTitle: '화장실 후기 작성하기'},
+  },
 ];
 
 export type ScreenParams = {
@@ -189,6 +203,10 @@ export type ScreenParams = {
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   FavoritePlaces: undefined;
+
+  // 리뷰
+  'ReviewForm/Place': PlaceReviewFormScreenParams;
+  'ReviewForm/Toilet': undefined;
 
   Setting: undefined;
   MapTest: undefined;
