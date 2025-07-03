@@ -46,7 +46,7 @@ export const EmptyInfoContent = styled.View({
 });
 
 export const InfoContent = styled.View({
-  gap: 30,
+  gap: 24,
 });
 
 export const Separator = styled.View({
@@ -78,7 +78,9 @@ export const InfoList = styled.View({paddingVertical: 10});
 export const InfoItem = styled.View({});
 export const InfoItemSeparator = styled.View({marginTop: 12});
 
-export const Comments = styled.View({});
+export const Comments = styled.View({
+  gap: 16,
+});
 export const AddCommentButton = styled.Pressable({
   height: 48,
   flexDirection: 'row',
@@ -90,7 +92,7 @@ export const AddCommentButton = styled.Pressable({
   marginBottom: 16,
 });
 export const AddCommentText = styled.Text({
-  color: color.blue50,
+  color: color.brandColor,
   fontSize: 16,
   fontFamily: font.pretendardMedium,
   marginLeft: 4,

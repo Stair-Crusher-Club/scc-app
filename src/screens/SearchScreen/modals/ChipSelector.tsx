@@ -70,3 +70,4 @@ const ChipText = styled.Text<{isActive: boolean}>`
   font-family: ${font.pretendardMedium};
   color: ${({isActive}) => (isActive ? color.brandColor : color.gray90)};
 `;
+

@@ -2,7 +2,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef} from 'react';
 import {Image} from 'react-native';
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 
 import DefaultImg from '@/assets/img/default_img.svg';
 import {color} from '@/constant/color.ts';
@@ -13,9 +13,10 @@ import {ScreenParams} from '@/navigation/Navigation.screens';
 
 interface Props {
   images: ImageDto[];
+  roundCorners?: boolean;
 }
 
-export default function ImageList({images}: Props) {
+export default function ImageList({images, roundCorners}: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
   const hiddenImages = images.slice(3);
@@ -29,7 +30,7 @@ export default function ImageList({images}: Props) {
   }
 
   return (
-    <ImageListView>
+    <ImageListView roundCorners={roundCorners}>
       <LogClick
         elementName="place_detail_image"
         params={{
@@ -95,12 +96,17 @@ function ImageBox({image, hiddenImageLength = 0, onPress}: ImageBoxProps) {
   );
 }
 
-const ImageListView = styled.View`
+const ImageListView = styled.View<{roundCorners?: boolean}>`
   flex-direction: row;
   flex-shrink: 2;
   overflow: hidden;
   gap: 4px;
   width: 100%;
+  ${({roundCorners}) =>
+    roundCorners &&
+    css`
+      border-radius: 12px;
+    `}
 `;
 
 const Placeholder = styled.View`

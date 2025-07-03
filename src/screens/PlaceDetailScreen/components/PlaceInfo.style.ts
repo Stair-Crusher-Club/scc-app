@@ -22,10 +22,10 @@ export const InfoWrapper = styled.View({
 });
 
 export const Type = styled.Text({
-  fontFamily: font.pretendardBold,
+  fontFamily: font.pretendardMedium,
   fontSize: 14,
-  lineHeight: '22px',
-  color: color.gray80,
+  lineHeight: '20px',
+  color: color.gray40,
   marginBottom: 8,
 });
 
@@ -37,18 +37,26 @@ export const EmptyType = styled.Text({
   marginBottom: 4,
 });
 
-export const Title = styled.Text({
-  fontFamily: font.pretendardMedium,
-  fontSize: 18,
-  lineHeight: '27px',
+export const BigTitle = styled.Text({
+  fontFamily: font.pretendardBold,
+  fontSize: 20,
+  lineHeight: '28px',
   color: color.gray100,
+});
+
+export const Title = styled.Text({
+  fontFamily: font.pretendardSemibold,
+  fontSize: 18,
+  lineHeight: '26px',
+  color: color.gray90,
 });
 
 export const Description = styled.Text({
   fontFamily: font.pretendardRegular,
   fontSize: 16,
-  lineHeight: '27px',
-  color: color.gray70,
+  lineHeight: '24px',
+  marginTop: 2,
+  color: color.gray50,
 });
 
 export const EmptyDescription = styled.Text({

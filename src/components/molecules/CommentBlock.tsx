@@ -60,31 +60,36 @@ export const CommentBlock = ({
 const Container = styled.View({
   flex: 1,
   flexDirection: 'column',
-  gap: 8,
-  marginTop: 12,
-  marginBottom: 20,
+  gap: 4,
+  backgroundColor: color.gray10,
+  borderRadius: 12,
+  padding: 12,
 });
 
 const CommenterRow = styled.View({
   flex: 1,
   flexDirection: 'row',
+  alignItems: 'center',
   gap: 6,
 });
 
 const Commenter = styled.Text({
-  fontSize: 14,
+  fontSize: 13,
+  lineHeight: 18,
   fontFamily: font.pretendardMedium,
   color: color.link,
 });
 
 const CommentedAt = styled.Text({
-  fontSize: 14,
+  fontSize: 12,
+  lineHeight: 16,
   fontFamily: font.pretendardMedium,
   color: color.gray70,
 });
 
 const CommentContents = styled.Text({
   fontFamily: font.pretendardMedium,
-  fontSize: 18,
+  fontSize: 16,
+  lineHeight: 26,
   color: color.gray90,
 });

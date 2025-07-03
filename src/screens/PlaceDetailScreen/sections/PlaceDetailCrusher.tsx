@@ -7,17 +7,21 @@ import {ImageDto} from '@/generated-sources/openapi';
 
 interface Props {
   crusherGroupIcon?: ImageDto;
-  crusherName?: string;
+  crusherNames: string[];
 }
 
 export default function PlaceDetailCrusher({
   crusherGroupIcon,
-  crusherName,
+  crusherNames,
 }: Props) {
   const aspectRatio =
     crusherGroupIcon?.imageWidth && crusherGroupIcon?.imageHeight
       ? crusherGroupIcon.imageWidth / crusherGroupIcon.imageHeight
       : 1;
+  const crusherName =
+    crusherNames.length === 1
+      ? crusherNames[0]
+      : `${crusherNames[0]} 외 ${crusherNames.length - 1}명`;
   return (
     <Container>
       {crusherGroupIcon && (
