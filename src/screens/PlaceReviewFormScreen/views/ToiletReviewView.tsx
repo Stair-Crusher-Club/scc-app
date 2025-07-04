@@ -42,7 +42,7 @@ export default function ToiletReviewView({
 
   const form = useForm<FormValues>({
     defaultValues: {
-      floor: 1,
+      floor: 2,
       doorTypes: [],
       toiletPhotos: [],
       comment: '',

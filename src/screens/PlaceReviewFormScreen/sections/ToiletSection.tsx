@@ -1,3 +1,4 @@
+import {useEffect} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
@@ -17,13 +18,21 @@ import * as S from './common.style';
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 
 export default function ToiletSection({onSave}: {onSave: () => void}) {
-  const {watch} = useFormContext<FormValues>();
+  const {watch, formState, resetField} = useFormContext<FormValues>();
   const toiletLocationType = watch('toiletLocationType');
   const doorTypes = watch('doorTypes');
 
   const isExist =
     toiletLocationType === 'PLACE' || toiletLocationType === 'BUILDING';
   const isVisibleTextarea = toiletLocationType === 'ETC' || isExist;
+
+  useEffect(() => {
+    if (!isExist) {
+      resetField('floor');
+      resetField('doorTypes');
+      resetField('toiletPhotos');
+    }
+  }, [toiletLocationType]);
 
   return (
     <S.Container style={{flex: 1, justifyContent: 'space-between'}}>
@@ -44,7 +53,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             }}>
             <Controller
               name="toiletLocationType"
-              rules={{required: true, validate: value => value.size > 0}}
+              rules={{required: true}}
               render={({field}) => (
                 <>
                   {TOILET_LOCATION_TYPE_OPTIONS.map(({label, value}) => (
@@ -71,6 +80,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               <Controller
                 name="floor"
                 rules={{
+                  required: isExist,
                   validate: v =>
                     v !== 0 && v !== 1
                       ? true
@@ -96,7 +106,10 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 }}>
                 <Controller
                   name="doorTypes"
-                  rules={{required: true, validate: value => value.size > 0}}
+                  rules={{
+                    required: isExist,
+                    validate: value => value.length > 0,
+                  }}
                   render={({field}) => (
                     <>
                       {makeDoorTypeOptions(doorTypes).map(
@@ -196,6 +209,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             backgroundColor: color.brand,
           }}
           fontSize={18}
+          isDisabled={!formState.isValid}
           fontFamily={font.pretendardBold}
           onPress={onSave}
         />
