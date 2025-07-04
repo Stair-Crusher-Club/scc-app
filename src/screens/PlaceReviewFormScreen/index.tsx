@@ -2,7 +2,7 @@ import {useQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {ScrollView} from 'react-native';
 
-import {FormScreenLayout} from '@/components/FormScreenLayout';
+import {ScreenLayout} from '@/components/ScreenLayout';
 import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -27,7 +27,7 @@ export default function PlaceReviewFormScreen({
   }>({
     queryKey: ['PlaceDetail', placeId],
   });
-  const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('indoor');
+  const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('toilet');
 
   if (!placeId || typeof placeId !== 'string') {
     return null;
@@ -63,9 +63,11 @@ export default function PlaceReviewFormScreen({
 
   return (
     <LogParamsProvider params={{placeId}}>
-      <FormScreenLayout>
-        <ScrollView>{renderView()}</ScrollView>
-      </FormScreenLayout>
+      <ScreenLayout isHeaderVisible={true}>
+        <ScrollView contentContainerStyle={{flexGrow: 1}}>
+          {renderView()}
+        </ScrollView>
+      </ScreenLayout>
     </LogParamsProvider>
   );
 }

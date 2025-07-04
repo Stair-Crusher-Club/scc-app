@@ -63,7 +63,7 @@ export default function VisitorReviewSection() {
                         } else {
                           newSet.add(label);
                         }
-                        field.onChange(newSet); // 반드시 새 Set으로 전달
+                        field.onChange(newSet);
                       }}
                     />
                   ))}
