@@ -4,6 +4,7 @@ import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {Place} from '@/generated-sources/openapi';
+import useNavigation from '@/navigation/useNavigation';
 
 interface Props {
   place: Place;
@@ -11,6 +12,7 @@ interface Props {
 
 export default function PlaceDetailRegisterIndoorSection({place}: Props) {
   const placeName = place.name;
+  const navigation = useNavigation();
   return (
     <View
       style={{
@@ -39,6 +41,11 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
         방문 후기를 남겨주세요
       </Text>
       <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('ReviewForm/Place', {
+            placeId: place.id,
+          });
+        }}
         style={{
           width: '100%',
           flexDirection: 'row',

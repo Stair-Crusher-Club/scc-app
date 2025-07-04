@@ -3,9 +3,9 @@ import React, {memo} from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 
-import ReviewIcon from '@/assets/ic_review.svg';
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
 import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
+import ReviewIcon from '@/assets/icon/ic_review.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
@@ -119,6 +119,10 @@ function SearchItemCard({
       }
     });
   };
+  const hasReview = !!(
+    item.accessibilityInfo?.reviewCount &&
+    item.accessibilityInfo.reviewCount > 0
+  );
 
   return (
     <LogParamsProvider
@@ -141,10 +145,7 @@ function SearchItemCard({
                   })}
                   isIconVisible
                 />
-                {item.accessibilityInfo?.reviewCount &&
-                  item.accessibilityInfo.reviewCount > 0 && (
-                    <ReviewIcon width={24} height={24} />
-                  )}
+                {hasReview && <ReviewIcon />}
               </View>
               <IconArea>
                 <TouchableOpacity
