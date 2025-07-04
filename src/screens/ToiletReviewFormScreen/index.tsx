@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import {ScrollView} from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {Building, Place} from '@/generated-sources/openapi';
