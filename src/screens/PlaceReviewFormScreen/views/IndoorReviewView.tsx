@@ -1,7 +1,7 @@
 import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
-import {FieldErrors, FormProvider, useForm} from 'react-hook-form';
+import {FormProvider, useForm} from 'react-hook-form';
 
 import {loadingState} from '@/components/LoadingView';
 import {
@@ -64,36 +64,6 @@ export default function IndoorReviewView({
     registerPlace(values, setReviewTypeToToilet);
   }
 
-  function onInvalid(errors: FieldErrors<FormValues>) {
-    const errorsKeys = Object.keys(errors) as (keyof FormValues)[];
-    if (!errorsKeys[0]) return;
-    noticeError(errorsKeys[0]);
-  }
-
-  function noticeError(errorKey: keyof FormValues, message?: string) {
-    switch (errorKey) {
-      case 'experience':
-      case 'specialNotes':
-      case 'userType':
-        ToastUtils.show(message || '사용한 이동보조기기를 선택해주세요.');
-        break;
-      case 'mobilityTool':
-        ToastUtils.show(message || '추천 대상을 선택해주세요.');
-        break;
-      case 'useful':
-        ToastUtils.show(message || '내부 공간에 대해 선택해주세요.');
-        break;
-      case 'seats':
-        ToastUtils.show(message || '매장 이용 좌석 구성을 선택해주세요.');
-        break;
-      case 'order':
-        ToastUtils.show(message || '매장 주문 방법을 선택해주세요.');
-        break;
-      default:
-        ToastUtils.show(message || '필수 정보를 입력해주세요.');
-    }
-  }
-
   const registerPlace = useMemo(
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
@@ -123,8 +93,8 @@ export default function IndoorReviewView({
       <SectionSeparator />
 
       <IndoorInfoSection
-        onSave={form.handleSubmit(onValid, onInvalid)}
-        onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet, onInvalid)}
+        onSave={form.handleSubmit(onValid)}
+        onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
       />
     </FormProvider>
   );
