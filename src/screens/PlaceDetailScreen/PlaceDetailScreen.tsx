@@ -192,7 +192,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             {reviewPost && reviewPost.length > 0 && (
               <>
                 <View ref={indoorSection} collapsable={false}>
-                  <PlaceDetailIndoorSection reviews={reviewPost} />
+                  <PlaceDetailIndoorSection
+                    reviews={reviewPost}
+                    placeId={place.id}
+                  />
                 </View>
                 <S.SectionSeparator />
               </>
@@ -202,7 +205,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             {toiletPost && toiletPost.length > 0 && (
               <>
                 <View ref={toiletSection} collapsable={false}>
-                  <PlaceDetailToiletSection toiletReviews={toiletPost} />
+                  <PlaceDetailToiletSection
+                    toiletReviews={toiletPost}
+                    placeId={place.id}
+                  />
                 </View>
                 <S.SectionSeparator />
               </>

@@ -9,14 +9,17 @@ import {
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
+import useNavigation from '@/navigation/useNavigation';
 
 import * as SS from '../sections/PlaceDetailEntranceSection.style';
 
 interface Props {
   reviews: PlaceReviewDto[];
+  placeId: string;
 }
 
-export default function PlaceReviewSummaryInfo({reviews}: Props) {
+export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
+  const navigation = useNavigation();
   const mobilityTypeCounts = useMemo(
     () => countMobilityTypes(reviews),
     [reviews],
@@ -39,7 +42,9 @@ export default function PlaceReviewSummaryInfo({reviews}: Props) {
         </HeaderLeft>
         <ReviewButton
           onPress={() => {
-            // TODO: 리뷰 작성하기 버튼 클릭 시 리뷰 작성 화면으로 이동
+            navigation.navigate('ReviewForm/Place', {
+              placeId,
+            });
           }}>
           <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
         </ReviewButton>

@@ -4,20 +4,31 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
+import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props {
   toiletReviews: ToiletReviewDto[];
+  placeId: string;
 }
 
-export default function PlaceDetailToiletSection({toiletReviews}: Props) {
+export default function PlaceDetailToiletSection({
+  toiletReviews,
+  placeId,
+}: Props) {
+  const navigation = useNavigation();
   return (
     <S.Section>
       <HeaderRow>
         <S.Title>장애인 화장실 정보</S.Title>
-        <ReviewButton>
+        <ReviewButton
+          onPress={() => {
+            navigation.navigate('ReviewForm/Toilet', {
+              placeId,
+            });
+          }}>
           <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
           {/* TODO 리뷰 작성하기 버튼 연결 */}
         </ReviewButton>

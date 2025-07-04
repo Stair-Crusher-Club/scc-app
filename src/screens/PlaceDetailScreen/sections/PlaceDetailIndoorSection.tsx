@@ -10,9 +10,10 @@ import PlaceVisitReviewInfo from '@/screens/PlaceDetailScreen/components/PlaceVi
 
 interface Props {
   reviews: PlaceReviewDto[];
+  placeId: string;
 }
 
-export default function PlaceDetailIndoorSection({reviews}: Props) {
+export default function PlaceDetailIndoorSection({reviews, placeId}: Props) {
   if (reviews.length === 0) {
     return null;
   }
@@ -28,7 +29,7 @@ export default function PlaceDetailIndoorSection({reviews}: Props) {
       }}>
       <PlaceIndoorInfo reviews={reviews} />
       <Divider />
-      <PlaceReviewSummaryInfo reviews={reviews} />
+      <PlaceReviewSummaryInfo reviews={reviews} placeId={placeId} />
       <Divider />
       <PlaceVisitReviewInfo reviews={reviews} />
     </View>
