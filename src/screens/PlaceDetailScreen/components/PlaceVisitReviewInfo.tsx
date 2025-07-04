@@ -12,6 +12,9 @@ import {
 } from '@/generated-sources/openapi';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
 import {MOBILITY_TYPE_LABELS} from '@/screens/PlaceDetailScreen/constants/labels';
+import ToastUtils from '@/utils/ToastUtils';
+
+import PlaceVisitReviewFilterModal from '../modals/PlaceVisitReviewFilterModal';
 
 interface Props {
   reviews: PlaceReviewDto[];
@@ -23,6 +26,7 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
   // eslint-disable-next-line
   const [targetMobilityType, setTargetMobilityType] =
     useState<RecommendedMobilityTypeDto | null>(null);
+  const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const sortedReviews = useMemo(() => {
     if (targetMobilityType) {
       return reviews.filter(review =>
@@ -30,16 +34,22 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
       );
     }
     return reviews;
-  }, [reviews, sortType]);
+  }, [reviews, sortType, targetMobilityType]);
   return (
     <>
       <ChipList>
-        <Chip isActive={false} onPress={() => {}}>
+        <Chip
+          isActive={false}
+          onPress={() => {
+            ToastUtils.show('준비중입니다.');
+          }}>
           <ChipText isActive={false}>최신순</ChipText>
           <DownIcon width={12} height={12} color={color.black} />
         </Chip>
-        <Chip isActive={false} onPress={() => {}}>
-          <ChipText isActive={false}>
+        <Chip
+          isActive={!!targetMobilityType}
+          onPress={() => setFilterModalVisible(true)}>
+          <ChipText isActive={!!targetMobilityType}>
             {targetMobilityType
               ? MOBILITY_TYPE_LABELS[targetMobilityType]
               : '추천대상'}
@@ -55,6 +65,12 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
           </React.Fragment>
         ))}
       </ItemList>
+      <PlaceVisitReviewFilterModal
+        isVisible={isFilterModalVisible}
+        selected={targetMobilityType}
+        onSelect={setTargetMobilityType}
+        onClose={() => setFilterModalVisible(false)}
+      />
     </>
   );
 }
@@ -87,19 +103,19 @@ const ChipContainer = styled.TouchableOpacity<{isActive: boolean}>`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  background-color: ${({isActive}) => (isActive ? color.gray90 : color.white)};
+  background-color: ${({isActive}) => (isActive ? color.brand5 : color.white)};
   padding-vertical: 6px;
   padding-horizontal: 12px;
   border-radius: 56px;
   gap: 3px;
   border-width: 1px;
-  border-color: ${color.gray20};
+  border-color: ${({isActive}) => (isActive ? color.brand : color.gray20)};
 `;
 
 const ChipText = styled.Text<{isActive: boolean}>`
   font-size: 13px;
   font-family: ${() => font.pretendardMedium};
-  color: ${({isActive}) => (isActive ? color.white : color.gray100)};
+  color: ${({isActive}) => (isActive ? color.brand50 : color.gray100)};
 `;
 
 const ItemList = styled.View`
