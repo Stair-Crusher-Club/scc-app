@@ -29,7 +29,9 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
           <MoreIcon />
         </TouchableOpacity>
       </HeaderRow>
-      <ImageList images={review.images} roundCorners />
+      {review.images && review.images.length > 0 && (
+        <ImageList images={review.images} roundCorners />
+      )}
       <ReviewContentColumn>
         <ReviewInfoColumn>
           <ReviewInfoRow>

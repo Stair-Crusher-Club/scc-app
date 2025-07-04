@@ -30,4 +30,4 @@ export const MenuTitle = styled.Text<{active: boolean}>(props => ({
   height: 24,
   color: props.active ? color.black : color.gray70,
   fontWeight: props.active ? 'bold' : 'normal',
-})); 
+}));

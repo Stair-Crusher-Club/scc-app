@@ -1,6 +1,7 @@
-import { color } from "@/constant/color";
-import { font } from "@/constant/font";
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
+
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
 
 export const InfoWrapper = styled.View`
   flex-direction: row;

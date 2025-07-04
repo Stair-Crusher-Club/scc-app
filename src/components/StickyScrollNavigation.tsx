@@ -39,10 +39,10 @@ export default function ScrollNavigation({
   function onLayout(event: LayoutChangeEvent) {
     setNavLayout(event.nativeEvent.layout);
     menus.forEach((menu, index) => {
-      menu.ref.current?.measure((_x, _y, _w, _h, _px, py) => {
+      menu.ref.current?.measure((_x, y, _w, _h, _px, _py) => {
         setScrollYs(prev => {
           const newScrollYs = [...prev];
-          newScrollYs[index] = _y;
+          newScrollYs[index] = y;
           return newScrollYs;
         });
       });

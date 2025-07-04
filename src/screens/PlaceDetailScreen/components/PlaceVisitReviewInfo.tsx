@@ -1,6 +1,4 @@
-import {FlashList} from '@shopify/flash-list';
 import React, {useMemo, useState} from 'react';
-import {FlatList} from 'react-native';
 import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
@@ -21,9 +19,6 @@ interface Props {
 }
 
 export default function PlaceVisitReviewInfo({reviews}: Props) {
-  // eslint-disable-next-line
-  const [sortType, setSortType] = useState<'latest' | 'oldest'>('latest');
-  // eslint-disable-next-line
   const [targetMobilityType, setTargetMobilityType] =
     useState<RecommendedMobilityTypeDto | null>(null);
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
@@ -34,7 +29,7 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
       );
     }
     return reviews;
-  }, [reviews, sortType, targetMobilityType]);
+  }, [reviews, targetMobilityType]);
   return (
     <>
       <ChipList>

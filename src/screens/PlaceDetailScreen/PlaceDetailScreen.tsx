@@ -1,18 +1,12 @@
 import {useQuery} from '@tanstack/react-query';
-import {throttle} from 'lodash';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {ScrollView, View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import ScrollNavigation from '@/components/StickyScrollNavigation';
-import {
-  Building,
-  Place,
-  PlaceReviewDto,
-  ToiletReviewDto,
-} from '@/generated-sources/openapi';
+import {Building, Place} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -98,53 +92,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     queryFn: async ({queryKey}) =>
       (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
   });
-  // const {data: reviewPost} = useQuery({
-  //   queryKey: ['PlaceDetail', placeId, 'Review'],
-  //   queryFn: async ({queryKey}) =>
-  //     (await api.listPlaceReviewsPost({placeId: queryKey[1]})).data,
-  // });
-  const reviewPost: PlaceReviewDto[] = [
-    {
-      id: '1',
-      createdAt: {value: 1714857600},
-      seatTypes: ['좌석'],
-      recommendedMobilityTypes: ['MANUAL_WHEELCHAIR'],
-      spaciousType: 'WIDE',
-      mobilityTool: 'MANUAL_WHEELCHAIR',
-      orderMethods: ['ONLINE', 'OFFLINE'],
-      features: ['주차장', '화장실'],
-      comment: '좋아요',
-      images: [],
-    },
-    {
-      id: '2',
-      createdAt: {value: 1714857600},
-      seatTypes: ['좌석'],
-      recommendedMobilityTypes: ['MANUAL_WHEELCHAIR'],
-      spaciousType: 'WIDE',
-      mobilityTool: 'MANUAL_WHEELCHAIR',
-      orderMethods: ['ONLINE', 'OFFLINE'],
-      features: ['주차장', '화장실'],
-      comment: '좋아좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요요',
-      images: [],
-    },
-  ];
-  // const {data: toiletPost} = useQuery({
-  //   queryKey: ['PlaceDetail', placeId, 'Toilet'],
-  //   queryFn: async ({queryKey}) =>
-  //     (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
-  // });
-  const toiletPost: ToiletReviewDto[] = [
-    {
-      id: '1',
-      createdAt: {value: 1714857600},
-      comment: '좋아요',
-      images: [],
-      toiletLocationType: 'PLACE',
-      floor: 1,
-      entranceDoorTypes: ['None'],
-    },
-  ];
+  const {data: reviewPost} = useQuery({
+    queryKey: ['PlaceDetail', placeId, 'Review'],
+    queryFn: async ({queryKey}) =>
+      (await api.listPlaceReviewsPost({placeId: queryKey[1]})).data,
+  });
+  const {data: toiletPost} = useQuery({
+    queryKey: ['PlaceDetail', placeId, 'Toilet'],
+    queryFn: async ({queryKey}) =>
+      (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
+  });
 
   useEffect(() => {
     // 등록된 정보 확인 후에 띄워주기

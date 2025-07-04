@@ -4,10 +4,8 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
-import PlaceToiletInfo from '@/screens/PlaceDetailScreen/components/PlaceToiletInfo';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 
-import ImageList from '../components/PlaceDetailImageList';
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props {

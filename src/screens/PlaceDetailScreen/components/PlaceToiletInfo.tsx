@@ -43,7 +43,7 @@ export default function PlaceToiletInfo({toilet}: Props) {
           </S.TextWrapper>
         </S.InfoWrapper>
       </View>
-      <ImageList images={toilet.images} roundCorners isSinglePreview />
+      <ImageList images={toilet.images || []} roundCorners isSinglePreview />
     </View>
   );
 }

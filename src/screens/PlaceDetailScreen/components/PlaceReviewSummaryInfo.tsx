@@ -294,9 +294,9 @@ function countSpaciousType(
   });
   const sorted = Object.entries(count)
     .sort((a, b) => b[1] - a[1])
-    .map(([type, count]) => ({
+    .map(([type, cnt]) => ({
       label: SPACIOUS_TYPE_LABELS[type] || type,
-      count: count,
+      count: cnt,
     }));
   return assignLevels(sorted);
 }
@@ -319,9 +319,9 @@ function countMobilityTypes(reviews: PlaceReviewDto[]): {
   });
   const sorted = Object.entries(count)
     .sort((a, b) => b[1] - a[1])
-    .map(([type, count]) => ({
+    .map(([type, cnt]) => ({
       label: MOBILITY_TYPE_LABELS[type] || type,
-      count: count,
+      count: cnt,
     }));
   return assignLevels(sorted);
 }
