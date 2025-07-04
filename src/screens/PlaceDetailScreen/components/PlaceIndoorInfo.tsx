@@ -5,7 +5,7 @@ import {View} from 'react-native';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
 
 import * as SS from '../sections/PlaceDetailEntranceSection.style';
-import * as S from './PlaceInfo.style';
+import * as S from './NewPlaceInfo.style';
 
 interface Props {
   reviews: PlaceReviewDto[];
@@ -17,27 +17,39 @@ export default function PlaceIndoorInfo({reviews}: Props) {
   ).format('YYYY.MM.DD');
   return (
     <View style={{flex: 1, gap: 20}}>
-      <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          justifyContent: 'space-between',
+        }}>
         <SS.Title>내부 이용 정보</SS.Title>
         <SS.Updated>{updatedAt}</SS.Updated>
       </View>
       <S.InfoWrapper>
-        <S.Type>좌석 구성</S.Type>
-        <S.Title>
-          {reviews.flatMap(review => review.seatTypes).join(', ')}
-        </S.Title>
+        <S.LabelText>좌석 구성</S.LabelText>
+        <S.TextWrapper>
+          <S.ContentText>
+            {reviews.flatMap(review => review.seatTypes).join(', ')}
+          </S.ContentText>
+        </S.TextWrapper>
       </S.InfoWrapper>
       <S.InfoWrapper>
-        <S.Type>주문방법</S.Type>
-        <S.Title>
-          {reviews.flatMap(review => review.orderMethods).join(', ')}
-        </S.Title>
+        <S.LabelText>주문방법</S.LabelText>
+        <S.TextWrapper>
+          <S.ContentText>
+            {reviews.flatMap(review => review.orderMethods).join(', ')}
+          </S.ContentText>
+        </S.TextWrapper>
       </S.InfoWrapper>
       <S.InfoWrapper>
-        <S.Type>특이사항</S.Type>
-        <S.Title>
-          {reviews.flatMap(review => review.features).join(', ')}
-        </S.Title>
+        <S.LabelText>특이사항</S.LabelText>
+        <S.TextWrapper>
+          <S.ContentText>
+            {reviews.flatMap(review => review.features).join(', ')}
+          </S.ContentText>
+        </S.TextWrapper>
       </S.InfoWrapper>
     </View>
   );

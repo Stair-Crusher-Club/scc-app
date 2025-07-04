@@ -15,7 +15,7 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
     <View
       style={{
         flex: 1,
-        paddingVertical: 32,
+        paddingVertical: 20,
         paddingHorizontal: 20,
         backgroundColor: color.white,
       }}>
@@ -23,7 +23,8 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
         style={{
           fontSize: 14,
           lineHeight: 20,
-          color: color.gray70,
+          fontFamily: font.pretendardRegular,
+          color: color.gray60,
         }}>
         {placeName} 에 방문하셨나요?
       </Text>
@@ -31,9 +32,9 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
         style={{
           fontSize: 18,
           lineHeight: 26,
-          color: color.gray100,
+          color: color.black,
           fontFamily: font.pretendardBold,
-          marginTop: 5,
+          marginTop: 4,
         }}>
         방문 후기를 남겨주세요
       </Text>
@@ -46,11 +47,16 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
           gap: 4,
           borderRadius: 12,
           backgroundColor: color.brand5,
-          paddingVertical: 13,
+          height: 48,
           marginTop: 16,
         }}>
         <PlusIcon width={12} height={12} color={color.brandColor} />
-        <Text style={{color: color.brandColor, fontSize: 16}}>
+        <Text
+          style={{
+            color: color.brand50,
+            fontSize: 16,
+            fontFamily: font.pretendardMedium,
+          }}>
           방문 후기를 남겨주세요
         </Text>
       </TouchableOpacity>

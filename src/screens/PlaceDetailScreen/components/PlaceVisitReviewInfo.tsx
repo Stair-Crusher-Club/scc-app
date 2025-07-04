@@ -1,4 +1,6 @@
+import {FlashList} from '@shopify/flash-list';
 import React, {useMemo, useState} from 'react';
+import {FlatList} from 'react-native';
 import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
@@ -45,9 +47,14 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
           <DownIcon width={12} height={12} color={color.black} />
         </Chip>
       </ChipList>
-      {sortedReviews.map(review => (
-        <PlaceReviewItem key={review.id} review={review} />
-      ))}
+      <ItemList>
+        {sortedReviews.map((review, idx) => (
+          <React.Fragment key={review.id}>
+            <PlaceReviewItem review={review} />
+            {idx !== sortedReviews.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+      </ItemList>
     </>
   );
 }
@@ -93,4 +100,15 @@ const ChipText = styled.Text<{isActive: boolean}>`
   font-size: 13px;
   font-family: ${() => font.pretendardMedium};
   color: ${({isActive}) => (isActive ? color.white : color.gray100)};
+`;
+
+const ItemList = styled.View`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const Divider = styled.View`
+  height: 1px;
+  background-color: ${color.gray20};
 `;

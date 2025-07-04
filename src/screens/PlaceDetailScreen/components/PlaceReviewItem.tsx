@@ -22,7 +22,8 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
       <HeaderRow>
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
-          <ReviewDate>• {reviewDate}</ReviewDate>
+          <ReviewDate>• </ReviewDate>
+          {/* TODO 크러셔 라벨 등 붙이기 */}
         </HeaderLeft>
         <TouchableOpacity>
           <MoreIcon />
@@ -31,6 +32,10 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
       <ImageList images={review.images} roundCorners />
       <ReviewContentColumn>
         <ReviewInfoColumn>
+          <ReviewInfoRow>
+            <ReviewInfoLabel>등록일</ReviewInfoLabel>
+            <ReviewInfoValue>{reviewDate}</ReviewInfoValue>
+          </ReviewInfoRow>
           <ReviewInfoRow>
             <ReviewInfoLabel>추천대상</ReviewInfoLabel>
             <ReviewInfoValue>
@@ -49,9 +54,14 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
         <ReviewText numberOfLines={isExpanded ? undefined : 2}>
           {reviewText}
         </ReviewText>
-        <ExpandButton onPress={() => setIsExpanded(value => !value)}>
-          <ExpandButtonText>{isExpanded ? '접기' : '더보기'}</ExpandButtonText>
-        </ExpandButton>
+        {reviewText &&
+          reviewText.length > 50 && ( // TODO 정확히 2줄 넘으면 안보이게 하기
+            <ExpandButton onPress={() => setIsExpanded(value => !value)}>
+              <ExpandButtonText>
+                {isExpanded ? '접기' : '더보기'}
+              </ExpandButtonText>
+            </ExpandButton>
+          )}
       </ReviewContentColumn>
     </Container>
   );
@@ -100,22 +110,23 @@ const ReviewInfoRow = styled.View`
   align-items: center;
 `;
 const ReviewInfoLabel = styled.Text`
+  font-size: 12px;
+  line-height: 16px;
+  font-family: ${font.pretendardRegular};
+  width: 42px;
+  color: ${color.gray40};
+`;
+const ReviewInfoValue = styled.Text`
   font-size: 13px;
   line-height: 18px;
   font-family: ${font.pretendardMedium};
-  color: ${color.blue50};
-`;
-const ReviewInfoValue = styled.Text`
-  font-size: 14px;
-  line-height: 22px;
-  font-family: ${font.pretendardRegular};
-  color: ${color.gray50};
+  color: ${color.gray70};
 `;
 const ReviewText = styled.Text`
   font-size: 15px;
   line-height: 22px;
   font-family: ${font.pretendardRegular};
-  color: ${color.gray90};
+  color: ${color.gray70};
 `;
 const ExpandButton = styled.TouchableOpacity`
   flex-direction: row;

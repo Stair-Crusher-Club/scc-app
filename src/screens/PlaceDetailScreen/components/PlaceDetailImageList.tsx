@@ -14,9 +14,14 @@ import {ScreenParams} from '@/navigation/Navigation.screens';
 interface Props {
   images: ImageDto[];
   roundCorners?: boolean;
+  isSinglePreview?: boolean;
 }
 
-export default function ImageList({images, roundCorners}: Props) {
+export default function ImageList({
+  images,
+  roundCorners,
+  isSinglePreview,
+}: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
   const hiddenImages = images.slice(3);
@@ -31,34 +36,40 @@ export default function ImageList({images, roundCorners}: Props) {
 
   return (
     <ImageListView roundCorners={roundCorners}>
-      <LogClick
-        elementName="place_detail_image"
-        params={{
-          image_index: '0',
-          image_url: images[0]?.thumbnailUrl ?? images[0]?.imageUrl,
-        }}>
+      {isSinglePreview ? (
         <ImageBox image={images[0]} onPress={() => onPressImage(0)} />
-      </LogClick>
-      <LogClick
-        elementName="place_detail_image"
-        params={{
-          image_index: '1',
-          image_url: images[1]?.thumbnailUrl ?? images[1]?.imageUrl,
-        }}>
-        <ImageBox image={images[1]} onPress={() => onPressImage(1)} />
-      </LogClick>
-      <LogClick
-        elementName="place_detail_image"
-        params={{
-          image_index: '2',
-          image_url: images[2]?.thumbnailUrl ?? images[2]?.imageUrl,
-        }}>
-        <ImageBox
-          image={images[2]}
-          hiddenImageLength={hiddenImages.length}
-          onPress={() => onPressImage(2)}
-        />
-      </LogClick>
+      ) : (
+        <>
+          <LogClick
+            elementName="place_detail_image"
+            params={{
+              image_index: '0',
+              image_url: images[0]?.thumbnailUrl ?? images[0]?.imageUrl,
+            }}>
+            <ImageBox image={images[0]} onPress={() => onPressImage(0)} />
+          </LogClick>
+          <LogClick
+            elementName="place_detail_image"
+            params={{
+              image_index: '1',
+              image_url: images[1]?.thumbnailUrl ?? images[1]?.imageUrl,
+            }}>
+            <ImageBox image={images[1]} onPress={() => onPressImage(1)} />
+          </LogClick>
+          <LogClick
+            elementName="place_detail_image"
+            params={{
+              image_index: '2',
+              image_url: images[2]?.thumbnailUrl ?? images[2]?.imageUrl,
+            }}>
+            <ImageBox
+              image={images[2]}
+              hiddenImageLength={hiddenImages.length}
+              onPress={() => onPressImage(2)}
+            />
+          </LogClick>
+        </>
+      )}
     </ImageListView>
   );
 }
@@ -66,10 +77,16 @@ export default function ImageList({images, roundCorners}: Props) {
 interface ImageBoxProps {
   image?: ImageDto;
   hiddenImageLength?: number;
+  isSinglePreview?: boolean;
   onPress?: () => void;
 }
 
-function ImageBox({image, hiddenImageLength = 0, onPress}: ImageBoxProps) {
+function ImageBox({
+  image,
+  hiddenImageLength = 0,
+  isSinglePreview,
+  onPress,
+}: ImageBoxProps) {
   if (!image) {
     return (
       <Placeholder>
@@ -84,7 +101,7 @@ function ImageBox({image, hiddenImageLength = 0, onPress}: ImageBoxProps) {
         resizeMethod="resize"
         resizeMode="cover"
         source={{uri: url}}
-        style={{width: '100%', aspectRatio: 1}}
+        style={{width: isSinglePreview ? 101 : '100%', aspectRatio: 1}}
       />
       {hiddenImageLength > 0 && (
         // 화면 너비에 담기지 않는 이미지들 처리, + N 표시하기
@@ -101,7 +118,6 @@ const ImageListView = styled.View<{roundCorners?: boolean}>`
   flex-shrink: 2;
   overflow: hidden;
   gap: 4px;
-  width: 100%;
   ${({roundCorners}) =>
     roundCorners &&
     css`

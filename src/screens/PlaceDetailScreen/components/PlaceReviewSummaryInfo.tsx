@@ -1,32 +1,33 @@
 import dayjs from 'dayjs';
 import React, {useMemo} from 'react';
-import {Text} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceReviewDto, SpaciousTypeDto} from '@/generated-sources/openapi';
+import {
+  PlaceReviewDto,
+  RecommendedMobilityTypeDto,
+  SpaciousTypeDto,
+} from '@/generated-sources/openapi';
 
-import EmptyInfo from './EmptyInfo';
 import * as SS from '../sections/PlaceDetailEntranceSection.style';
-import * as S from './PlaceInfo.style';
 
 interface Props {
   reviews: PlaceReviewDto[];
 }
 
 export default function PlaceReviewSummaryInfo({reviews}: Props) {
-  const {top3, restText} = useMemo(
-    () => getTopMobilityTypesAndRestText(reviews),
+  const mobilityTypeCounts = useMemo(
+    () => countMobilityTypes(reviews),
     [reviews],
   );
   const spaciousTypeCounts = useMemo(
-    () => getSpaciousTypeCounts(reviews),
+    () => countSpaciousType(reviews),
     [reviews],
   );
 
   if (reviews.length === 0) {
-    return <EmptyInfo type="매장 내부 정보" />;
+    return null;
   }
 
   return (
@@ -46,35 +47,38 @@ export default function PlaceReviewSummaryInfo({reviews}: Props) {
       <SectionColumn style={{marginTop: 16}}>
         <SectionTitle>추천대상</SectionTitle>
         <TextBoxRow>
-          {top3.map(([type, count], idx) => (
+          {mobilityTypeCounts.slice(0, 3).map(item => (
             <TextBox
-              key={type}
-              label={MOBILITY_TYPE_LABELS[type] || type}
-              content={`${count}명`}
-              isHighlighted={idx === 0}
+              key={item.label}
+              label={item.label}
+              content={`${item.count}명`}
+              level={item.level}
+              shape="normal"
             />
           ))}
         </TextBoxRow>
-        <Text
-          style={{
-            fontSize: 13,
-            lineHeight: 18,
-            color: color.gray90,
-            fontFamily: font.pretendardRegular,
-          }}>
-          {restText}
-        </Text>
+        <TextBoxRow>
+          {mobilityTypeCounts.slice(3, 5).map(item => (
+            <TextBox
+              key={item.label}
+              label={item.label}
+              content={`${item.count}명`}
+              level={item.level}
+              shape="flat"
+            />
+          ))}
+        </TextBoxRow>
       </SectionColumn>
       <SectionColumn style={{marginTop: 24}}>
         <SectionTitle>내부공간</SectionTitle>
         <TextBoxThinRow>
-          {spaciousTypeCounts.map(([type, count], idx) => (
+          {spaciousTypeCounts.map(item => (
             <TextBox
-              key={type}
-              label={SPACIOUS_TYPE_LABELS[type] || type}
-              content={`${count}명`}
-              isHighlighted={idx === 0}
-              thin
+              key={item.label}
+              label={item.label}
+              content={`${item.count}명`}
+              level={item.level}
+              shape="thin"
             />
           ))}
         </TextBoxThinRow>
@@ -108,23 +112,26 @@ const HeaderLeft = styled.View`
 `;
 
 const ReviewCount = styled.Text`
-  font-family: ${font.pretendardSemibold};
+  font-family: ${font.pretendardBold};
   color: ${color.brandColor};
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 26px;
 `;
 
 const ReviewButton = styled.TouchableOpacity`
-  background-color: ${color.brand5};
-  padding-vertical: 6px;
+  background-color: ${color.brand50};
   padding-horizontal: 14px;
+  height: 31px;
   border-radius: 8px;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ReviewButtonText = styled.Text`
-  color: ${color.brandColor};
+  color: ${color.white};
   font-size: 13px;
   line-height: 18px;
-  font-family: ${font.pretendardMedium};
+  font-family: ${font.pretendardBold};
 `;
 
 const SectionColumn = styled.View`
@@ -137,7 +144,7 @@ const SectionTitle = styled.Text`
   font-family: ${font.pretendardBold};
   font-size: 16px;
   line-height: 24px;
-  color: ${color.gray100};
+  color: ${color.black};
 `;
 
 const FooterRow = styled.View`
@@ -167,50 +174,64 @@ const TextBoxThinRow = styled.View`
   gap: 8px;
 `;
 
-interface TextBoxProps {
+const TextBox: React.FC<{
   label: string;
   content: string;
-  isHighlighted?: boolean;
-  thin?: boolean;
-}
-
-const TextBox: React.FC<TextBoxProps> = ({
-  label,
-  content,
-  isHighlighted,
-  thin,
-}) => (
-  <TextBoxContainer isHighlighted={isHighlighted} thin={thin}>
-    <TextBoxLabel thin={thin}>{label}</TextBoxLabel>
-    <TextBoxContent thin={thin}>{content}</TextBoxContent>
+  level?: 'high' | 'medium' | 'low';
+  shape?: 'thin' | 'flat' | 'normal';
+}> = ({label, content, level, shape}) => (
+  <TextBoxContainer level={level} shape={shape}>
+    <TextBoxLabel>{label}</TextBoxLabel>
+    <TextBoxContent level={level} shape={shape}>
+      {content}
+    </TextBoxContent>
   </TextBoxContainer>
 );
 
-const TextBoxContainer = styled.View<{isHighlighted?: boolean; thin?: boolean}>`
-  padding: ${({thin}) => (thin ? '5px 12px' : '15px')};
+const TextBoxContainer = styled.View<{
+  level?: 'high' | 'medium' | 'low';
+  shape?: 'thin' | 'flat' | 'normal';
+}>`
+  padding: ${({shape}) =>
+    shape === 'thin' ? '5px 12px' : shape === 'flat' ? '12px' : '12px'};
   flex-grow: 1;
-  background-color: ${({isHighlighted}) =>
-    isHighlighted ? color.brand10 : color.gray10};
+  background-color: ${({level}) =>
+    level === 'high'
+      ? color.brand10
+      : level === 'medium'
+      ? color.brand5
+      : color.gray10};
   border-radius: 12px;
-  flex-direction: ${({thin}) => (thin ? 'row' : 'column')};
-  justify-content: ${({thin}) => (thin ? 'space-between' : 'center')};
+  flex-direction: ${({shape}) =>
+    shape === 'thin' ? 'row' : shape === 'flat' ? 'row' : 'column'};
+  align-items: center;
+  justify-content: ${({shape}) =>
+    shape === 'thin' ? 'space-between' : 'center'};
   gap: 4px;
 `;
 
-const TextBoxLabel = styled.Text<{thin?: boolean}>`
-  font-size: ${({thin}) => (thin ? 13 : 13)}px;
-  line-height: ${({thin}) => (thin ? 18 : 18)}px;
+const TextBoxLabel = styled.Text`
+  font-size: 13px;
+  line-height: 18px;
   font-family: ${font.pretendardRegular};
   color: ${color.gray100};
   text-align: center;
 `;
 
-const TextBoxContent = styled.Text<{thin?: boolean}>`
-  font-size: ${({thin}) => (thin ? 11 : 16)}px;
-  line-height: ${({thin}) => (thin ? 14 : 24)}px;
-  font-family: ${({thin}) =>
-    thin ? font.pretendardBold : font.pretendardMedium};
-  color: ${color.blue50};
+const TextBoxContent = styled.Text<{
+  shape?: 'thin' | 'flat' | 'normal';
+  level?: 'high' | 'medium' | 'low';
+}>`
+  font-size: ${({shape}) => (shape === 'thin' ? 11 : 13)}px;
+  line-height: ${({shape}) => (shape === 'thin' ? 14 : 18)}px;
+  font-family: ${({shape}) =>
+    shape === 'thin' ? font.pretendardBold : font.pretendardMedium};
+  color: ${({level}) =>
+    level === 'high'
+      ? color.brand50
+      : level === 'medium'
+      ? color.brand50
+      : color.gray40};
   text-align: center;
 `;
 
@@ -226,43 +247,81 @@ const MOBILITY_TYPE_LABELS: Record<string, string> = {
 
 // 내부공간 타입 한글 라벨 매핑
 const SPACIOUS_TYPE_LABELS: Record<string, string> = {
-  WIDE: '매우 원활해요',
-  ENOUGH: '원활해요',
-  LIMITED: '조금 불편해요',
-  TIGHT: '매우 불편해요',
+  WIDE: '🥰 매우 넓고, 이용하기 적합해요 ',
+  ENOUGH: '😀 대부분의 구역을 이용하기에 적합해요',
+  LIMITED: '🙂 일부 구역만 이용하기에 적합해요 ',
+  TIGHT: '🥲 매우 좁아서 내부 이동이 불가능해요 ',
 };
 
-function getSpaciousTypeCounts(reviews: PlaceReviewDto[]) {
+function assignLevels<T extends {count: number}>(
+  sorted: T[],
+): (T & {level: 'high' | 'medium' | 'low'})[] {
+  if (sorted.length === 0) return [];
+  const uniqueCounts = Array.from(new Set(sorted.map(item => item.count))).sort(
+    (a, b) => b - a,
+  );
+  if (uniqueCounts.length >= 3) {
+    const [high, medium] = uniqueCounts;
+    return sorted.map(item => {
+      if (item.count === high) return {...item, level: 'high' as const};
+      if (item.count === medium) return {...item, level: 'medium' as const};
+      return {...item, level: 'low' as const};
+    });
+  }
+  if (uniqueCounts.length === 2) {
+    const [medium] = uniqueCounts;
+    return sorted.map(item =>
+      item.count === medium
+        ? {...item, level: 'medium' as const}
+        : {...item, level: 'low' as const},
+    );
+  }
+  return sorted.map(item => ({...item, level: 'low' as const}));
+}
+
+function countSpaciousType(
+  reviews: PlaceReviewDto[],
+): {label: string; count: number; level: 'high' | 'medium' | 'low'}[] {
   const count: Record<string, number> = {};
+  Object.values(SpaciousTypeDto).forEach(type => {
+    count[type] = 0;
+  });
   reviews.forEach(r => {
     const type = r.spaciousType;
-    if (type) {
-      if (!count[type]) count[type] = 0;
+    if (type && count.hasOwnProperty(type)) {
       count[type]++;
     }
   });
-  const order: SpaciousTypeDto[] = ['WIDE', 'ENOUGH', 'LIMITED', 'TIGHT'];
-  return order
-    .filter(type => count[type])
-    .map(type => [type, count[type]] as [string, number]);
+  const sorted = Object.entries(count)
+    .sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => ({
+      label: SPACIOUS_TYPE_LABELS[type] || type,
+      count: count,
+    }));
+  return assignLevels(sorted);
 }
 
-function getTopMobilityTypesAndRestText(reviews: PlaceReviewDto[]) {
+function countMobilityTypes(reviews: PlaceReviewDto[]): {
+  label: string;
+  count: number;
+  level: 'high' | 'medium' | 'low';
+}[] {
   const count: Record<string, number> = {};
+  Object.values(RecommendedMobilityTypeDto).forEach(type => {
+    count[type] = 0;
+  });
   reviews.forEach(r => {
     r.recommendedMobilityTypes?.forEach(type => {
-      if (!count[type]) count[type] = 0;
-      count[type]++;
+      if (count.hasOwnProperty(type)) {
+        count[type]++;
+      }
     });
   });
-  const sorted = Object.entries(count).sort((a, b) => b[1] - a[1]);
-  const top3 = sorted.slice(0, 3);
-  const top3Types = top3.map(([type]) => type);
-  const rest = sorted
-    .filter(([type]) => !top3Types.includes(type))
-    .map(([type, cnt]) => `${MOBILITY_TYPE_LABELS[type] || type}(${cnt}명)`);
-  return {
-    top3,
-    restText: rest.length > 0 ? `• ${rest.join(' / ')}` : '',
-  };
+  const sorted = Object.entries(count)
+    .sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => ({
+      label: MOBILITY_TYPE_LABELS[type] || type,
+      count: count,
+    }));
+  return assignLevels(sorted);
 }

@@ -37,7 +37,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: color.gray90,
-        tabBarInactiveTintColor: color.gray70,
+        tabBarInactiveTintColor: color.gray40,
         tabBarLabelStyle: {fontSize: 10, fontWeight: '700'},
       }}>
       <Tab.Screen

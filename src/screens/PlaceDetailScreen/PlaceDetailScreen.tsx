@@ -116,6 +116,18 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       comment: '좋아요',
       images: [],
     },
+    {
+      id: '2',
+      createdAt: {value: 1714857600},
+      seatTypes: ['좌석'],
+      recommendedMobilityTypes: ['MANUAL_WHEELCHAIR'],
+      spaciousType: 'WIDE',
+      mobilityTool: 'MANUAL_WHEELCHAIR',
+      orderMethods: ['ONLINE', 'OFFLINE'],
+      features: ['주차장', '화장실'],
+      comment: '좋아좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요좋아요요',
+      images: [],
+    },
   ];
   // const {data: toiletPost} = useQuery({
   //   queryKey: ['PlaceDetail', placeId, 'Toilet'],

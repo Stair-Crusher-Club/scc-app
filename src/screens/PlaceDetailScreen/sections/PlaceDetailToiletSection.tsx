@@ -26,22 +26,7 @@ export default function PlaceDetailToiletSection({toiletReviews}: Props) {
         <S.Title>장애인 화장실 정보</S.Title>
       </S.SubSection>
       <S.InfoContent>
-        <ImageList images={toilet.images} roundCorners />
         <PlaceToiletInfo toilet={toilet} />
-        {/* <View>
-          <PlaceDetailCommentSection
-            comments={comments}
-            onAddComment={handlePressAddComment}
-            checkAuth={checkAuth}
-            title="건물 입구 정보 의견 남기기"
-          />
-          <PlaceDetailCrusher
-            crusherGroupIcon={
-              accessibility.buildingAccessibility?.challengeCrusherGroup?.icon
-            }
-            crusherNames={registeredUserName ? [registeredUserName] : []}
-          />
-        </View> */}
       </S.InfoContent>
     </S.Section>
   );
