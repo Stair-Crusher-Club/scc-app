@@ -8,7 +8,7 @@ export const Section = styled.View({
   paddingVertical: 32,
   paddingHorizontal: 20,
   backgroundColor: color.white,
-  gap: 16,
+  gap: 20,
 });
 
 export const SubSection = styled.View({
@@ -23,12 +23,13 @@ export const Row = styled.View({
 
 export const Title = styled.Text({
   fontSize: 20,
-  lineHeight: '26px',
+  lineHeight: '28px',
   fontFamily: font.pretendardBold,
+  color: color.gray90,
 });
 
 export const Updated = styled.Text({
-  fontSize: 14,
+  fontSize: 13,
   fontFamily: font.pretendardRegular,
   color: color.gray50,
 });
@@ -88,11 +89,11 @@ export const AddCommentButton = styled.Pressable({
   justifyContent: 'center',
   borderWidth: 1,
   borderRadius: 12,
-  borderColor: color.gray30,
+  borderColor: color.gray20,
   marginBottom: 16,
 });
 export const AddCommentText = styled.Text({
-  color: color.brandColor,
+  color: color.brand50,
   fontSize: 16,
   fontFamily: font.pretendardMedium,
   marginLeft: 4,

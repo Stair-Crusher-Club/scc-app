@@ -57,27 +57,25 @@ export default function PlaceDetailEntranceSection({
         <S.Title>입구 접근성</S.Title>
         <S.Updated>{dayjs(createdAt.value).format('YYYY. MM. DD')}</S.Updated>
       </S.Row>
-      <S.InfoContent>
-        <ImageList images={images ?? []} roundCorners />
-        <PlaceFloorInfo accessibility={accessibility} />
-        <PlaceEntranceStepInfo accessibility={accessibility} />
-        <PlaceDoorInfo accessibility={accessibility} />
-        <Divider />
-        <View>
-          <PlaceDetailCommentSection
-            comments={comments}
-            onAddComment={handlePressAddComment}
-            checkAuth={checkAuth}
-            title="매장 입구 정보 의견 남기기"
-          />
-          <PlaceDetailCrusher
-            crusherGroupIcon={
-              accessibility.placeAccessibility?.challengeCrusherGroup?.icon
-            }
-            crusherNames={registeredUserName ? [registeredUserName] : []}
-          />
-        </View>
-      </S.InfoContent>
+      <ImageList images={images ?? []} roundCorners />
+      <PlaceFloorInfo accessibility={accessibility} />
+      <PlaceEntranceStepInfo accessibility={accessibility} />
+      <PlaceDoorInfo accessibility={accessibility} />
+      <Divider />
+      <View>
+        <PlaceDetailCommentSection
+          comments={comments}
+          onAddComment={handlePressAddComment}
+          checkAuth={checkAuth}
+          title="매장 입구 정보 의견 남기기"
+        />
+        <PlaceDetailCrusher
+          crusherGroupIcon={
+            accessibility.placeAccessibility?.challengeCrusherGroup?.icon
+          }
+          crusherNames={registeredUserName ? [registeredUserName] : []}
+        />
+      </View>
     </S.Section>
   );
 }

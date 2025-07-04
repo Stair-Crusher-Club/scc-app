@@ -37,26 +37,19 @@ export const EmptyType = styled.Text({
   marginBottom: 4,
 });
 
-export const BigTitle = styled.Text({
-  fontFamily: font.pretendardBold,
-  fontSize: 20,
-  lineHeight: '28px',
-  color: color.gray100,
-});
-
 export const Title = styled.Text({
   fontFamily: font.pretendardSemibold,
-  fontSize: 18,
+  fontSize: 16,
   lineHeight: '26px',
   color: color.gray90,
 });
 
 export const Description = styled.Text({
   fontFamily: font.pretendardRegular,
-  fontSize: 16,
-  lineHeight: '24px',
-  marginTop: 2,
-  color: color.gray50,
+  fontSize: 14,
+  lineHeight: '20px',
+  marginTop: 1,
+  color: color.brand50,
 });
 
 export const EmptyDescription = styled.Text({
@@ -69,9 +62,9 @@ export const DetailedIconWrapper = styled.View({
   justifySelf: 'flex-end',
   justifyContent: 'center',
   alignItems: 'center',
-  width: 60,
-  height: 60,
-  borderRadius: 14,
+  width: 48,
+  height: 48,
+  borderRadius: 12,
   backgroundColor: color.gray10,
 });
 

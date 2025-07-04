@@ -88,13 +88,13 @@ export const CrusherRow = styled.View({
 });
 
 export const CrusherLabel = styled.Text({
-  color: color.gray80,
+  color: color.gray60,
   fontSize: 14,
   fontFamily: font.pretendardRegular,
 });
 
 export const CrusherName = styled.Text({
-  color: color.gray100,
+  color: color.gray90,
   fontSize: 14,
   fontFamily: font.pretendardMedium,
 });

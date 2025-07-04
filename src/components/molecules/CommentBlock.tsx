@@ -57,39 +57,39 @@ export const CommentBlock = ({
   );
 };
 
-const Container = styled.View({
-  flex: 1,
-  flexDirection: 'column',
-  gap: 4,
-  backgroundColor: color.gray10,
-  borderRadius: 12,
-  padding: 12,
-});
+const Container = styled.View`
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  background-color: ${color.gray10};
+  border-radius: 12px;
+  padding: 12px;
+`;
 
-const CommenterRow = styled.View({
-  flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 6,
-});
+const CommenterRow = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
 
-const Commenter = styled.Text({
-  fontSize: 13,
-  lineHeight: 18,
-  fontFamily: font.pretendardMedium,
-  color: color.link,
-});
+const Commenter = styled.Text`
+  font-size: 13px;
+  line-height: 18px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.gray90};
+`;
 
-const CommentedAt = styled.Text({
-  fontSize: 12,
-  lineHeight: 16,
-  fontFamily: font.pretendardMedium,
-  color: color.gray70,
-});
+const CommentedAt = styled.Text`
+  font-size: 12px;
+  line-height: 16px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray40};
+`;
 
-const CommentContents = styled.Text({
-  fontFamily: font.pretendardMedium,
-  fontSize: 16,
-  lineHeight: 26,
-  color: color.gray90,
-});
+const CommentContents = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 16px;
+  line-height: 26px;
+  color: ${color.gray60};
+`;

@@ -8,6 +8,7 @@ import {font} from '@/constant/font';
 import {PlaceReviewDto, SpaciousTypeDto} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
+import * as SS from '../sections/PlaceDetailEntranceSection.style';
 import * as S from './PlaceInfo.style';
 
 interface Props {
@@ -32,7 +33,7 @@ export default function PlaceReviewSummaryInfo({reviews}: Props) {
     <Container>
       <HeaderRow>
         <HeaderLeft>
-          <S.BigTitle>방문 리뷰</S.BigTitle>
+          <SS.Title>방문 리뷰</SS.Title>
           <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
         <ReviewButton

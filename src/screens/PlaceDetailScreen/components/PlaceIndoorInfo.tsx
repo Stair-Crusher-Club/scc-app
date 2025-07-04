@@ -1,8 +1,10 @@
+import dayjs from 'dayjs';
 import React from 'react';
 import {View} from 'react-native';
 
 import {PlaceReviewDto} from '@/generated-sources/openapi';
 
+import * as SS from '../sections/PlaceDetailEntranceSection.style';
 import * as S from './PlaceInfo.style';
 
 interface Props {
@@ -10,11 +12,17 @@ interface Props {
 }
 
 export default function PlaceIndoorInfo({reviews}: Props) {
+  const updatedAt = dayjs(
+    Math.max(...reviews.map(review => review.createdAt.value)),
+  ).format('YYYY.MM.DD');
   return (
     <View style={{flex: 1, gap: 20}}>
-      <S.BigTitle>내부 이용 정보</S.BigTitle>
+      <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+        <SS.Title>내부 이용 정보</SS.Title>
+        <SS.Updated>{updatedAt}</SS.Updated>
+      </View>
       <S.InfoWrapper>
-        <S.Type>이용 좌석 구성</S.Type>
+        <S.Type>좌석 구성</S.Type>
         <S.Title>
           {reviews.flatMap(review => review.seatTypes).join(', ')}
         </S.Title>
