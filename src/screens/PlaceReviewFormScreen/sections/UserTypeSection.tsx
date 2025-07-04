@@ -7,8 +7,8 @@ import {font} from '@/constant/font';
 import {
   MOBILITY_TOOL_LABELS,
   MOBILITY_TOOL_OPTIONS,
-} from '@/constant/mobilityTool';
-import {UserMobilityToolDto} from '@/generated-sources/openapi';
+  UserMobilityToolMapDto,
+} from '@/constant/review';
 import useMe from '@/hooks/useMe';
 
 import * as S from './common.style';
@@ -16,7 +16,7 @@ import * as S from './common.style';
 export default function UserTypeSection() {
   const {userInfo} = useMe();
   const {watch} = useFormContext<{
-    mobilityTool: UserMobilityToolDto;
+    mobilityTool: UserMobilityToolMapDto;
   }>();
   const mobilityTool = watch('mobilityTool');
 

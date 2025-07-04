@@ -3,7 +3,55 @@ import {
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
   ToiletLocationTypeDto,
+  UserMobilityToolDto,
 } from '@/generated-sources/openapi';
+
+type UserMobilityToolMap = typeof UserMobilityToolDto;
+
+export type UserMobilityToolMapDto = UserMobilityToolMap[keyof Omit<
+  UserMobilityToolMap,
+  'FriendOfToolUser' | 'Cluch'
+>];
+
+export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolMapDto, string> = {
+  [UserMobilityToolDto.ManualWheelchair]: '수동휠체어',
+  [UserMobilityToolDto.ElectricWheelchair]: '전동휠체어',
+  [UserMobilityToolDto.ManualAndElectricWheelchair]: '수전동휠체어',
+  [UserMobilityToolDto.WalkingAssistanceDevice]: '보행보조도구',
+  [UserMobilityToolDto.ProstheticFoot]: '의족',
+  [UserMobilityToolDto.Stroller]: '유아차 동반',
+  [UserMobilityToolDto.None]: '해당없음',
+};
+
+export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS)
+  .filter(([value]) => value !== UserMobilityToolDto.FriendOfToolUser)
+  .map(([value, label]) => ({
+    value: value as UserMobilityToolDto,
+    label,
+  }));
+
+export function getMobilityToolDefaultValue(
+  mobilityTools?: UserMobilityToolDto[],
+) {
+  const validOrder = Object.keys(
+    MOBILITY_TOOL_LABELS,
+  ) as UserMobilityToolMapDto[];
+  console.log(mobilityTools);
+
+  return validOrder.find(tool => mobilityTools?.includes(tool));
+}
+
+export const RECOMMEND_MOBILITY_TOOL_LABELS: Record<
+  RecommendedMobilityTypeDto,
+  string
+> = {
+  [RecommendedMobilityTypeDto.ManualWheelchair]: '수동휠체어',
+  [RecommendedMobilityTypeDto.ElectricWheelchair]: '전동휠체어',
+  [RecommendedMobilityTypeDto.Elderly]: '고령자',
+  [RecommendedMobilityTypeDto.Stroller]: '유아차 동반',
+  [RecommendedMobilityTypeDto.NotSure]: '모름',
+  [RecommendedMobilityTypeDto.None]: '추천안함',
+};
 
 export const SPACIOUS_LABELS: Record<SpaciousTypeDto, string> = {
   [SpaciousTypeDto.Wide]: '매우 넓고, 이용하기 적합해요 🥰',
@@ -18,18 +66,6 @@ export const SPACIOUS_OPTIONS = Object.entries(SPACIOUS_LABELS).map(
     label,
   }),
 );
-
-export const RECOMMEND_MOBILITY_TOOL_LABELS: Record<
-  RecommendedMobilityTypeDto,
-  string
-> = {
-  [RecommendedMobilityTypeDto.ManualWheelchair]: '수동휠체어',
-  [RecommendedMobilityTypeDto.ElectricWheelchair]: '전동휠체어',
-  [RecommendedMobilityTypeDto.Elderly]: '고령자',
-  [RecommendedMobilityTypeDto.Stroller]: '유아차 동반',
-  [RecommendedMobilityTypeDto.NotSure]: '모름',
-  [RecommendedMobilityTypeDto.None]: '추천안함',
-};
 
 export const RECOMMEND_MOBILITY_TOOL_OPTIONS = Object.entries(
   RECOMMEND_MOBILITY_TOOL_LABELS,

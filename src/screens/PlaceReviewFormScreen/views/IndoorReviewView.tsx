@@ -5,11 +5,14 @@ import {FormProvider, useForm} from 'react-hook-form';
 
 import {loadingState} from '@/components/LoadingView';
 import {
+  getMobilityToolDefaultValue,
+  UserMobilityToolMapDto,
+} from '@/constant/review';
+import {
   DefaultApi,
   Place,
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
-  UserMobilityToolDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useMe from '@/hooks/useMe';
@@ -25,7 +28,7 @@ import VisitorReviewSection from '../sections/VisitorReviewSection';
 import {SectionSeparator} from '../sections/common.style';
 
 export interface FormValues {
-  mobilityTool: UserMobilityToolDto;
+  mobilityTool: UserMobilityToolMapDto;
   recommendedMobilityTypes: Set<RecommendedMobilityTypeDto>;
   spaciousType?: SpaciousTypeDto;
   indoorPhotos: ImageFile[];
@@ -51,7 +54,7 @@ export default function IndoorReviewView({
   const [loading, setLoading] = useAtom(loadingState);
   const form = useForm<FormValues>({
     defaultValues: {
-      mobilityTool: userInfo?.mobilityTools[0],
+      mobilityTool: getMobilityToolDefaultValue(userInfo?.mobilityTools),
       recommendedMobilityTypes: new Set(),
       spaciousType: undefined,
       comment: '',
