@@ -8,26 +8,22 @@ import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
+import {TOILET_LOCATION_TYPE_OPTIONS} from '@/constant/review';
 
 import FloorSelect from '../components/FloorSelect';
+import {FormValues} from '../views/ToiletReviewView';
 import * as S from './common.style';
 
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 
-const storeLocationOptions = [
-  '매장 내부에 있음',
-  '건물 내 있음',
-  '없음',
-  '기타',
-];
-
 export default function ToiletSection({onSave}: {onSave: () => void}) {
-  const {watch} = useFormContext<{exist: string}>();
-  const exist = watch('exist');
+  const {watch} = useFormContext<FormValues>();
+  const toiletLocationType = watch('toiletLocationType');
+  const doorTypes = watch('doorTypes');
 
-  const isExist = exist === '매장 내부에 있음' || exist === '건물 내 있음';
-  const isNo = exist === '없음';
-  const isVisibleTextarea = exist === '기타' || isExist;
+  const isExist =
+    toiletLocationType === 'PLACE' || toiletLocationType === 'BUILDING';
+  const isVisibleTextarea = toiletLocationType === 'ETC' || isExist;
 
   return (
     <S.Container style={{flex: 1, justifyContent: 'space-between'}}>
@@ -47,16 +43,16 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               gap: 8,
             }}>
             <Controller
-              name="exist"
+              name="toiletLocationType"
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
-                  {storeLocationOptions.map((label, idx) => (
+                  {TOILET_LOCATION_TYPE_OPTIONS.map(({label, value}) => (
                     <PressableChip
-                      key={label + idx}
+                      key={label}
                       label={label}
-                      active={field.value === label}
-                      onPress={() => field.onChange(label)}
+                      active={field.value === value}
+                      onPress={() => field.onChange(value)}
                     />
                   ))}
                 </>
@@ -73,7 +69,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 장소인가요?
               </S.Question>
               <Controller
-                name="exactFloor"
+                name="floor"
                 rules={{
                   validate: v =>
                     v !== 0 && v !== 1
@@ -103,22 +99,28 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                   rules={{required: true, validate: value => value.size > 0}}
                   render={({field}) => (
                     <>
-                      {makeDoorTypeOptions([]).map(({label, value}, idx) => (
-                        <PressableChip
-                          key={value + idx}
-                          label={label}
-                          active={field.value?.has(value)}
-                          onPress={() => {
-                            const newSet = new Set(field.value);
-                            if (newSet.has(value)) {
-                              newSet.delete(value);
-                            } else {
-                              newSet.add(value);
-                            }
-                            field.onChange(newSet);
-                          }}
-                        />
-                      ))}
+                      {makeDoorTypeOptions(doorTypes).map(
+                        ({label, value}, idx) => {
+                          const isActive = field.value?.includes(value);
+
+                          return (
+                            <PressableChip
+                              key={value + idx}
+                              label={label}
+                              active={isActive}
+                              onPress={() => {
+                                const nextValue = isActive
+                                  ? field.value.filter(
+                                      (v: string) => v !== value,
+                                    )
+                                  : [...(field.value || []), value];
+
+                                field.onChange(nextValue);
+                              }}
+                            />
+                          );
+                        },
+                      )}
                     </>
                   )}
                 />
@@ -147,7 +149,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         {isVisibleTextarea && (
           <View style={{gap: 8}}>
             <Controller
-              name="experience"
+              name="comment"
               render={({field}) => (
                 <>
                   <TextInput

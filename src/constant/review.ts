@@ -1,6 +1,7 @@
 import {
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
+  ToiletLocationTypeDto,
 } from '@/generated-sources/openapi';
 
 export const SPACIOUS_LABELS: Record<SpaciousTypeDto, string> = {
@@ -33,5 +34,23 @@ export const RECOMMEND_MOBILITY_TOOL_OPTIONS = Object.entries(
   RECOMMEND_MOBILITY_TOOL_LABELS,
 ).map(([value, label]) => ({
   value: value as RecommendedMobilityTypeDto,
+  label,
+}));
+
+export const TOILET_LOCATION_TYPE_LABELS: Record<
+  ToiletLocationTypeDto,
+  string
+> = {
+  [ToiletLocationTypeDto.Building]: '건물 내 있음',
+  [ToiletLocationTypeDto.Place]: '매장 내부에 있음',
+  [ToiletLocationTypeDto.None]: '없음',
+  [ToiletLocationTypeDto.NotSure]: '모름',
+  [ToiletLocationTypeDto.Etc]: '기타',
+};
+
+export const TOILET_LOCATION_TYPE_OPTIONS = Object.entries(
+  TOILET_LOCATION_TYPE_LABELS,
+).map(([value, label]) => ({
+  value: value as ToiletLocationTypeDto,
   label,
 }));
