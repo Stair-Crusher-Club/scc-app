@@ -6,26 +6,14 @@ import Photos from '@/components/form/Photos';
 import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {
+  RECOMMEND_MOBILITY_TOOL_OPTIONS,
+  SPACIOUS_OPTIONS,
+} from '@/constant/review';
 
 import * as S from './common.style';
 
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
-
-const mobilityTools = [
-  '수동휠체어',
-  '전동휠체어',
-  '고령자',
-  '유아차 동반',
-  '모름',
-  '추천안함',
-];
-
-const useful = [
-  '매우 넓고, 이용하기 적합해요 🥰',
-  '대부분의 구역을 이용하기에 적합해요😀',
-  '일부 구역만 이용하기에 적합해요 🙂',
-  '매우 좁아서 내부 이동이 불가능해요 🥲',
-];
 
 export default function VisitorReviewSection() {
   return (
@@ -47,26 +35,28 @@ export default function VisitorReviewSection() {
               gap: 8,
             }}>
             <Controller
-              name="mobilityTool"
+              name="recommendedMobilityTypes"
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
-                  {mobilityTools.map((label, idx) => (
-                    <PressableChip
-                      key={label + idx}
-                      label={label}
-                      active={field.value?.has(label)}
-                      onPress={() => {
-                        const newSet = new Set(field.value);
-                        if (newSet.has(label)) {
-                          newSet.delete(label);
-                        } else {
-                          newSet.add(label);
-                        }
-                        field.onChange(newSet);
-                      }}
-                    />
-                  ))}
+                  {RECOMMEND_MOBILITY_TOOL_OPTIONS.map(
+                    ({label, value}, idx) => (
+                      <PressableChip
+                        key={label + idx}
+                        label={label}
+                        active={field.value?.has(value)}
+                        onPress={() => {
+                          const newSet = new Set(field.value);
+                          if (newSet.has(value)) {
+                            newSet.delete(value);
+                          } else {
+                            newSet.add(value);
+                          }
+                          field.onChange(newSet);
+                        }}
+                      />
+                    ),
+                  )}
                 </>
               )}
             />
@@ -81,16 +71,16 @@ export default function VisitorReviewSection() {
           {/* Chip */}
           <View style={{alignItems: 'flex-start', gap: 8}}>
             <Controller
-              name="useful"
+              name="spaciousType"
               rules={{required: true}}
               render={({field}) => (
                 <>
-                  {useful.map((label, idx) => (
+                  {SPACIOUS_OPTIONS.map(({label, value}) => (
                     <PressableChip
-                      key={label + idx}
+                      key={value}
                       label={label}
-                      active={field.value === label}
-                      onPress={() => field.onChange(label)}
+                      active={field.value === value}
+                      onPress={() => field.onChange(value)}
                     />
                   ))}
                 </>
@@ -116,7 +106,7 @@ export default function VisitorReviewSection() {
 
           <View style={{gap: 8}}>
             <Controller
-              name="experience"
+              name="comment"
               render={({field}) => (
                 <>
                   <TextInput

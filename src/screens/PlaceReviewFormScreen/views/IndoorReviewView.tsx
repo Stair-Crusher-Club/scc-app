@@ -7,10 +7,14 @@ import {loadingState} from '@/components/LoadingView';
 import {
   DefaultApi,
   Place,
+  RecommendedMobilityTypeDto,
+  SpaciousTypeDto,
   UserMobilityToolDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import useMe from '@/hooks/useMe';
 import ImageFile from '@/models/ImageFile';
+import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import PlaceReviewFormScreen from '..';
@@ -21,14 +25,14 @@ import VisitorReviewSection from '../sections/VisitorReviewSection';
 import {SectionSeparator} from '../sections/common.style';
 
 export interface FormValues {
-  userType?: UserMobilityToolDto;
-  mobilityTool: Set<string>;
-  useful: string;
+  mobilityTool: UserMobilityToolDto;
+  recommendedMobilityTypes: Set<RecommendedMobilityTypeDto>;
+  spaciousType?: SpaciousTypeDto;
   indoorPhotos: ImageFile[];
-  experience: string;
-  seats: Set<string>;
-  order: Set<string>;
-  specialNotes: Set<string>;
+  comment: string;
+  seatTypes: Set<string>;
+  orderMethods: Set<string>;
+  features: Set<string>;
 }
 
 interface IndoorReviewViewProps {
@@ -43,16 +47,17 @@ export default function IndoorReviewView({
   setReviewTypeToToilet,
 }: IndoorReviewViewProps) {
   const {api} = useAppComponents();
+  const {userInfo} = useMe();
   const [loading, setLoading] = useAtom(loadingState);
   const form = useForm<FormValues>({
     defaultValues: {
-      userType: undefined,
-      mobilityTool: new Set(),
-      useful: '',
-      experience: '',
-      seats: new Set(),
-      order: new Set(),
-      specialNotes: new Set(),
+      mobilityTool: userInfo?.mobilityTools[0],
+      recommendedMobilityTypes: new Set(),
+      spaciousType: undefined,
+      comment: '',
+      seatTypes: new Set(),
+      orderMethods: new Set(),
+      features: new Set(),
     },
   });
 
@@ -101,18 +106,27 @@ export default function IndoorReviewView({
 }
 
 async function register(api: DefaultApi, placeId: string, values: FormValues) {
-  // try {
-  //   const images = await ImageFileUtils.uploadImages(api, values.indoorPhotos);
-  //   try {
-  //     await api.registerPlaceAccessibilityPost();
-  //     return true;
-  //   } catch (error: any) {
-  //     ToastUtils.showOnApiError(error);
-  //     return false;
-  //   }
-  // } catch (e) {
-  //   ToastUtils.show('사진 업로드를 실패했습니다.');
-  //   return false;
-  // }
-  return true;
+  try {
+    const images = await ImageFileUtils.uploadImages(api, values.indoorPhotos);
+    try {
+      await api.registerPlaceReviewPost({
+        placeId,
+        mobilityTool: values.mobilityTool,
+        recommendedMobilityTypes: [...values.recommendedMobilityTypes],
+        spaciousType: values.spaciousType!,
+        comment: values.comment,
+        seatTypes: [...values.seatTypes],
+        orderMethods: [...values.orderMethods],
+        features: [...values.features],
+        imageUrls: images,
+      });
+      return true;
+    } catch (error: any) {
+      ToastUtils.showOnApiError(error);
+      return false;
+    }
+  } catch (e) {
+    ToastUtils.show('사진 업로드를 실패했습니다.');
+    return false;
+  }
 }

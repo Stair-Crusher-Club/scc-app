@@ -57,7 +57,6 @@ export default function IndoorInfoSection({
             알려주세요.
             <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
           </S.Question>
-          {/* Chip */}
           <View
             style={{
               flexDirection: 'row',
@@ -66,7 +65,7 @@ export default function IndoorInfoSection({
               gap: 8,
             }}>
             <Controller
-              name="seats"
+              name="seatTypes"
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
@@ -98,7 +97,6 @@ export default function IndoorInfoSection({
             알려주세요.
             <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
           </S.Question>
-          {/* Chip */}
           <View
             style={{
               flexDirection: 'row',
@@ -107,7 +105,7 @@ export default function IndoorInfoSection({
               gap: 8,
             }}>
             <Controller
-              name="order"
+              name="orderMethods"
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
@@ -147,7 +145,7 @@ export default function IndoorInfoSection({
               gap: 8,
             }}>
             <Controller
-              name="specialNotes"
+              name="features"
               render={({field}) => (
                 <>
                   {accessibilityFeatures.map((label, idx) => (

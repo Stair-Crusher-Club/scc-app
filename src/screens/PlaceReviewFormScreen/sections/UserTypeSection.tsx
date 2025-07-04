@@ -1,4 +1,3 @@
-import {useEffect} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
@@ -16,14 +15,10 @@ import * as S from './common.style';
 
 export default function UserTypeSection() {
   const {userInfo} = useMe();
-  const {watch, setValue} = useFormContext<{userType: UserMobilityToolDto}>();
-  const userType = watch('userType');
-
-  useEffect(() => {
-    if (userInfo?.mobilityTools) {
-      setValue('userType', userInfo?.mobilityTools[0]);
-    }
-  }, [userInfo?.mobilityTools]);
+  const {watch} = useFormContext<{
+    mobilityTool: UserMobilityToolDto;
+  }>();
+  const mobilityTool = watch('mobilityTool');
 
   return (
     <S.Container>
@@ -43,7 +38,7 @@ export default function UserTypeSection() {
             gap: 8,
           }}>
           <Controller
-            name="userType"
+            name="mobilityTool"
             rules={{required: true}}
             render={({field}) => (
               <>
@@ -95,7 +90,7 @@ export default function UserTypeSection() {
               color: color.brand,
               backgroundColor: color.brand5,
             }}>
-            {MOBILITY_TOOL_LABELS[userType]}
+            {MOBILITY_TOOL_LABELS[mobilityTool]}
           </Text>
         </View>
       </View>
