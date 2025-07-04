@@ -1,7 +1,7 @@
 import {floor} from 'lodash';
 import {Image as ImageCompressor} from 'react-native-compressor';
 
-import {DefaultApi} from '@/generated-sources/openapi';
+import {DefaultApi, ImageUploadPurpose} from '@/generated-sources/openapi';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 
@@ -50,12 +50,17 @@ const ImageFileUtils = {
       throw error;
     }
   },
-  async uploadImages(api: DefaultApi, images: ImageFile[] = []) {
+  async uploadImages(
+    api: DefaultApi,
+    images: ImageFile[] = [],
+    purposeType?: ImageUploadPurpose,
+  ) {
     const startTimeOfGettingPresignedUrls = Date.now();
     const uploadUrls = await api
       .getImageUploadUrlsPost({
         count: images.length,
         filenameExtension: 'jpeg',
+        purposeType,
       })
       .then(res => res.data.map(data => data.url));
     const durationOfGettingPresignedUrls =
