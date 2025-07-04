@@ -50,7 +50,9 @@ import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
-import ToiletReviewFormScreen from '@/screens/ToiletReviewFormScreen';
+import ToiletReviewFormScreen, {
+  ToiletReviewFormScreenParams,
+} from '@/screens/ToiletReviewFormScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
@@ -214,7 +216,7 @@ export type ScreenParams = {
 
   // 리뷰
   'ReviewForm/Place': PlaceReviewFormScreenParams;
-  'ReviewForm/Toilet': undefined;
+  'ReviewForm/Toilet': ToiletReviewFormScreenParams;
 
   Setting: undefined;
   MapTest: undefined;
