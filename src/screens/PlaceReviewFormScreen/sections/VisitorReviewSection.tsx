@@ -1,4 +1,4 @@
-import {Controller} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
 import PressableChip from '@/components/PressableChip';
@@ -7,15 +7,18 @@ import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  RECOMMEND_MOBILITY_TOOL_OPTIONS,
+  makeRecommendedMobilityOptions,
   SPACIOUS_OPTIONS,
 } from '@/constant/review';
 
+import {FormValues} from '../views/IndoorReviewView';
 import * as S from './common.style';
 
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 
 export default function VisitorReviewSection() {
+  const {watch} = useFormContext<FormValues>();
+  const recommendedMobilityTypes = watch('recommendedMobilityTypes');
   return (
     <S.Container>
       <S.Title>방문 리뷰</S.Title>
@@ -39,24 +42,25 @@ export default function VisitorReviewSection() {
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
-                  {RECOMMEND_MOBILITY_TOOL_OPTIONS.map(
-                    ({label, value}, idx) => (
-                      <PressableChip
-                        key={label + idx}
-                        label={label}
-                        active={field.value?.has(value)}
-                        onPress={() => {
-                          const newSet = new Set(field.value);
-                          if (newSet.has(value)) {
-                            newSet.delete(value);
-                          } else {
-                            newSet.add(value);
-                          }
-                          field.onChange(newSet);
-                        }}
-                      />
-                    ),
-                  )}
+                  {makeRecommendedMobilityOptions([
+                    ...recommendedMobilityTypes,
+                  ]).map(({label, value, disabled}) => (
+                    <PressableChip
+                      key={label}
+                      label={label}
+                      active={field.value?.has(value)}
+                      disabled={disabled}
+                      onPress={() => {
+                        const newSet = new Set(field.value);
+                        if (newSet.has(value)) {
+                          newSet.delete(value);
+                        } else {
+                          newSet.add(value);
+                        }
+                        field.onChange(newSet);
+                      }}
+                    />
+                  ))}
                 </>
               )}
             />

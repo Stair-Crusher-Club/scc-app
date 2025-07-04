@@ -108,27 +108,26 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                   name="doorTypes"
                   rules={{
                     required: isExist,
-                    validate: value => value.length > 0,
+                    validate: value => value.size > 0,
                   }}
                   render={({field}) => (
                     <>
-                      {makeDoorTypeOptions(doorTypes).map(
-                        ({label, value}, idx) => {
-                          const isActive = field.value?.includes(value);
-
+                      {makeDoorTypeOptions([...doorTypes]).map(
+                        ({label, value, disabled}) => {
                           return (
                             <PressableChip
-                              key={value + idx}
+                              key={value}
                               label={label}
-                              active={isActive}
+                              active={field.value?.has(value)}
+                              disabled={disabled}
                               onPress={() => {
-                                const nextValue = isActive
-                                  ? field.value.filter(
-                                      (v: string) => v !== value,
-                                    )
-                                  : [...(field.value || []), value];
-
-                                field.onChange(nextValue);
+                                const newSet = new Set(field.value);
+                                if (newSet.has(value)) {
+                                  newSet.delete(value);
+                                } else {
+                                  newSet.add(value);
+                                }
+                                field.onChange(newSet);
                               }}
                             />
                           );

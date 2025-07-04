@@ -28,7 +28,7 @@ interface ToiletReviewViewProps {
 export interface FormValues {
   toiletLocationType: ToiletLocationTypeDto;
   floor: number;
-  doorTypes: EntranceDoorType[];
+  doorTypes: Set<EntranceDoorType>;
   toiletPhotos: ImageFile[];
   comment: string;
 }
@@ -43,7 +43,7 @@ export default function ToiletReviewView({
   const form = useForm<FormValues>({
     defaultValues: {
       floor: 2,
-      doorTypes: [],
+      doorTypes: new Set(),
       toiletPhotos: [],
       comment: '',
     },
@@ -90,7 +90,7 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
       await api.registerToiletReviewPost({
         placeId,
         toiletLocationType: values.toiletLocationType,
-        entranceDoorTypes: values.doorTypes,
+        entranceDoorTypes: [...values.doorTypes],
         comment: values.comment,
         imageUrls: images,
       });

@@ -37,20 +37,46 @@ export const RECOMMEND_MOBILITY_TOOL_OPTIONS = Object.entries(
   label,
 }));
 
+export const makeRecommendedMobilityOptions = (
+  currentOptions: RecommendedMobilityTypeDto[],
+) => {
+  const isNoneSelected = currentOptions.includes(
+    RecommendedMobilityTypeDto.None,
+  );
+  const isAnyOtherSelected =
+    currentOptions.length > 0 &&
+    currentOptions.some(opt => opt !== RecommendedMobilityTypeDto.None);
+
+  return Object.entries(RECOMMEND_MOBILITY_TOOL_LABELS).map(([key, label]) => {
+    const value = key as RecommendedMobilityTypeDto;
+    const isNone = value === RecommendedMobilityTypeDto.None;
+
+    return {
+      label,
+      value,
+      disabled: isNone ? isAnyOtherSelected : isNoneSelected,
+    };
+  });
+};
+
+type ToiletLocationTypeMap = typeof ToiletLocationTypeDto;
+
+export type ToiletLocationTypeDtoWithoutNotSure =
+  ToiletLocationTypeMap[keyof Omit<ToiletLocationTypeMap, 'NotSure'>];
+
 export const TOILET_LOCATION_TYPE_LABELS: Record<
-  ToiletLocationTypeDto,
+  ToiletLocationTypeDtoWithoutNotSure,
   string
 > = {
   [ToiletLocationTypeDto.Building]: '건물 내 있음',
   [ToiletLocationTypeDto.Place]: '매장 내부에 있음',
   [ToiletLocationTypeDto.None]: '없음',
-  [ToiletLocationTypeDto.NotSure]: '모름',
   [ToiletLocationTypeDto.Etc]: '기타',
 };
 
 export const TOILET_LOCATION_TYPE_OPTIONS = Object.entries(
   TOILET_LOCATION_TYPE_LABELS,
 ).map(([value, label]) => ({
-  value: value as ToiletLocationTypeDto,
+  value: value as ToiletLocationTypeDtoWithoutNotSure,
   label,
 }));
