@@ -34,6 +34,11 @@ export default function PlaceReviewFormScreen({
   }
 
   function gotoPlaceDetail() {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
     navigation.replace('PlaceDetail', {
       placeInfo: {
         placeId: data?.place?.id!,

@@ -27,6 +27,12 @@ export default function ToiletReviewFormScreen({
   });
 
   function gotoPlaceDetail() {
+    if (navigation.canGoBack()) {
+      console.log('back?');
+      navigation.goBack();
+      return;
+    }
+
     navigation.replace('PlaceDetail', {
       placeInfo: {
         placeId: data?.place?.id!,
