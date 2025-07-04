@@ -15,11 +15,11 @@ export const ContentsContainer = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
   paddingHorizontal: 20,
+  gap: 20,
 });
 
 export const Title = styled.Text({
   fontSize: 20 / PixelRatio.getFontScale(),
   fontFamily: font.pretendardMedium,
-  marginLeft: 20,
   color: color.black,
 });

@@ -5,10 +5,15 @@ import {
 import React from 'react';
 import {Pressable} from 'react-native';
 
+import CloseIcon from '@/assets/icon/close.svg';
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import {color} from '@/constant/color';
 
-import {MainNavigationScreens, ScreenParams} from './Navigation.screens';
+import {
+  CustomNavigationOptions,
+  MainNavigationScreens,
+  ScreenParams,
+} from './Navigation.screens';
 import * as S from './Navigation.style';
 
 const Stack = createNativeStackNavigator<ScreenParams>();
@@ -16,18 +21,29 @@ const Stack = createNativeStackNavigator<ScreenParams>();
 export const NavigationHeader = ({
   navigation,
   title,
+  variant = 'back',
 }: {
   navigation: NativeStackNavigationProp<any, any>;
   title: string;
+  variant?: 'back' | 'close';
 }) => {
   return (
     <S.Container edges={['top']}>
-      <S.ContentsContainer>
-        <Pressable onPress={() => navigation.goBack()}>
-          <LeftArrowIcon width={24} height={24} color={color.black} />
-        </Pressable>
-        <S.Title>{title}</S.Title>
-      </S.ContentsContainer>
+      {variant === 'back' ? (
+        <S.ContentsContainer>
+          <Pressable onPress={() => navigation.goBack()}>
+            <LeftArrowIcon width={24} height={24} color={color.black} />
+          </Pressable>
+          <S.Title>{title}</S.Title>
+        </S.ContentsContainer>
+      ) : (
+        <S.ContentsContainer style={{justifyContent: 'space-between'}}>
+          <S.Title>{title}</S.Title>
+          <Pressable onPress={() => navigation.goBack()}>
+            <CloseIcon width={28} height={28} color={color.black} />
+          </Pressable>
+        </S.ContentsContainer>
+      )}
     </S.Container>
   );
 };
@@ -40,6 +56,7 @@ export const Navigation = () => {
         headerShown: false,
         // eslint-disable-next-line react/no-unstable-nested-components
         header: ({options}) => {
+          const customOptions = options as CustomNavigationOptions;
           if (options.headerTitle === '장소 검색') {
             return null;
           }
@@ -48,7 +65,17 @@ export const Navigation = () => {
           if (!(typeof options.headerTitle === 'string')) {
             console.warn('Currently non-string headerTitle is not supported.');
           }
-          return <NavigationHeader title={title} navigation={navigation} />;
+          const variant =
+            typeof customOptions.variant === 'string'
+              ? customOptions.variant
+              : undefined;
+          return (
+            <NavigationHeader
+              title={title}
+              navigation={navigation}
+              variant={variant}
+            />
+          );
         },
       })}>
       {MainNavigationScreens.map(screen => (

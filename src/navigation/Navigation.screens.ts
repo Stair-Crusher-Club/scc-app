@@ -53,10 +53,14 @@ import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen from '@/screens/ToiletReviewFormScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
+export type CustomNavigationOptions = NativeStackNavigationOptions & {
+  variant?: 'back' | 'close';
+};
+
 export const MainNavigationScreens: {
   name: keyof ScreenParams;
   component: React.ComponentType<any>;
-  options?: NativeStackNavigationOptions;
+  options?: CustomNavigationOptions;
 }[] = [
   {name: 'Intro', component: IntroScreen},
   {name: 'Main', component: MainScreen},
@@ -166,7 +170,11 @@ export const MainNavigationScreens: {
   {
     name: 'ReviewForm/Place',
     component: PlaceReviewFormScreen,
-    options: {headerShown: true, headerTitle: '방문 후기 작성하기'},
+    options: {
+      headerShown: true,
+      headerTitle: '방문 후기 작성하기',
+      variant: 'close',
+    },
   },
   {
     name: 'ReviewForm/Toilet',

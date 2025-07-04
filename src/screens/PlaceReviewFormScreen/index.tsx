@@ -27,7 +27,7 @@ export default function PlaceReviewFormScreen({
   }>({
     queryKey: ['PlaceDetail', placeId],
   });
-  const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('indoor');
+  const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('toilet');
 
   if (!placeId || typeof placeId !== 'string') {
     return null;
