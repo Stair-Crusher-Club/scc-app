@@ -7,17 +7,21 @@ import {ImageDto} from '@/generated-sources/openapi';
 
 interface Props {
   crusherGroupIcon?: ImageDto;
-  crusherName?: string;
+  crusherNames: string[];
 }
 
 export default function PlaceDetailCrusher({
   crusherGroupIcon,
-  crusherName,
+  crusherNames,
 }: Props) {
   const aspectRatio =
     crusherGroupIcon?.imageWidth && crusherGroupIcon?.imageHeight
       ? crusherGroupIcon.imageWidth / crusherGroupIcon.imageHeight
       : 1;
+  const crusherName =
+    crusherNames.length === 1
+      ? crusherNames[0]
+      : `${crusherNames[0]} 외 ${crusherNames.length - 1}명`;
   return (
     <Container>
       {crusherGroupIcon && (
@@ -84,13 +88,13 @@ export const CrusherRow = styled.View({
 });
 
 export const CrusherLabel = styled.Text({
-  color: color.gray80,
+  color: color.gray60,
   fontSize: 14,
   fontFamily: font.pretendardRegular,
 });
 
 export const CrusherName = styled.Text({
-  color: color.gray100,
+  color: color.gray90,
   fontSize: 14,
   fontFamily: font.pretendardMedium,
 });

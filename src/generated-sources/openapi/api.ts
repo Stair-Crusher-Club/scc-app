@@ -582,6 +582,12 @@ export interface CompactAccessibilityInfoDto {
     'floors': Array<number>;
     /**
      * 
+     * @type {number}
+     * @memberof CompactAccessibilityInfoDto
+     */
+    'reviewCount'?: number;
+    /**
+     * 
      * @type {EpochMillisTimestamp}
      * @memberof CompactAccessibilityInfoDto
      */
@@ -702,6 +708,32 @@ export interface DeletePlaceFavoriteResponseDto {
      * @memberof DeletePlaceFavoriteResponseDto
      */
     'totalPlaceFavoriteCount': number;
+}
+/**
+ * 
+ * @export
+ * @interface DeletePlaceReviewPostRequest
+ */
+export interface DeletePlaceReviewPostRequest {
+    /**
+     * 삭제할 장소 리뷰의 아이디
+     * @type {string}
+     * @memberof DeletePlaceReviewPostRequest
+     */
+    'placeReviewId': string;
+}
+/**
+ * 
+ * @export
+ * @interface DeleteToiletReviewPostRequest
+ */
+export interface DeleteToiletReviewPostRequest {
+    /**
+     * 삭제할 화장실 리뷰의 아이디
+     * @type {string}
+     * @memberof DeleteToiletReviewPostRequest
+     */
+    'toiletReviewId': string;
 }
 /**
  * 
@@ -2425,7 +2457,28 @@ export interface ReportAccessibilityPostRequest {
      * @memberof ReportAccessibilityPostRequest
      */
     'detail'?: string;
+    /**
+     * 
+     * @type {ReportTargetType}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'targetType'?: ReportTargetType;
 }
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ReportTargetType = {
+    PlaceAccessibility: 'PLACE_ACCESSIBILITY',
+    PlaceReview: 'PLACE_REVIEW',
+    Toilet: 'TOILET'
+} as const;
+
+export type ReportTargetType = typeof ReportTargetType[keyof typeof ReportTargetType];
+
+
 /**
  * 
  * @export
@@ -3354,6 +3407,86 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(deletePlaceFavoriteRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 등록한 장소 리뷰를 삭제한다.
+         * @param {DeletePlaceReviewPostRequest} deletePlaceReviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deletePlaceReviewPost: async (deletePlaceReviewPostRequest: DeletePlaceReviewPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deletePlaceReviewPostRequest' is not null or undefined
+            assertParamExists('deletePlaceReviewPost', 'deletePlaceReviewPostRequest', deletePlaceReviewPostRequest)
+            const localVarPath = `/deletePlaceReview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deletePlaceReviewPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 등록한 화장실 리뷰를 삭제한다.
+         * @param {DeleteToiletReviewPostRequest} deleteToiletReviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteToiletReviewPost: async (deleteToiletReviewPostRequest: DeleteToiletReviewPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deleteToiletReviewPostRequest' is not null or undefined
+            assertParamExists('deleteToiletReviewPost', 'deleteToiletReviewPostRequest', deleteToiletReviewPostRequest)
+            const localVarPath = `/deleteToiletReview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deleteToiletReviewPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4778,7 +4911,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary 등록된 접근성 정보가 올바르지 않은 경우 신고한다.
+         * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
          * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5152,6 +5285,28 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async deletePlaceFavoritePost(deletePlaceFavoriteRequestDto: DeletePlaceFavoriteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeletePlaceFavoriteResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deletePlaceFavoritePost(deletePlaceFavoriteRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 등록한 장소 리뷰를 삭제한다.
+         * @param {DeletePlaceReviewPostRequest} deletePlaceReviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deletePlaceReviewPost(deletePlaceReviewPostRequest: DeletePlaceReviewPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deletePlaceReviewPost(deletePlaceReviewPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 등록한 화장실 리뷰를 삭제한다.
+         * @param {DeleteToiletReviewPostRequest} deleteToiletReviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteToiletReviewPost(deleteToiletReviewPostRequest: DeleteToiletReviewPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteToiletReviewPost(deleteToiletReviewPostRequest, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -5548,7 +5703,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary 등록된 접근성 정보가 올바르지 않은 경우 신고한다.
+         * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
          * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5712,6 +5867,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deletePlaceFavoritePost(deletePlaceFavoriteRequestDto: DeletePlaceFavoriteRequestDto, options?: any): AxiosPromise<DeletePlaceFavoriteResponseDto> {
             return localVarFp.deletePlaceFavoritePost(deletePlaceFavoriteRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 등록한 장소 리뷰를 삭제한다.
+         * @param {DeletePlaceReviewPostRequest} deletePlaceReviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deletePlaceReviewPost(deletePlaceReviewPostRequest: DeletePlaceReviewPostRequest, options?: any): AxiosPromise<void> {
+            return localVarFp.deletePlaceReviewPost(deletePlaceReviewPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 등록한 화장실 리뷰를 삭제한다.
+         * @param {DeleteToiletReviewPostRequest} deleteToiletReviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteToiletReviewPost(deleteToiletReviewPostRequest: DeleteToiletReviewPostRequest, options?: any): AxiosPromise<void> {
+            return localVarFp.deleteToiletReviewPost(deleteToiletReviewPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6071,7 +6246,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary 등록된 접근성 정보가 올바르지 않은 경우 신고한다.
+         * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
          * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6243,6 +6418,30 @@ export class DefaultApi extends BaseAPI {
      */
     public deletePlaceFavoritePost(deletePlaceFavoriteRequestDto: DeletePlaceFavoriteRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deletePlaceFavoritePost(deletePlaceFavoriteRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 등록한 장소 리뷰를 삭제한다.
+     * @param {DeletePlaceReviewPostRequest} deletePlaceReviewPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public deletePlaceReviewPost(deletePlaceReviewPostRequest: DeletePlaceReviewPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deletePlaceReviewPost(deletePlaceReviewPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 등록한 화장실 리뷰를 삭제한다.
+     * @param {DeleteToiletReviewPostRequest} deleteToiletReviewPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public deleteToiletReviewPost(deleteToiletReviewPostRequest: DeleteToiletReviewPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteToiletReviewPost(deleteToiletReviewPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6675,7 +6874,7 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary 등록된 접근성 정보가 올바르지 않은 경우 신고한다.
+     * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
      * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

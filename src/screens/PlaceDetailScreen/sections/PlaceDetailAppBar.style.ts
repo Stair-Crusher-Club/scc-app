@@ -1,11 +1,9 @@
-import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 
-export const AppBar = styled(SafeAreaView)({
+export const AppBar = styled.View({
   position: 'absolute',
-  top: 0,
   zIndex: 999,
   width: '100%',
   flexDirection: 'row',
