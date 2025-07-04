@@ -107,7 +107,11 @@ export default function IndoorReviewView({
 
 async function register(api: DefaultApi, placeId: string, values: FormValues) {
   try {
-    const images = await ImageFileUtils.uploadImages(api, values.indoorPhotos);
+    const images = await ImageFileUtils.uploadImages(
+      api,
+      values.indoorPhotos,
+      'PLACE_REVIEW',
+    );
     try {
       await api.registerPlaceReviewPost({
         placeId,

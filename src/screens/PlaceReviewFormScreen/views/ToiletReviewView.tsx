@@ -81,7 +81,11 @@ export default function ToiletReviewView({
 
 async function register(api: DefaultApi, placeId: string, values: FormValues) {
   try {
-    const images = await ImageFileUtils.uploadImages(api, values.toiletPhotos);
+    const images = await ImageFileUtils.uploadImages(
+      api,
+      values.toiletPhotos,
+      'TOILET_REVIEW',
+    );
     try {
       await api.registerToiletReviewPost({
         placeId,
