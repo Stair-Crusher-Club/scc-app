@@ -1,4 +1,5 @@
 import {
+  EntranceDoorType,
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
   ToiletLocationTypeDto,
@@ -80,3 +81,24 @@ export const TOILET_LOCATION_TYPE_OPTIONS = Object.entries(
   value: value as ToiletLocationTypeDtoWithoutNotSure,
   label,
 }));
+
+type DoorTypeMap = typeof EntranceDoorType;
+
+type DoorTypeMapDto = DoorTypeMap[keyof Omit<
+  DoorTypeMap,
+  'Revolving' | 'None'
+>];
+
+export const DOOR_TYPE_LABELS: Record<DoorTypeMapDto, string> = {
+  Hinged: '여닫이문',
+  Sliding: '미닫이문',
+  Automatic: '자동문',
+  ETC: '기타',
+};
+
+export const DOOR_TYPE_OPTIONS = Object.entries(DOOR_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value: value as DoorTypeMapDto,
+    label,
+  }),
+);

@@ -8,8 +8,10 @@ import Photos from '@/components/form/Photos';
 import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {makeDoorTypeOptions} from '@/constant/options';
-import {TOILET_LOCATION_TYPE_OPTIONS} from '@/constant/review';
+import {
+  DOOR_TYPE_OPTIONS,
+  TOILET_LOCATION_TYPE_OPTIONS,
+} from '@/constant/review';
 
 import FloorSelect from '../components/FloorSelect';
 import {FormValues} from '../views/ToiletReviewView';
@@ -20,7 +22,6 @@ const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 export default function ToiletSection({onSave}: {onSave: () => void}) {
   const {watch, formState, resetField} = useFormContext<FormValues>();
   const toiletLocationType = watch('toiletLocationType');
-  const doorTypes = watch('doorTypes');
 
   const isExist =
     toiletLocationType === 'PLACE' || toiletLocationType === 'BUILDING';
@@ -112,27 +113,24 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                   }}
                   render={({field}) => (
                     <>
-                      {makeDoorTypeOptions([...doorTypes]).map(
-                        ({label, value, disabled}) => {
-                          return (
-                            <PressableChip
-                              key={value}
-                              label={label}
-                              active={field.value?.has(value)}
-                              disabled={disabled}
-                              onPress={() => {
-                                const newSet = new Set(field.value);
-                                if (newSet.has(value)) {
-                                  newSet.delete(value);
-                                } else {
-                                  newSet.add(value);
-                                }
-                                field.onChange(newSet);
-                              }}
-                            />
-                          );
-                        },
-                      )}
+                      {DOOR_TYPE_OPTIONS.map(({label, value}) => {
+                        return (
+                          <PressableChip
+                            key={value}
+                            label={label}
+                            active={field.value?.has(value)}
+                            onPress={() => {
+                              const newSet = new Set(field.value);
+                              if (newSet.has(value)) {
+                                newSet.delete(value);
+                              } else {
+                                newSet.add(value);
+                              }
+                              field.onChange(newSet);
+                            }}
+                          />
+                        );
+                      })}
                     </>
                   )}
                 />
