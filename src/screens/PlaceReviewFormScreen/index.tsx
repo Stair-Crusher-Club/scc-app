@@ -27,10 +27,18 @@ export default function PlaceReviewFormScreen({
   }>({
     queryKey: ['PlaceDetail', placeId],
   });
-  const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('toilet');
+  const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('indoor');
 
   if (!placeId || typeof placeId !== 'string') {
     return null;
+  }
+
+  function gotoPlaceDetail() {
+    navigation.replace('PlaceDetail', {
+      placeInfo: {
+        placeId: data?.place?.id!,
+      },
+    });
   }
 
   function renderView() {
@@ -38,13 +46,18 @@ export default function PlaceReviewFormScreen({
       case 'indoor':
         return (
           <IndoorReviewView
-            navigation={navigation}
             place={data?.place}
+            gotoPlaceDetail={gotoPlaceDetail}
             setReviewTypeToToilet={() => setReviewType('toilet')}
           />
         );
       case 'toilet':
-        return <ToiletReviewView />;
+        return (
+          <ToiletReviewView
+            place={data?.place}
+            gotoPlaceDetail={gotoPlaceDetail}
+          />
+        );
     }
   }
 

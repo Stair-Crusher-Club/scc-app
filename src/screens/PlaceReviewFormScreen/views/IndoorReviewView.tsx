@@ -20,7 +20,7 @@ import UserTypeSection from '../sections/UserTypeSection';
 import VisitorReviewSection from '../sections/VisitorReviewSection';
 import {SectionSeparator} from '../sections/common.style';
 
-interface FormValues {
+export interface FormValues {
   userType?: UserMobilityToolDto;
   mobilityTool: Set<string>;
   useful: string;
@@ -33,13 +33,13 @@ interface FormValues {
 
 interface IndoorReviewViewProps {
   place?: Place;
-  navigation: any;
+  gotoPlaceDetail: () => void;
   setReviewTypeToToilet: () => void;
 }
 
 export default function IndoorReviewView({
   place,
-  navigation,
+  gotoPlaceDetail,
   setReviewTypeToToilet,
 }: IndoorReviewViewProps) {
   const {api} = useAppComponents();
@@ -56,16 +56,8 @@ export default function IndoorReviewView({
     },
   });
 
-  function moveToPlaceDetail() {
-    navigation.replace('PlaceDetail', {
-      placeInfo: {
-        place,
-      },
-    });
-  }
-
   async function onValid(values: FormValues) {
-    registerPlace(values, moveToPlaceDetail);
+    registerPlace(values, gotoPlaceDetail);
   }
 
   async function onValidAfterToilet(values: FormValues) {
@@ -116,7 +108,7 @@ export default function IndoorReviewView({
         ToastUtils.show('리뷰를 등록했어요.');
         afterSuccess();
       }, 1000),
-    [api, place, navigation, loading, setLoading],
+    [api, place, loading, setLoading],
   );
 
   return (
