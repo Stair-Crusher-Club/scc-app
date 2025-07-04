@@ -121,7 +121,6 @@ const Container = styled.View`
   padding-left: 20px;
   gap: 5px;
 `;
-
 const ChipContainer = styled.TouchableOpacity<{isActive: boolean}>`
   display: flex;
   flex-direction: row;

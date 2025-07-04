@@ -22,10 +22,10 @@ export const InfoWrapper = styled.View({
 });
 
 export const Type = styled.Text({
-  fontFamily: font.pretendardBold,
+  fontFamily: font.pretendardMedium,
   fontSize: 14,
-  lineHeight: '22px',
-  color: color.gray80,
+  lineHeight: '20px',
+  color: color.gray40,
   marginBottom: 8,
 });
 
@@ -38,17 +38,18 @@ export const EmptyType = styled.Text({
 });
 
 export const Title = styled.Text({
-  fontFamily: font.pretendardMedium,
-  fontSize: 18,
-  lineHeight: '27px',
-  color: color.gray100,
+  fontFamily: font.pretendardSemibold,
+  fontSize: 16,
+  lineHeight: '26px',
+  color: color.gray90,
 });
 
 export const Description = styled.Text({
   fontFamily: font.pretendardRegular,
-  fontSize: 16,
-  lineHeight: '27px',
-  color: color.gray70,
+  fontSize: 14,
+  lineHeight: '20px',
+  marginTop: 1,
+  color: color.brand50,
 });
 
 export const EmptyDescription = styled.Text({
@@ -61,9 +62,9 @@ export const DetailedIconWrapper = styled.View({
   justifySelf: 'flex-end',
   justifyContent: 'center',
   alignItems: 'center',
-  width: 60,
-  height: 60,
-  borderRadius: 14,
+  width: 48,
+  height: 48,
+  borderRadius: 12,
   backgroundColor: color.gray10,
 });
 

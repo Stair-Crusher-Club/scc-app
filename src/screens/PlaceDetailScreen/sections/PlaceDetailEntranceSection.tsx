@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 import React from 'react';
 import {View} from 'react-native';
+import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {SccButton} from '@/components/atoms';
-import {CommentBlock} from '@/components/molecules';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
+import PlaceDetailCommentSection from '@/screens/PlaceDetailScreen/components/PlaceDetailCommentSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import ImageList from '../components/PlaceDetailImageList';
@@ -36,31 +36,10 @@ export default function PlaceDetailEntranceSection({
 
   if (!accessibility?.placeAccessibility) {
     return (
-      <S.Section>
-        <S.Row>
-          <S.Title>매장 입구 정보</S.Title>
-        </S.Row>
-        <S.EmptyInfoContent>
-          <ImageList images={[]} />
-          <PlaceFloorInfo accessibility={undefined} />
-          <PlaceEntranceStepInfo accessibility={undefined} />
-          <PlaceDoorInfo accessibility={undefined} />
-          <SccButton
-            text={
-              isAccessibilityRegistrable
-                ? '정보 등록하기'
-                : '서비스 지역이 아닙니다'
-            }
-            style={{
-              borderRadius: 10,
-            }}
-            fontSize={18}
-            fontFamily={font.pretendardBold}
-            isDisabled={!isAccessibilityRegistrable}
-            onPress={onRegister}
-          />
-        </S.EmptyInfoContent>
-      </S.Section>
+      <NoPlaceEntranceInfoSection
+        isAccessibilityRegistrable={isAccessibilityRegistrable ?? false}
+        onRegister={onRegister}
+      />
     );
   }
 
@@ -75,33 +54,66 @@ export default function PlaceDetailEntranceSection({
   return (
     <S.Section>
       <S.Row>
-        <S.Title>매장 입구 정보</S.Title>
+        <S.Title>입구 접근성</S.Title>
         <S.Updated>{dayjs(createdAt.value).format('YYYY. MM. DD')}</S.Updated>
       </S.Row>
-      <S.InfoContent>
-        <ImageList images={images ?? []} />
-        <PlaceFloorInfo accessibility={accessibility} />
-        <PlaceEntranceStepInfo accessibility={accessibility} />
-        <PlaceDoorInfo accessibility={accessibility} />
-        <View>
-          <S.Comments>
-            {comments.map(comment => (
-              <CommentBlock key={comment.id} info={comment} />
-            ))}
-            <S.AddCommentButton
-              onPress={() => checkAuth(() => handlePressAddComment())}>
-              <PlusIcon width={12} height={12} color={color.blue50} />
-              <S.AddCommentText>의견 추가하기</S.AddCommentText>
-            </S.AddCommentButton>
-          </S.Comments>
-          <PlaceDetailCrusher
-            crusherGroupIcon={
-              accessibility.placeAccessibility?.challengeCrusherGroup?.icon
-            }
-            crusherName={registeredUserName}
-          />
-        </View>
-      </S.InfoContent>
+      <ImageList images={images ?? []} roundCorners />
+      <PlaceFloorInfo accessibility={accessibility} />
+      <PlaceEntranceStepInfo accessibility={accessibility} />
+      <PlaceDoorInfo accessibility={accessibility} />
+      <Divider />
+      <View>
+        <PlaceDetailCommentSection
+          comments={comments}
+          onAddComment={handlePressAddComment}
+          checkAuth={checkAuth}
+          title="매장 입구 정보 의견 남기기"
+        />
+        <PlaceDetailCrusher
+          crusherGroupIcon={
+            accessibility.placeAccessibility?.challengeCrusherGroup?.icon
+          }
+          crusherNames={registeredUserName ? [registeredUserName] : []}
+        />
+      </View>
+    </S.Section>
+  );
+}
+
+const Divider = styled.View({height: 1, backgroundColor: color.gray20});
+
+function NoPlaceEntranceInfoSection({
+  isAccessibilityRegistrable,
+  onRegister,
+}: {
+  isAccessibilityRegistrable: boolean;
+  onRegister?: () => void;
+}) {
+  return (
+    <S.Section>
+      <S.Row>
+        <S.Title>입구 접근성</S.Title>
+      </S.Row>
+      <S.EmptyInfoContent>
+        <ImageList images={[]} roundCorners />
+        <PlaceFloorInfo accessibility={undefined} />
+        <PlaceEntranceStepInfo accessibility={undefined} />
+        <PlaceDoorInfo accessibility={undefined} />
+        <SccButton
+          text={
+            isAccessibilityRegistrable
+              ? '정보 등록하기'
+              : '서비스 지역이 아닙니다'
+          }
+          style={{
+            borderRadius: 10,
+          }}
+          fontSize={18}
+          fontFamily={font.pretendardBold}
+          isDisabled={!isAccessibilityRegistrable}
+          onPress={onRegister}
+        />
+      </S.EmptyInfoContent>
     </S.Section>
   );
 }

@@ -1,13 +1,18 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useEffect, useState} from 'react';
-import {ScrollView} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {ScrollView, View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
+import ScrollNavigation from '@/components/StickyScrollNavigation';
 import {Building, Place} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
+import PlaceDetailRegisterIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
+import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 
 import * as S from './PlaceDetailScreen.style';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
@@ -45,6 +50,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const [showRegisterCompleteBottomSheet, setShowRegisterCompleteBottomSheet] =
     useState(false);
 
+  // Sticky navigation state
+  const [scrollY, setScrollY] = useState(0);
+  const scrollView = useRef<ScrollView>(null);
+  const entranceSection = useRef<View>(null);
+  const indoorSection = useRef<View>(null);
+  const toiletSection = useRef<View>(null);
+  const buildingSection = useRef<View>(null);
+
+  const {top} = useSafeAreaInsets();
+
   const {data} = useQuery({
     initialData: {
       place: 'place' in placeInfo ? placeInfo.place : undefined,
@@ -76,6 +91,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     queryKey: ['PlaceDetail', placeId, 'Accessibility'],
     queryFn: async ({queryKey}) =>
       (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
+  });
+  const {data: reviewPost} = useQuery({
+    queryKey: ['PlaceDetail', placeId, 'Review'],
+    queryFn: async ({queryKey}) =>
+      (await api.listPlaceReviewsPost({placeId: queryKey[1]})).data,
+  });
+  const {data: toiletPost} = useQuery({
+    queryKey: ['PlaceDetail', placeId, 'Toilet'],
+    queryFn: async ({queryKey}) =>
+      (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
 
   useEffect(() => {
@@ -117,35 +142,80 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     return null;
   }
 
+  const hasIndoorSection = reviewPost && reviewPost.length > 0;
+  const hasToiletSection = toiletPost && toiletPost.length > 0;
+  const menus = [{label: '입구 접근성', ref: entranceSection}]
+    .concat(hasIndoorSection ? [{label: '이용 정보', ref: indoorSection}] : [])
+    .concat(hasToiletSection ? [{label: '화장실', ref: toiletSection}] : [])
+    .concat([{label: '건물 정보', ref: buildingSection}]);
+
   return (
     <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
-      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
+      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
         {/* 안드로이드 이미지 캐로셀 이슈 */}
         <GestureHandlerRootView style={{flex: 1}}>
-          <ScrollView>
+          <ScrollView
+            ref={scrollView}
+            stickyHeaderIndices={[4]}
+            onScroll={e => {
+              const y = e.nativeEvent.contentOffset.y;
+              setScrollY(y);
+            }}
+            style={{overflow: 'visible'}}
+            scrollEventThrottle={100}>
             <PlaceDetailAppBar />
-            <PlaceDetailCoverImage accessibility={accessibilityPost} />
+            <View style={{marginTop: -top}}>
+              <PlaceDetailCoverImage accessibility={accessibilityPost} />
+            </View>
             <PlaceDetailSummarySection
               accessibility={accessibilityPost}
               accessibilityScore={data?.accessibilityScore}
               place={place}
             />
             <S.SectionSeparator />
-            <PlaceDetailEntranceSection
-              accessibility={accessibilityPost}
-              place={place}
-              isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-              onRegister={() =>
-                navigation.navigate('PlaceForm', {place, building})
-              }
+            <ScrollNavigation
+              scrollContainer={scrollView}
+              scrollY={scrollY}
+              menus={menus}
             />
+            <View ref={entranceSection} collapsable={false}>
+              <PlaceDetailEntranceSection
+                accessibility={accessibilityPost}
+                place={place}
+                isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+                onRegister={() =>
+                  navigation.navigate('PlaceForm', {place, building})
+                }
+              />
+            </View>
             <S.SectionSeparator />
-            <PlaceDetailBuildingSection
-              accessibility={accessibilityPost}
-              place={place}
-              building={building}
-              isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-            />
+            {reviewPost && reviewPost.length > 0 && (
+              <>
+                <View ref={indoorSection} collapsable={false}>
+                  <PlaceDetailIndoorSection reviews={reviewPost} />
+                </View>
+                <S.SectionSeparator />
+              </>
+            )}
+            <PlaceDetailRegisterIndoorSection place={place} />
+            <S.SectionSeparator />
+            {toiletPost && toiletPost.length > 0 && (
+              <>
+                <View ref={toiletSection} collapsable={false}>
+                  <PlaceDetailToiletSection toiletReviews={toiletPost} />
+                </View>
+                <S.SectionSeparator />
+              </>
+            )}
+            <S.SectionSeparator />
+            <View ref={buildingSection} collapsable={false}>
+              <PlaceDetailBuildingSection
+                accessibility={accessibilityPost}
+                place={place}
+                building={building}
+                isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+              />
+            </View>
             {accessibilityPost && accessibilityPost?.placeAccessibility && (
               <>
                 <S.SectionSeparator />

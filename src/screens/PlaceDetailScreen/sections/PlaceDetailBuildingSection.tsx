@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
 import React from 'react';
 import {View} from 'react-native';
+import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {SccButton} from '@/components/atoms';
-import {CommentBlock} from '@/components/molecules';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -12,13 +11,13 @@ import {
   Building,
   Place,
 } from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import BuildingDoorInfo from '../components/BuildingDoorInfo';
 import BuildingElevatorInfo from '../components/BuildingElevatorInfo';
 import BuildingEntranceStepInfo from '../components/BuildingEntranceStepInfo';
+import PlaceDetailCommentSection from '../components/PlaceDetailCommentSection';
 import ImageList from '../components/PlaceDetailImageList';
 import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
@@ -30,7 +29,7 @@ interface Props {
   isAccessibilityRegistrable?: boolean;
 }
 
-export default function PlaceDetailEntranceSection({
+export default function PlaceDetailBuildingSection({
   accessibility,
   place,
   building,
@@ -71,34 +70,31 @@ export default function PlaceDetailEntranceSection({
         <S.Address>{place.address}</S.Address>
       </S.SubSection>
       <S.InfoContent>
-        <ImageList images={images} />
+        <ImageList images={images} roundCorners />
         <BuildingEntranceStepInfo accessibility={accessibility} />
         <BuildingElevatorInfo accessibility={accessibility} />
         <BuildingDoorInfo accessibility={accessibility} />
+        <Divider />
         <View>
-          <S.Comments>
-            {comments.map(comment => (
-              <CommentBlock key={comment.id} info={comment} />
-            ))}
-            <LogClick elementName="place_detail_add_comment_button">
-              <S.AddCommentButton
-                onPress={() => checkAuth(() => handlePressAddComment())}>
-                <PlusIcon width={12} height={12} color={color.blue50} />
-                <S.AddCommentText>의견 추가하기</S.AddCommentText>
-              </S.AddCommentButton>
-            </LogClick>
-          </S.Comments>
+          <PlaceDetailCommentSection
+            comments={comments}
+            onAddComment={handlePressAddComment}
+            checkAuth={checkAuth}
+            title="건물 입구 정보 의견 남기기"
+          />
           <PlaceDetailCrusher
             crusherGroupIcon={
               accessibility.buildingAccessibility?.challengeCrusherGroup?.icon
             }
-            crusherName={registeredUserName}
+            crusherNames={registeredUserName ? [registeredUserName] : []}
           />
         </View>
       </S.InfoContent>
     </S.Section>
   );
 }
+
+const Divider = styled.View({height: 1, backgroundColor: color.gray20});
 
 function NoBuildingInfoSection({
   place,
@@ -121,7 +117,7 @@ function NoBuildingInfoSection({
         <S.Address>{place.address}</S.Address>
       </S.SubSection>
       <S.EmptyInfoContent>
-        <ImageList images={[]} />
+        <ImageList images={[]} roundCorners />
         <BuildingEntranceStepInfo />
         <BuildingElevatorInfo />
         <BuildingDoorInfo />

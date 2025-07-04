@@ -3,6 +3,7 @@ import React, {memo} from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import ReviewIcon from '@/assets/ic_review.svg';
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
 import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
@@ -130,14 +131,21 @@ function SearchItemCard({
         <Container isHeightFlex={isHeightFlex} onPress={onPress}>
           <InfoArea>
             <LabelIconArea>
-              <ScoreLabel
-                score={getPlaceAccessibilityScore({
-                  score: item.accessibilityInfo?.accessibilityScore,
-                  hasPlaceAccessibility: item.hasPlaceAccessibility,
-                  hasBuildingAccessibility: item.hasBuildingAccessibility,
-                })}
-                isIconVisible
-              />
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <ScoreLabel
+                  score={getPlaceAccessibilityScore({
+                    score: item.accessibilityInfo?.accessibilityScore,
+                    hasPlaceAccessibility: item.hasPlaceAccessibility,
+                    hasBuildingAccessibility: item.hasBuildingAccessibility,
+                  })}
+                  isIconVisible
+                />
+                {item.accessibilityInfo?.reviewCount &&
+                  item.accessibilityInfo.reviewCount > 0 && (
+                    <ReviewIcon width={24} height={24} />
+                  )}
+              </View>
               <IconArea>
                 <TouchableOpacity
                   style={{
