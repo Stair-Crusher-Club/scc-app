@@ -36,8 +36,6 @@ export function getMobilityToolDefaultValue(
   const validOrder = Object.keys(
     MOBILITY_TOOL_LABELS,
   ) as UserMobilityToolMapDto[];
-  console.log(mobilityTools);
-
   return validOrder.find(tool => mobilityTools?.includes(tool));
 }
 

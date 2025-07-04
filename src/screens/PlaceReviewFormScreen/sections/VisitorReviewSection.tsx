@@ -121,14 +121,14 @@ export default function VisitorReviewSection() {
                       fontFamily: font.pretendardRegular,
                       paddingVertical: 0,
                       textAlignVertical: 'top',
-                      minHeight: 90,
+                      minHeight: 160,
                     }}
                     value={field.value}
                     maxLength={300}
                     placeholder={
                       '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
                     }
-                    placeholderTextColor={color.gray50}
+                    placeholderTextColor={color.gray40}
                     onChangeText={field.onChange}
                   />
                   <Text

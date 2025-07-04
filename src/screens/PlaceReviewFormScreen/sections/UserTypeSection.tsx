@@ -61,12 +61,18 @@ export default function UserTypeSection() {
       <View
         style={{
           padding: 12,
-          backgroundColor: '#F7F7F9',
+          backgroundColor: color.gray10,
           borderRadius: 4,
           alignItems: 'center',
           gap: 8,
         }}>
-        <Text>사용자 유형은 리뷰에서 이렇게 보여요!</Text>
+        <Text
+          style={{
+            color: color.gray60,
+            fontSize: 13,
+          }}>
+          사용자 유형은 리뷰에서 이렇게 보여요!
+        </Text>
         <View
           style={{
             flexDirection: 'row',
@@ -76,7 +82,7 @@ export default function UserTypeSection() {
             style={{
               fontSize: 13,
               lineHeight: 18,
-              fontFamily: font.pretendardBold,
+              fontFamily: font.pretendardMedium,
             }}>
             {userInfo?.nickname}
           </Text>
@@ -87,8 +93,9 @@ export default function UserTypeSection() {
               fontSize: 11,
               lineHeight: 14,
               fontFamily: font.pretendardMedium,
-              color: color.brand,
-              backgroundColor: color.brand5,
+              color: color.gray50,
+              backgroundColor: color.gray20,
+              borderRadius: 3,
             }}>
             {MOBILITY_TOOL_LABELS[mobilityTool]}
           </Text>

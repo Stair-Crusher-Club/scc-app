@@ -136,61 +136,65 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 />
               </View>
             </View>
-            <View style={{gap: 12}}>
-              <S.Question>
-                화장실 이용 경험 및 참고할점을 알려주세요.
-              </S.Question>
+          </>
+        )}
+        <View style={{gap: 12}}>
+          {isExist && (
+            <S.Question>화장실 이용 경험 및 참고할점을 알려주세요.</S.Question>
+          )}
+          {(isExist || isVisibleTextarea) && (
+            <View style={{gap: 8}}>
               <Controller
-                name="toiletPhotos"
-                rules={{required: false}}
+                name="comment"
                 render={({field}) => (
-                  <Photos
-                    value={field.value ?? []}
-                    onChange={field.onChange}
-                    target="place"
-                    maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
-                  />
+                  <>
+                    <TextInput
+                      multiline
+                      style={{
+                        color: color.black,
+                        fontSize: 16,
+                        fontFamily: font.pretendardRegular,
+                        paddingVertical: 0,
+                        textAlignVertical: 'top',
+                        minHeight: 160,
+                      }}
+                      value={field.value}
+                      maxLength={300}
+                      placeholder={
+                        toiletLocationType === 'ETC'
+                          ? '기타 사항을 작성해주세요.'
+                          : '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
+                      }
+                      placeholderTextColor={color.gray50}
+                      onChangeText={field.onChange}
+                    />
+                    <Text
+                      style={{
+                        alignSelf: 'flex-end',
+                        color: '#7A7A88',
+                      }}>
+                      {field.value?.length ?? 0}/300
+                    </Text>
+                  </>
                 )}
               />
             </View>
-          </>
-        )}
+          )}
+        </View>
 
-        {isVisibleTextarea && (
-          <View style={{gap: 8}}>
-            <Controller
-              name="comment"
-              render={({field}) => (
-                <>
-                  <TextInput
-                    multiline
-                    style={{
-                      color: color.black,
-                      fontSize: 16,
-                      fontFamily: font.pretendardRegular,
-                      paddingVertical: 0,
-                      textAlignVertical: 'top',
-                      minHeight: 160,
-                    }}
-                    value={field.value}
-                    maxLength={300}
-                    placeholder={
-                      '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
-                    }
-                    placeholderTextColor={color.gray50}
-                    onChangeText={field.onChange}
-                  />
-                  <Text
-                    style={{
-                      alignSelf: 'flex-end',
-                      color: '#7A7A88',
-                    }}>
-                    {field.value?.length ?? 0}/300
-                  </Text>
-                </>
-              )}
-            />
-          </View>
+        {isExist && (
+          <Controller
+            name="toiletPhotos"
+            rules={{required: false}}
+            render={({field}) => (
+              <Photos
+                value={field.value ?? []}
+                onChange={field.onChange}
+                target="place"
+                maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
+              />
+            )}
+          />
         )}
       </View>
 
