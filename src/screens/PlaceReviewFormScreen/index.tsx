@@ -1,6 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
 import {useState} from 'react';
-import {ScrollView} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {Building, Place} from '@/generated-sources/openapi';
@@ -68,11 +67,7 @@ export default function PlaceReviewFormScreen({
 
   return (
     <LogParamsProvider params={{placeId}}>
-      <ScreenLayout isHeaderVisible={true}>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-          {renderView()}
-        </ScrollView>
-      </ScreenLayout>
+      <ScreenLayout isHeaderVisible={true}>{renderView()}</ScreenLayout>
     </LogParamsProvider>
   );
 }

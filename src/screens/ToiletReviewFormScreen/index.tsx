@@ -1,5 +1,4 @@
 import {useQuery} from '@tanstack/react-query';
-import {ScrollView} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {Building, Place} from '@/generated-sources/openapi';
@@ -43,12 +42,10 @@ export default function ToiletReviewFormScreen({
   return (
     <LogParamsProvider params={{placeId}}>
       <ScreenLayout isHeaderVisible={true}>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-          <ToiletReviewView
-            place={data?.place}
-            gotoPlaceDetail={gotoPlaceDetail}
-          />
-        </ScrollView>
+        <ToiletReviewView
+          place={data?.place}
+          gotoPlaceDetail={gotoPlaceDetail}
+        />
       </ScreenLayout>
     </LogParamsProvider>
   );

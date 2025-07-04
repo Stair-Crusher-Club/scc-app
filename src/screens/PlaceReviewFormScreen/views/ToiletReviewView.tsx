@@ -2,6 +2,7 @@ import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
+import {ScrollView} from 'react-native';
 
 import {loadingState} from '@/components/LoadingView';
 import {
@@ -72,9 +73,13 @@ export default function ToiletReviewView({
 
   return (
     <FormProvider {...form}>
-      <PlaceInfoSection name={place?.name} address={place?.address} />
-      <SectionSeparator />
-      <ToiletSection onSave={form.handleSubmit(onValid)} />
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{flexGrow: 1}}>
+        <PlaceInfoSection name={place?.name} address={place?.address} />
+        <SectionSeparator />
+        <ToiletSection onSave={form.handleSubmit(onValid)} />
+      </ScrollView>
     </FormProvider>
   );
 }

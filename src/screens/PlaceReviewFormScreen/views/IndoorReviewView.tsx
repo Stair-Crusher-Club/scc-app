@@ -2,6 +2,7 @@ import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
+import {ScrollView} from 'react-native';
 
 import {loadingState} from '@/components/LoadingView';
 import {
@@ -91,19 +92,23 @@ export default function IndoorReviewView({
 
   return (
     <FormProvider {...form}>
-      <PlaceInfoSection name={place?.name} address={place?.address} />
-      <SectionSeparator />
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{flexGrow: 1}}>
+        <PlaceInfoSection name={place?.name} address={place?.address} />
+        <SectionSeparator />
 
-      <UserTypeSection />
-      <SectionSeparator />
+        <UserTypeSection />
+        <SectionSeparator />
 
-      <VisitorReviewSection />
-      <SectionSeparator />
+        <VisitorReviewSection />
+        <SectionSeparator />
 
-      <IndoorInfoSection
-        onSave={form.handleSubmit(onValid)}
-        onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
-      />
+        <IndoorInfoSection
+          onSave={form.handleSubmit(onValid)}
+          onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
+        />
+      </ScrollView>
     </FormProvider>
   );
 }
