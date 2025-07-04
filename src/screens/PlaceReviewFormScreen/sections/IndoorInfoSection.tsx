@@ -1,4 +1,4 @@
-import {Controller} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
 import PressableChip from '@/components/PressableChip';
@@ -44,6 +44,8 @@ export default function IndoorInfoSection({
   onSave: () => void;
   onSaveAndToiletReview: () => void;
 }) {
+  const {formState} = useFormContext();
+
   return (
     <S.Container>
       <S.Title>내부 이용 정보</S.Title>
@@ -80,7 +82,7 @@ export default function IndoorInfoSection({
                         } else {
                           newSet.add(label);
                         }
-                        field.onChange(newSet); // 반드시 새 Set으로 전달
+                        field.onChange(newSet);
                       }}
                     />
                   ))}
@@ -121,7 +123,7 @@ export default function IndoorInfoSection({
                         } else {
                           newSet.add(label);
                         }
-                        field.onChange(newSet); // 반드시 새 Set으로 전달
+                        field.onChange(newSet);
                       }}
                     />
                   ))}
@@ -160,7 +162,7 @@ export default function IndoorInfoSection({
                         } else {
                           newSet.add(label);
                         }
-                        field.onChange(newSet); // 반드시 새 Set으로 전달
+                        field.onChange(newSet);
                       }}
                     />
                   ))}
@@ -173,6 +175,7 @@ export default function IndoorInfoSection({
         <View style={{gap: 10, paddingTop: 10}}>
           <SccButton
             text="저장하기"
+            isDisabled={!formState.isValid}
             style={{
               borderRadius: 10,
               backgroundColor: color.brand,
@@ -183,6 +186,7 @@ export default function IndoorInfoSection({
           />
           <SccButton
             text="저장하고 화장실도 등록하기"
+            isDisabled={!formState.isValid}
             style={{
               borderRadius: 10,
               backgroundColor: color.gray10,
