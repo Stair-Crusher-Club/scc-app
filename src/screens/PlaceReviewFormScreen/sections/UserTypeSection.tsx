@@ -19,6 +19,7 @@ export default function UserTypeSection() {
     mobilityTool: UserMobilityToolMapDto;
   }>();
   const mobilityTool = watch('mobilityTool');
+  const isVisibleLabel = mobilityTool !== 'NONE';
 
   return (
     <S.Container>
@@ -86,19 +87,21 @@ export default function UserTypeSection() {
             }}>
             {userInfo?.nickname}
           </Text>
-          <Text
-            style={{
-              paddingVertical: 2,
-              paddingHorizontal: 4,
-              fontSize: 11,
-              lineHeight: 14,
-              fontFamily: font.pretendardMedium,
-              color: color.gray50,
-              backgroundColor: color.gray20,
-              borderRadius: 3,
-            }}>
-            {MOBILITY_TOOL_LABELS[mobilityTool]}
-          </Text>
+          {isVisibleLabel && (
+            <Text
+              style={{
+                paddingVertical: 2,
+                paddingHorizontal: 4,
+                fontSize: 11,
+                lineHeight: 14,
+                fontFamily: font.pretendardMedium,
+                color: color.gray50,
+                backgroundColor: color.gray20,
+                borderRadius: 3,
+              }}>
+              {MOBILITY_TOOL_LABELS[mobilityTool]}
+            </Text>
+          )}
         </View>
       </View>
     </S.Container>
