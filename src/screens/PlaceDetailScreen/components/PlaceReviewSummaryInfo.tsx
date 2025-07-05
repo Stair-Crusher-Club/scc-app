@@ -99,9 +99,7 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
   );
 }
 
-const Container = styled.View`
-  flex: 1;
-`;
+const Container = styled.View``;
 
 const HeaderRow = styled.View`
   flex-direction: row;

@@ -44,20 +44,10 @@ export default function PlaceDetailCrusher({
 }
 
 const Container = styled.View({
-  flex: 1,
   gap: 8,
 });
 
-export const CrusherGroup = styled.Text({
-  flex: 1,
-  flexDirection: 'column',
-  color: color.gray80,
-  fontSize: 14,
-  fontFamily: font.pretendardRegular,
-});
-
 export const CrusherGroupRow = styled.View({
-  flex: 1,
   flexDirection: 'row',
   paddingVertical: 8,
   paddingHorizontal: 12,

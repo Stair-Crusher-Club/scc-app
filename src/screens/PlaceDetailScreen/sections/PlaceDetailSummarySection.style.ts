@@ -4,14 +4,12 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
 export const Section = styled.View({
-  flex: 1,
   paddingVertical: 20,
   paddingHorizontal: 20,
   backgroundColor: color.white,
 });
 
 export const SubSection = styled.View({
-  flex: 1,
   gap: 4,
   alignItems: 'flex-start',
 });

@@ -4,16 +4,13 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
 export const Section = styled.View({
-  flex: 1,
   paddingVertical: 32,
   paddingHorizontal: 20,
   backgroundColor: color.white,
   gap: 20,
 });
 
-export const SubSection = styled.View({
-  flex: 1,
-});
+export const SubSection = styled.View({});
 
 export const Row = styled.View({
   flexDirection: 'row',
@@ -53,13 +50,6 @@ export const InfoContent = styled.View({
 export const Separator = styled.View({
   height: 1,
   backgroundColor: color.gray20,
-});
-
-export const Summary = styled.View({
-  flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 16,
 });
 
 export const VerticalSeparator = styled.View({

@@ -16,7 +16,6 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
   return (
     <View
       style={{
-        flex: 1,
         paddingVertical: 20,
         paddingHorizontal: 20,
         backgroundColor: color.white,

@@ -34,7 +34,13 @@ export default function PlaceToiletReviewItem({
         </TouchableOpacity>
       </HeaderRow>
       <ReviewContentColumn style={{width: '100%'}}>
-        <View style={{flexDirection: 'row', gap: 12, width: '100%', justifyContent: 'space-between'}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 12,
+            width: '100%',
+            justifyContent: 'space-between',
+          }}>
           <ReviewInfoColumn>
             <ReviewInfoRow>
               <ReviewInfoLabel>등록일</ReviewInfoLabel>

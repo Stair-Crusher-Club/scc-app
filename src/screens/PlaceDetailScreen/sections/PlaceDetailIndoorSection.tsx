@@ -21,7 +21,6 @@ export default function PlaceDetailIndoorSection({reviews, placeId}: Props) {
   return (
     <View
       style={{
-        flex: 1,
         gap: 32,
         paddingVertical: 32,
         paddingHorizontal: 20,

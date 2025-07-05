@@ -4,7 +4,6 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
 export const PlaceDetailNoBuildingSection = styled.View({
-  flex: 1,
   backgroundColor: color.white,
   paddingHorizontal: 30,
   paddingVertical: 32,
