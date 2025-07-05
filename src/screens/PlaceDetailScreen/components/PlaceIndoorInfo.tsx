@@ -16,7 +16,7 @@ export default function PlaceIndoorInfo({reviews}: Props) {
     Math.max(...reviews.map(review => review.createdAt.value)),
   ).format('YYYY.MM.DD');
   return (
-    <View style={{flex: 1, gap: 20}}>
+    <View style={{gap: 20}}>
       <View
         style={{
           flexDirection: 'row',

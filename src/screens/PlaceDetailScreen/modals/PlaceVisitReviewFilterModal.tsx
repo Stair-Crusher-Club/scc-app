@@ -21,7 +21,6 @@ const MOBILITY_TYPE_OPTIONS: (RecommendedMobilityTypeDto | null)[] = [
   'ELECTRIC_WHEELCHAIR',
   'STROLLER',
   'ELDERLY',
-  'NOT_SURE',
   'NONE',
 ];
 

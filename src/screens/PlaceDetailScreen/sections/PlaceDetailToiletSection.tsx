@@ -29,8 +29,7 @@ export default function PlaceDetailToiletSection({
               placeId,
             });
           }}>
-          <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
-          {/* TODO 리뷰 작성하기 버튼 연결 */}
+          <ReviewButtonText>정보 등록하기</ReviewButtonText>
         </ReviewButton>
       </HeaderRow>
       <ItemList>

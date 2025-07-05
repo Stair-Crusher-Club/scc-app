@@ -3,16 +3,20 @@ import {Text, TouchableOpacity, View} from 'react-native';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Place} from '@/generated-sources/openapi';
-import useNavigation from '@/navigation/useNavigation';
 
 interface Props {
-  place: Place;
+  subTitle?: string;
+  title: string;
+  buttonText: string;
+  onPress?: () => void;
 }
 
-export default function PlaceDetailRegisterIndoorSection({place}: Props) {
-  const placeName = place.name;
-  const navigation = useNavigation();
+export default function PlaceDetailRegisterButtonSection({
+  subTitle,
+  title,
+  buttonText,
+  onPress,
+}: Props) {
   return (
     <View
       style={{
@@ -20,15 +24,17 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
         paddingHorizontal: 20,
         backgroundColor: color.white,
       }}>
-      <Text
-        style={{
-          fontSize: 14,
-          lineHeight: 20,
-          fontFamily: font.pretendardRegular,
-          color: color.gray60,
-        }}>
-        {placeName} 에 방문하셨나요?
-      </Text>
+      {subTitle && (
+        <Text
+          style={{
+            fontSize: 14,
+            lineHeight: 20,
+            fontFamily: font.pretendardRegular,
+            color: color.gray60,
+          }}>
+          {subTitle}
+        </Text>
+      )}
       <Text
         style={{
           fontSize: 18,
@@ -37,14 +43,10 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
           fontFamily: font.pretendardBold,
           marginTop: 4,
         }}>
-        방문 후기를 남겨주세요
+        {title}
       </Text>
       <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('ReviewForm/Place', {
-            placeId: place.id,
-          });
-        }}
+        onPress={onPress}
         style={{
           width: '100%',
           flexDirection: 'row',
@@ -63,7 +65,7 @@ export default function PlaceDetailRegisterIndoorSection({place}: Props) {
             fontSize: 16,
             fontFamily: font.pretendardMedium,
           }}>
-          방문 후기를 남겨주세요
+          {buttonText}
         </Text>
       </TouchableOpacity>
     </View>
