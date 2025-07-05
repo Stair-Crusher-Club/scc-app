@@ -15,6 +15,12 @@ export default function PlaceIndoorInfo({reviews}: Props) {
   const updatedAt = dayjs(
     Math.max(...reviews.map(review => review.createdAt.value)),
   ).format('YYYY.MM.DD');
+
+  const seatsTypes = [...new Set(reviews.flatMap(review => review.seatTypes))];
+  const orderMethods = [
+    ...new Set(reviews.flatMap(review => review.orderMethods)),
+  ];
+  const features = [...new Set(reviews.flatMap(review => review.features))];
   return (
     <View style={{flex: 1, gap: 20}}>
       <View
@@ -29,27 +35,15 @@ export default function PlaceIndoorInfo({reviews}: Props) {
       </View>
       <S.InfoWrapper>
         <S.LabelText>좌석 구성</S.LabelText>
-        <S.TextWrapper>
-          <S.ContentText>
-            {reviews.flatMap(review => review.seatTypes).join(', ')}
-          </S.ContentText>
-        </S.TextWrapper>
+        <S.ContentText>{seatsTypes.join(', ')}</S.ContentText>
       </S.InfoWrapper>
       <S.InfoWrapper>
         <S.LabelText>주문방법</S.LabelText>
-        <S.TextWrapper>
-          <S.ContentText>
-            {reviews.flatMap(review => review.orderMethods).join(', ')}
-          </S.ContentText>
-        </S.TextWrapper>
+        <S.ContentText>{orderMethods.join(', ')}</S.ContentText>
       </S.InfoWrapper>
       <S.InfoWrapper>
         <S.LabelText>특이사항</S.LabelText>
-        <S.TextWrapper>
-          <S.ContentText>
-            {reviews.flatMap(review => review.features).join(', ')}
-          </S.ContentText>
-        </S.TextWrapper>
+        <S.ContentText>{features.join(', ')}</S.ContentText>
       </S.InfoWrapper>
     </View>
   );
