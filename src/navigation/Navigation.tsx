@@ -74,6 +74,7 @@ export const Navigation = () => {
               title={title}
               navigation={navigation}
               variant={variant}
+              {...options}
             />
           );
         },

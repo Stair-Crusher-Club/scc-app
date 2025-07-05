@@ -176,6 +176,7 @@ export const MainNavigationScreens: {
       headerShown: true,
       headerTitle: '방문 후기 작성하기',
       variant: 'close',
+      gestureEnabled: false,
     },
   },
   {
@@ -185,6 +186,7 @@ export const MainNavigationScreens: {
       headerShown: true,
       headerTitle: '화장실 후기 작성하기',
       variant: 'close',
+      gestureEnabled: false,
     },
   },
 ];
