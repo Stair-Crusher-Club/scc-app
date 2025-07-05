@@ -3,6 +3,7 @@ import {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
+import BadgedIcon from '@/assets/icon/ic_badged_crew.svg';
 import MoreIcon from '@/assets/icon/ic_more.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -13,6 +14,8 @@ import {
   SPACIOUS_TYPE_LABELS,
 } from '@/screens/PlaceDetailScreen/constants/labels';
 
+import UserMobilityLabel from './UserMobilityLabel';
+
 export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const reviewText = review.comment;
@@ -22,8 +25,13 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
       <HeaderRow>
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
-          <ReviewDate>• </ReviewDate>
-          {/* TODO 크러셔 라벨 등 붙이기 */}
+          <BadgedIcon />
+          {review?.mobilityTool !== 'NONE' && (
+            <>
+              <ReviewDate>·</ReviewDate>
+              <UserMobilityLabel mobilityTool={review?.mobilityTool} />
+            </>
+          )}
         </HeaderLeft>
         <TouchableOpacity>
           <MoreIcon />

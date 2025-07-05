@@ -30,7 +30,6 @@ export default function PlaceDetailToiletSection({
             });
           }}>
           <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
-          {/* TODO 리뷰 작성하기 버튼 연결 */}
         </ReviewButton>
       </HeaderRow>
       <ItemList>

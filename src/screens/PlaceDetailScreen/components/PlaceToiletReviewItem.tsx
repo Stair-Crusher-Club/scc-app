@@ -3,6 +3,7 @@ import {useState} from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import BadgedIcon from '@/assets/icon/ic_badged_crew.svg';
 import MoreIcon from '@/assets/icon/ic_more.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -26,8 +27,13 @@ export default function PlaceToiletReviewItem({
       <HeaderRow>
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
-          <ReviewDate>• </ReviewDate>
-          {/* TODO 크러셔 라벨 등 붙이기 */}
+          <BadgedIcon />
+          {/* {review?.mobilityTool !== 'NONE' && (
+            <>
+              <ReviewDate>·</ReviewDate>
+              <UserMobilityLabel mobilityTool={review?.mobilityTool} />
+            </>
+          )} */}
         </HeaderLeft>
         <TouchableOpacity>
           <MoreIcon />
@@ -52,18 +58,24 @@ export default function PlaceToiletReviewItem({
                 {TOILET_LOCATION_TYPE_LABELS[review.toiletLocationType]}
               </ReviewInfoValue>
             </ReviewInfoRow>
-            <ReviewInfoRow>
-              <ReviewInfoLabel>층</ReviewInfoLabel>
-              <ReviewInfoValue>{review.floor}</ReviewInfoValue>
-            </ReviewInfoRow>
-            <ReviewInfoRow>
-              <ReviewInfoLabel>문유형</ReviewInfoLabel>
-              <ReviewInfoValue>
-                {review.entranceDoorTypes?.map(
-                  type => ENTRANCE_DOOR_TYPE_LABELS[type],
-                )}
-              </ReviewInfoValue>
-            </ReviewInfoRow>
+            {review.floor && (
+              <ReviewInfoRow>
+                <ReviewInfoLabel>층</ReviewInfoLabel>
+                <ReviewInfoValue>{review.floor}</ReviewInfoValue>
+              </ReviewInfoRow>
+            )}
+
+            {review.entranceDoorTypes &&
+              review.entranceDoorTypes?.length > 0 && (
+                <ReviewInfoRow>
+                  <ReviewInfoLabel>문유형</ReviewInfoLabel>
+                  <ReviewInfoValue>
+                    {review.entranceDoorTypes?.map(
+                      type => ENTRANCE_DOOR_TYPE_LABELS[type],
+                    )}
+                  </ReviewInfoValue>
+                </ReviewInfoRow>
+              )}
           </ReviewInfoColumn>
           {review.images && review.images.length > 0 && (
             <ImageList
