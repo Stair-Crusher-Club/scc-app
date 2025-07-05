@@ -17,7 +17,7 @@ export const SPACIOUS_TYPE_LABELS = {
 export const TOILET_LOCATION_TYPE_LABELS = {
   PLACE: '장소 내 있음',
   BUILDING: '건물 내 있음',
-  NONE: '잘 모르겠음',
+  NONE: '없음',
   NOT_SURE: '잘 모르겠음',
   ETC: '기타',
 };

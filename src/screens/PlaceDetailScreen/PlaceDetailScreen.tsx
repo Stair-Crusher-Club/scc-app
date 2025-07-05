@@ -22,6 +22,7 @@ import PlaceDetailBuildingSection from './sections/PlaceDetailBuildingSection';
 import PlaceDetailCoverImage from './sections/PlaceDetailCoverImage';
 import PlaceDetailEntranceSection from './sections/PlaceDetailEntranceSection';
 import {PlaceDetailFeedbackSection} from './sections/PlaceDetailFeedbackSection';
+import PlaceDetailRegisterToiletSection from './sections/PlaceDetailRegisterToiletSection';
 import PlaceDetailSummarySection from './sections/PlaceDetailSummarySection';
 
 export interface PlaceDetailScreenParams {
@@ -233,16 +234,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               </>
             )}
             {toiletPost && toiletPost.length > 0 && (
-              <>
-                <View ref={toiletSection} collapsable={false}>
-                  <PlaceDetailToiletSection
-                    toiletReviews={toiletPost}
-                    placeId={place.id}
-                  />
-                </View>
-                <S.SectionSeparator />
-              </>
+              <View ref={toiletSection} collapsable={false}>
+                <PlaceDetailToiletSection
+                  toiletReviews={toiletPost}
+                  placeId={place.id}
+                />
+              </View>
             )}
+            <S.SectionSeparator />
+            <PlaceDetailRegisterToiletSection place={place} />
+            <S.SectionSeparator />
             <View ref={buildingSection} collapsable={false}>
               <PlaceDetailBuildingSection
                 accessibility={accessibilityPost}
