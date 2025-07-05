@@ -176,12 +176,18 @@ export const MainNavigationScreens: {
       headerShown: true,
       headerTitle: '방문 후기 작성하기',
       variant: 'close',
+      gestureEnabled: false,
     },
   },
   {
     name: 'ReviewForm/Toilet',
     component: ToiletReviewFormScreen,
-    options: {headerShown: true, headerTitle: '화장실 후기 작성하기'},
+    options: {
+      headerShown: true,
+      headerTitle: '화장실 후기 작성하기',
+      variant: 'close',
+      gestureEnabled: false,
+    },
   },
 ];
 

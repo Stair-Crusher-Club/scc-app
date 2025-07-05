@@ -1,3 +1,4 @@
+import {useEffect} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
@@ -7,8 +8,10 @@ import Photos from '@/components/form/Photos';
 import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {makeDoorTypeOptions} from '@/constant/options';
-import {TOILET_LOCATION_TYPE_OPTIONS} from '@/constant/review';
+import {
+  DOOR_TYPE_OPTIONS,
+  TOILET_LOCATION_TYPE_OPTIONS,
+} from '@/constant/review';
 
 import FloorSelect from '../components/FloorSelect';
 import {FormValues} from '../views/ToiletReviewView';
@@ -17,13 +20,20 @@ import * as S from './common.style';
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 
 export default function ToiletSection({onSave}: {onSave: () => void}) {
-  const {watch} = useFormContext<FormValues>();
+  const {watch, formState, resetField} = useFormContext<FormValues>();
   const toiletLocationType = watch('toiletLocationType');
-  const doorTypes = watch('doorTypes');
 
   const isExist =
     toiletLocationType === 'PLACE' || toiletLocationType === 'BUILDING';
   const isVisibleTextarea = toiletLocationType === 'ETC' || isExist;
+
+  useEffect(() => {
+    if (!isExist) {
+      resetField('floor');
+      resetField('doorTypes');
+      resetField('toiletPhotos');
+    }
+  }, [toiletLocationType]);
 
   return (
     <S.Container style={{flex: 1, justifyContent: 'space-between'}}>
@@ -44,7 +54,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             }}>
             <Controller
               name="toiletLocationType"
-              rules={{required: true, validate: value => value.size > 0}}
+              rules={{required: true}}
               render={({field}) => (
                 <>
                   {TOILET_LOCATION_TYPE_OPTIONS.map(({label, value}) => (
@@ -71,6 +81,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               <Controller
                 name="floor"
                 rules={{
+                  required: isExist,
                   validate: v =>
                     v !== 0 && v !== 1
                       ? true
@@ -96,91 +107,94 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 }}>
                 <Controller
                   name="doorTypes"
-                  rules={{required: true, validate: value => value.size > 0}}
+                  rules={{
+                    required: isExist,
+                    validate: value => value.size > 0,
+                  }}
                   render={({field}) => (
                     <>
-                      {makeDoorTypeOptions(doorTypes).map(
-                        ({label, value}, idx) => {
-                          const isActive = field.value?.includes(value);
-
-                          return (
-                            <PressableChip
-                              key={value + idx}
-                              label={label}
-                              active={isActive}
-                              onPress={() => {
-                                const nextValue = isActive
-                                  ? field.value.filter(
-                                      (v: string) => v !== value,
-                                    )
-                                  : [...(field.value || []), value];
-
-                                field.onChange(nextValue);
-                              }}
-                            />
-                          );
-                        },
-                      )}
+                      {DOOR_TYPE_OPTIONS.map(({label, value}) => {
+                        return (
+                          <PressableChip
+                            key={value}
+                            label={label}
+                            active={field.value?.has(value)}
+                            onPress={() => {
+                              const newSet = new Set(field.value);
+                              if (newSet.has(value)) {
+                                newSet.delete(value);
+                              } else {
+                                newSet.add(value);
+                              }
+                              field.onChange(newSet);
+                            }}
+                          />
+                        );
+                      })}
                     </>
                   )}
                 />
               </View>
             </View>
-            <View style={{gap: 12}}>
-              <S.Question>
-                화장실 이용 경험 및 참고할점을 알려주세요.
-              </S.Question>
+          </>
+        )}
+        <View style={{gap: 12}}>
+          {isExist && (
+            <S.Question>화장실 이용 경험 및 참고할점을 알려주세요.</S.Question>
+          )}
+          {(isExist || isVisibleTextarea) && (
+            <View style={{gap: 8}}>
               <Controller
-                name="toiletPhotos"
-                rules={{required: false}}
+                name="comment"
                 render={({field}) => (
-                  <Photos
-                    value={field.value ?? []}
-                    onChange={field.onChange}
-                    target="place"
-                    maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
-                  />
+                  <>
+                    <TextInput
+                      multiline
+                      style={{
+                        color: color.black,
+                        fontSize: 16,
+                        fontFamily: font.pretendardRegular,
+                        paddingVertical: 0,
+                        textAlignVertical: 'top',
+                        minHeight: 160,
+                      }}
+                      value={field.value}
+                      maxLength={300}
+                      placeholder={
+                        toiletLocationType === 'ETC'
+                          ? '기타 사항을 작성해주세요.'
+                          : '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
+                      }
+                      placeholderTextColor={color.gray50}
+                      onChangeText={field.onChange}
+                    />
+                    <Text
+                      style={{
+                        alignSelf: 'flex-end',
+                        color: '#7A7A88',
+                      }}>
+                      {field.value?.length ?? 0}/300
+                    </Text>
+                  </>
                 )}
               />
             </View>
-          </>
-        )}
+          )}
+        </View>
 
-        {isVisibleTextarea && (
-          <View style={{gap: 8}}>
-            <Controller
-              name="comment"
-              render={({field}) => (
-                <>
-                  <TextInput
-                    multiline
-                    style={{
-                      color: color.black,
-                      fontSize: 16,
-                      fontFamily: font.pretendardRegular,
-                      paddingVertical: 0,
-                      textAlignVertical: 'top',
-                      minHeight: 160,
-                    }}
-                    value={field.value}
-                    maxLength={300}
-                    placeholder={
-                      '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
-                    }
-                    placeholderTextColor={color.gray50}
-                    onChangeText={field.onChange}
-                  />
-                  <Text
-                    style={{
-                      alignSelf: 'flex-end',
-                      color: '#7A7A88',
-                    }}>
-                    {field.value?.length ?? 0}/300
-                  </Text>
-                </>
-              )}
-            />
-          </View>
+        {isExist && (
+          <Controller
+            name="toiletPhotos"
+            rules={{required: false}}
+            render={({field}) => (
+              <Photos
+                value={field.value ?? []}
+                onChange={field.onChange}
+                target="place"
+                maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
+              />
+            )}
+          />
         )}
       </View>
 
@@ -196,6 +210,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             backgroundColor: color.brand,
           }}
           fontSize={18}
+          isDisabled={!formState.isValid}
           fontFamily={font.pretendardBold}
           onPress={onSave}
         />

@@ -2,14 +2,18 @@ import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
+import {ScrollView} from 'react-native';
 
 import {loadingState} from '@/components/LoadingView';
+import {
+  getMobilityToolDefaultValue,
+  UserMobilityToolMapDto,
+} from '@/constant/review';
 import {
   DefaultApi,
   Place,
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
-  UserMobilityToolDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useMe from '@/hooks/useMe';
@@ -25,7 +29,7 @@ import VisitorReviewSection from '../sections/VisitorReviewSection';
 import {SectionSeparator} from '../sections/common.style';
 
 export interface FormValues {
-  mobilityTool: UserMobilityToolDto;
+  mobilityTool: UserMobilityToolMapDto;
   recommendedMobilityTypes: Set<RecommendedMobilityTypeDto>;
   spaciousType?: SpaciousTypeDto;
   indoorPhotos: ImageFile[];
@@ -51,7 +55,7 @@ export default function IndoorReviewView({
   const [loading, setLoading] = useAtom(loadingState);
   const form = useForm<FormValues>({
     defaultValues: {
-      mobilityTool: userInfo?.mobilityTools[0],
+      mobilityTool: getMobilityToolDefaultValue(userInfo?.mobilityTools),
       recommendedMobilityTypes: new Set(),
       spaciousType: undefined,
       comment: '',
@@ -88,19 +92,23 @@ export default function IndoorReviewView({
 
   return (
     <FormProvider {...form}>
-      <PlaceInfoSection name={place?.name} address={place?.address} />
-      <SectionSeparator />
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{flexGrow: 1}}>
+        <PlaceInfoSection name={place?.name} address={place?.address} />
+        <SectionSeparator />
 
-      <UserTypeSection />
-      <SectionSeparator />
+        <UserTypeSection />
+        <SectionSeparator />
 
-      <VisitorReviewSection />
-      <SectionSeparator />
+        <VisitorReviewSection />
+        <SectionSeparator />
 
-      <IndoorInfoSection
-        onSave={form.handleSubmit(onValid)}
-        onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
-      />
+        <IndoorInfoSection
+          onSave={form.handleSubmit(onValid)}
+          onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
+        />
+      </ScrollView>
     </FormProvider>
   );
 }

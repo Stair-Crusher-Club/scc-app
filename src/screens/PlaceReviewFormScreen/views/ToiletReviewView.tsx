@@ -2,6 +2,7 @@ import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
+import {ScrollView} from 'react-native';
 
 import {loadingState} from '@/components/LoadingView';
 import {
@@ -28,7 +29,7 @@ interface ToiletReviewViewProps {
 export interface FormValues {
   toiletLocationType: ToiletLocationTypeDto;
   floor: number;
-  doorTypes: EntranceDoorType[];
+  doorTypes: Set<EntranceDoorType>;
   toiletPhotos: ImageFile[];
   comment: string;
 }
@@ -42,8 +43,8 @@ export default function ToiletReviewView({
 
   const form = useForm<FormValues>({
     defaultValues: {
-      floor: 1,
-      doorTypes: [],
+      floor: 2,
+      doorTypes: new Set(),
       toiletPhotos: [],
       comment: '',
     },
@@ -72,9 +73,13 @@ export default function ToiletReviewView({
 
   return (
     <FormProvider {...form}>
-      <PlaceInfoSection name={place?.name} address={place?.address} />
-      <SectionSeparator />
-      <ToiletSection onSave={form.handleSubmit(onValid)} />
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{flexGrow: 1}}>
+        <PlaceInfoSection name={place?.name} address={place?.address} />
+        <SectionSeparator />
+        <ToiletSection onSave={form.handleSubmit(onValid)} />
+      </ScrollView>
     </FormProvider>
   );
 }
@@ -90,7 +95,7 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
       await api.registerToiletReviewPost({
         placeId,
         toiletLocationType: values.toiletLocationType,
-        entranceDoorTypes: values.doorTypes,
+        entranceDoorTypes: [...values.doorTypes],
         comment: values.comment,
         imageUrls: images,
       });

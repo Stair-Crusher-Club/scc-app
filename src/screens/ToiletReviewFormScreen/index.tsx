@@ -1,5 +1,4 @@
 import {useQuery} from '@tanstack/react-query';
-import {ScrollView} from 'react-native-gesture-handler';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {Building, Place} from '@/generated-sources/openapi';
@@ -27,6 +26,11 @@ export default function ToiletReviewFormScreen({
   });
 
   function gotoPlaceDetail() {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
     navigation.replace('PlaceDetail', {
       placeInfo: {
         placeId: data?.place?.id!,
@@ -37,12 +41,10 @@ export default function ToiletReviewFormScreen({
   return (
     <LogParamsProvider params={{placeId}}>
       <ScreenLayout isHeaderVisible={true}>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-          <ToiletReviewView
-            place={data?.place}
-            gotoPlaceDetail={gotoPlaceDetail}
-          />
-        </ScrollView>
+        <ToiletReviewView
+          place={data?.place}
+          gotoPlaceDetail={gotoPlaceDetail}
+        />
       </ScreenLayout>
     </LogParamsProvider>
   );

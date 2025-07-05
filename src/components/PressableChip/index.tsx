@@ -11,26 +11,46 @@ interface ChipProps extends PressableProps {
 export default function PressableChip({
   label,
   active = false,
+  disabled = false,
   ...props
 }: ChipProps) {
   return (
     <Pressable
-      style={{
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 48,
-        borderWidth: 1,
-        borderColor: active ? color.brand : '#DCDEE3',
-        backgroundColor: active ? '#EBF5FF' : color.white,
-      }}
+      style={[
+        {
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          borderRadius: 48,
+          borderWidth: 1,
+          borderColor: '#DCDEE3',
+          backgroundColor: color.white,
+        },
+        active && {
+          borderColor: color.brand,
+          backgroundColor: '#EBF5FF',
+        },
+        disabled && {
+          borderColor: color.gray20,
+          backgroundColor: color.gray10,
+        },
+      ]}
+      disabled={disabled}
       {...props}>
       <Text
-        style={{
-          fontSize: 14,
-          lineHeight: 20,
-          fontFamily: font.pretendardRegular,
-          color: active ? color.brand : color.black,
-        }}>
+        style={[
+          {
+            fontSize: 14,
+            lineHeight: 20,
+            fontFamily: font.pretendardRegular,
+            color: color.black,
+          },
+          active && {
+            color: color.brand,
+          },
+          disabled && {
+            color: color.gray40,
+          },
+        ]}>
         {label}
       </Text>
     </Pressable>
