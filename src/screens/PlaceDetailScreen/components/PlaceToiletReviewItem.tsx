@@ -28,6 +28,9 @@ export default function PlaceToiletReviewItem({
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
           <BadgedIcon />
+          <ReviewDate />
+
+          {/* TODO: 등록자 이동수단 데이터 가져오기 */}
           {/* {review?.mobilityTool !== 'NONE' && (
             <>
               <ReviewDate>·</ReviewDate>
