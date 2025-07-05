@@ -103,8 +103,8 @@ export const TOILET_LOCATION_TYPE_LABELS: Record<
   ToiletLocationTypeDtoWithoutNotSure,
   string
 > = {
-  [ToiletLocationTypeDto.Building]: '건물 내 있음',
   [ToiletLocationTypeDto.Place]: '매장 내부에 있음',
+  [ToiletLocationTypeDto.Building]: '건물 내 있음',
   [ToiletLocationTypeDto.None]: '없음',
   [ToiletLocationTypeDto.Etc]: '기타',
 };

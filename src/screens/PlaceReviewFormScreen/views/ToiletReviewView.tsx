@@ -92,12 +92,16 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
       'TOILET_REVIEW',
     );
     try {
+      const isNoneOrEtc =
+        values.toiletLocationType === 'NONE' ||
+        values.toiletLocationType === 'ETC';
       await api.registerToiletReviewPost({
         placeId,
         toiletLocationType: values.toiletLocationType,
         entranceDoorTypes: [...values.doorTypes],
         comment: values.comment,
         imageUrls: images,
+        floor: isNoneOrEtc ? undefined : values.floor,
       });
       return true;
     } catch (error: any) {
