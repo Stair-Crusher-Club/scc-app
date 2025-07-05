@@ -26,6 +26,7 @@ export default function ScrollNavigation({
     height: 0,
   });
   const activeMenuIndex = findActiveIndex(scrollY + navLayout.height, scrollYs);
+  console.log('activeMenuIndex', activeMenuIndex);
   const activeMenu = menus[activeMenuIndex];
   const edgeBackingTop = scrollY + navLayout.height - scrollYs[0];
 
@@ -84,5 +85,8 @@ export default function ScrollNavigation({
 function findActiveIndex(scrollY: number, scrollYs: number[]) {
   const reversed = [...scrollYs].reverse();
   const index = reversed.findIndex(y => y <= scrollY);
+  if (index === -1) {
+    return 0;
+  }
   return scrollYs.length - index - 1;
 }

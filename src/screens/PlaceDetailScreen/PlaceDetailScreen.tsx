@@ -11,7 +11,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
-import PlaceDetailRegisterIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
+import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 
 import * as S from './PlaceDetailScreen.style';
@@ -145,6 +145,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
   const hasIndoorSection = reviewPost && reviewPost.length > 0;
   const hasToiletSection = toiletPost && toiletPost.length > 0;
+  const shouldNudgeToiletReview = !(toiletPost && toiletPost.length > 1);
+  const shouldNudgePlaceReview = !(reviewPost && reviewPost.length > 1);
+
   const menus = [{label: '입구 접근성', ref: entranceSection}]
     .concat(hasIndoorSection ? [{label: '이용 정보', ref: indoorSection}] : [])
     .concat(hasToiletSection ? [{label: '화장실', ref: toiletSection}] : [])
@@ -201,8 +204,35 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <S.SectionSeparator />
               </>
             )}
-            <PlaceDetailRegisterIndoorSection place={place} />
-            <S.SectionSeparator />
+            {shouldNudgePlaceReview && (
+              <>
+                <PlaceDetailRegisterButtonSection
+                  subTitle={`${place.name} 에 방문하셨나요?`}
+                  title="방문 리뷰를 남겨주세요"
+                  buttonText="방문 리뷰를 남겨주세요"
+                  onPress={() => {
+                    navigation.navigate('ReviewForm/Place', {
+                      placeId: place.id,
+                    });
+                  }}
+                />
+                <S.SectionSeparator />
+              </>
+            )}
+            {shouldNudgeToiletReview && (
+              <>
+                <PlaceDetailRegisterButtonSection
+                  title="화장실 정보를 남겨주세요"
+                  buttonText="화장실 정보를 남겨주세요"
+                  onPress={() => {
+                    navigation.navigate('ReviewForm/Toilet', {
+                      placeId: place.id,
+                    });
+                  }}
+                />
+                <S.SectionSeparator />
+              </>
+            )}
             {toiletPost && toiletPost.length > 0 && (
               <View ref={toiletSection} collapsable={false}>
                 <PlaceDetailToiletSection

@@ -22,7 +22,7 @@ export default function PlaceIndoorInfo({reviews}: Props) {
   ];
   const features = [...new Set(reviews.flatMap(review => review.features))];
   return (
-    <View style={{flex: 1, gap: 20}}>
+    <View style={{gap: 20}}>
       <View
         style={{
           flexDirection: 'row',

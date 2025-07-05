@@ -4,7 +4,6 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {PlaceListItem} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
@@ -30,17 +29,13 @@ export default function FavoriteListView() {
       },
       initialPageParam: undefined as string | undefined,
     });
-
-  // TODO: api yaml 업데이트
-  const places = data?.pages.flatMap(
-    page => (page.items as unknown as PlaceListItem[]) ?? [],
-  );
+  const places = data?.pages.flatMap(page => page.items ?? []) ?? [];
 
   return (
     <>
       {isLoading ? (
         <SearchLoading />
-      ) : places?.length === 0 ? (
+      ) : places.length === 0 ? (
         <FavoriteNoResult />
       ) : (
         <ListContainer>
