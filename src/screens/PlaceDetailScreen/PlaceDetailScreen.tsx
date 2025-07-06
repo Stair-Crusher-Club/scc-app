@@ -145,7 +145,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
   const hasIndoorSection = reviewPost && reviewPost.length > 0;
   const hasToiletSection = toiletPost && toiletPost.length > 0;
-  const shouldNudgeToiletReview = !(toiletPost && toiletPost.length > 1);
   const shouldNudgePlaceReview = !(reviewPost && reviewPost.length > 1);
 
   const menus = [{label: '입구 접근성', ref: entranceSection}]
@@ -219,29 +218,17 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <S.SectionSeparator />
               </>
             )}
-            {shouldNudgeToiletReview && (
+            {toiletPost && toiletPost.length > 0 && (
               <>
-                <PlaceDetailRegisterButtonSection
-                  title="화장실 정보를 남겨주세요"
-                  buttonText="화장실 정보를 남겨주세요"
-                  onPress={() => {
-                    navigation.navigate('ReviewForm/Toilet', {
-                      placeId: place.id,
-                    });
-                  }}
-                />
+                <View ref={toiletSection} collapsable={false}>
+                  <PlaceDetailToiletSection
+                    toiletReviews={toiletPost}
+                    placeId={place.id}
+                  />
+                </View>
                 <S.SectionSeparator />
               </>
             )}
-            {toiletPost && toiletPost.length > 0 && (
-              <View ref={toiletSection} collapsable={false}>
-                <PlaceDetailToiletSection
-                  toiletReviews={toiletPost}
-                  placeId={place.id}
-                />
-              </View>
-            )}
-            <S.SectionSeparator />
             <PlaceDetailRegisterToiletSection place={place} />
             <S.SectionSeparator />
             <View ref={buildingSection} collapsable={false}>
