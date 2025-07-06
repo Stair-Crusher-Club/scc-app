@@ -9,6 +9,13 @@ export const InfoWrapper = styled.View`
   gap: 8px;
 `;
 
+export const TextWrapper = styled.View`
+  flex-grow: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+`;
+
 export const LabelText = styled.Text`
   margin-top: 3px;
   font-family: ${font.pretendardMedium};
