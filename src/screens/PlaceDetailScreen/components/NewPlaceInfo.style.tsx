@@ -10,9 +10,9 @@ export const InfoWrapper = styled.View`
 `;
 
 export const TextWrapper = styled.View`
+  flex-grow: 1;
   flex-direction: column;
   align-items: flex-start;
-  flex-shrink: 1;
   gap: 2px;
 `;
 
@@ -25,8 +25,9 @@ export const LabelText = styled.Text`
 `;
 
 export const ContentText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 14px;
+  flex: 1;
+  font-family: ${font.pretendardMedium};
+  font-size: 15px;
   line-height: 22px;
   color: ${color.gray90};
 `;

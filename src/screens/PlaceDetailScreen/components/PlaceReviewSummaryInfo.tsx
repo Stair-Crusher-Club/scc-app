@@ -160,8 +160,8 @@ const FooterRow = styled.View`
 
 const FooterDate = styled.Text`
   font-family: ${font.pretendardRegular};
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 13px;
+  line-height: 18px;
   color: ${color.gray50};
 `;
 
@@ -196,7 +196,7 @@ const TextBoxContainer = styled.View<{
   shape?: 'thin' | 'flat' | 'normal';
 }>`
   padding: ${({shape}) =>
-    shape === 'thin' ? '5px 12px' : shape === 'flat' ? '12px' : '12px'};
+    shape === 'thin' ? '8px 12px' : shape === 'flat' ? '12px' : '12px'};
   flex-grow: 1;
   background-color: ${({level}) =>
     level === 'high'
@@ -240,10 +240,10 @@ const TextBoxContent = styled.Text<{
 
 // 이동수단 타입 한글 라벨 매핑
 const MOBILITY_TYPE_LABELS: Record<string, string> = {
-  MANUAL_WHEELCHAIR: '수동휠체어\n사용 추천',
-  ELECTRIC_WHEELCHAIR: '전동휠체어\n사용 추천',
-  STROLLER: '유아차 휠체어\n사용 추천',
-  ELDERLY: '고령자\n사용 추천',
+  MANUAL_WHEELCHAIR: '수동휠체어\n사용자',
+  ELECTRIC_WHEELCHAIR: '전동휠체어\n사용자',
+  STROLLER: '유아차 휠체어\n사용자',
+  ELDERLY: '고령자',
   NOT_SURE: '잘 모르겠음',
   NONE: '추천하지 않음',
 };
