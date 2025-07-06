@@ -22,7 +22,6 @@ import PlaceDetailBuildingSection from './sections/PlaceDetailBuildingSection';
 import PlaceDetailCoverImage from './sections/PlaceDetailCoverImage';
 import PlaceDetailEntranceSection from './sections/PlaceDetailEntranceSection';
 import {PlaceDetailFeedbackSection} from './sections/PlaceDetailFeedbackSection';
-import PlaceDetailRegisterToiletSection from './sections/PlaceDetailRegisterToiletSection';
 import PlaceDetailSummarySection from './sections/PlaceDetailSummarySection';
 
 export interface PlaceDetailScreenParams {
@@ -143,13 +142,24 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     return null;
   }
 
-  const hasIndoorSection = reviewPost && reviewPost.length > 0;
-  const hasToiletSection = toiletPost && toiletPost.length > 0;
-  const shouldNudgePlaceReview = !(reviewPost && reviewPost.length > 1);
+  const isPlaceReviewContentVisible = reviewPost && reviewPost.length > 0;
+  const isToiletReviewContentVisible = toiletPost && toiletPost.length > 0;
+  const isToiletReviewNudgeVisible = !(toiletPost && toiletPost.length > 1);
+  const isPlaceReviewNudgeVisible = !(reviewPost && reviewPost.length > 1);
+  const isFeedbackSectionVisible =
+    accessibilityPost && accessibilityPost?.placeAccessibility;
 
   const menus = [{label: '입구 접근성', ref: entranceSection}]
-    .concat(hasIndoorSection ? [{label: '이용 정보', ref: indoorSection}] : [])
-    .concat(hasToiletSection ? [{label: '화장실', ref: toiletSection}] : [])
+    .concat(
+      isPlaceReviewContentVisible
+        ? [{label: '이용 정보', ref: indoorSection}]
+        : [],
+    )
+    .concat(
+      isToiletReviewContentVisible
+        ? [{label: '화장실', ref: toiletSection}]
+        : [],
+    )
     .concat([{label: '건물 정보', ref: buildingSection}]);
 
   return (
@@ -192,7 +202,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               />
             </View>
             <S.SectionSeparator />
-            {reviewPost && reviewPost.length > 0 && (
+            {isPlaceReviewContentVisible && (
               <>
                 <View ref={indoorSection} collapsable={false}>
                   <PlaceDetailIndoorSection
@@ -203,7 +213,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <S.SectionSeparator />
               </>
             )}
-            {shouldNudgePlaceReview && (
+            {isPlaceReviewNudgeVisible && (
               <>
                 <PlaceDetailRegisterButtonSection
                   subTitle={`${place.name} 에 방문하셨나요?`}
@@ -218,7 +228,21 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <S.SectionSeparator />
               </>
             )}
-            {toiletPost && toiletPost.length > 0 && (
+            {isToiletReviewNudgeVisible && (
+              <>
+                <PlaceDetailRegisterButtonSection
+                  title="화장실 정보를 남겨주세요"
+                  buttonText="화장실 정보를 남겨주세요"
+                  onPress={() => {
+                    navigation.navigate('ReviewForm/Toilet', {
+                      placeId: place.id,
+                    });
+                  }}
+                />
+                <S.SectionSeparator />
+              </>
+            )}
+            {isToiletReviewContentVisible && (
               <>
                 <View ref={toiletSection} collapsable={false}>
                   <PlaceDetailToiletSection
@@ -229,8 +253,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <S.SectionSeparator />
               </>
             )}
-            <PlaceDetailRegisterToiletSection place={place} />
-            <S.SectionSeparator />
             <View ref={buildingSection} collapsable={false}>
               <PlaceDetailBuildingSection
                 accessibility={accessibilityPost}
@@ -239,7 +261,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
               />
             </View>
-            {accessibilityPost && accessibilityPost?.placeAccessibility && (
+            {isFeedbackSectionVisible && (
               <>
                 <S.SectionSeparator />
                 <PlaceDetailFeedbackSection accessibility={accessibilityPost} />

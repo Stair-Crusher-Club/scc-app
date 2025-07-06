@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import React from 'react';
 import {useState} from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
@@ -27,16 +28,7 @@ export default function PlaceToiletReviewItem({
       <HeaderRow>
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
-          <BadgedIcon />
-          <ReviewDate />
-
-          {/* TODO: 등록자 이동수단 데이터 가져오기 */}
-          {/* {review?.mobilityTool !== 'NONE' && (
-            <>
-              <ReviewDate>·</ReviewDate>
-              <UserMobilityLabel mobilityTool={review?.mobilityTool} />
-            </>
-          )} */}
+          {review.user?.isClubMember && <BadgedIcon />}
         </HeaderLeft>
         <TouchableOpacity>
           <MoreIcon />
@@ -125,12 +117,6 @@ const ReviewerName = styled.Text`
   line-height: 22px;
   font-family: ${font.pretendardBold};
   color: ${color.gray100};
-`;
-const ReviewDate = styled.Text`
-  font-size: 11px;
-  line-height: 14px;
-  font-family: ${font.pretendardRegular};
-  color: ${color.gray50};
 `;
 const ReviewContentColumn = styled.View`
   flex-direction: column;

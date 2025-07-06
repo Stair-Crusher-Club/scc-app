@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import React from 'react';
 import {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
@@ -25,11 +26,11 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
       <HeaderRow>
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
-          <BadgedIcon />
-          {review?.mobilityTool !== 'NONE' && (
+          {review.user?.isClubMember && <BadgedIcon />}
+          {review.mobilityTool !== 'NONE' && (
             <>
               <ReviewDate>·</ReviewDate>
-              <UserMobilityLabel mobilityTool={review?.mobilityTool} />
+              <UserMobilityLabel mobilityTool={review.mobilityTool} />
             </>
           )}
         </HeaderLeft>
