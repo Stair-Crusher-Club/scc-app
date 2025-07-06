@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import React, {useMemo} from 'react';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -32,6 +33,8 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
   if (reviews.length === 0) {
     return null;
   }
+
+  const spaciousTypeMax = Math.max(...spaciousTypeCounts.map(s => s.count));
 
   return (
     <Container>
@@ -78,12 +81,13 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
         <SectionTitle>내부공간</SectionTitle>
         <TextBoxThinRow>
           {spaciousTypeCounts.map(item => (
-            <TextBox
+            <SpaciousTextBox
               key={item.label}
               label={item.label}
               content={`${item.count}명`}
               level={item.level}
               shape="thin"
+              filledRatio={item.count / spaciousTypeMax}
             />
           ))}
         </TextBoxThinRow>
@@ -190,6 +194,58 @@ const TextBox: React.FC<{
     </TextBoxContent>
   </TextBoxContainer>
 );
+
+const SpaciousTextBox: React.FC<{
+  label: string;
+  content: string;
+  level?: 'high' | 'medium' | 'low';
+  shape?: 'thin' | 'flat' | 'normal';
+  filledRatio?: number; // 0 ~ 1
+}> = ({label, content, level, shape, filledRatio = 1}) => {
+  const background =
+    level === 'high'
+      ? color.brand10
+      : level === 'medium'
+      ? color.brand5
+      : color.gray10;
+
+  return (
+    <View
+      style={{
+        backgroundColor: color.gray10,
+        borderRadius: 12,
+        overflow: 'hidden',
+      }}>
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          height: '100%',
+          width: `${Math.min(Math.max(filledRatio, 0), 1) * 100}%`,
+          backgroundColor: background,
+          borderRadius: 12,
+        }}
+      />
+      <View
+        style={{
+          paddingVertical: shape === 'thin' ? 8 : 12,
+          paddingHorizontal: 12,
+          flexGrow: 1,
+          flexDirection:
+            shape === 'thin' || shape === 'flat' ? 'row' : 'column',
+          alignItems: 'center',
+          justifyContent: shape === 'thin' ? 'space-between' : 'center',
+          gap: 4,
+        }}>
+        <TextBoxLabel>{label}</TextBoxLabel>
+        <TextBoxContent level={level} shape={shape}>
+          {content}
+        </TextBoxContent>
+      </View>
+    </View>
+  );
+};
 
 const TextBoxContainer = styled.View<{
   level?: 'high' | 'medium' | 'low';
