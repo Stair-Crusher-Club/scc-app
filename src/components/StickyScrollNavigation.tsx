@@ -26,7 +26,6 @@ export default function ScrollNavigation({
     height: 0,
   });
   const activeMenuIndex = findActiveIndex(scrollY + navLayout.height, scrollYs);
-  console.log('activeMenuIndex', activeMenuIndex);
   const activeMenu = menus[activeMenuIndex];
   const edgeBackingTop = scrollY + navLayout.height - scrollYs[0];
 
