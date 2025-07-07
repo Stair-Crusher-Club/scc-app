@@ -11,6 +11,7 @@ import {
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 import * as SS from '../sections/PlaceDetailEntranceSection.style';
 
@@ -21,6 +22,8 @@ interface Props {
 
 export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
   const navigation = useNavigation();
+  const checkAuth = useCheckAuth();
+
   const mobilityTypeCounts = useMemo(
     () => countMobilityTypes(reviews),
     [reviews],
@@ -44,11 +47,13 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
         <ReviewButton
-          onPress={() => {
-            navigation.navigate('ReviewForm/Place', {
-              placeId,
-            });
-          }}>
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Place', {
+                placeId,
+              });
+            })
+          }>
           <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
         </ReviewButton>
       </HeaderRow>
