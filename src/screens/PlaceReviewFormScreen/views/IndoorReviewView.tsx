@@ -1,3 +1,4 @@
+import {QueryClient, useQueryClient} from '@tanstack/react-query';
 import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
@@ -51,6 +52,7 @@ export default function IndoorReviewView({
   setReviewTypeToToilet,
 }: IndoorReviewViewProps) {
   const {api} = useAppComponents();
+  const queryClient = useQueryClient();
   const {userInfo} = useMe();
   const [loading, setLoading] = useAtom(loadingState);
   const form = useForm<FormValues>({
@@ -77,7 +79,12 @@ export default function IndoorReviewView({
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, true));
-        const registered = await register(api, place?.id!, values);
+        const registered = await register({
+          api,
+          queryClient,
+          placeId: place?.id!,
+          values,
+        });
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, false));
 
         if (!registered) {
@@ -113,7 +120,17 @@ export default function IndoorReviewView({
   );
 }
 
-async function register(api: DefaultApi, placeId: string, values: FormValues) {
+async function register({
+  api,
+  queryClient,
+  placeId,
+  values,
+}: {
+  api: DefaultApi;
+  queryClient: QueryClient;
+  placeId: string;
+  values: FormValues;
+}) {
   try {
     const images = await ImageFileUtils.uploadImages(
       api,
@@ -131,6 +148,9 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
         orderMethods: [...values.orderMethods],
         features: [...values.features],
         imageUrls: images,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail', placeId, 'Review'],
       });
       return true;
     } catch (error: any) {
