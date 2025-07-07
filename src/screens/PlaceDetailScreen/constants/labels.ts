@@ -24,8 +24,8 @@ export const TOILET_LOCATION_TYPE_LABELS = {
 
 export const ENTRANCE_DOOR_TYPE_LABELS = {
   None: '없음',
-  Hinged: '회전문',
-  Sliding: '슬라이딩문',
+  Hinged: '여닫이문',
+  Sliding: '미닫이문',
   Revolving: '회전문',
   Automatic: '자동문',
   ETC: '기타',
