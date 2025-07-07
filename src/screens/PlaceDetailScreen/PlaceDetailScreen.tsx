@@ -144,10 +144,17 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     return null;
   }
 
-  const isPlaceReviewContentVisible = reviewPost && reviewPost.length > 0;
-  const isToiletReviewContentVisible = toiletPost && toiletPost.length > 0;
-  const isToiletReviewNudgeVisible = !(toiletPost && toiletPost.length > 1);
-  const isPlaceReviewNudgeVisible = !(reviewPost && reviewPost.length > 1);
+  const isReviewEnabledCategory =
+    data.place?.category === 'RESTAURANT' || data.place?.category === 'CAFE';
+
+  const isPlaceReviewContentVisible =
+    isReviewEnabledCategory && reviewPost && reviewPost.length > 0;
+  const isToiletReviewContentVisible =
+    isReviewEnabledCategory && toiletPost && toiletPost.length > 0;
+  const isToiletReviewNudgeVisible =
+    isReviewEnabledCategory && !(toiletPost && toiletPost.length > 1);
+  const isPlaceReviewNudgeVisible =
+    isReviewEnabledCategory && !(reviewPost && reviewPost.length > 1);
   const isFeedbackSectionVisible =
     accessibilityPost && accessibilityPost?.placeAccessibility;
 
