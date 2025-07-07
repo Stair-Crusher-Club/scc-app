@@ -94,7 +94,6 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               <S.Question>
                 <Text style={{color: color.red}}>* </Text>출입문 유형을
                 알려주세요.
-                <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
               </S.Question>
               <View
                 style={{
@@ -107,7 +106,6 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                   name="doorTypes"
                   rules={{
                     required: isExist,
-                    validate: value => value.size > 0,
                   }}
                   render={({field}) => (
                     <>
@@ -116,16 +114,8 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                           <PressableChip
                             key={value}
                             label={label}
-                            active={field.value?.has(value)}
-                            onPress={() => {
-                              const newSet = new Set(field.value);
-                              if (newSet.has(value)) {
-                                newSet.delete(value);
-                              } else {
-                                newSet.add(value);
-                              }
-                              field.onChange(newSet);
-                            }}
+                            active={field.value === value}
+                            onPress={() => field.onChange(value)}
                           />
                         );
                       })}
