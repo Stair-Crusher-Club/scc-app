@@ -83,9 +83,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 rules={{
                   required: isExist,
                   validate: v =>
-                    v !== 0 && v !== 1
-                      ? true
-                      : '층 정보 : 0층이나 1층은 입력할 수 없습니다.',
+                    v !== 0 ? true : '층 정보 : 0층은 입력할 수 없습니다.',
                 }}
                 render={({field}) => (
                   <FloorSelect value={field.value} onChange={field.onChange} />
