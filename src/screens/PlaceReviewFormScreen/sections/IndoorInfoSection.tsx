@@ -3,38 +3,17 @@ import {Text, View} from 'react-native';
 
 import PressableChip from '@/components/PressableChip';
 import {SccButton} from '@/components/atoms';
+import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
+import {
+  ACCESSIBILITY_FEATURE_OPTIONS,
+  ORDER_METHOD_OPTIONS,
+  SEAT_TYPE_OPTIONS,
+} from '../constants';
+import {FormValues} from '../views/IndoorReviewView';
 import * as S from './common.style';
-
-const seatingTypes = [
-  '일반 테이블 좌석 (의자 이동 가능)',
-  '바닥 좌석 (방석, 온돌 등)',
-  '높은 테이블 좌석(바/카운터석)',
-  '소파석',
-  '고정된 의자, 벤치형',
-  '야외 테라스석',
-  '기타',
-];
-
-const orderMethods = [
-  '카운터 방문주문',
-  '키오스크 주문',
-  '베리어프리 키오스크 주문',
-  '테이블 오더 주문',
-  '자리에서 직원에게 질문',
-];
-
-const accessibilityFeatures = [
-  '휠체어 이용 가능한 좌석 수 3개 이상',
-  '직원 도움 없이 이동 가능',
-  '바닥에 턱/장애물 없음',
-  '혼잡한 시간대 주의 필요',
-  '아이 식기, 의자 있음',
-  '반려동물 동반 가능',
-  '비건메뉴 있음',
-];
 
 export default function IndoorInfoSection({
   onSave,
@@ -43,7 +22,8 @@ export default function IndoorInfoSection({
   onSave: () => void;
   onSaveAndToiletReview: () => void;
 }) {
-  const {formState} = useFormContext();
+  const {formState, watch} = useFormContext<FormValues>();
+  const seatTypes = watch('seatTypes');
 
   return (
     <S.Container>
@@ -68,7 +48,7 @@ export default function IndoorInfoSection({
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
-                  {seatingTypes.map((label, idx) => (
+                  {SEAT_TYPE_OPTIONS.map((label, idx) => (
                     <PressableChip
                       key={label + idx}
                       label={label}
@@ -88,6 +68,41 @@ export default function IndoorInfoSection({
               )}
             />
           </View>
+
+          {seatTypes.has('기타') && (
+            <View style={{gap: 8}}>
+              <Controller
+                name="seatComment"
+                render={({field}) => (
+                  <>
+                    <TextInput
+                      multiline
+                      style={{
+                        color: color.black,
+                        fontSize: 16,
+                        fontFamily: font.pretendardRegular,
+                        paddingVertical: 0,
+                        textAlignVertical: 'top',
+                        minHeight: 160,
+                      }}
+                      value={field.value}
+                      maxLength={300}
+                      placeholder={'다른 유형의 좌석이 있다면 알려주세요!'}
+                      placeholderTextColor={color.gray40}
+                      onChangeText={field.onChange}
+                    />
+                    <Text
+                      style={{
+                        alignSelf: 'flex-end',
+                        color: '#7A7A88',
+                      }}>
+                      {field.value?.length ?? 0}/300
+                    </Text>
+                  </>
+                )}
+              />
+            </View>
+          )}
         </View>
 
         <View style={{gap: 12}}>
@@ -108,7 +123,7 @@ export default function IndoorInfoSection({
               rules={{required: true, validate: value => value.size > 0}}
               render={({field}) => (
                 <>
-                  {orderMethods.map((label, idx) => (
+                  {ORDER_METHOD_OPTIONS.map((label, idx) => (
                     <PressableChip
                       key={label + idx}
                       label={label}
@@ -147,7 +162,7 @@ export default function IndoorInfoSection({
               name="features"
               render={({field}) => (
                 <>
-                  {accessibilityFeatures.map((label, idx) => (
+                  {ACCESSIBILITY_FEATURE_OPTIONS.map((label, idx) => (
                     <PressableChip
                       key={label + idx}
                       label={label}

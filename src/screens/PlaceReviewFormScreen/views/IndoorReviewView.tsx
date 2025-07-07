@@ -36,6 +36,7 @@ export interface FormValues {
   indoorPhotos: ImageFile[];
   comment: string;
   seatTypes: Set<string>;
+  seatComment: string;
   orderMethods: Set<string>;
   features: Set<string>;
 }
@@ -62,6 +63,7 @@ export default function IndoorReviewView({
       spaciousType: undefined,
       comment: '',
       seatTypes: new Set(),
+      seatComment: '',
       orderMethods: new Set(),
       features: new Set(),
     },
@@ -138,6 +140,7 @@ async function register({
       'PLACE_REVIEW',
     );
     try {
+      // TODO: 좌석 기타에 대한 comment 추가
       await api.registerPlaceReviewPost({
         placeId,
         mobilityTool: values.mobilityTool,
