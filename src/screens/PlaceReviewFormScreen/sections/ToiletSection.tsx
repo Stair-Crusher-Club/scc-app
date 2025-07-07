@@ -95,7 +95,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             <View style={{gap: 12}}>
               <S.Question>
                 <Text style={{color: color.red}}>* </Text>출입문 유형을
-                알려주세요
+                알려주세요.
                 <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
               </S.Question>
               <View
@@ -140,7 +140,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         )}
         <View style={{gap: 12}}>
           {isExist && (
-            <S.Question>화장실 이용 경험 및 참고할점을 알려주세요.</S.Question>
+            <S.Question>화장실 이용 시 참고할 점을 알려주세요.</S.Question>
           )}
           {(isExist || isVisibleTextarea) && (
             <View style={{gap: 8}}>
@@ -163,7 +163,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                       placeholder={
                         toiletLocationType === 'ETC'
                           ? '기타 사항을 작성해주세요.'
-                          : '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
+                          : '화장실 넓이, 세면대 높이, 청결도 등을 알려주시면 도움이 됩니다.'
                       }
                       placeholderTextColor={color.gray50}
                       onChangeText={field.onChange}

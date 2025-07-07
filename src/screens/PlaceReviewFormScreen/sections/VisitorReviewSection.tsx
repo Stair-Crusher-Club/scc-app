@@ -26,7 +26,8 @@ export default function VisitorReviewSection() {
       <View style={{gap: 36}}>
         <View style={{gap: 12}}>
           <S.Question>
-            <Text style={{color: color.red}}>* </Text>누구에게 추천하시나요?
+            <Text style={{color: color.red}}>* </Text>이 장소를 누구에게
+            추천하고 싶으신가요?
             <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
           </S.Question>
           {/* Chip */}
@@ -69,8 +70,8 @@ export default function VisitorReviewSection() {
 
         <View style={{gap: 12}}>
           <S.Question>
-            <Text style={{color: color.red}}>* </Text>내부 공간 휠체어, 유아차로
-            이용하기 여유롭나요?
+            <Text style={{color: color.red}}>* </Text>내부 공간, 휠체어나
+            유아차로 이용하기에 여유로운가요?
           </S.Question>
           {/* Chip */}
           <View style={{alignItems: 'flex-start', gap: 8}}>
@@ -126,7 +127,7 @@ export default function VisitorReviewSection() {
                     value={field.value}
                     maxLength={300}
                     placeholder={
-                      '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
+                      '편리했던 점이나 아쉬웠던 점을 자유롭게 적어주세요!'
                     }
                     placeholderTextColor={color.gray40}
                     onChangeText={field.onChange}

@@ -9,13 +9,12 @@ import {font} from '@/constant/font';
 import * as S from './common.style';
 
 const seatingTypes = [
-  '입식',
-  '좌식(신발 벗고 앉는 구조)',
-  '바테이블',
-  '카운터석(낮음)',
-  '카운터석(높음)',
-  '고정좌석',
-  '테라스석',
+  '일반 테이블 좌석 (의자 이동 가능)',
+  '바닥 좌석 (방석, 온돌 등)',
+  '높은 테이블 좌석(바/카운터석)',
+  '소파석',
+  '고정된 의자, 벤치형',
+  '야외 테라스석',
   '기타',
 ];
 
@@ -53,7 +52,7 @@ export default function IndoorInfoSection({
       <View style={{gap: 36}}>
         <View style={{gap: 12}}>
           <S.Question>
-            <Text style={{color: color.red}}>* </Text>매장 이용 좌석 구성을
+            <Text style={{color: color.red}}>* </Text>이 매장의 좌석 형태를 모두
             알려주세요.
             <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
           </S.Question>
@@ -93,8 +92,8 @@ export default function IndoorInfoSection({
 
         <View style={{gap: 12}}>
           <S.Question>
-            <Text style={{color: color.red}}>* </Text>매장 주문 방법을
-            알려주세요.
+            <Text style={{color: color.red}}>* </Text>이 매장에서 주문은 어떻게
+            하나요?
             <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
           </S.Question>
           <View
@@ -133,7 +132,7 @@ export default function IndoorInfoSection({
 
         <View style={{gap: 12}}>
           <S.Question>
-            공간 특이사항을 알려주세요.
+            공간에 대한 특이사항이 있다면 알려주세요.
             <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
           </S.Question>
           {/* Chip */}
