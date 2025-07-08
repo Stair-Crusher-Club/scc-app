@@ -1,7 +1,7 @@
 export const MOBILITY_TYPE_LABELS = {
   MANUAL_WHEELCHAIR: '수동휠체어',
   ELECTRIC_WHEELCHAIR: '전동휠체어',
-  STROLLER: '유아차 휠체어',
+  STROLLER: '유아차 동반',
   ELDERLY: '고령자',
   NOT_SURE: '잘 모르겠음',
   NONE: '추천하지 않음',
