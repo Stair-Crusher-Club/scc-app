@@ -1,7 +1,7 @@
 export const MOBILITY_TYPE_LABELS = {
   MANUAL_WHEELCHAIR: '수동휠체어',
   ELECTRIC_WHEELCHAIR: '전동휠체어',
-  STROLLER: '유아차 휠체어',
+  STROLLER: '유아차 동반',
   ELDERLY: '고령자',
   NOT_SURE: '잘 모르겠음',
   NONE: '추천하지 않음',
@@ -24,8 +24,8 @@ export const TOILET_LOCATION_TYPE_LABELS = {
 
 export const ENTRANCE_DOOR_TYPE_LABELS = {
   None: '없음',
-  Hinged: '회전문',
-  Sliding: '슬라이딩문',
+  Hinged: '여닫이문',
+  Sliding: '미닫이문',
   Revolving: '회전문',
   Automatic: '자동문',
   ETC: '기타',

@@ -13,6 +13,7 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
 import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 import * as S from './PlaceDetailScreen.style';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
@@ -38,6 +39,7 @@ export interface PlaceDetailScreenParams {
 
 const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
+  const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
 
   const placeId =
@@ -142,10 +144,17 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     return null;
   }
 
-  const isPlaceReviewContentVisible = reviewPost && reviewPost.length > 0;
-  const isToiletReviewContentVisible = toiletPost && toiletPost.length > 0;
-  const isToiletReviewNudgeVisible = !(toiletPost && toiletPost.length > 1);
-  const isPlaceReviewNudgeVisible = !(reviewPost && reviewPost.length > 1);
+  const isReviewEnabledCategory =
+    data.place?.category === 'RESTAURANT' || data.place?.category === 'CAFE';
+
+  const isPlaceReviewContentVisible =
+    isReviewEnabledCategory && reviewPost && reviewPost.length > 0;
+  const isToiletReviewContentVisible =
+    isReviewEnabledCategory && toiletPost && toiletPost.length > 0;
+  const isToiletReviewNudgeVisible =
+    isReviewEnabledCategory && !(toiletPost && toiletPost.length > 1);
+  const isPlaceReviewNudgeVisible =
+    isReviewEnabledCategory && !(reviewPost && reviewPost.length > 1);
   const isFeedbackSectionVisible =
     accessibilityPost && accessibilityPost?.placeAccessibility;
 
@@ -219,11 +228,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                   subTitle={`${place.name} 에 방문하셨나요?`}
                   title="방문 리뷰를 남겨주세요"
                   buttonText="방문 리뷰를 남겨주세요"
-                  onPress={() => {
-                    navigation.navigate('ReviewForm/Place', {
-                      placeId: place.id,
-                    });
-                  }}
+                  onPress={() =>
+                    checkAuth(() => {
+                      navigation.navigate('ReviewForm/Place', {
+                        placeId: place.id,
+                      });
+                    })
+                  }
                 />
                 <S.SectionSeparator />
               </>
@@ -233,11 +244,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <PlaceDetailRegisterButtonSection
                   title="화장실 정보를 남겨주세요"
                   buttonText="화장실 정보를 남겨주세요"
-                  onPress={() => {
-                    navigation.navigate('ReviewForm/Toilet', {
-                      placeId: place.id,
-                    });
-                  }}
+                  onPress={() =>
+                    checkAuth(() => {
+                      navigation.navigate('ReviewForm/Toilet', {
+                        placeId: place.id,
+                      });
+                    })
+                  }
                 />
                 <S.SectionSeparator />
               </>

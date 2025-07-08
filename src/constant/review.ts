@@ -52,10 +52,10 @@ export const RECOMMEND_MOBILITY_TOOL_LABELS: Record<
 };
 
 export const SPACIOUS_LABELS: Record<SpaciousTypeDto, string> = {
-  [SpaciousTypeDto.Wide]: '매우 넓고, 이용하기 적합해요 🥰',
-  [SpaciousTypeDto.Enough]: '대부분의 구역을 이용하기에 적합해요😀',
-  [SpaciousTypeDto.Limited]: '일부 구역만 이용하기에 적합해요 🙂',
-  [SpaciousTypeDto.Tight]: '매우 좁아서 내부 이동이 불가능해요 🥲',
+  [SpaciousTypeDto.Wide]: '🥰 매우 넓어 이용하기 아주 편리해요',
+  [SpaciousTypeDto.Enough]: '😀 대부분 구역에서 문제없이 이용할 수 있어요',
+  [SpaciousTypeDto.Limited]: '🙂 일부 구역만 이용할 수 있어요',
+  [SpaciousTypeDto.Tight]: '🥲 매우 좁아 내부 이동이 거의 불가능해요',
 };
 
 export const SPACIOUS_OPTIONS = Object.entries(SPACIOUS_LABELS).map(
@@ -124,9 +124,9 @@ type DoorTypeMapDto = DoorTypeMap[keyof Omit<
 >];
 
 export const DOOR_TYPE_LABELS: Record<DoorTypeMapDto, string> = {
-  Hinged: '여닫이문',
-  Sliding: '미닫이문',
-  Automatic: '자동문',
+  Sliding: '미닫이문(옆으로 미는 슬라이딩 문)',
+  Hinged: '여닫이문(앞/뒤로 여는 문)',
+  Automatic: '자동문(버튼)',
   ETC: '기타',
 };
 

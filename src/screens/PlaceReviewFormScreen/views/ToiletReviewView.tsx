@@ -1,3 +1,4 @@
+import {QueryClient, useQueryClient} from '@tanstack/react-query';
 import {useAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
@@ -29,7 +30,7 @@ interface ToiletReviewViewProps {
 export interface FormValues {
   toiletLocationType: ToiletLocationTypeDto;
   floor: number;
-  doorTypes: Set<EntranceDoorType>;
+  doorTypes: EntranceDoorType;
   toiletPhotos: ImageFile[];
   comment: string;
 }
@@ -39,12 +40,12 @@ export default function ToiletReviewView({
   gotoPlaceDetail,
 }: ToiletReviewViewProps) {
   const {api} = useAppComponents();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useAtom(loadingState);
 
   const form = useForm<FormValues>({
     defaultValues: {
-      floor: 2,
-      doorTypes: new Set(),
+      floor: 1,
       toiletPhotos: [],
       comment: '',
     },
@@ -58,7 +59,12 @@ export default function ToiletReviewView({
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, true));
-        const registered = await register(api, place?.id!, values);
+        const registered = await register({
+          api,
+          queryClient,
+          placeId: place?.id!,
+          values,
+        });
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, false));
 
         if (!registered) {
@@ -84,7 +90,17 @@ export default function ToiletReviewView({
   );
 }
 
-async function register(api: DefaultApi, placeId: string, values: FormValues) {
+async function register({
+  api,
+  queryClient,
+  placeId,
+  values,
+}: {
+  api: DefaultApi;
+  queryClient: QueryClient;
+  placeId: string;
+  values: FormValues;
+}) {
   try {
     const images = await ImageFileUtils.uploadImages(
       api,
@@ -98,10 +114,13 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
       await api.registerToiletReviewPost({
         placeId,
         toiletLocationType: values.toiletLocationType,
-        entranceDoorTypes: [...values.doorTypes],
+        entranceDoorTypes: [values.doorTypes],
         comment: values.comment,
         imageUrls: images,
         floor: isNoneOrEtc ? undefined : values.floor,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail', placeId, 'Toilet'],
       });
       return true;
     } catch (error: any) {

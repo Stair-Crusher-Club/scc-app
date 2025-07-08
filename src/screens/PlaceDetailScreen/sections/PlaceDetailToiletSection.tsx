@@ -6,6 +6,7 @@ import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 import * as S from './PlaceDetailEntranceSection.style';
 
@@ -19,16 +20,20 @@ export default function PlaceDetailToiletSection({
   placeId,
 }: Props) {
   const navigation = useNavigation();
+  const checkAuth = useCheckAuth();
+
   return (
     <S.Section>
       <HeaderRow>
         <S.Title>장애인 화장실 정보</S.Title>
         <ReviewButton
-          onPress={() => {
-            navigation.navigate('ReviewForm/Toilet', {
-              placeId,
-            });
-          }}>
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Toilet', {
+                placeId,
+              });
+            })
+          }>
           <ReviewButtonText>정보 등록하기</ReviewButtonText>
         </ReviewButton>
       </HeaderRow>

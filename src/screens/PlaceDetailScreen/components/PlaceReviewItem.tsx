@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import React from 'react';
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -62,17 +61,20 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
             </ReviewInfoValue>
           </ReviewInfoRow>
         </ReviewInfoColumn>
-        <ReviewText numberOfLines={isExpanded ? undefined : 2}>
-          {reviewText}
-        </ReviewText>
-        {reviewText &&
-          reviewText.length > 50 && ( // TODO 정확히 2줄 넘으면 안보이게 하기
-            <ExpandButton onPress={() => setIsExpanded(value => !value)}>
-              <ExpandButtonText>
-                {isExpanded ? '접기' : '더보기'}
-              </ExpandButtonText>
-            </ExpandButton>
-          )}
+        {reviewText && (
+          <>
+            <ReviewText numberOfLines={isExpanded ? undefined : 2}>
+              {reviewText}
+            </ReviewText>
+            {reviewText.length > 50 && ( // TODO 정확히 2줄 넘으면 안보이게 하기
+              <ExpandButton onPress={() => setIsExpanded(value => !value)}>
+                <ExpandButtonText>
+                  {isExpanded ? '접기' : '더보기'}
+                </ExpandButtonText>
+              </ExpandButton>
+            )}
+          </>
+        )}
       </ReviewContentColumn>
     </Container>
   );

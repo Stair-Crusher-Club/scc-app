@@ -83,9 +83,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 rules={{
                   required: isExist,
                   validate: v =>
-                    v !== 0 && v !== 1
-                      ? true
-                      : '층 정보 : 0층이나 1층은 입력할 수 없습니다.',
+                    v !== 0 ? true : '층 정보 : 0층은 입력할 수 없습니다.',
                 }}
                 render={({field}) => (
                   <FloorSelect value={field.value} onChange={field.onChange} />
@@ -95,8 +93,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             <View style={{gap: 12}}>
               <S.Question>
                 <Text style={{color: color.red}}>* </Text>출입문 유형을
-                알려주세요
-                <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
+                알려주세요.
               </S.Question>
               <View
                 style={{
@@ -109,7 +106,6 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                   name="doorTypes"
                   rules={{
                     required: isExist,
-                    validate: value => value.size > 0,
                   }}
                   render={({field}) => (
                     <>
@@ -118,16 +114,8 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                           <PressableChip
                             key={value}
                             label={label}
-                            active={field.value?.has(value)}
-                            onPress={() => {
-                              const newSet = new Set(field.value);
-                              if (newSet.has(value)) {
-                                newSet.delete(value);
-                              } else {
-                                newSet.add(value);
-                              }
-                              field.onChange(newSet);
-                            }}
+                            active={field.value === value}
+                            onPress={() => field.onChange(value)}
                           />
                         );
                       })}
@@ -140,7 +128,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         )}
         <View style={{gap: 12}}>
           {isExist && (
-            <S.Question>화장실 이용 경험 및 참고할점을 알려주세요.</S.Question>
+            <S.Question>화장실 이용 시 참고할 점을 알려주세요.</S.Question>
           )}
           {(isExist || isVisibleTextarea) && (
             <View style={{gap: 8}}>
@@ -163,7 +151,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                       placeholder={
                         toiletLocationType === 'ETC'
                           ? '기타 사항을 작성해주세요.'
-                          : '장소의 전체적인 접근성, 방문 경험을 나눠주세요.'
+                          : '화장실 넓이, 세면대 높이, 청결도 등을 알려주시면 도움이 됩니다.'
                       }
                       placeholderTextColor={color.gray50}
                       onChangeText={field.onChange}

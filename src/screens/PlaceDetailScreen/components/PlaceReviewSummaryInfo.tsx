@@ -11,6 +11,7 @@ import {
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 import * as SS from '../sections/PlaceDetailEntranceSection.style';
 
@@ -21,6 +22,8 @@ interface Props {
 
 export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
   const navigation = useNavigation();
+  const checkAuth = useCheckAuth();
+
   const mobilityTypeCounts = useMemo(
     () => countMobilityTypes(reviews),
     [reviews],
@@ -44,11 +47,13 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
         <ReviewButton
-          onPress={() => {
-            navigation.navigate('ReviewForm/Place', {
-              placeId,
-            });
-          }}>
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Place', {
+                placeId,
+              });
+            })
+          }>
           <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
         </ReviewButton>
       </HeaderRow>
@@ -69,7 +74,7 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           {mobilityTypeCounts.slice(3, 5).map(item => (
             <TextBox
               key={item.label}
-              label={item.label}
+              label={item.label.replace('\n', ' ')}
               content={`${item.count}명`}
               level={item.level}
               shape="flat"
@@ -188,7 +193,9 @@ const TextBox: React.FC<{
   shape?: 'thin' | 'flat' | 'normal';
 }> = ({label, content, level, shape}) => (
   <TextBoxContainer level={level} shape={shape}>
-    <TextBoxLabel>{label}</TextBoxLabel>
+    <CenteredTextWrapper>
+      <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
+    </CenteredTextWrapper>
     <TextBoxContent level={level} shape={shape}>
       {content}
     </TextBoxContent>
@@ -269,6 +276,20 @@ const TextBoxContainer = styled.View<{
   gap: 4px;
 `;
 
+const CenteredTextWrapper = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
+const RecommendTargetTextBoxLabel = styled.Text`
+  font-size: 13px;
+  line-height: 18px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray100};
+  text-align: center;
+`;
+
 const TextBoxLabel = styled.Text`
   font-size: 13px;
   line-height: 18px;
@@ -298,10 +319,10 @@ const TextBoxContent = styled.Text<{
 const MOBILITY_TYPE_LABELS: Record<string, string> = {
   MANUAL_WHEELCHAIR: '수동휠체어\n사용자',
   ELECTRIC_WHEELCHAIR: '전동휠체어\n사용자',
-  STROLLER: '유아차 휠체어\n사용자',
+  STROLLER: '유아차\n동반인',
   ELDERLY: '고령자',
   NOT_SURE: '잘 모르겠음',
-  NONE: '추천하지 않음',
+  NONE: '추천안함',
 };
 
 // 내부공간 타입 한글 라벨 매핑
