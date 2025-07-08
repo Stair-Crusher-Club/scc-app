@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import React from 'react';
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -65,9 +64,9 @@ export default function PlaceToiletReviewItem({
                 <ReviewInfoRow>
                   <ReviewInfoLabel>문유형</ReviewInfoLabel>
                   <ReviewInfoValue>
-                    {review.entranceDoorTypes?.map(
-                      type => ENTRANCE_DOOR_TYPE_LABELS[type],
-                    )}
+                    {review.entranceDoorTypes
+                      ?.map(type => ENTRANCE_DOOR_TYPE_LABELS[type])
+                      .join(', ')}
                   </ReviewInfoValue>
                 </ReviewInfoRow>
               )}
