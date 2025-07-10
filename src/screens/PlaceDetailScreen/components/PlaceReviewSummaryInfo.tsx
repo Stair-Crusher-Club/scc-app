@@ -258,9 +258,9 @@ const TextBoxContainer = styled.View<{
   level?: 'high' | 'medium' | 'low';
   shape?: 'thin' | 'flat' | 'normal';
 }>`
+  flex: 1;
   padding: ${({shape}) =>
     shape === 'thin' ? '8px 12px' : shape === 'flat' ? '12px' : '12px'};
-  flex-grow: 1;
   background-color: ${({level}) =>
     level === 'high'
       ? color.brand10
