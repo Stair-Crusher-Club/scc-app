@@ -193,9 +193,7 @@ const TextBox: React.FC<{
   shape?: 'thin' | 'flat' | 'normal';
 }> = ({label, content, level, shape}) => (
   <TextBoxContainer level={level} shape={shape}>
-    <CenteredTextWrapper>
-      <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
-    </CenteredTextWrapper>
+    <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
     <TextBoxContent level={level} shape={shape}>
       {content}
     </TextBoxContent>
@@ -274,12 +272,6 @@ const TextBoxContainer = styled.View<{
   justify-content: ${({shape}) =>
     shape === 'thin' ? 'space-between' : 'center'};
   gap: 4px;
-`;
-
-const CenteredTextWrapper = styled.View`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
 `;
 
 const RecommendTargetTextBoxLabel = styled.Text`

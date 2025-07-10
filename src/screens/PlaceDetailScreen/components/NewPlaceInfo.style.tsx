@@ -24,6 +24,10 @@ export const LabelText = styled.Text`
   color: ${color.gray40};
 `;
 
+export const ContentTextWrapper = styled.View`
+  flex: 1;
+`;
+
 export const ContentText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 15px;
