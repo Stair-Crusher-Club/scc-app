@@ -115,7 +115,7 @@ async function register({
       await api.registerToiletReviewPost({
         placeId,
         toiletLocationType: values.toiletLocationType,
-        entranceDoorTypes: values.doorTypes,
+        entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
         comment: values.comment,
         imageUrls: images,
         floor: isNoneOrEtc ? undefined : values.floor,
