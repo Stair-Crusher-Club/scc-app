@@ -140,14 +140,15 @@ async function register({
       'PLACE_REVIEW',
     );
     try {
-      // TODO: 좌석 기타에 대한 comment 추가
       await api.registerPlaceReviewPost({
         placeId,
         mobilityTool: values.mobilityTool,
         recommendedMobilityTypes: [...values.recommendedMobilityTypes],
         spaciousType: values.spaciousType!,
         comment: values.comment,
-        seatTypes: [...values.seatTypes],
+        seatTypes: values.seatComment
+          ? [...values.seatTypes, values.seatComment]
+          : [...values.seatTypes],
         orderMethods: [...values.orderMethods],
         features: [...values.features],
         imageUrls: images,

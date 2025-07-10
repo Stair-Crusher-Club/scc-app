@@ -25,7 +25,6 @@ export const LabelText = styled.Text`
 `;
 
 export const ContentText = styled.Text`
-  flex: 1;
   font-family: ${font.pretendardMedium};
   font-size: 15px;
   line-height: 22px;
