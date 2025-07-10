@@ -30,7 +30,7 @@ export default function PlaceDetailIndoorSection({reviews, placeId}: Props) {
       <Divider />
       <PlaceReviewSummaryInfo reviews={reviews} placeId={placeId} />
       <Divider />
-      <PlaceVisitReviewInfo reviews={reviews} />
+      <PlaceVisitReviewInfo reviews={reviews} placeId={placeId} />
     </View>
   );
 }

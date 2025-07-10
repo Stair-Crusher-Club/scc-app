@@ -239,6 +239,17 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 <S.SectionSeparator />
               </>
             )}
+            {isToiletReviewContentVisible && (
+              <>
+                <View ref={toiletSection} collapsable={false}>
+                  <PlaceDetailToiletSection
+                    toiletReviews={toiletPost}
+                    placeId={place.id}
+                  />
+                </View>
+                <S.SectionSeparator />
+              </>
+            )}
             {isToiletReviewNudgeVisible && (
               <>
                 <PlaceDetailRegisterButtonSection
@@ -252,17 +263,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                     })
                   }
                 />
-                <S.SectionSeparator />
-              </>
-            )}
-            {isToiletReviewContentVisible && (
-              <>
-                <View ref={toiletSection} collapsable={false}>
-                  <PlaceDetailToiletSection
-                    toiletReviews={toiletPost}
-                    placeId={place.id}
-                  />
-                </View>
                 <S.SectionSeparator />
               </>
             )}

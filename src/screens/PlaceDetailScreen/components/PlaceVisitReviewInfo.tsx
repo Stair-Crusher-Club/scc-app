@@ -9,6 +9,7 @@ import {
   PlaceReviewDto,
   RecommendedMobilityTypeDto,
 } from '@/generated-sources/openapi';
+import useMe from '@/hooks/useMe';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -16,9 +17,11 @@ import PlaceVisitReviewFilterModal from '../modals/PlaceVisitReviewFilterModal';
 
 interface Props {
   reviews: PlaceReviewDto[];
+  placeId: string;
 }
 
-export default function PlaceVisitReviewInfo({reviews}: Props) {
+export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
+  const {userInfo} = useMe();
   const [targetMobilityType, setTargetMobilityType] =
     useState<RecommendedMobilityTypeDto | null>(null);
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
@@ -55,7 +58,11 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
       <ItemList>
         {sortedReviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceReviewItem review={review} />
+            <PlaceReviewItem
+              placeId={placeId}
+              review={review}
+              isAuthor={userInfo?.id === review.user.id}
+            />
             {idx !== sortedReviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}
