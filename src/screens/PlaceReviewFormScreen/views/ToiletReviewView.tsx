@@ -10,6 +10,7 @@ import {
   DefaultApi,
   EntranceDoorType,
   Place,
+  RegisterToiletReviewRequestDto,
   ToiletLocationTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -114,11 +115,11 @@ async function register({
       await api.registerToiletReviewPost({
         placeId,
         toiletLocationType: values.toiletLocationType,
-        entranceDoorTypes: [values.doorTypes],
+        entranceDoorTypes: values.doorTypes,
         comment: values.comment,
         imageUrls: images,
         floor: isNoneOrEtc ? undefined : values.floor,
-      });
+      } as unknown as RegisterToiletReviewRequestDto); // FIXME: update api yaml
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId, 'Toilet'],
       });
