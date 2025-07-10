@@ -7,12 +7,10 @@ import BadgedIcon from '@/assets/icon/ic_badged_crew.svg';
 import MoreIcon from '@/assets/icon/ic_more.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {doorTypeMap} from '@/constant/options';
+import {TOILET_LOCATION_TYPE_LABELS} from '@/constant/review';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {
-  ENTRANCE_DOOR_TYPE_LABELS,
-  TOILET_LOCATION_TYPE_LABELS,
-} from '@/screens/PlaceDetailScreen/constants/labels';
 
 export default function PlaceToiletReviewItem({
   review,
@@ -65,7 +63,7 @@ export default function PlaceToiletReviewItem({
                   <ReviewInfoLabel>문유형</ReviewInfoLabel>
                   <ReviewInfoValue>
                     {review.entranceDoorTypes
-                      ?.map(type => ENTRANCE_DOOR_TYPE_LABELS[type])
+                      ?.map(type => doorTypeMap[type])
                       .join(', ')}
                   </ReviewInfoValue>
                 </ReviewInfoRow>

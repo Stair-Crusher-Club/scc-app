@@ -327,9 +327,9 @@ const MOBILITY_TYPE_LABELS: Record<string, string> = {
 
 // 내부공간 타입 한글 라벨 매핑
 const SPACIOUS_TYPE_LABELS: Record<string, string> = {
-  WIDE: '🥰 매우 넓고, 이용하기 적합해요 ',
-  ENOUGH: '😀 대부분의 구역을 이용하기에 적합해요',
-  LIMITED: '🙂 일부 구역만 이용하기에 적합해요 ',
+  WIDE: '🥰 매우 넓어 이용하기 아주 편리해요',
+  ENOUGH: '😀 대부분 구역에서 문제없이 이용할 수 있어요',
+  LIMITED: '🙂 일부 구역만 이용할 수 있어요',
   TIGHT: '🥲 매우 좁아서 내부 이동이 불가능해요 ',
 };
 

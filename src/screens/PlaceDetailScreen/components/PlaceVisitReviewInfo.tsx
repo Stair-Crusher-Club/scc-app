@@ -4,12 +4,12 @@ import styled from 'styled-components/native';
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {RECOMMEND_MOBILITY_TOOL_LABELS} from '@/constant/review';
 import {
   PlaceReviewDto,
   RecommendedMobilityTypeDto,
 } from '@/generated-sources/openapi';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
-import {MOBILITY_TYPE_LABELS} from '@/screens/PlaceDetailScreen/constants/labels';
 import ToastUtils from '@/utils/ToastUtils';
 
 import PlaceVisitReviewFilterModal from '../modals/PlaceVisitReviewFilterModal';
@@ -46,7 +46,7 @@ export default function PlaceVisitReviewInfo({reviews}: Props) {
           onPress={() => setFilterModalVisible(true)}>
           <ChipText isActive={!!targetMobilityType}>
             {targetMobilityType
-              ? MOBILITY_TYPE_LABELS[targetMobilityType]
+              ? RECOMMEND_MOBILITY_TOOL_LABELS[targetMobilityType]
               : '추천대상'}
           </ChipText>
           <DownIcon width={12} height={12} color={color.black} />

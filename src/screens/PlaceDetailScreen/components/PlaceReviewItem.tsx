@@ -7,12 +7,12 @@ import BadgedIcon from '@/assets/icon/ic_badged_crew.svg';
 import MoreIcon from '@/assets/icon/ic_more.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {
+  RECOMMEND_MOBILITY_TOOL_LABELS,
+  SPACIOUS_LABELS,
+} from '@/constant/review';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {
-  MOBILITY_TYPE_LABELS,
-  SPACIOUS_TYPE_LABELS,
-} from '@/screens/PlaceDetailScreen/constants/labels';
 
 import UserMobilityLabel from './UserMobilityLabel';
 
@@ -50,14 +50,14 @@ export default function PlaceReviewItem({review}: {review: PlaceReviewDto}) {
             <ReviewInfoLabel>추천대상</ReviewInfoLabel>
             <ReviewInfoValue>
               {review.recommendedMobilityTypes
-                ?.map(type => MOBILITY_TYPE_LABELS[type])
+                ?.map(type => RECOMMEND_MOBILITY_TOOL_LABELS[type])
                 .join(', ')}
             </ReviewInfoValue>
           </ReviewInfoRow>
           <ReviewInfoRow>
             <ReviewInfoLabel>내부공간</ReviewInfoLabel>
             <ReviewInfoValue>
-              {SPACIOUS_TYPE_LABELS[review.spaciousType]}
+              {SPACIOUS_LABELS[review.spaciousType]}
             </ReviewInfoValue>
           </ReviewInfoRow>
         </ReviewInfoColumn>
