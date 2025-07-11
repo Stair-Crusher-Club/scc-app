@@ -91,7 +91,11 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
           width={windowWidth}
           loop
           renderItem={renderItem}
-          panGestureHandlerProps={{activeOffsetX: [-10, 10]}}
+          onConfigurePanGesture={gestureChain => {
+            gestureChain.activeOffsetX([-10, 10]);
+          }}
+          autoPlay={true}
+          autoPlayInterval={5000}
         />
       )}
     </S.CoverImageContainer>
