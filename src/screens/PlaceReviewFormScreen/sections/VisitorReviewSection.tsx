@@ -28,7 +28,7 @@ export default function VisitorReviewSection() {
           <S.Question>
             <Text style={{color: color.red}}>* </Text>이 장소를 누구에게
             추천하고 싶으신가요?
-            <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
+            <Text style={{color: color.gray20}}> (중복선택)</Text>
           </S.Question>
           {/* Chip */}
           <View
@@ -135,7 +135,7 @@ export default function VisitorReviewSection() {
                   <Text
                     style={{
                       alignSelf: 'flex-end',
-                      color: '#7A7A88',
+                      color: color.gray50,
                     }}>
                     {field.value?.length ?? 0}/300
                   </Text>

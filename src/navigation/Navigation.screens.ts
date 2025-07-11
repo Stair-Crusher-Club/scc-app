@@ -184,7 +184,7 @@ export const MainNavigationScreens: {
     component: ToiletReviewFormScreen,
     options: {
       headerShown: true,
-      headerTitle: '화장실 후기 작성하기',
+      headerTitle: '화장실 정보 작성하기',
       variant: 'close',
       gestureEnabled: false,
     },

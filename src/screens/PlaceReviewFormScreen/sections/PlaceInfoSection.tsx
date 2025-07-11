@@ -24,6 +24,8 @@ const Container = styled.View({
   padding: 20,
   backgroundColor: color.white,
   gap: 4,
+  borderBottomWidth: 1,
+  borderBottomColor: color.gray20,
 });
 
 const Title = styled.Text({

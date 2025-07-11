@@ -2,6 +2,7 @@ import {useQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {color} from '@/constant/color';
 import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -67,7 +68,11 @@ export default function PlaceReviewFormScreen({
 
   return (
     <LogParamsProvider params={{placeId}}>
-      <ScreenLayout isHeaderVisible={true}>{renderView()}</ScreenLayout>
+      <ScreenLayout
+        isHeaderVisible={true}
+        style={{backgroundColor: color.white}}>
+        {renderView()}
+      </ScreenLayout>
     </LogParamsProvider>
   );
 }
