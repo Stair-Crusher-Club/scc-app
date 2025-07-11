@@ -128,7 +128,21 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         )}
         <View style={{gap: 12}}>
           {isExist && (
-            <S.Question>화장실 이용 시 참고할 점을 알려주세요.</S.Question>
+            <S.Question>화장실 이용 경험 및 참고할 점을 알려주세요.</S.Question>
+          )}
+          {isExist && (
+            <Controller
+              name="toiletPhotos"
+              rules={{required: false}}
+              render={({field}) => (
+                <Photos
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  target="place"
+                  maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
+                />
+              )}
+            />
           )}
           {(isExist || isVisibleTextarea) && (
             <View style={{gap: 8}}>
@@ -159,7 +173,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                     <Text
                       style={{
                         alignSelf: 'flex-end',
-                        color: '#7A7A88',
+                        color: color.gray50,
                       }}>
                       {field.value?.length ?? 0}/300
                     </Text>
@@ -169,21 +183,6 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
             </View>
           )}
         </View>
-
-        {isExist && (
-          <Controller
-            name="toiletPhotos"
-            rules={{required: false}}
-            render={({field}) => (
-              <Photos
-                value={field.value ?? []}
-                onChange={field.onChange}
-                target="place"
-                maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
-              />
-            )}
-          />
-        )}
       </View>
 
       <View

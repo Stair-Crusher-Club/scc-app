@@ -50,7 +50,7 @@ export default function PlaceIndoorInfo({reviews}: Props) {
         <S.LabelText>좌석 구성</S.LabelText>
         <S.ContentTextWrapper>
           <S.ContentText>{seatTypes.join(', ')}</S.ContentText>
-          <S.SubContentText>{seatComments.join('\n')}</S.SubContentText>
+          <S.SubContentText>{seatComments.join(', ')}</S.SubContentText>
         </S.ContentTextWrapper>
       </S.InfoWrapper>
       <S.InfoWrapper>

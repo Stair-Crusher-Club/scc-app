@@ -58,7 +58,6 @@ export const CommentBlock = ({
 };
 
 const Container = styled.View`
-  flex: 1;
   flex-direction: column;
   gap: 4px;
   background-color: ${color.gray10};
@@ -67,7 +66,6 @@ const Container = styled.View`
 `;
 
 const CommenterRow = styled.View`
-  flex: 1;
   flex-direction: row;
   align-items: center;
   gap: 8px;

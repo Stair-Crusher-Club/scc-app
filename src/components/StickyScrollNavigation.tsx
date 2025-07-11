@@ -1,57 +1,43 @@
 import React, {useState} from 'react';
-import {
-  LayoutChangeEvent,
-  LayoutRectangle,
-  ScrollView,
-  View,
-} from 'react-native';
+import {LayoutRectangle, ScrollView, View} from 'react-native';
 
 import * as S from './StickyScrollNavigation.style';
 
 interface Props {
   scrollContainer: React.RefObject<ScrollView>;
   scrollY: number;
-  menus: {label: string; ref: React.RefObject<View>}[];
+  menus: {label: string; y: number}[];
 }
 export default function ScrollNavigation({
   scrollContainer,
   scrollY,
   menus,
 }: Props) {
-  const [scrollYs, setScrollYs] = useState(menus.map(() => 0));
   const [navLayout, setNavLayout] = useState<LayoutRectangle>({
     x: 0,
     y: 0,
     width: 0,
     height: 0,
   });
-  const activeMenuIndex = findActiveIndex(scrollY + navLayout.height, scrollYs);
+  const activeMenuIndex = findActiveIndex(
+    scrollY + navLayout.height,
+    menus.map(menu => menu.y),
+  );
   const activeMenu = menus[activeMenuIndex];
-  const edgeBackingTop = scrollY + navLayout.height - scrollYs[0];
+  const edgeBackingTop = scrollY + navLayout.height - menus[0]?.y || 0;
 
   function scrollToMenu(index: number) {
     scrollContainer.current?.scrollTo({
-      y: scrollYs[index] - navLayout.height + 1, // 1 for active ui
+      y: menus[index].y - navLayout.height + 1, // 1 for active ui
       animated: true,
-    });
-  }
-
-  function onLayout(event: LayoutChangeEvent) {
-    setNavLayout(event.nativeEvent.layout);
-    menus.forEach((menu, index) => {
-      menu.ref.current?.measure((_x, y, _w, _h, _px, _py) => {
-        setScrollYs(prev => {
-          const newScrollYs = [...prev];
-          newScrollYs[index] = y;
-          return newScrollYs;
-        });
-      });
     });
   }
 
   return (
     <View
-      onLayout={e => onLayout(e)}
+      onLayout={e => {
+        setNavLayout(e.nativeEvent.layout);
+      }}
       style={{
         overflow: 'visible',
         backgroundColor: 'transparent',

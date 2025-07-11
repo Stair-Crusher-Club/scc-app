@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {color} from '@/constant/color';
 import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -40,7 +41,9 @@ export default function ToiletReviewFormScreen({
 
   return (
     <LogParamsProvider params={{placeId}}>
-      <ScreenLayout isHeaderVisible={true}>
+      <ScreenLayout
+        isHeaderVisible={true}
+        style={{backgroundColor: color.white}}>
         <ToiletReviewView
           place={data?.place}
           gotoPlaceDetail={gotoPlaceDetail}

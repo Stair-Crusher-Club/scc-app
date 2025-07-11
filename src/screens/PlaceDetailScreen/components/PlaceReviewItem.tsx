@@ -174,7 +174,7 @@ const ReviewInfoLabel = styled.Text`
   font-size: 12px;
   line-height: 16px;
   font-family: ${font.pretendardRegular};
-  width: 42px;
+  width: 46px;
   color: ${color.gray40};
 `;
 const ReviewInfoValue = styled.Text`

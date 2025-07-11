@@ -34,7 +34,7 @@ export default function IndoorInfoSection({
           <S.Question>
             <Text style={{color: color.red}}>* </Text>이 매장의 좌석 형태를 모두
             알려주세요.
-            <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
+            <Text style={{color: color.gray20}}> (중복선택)</Text>
           </S.Question>
           <View
             style={{
@@ -94,7 +94,7 @@ export default function IndoorInfoSection({
                     <Text
                       style={{
                         alignSelf: 'flex-end',
-                        color: '#7A7A88',
+                        color: color.gray50,
                       }}>
                       {field.value?.length ?? 0}/300
                     </Text>
@@ -109,7 +109,7 @@ export default function IndoorInfoSection({
           <S.Question>
             <Text style={{color: color.red}}>* </Text>이 매장에서 주문은 어떻게
             하나요?
-            <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
+            <Text style={{color: color.gray20}}> (중복선택)</Text>
           </S.Question>
           <View
             style={{
@@ -148,7 +148,7 @@ export default function IndoorInfoSection({
         <View style={{gap: 12}}>
           <S.Question>
             공간에 대한 특이사항이 있다면 알려주세요.
-            <Text style={{color: '#A1A1AF'}}> (중복선택)</Text>
+            <Text style={{color: color.gray20}}> (중복선택)</Text>
           </S.Question>
           {/* Chip */}
           <View
