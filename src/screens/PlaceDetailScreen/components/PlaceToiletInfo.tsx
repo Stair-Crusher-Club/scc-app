@@ -1,12 +1,10 @@
 import React from 'react';
 import {View} from 'react-native';
 
+import {doorTypeMap} from '@/constant/options';
+import {TOILET_LOCATION_TYPE_LABELS} from '@/constant/review';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {
-  ENTRANCE_DOOR_TYPE_LABELS,
-  TOILET_LOCATION_TYPE_LABELS,
-} from '@/screens/PlaceDetailScreen/constants/labels';
 
 import * as S from './NewPlaceInfo.style';
 
@@ -36,9 +34,7 @@ export default function PlaceToiletInfo({toilet}: Props) {
           <S.LabelText>문유형</S.LabelText>
           <S.TextWrapper>
             <S.ContentText>
-              {toilet.entranceDoorTypes?.map(
-                type => ENTRANCE_DOOR_TYPE_LABELS[type],
-              )}
+              {toilet.entranceDoorTypes?.map(type => doorTypeMap[type])}
             </S.ContentText>
           </S.TextWrapper>
         </S.InfoWrapper>

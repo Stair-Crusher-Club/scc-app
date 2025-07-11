@@ -11,13 +11,13 @@ export const Container = styled.View({
 
 export const Title = styled.Text({
   fontSize: 20,
-  lineHeight: 28,
+  lineHeight: '28px',
   fontFamily: font.pretendardBold,
 });
 
 export const Question = styled.Text({
   fontSize: 16,
-  lineHeight: 28,
+  lineHeight: '28px',
   fontFamily: font.pretendardMedium,
 });
 

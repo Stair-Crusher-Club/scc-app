@@ -3,6 +3,7 @@ import React from 'react';
 import {View} from 'react-native';
 
 import {PlaceReviewDto} from '@/generated-sources/openapi';
+import {SEAT_TYPE_OPTIONS} from '@/screens/PlaceReviewFormScreen/constants';
 
 import * as SS from '../sections/PlaceDetailEntranceSection.style';
 import * as S from './NewPlaceInfo.style';
@@ -16,7 +17,19 @@ export default function PlaceIndoorInfo({reviews}: Props) {
     Math.max(...reviews.map(review => review.createdAt.value)),
   ).format('YYYY.MM.DD');
 
-  const seatsTypes = [...new Set(reviews.flatMap(review => review.seatTypes))];
+  const allSeatTypes = [
+    ...new Set(reviews.flatMap(review => review.seatTypes)),
+  ];
+  const seatTypes: string[] = [];
+  const seatComments: string[] = [];
+  allSeatTypes.forEach(review => {
+    if (SEAT_TYPE_OPTIONS.includes(review)) {
+      seatTypes.push(review);
+    } else {
+      seatComments.push(review);
+    }
+  });
+
   const orderMethods = [
     ...new Set(reviews.flatMap(review => review.orderMethods)),
   ];
@@ -35,16 +48,25 @@ export default function PlaceIndoorInfo({reviews}: Props) {
       </View>
       <S.InfoWrapper>
         <S.LabelText>좌석 구성</S.LabelText>
-        <S.ContentText>{seatsTypes.join(', ')}</S.ContentText>
+        <S.ContentTextWrapper>
+          <S.ContentText>{seatTypes.join(', ')}</S.ContentText>
+          <S.SubContentText>{seatComments.join('\n')}</S.SubContentText>
+        </S.ContentTextWrapper>
       </S.InfoWrapper>
       <S.InfoWrapper>
         <S.LabelText>주문방법</S.LabelText>
-        <S.ContentText>{orderMethods.join(', ')}</S.ContentText>
+        <S.ContentTextWrapper>
+          <S.ContentText>{orderMethods.join(', ')}</S.ContentText>
+        </S.ContentTextWrapper>
       </S.InfoWrapper>
-      <S.InfoWrapper>
-        <S.LabelText>특이사항</S.LabelText>
-        <S.ContentText>{features.join(', ')}</S.ContentText>
-      </S.InfoWrapper>
+      {features.length > 0 && (
+        <S.InfoWrapper>
+          <S.LabelText>특이사항</S.LabelText>
+          <S.ContentTextWrapper>
+            <S.ContentText>{features.join(', ')}</S.ContentText>
+          </S.ContentTextWrapper>
+        </S.InfoWrapper>
+      )}
     </View>
   );
 }

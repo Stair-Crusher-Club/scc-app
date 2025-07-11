@@ -4,9 +4,9 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {RECOMMEND_MOBILITY_TOOL_LABELS} from '@/constant/review';
 import {RecommendedMobilityTypeDto} from '@/generated-sources/openapi';
 import BottomSheet from '@/modals/BottomSheet/BottomSheet';
-import {MOBILITY_TYPE_LABELS} from '@/screens/PlaceDetailScreen/constants/labels';
 
 interface Props {
   isVisible: boolean;
@@ -50,7 +50,7 @@ export default function PlaceVisitReviewFilterModal({
                 onClose();
               }}>
               <OptionText isActive={selected === type}>
-                {type === null ? '전체' : MOBILITY_TYPE_LABELS[type]}
+                {type === null ? '전체' : RECOMMEND_MOBILITY_TOOL_LABELS[type]}
               </OptionText>
             </OptionButton>
           ))}

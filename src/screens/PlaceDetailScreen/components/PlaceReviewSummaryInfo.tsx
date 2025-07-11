@@ -193,9 +193,7 @@ const TextBox: React.FC<{
   shape?: 'thin' | 'flat' | 'normal';
 }> = ({label, content, level, shape}) => (
   <TextBoxContainer level={level} shape={shape}>
-    <CenteredTextWrapper>
-      <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
-    </CenteredTextWrapper>
+    <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
     <TextBoxContent level={level} shape={shape}>
       {content}
     </TextBoxContent>
@@ -258,9 +256,9 @@ const TextBoxContainer = styled.View<{
   level?: 'high' | 'medium' | 'low';
   shape?: 'thin' | 'flat' | 'normal';
 }>`
+  flex: 1;
   padding: ${({shape}) =>
     shape === 'thin' ? '8px 12px' : shape === 'flat' ? '12px' : '12px'};
-  flex-grow: 1;
   background-color: ${({level}) =>
     level === 'high'
       ? color.brand10
@@ -274,12 +272,6 @@ const TextBoxContainer = styled.View<{
   justify-content: ${({shape}) =>
     shape === 'thin' ? 'space-between' : 'center'};
   gap: 4px;
-`;
-
-const CenteredTextWrapper = styled.View`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
 `;
 
 const RecommendTargetTextBoxLabel = styled.Text`
@@ -327,9 +319,9 @@ const MOBILITY_TYPE_LABELS: Record<string, string> = {
 
 // 내부공간 타입 한글 라벨 매핑
 const SPACIOUS_TYPE_LABELS: Record<string, string> = {
-  WIDE: '🥰 매우 넓고, 이용하기 적합해요 ',
-  ENOUGH: '😀 대부분의 구역을 이용하기에 적합해요',
-  LIMITED: '🙂 일부 구역만 이용하기에 적합해요 ',
+  WIDE: '🥰 매우 넓어 이용하기 아주 편리해요',
+  ENOUGH: '😀 대부분 구역에서 문제없이 이용할 수 있어요',
+  LIMITED: '🙂 일부 구역만 이용할 수 있어요',
   TIGHT: '🥲 매우 좁아서 내부 이동이 불가능해요 ',
 };
 
