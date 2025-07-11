@@ -91,7 +91,6 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
               label={item.label}
               content={`${item.count}명`}
               level={item.level}
-              shape="thin"
               filledRatio={item.count / spaciousTypeMax}
             />
           ))}
@@ -190,10 +189,12 @@ const TextBox: React.FC<{
   label: string;
   content: string;
   level?: 'high' | 'medium' | 'low';
-  shape?: 'thin' | 'flat' | 'normal';
+  shape?: 'flat' | 'normal';
 }> = ({label, content, level, shape}) => (
   <TextBoxContainer level={level} shape={shape}>
-    <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
+    <View style={{flexGrow: 1, justifyContent: 'center'}}>
+      <RecommendTargetTextBoxLabel>{label}</RecommendTargetTextBoxLabel>
+    </View>
     <TextBoxContent level={level} shape={shape}>
       {content}
     </TextBoxContent>
@@ -204,9 +205,8 @@ const SpaciousTextBox: React.FC<{
   label: string;
   content: string;
   level?: 'high' | 'medium' | 'low';
-  shape?: 'thin' | 'flat' | 'normal';
   filledRatio?: number; // 0 ~ 1
-}> = ({label, content, level, shape, filledRatio = 1}) => {
+}> = ({label, content, level, filledRatio = 1}) => {
   const background =
     level === 'high'
       ? color.brand10
@@ -234,17 +234,16 @@ const SpaciousTextBox: React.FC<{
       />
       <View
         style={{
-          paddingVertical: shape === 'thin' ? 8 : 12,
+          paddingVertical: 8,
           paddingHorizontal: 12,
           flexGrow: 1,
-          flexDirection:
-            shape === 'thin' || shape === 'flat' ? 'row' : 'column',
+          flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: shape === 'thin' ? 'space-between' : 'center',
+          justifyContent: 'space-between',
           gap: 4,
         }}>
         <TextBoxLabel>{label}</TextBoxLabel>
-        <TextBoxContent level={level} shape={shape}>
+        <TextBoxContent level={level} shape={'thin'}>
           {content}
         </TextBoxContent>
       </View>
