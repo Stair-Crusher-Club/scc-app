@@ -1,6 +1,5 @@
 package club.staircrusher
 
-import android.util.Log
 import android.view.View
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
@@ -48,7 +47,7 @@ class MapViewManager(
         when (commandId) {
             "animateCamera" -> {
                 args?.let {
-                    val camera = args.getMap(0)
+                    val camera = args.getMap(0) ?: return
                     val duration = args.getInt(1)
                     val center = camera.getMap("center") ?: return
                     val target = LatLng(center.getDouble("latitude"), center.getDouble("longitude"))
@@ -64,7 +63,7 @@ class MapViewManager(
 
             "animateToRegion" -> {
                 args?.let {
-                    val region = args.getMap(0)
+                    val region = args.getMap(0) ?: return
                     val padding = args.getDouble(1).toLong()
                     val duration = args.getDouble(2).toLong()
                     val northEast = region.getMap("northEast") ?: return
@@ -79,7 +78,7 @@ class MapViewManager(
 
             "setPositionMode" -> {
                 args?.let {
-                    val mode = args.getString(0)
+                    val mode = args.getString(0) ?: return
                     root.setPositionMode(mode)
                 }
             }
@@ -91,7 +90,7 @@ class MapViewManager(
         markers ?: return
         val items = markers.let { markers ->
             (0 until markers.size()).mapNotNull {
-                val item = markers.getMap(it)
+                val item = markers.getMap(it) ?: return@mapNotNull null
                 val itemId = item.getString("id") ?: return@mapNotNull null
                 val displayName = item.getString("displayName") ?: return@mapNotNull null
                 val iconResource = item.getString("iconResource") ?: return@mapNotNull null
