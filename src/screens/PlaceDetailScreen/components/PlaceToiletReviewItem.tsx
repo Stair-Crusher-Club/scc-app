@@ -32,6 +32,7 @@ export default function PlaceToiletReviewItem({
     reviewId: review.id,
     placeId,
   });
+  const reviewImages = review.images;
   const reviewText = review.comment;
   const reviewDate = dayjs(review.createdAt.value).format('YYYY.MM.DD');
   return (
@@ -104,9 +105,9 @@ export default function PlaceToiletReviewItem({
                 </ReviewInfoRow>
               )}
           </ReviewInfoColumn>
-          {review.images && review.images.length > 0 && (
+          {reviewImages && reviewImages.length > 0 && (
             <ImageList
-              images={review.images || []}
+              images={reviewImages || []}
               roundCorners
               isSinglePreview
             />

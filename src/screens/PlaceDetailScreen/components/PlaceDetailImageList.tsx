@@ -24,7 +24,7 @@ export default function ImageList({
 }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
-  const hiddenImages = images.slice(3);
+  const hiddenImages = isSinglePreview ? images.slice(1) : images.slice(3);
 
   function onPressImage(index: number) {
     initialFocusedIndex.current = index;
@@ -37,7 +37,12 @@ export default function ImageList({
   return (
     <ImageListView roundCorners={roundCorners}>
       {isSinglePreview ? (
-        <ImageBox image={images[0]} onPress={() => onPressImage(0)} />
+        <ImageBox
+          image={images[0]}
+          onPress={() => onPressImage(0)}
+          isSinglePreview
+          hiddenImageLength={hiddenImages.length}
+        />
       ) : (
         <>
           <LogClick
@@ -96,7 +101,7 @@ function ImageBox({
   }
   const url = image.thumbnailUrl || image.imageUrl;
   return (
-    <ImageContainer onPress={onPress}>
+    <ImageContainer onPress={onPress} isSinglePreview={isSinglePreview}>
       <Image
         resizeMethod="resize"
         resizeMode="cover"
@@ -132,9 +137,9 @@ const Placeholder = styled.View`
   background-color: ${color.gray10};
 `;
 
-const ImageContainer = styled.Pressable`
-  flex: 0 0 33.333%;
-  position: relative;
+const ImageContainer = styled.Pressable<{isSinglePreview?: boolean}>`
+  flex: ${({isSinglePreview}) => (isSinglePreview ? 'none' : '0 0 33.333%')};
+  position: ${({isSinglePreview}) => (isSinglePreview ? 'static' : 'relative')};
 `;
 
 const MoreImage = styled.View`
