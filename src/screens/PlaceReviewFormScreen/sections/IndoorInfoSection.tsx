@@ -6,6 +6,7 @@ import {SccButton} from '@/components/atoms';
 import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {LogClick} from '@/logging/LogClick';
 
 import {
   ACCESSIBILITY_FEATURE_OPTIONS,
@@ -185,29 +186,33 @@ export default function IndoorInfoSection({
         </View>
 
         <View style={{gap: 10, paddingTop: 10}}>
-          <SccButton
-            text="저장하기"
-            isDisabled={!formState.isValid}
-            style={{
-              borderRadius: 10,
-              backgroundColor: color.brand,
-            }}
-            fontSize={18}
-            fontFamily={font.pretendardBold}
-            onPress={onSave}
-          />
-          <SccButton
-            text="저장하고 화장실도 등록하기"
-            isDisabled={!formState.isValid}
-            style={{
-              borderRadius: 10,
-              backgroundColor: color.gray10,
-            }}
-            fontSize={18}
-            textColor="black"
-            fontFamily={font.pretendardMedium}
-            onPress={onSaveAndToiletReview}
-          />
+          <LogClick elementName="place_review_form_save_button">
+            <SccButton
+              text="저장하기"
+              isDisabled={!formState.isValid}
+              style={{
+                borderRadius: 10,
+                backgroundColor: color.brand,
+              }}
+              fontSize={18}
+              fontFamily={font.pretendardBold}
+              onPress={onSave}
+            />
+          </LogClick>
+          <LogClick elementName="place_review_form_save_and_toilet_review_button">
+            <SccButton
+              text="저장하고 화장실도 등록하기"
+              isDisabled={!formState.isValid}
+              style={{
+                borderRadius: 10,
+                backgroundColor: color.gray10,
+              }}
+              fontSize={18}
+              textColor="black"
+              fontFamily={font.pretendardMedium}
+              onPress={onSaveAndToiletReview}
+            />
+          </LogClick>
         </View>
       </View>
     </S.Container>

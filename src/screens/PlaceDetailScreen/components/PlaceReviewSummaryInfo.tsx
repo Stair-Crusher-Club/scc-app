@@ -10,6 +10,7 @@ import {
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
+import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -46,16 +47,18 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           <SS.Title>방문 리뷰</SS.Title>
           <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
-        <ReviewButton
-          onPress={() =>
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Place', {
-                placeId,
-              });
-            })
-          }>
-          <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
-        </ReviewButton>
+        <LogClick elementName="place_detail_review_write_button">
+          <ReviewButton
+            onPress={() =>
+              checkAuth(() => {
+                navigation.navigate('ReviewForm/Place', {
+                  placeId,
+                });
+              })
+            }>
+            <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
+          </ReviewButton>
+        </LogClick>
       </HeaderRow>
       <SectionColumn style={{marginTop: 16}}>
         <SectionTitle>추천대상</SectionTitle>

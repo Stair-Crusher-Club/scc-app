@@ -217,6 +217,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       ),
       component: (
         <PlaceDetailRegisterButtonSection
+          logKey="place_detail_review_nudge"
           subTitle={`${place.name} 에 방문하셨나요?`}
           title="방문 리뷰를 남겨주세요"
           buttonText="방문 리뷰를 남겨주세요"
@@ -254,6 +255,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       ),
       component: (
         <PlaceDetailRegisterButtonSection
+          logKey="place_detail_toilet_review_nudge"
           title="화장실 정보를 남겨주세요"
           buttonText="화장실 정보를 남겨주세요"
           onPress={() =>

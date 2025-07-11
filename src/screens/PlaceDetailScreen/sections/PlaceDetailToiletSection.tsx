@@ -5,6 +5,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import useMe from '@/hooks/useMe';
+import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -28,16 +29,18 @@ export default function PlaceDetailToiletSection({
     <S.Section>
       <HeaderRow>
         <S.Title>장애인 화장실 정보</S.Title>
-        <ReviewButton
-          onPress={() =>
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Toilet', {
-                placeId,
-              });
-            })
-          }>
-          <ReviewButtonText>정보 등록하기</ReviewButtonText>
-        </ReviewButton>
+        <LogClick elementName="place_detail_toilet_review_write_button">
+          <ReviewButton
+            onPress={() =>
+              checkAuth(() => {
+                navigation.navigate('ReviewForm/Toilet', {
+                  placeId,
+                });
+              })
+            }>
+            <ReviewButtonText>정보 등록하기</ReviewButtonText>
+          </ReviewButton>
+        </LogClick>
       </HeaderRow>
       <ItemList>
         {toiletReviews.map((review, idx) => (
