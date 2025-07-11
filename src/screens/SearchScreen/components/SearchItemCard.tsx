@@ -20,6 +20,7 @@ import {LogViewAndClick} from '@/logging/LogViewAndClick';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import Button from '@/screens/SearchScreen/components/Button';
+import ReviewLabel from '@/screens/SearchScreen/components/ReviewLabel';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -145,7 +146,11 @@ function SearchItemCard({
                   })}
                   isIconVisible
                 />
-                {hasReview && <ReviewIcon />}
+                {hasReview && (
+                  <ReviewLabel
+                    count={item.accessibilityInfo?.reviewCount ?? 0}
+                  />
+                )}
               </View>
               <IconArea>
                 <TouchableOpacity
