@@ -37,6 +37,14 @@ export interface PlaceDetailScreenParams {
   event?: 'submit-place' | 'submit-building';
 }
 
+interface SectionConfig {
+  id: string;
+  label?: string;
+  shouldRender: boolean;
+  component: React.ReactNode;
+  order: number;
+}
+
 const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
@@ -55,10 +63,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   // Sticky navigation state
   const [scrollY, setScrollY] = useState(0);
   const scrollView = useRef<ScrollView>(null);
-  const entranceSection = useRef<View>(null);
-  const indoorSection = useRef<View>(null);
-  const toiletSection = useRef<View>(null);
-  const buildingSection = useRef<View>(null);
+  const [sectionYPositions, setSectionYPositions] = useState<{
+    [key: string]: number;
+  }>({});
 
   const {top} = useSafeAreaInsets();
 
@@ -140,6 +147,14 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     }
   }, [building, closeModals, navigation, place]);
 
+  // 섹션의 y 위치를 업데이트하는 함수
+  const updateSectionYPosition = useCallback((sectionId: string, y: number) => {
+    setSectionYPositions(prev => ({
+      ...prev,
+      [sectionId]: y,
+    }));
+  }, []);
+
   if (isLoading || !place || !building) {
     return null;
   }
@@ -147,29 +162,134 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const isReviewEnabledCategory =
     data.place?.category === 'RESTAURANT' || data.place?.category === 'CAFE';
 
-  const isPlaceReviewContentVisible =
-    isReviewEnabledCategory && reviewPost && reviewPost.length > 0;
-  const isToiletReviewContentVisible =
-    isReviewEnabledCategory && toiletPost && toiletPost.length > 0;
-  const isToiletReviewNudgeVisible =
-    isReviewEnabledCategory && !(toiletPost && toiletPost.length > 1);
-  const isPlaceReviewNudgeVisible =
-    isReviewEnabledCategory && !(reviewPost && reviewPost.length > 1);
-  const isFeedbackSectionVisible =
-    accessibilityPost && accessibilityPost?.placeAccessibility;
+  const isFirstFloor =
+    accessibilityPost?.placeAccessibility?.isFirstFloor ?? false;
 
-  const menus = [{label: '입구 접근성', ref: entranceSection}]
-    .concat(
-      isPlaceReviewContentVisible
-        ? [{label: '이용 정보', ref: indoorSection}]
-        : [],
-    )
-    .concat(
-      isToiletReviewContentVisible
-        ? [{label: '화장실', ref: toiletSection}]
-        : [],
-    )
-    .concat([{label: '건물 정보', ref: buildingSection}]);
+  const sections: SectionConfig[] = [
+    {
+      id: 'entrance',
+      label: '입구 접근성',
+      shouldRender: true,
+      component: (
+        <PlaceDetailEntranceSection
+          accessibility={accessibilityPost}
+          place={place}
+          isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+          onRegister={() => navigation.navigate('PlaceForm', {place, building})}
+        />
+      ),
+      order: 1,
+    },
+    {
+      id: 'building',
+      label: '건물 정보',
+      shouldRender: true,
+      component: (
+        <PlaceDetailBuildingSection
+          accessibility={accessibilityPost}
+          place={place}
+          building={building}
+          isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+        />
+      ),
+      order: isFirstFloor ? 7 : 2, // 1층이면 맨 마지막, 아니면 입구 다음
+    },
+    {
+      id: 'indoor',
+      label: '이용 정보',
+      shouldRender: !!(
+        isReviewEnabledCategory &&
+        reviewPost &&
+        reviewPost.length > 0
+      ),
+      component: (
+        <PlaceDetailIndoorSection
+          reviews={reviewPost ?? []}
+          placeId={place.id}
+        />
+      ),
+      order: 3,
+    },
+    {
+      id: 'placeReviewNudge',
+      shouldRender: !!(
+        isReviewEnabledCategory && !(reviewPost && reviewPost.length > 1)
+      ),
+      component: (
+        <PlaceDetailRegisterButtonSection
+          subTitle={`${place.name} 에 방문하셨나요?`}
+          title="방문 리뷰를 남겨주세요"
+          buttonText="방문 리뷰를 남겨주세요"
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Place', {
+                placeId: place.id,
+              });
+            })
+          }
+        />
+      ),
+      order: 4,
+    },
+    {
+      id: 'toilet',
+      label: '화장실',
+      shouldRender: !!(
+        isReviewEnabledCategory &&
+        toiletPost &&
+        toiletPost.length > 0
+      ),
+      component: (
+        <PlaceDetailToiletSection
+          toiletReviews={toiletPost ?? []}
+          placeId={place.id}
+        />
+      ),
+      order: 5,
+    },
+    {
+      id: 'toiletReviewNudge',
+      shouldRender: !!(
+        isReviewEnabledCategory && !(toiletPost && toiletPost.length > 1)
+      ),
+      component: (
+        <PlaceDetailRegisterButtonSection
+          title="화장실 정보를 남겨주세요"
+          buttonText="화장실 정보를 남겨주세요"
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Toilet', {
+                placeId: place.id,
+              });
+            })
+          }
+        />
+      ),
+      order: 6,
+    },
+    {
+      id: 'feedback',
+      shouldRender: !!(
+        accessibilityPost && accessibilityPost?.placeAccessibility
+      ),
+      component: accessibilityPost ? (
+        <PlaceDetailFeedbackSection accessibility={accessibilityPost} />
+      ) : null,
+      order: 8,
+    },
+  ];
+
+  const visibleSections = sections
+    .filter(section => section.shouldRender)
+    .sort((a, b) => a.order - b.order);
+
+  // 네비게이션 메뉴 구성 - y 위치를 포함
+  const navigationMenus = visibleSections
+    .filter(section => section.label)
+    .map(section => ({
+      label: section.label!,
+      y: sectionYPositions[section.id] || 0,
+    }));
 
   return (
     <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
@@ -198,88 +318,21 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <ScrollNavigation
               scrollContainer={scrollView}
               scrollY={scrollY}
-              menus={menus}
+              menus={navigationMenus}
             />
-            <View ref={entranceSection} collapsable={false}>
-              <PlaceDetailEntranceSection
-                accessibility={accessibilityPost}
-                place={place}
-                isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-                onRegister={() =>
-                  navigation.navigate('PlaceForm', {place, building})
-                }
-              />
-            </View>
-            <S.SectionSeparator />
-            {isPlaceReviewContentVisible && (
-              <>
-                <View ref={indoorSection} collapsable={false}>
-                  <PlaceDetailIndoorSection
-                    reviews={reviewPost}
-                    placeId={place.id}
-                  />
+            {visibleSections.map((section, index) => (
+              <React.Fragment key={section.id}>
+                <View
+                  onLayout={e => {
+                    const {y} = e.nativeEvent.layout;
+                    updateSectionYPosition(section.id, y);
+                  }}
+                  collapsable={false}>
+                  {section.component}
                 </View>
-                <S.SectionSeparator />
-              </>
-            )}
-            {isPlaceReviewNudgeVisible && (
-              <>
-                <PlaceDetailRegisterButtonSection
-                  subTitle={`${place.name} 에 방문하셨나요?`}
-                  title="방문 리뷰를 남겨주세요"
-                  buttonText="방문 리뷰를 남겨주세요"
-                  onPress={() =>
-                    checkAuth(() => {
-                      navigation.navigate('ReviewForm/Place', {
-                        placeId: place.id,
-                      });
-                    })
-                  }
-                />
-                <S.SectionSeparator />
-              </>
-            )}
-            {isToiletReviewContentVisible && (
-              <>
-                <View ref={toiletSection} collapsable={false}>
-                  <PlaceDetailToiletSection
-                    toiletReviews={toiletPost}
-                    placeId={place.id}
-                  />
-                </View>
-                <S.SectionSeparator />
-              </>
-            )}
-            {isToiletReviewNudgeVisible && (
-              <>
-                <PlaceDetailRegisterButtonSection
-                  title="화장실 정보를 남겨주세요"
-                  buttonText="화장실 정보를 남겨주세요"
-                  onPress={() =>
-                    checkAuth(() => {
-                      navigation.navigate('ReviewForm/Toilet', {
-                        placeId: place.id,
-                      });
-                    })
-                  }
-                />
-                <S.SectionSeparator />
-              </>
-            )}
-            <View ref={buildingSection} collapsable={false}>
-              <PlaceDetailBuildingSection
-                accessibility={accessibilityPost}
-                place={place}
-                building={building}
-                isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-              />
-            </View>
-            {isFeedbackSectionVisible && (
-              <>
-                <S.SectionSeparator />
-                <PlaceDetailFeedbackSection accessibility={accessibilityPost} />
-              </>
-            )}
+                {index < visibleSections.length - 1 && <S.SectionSeparator />}
+              </React.Fragment>
+            ))}
           </ScrollView>
         </GestureHandlerRootView>
         <RequireBuildingAccessibilityBottomSheet
