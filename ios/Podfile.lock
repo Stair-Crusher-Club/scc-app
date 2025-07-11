@@ -1080,8 +1080,10 @@ PODS:
     - React-Core
   - react-native-geolocation (3.0.6):
     - React-Core
-  - react-native-image-editor (2.3.0):
-    - React
+  - react-native-image-editor (4.3.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
     - React-RCTImage
   - react-native-mmkv (2.12.2):
     - glog
@@ -1641,17 +1643,17 @@ SPEC CHECKSUMS:
   React-jsi: 2e3c3efe487bae67b4bd9b0d81efc67f87ae2990
   React-jsiexecutor: efcdc14052b16e55b029c9179962e1225ccf2601
   React-jsinspector: 1729acf5ffe2d4439d698da25fddf0c75d07d1a1
-  React-logger: 7904abd7e1299754785e356af15ec9d1e9439901
-  React-Mapbuffer: d56122e84907e9a6dad428c83cd2bd0d3dc64f71
-  react-native-appsflyer: 651e0b17b50399707c1d23d145d88100551b4f53
-  react-native-compressor: 93ff3b7a30a499e3cf1bb9934f514172ca2882e1
-  react-native-config: 136f9755ccc991cc6438053a44363259ad4c7813
-  react-native-geolocation: def10765a5144e7a76837093d43303d70bb6addf
-  react-native-image-editor: 79ab1c166e53c2d5e5b5ed0fd37b98fb2edb0421
-  react-native-mmkv: 5a8111cda779bc8789c4d09103f22e2d9cf46950
-  react-native-safe-area-context: 8c70551c8688cd584a53487aa1b9361e991a3b4a
-  react-native-splash-screen: 95994222cc95c236bd3cdc59fe45ed5f27969594
-  react-native-webview: e3aedfa06f07b8293a72d61df6acace816fed325
+  React-logger: 60afd40b183e8e6642bfd0108f1a1ad360cc665e
+  React-Mapbuffer: 672a9342eb75a4d0663306e94d4dfc88aee73b93
+  react-native-appsflyer: 37a0053df435bb76c330c5c15488dca29a3baa9b
+  react-native-compressor: 5b4428113afb17ea4556d4bf8f58f47bb468ecfc
+  react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
+  react-native-geolocation: 0f7fe8a4c2de477e278b0365cce27d089a8c5903
+  react-native-image-editor: d57cec9bd34dc6bc4fd48db56820ff1ff2aa9c7b
+  react-native-mmkv: 1fdc81aa70c1aba09370718e6a63a09cbbbac8d2
+  react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
+  react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
+  react-native-webview: a9663e81c7acc865b88632e43a164838f00745f6
   React-nativeconfig: 2e44d0d2dd222b12a5183f4bcaa4a91881497acb
   React-NativeModulesApple: b70b38573773f2e9e342a1cf9ca5e36f5db55419
   React-perflogger: f9367428cf475f4606b5965c1d5a71781bb95299
