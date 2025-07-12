@@ -1,8 +1,8 @@
 import ImageEditor from '@react-native-community/image-editor';
 import React, {useEffect, useState} from 'react';
 import {Dimensions, Platform} from 'react-native';
-import {DragSortableView} from 'react-native-drag-sort';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
+import DraggableFlatList from 'react-native-draggable-flatlist';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
@@ -20,6 +20,7 @@ import CameraNotAuthorized from './CameraNotAuthorized';
 import CameraPreview from './CameraPreview';
 import * as S from './CameraScreen.style';
 import useCamera from './useCamera';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 export interface CameraScreenParams {
   takenPhotos: ImageFile[];
@@ -128,29 +129,38 @@ export default function CameraScreen({
           <S.NoPhotosTaken>최대 3장까지 촬영할 수 있어요</S.NoPhotosTaken>
         )}
         {photoFiles.length > 0 && (
-          <DragSortableView
-            dataSource={photoFiles}
-            keyExtractor={(item: ImageFile) => item.uri}
-            parentWidth={216}
-            childrenWidth={56}
-            childrenHeight={56}
-            marginChildrenLeft={8}
-            marginChildrenRight={8}
-            onClickItem={(_, __, index) => openPreview(index)}
-            onDataChange={files => setPhotoFiles(files)}
-            renderItem={(photo: ImageFile) => (
-              <S.TakenPhotoItem key={photo.uri}>
-                <S.Thumbnail
-                  source={{
-                    uri: ImageFileUtils.filepathFromImageFile(photo),
+          <GestureHandlerRootView>
+            <DraggableFlatList
+              horizontal
+              contentContainerStyle={{
+                justifyContent: 'center',
+                overflow: 'visible',
+                gap: 16,
+                padding: 10,
+                flexGrow: 1,
+              }}
+              data={photoFiles}
+              onDragEnd={({data}) => setPhotoFiles(data)}
+              keyExtractor={(item: ImageFile) => item.uri}
+              renderItem={({item, drag, isActive}) => (
+                <S.TakenPhotoItem
+                  style={{
+                    opacity: isActive ? 0.5 : 1,
+                    transform: [{scale: isActive ? 1.05 : 1}],
                   }}
-                />
-                <S.CloseButton onPress={() => onPressX(photo)}>
-                  <CircleCloseIcon width={24} height={24} />
-                </S.CloseButton>
-              </S.TakenPhotoItem>
-            )}
-          />
+                  key={item.uri}
+                  onLongPress={drag}
+                  onPress={() => openPreview(photoFiles.indexOf(item))}>
+                  <S.Thumbnail
+                    source={{uri: ImageFileUtils.filepathFromImageFile(item)}}
+                  />
+                  <S.CloseButton onPress={() => onPressX(item)}>
+                    <CircleCloseIcon width={24} height={24} />
+                  </S.CloseButton>
+                </S.TakenPhotoItem>
+              )}
+            />
+          </GestureHandlerRootView>
         )}
       </S.TakenPhotos>
       <S.ActionsWrapper>

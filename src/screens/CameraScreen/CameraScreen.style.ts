@@ -77,7 +77,7 @@ export const NoPhotosTaken = styled.Text({
   textAlign: 'center',
 });
 
-export const TakenPhotoItem = styled.View({});
+export const TakenPhotoItem = styled.Pressable({});
 
 export const Thumbnail = styled.Image({
   backgroundColor: color.gray20,

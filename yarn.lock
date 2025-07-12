@@ -2582,6 +2582,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/plugin-transform-typescript@npm:^7.27.1":
+  version: 7.28.0
+  resolution: "@babel/plugin-transform-typescript@npm:7.28.0"
+  dependencies:
+    "@babel/helper-annotate-as-pure": "npm:^7.27.3"
+    "@babel/helper-create-class-features-plugin": "npm:^7.27.1"
+    "@babel/helper-plugin-utils": "npm:^7.27.1"
+    "@babel/helper-skip-transparent-expression-wrappers": "npm:^7.27.1"
+    "@babel/plugin-syntax-typescript": "npm:^7.27.1"
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 10c0/049c2bd3407bbf5041d8c95805a4fadee6d176e034f6b94ce7967b92a846f1e00f323cf7dfbb2d06c93485f241fb8cf4c10520e30096a6059d251b94e80386e9
+  languageName: node
+  linkType: hard
+
 "@babel/plugin-transform-unicode-escapes@npm:^7.27.1":
   version: 7.27.1
   resolution: "@babel/plugin-transform-unicode-escapes@npm:7.27.1"
@@ -2746,6 +2761,21 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 10c0/ed50d19abb80af5dd5fbb2de21210164368e20ebfc86fea01f185c23ff49412c2b71daec4867309451e5d430d0026539cce74e3ef341ae64a7f11693dc5c6d5e
+  languageName: node
+  linkType: hard
+
+"@babel/preset-typescript@npm:^7.17.12":
+  version: 7.27.1
+  resolution: "@babel/preset-typescript@npm:7.27.1"
+  dependencies:
+    "@babel/helper-plugin-utils": "npm:^7.27.1"
+    "@babel/helper-validator-option": "npm:^7.27.1"
+    "@babel/plugin-syntax-jsx": "npm:^7.27.1"
+    "@babel/plugin-transform-modules-commonjs": "npm:^7.27.1"
+    "@babel/plugin-transform-typescript": "npm:^7.27.1"
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 10c0/cba6ca793d915f8aff9fe2f13b0dfbf5fd3f2e9a17f17478ec9878e9af0d206dcfe93154b9fd353727f16c1dca7c7a3ceb4943f8d28b216235f106bc0fbbcaa3
   languageName: node
   linkType: hard
 
@@ -12532,10 +12562,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-drag-sort@npm:^2.4.4":
-  version: 2.4.4
-  resolution: "react-native-drag-sort@npm:2.4.4"
-  checksum: 10c0/c21a5885eec16f5f5e2d661663d7ad418bb46a956d014ec1e47469980c398a6fa4895f5839ab64d2fe9dd9ffc3dcd012eaf71087f866c2703f2d21a35b93b89d
+"react-native-draggable-flatlist@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "react-native-draggable-flatlist@npm:4.0.3"
+  dependencies:
+    "@babel/preset-typescript": "npm:^7.17.12"
+  peerDependencies:
+    react-native: ">=0.64.0"
+    react-native-gesture-handler: ">=2.0.0"
+    react-native-reanimated: ">=2.8.0"
+  checksum: 10c0/1b9bd3da36929dc21bbcd7eb63e37af52c87add06776c7f20215cb6a28499f4e03619e3751fc71e192d5b074fb1dc782a939186ca7ef281928b9c940f6239455
   languageName: node
   linkType: hard
 
@@ -13292,7 +13328,7 @@ __metadata:
     react-native-compressor: "npm:^1.12.0"
     react-native-config: "npm:^1.5.5"
     react-native-device-info: "npm:^14.0.4"
-    react-native-drag-sort: "npm:^2.4.4"
+    react-native-draggable-flatlist: "npm:^4.0.3"
     react-native-gesture-handler: "npm:^2.26.0"
     react-native-image-zoom-viewer: "npm:^3.0.1"
     react-native-mmkv: "npm:^3.3.0"
