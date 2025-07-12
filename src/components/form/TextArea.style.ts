@@ -12,8 +12,8 @@ export const TextAreaContainer = styled.View<{
     props.hasError
       ? color.red
       : props.focused
-      ? color.brandColor
-      : color.gray30};
+        ? color.brandColor
+        : color.gray30};
   border-width: 1px;
   border-radius: 20px;
   padding-horizontal: 24px;

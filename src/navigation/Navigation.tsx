@@ -60,9 +60,6 @@ export const Navigation = () => {
         // eslint-disable-next-line react/no-unstable-nested-components
         header: ({options, navigation}) => {
           const customOptions = options as CustomNavigationOptions;
-          if (options.headerTitle === '장소 검색') {
-            return null;
-          }
           const title =
             typeof options.headerTitle === 'string' ? options.headerTitle : '';
           if (!(typeof options.headerTitle === 'string')) {

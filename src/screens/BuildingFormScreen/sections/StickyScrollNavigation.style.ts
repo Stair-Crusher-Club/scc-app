@@ -17,7 +17,7 @@ export const StickyScrollNavigation = styled.View<{show: boolean}>(props => ({
   paddingHorizontal: 20,
   backgroundColor: 'white',
   borderBottomWidth: 1,
-  borderBottomColor: color.gray50,
+  borderBottomColor: color.gray20,
   transform: props.show ? 'translateY(0)' : 'translateY(-999px)',
 }));
 

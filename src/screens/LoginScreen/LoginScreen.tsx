@@ -272,7 +272,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   return (
     <ScreenLayout
       isHeaderVisible={false}
-      safeAreaEdges={['top', 'bottom']}
+      safeAreaEdges={['bottom']}
       style={{backgroundColor: 'white'}}>
       <S.Container>
         <S.SlideContainer>
