@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  ViewProps,
-} from 'react-native';
+import {KeyboardAvoidingView, Platform, ViewProps} from 'react-native';
 import {
   Edge,
   SafeAreaView,
@@ -12,6 +7,7 @@ import {
 } from 'react-native-safe-area-context';
 
 import {HEIGHT_OF_NAVIGATION_HEADER} from '@/constant/constant';
+import {color} from '@/constant/color';
 
 export interface ScreenLayoutProps extends ViewProps {
   children?: React.ReactNode;
@@ -30,24 +26,20 @@ export const ScreenLayout = ({
   const safeAreaInsets = useSafeAreaInsets();
   let verticalOffset = 0;
   if (isHeaderVisible) {
-    verticalOffset =
-      HEIGHT_OF_NAVIGATION_HEADER +
-      (Platform.OS === 'android'
-        ? StatusBar.currentHeight || 0
-        : safeAreaInsets.top);
-    if (safeAreaEdges.indexOf('bottom') >= 0) {
-      verticalOffset -= safeAreaInsets.bottom;
-    }
+    verticalOffset = HEIGHT_OF_NAVIGATION_HEADER + safeAreaInsets.top;
   }
+  console.log('verticalOffset', verticalOffset);
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      enabled={isKeyboardAvoidingView ?? true}
-      keyboardVerticalOffset={verticalOffset}
-      style={[{flex: 1}, style]}>
-      <SafeAreaView edges={safeAreaEdges} style={{flex: 1}}>
+    <SafeAreaView
+      edges={safeAreaEdges}
+      style={[{flex: 1, backgroundColor: color.white}, style]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        enabled={isKeyboardAvoidingView ?? true}
+        keyboardVerticalOffset={verticalOffset}
+        style={[{flex: 1}, style]}>
         {children}
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };

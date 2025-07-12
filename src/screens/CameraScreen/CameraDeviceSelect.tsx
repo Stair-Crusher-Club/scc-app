@@ -36,7 +36,9 @@ export default function CameraDeviceSelect({device, onDeviceSelect}: Props) {
             key={d.id}
             selected={d === device}
             onPress={() => onDeviceSelect(d)}>
-            <S.DeviceTypeText>{getDeviceTypeName(d)}</S.DeviceTypeText>
+            <S.DeviceTypeText selected={d === device}>
+              {getDeviceTypeName(d)}
+            </S.DeviceTypeText>
           </S.DeviceTypeButton>
         ))}
     </S.DeviceTypes>

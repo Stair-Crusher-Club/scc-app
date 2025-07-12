@@ -130,8 +130,8 @@ const SignupInput = forwardRef<TextInput, Props>(
               color: isValid
                 ? color.brandColor
                 : isValid === false
-                ? color.red
-                : color.gray50,
+                  ? color.red
+                  : color.gray50,
             }}
             boldStyle={{
               fontSize: 12,

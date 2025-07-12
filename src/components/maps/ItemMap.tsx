@@ -42,7 +42,7 @@ export default function ItemMap<T extends MarkerItem>({
 }: {
   items: T[];
   onMarkerPress?: (item: T) => void;
-  mapRef: React.RefObject<MapViewHandle>;
+  mapRef: React.RefObject<MapViewHandle | null>;
   mapPadding?: {top: number; right: number; bottom: number; left: number};
   selectedItemId: string | null;
   onCameraIdle?: (region: Region) => void;

@@ -24,8 +24,8 @@ export const SubmitButton = styled.Text(({disabled}: {disabled?: boolean}) => ({
   opacity: disabled ? 0.3 : 1,
 }));
 
-export const CameraContainer = styled.View(
-  ({maxHeight}: {maxHeight?: number}) => ({
+export const CameraContainer = styled.View<{maxHeight?: number}>(
+  ({maxHeight}) => ({
     width: '100%',
     maxHeight: maxHeight,
     backgroundColor: 'black',
@@ -77,7 +77,7 @@ export const NoPhotosTaken = styled.Text({
   textAlign: 'center',
 });
 
-export const TakenPhotoItem = styled.View({});
+export const TakenPhotoItem = styled.Pressable({});
 
 export const Thumbnail = styled.Image({
   backgroundColor: color.gray20,

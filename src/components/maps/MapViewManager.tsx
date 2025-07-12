@@ -1,7 +1,7 @@
 import React from 'react';
 import {HostComponent} from 'react-native';
-import codegenNativeCommands from 'react-native/Libraries/Utilities/codegenNativeCommands';
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+import {codegenNativeCommands} from 'react-native';
+import {codegenNativeComponent} from 'react-native';
 
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {LatLng, Region} from '@/components/maps/Types.tsx';
