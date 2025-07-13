@@ -7,11 +7,16 @@ export type MarkerItem = {
 
 export function toStringMarkerIcon(
   markerIcon: {icon: MarkerIcon; level: MarkerLevel} | undefined,
-): string | undefined {
+): {icon: string; color: string; width: number; height: number} | undefined {
   if (!markerIcon) {
     return undefined;
   }
-  return markerIcon.icon + '_' + markerIcon.level;
+  return {
+    icon: markerIcon.icon + '_' + markerIcon.level,
+    color: 'black',
+    width: 10,
+    height: 10,
+  };
 }
 
 export type MarkerIcon =

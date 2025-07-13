@@ -18,6 +18,19 @@
     "console:sandbox": "env-cmd -f subprojects/scc-frontend-build-configurations/sandbox/.env.hot-updater hot-updater console",
     "console:production": "env-cmd -f subprojects/scc-frontend-build-configurations/production/.env.hot-updater hot-updater console"
   },
+  "codegenConfig": {
+    "name": "AppSpec",
+    "type": "components",
+    "jsSrcsDir": "specs",
+    "android": {
+      "javaPackageName": "club.staircrusher"
+    },
+    "ios": {
+      "componentProvider": {
+        "SccMapView": "RCTSccMapView"
+      }
+    }
+  },
   "dependencies": {
     "@babel/plugin-transform-numeric-separator": "^7.24.1",
     "@hapi/hoek": "^11.0.4",

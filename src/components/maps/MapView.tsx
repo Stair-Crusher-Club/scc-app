@@ -1,12 +1,9 @@
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
-import {HostComponent} from 'react-native';
-
-import {
-  Commands,
-  MapViewManager,
-  MapViewProps,
+import SccMapView, {
   NativeProps,
-} from '@/components/maps/MapViewManager.tsx';
+  Commands as SccMapViewCommands,
+  SccMapViewType,
+} from '@/../specs/SccMapViewNativeComponent';
 import {Region} from '@/components/maps/Types.tsx';
 
 type LatLng = {
@@ -21,7 +18,7 @@ export interface MapViewHandle {
   setPositionMode: (mode: 'normal' | 'direction' | 'compass') => void;
 }
 
-const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
+const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
   (
     {
       onMarkerPress,
@@ -33,17 +30,22 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
     },
     ref,
   ) => {
-    const mapRef = useRef<React.ComponentRef<HostComponent<NativeProps>>>(null);
+    const mapRef = useRef<React.ComponentRef<SccMapViewType> | null>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         fitToElements: () => {
-          mapRef.current && Commands.fitToElements(mapRef.current);
+          mapRef.current && SccMapViewCommands.fitToElements(mapRef.current);
         },
         animateCamera: (center: LatLng, duration: number) => {
           mapRef.current &&
-            Commands.animateCamera(mapRef.current, {center}, duration);
+            SccMapViewCommands.animateCamera(
+              mapRef.current,
+              center.latitude,
+              center.longitude,
+              duration,
+            );
         },
         animateToRegion: (
           {northEast, southWest}: Region,
@@ -51,21 +53,25 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
           duration: number,
         ) => {
           mapRef.current &&
-            Commands.animateToRegion(
+            SccMapViewCommands.animateToRegion(
               mapRef.current,
-              {northEast, southWest},
+              northEast.latitude,
+              northEast.longitude,
+              southWest.latitude,
+              southWest.longitude,
               padding,
               duration,
             );
         },
         setPositionMode: (mode: 'normal' | 'direction' | 'compass') => {
-          mapRef.current && Commands.setPositionMode(mapRef.current, mode);
+          mapRef.current &&
+            SccMapViewCommands.setPositionMode(mapRef.current, mode);
         },
       }),
       [mapRef],
     );
     return (
-      <MapViewManager
+      <SccMapView
         // @ts-ignore
         ref={mapRef}
         style={{

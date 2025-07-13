@@ -8,6 +8,10 @@ import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem, toStringMarkerIcon} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, LatLng, Region} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
+import {
+  NativeMarkerItem,
+  NativeRegion,
+} from '../../../specs/SccMapViewNativeComponent';
 
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
@@ -49,22 +53,32 @@ export default function ItemMap<T extends MarkerItem>({
 }) {
   const [firstFittingDone, setFirstFittingDone] = React.useState(false);
   const currentLocation = useAtomValue(currentLocationAtom);
+  const region = currentLocation ? getRegion(currentLocation) : DefaultRegion;
+  const nativeRegion: NativeRegion = {
+    northEastLat: region.northEast.latitude,
+    northEastLng: region.northEast.longitude,
+    southWestLat: region.southWest.latitude,
+    southWestLng: region.southWest.longitude,
+  };
+  const nativeMarkerItems: NativeMarkerItem[] = items.map(item => ({
+    id: item.id,
+    markerIcon: toStringMarkerIcon(item.markerIcon),
+    displayName: item.displayName,
+    location: item.location,
+  }));
   const route = useRoute();
   useEffect(() => {
     if (items.length > 0 && !firstFittingDone) {
       setFirstFittingDone(true);
-      const region = getRegionFromItems(items);
       setTimeout(() => {
-        mapRef.current?.animateToRegion(region, 10, 1);
+        mapRef.current?.animateToRegion(getRegionFromItems(items), 10, 1);
       }, 100);
     }
   }, [items.length]);
 
   return (
     <StyledMapView
-      initialRegion={
-        currentLocation ? getRegion(currentLocation) : DefaultRegion
-      }
+      initialRegion={nativeRegion}
       onMarkerPress={async x => {
         const item = items.find(it => it.id === x.nativeEvent.id);
         if (!item) {
@@ -83,17 +97,20 @@ export default function ItemMap<T extends MarkerItem>({
       }}
       ref={mapRef}
       onCameraIdle={({nativeEvent}) => {
-        const {region} = nativeEvent;
-        onCameraIdle?.(region);
+        onCameraIdle?.({
+          northEast: {
+            latitude: nativeEvent.northEastLat,
+            longitude: nativeEvent.northEastLng,
+          },
+          southWest: {
+            latitude: nativeEvent.southWestLat,
+            longitude: nativeEvent.southWestLng,
+          },
+        });
       }}
       mapPadding={mapPadding}
       selectedItemId={selectedItemId}
-      markers={items.map(item => ({
-        id: item.id,
-        iconResource: toStringMarkerIcon(item.markerIcon),
-        displayName: item.displayName,
-        location: item.location,
-      }))}
+      markers={nativeMarkerItems}
     />
   );
 }

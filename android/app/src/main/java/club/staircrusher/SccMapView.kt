@@ -1,29 +1,28 @@
 package club.staircrusher
 
 import android.annotation.SuppressLint
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.LifecycleEventListener
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableNativeMap
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.react.uimanager.events.Event
 import com.mrousavy.camera.core.utils.runOnUiThread
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
+import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 
 @SuppressLint("ViewConstructor")
-class MapView(
-    private val reactContext: ThemedReactContext,
-    appContext: ReactApplicationContext,
-    private val manager: MapViewManager,
-) : com.naver.maps.map.MapView(
-    appContext,
-    NaverMapOptions().zoomControlEnabled(false)
+class SccMapView(private val reactContext: ThemedReactContext) : MapView(
+    reactContext, NaverMapOptions().zoomControlEnabled(false)
 ) {
     private var isDestroyed = false
     private var isPaused = false
@@ -42,25 +41,25 @@ class MapView(
     init {
         lifecycleListener = (object : LifecycleEventListener {
             override fun onHostResume() {
-                synchronized(this@MapView) {
+                synchronized(this@SccMapView) {
                     if (!isDestroyed) {
-                        this@MapView.onResume()
+                        this@SccMapView.onResume()
                     }
                     isPaused = false
                 }
             }
 
             override fun onHostPause() {
-                synchronized(this@MapView) {
+                synchronized(this@SccMapView) {
                     if (!isDestroyed) {
-                        this@MapView.onPause()
+                        this@SccMapView.onPause()
                     }
                     isPaused = true
                 }
             }
 
             override fun onHostDestroy() {
-                this@MapView.doDestroy()
+                this@SccMapView.doDestroy()
             }
         }).also {
             reactContext.addLifecycleEventListener(it)
@@ -69,27 +68,8 @@ class MapView(
         getMapAsync {
             map = it
             it.addOnCameraIdleListener {
-                this@MapView.manager.pushEvent(
-                    this@MapView.reactContext,
-                    this@MapView,
-                    "onCameraIdle",
-                    WritableNativeMap().also { it ->
-                        val bound = this@MapView.map?.contentBounds ?: return@also
-                        val northEast = WritableNativeMap().also {
-                            it.putDouble("latitude", bound.northLatitude)
-                            it.putDouble("longitude", bound.eastLongitude)
-                        }
-                        val southWest = WritableNativeMap().also {
-                            it.putDouble("latitude", bound.southLatitude)
-                            it.putDouble("longitude", bound.westLongitude)
-                        }
-                        val region = WritableNativeMap().also {
-                            it.putMap("northEast", northEast)
-                            it.putMap("southWest", southWest)
-                        }
-                        it.putMap("region", region)
-                    }
-                )
+                val bound = this@SccMapView.map?.contentBounds ?: return@addOnCameraIdleListener
+                emitCameraOnIdleEvent(bound)
             }
             reactContext.currentActivity?.let { activity ->
                 it.locationSource = FusedLocationSource(activity, 100)
@@ -147,14 +127,7 @@ class MapView(
                 marker.map = this.map
                 marker.icon = data.getIcon(isSelected = false)
                 marker.setOnClickListener {
-                    this@MapView.manager.pushEvent(
-                        this@MapView.reactContext,
-                        this@MapView,
-                        "onMarkerPress",
-                        WritableNativeMap().also {
-                            it.putString("id", data.id)
-                        }
-                    )
+                    emitMarkerPressEvent(data.id)
                     true
                 }
                 marker to data
@@ -182,8 +155,7 @@ class MapView(
         m.moveCamera(
             CameraUpdate.fitBounds(
                 LatLngBounds.from(markers.map { it.first.position }), 10
-            )
-                .animate(CameraAnimation.Easing, 200)
+            ).animate(CameraAnimation.Easing, 200)
         )
     }
 
@@ -209,6 +181,31 @@ class MapView(
         layout(left, top, right, bottom)
     }
 
+    private fun emitMarkerPressEvent(markerId: String) {
+        val reactContext = context as ReactContext
+        val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
+        val eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+        val payload = Arguments.createMap().apply {
+            putString("id", markerId)
+        }
+        val event = OnMarkerPressEvent(surfaceId, id, payload)
+        eventDispatcher?.dispatchEvent(event)
+    }
+
+    private fun emitCameraOnIdleEvent(region: LatLngBounds) {
+        val reactContext = context as ReactContext
+        val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
+        val eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+        val payload = Arguments.createMap().apply {
+            putDouble("northEastLat", region.northLatitude)
+            putDouble("northEastLng", region.eastLongitude)
+            putDouble("southWestLat", region.southLatitude)
+            putDouble("southWestLng", region.westLongitude)
+        }
+        val event = OnCameraIdleEvent(surfaceId, id, payload)
+        eventDispatcher?.dispatchEvent(event)
+    }
+
     @Synchronized
     fun doDestroy() {
         if (isDestroyed) {
@@ -225,5 +222,19 @@ class MapView(
             isPaused = true
         }
         onDestroy()
+    }
+
+    inner class OnMarkerPressEvent(
+        surfaceId: Int, viewId: Int, private val payload: WritableMap
+    ) : Event<OnMarkerPressEvent>(surfaceId, viewId) {
+        override fun getEventName() = "onMarkerPress"
+        override fun getEventData() = payload
+    }
+
+    inner class OnCameraIdleEvent(
+        surfaceId: Int, viewId: Int, private val payload: WritableMap
+    ) : Event<OnCameraIdleEvent>(surfaceId, viewId) {
+        override fun getEventName() = "onCameraIdle"
+        override fun getEventData() = payload
     }
 }
