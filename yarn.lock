@@ -4982,9 +4982,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shopify/flash-list@npm:^1.8.3":
-  version: 1.8.3
-  resolution: "@shopify/flash-list@npm:1.8.3"
+"@shopify/flash-list@npm:^2.0.0-rc.11":
+  version: 2.0.0-rc.11
+  resolution: "@shopify/flash-list@npm:2.0.0-rc.11"
   dependencies:
     recyclerlistview: "npm:4.2.3"
     tslib: "npm:2.8.1"
@@ -4992,7 +4992,7 @@ __metadata:
     "@babel/runtime": "*"
     react: "*"
     react-native: "*"
-  checksum: 10c0/0900250ce45157d144e3fef4d1cd8c5dfb03495ecb66da1f512697a6834f4eee7bf0755a3772b3c131135784757e5b36566ed365ea0890d9c10ad872885ef650
+  checksum: 10c0/1b7636b9a29ff46733007735f4591edb697132bde17f4a133ac69665d78d46f829e1818c1115264ebb370f12b86eb0e70311b00a341f81d7136ef5dcbda67190
   languageName: node
   linkType: hard
 
@@ -13294,7 +13294,7 @@ __metadata:
     "@react-navigation/bottom-tabs": "npm:^7.4.2"
     "@react-navigation/native": "npm:^7.1.14"
     "@react-navigation/native-stack": "npm:^7.3.21"
-    "@shopify/flash-list": "npm:^1.8.3"
+    "@shopify/flash-list": "npm:^2.0.0-rc.11"
     "@tanstack/react-query": "npm:^5.81.5"
     "@trivago/prettier-plugin-sort-imports": "npm:^4.1.1"
     "@types/lodash": "npm:^4.14.186"

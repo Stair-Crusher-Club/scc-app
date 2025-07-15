@@ -8,7 +8,16 @@
 import UIKit
 import NMapsMap
 
-class RNTMapView: NMFMapView, NMFMapViewCameraDelegate {
+
+@objc public protocol NativeSccMapDelegate: NSObjectProtocol {
+  @objc(onCameraIdle:) func onCameraIdle(region: String);
+  @objc(onMarkerPress:) func onMarkerPress(id: String);
+}
+
+
+@objcMembers class RNTMapView: NMFMapView, NMFMapViewCameraDelegate {
+  
+  @objc weak var mapDelegate: NativeSccMapDelegate?
   
   class MarkerWithData {
     var marker: NMFMarker
@@ -25,6 +34,14 @@ class RNTMapView: NMFMapView, NMFMapViewCameraDelegate {
   private var currentTargetMarker: MarkerWithData? = nil
   private var markerList: Array<MarkerWithData> = []
   private var overlayImageMap: [String:NMFOverlayImage] = [:]
+  
+  @objc override init(frame: CGRect) {
+    super.init(frame: frame)
+  }
+  
+  @objc required init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
+  }
 
   @objc func animateCamera(_ position: NMGLatLng, duration: Double) {
     let cameraUpdate = NMFCameraUpdate(scrollTo: position)
@@ -140,7 +157,7 @@ class RNTMapView: NMFMapView, NMFMapViewCameraDelegate {
     callback(event)
   }
   
-  func mapViewCameraIdle(_ mapView: NMFMapView) {
+  public func mapViewCameraIdle(_ mapView: NMFMapView) {
     cameraIdle(mapView.contentBounds)
   }
   

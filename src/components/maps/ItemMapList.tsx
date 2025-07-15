@@ -36,7 +36,6 @@ function ItemMapList<T extends {id: string}>(
       <FlashList
         ref={ref}
         data={searchResults}
-        estimatedItemSize={ITEM_SIZE}
         contentContainerStyle={{
           paddingHorizontal: ITEM_SIDE_PADDING,
         }}
