@@ -2667,7 +2667,7 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNFlashList (1.8.3):
+  - RNFlashList (2.0.0-rc.11):
     - boost
     - DoubleConversion
     - fast_float
@@ -3451,7 +3451,7 @@ SPEC CHECKSUMS:
   RNFBApp: 557f15b87d602ed5879a1cbd6dc574481bccb278
   RNFBCrashlytics: 8e3b32fc78ccb9568a93baeaa7b81d0f243b506a
   RNFBMessaging: e6480aaf434826565d5a40b01c422fb0f58fc8a9
-  RNFlashList: e3c782f37970179e6b3c64f0f6007eb87d725f95
+  RNFlashList: 9d1fa61653b7d9654d1edd0ac97cfa254021c988
   RNGestureHandler: eeb622199ef1fb3a076243131095df1c797072f0
   RNReanimated: bc1ddb7a5352648bcf0d592256069833bf935a46
   RNScreens: ee2abe7e0c548eed14e92742e81ed991165c56aa
