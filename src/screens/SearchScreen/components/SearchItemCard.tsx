@@ -5,7 +5,6 @@ import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
 import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
-import ReviewIcon from '@/assets/icon/ic_review.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
