@@ -5,13 +5,14 @@ import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location.ts';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
-import {MarkerItem, toStringMarkerIcon} from '@/components/maps/MarkerItem.ts';
+import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, LatLng, Region} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
 import {
   NativeMarkerItem,
   NativeRegion,
 } from '../../../specs/SccMapViewNativeComponent';
+import {MarkerColors, MarkerOff, MarkerOn} from '@/assets/markers';
 
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
@@ -60,12 +61,26 @@ export default function ItemMap<T extends MarkerItem>({
     southWestLat: region.southWest.latitude,
     southWestLng: region.southWest.longitude,
   };
-  const nativeMarkerItems: NativeMarkerItem[] = items.map(item => ({
-    id: item.id,
-    markerIcon: toStringMarkerIcon(item.markerIcon),
-    displayName: item.displayName,
-    location: item.location,
-  }));
+  const nativeMarkerItems = items.map<NativeMarkerItem>(item => {
+    const isSelected = item.id === selectedItemId;
+    return {
+      id: item.id,
+      position: {
+        lat: item.location?.lat ?? 0,
+        lng: item.location?.lng ?? 0,
+      },
+      captionText: item.displayName,
+      captionTextSize: 14,
+      isHideCollidedMarkers: false,
+      isHideCollidedSymbols: true,
+      isHideCollidedCaptions: true,
+      iconResource: isSelected
+        ? MarkerOn[item.markerIcon?.icon ?? 'default']
+        : MarkerOff[item.markerIcon?.icon ?? 'default'],
+      iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
+      zIndex: isSelected ? 99 : 0,
+    };
+  });
   const route = useRoute();
   useEffect(() => {
     if (items.length > 0 && !firstFittingDone) {
@@ -109,7 +124,6 @@ export default function ItemMap<T extends MarkerItem>({
         });
       }}
       mapPadding={mapPadding}
-      selectedItemId={selectedItemId}
       markers={nativeMarkerItems}
     />
   );

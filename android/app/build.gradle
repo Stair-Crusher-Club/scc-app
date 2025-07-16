@@ -168,6 +168,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.naver.maps:map-sdk:3.19.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.caverock:androidsvg-aar:1.4")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

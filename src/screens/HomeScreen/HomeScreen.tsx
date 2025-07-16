@@ -43,6 +43,7 @@ import ChallengeUpcomingBottomSheet from './ChallengeUpcomingBottomSheet';
 import * as S from './HomeScreen.style';
 import BannerSection from './sections/BannerSection';
 import SearchSection from './sections/SearchSection';
+import Logger from '@/logging/Logger';
 
 export interface HomeScreenParams {}
 
@@ -100,7 +101,7 @@ const HomeScreen = ({navigation}: any) => {
           longitude: location.coords.longitude,
         });
       } catch (error: any) {
-        console.log(error);
+        Logger.logError(error);
         if (error.PERMISSION_DENIED) {
           setShowGeolocationPermission(true);
         }

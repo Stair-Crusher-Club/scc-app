@@ -61,30 +61,46 @@ internal class SccMapViewManager : SimpleViewManager<SccMapView>(),
     @ReactProp(name = "markers")
     override fun setMarkers(view: SccMapView, markers: ReadableArray?) {
         markers ?: return
-        val items = markers.let { markers ->
-            (0 until markers.size()).mapNotNull {
-                val item = markers.getMap(it) ?: return@mapNotNull null
+        val items = markers.let { markerItems ->
+            (0 until markerItems.size()).mapNotNull {
+                val item = markerItems.getMap(it) ?: return@mapNotNull null
                 val itemId = item.getString("id") ?: return@mapNotNull null
-                val displayName = item.getString("displayName") ?: return@mapNotNull null
-                val location = item.getMap("location")?.let { loc ->
+                val location = item.getMap("position")?.let { loc ->
                     val lat = loc.getDouble("lat")
                     val lng = loc.getDouble("lng")
                     LatLng(lat, lng)
                 } ?: return@mapNotNull null
+
+                val captionText = item.getString("captionText")
+                val captionTextSize =
+                    if (item.hasKey("captionTextSize")) item.getDouble("captionTextSize")
+                        .toFloat() else null
+                val isHideCollidedCaptions =
+                    if (item.hasKey("isHideCollidedCaptions")) item.getBoolean("isHideCollidedCaptions") else null
+                val isHideCollidedMarkers =
+                    if (item.hasKey("isHideCollidedMarkers")) item.getBoolean("isHideCollidedMarkers") else null
+                val isHideCollidedSymbols =
+                    if (item.hasKey("isHideCollidedSymbols")) item.getBoolean("isHideCollidedSymbols") else null
+                val iconResource = item.getString("iconResource")
+                val iconColor = item.getString("iconColor")
+                val zIndex = if (item.hasKey("zIndex")) item.getInt("zIndex") else null
+
                 MarkerData(
                     id = itemId,
                     location = location,
-                    displayName = displayName,
-                    iconResource = "cafe_0",
+                    displayName = captionText,
+                    iconResource = iconResource,
+                    captionText = captionText,
+                    captionTextSize = captionTextSize,
+                    isHideCollidedCaptions = isHideCollidedCaptions,
+                    isHideCollidedMarkers = isHideCollidedMarkers,
+                    isHideCollidedSymbols = isHideCollidedSymbols,
+                    iconColor = iconColor,
+                    zIndex = zIndex,
                 )
             }
         }
         view.setMarkers(items)
-    }
-
-    @ReactProp(name = "selectedItemId")
-    override fun setSelectedItemId(view: SccMapView, selectedItemId: String?) {
-        view.setSelectedItemId(selectedItemId)
     }
 
     @ReactProp(name = "initialRegion")

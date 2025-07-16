@@ -3,14 +3,16 @@ import {codegenNativeComponent, codegenNativeCommands} from 'react-native';
 
 export type NativeMarkerItem = {
   id: string;
-  markerIcon?: {
-    icon: string;
-    color: string;
-    width: CodegenTypes.Int32;
-    height: CodegenTypes.Int32;
-  };
-  displayName: string;
-  location?: {lat: CodegenTypes.Double; lng: CodegenTypes.Double};
+  position: {lat: CodegenTypes.Double; lng: CodegenTypes.Double};
+
+  captionText?: string;
+  captionTextSize?: CodegenTypes.Float;
+  isHideCollidedCaptions?: boolean;
+  isHideCollidedMarkers?: boolean;
+  isHideCollidedSymbols?: boolean;
+  iconResource?: string;
+  iconColor?: string;
+  zIndex?: CodegenTypes.Int32;
 };
 
 export type NativeRegion = {
@@ -22,7 +24,6 @@ export type NativeRegion = {
 
 export interface NativeProps extends ViewProps {
   markers: NativeMarkerItem[];
-  selectedItemId: string | null;
   onMarkerPress?: CodegenTypes.BubblingEventHandler<{
     id: string;
   }> | null;

@@ -24,6 +24,7 @@ import com.naver.maps.map.util.FusedLocationSource
 class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     reactContext, NaverMapOptions().zoomControlEnabled(false)
 ) {
+    private val markerImageService: MarkerImageService = MarkerImageService(context)
     private var isDestroyed = false
     private var isPaused = false
     private var lifecycleListener: LifecycleEventListener? = null
@@ -97,23 +98,6 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
         baseBottomMapPadding = bottom
     }
 
-    fun setSelectedItemId(selectedItemId: String?) {
-        runOnUiThread {
-            currentSelectedMarker?.let {
-                it.first.isHideCollidedCaptions = true
-                it.first.icon = it.second.getIcon(isSelected = false)
-                it.first.zIndex = 0
-            }
-            val nextSelectedMarker = markers.firstOrNull { it.second.id == selectedItemId }
-            nextSelectedMarker?.let {
-                it.first.isHideCollidedCaptions = false
-                it.first.icon = it.second.getIcon(isSelected = true)
-                it.first.zIndex = 99
-            }
-            currentSelectedMarker = nextSelectedMarker
-        }
-    }
-
     fun setMarkers(markerDatas: List<MarkerData>) {
         runOnUiThread {
             // clear all
@@ -121,11 +105,14 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
 
             markers = markerDatas.map { data ->
                 val marker = Marker(data.location)
-                marker.captionText = data.displayName
-                marker.captionTextSize = 14.0f
-                marker.isHideCollidedCaptions = true
+                marker.captionText = data.captionText ?: ""
+                marker.captionTextSize = data.captionTextSize ?: 14.0f
+                marker.isHideCollidedCaptions = data.isHideCollidedCaptions ?: true
+                marker.isHideCollidedMarkers = data.isHideCollidedMarkers ?: false
+                marker.isHideCollidedSymbols = data.isHideCollidedSymbols ?: false
+                marker.zIndex = data.zIndex ?: 0
                 marker.map = this.map
-                marker.icon = data.getIcon(isSelected = false)
+                marker.icon = markerImageService.getMarkerImage(data)
                 marker.setOnClickListener {
                     emitMarkerPressEvent(data.id)
                     true

@@ -91,6 +91,7 @@ function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
         .with('CAFE', () => 'cafe')
         .with('CONVENIENCE_STORE', () => 'conv')
         .with('PHARMACY', () => 'phar')
+        .with('HOSPITAL', () => 'hos')
         .otherwise(() => 'default'),
       level: match<number | undefined | 'processing', MarkerLevel>(
         getPlaceAccessibilityScore({

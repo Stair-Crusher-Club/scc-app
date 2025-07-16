@@ -120,7 +120,6 @@ const FRefInputComp = <T extends MarkerItem>(
   ) {
     selectedItemId !== item.id && setSelectedItemId(item.id);
     const index = items.findIndex(it => it.id === item.id);
-    console.log('index', index, item.displayName, shouldAnimateToPoint);
     if (shouldScrollToIndex) {
       cardsRef.current?.scrollToIndex({
         index: index,

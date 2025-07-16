@@ -5,20 +5,6 @@ export type MarkerItem = {
   location?: {lat: number; lng: number};
 };
 
-export function toStringMarkerIcon(
-  markerIcon: {icon: MarkerIcon; level: MarkerLevel} | undefined,
-): {icon: string; color: string; width: number; height: number} | undefined {
-  if (!markerIcon) {
-    return undefined;
-  }
-  return {
-    icon: markerIcon.icon + '_' + markerIcon.level,
-    color: 'black',
-    width: 10,
-    height: 10,
-  };
-}
-
 export type MarkerIcon =
   | 'cafe'
   | 'conv'
