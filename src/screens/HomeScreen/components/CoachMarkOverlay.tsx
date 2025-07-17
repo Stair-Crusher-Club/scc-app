@@ -1,22 +1,22 @@
-import {useIsFocused} from '@react-navigation/native';
-import {useQuery} from '@tanstack/react-query';
-import {useAtom, useAtomValue} from 'jotai';
-import React, {useEffect, useState} from 'react';
-import {Dimensions, Modal} from 'react-native';
-import Svg, {Mask, Rect} from 'react-native-svg';
+import { useIsFocused } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Modal } from 'react-native';
+import Svg, { Mask, Rect } from 'react-native-svg';
 
 import {
   hasShownCoachMarkForFirstVisitAtom,
   hasShownGuideForFirstVisitAtom,
 } from '@/atoms/User';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useCoachMark} from '@/screens/HomeScreen/contexts/CoachMarkContext';
+import { useCoachMark } from '@/screens/HomeScreen/contexts/CoachMarkContext';
 
 const {width, height} = Dimensions.get('window');
 
 const COACH_MARK_DELAY_MS = 200;
 
-export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
+export default function CoachMarkOverlay({padding = 12, visible: _visible}: {padding?: number; visible: boolean}) {
   const {api} = useAppComponents();
   const {items} = useCoachMark();
   const [visible, setVisible] = useState(false);
@@ -36,6 +36,7 @@ export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined;
     if (
+      _visible &&
       isFocused &&
       hasShownGuideForFirstVisit &&
       !hasShownCoachMarkForFirstVisit &&
@@ -57,6 +58,7 @@ export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
       }
     };
   }, [
+    _visible,
     isFocused,
     hasShownGuideForFirstVisit,
     hasShownCoachMarkForFirstVisit,
