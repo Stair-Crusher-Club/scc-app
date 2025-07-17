@@ -24,7 +24,7 @@ import com.naver.maps.map.util.FusedLocationSource
 class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     reactContext, NaverMapOptions().zoomControlEnabled(false)
 ) {
-    private val markerImageService: MarkerImageService = MarkerImageSevice()
+    private val markerImageService: MarkerImageService = MarkerImageService()
     private var isDestroyed = false
     private var isPaused = false
     private var lifecycleListener: LifecycleEventListener? = null
@@ -37,9 +37,9 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     private var baseTopMapPadding: Int = 0
     private var baseBottomMapPadding: Int = 0
     private var markers: List<Pair<Marker, MarkerData>> = emptyList()
-    private var currentSelectedMarker: Pair<Marker, MarkerData>? = null
 
     init {
+        Marker.DEFAULT_ANCHOR
         lifecycleListener = (object : LifecycleEventListener {
             override fun onHostResume() {
                 synchronized(this@SccMapView) {

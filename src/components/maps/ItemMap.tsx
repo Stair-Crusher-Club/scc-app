@@ -81,6 +81,7 @@ export default function ItemMap<T extends MarkerItem>({
       zIndex: isSelected ? 99 : 0,
     };
   });
+  console.log(MarkerOff);
   const route = useRoute();
   useEffect(() => {
     if (items.length > 0 && !firstFittingDone) {
