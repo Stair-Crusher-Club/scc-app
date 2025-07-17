@@ -36,7 +36,7 @@ export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
               review={review}
               isAuthor={userInfo?.id === review.user.id}
             />
-            {idx !== reviews?.length - 1 && <Divider />}
+            {idx !== reviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}
       </ItemList>
