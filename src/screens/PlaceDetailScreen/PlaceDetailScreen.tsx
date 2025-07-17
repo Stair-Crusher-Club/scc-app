@@ -254,7 +254,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
           title="화장실 정보를 남겨주세요"
-          subTitle="에 방문시 이용 가능한 장애인 화장실 정보를 남겨주세요"
+          subTitle="에 방문시 이용가능한 화장실 정보를 남겨주세요"
           placeName={place.name}
           buttonText="장애인화장실 정보 등록"
           onPress={() =>
