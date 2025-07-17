@@ -1,13 +1,13 @@
 import {Text, TouchableOpacity, View} from 'react-native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
+import StyledText from '@/components/StyledText';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {LogClick} from '@/logging/LogClick';
 
 interface Props {
   subTitle?: string;
-  placeName?: string;
   title: string;
   buttonText: string;
   onPress?: () => void;
@@ -16,7 +16,6 @@ interface Props {
 
 export default function PlaceDetailRegisterButtonSection({
   subTitle,
-  placeName,
   title,
   buttonText,
   onPress,
@@ -30,23 +29,16 @@ export default function PlaceDetailRegisterButtonSection({
         backgroundColor: color.white,
       }}>
       {subTitle && (
-        <Text
+        <StyledText
+          text={subTitle}
           style={{
             fontSize: 14,
             lineHeight: 20,
             fontFamily: font.pretendardRegular,
             color: color.gray60,
-          }}>
-          {placeName && (
-            <Text
-              style={{
-                fontFamily: font.pretendardBold,
-              }}>
-              {placeName}
-            </Text>
-          )}
-          {subTitle}
-        </Text>
+          }}
+          boldStyle={{fontWeight: 'bold'}}
+        />
       )}
       <Text
         style={{
