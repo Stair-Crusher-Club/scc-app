@@ -78,18 +78,35 @@ export const makeRecommendedMobilityOptions = (
   const isNoneSelected = currentOptions.includes(
     RecommendedMobilityTypeDto.None,
   );
+  const isNotSureSelected = currentOptions.includes(
+    RecommendedMobilityTypeDto.NotSure,
+  );
   const isAnyOtherSelected =
     currentOptions.length > 0 &&
-    currentOptions.some(opt => opt !== RecommendedMobilityTypeDto.None);
+    currentOptions.some(
+      opt =>
+        opt !== RecommendedMobilityTypeDto.None &&
+        opt !== RecommendedMobilityTypeDto.NotSure,
+    );
 
   return Object.entries(RECOMMEND_MOBILITY_TOOL_LABELS).map(([key, label]) => {
     const value = key as RecommendedMobilityTypeDto;
     const isNone = value === RecommendedMobilityTypeDto.None;
+    const isNotSure = value === RecommendedMobilityTypeDto.NotSure;
+
+    let idDisabled = false;
+    if (isNoneSelected) {
+      idDisabled = !isNone;
+    } else if (isNotSureSelected) {
+      idDisabled = !isNotSure;
+    } else if (isAnyOtherSelected) {
+      idDisabled = isNone || isNotSure;
+    }
 
     return {
       label,
       value,
-      disabled: isNone ? isAnyOtherSelected : isNoneSelected,
+      disabled: idDisabled,
     };
   });
 };
