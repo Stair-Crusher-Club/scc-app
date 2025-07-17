@@ -212,9 +212,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'placeReviewNudge',
-      shouldRender: !!(
-        isReviewEnabledCategory && !(reviewPost && reviewPost.length > 1)
-      ),
+      shouldRender: isReviewEnabledCategory,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
@@ -251,9 +249,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'toiletReviewNudge',
-      shouldRender: !!(
-        isReviewEnabledCategory && !(toiletPost && toiletPost.length > 1)
-      ),
+      shouldRender: isReviewEnabledCategory,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
