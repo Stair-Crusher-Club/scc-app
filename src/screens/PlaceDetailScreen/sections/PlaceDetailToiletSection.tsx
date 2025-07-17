@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
@@ -38,7 +39,8 @@ export default function PlaceDetailToiletSection({
                 });
               })
             }>
-            <ReviewButtonText>정보 등록하기</ReviewButtonText>
+            <PlusIcon color={color.white} />
+            <ReviewButtonText>정보 등록</ReviewButtonText>
           </ReviewButton>
         </LogClick>
       </HeaderRow>
@@ -83,6 +85,8 @@ const ReviewButton = styled.TouchableOpacity`
   border-radius: 8px;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
+  gap: 4px;
 `;
 
 const ReviewButtonText = styled.Text`
