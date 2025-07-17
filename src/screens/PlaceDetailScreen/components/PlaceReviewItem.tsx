@@ -43,11 +43,11 @@ export default function PlaceReviewItem({
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
           {review.user?.isClubMember && <BadgedIcon />}
+          {review.user?.isClubMember && review.mobilityTool !== 'NONE' && (
+            <ReviewDate>·</ReviewDate>
+          )}
           {review.mobilityTool !== 'NONE' && (
-            <>
-              <ReviewDate>·</ReviewDate>
-              <UserMobilityLabel mobilityTool={review.mobilityTool} />
-            </>
+            <UserMobilityLabel mobilityTool={review.mobilityTool} />
           )}
         </HeaderLeft>
         {isAuthor && (
