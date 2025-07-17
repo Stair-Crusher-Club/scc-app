@@ -308,7 +308,11 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             scrollEventThrottle={100}>
             <PlaceDetailAppBar />
             <View style={{marginTop: -top}}>
-              <PlaceDetailCoverImage accessibility={accessibilityPost} />
+              <PlaceDetailCoverImage
+                accessibility={accessibilityPost}
+                placeIndoorReviews={reviewPost ?? []}
+                toiletReviews={toiletPost ?? []}
+              />
             </View>
             <PlaceDetailSummarySection
               accessibility={accessibilityPost}
