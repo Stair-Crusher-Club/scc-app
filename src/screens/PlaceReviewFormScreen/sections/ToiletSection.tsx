@@ -15,6 +15,7 @@ import {
 import {LogClick} from '@/logging/LogClick';
 
 import FloorSelect from '../components/FloorSelect';
+import Question from '../components/Question';
 import {FormValues} from '../views/ToiletReviewView';
 import * as S from './common.style';
 
@@ -42,10 +43,9 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         <S.Title>장애인 화장실 정보</S.Title>
 
         <View style={{gap: 12}}>
-          <S.Question>
-            <Text style={{color: color.red}}>* </Text>장애인 화장실의 유무를
-            알려주세요.
-          </S.Question>
+          <Question required={true}>
+            장애인 화장실의 유무를 알려주세요.
+          </Question>
           <View
             style={{
               flexDirection: 'row',
@@ -75,10 +75,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         {isExist && (
           <>
             <View style={{gap: 12}}>
-              <S.Question>
-                <Text style={{color: color.red}}>* </Text>몇층에 있는
-                장소인가요?
-              </S.Question>
+              <Question required={true}>몇층에 있는 장소인가요?</Question>
               <Controller
                 name="floor"
                 rules={{
@@ -92,10 +89,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               />
             </View>
             <View style={{gap: 12}}>
-              <S.Question>
-                <Text style={{color: color.red}}>* </Text>출입문 유형을
-                알려주세요.
-              </S.Question>
+              <Question required={true}>출입문 유형을 알려주세요.</Question>
               <View
                 style={{
                   flexDirection: 'row',
@@ -129,7 +123,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         )}
         <View style={{gap: 12}}>
           {isExist && (
-            <S.Question>화장실 이용 경험 및 참고할 점을 알려주세요.</S.Question>
+            <Question>화장실 이용 경험 및 참고할 점을 알려주세요.</Question>
           )}
           {isExist && (
             <Controller

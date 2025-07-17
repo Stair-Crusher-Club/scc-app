@@ -11,6 +11,7 @@ import {
 } from '@/constant/review';
 import useMe from '@/hooks/useMe';
 
+import Question from '../components/Question';
 import * as S from './common.style';
 
 export default function UserTypeSection() {
@@ -26,10 +27,9 @@ export default function UserTypeSection() {
       <S.Title>사용한 이동보조기기 유형</S.Title>
 
       <View style={{gap: 12}}>
-        <S.Question>
-          <Text style={{color: color.red}}>* </Text>장소 방문시 사용한 것을
-          선택해주세요.
-        </S.Question>
+        <Question required={true}>
+          장소 방문시 사용한 것을 선택해주세요.
+        </Question>
         {/* Chip */}
         <View
           style={{

@@ -11,6 +11,7 @@ import {
   SPACIOUS_OPTIONS,
 } from '@/constant/review';
 
+import Question from '../components/Question';
 import {FormValues} from '../views/IndoorReviewView';
 import * as S from './common.style';
 
@@ -25,11 +26,9 @@ export default function VisitorReviewSection() {
 
       <View style={{gap: 36}}>
         <View style={{gap: 12}}>
-          <S.Question>
-            <Text style={{color: color.red}}>* </Text>이 장소를 누구에게
-            추천하고 싶으신가요?
-            <Text style={{color: color.gray20}}> (중복선택)</Text>
-          </S.Question>
+          <Question required={true} multiple={true}>
+            이 장소를 누구에게 추천하고 싶으신가요?
+          </Question>
           {/* Chip */}
           <View
             style={{
@@ -69,10 +68,9 @@ export default function VisitorReviewSection() {
         </View>
 
         <View style={{gap: 12}}>
-          <S.Question>
-            <Text style={{color: color.red}}>* </Text>내부 공간, 휠체어나
-            유아차로 이용하기에 여유로운가요?
-          </S.Question>
+          <Question required={true}>
+            내부 공간, 휠체어나 유아차로 이용하기에 여유로운가요?
+          </Question>
           {/* Chip */}
           <View style={{alignItems: 'flex-start', gap: 8}}>
             <Controller
@@ -95,7 +93,7 @@ export default function VisitorReviewSection() {
         </View>
 
         <View style={{gap: 12}}>
-          <S.Question>장소 이용 경험을 알려주세요.</S.Question>
+          <Question>장소 이용 경험을 알려주세요.</Question>
           <Controller
             name="indoorPhotos"
             rules={{required: false}}

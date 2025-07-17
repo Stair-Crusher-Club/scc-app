@@ -15,12 +15,6 @@ export const Title = styled.Text({
   fontFamily: font.pretendardBold,
 });
 
-export const Question = styled.Text({
-  fontSize: 16,
-  lineHeight: '28px',
-  fontFamily: font.pretendardMedium,
-});
-
 export const SectionSeparator = styled.View({
   backgroundColor: color.gray10,
   height: 13,

@@ -8,6 +8,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {LogClick} from '@/logging/LogClick';
 
+import Question from '../components/Question';
 import {
   ACCESSIBILITY_FEATURE_OPTIONS,
   ORDER_METHOD_OPTIONS,
@@ -32,11 +33,9 @@ export default function IndoorInfoSection({
 
       <View style={{gap: 36}}>
         <View style={{gap: 12}}>
-          <S.Question>
-            <Text style={{color: color.red}}>* </Text>이 매장의 좌석 형태를 모두
-            알려주세요.
-            <Text style={{color: color.gray20}}> (중복선택)</Text>
-          </S.Question>
+          <Question required={true} multiple={true}>
+            이 매장의 좌석 형태를 모두 알려주세요.
+          </Question>
           <View
             style={{
               flexDirection: 'row',
@@ -107,11 +106,9 @@ export default function IndoorInfoSection({
         </View>
 
         <View style={{gap: 12}}>
-          <S.Question>
-            <Text style={{color: color.red}}>* </Text>이 매장에서 주문은 어떻게
-            하나요?
-            <Text style={{color: color.gray20}}> (중복선택)</Text>
-          </S.Question>
+          <Question required={true} multiple={true}>
+            이 매장에서 주문은 어떻게 하나요?
+          </Question>
           <View
             style={{
               flexDirection: 'row',
@@ -147,10 +144,9 @@ export default function IndoorInfoSection({
         </View>
 
         <View style={{gap: 12}}>
-          <S.Question>
+          <Question multiple={true}>
             공간에 대한 특이사항이 있다면 알려주세요.
-            <Text style={{color: color.gray20}}> (중복선택)</Text>
-          </S.Question>
+          </Question>
           {/* Chip */}
           <View
             style={{
