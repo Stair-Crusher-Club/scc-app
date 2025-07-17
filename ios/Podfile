@@ -33,6 +33,8 @@ target 'sccReactNative' do
   pod 'GoogleUtilities', :modular_headers => true
   pod 'GoogleDataTransport', :modular_headers => true
   pod 'nanopb', :modular_headers => true
+  pod 'SVGKit', :modular_headers => true
+  pod 'CocoaLumberjack', :modular_headers => true
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -51,7 +53,6 @@ target 'sccReactNative' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
-
     ENVFILES = {
       'Debug' => '$(PODS_ROOT)/../../subprojects/scc-frontend-build-configurations/production/.env',
       'DebugSandbox' => '$(PODS_ROOT)/../../subprojects/scc-frontend-build-configurations/sandbox/.env',
@@ -74,6 +75,23 @@ target 'sccReactNative' do
           config.build_settings['CODE_SIGN_IDENTITY'] = ''
         end
       end
+    end
+
+    marker_file = File.join(installer.sandbox.root, 'SVGKit_fix_applied')
+    unless File.exist?(marker_file)
+      svgkit_path = File.join(installer.sandbox.pod_dir('SVGKit'), 'Source')
+      Dir.glob(File.join(svgkit_path, '**', '*.{h,m}')).each do |file|
+        FileUtils.chmod("u+w", file)
+
+        text = File.read(file)
+        new_contents = text.gsub('Node.h', 'SVGKit/Node.h')
+        File.open(file, 'w') { |f| f.write(new_contents) }
+      end
+
+      FileUtils.touch(marker_file)
+      puts "Post install script completed and marker file created"
+    else
+      puts "Marker file exists, skipping post install script"
     end
   end
 end

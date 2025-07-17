@@ -71,6 +71,7 @@ internal class SccMapViewManager : SimpleViewManager<SccMapView>(),
                     LatLng(lat, lng)
                 } ?: return@mapNotNull null
 
+                val iconResource = item.getString("iconResource") ?: return@mapNotNull null
                 val captionText = item.getString("captionText")
                 val captionTextSize =
                     if (item.hasKey("captionTextSize")) item.getDouble("captionTextSize")
@@ -81,14 +82,12 @@ internal class SccMapViewManager : SimpleViewManager<SccMapView>(),
                     if (item.hasKey("isHideCollidedMarkers")) item.getBoolean("isHideCollidedMarkers") else null
                 val isHideCollidedSymbols =
                     if (item.hasKey("isHideCollidedSymbols")) item.getBoolean("isHideCollidedSymbols") else null
-                val iconResource = item.getString("iconResource")
                 val iconColor = item.getString("iconColor")
                 val zIndex = if (item.hasKey("zIndex")) item.getInt("zIndex") else null
 
                 MarkerData(
                     id = itemId,
                     location = location,
-                    displayName = captionText,
                     iconResource = iconResource,
                     captionText = captionText,
                     captionTextSize = captionTextSize,

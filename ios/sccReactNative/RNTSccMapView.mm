@@ -6,18 +6,19 @@
 //
 
 #import "RNTSccMapView.h"
+#import "RNTSccMarkerImageService.h"
 #import <NMapsMap/NMapsMap.h>
-#import "MarkerData.h"
+#import "RNTSccMarkerData.h"
 
 // Helper class for Objective-C++ to hold NMFMarker and MarkerData
 @interface MarkerWithData : NSObject
 @property (nonatomic, strong) NMFMarker *marker;
-@property (nonatomic, strong) MarkerData *data;
-- (instancetype)initWithMarker:(NMFMarker *)marker data:(MarkerData *)data;
+@property (nonatomic, strong) RNTSccMarkerData *data;
+- (instancetype)initWithMarker:(NMFMarker *)marker data:(RNTSccMarkerData *)data;
 @end
 
 @implementation MarkerWithData
-- (instancetype)initWithMarker:(NMFMarker *)marker data:(MarkerData *)data {
+- (instancetype)initWithMarker:(NMFMarker *)marker data:(RNTSccMarkerData *)data {
   self = [super init];
   if (self) {
     _marker = marker;
@@ -32,7 +33,6 @@
   BOOL _isInitialRegionSet;
   MarkerWithData *_currentTargetMarker;
   NSMutableArray<MarkerWithData *> *_markerList;
-  NSMutableDictionary<NSString *, NMFOverlayImage *> *_overlayImageMap;
 }
 @end
 
@@ -43,7 +43,6 @@
   if (self) {
     _isInitialRegionSet = NO;
     _markerList = [NSMutableArray array];
-    _overlayImageMap = [NSMutableDictionary dictionary];
     [self addCameraDelegate:self];
   }
   return self;
@@ -54,7 +53,6 @@
   if (self) {
     _isInitialRegionSet = NO;
     _markerList = [NSMutableArray array];
-    _overlayImageMap = [NSMutableDictionary dictionary];
     [self addCameraDelegate:self];
   }
   return self;
@@ -91,27 +89,32 @@
   [self moveCamera:cameraUpdate];
 }
 
-- (void)setMarkers:(NSArray<MarkerData *> *)markers {
+- (void)setMarkers:(NSArray<RNTSccMarkerData *> *)markers {
   // Remove existing markers from the map
   for (MarkerWithData *markerWrapper in _markerList) {
     markerWrapper.marker.mapView = nil;
   }
   [_markerList removeAllObjects];
-
-  for (MarkerData *markerData in markers) {
+  
+  for (RNTSccMarkerData *markerData in markers) {
     NMFMarker *marker = [[NMFMarker alloc] init];
     marker.position = [NMGLatLng latLngWithLat:markerData.latitude lng:markerData.longitude];
-    marker.captionText = markerData.displayName;
-    marker.captionTextSize = 14;
-    marker.iconImage = [self getMarkerOverlayImageWithIconResource:markerData.iconResource isSelected:NO];
-    marker.isHideCollidedCaptions = YES;
-    marker.isHideCollidedSymbols = YES;
+    marker.captionText = markerData.captionText;
+    marker.captionTextSize = markerData.captionTextSize;
+    marker.isHideCollidedCaptions = markerData.isHideCollidedCaptions;
+    marker.isHideCollidedMarkers = markerData.isHideCollidedMarkers;
+    marker.isHideCollidedSymbols = markerData.isHideCollidedSymbols;
+    marker.zIndex = markerData.zIndex;
+    UIImage *markerUIImage = [[RNTSccMarkerImageService sharedService] markerImageForData:markerData];
+    if (markerUIImage) {
+      marker.iconImage = [NMFOverlayImage overlayImageWithImage:markerUIImage];
+    }
     marker.touchHandler = ^BOOL (NMFOverlay *overlay) {
       [self.mapDelegate onMarkerPress:markerData.identifier];
       return YES;
     };
     marker.mapView = self;
-
+    
     MarkerWithData *markerWithData = [[MarkerWithData alloc] initWithMarker:marker data:markerData];
     [_markerList addObject:markerWithData];
   }
@@ -135,31 +138,6 @@
   self.contentInset = UIEdgeInsetsMake(top, left, bottom, right);
 }
 
-- (void)setSelectedItemId:(NSString *)selectedItemId {
-  MarkerWithData *targetMarker = nil;
-  for (MarkerWithData *markerWrapper in _markerList) {
-    if ([markerWrapper.data.identifier isEqualToString:selectedItemId]) { // Use 'identifier' property
-      targetMarker = markerWrapper;
-      break;
-    }
-  }
-  
-  if (!targetMarker) {
-    return;
-  }
-  
-  if (_currentTargetMarker) {
-    _currentTargetMarker.marker.zIndex = 0;
-    _currentTargetMarker.marker.isHideCollidedCaptions = YES;
-    _currentTargetMarker.marker.iconImage = [self getMarkerOverlayImageWithIconResource:_currentTargetMarker.data.iconResource isSelected:NO];
-  }
-  
-  targetMarker.marker.zIndex = 99;
-  targetMarker.marker.isHideCollidedCaptions = NO;
-  targetMarker.marker.iconImage = [self getMarkerOverlayImageWithIconResource:targetMarker.data.iconResource isSelected:YES];
-  _currentTargetMarker = targetMarker;
-}
-
 - (void)markerPress:(NSString *)identifier {
   if ([self.mapDelegate respondsToSelector:@selector(onMarkerPress:)]) {
     [self.mapDelegate onMarkerPress:identifier];
@@ -180,19 +158,15 @@
 
 #pragma mark - Private Methods
 
-- (NMFOverlayImage *)getMarkerOverlayImageWithIconResource:(NSString *)iconResource isSelected:(BOOL)isSelected {
-  NSString *iconString = [iconResource stringByAppendingString:(isSelected ? @"_on" : @"_off")];
-  
-  NMFOverlayImage *cachedImage = _overlayImageMap[iconString];
-  if (cachedImage) {
-    return cachedImage;
-  }
-  
-  NMFOverlayImage *newImage = [NMFOverlayImage overlayImageWithName:iconString];
-  if (newImage) {
-    _overlayImageMap[iconString] = newImage;
-  }
-  return newImage;
++ (UIColor *)colorFromHexString:(NSString *)hexString {
+  unsigned rgbValue = 0;
+  NSScanner *scanner = [NSScanner scannerWithString:hexString];
+  [scanner setScanLocation:([hexString hasPrefix:@"#"] ? 1 : 0)];
+  [scanner scanHexInt:&rgbValue];
+  return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0
+                         green:((rgbValue & 0xFF00) >> 8)/255.0
+                          blue:(rgbValue & 0xFF)/255.0
+                         alpha:1.0];
 }
 
 @end

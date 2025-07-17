@@ -7,7 +7,7 @@
 
 #import "RNTSccMapManager.h"
 #import "RNTSccMapView.h"
-#import "MarkerData.h"
+#import "RNTSccMarkerData.h"
 
 #import <react/renderer/components/AppSpec/ComponentDescriptors.h>
 #import <react/renderer/components/AppSpec/EventEmitters.h>
@@ -57,22 +57,27 @@ using namespace facebook::react;
 
 // Helper function to deeply compare two marker vectors
 static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const std::vector<SccMapViewMarkersStruct>& b) {
-    if (a.size() != b.size()) return NO;
-    for (size_t i = 0; i < a.size(); ++i) {
-        const auto& m1 = a[i];
-        const auto& m2 = b[i];
-        if (m1.id != m2.id ||
-            m1.displayName != m2.displayName ||
-            m1.location.lat != m2.location.lat ||
-            m1.location.lng != m2.location.lng ||
-            m1.markerIcon.icon != m2.markerIcon.icon ||
-            m1.markerIcon.color != m2.markerIcon.color ||
-            m1.markerIcon.width != m2.markerIcon.width ||
-            m1.markerIcon.height != m2.markerIcon.height) {
-            return NO;
-        }
+  if (a.size() != b.size()) return NO;
+  for (size_t i = 0; i < a.size(); ++i) {
+    const auto& m1 = a[i];
+    const auto& m2 = b[i];
+    if (m1.id != m2.id ||
+        m1.iconResource != m2.iconResource ||
+        m1.position.lat != m2.position.lat ||
+        m1.position.lng != m2.position.lng ||
+        m1.captionText != m2.captionText ||
+        m1.captionTextSize != m2.captionTextSize ||
+        m1.isHideCollidedCaptions != m2.isHideCollidedCaptions ||
+        m1.isHideCollidedMarkers != m2.isHideCollidedMarkers ||
+        m1.isHideCollidedSymbols != m2.isHideCollidedSymbols ||
+        m1.iconColor != m2.iconColor ||
+        m1.zIndex != m2.zIndex
+        ) {
+      
+      return NO;
     }
-    return YES;
+  }
+  return YES;
 }
 
 // Updating the child view props
@@ -81,25 +86,35 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
   const auto &oldViewProps = *std::static_pointer_cast<SccMapViewProps const>(_props);
   const auto &newViewProps = *std::static_pointer_cast<SccMapViewProps const>(props);
   
-  // selectedItemId
-  if (oldViewProps.selectedItemId != newViewProps.selectedItemId) {
-    [_mapView setSelectedItemId: [NSString stringWithUTF8String: newViewProps.selectedItemId.c_str()]];
-  }
-  
   // markers
   if (!areMarkersEqual(oldViewProps.markers, newViewProps.markers)) {
-    NSMutableArray<MarkerData *> *markerArray = [NSMutableArray arrayWithCapacity:newViewProps.markers.size()];
+    NSMutableArray<RNTSccMarkerData *> *markerArray = [NSMutableArray arrayWithCapacity:newViewProps.markers.size()];
     for (const auto &markerStruct : newViewProps.markers) {
       NSString *identifier = [NSString stringWithUTF8String:markerStruct.id.c_str()];
-      NSString *displayName = [NSString stringWithUTF8String:markerStruct.displayName.c_str()];
-      NSString *iconResource = [NSString stringWithUTF8String:markerStruct.markerIcon.icon.c_str()];
-      double latitude = markerStruct.location.lat;
-      double longitude = markerStruct.location.lng;
-      MarkerData *markerData = [[MarkerData alloc] initWithLongitude:longitude
+      
+      NSString *iconResource = [NSString stringWithUTF8String:markerStruct.iconResource.c_str()];
+      NSString *iconColor = [NSString stringWithUTF8String:markerStruct.iconColor.c_str()];
+      
+      double latitude = markerStruct.position.lat;
+      double longitude = markerStruct.position.lng;
+      
+      NSString *captionText = [NSString stringWithUTF8String: markerStruct.captionText.c_str()];
+      Float captionTextSize = markerStruct.captionTextSize;
+      bool isHideCollidedCaptions = markerStruct.isHideCollidedCaptions;
+      bool isHideCollidedMarkers = markerStruct.isHideCollidedMarkers;
+      bool isHideCollidedSymbols = markerStruct.isHideCollidedSymbols;
+      int zIndex = markerStruct.zIndex;
+      RNTSccMarkerData *markerData = [[RNTSccMarkerData alloc] initWithLongitude:longitude
                                                             latitude:latitude
                                                           identifier:identifier
-                                                         displayName:displayName
-                                                        iconResource:iconResource];
+                                                        iconResource:iconResource
+                                                         captionText:captionText
+                                                     captionTextSize:captionTextSize
+                                              isHideCollidedCaptions:isHideCollidedCaptions
+                                               isHideCollidedMarkers:isHideCollidedMarkers
+                                               isHideCollidedSymbols:isHideCollidedSymbols
+                                                           iconColor:iconColor
+                                                              zIndex:zIndex];
       [markerArray addObject:markerData];
     }
     [_mapView setMarkers:markerArray];
@@ -174,7 +189,22 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
 }
 
 - (void)setPositionMode:(NSString *)mode {
-  // Not implemented in RNTMapView yet. Add logic here if/when available.
+  NSArray *items = @[@"normal", @"direction", @"compass"];
+  NSUInteger item = [items indexOfObject:mode];
+  switch (item) {
+    case 0:
+      _mapView.positionMode = NMFMyPositionNormal;
+      break;
+    case 1:
+      _mapView.positionMode = NMFMyPositionDirection;
+      break;
+    case 2:
+      _mapView.positionMode = NMFMyPositionCompass;
+      break;
+    default:
+      _mapView.positionMode = NMFMyPositionNormal;
+      break;
+  }
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider

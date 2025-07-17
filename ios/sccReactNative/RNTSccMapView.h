@@ -10,7 +10,7 @@
 
 // Forward declaration for MarkerData if it's an Objective-C class
 // If MarkerData is a C++ struct, you might need to include its header.
-@class MarkerData;
+@class RNTSccMarkerData;
 @class RCTDirectEventBlock; // Assuming this is from React Native for event callbacks
 
 @protocol NativeSccMapDelegate <NSObject>
@@ -25,9 +25,8 @@
 - (void)animateCamera:(NMGLatLng *)position duration:(double)duration;
 - (void)fitToElements;
 - (void)animateToRegion:(NMGLatLngBounds *)region padding:(double)padding duration:(double)duration;
-- (void)setMarkers:(NSArray<MarkerData *> *)markers;
+- (void)setMarkers:(NSArray<RNTSccMarkerData *> *)markers;
 - (void)setInitialRegion:(NMGLatLngBounds *)region;
 - (void)setMapPaddingWithTop:(CGFloat)top left:(CGFloat)left right:(CGFloat)right bottom:(CGFloat)bottom;
-- (void)setSelectedItemId:(NSString *)selectedItemId;
 
 @end

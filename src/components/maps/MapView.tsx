@@ -19,17 +19,7 @@ export interface MapViewHandle {
 }
 
 const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
-  (
-    {
-      onMarkerPress,
-      onCameraIdle,
-      initialRegion,
-      mapPadding,
-      markers,
-      selectedItemId,
-    },
-    ref,
-  ) => {
+  ({onMarkerPress, onCameraIdle, initialRegion, mapPadding, markers}, ref) => {
     const mapRef = useRef<React.ComponentRef<SccMapViewType> | null>(null);
 
     useImperativeHandle(
@@ -85,7 +75,6 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
         initialRegion={initialRegion}
         mapPadding={mapPadding}
         markers={markers}
-        selectedItemId={selectedItemId}
       />
     );
   },
