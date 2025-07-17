@@ -1,3 +1,5 @@
+import {match} from 'ts-pattern';
+
 import {
   EntranceDoorType,
   RecommendedMobilityTypeDto,
@@ -94,19 +96,18 @@ export const makeRecommendedMobilityOptions = (
     const isNone = value === RecommendedMobilityTypeDto.None;
     const isNotSure = value === RecommendedMobilityTypeDto.NotSure;
 
-    let isDisabled = false;
-    if (isNoneSelected) {
-      isDisabled = !isNone;
-    } else if (isNotSureSelected) {
-      isDisabled = !isNotSure;
-    } else if (isAnyOtherSelected) {
-      isDisabled = isNone || isNotSure;
-    }
-
     return {
       label,
       value,
-      disabled: isDisabled,
+      disabled: match({
+        isNoneSelected,
+        isNotSureSelected,
+        isAnyOtherSelected,
+      })
+        .with({isNoneSelected: true}, () => !isNone)
+        .with({isNotSureSelected: true}, () => !isNotSure)
+        .with({isAnyOtherSelected: true}, () => isNone || isNotSure)
+        .otherwise(() => false),
     };
   });
 };
