@@ -338,7 +338,7 @@ export interface BuildingAccessibility {
     'createdAt': EpochMillisTimestamp;
 }
 /**
- * 건물에 대한 의견.
+ * 건물에 대한 의견. 익명으로 달린 댓글이면 user 가 null 이다.
  * @export
  * @interface BuildingAccessibilityComment
  */
@@ -1329,25 +1329,6 @@ export interface KakaoTokensDto {
 /**
  * 
  * @export
- * @interface ListAdministrativeAreasPost200Response
- */
-export interface ListAdministrativeAreasPost200Response {
-    /**
-     * 
-     * @type {Array<EupMyeonDong>}
-     * @memberof ListAdministrativeAreasPost200Response
-     */
-    'eupMyeonDongs'?: Array<EupMyeonDong>;
-    /**
-     * 
-     * @type {Array<SiGunGu>}
-     * @memberof ListAdministrativeAreasPost200Response
-     */
-    'siGunGus'?: Array<SiGunGu>;
-}
-/**
- * 
- * @export
  * @interface ListChallengesItemDto
  */
 export interface ListChallengesItemDto {
@@ -1704,7 +1685,7 @@ export interface Place {
      */
     'location'?: Location;
     /**
-     * 점포의 카테고리
+     * 
      * @type {PlaceCategoryDto}
      * @memberof Place
      */
@@ -1822,7 +1803,7 @@ export interface PlaceAccessibility {
     'createdAt': EpochMillisTimestamp;
 }
 /**
- * 점포에 대한 의견.
+ * 점포에 대한 의견. 익명으로 달린 댓글이면 user 가 null 이다.
  * @export
  * @interface PlaceAccessibilityComment
  */
@@ -3083,7 +3064,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+         * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3123,7 +3104,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+         * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4009,7 +3990,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 준다.
+         * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4049,7 +4030,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 준다.
+         * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4121,46 +4102,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(joinChallengeRequestDto, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 점포를 검색한다.
-         * @param {object} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listAdministrativeAreasPost: async (body: object, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'body' is not null or undefined
-            assertParamExists('listAdministrativeAreasPost', 'body', body)
-            const localVarPath = `/listAdministrativeAreas`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Anonymous required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4761,7 +4702,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary 점포의 내부 및 리뷰 정보를 등록한다.
+         * @summary 점포의 내부 및 방문 리뷰 정보를 등록한다.
          * @param {RegisterPlaceReviewRequestDto} registerPlaceReviewRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5131,7 +5072,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+         * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5142,7 +5083,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+         * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5390,7 +5331,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 준다.
+         * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5401,7 +5342,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 준다.
+         * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5419,17 +5360,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async joinChallengePost(joinChallengeRequestDto: JoinChallengeRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JoinChallengeResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.joinChallengePost(joinChallengeRequestDto, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * 
-         * @summary 점포를 검색한다.
-         * @param {object} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listAdministrativeAreasPost(body: object, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListAdministrativeAreasPost200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listAdministrativeAreasPost(body, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -5599,7 +5529,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary 점포의 내부 및 리뷰 정보를 등록한다.
+         * @summary 점포의 내부 및 방문 리뷰 정보를 등록한다.
          * @param {RegisterPlaceReviewRequestDto} registerPlaceReviewRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5708,7 +5638,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+         * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5718,7 +5648,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+         * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5943,7 +5873,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 준다.
+         * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5953,7 +5883,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary \'이 정보가 도움이 돼요\'를 준다.
+         * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5970,16 +5900,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         joinChallengePost(joinChallengeRequestDto: JoinChallengeRequestDto, options?: any): AxiosPromise<JoinChallengeResponseDto> {
             return localVarFp.joinChallengePost(joinChallengeRequestDto, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 점포를 검색한다.
-         * @param {object} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listAdministrativeAreasPost(body: object, options?: any): AxiosPromise<ListAdministrativeAreasPost200Response> {
-            return localVarFp.listAdministrativeAreasPost(body, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6133,7 +6053,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary 점포의 내부 및 리뷰 정보를 등록한다.
+         * @summary 점포의 내부 및 방문 리뷰 정보를 등록한다.
          * @param {RegisterPlaceReviewRequestDto} registerPlaceReviewRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6233,7 +6153,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
 export class DefaultApi extends BaseAPI {
     /**
      * 
-     * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+     * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
      * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6245,7 +6165,7 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary \'이 정보가 도움이 돼요\'를 취소한다.
+     * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
      * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6516,7 +6436,7 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary \'이 정보가 도움이 돼요\'를 준다.
+     * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
      * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6528,7 +6448,7 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary \'이 정보가 도움이 돼요\'를 준다.
+     * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
      * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6548,18 +6468,6 @@ export class DefaultApi extends BaseAPI {
      */
     public joinChallengePost(joinChallengeRequestDto: JoinChallengeRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).joinChallengePost(joinChallengeRequestDto, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary 점포를 검색한다.
-     * @param {object} body 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public listAdministrativeAreasPost(body: object, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listAdministrativeAreasPost(body, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6744,7 +6652,7 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary 점포의 내부 및 리뷰 정보를 등록한다.
+     * @summary 점포의 내부 및 방문 리뷰 정보를 등록한다.
      * @param {RegisterPlaceReviewRequestDto} registerPlaceReviewRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
