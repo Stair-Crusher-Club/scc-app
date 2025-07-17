@@ -85,6 +85,10 @@ function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
     id: item.place.id,
     location: item.place.location,
     displayName: item.place.name,
+    hasReview:
+      item.accessibilityInfo?.reviewCount !== undefined
+        ? item.accessibilityInfo.reviewCount > 0
+        : false,
     markerIcon: {
       icon: match<string | undefined, MarkerIcon>(item.place.category)
         .with('RESTAURANT', () => 'rest')

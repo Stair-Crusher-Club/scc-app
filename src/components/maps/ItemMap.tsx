@@ -12,7 +12,7 @@ import {
   NativeMarkerItem,
   NativeRegion,
 } from '../../../specs/SccMapViewNativeComponent';
-import {MarkerColors, MarkerOff, MarkerOn} from '@/assets/markers';
+import {MarkerColors, getMarkerSvg} from '@/assets/markers';
 
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
@@ -74,14 +74,15 @@ export default function ItemMap<T extends MarkerItem>({
       isHideCollidedMarkers: false,
       isHideCollidedSymbols: true,
       isHideCollidedCaptions: true,
-      iconResource: isSelected
-        ? MarkerOn[item.markerIcon?.icon ?? 'default']
-        : MarkerOff[item.markerIcon?.icon ?? 'default'],
+      iconResource: getMarkerSvg(
+        item.markerIcon?.icon ?? 'default',
+        isSelected,
+        item.hasReview ?? false,
+      ),
       iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
       zIndex: isSelected ? 99 : 0,
     };
   });
-  console.log(MarkerOff);
   const route = useRoute();
   useEffect(() => {
     if (items.length > 0 && !firstFittingDone) {

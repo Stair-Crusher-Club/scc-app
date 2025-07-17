@@ -3,6 +3,7 @@ export type MarkerItem = {
   markerIcon?: {icon: MarkerIcon; level: MarkerLevel};
   displayName: string;
   location?: {lat: number; lng: number};
+  hasReview?: boolean;
 };
 
 export type MarkerIcon =
