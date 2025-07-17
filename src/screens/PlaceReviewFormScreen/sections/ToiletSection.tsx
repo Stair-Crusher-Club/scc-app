@@ -43,9 +43,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         <S.Title>장애인 화장실 정보</S.Title>
 
         <View style={{gap: 12}}>
-          <Question required={true}>
-            장애인 화장실의 유무를 알려주세요.
-          </Question>
+          <Question required>장애인 화장실의 유무를 알려주세요.</Question>
           <View
             style={{
               flexDirection: 'row',
@@ -75,7 +73,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         {isExist && (
           <>
             <View style={{gap: 12}}>
-              <Question required={true}>몇층에 있는 장소인가요?</Question>
+              <Question required>몇층에 있는 장소인가요?</Question>
               <Controller
                 name="floor"
                 rules={{
@@ -89,7 +87,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               />
             </View>
             <View style={{gap: 12}}>
-              <Question required={true}>출입문 유형을 알려주세요.</Question>
+              <Question required>출입문 유형을 알려주세요.</Question>
               <View
                 style={{
                   flexDirection: 'row',

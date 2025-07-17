@@ -26,7 +26,7 @@ export default function VisitorReviewSection() {
 
       <View style={{gap: 36}}>
         <View style={{gap: 12}}>
-          <Question required={true} multiple={true}>
+          <Question required multiple>
             이 장소를 누구에게 추천하고 싶으신가요?
           </Question>
           {/* Chip */}
@@ -68,7 +68,7 @@ export default function VisitorReviewSection() {
         </View>
 
         <View style={{gap: 12}}>
-          <Question required={true}>
+          <Question required>
             내부 공간, 휠체어나 유아차로 이용하기에 여유로운가요?
           </Question>
           {/* Chip */}

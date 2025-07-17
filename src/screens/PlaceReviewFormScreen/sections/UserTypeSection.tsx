@@ -27,9 +27,7 @@ export default function UserTypeSection() {
       <S.Title>사용한 이동보조기기 유형</S.Title>
 
       <View style={{gap: 12}}>
-        <Question required={true}>
-          장소 방문시 사용한 것을 선택해주세요.
-        </Question>
+        <Question required>장소 방문시 사용한 것을 선택해주세요.</Question>
         {/* Chip */}
         <View
           style={{

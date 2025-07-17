@@ -33,7 +33,7 @@ export default function IndoorInfoSection({
 
       <View style={{gap: 36}}>
         <View style={{gap: 12}}>
-          <Question required={true} multiple={true}>
+          <Question required multiple>
             이 매장의 좌석 형태를 모두 알려주세요.
           </Question>
           <View
@@ -106,7 +106,7 @@ export default function IndoorInfoSection({
         </View>
 
         <View style={{gap: 12}}>
-          <Question required={true} multiple={true}>
+          <Question required multiple>
             이 매장에서 주문은 어떻게 하나요?
           </Question>
           <View
