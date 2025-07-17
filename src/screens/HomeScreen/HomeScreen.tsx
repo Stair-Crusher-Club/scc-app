@@ -1,9 +1,9 @@
 import messaging from '@react-native-firebase/messaging';
-import { useFocusEffect } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
+import {useFocusEffect} from '@react-navigation/native';
+import {useQuery} from '@tanstack/react-query';
+import {useAtomValue, useSetAtom} from 'jotai';
 import Lottie from 'lottie-react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   BackHandler,
   Linking,
@@ -15,19 +15,19 @@ import {
 import DeviceInfo from 'react-native-device-info';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import { accessTokenAtom } from '@/atoms/Auth';
-import { currentLocationAtom } from '@/atoms/Location';
-import { hasShownGuideForFirstVisitAtom, isGuestUserAtom } from '@/atoms/User';
-import { ScreenLayout } from '@/components/ScreenLayout';
-import { color } from '@/constant/color';
+import {accessTokenAtom} from '@/atoms/Auth';
+import {currentLocationAtom} from '@/atoms/Location';
+import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
+import {ScreenLayout} from '@/components/ScreenLayout';
+import {color} from '@/constant/color';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
   ListChallengesItemDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import { useIsForeground } from '@/hooks/useIsForeground';
+import {useIsForeground} from '@/hooks/useIsForeground';
 import useMe from '@/hooks/useMe';
-import { LogClick } from '@/logging/LogClick';
+import {LogClick} from '@/logging/LogClick';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
 import CoachMarkGuideLink from '@/screens/HomeScreen/components/CoachMarkGuideLink';
@@ -48,8 +48,9 @@ const HomeScreen = ({navigation}: any) => {
 
   const accessToken = useAtomValue(accessTokenAtom);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
-  const [showGeolocationPermission, setShowGeolocationPermission] =
-    useState<boolean | undefined>();
+  const [showGeolocationPermission, setShowGeolocationPermission] = useState<
+    boolean | undefined
+  >();
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
 
   const [selectedUpcomingChallenge, setSelectedUpcomingChallenge] = useState<
