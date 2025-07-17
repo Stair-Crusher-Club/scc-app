@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import React, {useMemo} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
@@ -100,13 +99,6 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           ))}
         </TextBoxRow>
       </SectionColumn>
-      <FooterRow style={{marginTop: 24}}>
-        <FooterDate>
-          {dayjs(Math.max(...reviews.map(r => r.createdAt.value))).format(
-            'YYYY.MM.DD',
-          )}
-        </FooterDate>
-      </FooterRow>
     </Container>
   );
 }
@@ -162,21 +154,6 @@ const SectionTitle = styled.Text`
   font-size: 16px;
   line-height: 24px;
   color: ${color.black};
-`;
-
-const FooterRow = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  width: 100%;
-  gap: 4px;
-  margin-top: 24px;
-`;
-
-const FooterDate = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 13px;
-  line-height: 18px;
-  color: ${color.gray50};
 `;
 
 const TextBoxRow = styled.View`
