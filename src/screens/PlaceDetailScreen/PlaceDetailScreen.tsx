@@ -218,9 +218,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
-          subTitle={`${place.name} 에 방문하셨나요?`}
+          subTitle="에 방문하셨나요?"
+          placeName={place.name}
           title="방문 리뷰를 남겨주세요"
-          buttonText="방문 리뷰를 남겨주세요"
+          buttonText="방문 리뷰 쓰기"
           onPress={() =>
             checkAuth(() => {
               navigation.navigate('ReviewForm/Place', {
@@ -257,7 +258,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
           title="화장실 정보를 남겨주세요"
-          buttonText="화장실 정보를 남겨주세요"
+          subTitle="에 방문시 이용 가능한 장애인 화장실 정보를 남겨주세요"
+          placeName={place.name}
+          buttonText="장애인화장실 정보 등록"
           onPress={() =>
             checkAuth(() => {
               navigation.navigate('ReviewForm/Toilet', {
