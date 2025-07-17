@@ -77,7 +77,7 @@ const Divider = styled.View`
 `;
 
 const ReviewButton = styled.TouchableOpacity`
-  background-color: ${color.brand50};
+  background-color: ${color.brand30};
   padding-horizontal: 14px;
   height: 31px;
   border-radius: 8px;
