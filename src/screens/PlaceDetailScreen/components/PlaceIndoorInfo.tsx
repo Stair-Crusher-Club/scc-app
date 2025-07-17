@@ -49,14 +49,24 @@ export default function PlaceIndoorInfo({reviews}: Props) {
       <S.InfoWrapper>
         <S.LabelText>좌석 구성</S.LabelText>
         <S.ContentTextWrapper>
-          <S.ContentText>{seatTypes.join(', ')}</S.ContentText>
+          <S.ContentTagTextWrapper>
+            {seatTypes.map(seatType => (
+              <S.ContentTagText key={seatType}>{seatType}</S.ContentTagText>
+            ))}
+          </S.ContentTagTextWrapper>
           <S.SubContentText>{seatComments.join(', ')}</S.SubContentText>
         </S.ContentTextWrapper>
       </S.InfoWrapper>
       <S.InfoWrapper>
         <S.LabelText>주문방법</S.LabelText>
         <S.ContentTextWrapper>
-          <S.ContentText>{orderMethods.join(', ')}</S.ContentText>
+          <S.ContentTagTextWrapper>
+            {orderMethods.map(orderMethod => (
+              <S.ContentTagText key={orderMethod}>
+                {orderMethod}
+              </S.ContentTagText>
+            ))}
+          </S.ContentTagTextWrapper>
         </S.ContentTextWrapper>
       </S.InfoWrapper>
       {features.length > 0 && (
