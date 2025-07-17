@@ -94,19 +94,19 @@ export const makeRecommendedMobilityOptions = (
     const isNone = value === RecommendedMobilityTypeDto.None;
     const isNotSure = value === RecommendedMobilityTypeDto.NotSure;
 
-    let idDisabled = false;
+    let isDisabled = false;
     if (isNoneSelected) {
-      idDisabled = !isNone;
+      isDisabled = !isNone;
     } else if (isNotSureSelected) {
-      idDisabled = !isNotSure;
+      isDisabled = !isNotSure;
     } else if (isAnyOtherSelected) {
-      idDisabled = isNone || isNotSure;
+      isDisabled = isNone || isNotSure;
     }
 
     return {
       label,
       value,
-      disabled: idDisabled,
+      disabled: isDisabled,
     };
   });
 };
