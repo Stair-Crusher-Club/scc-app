@@ -2,7 +2,7 @@ import {
   appleAuth,
   appleAuthAndroid,
 } from '@invertase/react-native-apple-authentication';
-import {getProfile, login} from '@react-native-seoul/kakao-login';
+import {login} from '@react-native-seoul/kakao-login';
 import {useAtom, useSetAtom} from 'jotai';
 import React, {useState} from 'react';
 import {ImageSourcePropType, Platform, useWindowDimensions} from 'react-native';
@@ -79,15 +79,10 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   const [activeSlide, setActiveSlide] = useState(0);
   const {asModal} = route.params ?? {};
 
-  async function afterSocialLogin(
-    user: User,
-    tokens: AuthTokensDto,
-    signupEmail?: string,
-  ) {
+  async function afterSocialLogin(user: User, tokens: AuthTokensDto) {
     // 미가입 유저 : 앱 종료 후 재시작 시 로그인 되지 않도록 토큰을 저장하지 않는다
     if (!user.email) {
       return navigation.replace('Signup', {
-        email: signupEmail ?? '',
         token: tokens.accessToken,
         asModal,
       });
@@ -130,10 +125,9 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
           },
         },
       });
-      const kakaoProfile = await getProfile();
       const {authTokens, user} = res.data;
 
-      await afterSocialLogin(user, authTokens, kakaoProfile.email);
+      await afterSocialLogin(user, authTokens);
     } catch (e: any) {
       // user cancelled kakao log
       Logger.logError(e);
@@ -167,7 +161,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       identityToken: response.id_token ?? '',
     });
     const {authTokens, user} = res.data;
-    await afterSocialLogin(user, authTokens, response.user?.email ?? '');
+    await afterSocialLogin(user, authTokens);
   }
 
   async function iosAppleLogin() {
@@ -192,11 +186,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       });
       const {authTokens, user} = res.data;
 
-      await afterSocialLogin(
-        user,
-        authTokens,
-        appleAuthRequestResponse.email ?? '',
-      );
+      await afterSocialLogin(user, authTokens);
     }
   }
 

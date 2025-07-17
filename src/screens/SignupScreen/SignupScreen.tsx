@@ -19,7 +19,6 @@ import SignupSecondPage from './SignupSecondPage';
 import {useUpdateUser} from './hooks/useUpdateUser';
 
 export interface SignupScreenParams {
-  email: string;
   token: string;
   asModal?: boolean;
 }
@@ -35,8 +34,8 @@ export default function SignupScreen({
   });
 
   useEffect(() => {
-    updateField('nickname', route.params.email.split('@')[0]);
-    updateField('email', route.params.email);
+    updateField('nickname', '');
+    updateField('email', '');
     updateField('birthYear', '');
     updateField('mobilityTools', []);
     updateField('isNewsLetterSubscriptionAgreed', false);
