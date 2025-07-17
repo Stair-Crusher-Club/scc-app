@@ -48,8 +48,9 @@ const HomeScreen = ({navigation}: any) => {
 
   const accessToken = useAtomValue(accessTokenAtom);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
-  const [showGeolocationPermission, setShowGeolocationPermission] =
-    useState(false);
+  const [showGeolocationPermission, setShowGeolocationPermission] = useState<
+    boolean | undefined
+  >();
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
 
   const [selectedUpcomingChallenge, setSelectedUpcomingChallenge] = useState<
@@ -62,7 +63,6 @@ const HomeScreen = ({navigation}: any) => {
     // 앱 백그라운드 진입 시에 Lottie 가 멈춘다. Foreground 진입 시 의도적으로 play 를 호출한다.
     coverLottie.current?.play();
   }
-
   const {data} = useQuery({
     queryKey: ['ClientVersionStatus'],
     queryFn: async () => {
@@ -92,6 +92,9 @@ const HomeScreen = ({navigation}: any) => {
         // 위치 권한을 받지 않고  getCurrentPosition 을 호출하면 위치 권한 팝업을 띄운다.
         // 위치 권한이 없으면 설정으로 이동하기 위한 BottmSheet 를 보여준다.
         const location = await GeolocationUtils.getCurrentPosition();
+        if (showGeolocationPermission === undefined) {
+          setShowGeolocationPermission(false);
+        }
         setCurrentLocation({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
@@ -235,10 +238,9 @@ const HomeScreen = ({navigation}: any) => {
             </S.ContentsContainer>
           </ScrollView>
           <GeolocationPermissionBottomSheet
-            isVisible={showGeolocationPermission}
+            isVisible={showGeolocationPermission ?? false}
             onConfirmButtonPressed={() => {
               Linking.openSettings();
-              setShowGeolocationPermission(false);
             }}
             onCloseButtonPressed={() => {
               setShowGeolocationPermission(false);
@@ -270,7 +272,7 @@ const HomeScreen = ({navigation}: any) => {
         </S.Container>
       </ScreenLayout>
 
-      <CoachMarkOverlay />
+      <CoachMarkOverlay visible={showGeolocationPermission === false} />
     </>
   );
 };

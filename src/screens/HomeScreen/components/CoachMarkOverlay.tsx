@@ -16,7 +16,13 @@ const {width, height} = Dimensions.get('window');
 
 const COACH_MARK_DELAY_MS = 200;
 
-export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
+export default function CoachMarkOverlay({
+  padding = 12,
+  visible: _visible,
+}: {
+  padding?: number;
+  visible: boolean;
+}) {
   const {api} = useAppComponents();
   const {items} = useCoachMark();
   const [visible, setVisible] = useState(false);
@@ -36,6 +42,7 @@ export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined;
     if (
+      _visible &&
       isFocused &&
       hasShownGuideForFirstVisit &&
       !hasShownCoachMarkForFirstVisit &&
@@ -57,6 +64,7 @@ export default function CoachMarkOverlay({padding = 12}: {padding?: number}) {
       }
     };
   }, [
+    _visible,
     isFocused,
     hasShownGuideForFirstVisit,
     hasShownCoachMarkForFirstVisit,
