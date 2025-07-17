@@ -7,6 +7,7 @@ import {LogClick} from '@/logging/LogClick';
 
 interface Props {
   subTitle?: string;
+  placeName?: string;
   title: string;
   buttonText: string;
   onPress?: () => void;
@@ -15,6 +16,7 @@ interface Props {
 
 export default function PlaceDetailRegisterButtonSection({
   subTitle,
+  placeName,
   title,
   buttonText,
   onPress,
@@ -35,6 +37,14 @@ export default function PlaceDetailRegisterButtonSection({
             fontFamily: font.pretendardRegular,
             color: color.gray60,
           }}>
+          {placeName && (
+            <Text
+              style={{
+                fontFamily: font.pretendardBold,
+              }}>
+              {placeName}
+            </Text>
+          )}
           {subTitle}
         </Text>
       )}
