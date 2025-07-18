@@ -4,7 +4,6 @@ import React, {useMemo, useState} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
 
-import {FormScreenLayout} from '@/components/FormScreenLayout';
 import {loadingState} from '@/components/LoadingView';
 import {SccButton} from '@/components/atoms';
 import {
@@ -29,6 +28,7 @@ import ElevatorSection from './sections/ElevatorSection';
 import EnteranceSection from './sections/EnteranceSection';
 import HeaderSection from './sections/HeaderSection';
 import StickyScrollNavigation from './sections/StickyScrollNavigation';
+import {ScreenLayout} from '@/components/ScreenLayout';
 
 export interface BuildingFormScreenParams {
   place: Place;
@@ -137,7 +137,7 @@ export default function BuildingFormScreen({
 
   return (
     <LogParamsProvider params={{building_id: building.id}}>
-      <FormScreenLayout>
+      <ScreenLayout isHeaderVisible={true}>
         <ScrollView
           ref={scrollView}
           stickyHeaderIndices={[0]}
@@ -177,7 +177,7 @@ export default function BuildingFormScreen({
             </S.SubmitButtonWrapper>
           </FormProvider>
         </ScrollView>
-      </FormScreenLayout>
+      </ScreenLayout>
     </LogParamsProvider>
   );
 }

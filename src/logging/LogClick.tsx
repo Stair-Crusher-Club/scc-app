@@ -6,7 +6,10 @@ import Logger from '@/logging/Logger';
 import {useLogParams} from './LogParamsProvider';
 
 interface Props {
-  children: ReactElement;
+  children: ReactElement<{
+    onClick?: (...args: any[]) => any;
+    onPress?: (...args: any[]) => any;
+  }>;
   elementName: string;
   params?: Record<string, any>;
 }

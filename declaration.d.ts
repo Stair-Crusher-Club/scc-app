@@ -4,3 +4,8 @@ declare module '*.svg' {
   const content: React.FC<SvgProps & {pointColor?: string}>;
   export default content;
 }
+
+declare module '*.txt' {
+  const content: string;
+  export default content;
+}

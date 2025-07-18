@@ -17,6 +17,7 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
 import {useUpdateUser} from '@/screens/SignupScreen/hooks/useUpdateUser';
 import ToastUtils from '@/utils/ToastUtils';
+import {ScreenLayout} from '@/components/ScreenLayout';
 
 export interface ProfileEditorDetailScreenParams {
   field: 'nickname' | 'email' | 'birthYear' | 'mobilityTools';
@@ -133,7 +134,7 @@ export default function ProfileEditorDetailScreen({
     .exhaustive();
 
   return (
-    <Container>
+    <ScreenLayout isHeaderVisible={true} safeAreaEdges={['bottom']}>
       <Title>
         {title}
         {title === 'mobilityTools' ? <Details>(중복선택 가능)</Details> : null}
@@ -155,7 +156,7 @@ export default function ProfileEditorDetailScreen({
           isDisabled={!isValid}
         />
       </View>
-    </Container>
+    </ScreenLayout>
   );
 }
 
@@ -163,11 +164,6 @@ const Details = styled.Text`
   font-family: ${font.pretendardRegular};
   font-size: 16px;
   color: ${color.gray50};
-`;
-
-const Container = styled.View`
-  flex: 1;
-  background-color: white;
 `;
 
 const Title = styled.Text`

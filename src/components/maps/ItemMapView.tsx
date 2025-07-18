@@ -1,5 +1,4 @@
 import Geolocation from '@react-native-community/geolocation';
-import {FlashList} from '@shopify/flash-list';
 import {useAtomValue, useSetAtom} from 'jotai';
 import React, {
   ForwardedRef,
@@ -9,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {View} from 'react-native';
+import {FlatList, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -17,7 +16,7 @@ import MyLocationIcon from '@/assets/icon/ic_my_location.svg';
 import RedoIcon from '@/assets/icon/ic_redo.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import ItemMap from '@/components/maps/ItemMap';
-import ItemMapList, {ITEM_SIZE} from '@/components/maps/ItemMapList';
+import ItemMapList from '@/components/maps/ItemMapList';
 import {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
@@ -51,7 +50,7 @@ const FRefInputComp = <T extends MarkerItem>(
   ref: ForwardedRef<ItemMapViewHandle<T>>,
 ) => {
   const mapRef = useRef<MapViewHandle>(null);
-  const cardsRef = useRef<FlashList<T>>(null);
+  const cardsRef = useRef<FlatList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
   const {text, location: searchLocation} = useAtomValue(searchQueryAtom);
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
@@ -114,13 +113,19 @@ const FRefInputComp = <T extends MarkerItem>(
     },
   }));
 
-  function onItemSelect(item: T, shouldAnimateToPoint: boolean) {
+  function onItemSelect(
+    item: T,
+    shouldAnimateToPoint: boolean,
+    shouldScrollToIndex: boolean = true,
+  ) {
     selectedItemId !== item.id && setSelectedItemId(item.id);
     const index = items.findIndex(it => it.id === item.id);
-    cardsRef.current?.scrollToOffset({
-      offset: index * ITEM_SIZE,
-      animated: false,
-    });
+    if (shouldScrollToIndex) {
+      cardsRef.current?.scrollToIndex({
+        index: index,
+        animated: false,
+      });
+    }
     if (shouldAnimateToPoint) {
       mapRef.current?.animateCamera(
         {latitude: item.location!.lat, longitude: item.location!.lng},
@@ -188,7 +193,9 @@ const FRefInputComp = <T extends MarkerItem>(
                 placeInfo: {placeId: item.id},
               })
             }
-            onFocusedItemChange={item => item && onItemSelect(item, false)}
+            onFocusedItemChange={item =>
+              item && onItemSelect(item, false, false)
+            }
             ItemCard={ItemCard}
           />
         )}
@@ -201,7 +208,7 @@ const FRefOutputComp = forwardRef(FRefInputComp) as <T extends MarkerItem>(
   p: ItemMapViewProps<T> & {
     ref?: ForwardedRef<ItemMapViewHandle<T>>;
   },
-) => JSX.Element;
+) => React.ReactElement;
 
 export default FRefOutputComp;
 
