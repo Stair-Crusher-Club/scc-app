@@ -74,7 +74,7 @@ const PlaceDetailCoverImage = ({
         typeof image?.imageUrl === 'string',
     );
   const toiletImages = (toiletReviewImages ?? []).map(image => ({
-    type: '화장실',
+    type: '장애인 화장실',
     url: image?.imageUrl,
     thumbnailUrl: image?.thumbnailUrl,
   }));
