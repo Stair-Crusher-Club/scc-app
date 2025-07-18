@@ -19,10 +19,10 @@ export const Row = styled.View({
 });
 
 export const Title = styled.Text({
-  fontSize: 20,
+  fontSize: 18,
   lineHeight: '28px',
-  fontFamily: font.pretendardBold,
-  color: color.gray90,
+  fontFamily: font.pretendardSemibold,
+  color: color.gray80,
 });
 
 export const Updated = styled.Text({

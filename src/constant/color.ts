@@ -23,6 +23,7 @@ export const color = {
   brand60: '#0950BD',
   brand70: '#073C8B',
 
+  blue1: '#F1F5F9',
   blue5: '#EFF0F2',
   blue10: '#C7E0FF',
   blue20: '#8EC2FF',

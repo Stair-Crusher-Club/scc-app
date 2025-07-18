@@ -28,6 +28,28 @@ export const ContentTextWrapper = styled.View`
   flex: 1;
 `;
 
+export const ContentTagWrapper = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+`;
+
+export const ContentTag = styled.View`
+  padding: 4px 6px;
+  background-color: ${color.blue1};
+  border-radius: 6px;
+  justify-items: center;
+  align-items: center;
+`;
+
+export const ContentTagText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 12px;
+  line-height: 16px;
+  color: ${color.brand50};
+`;
+
 export const ContentText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 15px;
@@ -38,6 +60,7 @@ export const ContentText = styled.Text`
 export const SubContentText = styled.Text`
   font-family: ${font.pretendardRegular};
   font-size: 13px;
-  line-height: 18px;
-  color: ${color.brand50};
+  line-height: 20px;
+  color: ${color.gray80};
+  margin-top: 8px;
 `;

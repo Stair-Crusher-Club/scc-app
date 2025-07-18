@@ -4,7 +4,11 @@ import React, {useRef} from 'react';
 import {Image, Pressable, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoDto,
+  PlaceReviewDto,
+  ToiletReviewDto,
+} from '@/generated-sources/openapi';
 import {LogClick} from '@/logging/LogClick';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 
@@ -17,8 +21,14 @@ interface SlideData {
 }
 interface Props {
   accessibility?: AccessibilityInfoDto;
+  placeIndoorReviews?: PlaceReviewDto[];
+  toiletReviews?: ToiletReviewDto[];
 }
-const PlaceDetailCoverImage = ({accessibility}: Props) => {
+const PlaceDetailCoverImage = ({
+  accessibility,
+  placeIndoorReviews,
+  toiletReviews,
+}: Props) => {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const placeImages = (accessibility?.placeAccessibility?.images ?? []).map(
     image => ({
@@ -42,15 +52,45 @@ const PlaceDetailCoverImage = ({accessibility}: Props) => {
     url: image.imageUrl,
     thumbnailUrl: image.thumbnailUrl,
   }));
+
+  const placeIndoorReviewImages = placeIndoorReviews
+    ?.filter(review => review?.images && review?.images?.length > 0)
+    ?.flatMap(review => review.images)
+    ?.filter(
+      (image): image is {imageUrl: string; thumbnailUrl?: string} =>
+        typeof image?.imageUrl === 'string',
+    );
+  const placeIndoorImages = (placeIndoorReviewImages ?? []).map(image => ({
+    type: '장소 내부',
+    url: image?.imageUrl,
+    thumbnailUrl: image?.thumbnailUrl,
+  }));
+
+  const toiletReviewImages = toiletReviews
+    ?.filter(review => review?.images && review?.images?.length > 0)
+    ?.flatMap(review => review.images)
+    ?.filter(
+      (image): image is {imageUrl: string; thumbnailUrl?: string} =>
+        typeof image?.imageUrl === 'string',
+    );
+  const toiletImages = (toiletReviewImages ?? []).map(image => ({
+    type: '장애인 화장실',
+    url: image?.imageUrl,
+    thumbnailUrl: image?.thumbnailUrl,
+  }));
   const thumbnailImages = [
     ...placeImages,
     ...buildingImages,
     ...elevatorImages,
+    ...placeIndoorImages,
+    ...toiletImages,
   ];
   const onPressImage = (index: number) => {
     initialFocusedIndex.current = index;
     navigation.navigate('ImageZoomViewer', {
-      imageUrls: thumbnailImages.map(image => image.url),
+      imageUrls: thumbnailImages
+        .map(image => image.url)
+        .filter(image => image !== undefined),
       index: index,
     });
   };

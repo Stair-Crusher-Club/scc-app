@@ -1,8 +1,8 @@
-import dayjs from 'dayjs';
 import React, {useMemo} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
+import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -56,11 +56,25 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
                 });
               })
             }>
-            <ReviewButtonText>리뷰 작성하기</ReviewButtonText>
+            <PlusIcon color={color.white} />
+            <ReviewButtonText>리뷰 쓰기</ReviewButtonText>
           </ReviewButton>
         </LogClick>
       </HeaderRow>
       <SectionColumn style={{marginTop: 16}}>
+        <TextBoxThinRow>
+          {spaciousTypeCounts.map(item => (
+            <SpaciousTextBox
+              key={item.label}
+              label={item.label}
+              content={`${item.count}명`}
+              level={item.level}
+              filledRatio={item.count / spaciousTypeMax}
+            />
+          ))}
+        </TextBoxThinRow>
+      </SectionColumn>
+      <SectionColumn style={{marginTop: 32}}>
         <SectionTitle>추천대상</SectionTitle>
         <TextBoxRow>
           {mobilityTypeCounts.slice(0, 3).map(item => (
@@ -85,27 +99,6 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           ))}
         </TextBoxRow>
       </SectionColumn>
-      <SectionColumn style={{marginTop: 24}}>
-        <SectionTitle>내부공간</SectionTitle>
-        <TextBoxThinRow>
-          {spaciousTypeCounts.map(item => (
-            <SpaciousTextBox
-              key={item.label}
-              label={item.label}
-              content={`${item.count}명`}
-              level={item.level}
-              filledRatio={item.count / spaciousTypeMax}
-            />
-          ))}
-        </TextBoxThinRow>
-      </SectionColumn>
-      <FooterRow style={{marginTop: 24}}>
-        <FooterDate>
-          {dayjs(Math.max(...reviews.map(r => r.createdAt.value))).format(
-            'YYYY.MM.DD',
-          )}
-        </FooterDate>
-      </FooterRow>
     </Container>
   );
 }
@@ -133,12 +126,14 @@ const ReviewCount = styled.Text`
 `;
 
 const ReviewButton = styled.TouchableOpacity`
-  background-color: ${color.brand50};
+  background-color: ${color.brand30};
   padding-horizontal: 14px;
   height: 31px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
+  gap: 4px;
 `;
 
 const ReviewButtonText = styled.Text`
@@ -150,7 +145,7 @@ const ReviewButtonText = styled.Text`
 
 const SectionColumn = styled.View`
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   margin-top: 16px;
 `;
 
@@ -161,31 +156,16 @@ const SectionTitle = styled.Text`
   color: ${color.black};
 `;
 
-const FooterRow = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  width: 100%;
-  gap: 4px;
-  margin-top: 24px;
-`;
-
-const FooterDate = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 13px;
-  line-height: 18px;
-  color: ${color.gray50};
-`;
-
 const TextBoxRow = styled.View`
   flex-direction: row;
   width: 100%;
-  gap: 8px;
+  gap: 4px;
 `;
 
 const TextBoxThinRow = styled.View`
   flex-direction: column;
   width: 100%;
-  gap: 8px;
+  gap: 4px;
 `;
 
 const TextBox: React.FC<{
@@ -221,7 +201,7 @@ const SpaciousTextBox: React.FC<{
     <View
       style={{
         backgroundColor: color.gray10,
-        borderRadius: 12,
+        borderRadius: 10,
         overflow: 'hidden',
       }}>
       <View
@@ -232,12 +212,12 @@ const SpaciousTextBox: React.FC<{
           height: '100%',
           width: `${Math.min(Math.max(filledRatio, 0), 1) * 100}%`,
           backgroundColor: background,
-          borderRadius: 12,
+          borderRadius: 10,
         }}
       />
       <View
         style={{
-          paddingVertical: 8,
+          paddingVertical: 10,
           paddingHorizontal: 12,
           flexGrow: 1,
           flexDirection: 'row',
@@ -277,8 +257,8 @@ const TextBoxContainer = styled.View<{
 `;
 
 const RecommendTargetTextBoxLabel = styled.Text`
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: 20px;
   font-family: ${font.pretendardRegular};
   color: ${color.gray100};
   text-align: center;
@@ -296,8 +276,8 @@ const TextBoxContent = styled.Text<{
   shape?: 'thin' | 'flat' | 'normal';
   level?: 'high' | 'medium' | 'low';
 }>`
-  font-size: ${({shape}) => (shape === 'thin' ? 11 : 13)}px;
-  line-height: ${({shape}) => (shape === 'thin' ? 14 : 18)}px;
+  font-size: 13px;
+  line-height: 18px;
   font-family: ${({shape}) =>
     shape === 'thin' ? font.pretendardBold : font.pretendardMedium};
   color: ${({level}) =>
@@ -316,7 +296,7 @@ const MOBILITY_TYPE_LABELS: Record<string, string> = {
   STROLLER: '유아차\n동반인',
   ELDERLY: '고령자',
   NOT_SURE: '잘 모르겠음',
-  NONE: '추천안함',
+  NONE: '안함',
 };
 
 // 내부공간 타입 한글 라벨 매핑

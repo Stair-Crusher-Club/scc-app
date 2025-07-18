@@ -1,6 +1,7 @@
 import {Text, TouchableOpacity, View} from 'react-native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
+import StyledText from '@/components/StyledText';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {LogClick} from '@/logging/LogClick';
@@ -28,15 +29,16 @@ export default function PlaceDetailRegisterButtonSection({
         backgroundColor: color.white,
       }}>
       {subTitle && (
-        <Text
+        <StyledText
+          text={subTitle}
           style={{
             fontSize: 14,
             lineHeight: 20,
             fontFamily: font.pretendardRegular,
             color: color.gray60,
-          }}>
-          {subTitle}
-        </Text>
+          }}
+          boldStyle={{fontWeight: 'bold'}}
+        />
       )}
       <Text
         style={{

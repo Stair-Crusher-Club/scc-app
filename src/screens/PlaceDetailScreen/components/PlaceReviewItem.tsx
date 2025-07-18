@@ -43,11 +43,11 @@ export default function PlaceReviewItem({
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
           {review.user?.isClubMember && <BadgedIcon />}
+          {review.user?.isClubMember && review.mobilityTool !== 'NONE' && (
+            <ReviewDate>·</ReviewDate>
+          )}
           {review.mobilityTool !== 'NONE' && (
-            <>
-              <ReviewDate>·</ReviewDate>
-              <UserMobilityLabel mobilityTool={review.mobilityTool} />
-            </>
+            <UserMobilityLabel mobilityTool={review.mobilityTool} />
           )}
         </HeaderLeft>
         {isAuthor && (
@@ -178,9 +178,9 @@ const ReviewInfoLabel = styled.Text`
   color: ${color.gray40};
 `;
 const ReviewInfoValue = styled.Text`
-  font-size: 13px;
-  line-height: 18px;
-  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  line-height: 22px;
+  font-family: ${font.pretendardRegular};
   color: ${color.gray70};
 `;
 const ReviewText = styled.Text`
