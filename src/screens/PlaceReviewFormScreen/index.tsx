@@ -3,6 +3,7 @@ import {useState} from 'react';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
+import {UserMobilityToolMapDto} from '@/constant/review';
 import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -28,6 +29,7 @@ export default function PlaceReviewFormScreen({
     queryKey: ['PlaceDetail', placeId],
   });
   const [reviewType, setReviewType] = useState<'indoor' | 'toilet'>('indoor');
+  const [mobilityTool, setMobilityTool] = useState<UserMobilityToolMapDto>();
 
   if (!placeId || typeof placeId !== 'string') {
     return null;
@@ -53,6 +55,7 @@ export default function PlaceReviewFormScreen({
           <IndoorReviewView
             place={data?.place}
             gotoPlaceDetail={gotoPlaceDetail}
+            setMobilityTool={setMobilityTool}
             setReviewTypeToToilet={() => setReviewType('toilet')}
           />
         );
@@ -61,6 +64,7 @@ export default function PlaceReviewFormScreen({
           <ToiletReviewView
             place={data?.place}
             gotoPlaceDetail={gotoPlaceDetail}
+            mobilityTool={mobilityTool}
           />
         );
     }

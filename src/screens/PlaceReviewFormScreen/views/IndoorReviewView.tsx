@@ -44,12 +44,14 @@ export interface FormValues {
 interface IndoorReviewViewProps {
   place?: Place;
   gotoPlaceDetail: () => void;
+  setMobilityTool: (mobilityTool: UserMobilityToolMapDto) => void;
   setReviewTypeToToilet: () => void;
 }
 
 export default function IndoorReviewView({
   place,
   gotoPlaceDetail,
+  setMobilityTool,
   setReviewTypeToToilet,
 }: IndoorReviewViewProps) {
   const {api} = useAppComponents();
@@ -74,7 +76,10 @@ export default function IndoorReviewView({
   }
 
   async function onValidAfterToilet(values: FormValues) {
-    registerPlace(values, setReviewTypeToToilet);
+    registerPlace(values, () => {
+      setMobilityTool(values.mobilityTool);
+      setReviewTypeToToilet();
+    });
   }
 
   const registerPlace = useMemo(
@@ -107,7 +112,7 @@ export default function IndoorReviewView({
         <PlaceInfoSection name={place?.name} address={place?.address} />
         <SectionSeparator />
 
-        <UserTypeSection />
+        <UserTypeSection nickname={userInfo?.nickname} />
         <SectionSeparator />
 
         <VisitorReviewSection />
