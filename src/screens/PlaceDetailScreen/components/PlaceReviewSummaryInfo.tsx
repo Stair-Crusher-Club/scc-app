@@ -119,10 +119,10 @@ const HeaderLeft = styled.View`
 `;
 
 const ReviewCount = styled.Text`
-  font-family: ${font.pretendardBold};
-  color: ${color.brandColor};
-  font-size: 18px;
-  line-height: 26px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.gray40};
+  font-size: 16px;
+  line-height: 24px;
 `;
 
 const ReviewButton = styled.TouchableOpacity`
