@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
-import useMe from '@/hooks/useMe';
 import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
@@ -23,7 +23,6 @@ export default function PlaceDetailToiletSection({
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
-  const {userInfo} = useMe();
 
   return (
     <S.Section>
@@ -38,18 +37,15 @@ export default function PlaceDetailToiletSection({
                 });
               })
             }>
-            <ReviewButtonText>정보 등록하기</ReviewButtonText>
+            <PlusIcon color={color.white} />
+            <ReviewButtonText>정보 등록</ReviewButtonText>
           </ReviewButton>
         </LogClick>
       </HeaderRow>
       <ItemList>
         {toiletReviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceToiletReviewItem
-              placeId={placeId}
-              review={review}
-              isAuthor={userInfo?.id === review.user.id}
-            />
+            <PlaceToiletReviewItem placeId={placeId} review={review} />
             {idx !== toiletReviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}
@@ -77,12 +73,14 @@ const Divider = styled.View`
 `;
 
 const ReviewButton = styled.TouchableOpacity`
-  background-color: ${color.brand50};
+  background-color: ${color.brand30};
   padding-horizontal: 14px;
   height: 31px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
+  gap: 4px;
 `;
 
 const ReviewButtonText = styled.Text`

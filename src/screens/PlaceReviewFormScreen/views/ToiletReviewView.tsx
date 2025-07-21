@@ -7,6 +7,10 @@ import {ScrollView} from 'react-native';
 
 import {loadingState} from '@/components/LoadingView';
 import {
+  getMobilityToolDefaultValue,
+  UserMobilityToolMapDto,
+} from '@/constant/review';
+import {
   DefaultApi,
   EntranceDoorType,
   Place,
@@ -14,6 +18,7 @@ import {
   ToiletLocationTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import useMe from '@/hooks/useMe';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
@@ -21,14 +26,17 @@ import ToastUtils from '@/utils/ToastUtils';
 import PlaceReviewFormScreen from '..';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import ToiletSection from '../sections/ToiletSection';
+import UserTypeSection from '../sections/UserTypeSection';
 import {SectionSeparator} from '../sections/common.style';
 
 interface ToiletReviewViewProps {
   place?: Place;
   gotoPlaceDetail: () => void;
+  mobilityTool?: UserMobilityToolMapDto;
 }
 
 export interface FormValues {
+  mobilityTool: UserMobilityToolMapDto;
   toiletLocationType: ToiletLocationTypeDto;
   floor: number;
   doorTypes: EntranceDoorType;
@@ -39,13 +47,17 @@ export interface FormValues {
 export default function ToiletReviewView({
   place,
   gotoPlaceDetail,
+  mobilityTool,
 }: ToiletReviewViewProps) {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
+  const {userInfo} = useMe();
   const [loading, setLoading] = useAtom(loadingState);
 
   const form = useForm<FormValues>({
     defaultValues: {
+      mobilityTool:
+        mobilityTool ?? getMobilityToolDefaultValue(userInfo?.mobilityTools),
       floor: 1,
       toiletPhotos: [],
       comment: '',
@@ -85,6 +97,13 @@ export default function ToiletReviewView({
         contentContainerStyle={{flexGrow: 1}}>
         <PlaceInfoSection name={place?.name} address={place?.address} />
         <SectionSeparator />
+
+        <UserTypeSection
+          placeType="장애인 화장실"
+          nickname={userInfo?.nickname}
+        />
+        <SectionSeparator />
+
         <ToiletSection onSave={form.handleSubmit(onValid)} />
       </ScrollView>
     </FormProvider>
@@ -114,6 +133,7 @@ async function register({
         values.toiletLocationType === 'ETC';
       await api.registerToiletReviewPost({
         placeId,
+        mobilityTool: values.mobilityTool,
         toiletLocationType: values.toiletLocationType,
         entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
         comment: values.comment,

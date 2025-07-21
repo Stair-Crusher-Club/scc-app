@@ -212,15 +212,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'placeReviewNudge',
-      shouldRender: !!(
-        isReviewEnabledCategory && !(reviewPost && reviewPost.length > 1)
-      ),
+      shouldRender: isReviewEnabledCategory,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
-          subTitle={`${place.name} 에 방문하셨나요?`}
+          subTitle={`<b>${place.name}</b>에 방문하셨나요?`}
           title="방문 리뷰를 남겨주세요"
-          buttonText="방문 리뷰를 남겨주세요"
+          buttonText="방문 리뷰 쓰기"
           onPress={() =>
             checkAuth(() => {
               navigation.navigate('ReviewForm/Place', {
@@ -250,14 +248,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'toiletReviewNudge',
-      shouldRender: !!(
-        isReviewEnabledCategory && !(toiletPost && toiletPost.length > 1)
-      ),
+      shouldRender: isReviewEnabledCategory,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
           title="화장실 정보를 남겨주세요"
-          buttonText="화장실 정보를 남겨주세요"
+          subTitle={`<b>${place.name}</b>에 방문시 이용가능한 화장실 정보를 남겨주세요`}
+          buttonText="장애인화장실 정보 등록"
           onPress={() =>
             checkAuth(() => {
               navigation.navigate('ReviewForm/Toilet', {
@@ -309,7 +306,11 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             scrollEventThrottle={100}>
             <PlaceDetailAppBar />
             <View style={{marginTop: -top}}>
-              <PlaceDetailCoverImage accessibility={accessibilityPost} />
+              <PlaceDetailCoverImage
+                accessibility={accessibilityPost}
+                placeIndoorReviews={reviewPost ?? []}
+                toiletReviews={toiletPost ?? []}
+              />
             </View>
             <PlaceDetailSummarySection
               accessibility={accessibilityPost}
