@@ -5,7 +5,6 @@ import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
-import useMe from '@/hooks/useMe';
 import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -15,7 +14,6 @@ interface Props {
 }
 
 export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
-  const {userInfo} = useMe();
   return (
     <>
       <ChipList>
@@ -31,11 +29,7 @@ export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
       <ItemList>
         {reviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceReviewItem
-              placeId={placeId}
-              review={review}
-              isAuthor={userInfo?.id === review.user.id}
-            />
+            <PlaceReviewItem placeId={placeId} review={review} />
             {idx !== reviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}
