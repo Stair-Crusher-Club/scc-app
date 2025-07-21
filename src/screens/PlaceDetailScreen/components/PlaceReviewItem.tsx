@@ -22,11 +22,9 @@ import UserMobilityLabel from './UserMobilityLabel';
 export default function PlaceReviewItem({
   placeId,
   review,
-  isAuthor = false,
 }: {
   placeId: string;
   review: PlaceReviewDto;
-  isAuthor?: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -50,7 +48,7 @@ export default function PlaceReviewItem({
             <UserMobilityLabel mobilityTool={review.mobilityTool} />
           )}
         </HeaderLeft>
-        {isAuthor && (
+        {review.isDeletable && (
           <TouchableOpacity
             onPress={() =>
               Alert.alert(

@@ -80,9 +80,9 @@ const PlaceDetailCoverImage = ({
   }));
   const thumbnailImages = [
     ...placeImages,
+    ...placeIndoorImages,
     ...buildingImages,
     ...elevatorImages,
-    ...placeIndoorImages,
     ...toiletImages,
   ];
   const onPressImage = (index: number) => {

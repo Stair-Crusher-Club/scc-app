@@ -2365,6 +2365,12 @@ export interface RegisterToiletReviewRequestDto {
     'placeId': string;
     /**
      * 
+     * @type {UserMobilityToolDto}
+     * @memberof RegisterToiletReviewRequestDto
+     */
+    'mobilityTool': UserMobilityToolDto;
+    /**
+     * 
      * @type {ToiletLocationTypeDto}
      * @memberof RegisterToiletReviewRequestDto
      */
@@ -2829,6 +2835,12 @@ export interface ToiletReviewDto {
      * @memberof ToiletReviewDto
      */
     'id': string;
+    /**
+     * 
+     * @type {UserMobilityToolDto}
+     * @memberof ToiletReviewDto
+     */
+    'mobilityTool': UserMobilityToolDto;
     /**
      * 
      * @type {ToiletLocationTypeDto}

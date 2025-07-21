@@ -5,7 +5,6 @@ import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
-import useMe from '@/hooks/useMe';
 import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
@@ -24,7 +23,6 @@ export default function PlaceDetailToiletSection({
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
-  const {userInfo} = useMe();
 
   return (
     <S.Section>
@@ -47,11 +45,7 @@ export default function PlaceDetailToiletSection({
       <ItemList>
         {toiletReviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceToiletReviewItem
-              placeId={placeId}
-              review={review}
-              isAuthor={userInfo?.id === review.user.id}
-            />
+            <PlaceToiletReviewItem placeId={placeId} review={review} />
             {idx !== toiletReviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}

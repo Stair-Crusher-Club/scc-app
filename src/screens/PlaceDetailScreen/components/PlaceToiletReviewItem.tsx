@@ -15,15 +15,14 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import {useDeleteReview} from '../hooks/useDeleteReview';
 import DeleteBottomSheet from '../modals/DeleteBottomSheet';
+import UserMobilityLabel from './UserMobilityLabel';
 
 export default function PlaceToiletReviewItem({
   placeId,
   review,
-  isAuthor = false,
 }: {
   placeId: string;
   review: ToiletReviewDto;
-  isAuthor?: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -41,8 +40,14 @@ export default function PlaceToiletReviewItem({
         <HeaderLeft>
           <ReviewerName>{review.user?.nickname || '익명'}</ReviewerName>
           {review.user?.isClubMember && <BadgedIcon />}
+          {review.user?.isClubMember && review.mobilityTool !== 'NONE' && (
+            <ReviewDate>·</ReviewDate>
+          )}
+          {review.mobilityTool !== 'NONE' && (
+            <UserMobilityLabel mobilityTool={review.mobilityTool} />
+          )}
         </HeaderLeft>
-        {isAuthor && (
+        {review.isDeletable && (
           <TouchableOpacity
             onPress={() =>
               Alert.alert(
@@ -163,6 +168,12 @@ const ReviewerName = styled.Text`
   line-height: 22px;
   font-family: ${font.pretendardBold};
   color: ${color.gray100};
+`;
+const ReviewDate = styled.Text`
+  font-size: 11px;
+  line-height: 14px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray50};
 `;
 const ReviewContentColumn = styled.View`
   flex-direction: column;
