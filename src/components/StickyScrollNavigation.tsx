@@ -43,7 +43,7 @@ export default function ScrollNavigation({
         backgroundColor: 'transparent',
         width: '100%',
       }}>
-      <View
+      {/* <View
         style={{
           position: 'absolute',
           top: -edgeBackingTop,
@@ -52,7 +52,7 @@ export default function ScrollNavigation({
           height: edgeBackingTop,
           backgroundColor: 'white',
         }}
-      />
+      /> */}
       <S.StickyScrollNavigation show={true}>
         {menus.map((menu, index) => (
           <S.Menu
