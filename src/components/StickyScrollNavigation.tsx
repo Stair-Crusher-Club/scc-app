@@ -1,18 +1,25 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {LayoutRectangle, ScrollView, View} from 'react-native';
 
 import * as S from './StickyScrollNavigation.style';
 
 interface Props {
   scrollContainer: React.RefObject<ScrollView>;
-  scrollY: number;
+  scrollYRef: React.RefObject<number>;
   menus: {label: string; y: number}[];
 }
 export default function ScrollNavigation({
   scrollContainer,
-  scrollY,
+  scrollYRef,
   menus,
 }: Props) {
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScrollY(scrollYRef.current ?? 0);
+    }, 100);
+    return () => clearInterval(interval);
+  }, [scrollContainer, scrollYRef]);
   const [navLayout, setNavLayout] = useState<LayoutRectangle>({
     x: 0,
     y: 0,
@@ -43,7 +50,7 @@ export default function ScrollNavigation({
         backgroundColor: 'transparent',
         width: '100%',
       }}>
-      {/* <View
+      <View
         style={{
           position: 'absolute',
           top: -edgeBackingTop,
@@ -52,7 +59,7 @@ export default function ScrollNavigation({
           height: edgeBackingTop,
           backgroundColor: 'white',
         }}
-      /> */}
+      />
       <S.StickyScrollNavigation show={true}>
         {menus.map((menu, index) => (
           <S.Menu

@@ -60,8 +60,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const [showRegisterCompleteBottomSheet, setShowRegisterCompleteBottomSheet] =
     useState(false);
 
-  // Sticky navigation state
-  const [scrollY, setScrollY] = useState(0);
+  // scrollY 는 state로 관리하면 너무 잦은 업데이트로 인해 리렌더가 너무 많이 일어남
+  // 따라서 ref로 관리하고 이를 읽어야 하는 컴포넌트가 100ms 마다 업데이트하는 방식으로 처리
+  const scrollYRef = useRef(0);
   const scrollView = useRef<ScrollView>(null);
   const [sectionYPositions, setSectionYPositions] = useState<{
     [key: string]: number;
@@ -300,7 +301,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             stickyHeaderIndices={[4]}
             onScroll={e => {
               const y = e.nativeEvent.contentOffset.y;
-              setScrollY(y);
+              scrollYRef.current = y;
             }}
             style={{overflow: 'visible'}}
             scrollEventThrottle={100}>
@@ -320,7 +321,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <S.SectionSeparator />
             <ScrollNavigation
               scrollContainer={scrollView}
-              scrollY={scrollY}
+              scrollYRef={scrollYRef}
               menus={navigationMenus}
             />
             {visibleSections.map((section, index) => (
