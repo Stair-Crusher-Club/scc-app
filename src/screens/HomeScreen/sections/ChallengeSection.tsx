@@ -53,7 +53,7 @@ export default function ChallengeSection({
         <S.Title>계단뿌셔 챌린지</S.Title>
         <S.Subtitle>진행 중인 챌린지에 참여해 보세요!</S.Subtitle>
       </S.TitleArea>
-      <ScrollView horizontal>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <S.Filters>
           <S.FilterButton
             active={activeFilter === 'all'}

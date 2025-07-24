@@ -140,8 +140,8 @@ export function mapToToiletDetails(
         availableState === 'AVAILABLE'
           ? '0'
           : availableState === 'UNAVAILABLE'
-          ? '5'
-          : 'none',
+            ? '5'
+            : 'none',
     },
   };
 }

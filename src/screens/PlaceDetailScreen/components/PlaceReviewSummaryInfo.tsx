@@ -194,8 +194,8 @@ const SpaciousTextBox: React.FC<{
     level === 'high'
       ? color.brand10
       : level === 'medium'
-      ? color.brand5
-      : color.gray10;
+        ? color.brand5
+        : color.gray10;
 
   return (
     <View
@@ -245,8 +245,8 @@ const TextBoxContainer = styled.View<{
     level === 'high'
       ? color.brand10
       : level === 'medium'
-      ? color.brand5
-      : color.gray10};
+        ? color.brand5
+        : color.gray10};
   border-radius: 12px;
   flex-direction: ${({shape}) =>
     shape === 'thin' ? 'row' : shape === 'flat' ? 'row' : 'column'};
@@ -284,8 +284,8 @@ const TextBoxContent = styled.Text<{
     level === 'high'
       ? color.brand50
       : level === 'medium'
-      ? color.brand50
-      : color.gray40};
+        ? color.brand50
+        : color.gray40};
   text-align: center;
 `;
 

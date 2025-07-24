@@ -25,8 +25,8 @@ const Label = styled.View<{
     availableState === 'AVAILABLE'
       ? '#D9FFE6'
       : availableState === 'UNAVAILABLE'
-      ? '#FEECEC'
-      : '#EFF0F2'};
+        ? '#FEECEC'
+        : '#EFF0F2'};
   padding: 4px 8px 4px 8px;
 `;
 
@@ -39,6 +39,6 @@ const LabelText = styled.Text<{
     availableState === 'AVAILABLE'
       ? '#009632'
       : availableState === 'UNAVAILABLE'
-      ? '#E52222'
-      : '#24262B'};
+        ? '#E52222'
+        : '#24262B'};
 `;

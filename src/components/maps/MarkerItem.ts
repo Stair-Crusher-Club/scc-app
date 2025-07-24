@@ -3,16 +3,8 @@ export type MarkerItem = {
   markerIcon?: {icon: MarkerIcon; level: MarkerLevel};
   displayName: string;
   location?: {lat: number; lng: number};
+  hasReview?: boolean;
 };
-
-export function toStringMarkerIcon(
-  markerIcon: {icon: MarkerIcon; level: MarkerLevel} | undefined,
-): string | undefined {
-  if (!markerIcon) {
-    return undefined;
-  }
-  return markerIcon.icon + '_' + markerIcon.level;
-}
 
 export type MarkerIcon =
   | 'cafe'
