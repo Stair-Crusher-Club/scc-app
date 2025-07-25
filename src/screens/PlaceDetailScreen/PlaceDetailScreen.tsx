@@ -1,6 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ScrollView, View} from 'react-native';
+import {NativeScrollEvent, ScrollView, View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -62,12 +62,11 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
   // scrollY 는 state로 관리하면 너무 잦은 업데이트로 인해 리렌더가 너무 많이 일어남
   // 따라서 ref로 관리하고 이를 읽어야 하는 컴포넌트가 100ms 마다 업데이트하는 방식으로 처리
-  const scrollYRef = useRef(0);
+  const scrollEventRef = useRef<null | NativeScrollEvent>(null);
   const scrollView = useRef<ScrollView>(null);
   const [sectionYPositions, setSectionYPositions] = useState<{
     [key: string]: number;
   }>({});
-
   const {top} = useSafeAreaInsets();
 
   const {data} = useQuery({
@@ -300,8 +299,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             ref={scrollView}
             stickyHeaderIndices={[4]}
             onScroll={e => {
-              const y = e.nativeEvent.contentOffset.y;
-              scrollYRef.current = y;
+              scrollEventRef.current = e.nativeEvent;
             }}
             style={{overflow: 'visible'}}
             scrollEventThrottle={100}>
@@ -321,7 +319,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <S.SectionSeparator />
             <ScrollNavigation
               scrollContainer={scrollView}
-              scrollYRef={scrollYRef}
+              scrollEventRef={scrollEventRef}
               menus={navigationMenus}
             />
             {visibleSections.map((section, index) => (
