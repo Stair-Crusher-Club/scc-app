@@ -36,11 +36,29 @@ export const GuideMessageTitle = styled.Text({
   lineHeight: '24px',
 });
 
+export const BulletPointContainer = styled.View({
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+});
+
+export const BulletPoint = styled.Text({
+  fontFamily: font.pretendardRegular,
+  color: color.white,
+  fontSize: 14,
+  lineHeight: '22px',
+  marginRight: 8,
+});
+
 export const GuideMessageContent = styled.Text({
   fontFamily: font.pretendardRegular,
   color: color.white,
   fontSize: 14,
   lineHeight: '22px',
+  flex: 1,
+});
+
+export const BulletPoints = styled.View({
+  gap: 2,
 });
 
 export const More = styled.Text({

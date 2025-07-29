@@ -131,7 +131,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 <Photos
                   value={field.value ?? []}
                   onChange={field.onChange}
-                  target="place"
+                  target="toilet"
                   maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                 />
               )}

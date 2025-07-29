@@ -18,6 +18,16 @@ export const hasShownGuideForEnterancePhotoAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
+export const hasShownGuideForReviewPhotoAtom = atomForLocalNonNull<boolean>(
+  'hasShownGuideForReviewPhoto',
+  false,
+);
+
+export const hasShownGuideForToiletPhotoAtom = atomForLocalNonNull<boolean>(
+  'hasShownGuideForToiletPhoto',
+  false,
+);
+
 export const hasShownGuideForFirstVisitAtom = atomForLocalNonNull<boolean>(
   'hasShownGuideForFirstVisit',
   false,

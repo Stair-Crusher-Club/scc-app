@@ -8,7 +8,11 @@ import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
 import FlashIcon from '@/assets/icon/ic_flash.svg';
-import {hasShownGuideForEnterancePhotoAtom} from '@/atoms/User';
+import {
+  hasShownGuideForEnterancePhotoAtom,
+  hasShownGuideForToiletPhotoAtom,
+  hasShownGuideForReviewPhotoAtom,
+} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
@@ -27,12 +31,13 @@ import useCamera from './useCamera';
 export interface CameraScreenParams {
   takenPhotos: ImageFile[];
   onPhotosTaken(photos: ImageFile[]): void;
+  target: 'place' | 'review' | 'toilet' | 'building';
 }
 
 export default function CameraScreen({
   route,
   navigation,
-}: ScreenProps<'Camera/Place'>) {
+}: ScreenProps<'Camera'>) {
   const initialFocusedIndex = React.useRef(0);
   const windowHeight = Dimensions.get('window').height;
   const cameraMaxHeight = windowHeight > 0 ? windowHeight / 2 : 360;
@@ -42,7 +47,12 @@ export default function CameraScreen({
   const hasShownGuideForEnterancePhoto = useAtomValue(
     hasShownGuideForEnterancePhotoAtom,
   );
-
+  const hasShownGuideForReviewPhoto = useAtomValue(
+    hasShownGuideForReviewPhotoAtom,
+  );
+  const hasShownGuideForToiletPhoto = useAtomValue(
+    hasShownGuideForToiletPhotoAtom,
+  );
   // 기존 촬영한 이미지 체크
   useEffect(() => {
     if (route.params && route.params.takenPhotos) {
@@ -50,15 +60,30 @@ export default function CameraScreen({
     }
   }, [route.params]);
 
-  // 사진 촬영 가이드 보여주기
   useEffect(() => {
-    if (!hasShownGuideForEnterancePhoto) {
-      openGuide();
+    // 사진 촬영 가이드 보여주기 (only for place)
+    if (route.params.target === 'place' && !hasShownGuideForEnterancePhoto) {
+      openGuide('place');
+    } else if (
+      route.params.target === 'review' &&
+      !hasShownGuideForReviewPhoto
+    ) {
+      openGuide('review');
+    } else if (
+      route.params.target === 'toilet' &&
+      !hasShownGuideForToiletPhoto
+    ) {
+      openGuide('toilet');
     }
-  }, []);
+  }, [
+    route.params.target,
+    hasShownGuideForEnterancePhoto,
+    hasShownGuideForReviewPhoto,
+    hasShownGuideForToiletPhoto,
+  ]);
 
-  function openGuide() {
-    navigation.push('PlacePhotoGuide');
+  function openGuide(target: 'place' | 'review' | 'toilet') {
+    navigation.push('PlacePhotoGuide', {target: target});
   }
 
   function goBack() {
@@ -140,12 +165,17 @@ export default function CameraScreen({
           <CameraNotAuthorized />
         )}
       </S.CameraContainer>
-      <S.TipsWrapper>
-        <S.Tips onPress={openGuide}>
-          <CircleInfoIcon />
-          <S.Tip>{'사진 촬영 팁  >'}</S.Tip>
-        </S.Tips>
-      </S.TipsWrapper>
+      {route.params.target !== 'building' && (
+        <S.TipsWrapper>
+          <S.Tips
+            onPress={() =>
+              openGuide(route.params.target as 'place' | 'review' | 'toilet')
+            }>
+            <CircleInfoIcon />
+            <S.Tip>{'사진 촬영 팁  >'}</S.Tip>
+          </S.Tips>
+        </S.TipsWrapper>
+      )}
       <S.TakenPhotos>
         {photoFiles.length === 0 && (
           <S.NoPhotosTaken>최대 3장까지 촬영할 수 있어요</S.NoPhotosTaken>
