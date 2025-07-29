@@ -1,10 +1,11 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
-import {useAtom} from 'jotai';
+import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView} from 'react-native';
 
+import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
 import {
   getMobilityToolDefaultValue,
@@ -53,6 +54,7 @@ export default function ToiletReviewView({
   const queryClient = useQueryClient();
   const {userInfo} = useMe();
   const [loading, setLoading] = useAtom(loadingState);
+  const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -72,6 +74,10 @@ export default function ToiletReviewView({
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, true));
+        setRecentlyUsedMobilityTool({
+          name: values.mobilityTool,
+          timestamp: Date.now(),
+        });
         const registered = await register({
           api,
           queryClient,
@@ -98,10 +104,7 @@ export default function ToiletReviewView({
         <PlaceInfoSection name={place?.name} address={place?.address} />
         <SectionSeparator />
 
-        <UserTypeSection
-          placeType="장애인 화장실"
-          nickname={userInfo?.nickname}
-        />
+        <UserTypeSection nickname={userInfo?.nickname} />
         <SectionSeparator />
 
         <ToiletSection onSave={form.handleSubmit(onValid)} />

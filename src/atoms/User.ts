@@ -1,7 +1,8 @@
 import {atom} from 'jotai';
 
 import {userInfoAtom} from '@/atoms/Auth';
-import {atomForLocalNonNull} from '@/atoms/atomForLocal';
+import {atomForLocal, atomForLocalNonNull} from '@/atoms/atomForLocal';
+import {UserMobilityToolMapDto} from '@/constant/review';
 
 export const searchHistoriesAtom = atomForLocalNonNull<string[]>(
   'searchHistories',
@@ -45,3 +46,8 @@ export const isGuestUserAtom = atom(get => {
   const userInfo = get(userInfoAtom);
   return userInfo?.id === '0';
 });
+
+export const recentlyUsedMobilityToolAtom = atomForLocal<{
+  name: UserMobilityToolMapDto;
+  timestamp: number;
+}>('recentlyUsedMobilityTool');

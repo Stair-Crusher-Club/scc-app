@@ -1,6 +1,9 @@
+import {useAtomValue} from 'jotai';
+import {useEffect} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
+import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import PressableChip from '@/components/PressableChip';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -13,18 +16,22 @@ import {
 import Question from '../components/Question';
 import * as S from './common.style';
 
-export default function UserTypeSection({
-  placeType = '장소',
-  nickname,
-}: {
-  placeType?: string;
-  nickname?: string;
-}) {
-  const {watch} = useFormContext<{
+export default function UserTypeSection({nickname}: {nickname?: string}) {
+  const {watch, setValue} = useFormContext<{
     mobilityTool: UserMobilityToolMapDto;
   }>();
+  const recentlyUsedMobilityTool = useAtomValue(recentlyUsedMobilityToolAtom);
   const mobilityTool = watch('mobilityTool');
   const isVisibleLabel = mobilityTool !== 'NONE';
+
+  useEffect(() => {
+    if (
+      recentlyUsedMobilityTool?.name &&
+      recentlyUsedMobilityTool.timestamp > Date.now() - 1000 * 60 * 60 * 24 // 1일
+    ) {
+      setValue('mobilityTool', recentlyUsedMobilityTool.name);
+    }
+  }, [recentlyUsedMobilityTool, setValue]);
 
   return (
     <S.Container>
@@ -32,7 +39,7 @@ export default function UserTypeSection({
 
       <View style={{gap: 12}}>
         <Question required>
-          {placeType} 방문시 사용한 것을 선택해주세요.
+          {nickname}님이 이 장소를 이용하실 때의 이동 형태를 선택해 주세요.
         </Question>
         {/* Chip */}
         <View

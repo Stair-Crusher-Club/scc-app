@@ -1,10 +1,11 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
-import {useAtom} from 'jotai';
+import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView} from 'react-native';
 
+import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
 import {
   getMobilityToolDefaultValue,
@@ -70,6 +71,7 @@ export default function IndoorReviewView({
       features: new Set(),
     },
   });
+  const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
 
   async function onValid(values: FormValues) {
     registerPlace(values, gotoPlaceDetail);
@@ -86,6 +88,10 @@ export default function IndoorReviewView({
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, true));
+        setRecentlyUsedMobilityTool({
+          name: values.mobilityTool,
+          timestamp: Date.now(),
+        });
         const registered = await register({
           api,
           queryClient,
