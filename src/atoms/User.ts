@@ -14,7 +14,7 @@ export const hasBeenRegisteredAccessibilityAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
-export const hasShownGuideForEnterancePhotoAtom = atomForLocalNonNull<boolean>(
+export const hasShownGuideForEntrancePhotoAtom = atomForLocalNonNull<boolean>(
   'hasShownGuideForEnterancePhoto',
   false,
 );

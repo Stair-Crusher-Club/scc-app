@@ -9,7 +9,7 @@ import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
 import FlashIcon from '@/assets/icon/ic_flash.svg';
 import {
-  hasShownGuideForEnterancePhotoAtom,
+  hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForToiletPhotoAtom,
   hasShownGuideForReviewPhotoAtom,
 } from '@/atoms/User';
@@ -45,7 +45,7 @@ export default function CameraScreen({
   const [photoFiles, setPhotoFiles] = useState<ImageFile[]>([]);
   const [flash, setFlash] = useState<'on' | 'off'>('off');
   const hasShownGuideForEnterancePhoto = useAtomValue(
-    hasShownGuideForEnterancePhotoAtom,
+    hasShownGuideForEntrancePhotoAtom,
   );
   const hasShownGuideForReviewPhoto = useAtomValue(
     hasShownGuideForReviewPhotoAtom,
@@ -61,7 +61,6 @@ export default function CameraScreen({
   }, [route.params]);
 
   useEffect(() => {
-    // 사진 촬영 가이드 보여주기 (only for place)
     if (route.params.target === 'place' && !hasShownGuideForEnterancePhoto) {
       openGuide('place');
     } else if (
@@ -168,9 +167,16 @@ export default function CameraScreen({
       {route.params.target !== 'building' && (
         <S.TipsWrapper>
           <S.Tips
-            onPress={() =>
-              openGuide(route.params.target as 'place' | 'review' | 'toilet')
-            }>
+            onPress={() => {
+              const target = route.params.target;
+              if (
+                target === 'place' ||
+                target === 'review' ||
+                target === 'toilet'
+              ) {
+                openGuide(target);
+              }
+            }}>
             <CircleInfoIcon />
             <S.Tip>{'사진 촬영 팁  >'}</S.Tip>
           </S.Tips>

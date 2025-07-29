@@ -107,7 +107,7 @@ export default function IndoorReviewView({
         ToastUtils.show('리뷰를 등록했어요.');
         afterSuccess();
       }, 1000),
-    [api, place, loading, setLoading],
+    [api, place, loading, setLoading, setRecentlyUsedMobilityTool],
   );
 
   return (

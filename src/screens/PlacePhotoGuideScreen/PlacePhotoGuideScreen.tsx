@@ -5,7 +5,7 @@ import {match} from 'ts-pattern';
 
 import ExitIcon from '@/assets/icon/ic_exit.svg';
 import {
-  hasShownGuideForEnterancePhotoAtom,
+  hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForReviewPhotoAtom,
   hasShownGuideForToiletPhotoAtom,
 } from '@/atoms/User';
@@ -25,7 +25,7 @@ export default function PlacePhotoGuideScreen({
 }: ScreenProps<'PlacePhotoGuide'>) {
   const {target} = route.params;
   const setHasShownGuideForEnterancePhoto = useSetAtom(
-    hasShownGuideForEnterancePhotoAtom,
+    hasShownGuideForEntrancePhotoAtom,
   );
   const setHasShownGuideForReviewPhoto = useSetAtom(
     hasShownGuideForReviewPhotoAtom,
