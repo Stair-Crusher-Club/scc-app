@@ -1,25 +1,40 @@
 import React, {useEffect, useState} from 'react';
-import {LayoutRectangle, ScrollView, View} from 'react-native';
+import {
+  LayoutRectangle,
+  NativeScrollEvent,
+  ScrollView,
+  View,
+} from 'react-native';
 
 import * as S from './StickyScrollNavigation.style';
 
 interface Props {
   scrollContainer: React.RefObject<ScrollView>;
-  scrollYRef: React.RefObject<number>;
+  scrollEventRef: React.RefObject<NativeScrollEvent>;
   menus: {label: string; y: number}[];
 }
 export default function ScrollNavigation({
   scrollContainer,
-  scrollYRef,
+  scrollEventRef,
   menus,
 }: Props) {
   const [scrollY, setScrollY] = useState(0);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   useEffect(() => {
     const interval = setInterval(() => {
-      setScrollY(scrollYRef.current ?? 0);
+      const event = scrollEventRef.current;
+      if (event) {
+        setScrollY(event.contentOffset?.y ?? 0);
+        const bottomOffset =
+          (event.contentOffset?.y ?? 0) +
+          (event.layoutMeasurement?.height ?? 0);
+        setIsScrolledToBottom(
+          bottomOffset >= (event.contentSize?.height ?? 0) - 2,
+        );
+      }
     }, 100);
     return () => clearInterval(interval);
-  }, [scrollContainer, scrollYRef]);
+  }, [scrollContainer, scrollEventRef]);
   const [navLayout, setNavLayout] = useState<LayoutRectangle>({
     x: 0,
     y: 0,
@@ -29,6 +44,7 @@ export default function ScrollNavigation({
   const activeMenuIndex = findActiveIndex(
     scrollY + navLayout.height,
     menus.map(menu => menu.y),
+    isScrolledToBottom,
   );
   const activeMenu = menus[activeMenuIndex];
   const edgeBackingTop = scrollY + navLayout.height - menus[0]?.y || 0;
@@ -74,11 +90,18 @@ export default function ScrollNavigation({
   );
 }
 
-function findActiveIndex(scrollY: number, scrollYs: number[]) {
+function findActiveIndex(
+  scrollY: number,
+  scrollYs: number[],
+  isScrolledToBottom: boolean,
+) {
   const reversed = [...scrollYs].reverse();
   const index = reversed.findIndex(y => y <= scrollY);
   if (index === -1) {
     return 0;
+  }
+  if (isScrolledToBottom) {
+    return scrollYs.length - 1;
   }
   return scrollYs.length - index - 1;
 }

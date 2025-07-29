@@ -7,7 +7,6 @@ import {font} from '@/constant/font';
 import {LogClick} from '@/logging/LogClick';
 
 interface Props {
-  subTitle?: string;
   title: string;
   buttonText: string;
   onPress?: () => void;
@@ -15,7 +14,6 @@ interface Props {
 }
 
 export default function PlaceDetailRegisterButtonSection({
-  subTitle,
   title,
   buttonText,
   onPress,
@@ -28,28 +26,16 @@ export default function PlaceDetailRegisterButtonSection({
         paddingHorizontal: 20,
         backgroundColor: color.white,
       }}>
-      {subTitle && (
-        <StyledText
-          text={subTitle}
-          style={{
-            fontSize: 14,
-            lineHeight: 20,
-            fontFamily: font.pretendardRegular,
-            color: color.gray60,
-          }}
-          boldStyle={{fontWeight: 'bold'}}
-        />
-      )}
-      <Text
+      <StyledText
+        text={title}
         style={{
-          fontSize: 18,
+          fontSize: 16,
           lineHeight: 26,
           color: color.black,
           fontFamily: font.pretendardBold,
-          marginTop: 4,
-        }}>
-        {title}
-      </Text>
+        }}
+        boldStyle={{color: color.blue50}}
+      />
       <LogClick elementName={logKey}>
         <TouchableOpacity
           onPress={onPress}
@@ -62,7 +48,7 @@ export default function PlaceDetailRegisterButtonSection({
             borderRadius: 12,
             backgroundColor: color.brand5,
             height: 48,
-            marginTop: 16,
+            marginTop: 20,
           }}>
           <PlusIcon width={12} height={12} color={color.brandColor} />
           <Text

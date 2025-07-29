@@ -101,7 +101,7 @@ export default function VisitorReviewSection() {
               <Photos
                 value={field.value ?? []}
                 onChange={field.onChange}
-                target="place"
+                target="review"
                 maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
               />
             )}

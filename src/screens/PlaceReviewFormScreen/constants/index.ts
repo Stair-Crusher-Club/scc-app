@@ -13,7 +13,7 @@ export const ORDER_METHOD_OPTIONS = [
   '키오스크 주문',
   '베리어프리 키오스크 주문',
   '테이블 오더 주문',
-  '자리에서 직원에게 질문',
+  '자리에서 직원에게 주문',
 ];
 
 export const ACCESSIBILITY_FEATURE_OPTIONS = [

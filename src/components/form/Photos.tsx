@@ -11,17 +11,17 @@ import * as S from './Photos.style';
 interface Props {
   value: ImageFile[];
   maxPhotos: number;
-  target: 'place' | 'building';
+  target: 'place' | 'review' | 'toilet' | 'building';
   onChange: (photos: ImageFile[]) => void;
 }
 export default function Photos({value, maxPhotos, target, onChange}: Props) {
   const navigation = useNavigation();
 
   const takePhoto = () => {
-    const destination = target === 'place' ? 'Camera/Place' : 'Camera/Building';
-    navigation.navigate(destination, {
+    navigation.navigate('Camera', {
       takenPhotos: value,
       onPhotosTaken: onChange,
+      target,
     });
   };
 

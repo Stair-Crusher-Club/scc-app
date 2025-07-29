@@ -9,11 +9,8 @@ import AddCommentScreen, {
 import BuildingFormScreen, {
   BuildingFormScreenParams,
 } from '@/screens/BuildingFormScreen';
-import {
-  BuildingCamera,
-  CameraScreenParams,
-  PlaceCamera,
-} from '@/screens/CameraScreen';
+import {CameraScreenParams} from '@/screens/CameraScreen';
+import CameraScreen from '@/screens/CameraScreen/CameraScreen';
 import ChallengeDetailScreen, {
   ChallengeDetailScreenParams,
 } from '@/screens/ChallengeDetailScreen';
@@ -40,6 +37,7 @@ import PlaceFormScreen, {
   PlaceFormScreenParams,
 } from '@/screens/PlaceFormScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
+import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
 import PlaceReviewFormScreen, {
   PlaceReviewFormScreenParams,
 } from '@/screens/PlaceReviewFormScreen';
@@ -92,8 +90,7 @@ export const MainNavigationScreens: {
     component: ConquererHistoryScreen,
     options: {headerShown: true, headerTitle: '지금까지 내가 정복한 장소'},
   },
-  {name: 'Camera/Building', component: BuildingCamera},
-  {name: 'Camera/Place', component: PlaceCamera},
+  {name: 'Camera', component: CameraScreen},
   {
     name: 'FavoritePlaces',
     component: FavoritePlacesScreen,
@@ -199,8 +196,7 @@ export type ScreenParams = {
   // 홈 탭 - 장소 및 건물 등록
   Main: undefined;
   Search: SearchScreenParams;
-  'Camera/Building': CameraScreenParams;
-  'Camera/Place': CameraScreenParams;
+  Camera: CameraScreenParams;
   PlaceForm: PlaceFormScreenParams;
   PlaceDetail: PlaceDetailScreenParams;
   ExternalAccessibilityDetail: ExternalAccessibilityDetailScreenParams;
@@ -230,7 +226,7 @@ export type ScreenParams = {
 
   // fullscreen modals
   GuideForFirstVisit: undefined;
-  PlacePhotoGuide: undefined;
+  PlacePhotoGuide: PlacePhotoGuideScreenParams;
   Webview: WebViewScreenParams;
   ImageZoomViewer: ImageZoomViewerScreenParams;
 };
