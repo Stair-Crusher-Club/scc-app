@@ -1,4 +1,5 @@
 import React from 'react';
+import {Platform} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -36,7 +37,17 @@ const Container = styled.View`
 const Tag = styled.View`
   background-color: ${color.brand5};
   border-radius: 4px;
-  padding: 4px;
+  padding-horizontal: 4px;
+  height: 20px;
+  ${Platform.select({
+    ios: {
+      'padding-vertical': '4px',
+    },
+    android: {
+      'padding-top': '3px',
+      'padding-bottom': '4px',
+    },
+  })}
 `;
 
 const TagText = styled.Text`
