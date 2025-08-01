@@ -38,9 +38,7 @@ export default function UserTypeSection({nickname}: {nickname?: string}) {
       <S.Title>사용한 이동보조기기 유형</S.Title>
 
       <View style={{gap: 12}}>
-        <Question required>
-          {nickname}님이 이 장소를 이용하실 때의 이동 형태를 선택해 주세요.
-        </Question>
+        <Question required>어떤 이동 수단으로 방문하셨나요?</Question>
         {/* Chip */}
         <View
           style={{
