@@ -252,7 +252,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
           title="<b>장애인 화장실</b>이 있었나요? 정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요."
-          buttonText="장애인화장실 정보 등록"
+          buttonText="장애인 화장실 정보 등록"
           onPress={() =>
             checkAuth(() => {
               navigation.navigate('ReviewForm/Toilet', {
