@@ -41,11 +41,11 @@ export default function PlacePhotoGuideScreen({
     ])
     .with('review', () => [
       '내부 공간이 잘 보이게 촬영해 주세요',
-      '좌석이나 통로가 잘 드러나도록 다양한 각도에서 찍어주시면 좋아요',
+      '좌석이나 통로가 잘 드러나도록\n다양한 각도에서 찍어주세요',
     ])
     .with('toilet', () => [
       '내부 공간이 잘 보이게 촬영해 주세요',
-      '화장실 넓이, 세면대 높이가 잘 드러나도록 가슴 높이에서 찍어주세요(키 150cm 이상 기준)',
+      '화장실 넓이, 세면대 높이가 잘 드러나도록\n가슴 높이에서 찍어주세요(키 150cm 이상 기준)',
     ])
     .exhaustive();
   useEffect(() => {
@@ -92,11 +92,13 @@ export default function PlacePhotoGuideScreen({
             </S.BulletPointContainer>
           ))}
         </S.BulletPoints>
-        <LogClick elementName="place_photo_guide">
-          <Pressable onPress={goToGuide}>
-            <S.More>더 알아보기 {'>'}</S.More>
-          </Pressable>
-        </LogClick>
+        {target === 'place' && (
+          <LogClick elementName="place_photo_guide">
+            <Pressable onPress={goToGuide}>
+              <S.More>더 알아보기 {'>'}</S.More>
+            </Pressable>
+          </LogClick>
+        )}
       </S.GuideMessage>
     </ScreenLayout>
   );

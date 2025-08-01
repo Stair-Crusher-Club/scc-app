@@ -3,8 +3,15 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import ReviewLabel from '@/screens/SearchScreen/components/ReviewLabel';
 
-export default function Tags({texts}: {texts: string[]}) {
+interface TagsProps {
+  texts: string[];
+  hasReview?: boolean;
+  reviewCount?: number;
+}
+
+export default function Tags({texts, hasReview, reviewCount}: TagsProps) {
   return (
     <Container>
       {texts.map((text, index) => (
@@ -12,6 +19,8 @@ export default function Tags({texts}: {texts: string[]}) {
           <TagText>{text}</TagText>
         </Tag>
       ))}
+
+      {hasReview && <ReviewLabel count={reviewCount ?? 0} />}
     </Container>
   );
 }
