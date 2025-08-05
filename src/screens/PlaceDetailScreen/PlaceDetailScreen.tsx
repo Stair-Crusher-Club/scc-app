@@ -1,6 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ScrollView, View} from 'react-native';
+import {NativeScrollEvent, ScrollView, View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -60,13 +60,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const [showRegisterCompleteBottomSheet, setShowRegisterCompleteBottomSheet] =
     useState(false);
 
-  // Sticky navigation state
-  const [scrollY, setScrollY] = useState(0);
+  // scrollY 는 state로 관리하면 너무 잦은 업데이트로 인해 리렌더가 너무 많이 일어남
+  // 따라서 ref로 관리하고 이를 읽어야 하는 컴포넌트가 100ms 마다 업데이트하는 방식으로 처리
+  const scrollEventRef = useRef<null | NativeScrollEvent>(null);
   const scrollView = useRef<ScrollView>(null);
   const [sectionYPositions, setSectionYPositions] = useState<{
     [key: string]: number;
   }>({});
-
   const {top} = useSafeAreaInsets();
 
   const {data} = useQuery({
@@ -216,8 +216,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
-          subTitle={`<b>${place.name}</b>에 방문하셨나요?`}
-          title="방문 리뷰를 남겨주세요"
+          title={`<b>${place.name}</b>에 방문하셨나요? 리뷰를 남겨주시면 다른 분들에게 큰 도움이 돼요.`}
           buttonText="방문 리뷰 쓰기"
           onPress={() =>
             checkAuth(() => {
@@ -252,9 +251,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
-          title="화장실 정보를 남겨주세요"
-          subTitle={`<b>${place.name}</b>에 방문시 이용가능한 화장실 정보를 남겨주세요`}
-          buttonText="장애인화장실 정보 등록"
+          title="<b>장애인 화장실</b>이 있었나요? 정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요."
+          buttonText="장애인 화장실 정보 등록"
           onPress={() =>
             checkAuth(() => {
               navigation.navigate('ReviewForm/Toilet', {
@@ -299,8 +297,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             ref={scrollView}
             stickyHeaderIndices={[4]}
             onScroll={e => {
-              const y = e.nativeEvent.contentOffset.y;
-              setScrollY(y);
+              scrollEventRef.current = e.nativeEvent;
             }}
             style={{overflow: 'visible'}}
             scrollEventThrottle={100}>
@@ -320,7 +317,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             <S.SectionSeparator />
             <ScrollNavigation
               scrollContainer={scrollView}
-              scrollY={scrollY}
+              scrollEventRef={scrollEventRef}
               menus={navigationMenus}
             />
             {visibleSections.map((section, index) => (

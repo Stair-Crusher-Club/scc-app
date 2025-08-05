@@ -43,7 +43,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         <S.Title>장애인 화장실 정보</S.Title>
 
         <View style={{gap: 12}}>
-          <Question required>장애인 화장실의 유무를 알려주세요.</Question>
+          <Question required>장애인 화장실이 있나요?</Question>
           <View
             style={{
               flexDirection: 'row',
@@ -131,7 +131,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                 <Photos
                   value={field.value ?? []}
                   onChange={field.onChange}
-                  target="place"
+                  target="toilet"
                   maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                 />
               )}

@@ -19,7 +19,6 @@ import {LogViewAndClick} from '@/logging/LogViewAndClick';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import Button from '@/screens/SearchScreen/components/Button';
-import ReviewLabel from '@/screens/SearchScreen/components/ReviewLabel';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -145,11 +144,6 @@ function SearchItemCard({
                   })}
                   isIconVisible
                 />
-                {hasReview && (
-                  <ReviewLabel
-                    count={item.accessibilityInfo?.reviewCount ?? 0}
-                  />
-                )}
               </View>
               <IconArea>
                 <TouchableOpacity
@@ -199,7 +193,11 @@ function SearchItemCard({
               </LocationBox>
             </TitleArea>
             <ExtraArea>
-              <Tags texts={tagTexts} />
+              <Tags
+                texts={tagTexts}
+                hasReview={hasReview}
+                reviewCount={item.accessibilityInfo?.reviewCount}
+              />
               {registerStatus === 'PLACE_ONLY' && (
                 <LogClick elementName="place_search_item_card_register_building_accessibility_button">
                   <Button
