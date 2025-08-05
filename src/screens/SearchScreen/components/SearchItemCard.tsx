@@ -67,11 +67,11 @@ function SearchItemCard({
       slopeTag = !item.hasPlaceAccessibility
         ? undefined
         : item.accessibilityInfo.hasSlope
-        ? '경사로있음'
-        : !item.accessibilityInfo.hasSlope &&
-          item.accessibilityInfo.accessibilityScore !== 0 // 접근성이 좋은 장소면(경사로 없이 충분히 진입 가능하면) 경사로 없음 태그 노출할 필요 없다.
-        ? '경사로없음'
-        : undefined;
+          ? '경사로있음'
+          : !item.accessibilityInfo.hasSlope &&
+              item.accessibilityInfo.accessibilityScore !== 0 // 접근성이 좋은 장소면(경사로 없이 충분히 진입 가능하면) 경사로 없음 태그 노출할 필요 없다.
+            ? '경사로없음'
+            : undefined;
     } else {
       floorTag = undefined;
       slopeTag = undefined;

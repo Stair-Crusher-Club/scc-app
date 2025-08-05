@@ -8,8 +8,8 @@ export const Options = styled.View({
   justifyContent: 'flex-start',
   gap: 10,
 });
-export const PressableOption = styled.Pressable(
-  ({selected}: {selected: boolean}) => ({
+export const PressableOption = styled.Pressable<{selected: boolean}>(
+  ({selected}) => ({
     borderRadius: 20,
     borderWidth: 1,
     display: 'flex',
@@ -22,7 +22,7 @@ export const PressableOption = styled.Pressable(
     backgroundColor: selected ? color.brand10 : 'transparent',
   }),
 );
-export const OptionText = styled.Text(({selected}: {selected: boolean}) => ({
+export const OptionText = styled.Text<{selected: boolean}>(({selected}) => ({
   fontSize: 14,
   fontFamily: font.pretendardMedium,
   color: selected ? color.brandColor : color.gray70,

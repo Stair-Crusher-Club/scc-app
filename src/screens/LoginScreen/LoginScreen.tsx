@@ -262,7 +262,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   return (
     <ScreenLayout
       isHeaderVisible={false}
-      safeAreaEdges={['top', 'bottom']}
+      safeAreaEdges={['bottom']}
       style={{backgroundColor: 'white'}}>
       <S.Container>
         <S.SlideContainer>
@@ -272,7 +272,9 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
             loop
             renderItem={renderSlide}
             onProgressChange={(_, i) => setActiveSlide(i)}
-            panGestureHandlerProps={{activeOffsetX: [-10, 10]}}
+            onConfigurePanGesture={gestureChain => {
+              gestureChain.activeOffsetX([-10, 10]);
+            }}
             autoPlay={true}
             autoPlayInterval={5000}
           />

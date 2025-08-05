@@ -4,14 +4,17 @@ import android.app.Application
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.ViewManagerOnDemandReactPackage
+import com.facebook.react.bridge.NativeModule
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-import com.facebook.react.flipper.ReactNativeFlipper
-import com.facebook.soloader.SoLoader
-import com.hotupdater.HotUpdater 
+import com.facebook.react.uimanager.ReactShadowNode
+import com.facebook.react.uimanager.ViewManager
+import com.hotupdater.HotUpdater
 
 class MainApplication : Application(), ReactApplication {
 
@@ -20,7 +23,33 @@ class MainApplication : Application(), ReactApplication {
             override fun getPackages(): List<ReactPackage> =
                 PackageList(this).packages.apply {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
-                    add(MapPackage())
+                    add(object : ReactPackage, ViewManagerOnDemandReactPackage {
+                        override fun getViewManagerNames(reactContext: ReactApplicationContext) =
+                            listOf(
+                                "SccMapView",
+                                "RNTMyLegacyNativeView",
+                                "RNTReportFullyDrawnView"
+                            )
+
+                        override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+                            return emptyList()
+                        }
+
+                        override fun createViewManagers(
+                            reactContext: ReactApplicationContext
+                        ): List<ViewManager<*, *>> =
+                            listOf(SccMapViewManager())
+
+
+                        override fun createViewManager(
+                            reactContext: ReactApplicationContext,
+                            viewManagerName: String
+                        ): ViewManager<*, out ReactShadowNode<*>>? =
+                            when (viewManagerName) {
+                                "SccMapView" -> SccMapViewManager()
+                                else -> null
+                            }
+                    })
                 }
 
             override fun getJSMainModuleName(): String = "index"
@@ -40,11 +69,6 @@ class MainApplication : Application(), ReactApplication {
 
     override fun onCreate() {
         super.onCreate()
-        SoLoader.init(this, false)
-        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for this app.
-            load()
-        }
-        ReactNativeFlipper.initializeFlipper(this, reactNativeHost.reactInstanceManager)
+        loadReactNative(this)
     }
 }

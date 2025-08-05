@@ -67,7 +67,7 @@ export const MainNavigationScreens: {
   {
     name: 'Search',
     component: SearchScreen,
-    options: {headerShown: true, headerTitle: '장소 검색'},
+    options: {headerShown: false},
   },
   {name: 'Login', component: LoginScreen},
   {
@@ -160,6 +160,7 @@ export const MainNavigationScreens: {
   {
     name: 'ToiletMap',
     component: ToiletMapScreen,
+    options: {headerShown: false},
   },
   {
     name: 'ImageZoomViewer',

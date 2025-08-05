@@ -11,8 +11,8 @@ export const TextInputContainer = styled.View<{
   borderColor: props.hasError
     ? color.red
     : props.focused
-    ? color.brandColor
-    : color.gray30,
+      ? color.brandColor
+      : color.gray30,
   borderWidth: 1,
   borderRadius: 20,
   paddingHorizontal: 25,

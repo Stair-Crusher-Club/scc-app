@@ -9,8 +9,8 @@ import {
 import * as S from './StickyScrollNavigation.style';
 
 interface Props {
-  scrollContainer: React.RefObject<ScrollView>;
-  scrollEventRef: React.RefObject<NativeScrollEvent>;
+  scrollContainer: React.RefObject<ScrollView | null>;
+  scrollEventRef: React.RefObject<NativeScrollEvent | null>;
   menus: {label: string; y: number}[];
 }
 export default function ScrollNavigation({
@@ -22,7 +22,7 @@ export default function ScrollNavigation({
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   useEffect(() => {
     const interval = setInterval(() => {
-      const event = scrollEventRef.current;
+      const event = scrollEventRef.current ?? null;
       if (event) {
         setScrollY(event.contentOffset?.y ?? 0);
         const bottomOffset =

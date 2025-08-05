@@ -4,7 +4,6 @@ import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {ScrollView} from 'react-native';
 
-import {FormScreenLayout} from '@/components/FormScreenLayout';
 import {loadingState} from '@/components/LoadingView';
 import {SccButton} from '@/components/atoms';
 import {
@@ -27,6 +26,8 @@ import CommentsSection from './sections/CommentsSection';
 import EnteranceSection from './sections/EnteranceSection';
 import FloorSection, {FloorType} from './sections/FloorSection';
 import HeaderSection from './sections/HeaderSection';
+import {ScreenLayout} from '@/components/ScreenLayout';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 export interface PlaceFormScreenParams {
   place: Place;
@@ -119,26 +120,28 @@ export default function PlaceFormScreen({
 
   return (
     <LogParamsProvider params={{place_id: place.id}}>
-      <FormScreenLayout>
+      <ScreenLayout isHeaderVisible={true}>
         <ScrollView>
-          <FormProvider {...form}>
-            <HeaderSection place={place} />
-            <S.SectionSeparator />
-            <FloorSection />
-            <S.SectionSeparatorLine />
-            <EnteranceSection />
-            <S.SectionSeparator />
-            <CommentsSection />
-            <S.SubmitButtonWrapper>
-              <SccButton
-                text="등록하기"
-                buttonColor="blue50"
-                onPress={submit}
-              />
-            </S.SubmitButtonWrapper>
-          </FormProvider>
+          <SafeAreaView edges={['bottom']}>
+            <FormProvider {...form}>
+              <HeaderSection place={place} />
+              <S.SectionSeparator />
+              <FloorSection />
+              <S.SectionSeparatorLine />
+              <EnteranceSection />
+              <S.SectionSeparator />
+              <CommentsSection />
+              <S.SubmitButtonWrapper>
+                <SccButton
+                  text="등록하기"
+                  buttonColor="blue50"
+                  onPress={submit}
+                />
+              </S.SubmitButtonWrapper>
+            </FormProvider>
+          </SafeAreaView>
         </ScrollView>
-      </FormScreenLayout>
+      </ScreenLayout>
     </LogParamsProvider>
   );
 }

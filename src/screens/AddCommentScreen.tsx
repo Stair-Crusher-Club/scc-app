@@ -31,7 +31,6 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
     id: string;
   }>(['AddComment', type, id], async params => {
     if (params.type === 'place') {
-      console.log('placeId', id);
       await api.registerPlaceAccessibilityCommentPost({
         comment: params.comment,
         placeId: id,

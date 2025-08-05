@@ -85,12 +85,17 @@ function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
     id: item.place.id,
     location: item.place.location,
     displayName: item.place.name,
+    hasReview:
+      item.accessibilityInfo?.reviewCount !== undefined
+        ? item.accessibilityInfo.reviewCount > 0
+        : false,
     markerIcon: {
       icon: match<string | undefined, MarkerIcon>(item.place.category)
         .with('RESTAURANT', () => 'rest')
         .with('CAFE', () => 'cafe')
         .with('CONVENIENCE_STORE', () => 'conv')
         .with('PHARMACY', () => 'phar')
+        .with('HOSPITAL', () => 'hos')
         .otherwise(() => 'default'),
       level: match<number | undefined | 'processing', MarkerLevel>(
         getPlaceAccessibilityScore({

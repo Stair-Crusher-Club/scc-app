@@ -1,12 +1,11 @@
-import FlashList from '@shopify/flash-list/dist/FlashList';
 import React, {forwardRef, Ref} from 'react';
-import {Dimensions, LayoutChangeEvent, View} from 'react-native';
+import {Dimensions, FlatList, LayoutChangeEvent, View} from 'react-native';
 import styled from 'styled-components/native';
 
 const {width} = Dimensions.get('window');
 const ITEM_RATIO = 0.9;
-export const ITEM_SIZE = Math.round(width * ITEM_RATIO);
-export const ITEM_SIDE_PADDING = (width - ITEM_SIZE) / 2;
+const ITEM_SIZE = Math.round(width * ITEM_RATIO);
+const ITEM_SIDE_PADDING = (width - ITEM_SIZE) / 2;
 
 type Props<T> = {
   searchResults: T[];
@@ -24,19 +23,17 @@ function ItemMapList<T extends {id: string}>(
     onCardPress,
     ItemCard,
   }: Props<T>,
-  ref: Ref<FlashList<T>>,
+  ref: Ref<FlatList<T>>,
 ) {
   return (
     <View
       style={{
         width: '100%',
         height: searchResults.length > 0 ? 242 + 28 : 0,
-        flexGrow: 0,
       }}>
-      <FlashList
+      <FlatList
         ref={ref}
         data={searchResults}
-        estimatedItemSize={ITEM_SIZE}
         contentContainerStyle={{
           paddingHorizontal: ITEM_SIDE_PADDING,
         }}
@@ -44,9 +41,15 @@ function ItemMapList<T extends {id: string}>(
           <Item item={item} onPress={onCardPress} ItemCard={ItemCard} />
         )}
         keyExtractor={item => item.id}
+        getItemLayout={(_, index) => ({
+          length: ITEM_SIZE,
+          offset: index * ITEM_SIZE,
+          index,
+        })}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToOffsets={searchResults.map((_, index) => index * ITEM_SIZE)}
+        snapToAlignment="start"
+        snapToInterval={ITEM_SIZE}
         decelerationRate="fast"
         onLayout={onLayout}
         onMomentumScrollEnd={({nativeEvent}) => {
@@ -78,8 +81,8 @@ function Item<T extends {id: string}>({
 
 // Higher Order Function 의 타이핑이 제대로 먹지 않아 강제로 캐스팅 해준다.
 const TypedForwardRef = forwardRef(ItemMapList) as <T extends {id: string}>(
-  props: Props<T> & {ref?: Ref<FlashList<T>>},
-) => JSX.Element;
+  props: Props<T> & {ref?: Ref<FlatList<T>>},
+) => React.ReactElement;
 
 export default TypedForwardRef;
 

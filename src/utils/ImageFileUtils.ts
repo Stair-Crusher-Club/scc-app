@@ -93,7 +93,6 @@ const ImageFileUtils = {
         return result.url;
       }),
     );
-    console.log('durationOfUploadImages: ', durationOfUploadImages);
 
     await Logger.logUploadImage({
       ...durationOfUploadImages,
