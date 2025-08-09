@@ -93,6 +93,22 @@ def buildVersionName = versionProps['version']
 def (major, minor, patch) = buildVersionName.tokenize('.')
 def buildVersionCode = (major.toInteger() * 1000000 + minor.toInteger() * 10000 + patch.toInteger() * 100 + 1)
 
+project.gradle.projectsEvaluated {
+    def appProject = project.rootProject.subprojects.find { it.name == "app" }
+    def appPreBuild = appProject?.tasks?.named("preBuild")?.get()
+    if (appPreBuild != null) {
+        // Find all other subprojects' preBuild tasks
+        def otherPreBuildProviders = project.rootProject.subprojects
+                .findAll { it != appProject }
+                .collect { it.tasks.named("preBuild") }
+                .findAll { it != null }
+        def otherPreBuildTasks = otherPreBuildProviders.collect { it.get() }
+
+        // Make :app:preBuild depend on all others
+        appPreBuild.dependsOn(otherPreBuildTasks)
+    }
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
