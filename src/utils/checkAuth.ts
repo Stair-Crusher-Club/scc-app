@@ -1,7 +1,7 @@
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 
-import {isAnonymousUserAtom} from '@/atoms/User';
+import {isAnonymousUserAtom} from '@/atoms/Auth';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 
 export function useCheckAuth() {
