@@ -8,20 +8,32 @@ import {ChallengeRankDto} from '@/generated-sources/openapi';
 interface PropType {
   value: ChallengeRankDto;
   shouldShowUnderline?: boolean;
+  visibleIcon?: boolean;
 }
 
-const ChallengeRank = ({value, shouldShowUnderline = true}: PropType) => {
-  const shouldShowIcon = value.rank === 1;
+const ChallengeRank = ({
+  value,
+  shouldShowUnderline = true,
+  visibleIcon = true,
+}: PropType) => {
+  const shouldShowIcon = value.rank < 4;
+  // TODO: api 연결
+  const affiliate = '';
+
   return (
     <Container>
       <IndexContainer>
         <Index>{`${value.rank}위`}</Index>
-        {shouldShowIcon && <Icon>👑</Icon>}
+        {visibleIcon && shouldShowIcon && <Icon>{getIcon(value.rank)}</Icon>}
       </IndexContainer>
       <Contents>
+        {affiliate && <Affiliate>{affiliate}</Affiliate>}
         <UserName>{value.nickname}</UserName>
-        <Contributions>{`${value.contributionCount}개 정복`}</Contributions>
       </Contents>
+      <Contributions
+        shouldShowIcon={
+          shouldShowIcon
+        }>{`${value.contributionCount}개 정복`}</Contributions>
       {shouldShowUnderline && <Underline />}
     </Container>
   );
@@ -32,14 +44,16 @@ export default ChallengeRank;
 const Container = styled.View({
   width: '100%',
   flexDirection: 'row',
-  paddingVertical: 10,
+  paddingVertical: 19,
   paddingHorizontal: 20,
+  alignItems: 'center',
+  gap: 20,
 });
 
 const IndexContainer = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
-  marginRight: 20,
+  minWidth: 40,
 });
 
 const Index = styled.Text({
@@ -51,27 +65,31 @@ const Index = styled.Text({
 const Icon = styled.Text({
   fontSize: 16,
   fontFamily: font.pretendardBold,
-  marginLeft: 8,
-  marginBottom: 4, // 시각보정
 });
 
 const Contents = styled.View({
   flexDirection: 'column',
-  alignItems: 'flex-end',
   flexGrow: 1,
+});
+
+const Affiliate = styled.Text({
+  color: color.gray80,
+  fontSize: 11,
+  fontFamily: font.pretendardRegular,
 });
 
 const UserName = styled.Text({
   color: color.black,
   fontSize: 16,
   fontFamily: font.pretendardMedium,
+  lineHeight: '26px',
 });
 
-const Contributions = styled.Text({
-  color: color.gray80,
+const Contributions = styled.Text<{shouldShowIcon?: boolean}>(props => ({
+  color: props.shouldShowIcon ? color.brand50 : color.gray80,
   fontSize: 14,
   fontFamily: font.pretendardRegular,
-});
+}));
 
 const Underline = styled.View({
   position: 'absolute',
@@ -81,3 +99,16 @@ const Underline = styled.View({
   bottom: 0,
   backgroundColor: color.gray10,
 });
+
+function getIcon(rank: number) {
+  switch (rank) {
+    case 1:
+      return '🥇';
+    case 2:
+      return '🥈';
+    case 3:
+      return '🥉';
+    default:
+      return null;
+  }
+}

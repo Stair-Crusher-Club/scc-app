@@ -16,7 +16,11 @@ const MyRank = ({myRank}: PropsType) => {
     <Container>
       <Title>나의 랭킹</Title>
       <ChallengeRankContainer>
-        <ChallengeRank value={myRank} shouldShowUnderline={false} />
+        <ChallengeRank
+          value={myRank}
+          shouldShowUnderline={false}
+          visibleIcon={false}
+        />
       </ChallengeRankContainer>
       {shouldShowBubble && (
         <BubbleContainer>
