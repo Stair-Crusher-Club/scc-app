@@ -12,6 +12,28 @@ import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {logDebug} from '@/utils/DebugUtils';
 
+// 중첩된 객체를 평탄화하는 함수
+const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
+  const flattened: Record<string, any> = {};
+
+  Object.keys(obj).forEach(key => {
+    const value = obj[key];
+    // camelCase를 snake_case로 변환
+    const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+    const newKey = prefix ? `${prefix}_${snakeKey}` : snakeKey;
+
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      // 중첩된 객체인 경우 재귀적으로 평탄화
+      Object.assign(flattened, flattenObject(value, newKey));
+    } else {
+      // 원시값이거나 배열인 경우 그대로 저장
+      flattened[newKey] = value;
+    }
+  });
+
+  return flattened;
+};
+
 const RootScreen = () => {
   useEffect(() => {
     SplashScreen.hide();
@@ -84,12 +106,14 @@ const RootScreen = () => {
           navigationRef.current?.getCurrentRoute()?.name;
         if (previousScreenName !== currentScreenName) {
           logDebug(`Screen ${previousScreenName} -> ${currentScreenName}`);
+          const routeParams = state?.routes.at(-1)?.params ?? {};
+          const flattenedRouteParams = flattenObject(routeParams);
           await Logger.logScreenView({
             prevScreenName: previousScreenName,
             currScreenName: currentScreenName,
             extraParams: {
               ...globalLogParams,
-              routeParams: state?.routes.at(-1)?.params ?? {},
+              ...flattenedRouteParams, // 평탄화된 routeParams 전달
             },
           });
           routeNameRef.current = currentScreenName;
