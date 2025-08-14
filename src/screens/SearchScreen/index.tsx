@@ -31,6 +31,7 @@ import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
 import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 
 import * as S from './SearchScreen.style';
+import QuestCompletionModal from './components/QuestCompletionModal';
 
 export interface SearchScreenParams {
   initKeyword: string;
@@ -216,6 +217,8 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
           }}
         />
         <FilterModal />
+
+        <QuestCompletionModal />
       </S.SearchScreenLayout>
     </LogParamsProvider>
   );
