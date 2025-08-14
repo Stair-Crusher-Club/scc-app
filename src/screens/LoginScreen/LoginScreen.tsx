@@ -11,6 +11,7 @@ import Carousel from 'react-native-reanimated-carousel';
 import AppleLogo from '@/assets/icon/ic_logo_apple.svg';
 import KakaoLogo from '@/assets/icon/ic_logo_kakao.svg';
 import {accessTokenAtom, userInfoAtom} from '@/atoms/Auth';
+import {ANONYMOUS_USER_TEMPLATE} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -210,14 +211,12 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
         return;
       }
       const res = await api.createAnonymousUserPost();
-      const {authTokens: tokens} = res.data;
-      const guestUser: User = {
-        id: '0',
-        nickname: '비회원',
-        mobilityTools: [],
-        isNewsLetterSubscriptionAgreed: false,
+      const {authTokens: tokens, userId} = res.data;
+      const anonymousUser: User = {
+        ...ANONYMOUS_USER_TEMPLATE,
+        id: userId, // userId는 createAnonymousUser가 끝나면 이미 채번된 상태이므로 해당 값을 사용해주도록 한다.
       };
-      setUserInfo(guestUser);
+      setUserInfo(anonymousUser);
       setAccessToken(tokens.accessToken);
       navigation.replace('Main');
     } catch (e) {
