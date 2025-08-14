@@ -18,9 +18,9 @@ import {
 import DeviceInfo from 'react-native-device-info';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import {accessTokenAtom} from '@/atoms/Auth';
+import {accessTokenAtom, isAnonymousUserAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownGuideForFirstVisitAtom, isAnonymousUserAtom} from '@/atoms/User';
+import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -29,7 +29,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 import {LogClick} from '@/logging/LogClick';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';

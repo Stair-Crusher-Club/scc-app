@@ -12,7 +12,7 @@ import UserNicknameForm from '@/components/form/UserNicknameForm';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
 import {useUpdateUser} from '@/screens/SignupScreen/hooks/useUpdateUser';

@@ -2,7 +2,7 @@ import {useQuery} from '@tanstack/react-query';
 import React from 'react';
 
 import useAppComponents from '@/hooks/useAppComponents';
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 
 import * as S from './ConquererSummarySection.style';
 

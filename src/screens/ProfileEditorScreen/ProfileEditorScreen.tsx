@@ -7,7 +7,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {MOBILITY_TOOL_LABELS} from '@/constant/mobilityTool';
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 import useNavigation from '@/navigation/useNavigation';
 
 export default function ProfileEditorScreen() {
