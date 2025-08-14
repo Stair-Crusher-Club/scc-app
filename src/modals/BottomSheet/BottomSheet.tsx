@@ -5,6 +5,7 @@ import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
+import {LogView} from '@/logging/LogView';
 
 type Props = React.PropsWithChildren<{
   isVisible: boolean;
@@ -17,7 +18,8 @@ export default function BottomSheet({
 }: Props) {
   // TODO: Modal 안에서 SafeAreaView 가 동작하지 않아서 넣은 값.
   const safeAreaInsets = useSafeAreaInsets();
-  return (
+  
+  const modalContent = (
     <Modal
       visible={isVisible}
       transparent={true}
@@ -45,6 +47,17 @@ export default function BottomSheet({
       </GestureHandlerRootView>
     </Modal>
   );
+
+  // LogView는 Modal이 실제로 보일 때만 렌더링
+  if (isVisible) {
+    return (
+      <LogView elementName="bottom_sheet">
+        {modalContent}
+      </LogView>
+    );
+  }
+
+  return modalContent;
 }
 
 const DimmedBackground = styled(SafeAreaView)({
