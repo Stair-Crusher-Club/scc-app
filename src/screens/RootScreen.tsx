@@ -12,26 +12,31 @@ import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {logDebug} from '@/utils/DebugUtils';
 
-// 중첩된 객체를 평탄화하는 함수
-const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
-  const flattened: Record<string, any> = {};
+// 전체 화면 공용 로깅 규칙 정의
+const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
+  'placeInfo.placeId': 'place_id',
+  'placeInfo.place.id': 'place_id',
+  'placeInfo.name': 'place_name',
+  // 필요에 따라 추가...
+};
 
-  Object.keys(obj).forEach(key => {
-    const value = obj[key];
-    // camelCase를 snake_case로 변환
-    const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-    const newKey = prefix ? `${prefix}_${snakeKey}` : snakeKey;
+// 중첩된 객체에서 특정 경로의 값을 가져오는 함수
+const getNestedValue = (obj: any, path: string): any => {
+  return path.split('.').reduce((current, key) => current?.[key], obj);
+};
 
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      // 중첩된 객체인 경우 재귀적으로 평탄화
-      Object.assign(flattened, flattenObject(value, newKey));
-    } else {
-      // 원시값이거나 배열인 경우 그대로 저장
-      flattened[newKey] = value;
+// 허용된 route params만 선택적으로 추출하는 함수
+const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
+  const extracted: Record<string, any> = {};
+
+  Object.entries(ROUTE_PARAMS_LOGGING_RULES).forEach(([paramPath, logKey]) => {
+    const value = getNestedValue(routeParams, paramPath);
+    if (value !== undefined && value !== null) {
+      extracted[logKey] = value;
     }
   });
 
-  return flattened;
+  return extracted;
 };
 
 const RootScreen = () => {
@@ -107,13 +112,13 @@ const RootScreen = () => {
         if (previousScreenName !== currentScreenName) {
           logDebug(`Screen ${previousScreenName} -> ${currentScreenName}`);
           const routeParams = state?.routes.at(-1)?.params ?? {};
-          const flattenedRouteParams = flattenObject(routeParams);
+          const allowedRouteParams = extractAllowedRouteParams(routeParams);
           await Logger.logScreenView({
             prevScreenName: previousScreenName,
             currScreenName: currentScreenName,
             extraParams: {
               ...globalLogParams,
-              ...flattenedRouteParams, // 평탄화된 routeParams 전달
+              ...allowedRouteParams, // 허용된 route params만 전달
             },
           });
           routeNameRef.current = currentScreenName;
