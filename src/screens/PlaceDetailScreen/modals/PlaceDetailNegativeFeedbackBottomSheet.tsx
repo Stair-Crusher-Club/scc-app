@@ -1,7 +1,9 @@
 import React, {useCallback, useState} from 'react';
 import {KeyboardAvoidingView, Modal, Platform, View} from 'react-native';
-import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {match} from 'ts-pattern';
 
 import {SccButton} from '@/components/atoms';
@@ -132,7 +134,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 
 export default PlaceDetailNegativeFeedbackBottomSheet;
 
-const Container = styled(SafeAreaView)`
+const Container = styled(SafeAreaWrapper)`
   flex: 1;
   flex-direction: column-reverse;
   background-color: ${color.blacka50};

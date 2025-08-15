@@ -1,8 +1,10 @@
 import React from 'react';
 import {KeyboardAvoidingView, Modal, TouchableOpacity} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 import {color} from '@/constant/color';
 
@@ -47,7 +49,7 @@ export default function BottomSheet({
   );
 }
 
-const DimmedBackground = styled(SafeAreaView)({
+const DimmedBackground = styled(SafeAreaWrapper)({
   flex: 1,
   flexDirection: 'column-reverse',
   backgroundColor: color.blacka50,

@@ -1,11 +1,8 @@
 import React from 'react';
 import {KeyboardAvoidingView, Platform, ViewProps} from 'react-native';
-import {
-  Edge,
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import {Edge, useSafeAreaInsets} from 'react-native-safe-area-context';
 
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {HEIGHT_OF_NAVIGATION_HEADER} from '@/constant/constant';
 import {color} from '@/constant/color';
 
@@ -23,13 +20,14 @@ export const ScreenLayout = ({
   safeAreaEdges = [],
   style = {},
 }: ScreenLayoutProps) => {
-  const safeAreaInsets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   let verticalOffset = 0;
   if (isHeaderVisible) {
-    verticalOffset = HEIGHT_OF_NAVIGATION_HEADER + safeAreaInsets.top;
+    verticalOffset = HEIGHT_OF_NAVIGATION_HEADER + insets.top;
   }
+  
   return (
-    <SafeAreaView
+    <SafeAreaWrapper
       edges={safeAreaEdges}
       style={[{flex: 1, backgroundColor: color.white}, style]}>
       <KeyboardAvoidingView
@@ -39,6 +37,6 @@ export const ScreenLayout = ({
         style={[{flex: 1}, style]}>
         {children}
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 };
