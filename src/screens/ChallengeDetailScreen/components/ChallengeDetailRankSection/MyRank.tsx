@@ -51,7 +51,6 @@ const Container = styled.View({
   width: '100%',
   flexDirection: 'column',
   paddingHorizontal: 15,
-  paddingBottom: 30,
 });
 
 const Title = styled.Text({
