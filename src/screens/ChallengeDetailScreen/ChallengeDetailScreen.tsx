@@ -153,7 +153,7 @@ const ChallengeDetailScreen = ({
             joinChallenge.mutate({challengeId, passcode: _passcode});
           }}
         />
-        <ChallengeWelcomeModal visible={!joinChallenge.isSuccess && !isB2B} />
+        <ChallengeWelcomeModal visible={joinChallenge.isSuccess && isB2B} />
       </ScreenLayout>
     </LogParamsProvider>
   );
