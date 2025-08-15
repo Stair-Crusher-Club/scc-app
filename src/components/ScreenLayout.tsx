@@ -25,7 +25,7 @@ export const ScreenLayout = ({
   if (isHeaderVisible) {
     verticalOffset = HEIGHT_OF_NAVIGATION_HEADER + insets.top;
   }
-  
+
   return (
     <SafeAreaWrapper
       edges={safeAreaEdges}

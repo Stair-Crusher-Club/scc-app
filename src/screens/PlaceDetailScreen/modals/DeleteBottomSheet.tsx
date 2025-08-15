@@ -1,6 +1,5 @@
 import React from 'react';
-import {Modal, StyleSheet, Text, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {StyleSheet, Text, View} from 'react-native';
 
 import DangerousIcon from '@/assets/icon/ic_dangerous.svg';
 import {SccButton} from '@/components/atoms';
