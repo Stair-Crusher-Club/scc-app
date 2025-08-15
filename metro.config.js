@@ -19,6 +19,7 @@ config.resolver = {
     ...resolver.assetExts
       .filter(ext => ext !== 'svg')
       .filter(ext => ext !== 'txt'),
+    'lottie',
   ],
   sourceExts: [...resolver.sourceExts, 'svg', 'txt'],
 };
