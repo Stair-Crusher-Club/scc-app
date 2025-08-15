@@ -118,8 +118,14 @@
     if (markerUIImage) {
       marker.iconImage = [NMFOverlayImage overlayImageWithImage:markerUIImage];
     }
+    RNTMapView * __weak weakSelf = self;
+    RNTSccMarkerData * __weak weakMarkerData = markerData;
     marker.touchHandler = ^BOOL(NMFOverlay *overlay) {
-      [self.mapDelegate onMarkerPress:markerData.identifier];
+      RNTMapView *strongSelf = weakSelf;
+      RNTSccMarkerData *strongMarkerData = weakMarkerData;
+      if (strongSelf && strongMarkerData) {
+        [strongSelf.mapDelegate onMarkerPress:strongMarkerData.identifier];
+      }
       return YES;
     };
     marker.mapView = self;
