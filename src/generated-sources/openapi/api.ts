@@ -171,7 +171,8 @@ export const ApiErrorResponseCodeEnum = {
     ALREADY_JOINED: '11',
     CHALLENGE_NOT_OPENED: '12',
     CHALLENGE_CLOSED: '13',
-    INVALID_BIRTH_YEAR: '14'
+    INVALID_BIRTH_YEAR: '14',
+    B2B_INFO_REQUIRED: '15'
 } as const;
 
 export type ApiErrorResponseCodeEnum = typeof ApiErrorResponseCodeEnum[keyof typeof ApiErrorResponseCodeEnum];
@@ -507,6 +508,61 @@ export interface ChallengeDto {
 /**
  * 
  * @export
+ * @interface ChallengeQuestDto
+ */
+export interface ChallengeQuestDto {
+    /**
+     * 퀘스트 ID
+     * @type {string}
+     * @memberof ChallengeQuestDto
+     */
+    'id': string;
+    /**
+     * 퀘스트 제목
+     * @type {string}
+     * @memberof ChallengeQuestDto
+     */
+    'title': string;
+    /**
+     * 퀘스트 설명
+     * @type {string}
+     * @memberof ChallengeQuestDto
+     */
+    'description': string;
+    /**
+     * 목표 완료 개수
+     * @type {number}
+     * @memberof ChallengeQuestDto
+     */
+    'targetCount': number;
+    /**
+     * 현재 완료한 개수 (참여하지 않은 경우 0)
+     * @type {number}
+     * @memberof ChallengeQuestDto
+     */
+    'completedCount': number;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ChallengeQuestDto
+     */
+    'completedAt'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ChallengeQuestDto
+     */
+    'startDate'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ChallengeQuestDto
+     */
+    'endDate'?: EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
  * @interface ChallengeRankDto
  */
 export interface ChallengeRankDto {
@@ -528,6 +584,12 @@ export interface ChallengeRankDto {
      * @memberof ChallengeRankDto
      */
     'nickname': string;
+    /**
+     * B2B 챌린지의 경우, 회사 이름.
+     * @type {string}
+     * @memberof ChallengeRankDto
+     */
+    'companyName'?: string;
 }
 /**
  * 
@@ -605,6 +667,12 @@ export interface CreateAnonymousUserResponseDto {
      * @memberof CreateAnonymousUserResponseDto
      */
     'authTokens': AuthTokensDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAnonymousUserResponseDto
+     */
+    'userId': string;
 }
 /**
  * 
@@ -953,6 +1021,18 @@ export interface GetChallengeResponseDto {
      * @memberof GetChallengeResponseDto
      */
     'hasPasscode': boolean;
+    /**
+     * B2B 챌린지인지 (회사명과 참가자명을 입력받을지 결정)
+     * @type {boolean}
+     * @memberof GetChallengeResponseDto
+     */
+    'isB2B': boolean;
+    /**
+     * 챌린지의 퀘스트 목록 (진행 현황 포함)
+     * @type {Array<ChallengeQuestDto>}
+     * @memberof GetChallengeResponseDto
+     */
+    'quests': Array<ChallengeQuestDto>;
 }
 /**
  * 
@@ -1252,6 +1332,25 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
 
 
 /**
+ * B2B 챌린지 참여 시 회사명과 본인의 이름을 입력받는 DTO. 둘 다 존재하거나 둘 다 null이어야 함.
+ * @export
+ * @interface JoinChallengeRequestCompanyJoinInfoDto
+ */
+export interface JoinChallengeRequestCompanyJoinInfoDto {
+    /**
+     * 회사명
+     * @type {string}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'companyName': string;
+    /**
+     * 본인의 이름
+     * @type {string}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'participantName': string;
+}
+/**
  * 
  * @export
  * @interface JoinChallengeRequestDto
@@ -1269,6 +1368,12 @@ export interface JoinChallengeRequestDto {
      * @memberof JoinChallengeRequestDto
      */
     'passcode'?: string;
+    /**
+     * 
+     * @type {JoinChallengeRequestCompanyJoinInfoDto}
+     * @memberof JoinChallengeRequestDto
+     */
+    'companyInfo'?: JoinChallengeRequestCompanyJoinInfoDto;
 }
 /**
  * 
