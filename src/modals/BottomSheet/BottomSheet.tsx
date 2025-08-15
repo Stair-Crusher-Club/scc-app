@@ -10,6 +10,7 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 type Props = React.PropsWithChildren<{
   isVisible: boolean;
@@ -23,27 +24,32 @@ export default function BottomSheet({
   return (
     <Modal
       visible={isVisible}
-      transparent={true}
+      transparent
       animationType="fade"
+      statusBarTranslucent={true}
       onRequestClose={() => {
         onPressBackground?.();
       }}>
-      <GestureHandlerRootView style={{flex: 1}}>
-        <DimmedBackground>
-          <TouchableOpacity
-            activeOpacity={1}
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-            }}
-            onPress={onPressBackground}
-          />
-          <KeyboardAvoidingView behavior={'padding'}>
-            <Container edges={['bottom']}>{children}</Container>
-          </KeyboardAvoidingView>
-        </DimmedBackground>
-      </GestureHandlerRootView>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={{flex: 1}}>
+          <DimmedBackground>
+            <TouchableOpacity
+              activeOpacity={1}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+              }}
+              onPress={onPressBackground}
+            />
+            <KeyboardAvoidingView behavior={'padding'}>
+              <Container>
+                <SafeAreaWrapper edges={['bottom']}>{children}</SafeAreaWrapper>
+              </Container>
+            </KeyboardAvoidingView>
+          </DimmedBackground>
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
     </Modal>
   );
 }
@@ -54,7 +60,7 @@ const DimmedBackground = styled(View)({
   backgroundColor: color.blacka50,
 });
 
-const Container = styled(SafeAreaWrapper)({
+const Container = styled(View)({
   flexDirection: 'column',
   borderTopLeftRadius: 20,
   borderTopRightRadius: 20,

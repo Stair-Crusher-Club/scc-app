@@ -33,7 +33,11 @@ export default function ProgressViewer({progress}: {progress: number}) {
             width: animatedWidth,
           }}
         />
-        <MoveIcon width={49} height={49} style={{marginTop: -33}} />
+        <MoveIcon
+          width={49}
+          height={49}
+          style={{marginTop: -25, marginLeft: -25}}
+        />
       </ProgressBar>
       <GoalIcon
         width={28}
@@ -53,7 +57,6 @@ const Wrapper = styled.View`
 
 const ProgressBar = styled.View`
   flex-direction: row;
-  gap: -37px;
   height: 6px;
   width: 100%;
   top: 33px;

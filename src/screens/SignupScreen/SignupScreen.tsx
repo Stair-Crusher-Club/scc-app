@@ -106,10 +106,13 @@ export default function SignupScreen({
   const isButtonDisabled = isFirstPage ? !isFirstFormValid : isSubmitting;
 
   return (
-    <ScreenLayout isHeaderVisible isKeyboardAvoidingView={false}>
+    <ScreenLayout
+      isHeaderVisible
+      isKeyboardAvoidingView={false}
+      safeAreaEdges={['bottom']}>
       <View style={{flex: 1, backgroundColor: color.white}}>
         <View style={{paddingHorizontal: 20}}>
-          <ProgressViewer progress={progress} />
+          <ProgressViewer progress={50} />
         </View>
         <ScrollView style={{backgroundColor: color.white}}>
           {isFirstPage ? (
@@ -129,7 +132,8 @@ export default function SignupScreen({
         <View
           style={{
             width: '100%',
-            padding: 20,
+            paddingHorizontal: 20,
+            paddingVertical: 10,
             backgroundColor: color.white,
           }}>
           <SccButton

@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Dimensions, Platform} from 'react-native';
+import {Dimensions} from 'react-native';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 
@@ -249,15 +249,13 @@ export default function CameraScreen({
 async function cropToRect(taken: PhotoFile) {
   const size = Math.min(taken.width, taken.height);
   const offset = {
-    x: Math.max(0, (taken.width - size) / 2),
-    y: Math.max(0, (taken.height - size) / 2),
+    x: Math.max(0, (taken.height - size) / 2),
+    y: Math.max(0, (taken.width - size) / 2),
   };
   const cropped = await ImageEditor.cropImage(
     ImageFileUtils.filepath(taken.path),
-    // 안드로이드는 회전된 상태에서 crop
-    // iOS 는 회전되지 않은 이미지에 crop 하기 때문에 offset 을 반대로 적용한다.
     {
-      offset: Platform.OS === 'ios' ? {x: offset.y, y: offset.x} : offset,
+      offset: {x: offset.x, y: offset.y},
       size: {width: size, height: size},
     },
   );
