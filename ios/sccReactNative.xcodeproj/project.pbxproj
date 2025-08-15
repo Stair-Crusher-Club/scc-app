@@ -15,6 +15,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		89B86B8879E417A56F32F316 /* libPods-sccReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ECE3E814901418FC26F6DBA /* libPods-sccReactNative.a */; };
 		F113F2C4DFB2AA6F111C7E69 /* libPods-sccReactNative-sccReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5010FAB64AC4B204FBF2657D /* libPods-sccReactNative-sccReactNativeTests.a */; };
+		F83B77292E4F484900820BE8 /* RNTSccMapViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F83B77282E4F484900820BE8 /* RNTSccMapViewManager.mm */; };
 		F850682B2CF32E060002762A /* Pretendard-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068262CF32E060002762A /* Pretendard-Light.ttf */; };
 		F850682C2CF32E060002762A /* Pretendard-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068292CF32E060002762A /* Pretendard-SemiBold.ttf */; };
 		F850682D2CF32E060002762A /* Pretendard-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068252CF32E060002762A /* Pretendard-ExtraLight.ttf */; };
@@ -24,8 +25,8 @@
 		F85068312CF32E060002762A /* Pretendard-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068272CF32E060002762A /* Pretendard-Medium.ttf */; };
 		F85068322CF32E060002762A /* Pretendard-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068282CF32E060002762A /* Pretendard-Regular.ttf */; };
 		F8AB00632E28BF7E00CFCA09 /* RNTSccMarkerImageService.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB00622E28BF7E00CFCA09 /* RNTSccMarkerImageService.m */; };
-		F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapManager.mm */; };
-		F8E0E5ED2E25501D006AFA3F /* RNTSccMapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EC2E25501D006AFA3F /* RNTSccMapView.mm */; };
+		F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapView.mm */; };
+		F8E0E5ED2E25501D006AFA3F /* RNTSccMapViewImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EC2E25501D006AFA3F /* RNTSccMapViewImpl.mm */; };
 		F8E0E5F12E2550EB006AFA3F /* RNTSccMarkerData.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5F02E2550EB006AFA3F /* RNTSccMarkerData.m */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,7 @@
 		E19A82E089D3E954FE231ECA /* Pods-sccReactNative.debugsandbox.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative.debugsandbox.xcconfig"; path = "Target Support Files/Pods-sccReactNative/Pods-sccReactNative.debugsandbox.xcconfig"; sourceTree = "<group>"; };
 		E65F302B8EB7389206E1FA88 /* Pods-sccReactNative-sccReactNativeTests.debugsandbox.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative-sccReactNativeTests.debugsandbox.xcconfig"; path = "Target Support Files/Pods-sccReactNative-sccReactNativeTests/Pods-sccReactNative-sccReactNativeTests.debugsandbox.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F83B77282E4F484900820BE8 /* RNTSccMapViewManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapViewManager.mm; path = sccReactNative/RNTSccMapViewManager.mm; sourceTree = "<group>"; };
 		F85068232CF32E060002762A /* Pretendard-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.ttf"; sourceTree = "<group>"; };
 		F85068242CF32E060002762A /* Pretendard-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraBold.ttf"; sourceTree = "<group>"; };
 		F85068252CF32E060002762A /* Pretendard-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraLight.ttf"; sourceTree = "<group>"; };
@@ -74,10 +76,10 @@
 		F850682A2CF32E060002762A /* Pretendard-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.ttf"; sourceTree = "<group>"; };
 		F8AB00622E28BF7E00CFCA09 /* RNTSccMarkerImageService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RNTSccMarkerImageService.m; path = sccReactNative/RNTSccMarkerImageService.m; sourceTree = "<group>"; };
 		F8AB00642E28BF9100CFCA09 /* RNTSccMarkerImageService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMarkerImageService.h; path = sccReactNative/RNTSccMarkerImageService.h; sourceTree = "<group>"; };
-		F8E0E5E92E24DD9F006AFA3F /* RNTSccMapManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapManager.h; path = sccReactNative/RNTSccMapManager.h; sourceTree = "<group>"; };
-		F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapManager.mm; path = sccReactNative/RNTSccMapManager.mm; sourceTree = "<group>"; };
-		F8E0E5EC2E25501D006AFA3F /* RNTSccMapView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapView.mm; path = sccReactNative/RNTSccMapView.mm; sourceTree = "<group>"; };
-		F8E0E5EE2E255038006AFA3F /* RNTSccMapView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapView.h; path = sccReactNative/RNTSccMapView.h; sourceTree = "<group>"; };
+		F8E0E5E92E24DD9F006AFA3F /* RNTSccMapView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapView.h; path = sccReactNative/RNTSccMapView.h; sourceTree = "<group>"; };
+		F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapView.mm; path = sccReactNative/RNTSccMapView.mm; sourceTree = "<group>"; };
+		F8E0E5EC2E25501D006AFA3F /* RNTSccMapViewImpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapViewImpl.mm; path = sccReactNative/RNTSccMapViewImpl.mm; sourceTree = "<group>"; };
+		F8E0E5EE2E255038006AFA3F /* RNTSccMapViewImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapViewImpl.h; path = sccReactNative/RNTSccMapViewImpl.h; sourceTree = "<group>"; };
 		F8E0E5EF2E2550DC006AFA3F /* RNTSccMarkerData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMarkerData.h; path = sccReactNative/RNTSccMarkerData.h; sourceTree = "<group>"; };
 		F8E0E5F02E2550EB006AFA3F /* RNTSccMarkerData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RNTSccMarkerData.m; path = sccReactNative/RNTSccMarkerData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -129,10 +131,11 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapManager.mm */,
-				F8E0E5E92E24DD9F006AFA3F /* RNTSccMapManager.h */,
-				F8E0E5EE2E255038006AFA3F /* RNTSccMapView.h */,
-				F8E0E5EC2E25501D006AFA3F /* RNTSccMapView.mm */,
+				F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapView.mm */,
+				F8E0E5E92E24DD9F006AFA3F /* RNTSccMapView.h */,
+				F8E0E5EE2E255038006AFA3F /* RNTSccMapViewImpl.h */,
+				F8E0E5EC2E25501D006AFA3F /* RNTSccMapViewImpl.mm */,
+				F83B77282E4F484900820BE8 /* RNTSccMapViewManager.mm */,
 				F8E0E5EF2E2550DC006AFA3F /* RNTSccMarkerData.h */,
 				F8E0E5F02E2550EB006AFA3F /* RNTSccMarkerData.m */,
 				F8AB00622E28BF7E00CFCA09 /* RNTSccMarkerImageService.m */,
@@ -536,11 +539,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8E0E5ED2E25501D006AFA3F /* RNTSccMapView.mm in Sources */,
+				F8E0E5ED2E25501D006AFA3F /* RNTSccMapViewImpl.mm in Sources */,
 				F8AB00632E28BF7E00CFCA09 /* RNTSccMarkerImageService.m in Sources */,
-				F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapManager.mm in Sources */,
+				F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapView.mm in Sources */,
 				F8E0E5F12E2550EB006AFA3F /* RNTSccMarkerData.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				F83B77292E4F484900820BE8 /* RNTSccMapViewManager.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

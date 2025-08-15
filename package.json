@@ -27,7 +27,7 @@
     },
     "ios": {
       "componentProvider": {
-        "SccMapView": "RNTSccMapManager"
+        "SccMapView": "RNTSccMapView"
       }
     }
   },
