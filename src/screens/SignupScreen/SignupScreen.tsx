@@ -112,7 +112,7 @@ export default function SignupScreen({
       safeAreaEdges={['bottom']}>
       <View style={{flex: 1, backgroundColor: color.white}}>
         <View style={{paddingHorizontal: 20}}>
-          <ProgressViewer progress={50} />
+          <ProgressViewer progress={progress} />
         </View>
         <ScrollView style={{backgroundColor: color.white}}>
           {isFirstPage ? (
