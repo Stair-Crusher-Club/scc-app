@@ -1,6 +1,9 @@
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import useNavigation from '@/navigation/useNavigation';
+import {QuestStampType} from '@/screens/ChallengeDetailScreen/components/ChallengeDetailQuestSection/QuestItem';
+import {LottieViewProps} from 'lottie-react-native';
 import React from 'react';
 import {
   Modal,
@@ -9,16 +12,32 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import styled from 'styled-components/native';
+import StampLottie from './QuestClearStamp';
+
+const stampLottie: Record<QuestStampType, LottieViewProps['source']> = {
+  FLAG: require('@/assets/animations/flag.lottie'),
+  CAFE: require('@/assets/animations/cafe.lottie'),
+  GOOD: require('@/assets/animations/good.lottie'),
+  POTION: require('@/assets/animations/potion.lottie'),
+  RESTAURANT: require('@/assets/animations/restaurant.lottie'),
+  REVIEW: require('@/assets/animations/review.lottie'),
+};
 
 interface QuestCompletionModalProps extends ModalProps {
+  type: QuestStampType;
+  challengeId: string;
   onClose?: () => void;
 }
 
 export default function QuestCompletionModal({
+  type,
+  challengeId,
   visible = false,
   onClose,
   ...props
 }: QuestCompletionModalProps) {
+  const navigation = useNavigation();
+
   return (
     <Modal
       visible={visible}
@@ -30,7 +49,7 @@ export default function QuestCompletionModal({
         <Backdrop>
           <Center>
             <CompletionImage />
-            <StampImage />
+            <StampLottie source={stampLottie[type]} />
           </Center>
 
           <TitleText>
@@ -43,7 +62,7 @@ export default function QuestCompletionModal({
               textColor="white"
               fontFamily={font.pretendardBold}
               onPress={() => {
-                // TODO: 퀘스트 상세페이지로 이동
+                navigation.navigate('ChallengeDetail', {challengeId});
               }}
             />
 
@@ -66,6 +85,8 @@ const Backdrop = styled.View({
 const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
+  paddingBottom: 80,
+  gap: 60,
 });
 
 const CompletionImage = styled.Image.attrs({
@@ -75,15 +96,7 @@ const CompletionImage = styled.Image.attrs({
   height: 88,
 });
 
-const StampImage = styled.Image.attrs({
-  source: require('@/assets/img/stamp.png'),
-})({
-  width: 160,
-  height: 160,
-});
-
 const TitleText = styled.Text({
-  marginTop: 24,
   marginBottom: 20,
   textAlign: 'center',
   color: color.white,
