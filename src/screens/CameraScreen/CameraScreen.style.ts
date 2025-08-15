@@ -36,6 +36,7 @@ export const CameraContainer = styled.View<{maxHeight?: number}>(
 export const CameraPreviewContainer = styled.View({
   width: '100%',
   height: '100%',
+  overflow: 'hidden', // For fixing camera layout issue https://github.com/mrousavy/react-native-vision-camera/issues/3237#issuecomment-2567232998
   aspectRatio: '1 / 1',
 });
 

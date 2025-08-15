@@ -54,6 +54,8 @@ export default function CameraScreen({
   const hasShownGuideForToiletPhoto = useAtomValue(
     hasShownGuideForToiletPhotoAtom,
   );
+  const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+
   // 기존 촬영한 이미지 체크
   useEffect(() => {
     if (route.params && route.params.takenPhotos) {
@@ -91,6 +93,9 @@ export default function CameraScreen({
   }
 
   function confirm() {
+    if (isTakingPhoto) {
+      return;
+    }
     // TODO: navigation 에 non-serializable 값을 넘겨주면 안된다. (https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state)
     if (route.params && route.params.onPhotosTaken) {
       route.params.onPhotosTaken(photoFiles);
@@ -119,6 +124,7 @@ export default function CameraScreen({
   // 사진 촬영에는 약간의 딜레이가 있으나, 로딩 레이어를 띄우지는 않는다.
   async function takePhoto() {
     try {
+      setIsTakingPhoto(true);
       if (camera.current == null) {
         throw new Error('Camera ref is null!');
       }
@@ -139,6 +145,8 @@ export default function CameraScreen({
       } else {
         ToastUtils.show('사진 촬영을 실패했습니다. ' + error.message);
       }
+    } finally {
+      setIsTakingPhoto(false);
     }
   }
 
@@ -223,7 +231,9 @@ export default function CameraScreen({
         )}
       </S.TakenPhotos>
       <S.ActionsWrapper>
-        <S.CaptureButton disabled={!canTakeMore} onPress={takePhoto}>
+        <S.CaptureButton
+          disabled={!canTakeMore || isTakingPhoto}
+          onPress={takePhoto}>
           <S.CaptureInnerDeco />
         </S.CaptureButton>
         {device?.hasFlash && (
