@@ -1,12 +1,15 @@
 import React from 'react';
-import {KeyboardAvoidingView, Modal, TouchableOpacity} from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
-
 import {color} from '@/constant/color';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 type Props = React.PropsWithChildren<{
   isVisible: boolean;
@@ -17,8 +20,6 @@ export default function BottomSheet({
   onPressBackground,
   children,
 }: Props) {
-  // TODO: Modal 안에서 SafeAreaView 가 동작하지 않아서 넣은 값.
-  const safeAreaInsets = useSafeAreaInsets();
   return (
     <Modal
       visible={isVisible}
@@ -39,9 +40,7 @@ export default function BottomSheet({
             onPress={onPressBackground}
           />
           <KeyboardAvoidingView behavior={'padding'}>
-            <Container style={{paddingBottom: safeAreaInsets.bottom}}>
-              {children}
-            </Container>
+            <Container edges={['bottom']}>{children}</Container>
           </KeyboardAvoidingView>
         </DimmedBackground>
       </GestureHandlerRootView>
@@ -49,13 +48,13 @@ export default function BottomSheet({
   );
 }
 
-const DimmedBackground = styled(SafeAreaWrapper)({
+const DimmedBackground = styled(View)({
   flex: 1,
   flexDirection: 'column-reverse',
   backgroundColor: color.blacka50,
 });
 
-const Container = styled.View({
+const Container = styled(SafeAreaWrapper)({
   flexDirection: 'column',
   borderTopLeftRadius: 20,
   borderTopRightRadius: 20,

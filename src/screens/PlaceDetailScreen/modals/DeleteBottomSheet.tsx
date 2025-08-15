@@ -6,6 +6,7 @@ import DangerousIcon from '@/assets/icon/ic_dangerous.svg';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import BottomSheet from '@/modals/BottomSheet';
 
 interface Props {
   isVisible: boolean;
@@ -20,44 +21,34 @@ const DeleteBottomSheet = ({
   onPressCancelButton,
   onPressConfirmButton,
 }: Props) => {
-  const safeAreaInsets = useSafeAreaInsets(); // TODO: Modal 안에서 SafeAreaView 가 동작하지 않아서 넣은 값.
-
   return (
-    <Modal visible={isVisible} transparent={true} animationType="fade">
-      <View style={styles.container}>
-        <View
-          style={[
-            styles.contentsContainer,
-            {paddingBottom: safeAreaInsets.bottom},
-          ]}>
-          <View style={styles.dangerous}>
-            <DangerousIcon />
-          </View>
-          <View style={styles.warningMessageContainer}>
-            <Text style={styles.warningMessage}>{confirmText}</Text>
-          </View>
-          <View style={styles.buttonContainer}>
-            <SccButton
-              text="취소"
-              textColor="black"
-              buttonColor="gray10"
-              fontFamily={font.pretendardMedium}
-              style={styles.button}
-              onPress={onPressCancelButton}
-            />
-            <View style={styles.spaceBetweenButtons} />
-            <SccButton
-              text="삭제"
-              textColor="white"
-              buttonColor="red"
-              fontFamily={font.pretendardBold}
-              style={styles.button}
-              onPress={onPressConfirmButton}
-            />
-          </View>
-        </View>
+    <BottomSheet isVisible={isVisible}>
+      <View style={styles.dangerous}>
+        <DangerousIcon />
       </View>
-    </Modal>
+      <View style={styles.warningMessageContainer}>
+        <Text style={styles.warningMessage}>{confirmText}</Text>
+      </View>
+      <View style={styles.buttonContainer}>
+        <SccButton
+          text="취소"
+          textColor="black"
+          buttonColor="gray10"
+          fontFamily={font.pretendardMedium}
+          style={styles.button}
+          onPress={onPressCancelButton}
+        />
+        <View style={styles.spaceBetweenButtons} />
+        <SccButton
+          text="삭제"
+          textColor="white"
+          buttonColor="red"
+          fontFamily={font.pretendardBold}
+          style={styles.button}
+          onPress={onPressConfirmButton}
+        />
+      </View>
+    </BottomSheet>
   );
 };
 
@@ -77,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.white,
   },
   dangerous: {
-    marginTop: 24,
+    marginTop: 44,
     alignItems: 'center',
   },
   warningMessageContainer: {},
