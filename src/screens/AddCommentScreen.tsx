@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.pretendardRegular,
     paddingVertical: 0,
-    textAlignVertical: 'top',
   },
   commentCharactersCount: {
     marginTop: 10,

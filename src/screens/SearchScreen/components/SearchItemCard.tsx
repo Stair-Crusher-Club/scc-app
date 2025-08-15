@@ -162,7 +162,7 @@ function SearchItemCard({
                     />
                   ) : (
                     <BookmarkIconOff
-                      color={color.gray80}
+                      color={color.gray70}
                       width={24}
                       height={24}
                     />
@@ -175,7 +175,7 @@ function SearchItemCard({
                   }}
                   activeOpacity={0.6}
                   onPress={() => checkAuth(onShare)}>
-                  <ShareIcon width={24} height={24} />
+                  <ShareIcon color={color.gray70} width={24} height={24} />
                 </TouchableOpacity>
               </IconArea>
             </LabelIconArea>

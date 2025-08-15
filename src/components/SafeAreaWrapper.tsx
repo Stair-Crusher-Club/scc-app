@@ -11,7 +11,7 @@ export interface SafeAreaWrapperProps extends ViewProps {
  * 안정적인 SafeArea 래퍼 컴포넌트
  * react-native-safe-area-context의 SafeAreaView 간헐적 오동작 문제를 해결하기 위해
  * useSafeAreaInsets 훅을 사용하여 수동으로 패딩을 적용합니다.
- * 
+ *
  * React Navigation 팀 권장 방식: https://reactnavigation.org/docs/handling-safe-area/
  */
 export const SafeAreaWrapper: React.FC<SafeAreaWrapperProps> = ({

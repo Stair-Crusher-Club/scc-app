@@ -127,16 +127,16 @@ const SignupInput = forwardRef<TextInput, Props>(
             style={{
               fontSize: 12,
               fontFamily: font.pretendardMedium,
-              color: isValid
-                ? color.brandColor
-                : isValid === false
-                  ? color.red
-                  : color.gray50,
+              color: match(isValid)
+                .with(true, () => (isFocused ? color.brandColor : color.gray50))
+                .with(false, () => color.red)
+                .with(undefined, () => color.gray50)
+                .exhaustive(),
             }}
             boldStyle={{
               fontSize: 12,
               fontFamily: font.pretendardMedium,
-              color: color.gray50,
+              color: color.brandColor,
             }}
             text={label}
           />

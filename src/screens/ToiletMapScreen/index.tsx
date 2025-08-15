@@ -63,7 +63,7 @@ const ToiletMapScreen = ({navigation}: ScreenProps<'ToiletMap'>) => {
   };
 
   return (
-    <Layout isHeaderVisible={false}>
+    <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
       <Wrapper>
         <TouchableOpacity
           activeOpacity={0.8}

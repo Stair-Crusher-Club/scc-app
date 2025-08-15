@@ -35,7 +35,7 @@ const SearchMapView = forwardRef<
     fitToItems: (_items: MarkerItem[]) => {
       mapViewRef.current?.fitToItems(_items);
     },
-    moveToItem: targetId => {
+    moveToItem: (targetId: string) => {
       const target = datasForUI?.find(it => it.place.id === targetId);
       if (!target) return;
       mapViewRef.current?.moveToItem(target);

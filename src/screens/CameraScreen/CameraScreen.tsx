@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Dimensions, Platform} from 'react-native';
+import {Dimensions} from 'react-native';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 
@@ -54,6 +54,8 @@ export default function CameraScreen({
   const hasShownGuideForToiletPhoto = useAtomValue(
     hasShownGuideForToiletPhotoAtom,
   );
+  const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+
   // 기존 촬영한 이미지 체크
   useEffect(() => {
     if (route.params && route.params.takenPhotos) {
@@ -91,6 +93,9 @@ export default function CameraScreen({
   }
 
   function confirm() {
+    if (isTakingPhoto) {
+      return;
+    }
     // TODO: navigation 에 non-serializable 값을 넘겨주면 안된다. (https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state)
     if (route.params && route.params.onPhotosTaken) {
       route.params.onPhotosTaken(photoFiles);
@@ -119,6 +124,7 @@ export default function CameraScreen({
   // 사진 촬영에는 약간의 딜레이가 있으나, 로딩 레이어를 띄우지는 않는다.
   async function takePhoto() {
     try {
+      setIsTakingPhoto(true);
       if (camera.current == null) {
         throw new Error('Camera ref is null!');
       }
@@ -139,6 +145,8 @@ export default function CameraScreen({
       } else {
         ToastUtils.show('사진 촬영을 실패했습니다. ' + error.message);
       }
+    } finally {
+      setIsTakingPhoto(false);
     }
   }
 
@@ -223,7 +231,9 @@ export default function CameraScreen({
         )}
       </S.TakenPhotos>
       <S.ActionsWrapper>
-        <S.CaptureButton disabled={!canTakeMore} onPress={takePhoto}>
+        <S.CaptureButton
+          disabled={!canTakeMore || isTakingPhoto}
+          onPress={takePhoto}>
           <S.CaptureInnerDeco />
         </S.CaptureButton>
         {device?.hasFlash && (
@@ -238,16 +248,15 @@ export default function CameraScreen({
 
 async function cropToRect(taken: PhotoFile) {
   const size = Math.min(taken.width, taken.height);
+  // swap height, width intentionally (it works like this..)
   const offset = {
-    x: Math.max(0, (taken.width - size) / 2),
-    y: Math.max(0, (taken.height - size) / 2),
+    x: Math.floor(Math.max(0, (taken.height - size) / 2)),
+    y: Math.floor(Math.max(0, (taken.width - size) / 2)),
   };
   const cropped = await ImageEditor.cropImage(
     ImageFileUtils.filepath(taken.path),
-    // 안드로이드는 회전된 상태에서 crop
-    // iOS 는 회전되지 않은 이미지에 crop 하기 때문에 offset 을 반대로 적용한다.
     {
-      offset: Platform.OS === 'ios' ? {x: offset.y, y: offset.x} : offset,
+      offset: {x: offset.x, y: offset.y},
       size: {width: size, height: size},
     },
   );
