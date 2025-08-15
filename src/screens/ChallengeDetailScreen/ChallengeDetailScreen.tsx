@@ -17,7 +17,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import * as S from './ChallengeDetailScreen.style';
-import ChallengeDetailCompanyBottomSheet from './components/ChallengeDetailCompanyBottomSheet';
+import ChallengeDetailCompanyModal from './components/ChallengeDetailCompanyModal';
 import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
 import ChallengeDetailPasscodeBottomSheet from './components/ChallengeDetailPasscodeBottomSheet';
 import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/ChallengeDetailRankSection';
@@ -36,6 +36,7 @@ const ChallengeDetailScreen = ({
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
   const [showCompanyBottomSheet, setShowCompanyBottomSheet] = useState(false);
+  const [passcode, setPasscode] = useState<string>();
 
   const {data} = useQuery({
     queryKey: ['ChallengeDetail', challengeId],
@@ -47,7 +48,7 @@ const ChallengeDetailScreen = ({
   const myRank = data?.myRank;
   const hasJoined = data?.hasJoined ?? false;
   const hasPasscode = data?.hasPasscode ?? false;
-  const isB2B = false; // TODO: api 연결
+  const isB2B = data?.isB2B ?? false;
 
   const joinChallenge = usePost<
     JoinChallengeRequestDto,
@@ -109,9 +110,7 @@ const ChallengeDetailScreen = ({
               buttonColor="brandColor"
               fontFamily={font.pretendardBold}
               onPress={() => {
-                if (isB2B) {
-                  setShowCompanyBottomSheet(true);
-                } else if (hasPasscode) {
+                if (hasPasscode || isB2B) {
                   setShowPasscodeBottomSheet(true);
                 } else {
                   joinChallenge.mutate({challengeId});
@@ -120,14 +119,22 @@ const ChallengeDetailScreen = ({
             />
           )}
         </S.ButtonContainer>
-        <ChallengeDetailCompanyBottomSheet
+        <ChallengeDetailCompanyModal
           isVisible={showCompanyBottomSheet}
           onPressCloseButton={() => {
             setShowCompanyBottomSheet(false);
+            setPasscode(undefined);
           }}
-          onPressConfirmButton={(affiliate, username) => {
+          onPressConfirmButton={(companyName, participantName) => {
             setShowCompanyBottomSheet(false);
-            console.log(challengeId, affiliate, username);
+            joinChallenge.mutate({
+              challengeId,
+              passcode,
+              companyInfo: {
+                companyName,
+                participantName,
+              },
+            });
           }}
         />
         <ChallengeDetailPasscodeBottomSheet
@@ -135,9 +142,14 @@ const ChallengeDetailScreen = ({
           onPressCloseButton={() => {
             setShowPasscodeBottomSheet(false);
           }}
-          onPressConfirmButton={passcode => {
+          onPressConfirmButton={_passcode => {
             setShowPasscodeBottomSheet(false);
-            joinChallenge.mutate({challengeId, passcode});
+            if (isB2B) {
+              setShowCompanyBottomSheet(true);
+              setPasscode(_passcode);
+              return;
+            }
+            joinChallenge.mutate({challengeId, passcode: _passcode});
           }}
         />
       </ScreenLayout>
