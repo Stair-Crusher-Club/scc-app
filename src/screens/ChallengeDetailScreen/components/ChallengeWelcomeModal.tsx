@@ -1,7 +1,7 @@
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Image, Modal, ModalProps, View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -10,6 +10,11 @@ export default function ChallengeWelcomeModal({
   ...props
 }: ModalProps) {
   const [visible, setVisible] = useState(_visible);
+
+  useEffect(() => {
+    setVisible(_visible);
+  }, [_visible]);
+
   return (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
       <Backdrop>
