@@ -73,7 +73,6 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
         m1.iconColor != m2.iconColor ||
         m1.zIndex != m2.zIndex
         ) {
-      
       return NO;
     }
   }
@@ -99,7 +98,7 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
       double longitude = markerStruct.position.lng;
       
       NSString *captionText = [NSString stringWithUTF8String: markerStruct.captionText.c_str()];
-      Float captionTextSize = markerStruct.captionTextSize;
+      CGFloat captionTextSize = markerStruct.captionTextSize;
       bool isHideCollidedCaptions = markerStruct.isHideCollidedCaptions;
       bool isHideCollidedMarkers = markerStruct.isHideCollidedMarkers;
       bool isHideCollidedSymbols = markerStruct.isHideCollidedSymbols;
@@ -188,11 +187,9 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
 }
 
 - (void)animateToRegion:(double)northEastLat northEastLng:(double)northEastLng southWestLat:(double)southWestLat southWestLng:(double)southWestLng padding:(NSInteger)padding duration:(NSInteger)duration {
-  NSLog(@"animateToRegion Called");
   NMGLatLng *northEast = [NMGLatLng latLngWithLat:northEastLat lng:northEastLng];
   NMGLatLng *southWest = [NMGLatLng latLngWithLat:southWestLat lng:southWestLng];
   NMGLatLngBounds *bounds = [NMGLatLngBounds latLngBoundsSouthWest:southWest northEast:northEast];
-  printf("asdfasdfffffffffff");
   [_mapView animateToRegion:bounds padding:(double)padding duration:(double)duration];
 }
 

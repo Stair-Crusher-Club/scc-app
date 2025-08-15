@@ -248,9 +248,10 @@ export default function CameraScreen({
 
 async function cropToRect(taken: PhotoFile) {
   const size = Math.min(taken.width, taken.height);
+  // swap height, width intentionally (it works like this..)
   const offset = {
-    x: Math.max(0, (taken.height - size) / 2),
-    y: Math.max(0, (taken.width - size) / 2),
+    x: Math.floor(Math.max(0, (taken.height - size) / 2)),
+    y: Math.floor(Math.max(0, (taken.width - size) / 2)),
   };
   const cropped = await ImageEditor.cropImage(
     ImageFileUtils.filepath(taken.path),

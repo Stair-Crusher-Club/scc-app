@@ -1,7 +1,9 @@
 import React from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
+  Platform,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -40,9 +42,13 @@ export default function BottomSheet({
                 width: '100%',
                 height: '100%',
               }}
-              onPress={onPressBackground}
+              onPress={() => {
+                Keyboard.dismiss();
+                onPressBackground?.();
+              }}
             />
-            <KeyboardAvoidingView behavior={'padding'}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
               <Container>
                 <SafeAreaWrapper edges={['bottom']}>{children}</SafeAreaWrapper>
               </Container>

@@ -76,7 +76,7 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
             reactContext.currentActivity?.let { activity ->
                 it.locationSource = FusedLocationSource(activity, 100)
             }
-            it.locationTrackingMode = LocationTrackingMode.NoFollow
+            it.locationTrackingMode = locationTrackingMode ?: LocationTrackingMode.NoFollow
             initialRegion?.let { region ->
                 it.moveCamera(CameraUpdate.fitBounds(region))
             }
