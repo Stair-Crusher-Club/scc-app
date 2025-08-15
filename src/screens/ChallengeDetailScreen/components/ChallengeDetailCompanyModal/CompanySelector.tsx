@@ -21,7 +21,7 @@ export default function CompanySelector({value, onChange, onClose}: Props) {
         onClose();
       }}
       isSelected={item === value}>
-      <YearText isSelected={item === value}>{item}년</YearText>
+      <YearText isSelected={item === value}>{item}</YearText>
     </YearButton>
   );
 
