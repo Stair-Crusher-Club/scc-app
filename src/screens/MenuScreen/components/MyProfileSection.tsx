@@ -1,7 +1,7 @@
 import React from 'react';
 import {Pressable, View} from 'react-native';
 
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 

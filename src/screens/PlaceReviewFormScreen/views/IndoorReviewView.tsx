@@ -18,7 +18,7 @@ import {
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
