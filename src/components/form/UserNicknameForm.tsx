@@ -31,7 +31,7 @@ const UserNicknameForm = forwardRef<TextInput, UserNicknameFormProps>(
               .with('VALID', () =>
                 match(isFocused)
                   .with(true, () => '사용 가능한 닉네임입니다.')
-                  .otherwise(() => `'${value}' <b>크러셔님 안녕하세요!</b>`),
+                  .otherwise(() => `'<b>${value}</b>' 크러셔님 안녕하세요!`),
               )
               .with('PROGRESS', () => '닉네임 확인 중...')
               .with({errorMessage: Pattern.string}, error => error.errorMessage)
