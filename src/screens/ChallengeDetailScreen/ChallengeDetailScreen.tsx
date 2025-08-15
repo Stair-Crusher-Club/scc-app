@@ -22,6 +22,7 @@ import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
 import ChallengeDetailPasscodeBottomSheet from './components/ChallengeDetailPasscodeBottomSheet';
 import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/ChallengeDetailRankSection';
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
+import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -35,7 +36,7 @@ const ChallengeDetailScreen = ({
 
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
-  const [showCompanyBottomSheet, setShowCompanyBottomSheet] = useState(false);
+  const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [passcode, setPasscode] = useState<string>();
 
   const {data} = useQuery({
@@ -120,13 +121,13 @@ const ChallengeDetailScreen = ({
           )}
         </S.ButtonContainer>
         <ChallengeDetailCompanyModal
-          isVisible={showCompanyBottomSheet}
+          isVisible={showCompanyModal}
           onPressCloseButton={() => {
-            setShowCompanyBottomSheet(false);
+            setShowCompanyModal(false);
             setPasscode(undefined);
           }}
           onPressConfirmButton={(companyName, participantName) => {
-            setShowCompanyBottomSheet(false);
+            setShowCompanyModal(false);
             joinChallenge.mutate({
               challengeId,
               passcode,
@@ -145,13 +146,14 @@ const ChallengeDetailScreen = ({
           onPressConfirmButton={_passcode => {
             setShowPasscodeBottomSheet(false);
             if (isB2B) {
-              setShowCompanyBottomSheet(true);
+              setShowCompanyModal(true);
               setPasscode(_passcode);
               return;
             }
             joinChallenge.mutate({challengeId, passcode: _passcode});
           }}
         />
+        <ChallengeWelcomeModal visible={!joinChallenge.isSuccess && !isB2B} />
       </ScreenLayout>
     </LogParamsProvider>
   );

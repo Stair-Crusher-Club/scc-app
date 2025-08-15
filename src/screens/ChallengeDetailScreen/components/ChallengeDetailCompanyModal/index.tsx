@@ -5,13 +5,7 @@ import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
 import {isEmpty} from 'lodash';
 import React, {useState} from 'react';
-import {
-  Modal,
-  Platform,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Modal, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
@@ -134,33 +128,6 @@ export const InputWrapper = styled.View({
 export const InputLabel = styled.Text({
   fontFamily: font.pretendardMedium,
   fontSize: 13,
-});
-
-export const CompanyNameInput = styled.TextInput({
-  height: 56,
-  borderRadius: 20,
-  borderWidth: 1,
-  borderColor: color.brand20,
-  color: color.black,
-  paddingHorizontal: 25,
-  fontSize: 18,
-  // 안드로이드 대응
-  ...Platform.select({
-    android: {
-      borderBottomWidth: 1,
-      borderBottomColor: color.brand20,
-    },
-  }),
-});
-
-export const ParticipantName = styled.TextInput({
-  height: 56,
-  borderRadius: 20,
-  borderWidth: 1,
-  borderColor: color.brand20,
-  color: color.black,
-  paddingHorizontal: 25,
-  fontSize: 18,
 });
 
 export const ButtonContainer = styled.View({
