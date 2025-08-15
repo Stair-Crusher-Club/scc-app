@@ -88,7 +88,11 @@ const ChallengeDetailScreen = ({
               </>
             )}
             {!isEmpty(ranks) && (
-              <ChallengeDetailRankSection ranks={ranks} myRank={myRank} />
+              <ChallengeDetailRankSection
+                ranks={ranks}
+                myRank={myRank}
+                quests={data?.quests}
+              />
             )}
           </S.Contents>
         </S.Container>

@@ -1,5 +1,7 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {ChallengeQuestDto} from '@/generated-sources/openapi';
+import dayjs from 'dayjs';
 import {Image, Text, View} from 'react-native';
 import CurvedDateText from './CurvedDateText';
 
@@ -18,18 +20,8 @@ export type QuestProgress =
   | 'FAILED' // 실패
   | null;
 
-interface QuestItemProps {
-  type: QuestStampType;
-  title?: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  targetCount: number;
-  completedCount: number;
-  completedAt?: string;
-}
-
 export default function QuestItem({
+  // id,
   type,
   title,
   description,
@@ -38,17 +30,16 @@ export default function QuestItem({
   targetCount,
   completedCount,
   completedAt,
-}: QuestItemProps) {
+}: ChallengeQuestDto & {
+  type: QuestStampType;
+}) {
   let progress: QuestProgress = null;
 
   if (completedCount === targetCount) {
-    // TODO: 클리어 날짜로 판단
     progress = 'COMPLETED';
-  } else if (completedCount === 0) {
-    // TODO: endDate 날짜 판단
+  } else if (!isEnded(endDate?.value) && completedCount === 0) {
     progress = 'NOT_STARTED';
-  } else if (completedCount !== targetCount) {
-    // TODO: endDate 날짜 판단
+  } else if (!isEnded(endDate?.value) && completedCount !== targetCount) {
     progress = 'IN_PROGRESS';
   } else {
     progress = 'FAILED';
@@ -92,7 +83,7 @@ export default function QuestItem({
             fontSize: 12,
             lineHeight: 16,
           }}>
-          {startDate}~{endDate}
+          {getYYYYMM(startDate?.value)}~{getYYYYMM(endDate?.value)}
         </Text>
       </View>
       <Text
@@ -166,7 +157,7 @@ export default function QuestItem({
             pointerEvents="none"
             style={{position: 'absolute', left: 0, bottom: 0}}>
             <CurvedDateText
-              date={completedAt}
+              date={getYYYYMMDD(completedAt?.value)}
               charColor={stampMap[type].color}
             />
           </View>
@@ -215,3 +206,20 @@ const stampMap: Record<
     uri: require('@/assets/img/quest_stamp_review.png'),
   },
 };
+
+function getYYYYMM(v?: number) {
+  if (!v) return '';
+  return dayjs(v).format('MM.DD');
+}
+
+function getYYYYMMDD(v?: number) {
+  if (!v) return '';
+  return dayjs(v).format('YYYY.MM.DD');
+}
+
+function isEnded(endDateValue?: number) {
+  if (!endDateValue) return false;
+  const end = dayjs(endDateValue);
+  const today = dayjs();
+  return end.isBefore(today, 'day');
+}
