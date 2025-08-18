@@ -28,7 +28,7 @@ export default function ChallengeDetailQuestSection({
         {chunkQuests.map((rowItems, rowIndex) => (
           <Row key={rowIndex}>
             {rowItems.map(quest => (
-              <QuestItem key={quest.id} {...quest} type="CAFE" />
+              <QuestItem key={quest.id} {...quest} />
             ))}
           </Row>
         ))}

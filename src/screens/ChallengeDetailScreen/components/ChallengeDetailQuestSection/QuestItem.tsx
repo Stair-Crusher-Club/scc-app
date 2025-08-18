@@ -1,17 +1,12 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ChallengeQuestDto} from '@/generated-sources/openapi';
+import {
+  ChallengeQuestCompleteStampTypeDto,
+  ChallengeQuestDto,
+} from '@/generated-sources/openapi';
 import dayjs from 'dayjs';
 import {Image, Text, View} from 'react-native';
 import CurvedDateText from './CurvedDateText';
-
-export type QuestStampType =
-  | 'FLAG'
-  | 'CAFE'
-  | 'GOOD'
-  | 'POTION'
-  | 'RESTAURANT'
-  | 'REVIEW';
 
 export type QuestProgress =
   | 'COMPLETED' // 성공
@@ -22,7 +17,7 @@ export type QuestProgress =
 
 export default function QuestItem({
   // id,
-  type,
+  completeStampType,
   title,
   description,
   startDate,
@@ -30,9 +25,7 @@ export default function QuestItem({
   targetCount,
   completedCount,
   completedAt,
-}: ChallengeQuestDto & {
-  type: QuestStampType;
-}) {
+}: ChallengeQuestDto) {
   let progress: QuestProgress = null;
 
   if (completedCount === targetCount) {
@@ -56,7 +49,7 @@ export default function QuestItem({
         borderRadius: 8,
         backgroundColor:
           progress === 'COMPLETED'
-            ? stampMap[type].backgroundColor
+            ? stampMap[completeStampType].backgroundColor
             : progress === 'FAILED'
               ? color.gray20
               : color.white,
@@ -152,13 +145,16 @@ export default function QuestItem({
             right: 10,
             bottom: 10,
           }}>
-          <Image source={stampMap[type].uri} style={{width: 72, height: 72}} />
+          <Image
+            source={stampMap[completeStampType].uri}
+            style={{width: 72, height: 72}}
+          />
           <View
             pointerEvents="none"
             style={{position: 'absolute', left: 0, bottom: 0}}>
             <CurvedDateText
               date={getYYYYMMDD(completedAt?.value)}
-              charColor={stampMap[type].color}
+              charColor={stampMap[completeStampType].color}
             />
           </View>
         </View>
@@ -168,7 +164,7 @@ export default function QuestItem({
 }
 
 const stampMap: Record<
-  QuestStampType,
+  ChallengeQuestCompleteStampTypeDto,
   {
     color: string;
     backgroundColor: string;
@@ -190,7 +186,7 @@ const stampMap: Record<
     backgroundColor: '#8096B51A',
     uri: require('@/assets/img/quest_stamp_restaurant.png'),
   },
-  GOOD: {
+  THUMBS_UP: {
     color: '#30BDCA',
     backgroundColor: '#30BDCA1A',
     uri: require('@/assets/img/quest_stamp_good.png'),
