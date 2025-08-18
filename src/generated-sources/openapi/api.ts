@@ -508,6 +508,24 @@ export interface ChallengeDto {
 /**
  * 
  * @export
+ * @enum {string}
+ */
+
+export const ChallengeQuestCompleteStampTypeDto = {
+    Flag: 'FLAG',
+    Cafe: 'CAFE',
+    ThumbsUp: 'THUMBS_UP',
+    Potion: 'POTION',
+    Restaurant: 'RESTAURANT',
+    Review: 'REVIEW'
+} as const;
+
+export type ChallengeQuestCompleteStampTypeDto = typeof ChallengeQuestCompleteStampTypeDto[keyof typeof ChallengeQuestCompleteStampTypeDto];
+
+
+/**
+ * 
+ * @export
  * @interface ChallengeQuestDto
  */
 export interface ChallengeQuestDto {
@@ -541,6 +559,12 @@ export interface ChallengeQuestDto {
      * @memberof ChallengeQuestDto
      */
     'completedCount': number;
+    /**
+     * 
+     * @type {ChallengeQuestCompleteStampTypeDto}
+     * @memberof ChallengeQuestDto
+     */
+    'completeStampType': ChallengeQuestCompleteStampTypeDto;
     /**
      * 
      * @type {EpochMillisTimestamp}
@@ -654,6 +678,25 @@ export interface CompactAccessibilityInfoDto {
      * @memberof CompactAccessibilityInfoDto
      */
     'createdAt'?: EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @interface ContributedChallengeInfoDto
+ */
+export interface ContributedChallengeInfoDto {
+    /**
+     * 
+     * @type {ChallengeDto}
+     * @memberof ContributedChallengeInfoDto
+     */
+    'challenge': ChallengeDto;
+    /**
+     * 이번 유저 참여로 인해 달성된 퀘스트 목록.
+     * @type {Array<ChallengeQuestDto>}
+     * @memberof ContributedChallengeInfoDto
+     */
+    'completedQuestsByContribution': Array<ChallengeQuestDto>;
 }
 /**
  * 
@@ -2253,6 +2296,19 @@ export interface RegisterBuildingAccessibilityRequestDto {
 /**
  * 
  * @export
+ * @interface RegisterBuildingAccessibilityResponseDto
+ */
+export interface RegisterBuildingAccessibilityResponseDto {
+    /**
+     * 이 정보 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterBuildingAccessibilityResponseDto
+     */
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+}
+/**
+ * 
+ * @export
  * @interface RegisterPlaceAccessibilityCommentPost200Response
  */
 export interface RegisterPlaceAccessibilityCommentPost200Response {
@@ -2368,19 +2424,12 @@ export interface RegisterPlaceAccessibilityResponseDto {
      * @memberof RegisterPlaceAccessibilityResponseDto
      */
     'registeredUserOrder': number;
-}
-/**
- * 
- * @export
- * @interface RegisterPlaceReviewPost200Response
- */
-export interface RegisterPlaceReviewPost200Response {
     /**
-     * 
-     * @type {PlaceReviewDto}
-     * @memberof RegisterPlaceReviewPost200Response
+     * 이 정보 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterPlaceAccessibilityResponseDto
      */
-    'placeReview'?: PlaceReviewDto;
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
 }
 /**
  * 
@@ -2442,6 +2491,25 @@ export interface RegisterPlaceReviewRequestDto {
      * @memberof RegisterPlaceReviewRequestDto
      */
     'features'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface RegisterPlaceReviewResponseDto
+ */
+export interface RegisterPlaceReviewResponseDto {
+    /**
+     * 
+     * @type {PlaceReviewDto}
+     * @memberof RegisterPlaceReviewResponseDto
+     */
+    'placeReview'?: PlaceReviewDto;
+    /**
+     * 이 리뷰 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterPlaceReviewResponseDto
+     */
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
 }
 /**
  * 
@@ -5618,7 +5686,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterBuildingAccessibilityResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -5651,7 +5719,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterPlaceReviewPost200Response>> {
+        async registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterPlaceReviewResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerPlaceReviewPost(registerPlaceReviewRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -6145,7 +6213,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: any): AxiosPromise<void> {
+        registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: any): AxiosPromise<RegisterBuildingAccessibilityResponseDto> {
             return localVarFp.registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -6175,7 +6243,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: any): AxiosPromise<RegisterPlaceReviewPost200Response> {
+        registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: any): AxiosPromise<RegisterPlaceReviewResponseDto> {
             return localVarFp.registerPlaceReviewPost(registerPlaceReviewRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
