@@ -1,4 +1,4 @@
-import {useAtom} from 'jotai';
+import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo, useState} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
@@ -22,13 +22,14 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {ScreenLayout} from '@/components/ScreenLayout';
 import CommentsSection from '../PlaceFormScreen/sections/CommentsSection';
+import {pushItemsAtom} from '../SearchScreen/atoms/quest';
 import * as S from './BuildingFormScreen.style';
 import ElevatorSection from './sections/ElevatorSection';
 import EnteranceSection from './sections/EnteranceSection';
 import HeaderSection from './sections/HeaderSection';
 import StickyScrollNavigation from './sections/StickyScrollNavigation';
-import {ScreenLayout} from '@/components/ScreenLayout';
 
 export interface BuildingFormScreenParams {
   place: Place;
@@ -61,6 +62,7 @@ export default function BuildingFormScreen({
   const buildingEntranceSection = React.useRef<View>(null);
   const elevatorSection = React.useRef<View>(null);
   const {api} = useAppComponents();
+  const pushItems = useSetAtom(pushItemsAtom);
 
   const [loading, setLoading] = useAtom(loadingState);
 
@@ -85,8 +87,12 @@ export default function BuildingFormScreen({
         setLoading(new Map(loading).set('BuildingForm', false));
 
         // 장소 정보 등록에 실패, 이후 과정을 진행하지 않음
-        if (!registered) {
+        if (!registered.success) {
           return;
+        }
+
+        if (registered.data) {
+          pushItems(registered.data);
         }
 
         // BuildingForm 을 없애고 PlaceDetail로 이동
@@ -197,7 +203,7 @@ async function register(
       values.elevatorPhotos,
     );
     try {
-      await api.registerBuildingAccessibilityPost({
+      const res = await api.registerBuildingAccessibilityPost({
         buildingId,
         entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
         entranceStairHeightLevel: values.entranceStairHeightLevel,
@@ -214,14 +220,27 @@ async function register(
         elevatorStairHeightLevel: values.elevatorStairHeightLevel,
         comment: values.comment || undefined,
       });
+
+      return {
+        success: true,
+        data: res.data.contributedChallengeInfos?.flatMap(info =>
+          info.completedQuestsByContribution.map(quest => ({
+            challengeId: info.challenge.id,
+            type: quest.completeStampType,
+          })),
+        ),
+      };
     } catch (error: any) {
       ToastUtils.showOnApiError(error);
-      return false;
+      return {
+        success: false,
+      };
     }
-    return true;
   } catch (error: any) {
     Logger.logError(error);
     ToastUtils.show('사진 업로드를 실패했습니다.');
-    return false;
+    return {
+      success: false,
+    };
   }
 }

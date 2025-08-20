@@ -1,55 +1,82 @@
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {ChallengeQuestCompleteStampTypeDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
-import {QuestStampType} from '@/screens/ChallengeDetailScreen/components/ChallengeDetailQuestSection/QuestItem';
+import {useAtomValue, useSetAtom} from 'jotai';
 import {LottieViewProps} from 'lottie-react-native';
-import React from 'react';
-import {
-  Modal,
-  ModalProps,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import React, {useEffect} from 'react';
+import {Modal, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
 import styled from 'styled-components/native';
+import {
+  closeAllAtom,
+  currentAtom,
+  indexAtom,
+  isLastAtom,
+  nextOrCloseAtom,
+  visibleAtom,
+} from '../atoms/quest';
 import StampLottie from './QuestClearStamp';
 
-const stampLottie: Record<QuestStampType, LottieViewProps['source']> = {
+const stampLottie: Record<
+  ChallengeQuestCompleteStampTypeDto,
+  LottieViewProps['source']
+> = {
   FLAG: require('@/assets/animations/flag.lottie'),
   CAFE: require('@/assets/animations/cafe.lottie'),
-  GOOD: require('@/assets/animations/good.lottie'),
+  THUMBS_UP: require('@/assets/animations/good.lottie'),
   POTION: require('@/assets/animations/potion.lottie'),
   RESTAURANT: require('@/assets/animations/restaurant.lottie'),
   REVIEW: require('@/assets/animations/review.lottie'),
 };
 
-interface QuestCompletionModalProps extends ModalProps {
-  type: QuestStampType;
+export type QueueItem = {
   challengeId: string;
-  onClose?: () => void;
-}
+  type: ChallengeQuestCompleteStampTypeDto;
+};
 
-export default function QuestCompletionModal({
-  type,
-  challengeId,
-  visible = false,
-  onClose,
-  ...props
-}: QuestCompletionModalProps) {
+export default function QuestCompletionModal() {
   const navigation = useNavigation();
+
+  const visible = useAtomValue(visibleAtom);
+  const current = useAtomValue(currentAtom);
+  const isLast = useAtomValue(isLastAtom);
+  const nextOrClose = useSetAtom(nextOrCloseAtom);
+  const closeAll = useSetAtom(closeAllAtom);
+  const setIndex = useSetAtom(indexAtom);
+
+  useEffect(() => {
+    if (!visible) setIndex(0);
+  }, [visible, setIndex]);
+
+  if (!visible || !current) return null;
+
+  const handlePrimary = () => {
+    if (isLast) {
+      navigation.navigate('ChallengeDetail', {
+        challengeId: current.challengeId,
+      });
+      closeAll();
+    } else {
+      nextOrClose();
+    }
+  };
+
+  const handleBackdropPress = () => {
+    closeAll();
+  };
 
   return (
     <Modal
       visible={visible}
       transparent
       statusBarTranslucent
-      animationType="fade"
-      {...props}>
-      <TouchableWithoutFeedback onPress={onClose}>
+      animationType="fade">
+      <TouchableWithoutFeedback onPress={handleBackdropPress}>
         <Backdrop>
           <Center>
             <CompletionImage />
-            <StampLottie source={stampLottie[type]} />
+            <StampLottie source={stampLottie[current.type]} />
           </Center>
 
           <TitleText>
@@ -58,15 +85,13 @@ export default function QuestCompletionModal({
 
           <ButtonContainer>
             <SccButton
-              text="클리어 뱃지 확인하기!"
+              text={isLast ? '클리어 뱃지 확인하기!' : '다음'}
               textColor="white"
               fontFamily={font.pretendardBold}
-              onPress={() => {
-                navigation.navigate('ChallengeDetail', {challengeId});
-              }}
+              onPress={handlePrimary}
             />
 
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={closeAll}>
               <CloseModalText>계속 정복하기</CloseModalText>
             </TouchableOpacity>
           </ButtonContainer>

@@ -216,8 +216,6 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
           }}
         />
         <FilterModal />
-
-        {/* <QuestCompletionModal /> */}
       </S.SearchScreenLayout>
     </LogParamsProvider>
   );

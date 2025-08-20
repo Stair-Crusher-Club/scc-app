@@ -23,6 +23,7 @@ import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {pushItemsAtom} from '@/screens/SearchScreen/atoms/quest';
 import PlaceReviewFormScreen from '..';
 import IndoorInfoSection from '../sections/IndoorInfoSection';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
@@ -72,6 +73,7 @@ export default function IndoorReviewView({
     },
   });
   const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
+  const pushItems = useSetAtom(pushItemsAtom);
 
   async function onValid(values: FormValues) {
     registerPlace(values, gotoPlaceDetail);
@@ -100,8 +102,12 @@ export default function IndoorReviewView({
         });
         setLoading(new Map(loading).set(PlaceReviewFormScreen.name, false));
 
-        if (!registered) {
+        if (!registered.success) {
           return;
+        }
+
+        if (registered.data) {
+          pushItems(registered.data);
         }
 
         ToastUtils.show('리뷰를 등록했어요.');
@@ -151,7 +157,7 @@ async function register({
       'PLACE_REVIEW',
     );
     try {
-      await api.registerPlaceReviewPost({
+      const res = await api.registerPlaceReviewPost({
         placeId,
         mobilityTool: values.mobilityTool,
         recommendedMobilityTypes: [...values.recommendedMobilityTypes],
@@ -167,13 +173,26 @@ async function register({
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId, 'Review'],
       });
-      return true;
+
+      return {
+        success: true,
+        data: res.data.contributedChallengeInfos?.flatMap(info =>
+          info.completedQuestsByContribution.map(quest => ({
+            challengeId: info.challenge.id,
+            type: quest.completeStampType,
+          })),
+        ),
+      };
     } catch (error: any) {
       ToastUtils.showOnApiError(error);
-      return false;
+      return {
+        success: false,
+      };
     }
   } catch (e) {
     ToastUtils.show('사진 업로드를 실패했습니다.');
-    return false;
+    return {
+      success: false,
+    };
   }
 }
