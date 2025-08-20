@@ -1,0 +1,13 @@
+---
+description: Linting & Type Checking Best Practices
+globs:
+alwaysApply: false
+---
+
+- Always run lint and type checks after modifying code to ensure code quality and prevent errors.
+- Use the following commands in the project root:
+  - `yarn lint` or `npm run lint` to check for code style and lint errors.
+  - `yarn tsc --noEmit` or `npm run typecheck` to check for TypeScript type errors.
+- Fix all reported issues before committing or opening a pull request.
+- Run these checks locally before pushing to CI to save time and avoid build failures.
+- If you add or update dependencies, re-run type checks to catch new type issues.

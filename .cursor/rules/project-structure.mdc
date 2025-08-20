@@ -1,0 +1,168 @@
+---
+description: Project Structure Guide
+globs:
+alwaysApply: false
+---
+
+This is a React Native project. The main entry point is [App.tsx](mdc:../../App.tsx).
+
+## Directory Structure
+
+- **Screens** are located in [src/screens/](mdc:../../src/screens/), each in its own directory or file, e.g., [PlaceReviewFormScreen/index.tsx](mdc:../../src/screens/PlaceReviewFormScreen/index.tsx).
+- **Components** are in [src/components/](mdc:../../src/components/), with subfolders for atoms, molecules, maps, forms, etc.
+- **Navigation** is handled in [src/navigation/](mdc:../../src/navigation/).
+- **Constants** (colors, icons, etc.) are in [src/constant/](mdc:../../src/constant/).
+- **API types and clients** are generated in [src/generated-sources/openapi/](mdc:../../src/generated-sources/openapi/).
+- **Assets** (images, icons, animations) are in [src/assets/](mdc:../../src/assets/).
+- **Utilities** are in [src/utils/](mdc:../../src/utils/).
+- **Logging** is in [src/logging/](mdc:../../src/logging/).
+
+For iOS and Android native code, see [ios/](mdc:../../ios/) and [android/](mdc:../../android/).
+
+## Navigation and Screen Structure
+
+The app uses `@react-navigation/native-stack` for navigation. All screen-related configurations are centralized in `Navigation.screens.ts`.
+
+### Adding a New Screen
+
+1. **Create Screen Directory**
+   ```
+   src/screens/
+   └── MyNewScreen/
+       ├── index.ts              # Export screen component
+       ├── MyNewScreen.tsx       # Main screen component
+       ├── MyNewScreen.style.ts  # Styled components
+       └── sections/            # (Optional) Screen sections
+   ```
+
+2. **Define Screen Parameters** (in `Navigation.screens.ts`)
+   ```typescript
+   // 1. Import your screen
+   import MyNewScreen, { MyNewScreenParams } from '@/screens/MyNewScreen';
+
+   // 2. Add to ScreenParams type
+   export type ScreenParams = {
+     // ... existing screens
+     MyNewScreen: MyNewScreenParams;  // undefined if no params needed
+   };
+
+   // 3. Add to MainNavigationScreens array
+   export const MainNavigationScreens = [
+     // ... existing screens
+     {
+       name: 'MyNewScreen',
+       component: MyNewScreen,
+       options: {
+         headerShown: true,
+         headerTitle: '화면 제목',
+         // Optional: presentation mode
+         // presentation: 'modal' | 'fullScreenModal'
+       },
+     },
+   ];
+   ```
+
+3. **Create Screen Component**
+   ```typescript
+   // MyNewScreen/MyNewScreen.tsx
+   import { ScreenProps } from '@/navigation/Navigation.screens';
+
+   export interface MyNewScreenParams {
+     someId?: string;
+     // Add other route params
+   }
+
+   export default function MyNewScreen({ 
+     route, 
+     navigation 
+   }: ScreenProps<'MyNewScreen'>) {
+     return (
+       <ScreenLayout isHeaderVisible={true}>
+         {/* Your screen content */}
+       </ScreenLayout>
+     );
+   }
+   ```
+
+### Screen Types and Options
+
+1. **Regular Screens**
+   - Default presentation
+   - Use `headerShown: true` for navigation header
+   ```typescript
+   {
+     name: 'MyScreen',
+     component: MyScreen,
+     options: { 
+       headerShown: true,
+       headerTitle: '화면 제목'
+     }
+   }
+   ```
+
+2. **Modal Screens**
+   - Slides up from bottom
+   - Use `presentation: 'modal'`
+   ```typescript
+   {
+     name: 'MyModal',
+     component: MyModal,
+     options: { 
+       presentation: 'modal',
+       headerTitle: '모달 제목'
+     }
+   }
+   ```
+
+3. **Full-Screen Modals**
+   - Takes up entire screen
+   - Use `presentation: 'fullScreenModal'`
+   ```typescript
+   {
+     name: 'MyFullScreen',
+     component: MyFullScreen,
+     options: { 
+       presentation: 'fullScreenModal',
+       headerShown: false
+     }
+   }
+   ```
+
+### Navigation Types
+
+1. **Screen Props Type**
+   ```typescript
+   type ScreenProps<Name extends keyof ScreenParams> = 
+     NativeStackScreenProps<ScreenParams, Name>;
+   ```
+
+2. **Navigation Options**
+   ```typescript
+   type CustomNavigationOptions = NativeStackNavigationOptions & {
+     variant?: 'back' | 'close';
+   };
+   ```
+
+### Best Practices
+
+1. **Screen Organization**
+   - Keep screen-specific components in the screen's directory
+   - Use `sections/` for large screen segments
+   - Keep styles in separate `.style.ts` files
+
+2. **Navigation**
+   - Always type your route params
+   - Use `ScreenProps` type for component props
+   - Handle navigation in useCallback hooks
+   ```typescript
+   const handleNavigation = useCallback(() => {
+     navigation.navigate('TargetScreen', { 
+       param1: 'value' 
+     });
+   }, [navigation]);
+   ```
+
+3. **Modal Handling**
+   - Use `presentation: 'modal'` for bottom sheets
+   - Use `presentation: 'fullScreenModal'` for full-screen modals
+   - Handle gesture dismissal with `gestureEnabled`

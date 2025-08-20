@@ -1,0 +1,188 @@
+---
+description: Component Structure Best Practices
+globs:
+alwaysApply: false
+---
+
+- Each component should be in its own file, named after the component (e.g., `MyComponent.tsx`).
+- Do not separate style files; place styled components at the bottom of the file.
+- Always use styled-components with the `` style syntax for styling.
+- Prop types/interfaces should usually be inlined in the function; only define them separately if the type needs to be shared.
+- Keep components focused: one responsibility per component.
+- Use hooks for logic, keep UI components as stateless as possible.
+- Avoid deeply nested components; break into smaller pieces if needed.
+- Export only the main component from each file.
+
+## Common Components
+
+### BottomSheet Component (`@/modals/BottomSheet/BottomSheet.tsx`)
+
+The BottomSheet component is a reusable modal that slides up from the bottom of the screen. It's designed to be flexible and handle various use cases while maintaining consistent behavior across the app.
+
+#### When to Use
+
+1. **User Confirmations**: When you need user confirmation for important actions (e.g., delete, withdraw)
+2. **Form Inputs**: For collecting user input in a non-intrusive way
+3. **Filters and Options**: When displaying a list of options or filters
+4. **Information Display**: For showing additional information without leaving the current screen
+5. **App Status Messages**: For displaying important app messages (e.g., upgrade needed)
+
+#### Props
+
+```typescript
+type Props = React.PropsWithChildren<{
+  isVisible: boolean;
+  onPressBackground?: () => void;
+}>;
+```
+
+#### Features
+
+- Handles keyboard behavior automatically
+- Supports safe area on iOS
+- Includes background dimming with tap-to-dismiss
+- Supports gesture handling
+- Maintains consistent styling with rounded corners
+
+#### Examples
+
+1. **Basic Usage**:
+```tsx
+<BottomSheet 
+  isVisible={isVisible} 
+  onPressBackground={handleClose}
+>
+  <YourContent />
+</BottomSheet>
+```
+
+2. **With Form**:
+```tsx
+<BottomSheet isVisible={isVisible}>
+  <ContentsContainer>
+    <Title>Title Text</Title>
+    <FormContent />
+    <BottomSheetButtonGroup
+      layout={BottomSheetButtonGroupLayout.HORIZONTAL_1X2}
+      positiveButton={{
+        text: "Confirm",
+        onPressed: handleConfirm
+      }}
+      negativeButton={{
+        text: "Cancel",
+        onPressed: handleCancel
+      }}
+    />
+  </ContentsContainer>
+</BottomSheet>
+```
+
+3. **With Options**:
+```tsx
+<BottomSheet isVisible={isVisible}>
+  <OptionSelector>
+    {options.map(option => (
+      <SccButton
+        key={option.id}
+        text={option.text}
+        onPress={() => handleSelect(option)}
+      />
+    ))}
+  </OptionSelector>
+</BottomSheet>
+```
+
+#### Best Practices
+
+1. Always provide an `onPressBackground` handler for dismissal
+2. Use consistent styling patterns within the sheet
+3. Keep content focused and not too lengthy
+4. Include clear call-to-action buttons
+5. Handle keyboard interactions appropriately
+6. Use appropriate animations and transitions
+
+### ScreenLayout Component (`@/components/ScreenLayout.tsx`)
+
+The ScreenLayout component is a foundational layout component that handles common screen-level concerns like safe areas, keyboard behavior, and navigation header spacing.
+
+#### When to Use
+
+1. **Screen Components**: Use as the root component for all screen components
+2. **Form Screens**: When building screens with form inputs that need keyboard handling
+3. **Full-Screen Views**: For any full-screen view that needs proper safe area and navigation header handling
+4. **Scrollable Content**: When building screens with scrollable content that needs proper spacing
+
+#### Props
+
+```typescript
+interface ScreenLayoutProps extends ViewProps {
+  children?: React.ReactNode;
+  isHeaderVisible: boolean;     // Whether the default navigation header is visible
+  isKeyboardAvoidingView?: boolean;  // Enable/disable keyboard avoiding behavior
+  safeAreaEdges?: ReadonlyArray<Edge>;  // Which edges should respect safe area
+}
+```
+
+#### Features
+
+- Automatic keyboard handling with proper offsets
+- Safe area support for notches and system bars
+- Navigation header height consideration
+- Consistent background color handling
+- Platform-specific keyboard behavior
+
+#### Examples
+
+1. **Basic Screen Layout**:
+```tsx
+export default function MyScreen() {
+  return (
+    <ScreenLayout isHeaderVisible={true}>
+      <ScrollView>
+        <YourContent />
+      </ScrollView>
+    </ScreenLayout>
+  );
+}
+```
+
+2. **Form Screen with Keyboard Handling**:
+```tsx
+export default function FormScreen() {
+  return (
+    <ScreenLayout 
+      isHeaderVisible={true}
+      isKeyboardAvoidingView={true}
+      safeAreaEdges={['bottom']}>
+      <ScrollView>
+        <TextInput />
+        <TextInput />
+        <SubmitButton />
+      </ScrollView>
+    </ScreenLayout>
+  );
+}
+```
+
+3. **Full-Screen Content Without Header**:
+```tsx
+export default function FullScreenContent() {
+  return (
+    <ScreenLayout 
+      isHeaderVisible={false}
+      safeAreaEdges={['top', 'bottom']}
+      style={{backgroundColor: color.white}}>
+      <YourFullScreenContent />
+    </ScreenLayout>
+  );
+}
+```
+
+#### Best Practices
+
+1. Always use ScreenLayout as the root component for screen components
+2. Set `isHeaderVisible` correctly based on your navigation setup
+3. Include appropriate `safeAreaEdges` based on your content
+4. Enable `isKeyboardAvoidingView` for screens with text inputs
+5. Consider custom background colors through the style prop
+6. Use with ScrollView/FlatList for scrollable content

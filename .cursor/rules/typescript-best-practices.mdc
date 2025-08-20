@@ -1,0 +1,13 @@
+---
+description: TypeScript Best Practices
+globs:
+alwaysApply: false
+---
+
+- Always use explicit types and interfaces for props, state, and function arguments/returns.
+- Prefer `interface` for object shapes, especially for component props.
+- Use `import type` for type-only imports to optimize bundling.
+- Avoid using `any`; use `unknown` or proper types instead.
+- Use enums or union types for fixed sets of values.
+- Keep imports organized: external libraries first, then internal modules, then styles/assets.
+- Prefer named exports over default exports for components and utilities.
