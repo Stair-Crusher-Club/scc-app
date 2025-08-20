@@ -6,6 +6,8 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
+import useAppComponents from '@/hooks/useAppComponents';
+import GeolocationUtils from '@/utils/GeolocationUtils';
 import {filterAtom, FilterOptions, SortOption} from '../atoms';
 import SearchCategoryIcon, {Icons} from './SearchHeader/SearchCategoryIcon';
 
@@ -109,10 +111,25 @@ interface SearchRecommendPlaceProps {
 export default function SearchRecommendPlace({
   onPressKeyword,
 }: SearchRecommendPlaceProps) {
+  const {api} = useAppComponents();
+
   const {data} = useQuery<number>({
     queryKey: ['NearbyAccessibilityStatus'],
+    queryFn: async () => {
+      const currentPosition = await GeolocationUtils.getCurrentPosition();
+      return (
+        (
+          await api.getNearbyAccessibilityStatusPost({
+            currentLocation: {
+              lat: currentPosition.coords.latitude,
+              lng: currentPosition.coords.longitude,
+            },
+            distanceMetersLimit: 500,
+          })
+        )?.data?.conqueredCount ?? 0
+      );
+    },
   });
-
   const setFilter = useSetAtom(filterAtom);
 
   if (!data || data < 10) {

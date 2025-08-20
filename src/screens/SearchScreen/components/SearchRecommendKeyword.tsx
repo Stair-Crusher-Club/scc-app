@@ -5,14 +5,19 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SearchPlacePresetDto} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
 
 export default function SearchRecommendKeyword({
   onPressKeyword: onClickSearch,
 }: {
   onPressKeyword: (search: string) => void;
 }) {
+  const {api} = useAppComponents();
+
   const {data} = useQuery<SearchPlacePresetDto[]>({
     queryKey: ['ListSearchPlacePresets'],
+    queryFn: async () =>
+      (await api.listSearchPlacePresetsPost({}))?.data?.keywordPresets,
   });
 
   if (!data?.length) {

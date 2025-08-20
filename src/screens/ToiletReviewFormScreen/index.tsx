@@ -6,6 +6,7 @@ import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
+import useAppComponents from '@/hooks/useAppComponents';
 import ToiletReviewView from '../PlaceReviewFormScreen/views/ToiletReviewView';
 
 export interface ToiletReviewFormScreenParams {
@@ -16,6 +17,8 @@ export default function ToiletReviewFormScreen({
   route,
   navigation,
 }: ScreenProps<'ReviewForm/Toilet'>) {
+  const {api} = useAppComponents();
+
   const placeId = route.params?.placeId;
   const {data} = useQuery<{
     place?: Place;
@@ -24,6 +27,17 @@ export default function ToiletReviewFormScreen({
     accessibilityScore?: number;
   }>({
     queryKey: ['PlaceDetail', placeId],
+    queryFn: async () => {
+      const result = await api.getPlaceWithBuildingPost({
+        placeId: placeId ?? '',
+      });
+      return {
+        place: result.data.place,
+        building: result.data.building,
+        isAccessibilityRegistrable: result.data.isAccessibilityRegistrable,
+        accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
+      };
+    },
   });
 
   function gotoPlaceDetail() {
