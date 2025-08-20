@@ -171,7 +171,8 @@ export const ApiErrorResponseCodeEnum = {
     ALREADY_JOINED: '11',
     CHALLENGE_NOT_OPENED: '12',
     CHALLENGE_CLOSED: '13',
-    INVALID_BIRTH_YEAR: '14'
+    INVALID_BIRTH_YEAR: '14',
+    B2B_INFO_REQUIRED: '15'
 } as const;
 
 export type ApiErrorResponseCodeEnum = typeof ApiErrorResponseCodeEnum[keyof typeof ApiErrorResponseCodeEnum];
@@ -507,6 +508,85 @@ export interface ChallengeDto {
 /**
  * 
  * @export
+ * @enum {string}
+ */
+
+export const ChallengeQuestCompleteStampTypeDto = {
+    Flag: 'FLAG',
+    Cafe: 'CAFE',
+    ThumbsUp: 'THUMBS_UP',
+    Potion: 'POTION',
+    Restaurant: 'RESTAURANT',
+    Review: 'REVIEW'
+} as const;
+
+export type ChallengeQuestCompleteStampTypeDto = typeof ChallengeQuestCompleteStampTypeDto[keyof typeof ChallengeQuestCompleteStampTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface ChallengeQuestDto
+ */
+export interface ChallengeQuestDto {
+    /**
+     * 퀘스트 ID
+     * @type {string}
+     * @memberof ChallengeQuestDto
+     */
+    'id': string;
+    /**
+     * 퀘스트 제목
+     * @type {string}
+     * @memberof ChallengeQuestDto
+     */
+    'title': string;
+    /**
+     * 퀘스트 설명
+     * @type {string}
+     * @memberof ChallengeQuestDto
+     */
+    'description': string;
+    /**
+     * 목표 완료 개수
+     * @type {number}
+     * @memberof ChallengeQuestDto
+     */
+    'targetCount': number;
+    /**
+     * 현재 완료한 개수 (참여하지 않은 경우 0)
+     * @type {number}
+     * @memberof ChallengeQuestDto
+     */
+    'completedCount': number;
+    /**
+     * 
+     * @type {ChallengeQuestCompleteStampTypeDto}
+     * @memberof ChallengeQuestDto
+     */
+    'completeStampType': ChallengeQuestCompleteStampTypeDto;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ChallengeQuestDto
+     */
+    'completedAt'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ChallengeQuestDto
+     */
+    'startDate'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ChallengeQuestDto
+     */
+    'endDate'?: EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
  * @interface ChallengeRankDto
  */
 export interface ChallengeRankDto {
@@ -528,6 +608,12 @@ export interface ChallengeRankDto {
      * @memberof ChallengeRankDto
      */
     'nickname': string;
+    /**
+     * B2B 챌린지의 경우, 회사 이름.
+     * @type {string}
+     * @memberof ChallengeRankDto
+     */
+    'companyName'?: string;
 }
 /**
  * 
@@ -596,6 +682,25 @@ export interface CompactAccessibilityInfoDto {
 /**
  * 
  * @export
+ * @interface ContributedChallengeInfoDto
+ */
+export interface ContributedChallengeInfoDto {
+    /**
+     * 
+     * @type {ChallengeDto}
+     * @memberof ContributedChallengeInfoDto
+     */
+    'challenge': ChallengeDto;
+    /**
+     * 이번 유저 참여로 인해 달성된 퀘스트 목록.
+     * @type {Array<ChallengeQuestDto>}
+     * @memberof ContributedChallengeInfoDto
+     */
+    'completedQuestsByContribution': Array<ChallengeQuestDto>;
+}
+/**
+ * 
+ * @export
  * @interface CreateAnonymousUserResponseDto
  */
 export interface CreateAnonymousUserResponseDto {
@@ -605,6 +710,12 @@ export interface CreateAnonymousUserResponseDto {
      * @memberof CreateAnonymousUserResponseDto
      */
     'authTokens': AuthTokensDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAnonymousUserResponseDto
+     */
+    'userId': string;
 }
 /**
  * 
@@ -953,6 +1064,18 @@ export interface GetChallengeResponseDto {
      * @memberof GetChallengeResponseDto
      */
     'hasPasscode': boolean;
+    /**
+     * B2B 챌린지인지 (회사명과 참가자명을 입력받을지 결정)
+     * @type {boolean}
+     * @memberof GetChallengeResponseDto
+     */
+    'isB2B': boolean;
+    /**
+     * 챌린지의 퀘스트 목록 (진행 현황 포함)
+     * @type {Array<ChallengeQuestDto>}
+     * @memberof GetChallengeResponseDto
+     */
+    'quests': Array<ChallengeQuestDto>;
 }
 /**
  * 
@@ -1252,6 +1375,25 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
 
 
 /**
+ * B2B 챌린지 참여 시 회사명과 본인의 이름을 입력받는 DTO. 둘 다 존재하거나 둘 다 null이어야 함.
+ * @export
+ * @interface JoinChallengeRequestCompanyJoinInfoDto
+ */
+export interface JoinChallengeRequestCompanyJoinInfoDto {
+    /**
+     * 회사명
+     * @type {string}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'companyName': string;
+    /**
+     * 본인의 이름
+     * @type {string}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'participantName': string;
+}
+/**
  * 
  * @export
  * @interface JoinChallengeRequestDto
@@ -1269,6 +1411,12 @@ export interface JoinChallengeRequestDto {
      * @memberof JoinChallengeRequestDto
      */
     'passcode'?: string;
+    /**
+     * 
+     * @type {JoinChallengeRequestCompanyJoinInfoDto}
+     * @memberof JoinChallengeRequestDto
+     */
+    'companyInfo'?: JoinChallengeRequestCompanyJoinInfoDto;
 }
 /**
  * 
@@ -2148,6 +2296,19 @@ export interface RegisterBuildingAccessibilityRequestDto {
 /**
  * 
  * @export
+ * @interface RegisterBuildingAccessibilityResponseDto
+ */
+export interface RegisterBuildingAccessibilityResponseDto {
+    /**
+     * 이 정보 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterBuildingAccessibilityResponseDto
+     */
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+}
+/**
+ * 
+ * @export
  * @interface RegisterPlaceAccessibilityCommentPost200Response
  */
 export interface RegisterPlaceAccessibilityCommentPost200Response {
@@ -2263,19 +2424,12 @@ export interface RegisterPlaceAccessibilityResponseDto {
      * @memberof RegisterPlaceAccessibilityResponseDto
      */
     'registeredUserOrder': number;
-}
-/**
- * 
- * @export
- * @interface RegisterPlaceReviewPost200Response
- */
-export interface RegisterPlaceReviewPost200Response {
     /**
-     * 
-     * @type {PlaceReviewDto}
-     * @memberof RegisterPlaceReviewPost200Response
+     * 이 정보 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterPlaceAccessibilityResponseDto
      */
-    'placeReview'?: PlaceReviewDto;
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
 }
 /**
  * 
@@ -2337,6 +2491,25 @@ export interface RegisterPlaceReviewRequestDto {
      * @memberof RegisterPlaceReviewRequestDto
      */
     'features'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface RegisterPlaceReviewResponseDto
+ */
+export interface RegisterPlaceReviewResponseDto {
+    /**
+     * 
+     * @type {PlaceReviewDto}
+     * @memberof RegisterPlaceReviewResponseDto
+     */
+    'placeReview'?: PlaceReviewDto;
+    /**
+     * 이 리뷰 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterPlaceReviewResponseDto
+     */
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
 }
 /**
  * 
@@ -5513,7 +5686,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterBuildingAccessibilityResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -5546,7 +5719,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterPlaceReviewPost200Response>> {
+        async registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterPlaceReviewResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerPlaceReviewPost(registerPlaceReviewRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -6040,7 +6213,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: any): AxiosPromise<void> {
+        registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: any): AxiosPromise<RegisterBuildingAccessibilityResponseDto> {
             return localVarFp.registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -6070,7 +6243,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: any): AxiosPromise<RegisterPlaceReviewPost200Response> {
+        registerPlaceReviewPost(registerPlaceReviewRequestDto: RegisterPlaceReviewRequestDto, options?: any): AxiosPromise<RegisterPlaceReviewResponseDto> {
             return localVarFp.registerPlaceReviewPost(registerPlaceReviewRequestDto, options).then((request) => request(axios, basePath));
         },
         /**

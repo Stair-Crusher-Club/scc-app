@@ -15,6 +15,7 @@ import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sectio
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from './modals/RequireBuildingAccessibilityBottomSheet';
@@ -347,6 +348,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           event={event}
           onPressConfirmButton={closeModals}
         />
+
+        <QuestCompletionModal />
       </ScreenLayout>
     </LogParamsProvider>
   );

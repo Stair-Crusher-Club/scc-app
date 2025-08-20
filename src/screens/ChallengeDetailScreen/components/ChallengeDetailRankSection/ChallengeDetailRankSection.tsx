@@ -2,20 +2,25 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {ChallengeRankDto} from '@/generated-sources/openapi';
+import {ChallengeQuestDto, ChallengeRankDto} from '@/generated-sources/openapi';
 
+import ChallengeDetailQuestSection from '../ChallengeDetailQuestSection';
 import MyRank from './MyRank';
 import TopTenRank from './TopTenRank';
 
 interface PropsType {
   ranks: ChallengeRankDto[];
   myRank?: ChallengeRankDto;
+  quests?: ChallengeQuestDto[];
 }
 
-const ChallengeDetailRankSection = ({ranks, myRank}: PropsType) => {
+const ChallengeDetailRankSection = ({ranks, myRank, quests}: PropsType) => {
   return (
     <Container>
       <Separator />
+      {quests && quests?.length > 0 && (
+        <ChallengeDetailQuestSection quests={quests} />
+      )}
       {myRank && <MyRank myRank={myRank} />}
       <TopTenRank ranks={ranks} />
     </Container>
@@ -28,10 +33,10 @@ const Separator = styled.View({
   width: '100%',
   height: 13,
   backgroundColor: color.gray10,
-  marginBottom: 33,
 });
 
 const Container = styled.View({
   width: '100%',
   backgroundColor: 'white',
+  gap: 36,
 });

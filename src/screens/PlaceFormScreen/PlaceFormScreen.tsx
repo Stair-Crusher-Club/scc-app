@@ -1,4 +1,4 @@
-import {useAtom} from 'jotai';
+import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
@@ -21,13 +21,14 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
+import {ScreenLayout} from '@/components/ScreenLayout';
+import {pushItemsAtom} from '../SearchScreen/atoms/quest';
 import * as S from './PlaceFormScreen.style';
 import CommentsSection from './sections/CommentsSection';
 import EnteranceSection from './sections/EnteranceSection';
 import FloorSection, {FloorType} from './sections/FloorSection';
 import HeaderSection from './sections/HeaderSection';
-import {ScreenLayout} from '@/components/ScreenLayout';
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface PlaceFormScreenParams {
   place: Place;
@@ -55,6 +56,7 @@ export default function PlaceFormScreen({
   const {place, building} = route.params;
   const form = useForm<FormValues>();
   const [loading, setLoading] = useAtom(loadingState);
+  const pushItems = useSetAtom(pushItemsAtom);
 
   async function submit() {
     const isValid = await form.trigger();
@@ -102,10 +104,16 @@ export default function PlaceFormScreen({
         setLoading(new Map(loading).set(PlaceFormScreen.name, false));
 
         // 장소 정보 등록에 실패, 이후 과정을 진행하지 않음
-        if (!registered) {
+        if (!registered.success) {
           return;
         }
 
+        if (registered.data) {
+          pushItems(registered.data);
+        }
+
+        // PlaceForm 을 없애고 PlaceDetail로 이동
+        navigation.pop(1);
         // PlaceDetail에서 장소 등록 완료 모달을 열어주기
         navigation.replace('PlaceDetail', {
           placeInfo: {
@@ -153,7 +161,7 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
       values.enterancePhotos,
     );
     try {
-      await api.registerPlaceAccessibilityPost({
+      const res = await api.registerPlaceAccessibilityPost({
         placeId,
         floors: getFloors(values),
         isStairOnlyOption: values.isStairOnlyOption,
@@ -164,14 +172,27 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
         comment: values.comment || undefined,
         stairHeightLevel: values.stairHeightLevel,
       });
-      return true;
+
+      return {
+        success: true,
+        data: res.data.contributedChallengeInfos?.flatMap(info =>
+          info.completedQuestsByContribution.map(quest => ({
+            challengeId: info.challenge.id,
+            type: quest.completeStampType,
+          })),
+        ),
+      };
     } catch (error: any) {
       ToastUtils.showOnApiError(error);
-      return false;
+      return {
+        success: false,
+      };
     }
   } catch (e) {
     ToastUtils.show('사진 업로드를 실패했습니다.');
-    return false;
+    return {
+      success: false,
+    };
   }
 }
 

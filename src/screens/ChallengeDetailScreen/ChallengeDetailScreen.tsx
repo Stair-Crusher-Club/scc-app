@@ -17,10 +17,12 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import * as S from './ChallengeDetailScreen.style';
+import ChallengeDetailCompanyModal from './components/ChallengeDetailCompanyModal';
 import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
 import ChallengeDetailPasscodeBottomSheet from './components/ChallengeDetailPasscodeBottomSheet';
 import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/ChallengeDetailRankSection';
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
+import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -31,8 +33,11 @@ const ChallengeDetailScreen = ({
   navigation,
 }: ScreenProps<'ChallengeDetail'>) => {
   const {challengeId} = route.params;
+
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
+  const [showCompanyModal, setShowCompanyModal] = useState(false);
+  const [passcode, setPasscode] = useState<string>();
 
   const {data} = useQuery({
     queryKey: ['ChallengeDetail', challengeId],
@@ -44,6 +49,7 @@ const ChallengeDetailScreen = ({
   const myRank = data?.myRank;
   const hasJoined = data?.hasJoined ?? false;
   const hasPasscode = data?.hasPasscode ?? false;
+  const isB2B = data?.isB2B ?? false;
 
   const joinChallenge = usePost<
     JoinChallengeRequestDto,
@@ -82,7 +88,11 @@ const ChallengeDetailScreen = ({
               </>
             )}
             {!isEmpty(ranks) && (
-              <ChallengeDetailRankSection ranks={ranks} myRank={myRank} />
+              <ChallengeDetailRankSection
+                ranks={ranks}
+                myRank={myRank}
+                quests={data?.quests}
+              />
             )}
           </S.Contents>
         </S.Container>
@@ -105,7 +115,7 @@ const ChallengeDetailScreen = ({
               buttonColor="brandColor"
               fontFamily={font.pretendardBold}
               onPress={() => {
-                if (hasPasscode) {
+                if (hasPasscode || isB2B) {
                   setShowPasscodeBottomSheet(true);
                 } else {
                   joinChallenge.mutate({challengeId});
@@ -114,16 +124,40 @@ const ChallengeDetailScreen = ({
             />
           )}
         </S.ButtonContainer>
+        <ChallengeDetailCompanyModal
+          isVisible={showCompanyModal}
+          onPressCloseButton={() => {
+            setShowCompanyModal(false);
+            setPasscode(undefined);
+          }}
+          onPressConfirmButton={(companyName, participantName) => {
+            setShowCompanyModal(false);
+            joinChallenge.mutate({
+              challengeId,
+              passcode,
+              companyInfo: {
+                companyName,
+                participantName,
+              },
+            });
+          }}
+        />
         <ChallengeDetailPasscodeBottomSheet
           isVisible={showPasscodeBottomSheet}
           onPressCloseButton={() => {
             setShowPasscodeBottomSheet(false);
           }}
-          onPressConfirmButton={passcode => {
+          onPressConfirmButton={_passcode => {
             setShowPasscodeBottomSheet(false);
-            joinChallenge.mutate({challengeId, passcode});
+            if (isB2B) {
+              setShowCompanyModal(true);
+              setPasscode(_passcode);
+              return;
+            }
+            joinChallenge.mutate({challengeId, passcode: _passcode});
           }}
         />
+        <ChallengeWelcomeModal visible={joinChallenge.isSuccess && isB2B} />
       </ScreenLayout>
     </LogParamsProvider>
   );
