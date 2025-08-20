@@ -1,6 +1,6 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M8.00001 4L8 21" stroke="#3F3F45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M18 10C18 8.4 16.6667 5.66667 16 4L16 13C16.6667 13 18 11.6 18 10Z" fill="#3F3F45"/>
-<path d="M16 21L16 13M16 13L16 4C16.6667 5.66667 18 8.4 18 10C18 11.6 16.6667 13 16 13Z" stroke="#3F3F45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M5.49996 4C5.49996 7 5.00026 11 8.00009 11C11 11 10.5 7 10.5 4.00003" stroke="#3F3F45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.4866 3.52051L12.4866 14.6477" stroke="currentColor" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.1606 3.53442C10.1606 5.75637 9.69572 8.71899 12.4867 8.71899C15.2777 8.71899 14.8125 5.75637 14.8125 3.53445" stroke="currentColor" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.51172 8.7937L5.51172 14.6479" stroke="currentColor" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
+<ellipse cx="5.5119" cy="6.03569" rx="2.35345" ry="2.68339" fill="currentColor" stroke="currentColor" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
