@@ -74,6 +74,7 @@ export default function FilterModal() {
         setFilterModalState(null);
       }}>
       <ScrollView
+        bounces={false}
         style={{
           maxHeight: (height * 80) / 100,
         }}
