@@ -21,15 +21,14 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
 import * as S from './PlaceFormScreen.style';
 import CommentsSection from './sections/CommentsSection';
 import EnteranceSection from './sections/EnteranceSection';
 import FloorSection, {FloorType} from './sections/FloorSection';
 import HeaderSection from './sections/HeaderSection';
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface PlaceFormScreenParams {
   place: Place;
