@@ -1,5 +1,6 @@
 import {FlashList} from '@shopify/flash-list';
 import React from 'react';
+import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -8,6 +9,10 @@ import SearchHistories from '@/screens/SearchScreen/components/SearchHistories';
 import SearchItemSummary from '@/screens/SearchScreen/components/SearchItemSummary';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
+
+import SearchExplore from './SearchExplore';
+import SearchRecommendKeyword from './SearchRecommendKeyword';
+import SearchRecommendPlace from './SearchRecommendPlace';
 
 export default function SearchSummaryView({
   searchResults,
@@ -26,9 +31,14 @@ export default function SearchSummaryView({
         <SearchLoading />
       ) : searchResults === null ? (
         <>
-          <CurationWrapper>
-            <SearchHistories onPressHistory={onQueryUpdate} />
-          </CurationWrapper>
+          <ScrollView>
+            <SearchRecommendContainer>
+              <SearchHistories onPressHistory={onQueryUpdate} />
+              <SearchRecommendPlace onPressKeyword={onQueryUpdate} />
+              <SearchRecommendKeyword onPressKeyword={onQueryUpdate} />
+            </SearchRecommendContainer>
+            <SearchExplore />
+          </ScrollView>
         </>
       ) : searchResults.length === 0 ? (
         <SearchNoResult />
@@ -55,6 +65,12 @@ export default function SearchSummaryView({
 
 const Container = styled.View`
   flex: 1;
+  background-color: #ebebef;
+`;
+
+const SearchRecommendContainer = styled.View`
+  padding: 16px;
+  gap: 32px;
   background-color: ${color.white};
 `;
 
@@ -65,11 +81,4 @@ const ItemWrapper = styled.View`
 const ListWrapper = styled.View`
   padding: 20px;
   flex: 1;
-`;
-
-const CurationWrapper = styled.View`
-  padding: 20px;
-  flex-direction: column;
-  gap: 30px;
-  align-items: flex-start;
 `;

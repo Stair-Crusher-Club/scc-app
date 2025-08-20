@@ -1,9 +1,9 @@
 import {useAtom} from 'jotai';
 import React from 'react';
-import {TouchableOpacity} from 'react-native';
+import {ScrollView, TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
-import XIcon from '@/assets/icon/ic_x.svg';
+import CloseIcon from '@/assets/icon/close.svg';
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -17,64 +17,87 @@ export default function SearchHistories({
   if (searchHistories === null || searchHistories.length === 0) {
     return null;
   }
+
   return (
     <Container>
-      <TitleText>최근 검색어</TitleText>
-      <ItemList>
+      <TitleWrap>
+        <TitleText>최근 검색어</TitleText>
+        <TouchableOpacity onPress={() => setSearchHistories([])}>
+          <ClearAllText>모두삭제</ClearAllText>
+        </TouchableOpacity>
+      </TitleWrap>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{overflow: 'visible'}}
+        contentContainerStyle={{
+          flexDirection: 'row',
+          gap: 6,
+          flexWrap: 'nowrap',
+        }}>
         {searchHistories.map(search => (
           <ItemBox key={search}>
-            <TouchableOpacity
-              style={{flexGrow: 1, paddingVertical: 10}}
-              onPress={() => onClickSearch(search)}>
+            <TouchableOpacity onPress={() => onClickSearch(search)}>
               <ItemText numberOfLines={1}>{search}</ItemText>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={{padding: 10}}
+            <RemoveButton
               onPress={() => {
                 setSearchHistories(
                   searchHistories.filter(s => s !== search) ?? [],
                 );
               }}>
-              <XIcon color={color.gray70} width={12} height={12} />
-            </TouchableOpacity>
+              <CloseIcon color={color.gray80} width={12} height={12} />
+            </RemoveButton>
           </ItemBox>
         ))}
-      </ItemList>
+      </ScrollView>
     </Container>
   );
 }
 
 const Container = styled.View`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 15px;
+  gap: 12px;
+`;
+
+const TitleWrap = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const TitleText = styled.Text`
-  font-size: 18px;
+  font-size: 14px;
   font-family: ${() => font.pretendardBold};
   color: ${() => color.black};
 `;
 
-const ItemList = styled.View`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+const ClearAllText = styled.Text`
+  font-size: 13px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${() => color.gray70};
 `;
 
 const ItemBox = styled.View`
-  width: 100%;
-  display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  justify-content: center;
+  border-width: 1px;
+  border-color: ${() => color.gray20};
+  border-radius: 100px;
+  padding-vertical: 7px;
+  padding-left: 12px;
+  padding-right: 8px;
+  background-color: ${() => color.white};
+  height: 36px;
 `;
 
 const ItemText = styled.Text`
-  font-size: 16px;
+  font-size: 15px;
   font-family: ${() => font.pretendardRegular};
   color: ${() => color.black};
+`;
+
+const RemoveButton = styled.TouchableOpacity`
+  padding: 4px;
 `;

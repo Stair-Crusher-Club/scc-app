@@ -3,7 +3,7 @@ import {
   getMessaging,
 } from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useAtomValue, useSetAtom} from 'jotai';
 import Lottie from 'lottie-react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
@@ -39,11 +39,11 @@ import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import Logger from '@/logging/Logger';
 import ChallengeUpcomingBottomSheet from './ChallengeUpcomingBottomSheet';
 import * as S from './HomeScreen.style';
 import BannerSection from './sections/BannerSection';
 import SearchSection from './sections/SearchSection';
-import Logger from '@/logging/Logger';
 
 export interface HomeScreenParams {}
 
@@ -206,6 +206,40 @@ const HomeScreen = ({navigation}: any) => {
       };
     }, []),
   );
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // 추천 키워드
+    function prefetchListSearchPlacePresets() {
+      queryClient.prefetchQuery({
+        queryKey: ['ListSearchPlacePresets'],
+        queryFn: async () =>
+          (await api.listSearchPlacePresetsPost({}))?.data?.keywordPresets,
+      });
+    }
+
+    // 주변 정복 상태
+    async function prefetchNearbyAccessibilityStatus() {
+      const currentPosition = await GeolocationUtils.getCurrentPosition();
+      queryClient.prefetchQuery({
+        queryKey: ['NearbyAccessibilityStatus'],
+        queryFn: async () =>
+          (
+            await api.getNearbyAccessibilityStatusPost({
+              currentLocation: {
+                lat: currentPosition.coords.latitude,
+                lng: currentPosition.coords.longitude,
+              },
+              distanceMetersLimit: 500,
+            })
+          )?.data?.conqueredCount ?? 0,
+      });
+    }
+
+    prefetchListSearchPlacePresets();
+    prefetchNearbyAccessibilityStatus();
+  }, []);
 
   return (
     <>
