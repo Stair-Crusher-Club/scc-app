@@ -24,8 +24,8 @@
 		F85068312CF32E060002762A /* Pretendard-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068272CF32E060002762A /* Pretendard-Medium.ttf */; };
 		F85068322CF32E060002762A /* Pretendard-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068282CF32E060002762A /* Pretendard-Regular.ttf */; };
 		F8AB00632E28BF7E00CFCA09 /* RNTSccMarkerImageService.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB00622E28BF7E00CFCA09 /* RNTSccMarkerImageService.m */; };
-		F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapManager.mm */; };
-		F8E0E5ED2E25501D006AFA3F /* RNTSccMapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EC2E25501D006AFA3F /* RNTSccMapView.mm */; };
+		F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapView.mm */; };
+		F8E0E5ED2E25501D006AFA3F /* RNTSccMapViewImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5EC2E25501D006AFA3F /* RNTSccMapViewImpl.mm */; };
 		F8E0E5F12E2550EB006AFA3F /* RNTSccMarkerData.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E0E5F02E2550EB006AFA3F /* RNTSccMarkerData.m */; };
 /* End PBXBuildFile section */
 
@@ -74,10 +74,10 @@
 		F850682A2CF32E060002762A /* Pretendard-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.ttf"; sourceTree = "<group>"; };
 		F8AB00622E28BF7E00CFCA09 /* RNTSccMarkerImageService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RNTSccMarkerImageService.m; path = sccReactNative/RNTSccMarkerImageService.m; sourceTree = "<group>"; };
 		F8AB00642E28BF9100CFCA09 /* RNTSccMarkerImageService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMarkerImageService.h; path = sccReactNative/RNTSccMarkerImageService.h; sourceTree = "<group>"; };
-		F8E0E5E92E24DD9F006AFA3F /* RNTSccMapManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapManager.h; path = sccReactNative/RNTSccMapManager.h; sourceTree = "<group>"; };
-		F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapManager.mm; path = sccReactNative/RNTSccMapManager.mm; sourceTree = "<group>"; };
-		F8E0E5EC2E25501D006AFA3F /* RNTSccMapView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapView.mm; path = sccReactNative/RNTSccMapView.mm; sourceTree = "<group>"; };
-		F8E0E5EE2E255038006AFA3F /* RNTSccMapView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapView.h; path = sccReactNative/RNTSccMapView.h; sourceTree = "<group>"; };
+		F8E0E5E92E24DD9F006AFA3F /* RNTSccMapView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapView.h; path = sccReactNative/RNTSccMapView.h; sourceTree = "<group>"; };
+		F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapView.mm; path = sccReactNative/RNTSccMapView.mm; sourceTree = "<group>"; };
+		F8E0E5EC2E25501D006AFA3F /* RNTSccMapViewImpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RNTSccMapViewImpl.mm; path = sccReactNative/RNTSccMapViewImpl.mm; sourceTree = "<group>"; };
+		F8E0E5EE2E255038006AFA3F /* RNTSccMapViewImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMapViewImpl.h; path = sccReactNative/RNTSccMapViewImpl.h; sourceTree = "<group>"; };
 		F8E0E5EF2E2550DC006AFA3F /* RNTSccMarkerData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNTSccMarkerData.h; path = sccReactNative/RNTSccMarkerData.h; sourceTree = "<group>"; };
 		F8E0E5F02E2550EB006AFA3F /* RNTSccMarkerData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RNTSccMarkerData.m; path = sccReactNative/RNTSccMarkerData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -129,10 +129,10 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapManager.mm */,
-				F8E0E5E92E24DD9F006AFA3F /* RNTSccMapManager.h */,
-				F8E0E5EE2E255038006AFA3F /* RNTSccMapView.h */,
-				F8E0E5EC2E25501D006AFA3F /* RNTSccMapView.mm */,
+				F8E0E5EA2E24DDD9006AFA3F /* RNTSccMapView.mm */,
+				F8E0E5E92E24DD9F006AFA3F /* RNTSccMapView.h */,
+				F8E0E5EE2E255038006AFA3F /* RNTSccMapViewImpl.h */,
+				F8E0E5EC2E25501D006AFA3F /* RNTSccMapViewImpl.mm */,
 				F8E0E5EF2E2550DC006AFA3F /* RNTSccMarkerData.h */,
 				F8E0E5F02E2550EB006AFA3F /* RNTSccMarkerData.m */,
 				F8AB00622E28BF7E00CFCA09 /* RNTSccMarkerImageService.m */,
@@ -536,9 +536,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8E0E5ED2E25501D006AFA3F /* RNTSccMapView.mm in Sources */,
+				F8E0E5ED2E25501D006AFA3F /* RNTSccMapViewImpl.mm in Sources */,
 				F8AB00632E28BF7E00CFCA09 /* RNTSccMarkerImageService.m in Sources */,
-				F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapManager.mm in Sources */,
+				F8E0E5EB2E24DDD9006AFA3F /* RNTSccMapView.mm in Sources */,
 				F8E0E5F12E2550EB006AFA3F /* RNTSccMarkerData.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,

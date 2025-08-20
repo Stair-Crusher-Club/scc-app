@@ -37,6 +37,7 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     private var baseTopMapPadding: Int = 0
     private var baseBottomMapPadding: Int = 0
     private var markers: List<Pair<Marker, MarkerData>> = emptyList()
+    private var locationTrackingMode: LocationTrackingMode? = null
 
     init {
         Marker.DEFAULT_ANCHOR
@@ -75,10 +76,17 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
             reactContext.currentActivity?.let { activity ->
                 it.locationSource = FusedLocationSource(activity, 100)
             }
-            it.locationTrackingMode = LocationTrackingMode.NoFollow
+            it.locationTrackingMode = locationTrackingMode ?: LocationTrackingMode.NoFollow
             initialRegion?.let { region ->
                 it.moveCamera(CameraUpdate.fitBounds(region))
             }
+            applyBaseMapPadding(
+                baseLeftMapPadding,
+                baseTopMapPadding,
+                baseRightMapPadding,
+                baseBottomMapPadding
+            )
+            setMarkers(markers.map { it.second })
         }
     }
 
@@ -90,12 +98,12 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     }
 
     fun applyBaseMapPadding(left: Int, top: Int, right: Int, bottom: Int) {
-        val m = map ?: return
-        m.setContentPadding(left, top, right, bottom)
         baseLeftMapPadding = left
         baseRightMapPadding = right
         baseTopMapPadding = top
         baseBottomMapPadding = bottom
+        val m = map ?: return
+        m.setContentPadding(left, top, right, bottom)
     }
 
     fun setMarkers(markerDatas: List<MarkerData>) {
@@ -147,11 +155,15 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     }
 
     fun setPositionMode(mode: String) {
-        val m = map ?: return
-        when (mode) {
-            "normal" -> m.locationTrackingMode = LocationTrackingMode.NoFollow
-            "direction" -> m.locationTrackingMode = LocationTrackingMode.Follow
-            "compass" -> m.locationTrackingMode = LocationTrackingMode.Face
+        val parsedMode = when (mode) {
+            "normal" -> LocationTrackingMode.NoFollow
+            "direction" -> LocationTrackingMode.Follow
+            "compass" -> LocationTrackingMode.Face
+            else -> LocationTrackingMode.NoFollow
+        }
+        locationTrackingMode = parsedMode
+        map?.let {
+            it.locationTrackingMode = parsedMode
         }
     }
 

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {ScrollView} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ListChallengesItemDto} from '@/generated-sources/openapi';
 
 import ChallengeUpcomingBottomSheet from '../HomeScreen/ChallengeUpcomingBottomSheet';
@@ -16,13 +16,13 @@ const ChallengeScreen = () => {
 
   return (
     <ScrollView style={{backgroundColor: 'white'}}>
-      <SafeAreaView edges={['top']}>
+      <SafeAreaWrapper edges={['top']}>
         <ChallengeSection
           onPressUpcomingChallenge={challenge => {
             setSelectedUpcomingChallenge(challenge);
           }}
         />
-      </SafeAreaView>
+      </SafeAreaWrapper>
       <ChallengeUpcomingBottomSheet
         selectedUpcomingChallenge={selectedUpcomingChallenge}
         onPressConfirmButton={() => {

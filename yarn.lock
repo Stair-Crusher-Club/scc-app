@@ -10970,9 +10970,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lottie-react-native@npm:^7.2.3":
-  version: 7.2.3
-  resolution: "lottie-react-native@npm:7.2.3"
+"lottie-react-native@npm:^7.2.4":
+  version: 7.3.2
+  resolution: "lottie-react-native@npm:7.3.2"
   peerDependencies:
     "@lottiefiles/dotlottie-react": ^0.6.5
     react: "*"
@@ -10983,7 +10983,7 @@ __metadata:
       optional: true
     react-native-windows:
       optional: true
-  checksum: 10c0/5e26d4e33e06f7ac5e214cd1a2d43109a7e48273142d9056849c2ced07c0b58731b9aedb25afc80567d6bbd38a6c01145a6f8f44a3af75b507c1a243e737624b
+  checksum: 10c0/4254da5601e8e44df28f736608421d71b34a72d0cba11b1c174699bd6d6ef7a71b06a4de77eec60127d5cbc0d0ddf5eb07f6db33fa259d42936b138c67b4b72a
   languageName: node
   linkType: hard
 
@@ -13334,7 +13334,7 @@ __metadata:
     jest: "npm:^29.6.3"
     jotai: "npm:^2.12.4"
     lodash: "npm:^4.17.21"
-    lottie-react-native: "npm:^7.2.3"
+    lottie-react-native: "npm:^7.2.4"
     prettier: "npm:3.6.2"
     react: "npm:19.1.0"
     react-dom: "npm:^19.1.0"

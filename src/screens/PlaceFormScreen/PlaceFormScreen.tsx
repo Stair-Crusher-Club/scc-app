@@ -29,6 +29,7 @@ import CommentsSection from './sections/CommentsSection';
 import EnteranceSection from './sections/EnteranceSection';
 import FloorSection, {FloorType} from './sections/FloorSection';
 import HeaderSection from './sections/HeaderSection';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface PlaceFormScreenParams {
   place: Place;
@@ -130,7 +131,7 @@ export default function PlaceFormScreen({
     <LogParamsProvider params={{place_id: place.id}}>
       <ScreenLayout isHeaderVisible={true}>
         <ScrollView>
-          <SafeAreaView edges={['bottom']}>
+          <SafeAreaWrapper edges={['bottom']}>
             <FormProvider {...form}>
               <HeaderSection place={place} />
               <S.SectionSeparator />
@@ -147,7 +148,7 @@ export default function PlaceFormScreen({
                 />
               </S.SubmitButtonWrapper>
             </FormProvider>
-          </SafeAreaView>
+          </SafeAreaWrapper>
         </ScrollView>
       </ScreenLayout>
     </LogParamsProvider>

@@ -2,6 +2,15 @@ import React, {forwardRef} from 'react';
 import {View, TextInput} from 'react-native';
 import {match, Pattern} from 'ts-pattern';
 
+// Escapes &, <, >, ", '
+const escapeHtml = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 import SignupInput from '@/screens/SignupScreen/components/SignupInput';
 import {UserFormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
@@ -31,7 +40,9 @@ const UserNicknameForm = forwardRef<TextInput, UserNicknameFormProps>(
               .with('VALID', () =>
                 match(isFocused)
                   .with(true, () => '사용 가능한 닉네임입니다.')
-                  .otherwise(() => `'${value}' <b>크러셔님 안녕하세요!</b>`),
+                  .otherwise(
+                    () => `'<b>${escapeHtml(value)}</b>' 크러셔님 안녕하세요!`,
+                  ),
               )
               .with('PROGRESS', () => '닉네임 확인 중...')
               .with({errorMessage: Pattern.string}, error => error.errorMessage)

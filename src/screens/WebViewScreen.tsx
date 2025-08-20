@@ -1,11 +1,11 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import React, {useCallback, useRef, useState} from 'react';
 import {PixelRatio, Pressable, StyleSheet, Text, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import {CloseAppBar} from '@/components/AppBar';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -44,7 +44,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   useBackHandler(handleBackPress);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaWrapper style={styles.safeArea}>
       {headerVariant === 'appbar' ? (
         <CloseAppBar
           title={title}
@@ -69,7 +69,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           setCanGoBack(navState.canGoBack);
         }}
       />
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 };
 
