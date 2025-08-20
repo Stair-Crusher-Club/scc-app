@@ -10,7 +10,7 @@ import PharmacyIcon from '@/assets/icon/ic_pharmacy.svg';
 import PharmacyOnIcon from '@/assets/icon/ic_pharmacy_on.svg';
 import RestaurantIcon from '@/assets/icon/ic_restaurant.svg';
 import RestaurantOnIcon from '@/assets/icon/ic_restaurant_on.svg';
-import {color} from '@/constant/color';
+import {color as colors} from '@/constant/color';
 
 export const Icons = {
   CAFE: [CafeIcon, CafeOnIcon],
@@ -20,6 +20,26 @@ export const Icons = {
   PHARMACY: [PharmacyIcon, PharmacyOnIcon],
 };
 
-export default function SearchCategoryIcon({icon}: {icon: keyof typeof Icons}) {
-  return <>{React.createElement(Icons[icon][0], {pointColor: color.gray90})}</>;
+interface SearchCategoryIconProps {
+  icon: keyof typeof Icons;
+  color?: string;
+  size?: number;
+  isOn?: boolean;
+}
+
+export default function SearchCategoryIcon({
+  icon,
+  color,
+  size = 18,
+  isOn = false,
+}: SearchCategoryIconProps) {
+  return (
+    <>
+      {React.createElement(isOn ? Icons[icon][1] : Icons[icon][0], {
+        color: color ?? colors.gray90,
+        width: size,
+        height: size,
+      })}
+    </>
+  );
 }
