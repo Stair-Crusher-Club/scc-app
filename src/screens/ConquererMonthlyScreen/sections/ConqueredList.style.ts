@@ -18,7 +18,7 @@ export const MonthlySummary = styled.View({
 
 export const Text = styled.Text({
   fontSize: 16,
-  lineHeight: '26px',
+  lineHeight: 26,
   fontFamily: font.pretendardRegular,
   color: '#1e1e1e',
 });
@@ -45,7 +45,7 @@ export const PlaceRow = styled.Pressable({
 
 export const PlaceName = styled.Text({
   fontSize: 16,
-  lineHeight: '26px',
+  lineHeight: 26,
   fontFamily: font.pretendardMedium,
 });
 export const PlaceAddress = styled.Text({

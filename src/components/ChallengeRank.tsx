@@ -82,7 +82,7 @@ const UserName = styled.Text({
   color: color.black,
   fontSize: 16,
   fontFamily: font.pretendardMedium,
-  lineHeight: '26px',
+  lineHeight: 26,
 });
 
 const Contributions = styled.Text<{shouldShowIcon?: boolean}>(props => ({

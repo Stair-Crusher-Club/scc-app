@@ -62,7 +62,7 @@ export const ItemTitle = styled.Text({
 export const ItemValue = styled.Text({
   fontFamily: font.pretendardBold,
   fontSize: 24,
-  lineHeight: '26px',
+  lineHeight: 26,
   color: color.black,
   textAlign: 'center',
 });

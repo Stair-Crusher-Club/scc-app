@@ -40,7 +40,7 @@ export const EmptyType = styled.Text({
 export const Title = styled.Text({
   fontFamily: font.pretendardSemibold,
   fontSize: 16,
-  lineHeight: '26px',
+  lineHeight: 26,
   color: color.gray90,
 });
 

@@ -8,11 +8,7 @@ export const Container = styled.View({
   flex: 1,
   marginTop: 50,
   marginHorizontal: 25,
-  ...Platform.select({
-    android: {
-      paddingBottom: 20,
-    },
-  }),
+  paddingBottom: Platform.OS === 'android' ? 20 : 0,
 });
 
 export const CoverImage = styled.Image({

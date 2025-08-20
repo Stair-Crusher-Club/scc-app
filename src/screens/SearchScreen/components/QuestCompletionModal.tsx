@@ -30,11 +30,6 @@ const stampLottie: Record<
   REVIEW: require('@/assets/animations/review.lottie'),
 };
 
-export type QueueItem = {
-  challengeId: string;
-  type: ChallengeQuestCompleteStampTypeDto;
-};
-
 export default function QuestCompletionModal() {
   const navigation = useNavigation();
 
