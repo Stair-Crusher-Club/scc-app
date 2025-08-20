@@ -32,7 +32,7 @@ export default function SearchExplore() {
         onPress: () => {
           navigation.navigate('Webview', {
             fixedTitle: '정보 등록/조회 가이드',
-            url: 'https://admin.staircrusher.club/public/guide?tab=resgier',
+            url: 'https://admin.staircrusher.club/public/guide?tab=register',
             headerVariant: 'navigation',
           });
         },
