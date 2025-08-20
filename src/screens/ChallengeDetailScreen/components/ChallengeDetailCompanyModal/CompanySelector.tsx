@@ -11,8 +11,6 @@ interface Props {
   onClose: () => void;
 }
 
-const data = ['신한 EZ 손해보험', '신한은행', '신한생명'];
-
 export default function CompanySelector({value, onChange, onClose}: Props) {
   const renderItem = ({item}: {item: string}) => (
     <YearButton
@@ -38,7 +36,7 @@ export default function CompanySelector({value, onChange, onClose}: Props) {
       </Header>
       <ListContainer>
         <FlashList
-          data={data}
+          data={[]} // TODO
           renderItem={renderItem}
           estimatedItemSize={50}
           keyExtractor={item => item}
