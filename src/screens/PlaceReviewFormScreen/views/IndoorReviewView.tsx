@@ -3,7 +3,7 @@ import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
-import {ScrollView} from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
@@ -118,7 +118,7 @@ export default function IndoorReviewView({
 
   return (
     <FormProvider {...form}>
-      <ScrollView
+      <KeyboardAwareScrollView
         stickyHeaderIndices={[0]}
         contentContainerStyle={{flexGrow: 1}}>
         <PlaceInfoSection name={place?.name} address={place?.address} />
@@ -134,7 +134,7 @@ export default function IndoorReviewView({
           onSave={form.handleSubmit(onValid)}
           onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </FormProvider>
   );
 }
