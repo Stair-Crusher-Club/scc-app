@@ -320,6 +320,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               scrollContainer={scrollView}
               scrollEventRef={scrollEventRef}
               menus={navigationMenus}
+              placeName={place.name}
             />
             {visibleSections.map((section, index) => (
               <React.Fragment key={section.id}>

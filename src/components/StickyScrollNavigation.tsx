@@ -3,21 +3,32 @@ import {
   LayoutRectangle,
   NativeScrollEvent,
   ScrollView,
+  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
+import BackIcon from '@/assets/icon/ic_back.svg';
+
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
+import useNavigation from '@/navigation/useNavigation';
 import * as S from './StickyScrollNavigation.style';
 
 interface Props {
   scrollContainer: React.RefObject<ScrollView | null>;
   scrollEventRef: React.RefObject<NativeScrollEvent | null>;
   menus: {label: string; y: number}[];
+  placeName: string;
 }
 export default function ScrollNavigation({
   scrollContainer,
   scrollEventRef,
   menus,
+  placeName,
 }: Props) {
+  const navigation = useNavigation();
+
   const [scrollY, setScrollY] = useState(0);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   useEffect(() => {
@@ -56,6 +67,8 @@ export default function ScrollNavigation({
     });
   }
 
+  const showTitle = edgeBackingTop > 0;
+
   return (
     <View
       onLayout={e => {
@@ -73,9 +86,34 @@ export default function ScrollNavigation({
           left: 0,
           right: 0,
           height: edgeBackingTop,
-          backgroundColor: 'white',
+          backgroundColor: color.white,
         }}
       />
+      <View
+        style={{
+          backgroundColor: color.white,
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          flexDirection: 'row',
+          gap: 18,
+          alignItems: 'center',
+          height: showTitle ? 48 : 0,
+          opacity: showTitle ? 1 : 0,
+        }}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{padding: 2}}>
+          <BackIcon color={color.black} />
+        </TouchableOpacity>
+        <Text
+          style={{
+            fontSize: 20,
+            lineHeight: 28,
+            fontFamily: font.pretendardMedium,
+          }}>
+          {placeName}
+        </Text>
+      </View>
       <S.StickyScrollNavigation show={true}>
         {menus.map((menu, index) => (
           <S.Menu
