@@ -31,7 +31,7 @@ export default function SearchSummaryView({
         <SearchLoading />
       ) : searchResults === null ? (
         <>
-          <ScrollView>
+          <ScrollView bounces={false}>
             <SearchRecommendContainer>
               <SearchHistories onPressHistory={onQueryUpdate} />
               <SearchRecommendPlace onPressKeyword={onQueryUpdate} />

@@ -3,7 +3,6 @@ import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
-import {ScrollView} from 'react-native';
 
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
@@ -24,6 +23,7 @@ import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import PlaceReviewFormScreen from '..';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import ToiletSection from '../sections/ToiletSection';
@@ -98,7 +98,7 @@ export default function ToiletReviewView({
 
   return (
     <FormProvider {...form}>
-      <ScrollView
+      <KeyboardAwareScrollView
         stickyHeaderIndices={[0]}
         contentContainerStyle={{flexGrow: 1}}>
         <PlaceInfoSection name={place?.name} address={place?.address} />
@@ -108,7 +108,7 @@ export default function ToiletReviewView({
         <SectionSeparator />
 
         <ToiletSection onSave={form.handleSubmit(onValid)} />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </FormProvider>
   );
 }

@@ -1,7 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useRef} from 'react';
-import {Image, Pressable, useWindowDimensions} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {Image, Pressable, useWindowDimensions, View} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
 import {
@@ -29,6 +29,8 @@ const PlaceDetailCoverImage = ({
   placeIndoorReviews,
   toiletReviews,
 }: Props) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const placeImages = (accessibility?.placeAccessibility?.images ?? []).map(
     image => ({
@@ -92,6 +94,7 @@ const PlaceDetailCoverImage = ({
         .map(image => image.url)
         .filter(image => image !== undefined),
       index: index,
+      types: thumbnailImages.map(t => t.type),
     });
   };
 
@@ -103,14 +106,6 @@ const PlaceDetailCoverImage = ({
             resizeMethod="resize"
             source={{uri: item.thumbnailUrl ?? item.url}}
           />
-          <S.ImageType>
-            <S.SlideText>{item.type}</S.SlideText>
-          </S.ImageType>
-          <S.SlideIndex>
-            <S.SlideText>{`${index + 1}/${
-              thumbnailImages.length
-            }`}</S.SlideText>
-          </S.SlideIndex>
         </Pressable>
       </LogClick>
     );
@@ -126,17 +121,28 @@ const PlaceDetailCoverImage = ({
           style={{width: '100%', height: '100%'}}
         />
       ) : (
-        <Carousel
-          data={thumbnailImages}
-          width={windowWidth}
-          loop
-          renderItem={renderItem}
-          onConfigurePanGesture={gestureChain => {
-            gestureChain.activeOffsetX([-10, 10]);
-          }}
-          autoPlay={true}
-          autoPlayInterval={5000}
-        />
+        <>
+          <Carousel
+            data={thumbnailImages}
+            width={windowWidth}
+            loop
+            renderItem={renderItem}
+            onConfigurePanGesture={gestureChain => {
+              gestureChain.activeOffsetX([-10, 10]);
+            }}
+            onScrollEnd={setCurrentIndex}
+            autoPlay={true}
+            autoPlayInterval={5000}
+          />
+          <View>
+            <S.ImageType>
+              <S.SlideText>{thumbnailImages[currentIndex].type}</S.SlideText>
+            </S.ImageType>
+            <S.SlideIndex>
+              <S.SlideText>{`${currentIndex + 1}/${thumbnailImages.length}`}</S.SlideText>
+            </S.SlideIndex>
+          </View>
+        </>
       )}
     </S.CoverImageContainer>
   );
