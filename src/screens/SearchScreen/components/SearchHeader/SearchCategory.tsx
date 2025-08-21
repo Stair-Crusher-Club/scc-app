@@ -24,7 +24,7 @@ export default function SearchCategory({
         elementName="place_search_category"
         params={{keyword: item.keyword}}>
         <PressableCategory onPress={() => onPressKeyword(item.keyword)}>
-          <SearchCategoryIcon icon={item.category} />
+          <SearchCategoryIcon icon={item.category} size={20} />
           <CategoryText>{item.keyword}</CategoryText>
         </PressableCategory>
       </LogClick>
