@@ -62,11 +62,7 @@ export default function BottomSheet({
 
   // LogView는 Modal이 실제로 보일 때만 렌더링
   if (isVisible) {
-    return (
-      <LogView elementName="bottom_sheet">
-        {modalContent}
-      </LogView>
-    );
+    return <LogView elementName="bottom_sheet">{modalContent}</LogView>;
   }
 
   return modalContent;

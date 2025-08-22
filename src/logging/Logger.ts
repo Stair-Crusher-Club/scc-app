@@ -15,7 +15,7 @@ interface ScreenViewParams {
   extraParams?: Record<string, any>;
 }
 
-const currUserPropertiesForDebugging : { userId: string | undefined } = {
+const currUserPropertiesForDebugging: {userId: string | undefined} = {
   userId: undefined,
 };
 
@@ -23,7 +23,7 @@ const Logger = {
   async setUserId(userId: string) {
     logDebug('setUserId', userId, currUserPropertiesForDebugging);
     getAnalytics().setUserProperties({userId});
-    currUserPropertiesForDebugging.userId = userId
+    currUserPropertiesForDebugging.userId = userId;
     logDebug('setUserId finished', userId, currUserPropertiesForDebugging);
   },
 

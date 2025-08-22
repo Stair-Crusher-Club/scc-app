@@ -17,7 +17,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ToastUtils from '@/utils/ToastUtils';
-import { logDebug } from '@/utils/DebugUtils';
+import {logDebug} from '@/utils/DebugUtils';
 
 import * as S from './LoginScreen.style';
 
