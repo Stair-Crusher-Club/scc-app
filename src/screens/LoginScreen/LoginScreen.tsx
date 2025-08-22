@@ -3,20 +3,21 @@ import {
   appleAuthAndroid,
 } from '@invertase/react-native-apple-authentication';
 import {login} from '@react-native-seoul/kakao-login';
-import {useAtom, useSetAtom} from 'jotai';
+import {useAtom} from 'jotai';
 import React, {useState} from 'react';
 import {ImageSourcePropType, Platform, useWindowDimensions} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
 import AppleLogo from '@/assets/icon/ic_logo_apple.svg';
 import KakaoLogo from '@/assets/icon/ic_logo_kakao.svg';
-import {accessTokenAtom, userInfoAtom} from '@/atoms/Auth';
+import {accessTokenAtom, ANONYMOUS_USER_TEMPLATE, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ToastUtils from '@/utils/ToastUtils';
+import {logDebug} from '@/utils/DebugUtils';
 
 import * as S from './LoginScreen.style';
 
@@ -75,7 +76,7 @@ export interface LoginScreenParams {
 export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   const {api} = useAppComponents();
   const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
-  const setUserInfo = useSetAtom(userInfoAtom);
+  const {setUserInfo} = useMe();
   const [activeSlide, setActiveSlide] = useState(0);
   const {asModal} = route.params ?? {};
 
@@ -89,8 +90,8 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
     }
 
     // 가입 유저
-    setUserInfo(user);
     setAccessToken(tokens.accessToken);
+    await setUserInfo(user);
 
     if (asModal) {
       // 모달로 열린 경우, 로그인 되면 닫아버린다
@@ -210,15 +211,14 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
         return;
       }
       const res = await api.createAnonymousUserPost();
-      const {authTokens: tokens} = res.data;
-      const guestUser: User = {
-        id: '0',
-        nickname: '비회원',
-        mobilityTools: [],
-        isNewsLetterSubscriptionAgreed: false,
+      const {authTokens: tokens, userId} = res.data;
+      logDebug('createAnonymousUserPost', res.data);
+      const anonymousUser: User = {
+        ...ANONYMOUS_USER_TEMPLATE,
+        id: userId, // userId는 createAnonymousUser가 끝나면 이미 채번된 상태이므로 해당 값을 사용해주도록 한다.
       };
-      setUserInfo(guestUser);
       setAccessToken(tokens.accessToken);
+      await setUserInfo(anonymousUser);
       navigation.replace('Main');
     } catch (e) {
       ToastUtils.show('로그인 중 문제가 발생했습니다.');

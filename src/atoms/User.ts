@@ -1,6 +1,3 @@
-import {atom} from 'jotai';
-
-import {userInfoAtom} from '@/atoms/Auth';
 import {atomForLocal, atomForLocalNonNull} from '@/atoms/atomForLocal';
 import {UserMobilityToolMapDto} from '@/constant/review';
 
@@ -41,11 +38,6 @@ export const hasShownCoachMarkForFirstVisitAtom = atomForLocalNonNull<boolean>(
 
 export const hasShownMapIconTooltipForFirstVisitAtom =
   atomForLocalNonNull<boolean>('hasShownMapIconTooltipForFirstVisit', false);
-
-export const isGuestUserAtom = atom(get => {
-  const userInfo = get(userInfoAtom);
-  return userInfo?.id === '0';
-});
 
 export const recentlyUsedMobilityToolAtom = atomForLocal<{
   name: UserMobilityToolMapDto;

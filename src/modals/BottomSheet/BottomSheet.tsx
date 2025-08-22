@@ -13,6 +13,7 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {LogView} from '@/logging/LogView';
 
 type Props = React.PropsWithChildren<{
   isVisible: boolean;
@@ -23,7 +24,7 @@ export default function BottomSheet({
   onPressBackground,
   children,
 }: Props) {
-  return (
+  const modalContent = (
     <Modal
       visible={isVisible}
       transparent
@@ -58,6 +59,13 @@ export default function BottomSheet({
       </SafeAreaProvider>
     </Modal>
   );
+
+  // LogView는 Modal이 실제로 보일 때만 렌더링
+  if (isVisible) {
+    return <LogView elementName="bottom_sheet">{modalContent}</LogView>;
+  }
+
+  return modalContent;
 }
 
 const DimmedBackground = styled(View)({

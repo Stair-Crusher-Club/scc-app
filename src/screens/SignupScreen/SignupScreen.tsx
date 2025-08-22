@@ -4,7 +4,7 @@ import {useSetAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, View} from 'react-native';
 
-import {accessTokenAtom, userInfoAtom} from '@/atoms/Auth';
+import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
@@ -28,7 +28,7 @@ export default function SignupScreen({
   navigation,
 }: ScreenProps<'Signup'>) {
   const setAccessToken = useSetAtom(accessTokenAtom);
-  const setUserInfo = useSetAtom(userInfoAtom);
+  const {setUserInfo} = useMe();
   const {formValue, updateField, formState, submit} = useUpdateUser({
     accessToken: route.params.token,
   });
@@ -78,8 +78,8 @@ export default function SignupScreen({
       const accessToken = route.params.token;
       const user = await submit();
       // 회원 정보 업데이트 후, 기기에 토큰을 저장한다.
-      setUserInfo(user);
       setAccessToken(accessToken);
+      await setUserInfo(user);
 
       ToastUtils.show('회원가입이 완료되었습니다.');
       if (route.params.asModal) {

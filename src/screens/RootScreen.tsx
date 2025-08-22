@@ -12,6 +12,33 @@ import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {logDebug} from '@/utils/DebugUtils';
 
+// 전체 화면 공용 로깅 규칙 정의
+const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
+  'placeInfo.placeId': 'place_id',
+  'placeInfo.place.id': 'place_id',
+  'placeInfo.name': 'place_name',
+  // 필요에 따라 추가...
+};
+
+// 중첩된 객체에서 특정 경로의 값을 가져오는 함수
+const getNestedValue = (obj: any, path: string): any => {
+  return path.split('.').reduce((current, key) => current?.[key], obj);
+};
+
+// 허용된 route params만 선택적으로 추출하는 함수
+const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
+  const extracted: Record<string, any> = {};
+
+  Object.entries(ROUTE_PARAMS_LOGGING_RULES).forEach(([paramPath, logKey]) => {
+    const value = getNestedValue(routeParams, paramPath);
+    if (value !== undefined && value !== null) {
+      extracted[logKey] = value;
+    }
+  });
+
+  return extracted;
+};
+
 const RootScreen = () => {
   useEffect(() => {
     SplashScreen.hide();
@@ -84,12 +111,14 @@ const RootScreen = () => {
           navigationRef.current?.getCurrentRoute()?.name;
         if (previousScreenName !== currentScreenName) {
           logDebug(`Screen ${previousScreenName} -> ${currentScreenName}`);
+          const routeParams = state?.routes.at(-1)?.params ?? {};
+          const allowedRouteParams = extractAllowedRouteParams(routeParams);
           await Logger.logScreenView({
             prevScreenName: previousScreenName,
             currScreenName: currentScreenName,
             extraParams: {
               ...globalLogParams,
-              routeParams: state?.routes.at(-1)?.params ?? {},
+              ...allowedRouteParams, // 허용된 route params만 전달
             },
           });
           routeNameRef.current = currentScreenName;

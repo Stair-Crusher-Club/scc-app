@@ -18,9 +18,9 @@ import {
 import DeviceInfo from 'react-native-device-info';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import {accessTokenAtom} from '@/atoms/Auth';
+import {accessTokenAtom, isAnonymousUserAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownGuideForFirstVisitAtom, isGuestUserAtom} from '@/atoms/User';
+import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -29,7 +29,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
-import useMe from '@/hooks/useMe';
+import {useMe} from '@/atoms/Auth';
 import {LogClick} from '@/logging/LogClick';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
@@ -84,7 +84,7 @@ const HomeScreen = ({navigation}: any) => {
   const hasShownGuideForFirstVisit = useAtomValue(
     hasShownGuideForFirstVisitAtom,
   );
-  const isGuestUser = useAtomValue(isGuestUserAtom);
+  const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
 
   useEffect(() => {
     if (!hasShownGuideForFirstVisit) {
@@ -138,7 +138,7 @@ const HomeScreen = ({navigation}: any) => {
   }, []);
 
   useEffect(() => {
-    if (!isGuestUser) {
+    if (!isAnonymousUser) {
       (async () => {
         const pushToken = await getMessaging().getToken();
         await api.updatePushTokenPost({pushToken});
@@ -149,7 +149,7 @@ const HomeScreen = ({navigation}: any) => {
         await api.updatePushTokenPost({pushToken});
       })();
     });
-  }, [isGuestUser]);
+  }, [isAnonymousUser]);
 
   const goToGuide = () => {
     navigation.navigate('Webview', {
