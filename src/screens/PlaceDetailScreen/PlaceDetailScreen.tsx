@@ -97,7 +97,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const place = data?.place;
   const building = data?.building;
 
-  const {data: accessibilityPost, isLoading} = useQuery({
+  const {data: accessibilityPost, isLoading, isFetching} = useQuery({
     queryKey: ['PlaceDetail', placeId, 'Accessibility'],
     queryFn: async ({queryKey}) =>
       (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
@@ -338,7 +338,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           </ScrollView>
         </GestureHandlerRootView>
         <RequireBuildingAccessibilityBottomSheet
-          isVisible={showRequireBuildingAccessibilityBottomSheet}
+          isVisible={!isFetching && showRequireBuildingAccessibilityBottomSheet}
           isFirstFloor={accessibilityPost?.placeAccessibility?.isFirstFloor}
           onPressConfirmButton={goToBuildingForm}
           onPressCloseButton={closeModals}
