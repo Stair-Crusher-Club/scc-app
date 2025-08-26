@@ -1,4 +1,3 @@
-// atoms/questCompletion.ts
 import {ChallengeQuestCompleteStampTypeDto} from '@/generated-sources/openapi';
 import {atom} from 'jotai';
 
