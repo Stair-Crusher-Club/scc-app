@@ -131,7 +131,7 @@ export default function FilterModal() {
                 </PositionedModal>
               </LabelIconArea>
               <ScoreSelector
-                score={draftScoreUnder}
+                score={scoreUnder}
                 onChange={score => {
                   setDraftScoreUnder(score);
                 }}
