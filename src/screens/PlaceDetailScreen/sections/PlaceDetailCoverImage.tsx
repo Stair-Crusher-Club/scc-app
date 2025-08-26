@@ -140,7 +140,7 @@ const PlaceDetailCoverImage = ({
               gestureChain.activeOffsetX([-10, 10]);
             }}
             onScrollEnd={setCurrentIndex}
-            autoPlay={true}
+            autoPlay={thumbnailImages.length > 1}
             autoPlayInterval={5000}
           />
           <View>
