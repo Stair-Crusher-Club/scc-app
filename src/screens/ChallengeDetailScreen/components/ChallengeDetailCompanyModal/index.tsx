@@ -1,12 +1,12 @@
 import CloseIcon from '@/assets/icon/close.svg';
 import {SccButton} from '@/components/atoms';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
 import {isEmpty} from 'lodash';
 import React, {useState} from 'react';
 import {Modal, ScrollView, TouchableOpacity, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
 import Input from './Input';
@@ -31,16 +31,9 @@ const ChallengeDetailCompanyModal = ({
     setParticipantName('');
   };
 
-  const insets = useSafeAreaInsets();
-
   return (
     <Modal visible={isVisible} statusBarTranslucent>
-      <View
-        style={{
-          flex: 1,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        }}>
+      <SafeAreaWrapper edges={['top', 'bottom']} style={{flex: 1}}>
         <TouchableOpacity
           onPress={() => {
             onPressCloseButton();
@@ -92,7 +85,7 @@ const ChallengeDetailCompanyModal = ({
             }}
           />
         </ButtonContainer>
-      </View>
+      </SafeAreaWrapper>
 
       <BottomSheet
         isVisible={isOpen}
