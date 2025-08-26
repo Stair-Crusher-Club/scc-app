@@ -154,7 +154,7 @@ export default function SearchRecommendPlace({
 
   return (
     <View style={{gap: 12}}>
-      <TitleText>내주변 여기는 어떠세요?</TitleText>
+      <TitleText>내 주변 여기는 어떠세요?</TitleText>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

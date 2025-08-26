@@ -23,7 +23,7 @@ export default function SearchHistories({
       <TitleWrap>
         <TitleText>최근 검색어</TitleText>
         <TouchableOpacity onPress={() => setSearchHistories([])}>
-          <ClearAllText>모두삭제</ClearAllText>
+          <ClearAllText>모두 삭제</ClearAllText>
         </TouchableOpacity>
       </TitleWrap>
       <ScrollView
