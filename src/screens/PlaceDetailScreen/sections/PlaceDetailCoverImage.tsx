@@ -94,7 +94,8 @@ const PlaceDetailCoverImage = ({
       setCurrentIndex(0);
     }
   }, [thumbnailImages]);
-  let currentIndexForUI = currentIndex < thumbnailImages.length ? currentIndex : 0;
+  let currentIndexForUI =
+    currentIndex < thumbnailImages.length ? currentIndex : 0;
 
   const onPressImage = (index: number) => {
     initialFocusedIndex.current = index;
@@ -145,7 +146,9 @@ const PlaceDetailCoverImage = ({
           />
           <View>
             <S.ImageType>
-              <S.SlideText>{thumbnailImages[currentIndexForUI].type}</S.SlideText>
+              <S.SlideText>
+                {thumbnailImages[currentIndexForUI].type}
+              </S.SlideText>
             </S.ImageType>
             <S.SlideIndex>
               <S.SlideText>{`${currentIndexForUI + 1}/${thumbnailImages.length}`}</S.SlideText>

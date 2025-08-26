@@ -10,7 +10,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import {filterAtom, FilterOptions, SortOption} from '../atoms';
 import SearchCategoryIcon, {Icons} from './SearchHeader/SearchCategoryIcon';
-import { LogClick } from '@/logging/LogClick';
+import {LogClick} from '@/logging/LogClick';
 
 type Status =
   | 'stair1_restaurant'

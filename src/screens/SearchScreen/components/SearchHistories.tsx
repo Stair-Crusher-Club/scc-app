@@ -7,7 +7,7 @@ import CloseIcon from '@/assets/icon/close.svg';
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import { LogClick } from '@/logging/LogClick';
+import {LogClick} from '@/logging/LogClick';
 
 export default function SearchHistories({
   onPressHistory: onClickSearch,
