@@ -10,6 +10,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import {filterAtom, FilterOptions, SortOption} from '../atoms';
 import SearchCategoryIcon, {Icons} from './SearchHeader/SearchCategoryIcon';
+import { LogClick } from '@/logging/LogClick';
 
 type Status =
   | 'stair1_restaurant'
@@ -29,8 +30,8 @@ interface RecommendPlaces extends Omit<FilterOptions, 'sortOption'> {
 const recommendPlaces: RecommendPlaces[] = [
   {
     status: 'stair1_restaurant',
-    description: '계단 없는',
-    keyword: '식당',
+    description: '계단 1칸 이하 음식점',
+    keyword: '음식점',
     category: 'RESTAURANT',
     hasSlope: null,
     isRegistered: true,
@@ -38,7 +39,7 @@ const recommendPlaces: RecommendPlaces[] = [
   },
   {
     status: 'stair1_cafe',
-    description: '계단 없는',
+    description: '계단 1칸 이하 카페',
     keyword: '카페',
     category: 'CAFE',
     hasSlope: null,
@@ -47,26 +48,26 @@ const recommendPlaces: RecommendPlaces[] = [
   },
   {
     status: 'ramp_restaurant',
-    description: '계단 1칸 있는',
-    keyword: '식당',
+    description: '경사로 있는 음식점',
+    keyword: '음식점',
     category: 'RESTAURANT',
     hasSlope: true,
     isRegistered: true,
-    scoreUnder: 2,
+    scoreUnder: 1,
   },
   {
     status: 'ramp_cafe',
-    description: '계단 1칸 있는',
+    description: '경사로 있는 카페',
     keyword: '카페',
     category: 'CAFE',
     hasSlope: true,
     isRegistered: true,
-    scoreUnder: 2,
+    scoreUnder: 1,
   },
   {
     status: 'unconquered_restaurant',
-    description: '정복 안된',
-    keyword: '식당',
+    description: '정복 안 된 음식점',
+    keyword: '음식점',
     category: 'RESTAURANT',
     hasSlope: null,
     isRegistered: false,
@@ -74,7 +75,7 @@ const recommendPlaces: RecommendPlaces[] = [
   },
   {
     status: 'unconquered_cafe',
-    description: '정복 안된',
+    description: '정복 안 된 카페',
     keyword: '카페',
     category: 'CAFE',
     hasSlope: null,
@@ -176,37 +177,39 @@ export default function SearchRecommendPlace({
             },
             idx,
           ) => (
-            <RecommendPlaceItem
-              key={`recommend-place-${description}-${idx}`}
-              status={status}
-              onPress={() =>
-                onPressFilter({
-                  scoreUnder,
-                  hasSlope,
-                  isRegistered,
-                  keyword,
-                })
-              }>
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 2}}>
-                <SearchCategoryIcon
-                  icon={category}
-                  size={16}
-                  color={
-                    ColorMap[status].iconColor
-                      ? ColorMap[status].iconColor
-                      : ColorMap[status].scoreLabelText
-                  }
-                  isOn={category === 'CAFE'}
-                />
-                <ScoreLabelText status={status}>
-                  {scoreUnder
-                    ? `접근 레벨 ${scoreUnder} 이하`
-                    : '정복이 필요해!'}
-                </ScoreLabelText>
-              </View>
-              <Text>{`${description} ${keyword}`}</Text>
-            </RecommendPlaceItem>
+            <LogClick elementName={`recommend-place-${description}-${idx}`}>
+              <RecommendPlaceItem
+                key={`recommend-place-${description}-${idx}`}
+                status={status}
+                onPress={() =>
+                  onPressFilter({
+                    scoreUnder,
+                    hasSlope,
+                    isRegistered,
+                    keyword,
+                  })
+                }>
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 2}}>
+                  <SearchCategoryIcon
+                    icon={category}
+                    size={16}
+                    color={
+                      ColorMap[status].iconColor
+                        ? ColorMap[status].iconColor
+                        : ColorMap[status].scoreLabelText
+                    }
+                    isOn={category === 'CAFE'}
+                  />
+                  <ScoreLabelText status={status}>
+                    {scoreUnder
+                      ? `접근 레벨 ${scoreUnder} 이하`
+                      : '정복이 필요해!'}
+                  </ScoreLabelText>
+                </View>
+                <Text>{description}</Text>
+              </RecommendPlaceItem>
+            </LogClick>
           ),
         )}
       </ScrollView>
