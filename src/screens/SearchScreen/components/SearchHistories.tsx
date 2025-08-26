@@ -7,6 +7,7 @@ import CloseIcon from '@/assets/icon/close.svg';
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {LogClick} from '@/logging/LogClick';
 
 export default function SearchHistories({
   onPressHistory: onClickSearch,
@@ -23,7 +24,7 @@ export default function SearchHistories({
       <TitleWrap>
         <TitleText>최근 검색어</TitleText>
         <TouchableOpacity onPress={() => setSearchHistories([])}>
-          <ClearAllText>모두삭제</ClearAllText>
+          <ClearAllText>모두 삭제</ClearAllText>
         </TouchableOpacity>
       </TitleWrap>
       <ScrollView
@@ -37,9 +38,11 @@ export default function SearchHistories({
         }}>
         {searchHistories.map(search => (
           <ItemBox key={search}>
-            <TouchableOpacity onPress={() => onClickSearch(search)}>
-              <ItemText numberOfLines={1}>{search}</ItemText>
-            </TouchableOpacity>
+            <LogClick elementName={`recent-keyword-${search}`}>
+              <TouchableOpacity onPress={() => onClickSearch(search)}>
+                <ItemText numberOfLines={1}>{search}</ItemText>
+              </TouchableOpacity>
+            </LogClick>
             <RemoveButton
               onPress={() => {
                 setSearchHistories(

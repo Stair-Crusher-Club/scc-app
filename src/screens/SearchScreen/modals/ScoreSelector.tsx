@@ -77,7 +77,8 @@ const RadioButtonOuter = styled.View<{checked?: boolean}>`
   justify-content: center;
   width: 24px;
   height: 24px;
-  border: 2px solid ${props => props.checked ? color.brandColor : color.gray25};
+  border: 2px solid
+    ${props => (props.checked ? color.brandColor : color.gray25)};
   border-radius: 12px;
 `;
 
