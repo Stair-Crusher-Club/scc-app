@@ -94,7 +94,7 @@ export default function SearchExplore() {
 }
 
 const Container = styled.View({
-  backgroundColor: '#EBEBEF',
+  backgroundColor: color.gray20,
   paddingVertical: 20,
   paddingHorizontal: 16,
   gap: 12,
