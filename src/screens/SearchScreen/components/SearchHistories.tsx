@@ -7,6 +7,7 @@ import CloseIcon from '@/assets/icon/close.svg';
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import { LogClick } from '@/logging/LogClick';
 
 export default function SearchHistories({
   onPressHistory: onClickSearch,
@@ -37,9 +38,11 @@ export default function SearchHistories({
         }}>
         {searchHistories.map(search => (
           <ItemBox key={search}>
-            <TouchableOpacity onPress={() => onClickSearch(search)}>
-              <ItemText numberOfLines={1}>{search}</ItemText>
-            </TouchableOpacity>
+            <LogClick elementName={`recent-keyword-${search}`}>
+              <TouchableOpacity onPress={() => onClickSearch(search)}>
+                <ItemText numberOfLines={1}>{search}</ItemText>
+              </TouchableOpacity>
+            </LogClick>
             <RemoveButton
               onPress={() => {
                 setSearchHistories(
