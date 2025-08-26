@@ -42,7 +42,10 @@ const ChallengeDetailCompanyModal = ({
           paddingBottom: insets.bottom,
         }}>
         <TouchableOpacity
-          onPress={onPressCloseButton}
+          onPress={() => {
+            onPressCloseButton();
+            reset();
+          }}
           style={{
             alignItems: 'flex-end',
             paddingHorizontal: 20,
