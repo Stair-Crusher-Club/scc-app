@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Image, Pressable, useWindowDimensions, View} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
@@ -87,6 +87,15 @@ const PlaceDetailCoverImage = ({
     ...elevatorImages,
     ...toiletImages,
   ];
+
+  // 정보 삭제로 인해 이미지 개수가 currentIndex보다 작아지면 index를 0으로 초기화해준다.
+  useEffect(() => {
+    if (currentIndex >= thumbnailImages.length) {
+      setCurrentIndex(0);
+    }
+  }, [thumbnailImages]);
+  let currentIndexForUI = currentIndex < thumbnailImages.length ? currentIndex : 0;
+
   const onPressImage = (index: number) => {
     initialFocusedIndex.current = index;
     navigation.navigate('ImageZoomViewer', {
@@ -136,10 +145,10 @@ const PlaceDetailCoverImage = ({
           />
           <View>
             <S.ImageType>
-              <S.SlideText>{thumbnailImages[currentIndex].type}</S.SlideText>
+              <S.SlideText>{thumbnailImages[currentIndexForUI].type}</S.SlideText>
             </S.ImageType>
             <S.SlideIndex>
-              <S.SlideText>{`${currentIndex + 1}/${thumbnailImages.length}`}</S.SlideText>
+              <S.SlideText>{`${currentIndexForUI + 1}/${thumbnailImages.length}`}</S.SlideText>
             </S.SlideIndex>
           </View>
         </>
