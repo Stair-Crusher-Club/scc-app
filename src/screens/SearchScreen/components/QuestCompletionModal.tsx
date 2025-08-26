@@ -75,7 +75,7 @@ export default function QuestCompletionModal() {
           </Center>
 
           <TitleText>
-            {`방문리뷰 등록 퀘스트를 클리어했어요!\n다음 퀘스트도 함께 가볼까요?`}
+            {`${current.title} 퀘스트를 클리어했어요!\n다음 퀘스트도 함께 가볼까요?`}
           </TitleText>
 
           <ButtonContainer>
