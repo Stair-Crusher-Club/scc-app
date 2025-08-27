@@ -33,12 +33,13 @@ import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 import * as S from './SearchScreen.style';
 
 export interface SearchScreenParams {
-  initKeyword: string;
+  initKeyword?: string;
   toMap?: boolean;
+  searchQuery?: string;
 }
 
 const SearchScreen = ({route}: ScreenProps<'Search'>) => {
-  const {initKeyword, toMap} = route.params;
+  const {initKeyword, toMap, searchQuery: deepLinkSearchQuery} = route.params;
   const ref = useRef<SearchMapViewHandle>(null);
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
@@ -114,6 +115,13 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
     }
   }, [toMap]);
 
+  useEffect(() => {
+    if (deepLinkSearchQuery) {
+      setViewState({type: 'map', inputMode: false});
+      onQueryUpdate({text: deepLinkSearchQuery}, {shouldAnimate: true, shouldRecordHistory: true});
+    }
+  }, [deepLinkSearchQuery]);
+
   // 화면 나갈 때 상태 돌려놓기
   useEffect(() => {
     return navigation.addListener('beforeRemove', () => {
@@ -155,7 +163,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
       <S.SearchScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <SearchHeader
           onQueryUpdate={onQueryUpdate}
-          autoFocus={!initKeyword && !toMap}
+          autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
         />
         <View
           style={{
