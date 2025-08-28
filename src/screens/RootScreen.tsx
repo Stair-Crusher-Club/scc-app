@@ -102,6 +102,14 @@ const RootScreen = () => {
             Webview: {
               path: 'webview',
             },
+            Search: {
+              path: 'search',
+              parse: {
+                searchQuery: (searchQuery?: string) => {
+                  return searchQuery || undefined;
+                },
+              },
+            },
           },
         },
       }}

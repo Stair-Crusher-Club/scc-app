@@ -73,7 +73,7 @@ const Container = styled.View`
 `;
 
 const SearchRecommendContainer = styled.View`
-  padding: 16px;
+  padding: 16px 16px 32px;
   gap: 32px;
   background-color: ${color.white};
 `;

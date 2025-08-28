@@ -81,7 +81,7 @@ export default function SearchFilterPreview() {
             {(() => {
               switch (isRegistered) {
                 case false:
-                  return '정복안된 곳';
+                  return '정복 안 된 곳';
                 case true:
                   return '정복된 곳';
                 case null:

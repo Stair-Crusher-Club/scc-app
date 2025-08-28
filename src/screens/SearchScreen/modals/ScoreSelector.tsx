@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
-import CheckIcon from '@/assets/icon/ic_check.svg';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 
@@ -34,7 +33,7 @@ export default function ScoreSelector({
             }
           }}>
           <Label>{label}</Label>
-          <CheckBox checked={score === index} />
+          <RadioButton checked={score === index} />
         </ItemBox>
       ))}
     </Container>
@@ -62,29 +61,30 @@ const Label = styled.Text`
   color: ${color.gray100};
 `;
 
-function CheckBox({checked}: {checked: boolean}) {
+function RadioButton({checked}: {checked: boolean}) {
   if (checked) {
     return (
-      <Check>
-        <CheckIcon color={color.white} width={20} height={20} />
-      </Check>
+      <RadioButtonOuter checked>
+        <RadioButtonInner />
+      </RadioButtonOuter>
     );
   }
-  return <Uncheck />;
+  return <RadioButtonOuter />;
 }
 
-const Uncheck = styled.View`
-  width: 24px;
-  height: 24px;
-  border: 2px solid ${color.gray50};
-  border-radius: 8px;
-`;
-
-const Check = styled.View`
+const RadioButtonOuter = styled.View<{checked?: boolean}>`
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
+  border: 2px solid
+    ${props => (props.checked ? color.brandColor : color.gray25)};
+  border-radius: 12px;
+`;
+
+const RadioButtonInner = styled.View`
+  width: 12px;
+  height: 12px;
   background-color: ${color.brandColor};
-  border-radius: 8px;
+  border-radius: 6px;
 `;

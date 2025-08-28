@@ -131,7 +131,7 @@ export default function FilterModal() {
                 </PositionedModal>
               </LabelIconArea>
               <ScoreSelector
-                score={draftScoreUnder}
+                score={scoreUnder}
                 onChange={score => {
                   setDraftScoreUnder(score);
                 }}
@@ -183,7 +183,7 @@ export default function FilterModal() {
                   isSelected: isRegistered === true,
                 },
                 {
-                  label: '정복 안된 곳만 보기',
+                  label: '정복 안 된 곳만 보기',
                   option: false,
                   isSelected: isRegistered === false,
                 },
