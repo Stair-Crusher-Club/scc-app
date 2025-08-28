@@ -66,17 +66,58 @@ const RootScreen = () => {
           'https://scc.airbridge.io/',
           'https://app.staircrusher.club/',
         ],
+        // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
         getInitialURL: async () => {
+          // 일반 딥링크 처리
           const url = await Linking.getInitialURL();
           if (url) {
+            logDebug('Normal deeplink click during app quit state', url);
             return url;
           }
+          
+          // 푸시 알림 처리
           const message = await getMessaging().getInitialNotification();
           if (message) {
+            logDebug('getInitialNotification', message)
+            Logger.logAppPushOpen({
+              title: message.notification?.title || '',
+              body: message.notification?.body || '',
+              campaignId: message.data?.campaign_id as (string | undefined),
+              campaignType: message.data?.campaign_type as (string | undefined),
+            });
             const data = message.data as {_d: string};
             return data?._d;
           }
           return null;
+        },
+        // 앱 background 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
+        subscribe(listener) {
+          // 일반 딥링크 처리
+          const linkingSubscription = Linking.addEventListener('url', ({url}) => {
+            logDebug('Normal deeplink click during app background state', url);
+            listener(url);
+          });
+          
+          // 푸시 알림 처리
+          const pushSubscription = getMessaging().onNotificationOpenedApp(async (remoteMessage) => {
+            logDebug('onNotificationOpenedApp', remoteMessage)
+            Logger.logAppPushOpen({
+              title: remoteMessage.notification?.title || '',
+              body: remoteMessage.notification?.body || '',
+              campaignId: remoteMessage.data?.campaign_id as (string | undefined),
+              campaignType: remoteMessage.data?.campaign_type as (string | undefined),
+            });
+            
+            const data = remoteMessage.data as {_d?: string};
+            if (data?._d) {
+              listener(data._d);
+            }
+          });
+          
+          return () => {
+            linkingSubscription.remove();
+            pushSubscription();
+          };
         },
         config: {
           initialRouteName: 'Main' as any, // for preventing type error

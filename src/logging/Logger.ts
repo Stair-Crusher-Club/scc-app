@@ -3,6 +3,7 @@ import crashlytics from '@react-native-firebase/crashlytics';
 
 import {logDebug} from '@/utils/DebugUtils';
 
+
 interface ElementEventParams {
   name: string;
   currScreenName: string;
@@ -12,6 +13,14 @@ interface ElementEventParams {
 interface ScreenViewParams {
   prevScreenName?: string;
   currScreenName?: string;
+  extraParams?: Record<string, any>;
+}
+
+interface AppPushOpenParams {
+  title: string;
+  body: string;
+  campaignId?: string;
+  campaignType?: string;
   extraParams?: Record<string, any>;
 }
 
@@ -72,6 +81,18 @@ const Logger = {
     logDebug('logError', error, currUserPropertiesForDebugging);
     crashlytics().recordError(error);
   },
+
+  async logAppPushOpen(params: AppPushOpenParams) {
+    logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
+    getAnalytics().logEvent('app_push_open', {
+      ...(params.extraParams || {}),
+      push_title: params.title,
+      push_body: params.body,
+      push_campaign_id: params.campaignId,
+      push_campaign_type: params.campaignType,
+      user_id: currUserPropertiesForDebugging.userId,
+    });
+  }
 };
 
 export default Logger;
