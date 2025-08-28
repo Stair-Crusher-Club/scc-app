@@ -1,16 +1,14 @@
 /**
  * @format
  */
-import {getMessaging} from '@react-native-firebase/messaging';
 import React from 'react';
-import {AppRegistry, Linking} from 'react-native';
+import {AppRegistry} from 'react-native';
 // https://github.com/facebook/react-native/issues/23922#issuecomment-648096619
 // a polyfill is code that implements a feature on web browsers that do not natively support the feature.
 import 'react-native-url-polyfill/auto';
 
 import App from './App';
 import {name as appName} from './app.json';
-import {logDebug} from '@/utils/DebugUtils';
 import Logger from '@/logging/Logger';
 import {getStorageValue} from '@/atoms/atomForLocal';
 
@@ -19,7 +17,7 @@ import {getStorageValue} from '@/atoms/atomForLocal';
 // 따라서 명시적으로 셋업해주도록 한다.
 const userId = getStorageValue('userInfo')?.id;
 if (userId) {
-  Logger.setUserId(userId)
+  Logger.setUserId(userId);
 }
 
 // getInitialNotification은 RootScreen.tsx의 getInitialURL에서 처리됨

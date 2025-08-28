@@ -3,7 +3,6 @@ import crashlytics from '@react-native-firebase/crashlytics';
 
 import {logDebug} from '@/utils/DebugUtils';
 
-
 interface ElementEventParams {
   name: string;
   currScreenName: string;
@@ -92,7 +91,7 @@ const Logger = {
       push_campaign_type: params.campaignType,
       user_id: currUserPropertiesForDebugging.userId,
     });
-  }
+  },
 };
 
 export default Logger;
