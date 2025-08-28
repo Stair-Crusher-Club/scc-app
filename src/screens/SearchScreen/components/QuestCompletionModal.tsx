@@ -93,8 +93,8 @@ const Backdrop = styled.View({
 const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
-  paddingBottom: 80,
-  gap: 48,
+  paddingBottom: 92,
+  gap: 60,
 });
 
 const CompletionImage = styled.Image.attrs({

@@ -37,38 +37,44 @@ const stampImage: Record<
 };
 
 interface QuestClearStampProps {
-  type?: ChallengeQuestCompleteStampTypeDto;
+  type: ChallengeQuestCompleteStampTypeDto;
   autoPlay?: boolean;
   duration?: number;
 }
 
 export default function QuestClearStamp({
-  type = 'CAFE',
+  type,
   autoPlay = true,
-  duration = 600,
+  duration = 500,
 }: QuestClearStampProps) {
   const scaleValue = useRef(new Animated.Value(1.5)).current;
   const opacityValue = useRef(new Animated.Value(0)).current;
+  const backgroundOpacity = useRef(new Animated.Value(1)).current;
 
   const startStampAnimation = () => {
-    scaleValue.setValue(1.8);
+    scaleValue.setValue(2);
     opacityValue.setValue(0);
 
     Animated.parallel([
+      Animated.timing(backgroundOpacity, {
+        toValue: 0,
+        duration: duration * 0.4,
+        useNativeDriver: true,
+      }),
       Animated.timing(opacityValue, {
         toValue: 1.0,
-        duration: duration * 0.15,
+        duration: duration * 0.4,
         useNativeDriver: true,
       }),
       Animated.sequence([
         Animated.timing(scaleValue, {
-          toValue: 0.9,
-          duration: duration * 0.15,
+          toValue: 0.8,
+          duration: duration * 0.4,
           useNativeDriver: true,
         }),
         Animated.timing(scaleValue, {
           toValue: 1.0,
-          duration: duration * 0.75,
+          duration: duration * 0.3,
           useNativeDriver: true,
         }),
       ]),
@@ -79,14 +85,19 @@ export default function QuestClearStamp({
     if (autoPlay) {
       const timer = setTimeout(() => {
         startStampAnimation();
-      }, 500);
+      }, duration);
       return () => clearTimeout(timer);
     }
   }, [autoPlay]);
 
   return (
     <Container>
-      <BackgroundStamp source={stampImage[type].backgroundStamp} />
+      <BackgroundStampContainer
+        style={{
+          opacity: backgroundOpacity,
+        }}>
+        <BackgroundStamp source={stampImage[type].backgroundStamp} />
+      </BackgroundStampContainer>
 
       <AnimatedStampContainer
         style={{
@@ -106,6 +117,11 @@ const Container = styled.View`
   width: 300px;
   height: 300px;
   position: relative;
+`;
+
+const BackgroundStampContainer = styled(Animated.View)`
+  justify-content: center;
+  align-items: center;
 `;
 
 const BackgroundStamp = styled(Image)`
