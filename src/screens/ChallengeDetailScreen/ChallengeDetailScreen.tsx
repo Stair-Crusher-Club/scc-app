@@ -1,12 +1,10 @@
 import {useQuery} from '@tanstack/react-query';
 import {isEmpty} from 'lodash';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styled from 'styled-components/native';
 
 import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SccButton} from '@/components/atoms';
-import {font} from '@/constant/font';
 import {
   JoinChallengeRequestDto,
   JoinChallengeResponseDto,
@@ -16,12 +14,16 @@ import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
+import {SccButton} from '@/components/atoms';
+import {font} from '@/constant/font';
+import {NativeScrollEvent, NativeSyntheticEvent} from 'react-native';
 import * as S from './ChallengeDetailScreen.style';
 import ChallengeDetailCompanyModal from './components/ChallengeDetailCompanyModal';
 import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
 import ChallengeDetailPasscodeBottomSheet from './components/ChallengeDetailPasscodeBottomSheet';
 import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/ChallengeDetailRankSection';
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
+import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyActionBar';
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 
 export interface ChallengeDetailScreenParams {
@@ -47,7 +49,7 @@ const ChallengeDetailScreen = ({
   const challenge = data?.challenge;
   const ranks = data?.ranks ?? [];
   const myRank = data?.myRank;
-  const hasJoined = data?.hasJoined ?? false;
+  const hasJoined = data?.hasJoined;
   const hasPasscode = data?.hasPasscode ?? false;
   const isB2B = data?.isB2B ?? false;
 
@@ -59,14 +61,52 @@ const ChallengeDetailScreen = ({
     return result.data;
   });
 
+  const prevY = useRef(0);
+  const [visible, setVisible] = useState(false);
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!hasJoined) {
+      return;
+    }
+
+    const y = e.nativeEvent.contentOffset.y;
+    const diff = y - prevY.current;
+
+    if (y <= 0) {
+      setVisible(false);
+      prevY.current = y;
+      return;
+    }
+
+    const {layoutMeasurement, contentOffset, contentSize} = e.nativeEvent;
+
+    const isAtBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 1;
+
+    if (isAtBottom) {
+      setVisible(true);
+      prevY.current = y;
+      return;
+    }
+
+    if (Math.abs(diff) < 8) return;
+    if (diff > 0) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+
+    prevY.current = y;
+  };
+
   return (
     <LogParamsProvider params={{challenge_id: challengeId}}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
-        <S.Container>
+        <S.Container onScroll={onScroll} scrollEventThrottle={16}>
           <S.Contents>
             <ChallengeStatusBadgesWrapper
               status={[challenge?.status ?? 'Closed']}
-              isMyChallenge={hasJoined}
+              isMyChallenge={hasJoined ?? false}
             />
             <S.Title>{challenge?.name}</S.Title>
             {challenge && (
@@ -96,19 +136,14 @@ const ChallengeDetailScreen = ({
             )}
           </S.Contents>
         </S.Container>
-        <S.ButtonContainer>
-          {hasJoined && (
-            <SccButton
-              text={'장소 정복하러 가기'}
-              textColor="white"
-              buttonColor="brandColor"
-              fontFamily={font.pretendardBold}
-              onPress={() => {
-                navigation.navigate('Search', {initKeyword: ''});
-              }}
-            />
-          )}
-          {!hasJoined && (
+        {hasJoined === true && (
+          <ChallengeDetailStickyActionBar
+            visible={visible}
+            onGoConquer={() => navigation.navigate('Search', {initKeyword: ''})}
+          />
+        )}
+        {hasJoined === false && (
+          <S.ButtonContainer>
             <SccButton
               text={'챌린지 참여하기'}
               textColor="white"
@@ -122,8 +157,8 @@ const ChallengeDetailScreen = ({
                 }
               }}
             />
-          )}
-        </S.ButtonContainer>
+          </S.ButtonContainer>
+        )}
         <ChallengeDetailCompanyModal
           isVisible={showCompanyModal}
           onPressCloseButton={() => {
