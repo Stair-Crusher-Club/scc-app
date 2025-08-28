@@ -106,14 +106,14 @@ const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
   paddingBottom: 80,
-  gap: 60,
+  gap: 48,
 });
 
 const CompletionImage = styled.Image.attrs({
   source: require('@/assets/img/quest_completion.png'),
 })({
-  width: 254,
-  height: 88,
+  width: 271,
+  height: 77,
 });
 
 const TitleText = styled.Text({
