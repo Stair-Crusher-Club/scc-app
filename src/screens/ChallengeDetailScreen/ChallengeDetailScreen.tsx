@@ -124,7 +124,11 @@ const ChallengeDetailScreen = ({
                   <S.Description>
                     <Markdown
                       style={{
-                        body: {lineHeight: 26, fontSize: 16},
+                        body: {
+                          lineHeight: 26,
+                          fontSize: 16,
+                          fontFamily: font.pretendardRegular,
+                        },
                         link: {color: color.brand60},
                       }}>
                       {challenge?.description}
