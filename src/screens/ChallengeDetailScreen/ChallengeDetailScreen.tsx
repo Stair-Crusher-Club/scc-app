@@ -15,8 +15,10 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import {SccButton} from '@/components/atoms';
+import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {NativeScrollEvent, NativeSyntheticEvent} from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import * as S from './ChallengeDetailScreen.style';
 import ChallengeDetailCompanyModal from './components/ChallengeDetailCompanyModal';
 import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
@@ -118,13 +120,25 @@ const ChallengeDetailScreen = ({
                   goalOfContributions={challenge.goal}
                   numberOfContributions={challenge.contributionsCount}
                 />
-                <S.GuideText>{`${challenge.name} 챌린지에서 ${
-                  challenge.goal
-                }개 장소 정복에 도전해보세요!${
-                  !isEmpty(challenge.milestones)
-                    ? ` 중간목표 ${challenge.milestones[0]}개를 달성하면 콩알이 친구가 도전을 함께 하게 됩니다🤗`
-                    : ''
-                }`}</S.GuideText>
+                {challenge?.description ? (
+                  <S.Description>
+                    <Markdown
+                      style={{
+                        body: {lineHeight: 26, fontSize: 16},
+                        link: {color: color.brand60},
+                      }}>
+                      {challenge?.description}
+                    </Markdown>
+                  </S.Description>
+                ) : (
+                  <S.GuideText>{`${challenge.name} 챌린지에서 ${
+                    challenge.goal
+                  }개 장소 정복에 도전해보세요!${
+                    !isEmpty(challenge.milestones)
+                      ? ` 중간목표 ${challenge.milestones[0]}개를 달성하면 콩알이 친구가 도전을 함께 하게 됩니다🤗`
+                      : ''
+                  }`}</S.GuideText>
+                )}
               </>
             )}
             {!isEmpty(ranks) && (

@@ -18,6 +18,12 @@ export const Title = styled.Text({
   paddingHorizontal: 25,
 });
 
+export const Description = styled.View({
+  marginTop: 25,
+  paddingHorizontal: 25,
+  marginBottom: 60,
+});
+
 export const GuideText = styled.Text({
   color: color.black,
   fontSize: 16,
@@ -25,6 +31,7 @@ export const GuideText = styled.Text({
   marginTop: 25,
   paddingHorizontal: 25,
   marginBottom: 60,
+  lineHeight: 26,
 });
 
 export const ChallengeRankContainer = styled.View({
