@@ -75,12 +75,12 @@ export default function QuestCompletionModal() {
           </Center>
 
           <TitleText>
-            {`${current.title} 퀘스트를 클리어했어요!\n다음 퀘스트도 함께 가볼까요?`}
+            {`${current.title} 퀘스트를 클리어했어요!\n크러셔님의 참여가 쉬운 이동을 만듭니다.`}
           </TitleText>
 
           <ButtonContainer>
             <SccButton
-              text={isLast ? '클리어 뱃지 확인하기!' : '다음'}
+              text={isLast ? '클리어 스탬프 확인하기' : '다음'}
               textColor="white"
               fontFamily={font.pretendardBold}
               onPress={handlePrimary}
@@ -120,9 +120,9 @@ const TitleText = styled.Text({
   marginBottom: 20,
   textAlign: 'center',
   color: color.white,
-  fontFamily: font.pretendardBold,
-  fontSize: 18,
-  lineHeight: 26,
+  fontFamily: font.pretendardRegular,
+  fontSize: 16,
+  lineHeight: 24,
 });
 
 const ButtonContainer = styled.View({
