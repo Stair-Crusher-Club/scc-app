@@ -15,6 +15,14 @@ interface ScreenViewParams {
   extraParams?: Record<string, any>;
 }
 
+interface AppPushOpenParams {
+  title: string;
+  body: string;
+  campaignId?: string;
+  campaignType?: string;
+  extraParams?: Record<string, any>;
+}
+
 const currUserPropertiesForDebugging: {userId: string | undefined} = {
   userId: undefined,
 };
@@ -71,6 +79,18 @@ const Logger = {
   async logError(error: Error) {
     logDebug('logError', error, currUserPropertiesForDebugging);
     crashlytics().recordError(error);
+  },
+
+  async logAppPushOpen(params: AppPushOpenParams) {
+    logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
+    getAnalytics().logEvent('app_push_open', {
+      ...(params.extraParams || {}),
+      push_title: params.title,
+      push_body: params.body,
+      push_campaign_id: params.campaignId,
+      push_campaign_type: params.campaignType,
+      user_id: currUserPropertiesForDebugging.userId,
+    });
   },
 };
 

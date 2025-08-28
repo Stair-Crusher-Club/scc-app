@@ -118,7 +118,10 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   useEffect(() => {
     if (deepLinkSearchQuery) {
       setViewState({type: 'map', inputMode: false});
-      onQueryUpdate({text: deepLinkSearchQuery}, {shouldAnimate: true, shouldRecordHistory: true});
+      onQueryUpdate(
+        {text: deepLinkSearchQuery},
+        {shouldAnimate: true, shouldRecordHistory: true},
+      );
     }
   }, [deepLinkSearchQuery]);
 
