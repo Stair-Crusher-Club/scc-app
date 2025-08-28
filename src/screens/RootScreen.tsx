@@ -100,6 +100,14 @@ const RootScreen = () => {
           
           // 푸시 알림 처리
           const pushSubscription = getMessaging().onNotificationOpenedApp(async (remoteMessage) => {
+            // https://github.com/invertase/react-native-firebase/issues/7749#issuecomment-2075084174
+            // 1. background 상태 -> 2. 앱 푸시 A 클릭해서 오픈 -> 3. quit 상태 -> 4. 앱 푸시 B 클릭해서 오픈
+            // 위와 같은 시나리오를 겪을 때, 4번의 getInitialNotification()에서 앱 푸시 A의 remoteMessage를 수신하는 문제가 있다.
+            // 링크된 github issue를 보면 2번 타이밍 때 getInitialNotification() 쪽에 앱 푸시 A에 대한 데이터가 로컬에 저장되는데,
+            // onNotificationOpenedApp() 호출로는 이 데이터가 초기화되지 않아서 4번 타이밍에 앱 푸시 A의 remoteMessage가 쓰이는 것으로 보인다.
+            // 임시 방편으로 2번 타이밍 때 getInitialNotification()를 호출해줘서 강제로 로컬에 저장된 remoteMessage를 초기화해준다.
+            getMessaging().getInitialNotification()
+
             logDebug('onNotificationOpenedApp', remoteMessage)
             Logger.logAppPushOpen({
               title: remoteMessage.notification?.title || '',
