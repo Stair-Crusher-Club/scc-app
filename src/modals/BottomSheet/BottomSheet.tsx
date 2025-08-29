@@ -13,7 +13,6 @@ import styled from 'styled-components/native';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {LogView} from '@/logging/LogView';
-import {useKeyboard} from '@react-native-community/hooks';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 type Props = React.PropsWithChildren<{
@@ -25,9 +24,6 @@ export default function BottomSheet({
   onPressBackground,
   children,
 }: Props) {
-  const keyboard = useKeyboard();
-  const keyboardOffset = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
-
   const modalContent = (
     <Modal
       visible={isVisible}
@@ -54,10 +50,7 @@ export default function BottomSheet({
             />
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-              <Container
-                style={{
-                  paddingBottom: Platform.OS === 'ios' ? 0 : keyboardOffset,
-                }}>
+              <Container>
                 <SafeAreaWrapper edges={['bottom']}>{children}</SafeAreaWrapper>
               </Container>
             </KeyboardAvoidingView>
