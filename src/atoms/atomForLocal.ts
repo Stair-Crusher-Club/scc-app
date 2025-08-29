@@ -5,12 +5,15 @@ import {MMKV} from 'react-native-mmkv';
 import {parseOrNull} from '@/utils/JSON';
 
 export const storage = new MMKV();
+
+export function getStorageValue<T>(key: string): T | null {
+  const value = storage.getString(key);
+  return value ? parseOrNull(value) : null;
+}
+
 export function atomForLocal<T>(atomKey: string) {
   const valueStore: SyncStorage<T | null> = {
-    getItem: key => {
-      const value = storage.getString(key);
-      return value ? parseOrNull(value) : null;
-    },
+    getItem: key => getStorageValue<T>(key),
     setItem: (key, value) => {
       storage.set(key, JSON.stringify(value));
     },
