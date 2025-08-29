@@ -196,34 +196,34 @@ const stampMap: Record<
   }
 > = {
   FLAG: {
-    color: '#4799E2',
+    color: '#4BA5F4',
     backgroundColor: '#F4FAFF',
-    uri: require('@/assets/img/quest_stamp_flag.png'),
+    uri: require('@/assets/img/stamp/quest_stamp_flag.png'),
   },
   CAFE: {
     color: '#56BAF8',
     backgroundColor: '#56BAF81A',
-    uri: require('@/assets/img/quest_stamp_cafe.png'),
+    uri: require('@/assets/img/stamp/quest_stamp_cafe.png'),
   },
   RESTAURANT: {
-    color: '#8096B5',
+    color: '#78ACF6',
     backgroundColor: '#8096B51A',
-    uri: require('@/assets/img/quest_stamp_restaurant.png'),
+    uri: require('@/assets/img/stamp/quest_stamp_restaurant.png'),
   },
   THUMBS_UP: {
-    color: '#30BDCA',
+    color: '#15CADA',
     backgroundColor: '#30BDCA1A',
-    uri: require('@/assets/img/quest_stamp_good.png'),
+    uri: require('@/assets/img/stamp/quest_stamp_good.png'),
   },
   POTION: {
-    color: '#7C95CF',
+    color: '#6588D8',
     backgroundColor: '#7C95CF1A',
-    uri: require('@/assets/img/quest_stamp_potion.png'),
+    uri: require('@/assets/img/stamp/quest_stamp_potion.png'),
   },
   REVIEW: {
-    color: '#038DBA',
+    color: '#00A5DB',
     backgroundColor: '#038DBA1A',
-    uri: require('@/assets/img/quest_stamp_review.png'),
+    uri: require('@/assets/img/stamp/quest_stamp_review.png'),
   },
 };
 
