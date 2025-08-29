@@ -29,7 +29,9 @@ export default function BottomSheet({
       visible={isVisible}
       transparent
       animationType="fade"
-      statusBarTranslucent={true}
+      // statusBarTranslucent={true}
+      // translucent status bar has some problems
+      //  https://github.com/facebook/react-native/issues/47140
       onRequestClose={() => {
         onPressBackground?.();
       }}>
@@ -48,12 +50,9 @@ export default function BottomSheet({
                 onPressBackground?.();
               }}
             />
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-              <Container>
-                <SafeAreaWrapper edges={['bottom']}>{children}</SafeAreaWrapper>
-              </Container>
-            </KeyboardAvoidingView>
+            <Container behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+              <SafeAreaWrapper edges={['bottom']}>{children}</SafeAreaWrapper>
+            </Container>
           </DimmedBackground>
         </GestureHandlerRootView>
       </SafeAreaProvider>
@@ -74,7 +73,7 @@ const DimmedBackground = styled(View)({
   backgroundColor: color.blacka50,
 });
 
-const Container = styled(View)({
+const Container = styled(KeyboardAvoidingView)({
   flexDirection: 'column',
   borderTopLeftRadius: 20,
   borderTopRightRadius: 20,
