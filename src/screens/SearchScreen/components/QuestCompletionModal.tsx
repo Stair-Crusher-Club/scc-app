@@ -1,10 +1,8 @@
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ChallengeQuestCompleteStampTypeDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import {useAtomValue, useSetAtom} from 'jotai';
-import {LottieViewProps} from 'lottie-react-native';
 import React, {useEffect} from 'react';
 import {Modal, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
 import styled from 'styled-components/native';
@@ -16,19 +14,7 @@ import {
   nextOrCloseAtom,
   visibleAtom,
 } from '../atoms/quest';
-import StampLottie from './QuestClearStamp';
-
-const stampLottie: Record<
-  ChallengeQuestCompleteStampTypeDto,
-  LottieViewProps['source']
-> = {
-  FLAG: require('@/assets/animations/flag.lottie'),
-  CAFE: require('@/assets/animations/cafe.lottie'),
-  THUMBS_UP: require('@/assets/animations/good.lottie'),
-  POTION: require('@/assets/animations/potion.lottie'),
-  RESTAURANT: require('@/assets/animations/restaurant.lottie'),
-  REVIEW: require('@/assets/animations/review.lottie'),
-};
+import QuestClearStamp from './QuestClearStamp';
 
 export default function QuestCompletionModal() {
   const navigation = useNavigation();
@@ -71,24 +57,26 @@ export default function QuestCompletionModal() {
         <Backdrop>
           <Center>
             <CompletionImage />
-            <StampLottie source={stampLottie[current.type]} />
+            <QuestClearStamp type={current.type} />
           </Center>
 
           <TitleText>
-            {`방문리뷰 등록 퀘스트를 클리어했어요!\n다음 퀘스트도 함께 가볼까요?`}
+            {`${current.title} 퀘스트를 클리어했어요!\n크러셔님의 참여가 쉬운 이동을 만듭니다.`}
           </TitleText>
 
           <ButtonContainer>
             <SccButton
-              text={isLast ? '클리어 뱃지 확인하기!' : '다음'}
+              text={isLast ? '클리어 스탬프 확인하기' : '다음'}
               textColor="white"
               fontFamily={font.pretendardBold}
               onPress={handlePrimary}
             />
 
-            <TouchableOpacity onPress={closeAll}>
-              <CloseModalText>계속 정복하기</CloseModalText>
-            </TouchableOpacity>
+            {isLast && (
+              <TouchableOpacity onPress={closeAll}>
+                <CloseModalText>계속 정복하기</CloseModalText>
+              </TouchableOpacity>
+            )}
           </ButtonContainer>
         </Backdrop>
       </TouchableWithoutFeedback>
@@ -105,24 +93,24 @@ const Backdrop = styled.View({
 const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
-  paddingBottom: 80,
+  paddingBottom: 92,
   gap: 60,
 });
 
 const CompletionImage = styled.Image.attrs({
   source: require('@/assets/img/quest_completion.png'),
 })({
-  width: 254,
-  height: 88,
+  width: 271,
+  height: 77,
 });
 
 const TitleText = styled.Text({
   marginBottom: 20,
   textAlign: 'center',
   color: color.white,
-  fontFamily: font.pretendardBold,
-  fontSize: 18,
-  lineHeight: 26,
+  fontFamily: font.pretendardRegular,
+  fontSize: 16,
+  lineHeight: 24,
 });
 
 const ButtonContainer = styled.View({

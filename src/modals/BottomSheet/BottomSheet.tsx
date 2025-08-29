@@ -10,10 +10,10 @@ import {
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 
-import {color} from '@/constant/color';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {color} from '@/constant/color';
 import {LogView} from '@/logging/LogView';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 type Props = React.PropsWithChildren<{
   isVisible: boolean;

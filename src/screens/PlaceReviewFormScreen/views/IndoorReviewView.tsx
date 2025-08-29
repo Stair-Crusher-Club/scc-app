@@ -5,6 +5,7 @@ import {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
+import {useMe} from '@/atoms/Auth';
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
 import {
@@ -18,7 +19,6 @@ import {
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useMe} from '@/atoms/Auth';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
@@ -180,6 +180,7 @@ async function register({
           info.completedQuestsByContribution.map(quest => ({
             challengeId: info.challenge.id,
             type: quest.completeStampType,
+            title: quest.title,
           })),
         ),
       };

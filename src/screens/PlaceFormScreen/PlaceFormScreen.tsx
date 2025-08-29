@@ -179,6 +179,7 @@ async function register(api: DefaultApi, placeId: string, values: FormValues) {
           info.completedQuestsByContribution.map(quest => ({
             challengeId: info.challenge.id,
             type: quest.completeStampType,
+            title: quest.title,
           })),
         ),
       };

@@ -17,8 +17,6 @@ const ChallengeRank = ({
   visibleIcon = true,
 }: PropType) => {
   const shouldShowIcon = value.rank < 4;
-  // TODO: api 연결
-  const affiliate = '';
 
   return (
     <Container>
@@ -27,7 +25,7 @@ const ChallengeRank = ({
         {visibleIcon && shouldShowIcon && <Icon>{getIcon(value.rank)}</Icon>}
       </IndexContainer>
       <Contents>
-        {affiliate && <Affiliate>{affiliate}</Affiliate>}
+        {value.companyName && <Affiliate>{value.companyName}</Affiliate>}
         <UserName>{value.nickname}</UserName>
       </Contents>
       <Contributions

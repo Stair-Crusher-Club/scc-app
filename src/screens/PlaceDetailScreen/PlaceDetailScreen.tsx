@@ -1,6 +1,11 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {NativeScrollEvent, ScrollView, View} from 'react-native';
+import {
+  InteractionManager,
+  NativeScrollEvent,
+  ScrollView,
+  View,
+} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -15,6 +20,9 @@ import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sectio
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import {useIsFocused} from '@react-navigation/native';
+import {useAtomValue} from 'jotai';
+import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
@@ -50,6 +58,23 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
+
+  const isFocused = useIsFocused();
+
+  const questModalVisible = useAtomValue(visibleAtom);
+  const [pendingBottomSheet, setPendingBottomSheet] = useState<
+    null | 'registerComplete' | 'requireBuilding'
+  >(null);
+
+  const openBottomSheet = useCallback(
+    (which: 'registerComplete' | 'requireBuilding') => {
+      if (which === 'registerComplete')
+        setShowRegisterCompleteBottomSheet(true);
+      if (which === 'requireBuilding')
+        setShowRequireBuildingAccessibilityBottomSheet(true);
+    },
+    [],
+  );
 
   const placeId =
     'placeId' in placeInfo ? placeInfo.placeId : placeInfo.place.id;
@@ -117,30 +142,58 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
 
+  // 네비게이션 블러 시 안전장치: 보류/열림 전부 닫기
+  useEffect(() => {
+    const unsub = navigation.addListener('blur', () => {
+      setPendingBottomSheet(null);
+      setShowRegisterCompleteBottomSheet(false);
+      setShowRequireBuildingAccessibilityBottomSheet(false);
+    });
+    return unsub;
+  }, [navigation]);
+
   useEffect(() => {
     // 등록된 정보 확인 후에 띄워주기
-    if (!accessibilityPost) {
-      return;
-    }
+    if (!accessibilityPost) return;
 
-    // open by event
+    // 어떤 바텀시트를 열지 결정
+    let toOpen: null | 'registerComplete' | 'requireBuilding' = null;
+
     if (event === 'submit-place') {
-      // 건물 정보가 이미 있는 경우, 정복 완료로 보여주기
-      if (accessibilityPost.buildingAccessibility) {
-        setShowRegisterCompleteBottomSheet(true);
-      } else {
-        setShowRequireBuildingAccessibilityBottomSheet(true);
-      }
+      toOpen = accessibilityPost.buildingAccessibility
+        ? 'registerComplete'
+        : 'requireBuilding';
+    } else if (event === 'submit-building') {
+      toOpen = 'registerComplete';
     }
-    if (event === 'submit-building') {
-      setShowRegisterCompleteBottomSheet(true);
+    if (!toOpen) return;
+
+    // 퀘스트 모달 떠 있으면 보류, 아니면 즉시 열기
+    if (questModalVisible) {
+      setPendingBottomSheet(toOpen);
+    } else {
+      openBottomSheet(toOpen);
     }
-  }, [accessibilityPost, event, placeId]);
+  }, [accessibilityPost, event, questModalVisible, openBottomSheet]);
+
+  // 퀘스트 모달이 닫힌 뒤, 전환/애니메이션까지 끝난 다음 & 이 화면이 포커스일 때만 보류된 바텀시트 열기
+  useEffect(() => {
+    if (!questModalVisible && pendingBottomSheet) {
+      const task = InteractionManager.runAfterInteractions(() => {
+        if (isFocused) {
+          openBottomSheet(pendingBottomSheet);
+          setPendingBottomSheet(null);
+        }
+      });
+      return () => task.cancel();
+    }
+  }, [questModalVisible, pendingBottomSheet, isFocused, openBottomSheet]);
 
   const closeModals = useCallback(() => {
     // 일단 둘밖에 없으니 둘 다 닫는걸로 처리하자
     setShowRequireBuildingAccessibilityBottomSheet(false);
     setShowRegisterCompleteBottomSheet(false);
+    setPendingBottomSheet(null);
     // 복귀 후 모달을 다시 띄우지 않기 위한 처리
     navigation.setParams({event: undefined});
   }, [navigation]);

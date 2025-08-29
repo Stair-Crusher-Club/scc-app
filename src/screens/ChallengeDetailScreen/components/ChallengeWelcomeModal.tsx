@@ -18,24 +18,8 @@ export default function ChallengeWelcomeModal({
   return (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
       <Backdrop>
-        <View
-          style={{
-            backgroundColor: color.white,
-            borderRadius: 20,
-          }}>
-          <View
-            style={{
-              paddingTop: 30,
-              paddingBottom: 10,
-            }}>
-            <Title>챌린지 참여를 환영합니다!</Title>
-            <Description>우리 함께 계단 정복을 시작해볼까요?</Description>
-          </View>
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
+        <Container>
+          <ImageWrapper>
             <Image
               source={require('@/assets/img/img_challenge_welcome.png')}
               style={{
@@ -43,6 +27,10 @@ export default function ChallengeWelcomeModal({
                 height: 176,
               }}
             />
+          </ImageWrapper>
+          <View>
+            <Title>챌린지 참여를 환영합니다!</Title>
+            <Description>우리 함께 계단 정복을 시작해볼까요?</Description>
           </View>
           <ButtonContainer>
             <ConfirmButton
@@ -53,7 +41,7 @@ export default function ChallengeWelcomeModal({
               onPress={() => setVisible(false)}
             />
           </ButtonContainer>
-        </View>
+        </Container>
       </Backdrop>
     </Modal>
   );
@@ -64,6 +52,18 @@ const Backdrop = styled.View({
   justifyContent: 'center',
   backgroundColor: 'rgba(0,0,0,0.5)',
   padding: 20,
+});
+
+const Container = styled.View({
+  backgroundColor: color.white,
+  borderRadius: 20,
+});
+
+const ImageWrapper = styled.View({
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingTop: 30,
+  paddingBottom: 10,
 });
 
 export const Title = styled.Text({

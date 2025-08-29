@@ -31,7 +31,11 @@ export default function SearchSummaryView({
         <SearchLoading />
       ) : searchResults === null ? (
         <>
-          <ScrollView bounces={false}>
+          <ScrollView
+            bounces={false}
+            style={{
+              backgroundColor: color.gray20,
+            }}>
             <SearchRecommendContainer>
               <SearchHistories onPressHistory={onQueryUpdate} />
               <SearchRecommendPlace onPressKeyword={onQueryUpdate} />
@@ -65,7 +69,7 @@ export default function SearchSummaryView({
 
 const Container = styled.View`
   flex: 1;
-  background-color: #ebebef;
+  background-color: ${color.white};
 `;
 
 const SearchRecommendContainer = styled.View`

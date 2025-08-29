@@ -19,11 +19,7 @@ const TopTenRank = ({ranks}: PropsType) => {
           return (
             <ChallengeRank
               key={rank.nickname}
-              value={{
-                rank: rank.rank,
-                nickname: rank.nickname,
-                contributionCount: rank.contributionCount,
-              }}
+              value={{...rank}}
               shouldShowUnderline={index < ranks.length - 1}
             />
           );

@@ -1,10 +1,10 @@
-// atoms/questCompletion.ts
 import {ChallengeQuestCompleteStampTypeDto} from '@/generated-sources/openapi';
 import {atom} from 'jotai';
 
 export type QueueItem = {
   challengeId: string;
   type: ChallengeQuestCompleteStampTypeDto;
+  title: string;
 };
 
 export const queueAtom = atom<QueueItem[]>([]);

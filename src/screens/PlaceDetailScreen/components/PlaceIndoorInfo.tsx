@@ -56,7 +56,7 @@ export default function PlaceIndoorInfo({reviews}: Props) {
               </S.ContentTag>
             ))}
           </S.ContentTagWrapper>
-          {seatComments.length > 0 && (
+          {seatComments && seatComments.length > 0 && (
             <S.SubContentText>{seatComments.join(', ')}</S.SubContentText>
           )}
         </S.ContentTextWrapper>

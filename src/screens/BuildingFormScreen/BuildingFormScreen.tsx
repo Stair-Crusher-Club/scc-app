@@ -227,6 +227,7 @@ async function register(
           info.completedQuestsByContribution.map(quest => ({
             challengeId: info.challenge.id,
             type: quest.completeStampType,
+            title: quest.title,
           })),
         ),
       };
