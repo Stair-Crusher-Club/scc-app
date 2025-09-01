@@ -5,7 +5,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
 import {useEffect, useState} from 'react';
-import {StatusBar} from 'react-native';
+import {Platform, StatusBar} from 'react-native';
 import Config from 'react-native-config';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -22,12 +22,20 @@ import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
 
 const queryClient = new QueryClient();
 
+// Get BASE_URL with local development override
+const getBaseURL = () => {
+  if (Config.FLAVOR === 'local') {
+    return Platform.OS === 'ios' ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
+  }
+  return Config.BASE_URL;
+};
+
 const AppWithProviders = () => {
   return (
     <Provider>
       <SafeAreaProvider>
         <AppComponentsProvider
-          api={new DefaultApi(new Configuration({basePath: Config.BASE_URL}))}>
+          api={new DefaultApi(new Configuration({basePath: getBaseURL()}))}>
           <QueryClientProvider client={queryClient}>
             <App />
           </QueryClientProvider>
