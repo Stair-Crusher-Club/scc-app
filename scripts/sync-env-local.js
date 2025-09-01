@@ -21,4 +21,4 @@ content = content.replace(/^FLAVOR=.*$/m, 'FLAVOR=local');
 fs.writeFileSync(LOCAL_ENV_PATH, content);
 
 console.log(`✅ Successfully synced ${LOCAL_ENV_PATH} from ${SANDBOX_ENV_PATH}`);
-console.log('📝 BASE_URL will be set dynamically based on platform (iOS: localhost:3000, Android: 10.0.2.2:3000)');
+console.log('📝 BASE_URL will be set dynamically based on platform (iOS: localhost:8080, Android: 10.0.2.2:8080)');
