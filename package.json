@@ -5,8 +5,10 @@
   "scripts": {
     "android": "react-native run-android --mode=sandboxDebug --appIdSuffix=sandbox",
     "android:production": "react-native run-android --mode=productionDebug",
+    "android:local": "node scripts/merge-env.js subprojects/scc-frontend-build-configurations/sandbox/.env .env.local .env.merged && ENVFILE=.env.merged react-native run-android --mode=sandboxDebug --appIdSuffix=sandbox",
     "ios": "react-native run-ios --scheme 'StairCrusherClubSandbox'",
     "ios:production": "react-native run-ios --scheme 'StairCrusherClub'",
+    "ios:local": "node scripts/merge-env.js subprojects/scc-frontend-build-configurations/sandbox/.env .env.local .env.merged && ENVFILE=.env.merged react-native run-ios --scheme 'StairCrusherClubSandbox'",
     "start": "ENVFILE=.env.sandbox react-native start",
     "start:production": "ENVFILE=.env.production react-native start",
     "test": "jest",

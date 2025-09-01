@@ -72,6 +72,8 @@ yarn-error.log
 # env selected by mode : sandbox/production 중 하나가 복사된다.
 .env
 .xcode.env.local
+.env.local*
+.env.merged
 .vscode/
 
 dist/
