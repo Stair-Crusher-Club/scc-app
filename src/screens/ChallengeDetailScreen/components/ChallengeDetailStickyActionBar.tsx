@@ -3,6 +3,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {useEffect, useRef, useState} from 'react';
 import {Animated, StyleProp, ViewStyle} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 interface Props {
@@ -22,6 +23,7 @@ export default function ChallengeDetailStickyActionBar({
   const [display, setDisplay] = useState<'flex' | 'none'>(
     visible ? 'flex' : 'none',
   );
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -52,7 +54,23 @@ export default function ChallengeDetailStickyActionBar({
 
   return (
     <ButtonContainer
-      style={[{display} as any, animatedStyle as any, style]}
+      style={[
+        {display},
+        {
+          boxShadow: [
+            {
+              offsetX: 4,
+              offsetY: 0,
+              blurRadius: 9,
+              spreadDistance: 0,
+              color: 'rgba(0, 0, 0, 0.13)',
+            },
+          ],
+          minHeight: 96 + insets.bottom,
+        },
+        animatedStyle,
+        style,
+      ]}
       pointerEvents={visible ? 'auto' : 'none'}>
       <SccButton
         text="장소 정복하러 가기"
@@ -67,6 +85,6 @@ export default function ChallengeDetailStickyActionBar({
 
 const ButtonContainer = styled(Animated.View)({
   height: 96,
-  padding: 20,
   backgroundColor: color.white,
+  padding: 20,
 });

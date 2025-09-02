@@ -103,7 +103,7 @@ const ChallengeDetailScreen = ({
 
   return (
     <LogParamsProvider params={{challenge_id: challengeId}}>
-      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
+      <ScreenLayout isHeaderVisible={false}>
         <S.Container onScroll={onScroll} scrollEventThrottle={16}>
           <S.Contents>
             <ChallengeStatusBadgesWrapper
