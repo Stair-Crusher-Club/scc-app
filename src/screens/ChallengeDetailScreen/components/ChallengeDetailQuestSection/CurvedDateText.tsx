@@ -13,7 +13,7 @@ interface CurvedDateTextProps {
 
 export default function CurvedDateText({
   date = '',
-  containerSize = 72,
+  containerSize = 84,
   fontSize = 9,
   charColor,
   fontFamily,
@@ -45,7 +45,7 @@ export default function CurvedDateText({
           left: x - fontSize / 2 + 1,
           ...Platform.select({
             ios: {
-              top: y - fontSize / 2 - 3,
+              top: y - fontSize / 2 - 4,
             },
             android: {
               top: y - fontSize / 2 - 4,
