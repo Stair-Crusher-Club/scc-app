@@ -1,6 +1,6 @@
 import {font} from '@/constant/font';
 import React from 'react';
-import {Platform, TextStyle, View} from 'react-native'; // View를 import 합니다.
+import {Platform, TextStyle, View} from 'react-native';
 import styled from 'styled-components/native';
 
 interface CurvedDateTextProps {
@@ -13,7 +13,7 @@ interface CurvedDateTextProps {
 
 export default function CurvedDateText({
   date = '',
-  containerSize = 72,
+  containerSize = 84,
   fontSize = 9,
   charColor,
   fontFamily,
@@ -45,7 +45,7 @@ export default function CurvedDateText({
           left: x - fontSize / 2 + 1,
           ...Platform.select({
             ios: {
-              top: y - fontSize / 2 - 3,
+              top: y - fontSize / 2 - 4,
             },
             android: {
               top: y - fontSize / 2 - 4,
@@ -77,8 +77,7 @@ const Container = styled.View({
 });
 
 const Character = styled.Text<{color: string}>(({color}) => ({
-  fontWeight: 'bold',
   color: color,
   textAlign: 'center',
-  fontFamily: font.pretendardBold,
+  fontFamily: font.gumiRomance,
 }));

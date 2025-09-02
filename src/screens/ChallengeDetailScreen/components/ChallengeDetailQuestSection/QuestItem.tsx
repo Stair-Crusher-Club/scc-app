@@ -74,7 +74,7 @@ export default function QuestItem({
         <StampWrap>
           <Image
             source={stampMap[completeStampType].uri}
-            style={{width: 72, height: 72}}
+            style={{width: 84, height: 84}}
           />
           <StampDate pointerEvents="none">
             <CurvedDateText

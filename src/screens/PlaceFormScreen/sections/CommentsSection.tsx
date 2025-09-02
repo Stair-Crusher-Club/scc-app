@@ -3,6 +3,7 @@ import {Controller} from 'react-hook-form';
 
 import TextArea from '@/components/form/TextArea';
 
+import {Platform} from 'react-native';
 import * as S from './CommentsSection.style';
 
 export default function CommentsSection() {
@@ -21,6 +22,9 @@ export default function CommentsSection() {
             placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다 (최대 100자)"
             value={field.value}
             onChangeText={field.onChange}
+            style={{
+              minHeight: Platform.OS === 'android' ? 50 : undefined,
+            }}
           />
         )}
       />

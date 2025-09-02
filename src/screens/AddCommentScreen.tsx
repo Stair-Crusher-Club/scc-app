@@ -1,6 +1,13 @@
 import {useQueryClient} from '@tanstack/react-query';
 import React, {useState} from 'react';
-import {ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
@@ -137,6 +144,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.pretendardRegular,
     paddingVertical: 0,
+    minHeight: Platform.OS === 'android' ? 50 : undefined,
   },
   commentCharactersCount: {
     marginTop: 10,

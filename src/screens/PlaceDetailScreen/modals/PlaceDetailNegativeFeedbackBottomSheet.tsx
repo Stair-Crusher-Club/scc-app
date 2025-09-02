@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {match} from 'ts-pattern';
@@ -88,6 +88,9 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 `}
             value={text ?? ''}
             onChangeText={setText}
+            style={{
+              minHeight: Platform.OS === 'android' ? 120 : undefined,
+            }}
           />
         )}
         <ButtonContainer>
