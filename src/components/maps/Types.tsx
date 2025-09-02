@@ -16,21 +16,13 @@ export function getCenterAndRadius(region: Region) {
     latitude: (region.northEast.latitude + region.southWest.latitude) / 2,
     longitude: (region.northEast.longitude + region.southWest.longitude) / 2,
   };
-  const radius = Math.min(
-    distanceInMeter(
-      {
-        longitude: center.longitude,
-        latitude: region.southWest.latitude,
-      },
-      center,
-    ),
-    distanceInMeter(
-      {
-        latitude: center.latitude,
-        longitude: region.southWest.longitude,
-      },
-      center,
-    ),
+  // 대각선 거리를 반지름으로 사용하여 모든 corners가 포함되도록 함
+  const radius = distanceInMeter(
+    {
+      latitude: region.southWest.latitude,
+      longitude: region.southWest.longitude,
+    },
+    center,
   );
   return {center, radius};
 }
