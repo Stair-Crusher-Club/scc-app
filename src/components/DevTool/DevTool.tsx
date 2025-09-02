@@ -38,12 +38,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
-        pan.setOffset({
-          // @ts-ignore
-          x: pan.x._value,
-          // @ts-ignore
-          y: pan.y._value,
-        });
+        pan.extractOffset();
       },
       onPanResponderMove: Animated.event(
         [null, {dx: pan.x, dy: pan.y}],
