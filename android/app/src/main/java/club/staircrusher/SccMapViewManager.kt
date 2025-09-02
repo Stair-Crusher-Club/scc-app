@@ -105,35 +105,35 @@ internal class SccMapViewManager : SimpleViewManager<SccMapView>(),
 
     @ReactProp(name = "circleOverlays")
     override fun setCircleOverlays(view: SccMapView, circleOverlays: ReadableArray?) {
-        circleOverlays ?: return
-        val items = circleOverlays.let { overlays ->
-            (0 until overlays.size()).mapNotNull {
-                val overlay = overlays.getMap(it) ?: return@mapNotNull null
-                val overlayId = overlay.getString("id") ?: return@mapNotNull null
-                val center = overlay.getMap("center")?.let { centerMap ->
-                    val lat = centerMap.getDouble("lat")
-                    val lng = centerMap.getDouble("lng")
-                    LatLng(lat, lng)
-                } ?: return@mapNotNull null
-                
-                val radius = overlay.getDouble("radius")
-                val fillColor = overlay.getString("fillColor")?.let { Color.parseColor(it) }
-                val strokeColor = overlay.getString("strokeColor")?.let { Color.parseColor(it) }
-                val strokeWidth = if (overlay.hasKey("strokeWidth")) overlay.getDouble("strokeWidth").toFloat() else null
+        if (circleOverlays == null) {
+            view.setCircleOverlays(emptyList())
+            return
+        }
+        val items = (0 until circleOverlays.size()).mapNotNull {
+            val overlay = circleOverlays.getMap(it) ?: return@mapNotNull null
+            val overlayId = overlay.getString("id") ?: return@mapNotNull null
+            val center = overlay.getMap("center")?.let { centerMap ->
+                val lat = centerMap.getDouble("lat")
+                val lng = centerMap.getDouble("lng")
+                LatLng(lat, lng)
+            } ?: return@mapNotNull null
 
-                CircleOverlayData(
-                    id = overlayId,
-                    center = center,
-                    radius = radius,
-                    fillColor = fillColor,
-                    strokeColor = strokeColor,
-                    strokeWidth = strokeWidth,
-                )
-            }
+            val radius = if (overlay.hasKey("radius")) overlay.getDouble("radius") else return@mapNotNull null
+            val fillColor = overlay.getString("fillColor")?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+            val strokeColor = overlay.getString("strokeColor")?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+            val strokeWidth = if (overlay.hasKey("strokeWidth")) overlay.getDouble("strokeWidth").toFloat() else null
+
+            CircleOverlayData(
+                id = overlayId,
+                center = center,
+                radius = radius,
+                fillColor = fillColor,
+                strokeColor = strokeColor,
+                strokeWidth = strokeWidth,
+            )
         }
         view.setCircleOverlays(items)
     }
-
     @ReactProp(name = "rectangleOverlays")
     override fun setRectangleOverlays(view: SccMapView, rectangleOverlays: ReadableArray?) {
         rectangleOverlays ?: return
