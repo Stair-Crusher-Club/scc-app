@@ -73,3 +73,28 @@ export function getRegionFromItems(items: MarkerItem[]) {
     southWest,
   };
 }
+
+export function getRegionCorners(region: Region): LatLng[] {
+  return [
+    // 북동쪽 (우상단)
+    {
+      latitude: region.northEast.latitude,
+      longitude: region.northEast.longitude,
+    },
+    // 북서쪽 (좌상단)
+    {
+      latitude: region.northEast.latitude,
+      longitude: region.southWest.longitude,
+    },
+    // 남서쪽 (좌하단)
+    {
+      latitude: region.southWest.latitude,
+      longitude: region.southWest.longitude,
+    },
+    // 남동쪽 (우하단)
+    {
+      latitude: region.southWest.latitude,
+      longitude: region.northEast.longitude,
+    },
+  ];
+}

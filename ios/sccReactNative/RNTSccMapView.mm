@@ -8,6 +8,8 @@
 #import "RNTSccMapView.h"
 #import "RNTSccMapViewImpl.h"
 #import "RNTSccMarkerData.h"
+#import "RNTSccCircleOverlayData.h"
+#import "RNTSccRectangleOverlayData.h"
 
 #import <react/renderer/components/AppSpec/ComponentDescriptors.h>
 #import <react/renderer/components/AppSpec/EventEmitters.h>
@@ -79,6 +81,47 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
   return YES;
 }
 
+// Helper function to deeply compare two circle overlay vectors
+static BOOL areCircleOverlaysEqual(const std::vector<SccMapViewCircleOverlaysStruct>& a, const std::vector<SccMapViewCircleOverlaysStruct>& b) {
+  if (a.size() != b.size()) return NO;
+  for (size_t i = 0; i < a.size(); ++i) {
+    const auto& c1 = a[i];
+    const auto& c2 = b[i];
+    if (c1.id != c2.id ||
+        c1.center.lat != c2.center.lat ||
+        c1.center.lng != c2.center.lng ||
+        c1.radius != c2.radius ||
+        c1.fillColor != c2.fillColor ||
+        c1.strokeColor != c2.strokeColor ||
+        c1.strokeWidth != c2.strokeWidth
+        ) {
+      return NO;
+    }
+  }
+  return YES;
+}
+
+// Helper function to deeply compare two rectangle overlay vectors
+static BOOL areRectangleOverlaysEqual(const std::vector<SccMapViewRectangleOverlaysStruct>& a, const std::vector<SccMapViewRectangleOverlaysStruct>& b) {
+  if (a.size() != b.size()) return NO;
+  for (size_t i = 0; i < a.size(); ++i) {
+    const auto& r1 = a[i];
+    const auto& r2 = b[i];
+    if (r1.id != r2.id ||
+        r1.leftTopLocation.lat != r2.leftTopLocation.lat ||
+        r1.leftTopLocation.lng != r2.leftTopLocation.lng ||
+        r1.rightBottomLocation.lat != r2.rightBottomLocation.lat ||
+        r1.rightBottomLocation.lng != r2.rightBottomLocation.lng ||
+        r1.fillColor != r2.fillColor ||
+        r1.strokeColor != r2.strokeColor ||
+        r1.strokeWidth != r2.strokeWidth
+        ) {
+      return NO;
+    }
+  }
+  return YES;
+}
+
 // Updating the child view props
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
@@ -140,6 +183,74 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
     CGFloat right = (CGFloat)newViewProps.mapPadding.right;
     CGFloat bottom = (CGFloat)newViewProps.mapPadding.bottom;
     [_mapView setMapPaddingWithTop:top left:left right:right bottom:bottom];
+  }
+  
+  // circleOverlays
+  if (!areCircleOverlaysEqual(oldViewProps.circleOverlays, newViewProps.circleOverlays)) {
+    NSMutableArray<RNTSccCircleOverlayData *> *circleOverlayArray = [NSMutableArray arrayWithCapacity:newViewProps.circleOverlays.size()];
+    for (const auto &overlayStruct : newViewProps.circleOverlays) {
+      NSString *overlayId = [NSString stringWithUTF8String:overlayStruct.id.c_str()];
+      
+      NMGLatLng *center = [NMGLatLng latLngWithLat:overlayStruct.center.lat lng:overlayStruct.center.lng];
+      double radius = overlayStruct.radius;
+      
+      UIColor *fillColor = nil;
+      UIColor *strokeColor = nil;
+      CGFloat strokeWidth = 1.0;
+      
+      if (!overlayStruct.fillColor.empty()) {
+        NSString *fillColorString = [NSString stringWithUTF8String:overlayStruct.fillColor.c_str()];
+        fillColor = [self colorFromString:fillColorString];
+      }
+      if (!overlayStruct.strokeColor.empty()) {
+        NSString *strokeColorString = [NSString stringWithUTF8String:overlayStruct.strokeColor.c_str()];
+        strokeColor = [self colorFromString:strokeColorString];
+      }
+      strokeWidth = overlayStruct.strokeWidth;
+      
+      RNTSccCircleOverlayData *overlayData = [[RNTSccCircleOverlayData alloc] initWithId:overlayId
+                                                                                     center:center
+                                                                                     radius:radius
+                                                                                  fillColor:fillColor
+                                                                                strokeColor:strokeColor
+                                                                                strokeWidth:strokeWidth];
+      [circleOverlayArray addObject:overlayData];
+    }
+    [_mapView setCircleOverlays:circleOverlayArray];
+  }
+  
+  // rectangleOverlays
+  if (!areRectangleOverlaysEqual(oldViewProps.rectangleOverlays, newViewProps.rectangleOverlays)) {
+    NSMutableArray<RNTSccRectangleOverlayData *> *rectangleOverlayArray = [NSMutableArray arrayWithCapacity:newViewProps.rectangleOverlays.size()];
+    for (const auto &overlayStruct : newViewProps.rectangleOverlays) {
+      NSString *overlayId = [NSString stringWithUTF8String:overlayStruct.id.c_str()];
+      
+      NMGLatLng *leftTopLocation = [NMGLatLng latLngWithLat:overlayStruct.leftTopLocation.lat lng:overlayStruct.leftTopLocation.lng];
+      NMGLatLng *rightBottomLocation = [NMGLatLng latLngWithLat:overlayStruct.rightBottomLocation.lat lng:overlayStruct.rightBottomLocation.lng];
+      
+      UIColor *fillColor = nil;
+      UIColor *strokeColor = nil;
+      CGFloat strokeWidth = 1.0;
+      
+      if (!overlayStruct.fillColor.empty()) {
+        NSString *fillColorString = [NSString stringWithUTF8String:overlayStruct.fillColor.c_str()];
+        fillColor = [self colorFromString:fillColorString];
+      }
+      if (!overlayStruct.strokeColor.empty()) {
+        NSString *strokeColorString = [NSString stringWithUTF8String:overlayStruct.strokeColor.c_str()];
+        strokeColor = [self colorFromString:strokeColorString];
+      }
+      strokeWidth = overlayStruct.strokeWidth;
+      
+      RNTSccRectangleOverlayData *overlayData = [[RNTSccRectangleOverlayData alloc] initWithId:overlayId
+                                                                              leftTopLocation:leftTopLocation
+                                                                           rightBottomLocation:rightBottomLocation
+                                                                                     fillColor:fillColor
+                                                                                   strokeColor:strokeColor
+                                                                                   strokeWidth:strokeWidth];
+      [rectangleOverlayArray addObject:overlayData];
+    }
+    [_mapView setRectangleOverlays:rectangleOverlayArray];
   }
   
   [super updateProps:props oldProps:oldProps];
@@ -215,6 +326,42 @@ static BOOL areMarkersEqual(const std::vector<SccMapViewMarkersStruct>& a, const
 + (ComponentDescriptorProvider)componentDescriptorProvider
 {
   return concreteComponentDescriptorProvider<SccMapViewComponentDescriptor>();
+}
+
+// Helper method to parse color strings (both hex and rgba formats)
+- (UIColor *)colorFromString:(NSString *)colorString {
+  if (!colorString || colorString.length == 0) {
+    return nil;
+  }
+  
+  // Handle rgba(r, g, b, a) format
+  if ([colorString hasPrefix:@"rgba("]) {
+    NSString *values = [colorString substringWithRange:NSMakeRange(5, colorString.length - 6)]; // Remove "rgba(" and ")"
+    NSArray *components = [values componentsSeparatedByString:@","];
+    
+    if (components.count == 4) {
+      CGFloat red = [[components[0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] floatValue] / 255.0;
+      CGFloat green = [[components[1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] floatValue] / 255.0;
+      CGFloat blue = [[components[2] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] floatValue] / 255.0;
+      CGFloat alpha = [[components[3] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] floatValue];
+      
+      return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+    }
+  }
+  
+  // Handle hex format (fallback to existing method if available)
+  if ([colorString hasPrefix:@"#"]) {
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:colorString];
+    [scanner setScanLocation:1]; // Skip the '#'
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16) / 255.0
+                           green:((rgbValue & 0xFF00) >> 8) / 255.0
+                            blue:(rgbValue & 0xFF) / 255.0
+                           alpha:1.0];
+  }
+  
+  return nil;
 }
 
 @end

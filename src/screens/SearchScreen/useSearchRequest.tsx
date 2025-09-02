@@ -3,24 +3,29 @@ import {useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import {useRef} from 'react';
 
-import {PlaceListItem, SearchPlaceSortDto} from '@/generated-sources/openapi';
+import {PlaceListItem, SearchPlaceSortDto, RectangleSearchRegionDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {
   SortOption,
   filterAtom,
   searchQueryAtom,
+  draftCameraRegionAtom,
 } from '@/screens/SearchScreen/atoms';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
+import {useDevTool} from '@/components/DevTool/useDevTool';
+import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 
 export default function useSearchRequest() {
   const {api} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
     useAtomValue(filterAtom);
   const {text, location, radiusMeter} = useAtomValue(searchQueryAtom);
+  const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
   const route = useRoute();
+  const devTool = useDevTool();
   const {data, isFetching, refetch} = useQuery({
     initialData: [],
     queryKey: [
@@ -45,6 +50,43 @@ export default function useSearchRequest() {
           lng: currentPosition.coords.longitude,
         };
       }
+
+      // Track the search request in DevTool
+      let searchLocation = location ?? currentLocation;
+      let searchRadius = radiusMeter ?? 20000;
+      let rectangleRegion: RectangleSearchRegionDto | undefined;
+
+      // If we have draft camera region, use rectangle search instead of circle
+      if (draftCameraRegion && !radiusMeter) {
+        rectangleRegion = {
+          leftTopLocation: {
+            lat: draftCameraRegion.northEast.latitude,
+            lng: draftCameraRegion.southWest.longitude,
+          },
+          rightBottomLocation: {
+            lat: draftCameraRegion.southWest.latitude,
+            lng: draftCameraRegion.northEast.longitude,
+          },
+        };
+
+        // For DevTool tracking, use rectangle tracking
+        devTool.searchRegion.trackRectangle(
+          rectangleRegion.leftTopLocation,
+          rectangleRegion.rightBottomLocation,
+        );
+
+        // For fallback compatibility, also calculate center and radius
+        const {center, radius} = getCenterAndRadius(draftCameraRegion);
+        searchRadius = Math.round(radius);
+        searchLocation = {
+          lat: center.latitude,
+          lng: center.longitude,
+        };
+      } else if (searchLocation) {
+        // Use circle tracking for non-rectangle searches
+        devTool.searchRegion.trackCircle(searchLocation, searchRadius);
+      }
+
       const response = await api.searchPlacesPost({
         searchText: text,
         distanceMetersLimit: radiusMeter ?? 20000,

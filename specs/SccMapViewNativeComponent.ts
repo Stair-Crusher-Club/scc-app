@@ -15,6 +15,24 @@ export type NativeMarkerItem = {
   zIndex?: CodegenTypes.Int32;
 };
 
+export type NativeCircleOverlay = {
+  id: string;
+  center: {lat: CodegenTypes.Double; lng: CodegenTypes.Double};
+  radius: CodegenTypes.Double;
+  fillColor?: string;
+  strokeColor?: string;
+  strokeWidth?: CodegenTypes.Float;
+};
+
+export type NativeRectangleOverlay = {
+  id: string;
+  leftTopLocation: {lat: CodegenTypes.Double; lng: CodegenTypes.Double};
+  rightBottomLocation: {lat: CodegenTypes.Double; lng: CodegenTypes.Double};
+  fillColor?: string;
+  strokeColor?: string;
+  strokeWidth?: CodegenTypes.Float;
+};
+
 export type NativeRegion = {
   northEastLat: CodegenTypes.Double;
   northEastLng: CodegenTypes.Double;
@@ -24,6 +42,8 @@ export type NativeRegion = {
 
 export interface NativeProps extends ViewProps {
   markers: NativeMarkerItem[];
+  circleOverlays?: NativeCircleOverlay[];
+  rectangleOverlays?: NativeRectangleOverlay[];
   onMarkerPress?: CodegenTypes.BubblingEventHandler<{
     id: string;
   }> | null;

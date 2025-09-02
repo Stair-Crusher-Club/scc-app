@@ -18,6 +18,8 @@ import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.CircleOverlay
+import com.naver.maps.map.overlay.PolygonOverlay
 import com.naver.maps.map.util.FusedLocationSource
 
 @SuppressLint("ViewConstructor")
@@ -37,6 +39,8 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     private var baseTopMapPadding: Int = 0
     private var baseBottomMapPadding: Int = 0
     private var markers: List<Pair<Marker, MarkerData>> = emptyList()
+    private var circleOverlays: List<Pair<CircleOverlay, CircleOverlayData>> = emptyList()
+    private var rectangleOverlays: List<Pair<PolygonOverlay, RectangleOverlayData>> = emptyList()
     private var locationTrackingMode: LocationTrackingMode? = null
 
     init {
@@ -152,6 +156,55 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
                 LatLngBounds.from(markers.map { it.first.position }), 10
             ).animate(CameraAnimation.Easing, 200)
         )
+    }
+
+    fun setCircleOverlays(circleOverlayDatas: List<CircleOverlayData>) {
+        runOnUiThread {
+            // clear all existing circle overlays
+            circleOverlays.forEach { it.first.map = null }
+
+            circleOverlays = circleOverlayDatas.map { data ->
+                val circleOverlay = CircleOverlay()
+                circleOverlay.center = data.center
+                circleOverlay.radius = data.radius
+                
+                // Set colors if provided
+                data.fillColor?.let { circleOverlay.color = it }
+                data.strokeColor?.let { circleOverlay.outlineColor = it }
+                data.strokeWidth?.let { circleOverlay.outlineWidth = it.toInt() }
+                
+                circleOverlay.map = this.map
+                circleOverlay to data
+            }
+        }
+    }
+
+    fun setRectangleOverlays(rectangleOverlayDatas: List<RectangleOverlayData>) {
+        runOnUiThread {
+            // clear all existing rectangle overlays
+            rectangleOverlays.forEach { it.first.map = null }
+
+            rectangleOverlays = rectangleOverlayDatas.map { data ->
+                val polygonOverlay = PolygonOverlay()
+                
+                // Create rectangle coordinates from leftTop and rightBottom
+                val coords = listOf(
+                    data.leftTopLocation, // 북서쪽
+                    LatLng(data.leftTopLocation.latitude, data.rightBottomLocation.longitude), // 북동쪽  
+                    data.rightBottomLocation, // 남동쪽
+                    LatLng(data.rightBottomLocation.latitude, data.leftTopLocation.longitude), // 남서쪽
+                )
+                polygonOverlay.coords = coords
+                
+                // Set colors if provided
+                data.fillColor?.let { polygonOverlay.color = it }
+                data.strokeColor?.let { polygonOverlay.outlineColor = it }
+                data.strokeWidth?.let { polygonOverlay.outlineWidth = it.toInt() }
+                
+                polygonOverlay.map = this.map
+                polygonOverlay to data
+            }
+        }
     }
 
     fun setPositionMode(mode: String) {
