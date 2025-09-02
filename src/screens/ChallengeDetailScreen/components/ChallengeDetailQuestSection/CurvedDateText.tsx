@@ -1,6 +1,6 @@
 import {font} from '@/constant/font';
 import React from 'react';
-import {Platform, TextStyle, View} from 'react-native'; // View를 import 합니다.
+import {Platform, TextStyle, View} from 'react-native';
 import styled from 'styled-components/native';
 
 interface CurvedDateTextProps {
@@ -77,8 +77,7 @@ const Container = styled.View({
 });
 
 const Character = styled.Text<{color: string}>(({color}) => ({
-  fontWeight: 'bold',
   color: color,
   textAlign: 'center',
-  fontFamily: font.pretendardBold,
+  fontFamily: font.gumiRomance,
 }));
