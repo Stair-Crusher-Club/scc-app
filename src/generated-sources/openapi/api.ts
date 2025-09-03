@@ -633,6 +633,25 @@ export type ChallengeStatusDto = typeof ChallengeStatusDto[keyof typeof Challeng
 /**
  * 
  * @export
+ * @interface CircleSearchRegionDto
+ */
+export interface CircleSearchRegionDto {
+    /**
+     * 
+     * @type {Location}
+     * @memberof CircleSearchRegionDto
+     */
+    'currentLocation': Location;
+    /**
+     * 
+     * @type {number}
+     * @memberof CircleSearchRegionDto
+     */
+    'distanceMetersLimit': number;
+}
+/**
+ * 
+ * @export
  * @interface CompactAccessibilityInfoDto
  */
 export interface CompactAccessibilityInfoDto {
@@ -2191,6 +2210,25 @@ export type RecommendedMobilityTypeDto = typeof RecommendedMobilityTypeDto[keyof
 /**
  * 
  * @export
+ * @interface RectangleSearchRegionDto
+ */
+export interface RectangleSearchRegionDto {
+    /**
+     * 
+     * @type {Location}
+     * @memberof RectangleSearchRegionDto
+     */
+    'leftTopLocation': Location;
+    /**
+     * 
+     * @type {Location}
+     * @memberof RectangleSearchRegionDto
+     */
+    'rightBottomLocation': Location;
+}
+/**
+ * 
+ * @export
  * @interface RegisterBuildingAccessibilityCommentPost200Response
  */
 export interface RegisterBuildingAccessibilityCommentPost200Response {
@@ -2503,7 +2541,7 @@ export interface RegisterPlaceReviewResponseDto {
      * @type {PlaceReviewDto}
      * @memberof RegisterPlaceReviewResponseDto
      */
-    'placeReview'?: PlaceReviewDto;
+    'placeReview': PlaceReviewDto;
     /**
      * 이 리뷰 등록으로 인해 기여한 챌린지 목록
      * @type {Array<ContributedChallengeInfoDto>}
@@ -2750,64 +2788,76 @@ export type SearchPlaceSortDto = typeof SearchPlaceSortDto[keyof typeof SearchPl
 /**
  * 
  * @export
- * @interface SearchPlacesPost200Response
+ * @interface SearchPlacesRequestDto
  */
-export interface SearchPlacesPost200Response {
-    /**
-     * 
-     * @type {Array<PlaceListItem>}
-     * @memberof SearchPlacesPost200Response
-     */
-    'items'?: Array<PlaceListItem>;
-}
-/**
- * 
- * @export
- * @interface SearchPlacesPostRequest
- */
-export interface SearchPlacesPostRequest {
+export interface SearchPlacesRequestDto {
     /**
      * 
      * @type {string}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
     'searchText': string;
     /**
      * 
      * @type {Location}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
     'currentLocation'?: Location;
     /**
      * 
      * @type {number}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
-    'distanceMetersLimit': number;
+    'distanceMetersLimit'?: number;
+    /**
+     * 
+     * @type {CircleSearchRegionDto}
+     * @memberof SearchPlacesRequestDto
+     */
+    'circleRegion'?: CircleSearchRegionDto;
+    /**
+     * 
+     * @type {RectangleSearchRegionDto}
+     * @memberof SearchPlacesRequestDto
+     */
+    'rectangleRegion'?: RectangleSearchRegionDto;
     /**
      * 
      * @type {string}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
     'siGunGuId'?: string;
     /**
      * 
      * @type {string}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
     'eupMyeonDongId'?: string;
     /**
      * 
      * @type {SearchPlaceSortDto}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
     'sort'?: SearchPlaceSortDto;
     /**
      * 
      * @type {SearchPlaceFilterDto}
-     * @memberof SearchPlacesPostRequest
+     * @memberof SearchPlacesRequestDto
      */
     'filters'?: SearchPlaceFilterDto;
+}
+/**
+ * 
+ * @export
+ * @interface SearchPlacesResponseDto
+ */
+export interface SearchPlacesResponseDto {
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof SearchPlacesResponseDto
+     */
+    'items': Array<PlaceListItem>;
 }
 /**
  * 시군구를 표현하기 위한 모델.
@@ -5048,13 +5098,13 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary 점포를 검색한다. sort 가 null 인 경우에는 정확도순을 기본으로 한다.
-         * @param {SearchPlacesPostRequest} searchPlacesPostRequest 
+         * @param {SearchPlacesRequestDto} searchPlacesRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchPlacesPost: async (searchPlacesPostRequest: SearchPlacesPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'searchPlacesPostRequest' is not null or undefined
-            assertParamExists('searchPlacesPost', 'searchPlacesPostRequest', searchPlacesPostRequest)
+        searchPlacesPost: async (searchPlacesRequestDto: SearchPlacesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'searchPlacesRequestDto' is not null or undefined
+            assertParamExists('searchPlacesPost', 'searchPlacesRequestDto', searchPlacesRequestDto)
             const localVarPath = `/searchPlaces`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5078,7 +5128,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(searchPlacesPostRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(searchPlacesRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -5759,12 +5809,12 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary 점포를 검색한다. sort 가 null 인 경우에는 정확도순을 기본으로 한다.
-         * @param {SearchPlacesPostRequest} searchPlacesPostRequest 
+         * @param {SearchPlacesRequestDto} searchPlacesRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async searchPlacesPost(searchPlacesPostRequest: SearchPlacesPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchPlacesPost200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.searchPlacesPost(searchPlacesPostRequest, options);
+        async searchPlacesPost(searchPlacesRequestDto: SearchPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchPlacesPost(searchPlacesRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -6279,12 +6329,12 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary 점포를 검색한다. sort 가 null 인 경우에는 정확도순을 기본으로 한다.
-         * @param {SearchPlacesPostRequest} searchPlacesPostRequest 
+         * @param {SearchPlacesRequestDto} searchPlacesRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchPlacesPost(searchPlacesPostRequest: SearchPlacesPostRequest, options?: any): AxiosPromise<SearchPlacesPost200Response> {
-            return localVarFp.searchPlacesPost(searchPlacesPostRequest, options).then((request) => request(axios, basePath));
+        searchPlacesPost(searchPlacesRequestDto: SearchPlacesRequestDto, options?: any): AxiosPromise<SearchPlacesResponseDto> {
+            return localVarFp.searchPlacesPost(searchPlacesRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6886,13 +6936,13 @@ export class DefaultApi extends BaseAPI {
     /**
      * 
      * @summary 점포를 검색한다. sort 가 null 인 경우에는 정확도순을 기본으로 한다.
-     * @param {SearchPlacesPostRequest} searchPlacesPostRequest 
+     * @param {SearchPlacesRequestDto} searchPlacesRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public searchPlacesPost(searchPlacesPostRequest: SearchPlacesPostRequest, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).searchPlacesPost(searchPlacesPostRequest, options).then((request) => request(this.axios, this.basePath));
+    public searchPlacesPost(searchPlacesRequestDto: SearchPlacesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).searchPlacesPost(searchPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

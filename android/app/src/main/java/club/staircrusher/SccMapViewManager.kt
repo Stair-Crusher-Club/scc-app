@@ -1,5 +1,6 @@
 package club.staircrusher
 
+import android.graphics.Color
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.module.annotations.ReactModule
@@ -100,6 +101,79 @@ internal class SccMapViewManager : SimpleViewManager<SccMapView>(),
             }
         }
         view.setMarkers(items)
+    }
+
+    @ReactProp(name = "circleOverlays")
+    override fun setCircleOverlays(view: SccMapView, circleOverlays: ReadableArray?) {
+        if (circleOverlays == null) {
+            view.setCircleOverlays(emptyList())
+            return
+        }
+        val items = (0 until circleOverlays.size()).mapNotNull {
+            val overlay = circleOverlays.getMap(it) ?: return@mapNotNull null
+            val overlayId = overlay.getString("id") ?: return@mapNotNull null
+            val center = overlay.getMap("center")?.let { centerMap ->
+                val lat = centerMap.getDouble("lat")
+                val lng = centerMap.getDouble("lng")
+                LatLng(lat, lng)
+            } ?: return@mapNotNull null
+
+            val radius = if (overlay.hasKey("radius")) overlay.getDouble("radius") else return@mapNotNull null
+            val fillColor = overlay.getString("fillColor")?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+            val strokeColor = overlay.getString("strokeColor")?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+            val strokeWidth = if (overlay.hasKey("strokeWidth")) overlay.getDouble("strokeWidth").toFloat() else null
+
+            CircleOverlayData(
+                id = overlayId,
+                center = center,
+                radius = radius,
+                fillColor = fillColor,
+                strokeColor = strokeColor,
+                strokeWidth = strokeWidth,
+            )
+        }
+        view.setCircleOverlays(items)
+    }
+    @ReactProp(name = "rectangleOverlays")
+    override fun setRectangleOverlays(view: SccMapView, rectangleOverlays: ReadableArray?) {
+        if (rectangleOverlays == null) {
+            view.setRectangleOverlays(emptyList())
+            return
+        }
+        val items = (0 until rectangleOverlays.size()).mapNotNull {
+            val overlay = rectangleOverlays.getMap(it) ?: return@mapNotNull null
+            val overlayId = overlay.getString("id") ?: return@mapNotNull null
+
+            val leftTopLocation = overlay.getMap("leftTopLocation")?.let { leftTopMap ->
+                val lat = leftTopMap.getDouble("lat")
+                val lng = leftTopMap.getDouble("lng")
+                LatLng(lat, lng)
+            } ?: return@mapNotNull null
+
+            val rightBottomLocation = overlay.getMap("rightBottomLocation")?.let { rightBottomMap ->
+                val lat = rightBottomMap.getDouble("lat")
+                val lng = rightBottomMap.getDouble("lng")
+                LatLng(lat, lng)
+            } ?: return@mapNotNull null
+
+            val fillColor = overlay.getString("fillColor")
+                ?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+            val strokeColor = overlay.getString("strokeColor")
+                ?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+            val strokeWidth = if (overlay.hasKey("strokeWidth")) {
+                overlay.getDouble("strokeWidth").toFloat()
+            } else null
+
+            RectangleOverlayData(
+                id = overlayId,
+                leftTopLocation = leftTopLocation,
+                rightBottomLocation = rightBottomLocation,
+                fillColor = fillColor,
+                strokeColor = strokeColor,
+                strokeWidth = strokeWidth,
+            )
+        }
+        view.setRectangleOverlays(items)
     }
 
     @ReactProp(name = "initialRegion")

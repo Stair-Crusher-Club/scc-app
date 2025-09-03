@@ -6,16 +6,23 @@ import styled from 'styled-components/native';
 import {currentLocationAtom} from '@/atoms/Location.ts';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {getRegionFromItems, LatLng, Region} from '@/components/maps/Types.tsx';
+import {getRegionFromItems, getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
 import {
   NativeMarkerItem,
   NativeRegion,
+  NativeRectangleOverlay,
 } from '../../../specs/SccMapViewNativeComponent';
 import {MarkerColors, getMarkerSvg} from '@/assets/markers';
+import {useDevTool} from '@/components/DevTool/useDevTool';
+import {NativeCircleOverlay} from '../../../specs/SccMapViewNativeComponent';
+import {Platform} from 'react-native';
 
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
+
+// Corner marker constants
+const CORNER_MARKER_PREFIX = 'debug-corner-';
 
 function getRegion({latitude, longitude}: LatLng): Region {
   return {
@@ -53,8 +60,10 @@ export default function ItemMap<T extends MarkerItem>({
   onCameraIdle?: (region: Region) => void;
 }) {
   const [firstFittingDone, setFirstFittingDone] = React.useState(false);
+  const [currentCameraRegion, setCurrentCameraRegion] = React.useState<Region | null>(null);
   const currentLocation = useAtomValue(currentLocationAtom);
   const region = currentLocation ? getRegion(currentLocation) : DefaultRegion;
+  const devTool = useDevTool();
   const nativeRegion: NativeRegion = {
     northEastLat: region.northEast.latitude,
     northEastLng: region.northEast.longitude,
@@ -83,6 +92,69 @@ export default function ItemMap<T extends MarkerItem>({
       zIndex: isSelected ? 99 : 0,
     };
   });
+
+  // DevTool이 활성화되고 현재 카메라 영역이 있을 때 실제 보이는 영역의 귀퉁이 마커 생성
+  const nativeCornerMarkers = React.useMemo(() => {
+    if (!devTool.searchRegion.shouldShow() || !currentCameraRegion || !mapPadding) {
+      return [];
+    }
+    
+    const corners = getRegionCorners(currentCameraRegion);
+    return corners.map<NativeMarkerItem>((corner, index) => ({
+      id: `${CORNER_MARKER_PREFIX}${index}`,
+      position: {
+        lat: corner.latitude,
+        lng: corner.longitude,
+      },
+      captionText: `Corner ${index + 1}`,
+      captionTextSize: 12,
+      isHideCollidedMarkers: false,
+      isHideCollidedSymbols: false,
+      isHideCollidedCaptions: false,
+      iconResource: getMarkerSvg('default', false, false),
+      iconColor: '#FF0000', // 빨간색으로 구분
+      zIndex: 50, // 일반 마커보다는 높지만 선택된 마커보다는 낮게
+    }));
+  }, [devTool.searchRegion.data]);
+
+  // 모든 마커 합치기
+  const allNativeMarkers = [...nativeMarkerItems, ...nativeCornerMarkers];
+
+  // Create native overlays for DevTool
+  const nativeCircleOverlays: NativeCircleOverlay[] = [];
+  const nativeRectangleOverlays: NativeRectangleOverlay[] = [];
+
+  if (devTool.searchRegion.shouldShow() && devTool.searchRegion.data) {
+    if (devTool.searchRegion.data.type === 'circle') {
+      nativeCircleOverlays.push({
+        id: 'debug-search-radius',
+        center: {
+          lat: devTool.searchRegion.data.location.lat,
+          lng: devTool.searchRegion.data.location.lng,
+        },
+        radius: devTool.searchRegion.data.radiusMeters,
+        fillColor: Platform.OS === 'ios' ? 'rgba(66, 165, 245, 0.15)' : '#2042A5F5', // 연한 파란색 배경
+        strokeColor: Platform.OS === 'ios' ? 'rgba(66, 165, 245, 0.8)' : '#CC42A5F5', // 진한 파란색 테두리
+        strokeWidth: 2,
+      });
+    } else if (devTool.searchRegion.data.type === 'rectangle') {
+      nativeRectangleOverlays.push({
+        id: 'debug-search-rectangle',
+        leftTopLocation: {
+          lat: devTool.searchRegion.data.leftTopLocation.lat,
+          lng: devTool.searchRegion.data.leftTopLocation.lng,
+        },
+        rightBottomLocation: {
+          lat: devTool.searchRegion.data.rightBottomLocation.lat,
+          lng: devTool.searchRegion.data.rightBottomLocation.lng,
+        },
+        fillColor: Platform.OS === 'ios' ? 'rgba(76, 175, 80, 0.15)' : '#2049AF50', // 연한 초록색 배경
+        strokeColor: Platform.OS === 'ios' ? 'rgba(76, 175, 80, 0.8)' : '#CC4CAF50', // 진한 초록색 테두리
+        strokeWidth: 2,
+      });
+    }
+  }
+
   const route = useRoute();
   useEffect(() => {
     if (items.length > 0 && !firstFittingDone) {
@@ -97,6 +169,11 @@ export default function ItemMap<T extends MarkerItem>({
     <StyledMapView
       initialRegion={nativeRegion}
       onMarkerPress={async x => {
+        // 디버그 귀퉁이 마커는 무시
+        if (x.nativeEvent.id.startsWith(CORNER_MARKER_PREFIX)) {
+          return;
+        }
+
         const item = items.find(it => it.id === x.nativeEvent.id);
         if (!item) {
           return;
@@ -114,7 +191,7 @@ export default function ItemMap<T extends MarkerItem>({
       }}
       ref={mapRef}
       onCameraIdle={({nativeEvent}) => {
-        onCameraIdle?.({
+        const newRegion = {
           northEast: {
             latitude: nativeEvent.northEastLat,
             longitude: nativeEvent.northEastLng,
@@ -123,10 +200,14 @@ export default function ItemMap<T extends MarkerItem>({
             latitude: nativeEvent.southWestLat,
             longitude: nativeEvent.southWestLng,
           },
-        });
+        };
+        setCurrentCameraRegion(newRegion);
+        onCameraIdle?.(newRegion);
       }}
       mapPadding={mapPadding}
-      markers={nativeMarkerItems}
+      markers={allNativeMarkers}
+      circleOverlays={nativeCircleOverlays}
+      rectangleOverlays={nativeRectangleOverlays}
     />
   );
 }

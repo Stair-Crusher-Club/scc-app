@@ -11,6 +11,7 @@ import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {logDebug} from '@/utils/DebugUtils';
+import DevTool from '@/components/DevTool/DevTool';
 
 // 전체 화면 공용 로깅 규칙 정의
 const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
@@ -49,7 +50,8 @@ const RootScreen = () => {
   const globalLogParams = useLogParams();
 
   return (
-    <NavigationContainer
+    <>
+      <NavigationContainer
       ref={navigationRef}
       onReady={async () => {
         const currentScreenName =
@@ -195,6 +197,8 @@ const RootScreen = () => {
       }}>
       <Navigation />
     </NavigationContainer>
+    <DevTool isVisible={__DEV__} />
+    </>
   );
 };
 
