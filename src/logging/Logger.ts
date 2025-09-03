@@ -2,6 +2,7 @@ import {getAnalytics} from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 
 import {logDebug} from '@/utils/DebugUtils';
+import {convertToDevToolLoggedEvent} from '@/components/DevTool/devToolEventStore';
 
 interface ElementEventParams {
   name: string;
@@ -27,6 +28,25 @@ const currUserPropertiesForDebugging: {userId: string | undefined} = {
   userId: undefined,
 };
 
+// DevTool event tracking helpers
+let eventLoggingEnabled = false;
+let setLoggedEvents: ((events: any) => void) | null = null;
+
+export const initializeEventLoggingDevTool = (
+  setter: (events: any) => void,
+) => {
+  eventLoggingEnabled = true;
+  setLoggedEvents = setter;
+};
+
+const trackEvent = (eventName: string, params: Record<string, any>) => {
+  if (__DEV__ && eventLoggingEnabled && setLoggedEvents) {
+    setLoggedEvents((prev: any) => 
+      convertToDevToolLoggedEvent(prev, { eventName, params })
+    );
+  }
+};
+
 const Logger = {
   async setUserId(userId: string) {
     logDebug('setUserId', userId, currUserPropertiesForDebugging);
@@ -40,11 +60,13 @@ const Logger = {
    */
   async logElementView(params: ElementEventParams) {
     logDebug('logElementView', params, currUserPropertiesForDebugging);
-    getAnalytics().logEvent('element_view', {
+    const eventParams = {
       ...(params.extraParams || {}),
       element_name: params.name,
       screen_name: params.currScreenName,
-    });
+    };
+    trackEvent('element_view', eventParams);
+    getAnalytics().logEvent('element_view', eventParams);
   },
 
   /**
@@ -52,28 +74,34 @@ const Logger = {
    */
   async logElementClick(params: ElementEventParams) {
     logDebug('logElementClick', params, currUserPropertiesForDebugging);
-    getAnalytics().logEvent('element_click', {
+    const eventParams = {
       ...(params.extraParams || {}),
       element_name: params.name,
       screen_name: params.currScreenName,
-    });
+    };
+    trackEvent('element_click', eventParams);
+    getAnalytics().logEvent('element_click', eventParams);
   },
 
   async logScreenView(params: ScreenViewParams) {
     logDebug('logScreenView', params, currUserPropertiesForDebugging);
-    getAnalytics().logScreenView({
+    const eventParams = {
       ...(params.extraParams || {}),
       previous_screen_name: params.prevScreenName,
       screen_name: params.currScreenName,
       screen_class: params.currScreenName,
-    });
+    };
+    trackEvent('screen_view', eventParams);
+    getAnalytics().logScreenView(eventParams);
   },
 
   async logUploadImage(metric: Record<string, number>) {
     logDebug('logUploadImage', metric, currUserPropertiesForDebugging);
-    getAnalytics().logEvent('upload_image', {
+    const eventParams = {
       ...metric,
-    });
+    };
+    trackEvent('upload_image', eventParams);
+    getAnalytics().logEvent('upload_image', eventParams);
   },
 
   async logError(error: Error) {
@@ -83,14 +111,16 @@ const Logger = {
 
   async logAppPushOpen(params: AppPushOpenParams) {
     logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
-    getAnalytics().logEvent('app_push_open', {
+    const eventParams = {
       ...(params.extraParams || {}),
       push_title: params.title,
       push_body: params.body,
       push_campaign_id: params.campaignId,
       push_campaign_type: params.campaignType,
       user_id: currUserPropertiesForDebugging.userId,
-    });
+    };
+    trackEvent('app_push_open', eventParams);
+    getAnalytics().logEvent('app_push_open', eventParams);
   },
 };
 
