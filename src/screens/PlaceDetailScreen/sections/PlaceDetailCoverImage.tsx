@@ -1,15 +1,15 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, Pressable, useWindowDimensions, View} from 'react-native';
+import {Image, useWindowDimensions, View} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
+import {SccPressable} from '@/components/SccPressable';
 import {
   AccessibilityInfoDto,
   PlaceReviewDto,
   ToiletReviewDto,
 } from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 
 import * as S from './PlaceDetailCoverImage.style';
@@ -110,14 +110,14 @@ const PlaceDetailCoverImage = ({
 
   function renderItem({item, index}: {item: SlideData; index: number}) {
     return (
-      <LogClick elementName="place_detail_cover_image">
-        <Pressable onPress={() => onPressImage(index)}>
-          <S.CoverImage
-            resizeMethod="resize"
-            source={{uri: item.thumbnailUrl ?? item.url}}
-          />
-        </Pressable>
-      </LogClick>
+      <SccPressable
+        elementName="place_detail_cover_image"
+        onPress={() => onPressImage(index)}>
+        <S.CoverImage
+          resizeMethod="resize"
+          source={{uri: item.thumbnailUrl ?? item.url}}
+        />
+      </SccPressable>
     );
   }
 
