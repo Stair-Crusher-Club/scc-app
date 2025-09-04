@@ -44,6 +44,7 @@ import PlaceReviewFormScreen, {
 import {ProfileEditorDetailScreen} from '@/screens/ProfileEditorScreen';
 import {ProfileEditorDetailScreenParams} from '@/screens/ProfileEditorScreen/ProfileEditorDetailScreen';
 import ProfileEditorScreen from '@/screens/ProfileEditorScreen/ProfileEditorScreen';
+import ReviewHistoryScreen from '@/screens/ReviewHistoryScreen';
 import ReviewScreen from '@/screens/ReviewScreen';
 import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
 import SettingScreen from '@/screens/SettingScreen';
@@ -85,6 +86,11 @@ export const MainNavigationScreens: {
     name: 'Review',
     component: ReviewScreen,
     options: {headerShown: true, headerTitle: '내 리뷰'},
+  },
+  {
+    name: 'Review/History',
+    component: ReviewHistoryScreen,
+    options: {headerShown: true, headerTitle: '지금까지 내가 작성한 리뷰'},
   },
   {
     name: 'Conquerer',
@@ -219,6 +225,7 @@ export type ScreenParams = {
   ProfileEditor: undefined;
   'ProfileEditor/Detail': ProfileEditorDetailScreenParams;
   Review: undefined;
+  'Review/History': undefined;
   Conquerer: undefined;
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
