@@ -1,0 +1,132 @@
+import {useMe} from '@/atoms/Auth';
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
+import {FlashList} from '@shopify/flash-list';
+import {useState} from 'react';
+import {Image, ScrollView, Text, View} from 'react-native';
+import ActivityItem from '../components/ActivityItem';
+import ExpandToggleButton, {
+  ExpandToggleButtonStatus,
+} from '../components/ExpandToggleButton';
+import QuestItem from '../components/QuestItem';
+import SectionContainer from '../components/SectionContainer';
+
+const _quests = Array(13).fill(0);
+
+export default function CurrentSeasonView() {
+  const {userInfo} = useMe();
+  const [questToggleStatus, setQuestToggleStatus] =
+    useState<ExpandToggleButtonStatus>('collapse');
+
+  const [quests, setQuests] = useState(_quests.slice(0, 6));
+
+  return (
+    <ScrollView
+      contentContainerStyle={{
+        paddingHorizontal: 20,
+        paddingTop: 30,
+        paddingBottom: 60,
+        gap: 28,
+      }}>
+      <SectionContainer title="25’ 가을 시즌">
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: '#F2F2F5',
+            padding: 12,
+            borderRadius: 12,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <View style={{gap: 2}}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: font.pretendardBold,
+                color: color.brand50,
+                lineHeight: 16,
+              }}>
+              {'Crew Role'}
+            </Text>
+            <Text
+              style={{
+                fontSize: 18,
+                fontFamily: font.pretendardMedium,
+                color: color.gray90,
+                lineHeight: 26,
+              }}>
+              {userInfo?.nickname}
+            </Text>
+          </View>
+
+          <Image
+            source={require('@/assets/img/img_crusher_history_editor_crew.png')}
+            style={{
+              width: 90,
+              height: 57,
+            }}
+          />
+        </View>
+      </SectionContainer>
+
+      <SectionContainer title="나의 퀘스트">
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: '#F2F2F5',
+            paddingVertical: 16,
+            paddingHorizontal: 12,
+            borderRadius: 12,
+          }}>
+          <FlashList
+            data={quests}
+            renderItem={({item: _item, index}) => (
+              <QuestItem title="퀘스트명" date={`09.0${index + 1}`} />
+            )}
+            numColumns={3}
+            ItemSeparatorComponent={QuestItem.Gap}
+          />
+
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 12,
+            }}>
+            <ExpandToggleButton
+              status={questToggleStatus}
+              onPress={() => {
+                if (questToggleStatus === 'collapse') {
+                  setQuestToggleStatus('expand');
+                  setQuests(_quests);
+                } else {
+                  setQuestToggleStatus('collapse');
+                  setQuests(_quests.slice(0, 6));
+                }
+              }}
+            />
+          </View>
+        </View>
+      </SectionContainer>
+
+      <SectionContainer title="나의 참여">
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: '#F2F2F5',
+            paddingVertical: 16,
+            paddingHorizontal: 12,
+            borderRadius: 12,
+          }}>
+          <FlashList
+            data={Array(3).fill(0)}
+            renderItem={() => (
+              <ActivityItem date="09.13" title="스타딩데이 참여" />
+            )}
+            ItemSeparatorComponent={ActivityItem.Gap}
+          />
+        </View>
+      </SectionContainer>
+    </ScrollView>
+  );
+}
