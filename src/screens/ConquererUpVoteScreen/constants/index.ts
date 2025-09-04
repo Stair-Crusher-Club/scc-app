@@ -1,12 +1,12 @@
-import {ConquererUpVoteTab} from '../types';
+import {ConquererUpvoteTab} from '../types';
 
 export const tabItems = [
   {
-    value: 'place' as ConquererUpVoteTab,
+    value: 'place' as ConquererUpvoteTab,
     label: '장소',
   },
   {
-    value: 'building' as ConquererUpVoteTab,
+    value: 'building' as ConquererUpvoteTab,
     label: '건물',
   },
 ];

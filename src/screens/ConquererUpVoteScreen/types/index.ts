@@ -1,1 +1,1 @@
-export type ConquererUpVoteTab = 'place' | 'building';
+export type ConquererUpvoteTab = 'place' | 'building';

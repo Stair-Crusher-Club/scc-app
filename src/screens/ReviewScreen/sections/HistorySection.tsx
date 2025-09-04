@@ -9,7 +9,7 @@ export default function HistorySection() {
   const navigation = useNavigation();
   const data = {
     totalNumberOfReviews: 10,
-    totalNumberOfUpVotes: 3,
+    totalNumberOfUpvote: 3,
   };
 
   return (
@@ -27,13 +27,13 @@ export default function HistorySection() {
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
       </S.Link>
-      <S.Link onPress={() => navigation.navigate('Review/UpVote')}>
+      <S.Link onPress={() => navigation.navigate('Review/Upvote')}>
         <S.LinkName>
           <S.LinkText>도움이 되었어요</S.LinkText>
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
-            <S.Count>{data.totalNumberOfUpVotes.toLocaleString()}</S.Count>
+            <S.Count>{data.totalNumberOfUpvote.toLocaleString()}</S.Count>
           </S.CountBadge>
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>

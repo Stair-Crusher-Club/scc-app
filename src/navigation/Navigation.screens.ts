@@ -95,7 +95,7 @@ export const MainNavigationScreens: {
     options: {headerShown: true, headerTitle: '지금까지 내가 작성한 리뷰'},
   },
   {
-    name: 'Review/UpVote',
+    name: 'Review/Upvote',
     component: ReviewUpVoteScreen,
     options: {headerShown: true, headerTitle: '도움이 되었어요'},
   },
@@ -110,7 +110,7 @@ export const MainNavigationScreens: {
     options: {headerShown: true, headerTitle: '지금까지 내가 정복한 장소'},
   },
   {
-    name: 'Conquerer/UpVote',
+    name: 'Conquerer/Upvote',
     component: ConquererUpVoteScreen,
     options: {headerShown: true, headerTitle: '도움이 되었어요'},
   },
@@ -238,11 +238,11 @@ export type ScreenParams = {
   'ProfileEditor/Detail': ProfileEditorDetailScreenParams;
   Review: undefined;
   'Review/History': undefined;
-  'Review/UpVote': undefined;
+  'Review/Upvote': undefined;
   Conquerer: undefined;
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
-  'Conquerer/UpVote': undefined;
+  'Conquerer/Upvote': undefined;
   FavoritePlaces: undefined;
 
   // 리뷰
