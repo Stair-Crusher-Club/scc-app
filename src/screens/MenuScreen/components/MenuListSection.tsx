@@ -24,6 +24,10 @@ export default function MenuListSection() {
     navigation.navigate('FavoritePlaces');
   }
 
+  function goToCrusherHistory() {
+    navigation.navigate('CrusherHistory');
+  }
+
   function goToReviews() {
     navigation.navigate('Webview', {
       fixedTitle: '뿌클로드: 이동약자를 위한 진짜 리뷰',
@@ -57,6 +61,15 @@ export default function MenuListSection() {
           <S.MenuTitleWrapper>
             <MenuBookmarkIcon />
             <S.MenuTitle>저장한 장소</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={goToCrusherHistory}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuBookmarkIcon />
+            <S.MenuTitle>크러셔 활동</S.MenuTitle>
           </S.MenuTitleWrapper>
           <RightAngleArrowIcon color={color.gray50} />
         </S.MenuItem>
