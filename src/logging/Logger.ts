@@ -41,8 +41,8 @@ export const initializeEventLoggingDevTool = (
 
 const trackEvent = (eventName: string, params: Record<string, any>) => {
   if (__DEV__ && eventLoggingEnabled && setLoggedEvents) {
-    setLoggedEvents((prev: any) => 
-      convertToDevToolLoggedEvent(prev, { eventName, params })
+    setLoggedEvents((prev: any) =>
+      convertToDevToolLoggedEvent(prev, {eventName, params}),
     );
   }
 };

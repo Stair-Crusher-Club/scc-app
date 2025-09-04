@@ -14,7 +14,8 @@ export const SccTouchableOpacity = forwardRef<any, SccTouchableOpacityProps>(
   ({elementName, logParams, onPress, ...props}, ref) => {
     const globalLogParams = useLogParams();
     const route = useRoute();
-    const {viewRef, hasBeenVisible, checkVisibility} = useOptimizedViewportVisibility(0.5);
+    const {viewRef, hasBeenVisible, checkVisibility} =
+      useOptimizedViewportVisibility(0.5);
 
     // element_view 로깅 (viewport에 노출됐을 때 한 번만)
     useEffect(() => {
@@ -43,7 +44,7 @@ export const SccTouchableOpacity = forwardRef<any, SccTouchableOpacityProps>(
 
     return (
       <TouchableOpacity
-        ref={(node) => {
+        ref={node => {
           viewRef.current = node;
           if (ref) {
             if (typeof ref === 'function') {
@@ -58,7 +59,7 @@ export const SccTouchableOpacity = forwardRef<any, SccTouchableOpacityProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 SccTouchableOpacity.displayName = 'SccTouchableOpacity';

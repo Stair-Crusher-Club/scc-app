@@ -40,8 +40,8 @@ export const NavigationHeader = ({
       ) : (
         <S.ContentsContainer style={{justifyContent: 'space-between'}}>
           <S.Title>{title}</S.Title>
-          <SccPressable 
-            elementName="close_button" 
+          <SccPressable
+            elementName="close_button"
             logParams={{screen_name: title}}
             onPress={() => navigation.goBack()}>
             <CloseIcon width={28} height={28} color={color.black} />

@@ -17,11 +17,11 @@ interface Props {
 /**
  * @deprecated Use SccTouchableOpacity, SccPressable, SccTouchableHighlight, or SccTouchableWithoutFeedback instead.
  * These components provide both element_view (on mount) and element_click (on interaction) logging automatically.
- * 
+ *
  * Migration guide:
  * - Replace <LogClick elementName="foo"><TouchableOpacity/></LogClick>
  * - With <SccTouchableOpacity elementName="foo"/>
- * 
+ *
  * Benefits of new components:
  * - Automatic viewport-based element_view logging
  * - No wrapper component overhead

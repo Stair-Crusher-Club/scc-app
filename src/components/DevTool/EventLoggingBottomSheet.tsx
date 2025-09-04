@@ -5,17 +5,10 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Modal,
-  Dimensions,
   Animated,
-  Platform,
 } from 'react-native';
 import {useAtom} from 'jotai';
-import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-  State,
-} from 'react-native-gesture-handler';
+import {PanGestureHandler, State} from 'react-native-gesture-handler';
 import {loggedEventsAtom} from './devToolEventStore';
 
 interface EventLoggingBottomSheetProps {
@@ -23,15 +16,13 @@ interface EventLoggingBottomSheetProps {
   onClose: () => void;
 }
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
-
 export const EventLoggingBottomSheet: React.FC<
   EventLoggingBottomSheetProps
 > = ({visible, onClose}) => {
   const [loggedEvents, setLoggedEvents] = useAtom(loggedEventsAtom);
   const translateX = useRef(new Animated.Value(20)).current;
   const translateY = useRef(new Animated.Value(100)).current;
-  
+
   // Reset position when modal becomes visible
   React.useEffect(() => {
     if (visible) {
@@ -62,8 +53,8 @@ export const EventLoggingBottomSheet: React.FC<
   const lastOffset = useRef({x: 20, y: 100});
 
   const onGestureEvent = Animated.event(
-    [{ nativeEvent: { translationX: translateX, translationY: translateY } }],
-    { useNativeDriver: false }
+    [{nativeEvent: {translationX: translateX, translationY: translateY}}],
+    {useNativeDriver: false},
   );
 
   const onHandlerStateChange = (event: any) => {
@@ -81,11 +72,11 @@ export const EventLoggingBottomSheet: React.FC<
       // Flatten the offset into the value
       translateX.flattenOffset();
       translateY.flattenOffset();
-      
+
       // Get final position without bounds - allow dragging anywhere
       const finalX = lastOffset.current.x + event.nativeEvent.translationX;
       const finalY = lastOffset.current.y + event.nativeEvent.translationY;
-      
+
       // Update position without any bounds checking
       lastOffset.current = {x: finalX, y: finalY};
     }
@@ -113,13 +104,11 @@ export const EventLoggingBottomSheet: React.FC<
             <View style={styles.dragIndicator} />
           </Animated.View>
         </PanGestureHandler>
-        
+
         <View style={styles.header}>
           <Text style={styles.title}>Event Logs ({loggedEvents.length})</Text>
           <View style={styles.headerButtons}>
-            <TouchableOpacity
-              onPress={clearEvents}
-              style={styles.clearButton}>
+            <TouchableOpacity onPress={clearEvents} style={styles.clearButton}>
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>

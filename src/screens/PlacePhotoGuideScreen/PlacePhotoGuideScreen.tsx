@@ -93,10 +93,7 @@ export default function PlacePhotoGuideScreen({
           ))}
         </S.BulletPoints>
         {target === 'place' && (
-          <SccPressable
-            elementName="place_photo_guide"
-            onPress={goToGuide}
-          >
+          <SccPressable elementName="place_photo_guide" onPress={goToGuide}>
             <S.More>더 알아보기 {'>'}</S.More>
           </SccPressable>
         )}

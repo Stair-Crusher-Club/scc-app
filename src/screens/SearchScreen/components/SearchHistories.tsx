@@ -38,7 +38,7 @@ export default function SearchHistories({
         }}>
         {searchHistories.map(search => (
           <ItemBox key={search}>
-            <SccTouchableOpacity 
+            <SccTouchableOpacity
               elementName={`recent-keyword-${search}`}
               onPress={() => onClickSearch(search)}>
               <ItemText numberOfLines={1}>{search}</ItemText>

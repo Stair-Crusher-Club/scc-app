@@ -32,21 +32,22 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   const [isEventLoggingSheetOpen, setIsEventLoggingSheetOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
-  
+
   // Initialize event logging (always enabled in dev)
   useEffect(() => {
     if (__DEV__) {
       initializeEventLoggingDevTool(setLoggedEvents);
     }
   }, []);
-  
+
   // Floating button position
-  const pan = useRef(new Animated.ValueXY({
-    x: screenWidth - 70,
-    y: screenHeight - 150 - insets.bottom,
-  })).current;
-  
-  
+  const pan = useRef(
+    new Animated.ValueXY({
+      x: screenWidth - 70,
+      y: screenHeight - 150 - insets.bottom,
+    }),
+  ).current;
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -76,12 +77,12 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
       },
     }));
   };
-  
+
   const handleShowEventLogs = () => {
     setIsEventLoggingSheetOpen(true);
     setIsBottomSheetOpen(false);
   };
-  
+
   if (!isVisible || !__DEV__) {
     return null;
   }
@@ -103,7 +104,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
           <Text style={styles.floatingButtonText}>DEV</Text>
         </TouchableOpacity>
       </Animated.View>
-      
+
       {/* Settings Modal */}
       <Modal
         visible={isBottomSheetOpen}
@@ -114,51 +115,58 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
           <View style={styles.modalContainer}>
             <TouchableWithoutFeedback onPress={() => {}}>
               <SafeAreaView style={styles.bottomSheet}>
-            <View style={styles.bottomSheetHeader}>
-              <Text style={styles.bottomSheetTitle}>DevTool Settings</Text>
-              <TouchableOpacity onPress={toggleBottomSheet}>
-                <Text style={styles.closeButton}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <ScrollView style={styles.bottomSheetContent}>
-              {/* Search Radius Toggle */}
-              <View style={styles.settingRow}>
-                <View style={styles.settingInfo}>
-                  <Text style={styles.settingLabel}>Show Search Radius</Text>
-                  <Text style={styles.settingDescription}>
-                    Display search range circle on map when calling /searchPlaces API
-                  </Text>
+                <View style={styles.bottomSheetHeader}>
+                  <Text style={styles.bottomSheetTitle}>DevTool Settings</Text>
+                  <TouchableOpacity onPress={toggleBottomSheet}>
+                    <Text style={styles.closeButton}>✕</Text>
+                  </TouchableOpacity>
                 </View>
-                <Switch
-                  value={config.searchRegion.enabled}
-                  onValueChange={handleSearchRadiusToggle}
-                  trackColor={{false: '#767577', true: '#81b0ff'}}
-                  thumbColor={config.searchRegion.enabled ? '#f5dd4b' : '#f4f3f4'}
-                />
-              </View>
-              
-              {/* Event Logging Button */}
-              <TouchableOpacity style={styles.actionRow} onPress={handleShowEventLogs}>
-                <View style={styles.settingInfo}>
-                  <Text style={styles.settingLabel}>Event Logs</Text>
-                  <Text style={styles.settingDescription}>
-                    View realtime client events for QA testing
-                  </Text>
-                </View>
-                <View style={styles.actionButton}>
-                  <Text style={styles.actionButtonText}>View Logs</Text>
-                </View>
-              </TouchableOpacity>
-              
-              {/* Add more dev tool options here */}
-            </ScrollView>
+
+                <ScrollView style={styles.bottomSheetContent}>
+                  {/* Search Radius Toggle */}
+                  <View style={styles.settingRow}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>
+                        Show Search Radius
+                      </Text>
+                      <Text style={styles.settingDescription}>
+                        Display search range circle on map when calling
+                        /searchPlaces API
+                      </Text>
+                    </View>
+                    <Switch
+                      value={config.searchRegion.enabled}
+                      onValueChange={handleSearchRadiusToggle}
+                      trackColor={{false: '#767577', true: '#81b0ff'}}
+                      thumbColor={
+                        config.searchRegion.enabled ? '#f5dd4b' : '#f4f3f4'
+                      }
+                    />
+                  </View>
+
+                  {/* Event Logging Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={handleShowEventLogs}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>Event Logs</Text>
+                      <Text style={styles.settingDescription}>
+                        View realtime client events for QA testing
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>View Logs</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Add more dev tool options here */}
+                </ScrollView>
               </SafeAreaView>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      
+
       {/* Event Logging Bottom Sheet */}
       <EventLoggingBottomSheet
         visible={isEventLoggingSheetOpen}

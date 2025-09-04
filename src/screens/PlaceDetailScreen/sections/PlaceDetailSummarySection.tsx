@@ -59,7 +59,7 @@ const PlaceDetailSummarySection = ({
             <S.SectionTitle>{place.name}</S.SectionTitle>
           </S.Row>
           <S.Address>{place.address}</S.Address>
-          <CopyButton 
+          <CopyButton
             elementName="place_detail_summary_section_copy_button"
             onPress={onCopy}>
             <CopyIcon />
@@ -68,7 +68,7 @@ const PlaceDetailSummarySection = ({
         </S.SubSection>
         <S.Separator />
         <S.Row>
-          <S.Summary 
+          <S.Summary
             elementName="place_detail_summary_section_toggle_favorite_button"
             logParams={{
               isFavoritePlace: isFavorite,
@@ -82,7 +82,7 @@ const PlaceDetailSummarySection = ({
             <ButtonText>저장</ButtonText>
           </S.Summary>
           <S.VerticalSeparator />
-          <S.Summary 
+          <S.Summary
             elementName="place_detail_summary_section_share_button"
             onPress={onShare}>
             <ShareIcon />
@@ -107,7 +107,7 @@ const PlaceDetailSummarySection = ({
           <S.SectionTitle>{place.name}</S.SectionTitle>
         </S.Row>
         <S.Address>{place.address}</S.Address>
-        <CopyButton 
+        <CopyButton
           elementName="place_detail_summary_section_copy_button"
           onPress={onCopy}>
           <CopyIcon />

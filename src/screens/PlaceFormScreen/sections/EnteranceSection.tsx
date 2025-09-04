@@ -190,7 +190,7 @@ function Guide({text, url}: GuideProps) {
   }
   return (
     <S.Guide>
-      <SccPressable 
+      <SccPressable
         elementName="place_entrance_section_guide"
         logParams={{guide_text: text, guide_url: url}}
         onPress={handleClick}>

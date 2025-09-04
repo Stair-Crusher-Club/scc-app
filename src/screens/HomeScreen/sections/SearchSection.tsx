@@ -56,7 +56,7 @@ export default function SearchSection() {
             maxWidth: 50,
           }}
           renderItem={CoachMarkMapButton}>
-          <SccPressable 
+          <SccPressable
             elementName="place_search_map_direct"
             onPress={() => {
               goToSearch('', true);

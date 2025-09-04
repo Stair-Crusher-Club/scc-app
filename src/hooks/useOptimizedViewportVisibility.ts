@@ -1,15 +1,18 @@
-import { useRef, useCallback, useEffect } from 'react';
-import { View, Dimensions } from 'react-native';
+import {useRef, useCallback, useEffect} from 'react';
+import {View, Dimensions} from 'react-native';
 
 // Global visibility manager
 class ViewportVisibilityManager {
   private static instance: ViewportVisibilityManager;
-  private observers = new Map<string, {
-    ref: React.RefObject<View>;
-    callback: (isVisible: boolean) => void;
-    hasBeenVisible: boolean;
-    threshold: number;
-  }>();
+  private observers = new Map<
+    string,
+    {
+      ref: React.RefObject<View | null>;
+      callback: (isVisible: boolean) => void;
+      hasBeenVisible: boolean;
+      threshold: number;
+    }
+  >();
   private isChecking = false;
   private checkTimeout: NodeJS.Timeout | null = null;
 
@@ -20,7 +23,12 @@ class ViewportVisibilityManager {
     return ViewportVisibilityManager.instance;
   }
 
-  register(id: string, ref: React.RefObject<View>, callback: (isVisible: boolean) => void, threshold = 0.5) {
+  register(
+    id: string,
+    ref: React.RefObject<View | null>,
+    callback: (isVisible: boolean) => void,
+    threshold = 0.5,
+  ) {
     this.observers.set(id, {
       ref,
       callback,
@@ -36,7 +44,7 @@ class ViewportVisibilityManager {
   // Throttled check - only run once per 100ms
   scheduleCheck() {
     if (this.checkTimeout) return;
-    
+
     this.checkTimeout = setTimeout(() => {
       this.checkAllVisibility();
       this.checkTimeout = null;
@@ -49,11 +57,11 @@ class ViewportVisibilityManager {
 
     const promises: Promise<void>[] = [];
 
-    this.observers.forEach((observer, id) => {
+    this.observers.forEach(observer => {
       // Skip if already visible (performance optimization)
       if (observer.hasBeenVisible) return;
 
-      const promise = new Promise<void>((resolve) => {
+      const promise = new Promise<void>(resolve => {
         if (!observer.ref.current) {
           resolve();
           return;
@@ -65,22 +73,26 @@ class ViewportVisibilityManager {
             return;
           }
 
-          const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
+          const {width: screenWidth, height: screenHeight} =
+            Dimensions.get('window');
 
-          const visibleWidth = Math.min(screenWidth, x + width) - Math.max(0, x);
-          const visibleHeight = Math.min(screenHeight, y + height) - Math.max(0, y);
-          
-          const visibleArea = Math.max(0, visibleWidth) * Math.max(0, visibleHeight);
+          const visibleWidth =
+            Math.min(screenWidth, x + width) - Math.max(0, x);
+          const visibleHeight =
+            Math.min(screenHeight, y + height) - Math.max(0, y);
+
+          const visibleArea =
+            Math.max(0, visibleWidth) * Math.max(0, visibleHeight);
           const totalArea = width * height;
           const visibilityRatio = visibleArea / totalArea;
-          
+
           const isVisible = visibilityRatio >= observer.threshold;
-          
+
           if (isVisible && !observer.hasBeenVisible) {
             observer.hasBeenVisible = true;
             observer.callback(true);
           }
-          
+
           resolve();
         });
       });

@@ -20,7 +20,7 @@ export const convertToDevToolLoggedEvent = (
     id: `${Date.now()}-${Math.random()}`,
     timestamp: Date.now(),
   };
-  
+
   // Keep only last 200 events
   const updatedEvents = [event, ...events].slice(0, 200);
   return updatedEvents;

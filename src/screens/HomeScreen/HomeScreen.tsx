@@ -263,7 +263,9 @@ const HomeScreen = ({navigation}: any) => {
                     alignSelf: 'flex-start',
                   }}
                   renderItem={CoachMarkGuideLink}>
-                  <SccTouchableOpacity elementName="scc_description" onPress={goToGuide}>
+                  <SccTouchableOpacity
+                    elementName="scc_description"
+                    onPress={goToGuide}>
                     <S.Description allowFontScaling={false}>
                       {'계단뿌셔클럽 사용설명서'}
                     </S.Description>

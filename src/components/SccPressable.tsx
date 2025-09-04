@@ -14,7 +14,8 @@ export const SccPressable = forwardRef<View, SccPressableProps>(
   ({elementName, logParams, onPress, ...props}, ref) => {
     const globalLogParams = useLogParams();
     const route = useRoute();
-    const {viewRef, hasBeenVisible, checkVisibility} = useOptimizedViewportVisibility(0.5);
+    const {viewRef, hasBeenVisible, checkVisibility} =
+      useOptimizedViewportVisibility(0.5);
 
     // element_view 로깅 (viewport에 노출됐을 때 한 번만)
     useEffect(() => {
@@ -43,7 +44,7 @@ export const SccPressable = forwardRef<View, SccPressableProps>(
 
     return (
       <Pressable
-        ref={(node) => {
+        ref={node => {
           viewRef.current = node;
           if (ref) {
             if (typeof ref === 'function') {
@@ -58,7 +59,7 @@ export const SccPressable = forwardRef<View, SccPressableProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 SccPressable.displayName = 'SccPressable';

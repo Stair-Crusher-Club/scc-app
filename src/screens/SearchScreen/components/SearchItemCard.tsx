@@ -26,7 +26,6 @@ import ShareUtils from '@/utils/ShareUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 import {useCheckAuth} from '@/utils/checkAuth';
 
-
 function SearchItemCard({
   item,
   isHeightFlex,
@@ -131,131 +130,125 @@ function SearchItemCard({
         place_name: item.place.name,
         place_accessibility_score: item.accessibilityInfo?.accessibilityScore,
       }}>
-        <Container
-          elementName="place_search_item_card"
-          isHeightFlex={isHeightFlex}
-          onPress={onPress}
-        >
-          <InfoArea>
-            <LabelIconArea>
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                <ScoreLabel
-                  score={getPlaceAccessibilityScore({
-                    score: item.accessibilityInfo?.accessibilityScore,
-                    hasPlaceAccessibility: item.hasPlaceAccessibility,
-                    hasBuildingAccessibility: item.hasBuildingAccessibility,
-                  })}
-                  isIconVisible
-                />
-              </View>
-              <IconArea>
-                <SccTouchableOpacity
-                  elementName="place_search_item_card_bookmark_button"
-                  logParams={{is_favorite: isFavorite}}
-                  style={{
-                    paddingLeft: 5,
-                    paddingRight: 5,
-                    paddingBottom: 5,
-                  }}
-                  activeOpacity={0.6}
-                  onPress={() => checkAuth(onFavorite)}>
-                  {isFavorite ? (
-                    <BookmarkIconOn
-                      color={color.brandColor}
-                      width={24}
-                      height={24}
-                    />
-                  ) : (
-                    <BookmarkIconOff
-                      color={color.gray70}
-                      width={24}
-                      height={24}
-                    />
-                  )}
-                </SccTouchableOpacity>
-                <SccTouchableOpacity
-                  elementName="place_search_item_card_share_button"
-                  style={{
-                    paddingLeft: 5,
-                    paddingBottom: 5,
-                  }}
-                  activeOpacity={0.6}
-                  onPress={() => checkAuth(onShare)}>
-                  <ShareIcon color={color.gray70} width={24} height={24} />
-                </SccTouchableOpacity>
-              </IconArea>
-            </LabelIconArea>
-            <TitleArea>
-              <TextWrapper>
-                <TitleText>{item.place.name}</TitleText>
-                <CategoryText>
-                  {getCategoryText(item.place.category)}
-                </CategoryText>
-              </TextWrapper>
-              <LocationBox>
-                <DistanceText>{distanceText}</DistanceText>
-                <LocationDivider />
-                <AddressText>{item.place.address}</AddressText>
-              </LocationBox>
-            </TitleArea>
-            <ExtraArea>
-              <Tags
-                texts={tagTexts}
-                hasReview={hasReview}
-                reviewCount={item.accessibilityInfo?.reviewCount}
+      <Container
+        elementName="place_search_item_card"
+        isHeightFlex={isHeightFlex}
+        onPress={onPress}>
+        <InfoArea>
+          <LabelIconArea>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+              <ScoreLabel
+                score={getPlaceAccessibilityScore({
+                  score: item.accessibilityInfo?.accessibilityScore,
+                  hasPlaceAccessibility: item.hasPlaceAccessibility,
+                  hasBuildingAccessibility: item.hasBuildingAccessibility,
+                })}
+                isIconVisible
               />
-              {registerStatus === 'PLACE_ONLY' && (
-                <SccTouchableOpacity 
-                  elementName="place_search_item_card_register_building_accessibility_button"
-                  onPress={() => checkAuth(() => onRegister(true))}>
-                  <Button
-                    text="건물정보 등록 >"
-                    size="xs"
-                    onPress={() => {}}
+            </View>
+            <IconArea>
+              <SccTouchableOpacity
+                elementName="place_search_item_card_bookmark_button"
+                logParams={{is_favorite: isFavorite}}
+                style={{
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                  paddingBottom: 5,
+                }}
+                activeOpacity={0.6}
+                onPress={() => checkAuth(onFavorite)}>
+                {isFavorite ? (
+                  <BookmarkIconOn
+                    color={color.brandColor}
+                    width={24}
+                    height={24}
                   />
-                </SccTouchableOpacity>
-              )}
-            </ExtraArea>
-          </InfoArea>
-          {registerStatus === 'UNAVAILABLE' ? (
-            <View style={{width: '100%', gap: 4, marginTop: 12}}>
+                ) : (
+                  <BookmarkIconOff
+                    color={color.gray70}
+                    width={24}
+                    height={24}
+                  />
+                )}
+              </SccTouchableOpacity>
+              <SccTouchableOpacity
+                elementName="place_search_item_card_share_button"
+                style={{
+                  paddingLeft: 5,
+                  paddingBottom: 5,
+                }}
+                activeOpacity={0.6}
+                onPress={() => checkAuth(onShare)}>
+                <ShareIcon color={color.gray70} width={24} height={24} />
+              </SccTouchableOpacity>
+            </IconArea>
+          </LabelIconArea>
+          <TitleArea>
+            <TextWrapper>
+              <TitleText>{item.place.name}</TitleText>
+              <CategoryText>
+                {getCategoryText(item.place.category)}
+              </CategoryText>
+            </TextWrapper>
+            <LocationBox>
+              <DistanceText>{distanceText}</DistanceText>
+              <LocationDivider />
+              <AddressText>{item.place.address}</AddressText>
+            </LocationBox>
+          </TitleArea>
+          <ExtraArea>
+            <Tags
+              texts={tagTexts}
+              hasReview={hasReview}
+              reviewCount={item.accessibilityInfo?.reviewCount}
+            />
+            {registerStatus === 'PLACE_ONLY' && (
+              <SccTouchableOpacity
+                elementName="place_search_item_card_register_building_accessibility_button"
+                onPress={() => checkAuth(() => onRegister(true))}>
+                <Button text="건물정보 등록 >" size="xs" onPress={() => {}} />
+              </SccTouchableOpacity>
+            )}
+          </ExtraArea>
+        </InfoArea>
+        {registerStatus === 'UNAVAILABLE' ? (
+          <View style={{width: '100%', gap: 4, marginTop: 12}}>
+            <Button
+              text="서비스지역이 아닙니다."
+              size="lg"
+              fillParent
+              isDisabled
+              onPress={() => {}}
+            />
+          </View>
+        ) : registerStatus === 'NONE' ? (
+          <View style={{width: '100%', gap: 8, marginTop: 12}}>
+            {!hasBeenRegisteredAccessibility && (
+              <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
+            )}
+            <SccTouchableOpacity
+              elementName="place_search_item_card_register_place_accessibility_button"
+              onPress={() => checkAuth(() => onRegister(false))}>
               <Button
-                text="서비스지역이 아닙니다."
+                text="등록하기 >"
                 size="lg"
                 fillParent
-                isDisabled
                 onPress={() => {}}
               />
-            </View>
-          ) : registerStatus === 'NONE' ? (
-            <View style={{width: '100%', gap: 8, marginTop: 12}}>
-              {!hasBeenRegisteredAccessibility && (
-                <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
-              )}
-              <SccTouchableOpacity 
-                elementName="place_search_item_card_register_place_accessibility_button"
-                onPress={() => checkAuth(() => onRegister(false))}>
-                <Button
-                  text="등록하기 >"
-                  size="lg"
-                  fillParent
-                  onPress={() => {}}
-                />
-              </SccTouchableOpacity>
-            </View>
-          ) : (
-            <View
-              style={{
-                marginTop: 12,
-                width: '100%',
-                flexShrink: 2,
-                overflow: 'hidden',
-              }}>
-              <ImageList images={item.accessibilityInfo?.images ?? []} />
-            </View>
-          )}
-        </Container>
+            </SccTouchableOpacity>
+          </View>
+        ) : (
+          <View
+            style={{
+              marginTop: 12,
+              width: '100%',
+              flexShrink: 2,
+              overflow: 'hidden',
+            }}>
+            <ImageList images={item.accessibilityInfo?.images ?? []} />
+          </View>
+        )}
+      </Container>
     </LogParamsProvider>
   );
 }
