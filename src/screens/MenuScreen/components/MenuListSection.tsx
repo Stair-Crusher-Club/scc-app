@@ -5,6 +5,7 @@ import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
 import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
 import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
+import MenuSCCRoadIcon from '@/assets/icon/menu_ic_scc_road.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
 import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {color} from '@/constant/color';
@@ -24,11 +25,15 @@ export default function MenuListSection() {
     navigation.navigate('FavoritePlaces');
   }
 
-  function goToReviews() {
+  function goToSCCRoad() {
     navigation.navigate('Webview', {
       fixedTitle: '뿌클로드: 이동약자를 위한 진짜 리뷰',
       url: 'https://www.staircrusher.club/crusher_road',
     });
+  }
+
+  function goToReview() {
+    navigation.navigate('Review');
   }
 
   function goToSettings() {
@@ -41,6 +46,15 @@ export default function MenuListSection() {
 
   return (
     <S.MenuListSection>
+      <TouchableOpacity onPress={goToFavoritePlaces}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuBookmarkIcon />
+            <S.MenuTitle>저장한 장소</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </TouchableOpacity>
       <LogClick elementName="menu_conquerer_report">
         <TouchableOpacity onPress={goToConquerer}>
           <S.MenuItem>
@@ -52,11 +66,11 @@ export default function MenuListSection() {
           </S.MenuItem>
         </TouchableOpacity>
       </LogClick>
-      <TouchableOpacity onPress={goToFavoritePlaces}>
+      <TouchableOpacity onPress={goToReview}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
-            <MenuBookmarkIcon />
-            <S.MenuTitle>저장한 장소</S.MenuTitle>
+            <MenuReviewIcon />
+            <S.MenuTitle>내 리뷰</S.MenuTitle>
           </S.MenuTitleWrapper>
           <RightAngleArrowIcon color={color.gray50} />
         </S.MenuItem>
@@ -91,10 +105,10 @@ export default function MenuListSection() {
         </TouchableOpacity>
       </LogClick>
       <LogClick elementName="menu_bbucleroad">
-        <TouchableOpacity onPress={goToReviews}>
+        <TouchableOpacity onPress={goToSCCRoad}>
           <S.MenuItem>
             <S.MenuTitleWrapper>
-              <MenuReviewIcon />
+              <MenuSCCRoadIcon />
               <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
             </S.MenuTitleWrapper>
             <RightAngleArrowIcon color={color.gray50} />
