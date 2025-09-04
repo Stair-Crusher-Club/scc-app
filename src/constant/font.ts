@@ -7,7 +7,7 @@ export const font = {
   pretendardLight: 'Pretendard-Light', // 300
   pretendardThin: 'Pretendard-Thin', // 200
   pretendardExtraLight: 'Pretendard-ExtraLight', // 100
-  gumiRomance: 'Gumi-Romance', // 퀘스트 스탬프 날짜
+  gumiRomance: 'GumiRomanceTTF',
 } as const;
 
 export type Font = keyof typeof font;
