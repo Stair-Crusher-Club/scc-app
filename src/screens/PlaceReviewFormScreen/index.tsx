@@ -87,6 +87,7 @@ export default function PlaceReviewFormScreen({
   return (
     <LogParamsProvider params={{placeId}}>
       <ScreenLayout
+        safeAreaEdges={['bottom']}
         isHeaderVisible={true}
         style={{backgroundColor: color.white}}>
         {renderView()}
