@@ -102,6 +102,11 @@ export const MainNavigationScreens: {
     component: ConquererHistoryScreen,
     options: {headerShown: true, headerTitle: '지금까지 내가 정복한 장소'},
   },
+  {
+    name: 'Conquerer/UpVote',
+    component: ConquererHistoryScreen,
+    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+  },
   {name: 'Camera', component: CameraScreen},
   {
     name: 'FavoritePlaces',
@@ -229,6 +234,7 @@ export type ScreenParams = {
   Conquerer: undefined;
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
+  'Conquerer/UpVote': undefined;
   FavoritePlaces: undefined;
 
   // 리뷰
