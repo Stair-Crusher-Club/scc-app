@@ -7,8 +7,8 @@ import {Pressable} from 'react-native';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
-import {LogClick} from '@/logging/LogClick';
 
 import {
   CustomNavigationOptions,
@@ -40,11 +40,12 @@ export const NavigationHeader = ({
       ) : (
         <S.ContentsContainer style={{justifyContent: 'space-between'}}>
           <S.Title>{title}</S.Title>
-          <LogClick elementName="close_button" params={{screen_name: title}}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <CloseIcon width={28} height={28} color={color.black} />
-            </Pressable>
-          </LogClick>
+          <SccPressable 
+            elementName="close_button" 
+            logParams={{screen_name: title}}
+            onPress={() => navigation.goBack()}>
+            <CloseIcon width={28} height={28} color={color.black} />
+          </SccPressable>
         </S.ContentsContainer>
       )}
     </S.Container>

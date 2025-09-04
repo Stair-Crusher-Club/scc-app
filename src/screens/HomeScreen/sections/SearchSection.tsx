@@ -1,6 +1,5 @@
 import {useAtom, useAtomValue} from 'jotai';
 import React from 'react';
-import {Pressable} from 'react-native';
 import styled from 'styled-components/native';
 
 import MapIcon from '@/assets/icon/ic_map_detailed.svg';
@@ -9,9 +8,9 @@ import {
   hasShownCoachMarkForFirstVisitAtom,
   hasShownMapIconTooltipForFirstVisitAtom,
 } from '@/atoms/User';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import CoachMarkMapButton from '@/screens/HomeScreen/components/CoachMarkMapButton';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
@@ -48,33 +47,31 @@ export default function SearchSection() {
           left: 20,
         }}>{`지도 아이콘을 누르면\n지도 화면으로 바로 이동할 수 있어요.`}</Tooltip>
       <SearchInputContainer>
-        <LogClick elementName="place_search_map_direct">
-          <CoachMarkTarget
-            id="map-icon"
-            rx={100}
-            ry={100}
-            style={{
-              alignSelf: 'flex-start',
-              maxWidth: 50,
-            }}
-            renderItem={CoachMarkMapButton}>
-            <Pressable
-              onPress={() => {
-                goToSearch('', true);
-                setHasShownMapIconTooltipForFirstVisit(true);
-              }}>
-              <MapIcon width={24} height={24} />
-            </Pressable>
-          </CoachMarkTarget>
-        </LogClick>
-        <LogClick elementName="place_search_input">
-          <Pressable
-            onPress={() => goToSearch('')}
-            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-            <SearchInputText>장소, 주소 검색</SearchInputText>
-            <SearchIcon width={24} height={24} color={color.gray70} />
-          </Pressable>
-        </LogClick>
+        <CoachMarkTarget
+          id="map-icon"
+          rx={100}
+          ry={100}
+          style={{
+            alignSelf: 'flex-start',
+            maxWidth: 50,
+          }}
+          renderItem={CoachMarkMapButton}>
+          <SccPressable 
+            elementName="place_search_map_direct"
+            onPress={() => {
+              goToSearch('', true);
+              setHasShownMapIconTooltipForFirstVisit(true);
+            }}>
+            <MapIcon width={24} height={24} />
+          </SccPressable>
+        </CoachMarkTarget>
+        <SccPressable
+          elementName="place_search_input"
+          onPress={() => goToSearch('')}
+          style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+          <SearchInputText>장소, 주소 검색</SearchInputText>
+          <SearchIcon width={24} height={24} color={color.gray70} />
+        </SccPressable>
       </SearchInputContainer>
       <SearchCategoryContainer>
         <SearchCategory onPressKeyword={goToSearch} />

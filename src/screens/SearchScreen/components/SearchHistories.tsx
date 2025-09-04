@@ -5,9 +5,9 @@ import styled from 'styled-components/native';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import {searchHistoriesAtom} from '@/atoms/User';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {LogClick} from '@/logging/LogClick';
 
 export default function SearchHistories({
   onPressHistory: onClickSearch,
@@ -38,12 +38,14 @@ export default function SearchHistories({
         }}>
         {searchHistories.map(search => (
           <ItemBox key={search}>
-            <LogClick elementName={`recent-keyword-${search}`}>
-              <TouchableOpacity onPress={() => onClickSearch(search)}>
-                <ItemText numberOfLines={1}>{search}</ItemText>
-              </TouchableOpacity>
-            </LogClick>
+            <SccTouchableOpacity 
+              elementName={`recent-keyword-${search}`}
+              onPress={() => onClickSearch(search)}>
+              <ItemText numberOfLines={1}>{search}</ItemText>
+            </SccTouchableOpacity>
             <RemoveButton
+              elementName="recent_keyword_remove_button"
+              logParams={{keyword: search}}
               onPress={() => {
                 setSearchHistories(
                   searchHistories.filter(s => s !== search) ?? [],
@@ -101,6 +103,6 @@ const ItemText = styled.Text`
   color: ${() => color.black};
 `;
 
-const RemoveButton = styled.TouchableOpacity`
+const RemoveButton = styled(SccTouchableOpacity)`
   padding: 4px;
 `;

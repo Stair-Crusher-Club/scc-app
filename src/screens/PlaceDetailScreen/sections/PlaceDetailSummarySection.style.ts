@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -39,7 +40,7 @@ export const Separator = styled.View({
   marginBottom: 12,
 });
 
-export const Summary = styled.TouchableOpacity({
+export const Summary = styled(SccTouchableOpacity)({
   flex: 1,
   flexDirection: 'row',
   alignItems: 'center',

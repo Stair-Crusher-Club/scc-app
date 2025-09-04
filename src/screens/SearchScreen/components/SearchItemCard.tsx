@@ -1,6 +1,6 @@
 import {useAtom, useAtomValue} from 'jotai';
 import React, {memo} from 'react';
-import {TouchableOpacity, View} from 'react-native';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -8,14 +8,14 @@ import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {SccPressable} from '@/components/SccPressable';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
-import {LogClick} from '@/logging/LogClick';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
-import {LogViewAndClick} from '@/logging/LogViewAndClick';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import Button from '@/screens/SearchScreen/components/Button';
@@ -25,6 +25,7 @@ import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 import {useCheckAuth} from '@/utils/checkAuth';
+
 
 function SearchItemCard({
   item,
@@ -130,8 +131,11 @@ function SearchItemCard({
         place_name: item.place.name,
         place_accessibility_score: item.accessibilityInfo?.accessibilityScore,
       }}>
-      <LogViewAndClick elementName="place_search_item_card">
-        <Container isHeightFlex={isHeightFlex} onPress={onPress}>
+        <Container
+          elementName="place_search_item_card"
+          isHeightFlex={isHeightFlex}
+          onPress={onPress}
+        >
           <InfoArea>
             <LabelIconArea>
               <View
@@ -146,7 +150,9 @@ function SearchItemCard({
                 />
               </View>
               <IconArea>
-                <TouchableOpacity
+                <SccTouchableOpacity
+                  elementName="place_search_item_card_bookmark_button"
+                  logParams={{is_favorite: isFavorite}}
                   style={{
                     paddingLeft: 5,
                     paddingRight: 5,
@@ -167,8 +173,9 @@ function SearchItemCard({
                       height={24}
                     />
                   )}
-                </TouchableOpacity>
-                <TouchableOpacity
+                </SccTouchableOpacity>
+                <SccTouchableOpacity
+                  elementName="place_search_item_card_share_button"
                   style={{
                     paddingLeft: 5,
                     paddingBottom: 5,
@@ -176,7 +183,7 @@ function SearchItemCard({
                   activeOpacity={0.6}
                   onPress={() => checkAuth(onShare)}>
                   <ShareIcon color={color.gray70} width={24} height={24} />
-                </TouchableOpacity>
+                </SccTouchableOpacity>
               </IconArea>
             </LabelIconArea>
             <TitleArea>
@@ -199,13 +206,15 @@ function SearchItemCard({
                 reviewCount={item.accessibilityInfo?.reviewCount}
               />
               {registerStatus === 'PLACE_ONLY' && (
-                <LogClick elementName="place_search_item_card_register_building_accessibility_button">
+                <SccTouchableOpacity 
+                  elementName="place_search_item_card_register_building_accessibility_button"
+                  onPress={() => checkAuth(() => onRegister(true))}>
                   <Button
                     text="건물정보 등록 >"
                     size="xs"
-                    onPress={() => checkAuth(() => onRegister(true))}
+                    onPress={() => {}}
                   />
-                </LogClick>
+                </SccTouchableOpacity>
               )}
             </ExtraArea>
           </InfoArea>
@@ -224,14 +233,16 @@ function SearchItemCard({
               {!hasBeenRegisteredAccessibility && (
                 <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
               )}
-              <LogClick elementName="place_search_item_card_register_place_accessibility_button">
+              <SccTouchableOpacity 
+                elementName="place_search_item_card_register_place_accessibility_button"
+                onPress={() => checkAuth(() => onRegister(false))}>
                 <Button
                   text="등록하기 >"
                   size="lg"
                   fillParent
-                  onPress={() => checkAuth(() => onRegister(false))}
+                  onPress={() => {}}
                 />
-              </LogClick>
+              </SccTouchableOpacity>
             </View>
           ) : (
             <View
@@ -245,7 +256,6 @@ function SearchItemCard({
             </View>
           )}
         </Container>
-      </LogViewAndClick>
     </LogParamsProvider>
   );
 }
@@ -333,7 +343,7 @@ const IconArea = styled.View`
   align-items: center;
 `;
 
-const Container = styled.Pressable<{isHeightFlex?: boolean}>`
+const Container = styled(SccPressable)<{isHeightFlex?: boolean}>`
   overflow: visible;
   display: flex;
   flex-direction: column;
