@@ -21,7 +21,7 @@ export default function CrusherHistorySection() {
 
   return (
     <S.CrusherHistorySection>
-      <S.Title>크러셔 히스토리</S.Title>
+      <S.Title>정복 히스토리</S.Title>
       <S.Divier />
       <S.Link onPress={() => navigation.navigate('Conquerer/History')}>
         <S.LinkName>
