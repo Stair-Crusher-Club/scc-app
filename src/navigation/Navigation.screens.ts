@@ -97,7 +97,7 @@ export const MainNavigationScreens: {
   {
     name: 'Review/UpVote',
     component: ReviewUpVoteScreen,
-    options: {headerShown: true, headerTitle: '지금까지 내가 작성한 리뷰'},
+    options: {headerShown: true, headerTitle: '도움이 되었어요'},
   },
   {
     name: 'Conquerer',
