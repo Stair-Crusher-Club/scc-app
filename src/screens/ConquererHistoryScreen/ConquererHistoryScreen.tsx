@@ -6,8 +6,7 @@ import styled from 'styled-components/native';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
 import ConqueredPlaceItem from '@/screens/ConquererHistoryScreen/sections/ConqueredPlaceItem';
-
-import AchivementsSection from './sections/AchivementsSection';
+import AchievementsSection from './sections/AchievementsSection';
 
 export default function ConquererHistoryScreen() {
   const {api} = useAppComponents();
@@ -34,7 +33,7 @@ export default function ConquererHistoryScreen() {
         <FlashList
           contentContainerStyle={{backgroundColor: 'white'}}
           ListHeaderComponent={
-            <AchivementsSection
+            <AchievementsSection
               totalNumberOfPlaces={data?.pages[0].totalNumberOfItems ?? 0}
             />
           }

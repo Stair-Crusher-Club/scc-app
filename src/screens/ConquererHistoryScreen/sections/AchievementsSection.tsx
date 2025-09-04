@@ -1,14 +1,14 @@
 import React from 'react';
 
-import * as S from './AchivementsSection.style';
+import * as S from './AchievementsSection.style';
 
-export default function AchivementsSection({
+export default function AchievementsSection({
   totalNumberOfPlaces,
 }: {
   totalNumberOfPlaces: number;
 }) {
   return (
-    <S.AchivementsSection>
+    <S.AchievementsSection>
       <S.Image
         source={require('@/assets/img/img_slope.jpg')}
         resizeMode="cover"
@@ -21,6 +21,6 @@ export default function AchivementsSection({
         <S.Total>{totalNumberOfPlaces.toLocaleString()}</S.Total>
         <S.Text> 장소 정복 중</S.Text>
       </S.TextWrapper>
-    </S.AchivementsSection>
+    </S.AchievementsSection>
   );
 }

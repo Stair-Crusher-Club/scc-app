@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-export const AchivementsSection = styled.View({
+export const AchievementsSection = styled.View({
   width: '100%',
   paddingBottom: 14,
 });
