@@ -17,6 +17,7 @@ export default function CrusherHistorySection() {
   });
   const navigation = useNavigation();
   const totalNumberOfPlaces = data ?? 0;
+  const totalNumberOfUpVotes = 0; // TODO: API
 
   return (
     <S.CrusherHistorySection>
@@ -33,14 +34,14 @@ export default function CrusherHistorySection() {
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
       </S.Link>
-      <S.Link>
+      <S.Link onPress={() => navigation.navigate('Conquerer/UpVote')}>
         <S.LinkName>
-          <S.WIPText>도움이 되었어요</S.WIPText>
-          <S.WIPBadge>
-            <S.WIP>준비중</S.WIP>
-          </S.WIPBadge>
+          <S.LinkText>도움이 되었어요</S.LinkText>
         </S.LinkName>
         <S.ClickGuide>
+          <S.CountBadge>
+            <S.Count>{totalNumberOfUpVotes}</S.Count>
+          </S.CountBadge>
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
       </S.Link>
