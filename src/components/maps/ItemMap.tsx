@@ -6,7 +6,12 @@ import styled from 'styled-components/native';
 import {currentLocationAtom} from '@/atoms/Location.ts';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {getRegionFromItems, getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
+import {
+  getRegionFromItems,
+  getRegionCorners,
+  LatLng,
+  Region,
+} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
 import {
   NativeMarkerItem,
@@ -60,7 +65,8 @@ export default function ItemMap<T extends MarkerItem>({
   onCameraIdle?: (region: Region) => void;
 }) {
   const [firstFittingDone, setFirstFittingDone] = React.useState(false);
-  const [currentCameraRegion, setCurrentCameraRegion] = React.useState<Region | null>(null);
+  const [currentCameraRegion, setCurrentCameraRegion] =
+    React.useState<Region | null>(null);
   const currentLocation = useAtomValue(currentLocationAtom);
   const region = currentLocation ? getRegion(currentLocation) : DefaultRegion;
   const devTool = useDevTool();
@@ -95,10 +101,14 @@ export default function ItemMap<T extends MarkerItem>({
 
   // DevTool이 활성화되고 현재 카메라 영역이 있을 때 실제 보이는 영역의 귀퉁이 마커 생성
   const nativeCornerMarkers = React.useMemo(() => {
-    if (!devTool.searchRegion.shouldShow() || !currentCameraRegion || !mapPadding) {
+    if (
+      !devTool.searchRegion.shouldShow() ||
+      !currentCameraRegion ||
+      !mapPadding
+    ) {
       return [];
     }
-    
+
     const corners = getRegionCorners(currentCameraRegion);
     return corners.map<NativeMarkerItem>((corner, index) => ({
       id: `${CORNER_MARKER_PREFIX}${index}`,
@@ -133,8 +143,10 @@ export default function ItemMap<T extends MarkerItem>({
           lng: devTool.searchRegion.data.location.lng,
         },
         radius: devTool.searchRegion.data.radiusMeters,
-        fillColor: Platform.OS === 'ios' ? 'rgba(66, 165, 245, 0.15)' : '#2042A5F5', // 연한 파란색 배경
-        strokeColor: Platform.OS === 'ios' ? 'rgba(66, 165, 245, 0.8)' : '#CC42A5F5', // 진한 파란색 테두리
+        fillColor:
+          Platform.OS === 'ios' ? 'rgba(66, 165, 245, 0.15)' : '#2042A5F5', // 연한 파란색 배경
+        strokeColor:
+          Platform.OS === 'ios' ? 'rgba(66, 165, 245, 0.8)' : '#CC42A5F5', // 진한 파란색 테두리
         strokeWidth: 2,
       });
     } else if (devTool.searchRegion.data.type === 'rectangle') {
@@ -148,8 +160,10 @@ export default function ItemMap<T extends MarkerItem>({
           lat: devTool.searchRegion.data.rightBottomLocation.lat,
           lng: devTool.searchRegion.data.rightBottomLocation.lng,
         },
-        fillColor: Platform.OS === 'ios' ? 'rgba(76, 175, 80, 0.15)' : '#2049AF50', // 연한 초록색 배경
-        strokeColor: Platform.OS === 'ios' ? 'rgba(76, 175, 80, 0.8)' : '#CC4CAF50', // 진한 초록색 테두리
+        fillColor:
+          Platform.OS === 'ios' ? 'rgba(76, 175, 80, 0.15)' : '#2049AF50', // 연한 초록색 배경
+        strokeColor:
+          Platform.OS === 'ios' ? 'rgba(76, 175, 80, 0.8)' : '#CC4CAF50', // 진한 초록색 테두리
         strokeWidth: 2,
       });
     }

@@ -20,19 +20,21 @@ interface DevToolProps {
 export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   const {width: screenWidth, height: screenHeight} = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  
+
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
-  
+
   // Floating button position
-  const pan = useRef(new Animated.ValueXY({
-    x: screenWidth - 70,
-    y: screenHeight - 150 - insets.bottom,
-  })).current;
-  
+  const pan = useRef(
+    new Animated.ValueXY({
+      x: screenWidth - 70,
+      y: screenHeight - 150 - insets.bottom,
+    }),
+  ).current;
+
   // Bottom sheet animation
   const bottomSheetHeight = useRef(new Animated.Value(0)).current;
-  
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -40,16 +42,15 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
       onPanResponderGrant: () => {
         pan.extractOffset();
       },
-      onPanResponderMove: Animated.event(
-        [null, {dx: pan.x, dy: pan.y}],
-        {useNativeDriver: false},
-      ),
+      onPanResponderMove: Animated.event([null, {dx: pan.x, dy: pan.y}], {
+        useNativeDriver: false,
+      }),
       onPanResponderRelease: () => {
         pan.flattenOffset();
       },
     }),
   ).current;
-  
+
   const toggleBottomSheet = () => {
     const toValue = isBottomSheetOpen ? 0 : 300;
     Animated.spring(bottomSheetHeight, {
@@ -60,7 +61,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
     }).start();
     setIsBottomSheetOpen(!isBottomSheetOpen);
   };
-  
+
   const handleSearchRadiusToggle = (enabled: boolean) => {
     setConfig(prev => ({
       ...prev,
@@ -70,11 +71,11 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
       },
     }));
   };
-  
+
   if (!isVisible || !__DEV__) {
     return null;
   }
-  
+
   return (
     <>
       {/* Floating Button */}
@@ -92,7 +93,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
           <Text style={styles.floatingButtonText}>DEV</Text>
         </TouchableOpacity>
       </Animated.View>
-      
+
       {/* Bottom Sheet */}
       <Animated.View
         style={[
@@ -108,14 +109,15 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
             <Text style={styles.closeButton}>✕</Text>
           </TouchableOpacity>
         </View>
-        
+
         <ScrollView style={styles.bottomSheetContent}>
           {/* Search Radius Toggle */}
           <View style={styles.settingRow}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Show Search Radius</Text>
               <Text style={styles.settingDescription}>
-                Display search range circle on map when calling /searchPlaces API
+                Display search range circle on map when calling /searchPlaces
+                API
               </Text>
             </View>
             <Switch
@@ -125,7 +127,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
               thumbColor={config.searchRegion.enabled ? '#f5dd4b' : '#f4f3f4'}
             />
           </View>
-          
+
           {/* Add more dev tool options here */}
         </ScrollView>
       </Animated.View>

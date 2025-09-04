@@ -1,5 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Keyboard, KeyboardAvoidingView, Platform, ViewProps} from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ViewProps,
+} from 'react-native';
 import {Edge, useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
@@ -21,7 +26,8 @@ export const ScreenLayout = ({
   style = {},
 }: ScreenLayoutProps) => {
   const insets = useSafeAreaInsets();
-  const [isKeyboardShownInAndroid, setIsKeyboardShownInAndroid] = useState<boolean>(false);
+  const [isKeyboardShownInAndroid, setIsKeyboardShownInAndroid] =
+    useState<boolean>(false);
   let verticalOffset = 0;
   if (isHeaderVisible) {
     verticalOffset = HEIGHT_OF_NAVIGATION_HEADER + insets.top;
@@ -34,12 +40,16 @@ export const ScreenLayout = ({
   useEffect(() => {
     if (Platform.OS === 'android') {
       const subscriptions = [
-        Keyboard.addListener('keyboardDidHide', () => setIsKeyboardShownInAndroid(false)),
-        Keyboard.addListener('keyboardDidShow', () => setIsKeyboardShownInAndroid(true)),
-      ]
+        Keyboard.addListener('keyboardDidHide', () =>
+          setIsKeyboardShownInAndroid(false),
+        ),
+        Keyboard.addListener('keyboardDidShow', () =>
+          setIsKeyboardShownInAndroid(true),
+        ),
+      ];
       return () => {
-        subscriptions.forEach(it => it.remove())
-      }
+        subscriptions.forEach(it => it.remove());
+      };
     }
   }, []);
 
@@ -49,7 +59,11 @@ export const ScreenLayout = ({
       style={[{flex: 1, backgroundColor: color.white}, style]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        enabled={(isKeyboardAvoidingView && (Platform.OS !=='android' || isKeyboardShownInAndroid)) ?? true}
+        enabled={
+          (isKeyboardAvoidingView &&
+            (Platform.OS !== 'android' || isKeyboardShownInAndroid)) ??
+          true
+        }
         keyboardVerticalOffset={verticalOffset}
         style={[{flex: 1}, style]}>
         {children}

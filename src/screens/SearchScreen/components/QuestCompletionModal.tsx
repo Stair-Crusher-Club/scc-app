@@ -21,7 +21,7 @@ interface QuestCompletionModalProps {
 }
 
 export default function QuestCompletionModal({
-  onMoveToQuestClearPage
+  onMoveToQuestClearPage,
 }: QuestCompletionModalProps) {
   const navigation = useNavigation();
 

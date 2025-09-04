@@ -3,7 +3,11 @@ import {useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import {useRef} from 'react';
 
-import {PlaceListItem, SearchPlaceSortDto, RectangleSearchRegionDto} from '@/generated-sources/openapi';
+import {
+  PlaceListItem,
+  SearchPlaceSortDto,
+  RectangleSearchRegionDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {
