@@ -16,7 +16,13 @@ import {
 } from '../atoms/quest';
 import QuestClearStamp from './QuestClearStamp';
 
-export default function QuestCompletionModal() {
+interface QuestCompletionModalProps {
+  onMoveToQuestClearPage: () => void;
+}
+
+export default function QuestCompletionModal({
+  onMoveToQuestClearPage
+}: QuestCompletionModalProps) {
   const navigation = useNavigation();
 
   const visible = useAtomValue(visibleAtom);
@@ -34,6 +40,7 @@ export default function QuestCompletionModal() {
 
   const handlePrimary = () => {
     if (isLast) {
+      onMoveToQuestClearPage();
       navigation.navigate('ChallengeDetail', {
         challengeId: current.challengeId,
       });

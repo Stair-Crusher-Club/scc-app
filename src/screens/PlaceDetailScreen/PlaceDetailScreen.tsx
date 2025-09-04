@@ -198,6 +198,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     navigation.setParams({event: undefined});
   }, [navigation]);
 
+  // 챌린지 퀘스트 완료 페이지로 이동하는 등의 시나리오에서
+  // 백버튼을 눌러서 돌아왔을 때 바텀시트를 이어서 띄우는 문제가 없도록 맥락을 초기화해준다.
+  const onNavigateToOtherPage = useCallback(() => {
+    navigation.setParams({ event: undefined });
+    setPendingBottomSheet(null);
+  }, [navigation])
+
   const goToBuildingForm = useCallback(() => {
     closeModals();
     if (place && building) {
@@ -407,7 +414,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           onPressConfirmButton={closeModals}
         />
 
-        <QuestCompletionModal />
+        <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
       </ScreenLayout>
     </LogParamsProvider>
   );
