@@ -1,7 +1,7 @@
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="1" y="1" width="22" height="22" rx="11" fill="#9A9B9F"/>
 <rect x="1" y="1" width="22" height="22" rx="11" stroke="white"/>
-<rect x="6.66406" y="6.6665" width="10.6667" height="10.6667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="6.66406" y="6.6665" width="10.6667" height="10.6667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M13.0052 8.66699H11.0052V11.0003H8.67188L8.67188 13.0003H11.0052V15.3337H13.0052V13.0003H15.3385L15.3385 11.0003H13.0052V8.66699Z" fill="white"/>
+<rect x="6.6665" y="6.66699" width="10.6667" height="10.6667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="6.6665" y="6.66699" width="10.6667" height="10.6667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.0005 11H15.3335V13H13.0005V15.333H11.0005V13H8.6665V11H11.0005V8.66699H13.0005V11Z" fill="white"/>
 </svg>
