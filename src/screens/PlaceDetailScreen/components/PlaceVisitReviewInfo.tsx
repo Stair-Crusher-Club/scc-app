@@ -20,6 +20,7 @@ export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
       <ChipList>
         <Chip
           isActive={false}
+          chipText="최신순"
           onPress={() => {
             ToastUtils.show('준비중입니다.');
           }}>
@@ -50,14 +51,17 @@ const ChipList = styled.View`
 function Chip({
   children,
   isActive,
+  chipText,
   onPress,
 }: React.PropsWithChildren<{
+  chipText: string;
   isActive: boolean;
   onPress?: () => void;
 }>) {
   return (
     <ChipContainer
       elementName="place_visit_review_filter_chip"
+      logParams={{chip_text: chipText}}
       activeOpacity={0.7}
       onPress={onPress}
       isActive={isActive}>

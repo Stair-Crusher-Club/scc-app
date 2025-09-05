@@ -17,7 +17,7 @@ import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageLi
 import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
-import { LogParamsProvider } from '@/logging/LogParamsProvider';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   const navigation = useNavigation();

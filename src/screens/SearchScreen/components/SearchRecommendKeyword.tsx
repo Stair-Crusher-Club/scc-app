@@ -32,6 +32,7 @@ export default function SearchRecommendKeyword({
         {data?.map(({id, searchText, description}) => (
           <TouchableItemBox
             elementName="search_recommend_keyword_item"
+            logParams={{search_text: searchText}}
             key={id}
             onPress={() => onClickSearch(searchText)}>
             <ItemText numberOfLines={1}>{description}</ItemText>

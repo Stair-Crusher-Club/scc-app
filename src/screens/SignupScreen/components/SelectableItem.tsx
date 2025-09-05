@@ -23,6 +23,7 @@ export default function SelectableItem({
   return (
     <ItemWrapper
       elementName={elementName}
+      logParams={{text}}
       isSelected={isSelected}
       onPress={onPress}>
       {isSelected ? <FilledCheckIcon /> : <FilledCheckOffIcon />}

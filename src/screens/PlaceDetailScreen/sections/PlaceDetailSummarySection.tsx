@@ -71,7 +71,7 @@ const PlaceDetailSummarySection = ({
           <S.Summary
             elementName="place_detail_summary_section_toggle_favorite_button"
             logParams={{
-              isFavoritePlace: isFavorite,
+              is_favorite_place: isFavorite,
             }}
             onPress={() => checkAuth(onFavorite)}>
             {isFavorite ? (

@@ -25,6 +25,7 @@ export default function ScoreSelector({
       {labels.map((label, index) => (
         <ItemBox
           elementName="search_score_selector_item"
+          logParams={{score: index}}
           activeOpacity={0.8}
           key={index}
           onPress={() => {

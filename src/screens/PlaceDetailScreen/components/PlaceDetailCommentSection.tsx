@@ -32,7 +32,7 @@ export default function PlaceDetailCommentSection({
       ))}
       <S.AddCommentButton
         elementName="place_detail_add_comment_button"
-        logParams={{commentTarget}}
+        logParams={{comment_target: commentTarget}}
         onPress={() => checkAuth(onAddComment)}>
         <PlusIcon width={12} height={12} color={color.blue50} />
         <S.AddCommentText>{title}</S.AddCommentText>
