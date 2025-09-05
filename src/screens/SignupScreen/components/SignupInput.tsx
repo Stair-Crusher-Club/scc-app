@@ -6,12 +6,12 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import styled from 'styled-components/native';
 import {match} from 'ts-pattern';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ArrowDownIcon from '@/assets/icon/ic_arrow_down.svg';
 import ClearIcon from '@/assets/icon/ic_clear.svg';
 import StyledText from '@/components/StyledText';
@@ -92,7 +92,8 @@ const SignupInput = forwardRef<TextInput, Props>(
       <InputContainer>
         <InputWrapper isFocused={isFocused} isValid={isValid}>
           {onPress ? (
-            <TouchableOpacity
+            <SccTouchableOpacity
+              elementName="signup_input_dropdown"
               onPress={onPress}
               style={{
                 flex: 1,
@@ -104,7 +105,7 @@ const SignupInput = forwardRef<TextInput, Props>(
                 pointerEvents: 'none',
               })}
               <ArrowDownIcon width={20} height={20} />
-            </TouchableOpacity>
+            </SccTouchableOpacity>
           ) : (
             <View
               style={{
@@ -115,9 +116,11 @@ const SignupInput = forwardRef<TextInput, Props>(
               }}>
               {renderInput()}
               {isClearable && value && (
-                <TouchableOpacity onPress={handleClear}>
+                <SccTouchableOpacity
+                  elementName="signup_input_clear"
+                  onPress={handleClear}>
                   <ClearIcon width={20} height={20} />
-                </TouchableOpacity>
+                </SccTouchableOpacity>
               )}
             </View>
           )}

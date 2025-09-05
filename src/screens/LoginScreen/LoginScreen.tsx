@@ -40,7 +40,9 @@ const LoginWith3rdParty = ({
 }: LoginWith3rdPartyProps) => {
   return (
     <>
-      <S.KakaoLogin onPress={onKakaoButtonPressed}>
+      <S.KakaoLogin
+        elementName="login_kakao_button"
+        onPress={onKakaoButtonPressed}>
         <S.LoginButtonIcon>
           <KakaoLogo />
         </S.LoginButtonIcon>
@@ -48,7 +50,9 @@ const LoginWith3rdParty = ({
       </S.KakaoLogin>
       {/* 안드로이드 애플로그인 지원 시 appleAuthAndroid.isSupported 체크 필요 */}
       {Platform.OS === 'ios' && (
-        <S.AppleLogin onPress={onAppleButtonPressed}>
+        <S.AppleLogin
+          elementName="login_apple_button"
+          onPress={onAppleButtonPressed}>
           <S.LoginButtonIcon>
             <AppleLogo />
           </S.LoginButtonIcon>
@@ -56,7 +60,9 @@ const LoginWith3rdParty = ({
         </S.AppleLogin>
       )}
       {onGuestButtonPressed && (
-        <S.GuestLogin onPress={onGuestButtonPressed}>
+        <S.GuestLogin
+          elementName="login_guest_button"
+          onPress={onGuestButtonPressed}>
           <S.LoginAsGuest>비회원 둘러보기</S.LoginAsGuest>
         </S.GuestLogin>
       )}

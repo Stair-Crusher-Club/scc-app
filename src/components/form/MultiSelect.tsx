@@ -39,6 +39,7 @@ export default function MultiSelect({
         {options.map((option, i) => (
           <S.PressableOption
             key={i}
+            elementName="multi_select_option"
             selected={values.includes(option.value)}
             onPress={() => handleSelect(option.value)}>
             <S.OptionText selected={values.includes(option.value)}>

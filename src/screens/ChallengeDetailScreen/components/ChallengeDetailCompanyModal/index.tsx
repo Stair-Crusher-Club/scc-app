@@ -6,7 +6,10 @@ import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
 import {isEmpty} from 'lodash';
 import React, {useState} from 'react';
-import {Modal, ScrollView, TouchableOpacity, View} from 'react-native';
+
+import {Modal, ScrollView, View} from 'react-native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
 import Input from './Input';
@@ -34,7 +37,8 @@ const ChallengeDetailCompanyModal = ({
   return (
     <Modal visible={isVisible} statusBarTranslucent>
       <SafeAreaWrapper edges={['top', 'bottom']} style={{flex: 1}}>
-        <TouchableOpacity
+        <SccTouchableOpacity
+          elementName="challenge_modal_close_button"
           onPress={() => {
             onPressCloseButton();
             reset();
@@ -45,7 +49,7 @@ const ChallengeDetailCompanyModal = ({
             paddingVertical: 13,
           }}>
           <CloseIcon width={24} height={24} color={color.gray90} />
-        </TouchableOpacity>
+        </SccTouchableOpacity>
         <ScrollView
           bounces={false}
           contentContainerStyle={{

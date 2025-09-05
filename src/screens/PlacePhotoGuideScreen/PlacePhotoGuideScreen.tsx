@@ -75,7 +75,9 @@ export default function PlacePhotoGuideScreen({
       safeAreaEdges={['top', 'bottom']}
       style={{backgroundColor: '#262629'}}>
       <S.Header>
-        <S.CloseButton onPress={navigation.goBack}>
+        <S.CloseButton
+          elementName="place_photo_guide_close_button"
+          onPress={navigation.goBack}>
           <ExitIcon width={24} height={24} color="white" />
         </S.CloseButton>
       </S.Header>

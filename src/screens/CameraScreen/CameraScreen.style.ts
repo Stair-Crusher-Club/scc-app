@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -46,7 +47,7 @@ export const TipsWrapper = styled.View({
   alignItems: 'flex-start',
 });
 
-export const Tips = styled.Pressable({
+export const Tips = styled(SccPressable)({
   flexDirection: 'row',
   alignItems: 'center',
   gap: 4,
@@ -78,7 +79,7 @@ export const NoPhotosTaken = styled.Text({
   textAlign: 'center',
 });
 
-export const TakenPhotoItem = styled.Pressable({});
+export const TakenPhotoItem = styled(SccPressable)({});
 
 export const Thumbnail = styled.Image({
   backgroundColor: color.gray20,
@@ -87,7 +88,7 @@ export const Thumbnail = styled.Image({
   height: 56,
   overflow: 'hidden',
 });
-export const CloseButton = styled.Pressable({
+export const CloseButton = styled(SccPressable)({
   position: 'absolute',
   top: -4,
   right: -4,
@@ -101,7 +102,7 @@ export const ActionsWrapper = styled.View({
   paddingHorizontal: 30,
 });
 
-export const CaptureButton = styled.Pressable(props => ({
+export const CaptureButton = styled(SccPressable)(props => ({
   width: 78,
   height: 78,
   backgroundColor: 'transparent',
@@ -121,7 +122,7 @@ export const CaptureInnerDeco = styled.View({
   backgroundColor: 'white',
 });
 
-export const FlashButton = styled.Pressable({
+export const FlashButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
   right: 32,

@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
-import {Pressable, View} from 'react-native';
+import {View} from 'react-native';
 
+import {SccPressable} from '@/components/SccPressable';
 import MinusIcon from '@/assets/icon/ic_minus.svg';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import Options from '@/components/form/Options';
@@ -155,9 +156,12 @@ function FloorSelect({value, onChange}: FloorSelectProps) {
             top: '50%',
             transform: 'translateY(-16px)',
           }}>
-          <Pressable onPress={decrease} style={{padding: 8}}>
+          <SccPressable
+            elementName="floor_decrease_button"
+            onPress={decrease}
+            style={{padding: 8}}>
             <MinusIcon width={16} color={color.brandColor} />
-          </Pressable>
+          </SccPressable>
         </View>
         <TextInput
           keyboardType="number-pad"
@@ -174,9 +178,12 @@ function FloorSelect({value, onChange}: FloorSelectProps) {
             top: '50%',
             transform: 'translateY(-16px)',
           }}>
-          <Pressable onPress={increase} style={{padding: 8}}>
+          <SccPressable
+            elementName="floor_increase_button"
+            onPress={increase}
+            style={{padding: 8}}>
             <PlusIcon width={16} color={color.brandColor} />
-          </Pressable>
+          </SccPressable>
         </View>
       </View>
       <View style={{width: 12}} />

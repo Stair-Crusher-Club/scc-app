@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -82,7 +83,7 @@ export const Conqueror = styled.Text({
 export const Comments = styled.View({
   marginTop: 20,
 });
-export const AddCommentButton = styled.Pressable({
+export const AddCommentButton = styled(SccPressable)({
   height: 48,
   flexDirection: 'row',
   alignItems: 'center',

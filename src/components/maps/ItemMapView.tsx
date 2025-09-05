@@ -12,6 +12,8 @@ import {FlatList, Platform, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+
 import MyLocationIcon from '@/assets/icon/ic_my_location.svg';
 import RedoIcon from '@/assets/icon/ic_redo.svg';
 import {currentLocationAtom} from '@/atoms/Location';
@@ -165,6 +167,7 @@ const FRefInputComp = <T extends MarkerItem>(
       />
       {isRefreshVisible && (
         <RefreshButton
+          elementName="map_refresh_button"
           activeOpacity={0.8}
           onPress={() => {
             onRefresh();
@@ -180,7 +183,10 @@ const FRefInputComp = <T extends MarkerItem>(
           paddingBottom: insets.bottom,
         }}
         pointerEvents="box-none">
-        <MyLocationButton onPress={onMyLocationPress} activeOpacity={0.7}>
+        <MyLocationButton
+          elementName="map_my_location_button"
+          onPress={onMyLocationPress}
+          activeOpacity={0.7}>
           <MyLocationIcon width={24} height={24} />
         </MyLocationButton>
         {items.length > 0 && (
@@ -224,7 +230,7 @@ const Container = styled.View`
   overflow: hidden;
 `;
 
-const MyLocationButton = styled.TouchableOpacity`
+const MyLocationButton = styled(SccTouchableOpacity)`
   shadow-color: #000;
   shadow-offset: 0px 2px;
   shadow-opacity: 0.25;
@@ -243,7 +249,7 @@ const MyLocationButton = styled.TouchableOpacity`
   align-items: center;
 `;
 
-const RefreshButton = styled.TouchableOpacity`
+const RefreshButton = styled(SccTouchableOpacity)`
   shadow-color: #000;
   shadow-offset: 0px 2px;
   shadow-opacity: 0.25;

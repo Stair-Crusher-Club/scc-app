@@ -1,5 +1,7 @@
 import React, {forwardRef, useEffect} from 'react';
+/* eslint-disable no-restricted-imports */
 import {TouchableHighlight, TouchableHighlightProps} from 'react-native';
+/* eslint-enable no-restricted-imports */
 import {useRoute} from '@react-navigation/native';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';

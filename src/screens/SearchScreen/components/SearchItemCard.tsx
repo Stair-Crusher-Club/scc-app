@@ -203,11 +203,12 @@ function SearchItemCard({
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
             {registerStatus === 'PLACE_ONLY' && (
-              <SccTouchableOpacity
+              <Button
+                text="건물정보 등록 >"
+                size="xs"
                 elementName="place_search_item_card_register_building_accessibility_button"
-                onPress={() => checkAuth(() => onRegister(true))}>
-                <Button text="건물정보 등록 >" size="xs" onPress={() => {}} />
-              </SccTouchableOpacity>
+                onPress={() => checkAuth(() => onRegister(true))}
+              />
             )}
           </ExtraArea>
         </InfoArea>
@@ -218,6 +219,7 @@ function SearchItemCard({
               size="lg"
               fillParent
               isDisabled
+              elementName="service_unavailable_button"
               onPress={() => {}}
             />
           </View>
@@ -233,6 +235,7 @@ function SearchItemCard({
                 text="등록하기 >"
                 size="lg"
                 fillParent
+                elementName="place_accessibility_register_button"
                 onPress={() => {}}
               />
             </SccTouchableOpacity>

@@ -2,6 +2,7 @@ import React from 'react';
 import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {RECOMMEND_MOBILITY_TOOL_LABELS} from '@/constant/review';
@@ -43,6 +44,7 @@ export default function PlaceVisitReviewFilterModal({
         <OptionList>
           {MOBILITY_TYPE_OPTIONS.map(type => (
             <OptionButton
+              elementName="place_visit_review_filter_option"
               key={type ?? 'ALL'}
               isActive={selected === type}
               onPress={() => {
@@ -73,7 +75,7 @@ const OptionList = styled.View`
   gap: 8px;
 `;
 
-const OptionButton = styled.TouchableOpacity<{isActive: boolean}>`
+const OptionButton = styled(SccTouchableOpacity)<{isActive: boolean}>`
   padding-vertical: 12px;
   padding-horizontal: 16px;
   border-radius: 8px;

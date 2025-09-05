@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -37,7 +38,7 @@ export const PlaceList = styled.View({
   backgroundColor: color.white,
 });
 
-export const PlaceRow = styled.Pressable({
+export const PlaceRow = styled(SccPressable)({
   gap: 4,
   borderBottomWidth: 1,
   borderBottomColor: color.gray10,

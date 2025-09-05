@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -20,7 +21,7 @@ export const Divier = styled.View({
   backgroundColor: color.gray20,
 });
 
-export const Link = styled.Pressable({
+export const Link = styled(SccPressable)({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',

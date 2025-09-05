@@ -1,6 +1,6 @@
 import {useAtom} from 'jotai';
 import React from 'react';
-import {ScrollView, TouchableOpacity} from 'react-native';
+import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import CloseIcon from '@/assets/icon/close.svg';
@@ -23,9 +23,11 @@ export default function SearchHistories({
     <Container>
       <TitleWrap>
         <TitleText>최근 검색어</TitleText>
-        <TouchableOpacity onPress={() => setSearchHistories([])}>
+        <SccTouchableOpacity
+          elementName="clear_all_search_histories"
+          onPress={() => setSearchHistories([])}>
           <ClearAllText>모두 삭제</ClearAllText>
-        </TouchableOpacity>
+        </SccTouchableOpacity>
       </TitleWrap>
       <ScrollView
         horizontal

@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 
 import FilledCheckIcon from '@/assets/icon/ic_filled_check.svg';
 import FilledCheckOffIcon from '@/assets/icon/ic_filled_check_off.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -10,15 +11,20 @@ interface SelectableItemProps {
   isSelected: boolean;
   onPress: () => void;
   text: string;
+  elementName: string;
 }
 
 export default function SelectableItem({
   isSelected,
   onPress,
   text,
+  elementName,
 }: SelectableItemProps) {
   return (
-    <ItemWrapper isSelected={isSelected} onPress={onPress}>
+    <ItemWrapper
+      elementName={elementName}
+      isSelected={isSelected}
+      onPress={onPress}>
       {isSelected ? <FilledCheckIcon /> : <FilledCheckOffIcon />}
       <ItemText>{text}</ItemText>
     </ItemWrapper>
@@ -31,7 +37,7 @@ const ItemText = styled.Text`
   color: ${color.gray100};
 `;
 
-const ItemWrapper = styled.Pressable<{isSelected: boolean}>`
+const ItemWrapper = styled(SccPressable)<{isSelected: boolean}>`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;

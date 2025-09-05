@@ -28,6 +28,7 @@ export default function Options({
       {options.map((option, i) => (
         <S.PressableOption
           key={i}
+          elementName="option_single_select"
           style={columns === 2 ? {width: '40%'} : {width: '30%'}}
           selected={option.value === value}
           disabled={option.disabled ?? false}
@@ -73,6 +74,7 @@ Options.Multiple = function MultipleOptions({
         return (
           <S.PressableOption
             key={i}
+            elementName="option_multi_select"
             style={columns === 2 ? {width: '40%'} : {width: '30%'}}
             selected={selected}
             disabled={option.disabled ?? false}

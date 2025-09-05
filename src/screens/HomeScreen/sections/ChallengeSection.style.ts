@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -32,7 +33,7 @@ export const Filters = styled.View({
   paddingHorizontal: 25,
 });
 
-export const FilterButton = styled.Pressable<{active?: boolean}>(
+export const FilterButton = styled(SccPressable)<{active?: boolean}>(
   ({active}) => ({
     paddingVertical: 9,
     paddingHorizontal: 18,

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 
@@ -23,6 +24,7 @@ export default function ScoreSelector({
     <Container>
       {labels.map((label, index) => (
         <ItemBox
+          elementName="search_score_selector_item"
           activeOpacity={0.8}
           key={index}
           onPress={() => {
@@ -47,7 +49,7 @@ const Container = styled.View`
   gap: 12px;
 `;
 
-const ItemBox = styled.TouchableOpacity`
+const ItemBox = styled(SccTouchableOpacity)`
   display: flex;
   flex-direction: row;
   align-items: center;

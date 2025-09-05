@@ -3,7 +3,6 @@ import {
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
 import React from 'react';
-import {Pressable} from 'react-native';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -32,9 +31,11 @@ export const NavigationHeader = ({
     <S.Container edges={['top']}>
       {variant === 'back' ? (
         <S.ContentsContainer>
-          <Pressable onPress={() => navigation.goBack()}>
+          <SccPressable
+            elementName="navigation_back_button"
+            onPress={() => navigation.goBack()}>
             <LeftArrowIcon width={24} height={24} color={color.black} />
-          </Pressable>
+          </SccPressable>
           <S.Title>{title}</S.Title>
         </S.ContentsContainer>
       ) : (

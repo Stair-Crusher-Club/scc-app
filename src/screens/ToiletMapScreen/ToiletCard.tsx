@@ -1,6 +1,7 @@
 import {useAtomValue} from 'jotai';
+import {SccPressable} from '@/components/SccPressable';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import React from 'react';
-import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
@@ -45,6 +46,7 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
 
   return (
     <Container
+      elementName="toilet_card"
       onPress={() => {
         navigation.navigate('ExternalAccessibilityDetail', {
           externalAccessibilityId: item.id,
@@ -57,12 +59,18 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
             text={item.available?.desc ?? '알수없음'}
           />
           <IconArea>
-            <TouchableOpacity activeOpacity={0.6} onPress={onShare}>
+            <SccTouchableOpacity
+              elementName="toilet_card_share_button"
+              activeOpacity={0.6}
+              onPress={onShare}>
               <ShareIcon color={color.gray80} />
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.6} onPress={onBookmark}>
+            </SccTouchableOpacity>
+            <SccTouchableOpacity
+              elementName="toilet_card_bookmark_button"
+              activeOpacity={0.6}
+              onPress={onBookmark}>
               <BookmarkIcon color={color.gray80} />
-            </TouchableOpacity>
+            </SccTouchableOpacity>
           </IconArea>
         </LabelIconArea>
         <TitleArea>
@@ -121,7 +129,7 @@ const IconArea = styled.View`
   gap: 8px;
 `;
 
-const Container = styled.Pressable`
+const Container = styled(SccPressable)`
   display: flex;
   flex-direction: column;
   align-items: flex-start;

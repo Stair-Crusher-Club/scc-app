@@ -1,6 +1,7 @@
 import {CSSObject} from 'styled-components';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -109,7 +110,7 @@ const LoginButtonText: CSSObject = {
   lineHeight: '24px',
 };
 
-export const KakaoLogin = styled.TouchableOpacity({
+export const KakaoLogin = styled(SccTouchableOpacity)({
   ...LoginButton,
   backgroundColor: '#FEE500',
 });
@@ -118,7 +119,7 @@ export const LoginWithKakao = styled.Text({
   color: color.blacka80,
 });
 
-export const AppleLogin = styled.TouchableOpacity({
+export const AppleLogin = styled(SccTouchableOpacity)({
   ...LoginButton,
   borderWidth: 1,
   borderColor: color.black,
@@ -126,7 +127,7 @@ export const AppleLogin = styled.TouchableOpacity({
 });
 export const LoginWithApple = styled.Text(LoginButtonText);
 
-export const GuestLogin = styled.TouchableOpacity(LoginButton);
+export const GuestLogin = styled(SccTouchableOpacity)(LoginButton);
 export const LoginAsGuest = styled.Text({
   ...LoginButtonText,
   fontSize: 14,
@@ -134,7 +135,7 @@ export const LoginAsGuest = styled.Text({
   color: color.gray90,
 });
 
-export const EmailLogin = styled.TouchableOpacity(LoginButton);
+export const EmailLogin = styled(SccTouchableOpacity)(LoginButton);
 export const LoginWithEmail = styled.Text({
   ...LoginButtonText,
   fontFamily: font.pretendardRegular,

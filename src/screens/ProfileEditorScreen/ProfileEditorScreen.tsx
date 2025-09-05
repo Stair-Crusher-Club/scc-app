@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 
 import GotoIcon from '@/assets/icon/ic_goto.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {MOBILITY_TOOL_LABELS} from '@/constant/mobilityTool';
@@ -18,6 +19,7 @@ export default function ProfileEditorScreen() {
       <ScrollView style={{backgroundColor: color.white}}>
         <View style={{alignItems: 'stretch'}}>
           <FieldArea
+            elementName="profile_editor_nickname_field"
             onPress={() =>
               navigation.navigate('ProfileEditor/Detail', {
                 field: 'nickname',
@@ -30,6 +32,7 @@ export default function ProfileEditorScreen() {
             </FieldValueWrapper>
           </FieldArea>
           <FieldArea
+            elementName="profile_editor_email_field"
             onPress={() =>
               navigation.navigate('ProfileEditor/Detail', {
                 field: 'email',
@@ -42,6 +45,7 @@ export default function ProfileEditorScreen() {
             </FieldValueWrapper>
           </FieldArea>
           <FieldArea
+            elementName="profile_editor_birth_year_field"
             onPress={() =>
               navigation.navigate('ProfileEditor/Detail', {
                 field: 'birthYear',
@@ -58,6 +62,7 @@ export default function ProfileEditorScreen() {
             </FieldValueWrapper>
           </FieldArea>
           <FieldArea
+            elementName="profile_editor_mobility_tools_field"
             onPress={() =>
               navigation.navigate('ProfileEditor/Detail', {
                 field: 'mobilityTools',
@@ -79,7 +84,7 @@ export default function ProfileEditorScreen() {
   );
 }
 
-const FieldArea = styled.TouchableOpacity`
+const FieldArea = styled(SccTouchableOpacity)`
   padding: 20px;
   gap: 8px;
   flex-direction: column;

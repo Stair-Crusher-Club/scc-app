@@ -1,12 +1,14 @@
 import React, {useRef} from 'react';
+/* eslint-disable no-restricted-imports */
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
+
 import {useAtom} from 'jotai';
 import {PanGestureHandler, State} from 'react-native-gesture-handler';
 import {loggedEventsAtom} from './devToolEventStore';

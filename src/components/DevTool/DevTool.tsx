@@ -1,18 +1,20 @@
 import React, {useRef, useState, useEffect} from 'react';
+/* eslint-disable no-restricted-imports */
 import {
   Animated,
   PanResponder,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useWindowDimensions,
   Switch,
   ScrollView,
   Modal,
   SafeAreaView,
+  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
+
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
 import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';

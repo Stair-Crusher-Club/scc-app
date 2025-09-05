@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
@@ -10,6 +11,7 @@ export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
   const navigation = useNavigation();
   return (
     <PlaceRow
+      elementName="conquered_place_item"
       key={p.place.id}
       onPress={() =>
         navigation.navigate('PlaceDetail', {
@@ -25,7 +27,7 @@ export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
   );
 }
 
-const PlaceRow = styled.Pressable`
+const PlaceRow = styled(SccPressable)`
   padding: 20px;
   border-bottom-width: 1px;
   border-bottom-color: ${color.gray20};

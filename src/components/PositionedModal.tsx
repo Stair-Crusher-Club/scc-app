@@ -1,10 +1,7 @@
 import React, {useState, useRef} from 'react';
-import {
-  Modal,
-  View,
-  TouchableWithoutFeedback,
-  LayoutRectangle,
-} from 'react-native';
+import {Modal, View, LayoutRectangle} from 'react-native';
+
+import {SccTouchableWithoutFeedback} from '@/components/SccTouchableWithoutFeedback';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -42,16 +39,20 @@ const PositionedModal = ({
 
   return (
     <>
-      <TouchableWithoutFeedback onPress={measureChildPosition}>
+      <SccTouchableWithoutFeedback
+        elementName="positioned_modal_trigger"
+        onPress={measureChildPosition}>
         <View ref={childRef}>{children}</View>
-      </TouchableWithoutFeedback>
+      </SccTouchableWithoutFeedback>
 
       <Modal
         visible={visible ?? showModal}
         transparent
         animationType="fade"
         onRequestClose={handleClose}>
-        <TouchableWithoutFeedback onPress={handleClose}>
+        <SccTouchableWithoutFeedback
+          elementName="positioned_modal_overlay"
+          onPress={handleClose}>
           <ModalOverlay>
             {childPosition && (
               <ModalArea>
@@ -70,7 +71,7 @@ const PositionedModal = ({
               </ModalArea>
             )}
           </ModalOverlay>
-        </TouchableWithoutFeedback>
+        </SccTouchableWithoutFeedback>
       </Modal>
     </>
   );
