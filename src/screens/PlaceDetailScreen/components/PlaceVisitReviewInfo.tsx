@@ -61,7 +61,7 @@ function Chip({
   return (
     <ChipContainer
       elementName="place_visit_review_filter_chip"
-      logParams={{chip_text: chipText}}
+      logParams={{chipText}}
       activeOpacity={0.7}
       onPress={onPress}
       isActive={isActive}>

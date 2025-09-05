@@ -47,6 +47,24 @@ const trackEvent = (eventName: string, params: Record<string, any>) => {
   }
 };
 
+// Utility function to convert object keys to snake_case
+const convertKeysToSnakeCase = (
+  obj: Record<string, any>,
+): Record<string, any> => {
+  const convertedObj: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(obj)) {
+    // Convert camelCase to snake_case
+    const snakeKey = key.replace(
+      /[A-Z]/g,
+      letter => `_${letter.toLowerCase()}`,
+    );
+    convertedObj[snakeKey] = value;
+  }
+
+  return convertedObj;
+};
+
 const Logger = {
   async setUserId(userId: string) {
     logDebug('setUserId', userId, currUserPropertiesForDebugging);
@@ -61,7 +79,7 @@ const Logger = {
   async logElementView(params: ElementEventParams) {
     logDebug('logElementView', params, currUserPropertiesForDebugging);
     const eventParams = {
-      ...(params.extraParams || {}),
+      ...convertKeysToSnakeCase(params.extraParams || {}),
       element_name: params.name,
       screen_name: params.currScreenName,
     };
@@ -75,7 +93,7 @@ const Logger = {
   async logElementClick(params: ElementEventParams) {
     logDebug('logElementClick', params, currUserPropertiesForDebugging);
     const eventParams = {
-      ...(params.extraParams || {}),
+      ...convertKeysToSnakeCase(params.extraParams || {}),
       element_name: params.name,
       screen_name: params.currScreenName,
     };
@@ -86,7 +104,7 @@ const Logger = {
   async logScreenView(params: ScreenViewParams) {
     logDebug('logScreenView', params, currUserPropertiesForDebugging);
     const eventParams = {
-      ...(params.extraParams || {}),
+      ...convertKeysToSnakeCase(params.extraParams || {}),
       previous_screen_name: params.prevScreenName,
       screen_name: params.currScreenName,
       screen_class: params.currScreenName,
@@ -112,7 +130,7 @@ const Logger = {
   async logAppPushOpen(params: AppPushOpenParams) {
     logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
     const eventParams = {
-      ...(params.extraParams || {}),
+      ...convertKeysToSnakeCase(params.extraParams || {}),
       push_title: params.title,
       push_body: params.body,
       push_campaign_id: params.campaignId,
