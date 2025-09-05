@@ -2,6 +2,7 @@ import {FlashList} from '@shopify/flash-list';
 import React, {useMemo} from 'react';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -32,6 +33,7 @@ export default function BirthYearSelector({value, onChange, onClose}: Props) {
 
   const renderItem = ({item}: {item: YearItem}) => (
     <YearButton
+      elementName="birth_year_item"
       onPress={() => {
         onChange(item.year.toString());
         onClose();
@@ -44,11 +46,11 @@ export default function BirthYearSelector({value, onChange, onClose}: Props) {
   return (
     <Container>
       <Header>
-        <HeaderButton onPress={onClose}>
+        <HeaderButton elementName="birth_year_cancel_button" onPress={onClose}>
           <HeaderButtonText>취소</HeaderButtonText>
         </HeaderButton>
         <HeaderTitle>출생연도</HeaderTitle>
-        <HeaderButton onPress={onClose}>
+        <HeaderButton elementName="birth_year_done_button" onPress={onClose}>
           <HeaderButtonText>완료</HeaderButtonText>
         </HeaderButton>
       </Header>
@@ -80,7 +82,7 @@ const Header = styled.View`
   border-bottom-color: ${color.gray20};
 `;
 
-const HeaderButton = styled.TouchableOpacity`
+const HeaderButton = styled(SccTouchableOpacity)`
   padding: 8px;
 `;
 
@@ -100,7 +102,7 @@ const ListContainer = styled.View`
   flex: 1;
 `;
 
-const YearButton = styled.TouchableOpacity<{isSelected: boolean}>`
+const YearButton = styled(SccTouchableOpacity)<{isSelected: boolean}>`
   padding: 16px;
   background-color: ${props => (props.isSelected ? color.gray10 : color.white)};
 `;

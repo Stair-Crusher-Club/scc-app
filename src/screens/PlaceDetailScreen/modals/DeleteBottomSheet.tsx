@@ -36,6 +36,7 @@ const DeleteBottomSheet = ({
           fontFamily={font.pretendardMedium}
           style={styles.button}
           onPress={onPressCancelButton}
+          elementName="delete_modal_cancel"
         />
         <View style={styles.spaceBetweenButtons} />
         <SccButton
@@ -45,6 +46,7 @@ const DeleteBottomSheet = ({
           fontFamily={font.pretendardBold}
           style={styles.button}
           onPress={onPressConfirmButton}
+          elementName="delete_modal_confirm"
         />
       </View>
     </BottomSheet>

@@ -144,6 +144,7 @@ export default function PlaceFormScreen({
                   text="등록하기"
                   buttonColor="blue50"
                   onPress={submit}
+                  elementName="place_form_submit"
                 />
               </S.SubmitButtonWrapper>
             </FormProvider>

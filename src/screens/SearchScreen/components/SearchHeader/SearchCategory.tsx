@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
-import {LogClick} from '@/logging/LogClick.tsx';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
 
@@ -19,15 +19,14 @@ export default function SearchCategory({
     item: {category: keyof typeof Icons; keyword: string};
   }) => {
     return (
-      <LogClick
+      <PressableCategory
         key={item.category}
         elementName="place_search_category"
-        params={{keyword: item.keyword}}>
-        <PressableCategory onPress={() => onPressKeyword(item.keyword)}>
-          <SearchCategoryIcon icon={item.category} size={20} />
-          <CategoryText>{item.keyword}</CategoryText>
-        </PressableCategory>
-      </LogClick>
+        logParams={{keyword: item.keyword}}
+        onPress={() => onPressKeyword(item.keyword)}>
+        <SearchCategoryIcon icon={item.category} size={20} />
+        <CategoryText>{item.keyword}</CategoryText>
+      </PressableCategory>
     );
   };
   return (
@@ -44,7 +43,7 @@ export default function SearchCategory({
   );
 }
 
-const PressableCategory = styled.TouchableOpacity`
+const PressableCategory = styled(SccTouchableOpacity)`
   flex-direction: row;
   justify-content: center;
   align-items: center;

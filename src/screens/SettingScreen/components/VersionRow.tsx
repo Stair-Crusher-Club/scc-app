@@ -33,6 +33,7 @@ export default function VersionRow() {
         </View>
         <View>
           <S.ActionButton
+            elementName="setting_version_store_button"
             activeOpacity={0.9}
             underlayColor={color.brandColor}
             onPress={goToStore}>

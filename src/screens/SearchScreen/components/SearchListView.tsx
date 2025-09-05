@@ -8,6 +8,7 @@ import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 export default function SearchListView({
   searchResults,
@@ -20,34 +21,36 @@ export default function SearchListView({
 }) {
   const navigation = useNavigation();
   return (
-    <Container isVisible={isVisible}>
-      {isLoading ? (
-        <SearchLoading />
-      ) : searchResults.length === 0 ? (
-        <SearchNoResult />
-      ) : (
-        <FlatList
-          contentContainerStyle={{paddingBottom: 100}}
-          keyboardDismissMode="on-drag"
-          renderItem={({item}) => (
-            <ItemWrapper key={item.place.id}>
-              <SearchItemCard
-                item={item}
-                isHeightFlex
-                onPress={() => {
-                  navigation.navigate('PlaceDetail', {
-                    placeInfo: {
-                      placeId: item.place.id,
-                    },
-                  });
-                }}
-              />
-            </ItemWrapper>
-          )}
-          data={searchResults}
-        />
-      )}
-    </Container>
+    <LogParamsProvider params={{search_view_mode: 'list'}}>
+      <Container isVisible={isVisible}>
+        {isLoading ? (
+          <SearchLoading />
+        ) : searchResults.length === 0 ? (
+          <SearchNoResult />
+        ) : (
+          <FlatList
+            contentContainerStyle={{paddingBottom: 100}}
+            keyboardDismissMode="on-drag"
+            renderItem={({item}) => (
+              <ItemWrapper key={item.place.id}>
+                <SearchItemCard
+                  item={item}
+                  isHeightFlex
+                  onPress={() => {
+                    navigation.navigate('PlaceDetail', {
+                      placeInfo: {
+                        placeId: item.place.id,
+                      },
+                    });
+                  }}
+                />
+              </ItemWrapper>
+            )}
+            data={searchResults}
+          />
+        )}
+      </Container>
+    </LogParamsProvider>
   );
 }
 

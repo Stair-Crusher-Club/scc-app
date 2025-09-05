@@ -34,6 +34,7 @@ const ChallengeUpcomingBottomSheet = ({
           onPress={() => {
             onPressConfirmButton();
           }}
+          elementName="challenge_upcoming_confirm"
         />
       </ButtonContainer>
     </BottomSheet>

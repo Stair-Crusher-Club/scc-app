@@ -33,6 +33,7 @@ export default function CameraDeviceSelect({device, onDeviceSelect}: Props) {
       {availableDevices.length > 1 &&
         availableDevices.map(d => (
           <S.DeviceTypeButton
+            elementName="camera_device_type_button"
             key={d.id}
             selected={d === device}
             onPress={() => onDeviceSelect(d)}>

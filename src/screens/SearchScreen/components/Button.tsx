@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import styled from 'styled-components/native';
 
+import {SccTouchableHighlight} from '@/components/SccTouchableHighlight';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -10,12 +11,14 @@ export default function Button({
   size,
   onPress,
   fillParent,
+  elementName,
 }: {
   text: string;
   size: 'xs' | 'sm' | 'md' | 'lg';
   isDisabled?: boolean;
   onPress: () => void;
   fillParent?: boolean;
+  elementName: string;
 }) {
   const [touchStatus, setStatus] = useState<'normal' | 'focus' | 'disabled'>(
     'normal',
@@ -24,6 +27,7 @@ export default function Button({
 
   return (
     <Container
+      elementName={elementName}
       activeOpacity={1}
       underlayColor={'transparent'}
       fillParent={fillParent}
@@ -43,7 +47,7 @@ export default function Button({
   );
 }
 
-const Container = styled.TouchableHighlight<{
+const Container = styled(SccTouchableHighlight)<{
   status: 'normal' | 'focus' | 'disabled';
   size: 'xs' | 'sm' | 'md' | 'lg';
   fillParent?: boolean;

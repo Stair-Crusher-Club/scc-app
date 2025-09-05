@@ -1,7 +1,7 @@
 import {useAtom} from 'jotai';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {debounce} from 'lodash';
 import React, {useCallback, useEffect} from 'react';
-import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -57,7 +57,8 @@ export default function SearchInputText({
   return (
     <Wrapper>
       {!viewState.inputMode && (
-        <TouchableOpacity
+        <SccTouchableOpacity
+          elementName="search_map_list_toggle_button"
           activeOpacity={0.8}
           onPress={() => {
             if (viewState.inputMode) {
@@ -81,10 +82,11 @@ export default function SearchInputText({
               </>
             )}
           </MapListToggleButton>
-        </TouchableOpacity>
+        </SccTouchableOpacity>
       )}
       <Container>
         <IconButton
+          elementName="search_back_button"
           onPress={() => {
             navigation.goBack();
           }}
@@ -110,6 +112,7 @@ export default function SearchInputText({
           autoFocus={autoFocus}
         />
         <IconButton
+          elementName="search_clear_or_submit_button"
           onPress={() => {
             isTextExists
               ? onClear()
@@ -177,7 +180,7 @@ const Container = styled.View`
   padding-vertical: 0;
 `;
 
-const IconButton = styled.TouchableOpacity`
+const IconButton = styled(SccTouchableOpacity)`
   width: 24px;
   height: 24px;
   justify-content: center;

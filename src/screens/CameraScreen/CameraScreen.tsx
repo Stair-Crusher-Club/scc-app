@@ -176,6 +176,7 @@ export default function CameraScreen({
       {route.params.target !== 'building' && (
         <S.TipsWrapper>
           <S.Tips
+            elementName="camera_tips_button"
             onPress={() => {
               const target = route.params.target;
               if (
@@ -211,6 +212,7 @@ export default function CameraScreen({
               keyExtractor={(item: ImageFile) => item.uri}
               renderItem={({item, drag, isActive}) => (
                 <S.TakenPhotoItem
+                  elementName="taken_photo_item"
                   style={{
                     opacity: isActive ? 0.5 : 1,
                     transform: [{scale: isActive ? 1.05 : 1}],
@@ -221,7 +223,9 @@ export default function CameraScreen({
                   <S.Thumbnail
                     source={{uri: ImageFileUtils.filepathFromImageFile(item)}}
                   />
-                  <S.CloseButton onPress={() => onPressX(item)}>
+                  <S.CloseButton
+                    elementName="taken_photo_delete_button"
+                    onPress={() => onPressX(item)}>
                     <CircleCloseIcon width={24} height={24} />
                   </S.CloseButton>
                 </S.TakenPhotoItem>
@@ -232,12 +236,15 @@ export default function CameraScreen({
       </S.TakenPhotos>
       <S.ActionsWrapper>
         <S.CaptureButton
+          elementName="camera_capture_button"
           disabled={!canTakeMore || isTakingPhoto}
           onPress={takePhoto}>
           <S.CaptureInnerDeco />
         </S.CaptureButton>
         {device?.hasFlash && (
-          <S.FlashButton onPress={toggleFlash}>
+          <S.FlashButton
+            elementName="camera_flash_button"
+            onPress={toggleFlash}>
             <FlashIcon style={{opacity: flash === 'on' ? 1 : 0.3}} />
           </S.FlashButton>
         )}

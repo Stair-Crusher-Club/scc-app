@@ -73,6 +73,7 @@ export default function UserMobilityToolsForm({
               }
             }}
             text={option.label}
+            elementName="user_mobility_tool_option"
           />
         ))}
       </View>

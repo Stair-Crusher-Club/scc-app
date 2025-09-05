@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -16,7 +17,7 @@ export const TakePhoto = styled.View({
   borderRadius: 20,
 });
 
-export const TakePhotoButton = styled.Pressable({
+export const TakePhotoButton = styled(SccPressable)({
   flexDirection: 'row',
   justifyContent: 'center',
   alignItems: 'center',
@@ -35,7 +36,7 @@ export const Photo = styled.View({
   aspectRatio: '1 / 1',
 });
 
-export const SmallCameraButton = styled.Pressable({
+export const SmallCameraButton = styled(SccPressable)({
   flex: 1,
   borderColor: color.gray30,
   borderWidth: 1,
@@ -55,7 +56,7 @@ export const ThumbnailImage = styled.Image({
   flex: 1,
 });
 
-export const DeleteButton = styled.Pressable({
+export const DeleteButton = styled(SccPressable)({
   position: 'absolute',
   top: -4,
   right: -4,

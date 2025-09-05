@@ -4,9 +4,10 @@ import {
   NativeScrollEvent,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import BackIcon from '@/assets/icon/ic_back.svg';
 
@@ -100,11 +101,12 @@ export default function ScrollNavigation({
           height: showTitle ? 48 : 0,
           opacity: showTitle ? 1 : 0,
         }}>
-        <TouchableOpacity
+        <SccTouchableOpacity
+          elementName="sticky_scroll_navigation_back_button"
           onPress={() => navigation.goBack()}
           style={{padding: 2}}>
           <BackIcon color={color.black} />
-        </TouchableOpacity>
+        </SccTouchableOpacity>
         <Text
           style={{
             fontSize: 20,
@@ -119,6 +121,8 @@ export default function ScrollNavigation({
           <S.Menu
             key={menu.label}
             active={activeMenu === menu}
+            elementName="sticky_navigation_menu"
+            logParams={{menu}}
             onPress={() => scrollToMenu(index)}>
             <S.MenuTitle active={activeMenu === menu}>{menu.label}</S.MenuTitle>
           </S.Menu>

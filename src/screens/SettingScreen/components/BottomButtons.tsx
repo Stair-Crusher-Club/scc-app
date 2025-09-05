@@ -49,6 +49,7 @@ export default function BottomButtons() {
         buttonColor="gray10"
         fontFamily={font.pretendardMedium}
         onPress={logout}
+        elementName="setting_logout"
       />
       <SccButton
         text="탈퇴하기"
@@ -56,6 +57,7 @@ export default function BottomButtons() {
         buttonColor="white"
         fontFamily={font.pretendardRegular}
         onPress={() => setIsConfirmVisible(true)}
+        elementName="setting_withdraw"
       />
       <WithdrawConfirmBottomSheet
         name="deleteAccount"

@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -28,19 +28,18 @@ export default function PlaceDetailToiletSection({
     <S.Section>
       <HeaderRow>
         <S.Title>장애인 화장실 정보</S.Title>
-        <LogClick elementName="place_detail_toilet_review_write_button">
-          <ReviewButton
-            onPress={() =>
-              checkAuth(() => {
-                navigation.navigate('ReviewForm/Toilet', {
-                  placeId,
-                });
-              })
-            }>
-            <PlusIcon color={color.white} />
-            <ReviewButtonText>정보 등록</ReviewButtonText>
-          </ReviewButton>
-        </LogClick>
+        <ReviewButton
+          elementName="place_detail_toilet_review_write_button"
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Toilet', {
+                placeId,
+              });
+            })
+          }>
+          <PlusIcon color={color.white} />
+          <ReviewButtonText>정보 등록</ReviewButtonText>
+        </ReviewButton>
       </HeaderRow>
       <ItemList>
         {toiletReviews.map((review, idx) => (
@@ -72,7 +71,7 @@ const Divider = styled.View`
   background-color: ${color.gray20};
 `;
 
-const ReviewButton = styled.TouchableOpacity`
+const ReviewButton = styled(SccTouchableOpacity)`
   background-color: ${color.brand30};
   padding-horizontal: 14px;
   height: 31px;

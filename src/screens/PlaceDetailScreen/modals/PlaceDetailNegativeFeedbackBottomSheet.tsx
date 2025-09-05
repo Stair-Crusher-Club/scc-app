@@ -72,6 +72,8 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                     onPress={() => {
                       setSelectedReason(reason);
                     }}
+                    elementName="place_feedback_option"
+                    logParams={{reason}}
                   />
                 </View>
               );
@@ -103,6 +105,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
               onClear();
               onPressCloseButton();
             }}
+            elementName="place_feedback_close"
           />
           <SpaceBetweenButtons />
           <SubmitButton
@@ -121,6 +124,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 }
               }
             }}
+            elementName="place_feedback_submit"
           />
         </ButtonContainer>
       </ContentsContainer>

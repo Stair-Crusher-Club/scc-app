@@ -1,4 +1,5 @@
 import React, {forwardRef} from 'react';
+
 import {
   NativeSyntheticEvent,
   ReturnKeyTypeOptions,
@@ -6,9 +7,10 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
-  TouchableOpacity,
   View,
 } from 'react-native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 import {match} from 'ts-pattern';
 
@@ -87,7 +89,8 @@ const Input = forwardRef<TextInput, Props>(
       <InputContainer>
         <InputWrapper isFocused={isFocused} isValid={isValid}>
           {onPress ? (
-            <TouchableOpacity
+            <SccTouchableOpacity
+              elementName="company_modal_input_dropdown"
               onPress={onPress}
               style={{
                 flex: 1,
@@ -99,7 +102,7 @@ const Input = forwardRef<TextInput, Props>(
                 pointerEvents: 'none',
               })}
               <ArrowDownIcon width={20} height={20} />
-            </TouchableOpacity>
+            </SccTouchableOpacity>
           ) : (
             <View
               style={{
@@ -110,9 +113,11 @@ const Input = forwardRef<TextInput, Props>(
               }}>
               {renderInput()}
               {isClearable && value && (
-                <TouchableOpacity onPress={handleClear}>
+                <SccTouchableOpacity
+                  elementName="company_modal_input_clear"
+                  onPress={handleClear}>
                   <ClearIcon width={20} height={20} />
-                </TouchableOpacity>
+                </SccTouchableOpacity>
               )}
             </View>
           )}

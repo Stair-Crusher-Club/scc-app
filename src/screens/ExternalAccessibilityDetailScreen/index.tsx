@@ -2,10 +2,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import React from 'react';
-import {Pressable, SafeAreaView, ScrollView, Text, View} from 'react-native';
+import {SafeAreaView, ScrollView, Text, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
+import {SccPressable} from '@/components/SccPressable';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import CopyIcon from '@/assets/icon/ic_copy.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
@@ -82,18 +84,25 @@ const ExternalAccessibilityDetailScreen = ({
               />
               <TitleText>{toiletDetails.name}</TitleText>
               <SubSectionLabel>{toiletDetails.address}</SubSectionLabel>
-              <CopyButton onPress={onCopy} style={{marginTop: -4}}>
+              <CopyButton
+                elementName="external_accessibility_copy_button"
+                onPress={onCopy}
+                style={{marginTop: -4}}>
                 <CopyIcon />
                 <CopyText>복사</CopyText>
               </CopyButton>
               <SectionDivider />
               <TextButtonContainer>
-                <TextButton onPress={onShare}>
+                <TextButton
+                  elementName="external_accessibility_share_button"
+                  onPress={onShare}>
                   <ShareIcon />
                   <TextButtonText>공유</TextButtonText>
                 </TextButton>
                 <VerticalDivider />
-                <TextButton onPress={onBookmark}>
+                <TextButton
+                  elementName="external_accessibility_bookmark_button"
+                  onPress={onBookmark}>
                   <BookmarkIcon color={color.gray80} />
                   <TextButtonText>저장</TextButtonText>
                 </TextButton>
@@ -247,11 +256,13 @@ function AppBar() {
 
   return (
     <AppBarContainer>
-      <Pressable onPress={() => navigation.goBack()}>
+      <SccPressable
+        elementName="external_accessibility_back_button"
+        onPress={() => navigation.goBack()}>
         <BackButton>
           <LeftArrowIcon width={24} height={24} color={color.black} />
         </BackButton>
-      </Pressable>
+      </SccPressable>
     </AppBarContainer>
   );
 }
@@ -396,7 +407,7 @@ const TitleArea = styled.View`
   flex-direction: column;
 `;
 
-const CopyButton = styled.TouchableOpacity`
+const CopyButton = styled(SccTouchableOpacity)`
   gap: 4px;
   flex-direction: row;
   align-items: center;
@@ -408,7 +419,7 @@ const CopyText = styled.Text`
   color: ${color.brandColor};
 `;
 
-const TextButton = styled.TouchableOpacity`
+const TextButton = styled(SccTouchableOpacity)`
   flex-grow: 1;
   align-items: center;
   flex-direction: row;

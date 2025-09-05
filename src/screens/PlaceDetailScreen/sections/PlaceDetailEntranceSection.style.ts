@@ -2,6 +2,7 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import SccPressable from '@/components/SccPressable';
 
 export const Section = styled.View({
   paddingVertical: 32,
@@ -72,7 +73,7 @@ export const InfoItemSeparator = styled.View({marginTop: 12});
 export const Comments = styled.View({
   gap: 16,
 });
-export const AddCommentButton = styled.Pressable({
+export const AddCommentButton = styled(SccPressable)({
   height: 48,
   flexDirection: 'row',
   alignItems: 'center',

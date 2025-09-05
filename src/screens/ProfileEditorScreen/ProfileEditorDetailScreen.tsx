@@ -154,6 +154,7 @@ export default function ProfileEditorDetailScreen({
           fontFamily={font.pretendardBold}
           text="확인"
           isDisabled={!isValid}
+          elementName="profile_editor_confirm"
         />
       </View>
     </ScreenLayout>

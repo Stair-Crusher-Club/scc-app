@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
@@ -19,6 +20,7 @@ export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
       <ChipList>
         <Chip
           isActive={false}
+          chipText="최신순"
           onPress={() => {
             ToastUtils.show('준비중입니다.');
           }}>
@@ -49,19 +51,26 @@ const ChipList = styled.View`
 function Chip({
   children,
   isActive,
+  chipText,
   onPress,
 }: React.PropsWithChildren<{
+  chipText: string;
   isActive: boolean;
   onPress?: () => void;
 }>) {
   return (
-    <ChipContainer activeOpacity={0.7} onPress={onPress} isActive={isActive}>
+    <ChipContainer
+      elementName="place_visit_review_filter_chip"
+      logParams={{chipText}}
+      activeOpacity={0.7}
+      onPress={onPress}
+      isActive={isActive}>
       {children}
     </ChipContainer>
   );
 }
 
-const ChipContainer = styled.TouchableOpacity<{isActive: boolean}>`
+const ChipContainer = styled(SccTouchableOpacity)<{isActive: boolean}>`
   display: flex;
   flex-direction: row;
   align-items: center;

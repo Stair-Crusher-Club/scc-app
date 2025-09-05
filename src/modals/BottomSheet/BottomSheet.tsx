@@ -1,12 +1,14 @@
 import React from 'react';
+
 import {
   Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
-  TouchableOpacity,
   View,
 } from 'react-native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 
@@ -38,7 +40,8 @@ export default function BottomSheet({
       <SafeAreaProvider>
         <GestureHandlerRootView style={{flex: 1}}>
           <DimmedBackground>
-            <TouchableOpacity
+            <SccTouchableOpacity
+              elementName="bottom_sheet_background"
               activeOpacity={1}
               style={{
                 position: 'absolute',

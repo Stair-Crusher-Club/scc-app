@@ -145,6 +145,7 @@ export default function SignupScreen({
             text={buttonText}
             isDisabled={isButtonDisabled}
             rightLabel={rightLabel}
+            elementName="signup_submit"
           />
         </View>
       </View>

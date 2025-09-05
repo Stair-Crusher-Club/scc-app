@@ -1,7 +1,9 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {Image, Pressable, Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
+
+import {SccPressable} from '@/components/SccPressable';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import {IImageInfo} from 'react-native-image-zoom-viewer/built/image-viewer.type';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -37,7 +39,8 @@ const ImageZoomViewerScreen = ({route}: ScreenProps<'ImageZoomViewer'>) => {
 
   return (
     <>
-      <Pressable
+      <SccPressable
+        elementName="image_zoom_viewer_back_button"
         style={{
           marginTop: safeAreaInsets.top,
           position: 'absolute',
@@ -47,7 +50,7 @@ const ImageZoomViewerScreen = ({route}: ScreenProps<'ImageZoomViewer'>) => {
         }}
         onPress={() => navigation.goBack()}>
         <LeftArrowIcon width={24} height={24} color={color.white} />
-      </Pressable>
+      </SccPressable>
 
       <ImageViewer
         index={index}

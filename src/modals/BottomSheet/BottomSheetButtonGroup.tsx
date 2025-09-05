@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -36,6 +37,7 @@ export default function BottomSheetButtonGroup({
       }}>
       {negativeButton && (
         <NegativeButton
+          elementName="bottom_sheet_negative_button"
           style={{
             flex: isHorizontal ? 1 : undefined,
           }}
@@ -45,6 +47,7 @@ export default function BottomSheetButtonGroup({
       )}
       {positiveButton && (
         <PositiveButton
+          elementName="bottom_sheet_positive_button"
           style={{
             flex: isHorizontal
               ? layout === BottomSheetButtonGroupLayout.HORIZONTAL_1X2
@@ -66,7 +69,7 @@ const ButtonContainer = styled.View({
   padding: 20,
 });
 
-const PositiveButton = styled.Pressable({
+const PositiveButton = styled(SccPressable)({
   height: 56,
   borderRadius: 20,
   backgroundColor: color.brandColor,
@@ -80,7 +83,7 @@ const PositiveButtonText = styled.Text({
   fontFamily: font.pretendardBold,
 });
 
-const NegativeButton = styled.Pressable({
+const NegativeButton = styled(SccPressable)({
   height: 56,
   borderRadius: 20,
   backgroundColor: color.gray10,

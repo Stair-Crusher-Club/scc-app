@@ -42,6 +42,7 @@ const PlaceDetailNoBuildingSection = ({
           text="건물 정복하기"
           fontFamily={font.pretendardBold}
           onPress={goToRegisterBuilding}
+          elementName="place_detail_conquer_building"
         />
       </S.NoBuildingCard>
     </S.PlaceDetailNoBuildingSection>

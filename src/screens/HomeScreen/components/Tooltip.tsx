@@ -1,5 +1,7 @@
 import {ReactNode} from 'react';
-import {Pressable, StyleSheet, Text, View, ViewProps} from 'react-native';
+import {StyleSheet, Text, View, ViewProps} from 'react-native';
+
+import {SccPressable} from '@/components/SccPressable';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import {color} from '@/constant/color';
@@ -26,9 +28,12 @@ export default function Tooltip({
   return (
     <View style={[styles.tooltipContainer, style]} {...props}>
       <View style={styles.tooltip}>
-        <Pressable onPress={onPressClose} style={styles.closeButton}>
+        <SccPressable
+          elementName="tooltip_close_button"
+          onPress={onPressClose}
+          style={styles.closeButton}>
           <CloseIcon color={color.white} width={16} height={16} />
-        </Pressable>
+        </SccPressable>
 
         {isStringChild ? (
           <Text style={styles.tooltipText}>{children}</Text>

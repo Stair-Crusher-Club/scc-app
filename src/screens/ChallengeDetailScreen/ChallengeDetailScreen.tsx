@@ -174,6 +174,7 @@ const ChallengeDetailScreen = ({
                   joinChallenge.mutate({challengeId});
                 }
               }}
+              elementName="challenge_detail_join"
             />
           </S.ButtonContainer>
         )}

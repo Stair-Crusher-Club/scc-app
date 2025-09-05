@@ -18,6 +18,7 @@ import {
 } from '@/screens/SearchScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 export type SearchMapViewHandle = {
   fitToItems: (_items: MarkerItem[]) => void;
@@ -52,22 +53,24 @@ const SearchMapView = forwardRef<
   }, [data]);
   const isSearchQueryEmpty = !searchQuery.text;
   return (
-    <Wrapper>
-      <ItemMapView
-        ref={mapViewRef}
-        items={datasForUI}
-        onCameraIdle={region => {
-          // viewState 가 map 이 아닐 때는 제대로된 region 이 업데이트 되지 않을 수 있다
-          // (by 모바일 키보드로 인한 지도 resizing 등...)
-          if (viewState.type === 'map' && !viewState.inputMode) {
-            setDraftCameraRegion(region);
-          }
-        }}
-        onRefresh={onRefresh}
-        isRefreshVisible={!isSearchQueryEmpty}
-        ItemCard={SearchItemCard}
-      />
-    </Wrapper>
+    <LogParamsProvider params={{search_view_mode: 'map'}}>
+      <Wrapper>
+        <ItemMapView
+          ref={mapViewRef}
+          items={datasForUI}
+          onCameraIdle={region => {
+            // viewState 가 map 이 아닐 때는 제대로된 region 이 업데이트 되지 않을 수 있다
+            // (by 모바일 키보드로 인한 지도 resizing 등...)
+            if (viewState.type === 'map' && !viewState.inputMode) {
+              setDraftCameraRegion(region);
+            }
+          }}
+          onRefresh={onRefresh}
+          isRefreshVisible={!isSearchQueryEmpty}
+          ItemCard={SearchItemCard}
+        />
+      </Wrapper>
+    </LogParamsProvider>
   );
 });
 

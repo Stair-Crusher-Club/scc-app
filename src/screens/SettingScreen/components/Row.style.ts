@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccTouchableHighlight} from '@/components/SccTouchableHighlight';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -31,7 +32,7 @@ export const SubtitleBundle = styled.Text({
   marginTop: 2,
 });
 
-export const ActionButton = styled.TouchableHighlight({
+export const ActionButton = styled(SccTouchableHighlight)({
   borderRadius: 10,
   backgroundColor: color.brand10,
   paddingHorizontal: 10,

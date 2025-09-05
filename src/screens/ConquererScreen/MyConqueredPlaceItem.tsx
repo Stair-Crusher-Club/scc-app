@@ -11,7 +11,7 @@ interface MyConqueredPlaceItemProps {
 
 const MyConqueredPlaceItem = ({item, onClick}: MyConqueredPlaceItemProps) => {
   return (
-    <S.Container onPress={onClick}>
+    <S.Container elementName="my_conquered_place_item" onPress={onClick}>
       <S.ContentsContainer>
         <S.Title>{item.place.name}</S.Title>
         <S.Address>{item.place.address}</S.Address>

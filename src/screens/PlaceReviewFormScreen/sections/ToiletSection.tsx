@@ -12,7 +12,6 @@ import {
   DOOR_TYPE_OPTIONS,
   TOILET_LOCATION_TYPE_OPTIONS,
 } from '@/constant/review';
-import {LogClick} from '@/logging/LogClick';
 
 import FloorSelect from '../components/FloorSelect';
 import Question from '../components/Question';
@@ -183,19 +182,18 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
           gap: 10,
           paddingTop: 10,
         }}>
-        <LogClick elementName="place_review_form_save_button">
-          <SccButton
-            text="저장하기"
-            style={{
-              borderRadius: 10,
-              backgroundColor: color.brand,
-            }}
-            fontSize={18}
-            isDisabled={!formState.isValid}
-            fontFamily={font.pretendardBold}
-            onPress={onSave}
-          />
-        </LogClick>
+        <SccButton
+          elementName="place_review_form_save_button"
+          text="저장하기"
+          style={{
+            borderRadius: 10,
+            backgroundColor: color.brand,
+          }}
+          fontSize={18}
+          isDisabled={!formState.isValid}
+          fontFamily={font.pretendardBold}
+          onPress={onSave}
+        />
       </View>
     </S.Container>
   );

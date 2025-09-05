@@ -1,7 +1,6 @@
 import React from 'react';
 
 import DangerousIcon from '@/assets/icon/ic_dangerous.svg';
-import {LogClick} from '@/logging/LogClick';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 import BottomSheet from '../BottomSheet';
@@ -35,16 +34,16 @@ export default function WithdrawConfirmBottomSheet({
           </S.Title>
         </S.ContentsContainer>
         <S.ButtonContainer>
-          <LogClick elementName="withdraw_confirm_bottom_sheet_confirm_button">
-            <S.WithdrawButton onPress={onConfirmButtonPressed}>
-              <S.WithdrawButtonText>회원 탈퇴</S.WithdrawButtonText>
-            </S.WithdrawButton>
-          </LogClick>
-          <LogClick elementName="withdraw_confirm_bottom_sheet_cancel_button">
-            <S.CancelButton onPress={onCloseButtonPressed}>
-              <S.CancelButtonText>취소</S.CancelButtonText>
-            </S.CancelButton>
-          </LogClick>
+          <S.WithdrawButton
+            elementName="withdraw_confirm_bottom_sheet_confirm_button"
+            onPress={onConfirmButtonPressed}>
+            <S.WithdrawButtonText>회원 탈퇴</S.WithdrawButtonText>
+          </S.WithdrawButton>
+          <S.CancelButton
+            elementName="withdraw_confirm_bottom_sheet_cancel_button"
+            onPress={onCloseButtonPressed}>
+            <S.CancelButtonText>취소</S.CancelButtonText>
+          </S.CancelButton>
         </S.ButtonContainer>
       </BottomSheet>
     </LogParamsProvider>

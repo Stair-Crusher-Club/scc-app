@@ -3,12 +3,11 @@ import {
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
 import React from 'react';
-import {Pressable} from 'react-native';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
-import {LogClick} from '@/logging/LogClick';
 
 import {
   CustomNavigationOptions,
@@ -32,19 +31,22 @@ export const NavigationHeader = ({
     <S.Container edges={['top']}>
       {variant === 'back' ? (
         <S.ContentsContainer>
-          <Pressable onPress={() => navigation.goBack()}>
+          <SccPressable
+            elementName="navigation_back_button"
+            onPress={() => navigation.goBack()}>
             <LeftArrowIcon width={24} height={24} color={color.black} />
-          </Pressable>
+          </SccPressable>
           <S.Title>{title}</S.Title>
         </S.ContentsContainer>
       ) : (
         <S.ContentsContainer style={{justifyContent: 'space-between'}}>
           <S.Title>{title}</S.Title>
-          <LogClick elementName="close_button" params={{screen_name: title}}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <CloseIcon width={28} height={28} color={color.black} />
-            </Pressable>
-          </LogClick>
+          <SccPressable
+            elementName="close_button"
+            logParams={{screen_name: title}}
+            onPress={() => navigation.goBack()}>
+            <CloseIcon width={28} height={28} color={color.black} />
+          </SccPressable>
         </S.ContentsContainer>
       )}
     </S.Container>

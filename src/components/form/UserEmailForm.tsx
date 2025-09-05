@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import {match, Pattern} from 'ts-pattern';
 
 import CheckboxSquareIcon from '@/assets/icon/ic_checkbox_square.svg';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import SignupInput from '@/screens/SignupScreen/components/SignupInput';
 import {UserFormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
@@ -57,6 +58,7 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
           isClearable={isClearable}
         />
         <LetterBox
+          elementName="newsletter_subscription_checkbox"
           activeOpacity={0.8}
           onPress={() =>
             onChangeNewsLetterSubscriptionAgreed(
@@ -81,7 +83,7 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
 
 UserEmailForm.displayName = 'UserEmailForm';
 
-const LetterBox = styled.TouchableOpacity`
+const LetterBox = styled(SccTouchableOpacity)`
   flex-direction: row;
   align-items: center;
   gap: 4px;

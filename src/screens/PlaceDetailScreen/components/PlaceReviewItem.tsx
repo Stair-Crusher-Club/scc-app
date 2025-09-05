@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 import React, {useState} from 'react';
-import {Alert, TouchableOpacity} from 'react-native';
+import {Alert} from 'react-native';
 import styled from 'styled-components/native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import BadgedIcon from '@/assets/icon/ic_badged_crew.svg';
 import MoreIcon from '@/assets/icon/ic_more.svg';
@@ -49,7 +51,8 @@ export default function PlaceReviewItem({
           )}
         </HeaderLeft>
         {review.isDeletable && (
-          <TouchableOpacity
+          <SccTouchableOpacity
+            elementName="place_review_more_button"
             onPress={() =>
               Alert.alert(
                 '더보기',
@@ -70,7 +73,7 @@ export default function PlaceReviewItem({
               )
             }>
             <MoreIcon />
-          </TouchableOpacity>
+          </SccTouchableOpacity>
         )}
       </HeaderRow>
       {review.images && review.images.length > 0 && (
@@ -103,7 +106,9 @@ export default function PlaceReviewItem({
               {reviewText}
             </ReviewText>
             {reviewText.length > 50 && ( // TODO 정확히 2줄 넘으면 안보이게 하기
-              <ExpandButton onPress={() => setIsExpanded(value => !value)}>
+              <ExpandButton
+                elementName="place_review_expand_button"
+                onPress={() => setIsExpanded(value => !value)}>
                 <ExpandButtonText>
                   {isExpanded ? '접기' : '더보기'}
                 </ExpandButtonText>
@@ -187,7 +192,7 @@ const ReviewText = styled.Text`
   font-family: ${font.pretendardRegular};
   color: ${color.gray70};
 `;
-const ExpandButton = styled.TouchableOpacity`
+const ExpandButton = styled(SccTouchableOpacity)`
   flex-direction: row;
   gap: 8px;
   justify-content: flex-end;

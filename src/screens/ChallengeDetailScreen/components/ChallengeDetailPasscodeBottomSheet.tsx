@@ -40,6 +40,7 @@ const ChallengeDetailPasscodeBottomSheet = ({
             onPressCloseButton();
             setPasscode('');
           }}
+          elementName="challenge_passcode_close"
         />
         <ConfirmButton
           isDisabled={isEmpty(passcode)}
@@ -51,6 +52,7 @@ const ChallengeDetailPasscodeBottomSheet = ({
             onPressConfirmButton(passcode);
             setPasscode('');
           }}
+          elementName="challenge_passcode_confirm"
         />
       </ButtonContainer>
     </BottomSheet>

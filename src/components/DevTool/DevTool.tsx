@@ -1,17 +1,26 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
+/* eslint-disable no-restricted-imports */
 import {
   Animated,
   PanResponder,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useWindowDimensions,
   Switch,
   ScrollView,
+  Modal,
+  SafeAreaView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
+
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
+import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';
+import {useSetAtom} from 'jotai';
+import {loggedEventsAtom} from './devToolEventStore';
+import {initializeEventLoggingDevTool} from '@/logging/Logger';
 
 interface DevToolProps {
   isVisible?: boolean;
@@ -22,7 +31,16 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   const insets = useSafeAreaInsets();
 
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isEventLoggingSheetOpen, setIsEventLoggingSheetOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
+  const setLoggedEvents = useSetAtom(loggedEventsAtom);
+
+  // Initialize event logging (always enabled in dev)
+  useEffect(() => {
+    if (__DEV__) {
+      initializeEventLoggingDevTool(setLoggedEvents);
+    }
+  }, []);
 
   // Floating button position
   const pan = useRef(
@@ -31,9 +49,6 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
       y: screenHeight - 150 - insets.bottom,
     }),
   ).current;
-
-  // Bottom sheet animation
-  const bottomSheetHeight = useRef(new Animated.Value(0)).current;
 
   const panResponder = useRef(
     PanResponder.create({
@@ -52,13 +67,6 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   ).current;
 
   const toggleBottomSheet = () => {
-    const toValue = isBottomSheetOpen ? 0 : 300;
-    Animated.spring(bottomSheetHeight, {
-      toValue,
-      useNativeDriver: false,
-      tension: 50,
-      friction: 10,
-    }).start();
     setIsBottomSheetOpen(!isBottomSheetOpen);
   };
 
@@ -70,6 +78,11 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
         enabled,
       },
     }));
+  };
+
+  const handleShowEventLogs = () => {
+    setIsEventLoggingSheetOpen(true);
+    setIsBottomSheetOpen(false);
   };
 
   if (!isVisible || !__DEV__) {
@@ -94,43 +107,73 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Bottom Sheet */}
-      <Animated.View
-        style={[
-          styles.bottomSheet,
-          {
-            height: bottomSheetHeight,
-            bottom: insets.bottom,
-          },
-        ]}>
-        <View style={styles.bottomSheetHeader}>
-          <Text style={styles.bottomSheetTitle}>DevTool Settings</Text>
-          <TouchableOpacity onPress={toggleBottomSheet}>
-            <Text style={styles.closeButton}>✕</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Settings Modal */}
+      <Modal
+        visible={isBottomSheetOpen}
+        animationType="none"
+        transparent={true}
+        onRequestClose={() => setIsBottomSheetOpen(false)}>
+        <TouchableWithoutFeedback onPress={() => setIsBottomSheetOpen(false)}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <SafeAreaView style={styles.bottomSheet}>
+                <View style={styles.bottomSheetHeader}>
+                  <Text style={styles.bottomSheetTitle}>DevTool Settings</Text>
+                  <TouchableOpacity onPress={toggleBottomSheet}>
+                    <Text style={styles.closeButton}>✕</Text>
+                  </TouchableOpacity>
+                </View>
 
-        <ScrollView style={styles.bottomSheetContent}>
-          {/* Search Radius Toggle */}
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Show Search Radius</Text>
-              <Text style={styles.settingDescription}>
-                Display search range circle on map when calling /searchPlaces
-                API
-              </Text>
-            </View>
-            <Switch
-              value={config.searchRegion.enabled}
-              onValueChange={handleSearchRadiusToggle}
-              trackColor={{false: '#767577', true: '#81b0ff'}}
-              thumbColor={config.searchRegion.enabled ? '#f5dd4b' : '#f4f3f4'}
-            />
+                <ScrollView style={styles.bottomSheetContent}>
+                  {/* Search Radius Toggle */}
+                  <View style={styles.settingRow}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>
+                        Show Search Radius
+                      </Text>
+                      <Text style={styles.settingDescription}>
+                        Display search range circle on map when calling
+                        /searchPlaces API
+                      </Text>
+                    </View>
+                    <Switch
+                      value={config.searchRegion.enabled}
+                      onValueChange={handleSearchRadiusToggle}
+                      trackColor={{false: '#767577', true: '#81b0ff'}}
+                      thumbColor={
+                        config.searchRegion.enabled ? '#f5dd4b' : '#f4f3f4'
+                      }
+                    />
+                  </View>
+
+                  {/* Event Logging Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={handleShowEventLogs}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>Event Logs</Text>
+                      <Text style={styles.settingDescription}>
+                        View realtime client events for QA testing
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>View Logs</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Add more dev tool options here */}
+                </ScrollView>
+              </SafeAreaView>
+            </TouchableWithoutFeedback>
           </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
-          {/* Add more dev tool options here */}
-        </ScrollView>
-      </Animated.View>
+      {/* Event Logging Bottom Sheet */}
+      <EventLoggingBottomSheet
+        visible={isEventLoggingSheetOpen}
+        onClose={() => setIsEventLoggingSheetOpen(false)}
+      />
     </>
   );
 };
@@ -161,22 +204,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
   bottomSheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 10,
-    zIndex: 9999,
+    maxHeight: '70%',
+    minHeight: '50%',
   },
   bottomSheetHeader: {
     flexDirection: 'row',
@@ -220,6 +258,25 @@ const styles = StyleSheet.create({
   settingDescription: {
     fontSize: 12,
     color: '#666',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  actionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#2196F3',
+    borderRadius: 6,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

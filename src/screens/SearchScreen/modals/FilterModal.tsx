@@ -208,6 +208,7 @@ export default function FilterModal() {
             onPress={() => {
               reset();
             }}
+            elementName="search_filter_reset"
           />
         )}
         <SccButton
@@ -219,6 +220,7 @@ export default function FilterModal() {
           onPress={() => {
             saveFilter();
           }}
+          elementName="search_filter_apply"
         />
       </ButtonBox>
     </BottomSheet>

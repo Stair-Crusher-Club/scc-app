@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -22,7 +23,7 @@ export const Buttons = styled.View({
   gap: 12,
 });
 
-const Button = styled.Pressable({
+const Button = styled(SccPressable)({
   borderRadius: 12,
   justifyContent: 'center',
   alignItems: 'center',

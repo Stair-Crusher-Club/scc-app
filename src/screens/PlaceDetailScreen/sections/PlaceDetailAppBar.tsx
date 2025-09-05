@@ -1,7 +1,7 @@
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
-import {Pressable} from 'react-native';
 
+import {SccPressable} from '@/components/SccPressable';
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import {color} from '@/constant/color';
 
@@ -12,11 +12,13 @@ export default function PlaceDetailAppBar() {
 
   return (
     <S.AppBar>
-      <Pressable onPress={() => navigation.goBack()}>
+      <SccPressable
+        elementName="place_detail_back_button"
+        onPress={() => navigation.goBack()}>
         <S.BackButton>
           <LeftArrowIcon width={24} height={24} color={color.black} />
         </S.BackButton>
-      </Pressable>
+      </SccPressable>
     </S.AppBar>
   );
 }

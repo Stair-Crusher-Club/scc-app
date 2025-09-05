@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -35,7 +36,11 @@ function FilterChip({
   onPress: () => void;
 }) {
   return (
-    <FilterChipBox isActive={isActive} onPress={onPress}>
+    <FilterChipBox
+      elementName="search_filter_chip"
+      disableLogging
+      isActive={isActive}
+      onPress={onPress}>
       <ChipText isActive={isActive}>{text}</ChipText>
     </FilterChipBox>
   );
@@ -50,7 +55,7 @@ const Container = styled.View`
   gap: 8px;
 `;
 
-const FilterChipBox = styled.Pressable<{isActive: boolean}>`
+const FilterChipBox = styled(SccPressable)<{isActive: boolean}>`
   display: flex;
   flex-direction: row;
   background-color: ${color.white};

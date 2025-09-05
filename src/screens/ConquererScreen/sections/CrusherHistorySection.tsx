@@ -22,7 +22,9 @@ export default function CrusherHistorySection() {
     <S.CrusherHistorySection>
       <S.Title>크러셔 히스토리</S.Title>
       <S.Divier />
-      <S.Link onPress={() => navigation.navigate('Conquerer/History')}>
+      <S.Link
+        elementName="crusher_history_conquered_places_link"
+        onPress={() => navigation.navigate('Conquerer/History')}>
         <S.LinkName>
           <S.LinkText>지금까지 내가 정복한 장소</S.LinkText>
         </S.LinkName>
@@ -33,7 +35,7 @@ export default function CrusherHistorySection() {
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
       </S.Link>
-      <S.Link>
+      <S.Link elementName="crusher_history_helpful_link">
         <S.LinkName>
           <S.WIPText>도움이 되었어요</S.WIPText>
           <S.WIPBadge>
@@ -44,7 +46,7 @@ export default function CrusherHistorySection() {
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
       </S.Link>
-      <S.Link>
+      <S.Link elementName="crusher_history_views_link">
         <S.LinkName>
           <S.WIPText>내 정복 장소 조회수</S.WIPText>
           <S.WIPBadge>

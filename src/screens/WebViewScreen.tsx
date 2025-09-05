@@ -1,6 +1,7 @@
 import {useBackHandler} from '@react-native-community/hooks';
+import {SccPressable} from '@/components/SccPressable';
 import React, {useCallback, useRef, useState} from 'react';
-import {PixelRatio, Pressable, StyleSheet, Text, View} from 'react-native';
+import {PixelRatio, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -53,9 +54,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         />
       ) : (
         <View style={styles.navigationContainer}>
-          <Pressable onPress={() => navigation.goBack()}>
+          <SccPressable
+            elementName="webview_back_button"
+            onPress={() => navigation.goBack()}>
             <LeftArrowIcon width={24} height={24} color={color.black} />
-          </Pressable>
+          </SccPressable>
           <Text style={styles.navigationTitle}>{title}</Text>
         </View>
       )}

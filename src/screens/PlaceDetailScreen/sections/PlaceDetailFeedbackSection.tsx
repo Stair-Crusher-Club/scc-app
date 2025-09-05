@@ -89,18 +89,24 @@ export const PlaceDetailFeedbackSection = ({
     <S.PlaceDetailFeedbackSection>
       <S.SectionTitle>이 정보가 도움이 되었나요?</S.SectionTitle>
       <S.Buttons>
-        <S.UpvoteButton onPress={toggleUpvote} upvoted={isUpvoted}>
+        <S.UpvoteButton
+          elementName="place_detail_upvote_button"
+          onPress={toggleUpvote}
+          upvoted={isUpvoted}>
           <S.ButtonText color={isUpvoted ? color.brandColor : color.gray70}>
             정확해요 👍
           </S.ButtonText>
         </S.UpvoteButton>
-        <S.DefaultButton onPress={showNegativeFeedbackBottomSheet}>
+        <S.DefaultButton
+          elementName="place_detail_report_button"
+          onPress={showNegativeFeedbackBottomSheet}>
           <S.ButtonText color={color.gray70}>신고할래요 👎</S.ButtonText>
         </S.DefaultButton>
       </S.Buttons>
       {isPlaceDeletable && (
         <S.Buttons>
           <S.DeleteButton
+            elementName="place_detail_delete_place_button"
             style={{marginTop: 40}}
             onPress={showPlaceDeleteConfirmBottomSheet}>
             <S.DeleteButtonText>장소 정보 삭제하기</S.DeleteButtonText>
@@ -110,6 +116,7 @@ export const PlaceDetailFeedbackSection = ({
       {isBuildingDeletable && (
         <S.Buttons>
           <S.DeleteButton
+            elementName="place_detail_delete_building_button"
             style={{marginTop: 16}}
             onPress={showBuildingDeleteConfirmBottomSheet}>
             <S.DeleteButtonText>건물 정보 삭제하기</S.DeleteButtonText>

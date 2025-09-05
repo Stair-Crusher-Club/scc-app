@@ -7,12 +7,12 @@ import {
   BuildingAccessibilityComment,
   PlaceAccessibilityComment,
 } from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 
 import * as S from '../sections/PlaceDetailEntranceSection.style';
 
 interface PlaceDetailCommentSectionProps {
   comments: BuildingAccessibilityComment[] | PlaceAccessibilityComment[];
+  commentTarget: 'place' | 'building';
   onAddComment: () => void;
   checkAuth: (cb: () => void) => void;
   title: string;
@@ -20,6 +20,7 @@ interface PlaceDetailCommentSectionProps {
 
 export default function PlaceDetailCommentSection({
   comments,
+  commentTarget,
   onAddComment,
   checkAuth,
   title,
@@ -29,12 +30,13 @@ export default function PlaceDetailCommentSection({
       {comments.map(comment => (
         <CommentBlock key={comment.id} info={comment} />
       ))}
-      <LogClick elementName="place_detail_add_comment_button">
-        <S.AddCommentButton onPress={() => checkAuth(onAddComment)}>
-          <PlusIcon width={12} height={12} color={color.blue50} />
-          <S.AddCommentText>{title}</S.AddCommentText>
-        </S.AddCommentButton>
-      </LogClick>
+      <S.AddCommentButton
+        elementName="place_detail_add_comment_button"
+        logParams={{commentTarget}}
+        onPress={() => checkAuth(onAddComment)}>
+        <PlusIcon width={12} height={12} color={color.blue50} />
+        <S.AddCommentText>{title}</S.AddCommentText>
+      </S.AddCommentButton>
     </S.Comments>
   );
 }

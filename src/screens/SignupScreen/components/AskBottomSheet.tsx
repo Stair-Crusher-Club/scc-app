@@ -36,6 +36,7 @@ export default function AskBottomSheet({
             textColor="gray100"
             onPress={() => onClose(true)}
             style={{flexGrow: 1}}
+            elementName="signup_ask_yes"
           />
           <SccButton
             text="아니오"
@@ -44,6 +45,7 @@ export default function AskBottomSheet({
             textColor="gray100"
             onPress={() => onClose(false)}
             style={{flexGrow: 1}}
+            elementName="signup_ask_no"
           />
         </View>
       </View>

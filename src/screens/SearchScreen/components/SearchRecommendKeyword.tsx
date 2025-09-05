@@ -2,6 +2,7 @@ import {useQuery} from '@tanstack/react-query';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SearchPlacePresetDto} from '@/generated-sources/openapi';
@@ -29,7 +30,11 @@ export default function SearchRecommendKeyword({
       <TitleText>추천 키워드</TitleText>
       <ItemList>
         {data?.map(({id, searchText, description}) => (
-          <TouchableItemBox key={id} onPress={() => onClickSearch(searchText)}>
+          <TouchableItemBox
+            elementName="search_recommend_keyword_item"
+            logParams={{search_text: searchText}}
+            key={id}
+            onPress={() => onClickSearch(searchText)}>
             <ItemText numberOfLines={1}>{description}</ItemText>
           </TouchableItemBox>
         ))}
@@ -50,7 +55,7 @@ export const TitleText = styled.Text({
   color: '#121a27',
 });
 
-export const TouchableItemBox = styled.TouchableOpacity({
+export const TouchableItemBox = styled(SccTouchableOpacity)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',

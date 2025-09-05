@@ -1,6 +1,6 @@
 import {useSetAtom} from 'jotai';
 import React, {useEffect} from 'react';
-import {Image, Pressable} from 'react-native';
+import {Image} from 'react-native';
 import {match} from 'ts-pattern';
 
 import ExitIcon from '@/assets/icon/ic_exit.svg';
@@ -10,7 +10,7 @@ import {
   hasShownGuideForToiletPhotoAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {LogClick} from '@/logging/LogClick';
+import {SccPressable} from '@/components/SccPressable';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import * as S from './PlacePhotoGuideScreen.style';
@@ -75,7 +75,9 @@ export default function PlacePhotoGuideScreen({
       safeAreaEdges={['top', 'bottom']}
       style={{backgroundColor: '#262629'}}>
       <S.Header>
-        <S.CloseButton onPress={navigation.goBack}>
+        <S.CloseButton
+          elementName="place_photo_guide_close_button"
+          onPress={navigation.goBack}>
           <ExitIcon width={24} height={24} color="white" />
         </S.CloseButton>
       </S.Header>
@@ -93,11 +95,9 @@ export default function PlacePhotoGuideScreen({
           ))}
         </S.BulletPoints>
         {target === 'place' && (
-          <LogClick elementName="place_photo_guide">
-            <Pressable onPress={goToGuide}>
-              <S.More>더 알아보기 {'>'}</S.More>
-            </Pressable>
-          </LogClick>
+          <SccPressable elementName="place_photo_guide" onPress={goToGuide}>
+            <S.More>더 알아보기 {'>'}</S.More>
+          </SccPressable>
         )}
       </S.GuideMessage>
     </ScreenLayout>

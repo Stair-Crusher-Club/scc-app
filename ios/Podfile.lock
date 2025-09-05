@@ -194,7 +194,7 @@ PODS:
   - KakaoSDKUser (2.22.0):
     - KakaoSDKAuth (= 2.22.0)
   - lottie-ios (4.5.0)
-  - lottie-react-native (7.2.3):
+  - lottie-react-native (7.3.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -3375,7 +3375,7 @@ SPEC CHECKSUMS:
   KakaoSDKCommon: d57127c339fc79e73aa8b236a4c77211c29924f1
   KakaoSDKUser: 043bcd7e91454ebf3bf64f150c430e6f65f0a08d
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: 803e3548f4ba44e86df9a5edd0598a05b65aade0
+  lottie-react-native: 29078ab5b3fd60b35793d708afaa9b0b01d97be4
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NMapsGeometry: 4e02554fa9880ef02ed96b075dc84355d6352479
   NMapsMap: 11190b621c8050069e4f41efa9e3973f855cd7e3

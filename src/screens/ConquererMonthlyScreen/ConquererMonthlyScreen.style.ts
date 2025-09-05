@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -12,7 +13,7 @@ export const Header = styled.View({
   height: 44,
 });
 
-export const CloseButton = styled.Pressable({
+export const CloseButton = styled(SccPressable)({
   position: 'absolute',
   top: 0,
   right: 0,
@@ -36,6 +37,6 @@ export const CurrentMonth = styled.Text({
   color: color.black,
 });
 
-export const MoveMonthButton = styled.Pressable({
+export const MoveMonthButton = styled(SccPressable)({
   padding: 8,
 });

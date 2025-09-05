@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -8,7 +9,7 @@ export const Options = styled.View({
   justifyContent: 'flex-start',
   gap: 10,
 });
-export const PressableOption = styled.Pressable<{selected: boolean}>(
+export const PressableOption = styled(SccPressable)<{selected: boolean}>(
   ({selected}) => ({
     borderRadius: 20,
     borderWidth: 1,

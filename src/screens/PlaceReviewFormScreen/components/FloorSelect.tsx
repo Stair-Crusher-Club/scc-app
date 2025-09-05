@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
-import {Pressable, Text, TextInput, View} from 'react-native';
+import {Text, TextInput, View} from 'react-native';
 
+import {SccPressable} from '@/components/SccPressable';
 import MinusIcon from '@/assets/icon/ic_minus.svg';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import PressableChip from '@/components/PressableChip';
@@ -88,7 +89,8 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
             height: 40,
             maxWidth: 140,
           }}>
-          <Pressable
+          <SccPressable
+            elementName="floor_select_decrease_button"
             onPress={decrease}
             style={{
               position: 'absolute',
@@ -103,7 +105,7 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
               alignItems: 'center',
             }}>
             <MinusIcon width={16} color={'#383841'} />
-          </Pressable>
+          </SccPressable>
           <TextInput
             keyboardType="number-pad"
             value={floor}
@@ -118,7 +120,8 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
               height: 40,
             }}
           />
-          <Pressable
+          <SccPressable
+            elementName="floor_select_increase_button"
             onPress={increase}
             style={{
               position: 'absolute',
@@ -133,7 +136,7 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
               alignItems: 'center',
             }}>
             <PlusIcon width={16} color={'#383841'} />
-          </Pressable>
+          </SccPressable>
         </View>
         <Text
           style={{

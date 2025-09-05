@@ -1,14 +1,14 @@
 import React from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
-import {Image, Pressable, Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 
 import BulletList from '@/components/BulletList';
 import Options from '@/components/form/Options';
 import Photos from '@/components/form/Photos';
+import {SccPressable} from '@/components/SccPressable';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 
 import * as S from './EnteranceSection.style';
@@ -190,13 +190,14 @@ function Guide({text, url}: GuideProps) {
   }
   return (
     <S.Guide>
-      <LogClick elementName="place_entrance_section_guide">
-        <Pressable onPress={handleClick}>
-          <S.GuideText>
-            {text} {'>'}
-          </S.GuideText>
-        </Pressable>
-      </LogClick>
+      <SccPressable
+        elementName="place_entrance_section_guide"
+        logParams={{guide_text: text, guide_url: url}}
+        onPress={handleClick}>
+        <S.GuideText>
+          {text} {'>'}
+        </S.GuideText>
+      </SccPressable>
     </S.Guide>
   );
 }

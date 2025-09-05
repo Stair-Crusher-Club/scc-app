@@ -47,6 +47,7 @@ export default function AstronautsBottomSheet({
               buttonColor="gray10"
               fontFamily={font.pretendardMedium}
               onPress={onPressCloseButton}
+              elementName="astronauts_bottom_sheet_close"
             />
           )}
           <SccButton
@@ -56,6 +57,7 @@ export default function AstronautsBottomSheet({
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
             onPress={onPressConfirmButton}
+            elementName="astronauts_bottom_sheet_confirm"
           />
         </S.ButtonContainer>
       </BottomSheet>

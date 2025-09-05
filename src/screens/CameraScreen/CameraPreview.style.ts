@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -10,7 +11,7 @@ export const DeviceTypes = styled.View({
   gap: 10,
 });
 
-export const DeviceTypeButton = styled.Pressable<{selected: boolean}>(
+export const DeviceTypeButton = styled(SccPressable)<{selected: boolean}>(
   ({selected}) => ({
     width: 36,
     height: 36,
