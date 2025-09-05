@@ -122,6 +122,7 @@ export default function ScrollNavigation({
             key={menu.label}
             active={activeMenu === menu}
             elementName="sticky_navigation_menu"
+            logParams={{menu}}
             onPress={() => scrollToMenu(index)}>
             <S.MenuTitle active={activeMenu === menu}>{menu.label}</S.MenuTitle>
           </S.Menu>

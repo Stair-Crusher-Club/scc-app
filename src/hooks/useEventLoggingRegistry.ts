@@ -30,6 +30,11 @@ export function useEventLoggingRegistry(
   }
 
   useEffect(() => {
+    // params가 undefined이면 로깅이 비활성화된 것으로 간주
+    if (params === undefined) {
+      return;
+    }
+
     const componentId = componentIdRef.current!;
 
     // 마운트 시 등록

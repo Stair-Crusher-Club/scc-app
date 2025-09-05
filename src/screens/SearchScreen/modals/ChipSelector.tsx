@@ -38,6 +38,7 @@ function FilterChip({
   return (
     <FilterChipBox
       elementName="search_filter_chip"
+      disableLogging
       isActive={isActive}
       onPress={onPress}>
       <ChipText isActive={isActive}>{text}</ChipText>

@@ -11,15 +11,17 @@ export interface SccTouchableWithoutFeedbackProps
   extends TouchableWithoutFeedbackProps {
   elementName: string;
   logParams?: Record<string, any>;
+  disableLogging?: boolean;
 }
 
 export const SccTouchableWithoutFeedback = forwardRef<
   any,
   SccTouchableWithoutFeedbackProps
->(({elementName, logParams, onPress, ...props}, ref) => {
+>(({elementName, logParams, disableLogging, onPress, ...props}, ref) => {
   const {createPressHandler} = useSccEventLogging({
     elementName,
     logParams,
+    disableLogging,
   });
 
   const handlePress = createPressHandler(onPress);

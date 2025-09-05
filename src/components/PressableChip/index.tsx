@@ -19,6 +19,7 @@ export default function PressableChip({
   return (
     <SccPressable
       elementName="pressable_chip"
+      disableLogging
       style={[
         {
           paddingVertical: 10,

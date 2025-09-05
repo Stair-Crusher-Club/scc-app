@@ -179,6 +179,7 @@ export default function BuildingFormScreen({
                 text="등록하기"
                 buttonColor="blue50"
                 onPress={submit}
+                elementName="building_form_submit"
               />
             </S.SubmitButtonWrapper>
           </FormProvider>

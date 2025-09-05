@@ -179,8 +179,8 @@ export default function SearchRecommendPlace({
           ) => (
             <RecommendPlaceItem
               key={`recommend-place-${description}-${idx}`}
-              elementName={`recommend-place-${description}-${idx}`}
-              logParams={{keyword, category, status}}
+              elementName="recommend_place"
+              logParams={{keyword, category, status, description, index: idx}}
               status={status}
               onPress={() =>
                 onPressFilter({

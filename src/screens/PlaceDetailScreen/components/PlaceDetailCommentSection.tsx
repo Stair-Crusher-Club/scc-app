@@ -12,6 +12,7 @@ import * as S from '../sections/PlaceDetailEntranceSection.style';
 
 interface PlaceDetailCommentSectionProps {
   comments: BuildingAccessibilityComment[] | PlaceAccessibilityComment[];
+  commentTarget: 'place' | 'building';
   onAddComment: () => void;
   checkAuth: (cb: () => void) => void;
   title: string;
@@ -19,6 +20,7 @@ interface PlaceDetailCommentSectionProps {
 
 export default function PlaceDetailCommentSection({
   comments,
+  commentTarget,
   onAddComment,
   checkAuth,
   title,
@@ -30,6 +32,7 @@ export default function PlaceDetailCommentSection({
       ))}
       <S.AddCommentButton
         elementName="place_detail_add_comment_button"
+        logParams={{commentTarget}}
         onPress={() => checkAuth(onAddComment)}>
         <PlusIcon width={12} height={12} color={color.blue50} />
         <S.AddCommentText>{title}</S.AddCommentText>

@@ -12,6 +12,7 @@ export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
   return (
     <PlaceRow
       elementName="conquered_place_item"
+      logParams={{place_id: p.place.id}}
       key={p.place.id}
       onPress={() =>
         navigation.navigate('PlaceDetail', {

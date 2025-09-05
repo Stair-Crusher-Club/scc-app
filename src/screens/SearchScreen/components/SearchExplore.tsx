@@ -69,6 +69,7 @@ export default function SearchExplore() {
           ({label, title, imageUrl, visibleMoreButton, onPress}) => (
             <PressableItemBox
               elementName="search_explore_item"
+              logParams={{label, title}}
               key={title}
               onPress={onPress}>
               <ItemDescriptionWrapper>
@@ -78,7 +79,9 @@ export default function SearchExplore() {
                 </View>
               </ItemDescriptionWrapper>
               {visibleMoreButton && (
-                <MoreButton elementName="search_explore_more_button">
+                <MoreButton
+                  elementName="search_explore_more_button"
+                  disableLogging>
                   <MoreText>자세히보기</MoreText>
                 </MoreButton>
               )}

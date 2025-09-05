@@ -87,6 +87,7 @@ const ChallengeDetailCompanyModal = ({
               onPressConfirmButton(companyName, participantName);
               reset();
             }}
+            elementName="challenge_company_modal_confirm"
           />
         </ButtonContainer>
       </SafeAreaWrapper>

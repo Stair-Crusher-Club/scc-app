@@ -81,6 +81,7 @@ export default function QuestCompletionModal({
               textColor="white"
               fontFamily={font.pretendardBold}
               onPress={handlePrimary}
+              elementName="quest_completion_primary_action"
             />
 
             {isLast && (

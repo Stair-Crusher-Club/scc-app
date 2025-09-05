@@ -7,13 +7,15 @@ import {useSccEventLogging} from '@/hooks/useSccEventLogging';
 export interface SccTouchableOpacityProps extends TouchableOpacityProps {
   elementName: string;
   logParams?: Record<string, any>;
+  disableLogging?: boolean;
 }
 
 export const SccTouchableOpacity = forwardRef<any, SccTouchableOpacityProps>(
-  ({elementName, logParams, onPress, ...props}, ref) => {
+  ({elementName, logParams, disableLogging, onPress, ...props}, ref) => {
     const {createPressHandler} = useSccEventLogging({
       elementName,
       logParams,
+      disableLogging,
     });
 
     const handlePress = createPressHandler(onPress);

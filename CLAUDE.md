@@ -27,6 +27,7 @@ After any code changes or implementation work, **ALWAYS** run these validation c
 - All touchable components must use SccXxx variants (SccPressable, SccTouchableOpacity, etc.)
 - Required `elementName` prop for event logging
 - Optional `logParams` for additional logging parameters
+- Optional `disableLogging` prop to completely disable event logging
 - Automatic duplicate element detection via global registry
 
 ### Event Logging

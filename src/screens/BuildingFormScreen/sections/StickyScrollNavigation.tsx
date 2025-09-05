@@ -43,6 +43,7 @@ export default function StickyScrollNavigation({
         {menus.map((menu, index) => (
           <S.Menu
             elementName="building_form_navigation_menu"
+            logParams={{menu: menu.label}}
             key={menu.label}
             active={activeMenu === menu}
             onPress={() => scrollToMenu(index)}>

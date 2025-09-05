@@ -107,6 +107,7 @@ function Chip({
   return (
     <ChipContainer
       elementName="search_filter_chip"
+      disableLogging
       activeOpacity={0.7}
       onPress={onPress}
       isActive={isActive}>

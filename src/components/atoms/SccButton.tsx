@@ -23,7 +23,7 @@ interface SccButtonProps {
   rightLabel?: string;
   rightLabelColor?: Color;
   rightLabelSize?: TextStyle['fontSize'];
-  elementName?: string;
+  elementName: string;
   logParams?: Record<string, any>;
 }
 
@@ -43,7 +43,7 @@ export const SccButton = ({
   rightLabel,
   rightLabelColor = 'white',
   rightLabelSize = 14,
-  elementName = 'scc_button',
+  elementName,
   logParams,
 }: SccButtonProps) => {
   return (

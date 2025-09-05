@@ -228,17 +228,13 @@ function SearchItemCard({
             {!hasBeenRegisteredAccessibility && (
               <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
             )}
-            <SccTouchableOpacity
+            <Button
+              text="등록하기 >"
+              size="lg"
+              fillParent
               elementName="place_search_item_card_register_place_accessibility_button"
-              onPress={() => checkAuth(() => onRegister(false))}>
-              <Button
-                text="등록하기 >"
-                size="lg"
-                fillParent
-                elementName="place_accessibility_register_button"
-                onPress={() => {}}
-              />
-            </SccTouchableOpacity>
+              onPress={() => checkAuth(() => onRegister(false))}
+            />
           </View>
         ) : (
           <View

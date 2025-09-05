@@ -112,6 +112,7 @@ const PlaceDetailCoverImage = ({
     return (
       <SccPressable
         elementName="place_detail_cover_image"
+        logParams={{index}}
         onPress={() => onPressImage(index)}>
         <S.CoverImage
           resizeMethod="resize"
