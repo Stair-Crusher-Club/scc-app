@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -33,7 +34,7 @@ export const Title = styled.Text({
   fontFamily: font.pretendardBold,
 });
 
-export const MoreButton = styled.Pressable({
+export const MoreButton = styled(SccPressable)({
   height: 24,
   flexDirection: 'row',
   alignItems: 'center',

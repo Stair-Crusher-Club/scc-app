@@ -7,6 +7,7 @@ import {Provider, useAtomValue, useSetAtom} from 'jotai';
 import {useEffect, useState} from 'react';
 import {Platform, StatusBar} from 'react-native';
 import Config from 'react-native-config';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -99,11 +100,13 @@ const App = () => {
     };
   }, [accessToken]);
   return (
-    <RootSiblingParent>
-      <StatusBar barStyle={'dark-content'} backgroundColor={color.white} />
-      <RootScreen />
-      <LoadingView />
-    </RootSiblingParent>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <RootSiblingParent>
+        <StatusBar barStyle={'dark-content'} backgroundColor={color.white} />
+        <RootScreen />
+        <LoadingView />
+      </RootSiblingParent>
+    </GestureHandlerRootView>
   );
 };
 

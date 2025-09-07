@@ -39,6 +39,7 @@ export default function ChallengeWelcomeModal({
               buttonColor="brandColor"
               fontFamily={font.pretendardBold}
               onPress={() => setVisible(false)}
+              elementName="challenge_welcome_confirm"
             />
           </ButtonContainer>
         </Container>

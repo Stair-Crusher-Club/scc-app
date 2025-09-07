@@ -5,10 +5,10 @@ import {Image} from 'react-native';
 import styled, {css} from 'styled-components/native';
 
 import DefaultImg from '@/assets/img/default_img.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 import {ImageDto} from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 
 interface Props {
@@ -42,37 +42,30 @@ export default function ImageList({
           onPress={() => onPressImage(0)}
           isSinglePreview
           hiddenImageLength={hiddenImages.length}
+          elementName="place_detail_image"
+          index={0}
         />
       ) : (
         <>
-          <LogClick
+          <ImageBox
+            image={images[0]}
+            onPress={() => onPressImage(0)}
             elementName="place_detail_image"
-            params={{
-              image_index: '0',
-              image_url: images[0]?.thumbnailUrl ?? images[0]?.imageUrl,
-            }}>
-            <ImageBox image={images[0]} onPress={() => onPressImage(0)} />
-          </LogClick>
-          <LogClick
+            index={0}
+          />
+          <ImageBox
+            image={images[1]}
+            onPress={() => onPressImage(1)}
             elementName="place_detail_image"
-            params={{
-              image_index: '1',
-              image_url: images[1]?.thumbnailUrl ?? images[1]?.imageUrl,
-            }}>
-            <ImageBox image={images[1]} onPress={() => onPressImage(1)} />
-          </LogClick>
-          <LogClick
+            index={1}
+          />
+          <ImageBox
+            image={images[2]}
+            hiddenImageLength={hiddenImages.length}
+            onPress={() => onPressImage(2)}
             elementName="place_detail_image"
-            params={{
-              image_index: '2',
-              image_url: images[2]?.thumbnailUrl ?? images[2]?.imageUrl,
-            }}>
-            <ImageBox
-              image={images[2]}
-              hiddenImageLength={hiddenImages.length}
-              onPress={() => onPressImage(2)}
-            />
-          </LogClick>
+            index={2}
+          />
         </>
       )}
     </ImageListView>
@@ -84,6 +77,8 @@ interface ImageBoxProps {
   hiddenImageLength?: number;
   isSinglePreview?: boolean;
   onPress?: () => void;
+  elementName: string;
+  index: number;
 }
 
 function ImageBox({
@@ -91,6 +86,8 @@ function ImageBox({
   hiddenImageLength = 0,
   isSinglePreview,
   onPress,
+  elementName,
+  index,
 }: ImageBoxProps) {
   if (!image) {
     return (
@@ -101,7 +98,11 @@ function ImageBox({
   }
   const url = image.thumbnailUrl || image.imageUrl;
   return (
-    <ImageContainer onPress={onPress} isSinglePreview={isSinglePreview}>
+    <ImageContainer
+      elementName={elementName}
+      logParams={{image_index: index.toString(), image_url: url}}
+      onPress={onPress}
+      isSinglePreview={isSinglePreview}>
       <Image
         resizeMethod="resize"
         resizeMode="cover"
@@ -137,7 +138,7 @@ const Placeholder = styled.View`
   background-color: ${color.gray10};
 `;
 
-const ImageContainer = styled.Pressable<{isSinglePreview?: boolean}>`
+const ImageContainer = styled(SccPressable)<{isSinglePreview?: boolean}>`
   flex: ${({isSinglePreview}) => (isSinglePreview ? 'none' : '0 0 33.333%')};
   position: ${({isSinglePreview}) => (isSinglePreview ? 'static' : 'relative')};
 `;

@@ -1,13 +1,13 @@
 import {useAtom} from 'jotai';
 import React from 'react';
-import {ScrollView, TouchableOpacity} from 'react-native';
+import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import {searchHistoriesAtom} from '@/atoms/User';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {LogClick} from '@/logging/LogClick';
 
 export default function SearchHistories({
   onPressHistory: onClickSearch,
@@ -23,9 +23,11 @@ export default function SearchHistories({
     <Container>
       <TitleWrap>
         <TitleText>최근 검색어</TitleText>
-        <TouchableOpacity onPress={() => setSearchHistories([])}>
+        <SccTouchableOpacity
+          elementName="clear_all_search_histories"
+          onPress={() => setSearchHistories([])}>
           <ClearAllText>모두 삭제</ClearAllText>
-        </TouchableOpacity>
+        </SccTouchableOpacity>
       </TitleWrap>
       <ScrollView
         horizontal
@@ -38,12 +40,15 @@ export default function SearchHistories({
         }}>
         {searchHistories.map(search => (
           <ItemBox key={search}>
-            <LogClick elementName={`recent-keyword-${search}`}>
-              <TouchableOpacity onPress={() => onClickSearch(search)}>
-                <ItemText numberOfLines={1}>{search}</ItemText>
-              </TouchableOpacity>
-            </LogClick>
+            <SccTouchableOpacity
+              elementName="recent_keyword"
+              logParams={{keyword: search}}
+              onPress={() => onClickSearch(search)}>
+              <ItemText numberOfLines={1}>{search}</ItemText>
+            </SccTouchableOpacity>
             <RemoveButton
+              elementName="recent_keyword_remove_button"
+              logParams={{keyword: search}}
               onPress={() => {
                 setSearchHistories(
                   searchHistories.filter(s => s !== search) ?? [],
@@ -101,6 +106,6 @@ const ItemText = styled.Text`
   color: ${() => color.black};
 `;
 
-const RemoveButton = styled.TouchableOpacity`
+const RemoveButton = styled(SccTouchableOpacity)`
   padding: 4px;
 `;

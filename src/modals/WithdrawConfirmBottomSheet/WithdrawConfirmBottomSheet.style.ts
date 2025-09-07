@@ -2,6 +2,7 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {SccPressable} from '@/components/SccPressable';
 
 export const ContentsContainer = styled.View({
   flexDirection: 'column',
@@ -28,7 +29,7 @@ export const ButtonContainer = styled.View({
   padding: 24,
 });
 
-export const WithdrawButton = styled.Pressable({
+export const WithdrawButton = styled(SccPressable)({
   flex: 1,
   height: 56,
   borderRadius: 20,
@@ -43,7 +44,7 @@ export const WithdrawButtonText = styled.Text({
   fontFamily: font.pretendardBold,
 });
 
-export const CancelButton = styled.Pressable({
+export const CancelButton = styled(SccPressable)({
   flex: 1,
   height: 56,
   borderRadius: 20,

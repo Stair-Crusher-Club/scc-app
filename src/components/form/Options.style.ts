@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -12,7 +13,7 @@ export const Options = styled.View({
   columnGap: 12,
   color: color.gray70,
 });
-export const PressableOption = styled.Pressable<{
+export const PressableOption = styled(SccPressable)<{
   selected: boolean;
   disabled: boolean;
 }>(({selected, disabled}) => ({

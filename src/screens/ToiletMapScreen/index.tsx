@@ -1,7 +1,8 @@
 import {useQuery} from '@tanstack/react-query';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {useAtomValue} from 'jotai';
 import React, {useRef, useState} from 'react';
-import {TextInput, TouchableOpacity} from 'react-native';
+import {TextInput} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -65,13 +66,14 @@ const ToiletMapScreen = ({navigation}: ScreenProps<'ToiletMap'>) => {
   return (
     <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
       <Wrapper>
-        <TouchableOpacity
+        <SccTouchableOpacity
+          elementName="toilet_map_back_button"
           activeOpacity={0.8}
           onPress={() => {
             navigation.goBack();
           }}>
           <LeftArrowIcon width={24} height={24} color={color.black} />
-        </TouchableOpacity>
+        </SccTouchableOpacity>
         <Container>
           <Input
             // @ts-ignore
@@ -85,14 +87,15 @@ const ToiletMapScreen = ({navigation}: ScreenProps<'ToiletMap'>) => {
               updateQuery();
             }}
           />
-          <TouchableOpacity
+          <SccTouchableOpacity
+            elementName="toilet_map_clear_search_button"
             onPress={() => {
               setDraftText('');
               setText('');
             }}
             activeOpacity={0.6}>
             <ClearIcon width={24} height={24} />
-          </TouchableOpacity>
+          </SccTouchableOpacity>
         </Container>
       </Wrapper>
       <ItemMapView

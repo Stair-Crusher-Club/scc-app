@@ -1,10 +1,10 @@
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import StyledText from '@/components/StyledText';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {LogClick} from '@/logging/LogClick';
 
 interface Props {
   title: string;
@@ -36,31 +36,30 @@ export default function PlaceDetailRegisterButtonSection({
         }}
         boldStyle={{color: color.blue50}}
       />
-      <LogClick elementName={logKey}>
-        <TouchableOpacity
-          onPress={onPress}
+      <SccTouchableOpacity
+        elementName={logKey}
+        onPress={onPress}
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          borderRadius: 12,
+          backgroundColor: color.brand5,
+          height: 48,
+          marginTop: 20,
+        }}>
+        <PlusIcon width={12} height={12} color={color.brandColor} />
+        <Text
           style={{
-            width: '100%',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 4,
-            borderRadius: 12,
-            backgroundColor: color.brand5,
-            height: 48,
-            marginTop: 20,
+            color: color.brand50,
+            fontSize: 16,
+            fontFamily: font.pretendardMedium,
           }}>
-          <PlusIcon width={12} height={12} color={color.brandColor} />
-          <Text
-            style={{
-              color: color.brand50,
-              fontSize: 16,
-              fontFamily: font.pretendardMedium,
-            }}>
-            {buttonText}
-          </Text>
-        </TouchableOpacity>
-      </LogClick>
+          {buttonText}
+        </Text>
+      </SccTouchableOpacity>
     </View>
   );
 }

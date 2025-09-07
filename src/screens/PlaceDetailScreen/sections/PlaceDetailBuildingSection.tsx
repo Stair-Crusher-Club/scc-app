@@ -78,6 +78,7 @@ export default function PlaceDetailBuildingSection({
         <View>
           <PlaceDetailCommentSection
             comments={comments}
+            commentTarget="building"
             onAddComment={handlePressAddComment}
             checkAuth={checkAuth}
             title="건물 입구 정보 의견 남기기"
@@ -138,6 +139,7 @@ function NoBuildingInfoSection({
               navigation.navigate('BuildingForm', {place, building}),
             )
           }
+          elementName="place_detail_building_register"
         />
       </S.EmptyInfoContent>
     </S.Section>

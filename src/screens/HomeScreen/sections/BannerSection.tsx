@@ -1,11 +1,11 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useEffect, useState} from 'react';
-import {Image, Pressable} from 'react-native';
+import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {HomeBannerDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import CoachMarkBanner from '@/screens/HomeScreen/components/CoachMarkBanner';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
@@ -61,16 +61,12 @@ const Banner = ({banner}: {banner: HomeBannerDto}) => {
   };
 
   return (
-    <LogClick
+    <SccPressable
       elementName="home_banner"
-      params={{banner_key: banner.loggingKey}}>
-      <Pressable onPress={() => checkAuth(openBanner)}>
-        <BannerImage
-          source={{uri: banner.imageUrl}}
-          aspectRatio={aspectRatio}
-        />
-      </Pressable>
-    </LogClick>
+      logParams={{banner_key: banner.loggingKey}}
+      onPress={() => checkAuth(openBanner)}>
+      <BannerImage source={{uri: banner.imageUrl}} aspectRatio={aspectRatio} />
+    </SccPressable>
   );
 };
 

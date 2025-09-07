@@ -78,6 +78,7 @@ export default function ChallengeDetailStickyActionBar({
         buttonColor="brandColor"
         fontFamily={font.pretendardBold}
         onPress={onGoConquer}
+        elementName="challenge_detail_go_conquer"
       />
     </ButtonContainer>
   );

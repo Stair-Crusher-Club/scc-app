@@ -49,12 +49,17 @@ export default function ConquererMonthlyScreen({
   return (
     <S.ConquererMonthlyScreen>
       <S.Header>
-        <S.CloseButton onPress={navigation.goBack}>
+        <S.CloseButton
+          elementName="conquerer_monthly_close_button"
+          onPress={navigation.goBack}>
           <CloseIcon width={20} height={20} color={color.gray90} />
         </S.CloseButton>
       </S.Header>
       <S.MonthSelector>
-        <S.MoveMonthButton onPress={prevMonth} disabled={!canGoBack}>
+        <S.MoveMonthButton
+          elementName="conquerer_monthly_prev_month"
+          onPress={prevMonth}
+          disabled={!canGoBack}>
           <LeftArrowIcon
             width={24}
             height={24}
@@ -64,7 +69,10 @@ export default function ConquererMonthlyScreen({
         <S.CurrentMonth>
           {year}. {month.toString().padStart(2, '0')}
         </S.CurrentMonth>
-        <S.MoveMonthButton onPress={nextMonth} disabled={!canGoNext}>
+        <S.MoveMonthButton
+          elementName="conquerer_monthly_next_month"
+          onPress={nextMonth}
+          disabled={!canGoNext}>
           <RightArrowIcon
             width={24}
             height={24}
