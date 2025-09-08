@@ -127,6 +127,8 @@ function SearchItemCard({
     item.accessibilityInfo?.reviewCount &&
     item.accessibilityInfo.reviewCount > 0
   );
+  const isReviewEnabledCategory =
+    item.place?.category === 'RESTAURANT' || item.place?.category === 'CAFE';
 
   return (
     <LogParamsProvider
@@ -218,12 +220,14 @@ function SearchItemCard({
                     onPress={() => onRegister('building')}
                   />
                 )}
-                <XSButton
-                  text="리뷰"
-                  hasPlusButton
-                  elementName="place_search_item_card_register_review_button"
-                  onPress={() => onRegister('review')}
-                />
+                {isReviewEnabledCategory && (
+                  <XSButton
+                    text="리뷰"
+                    hasPlusButton
+                    elementName="place_search_item_card_register_review_button"
+                    onPress={() => onRegister('review')}
+                  />
+                )}
               </View>
             )}
           </ExtraArea>
@@ -252,12 +256,14 @@ function SearchItemCard({
               elementName="place_search_item_card_register_place_accessibility_button"
               onPress={() => onRegister('place')}
             />
-            <LGButton
-              text="방문 리뷰 등록하기"
-              fillParent
-              elementName="place_search_item_card_register_review_button_primary"
-              onPress={() => onRegister('review')}
-            />
+            {isReviewEnabledCategory && (
+              <LGButton
+                text="방문 리뷰 등록하기"
+                fillParent
+                elementName="place_search_item_card_register_review_button_primary"
+                onPress={() => onRegister('review')}
+              />
+            )}
           </View>
         ) : (
           <View
