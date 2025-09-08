@@ -18,7 +18,8 @@ import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import Button from '@/screens/SearchScreen/components/Button';
+import XSButton from '@/screens/SearchScreen/components/XSButton';
+import LGButton from '@/screens/SearchScreen/components/LGButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -102,18 +103,22 @@ function SearchItemCard({
     });
   };
 
-  const onRegister = (isBuilding: boolean) => {
+  const onRegister = (type: 'building' | 'place' | 'review') => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);
-      if (isBuilding) {
+      if (type === 'building') {
         navigation.navigate('BuildingForm', {
           place: item.place,
           building: item.building,
         });
-      } else {
+      } else if (type === 'place') {
         navigation.navigate('PlaceForm', {
           place: item.place,
           building: item.building,
+        });
+      } else if (type === 'review') {
+        navigation.navigate('ReviewForm/Place', {
+          placeId: item.place.id,
         });
       }
     });
@@ -202,21 +207,31 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
-            {registerStatus === 'PLACE_ONLY' && (
-              <Button
-                text="건물정보 등록 >"
-                size="xs"
-                elementName="place_search_item_card_register_building_accessibility_button"
-                onPress={() => checkAuth(() => onRegister(true))}
-              />
+            {registerStatus !== 'NONE' && (
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                {registerStatus === 'PLACE_ONLY' && (
+                  <XSButton
+                    text="건물"
+                    hasPlusButton
+                    elementName="place_search_item_card_register_building_accessibility_button"
+                    onPress={() => onRegister('building')}
+                  />
+                )}
+                <XSButton
+                  text="리뷰"
+                  hasPlusButton
+                  elementName="place_search_item_card_register_review_button"
+                  onPress={() => onRegister('review')}
+                />
+              </View>
             )}
           </ExtraArea>
         </InfoArea>
         {registerStatus === 'UNAVAILABLE' ? (
           <View style={{width: '100%', gap: 4, marginTop: 12}}>
-            <Button
+            <LGButton
               text="서비스지역이 아닙니다."
-              size="lg"
               fillParent
               isDisabled
               elementName="service_unavailable_button"
@@ -224,16 +239,24 @@ function SearchItemCard({
             />
           </View>
         ) : registerStatus === 'NONE' ? (
-          <View style={{width: '100%', gap: 8, marginTop: 12}}>
+          <View style={{width: '100%', gap: 6, marginTop: 12}}>
             {!hasBeenRegisteredAccessibility && (
-              <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
+              <Tooltip
+                text="일상속의 계단 정보를 함께 모아주세요!"
+                style={{marginBottom: -12}}
+              />
             )}
-            <Button
-              text="등록하기 >"
-              size="lg"
+            <LGButton
+              text="입구 접근성 등록하기"
               fillParent
               elementName="place_search_item_card_register_place_accessibility_button"
-              onPress={() => checkAuth(() => onRegister(false))}
+              onPress={() => onRegister('place')}
+            />
+            <LGButton
+              text="방문 리뷰 등록하기"
+              fillParent
+              elementName="place_search_item_card_register_review_button_primary"
+              onPress={() => onRegister('review')}
             />
           </View>
         ) : (
