@@ -63,6 +63,7 @@ const Container = styled(SccTouchableHighlight)<{
       : status === 'focus'
         ? color.link
         : 'transparent'};
+  width: ${({size}) => (size === 'xs' ? '60px' : 'auto')};
   border-width: ${({status}) =>
     status === 'normal' || status === 'focus' ? '1px' : '0'};
   border-radius: ${({size}) => (size === 'xs' ? '8px' : '14px')};

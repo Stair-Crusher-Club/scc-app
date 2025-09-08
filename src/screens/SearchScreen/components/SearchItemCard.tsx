@@ -206,18 +206,19 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
-
-            {registerStatus === 'PLACE_ONLY' && (
+            {registerStatus !== 'NONE' && (
               <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                {registerStatus === 'PLACE_ONLY' && (
+                  <Button
+                    text="+ 건물"
+                    size="xs"
+                    elementName="place_search_item_card_register_building_accessibility_button"
+                    onPress={() => onRegister('building')}
+                  />
+                )}
                 <Button
-                  text="+ 건물정보"
-                  size="xs"
-                  elementName="place_search_item_card_register_building_accessibility_button"
-                  onPress={() => onRegister('building')}
-                />
-                <Button
-                  text="+ 방문리뷰"
+                  text="+ 리뷰"
                   size="xs"
                   elementName="place_search_item_card_register_review_button"
                   onPress={() => onRegister('review')}
