@@ -102,18 +102,22 @@ function SearchItemCard({
     });
   };
 
-  const onRegister = (isBuilding: boolean) => {
+  const onRegister = (type: 'building' | 'place' | 'review') => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);
-      if (isBuilding) {
+      if (type === 'building') {
         navigation.navigate('BuildingForm', {
           place: item.place,
           building: item.building,
         });
-      } else {
+      } else if (type === 'place') {
         navigation.navigate('PlaceForm', {
           place: item.place,
           building: item.building,
+        });
+      } else if (type === 'review') {
+        navigation.navigate('ReviewForm/Place', {
+          placeId: item.place.id,
         });
       }
     });
@@ -207,7 +211,7 @@ function SearchItemCard({
                 text="건물정보 등록 >"
                 size="xs"
                 elementName="place_search_item_card_register_building_accessibility_button"
-                onPress={() => checkAuth(() => onRegister(true))}
+                onPress={() => checkAuth(() => onRegister('building'))}
               />
             )}
           </ExtraArea>
@@ -224,16 +228,23 @@ function SearchItemCard({
             />
           </View>
         ) : registerStatus === 'NONE' ? (
-          <View style={{width: '100%', gap: 8, marginTop: 12}}>
+          <View style={{width: '100%', gap: 14, marginTop: 12}}>
             {!hasBeenRegisteredAccessibility && (
               <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
             )}
             <Button
-              text="등록하기 >"
+              text="입구 접근성 등록하기"
               size="lg"
               fillParent
               elementName="place_search_item_card_register_place_accessibility_button"
-              onPress={() => checkAuth(() => onRegister(false))}
+              onPress={() => checkAuth(() => onRegister('place'))}
+            />
+            <Button
+              text="방문 리뷰 등록하기"
+              size="lg"
+              fillParent
+              elementName="place_search_item_card_register_review_button"
+              onPress={() => checkAuth(() => onRegister('review'))}
             />
           </View>
         ) : (
