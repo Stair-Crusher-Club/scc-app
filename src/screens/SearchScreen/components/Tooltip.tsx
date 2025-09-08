@@ -3,16 +3,19 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {StyleProp, ViewStyle} from 'react-native';
 
 export default function Tooltip({
+  style,
   text,
   tailPosition = 'center',
 }: {
+  style?: StyleProp<ViewStyle>;
   text: string;
   tailPosition?: 'center' | number;
 }) {
   return (
-    <Wrapper isCenter={tailPosition === 'center'}>
+    <Wrapper isCenter={tailPosition === 'center'} style={style}>
       <Container>
         <Text>{text}</Text>
       </Container>

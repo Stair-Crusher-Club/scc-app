@@ -65,10 +65,10 @@ const Container = styled(SccTouchableHighlight)<{
         : 'transparent'};
   border-width: ${({status}) =>
     status === 'normal' || status === 'focus' ? '1px' : '0'};
-  border-radius: ${({size}) => (size === 'xs' ? '10px' : '14px')};
+  border-radius: ${({size}) => (size === 'xs' ? '8px' : '14px')};
   padding: ${({size}) =>
     size === 'xs'
-      ? '7px 12px'
+      ? '5px 8px'
       : size === 'sm'
         ? '8px 12px'
         : size === 'md'

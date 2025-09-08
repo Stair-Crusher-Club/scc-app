@@ -206,13 +206,23 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
+
             {registerStatus === 'PLACE_ONLY' && (
-              <Button
-                text="건물정보 등록 >"
-                size="xs"
-                elementName="place_search_item_card_register_building_accessibility_button"
-                onPress={() => checkAuth(() => onRegister('building'))}
-              />
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <Button
+                  text="+ 건물정보"
+                  size="xs"
+                  elementName="place_search_item_card_register_building_accessibility_button"
+                  onPress={() => checkAuth(() => onRegister('building'))}
+                />
+                <Button
+                  text="+ 방문리뷰"
+                  size="xs"
+                  elementName="place_search_item_card_register_review_button"
+                  onPress={() => checkAuth(() => onRegister('review'))}
+                />
+              </View>
             )}
           </ExtraArea>
         </InfoArea>
@@ -228,9 +238,12 @@ function SearchItemCard({
             />
           </View>
         ) : registerStatus === 'NONE' ? (
-          <View style={{width: '100%', gap: 14, marginTop: 12}}>
+          <View style={{width: '100%', gap: 6, marginTop: 12}}>
             {!hasBeenRegisteredAccessibility && (
-              <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
+              <Tooltip
+                text="일상속의 계단 정보를 함께 모아주세요!"
+                style={{marginBottom: 2}}
+              />
             )}
             <Button
               text="입구 접근성 등록하기"
