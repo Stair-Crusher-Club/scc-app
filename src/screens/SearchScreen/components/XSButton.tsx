@@ -88,7 +88,7 @@ const ButtonText = styled.Text<{
   status: 'normal' | 'focus' | 'disabled';
 }>`
   font-family: ${font.pretendardMedium};
-  padding-light: 3px;
+  padding-right: 3px;
   font-size: 12px;
   color: ${({status}) =>
     status === 'normal'

@@ -243,7 +243,7 @@ function SearchItemCard({
             {!hasBeenRegisteredAccessibility && (
               <Tooltip
                 text="일상속의 계단 정보를 함께 모아주세요!"
-                style={{marginBottom: 2}}
+                style={{marginBottom: -12}}
               />
             )}
             <LGButton
