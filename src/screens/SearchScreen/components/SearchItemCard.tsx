@@ -18,7 +18,8 @@ import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import Button from '@/screens/SearchScreen/components/Button';
+import XSButton from '@/screens/SearchScreen/components/XSButton';
+import LGButton from '@/screens/SearchScreen/components/LGButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -210,16 +211,16 @@ function SearchItemCard({
               <View
                 style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
                 {registerStatus === 'PLACE_ONLY' && (
-                  <Button
-                    text="+ 건물"
-                    size="xs"
+                  <XSButton
+                    text="건물"
+                    hasPlusButton
                     elementName="place_search_item_card_register_building_accessibility_button"
                     onPress={() => onRegister('building')}
                   />
                 )}
-                <Button
-                  text="+ 리뷰"
-                  size="xs"
+                <XSButton
+                  text="리뷰"
+                  hasPlusButton
                   elementName="place_search_item_card_register_review_button"
                   onPress={() => onRegister('review')}
                 />
@@ -229,9 +230,8 @@ function SearchItemCard({
         </InfoArea>
         {registerStatus === 'UNAVAILABLE' ? (
           <View style={{width: '100%', gap: 4, marginTop: 12}}>
-            <Button
+            <LGButton
               text="서비스지역이 아닙니다."
-              size="lg"
               fillParent
               isDisabled
               elementName="service_unavailable_button"
@@ -246,16 +246,14 @@ function SearchItemCard({
                 style={{marginBottom: 2}}
               />
             )}
-            <Button
+            <LGButton
               text="입구 접근성 등록하기"
-              size="lg"
               fillParent
               elementName="place_search_item_card_register_place_accessibility_button"
               onPress={() => onRegister('place')}
             />
-            <Button
+            <LGButton
               text="방문 리뷰 등록하기"
-              size="lg"
               fillParent
               elementName="place_search_item_card_register_review_button_primary"
               onPress={() => onRegister('review')}
