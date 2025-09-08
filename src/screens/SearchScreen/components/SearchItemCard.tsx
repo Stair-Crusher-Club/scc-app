@@ -214,13 +214,13 @@ function SearchItemCard({
                   text="+ 건물정보"
                   size="xs"
                   elementName="place_search_item_card_register_building_accessibility_button"
-                  onPress={() => checkAuth(() => onRegister('building'))}
+                  onPress={() => onRegister('building')}
                 />
                 <Button
                   text="+ 방문리뷰"
                   size="xs"
                   elementName="place_search_item_card_register_review_button"
-                  onPress={() => checkAuth(() => onRegister('review'))}
+                  onPress={() => onRegister('review')}
                 />
               </View>
             )}
@@ -250,14 +250,14 @@ function SearchItemCard({
               size="lg"
               fillParent
               elementName="place_search_item_card_register_place_accessibility_button"
-              onPress={() => checkAuth(() => onRegister('place'))}
+              onPress={() => onRegister('place')}
             />
             <Button
               text="방문 리뷰 등록하기"
               size="lg"
               fillParent
-              elementName="place_search_item_card_register_review_button"
-              onPress={() => checkAuth(() => onRegister('review'))}
+              elementName="place_search_item_card_register_review_button_primary"
+              onPress={() => onRegister('review')}
             />
           </View>
         ) : (
