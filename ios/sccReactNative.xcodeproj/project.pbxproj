@@ -613,7 +613,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -650,7 +650,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "계단뿌셔클럽";
@@ -762,7 +762,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -896,7 +896,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "계단뿌셔클럽";
