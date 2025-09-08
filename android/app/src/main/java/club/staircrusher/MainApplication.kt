@@ -1,6 +1,7 @@
 package club.staircrusher;
 
 import android.app.Application
+import android.util.Log
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -15,6 +16,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.uimanager.ReactShadowNode
 import com.facebook.react.uimanager.ViewManager
 import com.hotupdater.HotUpdater
+import java.io.File
 
 class MainApplication : Application(), ReactApplication {
 
@@ -60,7 +62,10 @@ class MainApplication : Application(), ReactApplication {
             override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
 
             override fun getJSBundleFile(): String? {
-                return HotUpdater.getJSBundleFile(applicationContext)
+                Log.e("DEADBEEF", "just check fetch correctly")
+                val str = HotUpdater.getJSBundleFile(applicationContext)
+                Log.e("DEADBEEF", "yeah no problem")
+                return str
             }
         }
 
@@ -69,6 +74,35 @@ class MainApplication : Application(), ReactApplication {
 
     override fun onCreate() {
         super.onCreate()
+        clean()
         loadReactNative(this)
+    }
+
+    private fun clean() {
+        try {
+            val prefs = getSharedPreferences("app_migrations", MODE_PRIVATE)
+            val now = packageManager.getPackageInfo(packageName, 0).versionCode
+            val last = prefs.getInt("cleanedForVersionCode", -1)
+            if (last != now) {
+                listOf(
+                    File(filesDir, "CodePush"),
+                    File(filesDir, "ReactNativeDevBundle"),
+                    File(filesDir, "RNCodeCache"),
+                    File(filesDir, "com.facebook.react.devsupport"),
+                    cacheDir
+                ).forEach { it.deleteRecursively() }
+                getExternalFilesDirs(null).forEach { dir ->
+                    if (dir != null) {
+                        val bundleStoreDir = File(dir, "bundle-store")
+                        if (bundleStoreDir.exists()) {
+                            bundleStoreDir.deleteRecursively()
+                        }
+                    }
+                }
+                prefs.edit().putInt("cleanedForVersionCode", now).apply()
+            }
+        } catch (e: Exception) {
+            Log.e("CleanRN", "clean failed", e)
+        }
     }
 }
