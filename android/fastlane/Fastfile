@@ -59,6 +59,10 @@ def target_configuration(type:, scheme:)
     end
 end
 
+def git_current_branch()
+  sh("git rev-parse --abbrev-ref HEAD").strip
+end
+
 platform :android do
   desc "Set firebase configuration json."
   lane :configure_firebase do |options|
@@ -118,6 +122,7 @@ platform :android do
 
   lane :release_candidate do |options|
     version = options[:version] || prompt(text: "What version do you want to build? ex) 0.1.4")
+    should_push = UI.confirm("Do you want to add commit and tag and push to GitHub?")
     unless version.to_s.strip.empty?
       matched = version.match(/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/)
       if matched.nil?
@@ -127,11 +132,14 @@ platform :android do
     bundle(scheme: options[:scheme], version: version)
     distribute(scheme: options[:scheme])
 
-    # Add git tag with version name for production only
-    if options[:scheme] == "production"
-      version_name = get_version_name()
+    if should_push
+      version_name = version
+      sh("git add #{File.expand_path("../app/version.properties")}")
+      sh("git commit -m \"Release android #{version_name}\"")
       tag_name = "v#{version_name}-android"
       sh("git tag #{tag_name}")
+      branch = git_current_branch()
+      sh("git push origin #{branch}")
       sh("git push origin #{tag_name}")
     end
   end
