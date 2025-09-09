@@ -43,12 +43,15 @@ export default function CompanySelector({value, onChange, onClose}: Props) {
       <ListContainer>
         <FlashList
           data={[
-            '에스파',
-            '블랙핑크',
-            '아이브',
-            '라이즈',
-            'BTS',
-            'TOMORROW X TOGETHER',
+            'SKI',
+            'SKE',
+            'SKGC',
+            'SKEN',
+            'SKO',
+            'SKO TI',
+            'SKIPC',
+            'SKET',
+            'SKEO',
           ]}
           renderItem={renderItem}
           estimatedItemSize={50}
