@@ -1,6 +1,6 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 interface ActivityItemProps {
   date: string;
@@ -52,26 +52,6 @@ export default function ActivityItem({date, title}: ActivityItemProps) {
           </Text>
         </View>
       </View>
-
-      <TouchableOpacity
-        style={{
-          borderWidth: 1,
-          borderColor: color.gray25,
-          borderRadius: 100,
-          paddingVertical: 8,
-          paddingHorizontal: 10,
-          alignSelf: 'center',
-        }}>
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: font.pretendardRegular,
-            lineHeight: 20,
-            textAlign: 'center',
-          }}>
-          출석체크 하기
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 }
