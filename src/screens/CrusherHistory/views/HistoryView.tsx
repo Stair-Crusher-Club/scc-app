@@ -1,5 +1,6 @@
+import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 
 export default function HistoryView() {
   return (
@@ -7,15 +8,26 @@ export default function HistoryView() {
       style={{
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 78,
+        paddingTop: 168,
+        gap: 12,
       }}>
+      <Image
+        source={require('@/assets/img/img_crusher_history_history_empty.png')}
+        style={{
+          width: 128,
+          height: 60,
+        }}
+      />
       <Text
         style={{
           textAlign: 'center',
           lineHeight: 24,
           fontSize: 16,
           fontFamily: font.pretendardRegular,
-        }}>{`크러셔 활동 히스토리를\n확인 할 수 있어요`}</Text>
+          color: color.gray50,
+        }}>
+        준비중입니다.
+      </Text>
     </View>
   );
 }
