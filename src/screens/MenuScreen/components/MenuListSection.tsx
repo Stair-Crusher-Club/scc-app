@@ -3,6 +3,7 @@ import {TouchableOpacity} from 'react-native';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
 import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
+import MenuCrusherIcon from '@/assets/icon/menu_ic_crusher.svg';
 import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
@@ -68,7 +69,7 @@ export default function MenuListSection() {
       <TouchableOpacity onPress={goToCrusherHistory}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
-            <MenuBookmarkIcon />
+            <MenuCrusherIcon />
             <S.MenuTitle>크러셔 활동</S.MenuTitle>
           </S.MenuTitleWrapper>
           <RightAngleArrowIcon color={color.gray50} />
