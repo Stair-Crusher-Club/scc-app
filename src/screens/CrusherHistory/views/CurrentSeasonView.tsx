@@ -119,7 +119,48 @@ export default function CurrentSeasonView() {
         </View>
       </SectionContainer>
 
-      <SectionContainer title="나의 참여">
+      <SectionContainer
+        title="나의 참여"
+        rightComponent={
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 2,
+              borderRadius: 100,
+              backgroundColor: color.gray10,
+              paddingVertical: 2,
+              paddingHorizontal: 8,
+            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                lineHeight: 24,
+                fontFamily: font.pretendardMedium,
+                color: color.brand50,
+              }}>
+              {'clear'}
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                lineHeight: 24,
+                fontFamily: font.pretendardMedium,
+                color: color.gray50,
+              }}>
+              /
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                lineHeight: 24,
+                fontFamily: font.pretendardMedium,
+                color: color.gray50,
+              }}>
+              {'total'}
+            </Text>
+          </View>
+        }>
         <View
           style={{
             borderWidth: 1,
