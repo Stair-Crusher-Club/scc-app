@@ -187,8 +187,9 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
             <SearchMapView
               ref={ref}
               onRefresh={() => {
+                // 현재 검색어와 카메라 영역을 유지하면서 재검색
                 onQueryUpdate(
-                  {text: undefined},
+                  {useCameraRegion: true},
                   {shouldRecordHistory: false, shouldAnimate: false},
                 );
               }}

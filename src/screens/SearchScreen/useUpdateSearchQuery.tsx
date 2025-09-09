@@ -32,6 +32,7 @@ export function useUpdateSearchQuery() {
         location: query.location ?? prev.location,
         radiusMeter: query.radiusMeter ?? prev.radiusMeter,
         text: query.text ?? prev.text,
+        useCameraRegion: query.useCameraRegion === true, // 얘는 명시적으로 true로 set 했을 때만 true로 유지해준다.
       };
     });
   };

@@ -27,7 +27,8 @@ export default function useSearchRequest() {
   const {api} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
     useAtomValue(filterAtom);
-  const {text, location, radiusMeter} = useAtomValue(searchQueryAtom);
+  const {text, location, radiusMeter, useCameraRegion} =
+    useAtomValue(searchQueryAtom);
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
   const viewState = useAtomValue(viewStateAtom);
   const route = useRoute();
@@ -36,7 +37,15 @@ export default function useSearchRequest() {
     initialData: [],
     queryKey: [
       'search',
-      {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
+      {
+        text,
+        location,
+        sortOption,
+        scoreUnder,
+        hasSlope,
+        isRegistered,
+        useCameraRegion,
+      },
     ],
     queryFn: async ({}) => {
       if (!text) {
@@ -63,7 +72,8 @@ export default function useSearchRequest() {
       let rectangleRegion: RectangleSearchRegionDto | undefined;
 
       // If we have draft camera region, use rectangle search instead of circle
-      if (draftCameraRegion && !radiusMeter) {
+      // Also use rectangle search when useCameraRegion is true (재검색 버튼)
+      if (draftCameraRegion && (!radiusMeter || useCameraRegion)) {
         rectangleRegion = {
           leftTopLocation: {
             lat: draftCameraRegion.northEast.latitude,
@@ -95,8 +105,13 @@ export default function useSearchRequest() {
 
       const response = await api.searchPlacesPost({
         searchText: text,
-        distanceMetersLimit: radiusMeter ?? 20000,
-        currentLocation: location ?? currentLocation,
+        distanceMetersLimit: rectangleRegion
+          ? undefined
+          : (radiusMeter ?? 20000),
+        currentLocation: rectangleRegion
+          ? undefined
+          : (location ?? currentLocation),
+        rectangleRegion: rectangleRegion,
         sort: sort,
         filters: {
           maxAccessibilityScore: scoreUnder ?? undefined,
