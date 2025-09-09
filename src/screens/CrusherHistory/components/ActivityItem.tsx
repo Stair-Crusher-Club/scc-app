@@ -23,11 +23,13 @@ export default function ActivityItem({date, title}: ActivityItemProps) {
           }}>
           <View
             style={{
-              width: 6,
-              height: 6,
-              borderRadius: 3,
+              width: 10,
+              height: 10,
+              borderRadius: 5,
               paddingVertical: 2,
-              backgroundColor: color.gray30,
+              backgroundColor: color.gray50,
+              borderWidth: 2,
+              borderColor: color.gray20,
             }}
           />
         </View>

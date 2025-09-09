@@ -137,6 +137,18 @@ export default function CurrentSeasonView() {
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
+          {_activities && _activities.length > 0 && (
+            <View
+              style={{
+                position: 'absolute',
+                left: 16,
+                top: 28,
+                bottom: 0,
+                width: 2,
+                backgroundColor: color.gray25,
+              }}
+            />
+          )}
           <FlashList
             data={_activities}
             renderItem={() => (
