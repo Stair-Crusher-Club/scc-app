@@ -187,7 +187,12 @@ const ChallengeDetailScreen = ({
             setShowCompanyModal(false);
             setPasscode(undefined);
           }}
-          onPressConfirmButton={(companyName, participantName) => {
+          onPressConfirmButton={(
+            companyName,
+            participantName,
+            organizationName,
+            employeeNumber,
+          ) => {
             setShowCompanyModal(false);
             joinChallenge.mutate({
               challengeId,
@@ -195,6 +200,8 @@ const ChallengeDetailScreen = ({
               companyInfo: {
                 companyName,
                 participantName,
+                organizationName,
+                employeeIdentificationNumber: employeeNumber,
               },
             });
           }}

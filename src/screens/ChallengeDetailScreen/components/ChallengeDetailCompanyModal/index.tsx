@@ -17,7 +17,12 @@ import Input from './Input';
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
   onPressCloseButton: () => void;
-  onPressConfirmButton: (companyName: string, participantName: string) => void;
+  onPressConfirmButton: (
+    companyName: string,
+    participantName: string,
+    organizationName: string,
+    employeeNumber: string,
+  ) => void;
 }
 
 const ChallengeDetailCompanyModal = ({
@@ -28,10 +33,14 @@ const ChallengeDetailCompanyModal = ({
   const [isOpen, setIsOpen] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [participantName, setParticipantName] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
+  const [employeeNumber, setEmployeeNumber] = useState('');
 
   const reset = () => {
     setCompanyName('');
     setParticipantName('');
+    setOrganizationName('');
+    setEmployeeNumber('');
   };
 
   return (
@@ -75,16 +84,40 @@ const ChallengeDetailCompanyModal = ({
             isClearable={true}
             onPress={() => setIsOpen(true)}
           />
+          <Input
+            placeholder="조직을 입력해주세요"
+            returnKeyType="next"
+            value={organizationName}
+            onChangeText={setOrganizationName}
+            isClearable={true}
+          />
+          <Input
+            placeholder="사원번호를 입력해주세요"
+            returnKeyType="done"
+            value={employeeNumber}
+            onChangeText={setEmployeeNumber}
+            isClearable={true}
+          />
         </ScrollView>
         <ButtonContainer>
           <ConfirmButton
-            isDisabled={isEmpty(companyName) || isEmpty(participantName)}
+            isDisabled={
+              isEmpty(companyName) ||
+              isEmpty(participantName) ||
+              isEmpty(organizationName) ||
+              isEmpty(employeeNumber)
+            }
             text="확인"
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
             onPress={() => {
-              onPressConfirmButton(companyName, participantName);
+              onPressConfirmButton(
+                companyName,
+                participantName,
+                organizationName,
+                employeeNumber,
+              );
               reset();
             }}
             elementName="challenge_company_modal_confirm"
