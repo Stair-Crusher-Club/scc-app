@@ -4,22 +4,32 @@ import {Text, View} from 'react-native';
 
 interface SectionLayoutProps extends PropsWithChildren {
   title: string;
+  rightComponent?: React.ReactNode;
 }
 
 export default function SectionContainer({
   title,
+  rightComponent,
   children,
 }: SectionLayoutProps) {
   return (
     <View style={{gap: 12}}>
-      <Text
+      <View
         style={{
-          fontSize: 18,
-          fontFamily: font.pretendardBold,
-          lineHeight: 26,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
         }}>
-        {title}
-      </Text>
+        <Text
+          style={{
+            fontSize: 18,
+            fontFamily: font.pretendardBold,
+            lineHeight: 26,
+          }}>
+          {title}
+        </Text>
+        {rightComponent}
+      </View>
       {children}
     </View>
   );
