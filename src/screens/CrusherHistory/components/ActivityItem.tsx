@@ -44,7 +44,7 @@ export default function ActivityItem({date, title}: ActivityItemProps) {
           <Text
             style={{
               fontSize: 18,
-              fontFamily: font.pretendardBold,
+              fontFamily: font.pretendardMedium,
               lineHeight: 26,
               color: color.gray90,
             }}>
