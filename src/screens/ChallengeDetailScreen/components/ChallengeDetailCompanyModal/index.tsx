@@ -89,7 +89,7 @@ const ChallengeDetailCompanyModal = ({
             onPress={() => setIsOpen(true)}
           />
           <Input
-            placeholder="조직을 입력해주세요"
+            placeholder="조직을 입력해주세요 (예: CSR팀)"
             returnKeyType="next"
             value={organizationName}
             onChangeText={setOrganizationName}
