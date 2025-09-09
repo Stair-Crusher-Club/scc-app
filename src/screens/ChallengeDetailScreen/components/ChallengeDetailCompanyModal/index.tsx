@@ -13,6 +13,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
 import Input from './Input';
+import { ScreenLayout } from '@/components/ScreenLayout';
 
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
@@ -45,7 +46,10 @@ const ChallengeDetailCompanyModal = ({
 
   return (
     <Modal visible={isVisible} statusBarTranslucent>
-      <SafeAreaWrapper edges={['top', 'bottom']} style={{flex: 1}}>
+      <ScreenLayout
+        isHeaderVisible={false}
+        safeAreaEdges={['top', 'bottom']}
+        style={{flex: 1}}>
         <SccTouchableOpacity
           elementName="challenge_modal_close_button"
           onPress={() => {
@@ -62,7 +66,7 @@ const ChallengeDetailCompanyModal = ({
         <ScrollView
           bounces={false}
           contentContainerStyle={{
-            flex: 1,
+            flexGrow: 1,
             paddingHorizontal: 20,
             gap: 36,
           }}>
@@ -123,7 +127,7 @@ const ChallengeDetailCompanyModal = ({
             elementName="challenge_company_modal_confirm"
           />
         </ButtonContainer>
-      </SafeAreaWrapper>
+      </ScreenLayout>
 
       <BottomSheet
         isVisible={isOpen}
