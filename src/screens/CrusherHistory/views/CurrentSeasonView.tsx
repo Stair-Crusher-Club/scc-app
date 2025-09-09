@@ -3,7 +3,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {FlashList} from '@shopify/flash-list';
 import {useState} from 'react';
-import {Image, ScrollView, Text, View} from 'react-native';
+import {Image, ImageSourcePropType, ScrollView, Text, View} from 'react-native';
 import ActivityItem from '../components/ActivityItem';
 import ExpandToggleButton, {
   ExpandToggleButtonStatus,
@@ -13,10 +13,27 @@ import SectionContainer from '../components/SectionContainer';
 
 const _quests = Array(13).fill(0);
 
+type CrewRole = 'editor' | 'conqueror';
+
+const crewInfoAssets: Record<
+  CrewRole,
+  {label: string; source: ImageSourcePropType}
+> = {
+  editor: {
+    label: '에디터',
+    source: require('@/assets/img/img_crusher_history_editor.png'),
+  },
+  conqueror: {
+    label: '정복',
+    source: require('@/assets/img/img_crusher_history_conqueror.png'),
+  },
+};
+
 export default function CurrentSeasonView() {
   const {userInfo} = useMe();
   const [questToggleStatus, setQuestToggleStatus] =
     useState<ExpandToggleButtonStatus>('collapse');
+  const crewRole: CrewRole = 'conqueror';
 
   const [quests, setQuests] = useState(_quests.slice(0, 6));
 
@@ -46,7 +63,7 @@ export default function CurrentSeasonView() {
                 color: color.brand50,
                 lineHeight: 16,
               }}>
-              {'Crew Role'}
+              {crewInfoAssets[crewRole].label} 크루
             </Text>
             <Text
               style={{
@@ -60,10 +77,10 @@ export default function CurrentSeasonView() {
           </View>
 
           <Image
-            source={require('@/assets/img/img_crusher_history_editor_crew.png')}
+            source={crewInfoAssets[crewRole].source}
             style={{
-              width: 90,
-              height: 57,
+              width: 66,
+              height: 48,
             }}
           />
         </View>
