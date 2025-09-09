@@ -2,5 +2,5 @@ import styled from 'styled-components/native';
 
 export const BottomButtons = styled.View({
   gap: 10,
-  padding: 20,
+  padding: '20px 20px 12px',
 });

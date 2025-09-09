@@ -30,6 +30,7 @@ import ElevatorSection from './sections/ElevatorSection';
 import EnteranceSection from './sections/EnteranceSection';
 import HeaderSection from './sections/HeaderSection';
 import StickyScrollNavigation from './sections/StickyScrollNavigation';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface BuildingFormScreenParams {
   place: Place;
@@ -183,27 +184,29 @@ export default function BuildingFormScreen({
               {label: '엘리베이터 정보', ref: elevatorSection},
             ]}
           />
-          <FormProvider {...form}>
-            <HeaderSection place={place} building={building} />
-            <S.SectionSeparator />
-            <View ref={buildingEntranceSection} collapsable={false}>
-              <EnteranceSection />
-              <S.SectionSeparatorLine />
-            </View>
-            <View ref={elevatorSection} collapsable={false}>
-              <ElevatorSection />
-            </View>
-            <S.SectionSeparator />
-            <CommentsSection />
-            <S.SubmitButtonWrapper>
-              <SccButton
-                text="등록하기"
-                buttonColor="blue50"
-                onPress={submit}
-                elementName="building_form_submit"
-              />
-            </S.SubmitButtonWrapper>
-          </FormProvider>
+          <SafeAreaWrapper edges={['bottom']}>
+            <FormProvider {...form}>
+              <HeaderSection place={place} building={building} />
+              <S.SectionSeparator />
+              <View ref={buildingEntranceSection} collapsable={false}>
+                <EnteranceSection />
+                <S.SectionSeparatorLine />
+              </View>
+              <View ref={elevatorSection} collapsable={false}>
+                <ElevatorSection />
+              </View>
+              <S.SectionSeparator />
+              <CommentsSection />
+              <S.SubmitButtonWrapper>
+                <SccButton
+                  text="등록하기"
+                  buttonColor="blue50"
+                  onPress={submit}
+                  elementName="building_form_submit"
+                />
+              </S.SubmitButtonWrapper>
+            </FormProvider>
+          </SafeAreaWrapper>
         </ScrollView>
       </ScreenLayout>
     </LogParamsProvider>
