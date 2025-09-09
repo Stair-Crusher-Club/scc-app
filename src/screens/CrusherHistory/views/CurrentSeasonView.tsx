@@ -34,10 +34,12 @@ const crewInfoAssets: Record<
 export default function CurrentSeasonView() {
   const {userInfo} = useMe();
   const [questToggleStatus, setQuestToggleStatus] =
-    useState<ExpandToggleButtonStatus>('collapse');
+    useState<ExpandToggleButtonStatus>('expand');
   const crewRole: CrewRole = 'conqueror';
 
-  const [quests, setQuests] = useState(_quests.slice(0, 6));
+  const [quests, setQuests] = useState(
+    questToggleStatus === 'collapse' ? _quests.slice(0, 6) : _quests,
+  );
 
   return (
     <ScrollView
