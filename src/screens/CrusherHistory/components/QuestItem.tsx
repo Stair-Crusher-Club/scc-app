@@ -1,13 +1,14 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Image, Text, View} from 'react-native';
+import {Image, ImageSourcePropType, Text, View} from 'react-native';
 
 interface QuestItemProps {
+  source: ImageSourcePropType;
   title: string;
   date?: string;
 }
 
-export default function QuestItem({title, date}: QuestItemProps) {
+export default function QuestItem({source, title, date}: QuestItemProps) {
   return (
     <View
       style={{
@@ -15,7 +16,7 @@ export default function QuestItem({title, date}: QuestItemProps) {
         gap: 14,
       }}>
       <Image
-        source={require('@/assets/img/img_crusher_history_badge.png')}
+        source={source}
         style={{
           width: 84,
           height: 84,

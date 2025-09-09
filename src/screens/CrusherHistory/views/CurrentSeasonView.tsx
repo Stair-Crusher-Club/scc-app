@@ -3,33 +3,16 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {FlashList} from '@shopify/flash-list';
 import {useState} from 'react';
-import {Image, ImageSourcePropType, ScrollView, Text, View} from 'react-native';
+import {Image, ScrollView, Text, View} from 'react-native';
 import ActivityItem from '../components/ActivityItem';
 import ExpandToggleButton, {
   ExpandToggleButtonStatus,
 } from '../components/ExpandToggleButton';
 import QuestItem from '../components/QuestItem';
 import SectionContainer from '../components/SectionContainer';
-
-const _quests = Array(13).fill(0);
+import {crewInfoAssets, CrewRole} from '../constants';
 
 const _activities = Array(0).fill(0);
-
-type CrewRole = 'editor' | 'conqueror';
-
-const crewInfoAssets: Record<
-  CrewRole,
-  {label: string; source: ImageSourcePropType}
-> = {
-  editor: {
-    label: '에디터',
-    source: require('@/assets/img/img_crusher_history_editor.png'),
-  },
-  conqueror: {
-    label: '정복',
-    source: require('@/assets/img/img_crusher_history_conqueror.png'),
-  },
-};
 
 export default function CurrentSeasonView() {
   const {userInfo} = useMe();
@@ -38,7 +21,9 @@ export default function CurrentSeasonView() {
   const crewRole: CrewRole = 'conqueror';
 
   const [quests, setQuests] = useState(
-    questToggleStatus === 'collapse' ? _quests.slice(0, 6) : _quests,
+    questToggleStatus === 'collapse'
+      ? crewInfoAssets[crewRole].quests.slice(0, 6)
+      : crewInfoAssets[crewRole].quests,
   );
 
   return (
@@ -101,8 +86,12 @@ export default function CurrentSeasonView() {
           }}>
           <FlashList
             data={quests}
-            renderItem={({item: _item, index}) => (
-              <QuestItem title="퀘스트명" date={`09.0${index + 1}`} />
+            renderItem={({item, index}) => (
+              <QuestItem
+                title={item.title}
+                date={`09.0${index + 1}`}
+                source={item.source.empty}
+              />
             )}
             numColumns={3}
             ItemSeparatorComponent={QuestItem.Gap}
@@ -119,10 +108,10 @@ export default function CurrentSeasonView() {
               onPress={() => {
                 if (questToggleStatus === 'collapse') {
                   setQuestToggleStatus('expand');
-                  setQuests(_quests);
+                  setQuests(crewInfoAssets[crewRole].quests);
                 } else {
                   setQuestToggleStatus('collapse');
-                  setQuests(_quests.slice(0, 6));
+                  setQuests(crewInfoAssets[crewRole].quests.slice(0, 6));
                 }
               }}
             />
