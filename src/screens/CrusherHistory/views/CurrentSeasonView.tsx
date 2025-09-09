@@ -13,6 +13,8 @@ import SectionContainer from '../components/SectionContainer';
 
 const _quests = Array(13).fill(0);
 
+const _activities = Array(0).fill(0);
+
 type CrewRole = 'editor' | 'conqueror';
 
 const crewInfoAssets: Record<
@@ -136,11 +138,36 @@ export default function CurrentSeasonView() {
             borderRadius: 12,
           }}>
           <FlashList
-            data={Array(3).fill(0)}
+            data={_activities}
             renderItem={() => (
               <ActivityItem date="09.13" title="스타딩데이 참여" />
             )}
             ItemSeparatorComponent={ActivityItem.Gap}
+            ListEmptyComponent={
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 12,
+                  paddingVertical: 12,
+                }}>
+                <Image
+                  source={require('@/assets/img/img_crusher_history_activities_empty.png')}
+                  style={{
+                    width: 64,
+                    height: 64,
+                  }}
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 16,
+                    lineHeight: 24,
+                    fontFamily: font.pretendardRegular,
+                    color: color.gray50,
+                  }}>{`이번 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
+              </View>
+            }
           />
         </View>
       </SectionContainer>
