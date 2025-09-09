@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {FlatList, Platform, View} from 'react-native';
+import {FlatList, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -150,12 +150,9 @@ const FRefInputComp = <T extends MarkerItem>(
          */
         selectedItemId={selectedItemId ?? (items && items[0]?.id)}
         mapPadding={{
-          top: 114, // 하드코딩된 값(헤더 높이), 차후 수정 필요
+          top: 40, // 하드코딩된 값(헤더 높이), 차후 수정 필요
           right: 20,
-          bottom:
-            Platform.OS === 'ios'
-              ? cardHeight
-              : insets.bottom + (items.length === 0 ? 0 : cardHeight),
+          bottom: insets.bottom + (items.length === 0 ? 0 : cardHeight) + 20,
           left: 20,
         }}
       />
