@@ -41,6 +41,12 @@ const ChallengeDetailCompanyModal = ({
     setEmployeeNumber('');
   };
 
+  const getCompanyField = () => {
+    return formSchema?.availableFields?.find(
+      field => field.name === 'companyName',
+    );
+  };
+
   const isFormValid = () => {
     if (!formSchema?.availableFields) return false;
     return formSchema.availableFields.every(field => {
@@ -159,15 +165,20 @@ const ChallengeDetailCompanyModal = ({
         </ButtonContainer>
       </ScreenLayout>
 
-      <BottomSheet
-        isVisible={isOpen}
-        onPressBackground={() => setIsOpen(false)}>
-        <CompanySelector
-          value={companyName}
-          onChange={setCompanyName}
-          onClose={() => setIsOpen(false)}
-        />
-      </BottomSheet>
+      {formSchema?.availableFields?.some(
+        field => field.name === 'companyName',
+      ) && (
+        <BottomSheet
+          isVisible={isOpen}
+          onPressBackground={() => setIsOpen(false)}>
+          <CompanySelector
+            value={companyName}
+            onChange={setCompanyName}
+            onClose={() => setIsOpen(false)}
+            options={getCompanyField()!.options!}
+          />
+        </BottomSheet>
+      )}
     </Modal>
   );
 };

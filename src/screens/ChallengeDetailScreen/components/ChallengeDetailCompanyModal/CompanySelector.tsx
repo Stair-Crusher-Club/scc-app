@@ -10,9 +10,15 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   onClose: () => void;
+  options: string[];
 }
 
-export default function CompanySelector({value, onChange, onClose}: Props) {
+export default function CompanySelector({
+  value,
+  onChange,
+  onClose,
+  options,
+}: Props) {
   const renderItem = ({item}: {item: string}) => (
     <YearButton
       elementName="company_selector_year_button"
@@ -42,18 +48,7 @@ export default function CompanySelector({value, onChange, onClose}: Props) {
       </Header>
       <ListContainer>
         <FlashList
-          data={[
-            'SKI',
-            'SKE',
-            'SKGC',
-            'SKEN',
-            'SKO',
-            'SKO TI',
-            'SKIPC',
-            'SKEO',
-            'SKET',
-            'SKE&S',
-          ]}
+          data={options}
           renderItem={renderItem}
           estimatedItemSize={50}
           keyExtractor={item => item}
