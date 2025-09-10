@@ -50,8 +50,9 @@ export default function CompanySelector({value, onChange, onClose}: Props) {
             'SKO',
             'SKO TI',
             'SKIPC',
-            'SKET',
             'SKEO',
+            'SKET',
+            'SKE&S',
           ]}
           renderItem={renderItem}
           estimatedItemSize={50}
