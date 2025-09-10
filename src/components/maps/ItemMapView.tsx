@@ -152,7 +152,7 @@ const FRefInputComp = <T extends MarkerItem>(
         mapPadding={{
           top: 40, // 하드코딩된 값(헤더 높이), 차후 수정 필요
           right: 20,
-          bottom: insets.bottom + (items.length === 0 ? 0 : cardHeight) + 20,
+          bottom: insets.bottom + cardHeight + 20,
           left: 20,
         }}
       />
