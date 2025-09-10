@@ -111,7 +111,7 @@ const FRefInputComp = <T extends MarkerItem>(
     } else {
       setSelectedItemId(null);
     }
-  }, [items]); // FIXME: 이거 이렇게 하니까 마커가 다 그려진 다음에 커진다 ㅜ 그냥 검색 시작할 때 무조건 0번으로 해야 할 듯?
+  }, [items]);
 
   function onItemSelect(
     item: T,
