@@ -18,7 +18,12 @@ import CompanySelector from './CompanySelector';
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
   onPressCloseButton: () => void;
-  onPressConfirmButton: (formData: Record<string, string>) => void;
+  onPressConfirmButton: (
+    companyName: string,
+    participantName: string,
+    organizationName: string,
+    employeeNumber: string,
+  ) => void;
   formSchema?: ChallengeB2bFormSchemaDto;
 }
 
@@ -152,12 +157,12 @@ const ChallengeDetailCompanyModal = ({
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
             onPress={() => {
-              onPressConfirmButton({
+              onPressConfirmButton(
                 companyName,
                 participantName,
                 organizationName,
-                employeeIdentificationNumber: employeeNumber,
-              });
+                employeeNumber,
+              );
               reset();
             }}
             elementName="challenge_company_modal_confirm"
