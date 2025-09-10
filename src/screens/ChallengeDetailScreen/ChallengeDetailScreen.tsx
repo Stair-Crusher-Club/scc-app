@@ -187,24 +187,21 @@ const ChallengeDetailScreen = ({
             setShowCompanyModal(false);
             setPasscode(undefined);
           }}
-          onPressConfirmButton={(
-            companyName,
-            participantName,
-            organizationName,
-            employeeNumber,
-          ) => {
+          onPressConfirmButton={(formData: Record<string, string>) => {
             setShowCompanyModal(false);
             joinChallenge.mutate({
               challengeId,
               passcode,
               companyInfo: {
-                companyName,
-                participantName,
-                organizationName,
-                employeeIdentificationNumber: employeeNumber,
+                companyName: formData.companyName,
+                participantName: formData.participantName,
+                organizationName: formData.organizationName,
+                employeeIdentificationNumber:
+                  formData.employeeIdentificationNumber,
               },
             });
           }}
+          formSchema={challenge?.b2bFormSchema}
         />
         <ChallengeDetailPasscodeBottomSheet
           isVisible={showPasscodeBottomSheet}
