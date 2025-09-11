@@ -52,7 +52,7 @@ export default function SearchHeader({
             onPressKeyword={keyword =>
               checkAuth(() =>
                 onQueryUpdate(
-                  {text: keyword},
+                  {text: keyword, useCameraRegion: viewState.type === 'map'},
                   {shouldRecordHistory: false, shouldAnimate: false},
                 ),
               )

@@ -1,6 +1,5 @@
 import CloseIcon from '@/assets/icon/close.svg';
 import {SccButton} from '@/components/atoms';
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
@@ -13,7 +12,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
 import Input from './Input';
-import { ScreenLayout } from '@/components/ScreenLayout';
+import {ScreenLayout} from '@/components/ScreenLayout';
 
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
