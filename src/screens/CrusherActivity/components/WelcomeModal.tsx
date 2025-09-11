@@ -54,6 +54,7 @@ export default function WelcomeModal({
             </View>
             <WelcomeText>
               <WelcomeTextBold>‘25 가을시즌 크러셔클럽</WelcomeTextBold>에 온
+              크루
               {'\n'}
               <WelcomeTextBold>{userInfo?.nickname}</WelcomeTextBold>님
               환영합니다!
