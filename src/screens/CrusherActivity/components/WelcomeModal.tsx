@@ -6,7 +6,6 @@ import {font} from '@/constant/font';
 import LottieView from 'lottie-react-native';
 import React, {useEffect, useState} from 'react';
 import {Modal, ModalProps, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import WelcomeAnimation from './WelcomeAnimation';
 
@@ -16,7 +15,6 @@ export default function WelcomeModal({
 }: ModalProps) {
   const {userInfo} = useMe();
   const [visible, setVisible] = useState(_visible);
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     setVisible(_visible);
@@ -71,8 +69,6 @@ export default function WelcomeModal({
               onPress={handleClose}
             />
           </ButtonContainer>
-
-          <SCCLogoImage style={{bottom: insets.bottom + 30}} />
         </Backdrop>
       </SccTouchableWithoutFeedback>
     </Modal>
@@ -112,13 +108,4 @@ const WelcomeTextBold = styled.Text({
 const ButtonContainer = styled.View({
   padding: 20,
   gap: 20,
-});
-
-const SCCLogoImage = styled.Image.attrs({
-  source: require('@/assets/img/img_scc_logo_white.png'),
-})({
-  position: 'absolute',
-  width: 98,
-  height: 37,
-  alignSelf: 'center',
 });
