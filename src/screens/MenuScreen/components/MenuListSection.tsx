@@ -130,6 +130,58 @@ export default function MenuListSection() {
           <RightAngleArrowIcon color={color.gray50} />
         </S.MenuItem>
       </SccTouchableOpacity>
+      <SccTouchableOpacity
+        elementName="menu_challenge"
+        style={{display: 'none'}}>
+        <S.MenuItem>
+          <S.MenuTitle disabled>참여 챌린지 보기</S.MenuTitle>
+          <NotAvailableBadge />
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
+        <S.MenuItem>
+          <S.MenuTitle disabled>달성 뱃지 보기</S.MenuTitle>
+          <NotAvailableBadge />
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity elementName="menu_seoul_toilet" onPress={goToToilet}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuWheelChairIcon />
+            <S.MenuTitle>서울 장애인 화장실 정보</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity elementName="menu_bbucleroad" onPress={goToReviews}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuReviewIcon />
+            <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity
+        elementName="menu_social_login"
+        style={{display: 'none'}}>
+        <S.MenuItem>
+          <S.MenuTitle disabled>간편 로그인 설정</S.MenuTitle>
+          <NotAvailableBadge />
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity elementName="menu_settings" onPress={goToSettings}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuSettingIcon />
+            <S.MenuTitle>설정</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
     </S.MenuListSection>
   );
 }
