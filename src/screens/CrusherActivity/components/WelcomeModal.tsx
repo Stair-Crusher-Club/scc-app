@@ -92,8 +92,8 @@ const WelcomeText = styled.Text({
   textAlign: 'center',
   color: color.white,
   fontFamily: font.pretendardRegular,
-  fontSize: 16,
-  lineHeight: 24,
+  fontSize: 20,
+  lineHeight: 28,
 });
 
 const WelcomeTextBold = styled.Text({
@@ -101,8 +101,8 @@ const WelcomeTextBold = styled.Text({
   textAlign: 'center',
   color: color.white,
   fontFamily: font.pretendardBold,
-  fontSize: 16,
-  lineHeight: 24,
+  fontSize: 20,
+  lineHeight: 28,
 });
 
 const ButtonContainer = styled.View({
