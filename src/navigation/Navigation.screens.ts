@@ -19,7 +19,9 @@ import ConquererMonthlyScreen, {
   ConquererMonthlyScreenParams,
 } from '@/screens/ConquererMonthlyScreen';
 import ConquererScreen from '@/screens/ConquererScreen';
-import CrusherActivityScreen from '@/screens/CrusherActivity';
+import CrusherActivityScreen, {
+  CrusherActivityScreenParams,
+} from '@/screens/CrusherActivity';
 import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
@@ -222,7 +224,7 @@ export type ScreenParams = {
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   FavoritePlaces: undefined;
-  CrusherActivity: undefined;
+  CrusherActivity: CrusherActivityScreenParams;
 
   // 리뷰
   'ReviewForm/Place': PlaceReviewFormScreenParams;

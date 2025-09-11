@@ -1,12 +1,29 @@
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
+import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useQuery} from '@tanstack/react-query';
 import {useEffect, useState} from 'react';
 import MenuTabs, {Tab} from './components/MenuTabs';
+import WelcomeModal from './components/WelcomeModal';
 import CurrentSeasonView from './views/CurrentSeasonView';
 import HistoryView from './views/HistoryView';
 
-export default function CrusherActivityScreen() {
+export interface CrusherActivityScreenParams {
+  qr?: string;
+}
+
+export default function CrusherActivityScreen({
+  route,
+}: ScreenProps<'CrusherActivity'>) {
+  const params = route.params;
+  const [visibleWelcomeModal, setVisibleWelcomeModal] = useState(false);
+
+  useEffect(() => {
+    if (params.qr) {
+      setVisibleWelcomeModal(true);
+    }
+  }, [params.qr]);
+
   const {api} = useAppComponents();
 
   const {data} = useQuery({
@@ -39,6 +56,8 @@ export default function CrusherActivityScreen() {
         <MenuTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
       )}
       {renderView()}
+
+      <WelcomeModal visible={visibleWelcomeModal} />
     </ScreenLayout>
   );
 }

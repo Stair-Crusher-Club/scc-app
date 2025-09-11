@@ -26,7 +26,7 @@ export default function MenuListSection() {
   }
 
   function goToCrusherHistory() {
-    navigation.navigate('CrusherHistory');
+    navigation.navigate('CrusherActivity', {qr: undefined});
   }
 
   function goToReviews() {
