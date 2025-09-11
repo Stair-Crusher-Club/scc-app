@@ -806,11 +806,17 @@ export interface CrusherClubActivityLogDto {
      */
     'title': string;
     /**
-     * 활동 완료 일시
-     * @type {string}
+     * 
+     * @type {EpochMillisTimestamp}
      * @memberof CrusherClubActivityLogDto
      */
-    'activityDoneAt': string;
+    'activityDoneAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherClubActivityLogDto
+     */
+    'canceledAt'?: EpochMillisTimestamp;
 }
 /**
  * 
@@ -839,13 +845,13 @@ export interface CrusherClubDto {
      */
     'season': string;
     /**
-     * 시작 일시
+     * 시작 일시 (yyyy-MM-dd)
      * @type {string}
      * @memberof CrusherClubDto
      */
     'startDate': string;
     /**
-     * 종료 일시
+     * 종료 일시 (yyyy-MM-dd)
      * @type {string}
      * @memberof CrusherClubDto
      */
