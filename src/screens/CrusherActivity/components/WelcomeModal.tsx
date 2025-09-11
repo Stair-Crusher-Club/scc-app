@@ -3,9 +3,12 @@ import {SccButton} from '@/components/atoms';
 import SccTouchableWithoutFeedback from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import LottieView from 'lottie-react-native';
 import React, {useEffect, useState} from 'react';
-import {Modal, ModalProps} from 'react-native';
+import {Modal, ModalProps, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+import WelcomeAnimation from './WelcomeAnimation';
 
 export default function WelcomeModal({
   visible: _visible,
@@ -13,6 +16,7 @@ export default function WelcomeModal({
 }: ModalProps) {
   const {userInfo} = useMe();
   const [visible, setVisible] = useState(_visible);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     setVisible(_visible);
@@ -34,7 +38,22 @@ export default function WelcomeModal({
         onPress={handleClose}>
         <Backdrop>
           <Center>
-            <WelcomeImage />
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <LottieView
+                source={require('@/assets/animations/crusher_activity_welcome.lottie')}
+                autoPlay
+                loop
+                style={{
+                  width: 225,
+                  height: 60,
+                }}
+              />
+              <WelcomeAnimation />
+            </View>
             <WelcomeText>
               <WelcomeTextBold>‘25 가을시즌 크러셔클럽</WelcomeTextBold>에 온
               {'\n'}
@@ -53,7 +72,7 @@ export default function WelcomeModal({
             />
           </ButtonContainer>
 
-          <SCCLogoImage />
+          <SCCLogoImage style={{bottom: insets.bottom + 30}} />
         </Backdrop>
       </SccTouchableWithoutFeedback>
     </Modal>
@@ -70,13 +89,6 @@ const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
   gap: 20,
-});
-
-const WelcomeImage = styled.Image.attrs({
-  source: require('@/assets/img/img_crusher_welcome.png'),
-})({
-  width: 290,
-  height: 271,
 });
 
 const WelcomeText = styled.Text({
@@ -108,6 +120,5 @@ const SCCLogoImage = styled.Image.attrs({
   position: 'absolute',
   width: 98,
   height: 37,
-  bottom: 50,
   alignSelf: 'center',
 });
