@@ -77,7 +77,7 @@ export default function CurrentSeasonView() {
                 lineHeight: 16,
               }}>
               {crewType
-                ? `${crewInfoAssets[crewType].label} 크루`
+                ? `${crewInfoAssets[crewType].label}크루`
                 : '참여 크러셔 클럽 없음 : 대응 필요'}
             </Text>
             <Text
