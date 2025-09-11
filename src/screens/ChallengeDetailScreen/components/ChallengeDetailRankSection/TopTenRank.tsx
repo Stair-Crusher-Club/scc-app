@@ -5,7 +5,6 @@ import ChallengeRank from '@/components/ChallengeRank';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ChallengeRankDto} from '@/generated-sources/openapi';
-import { Text } from 'react-native';
 
 interface PropsType {
   ranks: ChallengeRankDto[];

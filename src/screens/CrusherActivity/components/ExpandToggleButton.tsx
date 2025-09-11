@@ -1,6 +1,7 @@
+import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Text, TouchableOpacity, TouchableOpacityProps} from 'react-native';
+import {Text, TouchableOpacityProps} from 'react-native';
 
 export type ExpandToggleButtonStatus = 'expand' | 'collapse';
 
@@ -14,7 +15,8 @@ export default function ExpandToggleButton({
   ...props
 }: ExpandToggleButtonProps) {
   return (
-    <TouchableOpacity
+    <SccTouchableOpacity
+      elementName="expand_toggle"
       style={[
         {
           borderWidth: 1,
@@ -36,6 +38,6 @@ export default function ExpandToggleButton({
         {status === 'collapse' && '더보기'}
         {status === 'expand' && '접기'}
       </Text>
-    </TouchableOpacity>
+    </SccTouchableOpacity>
   );
 }

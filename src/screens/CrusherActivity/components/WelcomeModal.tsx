@@ -1,9 +1,10 @@
 import {useMe} from '@/atoms/Auth';
 import {SccButton} from '@/components/atoms';
+import SccTouchableWithoutFeedback from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import React, {useEffect, useState} from 'react';
-import {Modal, ModalProps, TouchableWithoutFeedback} from 'react-native';
+import {Modal, ModalProps} from 'react-native';
 import styled from 'styled-components/native';
 
 export default function WelcomeModal({
@@ -28,7 +29,9 @@ export default function WelcomeModal({
       statusBarTranslucent
       animationType="fade"
       {...props}>
-      <TouchableWithoutFeedback onPress={handleClose}>
+      <SccTouchableWithoutFeedback
+        elementName="crusher_activity_welcome_modal"
+        onPress={handleClose}>
         <Backdrop>
           <Center>
             <WelcomeImage />
@@ -42,6 +45,7 @@ export default function WelcomeModal({
 
           <ButtonContainer>
             <SccButton
+              elementName="crusher_activity_welcome_modal_ok"
               text="앞으로 잘해봐요!"
               textColor="white"
               fontFamily={font.pretendardBold}
@@ -51,7 +55,7 @@ export default function WelcomeModal({
 
           <SCCLogoImage />
         </Backdrop>
-      </TouchableWithoutFeedback>
+      </SccTouchableWithoutFeedback>
     </Modal>
   );
 }

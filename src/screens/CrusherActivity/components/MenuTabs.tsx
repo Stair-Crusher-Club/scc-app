@@ -1,6 +1,7 @@
+import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 export type Tab = 'current' | 'history';
 
@@ -33,7 +34,8 @@ export default function MenuTabs({
         alignItems: 'center',
       }}>
       {tabs.map(({key, value}) => (
-        <TouchableOpacity
+        <SccTouchableOpacity
+          elementName="crusher_activity_tab_menu"
           key={key}
           onPress={() => setCurrentTab(key)}
           style={{
@@ -53,7 +55,7 @@ export default function MenuTabs({
             }}>
             {value}
           </Text>
-        </TouchableOpacity>
+        </SccTouchableOpacity>
       ))}
     </View>
   );
