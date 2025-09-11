@@ -7,17 +7,24 @@ import {formatDateKorean} from '../utils/date';
 interface ActivityItemProps {
   activityDoneAt?: EpochMillisTimestamp;
   title: string;
+  visibleLine?: boolean;
 }
+
+const ACTIVITY_ITEM_HEIGHT = 52;
+const ACTIVITY_ITEM_GAP = 20;
+const DOT_SIZE = 10;
 
 export default function ActivityItem({
   activityDoneAt,
   title,
+  visibleLine,
 }: ActivityItemProps) {
   return (
     <View
       style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
+        height: ACTIVITY_ITEM_HEIGHT,
       }}>
       <View style={{gap: 12, flexDirection: 'row', alignItems: 'flex-start'}}>
         <View
@@ -26,11 +33,26 @@ export default function ActivityItem({
             alignItems: 'center',
             justifyContent: 'center',
           }}>
+          {visibleLine && (
+            <View
+              style={{
+                position: 'absolute',
+                left: 4,
+                top: 4,
+                bottom: -Math.abs(
+                  ACTIVITY_ITEM_HEIGHT + ACTIVITY_ITEM_GAP - DOT_SIZE,
+                ),
+                width: 2,
+                backgroundColor: color.gray25,
+              }}
+            />
+          )}
+
           <View
             style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
+              width: DOT_SIZE,
+              height: DOT_SIZE,
+              borderRadius: DOT_SIZE / 2,
               paddingVertical: 2,
               backgroundColor: color.gray50,
               borderWidth: 2,
@@ -64,7 +86,7 @@ export default function ActivityItem({
 }
 
 function ActivityItemGap() {
-  return <View style={{height: 32}} />;
+  return <View style={{height: ACTIVITY_ITEM_GAP}} />;
 }
 
 ActivityItem.Gap = ActivityItemGap;

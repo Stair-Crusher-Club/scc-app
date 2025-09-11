@@ -45,7 +45,7 @@ export default function CurrentSeasonView() {
     }
   }, [questToggleStatus, originQuests]);
 
-  const activityLogs = data?.currentCrusherActivity?.activityLogs;
+  const activityLogs = data?.currentCrusherActivity?.activityLogs ?? [];
 
   return (
     <ScrollView
@@ -67,6 +67,7 @@ export default function CurrentSeasonView() {
             borderRadius: 12,
             flexDirection: 'row',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
           <View style={{gap: 2}}>
             <Text
@@ -77,7 +78,7 @@ export default function CurrentSeasonView() {
                 lineHeight: 16,
               }}>
               {crewType
-                ? `${crewInfoAssets[crewType].label} 크루`
+                ? `${crewInfoAssets[crewType].label}크루`
                 : '참여 크러셔 클럽 없음 : 대응 필요'}
             </Text>
             <Text
@@ -212,24 +213,15 @@ export default function CurrentSeasonView() {
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
-          {activityLogs && activityLogs.length > 0 && (
-            <View
-              style={{
-                position: 'absolute',
-                left: 16,
-                top: 28,
-                bottom: 0,
-                width: 2,
-                backgroundColor: color.gray25,
-              }}
-            />
-          )}
           <FlashList
             data={activityLogs}
-            renderItem={({item}) => (
+            renderItem={({item, index}) => (
               <ActivityItem
                 activityDoneAt={item.activityDoneAt}
                 title={item.title}
+                visibleLine={
+                  activityLogs.length - 1 !== index && activityLogs.length > 1
+                }
               />
             )}
             ItemSeparatorComponent={ActivityItem.Gap}

@@ -19,18 +19,42 @@ export default function QuestItem({
     <View
       style={{
         alignItems: 'center',
-        gap: 14,
+        gap: 6,
       }}>
-      <Image
-        source={source}
-        style={{
-          width: 84,
-          height: 84,
-        }}
-      />
+      <View
+        style={[
+          {
+            width: 84,
+            height: 84,
+            borderRadius: 42,
+            overflow: 'hidden',
+          },
+          completedAt?.value
+            ? {
+                boxShadow: [
+                  {
+                    offsetX: 0,
+                    offsetY: 0,
+                    blurRadius: 5,
+                    spreadDistance: 0,
+                    color: 'rgba(0, 0, 0, 0.05)',
+                  },
+                ],
+              }
+            : {},
+        ]}>
+        <Image
+          source={source}
+          style={{
+            width: 84,
+            height: 84,
+          }}
+        />
+      </View>
+
       <View
         style={{
-          gap: 4,
+          gap: 2,
           alignItems: 'center',
         }}>
         <Text

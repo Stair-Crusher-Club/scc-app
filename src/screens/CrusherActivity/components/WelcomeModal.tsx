@@ -6,7 +6,6 @@ import {font} from '@/constant/font';
 import LottieView from 'lottie-react-native';
 import React, {useEffect, useState} from 'react';
 import {Modal, ModalProps, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import WelcomeAnimation from './WelcomeAnimation';
 
@@ -16,7 +15,6 @@ export default function WelcomeModal({
 }: ModalProps) {
   const {userInfo} = useMe();
   const [visible, setVisible] = useState(_visible);
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     setVisible(_visible);
@@ -56,6 +54,7 @@ export default function WelcomeModal({
             </View>
             <WelcomeText>
               <WelcomeTextBold>‘25 가을시즌 크러셔클럽</WelcomeTextBold>에 온
+              크루
               {'\n'}
               <WelcomeTextBold>{userInfo?.nickname}</WelcomeTextBold>님
               환영합니다!
@@ -71,8 +70,6 @@ export default function WelcomeModal({
               onPress={handleClose}
             />
           </ButtonContainer>
-
-          <SCCLogoImage style={{bottom: insets.bottom + 30}} />
         </Backdrop>
       </SccTouchableWithoutFeedback>
     </Modal>
@@ -88,7 +85,7 @@ const Backdrop = styled.View({
 const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
-  gap: 20,
+  gap: 40,
 });
 
 const WelcomeText = styled.Text({
@@ -96,8 +93,8 @@ const WelcomeText = styled.Text({
   textAlign: 'center',
   color: color.white,
   fontFamily: font.pretendardRegular,
-  fontSize: 16,
-  lineHeight: 24,
+  fontSize: 20,
+  lineHeight: 28,
 });
 
 const WelcomeTextBold = styled.Text({
@@ -105,20 +102,11 @@ const WelcomeTextBold = styled.Text({
   textAlign: 'center',
   color: color.white,
   fontFamily: font.pretendardBold,
-  fontSize: 16,
-  lineHeight: 24,
+  fontSize: 20,
+  lineHeight: 28,
 });
 
 const ButtonContainer = styled.View({
   padding: 20,
   gap: 20,
-});
-
-const SCCLogoImage = styled.Image.attrs({
-  source: require('@/assets/img/img_scc_logo_white.png'),
-})({
-  position: 'absolute',
-  width: 98,
-  height: 37,
-  alignSelf: 'center',
 });
