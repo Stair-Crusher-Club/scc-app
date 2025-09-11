@@ -38,7 +38,7 @@ export default function ActivityItem({
               style={{
                 position: 'absolute',
                 left: 4,
-                top: 4,
+                top: DOT_SIZE / 2,
                 bottom: -Math.abs(
                   ACTIVITY_ITEM_HEIGHT + ACTIVITY_ITEM_GAP - DOT_SIZE,
                 ),
