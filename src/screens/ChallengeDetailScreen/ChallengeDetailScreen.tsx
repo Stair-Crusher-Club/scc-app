@@ -205,6 +205,7 @@ const ChallengeDetailScreen = ({
               },
             });
           }}
+          formSchema={challenge?.b2bFormSchema}
         />
         <ChallengeDetailPasscodeBottomSheet
           isVisible={showPasscodeBottomSheet}
