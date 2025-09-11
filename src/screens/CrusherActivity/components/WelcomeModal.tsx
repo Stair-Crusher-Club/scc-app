@@ -84,7 +84,7 @@ const Backdrop = styled.View({
 const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
-  gap: 20,
+  gap: 40,
 });
 
 const WelcomeText = styled.Text({
