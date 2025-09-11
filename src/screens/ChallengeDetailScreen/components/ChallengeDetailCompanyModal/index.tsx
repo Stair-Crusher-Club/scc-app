@@ -9,10 +9,10 @@ import React, {useState} from 'react';
 import {Modal, ScrollView, View} from 'react-native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {ScreenLayout} from '@/components/ScreenLayout';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
 import Input from './Input';
-import {ScreenLayout} from '@/components/ScreenLayout';
 
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;

@@ -7,11 +7,11 @@ import React, {useEffect, useRef} from 'react';
 import {Linking} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
+import DevTool from '@/components/DevTool/DevTool';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {logDebug} from '@/utils/DebugUtils';
-import DevTool from '@/components/DevTool/DevTool';
 
 // 전체 화면 공용 로깅 규칙 정의
 const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
@@ -172,6 +172,9 @@ const RootScreen = () => {
                     return searchQuery || undefined;
                   },
                 },
+              },
+              CrusherActivity: {
+                path: 'crusher-activity',
               },
             },
           },
