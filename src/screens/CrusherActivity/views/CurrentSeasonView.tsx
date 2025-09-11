@@ -67,6 +67,7 @@ export default function CurrentSeasonView() {
             borderRadius: 12,
             flexDirection: 'row',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
           <View style={{gap: 2}}>
             <Text
