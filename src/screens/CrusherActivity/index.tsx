@@ -12,6 +12,8 @@ export interface CrusherActivityScreenParams {
   qr?: string;
 }
 
+const QR_CODE = '2025-autumn';
+
 export default function CrusherActivityScreen({
   route,
 }: ScreenProps<'CrusherActivity'>) {
@@ -19,7 +21,7 @@ export default function CrusherActivityScreen({
   const [visibleWelcomeModal, setVisibleWelcomeModal] = useState(false);
 
   useEffect(() => {
-    if (params.qr) {
+    if (params.qr === QR_CODE) {
       setVisibleWelcomeModal(true);
     }
   }, [params.qr]);
