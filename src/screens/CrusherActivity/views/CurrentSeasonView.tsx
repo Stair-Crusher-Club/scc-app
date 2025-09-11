@@ -4,7 +4,7 @@ import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import ActivityItem from '../components/ActivityItem';
 import ExpandToggleButton, {
@@ -36,6 +36,14 @@ export default function CurrentSeasonView() {
         : originQuests
       : [],
   );
+
+  useEffect(() => {
+    if (questToggleStatus === 'expand') {
+      setQuests(originQuests);
+    } else {
+      setQuests(originQuests.slice(0, 6));
+    }
+  }, [questToggleStatus]);
 
   const activityLogs = data?.currentCrusherActivity?.activityLogs;
 
@@ -113,7 +121,7 @@ export default function CurrentSeasonView() {
                 fontFamily: font.pretendardMedium,
                 color: color.brand50,
               }}>
-              {quests?.filter(q => q.completedAt).length}
+              {originQuests?.filter(q => q.completedAt).length}
             </Text>
             <Text
               style={{
@@ -185,10 +193,8 @@ export default function CurrentSeasonView() {
 
                 if (questToggleStatus === 'collapse') {
                   setQuestToggleStatus('expand');
-                  setQuests(originQuests);
                 } else {
                   setQuestToggleStatus('collapse');
-                  setQuests(originQuests.slice(0, 6));
                 }
               }}
             />
