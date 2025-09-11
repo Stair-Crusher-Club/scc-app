@@ -69,7 +69,7 @@ export const crewInfoAssets: Record<CrusherClubCrewTypeDto, Asset> = {
       },
     },
   },
-  CRUSHER_CREW: {
+  CONQUER_CREW: {
     label: '정복',
     source: require('@/assets/img/img_crusher_history_conqueror.png'),
     questMap: {
