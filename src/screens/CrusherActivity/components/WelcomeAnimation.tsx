@@ -78,8 +78,8 @@ const WelcomeStarImage = styled.Image.attrs({
 const WelcomeCrusherImage = styled.Image.attrs({
   source: require('@/assets/img/img_crusher_welcome_crusher.png'),
 })({
-  width: 97,
-  height: 94,
+  width: 102,
+  height: 95,
   position: 'absolute',
   bottom: -6,
   left: -6,
