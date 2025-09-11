@@ -1,9 +1,11 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {EpochMillisTimestamp} from '@/generated-sources/openapi';
 import {Text, View} from 'react-native';
+import {formatDateKorean} from '../utils/date';
 
 interface ActivityItemProps {
-  activityDoneAt?: string;
+  activityDoneAt?: EpochMillisTimestamp;
   title: string;
 }
 
@@ -44,7 +46,7 @@ export default function ActivityItem({
               lineHeight: 20,
               color: color.gray50,
             }}>
-            {activityDoneAt}
+            {formatDateKorean(activityDoneAt?.value)}
           </Text>
           <Text
             style={{

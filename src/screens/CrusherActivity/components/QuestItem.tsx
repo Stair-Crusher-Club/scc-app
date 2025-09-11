@@ -2,6 +2,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {EpochMillisTimestamp} from '@/generated-sources/openapi';
 import {Image, ImageSourcePropType, Text, View} from 'react-native';
+import {formatDateDot} from '../utils/date';
 
 interface QuestItemProps {
   source?: ImageSourcePropType;
@@ -47,7 +48,9 @@ export default function QuestItem({
             lineHeight: 16,
             color: color.gray50,
           }}>
-          {completedAt?.value}
+          {completedAt?.value
+            ? `${formatDateDot(completedAt?.value)} 획득`
+            : ''}
         </Text>
       </View>
     </View>

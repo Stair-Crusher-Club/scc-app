@@ -201,6 +201,7 @@ export default function CurrentSeasonView() {
           </View>
         </View>
       </SectionContainer>
+
       <SectionContainer title="나의 참여">
         <View
           style={{
