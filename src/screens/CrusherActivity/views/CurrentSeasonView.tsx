@@ -43,7 +43,7 @@ export default function CurrentSeasonView() {
     } else {
       setQuests(originQuests.slice(0, 6));
     }
-  }, [questToggleStatus]);
+  }, [questToggleStatus, originQuests]);
 
   const activityLogs = data?.currentCrusherActivity?.activityLogs;
 
@@ -153,6 +153,7 @@ export default function CurrentSeasonView() {
           }}>
           <FlashList
             data={quests}
+            keyExtractor={item => item.id}
             renderItem={({item}) => {
               if (!crewType) {
                 return null;

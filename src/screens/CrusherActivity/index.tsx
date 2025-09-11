@@ -1,7 +1,8 @@
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
+import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useEffect, useState} from 'react';
 import MenuTabs, {Tab} from './components/MenuTabs';
 import WelcomeModal from './components/WelcomeModal';
@@ -18,15 +19,30 @@ export default function CrusherActivityScreen({
   route,
 }: ScreenProps<'CrusherActivity'>) {
   const params = route.params;
+  const {api} = useAppComponents();
+  const queryClient = useQueryClient();
+
   const [visibleWelcomeModal, setVisibleWelcomeModal] = useState(false);
+
+  async function recordStartingDate() {
+    try {
+      await api.recordCrusherClubActivityPost({
+        questType: 'STARTING_DAY',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['CurrentCrusherActivity'],
+      });
+    } catch (error: any) {
+      Logger.logError(error);
+    }
+  }
 
   useEffect(() => {
     if (params.qr === QR_CODE) {
       setVisibleWelcomeModal(true);
+      recordStartingDate();
     }
   }, [params.qr]);
-
-  const {api} = useAppComponents();
 
   const {data} = useQuery({
     queryKey: ['CurrentCrusherActivity'],
