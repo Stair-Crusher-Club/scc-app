@@ -13,5 +13,5 @@ export const SectionSeparatorLine = styled.View({
 export const SubmitButtonWrapper = styled.View({
   backgroundColor: color.white,
   paddingHorizontal: 30,
-  paddingBottom: 40,
+  paddingBottom: 20,
 });

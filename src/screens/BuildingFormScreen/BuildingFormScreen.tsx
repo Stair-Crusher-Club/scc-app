@@ -30,6 +30,7 @@ import ElevatorSection from './sections/ElevatorSection';
 import EnteranceSection from './sections/EnteranceSection';
 import HeaderSection from './sections/HeaderSection';
 import StickyScrollNavigation from './sections/StickyScrollNavigation';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface BuildingFormScreenParams {
   place: Place;
@@ -95,16 +96,37 @@ export default function BuildingFormScreen({
           pushItems(registered.data);
         }
 
-        // BuildingForm 을 없애고 PlaceDetail로 이동
-        navigation.pop(1);
-        // PlaceDetail에서 장소 등록 완료 모달을 열어주기
-        navigation.replace('PlaceDetail', {
-          placeInfo: {
-            place,
-            building,
-          },
-          event: 'submit-building',
-        });
+        // 네비게이션 스택 확인
+        const state = navigation.getState();
+        const currentIndex = state.index;
+        const previousRoute =
+          currentIndex > 0 ? state.routes[currentIndex - 1] : null;
+        const isPreviousPlaceDetail = previousRoute?.name === 'PlaceDetail';
+
+        if (isPreviousPlaceDetail) {
+          // 이전 화면이 PlaceDetail인 경우: 기존 로직 유지
+          // BuildingForm 을 없애고 PlaceDetail로 이동
+          navigation.pop(1);
+          // PlaceDetail에서 장소 등록 완료 모달을 열어주기
+          navigation.replace('PlaceDetail', {
+            placeInfo: {
+              place,
+              building,
+            },
+            event: 'submit-building',
+          });
+        } else {
+          // 이전 화면이 PlaceDetail이 아닌 경우 (예: Search에서 직접 진입)
+          // BuildingForm을 pop하고 PlaceDetail을 push하여 히스토리 유지
+          navigation.pop(1);
+          navigation.navigate('PlaceDetail', {
+            placeInfo: {
+              place,
+              building,
+            },
+            event: 'submit-building',
+          });
+        }
       }, 1000),
     [api, place, building, navigation, loading, setLoading],
   );
@@ -162,26 +184,29 @@ export default function BuildingFormScreen({
               {label: '엘리베이터 정보', ref: elevatorSection},
             ]}
           />
-          <FormProvider {...form}>
-            <HeaderSection place={place} building={building} />
-            <S.SectionSeparator />
-            <View ref={buildingEntranceSection} collapsable={false}>
-              <EnteranceSection />
-              <S.SectionSeparatorLine />
-            </View>
-            <View ref={elevatorSection} collapsable={false}>
-              <ElevatorSection />
-            </View>
-            <S.SectionSeparator />
-            <CommentsSection />
-            <S.SubmitButtonWrapper>
-              <SccButton
-                text="등록하기"
-                buttonColor="blue50"
-                onPress={submit}
-              />
-            </S.SubmitButtonWrapper>
-          </FormProvider>
+          <SafeAreaWrapper edges={['bottom']}>
+            <FormProvider {...form}>
+              <HeaderSection place={place} building={building} />
+              <S.SectionSeparator />
+              <View ref={buildingEntranceSection} collapsable={false}>
+                <EnteranceSection />
+                <S.SectionSeparatorLine />
+              </View>
+              <View ref={elevatorSection} collapsable={false}>
+                <ElevatorSection />
+              </View>
+              <S.SectionSeparator />
+              <CommentsSection />
+              <S.SubmitButtonWrapper>
+                <SccButton
+                  text="등록하기"
+                  buttonColor="blue50"
+                  onPress={submit}
+                  elementName="building_form_submit"
+                />
+              </S.SubmitButtonWrapper>
+            </FormProvider>
+          </SafeAreaWrapper>
         </ScrollView>
       </ScreenLayout>
     </LogParamsProvider>

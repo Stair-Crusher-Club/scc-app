@@ -40,7 +40,6 @@ export const ChallengeRankContainer = styled.View({
 });
 
 export const ButtonContainer = styled.View({
-  height: 96,
-  padding: 20,
+  padding: '20px 20px 12px',
   background: color.white,
 });

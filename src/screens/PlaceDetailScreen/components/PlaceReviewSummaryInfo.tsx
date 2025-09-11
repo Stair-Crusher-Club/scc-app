@@ -3,6 +3,7 @@ import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -10,7 +11,6 @@ import {
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
 } from '@/generated-sources/openapi';
-import {LogClick} from '@/logging/LogClick';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -47,19 +47,18 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           <SS.Title>방문 리뷰</SS.Title>
           <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
-        <LogClick elementName="place_detail_review_write_button">
-          <ReviewButton
-            onPress={() =>
-              checkAuth(() => {
-                navigation.navigate('ReviewForm/Place', {
-                  placeId,
-                });
-              })
-            }>
-            <PlusIcon color={color.white} />
-            <ReviewButtonText>리뷰 쓰기</ReviewButtonText>
-          </ReviewButton>
-        </LogClick>
+        <ReviewButton
+          elementName="place_detail_review_write_button"
+          onPress={() =>
+            checkAuth(() => {
+              navigation.navigate('ReviewForm/Place', {
+                placeId,
+              });
+            })
+          }>
+          <PlusIcon color={color.white} />
+          <ReviewButtonText>리뷰 쓰기</ReviewButtonText>
+        </ReviewButton>
       </HeaderRow>
       <SectionColumn style={{marginTop: 16}}>
         <TextBoxThinRow>
@@ -125,7 +124,7 @@ const ReviewCount = styled.Text`
   line-height: 24px;
 `;
 
-const ReviewButton = styled.TouchableOpacity`
+const ReviewButton = styled(SccTouchableOpacity)`
   background-color: ${color.brand30};
   padding-horizontal: 14px;
   height: 31px;

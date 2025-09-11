@@ -1,11 +1,13 @@
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="1" y="1" width="22" height="22" rx="11" fill="#9A9B9F"/>
 <rect x="1" y="1" width="22" height="22" rx="11" stroke="white"/>
-<rect x="14.3203" y="5.60547" width="5.45463" height="12.4611" rx="2.72732" transform="rotate(43.5625 14.3203 5.60547)" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<mask id="mask0_9040_96276" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="6" y="6" width="12" height="12">
-<rect x="14.2969" y="5.63135" width="5.23365" height="12.4253" rx="2.61682" transform="rotate(43.5625 14.2969 5.63135)" fill="white" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-</mask>
-<g mask="url(#mask0_9040_96276)">
-<rect x="9.11719" y="8.83252" width="8.84375" height="7.36768" transform="rotate(43.56 9.11719 8.83252)" fill="white"/>
+<rect x="14.3164" y="5.60547" width="5.45463" height="12.4611" rx="2.72732" transform="rotate(43.5625 14.3164 5.60547)" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<defs>
+<clipPath id="clip0_995_11935">
+<rect x="14.2905" y="5.63184" width="5.23365" height="12.4253" rx="2.61682" transform="rotate(43.5625 14.2905 5.63184)" fill="white" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+</clipPath>
+</defs>
+<g clip-path="url(#clip0_995_11935)">
+<rect x="9.11426" y="8.83301" width="8.84375" height="7.36768" transform="rotate(43.56 9.11426 8.83301)" fill="white"/>
 </g>
 </svg>

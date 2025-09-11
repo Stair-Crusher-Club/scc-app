@@ -1,4 +1,6 @@
-import {Pressable, PressableProps, Text} from 'react-native';
+import {PressableProps, Text} from 'react-native';
+
+import {SccPressable} from '@/components/SccPressable';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -15,7 +17,9 @@ export default function PressableChip({
   ...props
 }: ChipProps) {
   return (
-    <Pressable
+    <SccPressable
+      elementName="pressable_chip"
+      disableLogging
       style={[
         {
           paddingVertical: 10,
@@ -53,6 +57,6 @@ export default function PressableChip({
         ]}>
         {label}
       </Text>
-    </Pressable>
+    </SccPressable>
   );
 }

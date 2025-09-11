@@ -29,6 +29,7 @@ import PlaceInfoSection from '../sections/PlaceInfoSection';
 import ToiletSection from '../sections/ToiletSection';
 import UserTypeSection from '../sections/UserTypeSection';
 import {SectionSeparator} from '../sections/common.style';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 interface ToiletReviewViewProps {
   place?: Place;
@@ -98,17 +99,19 @@ export default function ToiletReviewView({
 
   return (
     <FormProvider {...form}>
-      <KeyboardAwareScrollView
-        stickyHeaderIndices={[0]}
-        contentContainerStyle={{flexGrow: 1}}>
-        <PlaceInfoSection name={place?.name} address={place?.address} />
-        <SectionSeparator />
+      <SafeAreaWrapper edges={['bottom']}>
+        <KeyboardAwareScrollView
+          stickyHeaderIndices={[0]}
+          contentContainerStyle={{flexGrow: 1}}>
+          <PlaceInfoSection name={place?.name} address={place?.address} />
+          <SectionSeparator />
 
-        <UserTypeSection nickname={userInfo?.nickname} />
-        <SectionSeparator />
+          <UserTypeSection nickname={userInfo?.nickname} />
+          <SectionSeparator />
 
-        <ToiletSection onSave={form.handleSubmit(onValid)} />
-      </KeyboardAwareScrollView>
+          <ToiletSection onSave={form.handleSubmit(onValid)} />
+        </KeyboardAwareScrollView>
+      </SafeAreaWrapper>
     </FormProvider>
   );
 }

@@ -1,10 +1,12 @@
 import {SccButton} from '@/components/atoms';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {SccTouchableWithoutFeedback} from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
 import {useAtomValue, useSetAtom} from 'jotai';
 import React, {useEffect} from 'react';
-import {Modal, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
+import {Modal} from 'react-native';
 import styled from 'styled-components/native';
 import {
   closeAllAtom,
@@ -16,7 +18,13 @@ import {
 } from '../atoms/quest';
 import QuestClearStamp from './QuestClearStamp';
 
-export default function QuestCompletionModal() {
+interface QuestCompletionModalProps {
+  onMoveToQuestClearPage: () => void;
+}
+
+export default function QuestCompletionModal({
+  onMoveToQuestClearPage,
+}: QuestCompletionModalProps) {
   const navigation = useNavigation();
 
   const visible = useAtomValue(visibleAtom);
@@ -34,6 +42,7 @@ export default function QuestCompletionModal() {
 
   const handlePrimary = () => {
     if (isLast) {
+      onMoveToQuestClearPage();
       navigation.navigate('ChallengeDetail', {
         challengeId: current.challengeId,
       });
@@ -53,7 +62,9 @@ export default function QuestCompletionModal() {
       transparent
       statusBarTranslucent
       animationType="fade">
-      <TouchableWithoutFeedback onPress={handleBackdropPress}>
+      <SccTouchableWithoutFeedback
+        elementName="quest_completion_modal_backdrop"
+        onPress={handleBackdropPress}>
         <Backdrop>
           <Center>
             <CompletionImage />
@@ -70,16 +81,19 @@ export default function QuestCompletionModal() {
               textColor="white"
               fontFamily={font.pretendardBold}
               onPress={handlePrimary}
+              elementName="quest_completion_primary_action"
             />
 
             {isLast && (
-              <TouchableOpacity onPress={closeAll}>
+              <SccTouchableOpacity
+                elementName="quest_completion_continue_conquering_button"
+                onPress={closeAll}>
                 <CloseModalText>계속 정복하기</CloseModalText>
-              </TouchableOpacity>
+              </SccTouchableOpacity>
             )}
           </ButtonContainer>
         </Backdrop>
-      </TouchableWithoutFeedback>
+      </SccTouchableWithoutFeedback>
     </Modal>
   );
 }

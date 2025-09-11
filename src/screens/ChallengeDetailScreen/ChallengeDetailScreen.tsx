@@ -27,6 +27,7 @@ import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
 import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyActionBar';
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -161,21 +162,24 @@ const ChallengeDetailScreen = ({
           />
         )}
         {hasJoined === false && (
-          <S.ButtonContainer>
-            <SccButton
-              text={'챌린지 참여하기'}
-              textColor="white"
-              buttonColor="brandColor"
-              fontFamily={font.pretendardBold}
-              onPress={() => {
-                if (hasPasscode || isB2B) {
-                  setShowPasscodeBottomSheet(true);
-                } else {
-                  joinChallenge.mutate({challengeId});
-                }
-              }}
-            />
-          </S.ButtonContainer>
+          <SafeAreaWrapper edges={['bottom']}>
+            <S.ButtonContainer>
+              <SccButton
+                text={'챌린지 참여하기'}
+                textColor="white"
+                buttonColor="brandColor"
+                fontFamily={font.pretendardBold}
+                onPress={() => {
+                  if (hasPasscode || isB2B) {
+                    setShowPasscodeBottomSheet(true);
+                  } else {
+                    joinChallenge.mutate({challengeId});
+                  }
+                }}
+                elementName="challenge_detail_join"
+              />
+            </S.ButtonContainer>
+          </SafeAreaWrapper>
         )}
         <ChallengeDetailCompanyModal
           isVisible={showCompanyModal}
@@ -183,7 +187,12 @@ const ChallengeDetailScreen = ({
             setShowCompanyModal(false);
             setPasscode(undefined);
           }}
-          onPressConfirmButton={(companyName, participantName) => {
+          onPressConfirmButton={(
+            companyName,
+            participantName,
+            organizationName,
+            employeeNumber,
+          ) => {
             setShowCompanyModal(false);
             joinChallenge.mutate({
               challengeId,
@@ -191,6 +200,8 @@ const ChallengeDetailScreen = ({
               companyInfo: {
                 companyName,
                 participantName,
+                organizationName,
+                employeeIdentificationNumber: employeeNumber,
               },
             });
           }}

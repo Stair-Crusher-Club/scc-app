@@ -99,6 +99,7 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
           onPress={() => {
             registerComment.mutate({type, comment, id});
           }}
+          elementName="add_comment_register"
         />
       </ScreenLayout>
     </LogParamsProvider>

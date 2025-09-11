@@ -2,6 +2,7 @@ import {FlashList} from '@shopify/flash-list';
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -14,6 +15,7 @@ interface Props {
 export default function CompanySelector({value, onChange, onClose}: Props) {
   const renderItem = ({item}: {item: string}) => (
     <YearButton
+      elementName="company_selector_year_button"
       onPress={() => {
         onChange(item);
         onClose();
@@ -26,23 +28,31 @@ export default function CompanySelector({value, onChange, onClose}: Props) {
   return (
     <Container>
       <Header>
-        <HeaderButton onPress={onClose}>
+        <HeaderButton
+          elementName="company_selector_cancel_button"
+          onPress={onClose}>
           <HeaderButtonText>취소</HeaderButtonText>
         </HeaderButton>
         <HeaderTitle>소속 계열사</HeaderTitle>
-        <HeaderButton onPress={onClose}>
+        <HeaderButton
+          elementName="company_selector_done_button"
+          onPress={onClose}>
           <HeaderButtonText>완료</HeaderButtonText>
         </HeaderButton>
       </Header>
       <ListContainer>
         <FlashList
           data={[
-            '에스파',
-            '블랙핑크',
-            '아이브',
-            '라이즈',
-            'BTS',
-            'TOMORROW X TOGETHER',
+            'SKI',
+            'SKE',
+            'SKGC',
+            'SKEN',
+            'SKO',
+            'SKO TI',
+            'SKIPC',
+            'SKEO',
+            'SKET',
+            'SKE&S',
           ]}
           renderItem={renderItem}
           estimatedItemSize={50}
@@ -69,7 +79,7 @@ const Header = styled.View`
   border-bottom-color: ${color.gray20};
 `;
 
-const HeaderButton = styled.TouchableOpacity`
+const HeaderButton = styled(SccTouchableOpacity)`
   padding: 8px;
 `;
 
@@ -89,7 +99,7 @@ const ListContainer = styled.View`
   flex: 1;
 `;
 
-const YearButton = styled.TouchableOpacity<{isSelected: boolean}>`
+const YearButton = styled(SccTouchableOpacity)<{isSelected: boolean}>`
   padding: 16px;
   background-color: ${props => (props.isSelected ? color.gray10 : color.white)};
 `;

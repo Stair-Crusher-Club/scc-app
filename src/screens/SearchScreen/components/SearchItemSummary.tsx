@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceListItem} from '@/generated-sources/openapi';
@@ -32,7 +33,7 @@ export default function SearchItemSummary({
   })();
 
   return (
-    <Container onPress={onPress}>
+    <Container elementName="search_item_summary" onPress={onPress}>
       {item.accessibilityInfo?.accessibilityScore === undefined ? (
         <NoInfoText>
           {item.hasPlaceAccessibility
@@ -67,7 +68,7 @@ const NoInfoText = styled.Text`
   color: ${() => color.gray50};
 `;
 
-const Container = styled.Pressable`
+const Container = styled(SccPressable)`
   display: flex;
   flex-direction: column;
   align-items: flex-start;

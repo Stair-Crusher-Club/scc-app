@@ -2,6 +2,7 @@ import {useMemo} from 'react';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
@@ -66,7 +67,11 @@ export default function SearchExplore() {
         }}>
         {exploreList.map(
           ({label, title, imageUrl, visibleMoreButton, onPress}) => (
-            <PressableItemBox key={title} onPress={onPress}>
+            <PressableItemBox
+              elementName="search_explore_item"
+              logParams={{label, title}}
+              key={title}
+              onPress={onPress}>
               <ItemDescriptionWrapper>
                 <View style={{gap: 4}}>
                   <ItemLabelText>{label}</ItemLabelText>
@@ -74,7 +79,9 @@ export default function SearchExplore() {
                 </View>
               </ItemDescriptionWrapper>
               {visibleMoreButton && (
-                <MoreButton>
+                <MoreButton
+                  elementName="search_explore_more_button"
+                  disableLogging>
                   <MoreText>자세히보기</MoreText>
                 </MoreButton>
               )}
@@ -106,7 +113,7 @@ const TitleText = styled.Text({
   color: color.black,
 });
 
-const PressableItemBox = styled.TouchableOpacity({
+const PressableItemBox = styled(SccTouchableOpacity)({
   backgroundColor: color.white,
   borderRadius: 8,
   position: 'relative',
@@ -131,7 +138,7 @@ const ItemTitleText = styled.Text({
   fontFamily: font.pretendardBold,
 });
 
-const MoreButton = styled.TouchableOpacity({
+const MoreButton = styled(SccTouchableOpacity)({
   borderWidth: 1,
   borderColor: color.black,
   borderRadius: 100,

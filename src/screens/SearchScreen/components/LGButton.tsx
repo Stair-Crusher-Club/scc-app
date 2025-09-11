@@ -1,21 +1,22 @@
 import React, {useState} from 'react';
 import styled from 'styled-components/native';
 
+import {SccTouchableHighlight} from '@/components/SccTouchableHighlight';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-export default function Button({
+export default function LGButton({
   text,
   isDisabled,
-  size,
   onPress,
   fillParent,
+  elementName,
 }: {
   text: string;
-  size: 'xs' | 'sm' | 'md' | 'lg';
   isDisabled?: boolean;
   onPress: () => void;
   fillParent?: boolean;
+  elementName: string;
 }) {
   const [touchStatus, setStatus] = useState<'normal' | 'focus' | 'disabled'>(
     'normal',
@@ -24,10 +25,10 @@ export default function Button({
 
   return (
     <Container
+      elementName={elementName}
       activeOpacity={1}
       underlayColor={'transparent'}
       fillParent={fillParent}
-      size={size}
       onPress={isDisabled ? undefined : onPress}
       status={status}
       onHideUnderlay={() => {
@@ -36,16 +37,13 @@ export default function Button({
       onShowUnderlay={() => {
         setStatus('focus');
       }}>
-      <ButtonText size={size} status={status}>
-        {text}
-      </ButtonText>
+      <ButtonText status={status}>{text}</ButtonText>
     </Container>
   );
 }
 
-const Container = styled.TouchableHighlight<{
+const Container = styled(SccTouchableHighlight)<{
   status: 'normal' | 'focus' | 'disabled';
-  size: 'xs' | 'sm' | 'md' | 'lg';
   fillParent?: boolean;
 }>`
   ${({fillParent}) => fillParent && 'width: 100%;'}
@@ -61,30 +59,15 @@ const Container = styled.TouchableHighlight<{
         : 'transparent'};
   border-width: ${({status}) =>
     status === 'normal' || status === 'focus' ? '1px' : '0'};
-  border-radius: ${({size}) => (size === 'xs' ? '10px' : '14px')};
-  padding: ${({size}) =>
-    size === 'xs'
-      ? '7px 12px'
-      : size === 'sm'
-        ? '8px 12px'
-        : size === 'md'
-          ? '10px 20px'
-          : '12px 24px'};
+  border-radius: 14px;
+  padding: 12px 24px;
 `;
 
 const ButtonText = styled.Text<{
-  size: 'xs' | 'sm' | 'md' | 'lg';
   status: 'normal' | 'focus' | 'disabled';
 }>`
   font-family: ${font.pretendardMedium};
-  font-size: ${({size}) =>
-    size === 'xs'
-      ? '12px'
-      : size === 'sm'
-        ? '14px'
-        : size === 'md'
-          ? '16px'
-          : '16px'};
+  font-size: 16px;
   color: ${({status}) =>
     status === 'normal'
       ? color.brandColor

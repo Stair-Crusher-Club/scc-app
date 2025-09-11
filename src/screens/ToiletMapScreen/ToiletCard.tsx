@@ -1,6 +1,7 @@
 import {useAtomValue} from 'jotai';
+import {SccPressable} from '@/components/SccPressable';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import React from 'react';
-import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
@@ -16,6 +17,7 @@ import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageLi
 import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   const navigation = useNavigation();
@@ -44,41 +46,50 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   ) as string[];
 
   return (
-    <Container
-      onPress={() => {
-        navigation.navigate('ExternalAccessibilityDetail', {
-          externalAccessibilityId: item.id,
-        });
-      }}>
-      <InfoArea>
-        <LabelIconArea>
-          <AvailableLabel
-            availableState={item.available?.state ?? 'UNKNOWN'}
-            text={item.available?.desc ?? '알수없음'}
-          />
-          <IconArea>
-            <TouchableOpacity activeOpacity={0.6} onPress={onShare}>
-              <ShareIcon color={color.gray80} />
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.6} onPress={onBookmark}>
-              <BookmarkIcon color={color.gray80} />
-            </TouchableOpacity>
-          </IconArea>
-        </LabelIconArea>
-        <TitleArea>
-          <TitleText>{item.name}</TitleText>
-          <LocationBox>
-            <DistanceText>{distanceText}</DistanceText>
-            <LocationDivider />
-            <AddressText>{item.address}</AddressText>
-          </LocationBox>
-        </TitleArea>
-        <ExtraArea>
-          <Tags texts={tagTexts} />
-        </ExtraArea>
-      </InfoArea>
-      <ImageList images={images} />
-    </Container>
+    <LogParamsProvider params={{external_accessibility_id: item.id}}>
+      <Container
+        elementName="toilet_card"
+        onPress={() => {
+          navigation.navigate('ExternalAccessibilityDetail', {
+            externalAccessibilityId: item.id,
+          });
+        }}>
+        <InfoArea>
+          <LabelIconArea>
+            <AvailableLabel
+              availableState={item.available?.state ?? 'UNKNOWN'}
+              text={item.available?.desc ?? '알수없음'}
+            />
+            <IconArea>
+              <SccTouchableOpacity
+                elementName="toilet_card_share_button"
+                activeOpacity={0.6}
+                onPress={onShare}>
+                <ShareIcon color={color.gray80} />
+              </SccTouchableOpacity>
+              <SccTouchableOpacity
+                elementName="toilet_card_bookmark_button"
+                activeOpacity={0.6}
+                onPress={onBookmark}>
+                <BookmarkIcon color={color.gray80} />
+              </SccTouchableOpacity>
+            </IconArea>
+          </LabelIconArea>
+          <TitleArea>
+            <TitleText>{item.name}</TitleText>
+            <LocationBox>
+              <DistanceText>{distanceText}</DistanceText>
+              <LocationDivider />
+              <AddressText>{item.address}</AddressText>
+            </LocationBox>
+          </TitleArea>
+          <ExtraArea>
+            <Tags texts={tagTexts} />
+          </ExtraArea>
+        </InfoArea>
+        <ImageList images={images} />
+      </Container>
+    </LogParamsProvider>
   );
 }
 
@@ -121,7 +132,7 @@ const IconArea = styled.View`
   gap: 8px;
 `;
 
-const Container = styled.Pressable`
+const Container = styled(SccPressable)`
   display: flex;
   flex-direction: column;
   align-items: flex-start;

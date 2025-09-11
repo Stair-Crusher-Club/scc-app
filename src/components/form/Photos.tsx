@@ -37,7 +37,9 @@ export default function Photos({value, maxPhotos, target, onChange}: Props) {
       {/* 3장 미만인 경우, 카메라 버튼 + 사진 1~2장 */}
       {hasPhotos && value.length < maxPhotos && (
         <S.Photo>
-          <S.SmallCameraButton onPress={takePhoto}>
+          <S.SmallCameraButton
+            elementName="photo_small_camera_button"
+            onPress={takePhoto}>
             <CameraIcon width={36} height={36} />
           </S.SmallCameraButton>
         </S.Photo>
@@ -50,7 +52,9 @@ export default function Photos({value, maxPhotos, target, onChange}: Props) {
               source={{uri: ImageFileUtils.filepathFromImageFile(photo)}}
             />
           </S.Thumbnail>
-          <S.DeleteButton onPress={() => deletePhoto(photo)}>
+          <S.DeleteButton
+            elementName="photo_delete_button"
+            onPress={() => deletePhoto(photo)}>
             <CircleCloseIcon width={24} height={24} />
           </S.DeleteButton>
         </S.Photo>
@@ -60,7 +64,9 @@ export default function Photos({value, maxPhotos, target, onChange}: Props) {
       {/* 사진 0장 => 카메라 버튼 풀로 채우기 */}
       {!hasPhotos && (
         <S.TakePhoto>
-          <S.TakePhotoButton onPress={takePhoto}>
+          <S.TakePhotoButton
+            elementName="photo_take_button"
+            onPress={takePhoto}>
             <CameraIcon width={28} height={28} />
             <S.TakePhotoText>사진 촬영하기</S.TakePhotoText>
           </S.TakePhotoButton>

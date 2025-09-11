@@ -1,5 +1,7 @@
 import React from 'react';
-import {Image, Pressable, View, ViewStyle} from 'react-native';
+import {Image, View, ViewStyle} from 'react-native';
+
+import {SccPressable} from '@/components/SccPressable';
 
 import {color} from '@/constant/color';
 import ImageFile from '@/models/ImageFile';
@@ -46,15 +48,16 @@ const TakenPhotoItem = ({
           style={{backgroundColor: color.gray20, flex: 1}}
         />
       </View>
-      <Pressable
+      <SccPressable
         style={{position: 'absolute', top: -6, right: -6}}
+        elementName="taken_photo_delete_button"
         onPress={() => {
           if (onPressX) {
             onPressX(photo);
           }
         }}>
         <CircleCloseIcon width={24} height={24} />
-      </Pressable>
+      </SccPressable>
     </View>
   );
 };

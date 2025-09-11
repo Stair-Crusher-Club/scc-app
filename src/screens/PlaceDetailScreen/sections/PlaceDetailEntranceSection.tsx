@@ -65,6 +65,7 @@ export default function PlaceDetailEntranceSection({
       <View>
         <PlaceDetailCommentSection
           comments={comments}
+          commentTarget="place"
           onAddComment={handlePressAddComment}
           checkAuth={checkAuth}
           title="매장 입구 정보 의견 남기기"
@@ -112,6 +113,7 @@ function NoPlaceEntranceInfoSection({
           fontFamily={font.pretendardBold}
           isDisabled={!isAccessibilityRegistrable}
           onPress={onRegister}
+          elementName="place_detail_entrance_register"
         />
       </S.EmptyInfoContent>
     </S.Section>

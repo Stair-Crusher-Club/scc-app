@@ -6,15 +6,24 @@ import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
 import {isEmpty} from 'lodash';
 import React, {useState} from 'react';
-import {Modal, ScrollView, TouchableOpacity, View} from 'react-native';
+
+import {Modal, ScrollView, View} from 'react-native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 import CompanySelector from './CompanySelector';
 import Input from './Input';
+import { ScreenLayout } from '@/components/ScreenLayout';
 
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
   onPressCloseButton: () => void;
-  onPressConfirmButton: (companyName: string, participantName: string) => void;
+  onPressConfirmButton: (
+    companyName: string,
+    participantName: string,
+    organizationName: string,
+    employeeNumber: string,
+  ) => void;
 }
 
 const ChallengeDetailCompanyModal = ({
@@ -25,16 +34,24 @@ const ChallengeDetailCompanyModal = ({
   const [isOpen, setIsOpen] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [participantName, setParticipantName] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
+  const [employeeNumber, setEmployeeNumber] = useState('');
 
   const reset = () => {
     setCompanyName('');
     setParticipantName('');
+    setOrganizationName('');
+    setEmployeeNumber('');
   };
 
   return (
     <Modal visible={isVisible} statusBarTranslucent>
-      <SafeAreaWrapper edges={['top', 'bottom']} style={{flex: 1}}>
-        <TouchableOpacity
+      <ScreenLayout
+        isHeaderVisible={false}
+        safeAreaEdges={['top', 'bottom']}
+        style={{flex: 1}}>
+        <SccTouchableOpacity
+          elementName="challenge_modal_close_button"
           onPress={() => {
             onPressCloseButton();
             reset();
@@ -45,11 +62,11 @@ const ChallengeDetailCompanyModal = ({
             paddingVertical: 13,
           }}>
           <CloseIcon width={24} height={24} color={color.gray90} />
-        </TouchableOpacity>
+        </SccTouchableOpacity>
         <ScrollView
           bounces={false}
           contentContainerStyle={{
-            flex: 1,
+            flexGrow: 1,
             paddingHorizontal: 20,
             gap: 36,
           }}>
@@ -71,21 +88,46 @@ const ChallengeDetailCompanyModal = ({
             isClearable={true}
             onPress={() => setIsOpen(true)}
           />
+          <Input
+            placeholder="조직을 입력해주세요 (예: CSR팀)"
+            returnKeyType="next"
+            value={organizationName}
+            onChangeText={setOrganizationName}
+            isClearable={true}
+          />
+          <Input
+            placeholder="사원번호를 입력해주세요"
+            returnKeyType="done"
+            value={employeeNumber}
+            onChangeText={setEmployeeNumber}
+            isClearable={true}
+          />
         </ScrollView>
         <ButtonContainer>
           <ConfirmButton
-            isDisabled={isEmpty(companyName) || isEmpty(participantName)}
+            isDisabled={
+              isEmpty(companyName) ||
+              isEmpty(participantName) ||
+              isEmpty(organizationName) ||
+              isEmpty(employeeNumber)
+            }
             text="확인"
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
             onPress={() => {
-              onPressConfirmButton(companyName, participantName);
+              onPressConfirmButton(
+                companyName,
+                participantName,
+                organizationName,
+                employeeNumber,
+              );
               reset();
             }}
+            elementName="challenge_company_modal_confirm"
           />
         </ButtonContainer>
-      </SafeAreaWrapper>
+      </ScreenLayout>
 
       <BottomSheet
         isVisible={isOpen}
