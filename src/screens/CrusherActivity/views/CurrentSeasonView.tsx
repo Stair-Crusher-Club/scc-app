@@ -45,7 +45,7 @@ export default function CurrentSeasonView() {
     }
   }, [questToggleStatus, originQuests]);
 
-  const activityLogs = data?.currentCrusherActivity?.activityLogs;
+  const activityLogs = data?.currentCrusherActivity?.activityLogs ?? [];
 
   return (
     <ScrollView
@@ -213,24 +213,15 @@ export default function CurrentSeasonView() {
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
-          {activityLogs && activityLogs.length > 0 && (
-            <View
-              style={{
-                position: 'absolute',
-                left: 16,
-                top: 28,
-                bottom: 0,
-                width: 2,
-                backgroundColor: color.gray25,
-              }}
-            />
-          )}
           <FlashList
             data={activityLogs}
-            renderItem={({item}) => (
+            renderItem={({item, index}) => (
               <ActivityItem
                 activityDoneAt={item.activityDoneAt}
                 title={item.title}
+                visibleLine={
+                  activityLogs.length - 1 !== index && activityLogs.length > 1
+                }
               />
             )}
             ItemSeparatorComponent={ActivityItem.Gap}
