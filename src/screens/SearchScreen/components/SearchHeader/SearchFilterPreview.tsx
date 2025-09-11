@@ -122,7 +122,7 @@ const Container = styled.View`
   align-items: center;
   justify-content: flex-start;
   padding-right: 30px;
-  padding-top: 8px;
+  padding-top: 3px;
   padding-bottom: 8px;
   padding-left: 20px;
   gap: 5px;

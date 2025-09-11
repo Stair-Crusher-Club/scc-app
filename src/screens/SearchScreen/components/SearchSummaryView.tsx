@@ -13,6 +13,7 @@ import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
 import SearchExplore from './SearchExplore';
 import SearchRecommendKeyword from './SearchRecommendKeyword';
 import SearchRecommendPlace from './SearchRecommendPlace';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 export default function SearchSummaryView({
   searchResults,
@@ -51,12 +52,15 @@ export default function SearchSummaryView({
           <FlashList
             keyboardDismissMode="on-drag"
             renderItem={({item}) => (
-              <ItemWrapper key={item.place.id}>
-                <SearchItemSummary
-                  item={item}
-                  onPress={() => onItemSelect(item)}
-                />
-              </ItemWrapper>
+              <LogParamsProvider
+                params={{place_id: item.place.id, place_name: item.place.name}}>
+                <ItemWrapper key={item.place.id}>
+                  <SearchItemSummary
+                    item={item}
+                    onPress={() => onItemSelect(item)}
+                  />
+                </ItemWrapper>
+              </LogParamsProvider>
             )}
             data={searchResults}
             estimatedItemSize={108}
