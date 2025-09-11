@@ -6,7 +6,7 @@ import MenuTabs, {Tab} from './components/MenuTabs';
 import CurrentSeasonView from './views/CurrentSeasonView';
 import HistoryView from './views/HistoryView';
 
-export default function CrusherHistoryScreen() {
+export default function CrusherActivityScreen() {
   const {api} = useAppComponents();
 
   const {data} = useQuery({

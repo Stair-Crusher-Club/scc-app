@@ -19,7 +19,7 @@ import ConquererMonthlyScreen, {
   ConquererMonthlyScreenParams,
 } from '@/screens/ConquererMonthlyScreen';
 import ConquererScreen from '@/screens/ConquererScreen';
-import CrusherHistoryScreen from '@/screens/CrusherHistory';
+import CrusherActivityScreen from '@/screens/CrusherActivity';
 import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
@@ -98,8 +98,8 @@ export const MainNavigationScreens: {
     options: {headerShown: true, headerTitle: '저장한 장소'},
   },
   {
-    name: 'CrusherHistory',
-    component: CrusherHistoryScreen,
+    name: 'CrusherActivity',
+    component: CrusherActivityScreen,
     options: {headerShown: true, headerTitle: '크러셔 활동'},
   },
   {
@@ -222,7 +222,7 @@ export type ScreenParams = {
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   FavoritePlaces: undefined;
-  CrusherHistory: undefined;
+  CrusherActivity: undefined;
 
   // 리뷰
   'ReviewForm/Place': PlaceReviewFormScreenParams;
