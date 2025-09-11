@@ -3,11 +3,14 @@ import {font} from '@/constant/font';
 import {Text, View} from 'react-native';
 
 interface ActivityItemProps {
-  date: string;
+  activityDoneAt?: string;
   title: string;
 }
 
-export default function ActivityItem({date, title}: ActivityItemProps) {
+export default function ActivityItem({
+  activityDoneAt,
+  title,
+}: ActivityItemProps) {
   return (
     <View
       style={{
@@ -41,7 +44,7 @@ export default function ActivityItem({date, title}: ActivityItemProps) {
               lineHeight: 20,
               color: color.gray50,
             }}>
-            {date}
+            {activityDoneAt}
           </Text>
           <Text
             style={{

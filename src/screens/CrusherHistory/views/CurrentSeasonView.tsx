@@ -1,7 +1,9 @@
 import {useMe} from '@/atoms/Auth';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
+import {useQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import ActivityItem from '../components/ActivityItem';
@@ -10,21 +12,32 @@ import ExpandToggleButton, {
 } from '../components/ExpandToggleButton';
 import QuestItem from '../components/QuestItem';
 import SectionContainer from '../components/SectionContainer';
-import {crewInfoAssets, CrewRole} from '../constants';
-
-const _activities = Array(0).fill(0);
+import {crewInfoAssets} from '../constants';
 
 export default function CurrentSeasonView() {
+  const {api} = useAppComponents();
   const {userInfo} = useMe();
   const [questToggleStatus, setQuestToggleStatus] =
     useState<ExpandToggleButtonStatus>('expand');
-  const crewRole: CrewRole = 'conqueror';
+  const {data} = useQuery({
+    queryKey: ['CurrentCrusherActivity'],
+    queryFn: async () => (await api.getCurrentCrusherActivityPost()).data,
+    staleTime: 1000 * 5,
+  });
+
+  const crewType = data?.currentCrusherActivity?.crusherClub.crewType;
+
+  const originQuests = data?.currentCrusherActivity?.quests ?? [];
 
   const [quests, setQuests] = useState(
-    questToggleStatus === 'collapse'
-      ? crewInfoAssets[crewRole].quests.slice(0, 6)
-      : crewInfoAssets[crewRole].quests,
+    crewType
+      ? questToggleStatus === 'collapse'
+        ? originQuests.slice(0, 6)
+        : originQuests
+      : [],
   );
+
+  const activityLogs = data?.currentCrusherActivity?.activityLogs;
 
   return (
     <ScrollView
@@ -34,7 +47,10 @@ export default function CurrentSeasonView() {
         paddingBottom: 60,
         gap: 28,
       }}>
-      <SectionContainer title="25’ 가을 시즌">
+      <SectionContainer
+        title={
+          data?.currentCrusherActivity?.crusherClub.season ?? '25’ 가을 시즌'
+        }>
         <View
           style={{
             borderWidth: 1,
@@ -52,7 +68,9 @@ export default function CurrentSeasonView() {
                 color: color.brand50,
                 lineHeight: 16,
               }}>
-              {crewInfoAssets[crewRole].label} 크루
+              {crewType
+                ? `${crewInfoAssets[crewType].label} 크루`
+                : '참여 크러셔 클럽 없음 : 대응 필요'}
             </Text>
             <Text
               style={{
@@ -66,7 +84,7 @@ export default function CurrentSeasonView() {
           </View>
 
           <Image
-            source={crewInfoAssets[crewRole].source}
+            source={crewType ? crewInfoAssets[crewType].source : undefined}
             style={{
               width: 66,
               height: 48,
@@ -75,52 +93,8 @@ export default function CurrentSeasonView() {
         </View>
       </SectionContainer>
 
-      <SectionContainer title="나의 퀘스트">
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: '#F2F2F5',
-            paddingVertical: 16,
-            paddingHorizontal: 12,
-            borderRadius: 12,
-          }}>
-          <FlashList
-            data={quests}
-            renderItem={({item, index}) => (
-              <QuestItem
-                title={item.title}
-                date={`09.0${index + 1}`}
-                source={item.source.empty}
-              />
-            )}
-            numColumns={3}
-            ItemSeparatorComponent={QuestItem.Gap}
-          />
-
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 12,
-            }}>
-            <ExpandToggleButton
-              status={questToggleStatus}
-              onPress={() => {
-                if (questToggleStatus === 'collapse') {
-                  setQuestToggleStatus('expand');
-                  setQuests(crewInfoAssets[crewRole].quests);
-                } else {
-                  setQuestToggleStatus('collapse');
-                  setQuests(crewInfoAssets[crewRole].quests.slice(0, 6));
-                }
-              }}
-            />
-          </View>
-        </View>
-      </SectionContainer>
-
       <SectionContainer
-        title="나의 참여"
+        title="나의 퀘스트"
         rightComponent={
           <View
             style={{
@@ -139,7 +113,7 @@ export default function CurrentSeasonView() {
                 fontFamily: font.pretendardMedium,
                 color: color.brand50,
               }}>
-              {'clear'}
+              {quests?.filter(q => q.completedAt).length}
             </Text>
             <Text
               style={{
@@ -157,7 +131,7 @@ export default function CurrentSeasonView() {
                 fontFamily: font.pretendardMedium,
                 color: color.gray50,
               }}>
-              {'total'}
+              {originQuests?.length}
             </Text>
           </View>
         }>
@@ -169,7 +143,68 @@ export default function CurrentSeasonView() {
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
-          {_activities && _activities.length > 0 && (
+          <FlashList
+            data={quests}
+            renderItem={({item}) => {
+              if (!crewType) {
+                return null;
+              }
+
+              return (
+                <QuestItem
+                  title={item.title}
+                  completedAt={item.completedAt}
+                  source={
+                    item.completedAt
+                      ? crewInfoAssets[crewType].questMap[
+                          item.completeStampType
+                        ]?.success
+                      : crewInfoAssets[crewType].questMap[
+                          item.completeStampType
+                        ]?.empty
+                  }
+                />
+              );
+            }}
+            numColumns={3}
+            ItemSeparatorComponent={QuestItem.Gap}
+          />
+
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 12,
+            }}>
+            <ExpandToggleButton
+              status={questToggleStatus}
+              onPress={() => {
+                if (!crewType) {
+                  return;
+                }
+
+                if (questToggleStatus === 'collapse') {
+                  setQuestToggleStatus('expand');
+                  setQuests(originQuests);
+                } else {
+                  setQuestToggleStatus('collapse');
+                  setQuests(originQuests.slice(0, 6));
+                }
+              }}
+            />
+          </View>
+        </View>
+      </SectionContainer>
+      <SectionContainer title="나의 참여">
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: '#F2F2F5',
+            paddingVertical: 16,
+            paddingHorizontal: 12,
+            borderRadius: 12,
+          }}>
+          {activityLogs && activityLogs.length > 0 && (
             <View
               style={{
                 position: 'absolute',
@@ -182,9 +217,12 @@ export default function CurrentSeasonView() {
             />
           )}
           <FlashList
-            data={_activities}
-            renderItem={() => (
-              <ActivityItem date="09.13" title="스타딩데이 참여" />
+            data={activityLogs}
+            renderItem={({item}) => (
+              <ActivityItem
+                activityDoneAt={item.activityDoneAt}
+                title={item.title}
+              />
             )}
             ItemSeparatorComponent={ActivityItem.Gap}
             ListEmptyComponent={

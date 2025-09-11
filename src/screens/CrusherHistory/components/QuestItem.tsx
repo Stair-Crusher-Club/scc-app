@@ -1,14 +1,19 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {EpochMillisTimestamp} from '@/generated-sources/openapi';
 import {Image, ImageSourcePropType, Text, View} from 'react-native';
 
 interface QuestItemProps {
-  source: ImageSourcePropType;
+  source?: ImageSourcePropType;
   title: string;
-  date?: string;
+  completedAt?: EpochMillisTimestamp;
 }
 
-export default function QuestItem({source, title, date}: QuestItemProps) {
+export default function QuestItem({
+  source,
+  title,
+  completedAt,
+}: QuestItemProps) {
   return (
     <View
       style={{
@@ -42,7 +47,7 @@ export default function QuestItem({source, title, date}: QuestItemProps) {
             lineHeight: 16,
             color: color.gray50,
           }}>
-          {date}
+          {completedAt?.value}
         </Text>
       </View>
     </View>
