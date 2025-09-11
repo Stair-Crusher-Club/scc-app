@@ -1,5 +1,5 @@
 export function formatDateDot(epochMillis?: number | null): string {
-  if (epochMillis == null) {
+  if (!epochMillis) {
     return '';
   }
   const d = new Date(epochMillis);
@@ -10,7 +10,7 @@ export function formatDateDot(epochMillis?: number | null): string {
 }
 
 export function formatDateKorean(epochMillis?: number | null): string {
-  if (epochMillis == null) {
+  if (!epochMillis) {
     return '';
   }
   const d = new Date(epochMillis);
