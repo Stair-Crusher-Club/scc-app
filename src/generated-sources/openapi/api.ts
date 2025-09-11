@@ -904,6 +904,12 @@ export interface CrusherClubActivityLogDto {
      * @memberof CrusherClubActivityLogDto
      */
     'activityDoneAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherClubActivityLogDto
+     */
+    'canceledAt'?: EpochMillisTimestamp;
 }
 /**
  * 
