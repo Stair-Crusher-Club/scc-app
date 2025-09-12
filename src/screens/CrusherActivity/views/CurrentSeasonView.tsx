@@ -6,6 +6,7 @@ import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
 import {useEffect, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ActivityItem from '../components/ActivityItem';
 import ExpandToggleButton, {
   ExpandToggleButtonStatus,
@@ -17,6 +18,7 @@ import {crewInfoAssets} from '../constants';
 export default function CurrentSeasonView() {
   const {api} = useAppComponents();
   const {userInfo} = useMe();
+  const insets = useSafeAreaInsets();
   const [questToggleStatus, setQuestToggleStatus] =
     useState<ExpandToggleButtonStatus>('expand');
   const {data} = useQuery({
@@ -52,7 +54,7 @@ export default function CurrentSeasonView() {
       contentContainerStyle={{
         paddingHorizontal: 20,
         paddingTop: 30,
-        paddingBottom: 60,
+        paddingBottom: insets.bottom + 60,
         gap: 28,
       }}>
       <SectionContainer
