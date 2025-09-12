@@ -13,14 +13,17 @@ import {
   SafeAreaView,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Clipboard,
+  Alert,
 } from 'react-native';
 
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
 import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';
-import {useSetAtom} from 'jotai';
+import {useAtom, useSetAtom} from 'jotai';
 import {loggedEventsAtom} from './devToolEventStore';
 import {initializeEventLoggingDevTool} from '@/logging/Logger';
+import {accessTokenAtom} from '@/atoms/Auth';
 
 interface DevToolProps {
   isVisible?: boolean;
@@ -34,6 +37,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   const [isEventLoggingSheetOpen, setIsEventLoggingSheetOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
+  const [accessToken] = useAtom(accessTokenAtom);
 
   // Initialize event logging (always enabled in dev)
   useEffect(() => {
@@ -83,6 +87,20 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   const handleShowEventLogs = () => {
     setIsEventLoggingSheetOpen(true);
     setIsBottomSheetOpen(false);
+  };
+
+  const handleCopyAccessToken = async () => {
+    try {
+      if (!accessToken) {
+        Alert.alert('알림', 'Access Token이 없습니다. 로그인을 확인해주세요.');
+        return;
+      }
+
+      await Clipboard.setString(accessToken);
+      Alert.alert('복사 완료', 'Access Token이 클립보드에 복사되었습니다.');
+    } catch (_) {
+      Alert.alert('오류', 'Access Token 복사에 실패했습니다.');
+    }
   };
 
   if (!isVisible || !__DEV__) {
@@ -158,6 +176,21 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
                     </View>
                     <View style={styles.actionButton}>
                       <Text style={styles.actionButtonText}>View Logs</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Access Token Copy Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={handleCopyAccessToken}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>Access Token</Text>
+                      <Text style={styles.settingDescription}>
+                        Copy current access token to clipboard for API testing
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>Copy Token</Text>
                     </View>
                   </TouchableOpacity>
 

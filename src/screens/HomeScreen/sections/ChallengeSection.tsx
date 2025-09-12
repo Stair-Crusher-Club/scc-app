@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {ScrollView} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 
 import {SccPressable} from '@/components/SccPressable';
 
@@ -30,7 +31,7 @@ export default function ChallengeSection({
   );
   const [challenges, setChallenges] = useState<ListChallengesItemDto[]>([]);
 
-  useEffect(() => {
+  const fetchChallenges = useCallback(() => {
     api
       .listChallengesPost({
         statuses: activeFilter === 'all' ? undefined : [activeFilter],
@@ -39,6 +40,12 @@ export default function ChallengeSection({
         setChallenges(res.data.items);
       });
   }, [api, activeFilter]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchChallenges();
+    }, [fetchChallenges]),
+  );
 
   const handleChallengePress = (challenge: ListChallengesItemDto) => {
     if (challenge.status === 'Upcoming') {

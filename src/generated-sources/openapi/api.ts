@@ -421,6 +421,54 @@ export interface CancelUpvoteRequestDto {
     'id': string;
 }
 /**
+ * B2B 챌린지 입장 시 받아야 하는 폼의 개별 필드 정의
+ * @export
+ * @interface ChallengeB2bFormAvailableFieldDto
+ */
+export interface ChallengeB2bFormAvailableFieldDto {
+    /**
+     * 
+     * @type {ChallengeB2bFormAvailableFieldNameTypeDto}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'name': ChallengeB2bFormAvailableFieldNameTypeDto;
+    /**
+     * SELECT 타입 필드의 선택 옵션 목록 (SELECT 타입인 경우에만 존재)
+     * @type {Array<string>}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'options'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ChallengeB2bFormAvailableFieldNameTypeDto = {
+    ParticipantName: 'participantName',
+    CompanyName: 'companyName',
+    OrganizationName: 'organizationName',
+    EmployeeIdentificationNumber: 'employeeIdentificationNumber'
+} as const;
+
+export type ChallengeB2bFormAvailableFieldNameTypeDto = typeof ChallengeB2bFormAvailableFieldNameTypeDto[keyof typeof ChallengeB2bFormAvailableFieldNameTypeDto];
+
+
+/**
+ * B2B 챌린지의 동적 폼 설정
+ * @export
+ * @interface ChallengeB2bFormSchemaDto
+ */
+export interface ChallengeB2bFormSchemaDto {
+    /**
+     * 표시할 폼 필드 목록
+     * @type {Array<ChallengeB2bFormAvailableFieldDto>}
+     * @memberof ChallengeB2bFormSchemaDto
+     */
+    'availableFields'?: Array<ChallengeB2bFormAvailableFieldDto>;
+}
+/**
  * 
  * @export
  * @interface ChallengeCrusherGroupDto
@@ -523,7 +571,52 @@ export interface ChallengeDto {
      * @memberof ChallengeDto
      */
     'crusherGroup'?: ChallengeCrusherGroupDto;
+    /**
+     * B2B 챌린지인지 여부
+     * @type {boolean}
+     * @memberof ChallengeDto
+     */
+    'isB2B'?: boolean;
+    /**
+     * 
+     * @type {ChallengeB2bFormSchemaDto}
+     * @memberof ChallengeDto
+     */
+    'b2bFormSchema'?: ChallengeB2bFormSchemaDto;
 }
+/**
+ * 선택형 필드의 옵션
+ * @export
+ * @interface ChallengeFormFieldOptionDto
+ */
+export interface ChallengeFormFieldOptionDto {
+    /**
+     * 실제 저장될 값
+     * @type {string}
+     * @memberof ChallengeFormFieldOptionDto
+     */
+    'value': string;
+    /**
+     * 사용자에게 표시될 라벨
+     * @type {string}
+     * @memberof ChallengeFormFieldOptionDto
+     */
+    'label': string;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ChallengeFormFieldTypeDto = {
+    Text: 'TEXT',
+    Select: 'SELECT'
+} as const;
+
+export type ChallengeFormFieldTypeDto = typeof ChallengeFormFieldTypeDto[keyof typeof ChallengeFormFieldTypeDto];
+
+
 /**
  * 
  * @export
@@ -1626,7 +1719,7 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
 
 
 /**
- * B2B 챌린지 참여 시 회사명과 본인의 이름을 입력받는 DTO. 둘 다 존재하거나 둘 다 null이어야 함.
+ * B2B 챌린지 참여 시 회사 정보를 입력 받는 DTO.
  * @export
  * @interface JoinChallengeRequestCompanyJoinInfoDto
  */
@@ -1636,25 +1729,25 @@ export interface JoinChallengeRequestCompanyJoinInfoDto {
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
-    'companyName': string;
+    'companyName'?: string;
     /**
      * 본인의 이름
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
-    'participantName': string;
+    'participantName'?: string;
     /**
      * 조직명
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
-    'organizationName': string;
+    'organizationName'?: string;
     /**
      * 사원번호
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
-    'employeeIdentificationNumber': string;
+    'employeeIdentificationNumber'?: string;
 }
 /**
  * 
