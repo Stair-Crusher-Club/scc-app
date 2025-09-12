@@ -89,12 +89,11 @@ const buttonStyles = (
   StyleSheet.create({
     regular: {
       ...defaultButton,
-      opacity: isDisabled ? 0.7 : 1,
       width: _width,
       height: _height,
-      backgroundColor: color[buttonColor],
+      backgroundColor: isDisabled ? color.gray30 : color[buttonColor],
       borderWidth: borderColor ? 1 : 0,
-      borderColor: borderColor ? color[borderColor] : 'undefined',
+      borderColor: borderColor ? (isDisabled ? color.gray30 : color[borderColor]) : 'undefined',
     },
     text: {
       ...defaultButton,
