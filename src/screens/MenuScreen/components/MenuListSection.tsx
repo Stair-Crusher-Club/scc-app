@@ -2,6 +2,7 @@ import React from 'react';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
 import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
+import MenuCrusherIcon from '@/assets/icon/menu_ic_crusher.svg';
 import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
@@ -21,6 +22,10 @@ export default function MenuListSection() {
 
   function goToFavoritePlaces() {
     navigation.navigate('FavoritePlaces');
+  }
+
+  function goToCrusherHistory() {
+    navigation.navigate('CrusherActivity', {qr: undefined});
   }
 
   function goToReviews() {
@@ -59,7 +64,18 @@ export default function MenuListSection() {
             <MenuBookmarkIcon />
             <S.MenuTitle>저장한 장소</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity
+        elementName="menu_crusher_activity"
+        onPress={goToCrusherHistory}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuCrusherIcon />
+            <S.MenuTitle>크러셔 활동</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -111,6 +127,22 @@ export default function MenuListSection() {
             <MenuSettingIcon />
             <S.MenuTitle>설정</S.MenuTitle>
           </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity
+        elementName="menu_challenge"
+        style={{display: 'none'}}>
+        <S.MenuItem>
+          <S.MenuTitle disabled>참여 챌린지 보기</S.MenuTitle>
+          <NotAvailableBadge />
+          <RightAngleArrowIcon color={color.gray50} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
+        <S.MenuItem>
+          <S.MenuTitle disabled>달성 뱃지 보기</S.MenuTitle>
+          <NotAvailableBadge />
           <RightAngleArrowIcon color={color.gray50} />
         </S.MenuItem>
       </SccTouchableOpacity>

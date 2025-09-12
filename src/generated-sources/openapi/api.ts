@@ -919,7 +919,7 @@ export interface CrusherClubActivityLogDto {
 
 export const CrusherClubCrewTypeDto = {
     EditorCrew: 'EDITOR_CREW',
-    CrusherCrew: 'CRUSHER_CREW'
+    ConquerCrew: 'CONQUER_CREW'
 } as const;
 
 export type CrusherClubCrewTypeDto = typeof CrusherClubCrewTypeDto[keyof typeof CrusherClubCrewTypeDto];
