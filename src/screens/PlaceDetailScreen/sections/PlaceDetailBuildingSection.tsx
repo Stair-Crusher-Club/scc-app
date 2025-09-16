@@ -10,10 +10,12 @@ import {
   AccessibilityInfoDto,
   Building,
   Place,
+  ReportTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import BuildingDoorInfo from '../components/BuildingDoorInfo';
 import BuildingElevatorInfo from '../components/BuildingElevatorInfo';
 import BuildingEntranceStepInfo from '../components/BuildingEntranceStepInfo';
@@ -27,6 +29,7 @@ interface Props {
   place: Place;
   building: Building;
   isAccessibilityRegistrable?: boolean;
+  showNegativeFeedbackBottomSheet?: (type: ReportTargetTypeDto) => void;
 }
 
 export default function PlaceDetailBuildingSection({
@@ -34,6 +37,7 @@ export default function PlaceDetailBuildingSection({
   place,
   building,
   isAccessibilityRegistrable,
+  showNegativeFeedbackBottomSheet,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -74,6 +78,14 @@ export default function PlaceDetailBuildingSection({
         <BuildingEntranceStepInfo accessibility={accessibility} />
         <BuildingElevatorInfo accessibility={accessibility} />
         <BuildingDoorInfo accessibility={accessibility} />
+        <FeedbackButton
+          upvoted={false}
+          total={undefined}
+          onPressUpvote={() => console.log('도움이 돼요')}
+          onPressInfoUpdateRequest={() =>
+            showNegativeFeedbackBottomSheet?.('BUILDING_ACCESSIBILITY')
+          }
+        />
         <Divider />
         <View>
           <PlaceDetailCommentSection

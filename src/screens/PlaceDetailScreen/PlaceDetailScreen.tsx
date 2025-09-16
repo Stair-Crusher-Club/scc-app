@@ -11,7 +11,11 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import ScrollNavigation from '@/components/StickyScrollNavigation';
-import {Building, Place} from '@/generated-sources/openapi';
+import {
+  Building,
+  Place,
+  ReportTargetTypeDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -20,11 +24,14 @@ import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sectio
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import {loadingState} from '@/components/LoadingView';
+import ToastUtils from '@/utils/ToastUtils';
 import {useIsFocused} from '@react-navigation/native';
-import {useAtomValue} from 'jotai';
+import {useAtom, useAtomValue} from 'jotai';
 import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
+import PlaceDetailNegativeFeedbackBottomSheet from './modals/PlaceDetailNegativeFeedbackBottomSheet';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from './modals/RequireBuildingAccessibilityBottomSheet';
 import PlaceDetailAppBar from './sections/PlaceDetailAppBar';
@@ -58,6 +65,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
+  const [loading, setLoading] = useAtom(loadingState);
 
   const isFocused = useIsFocused();
 
@@ -220,6 +228,15 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     }));
   }, []);
 
+  const [reportTargetType, setReportTargetType] =
+    useState<ReportTargetTypeDto | null>(null);
+
+  const showNegativeFeedbackBottomSheet = (type: ReportTargetTypeDto) => {
+    checkAuth(() => {
+      setReportTargetType(type);
+    });
+  };
+
   if (isLoading || !place || !building) {
     return null;
   }
@@ -241,6 +258,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           place={place}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
           onRegister={() => navigation.navigate('PlaceForm', {place, building})}
+          showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
         />
       ),
       order: 1,
@@ -255,6 +273,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           place={place}
           building={building}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+          showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
         />
       ),
       order: isFirstFloor ? 7 : 2, // 1층이면 맨 마지막, 아니면 입구 다음
@@ -416,6 +435,32 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
       </ScreenLayout>
+
+      {accessibilityPost?.placeAccessibility?.placeId && (
+        <PlaceDetailNegativeFeedbackBottomSheet
+          isVisible={reportTargetType !== null}
+          placeId={accessibilityPost.placeAccessibility.placeId}
+          onPressCloseButton={() => {
+            setReportTargetType(null);
+          }}
+          onPressSubmitButton={async (_placeId, reason, text) => {
+            if (!reportTargetType) {
+              return;
+            }
+
+            setLoading(new Map(loading).set('PlaceDetail', true));
+            await api.reportAccessibilityPost({
+              placeId: _placeId,
+              reason,
+              targetType: reportTargetType,
+              detail: text,
+            });
+            setReportTargetType(null);
+            setLoading(new Map(loading).set('PlaceDetail', false));
+            ToastUtils.show('신고가 접수되었습니다.');
+          }}
+        />
+      )}
     </LogParamsProvider>
   );
 };
