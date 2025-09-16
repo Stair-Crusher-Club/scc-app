@@ -50,11 +50,18 @@ export default function PlaceReviewFormScreen({
   }
 
   function gotoPlaceDetail() {
-    if (navigation.canGoBack()) {
+    const state = navigation.getState();
+    const currentRouteIndex = state.index;
+    const previousRoute =
+      currentRouteIndex > 0 ? state.routes[currentRouteIndex - 1] : null;
+
+    // 이전 화면이 PlaceDetail인 경우에만 goBack 사용
+    if (navigation.canGoBack() && previousRoute?.name === 'PlaceDetail') {
       navigation.goBack();
       return;
     }
 
+    // 이전 화면이 PlaceDetail이 아니거나 없는 경우 replace 사용
     navigation.replace('PlaceDetail', {
       placeInfo: {
         placeId: data?.place?.id!,
@@ -87,6 +94,7 @@ export default function PlaceReviewFormScreen({
   return (
     <LogParamsProvider params={{placeId}}>
       <ScreenLayout
+        safeAreaEdges={['bottom']}
         isHeaderVisible={true}
         style={{backgroundColor: color.white}}>
         {renderView()}

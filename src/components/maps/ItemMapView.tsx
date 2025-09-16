@@ -1,5 +1,5 @@
 import Geolocation from '@react-native-community/geolocation';
-import {useAtomValue, useSetAtom} from 'jotai';
+import {useSetAtom} from 'jotai';
 import React, {
   ForwardedRef,
   forwardRef,
@@ -8,9 +8,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {FlatList, Platform, View} from 'react-native';
+import {FlatList, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import MyLocationIcon from '@/assets/icon/ic_my_location.svg';
 import RedoIcon from '@/assets/icon/ic_redo.svg';
@@ -23,7 +25,6 @@ import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation.ts';
-import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
@@ -52,9 +53,6 @@ const FRefInputComp = <T extends MarkerItem>(
   const mapRef = useRef<MapViewHandle>(null);
   const cardsRef = useRef<FlatList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
-  const {text, location: searchLocation} = useAtomValue(searchQueryAtom);
-  const {sortOption, scoreUnder, hasSlope, isRegistered} =
-    useAtomValue(filterAtom);
   const [cardHeight, setCardHeight] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
@@ -74,12 +72,6 @@ const FRefInputComp = <T extends MarkerItem>(
       },
     );
   };
-
-  useEffect(() => {
-    if (items.length > 0) {
-      onItemSelect(items[0], false);
-    }
-  }, [text, searchLocation, sortOption, scoreUnder, hasSlope, isRegistered]);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
@@ -113,6 +105,14 @@ const FRefInputComp = <T extends MarkerItem>(
     },
   }));
 
+  useEffect(() => {
+    if (items.length > 0) {
+      onItemSelect(items[0], false);
+    } else {
+      setSelectedItemId(null);
+    }
+  }, [items]);
+
   function onItemSelect(
     item: T,
     shouldAnimateToPoint: boolean,
@@ -143,14 +143,16 @@ const FRefInputComp = <T extends MarkerItem>(
         mapRef={mapRef}
         items={items}
         onCameraIdle={onCameraIdle}
-        selectedItemId={selectedItemId}
+        /*
+         * 간단하게 하려면 selectedItemId를 그대로 넘기면 되지만,
+         * 이렇게 하니 일단 모든 마커가 일반 사이즈로 그려진 다음 onItemSelect()로 인해 items[0]의 마커가 커지는 버벅임이 발생한다.
+         * 더 자연스러운 애니메이션을 위해, 데이터 로딩 ~ selectedItemId 설정이 완료되지 않은 사이에 items[0]으로 fallback을 해준다.
+         */
+        selectedItemId={selectedItemId ?? (items && items[0]?.id)}
         mapPadding={{
-          top: 114, // 하드코딩된 값(헤더 높이), 차후 수정 필요
+          top: 40, // 하드코딩된 값(헤더 높이), 차후 수정 필요
           right: 20,
-          bottom:
-            Platform.OS === 'ios'
-              ? cardHeight
-              : insets.bottom + (items.length === 0 ? 0 : cardHeight),
+          bottom: insets.bottom + cardHeight + 20,
           left: 20,
         }}
       />
@@ -165,6 +167,7 @@ const FRefInputComp = <T extends MarkerItem>(
       />
       {isRefreshVisible && (
         <RefreshButton
+          elementName="map_refresh_button"
           activeOpacity={0.8}
           onPress={() => {
             onRefresh();
@@ -180,7 +183,10 @@ const FRefInputComp = <T extends MarkerItem>(
           paddingBottom: insets.bottom,
         }}
         pointerEvents="box-none">
-        <MyLocationButton onPress={onMyLocationPress} activeOpacity={0.7}>
+        <MyLocationButton
+          elementName="map_my_location_button"
+          onPress={onMyLocationPress}
+          activeOpacity={0.7}>
           <MyLocationIcon width={24} height={24} />
         </MyLocationButton>
         {items.length > 0 && (
@@ -224,7 +230,7 @@ const Container = styled.View`
   overflow: hidden;
 `;
 
-const MyLocationButton = styled.TouchableOpacity`
+const MyLocationButton = styled(SccTouchableOpacity)`
   shadow-color: #000;
   shadow-offset: 0px 2px;
   shadow-opacity: 0.25;
@@ -243,7 +249,7 @@ const MyLocationButton = styled.TouchableOpacity`
   align-items: center;
 `;
 
-const RefreshButton = styled.TouchableOpacity`
+const RefreshButton = styled(SccTouchableOpacity)`
   shadow-color: #000;
   shadow-offset: 0px 2px;
   shadow-opacity: 0.25;

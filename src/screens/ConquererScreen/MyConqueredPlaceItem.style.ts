@@ -1,9 +1,10 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-export const Container = styled.Pressable({
+export const Container = styled(SccPressable)({
   flexDirection: 'row',
   alignItems: 'center',
 });

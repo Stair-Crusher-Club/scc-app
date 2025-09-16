@@ -404,6 +404,73 @@ export interface CancelPlaceAccessibilityUpvoteRequestDto {
 /**
  * 
  * @export
+ * @interface CancelUpvoteRequestDto
+ */
+export interface CancelUpvoteRequestDto {
+    /**
+     * 
+     * @type {UpvoteTargetTypeDto}
+     * @memberof CancelUpvoteRequestDto
+     */
+    'targetType': UpvoteTargetTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof CancelUpvoteRequestDto
+     */
+    'id': string;
+}
+/**
+ * B2B 챌린지 입장 시 받아야 하는 폼의 개별 필드 정의
+ * @export
+ * @interface ChallengeB2bFormAvailableFieldDto
+ */
+export interface ChallengeB2bFormAvailableFieldDto {
+    /**
+     * 
+     * @type {ChallengeB2bFormAvailableFieldNameTypeDto}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'name': ChallengeB2bFormAvailableFieldNameTypeDto;
+    /**
+     * SELECT 타입 필드의 선택 옵션 목록 (SELECT 타입인 경우에만 존재)
+     * @type {Array<string>}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'options'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ChallengeB2bFormAvailableFieldNameTypeDto = {
+    ParticipantName: 'participantName',
+    CompanyName: 'companyName',
+    OrganizationName: 'organizationName',
+    EmployeeIdentificationNumber: 'employeeIdentificationNumber'
+} as const;
+
+export type ChallengeB2bFormAvailableFieldNameTypeDto = typeof ChallengeB2bFormAvailableFieldNameTypeDto[keyof typeof ChallengeB2bFormAvailableFieldNameTypeDto];
+
+
+/**
+ * B2B 챌린지의 동적 폼 설정
+ * @export
+ * @interface ChallengeB2bFormSchemaDto
+ */
+export interface ChallengeB2bFormSchemaDto {
+    /**
+     * 표시할 폼 필드 목록
+     * @type {Array<ChallengeB2bFormAvailableFieldDto>}
+     * @memberof ChallengeB2bFormSchemaDto
+     */
+    'availableFields'?: Array<ChallengeB2bFormAvailableFieldDto>;
+}
+/**
+ * 
+ * @export
  * @interface ChallengeCrusherGroupDto
  */
 export interface ChallengeCrusherGroupDto {
@@ -504,7 +571,52 @@ export interface ChallengeDto {
      * @memberof ChallengeDto
      */
     'crusherGroup'?: ChallengeCrusherGroupDto;
+    /**
+     * B2B 챌린지인지 여부
+     * @type {boolean}
+     * @memberof ChallengeDto
+     */
+    'isB2B'?: boolean;
+    /**
+     * 
+     * @type {ChallengeB2bFormSchemaDto}
+     * @memberof ChallengeDto
+     */
+    'b2bFormSchema'?: ChallengeB2bFormSchemaDto;
 }
+/**
+ * 선택형 필드의 옵션
+ * @export
+ * @interface ChallengeFormFieldOptionDto
+ */
+export interface ChallengeFormFieldOptionDto {
+    /**
+     * 실제 저장될 값
+     * @type {string}
+     * @memberof ChallengeFormFieldOptionDto
+     */
+    'value': string;
+    /**
+     * 사용자에게 표시될 라벨
+     * @type {string}
+     * @memberof ChallengeFormFieldOptionDto
+     */
+    'label': string;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ChallengeFormFieldTypeDto = {
+    Text: 'TEXT',
+    Select: 'SELECT'
+} as const;
+
+export type ChallengeFormFieldTypeDto = typeof ChallengeFormFieldTypeDto[keyof typeof ChallengeFormFieldTypeDto];
+
+
 /**
  * 
  * @export
@@ -767,6 +879,187 @@ export interface CreatePlaceFavoriteResponseDto {
      * @memberof CreatePlaceFavoriteResponseDto
      */
     'placeFavorite': PlaceFavorite;
+}
+/**
+ * 
+ * @export
+ * @interface CrusherClubActivityLogDto
+ */
+export interface CrusherClubActivityLogDto {
+    /**
+     * 활동 ID
+     * @type {string}
+     * @memberof CrusherClubActivityLogDto
+     */
+    'id': string;
+    /**
+     * 활동 제목
+     * @type {string}
+     * @memberof CrusherClubActivityLogDto
+     */
+    'title': string;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherClubActivityLogDto
+     */
+    'activityDoneAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherClubActivityLogDto
+     */
+    'canceledAt'?: EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const CrusherClubCrewTypeDto = {
+    EditorCrew: 'EDITOR_CREW',
+    ConquerCrew: 'CONQUER_CREW'
+} as const;
+
+export type CrusherClubCrewTypeDto = typeof CrusherClubCrewTypeDto[keyof typeof CrusherClubCrewTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface CrusherClubDto
+ */
+export interface CrusherClubDto {
+    /**
+     * 시즌 (예: 25년 가을)
+     * @type {string}
+     * @memberof CrusherClubDto
+     */
+    'season': string;
+    /**
+     * 시작 일시 (yyyy-MM-dd)
+     * @type {string}
+     * @memberof CrusherClubDto
+     */
+    'startDate': string;
+    /**
+     * 종료 일시 (yyyy-MM-dd)
+     * @type {string}
+     * @memberof CrusherClubDto
+     */
+    'endDate': string;
+    /**
+     * 
+     * @type {CrusherClubCrewTypeDto}
+     * @memberof CrusherClubDto
+     */
+    'crewType': CrusherClubCrewTypeDto;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const CrusherClubQuestCompleteStampTypeDto = {
+    StartingDay: 'STARTING_DAY',
+    ShortReview1: 'SHORT_REVIEW_1',
+    ShortReview2: 'SHORT_REVIEW_2',
+    ShortReview3: 'SHORT_REVIEW_3',
+    ShortReview4: 'SHORT_REVIEW_4',
+    ShortReview5: 'SHORT_REVIEW_5',
+    ShortReview6: 'SHORT_REVIEW_6',
+    LongReview1: 'LONG_REVIEW_1',
+    LongReview2: 'LONG_REVIEW_2',
+    AppUsageReview: 'APP_USAGE_REVIEW',
+    ConquerQuest: 'CONQUER_QUEST',
+    WarmingUpConquer: 'WARMING_UP_CONQUER',
+    Conquer1: 'CONQUER_1',
+    Conquer2: 'CONQUER_2',
+    Conquer3: 'CONQUER_3',
+    Conquer4: 'CONQUER_4',
+    DailyLifeQuest: 'DAILY_LIFE_QUEST'
+} as const;
+
+export type CrusherClubQuestCompleteStampTypeDto = typeof CrusherClubQuestCompleteStampTypeDto[keyof typeof CrusherClubQuestCompleteStampTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface CrusherClubQuestDto
+ */
+export interface CrusherClubQuestDto {
+    /**
+     * 퀘스트 ID
+     * @type {string}
+     * @memberof CrusherClubQuestDto
+     */
+    'id': string;
+    /**
+     * 퀘스트 제목
+     * @type {string}
+     * @memberof CrusherClubQuestDto
+     */
+    'title': string;
+    /**
+     * 
+     * @type {CrusherClubQuestCompleteStampTypeDto}
+     * @memberof CrusherClubQuestDto
+     */
+    'completeStampType': CrusherClubQuestCompleteStampTypeDto;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherClubQuestDto
+     */
+    'completedAt'?: EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const CrusherClubQuestTypeDto = {
+    StartingDay: 'STARTING_DAY',
+    ShortReview: 'SHORT_REVIEW',
+    LongReview: 'LONG_REVIEW',
+    AppUsageReview: 'APP_USAGE_REVIEW',
+    ConquerQuest: 'CONQUER_QUEST',
+    WarmingUpConquer: 'WARMING_UP_CONQUER',
+    Conquer: 'CONQUER',
+    DailyLifeQuest: 'DAILY_LIFE_QUEST'
+} as const;
+
+export type CrusherClubQuestTypeDto = typeof CrusherClubQuestTypeDto[keyof typeof CrusherClubQuestTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface CurrentCrusherActivityDto
+ */
+export interface CurrentCrusherActivityDto {
+    /**
+     * 
+     * @type {CrusherClubDto}
+     * @memberof CurrentCrusherActivityDto
+     */
+    'crusherClub': CrusherClubDto;
+    /**
+     * 
+     * @type {Array<CrusherClubQuestDto>}
+     * @memberof CurrentCrusherActivityDto
+     */
+    'quests': Array<CrusherClubQuestDto>;
+    /**
+     * 사용자의 활동 로그
+     * @type {Array<CrusherClubActivityLogDto>}
+     * @memberof CurrentCrusherActivityDto
+     */
+    'activityLogs'?: Array<CrusherClubActivityLogDto>;
 }
 /**
  * 
@@ -1166,6 +1459,19 @@ export interface GetCountForNextRankPost200Response {
 /**
  * 
  * @export
+ * @interface GetCurrentCrusherActivityResponseDto
+ */
+export interface GetCurrentCrusherActivityResponseDto {
+    /**
+     * 
+     * @type {CurrentCrusherActivityDto}
+     * @memberof GetCurrentCrusherActivityResponseDto
+     */
+    'currentCrusherActivity'?: CurrentCrusherActivityDto;
+}
+/**
+ * 
+ * @export
  * @interface GetExternalAccessibilityPostRequest
  */
 export interface GetExternalAccessibilityPostRequest {
@@ -1313,6 +1619,25 @@ export interface GivePlaceAccessibilityUpvoteRequestDto {
 /**
  * 
  * @export
+ * @interface GiveUpvoteRequestDto
+ */
+export interface GiveUpvoteRequestDto {
+    /**
+     * 
+     * @type {UpvoteTargetTypeDto}
+     * @memberof GiveUpvoteRequestDto
+     */
+    'targetType': UpvoteTargetTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof GiveUpvoteRequestDto
+     */
+    'id': string;
+}
+/**
+ * 
+ * @export
  * @interface HomeBannerDto
  */
 export interface HomeBannerDto {
@@ -1394,7 +1719,7 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
 
 
 /**
- * B2B 챌린지 참여 시 회사명과 본인의 이름을 입력받는 DTO. 둘 다 존재하거나 둘 다 null이어야 함.
+ * B2B 챌린지 참여 시 회사 정보를 입력 받는 DTO.
  * @export
  * @interface JoinChallengeRequestCompanyJoinInfoDto
  */
@@ -1404,13 +1729,25 @@ export interface JoinChallengeRequestCompanyJoinInfoDto {
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
-    'companyName': string;
+    'companyName'?: string;
     /**
      * 본인의 이름
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
-    'participantName': string;
+    'participantName'?: string;
+    /**
+     * 조직명
+     * @type {string}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'organizationName'?: string;
+    /**
+     * 사원번호
+     * @type {string}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'employeeIdentificationNumber'?: string;
 }
 /**
  * 
@@ -2210,6 +2547,32 @@ export type RecommendedMobilityTypeDto = typeof RecommendedMobilityTypeDto[keyof
 /**
  * 
  * @export
+ * @interface RecordCrusherClubActivityRequestDto
+ */
+export interface RecordCrusherClubActivityRequestDto {
+    /**
+     * 
+     * @type {CrusherClubQuestTypeDto}
+     * @memberof RecordCrusherClubActivityRequestDto
+     */
+    'questType': CrusherClubQuestTypeDto;
+}
+/**
+ * 
+ * @export
+ * @interface RecordCrusherClubActivityResponseDto
+ */
+export interface RecordCrusherClubActivityResponseDto {
+    /**
+     * 
+     * @type {CurrentCrusherActivityDto}
+     * @memberof RecordCrusherClubActivityResponseDto
+     */
+    'currentCrusherActivity'?: CurrentCrusherActivityDto;
+}
+/**
+ * 
+ * @export
  * @interface RectangleSearchRegionDto
  */
 export interface RectangleSearchRegionDto {
@@ -2621,8 +2984,21 @@ export interface ReportAccessibilityPostRequest {
      * 신고할 장소의 아이디
      * @type {string}
      * @memberof ReportAccessibilityPostRequest
+     * @deprecated
      */
     'placeId': string;
+    /**
+     * 
+     * @type {ReportTargetTypeDto}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'targetType'?: ReportTargetTypeDto;
+    /**
+     * 신고하고자 하는 정보의 id
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'id'?: string;
     /**
      * 
      * @type {AccessibilityReportReason}
@@ -2635,12 +3011,6 @@ export interface ReportAccessibilityPostRequest {
      * @memberof ReportAccessibilityPostRequest
      */
     'detail'?: string;
-    /**
-     * 
-     * @type {ReportTargetType}
-     * @memberof ReportAccessibilityPostRequest
-     */
-    'targetType'?: ReportTargetType;
 }
 /**
  * 
@@ -2648,13 +3018,14 @@ export interface ReportAccessibilityPostRequest {
  * @enum {string}
  */
 
-export const ReportTargetType = {
+export const ReportTargetTypeDto = {
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
+    BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
-    Toilet: 'TOILET'
+    ToiletReview: 'TOILET_REVIEW'
 } as const;
 
-export type ReportTargetType = typeof ReportTargetType[keyof typeof ReportTargetType];
+export type ReportTargetTypeDto = typeof ReportTargetTypeDto[keyof typeof ReportTargetTypeDto];
 
 
 /**
@@ -3183,6 +3554,20 @@ export interface UpdateUserInfoPostRequest {
     'isNewsLetterSubscriptionAgreed'?: boolean;
 }
 /**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const UpvoteTargetTypeDto = {
+    PlaceAccessibility: 'PLACE_ACCESSIBILITY',
+    BuildingAccessibility: 'BUILDING_ACCESSIBILITY'
+} as const;
+
+export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof UpvoteTargetTypeDto];
+
+
+/**
  * 유저 정보.
  * @export
  * @interface User
@@ -3302,6 +3687,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         cancelBuildingAccessibilityUpvotePost: async (cancelBuildingAccessibilityUpvoteRequestDto: CancelBuildingAccessibilityUpvoteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -3342,6 +3728,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         cancelPlaceAccessibilityUpvotePost: async (cancelPlaceAccessibilityUpvoteRequestDto: CancelPlaceAccessibilityUpvoteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -3371,6 +3758,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(cancelPlaceAccessibilityUpvoteRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary \'도움이 돼요\'를 취소한다.
+         * @param {CancelUpvoteRequestDto} cancelUpvoteRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelUpvotePost: async (cancelUpvoteRequestDto: CancelUpvoteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'cancelUpvoteRequestDto' is not null or undefined
+            assertParamExists('cancelUpvotePost', 'cancelUpvoteRequestDto', cancelUpvoteRequestDto)
+            const localVarPath = `/cancelUpvote`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(cancelUpvoteRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -3997,6 +4424,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCurrentCrusherActivityPost: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/getCurrentCrusherActivity`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 공공 접근성 정보를 확인한다.
          * @param {GetExternalAccessibilityPostRequest} getExternalAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -4228,6 +4689,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         giveBuildingAccessibilityUpvotePost: async (giveBuildingAccessibilityUpvoteRequestDto: GiveBuildingAccessibilityUpvoteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -4268,6 +4730,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         givePlaceAccessibilityUpvotePost: async (givePlaceAccessibilityUpvoteRequestDto: GivePlaceAccessibilityUpvoteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -4297,6 +4760,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(givePlaceAccessibilityUpvoteRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary \'도움이 돼요\'를 준다.
+         * @param {GiveUpvoteRequestDto} giveUpvoteRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        giveUpvotePost: async (giveUpvoteRequestDto: GiveUpvoteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'giveUpvoteRequestDto' is not null or undefined
+            assertParamExists('giveUpvotePost', 'giveUpvoteRequestDto', giveUpvoteRequestDto)
+            const localVarPath = `/giveUpvote`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(giveUpvoteRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4769,6 +5272,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(loginWithKakaoPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 크러셔 활동을 기록한다.
+         * @param {RecordCrusherClubActivityRequestDto} recordCrusherClubActivityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordCrusherClubActivityPost: async (recordCrusherClubActivityRequestDto: RecordCrusherClubActivityRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'recordCrusherClubActivityRequestDto' is not null or undefined
+            assertParamExists('recordCrusherClubActivityPost', 'recordCrusherClubActivityRequestDto', recordCrusherClubActivityRequestDto)
+            const localVarPath = `/recordCrusherClubActivity`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(recordCrusherClubActivityRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -5310,6 +5853,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async cancelBuildingAccessibilityUpvotePost(cancelBuildingAccessibilityUpvoteRequestDto: CancelBuildingAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
@@ -5321,10 +5865,22 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async cancelPlaceAccessibilityUpvotePost(cancelPlaceAccessibilityUpvoteRequestDto: CancelPlaceAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cancelPlaceAccessibilityUpvotePost(cancelPlaceAccessibilityUpvoteRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary \'도움이 돼요\'를 취소한다.
+         * @param {CancelUpvoteRequestDto} cancelUpvoteRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cancelUpvotePost(cancelUpvoteRequestDto: CancelUpvoteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cancelUpvotePost(cancelUpvoteRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -5502,6 +6058,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCurrentCrusherActivityPost(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetCurrentCrusherActivityResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCurrentCrusherActivityPost(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 공공 접근성 정보를 확인한다.
          * @param {GetExternalAccessibilityPostRequest} getExternalAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -5569,6 +6135,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async giveBuildingAccessibilityUpvotePost(giveBuildingAccessibilityUpvoteRequestDto: GiveBuildingAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
@@ -5580,10 +6147,22 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto: GivePlaceAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary \'도움이 돼요\'를 준다.
+         * @param {GiveUpvoteRequestDto} giveUpvoteRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async giveUpvotePost(giveUpvoteRequestDto: GiveUpvoteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.giveUpvotePost(giveUpvoteRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -5716,6 +6295,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async loginWithKakaoPost(loginWithKakaoPostRequest: LoginWithKakaoPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoginResultDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.loginWithKakaoPost(loginWithKakaoPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 크러셔 활동을 기록한다.
+         * @param {RecordCrusherClubActivityRequestDto} recordCrusherClubActivityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async recordCrusherClubActivityPost(recordCrusherClubActivityRequestDto: RecordCrusherClubActivityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecordCrusherClubActivityResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recordCrusherClubActivityPost(recordCrusherClubActivityRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -5876,6 +6466,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         cancelBuildingAccessibilityUpvotePost(cancelBuildingAccessibilityUpvoteRequestDto: CancelBuildingAccessibilityUpvoteRequestDto, options?: any): AxiosPromise<void> {
@@ -5886,10 +6477,21 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
          * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         cancelPlaceAccessibilityUpvotePost(cancelPlaceAccessibilityUpvoteRequestDto: CancelPlaceAccessibilityUpvoteRequestDto, options?: any): AxiosPromise<void> {
             return localVarFp.cancelPlaceAccessibilityUpvotePost(cancelPlaceAccessibilityUpvoteRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary \'도움이 돼요\'를 취소한다.
+         * @param {CancelUpvoteRequestDto} cancelUpvoteRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelUpvotePost(cancelUpvoteRequestDto: CancelUpvoteRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.cancelUpvotePost(cancelUpvoteRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6050,6 +6652,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCurrentCrusherActivityPost(options?: any): AxiosPromise<GetCurrentCrusherActivityResponseDto> {
+            return localVarFp.getCurrentCrusherActivityPost(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 공공 접근성 정보를 확인한다.
          * @param {GetExternalAccessibilityPostRequest} getExternalAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -6111,6 +6722,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         giveBuildingAccessibilityUpvotePost(giveBuildingAccessibilityUpvoteRequestDto: GiveBuildingAccessibilityUpvoteRequestDto, options?: any): AxiosPromise<void> {
@@ -6121,10 +6733,21 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto: GivePlaceAccessibilityUpvoteRequestDto, options?: any): AxiosPromise<void> {
             return localVarFp.givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary \'도움이 돼요\'를 준다.
+         * @param {GiveUpvoteRequestDto} giveUpvoteRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        giveUpvotePost(giveUpvoteRequestDto: GiveUpvoteRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.giveUpvotePost(giveUpvoteRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6245,6 +6868,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         loginWithKakaoPost(loginWithKakaoPostRequest: LoginWithKakaoPostRequest, options?: any): AxiosPromise<LoginResultDto> {
             return localVarFp.loginWithKakaoPost(loginWithKakaoPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 크러셔 활동을 기록한다.
+         * @param {RecordCrusherClubActivityRequestDto} recordCrusherClubActivityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordCrusherClubActivityPost(recordCrusherClubActivityRequestDto: RecordCrusherClubActivityRequestDto, options?: any): AxiosPromise<RecordCrusherClubActivityResponseDto> {
+            return localVarFp.recordCrusherClubActivityPost(recordCrusherClubActivityRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6391,6 +7024,7 @@ export class DefaultApi extends BaseAPI {
      * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
      * @param {CancelBuildingAccessibilityUpvoteRequestDto} cancelBuildingAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
@@ -6403,11 +7037,24 @@ export class DefaultApi extends BaseAPI {
      * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 취소한다.
      * @param {CancelPlaceAccessibilityUpvoteRequestDto} cancelPlaceAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
     public cancelPlaceAccessibilityUpvotePost(cancelPlaceAccessibilityUpvoteRequestDto: CancelPlaceAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).cancelPlaceAccessibilityUpvotePost(cancelPlaceAccessibilityUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary \'도움이 돼요\'를 취소한다.
+     * @param {CancelUpvoteRequestDto} cancelUpvoteRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public cancelUpvotePost(cancelUpvoteRequestDto: CancelUpvoteRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).cancelUpvotePost(cancelUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6601,6 +7248,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getCurrentCrusherActivityPost(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCurrentCrusherActivityPost(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 공공 접근성 정보를 확인한다.
      * @param {GetExternalAccessibilityPostRequest} getExternalAccessibilityPostRequest 
      * @param {*} [options] Override http request option.
@@ -6674,6 +7332,7 @@ export class DefaultApi extends BaseAPI {
      * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
      * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
@@ -6686,11 +7345,24 @@ export class DefaultApi extends BaseAPI {
      * @summary 장소에 대해 \'이 정보가 도움이 돼요\'를 준다.
      * @param {GivePlaceAccessibilityUpvoteRequestDto} givePlaceAccessibilityUpvoteRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
     public givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto: GivePlaceAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary \'도움이 돼요\'를 준다.
+     * @param {GiveUpvoteRequestDto} giveUpvoteRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public giveUpvotePost(giveUpvoteRequestDto: GiveUpvoteRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).giveUpvotePost(giveUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6835,6 +7507,18 @@ export class DefaultApi extends BaseAPI {
      */
     public loginWithKakaoPost(loginWithKakaoPostRequest: LoginWithKakaoPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).loginWithKakaoPost(loginWithKakaoPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 크러셔 활동을 기록한다.
+     * @param {RecordCrusherClubActivityRequestDto} recordCrusherClubActivityRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public recordCrusherClubActivityPost(recordCrusherClubActivityRequestDto: RecordCrusherClubActivityRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).recordCrusherClubActivityPost(recordCrusherClubActivityRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,9 +1,9 @@
 import {SccButton} from '@/components/atoms';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {useEffect, useRef, useState} from 'react';
 import {Animated, StyleProp, ViewStyle} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 interface Props {
@@ -23,7 +23,6 @@ export default function ChallengeDetailStickyActionBar({
   const [display, setDisplay] = useState<'flex' | 'none'>(
     visible ? 'flex' : 'none',
   );
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -66,25 +65,26 @@ export default function ChallengeDetailStickyActionBar({
               color: 'rgba(0, 0, 0, 0.13)',
             },
           ],
-          minHeight: 96 + insets.bottom,
         },
         animatedStyle,
         style,
       ]}
       pointerEvents={visible ? 'auto' : 'none'}>
-      <SccButton
-        text="장소 정복하러 가기"
-        textColor="white"
-        buttonColor="brandColor"
-        fontFamily={font.pretendardBold}
-        onPress={onGoConquer}
-      />
+      <SafeAreaWrapper edges={['bottom']}>
+        <SccButton
+          text="장소 정복하러 가기"
+          textColor="white"
+          buttonColor="brandColor"
+          fontFamily={font.pretendardBold}
+          onPress={onGoConquer}
+          elementName="challenge_detail_go_conquer"
+        />
+      </SafeAreaWrapper>
     </ButtonContainer>
   );
 }
 
 const ButtonContainer = styled(Animated.View)({
-  height: 96,
   backgroundColor: color.white,
-  padding: 20,
+  padding: '20px 20px 12px',
 });

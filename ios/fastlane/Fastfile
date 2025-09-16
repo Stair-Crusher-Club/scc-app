@@ -54,6 +54,10 @@ def bundle_version()
   get_info_plist_value(path: info_plist_path, key: 'CFBundleVersion')
 end
 
+def git_current_branch()
+  sh("git rev-parse --abbrev-ref HEAD").strip
+end
+
 platform :ios do
   desc ""
 
@@ -155,6 +159,7 @@ platform :ios do
 
   desc "Make IPA files for AppStore and Firebase Distribution. After this, you can upload the ipa files to Firebase Distribution and AppStore Connect using `fastlane ios firebase` or `fastlane ios itc`"
   lane :export do |options|
+    should_push = UI.confirm("Do you want to add commit and tag and push to GitHub?")
     sh("rm -rf #{File.expand_path("../build/#{options[:scheme]}")}")
     increment_version_number(
       version_number: options[:version]
@@ -166,10 +171,14 @@ platform :ios do
     export_appstore(scheme: options[:scheme])
     export_firebase(scheme: options[:scheme])
 
-    # Add git tag with version name for production only
-    if options[:scheme] == "production"
-      tag_name = "v#{options[:version]}-ios"
+    if should_push
+      version_name = options[:version]
+      sh("git add ../sccReactNative/Info.plist ../sccReactNativeTests/Info.plist ../sccReactNative.xcodeproj/project.pbxproj")
+      sh("git commit -m \"Release ios #{version_name}\"")
+      tag_name = "v#{version_name}-ios"
       sh("git tag #{tag_name}")
+      branch = git_current_branch()
+      sh("git push origin #{branch}")
       sh("git push origin #{tag_name}")
     end
   end
@@ -186,11 +195,6 @@ platform :ios do
     firebase(scheme: options[:scheme], version: version)
     itc(scheme: options[:scheme])
 
-    # Add git tag with version name for production only
-    if options[:scheme] == "production"
-      tag_name = "v#{version}-ios"
-      sh("git tag #{tag_name}")
-      sh("git push origin #{tag_name}")
-    end
+    # Commit/Tag/Push is handled inside :export lane after version bump
   end
 end

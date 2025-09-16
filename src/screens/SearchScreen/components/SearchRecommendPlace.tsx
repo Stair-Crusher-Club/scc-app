@@ -5,12 +5,12 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import useAppComponents from '@/hooks/useAppComponents';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import {filterAtom, FilterOptions, SortOption} from '../atoms';
 import SearchCategoryIcon, {Icons} from './SearchHeader/SearchCategoryIcon';
-import {LogClick} from '@/logging/LogClick';
 
 type Status =
   | 'stair1_restaurant'
@@ -177,39 +177,39 @@ export default function SearchRecommendPlace({
             },
             idx,
           ) => (
-            <LogClick elementName={`recommend-place-${description}-${idx}`}>
-              <RecommendPlaceItem
-                key={`recommend-place-${description}-${idx}`}
-                status={status}
-                onPress={() =>
-                  onPressFilter({
-                    scoreUnder,
-                    hasSlope,
-                    isRegistered,
-                    keyword,
-                  })
-                }>
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 2}}>
-                  <SearchCategoryIcon
-                    icon={category}
-                    size={16}
-                    color={
-                      ColorMap[status].iconColor
-                        ? ColorMap[status].iconColor
-                        : ColorMap[status].scoreLabelText
-                    }
-                    isOn={category === 'CAFE'}
-                  />
-                  <ScoreLabelText status={status}>
-                    {scoreUnder
-                      ? `접근 레벨 ${scoreUnder} 이하`
-                      : '정복이 필요해!'}
-                  </ScoreLabelText>
-                </View>
-                <Text>{description}</Text>
-              </RecommendPlaceItem>
-            </LogClick>
+            <RecommendPlaceItem
+              key={`recommend-place-${description}-${idx}`}
+              elementName="recommend_place"
+              logParams={{keyword, category, status, description, index: idx}}
+              status={status}
+              onPress={() =>
+                onPressFilter({
+                  scoreUnder,
+                  hasSlope,
+                  isRegistered,
+                  keyword,
+                })
+              }>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 2}}>
+                <SearchCategoryIcon
+                  icon={category}
+                  size={16}
+                  color={
+                    ColorMap[status].iconColor
+                      ? ColorMap[status].iconColor
+                      : ColorMap[status].scoreLabelText
+                  }
+                  isOn={category === 'CAFE'}
+                />
+                <ScoreLabelText status={status}>
+                  {scoreUnder
+                    ? `접근 레벨 ${scoreUnder} 이하`
+                    : '정복이 필요해!'}
+                </ScoreLabelText>
+              </View>
+              <Text>{description}</Text>
+            </RecommendPlaceItem>
           ),
         )}
       </ScrollView>
@@ -223,7 +223,7 @@ const TitleText = styled.Text`
   color: ${color.black};
 `;
 
-const RecommendPlaceItem = styled.TouchableOpacity<{
+const RecommendPlaceItem = styled(SccTouchableOpacity)<{
   status: Status;
 }>`
   padding: 10px 12px;

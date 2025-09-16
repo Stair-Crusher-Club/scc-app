@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 
 export const Wrapper = styled.View({
@@ -18,7 +19,7 @@ export const StickyScrollNavigation = styled.View<{show: boolean}>(props => ({
   transform: props.show ? 'translateY(0)' : 'translateY(-999px)',
 }));
 
-export const Menu = styled.Pressable<{active: boolean}>(props => ({
+export const Menu = styled(SccPressable)<{active: boolean}>(props => ({
   paddingHorizontal: 10,
   paddingBottom: 8,
   borderBottomWidth: 3,

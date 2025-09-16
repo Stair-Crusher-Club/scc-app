@@ -9,7 +9,7 @@ import VersionRow from './components/VersionRow';
 
 const SettingScreen = ({}: ScreenProps<'Setting'>) => {
   return (
-    <ScreenLayout isHeaderVisible>
+    <ScreenLayout isHeaderVisible safeAreaEdges={['bottom']}>
       <View style={{height: 26}} />
       <VersionRow />
       <View style={{flex: 1}} />

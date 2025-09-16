@@ -21,7 +21,9 @@ export const CloseAppBar = ({
       <S.ContentsContainer>
         <S.SpaceButton />
         <S.Title>{title}</S.Title>
-        <S.CloseButton onPress={onTapCloseButton}>
+        <S.CloseButton
+          elementName="app_bar_close_button"
+          onPress={onTapCloseButton}>
           <ExitIcon width={24} height={24} color={color.black} />
         </S.CloseButton>
       </S.ContentsContainer>

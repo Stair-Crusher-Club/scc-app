@@ -1,40 +1,87 @@
 import CloseIcon from '@/assets/icon/close.svg';
 import {SccButton} from '@/components/atoms';
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
 import {isEmpty} from 'lodash';
 import React, {useState} from 'react';
-import {Modal, ScrollView, TouchableOpacity, View} from 'react-native';
+
+import {Modal, ScrollView, View} from 'react-native';
+
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
-import CompanySelector from './CompanySelector';
+import {ScreenLayout} from '@/components/ScreenLayout';
+import type {ChallengeB2bFormSchemaDto} from '@/generated-sources/openapi/api';
 import Input from './Input';
+import CompanySelector from './CompanySelector';
 
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
   onPressCloseButton: () => void;
-  onPressConfirmButton: (companyName: string, participantName: string) => void;
+  onPressConfirmButton: (
+    companyName: string,
+    participantName: string,
+    organizationName: string,
+    employeeNumber: string,
+  ) => void;
+  formSchema?: ChallengeB2bFormSchemaDto;
 }
 
 const ChallengeDetailCompanyModal = ({
   isVisible,
   onPressCloseButton,
   onPressConfirmButton,
+  formSchema,
 }: ChallengeDetailCompanyBottomSheetProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [participantName, setParticipantName] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
+  const [employeeNumber, setEmployeeNumber] = useState('');
 
   const reset = () => {
     setCompanyName('');
     setParticipantName('');
+    setOrganizationName('');
+    setEmployeeNumber('');
+  };
+
+  const getCompanyField = () => {
+    return formSchema?.availableFields?.find(
+      field => field.name === 'companyName',
+    );
+  };
+
+  const isFormValid = () => {
+    if (!formSchema?.availableFields) return false;
+    return formSchema.availableFields.every(field => {
+      let value = '';
+      switch (field.name) {
+        case 'participantName':
+          value = participantName;
+          break;
+        case 'companyName':
+          value = companyName;
+          break;
+        case 'organizationName':
+          value = organizationName;
+          break;
+        case 'employeeIdentificationNumber':
+          value = employeeNumber;
+          break;
+      }
+      return !isEmpty(value);
+    });
   };
 
   return (
     <Modal visible={isVisible} statusBarTranslucent>
-      <SafeAreaWrapper edges={['top', 'bottom']} style={{flex: 1}}>
-        <TouchableOpacity
+      <ScreenLayout
+        isHeaderVisible={false}
+        safeAreaEdges={['top', 'bottom']}
+        style={{flex: 1}}>
+        <SccTouchableOpacity
+          elementName="challenge_modal_close_button"
           onPress={() => {
             onPressCloseButton();
             reset();
@@ -45,11 +92,11 @@ const ChallengeDetailCompanyModal = ({
             paddingVertical: 13,
           }}>
           <CloseIcon width={24} height={24} color={color.gray90} />
-        </TouchableOpacity>
+        </SccTouchableOpacity>
         <ScrollView
           bounces={false}
           contentContainerStyle={{
-            flex: 1,
+            flexGrow: 1,
             paddingHorizontal: 20,
             gap: 36,
           }}>
@@ -57,45 +104,86 @@ const ChallengeDetailCompanyModal = ({
             <Title>챌린지 참여를 환영합니다!</Title>
             <Description>서비스 사용에 필요한 정보를 알려주세요.</Description>
           </View>
-          <Input
-            placeholder="이름을 입력해주세요"
-            returnKeyType="next"
-            value={participantName}
-            onChangeText={setParticipantName}
-            isClearable={true}
-          />
-          <Input
-            placeholder="소속 계열사를 입력해주세요"
-            returnKeyType="next"
-            value={companyName}
-            isClearable={true}
-            onPress={() => setIsOpen(true)}
-          />
+          {formSchema?.availableFields?.some(
+            field => field.name === 'participantName',
+          ) && (
+            <Input
+              placeholder="이름을 입력해주세요"
+              returnKeyType="next"
+              value={participantName}
+              onChangeText={setParticipantName}
+              isClearable={true}
+            />
+          )}
+          {formSchema?.availableFields?.some(
+            field => field.name === 'companyName',
+          ) && (
+            <Input
+              placeholder="소속 계열사를 입력해주세요"
+              returnKeyType="next"
+              value={companyName}
+              isClearable={true}
+              onPress={() => setIsOpen(true)}
+            />
+          )}
+          {formSchema?.availableFields?.some(
+            field => field.name === 'organizationName',
+          ) && (
+            <Input
+              placeholder="조직을 입력해주세요 (예: CSR팀)"
+              returnKeyType="next"
+              value={organizationName}
+              onChangeText={setOrganizationName}
+              isClearable={true}
+            />
+          )}
+          {formSchema?.availableFields?.some(
+            field => field.name === 'employeeIdentificationNumber',
+          ) && (
+            <Input
+              placeholder="사원번호를 입력해주세요"
+              returnKeyType="done"
+              value={employeeNumber}
+              onChangeText={setEmployeeNumber}
+              isClearable={true}
+            />
+          )}
         </ScrollView>
         <ButtonContainer>
           <ConfirmButton
-            isDisabled={isEmpty(companyName) || isEmpty(participantName)}
+            isDisabled={!isFormValid()}
             text="확인"
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
             onPress={() => {
-              onPressConfirmButton(companyName, participantName);
+              onPressConfirmButton(
+                companyName,
+                participantName,
+                organizationName,
+                employeeNumber,
+              );
               reset();
             }}
+            elementName="challenge_company_modal_confirm"
           />
         </ButtonContainer>
-      </SafeAreaWrapper>
+      </ScreenLayout>
 
-      <BottomSheet
-        isVisible={isOpen}
-        onPressBackground={() => setIsOpen(false)}>
-        <CompanySelector
-          value={companyName}
-          onChange={setCompanyName}
-          onClose={() => setIsOpen(false)}
-        />
-      </BottomSheet>
+      {formSchema?.availableFields?.some(
+        field => field.name === 'companyName',
+      ) && (
+        <BottomSheet
+          isVisible={isOpen}
+          onPressBackground={() => setIsOpen(false)}>
+          <CompanySelector
+            value={companyName}
+            onChange={setCompanyName}
+            onClose={() => setIsOpen(false)}
+            options={getCompanyField()!.options!}
+          />
+        </BottomSheet>
+      )}
     </Modal>
   );
 };

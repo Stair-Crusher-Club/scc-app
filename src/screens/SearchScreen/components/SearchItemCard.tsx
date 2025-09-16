@@ -1,6 +1,6 @@
 import {useAtom, useAtomValue} from 'jotai';
 import React, {memo} from 'react';
-import {TouchableOpacity, View} from 'react-native';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -8,17 +8,18 @@ import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {SccPressable} from '@/components/SccPressable';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
-import {LogClick} from '@/logging/LogClick';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
-import {LogViewAndClick} from '@/logging/LogViewAndClick';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import Button from '@/screens/SearchScreen/components/Button';
+import XSButton from '@/screens/SearchScreen/components/XSButton';
+import LGButton from '@/screens/SearchScreen/components/LGButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -102,18 +103,22 @@ function SearchItemCard({
     });
   };
 
-  const onRegister = (isBuilding: boolean) => {
+  const onRegister = (type: 'building' | 'place' | 'review') => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);
-      if (isBuilding) {
+      if (type === 'building') {
         navigation.navigate('BuildingForm', {
           place: item.place,
           building: item.building,
         });
-      } else {
+      } else if (type === 'place') {
         navigation.navigate('PlaceForm', {
           place: item.place,
           building: item.building,
+        });
+      } else if (type === 'review') {
+        navigation.navigate('ReviewForm/Place', {
+          placeId: item.place.id,
         });
       }
     });
@@ -122,6 +127,8 @@ function SearchItemCard({
     item.accessibilityInfo?.reviewCount &&
     item.accessibilityInfo.reviewCount > 0
   );
+  const isReviewEnabledCategory =
+    item.place?.category === 'RESTAURANT' || item.place?.category === 'CAFE';
 
   return (
     <LogParamsProvider
@@ -130,122 +137,146 @@ function SearchItemCard({
         place_name: item.place.name,
         place_accessibility_score: item.accessibilityInfo?.accessibilityScore,
       }}>
-      <LogViewAndClick elementName="place_search_item_card">
-        <Container isHeightFlex={isHeightFlex} onPress={onPress}>
-          <InfoArea>
-            <LabelIconArea>
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                <ScoreLabel
-                  score={getPlaceAccessibilityScore({
-                    score: item.accessibilityInfo?.accessibilityScore,
-                    hasPlaceAccessibility: item.hasPlaceAccessibility,
-                    hasBuildingAccessibility: item.hasBuildingAccessibility,
-                  })}
-                  isIconVisible
-                />
-              </View>
-              <IconArea>
-                <TouchableOpacity
-                  style={{
-                    paddingLeft: 5,
-                    paddingRight: 5,
-                    paddingBottom: 5,
-                  }}
-                  activeOpacity={0.6}
-                  onPress={() => checkAuth(onFavorite)}>
-                  {isFavorite ? (
-                    <BookmarkIconOn
-                      color={color.brandColor}
-                      width={24}
-                      height={24}
-                    />
-                  ) : (
-                    <BookmarkIconOff
-                      color={color.gray70}
-                      width={24}
-                      height={24}
-                    />
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    paddingLeft: 5,
-                    paddingBottom: 5,
-                  }}
-                  activeOpacity={0.6}
-                  onPress={() => checkAuth(onShare)}>
-                  <ShareIcon color={color.gray70} width={24} height={24} />
-                </TouchableOpacity>
-              </IconArea>
-            </LabelIconArea>
-            <TitleArea>
-              <TextWrapper>
-                <TitleText>{item.place.name}</TitleText>
-                <CategoryText>
-                  {getCategoryText(item.place.category)}
-                </CategoryText>
-              </TextWrapper>
-              <LocationBox>
-                <DistanceText>{distanceText}</DistanceText>
-                <LocationDivider />
-                <AddressText>{item.place.address}</AddressText>
-              </LocationBox>
-            </TitleArea>
-            <ExtraArea>
-              <Tags
-                texts={tagTexts}
-                hasReview={hasReview}
-                reviewCount={item.accessibilityInfo?.reviewCount}
+      <Container
+        elementName="place_search_item_card"
+        isHeightFlex={isHeightFlex}
+        onPress={onPress}>
+        <InfoArea>
+          <LabelIconArea>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+              <ScoreLabel
+                score={getPlaceAccessibilityScore({
+                  score: item.accessibilityInfo?.accessibilityScore,
+                  hasPlaceAccessibility: item.hasPlaceAccessibility,
+                  hasBuildingAccessibility: item.hasBuildingAccessibility,
+                })}
+                isIconVisible
               />
-              {registerStatus === 'PLACE_ONLY' && (
-                <LogClick elementName="place_search_item_card_register_building_accessibility_button">
-                  <Button
-                    text="건물정보 등록 >"
-                    size="xs"
-                    onPress={() => checkAuth(() => onRegister(true))}
+            </View>
+            <IconArea>
+              <SccTouchableOpacity
+                elementName="place_search_item_card_bookmark_button"
+                logParams={{is_favorite: isFavorite}}
+                style={{
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                  paddingBottom: 5,
+                }}
+                activeOpacity={0.6}
+                onPress={() => checkAuth(onFavorite)}>
+                {isFavorite ? (
+                  <BookmarkIconOn
+                    color={color.brandColor}
+                    width={24}
+                    height={24}
                   />
-                </LogClick>
-              )}
-            </ExtraArea>
-          </InfoArea>
-          {registerStatus === 'UNAVAILABLE' ? (
-            <View style={{width: '100%', gap: 4, marginTop: 12}}>
-              <Button
-                text="서비스지역이 아닙니다."
-                size="lg"
-                fillParent
-                isDisabled
-                onPress={() => {}}
+                ) : (
+                  <BookmarkIconOff
+                    color={color.gray70}
+                    width={24}
+                    height={24}
+                  />
+                )}
+              </SccTouchableOpacity>
+              <SccTouchableOpacity
+                elementName="place_search_item_card_share_button"
+                style={{
+                  paddingLeft: 5,
+                  paddingBottom: 5,
+                }}
+                activeOpacity={0.6}
+                onPress={() => checkAuth(onShare)}>
+                <ShareIcon color={color.gray70} width={24} height={24} />
+              </SccTouchableOpacity>
+            </IconArea>
+          </LabelIconArea>
+          <TitleArea>
+            <TextWrapper>
+              <TitleText>{item.place.name}</TitleText>
+              <CategoryText>
+                {getCategoryText(item.place.category)}
+              </CategoryText>
+            </TextWrapper>
+            <LocationBox>
+              <DistanceText>{distanceText}</DistanceText>
+              <LocationDivider />
+              <AddressText>{item.place.address}</AddressText>
+            </LocationBox>
+          </TitleArea>
+          <ExtraArea>
+            <Tags
+              texts={tagTexts}
+              hasReview={hasReview}
+              reviewCount={item.accessibilityInfo?.reviewCount}
+            />
+            {registerStatus !== 'NONE' && (
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                {registerStatus === 'PLACE_ONLY' && (
+                  <XSButton
+                    text="건물"
+                    hasPlusButton
+                    elementName="place_search_item_card_register_building_accessibility_button"
+                    onPress={() => onRegister('building')}
+                  />
+                )}
+                {isReviewEnabledCategory && (
+                  <XSButton
+                    text="리뷰"
+                    hasPlusButton
+                    elementName="place_search_item_card_register_review_button"
+                    onPress={() => onRegister('review')}
+                  />
+                )}
+              </View>
+            )}
+          </ExtraArea>
+        </InfoArea>
+        {registerStatus === 'UNAVAILABLE' ? (
+          <View style={{width: '100%', gap: 4, marginTop: 12}}>
+            <LGButton
+              text="서비스지역이 아닙니다."
+              fillParent
+              isDisabled
+              elementName="service_unavailable_button"
+              onPress={() => {}}
+            />
+          </View>
+        ) : registerStatus === 'NONE' ? (
+          <View style={{width: '100%', gap: 6, marginTop: 12}}>
+            {!hasBeenRegisteredAccessibility && (
+              <Tooltip
+                text="일상속의 계단 정보를 함께 모아주세요!"
+                style={{marginBottom: -12}}
               />
-            </View>
-          ) : registerStatus === 'NONE' ? (
-            <View style={{width: '100%', gap: 8, marginTop: 12}}>
-              {!hasBeenRegisteredAccessibility && (
-                <Tooltip text="일상속의 계단 정보를 함께 모아주세요!" />
-              )}
-              <LogClick elementName="place_search_item_card_register_place_accessibility_button">
-                <Button
-                  text="등록하기 >"
-                  size="lg"
-                  fillParent
-                  onPress={() => checkAuth(() => onRegister(false))}
-                />
-              </LogClick>
-            </View>
-          ) : (
-            <View
-              style={{
-                marginTop: 12,
-                width: '100%',
-                flexShrink: 2,
-                overflow: 'hidden',
-              }}>
-              <ImageList images={item.accessibilityInfo?.images ?? []} />
-            </View>
-          )}
-        </Container>
-      </LogViewAndClick>
+            )}
+            <LGButton
+              text="입구 접근성 등록하기"
+              fillParent
+              elementName="place_search_item_card_register_place_accessibility_button"
+              onPress={() => onRegister('place')}
+            />
+            {isReviewEnabledCategory && (
+              <LGButton
+                text="방문 리뷰 등록하기"
+                fillParent
+                elementName="place_search_item_card_register_review_button_primary"
+                onPress={() => onRegister('review')}
+              />
+            )}
+          </View>
+        ) : (
+          <View
+            style={{
+              marginTop: 12,
+              width: '100%',
+              flexShrink: 2,
+              overflow: 'hidden',
+            }}>
+            <ImageList images={item.accessibilityInfo?.images ?? []} />
+          </View>
+        )}
+      </Container>
     </LogParamsProvider>
   );
 }
@@ -333,7 +364,7 @@ const IconArea = styled.View`
   align-items: center;
 `;
 
-const Container = styled.Pressable<{isHeightFlex?: boolean}>`
+const Container = styled(SccPressable)<{isHeightFlex?: boolean}>`
   overflow: visible;
   display: flex;
   flex-direction: column;

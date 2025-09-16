@@ -1,8 +1,8 @@
 import React from 'react';
-import {Pressable, View} from 'react-native';
+import {View} from 'react-native';
 
 import {useMe} from '@/atoms/Auth';
-import {LogClick} from '@/logging/LogClick';
+import {SccPressable} from '@/components/SccPressable';
 import useNavigation from '@/navigation/useNavigation';
 
 import * as S from './MyProfileSection.style';
@@ -21,13 +21,13 @@ export default function MyProfileSection() {
         <S.Email>{userInfo?.email}</S.Email>
       </View>
       <View>
-        <LogClick elementName="edit_profile_button">
-          <Pressable onPress={openProfileEditorScreen}>
-            <S.EditProfileButton>
-              <S.ButtonText>프로필 수정</S.ButtonText>
-            </S.EditProfileButton>
-          </Pressable>
-        </LogClick>
+        <SccPressable
+          elementName="edit_profile_button"
+          onPress={openProfileEditorScreen}>
+          <S.EditProfileButton>
+            <S.ButtonText>프로필 수정</S.ButtonText>
+          </S.EditProfileButton>
+        </SccPressable>
       </View>
     </S.MyProfileSection>
   );

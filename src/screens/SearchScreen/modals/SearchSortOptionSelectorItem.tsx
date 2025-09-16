@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SearchPlaceSortDto} from '@/generated-sources/openapi';
@@ -13,7 +14,7 @@ interface SearchSortOptionInitParams {
   onPress: () => void;
 }
 
-const SortOption = styled.Pressable({
+const SortOption = styled(SccPressable)({
   height: 56,
   borderWidth: 1,
   borderRadius: 20,
@@ -45,7 +46,9 @@ const SearchSortOptionItem = ({
 }: SearchSortOptionInitParams) => {
   if (isSelected) {
     return (
-      <SelectedSortOption onPress={onPress}>
+      <SelectedSortOption
+        elementName="search_sort_selected_option"
+        onPress={onPress}>
         <SelectedSortOptionText>
           {Converters.displayText(sortOption)}
         </SelectedSortOptionText>
@@ -53,7 +56,7 @@ const SearchSortOptionItem = ({
     );
   }
   return (
-    <SortOption onPress={onPress}>
+    <SortOption elementName="search_sort_option" onPress={onPress}>
       <SortOptionText>{Converters.displayText(sortOption)}</SortOptionText>
     </SortOption>
   );

@@ -1,5 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import {Pressable, ScrollView} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {ScrollView} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+
+import {SccPressable} from '@/components/SccPressable';
 
 import RightArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
 import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
@@ -28,7 +31,7 @@ export default function ChallengeSection({
   );
   const [challenges, setChallenges] = useState<ListChallengesItemDto[]>([]);
 
-  useEffect(() => {
+  const fetchChallenges = useCallback(() => {
     api
       .listChallengesPost({
         statuses: activeFilter === 'all' ? undefined : [activeFilter],
@@ -37,6 +40,12 @@ export default function ChallengeSection({
         setChallenges(res.data.items);
       });
   }, [api, activeFilter]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchChallenges();
+    }, [fetchChallenges]),
+  );
 
   const handleChallengePress = (challenge: ListChallengesItemDto) => {
     if (challenge.status === 'Upcoming') {
@@ -56,6 +65,7 @@ export default function ChallengeSection({
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <S.Filters>
           <S.FilterButton
+            elementName="challenge_filter_all"
             active={activeFilter === 'all'}
             onPress={() => setActiveFilter('all')}>
             <S.FilterButtonText active={activeFilter === 'all'}>
@@ -63,6 +73,7 @@ export default function ChallengeSection({
             </S.FilterButtonText>
           </S.FilterButton>
           <S.FilterButton
+            elementName="challenge_filter_in_progress"
             active={activeFilter === 'InProgress'}
             onPress={() => setActiveFilter('InProgress')}>
             <S.FilterButtonText active={activeFilter === 'InProgress'}>
@@ -70,6 +81,7 @@ export default function ChallengeSection({
             </S.FilterButtonText>
           </S.FilterButton>
           <S.FilterButton
+            elementName="challenge_filter_upcoming"
             active={activeFilter === 'Upcoming'}
             onPress={() => setActiveFilter('Upcoming')}>
             <S.FilterButtonText active={activeFilter === 'Upcoming'}>
@@ -77,6 +89,7 @@ export default function ChallengeSection({
             </S.FilterButtonText>
           </S.FilterButton>
           <S.FilterButton
+            elementName="challenge_filter_closed"
             active={activeFilter === 'Closed'}
             onPress={() => setActiveFilter('Closed')}>
             <S.FilterButtonText active={activeFilter === 'Closed'}>
@@ -106,7 +119,9 @@ function ChallengeCard({
   onPress: (challenge: ListChallengesItemDto) => void;
 }) {
   return (
-    <Pressable
+    <SccPressable
+      elementName="challenge_card"
+      logParams={{challenge_id: challenge.id}}
       onPress={() => {
         onPress(challenge);
       }}
@@ -122,7 +137,7 @@ function ChallengeCard({
           <RightArrowIcon color="black" />
         </S.ArrowWrapper>
       </S.ChallengeCard>
-    </Pressable>
+    </SccPressable>
   );
 }
 

@@ -43,7 +43,11 @@ export default function GuideForFirstVisitScreen({
             />
           </S.GuideItems>
         </ScrollView>
-        <SccButton text={'확인했어요!'} onPress={onTapConfirmButton} />
+        <SccButton
+          text={'확인했어요!'}
+          onPress={onTapConfirmButton}
+          elementName="guide_first_visit_confirm"
+        />
       </S.Container>
     </ScreenLayout>
   );

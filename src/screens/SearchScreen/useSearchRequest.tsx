@@ -1,9 +1,13 @@
 import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
-import {useRef} from 'react';
+import {useRef, useEffect} from 'react';
 
-import {PlaceListItem, SearchPlaceSortDto, RectangleSearchRegionDto} from '@/generated-sources/openapi';
+import {
+  PlaceListItem,
+  SearchPlaceSortDto,
+  RectangleSearchRegionDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {
@@ -11,6 +15,7 @@ import {
   filterAtom,
   searchQueryAtom,
   draftCameraRegionAtom,
+  viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
 import GeolocationUtils from '@/utils/GeolocationUtils';
@@ -22,15 +27,29 @@ export default function useSearchRequest() {
   const {api} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
     useAtomValue(filterAtom);
-  const {text, location, radiusMeter} = useAtomValue(searchQueryAtom);
+  const {text, location, radiusMeter, useCameraRegion} =
+    useAtomValue(searchQueryAtom);
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
+  const viewState = useAtomValue(viewStateAtom);
   const route = useRoute();
   const devTool = useDevTool();
   const {data, isFetching, refetch} = useQuery({
     initialData: [],
+    throwOnError: error => {
+      ToastUtils.showOnApiError(error);
+      return false;
+    },
     queryKey: [
       'search',
-      {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
+      {
+        text,
+        location,
+        sortOption,
+        scoreUnder,
+        hasSlope,
+        isRegistered,
+        useCameraRegion,
+      },
     ],
     queryFn: async ({}) => {
       if (!text) {
@@ -57,7 +76,8 @@ export default function useSearchRequest() {
       let rectangleRegion: RectangleSearchRegionDto | undefined;
 
       // If we have draft camera region, use rectangle search instead of circle
-      if (draftCameraRegion && !radiusMeter) {
+      // Also use rectangle search when useCameraRegion is true (재검색 버튼)
+      if (draftCameraRegion && (!radiusMeter || useCameraRegion)) {
         rectangleRegion = {
           leftTopLocation: {
             lat: draftCameraRegion.northEast.latitude,
@@ -89,8 +109,13 @@ export default function useSearchRequest() {
 
       const response = await api.searchPlacesPost({
         searchText: text,
-        distanceMetersLimit: radiusMeter ?? 20000,
-        currentLocation: location ?? currentLocation,
+        distanceMetersLimit: rectangleRegion
+          ? undefined
+          : (radiusMeter ?? 20000),
+        currentLocation: rectangleRegion
+          ? undefined
+          : (location ?? currentLocation),
+        rectangleRegion: rectangleRegion,
         sort: sort,
         filters: {
           maxAccessibilityScore: scoreUnder ?? undefined,
@@ -121,6 +146,19 @@ export default function useSearchRequest() {
   ) => void = callback => {
     onFetchCompleted.current = callback;
   };
+
+  useEffect(() => {
+    // autocomplete로 인해 input 모드에서 검색이 검색이
+    // input 모드에서 지도 뷰로 전환할 때도 카메라 피팅을 해준다.
+    // 단, 데이터가 fetching 중일 때는 fetching 이후 카메라 피팅을 해야 하므로 그냥 넘어간다.
+    if (!viewState.inputMode && viewState.type === 'map' && !isFetching) {
+      setTimeout(() => {
+        onFetchCompleted.current?.(data ?? []);
+        onFetchCompleted.current = () => {};
+      });
+    }
+  }, [viewState.inputMode, viewState.type]);
+
   return {
     data,
     isLoading: isFetching,

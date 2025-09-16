@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
 import FilterIcon from '@/assets/icon/ic_filter.svg';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 import {
@@ -104,7 +105,12 @@ function Chip({
   onPress?: () => void;
 }>) {
   return (
-    <ChipContainer activeOpacity={0.7} onPress={onPress} isActive={isActive}>
+    <ChipContainer
+      elementName="search_filter_chip"
+      disableLogging
+      activeOpacity={0.7}
+      onPress={onPress}
+      isActive={isActive}>
       {children}
     </ChipContainer>
   );
@@ -116,12 +122,12 @@ const Container = styled.View`
   align-items: center;
   justify-content: flex-start;
   padding-right: 30px;
-  padding-top: 8px;
+  padding-top: 3px;
   padding-bottom: 8px;
   padding-left: 20px;
   gap: 5px;
 `;
-const ChipContainer = styled.TouchableOpacity<{isActive: boolean}>`
+const ChipContainer = styled(SccTouchableOpacity)<{isActive: boolean}>`
   display: flex;
   flex-direction: row;
   align-items: center;

@@ -46,6 +46,7 @@ export type SearchQuery = {
   text: string | null;
   location: {lat: number; lng: number} | null;
   radiusMeter: number | null;
+  useCameraRegion?: boolean; // 카메라 영역 검색 플래그 - "이 지역 재검색" 버튼용
 };
 
 export const searchQueryAtom = atom<SearchQuery>({

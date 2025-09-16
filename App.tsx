@@ -7,6 +7,7 @@ import {Provider, useAtomValue, useSetAtom} from 'jotai';
 import {useEffect, useState} from 'react';
 import {Platform, StatusBar} from 'react-native';
 import Config from 'react-native-config';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -25,7 +26,9 @@ const queryClient = new QueryClient();
 // Get BASE_URL with local development override
 const getBaseURL = () => {
   if (Config.FLAVOR === 'local') {
-    return Platform.OS === 'ios' ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
+    return Platform.OS === 'ios'
+      ? 'http://localhost:8080'
+      : 'http://10.0.2.2:8080';
   }
   return Config.BASE_URL;
 };
@@ -97,11 +100,13 @@ const App = () => {
     };
   }, [accessToken]);
   return (
-    <RootSiblingParent>
-      <StatusBar barStyle={'dark-content'} backgroundColor={color.white} />
-      <RootScreen />
-      <LoadingView />
-    </RootSiblingParent>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <RootSiblingParent>
+        <StatusBar barStyle={'dark-content'} backgroundColor={color.white} />
+        <RootScreen />
+        <LoadingView />
+      </RootSiblingParent>
+    </GestureHandlerRootView>
   );
 };
 

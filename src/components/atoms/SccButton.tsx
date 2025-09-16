@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  PixelRatio,
-  StyleSheet,
-  Text,
-  TextStyle,
-  TouchableOpacity,
-  ViewStyle,
-} from 'react-native';
+import {PixelRatio, StyleSheet, Text, TextStyle, ViewStyle} from 'react-native';
 
 import {Color, color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {LogClick} from '@/logging/LogClick';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 type ButtonType = 'regular' | 'text';
 
@@ -30,6 +23,8 @@ interface SccButtonProps {
   rightLabel?: string;
   rightLabelColor?: Color;
   rightLabelSize?: TextStyle['fontSize'];
+  elementName: string;
+  logParams?: Record<string, any>;
 }
 
 export const SccButton = ({
@@ -48,33 +43,33 @@ export const SccButton = ({
   rightLabel,
   rightLabelColor = 'white',
   rightLabelSize = 14,
+  elementName,
+  logParams,
 }: SccButtonProps) => {
   return (
-    <LogClick elementName="scc_button" params={{button_text: text}}>
-      <TouchableOpacity
-        onPress={isDisabled ? () => {} : onPress}
-        activeOpacity={isDisabled ? 0.4 : 0.7}
-        style={[
-          buttonStyles(buttonColor, isDisabled, width, height, borderColor)[
-            type
-          ],
-          style,
-        ]}>
-        <Text style={textStyles(textColor, fontSize, fontFamily).text}>
-          {text}
+    <SccTouchableOpacity
+      elementName={elementName}
+      logParams={{button_text: text, ...logParams}}
+      onPress={isDisabled ? () => {} : onPress}
+      activeOpacity={isDisabled ? 0.4 : 0.7}
+      style={[
+        buttonStyles(buttonColor, isDisabled, width, height, borderColor)[type],
+        style,
+      ]}>
+      <Text style={textStyles(textColor, fontSize, fontFamily).text}>
+        {text}
+      </Text>
+      {rightLabel && (
+        <Text
+          style={[
+            textStyles(rightLabelColor, rightLabelSize, font.pretendardMedium)
+              .text,
+            {position: 'absolute', right: 20},
+          ]}>
+          {rightLabel}
         </Text>
-        {rightLabel && (
-          <Text
-            style={[
-              textStyles(rightLabelColor, rightLabelSize, font.pretendardMedium)
-                .text,
-              {position: 'absolute', right: 20},
-            ]}>
-            {rightLabel}
-          </Text>
-        )}
-      </TouchableOpacity>
-    </LogClick>
+      )}
+    </SccTouchableOpacity>
   );
 };
 
@@ -94,12 +89,11 @@ const buttonStyles = (
   StyleSheet.create({
     regular: {
       ...defaultButton,
-      opacity: isDisabled ? 0.7 : 1,
       width: _width,
       height: _height,
-      backgroundColor: color[buttonColor],
+      backgroundColor: isDisabled ? color.gray30 : color[buttonColor],
       borderWidth: borderColor ? 1 : 0,
-      borderColor: borderColor ? color[borderColor] : 'undefined',
+      borderColor: borderColor ? (isDisabled ? color.gray30 : color[borderColor]) : 'undefined',
     },
     text: {
       ...defaultButton,

@@ -14,6 +14,7 @@ const TopTenRank = ({ranks}: PropsType) => {
   return (
     <Container>
       <Title>챌린지 랭킹</Title>
+      <Desc>랭킹 및 정복 개수는 10분마다 갱신됩니다.</Desc>
       <ListSection>
         {ranks.map((rank, index) => {
           return (
@@ -51,4 +52,11 @@ const ListSection = styled.View({
   marginTop: 10,
   marginBottom: 22,
   paddingVertical: 5,
+});
+
+const Desc = styled.Text({
+  color: color.gray40,
+  fontFamily: font.pretendardRegular,
+  padding: '0 10px 10px',
+  fontSize: 13,
 });

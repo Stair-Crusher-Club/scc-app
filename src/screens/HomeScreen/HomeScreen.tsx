@@ -22,6 +22,7 @@ import {accessTokenAtom, isAnonymousUserAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
@@ -30,7 +31,6 @@ import {
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
 import {useMe} from '@/atoms/Auth';
-import {LogClick} from '@/logging/LogClick';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
 import CoachMarkGuideLink from '@/screens/HomeScreen/components/CoachMarkGuideLink';
@@ -257,18 +257,20 @@ const HomeScreen = ({navigation}: any) => {
                 <S.Title allowFontScaling={false}>
                   {'일상 속의 계단정보를\n함께 모아요!'}
                 </S.Title>
-                <LogClick elementName="scc_description">
-                  <CoachMarkTarget
-                    id="guide"
-                    style={{
-                      alignSelf: 'flex-start',
-                    }}
-                    renderItem={CoachMarkGuideLink}>
-                    <S.Description allowFontScaling={false} onPress={goToGuide}>
+                <CoachMarkTarget
+                  id="guide"
+                  style={{
+                    alignSelf: 'flex-start',
+                  }}
+                  renderItem={CoachMarkGuideLink}>
+                  <SccTouchableOpacity
+                    elementName="scc_description"
+                    onPress={goToGuide}>
+                    <S.Description allowFontScaling={false}>
                       {'계단뿌셔클럽 사용설명서'}
                     </S.Description>
-                  </CoachMarkTarget>
-                </LogClick>
+                  </SccTouchableOpacity>
+                </CoachMarkTarget>
               </S.TitleContainer>
               <S.MainImage source={require('@/assets/img/bg_scc_main.png')} />
               <SearchSection />

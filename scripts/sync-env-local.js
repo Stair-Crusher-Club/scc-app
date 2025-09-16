@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 const fs = require('fs');
 
-const SANDBOX_ENV_PATH = 'subprojects/scc-frontend-build-configurations/sandbox/.env';
+const SANDBOX_ENV_PATH =
+  'subprojects/scc-frontend-build-configurations/sandbox/.env';
 const LOCAL_ENV_PATH = '.env.local';
 
 console.log('🔄 Syncing .env.local from sandbox environment...');
@@ -20,5 +21,9 @@ content = content.replace(/^FLAVOR=.*$/m, 'FLAVOR=local');
 // Write to .env.local
 fs.writeFileSync(LOCAL_ENV_PATH, content);
 
-console.log(`✅ Successfully synced ${LOCAL_ENV_PATH} from ${SANDBOX_ENV_PATH}`);
-console.log('📝 BASE_URL will be set dynamically based on platform (iOS: localhost:8080, Android: 10.0.2.2:8080)');
+console.log(
+  `✅ Successfully synced ${LOCAL_ENV_PATH} from ${SANDBOX_ENV_PATH}`,
+);
+console.log(
+  '📝 BASE_URL will be set dynamically based on platform (iOS: localhost:8080, Android: 10.0.2.2:8080)',
+);

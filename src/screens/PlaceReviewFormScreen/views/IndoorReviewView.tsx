@@ -30,6 +30,7 @@ import PlaceInfoSection from '../sections/PlaceInfoSection';
 import UserTypeSection from '../sections/UserTypeSection';
 import VisitorReviewSection from '../sections/VisitorReviewSection';
 import {SectionSeparator} from '../sections/common.style';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface FormValues {
   mobilityTool: UserMobilityToolMapDto;
@@ -118,23 +119,25 @@ export default function IndoorReviewView({
 
   return (
     <FormProvider {...form}>
-      <KeyboardAwareScrollView
-        stickyHeaderIndices={[0]}
-        contentContainerStyle={{flexGrow: 1}}>
-        <PlaceInfoSection name={place?.name} address={place?.address} />
-        <SectionSeparator />
+      <SafeAreaWrapper edges={['bottom']}>
+        <KeyboardAwareScrollView
+          stickyHeaderIndices={[0]}
+          contentContainerStyle={{flexGrow: 1}}>
+          <PlaceInfoSection name={place?.name} address={place?.address} />
+          <SectionSeparator />
 
-        <UserTypeSection nickname={userInfo?.nickname} />
-        <SectionSeparator />
+          <UserTypeSection nickname={userInfo?.nickname} />
+          <SectionSeparator />
 
-        <VisitorReviewSection />
-        <SectionSeparator />
+          <VisitorReviewSection />
+          <SectionSeparator />
 
-        <IndoorInfoSection
-          onSave={form.handleSubmit(onValid)}
-          onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
-        />
-      </KeyboardAwareScrollView>
+          <IndoorInfoSection
+            onSave={form.handleSubmit(onValid)}
+            onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
+          />
+        </KeyboardAwareScrollView>
+      </SafeAreaWrapper>
     </FormProvider>
   );
 }

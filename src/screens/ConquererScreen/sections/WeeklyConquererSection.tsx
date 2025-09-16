@@ -41,6 +41,7 @@ export default function WeeklyConquererSection() {
         <S.TitleArea>
           <S.Title>하루 한 칸</S.Title>
           <S.MoreButton
+            elementName="weekly_conquerer_more_button"
             onPress={() => navigation.navigate('Search', {initKeyword: ''})}>
             <S.More>정복하러 가기</S.More>
             <RightAngleArrowIcon color={color.brandColor} width={20} />
