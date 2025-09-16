@@ -6,32 +6,25 @@ import styled from 'styled-components/native';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  AccessibilityInfoDto,
-  DefaultApi,
-  Place,
-  ReportTargetTypeDto,
-} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceDetailCommentSection from '@/screens/PlaceDetailScreen/components/PlaceDetailCommentSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import FeedbackButton from '@/components/FeedbackButton';
-import useAppComponents from '@/hooks/useAppComponents';
-import ToastUtils from '@/utils/ToastUtils';
 import ImageList from '../components/PlaceDetailImageList';
 import PlaceDoorInfo from '../components/PlaceDoorInfo';
 import PlaceEntranceStepInfo from '../components/PlaceEntranceStepInfo';
 import PlaceFloorInfo from '../components/PlaceFloorInfo';
+import {UserInteractionHandlers} from '../types';
 import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
-interface Props {
+interface Props extends UserInteractionHandlers {
   accessibility?: AccessibilityInfoDto;
   place: Place;
   isAccessibilityRegistrable?: boolean;
   onRegister?: () => void;
-  showNegativeFeedbackBottomSheet?: (type: ReportTargetTypeDto) => void;
 }
 
 export default function PlaceDetailEntranceSection({
@@ -40,15 +33,19 @@ export default function PlaceDetailEntranceSection({
   isAccessibilityRegistrable,
   onRegister,
   showNegativeFeedbackBottomSheet,
+  updateUpvoteStatus,
 }: Props) {
-  const {api} = useAppComponents();
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
   const [isUpvoted, setIsUpvoted] = useState(false);
+  const [totalUpvoteCount, setTotalUpvoteCount] = useState<number | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     setIsUpvoted(accessibility?.placeAccessibility?.isUpvoted ?? false);
+    setTotalUpvoteCount(accessibility?.totalFavoriteCount);
   }, [accessibility]);
 
   if (!accessibility?.placeAccessibility) {
@@ -73,11 +70,15 @@ export default function PlaceDetailEntranceSection({
       const placeAccessibilityId = accessibility?.placeAccessibility?.id;
       if (placeAccessibilityId) {
         setIsUpvoted(!isUpvoted);
-        const success = await updateUpvoteStatus(
-          api,
-          placeAccessibilityId,
-          !isUpvoted,
-        );
+        setTotalUpvoteCount(prev => {
+          const currentCount = prev ?? 0;
+          return isUpvoted ? currentCount - 1 : currentCount + 1;
+        });
+        const success = await updateUpvoteStatus?.({
+          id: placeAccessibilityId,
+          newUpvotedStatus: !isUpvoted,
+          targetType: 'PLACE_ACCESSIBILITY',
+        });
         if (!success) {
           setIsUpvoted(isUpvoted);
         }
@@ -97,7 +98,7 @@ export default function PlaceDetailEntranceSection({
       <PlaceDoorInfo accessibility={accessibility} />
       <FeedbackButton
         upvoted={isUpvoted}
-        total={undefined}
+        total={totalUpvoteCount}
         onPressUpvote={toggleUpvote}
         onPressInfoUpdateRequest={() =>
           showNegativeFeedbackBottomSheet?.('PLACE_ACCESSIBILITY')
@@ -160,27 +161,4 @@ function NoPlaceEntranceInfoSection({
       </S.EmptyInfoContent>
     </S.Section>
   );
-}
-
-async function updateUpvoteStatus(
-  api: DefaultApi,
-  placeAccessibilityId: string,
-  newUpvotedStatus: boolean,
-) {
-  try {
-    if (newUpvotedStatus === false) {
-      await api.cancelPlaceAccessibilityUpvotePost({
-        placeAccessibilityId,
-      });
-    } else {
-      await api.givePlaceAccessibilityUpvotePost({
-        placeAccessibilityId,
-      });
-    }
-    ToastUtils.show('좋은 의견 감사합니다!');
-    return true;
-  } catch (error: any) {
-    ToastUtils.showOnApiError(error);
-    return false;
-  }
 }

@@ -40,7 +40,7 @@ export default function FeedbackButton({
             }}>
             도움돼요
           </Text>
-          {total && total > 0 && (
+          {(total ?? 0) > 0 && (
             <View style={{gap: 10, flexDirection: 'row', alignItems: 'center'}}>
               <Text
                 style={{
@@ -61,7 +61,7 @@ export default function FeedbackButton({
             </View>
           )}
         </TouchableOpacity>
-        {total && total > 0 && (
+        {(total ?? 0) > 0 && (
           <TouchableOpacity
             style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
             <Image

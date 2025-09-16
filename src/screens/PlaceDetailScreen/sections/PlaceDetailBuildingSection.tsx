@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -10,7 +10,6 @@ import {
   AccessibilityInfoDto,
   Building,
   Place,
-  ReportTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -21,15 +20,15 @@ import BuildingElevatorInfo from '../components/BuildingElevatorInfo';
 import BuildingEntranceStepInfo from '../components/BuildingEntranceStepInfo';
 import PlaceDetailCommentSection from '../components/PlaceDetailCommentSection';
 import ImageList from '../components/PlaceDetailImageList';
+import {UserInteractionHandlers} from '../types';
 import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
-interface Props {
+interface Props extends UserInteractionHandlers {
   accessibility?: AccessibilityInfoDto;
   place: Place;
   building: Building;
   isAccessibilityRegistrable?: boolean;
-  showNegativeFeedbackBottomSheet?: (type: ReportTargetTypeDto) => void;
 }
 
 export default function PlaceDetailBuildingSection({
@@ -38,9 +37,20 @@ export default function PlaceDetailBuildingSection({
   building,
   isAccessibilityRegistrable,
   showNegativeFeedbackBottomSheet,
+  updateUpvoteStatus,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+  const [isUpvoted, setIsUpvoted] = useState(false);
+  const [totalUpvoteCount, setTotalUpvoteCount] = useState<number | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    setIsUpvoted(accessibility?.buildingAccessibility?.isUpvoted ?? false);
+    setTotalUpvoteCount(accessibility?.buildingAccessibility?.totalUpvoteCount);
+  }, [accessibility]);
+
   if (!accessibility?.buildingAccessibility) {
     return (
       <NoBuildingInfoSection
@@ -64,6 +74,28 @@ export default function PlaceDetailBuildingSection({
     });
   }
 
+  const toggleUpvote = async () => {
+    checkAuth(async () => {
+      const buildingAccessibilityId =
+        accessibility?.buildingAccessibility?.buildingId;
+      if (buildingAccessibilityId) {
+        setIsUpvoted(!isUpvoted);
+        setTotalUpvoteCount(prev => {
+          const currentCount = prev ?? 0;
+          return isUpvoted ? currentCount - 1 : currentCount + 1;
+        });
+        const success = await updateUpvoteStatus?.({
+          id: buildingAccessibilityId,
+          newUpvotedStatus: !isUpvoted,
+          targetType: 'BUILDING_ACCESSIBILITY',
+        });
+        if (!success) {
+          setIsUpvoted(isUpvoted);
+        }
+      }
+    });
+  };
+
   return (
     <S.Section>
       <S.SubSection>
@@ -79,9 +111,9 @@ export default function PlaceDetailBuildingSection({
         <BuildingElevatorInfo accessibility={accessibility} />
         <BuildingDoorInfo accessibility={accessibility} />
         <FeedbackButton
-          upvoted={false}
-          total={undefined}
-          onPressUpvote={() => console.log('도움이 돼요')}
+          upvoted={isUpvoted}
+          total={totalUpvoteCount}
+          onPressUpvote={toggleUpvote}
           onPressInfoUpdateRequest={() =>
             showNegativeFeedbackBottomSheet?.('BUILDING_ACCESSIBILITY')
           }
