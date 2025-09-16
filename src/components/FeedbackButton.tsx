@@ -40,7 +40,7 @@ export default function FeedbackButton({
             }}>
             도움돼요
           </Text>
-          {total && (
+          {total && total > 0 && (
             <View style={{gap: 10, flexDirection: 'row', alignItems: 'center'}}>
               <Text
                 style={{
@@ -61,17 +61,19 @@ export default function FeedbackButton({
             </View>
           )}
         </TouchableOpacity>
-        <TouchableOpacity
-          style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-          <Image
-            source={require('@/assets/img/img_profile.png')}
-            style={{
-              width: 24,
-              height: 24,
-            }}
-          />
-          <ChevronRightIcon />
-        </TouchableOpacity>
+        {total && total > 0 && (
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+            <Image
+              source={require('@/assets/img/img_profile.png')}
+              style={{
+                width: 24,
+                height: 24,
+              }}
+            />
+            <ChevronRightIcon />
+          </TouchableOpacity>
+        )}
       </View>
 
       {onPressInfoUpdateRequest && (
