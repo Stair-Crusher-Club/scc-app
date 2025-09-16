@@ -448,14 +448,15 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               return;
             }
 
+            const targetType = reportTargetType;
+            setReportTargetType(null);
             setLoading(new Map(loading).set('PlaceDetail', true));
             await api.reportAccessibilityPost({
               placeId: _placeId,
               reason,
-              targetType: reportTargetType,
+              targetType,
               detail: text,
             });
-            setReportTargetType(null);
             setLoading(new Map(loading).set('PlaceDetail', false));
             ToastUtils.show('신고가 접수되었습니다.');
           }}
