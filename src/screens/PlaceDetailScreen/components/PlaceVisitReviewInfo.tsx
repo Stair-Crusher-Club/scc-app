@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
+import FeedbackButton from '@/components/FeedbackButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -32,6 +33,8 @@ export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
         {reviews.map((review, idx) => (
           <React.Fragment key={review.id}>
             <PlaceReviewItem placeId={placeId} review={review} />
+            {/* TODO: 추천 정보 연결 */}
+            <FeedbackButton />
             {idx !== reviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}

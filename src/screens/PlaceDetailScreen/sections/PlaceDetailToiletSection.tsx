@@ -10,6 +10,7 @@ import useNavigation from '@/navigation/useNavigation';
 import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props {
@@ -45,6 +46,8 @@ export default function PlaceDetailToiletSection({
         {toiletReviews.map((review, idx) => (
           <React.Fragment key={review.id}>
             <PlaceToiletReviewItem placeId={placeId} review={review} />
+            {/* TODO: 추천 정보 연결 */}
+            <FeedbackButton />
             {idx !== toiletReviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}
