@@ -35,6 +35,10 @@ export default function useSearchRequest() {
   const devTool = useDevTool();
   const {data, isFetching, refetch} = useQuery({
     initialData: [],
+    throwOnError: error => {
+      ToastUtils.showOnApiError(error);
+      return false;
+    },
     queryKey: [
       'search',
       {
