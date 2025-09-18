@@ -1574,6 +1574,63 @@ export interface GetNearbyAccessibilityStatusPostRequest {
 /**
  * 
  * @export
+ * @interface GetReviewActivityReportResponseDto
+ */
+export interface GetReviewActivityReportResponseDto {
+    /**
+     * 오늘 등록한 리뷰(내부 + 화장실) 수
+     * @type {number}
+     * @memberof GetReviewActivityReportResponseDto
+     */
+    'todayReviewedCount': number;
+    /**
+     * 이번달 등록한 리뷰(내부 + 화장실) 수
+     * @type {number}
+     * @memberof GetReviewActivityReportResponseDto
+     */
+    'thisMonthReviewedCount': number;
+}
+/**
+ * 
+ * @export
+ * @interface GetUpvoteDetailsRequestDto
+ */
+export interface GetUpvoteDetailsRequestDto {
+    /**
+     * 
+     * @type {UpvoteTargetTypeDto}
+     * @memberof GetUpvoteDetailsRequestDto
+     */
+    'targetType': UpvoteTargetTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetUpvoteDetailsRequestDto
+     */
+    'id': string;
+}
+/**
+ * 
+ * @export
+ * @interface GetUpvoteDetailsResponseDto
+ */
+export interface GetUpvoteDetailsResponseDto {
+    /**
+     * 
+     * @type {Array<UpvotedUserDto>}
+     * @memberof GetUpvoteDetailsResponseDto
+     */
+    'upvotedUsers'?: Array<UpvotedUserDto>;
+    /**
+     * 
+     * @type {Array<UpvotedUserStatisticsEntryDto>}
+     * @memberof GetUpvoteDetailsResponseDto
+     */
+    'upvotedUserStatistics'?: Array<UpvotedUserStatisticsEntryDto>;
+}
+/**
+ * 
+ * @export
  * @interface GetUserInfoResponseDto
  */
 export interface GetUserInfoResponseDto {
@@ -2046,6 +2103,75 @@ export interface ListPlacesInBuildingPostRequest {
 /**
  * 
  * @export
+ * @interface ListRegisteredPlaceReviewsResponseDto
+ */
+export interface ListRegisteredPlaceReviewsResponseDto {
+    /**
+     * 지금까지 내가 작성한 내부 공간 리뷰 개수
+     * @type {number}
+     * @memberof ListRegisteredPlaceReviewsResponseDto
+     */
+    'totalNumberOfItems': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListRegisteredPlaceReviewsResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<PlaceReviewListItemDto>}
+     * @memberof ListRegisteredPlaceReviewsResponseDto
+     */
+    'placeReviews': Array<PlaceReviewListItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListRegisteredReviewsRequestDto
+ */
+export interface ListRegisteredReviewsRequestDto {
+    /**
+     * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
+     * @type {string}
+     * @memberof ListRegisteredReviewsRequestDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListRegisteredReviewsRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListRegisteredToiletReviewsResponseDto
+ */
+export interface ListRegisteredToiletReviewsResponseDto {
+    /**
+     * 지금까지 내가 작성한 화장실 리뷰 개수
+     * @type {number}
+     * @memberof ListRegisteredToiletReviewsResponseDto
+     */
+    'totalNumberOfItems': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListRegisteredToiletReviewsResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<ToiletReviewListItemDto>}
+     * @memberof ListRegisteredToiletReviewsResponseDto
+     */
+    'toiletReviews': Array<ToiletReviewListItemDto>;
+}
+/**
+ * 
+ * @export
  * @interface ListSearchKeywordsOfPlaceCategoryPost200Response
  */
 export interface ListSearchKeywordsOfPlaceCategoryPost200Response {
@@ -2068,6 +2194,75 @@ export interface ListSearchPlacePresetsResponseDto {
      * @memberof ListSearchPlacePresetsResponseDto
      */
     'keywordPresets': Array<SearchPlacePresetDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedPlaceReviewsResponseDto
+ */
+export interface ListUpvotedPlaceReviewsResponseDto {
+    /**
+     * 내부 공간 리뷰로 받은 도움이 되었어요 개수
+     * @type {number}
+     * @memberof ListUpvotedPlaceReviewsResponseDto
+     */
+    'totalNumberOfUpvotes': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListUpvotedPlaceReviewsResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<PlaceReviewListItemDto>}
+     * @memberof ListUpvotedPlaceReviewsResponseDto
+     */
+    'placeReviews': Array<PlaceReviewListItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedReviewsRequestDto
+ */
+export interface ListUpvotedReviewsRequestDto {
+    /**
+     * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
+     * @type {string}
+     * @memberof ListUpvotedReviewsRequestDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListUpvotedReviewsRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedToiletReviewsResponseDto
+ */
+export interface ListUpvotedToiletReviewsResponseDto {
+    /**
+     * 화장실 리뷰로 받은 도움이 되었어요 개수
+     * @type {number}
+     * @memberof ListUpvotedToiletReviewsResponseDto
+     */
+    'totalNumberOfUpvotes': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListUpvotedToiletReviewsResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<ToiletReviewListItemDto>}
+     * @memberof ListUpvotedToiletReviewsResponseDto
+     */
+    'toiletReviews': Array<ToiletReviewListItemDto>;
 }
 /**
  * 위치를 위경도로 표현하기 위한 모델.
@@ -2298,7 +2493,13 @@ export interface PlaceAccessibility {
      * @type {boolean}
      * @memberof PlaceAccessibility
      */
-    'isUpvoted'?: boolean;
+    'isUpvoted': boolean;
+    /**
+     * 총 몇개의 도움이 돼요가 눌렸는지.
+     * @type {number}
+     * @memberof PlaceAccessibility
+     */
+    'totalUpvoteCount': number;
     /**
      * 
      * @type {EpochMillisTimestamp}
@@ -2521,8 +2722,105 @@ export interface PlaceReviewDto {
     'isDeletable': boolean;
     /**
      * 
+     * @type {boolean}
+     * @memberof PlaceReviewDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof PlaceReviewDto
+     */
+    'totalUpvoteCount': number;
+    /**
+     * 
      * @type {EpochMillisTimestamp}
      * @memberof PlaceReviewDto
+     */
+    'createdAt': EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @interface PlaceReviewListItemDto
+ */
+export interface PlaceReviewListItemDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceReviewListItemDto
+     */
+    'placeId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceReviewListItemDto
+     */
+    'placeName': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceReviewListItemDto
+     */
+    'placeAddress': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceReviewListItemDto
+     */
+    'placeReviewId': string;
+    /**
+     * 
+     * @type {Array<RecommendedMobilityTypeDto>}
+     * @memberof PlaceReviewListItemDto
+     */
+    'recommendedMobilityTypes': Array<RecommendedMobilityTypeDto>;
+    /**
+     * 
+     * @type {SpaciousTypeDto}
+     * @memberof PlaceReviewListItemDto
+     */
+    'spaciousType': SpaciousTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceReviewListItemDto
+     */
+    'comment'?: string;
+    /**
+     * 
+     * @type {Array<ImageDto>}
+     * @memberof PlaceReviewListItemDto
+     */
+    'images'?: Array<ImageDto>;
+    /**
+     * 
+     * @type {AccessibilityRegistererDto}
+     * @memberof PlaceReviewListItemDto
+     */
+    'user': AccessibilityRegistererDto;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PlaceReviewListItemDto
+     */
+    'isDeletable': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PlaceReviewListItemDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof PlaceReviewListItemDto
+     */
+    'totalUpvoteCount': number;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceReviewListItemDto
      */
     'createdAt': EpochMillisTimestamp;
 }
@@ -3479,8 +3777,111 @@ export interface ToiletReviewDto {
     'isDeletable': boolean;
     /**
      * 
+     * @type {boolean}
+     * @memberof ToiletReviewDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof ToiletReviewDto
+     */
+    'totalUpvoteCount': number;
+    /**
+     * 
      * @type {EpochMillisTimestamp}
      * @memberof ToiletReviewDto
+     */
+    'createdAt': EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @interface ToiletReviewListItemDto
+ */
+export interface ToiletReviewListItemDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletReviewListItemDto
+     */
+    'placeId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletReviewListItemDto
+     */
+    'placeName': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletReviewListItemDto
+     */
+    'placeAddress': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletReviewListItemDto
+     */
+    'toiletReviewId': string;
+    /**
+     * 
+     * @type {ToiletLocationTypeDto}
+     * @memberof ToiletReviewListItemDto
+     */
+    'toiletLocationType': ToiletLocationTypeDto;
+    /**
+     * 
+     * @type {number}
+     * @memberof ToiletReviewListItemDto
+     */
+    'floor'?: number;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof ToiletReviewListItemDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletReviewListItemDto
+     */
+    'comment'?: string;
+    /**
+     * 
+     * @type {Array<ImageDto>}
+     * @memberof ToiletReviewListItemDto
+     */
+    'images'?: Array<ImageDto>;
+    /**
+     * 
+     * @type {AccessibilityRegistererDto}
+     * @memberof ToiletReviewListItemDto
+     */
+    'user': AccessibilityRegistererDto;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ToiletReviewListItemDto
+     */
+    'isDeletable': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ToiletReviewListItemDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof ToiletReviewListItemDto
+     */
+    'totalUpvoteCount': number;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ToiletReviewListItemDto
      */
     'createdAt': EpochMillisTimestamp;
 }
@@ -3561,12 +3962,52 @@ export interface UpdateUserInfoPostRequest {
 
 export const UpvoteTargetTypeDto = {
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
-    BuildingAccessibility: 'BUILDING_ACCESSIBILITY'
+    BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
+    PlaceReview: 'PLACE_REVIEW',
+    ToiletReview: 'TOILET_REVIEW'
 } as const;
 
 export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof UpvoteTargetTypeDto];
 
 
+/**
+ * 
+ * @export
+ * @interface UpvotedUserDto
+ */
+export interface UpvotedUserDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedUserDto
+     */
+    'nickname': string;
+}
+/**
+ * 
+ * @export
+ * @interface UpvotedUserStatisticsEntryDto
+ */
+export interface UpvotedUserStatisticsEntryDto {
+    /**
+     * 
+     * @type {UserMobilityToolDto}
+     * @memberof UpvotedUserStatisticsEntryDto
+     */
+    'mobilityTool': UserMobilityToolDto;
+    /**
+     * 소수점 한자리까지 표기
+     * @type {number}
+     * @memberof UpvotedUserStatisticsEntryDto
+     */
+    'percentage': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpvotedUserStatisticsEntryDto
+     */
+    'totalCount': number;
+}
 /**
  * 유저 정보.
  * @export
@@ -4652,6 +5093,80 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 유저의 리뷰 등록 활동을 조회한다
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewActivityReportPost: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/getReviewActivityReport`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
+         * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUpvoteDetailsGet: async (getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getUpvoteDetailsRequestDto' is not null or undefined
+            assertParamExists('getUpvoteDetailsGet', 'getUpvoteDetailsRequestDto', getUpvoteDetailsRequestDto)
+            const localVarPath = `/getUpvoteDetails`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getUpvoteDetailsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 유저 정보를 조회한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5047,6 +5562,86 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 
+         * @summary 내가 작성한 내부 공간 리뷰를 페이징 해서 가져온다.
+         * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRegisteredPlaceReviewsPost: async (listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listRegisteredReviewsRequestDto' is not null or undefined
+            assertParamExists('listRegisteredPlaceReviewsPost', 'listRegisteredReviewsRequestDto', listRegisteredReviewsRequestDto)
+            const localVarPath = `/listRegisteredPlaceReviews`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listRegisteredReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 내가 작성한 화장실 리뷰를 페이징 해서 가져온다.
+         * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRegisteredToiletReviewsPost: async (listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listRegisteredReviewsRequestDto' is not null or undefined
+            assertParamExists('listRegisteredToiletReviewsPost', 'listRegisteredReviewsRequestDto', listRegisteredReviewsRequestDto)
+            const localVarPath = `/listRegisteredToiletReviews`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listRegisteredReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 음식점, 카페, 편의점, 병원 같이 키워드를 내려주면 searchPlaces 키워드로 쓸 수 있습니다.
          * @summary 특정 카테고리의 점포들을 검색할 수 있게 키워드들을 내려준다.
          * @param {object} body 
@@ -5160,6 +5755,86 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(getAccessibilityPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 내가 작성한 내부 공간 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+         * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedPlaceReviewsPost: async (listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listUpvotedReviewsRequestDto' is not null or undefined
+            assertParamExists('listUpvotedPlaceReviewsPost', 'listUpvotedReviewsRequestDto', listUpvotedReviewsRequestDto)
+            const localVarPath = `/listUpvotedPlaceReviews`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listUpvotedReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+         * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedToiletReviewsPost: async (listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listUpvotedReviewsRequestDto' is not null or undefined
+            assertParamExists('listUpvotedToiletReviewsPost', 'listUpvotedReviewsRequestDto', listUpvotedReviewsRequestDto)
+            const localVarPath = `/listUpvotedToiletReviews`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listUpvotedReviewsRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -6122,6 +6797,27 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 유저의 리뷰 등록 활동을 조회한다
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getReviewActivityReportPost(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetReviewActivityReportResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getReviewActivityReportPost(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
+         * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetUpvoteDetailsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 유저 정보를 조회한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6232,6 +6928,28 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 
+         * @summary 내가 작성한 내부 공간 리뷰를 페이징 해서 가져온다.
+         * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listRegisteredPlaceReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRegisteredPlaceReviewsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRegisteredPlaceReviewsPost(listRegisteredReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 내가 작성한 화장실 리뷰를 페이징 해서 가져온다.
+         * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRegisteredToiletReviewsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 음식점, 카페, 편의점, 병원 같이 키워드를 내려주면 searchPlaces 키워드로 쓸 수 있습니다.
          * @summary 특정 카테고리의 점포들을 검색할 수 있게 키워드들을 내려준다.
          * @param {object} body 
@@ -6262,6 +6980,28 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async listToiletReviewsPost(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ToiletReviewDto>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listToiletReviewsPost(getAccessibilityPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 내가 작성한 내부 공간 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+         * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListUpvotedPlaceReviewsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+         * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUpvotedToiletReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListUpvotedToiletReviewsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listUpvotedToiletReviewsPost(listUpvotedReviewsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -6710,6 +7450,25 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 유저의 리뷰 등록 활동을 조회한다
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewActivityReportPost(options?: any): AxiosPromise<GetReviewActivityReportResponseDto> {
+            return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
+         * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: any): AxiosPromise<GetUpvoteDetailsResponseDto> {
+            return localVarFp.getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 유저 정보를 조회한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6810,6 +7569,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.listPlacesInBuildingPost(listPlacesInBuildingPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary 내가 작성한 내부 공간 리뷰를 페이징 해서 가져온다.
+         * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRegisteredPlaceReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: any): AxiosPromise<ListRegisteredPlaceReviewsResponseDto> {
+            return localVarFp.listRegisteredPlaceReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 내가 작성한 화장실 리뷰를 페이징 해서 가져온다.
+         * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: any): AxiosPromise<ListRegisteredToiletReviewsResponseDto> {
+            return localVarFp.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 음식점, 카페, 편의점, 병원 같이 키워드를 내려주면 searchPlaces 키워드로 쓸 수 있습니다.
          * @summary 특정 카테고리의 점포들을 검색할 수 있게 키워드들을 내려준다.
          * @param {object} body 
@@ -6838,6 +7617,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listToiletReviewsPost(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: any): AxiosPromise<Array<ToiletReviewDto>> {
             return localVarFp.listToiletReviewsPost(getAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 내가 작성한 내부 공간 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+         * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: any): AxiosPromise<ListUpvotedPlaceReviewsResponseDto> {
+            return localVarFp.listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+         * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedToiletReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: any): AxiosPromise<ListUpvotedToiletReviewsResponseDto> {
+            return localVarFp.listUpvotedToiletReviewsPost(listUpvotedReviewsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7318,6 +8117,29 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary 유저의 리뷰 등록 활동을 조회한다
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getReviewActivityReportPost(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getReviewActivityReportPost(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
+     * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 유저 정보를 조회한다.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7438,6 +8260,30 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 
+     * @summary 내가 작성한 내부 공간 리뷰를 페이징 해서 가져온다.
+     * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listRegisteredPlaceReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listRegisteredPlaceReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 내가 작성한 화장실 리뷰를 페이징 해서 가져온다.
+     * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 음식점, 카페, 편의점, 병원 같이 키워드를 내려주면 searchPlaces 키워드로 쓸 수 있습니다.
      * @summary 특정 카테고리의 점포들을 검색할 수 있게 키워드들을 내려준다.
      * @param {object} body 
@@ -7471,6 +8317,30 @@ export class DefaultApi extends BaseAPI {
      */
     public listToiletReviewsPost(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listToiletReviewsPost(getAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 내가 작성한 내부 공간 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+     * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
+     * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listUpvotedToiletReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listUpvotedToiletReviewsPost(listUpvotedReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
