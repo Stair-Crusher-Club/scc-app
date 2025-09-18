@@ -1,9 +1,10 @@
 import EmptyViewText from '@/components/empty/EmptyViewText';
-import FeedbackButton from '@/components/FeedbackButton';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import TabBar from '@/components/TabBar';
 import {color} from '@/constant/color';
 import useAppComponents from '@/hooks/useAppComponents';
+import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
+import ToastUtils from '@/utils/ToastUtils';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
@@ -18,6 +19,31 @@ import PlaceToiletReviewItem from './components/PlaceToiletReviewItem';
 export default function ReviewHistoryScreen() {
   const {api} = useAppComponents();
   const [currentTab, setCurrentTab] = useState<ReviewHistoryTab>('place');
+
+  const updateUpvoteStatus = async ({
+    id,
+    newUpvotedStatus,
+    targetType,
+  }: UpdateUpvoteStatusParams) => {
+    try {
+      if (newUpvotedStatus === false) {
+        await api.cancelUpvotePost({
+          id,
+          targetType,
+        });
+      } else {
+        await api.giveUpvotePost({
+          id,
+          targetType,
+        });
+      }
+      ToastUtils.show('좋은 의견 감사합니다!');
+      return true;
+    } catch (error: any) {
+      ToastUtils.showOnApiError(error);
+      return false;
+    }
+  };
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
     useInfiniteQuery({
@@ -74,8 +100,11 @@ export default function ReviewHistoryScreen() {
                     padding: 20,
                     gap: 16,
                   }}>
-                  <PlaceReviewItem placeId={item.placeId} review={item} />
-                  <FeedbackButton />
+                  <PlaceReviewItem
+                    placeId={item.placeId}
+                    review={item}
+                    updateUpvoteStatus={updateUpvoteStatus}
+                  />
                 </View>
                 <Divider />
               </>
@@ -88,8 +117,11 @@ export default function ReviewHistoryScreen() {
                     padding: 20,
                     gap: 16,
                   }}>
-                  <PlaceToiletReviewItem placeId={item.placeId} review={item} />
-                  <FeedbackButton />
+                  <PlaceToiletReviewItem
+                    placeId={item.placeId}
+                    review={item}
+                    updateUpvoteStatus={updateUpvoteStatus}
+                  />
                 </View>
                 <Divider />
               </>

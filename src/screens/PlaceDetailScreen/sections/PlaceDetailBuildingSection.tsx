@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -11,6 +11,7 @@ import {
   Building,
   Place,
 } from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -41,15 +42,14 @@ export default function PlaceDetailBuildingSection({
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
-  const [isUpvoted, setIsUpvoted] = useState(false);
-  const [totalUpvoteCount, setTotalUpvoteCount] = useState<number | undefined>(
-    undefined,
-  );
 
-  useEffect(() => {
-    setIsUpvoted(accessibility?.buildingAccessibility?.isUpvoted ?? false);
-    setTotalUpvoteCount(accessibility?.buildingAccessibility?.totalUpvoteCount);
-  }, [accessibility]);
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: accessibility?.buildingAccessibility?.isUpvoted ?? false,
+    initialTotalCount: accessibility?.buildingAccessibility?.totalUpvoteCount,
+    targetId: accessibility?.buildingAccessibility?.id,
+    targetType: 'BUILDING_ACCESSIBILITY',
+    updateUpvoteStatus,
+  });
 
   if (!accessibility?.buildingAccessibility) {
     return (
@@ -73,28 +73,6 @@ export default function PlaceDetailBuildingSection({
       placeId: place.id,
     });
   }
-
-  const toggleUpvote = async () => {
-    checkAuth(async () => {
-      const buildingAccessibilityId =
-        accessibility?.buildingAccessibility?.buildingId;
-      if (buildingAccessibilityId) {
-        setIsUpvoted(!isUpvoted);
-        setTotalUpvoteCount(prev => {
-          const currentCount = prev ?? 0;
-          return isUpvoted ? currentCount - 1 : currentCount + 1;
-        });
-        const success = await updateUpvoteStatus?.({
-          id: buildingAccessibilityId,
-          newUpvotedStatus: !isUpvoted,
-          targetType: 'BUILDING_ACCESSIBILITY',
-        });
-        if (!success) {
-          setIsUpvoted(isUpvoted);
-        }
-      }
-    });
-  };
 
   return (
     <S.Section>

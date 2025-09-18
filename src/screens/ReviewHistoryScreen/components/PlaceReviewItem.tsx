@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {Alert} from 'react-native';
 import styled from 'styled-components/native';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import MoreIcon from '@/assets/icon/ic_more.svg';
@@ -13,19 +14,25 @@ import {
   SPACIOUS_LABELS,
 } from '@/constant/review';
 import {PlaceReviewListItemDto} from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
+import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
+import useNavigation from '@/navigation/useNavigation';
 import {useDeleteReview} from '../../PlaceDetailScreen/hooks/useDeleteReview';
 import DeleteBottomSheet from '../../PlaceDetailScreen/modals/DeleteBottomSheet';
 
 export default function PlaceReviewItem({
   placeId,
   review,
+  updateUpvoteStatus,
 }: {
   placeId: string;
   review: PlaceReviewListItemDto;
+  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }) {
+  const navigation = useNavigation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const deletePlaceReview = useDeleteReview({
@@ -33,11 +40,27 @@ export default function PlaceReviewItem({
     reviewId: review.placeReviewId,
     placeId,
   });
+
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: review.isUpvoted,
+    initialTotalCount: review.totalUpvoteCount,
+    targetId: review.placeReviewId,
+    targetType: 'PLACE_REVIEW',
+    updateUpvoteStatus,
+  });
+
   const reviewText = review.comment;
   const reviewDate = dayjs(review.createdAt.value).format('YYYY.MM.DD');
 
   return (
-    <Container>
+    <Container
+      onPress={() =>
+        navigation.navigate('PlaceDetail', {
+          placeInfo: {
+            placeId: review.placeId,
+          },
+        })
+      }>
       <HeaderRow>
         <HeaderLeft>
           <PlaceName>{review.placeName}</PlaceName>
@@ -111,6 +134,12 @@ export default function PlaceReviewItem({
         )}
       </ReviewContentColumn>
 
+      <FeedbackButton
+        upvoted={isUpvoted}
+        total={totalUpvoteCount}
+        onPressUpvote={toggleUpvote}
+      />
+
       <DeleteBottomSheet
         isVisible={isDeleteModalVisible}
         confirmText={'리뷰를 정말 삭제할까요?'}
@@ -125,7 +154,7 @@ export default function PlaceReviewItem({
 }
 
 // styled-components
-const Container = styled.View`
+const Container = styled.Pressable`
   gap: 16px;
   flex-direction: column;
 `;

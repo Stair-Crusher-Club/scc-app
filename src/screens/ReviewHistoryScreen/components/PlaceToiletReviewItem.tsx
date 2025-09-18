@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {Alert, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 import MoreIcon from '@/assets/icon/ic_more.svg';
@@ -11,19 +12,25 @@ import {font} from '@/constant/font';
 import {doorTypeMap} from '@/constant/options';
 import {TOILET_LOCATION_TYPE_LABELS} from '@/constant/review';
 import {ToiletReviewListItemDto} from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
+import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
+import useNavigation from '@/navigation/useNavigation';
 import {useDeleteReview} from '../../PlaceDetailScreen/hooks/useDeleteReview';
 import DeleteBottomSheet from '../../PlaceDetailScreen/modals/DeleteBottomSheet';
 
 export default function PlaceToiletReviewItem({
   placeId,
   review,
+  updateUpvoteStatus,
 }: {
   placeId: string;
   review: ToiletReviewListItemDto;
+  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }) {
+  const navigation = useNavigation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const deleteToiletReview = useDeleteReview({
@@ -31,12 +38,28 @@ export default function PlaceToiletReviewItem({
     reviewId: review.toiletReviewId,
     placeId,
   });
+
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: review.isUpvoted,
+    initialTotalCount: review.totalUpvoteCount,
+    targetId: review.toiletReviewId,
+    targetType: 'TOILET_REVIEW',
+    updateUpvoteStatus,
+  });
+
   const reviewImages = review.images;
   const reviewText = review.comment;
   const reviewDate = dayjs(review.createdAt.value).format('YYYY.MM.DD');
 
   return (
-    <Container>
+    <Container
+      onPress={() =>
+        navigation.navigate('PlaceDetail', {
+          placeInfo: {
+            placeId: review.placeId,
+          },
+        })
+      }>
       <HeaderRow>
         <HeaderLeft>
           <PlaceName>{review.placeName}</PlaceName>
@@ -132,6 +155,12 @@ export default function PlaceToiletReviewItem({
         )}
       </ReviewContentColumn>
 
+      <FeedbackButton
+        upvoted={isUpvoted}
+        total={totalUpvoteCount}
+        onPressUpvote={toggleUpvote}
+      />
+
       <DeleteBottomSheet
         isVisible={isDeleteModalVisible}
         confirmText={'화장실 리뷰를 정말 삭제할까요?'}
@@ -146,7 +175,7 @@ export default function PlaceToiletReviewItem({
 }
 
 // styled-components
-const Container = styled.View`
+const Container = styled.Pressable`
   gap: 16px;
   flex-direction: column;
 `;

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -7,6 +7,7 @@ import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceDetailCommentSection from '@/screens/PlaceDetailScreen/components/PlaceDetailCommentSection';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -38,15 +39,13 @@ export default function PlaceDetailEntranceSection({
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
-  const [isUpvoted, setIsUpvoted] = useState(false);
-  const [totalUpvoteCount, setTotalUpvoteCount] = useState<number | undefined>(
-    undefined,
-  );
-
-  useEffect(() => {
-    setIsUpvoted(accessibility?.placeAccessibility?.isUpvoted ?? false);
-    setTotalUpvoteCount(accessibility?.totalFavoriteCount);
-  }, [accessibility]);
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: accessibility?.placeAccessibility?.isUpvoted ?? false,
+    initialTotalCount: accessibility?.totalFavoriteCount,
+    targetId: accessibility?.placeAccessibility?.id,
+    targetType: 'PLACE_ACCESSIBILITY',
+    updateUpvoteStatus,
+  });
 
   if (!accessibility?.placeAccessibility) {
     return (
@@ -64,27 +63,6 @@ export default function PlaceDetailEntranceSection({
   function handlePressAddComment() {
     navigation.navigate('AddComment', {type: 'place', placeId: place.id});
   }
-
-  const toggleUpvote = async () => {
-    checkAuth(async () => {
-      const placeAccessibilityId = accessibility?.placeAccessibility?.id;
-      if (placeAccessibilityId) {
-        setIsUpvoted(!isUpvoted);
-        setTotalUpvoteCount(prev => {
-          const currentCount = prev ?? 0;
-          return isUpvoted ? currentCount - 1 : currentCount + 1;
-        });
-        const success = await updateUpvoteStatus?.({
-          id: placeAccessibilityId,
-          newUpvotedStatus: !isUpvoted,
-          targetType: 'PLACE_ACCESSIBILITY',
-        });
-        if (!success) {
-          setIsUpvoted(isUpvoted);
-        }
-      }
-    });
-  };
 
   return (
     <S.Section>

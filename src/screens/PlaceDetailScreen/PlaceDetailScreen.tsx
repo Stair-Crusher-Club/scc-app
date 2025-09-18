@@ -318,6 +318,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailIndoorSection
           reviews={reviewPost ?? []}
           placeId={place.id}
+          updateUpvoteStatus={updateUpvoteStatus}
         />
       ),
       order: 3,
@@ -353,6 +354,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailToiletSection
           toiletReviews={toiletPost ?? []}
           placeId={place.id}
+          updateUpvoteStatus={updateUpvoteStatus}
         />
       ),
       order: 5,

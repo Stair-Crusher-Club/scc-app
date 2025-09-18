@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import React, {useState} from 'react';
 import {Alert, View} from 'react-native';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 
@@ -12,7 +13,9 @@ import {font} from '@/constant/font';
 import {doorTypeMap} from '@/constant/options';
 import {TOILET_LOCATION_TYPE_LABELS} from '@/constant/review';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
+import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {useDeleteReview} from '../hooks/useDeleteReview';
@@ -22,9 +25,11 @@ import UserMobilityLabel from './UserMobilityLabel';
 export default function PlaceToiletReviewItem({
   placeId,
   review,
+  updateUpvoteStatus,
 }: {
   placeId: string;
   review: ToiletReviewDto;
+  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -33,6 +38,15 @@ export default function PlaceToiletReviewItem({
     reviewId: review.id,
     placeId,
   });
+
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: review.isUpvoted,
+    initialTotalCount: review.totalUpvoteCount,
+    targetId: review.id,
+    targetType: 'TOILET_REVIEW',
+    updateUpvoteStatus,
+  });
+
   const reviewImages = review.images;
   const reviewText = review.comment;
   const reviewDate = dayjs(review.createdAt.value).format('YYYY.MM.DD');
@@ -138,6 +152,12 @@ export default function PlaceToiletReviewItem({
           </>
         )}
       </ReviewContentColumn>
+
+      <FeedbackButton
+        upvoted={isUpvoted}
+        total={totalUpvoteCount}
+        onPressUpvote={toggleUpvote}
+      />
 
       <DeleteBottomSheet
         isVisible={isDeleteModalVisible}
