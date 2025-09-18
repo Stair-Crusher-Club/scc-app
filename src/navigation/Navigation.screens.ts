@@ -58,6 +58,7 @@ import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
 } from '@/screens/ToiletReviewFormScreen';
+import UpvoteAnalyticsScreen from '@/screens/UpvoteAnalyticsScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
@@ -116,6 +117,11 @@ export const MainNavigationScreens: {
     name: 'Conquerer/Upvote',
     component: ConquererUpVoteScreen,
     options: {headerShown: true, headerTitle: '도움이 되었어요'},
+  },
+  {
+    name: 'UpvoteAnalytics',
+    component: UpvoteAnalyticsScreen,
+    options: {headerShown: true, headerTitle: '도움돼요'},
   },
   {name: 'Camera', component: CameraScreen},
   {
@@ -251,6 +257,7 @@ export type ScreenParams = {
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   'Conquerer/Upvote': undefined;
+  UpvoteAnalytics: {placeId: string};
   FavoritePlaces: undefined;
   CrusherActivity: CrusherActivityScreenParams;
 
