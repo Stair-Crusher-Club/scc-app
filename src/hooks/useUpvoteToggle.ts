@@ -66,15 +66,15 @@ export function useUpvoteToggle({
         });
 
         queryClient.invalidateQueries({
-          queryKey: ['ReviewList'],
+          queryKey: ['ReviewList', targetType],
         });
 
         queryClient.invalidateQueries({
-          queryKey: ['ReviewsUpvoted'],
+          queryKey: ['ReviewsUpvoted', targetType],
         });
 
         queryClient.invalidateQueries({
-          queryKey: ['ReviewHistory'],
+          queryKey: ['ReviewHistory', 'Upvote', targetType],
         });
       }
     });

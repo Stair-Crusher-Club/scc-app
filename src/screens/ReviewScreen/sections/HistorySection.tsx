@@ -3,6 +3,7 @@ import * as S from '../../ConquererScreen/sections/CrusherHistorySection.style';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
 import {color} from '@/constant/color';
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import {useQueries} from '@tanstack/react-query';
@@ -14,12 +15,12 @@ export default function HistorySection() {
   const [placeReview, toiletReview] = useQueries({
     queries: [
       {
-        queryKey: ['ReviewHistory', 'Review', 'Place'],
+        queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.PlaceReview],
         queryFn: async () =>
           (await api.listRegisteredPlaceReviewsPost({limit: 1})).data,
       },
       {
-        queryKey: ['ReviewHistory', 'Review', 'Toilet'],
+        queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.ToiletReview],
         queryFn: async () =>
           (await api.listRegisteredToiletReviewsPost({limit: 1})).data,
       },
@@ -28,12 +29,12 @@ export default function HistorySection() {
   const [placeUpvote, toiletUpvote] = useQueries({
     queries: [
       {
-        queryKey: ['ReviewHistory', 'Upvote', 'Place'],
+        queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.PlaceReview],
         queryFn: async () =>
           (await api.listUpvotedPlaceReviewsPost({limit: 1})).data,
       },
       {
-        queryKey: ['ReviewHistory', 'Upvote', 'Toilet'],
+        queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.ToiletReview],
         queryFn: async () =>
           (await api.listUpvotedToiletReviewsPost({limit: 1})).data,
       },

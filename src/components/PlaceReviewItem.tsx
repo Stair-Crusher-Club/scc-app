@@ -47,9 +47,8 @@ export default function PlaceReviewItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
-  // Type guards to determine review type
-  const isDetailReview = 'user' in review;
-  const isHistoryReview = 'placeName' in review;
+  const isDetailReview = variant === 'detail';
+  const isHistoryReview = variant === 'history';
 
   const deletePlaceReview = useDeleteReview({
     type: 'place',
@@ -76,7 +75,7 @@ export default function PlaceReviewItem({
     if (variant === 'history' && isHistoryReview) {
       navigation.navigate('PlaceDetail', {
         placeInfo: {
-          placeId: review.placeId,
+          placeId: (review as PlaceReviewListItemDto).placeId,
         },
       });
     }
@@ -104,8 +103,10 @@ export default function PlaceReviewItem({
     if (variant === 'history' && isHistoryReview) {
       return (
         <HeaderLeft variant={variant}>
-          <PlaceName>{review.placeName}</PlaceName>
-          <PlaceAddress>{review.placeAddress}</PlaceAddress>
+          <PlaceName>{(review as PlaceReviewListItemDto).placeName}</PlaceName>
+          <PlaceAddress>
+            {(review as PlaceReviewListItemDto).placeAddress}
+          </PlaceAddress>
         </HeaderLeft>
       );
     }
