@@ -5,6 +5,7 @@ import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
 import MenuCrusherIcon from '@/assets/icon/menu_ic_crusher.svg';
 import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
+import MenuSCCRoadIcon from '@/assets/icon/menu_ic_scc_road.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
 import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -121,7 +122,7 @@ export default function MenuListSection() {
       <SccTouchableOpacity elementName="menu_bbucleroad" onPress={goToSCCRoad}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
-            <MenuReviewIcon />
+            <MenuSCCRoadIcon />
             <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
           </S.MenuTitleWrapper>
           <RightAngleArrowIcon color={color.gray30} />
