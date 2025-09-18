@@ -1,12 +1,15 @@
-import {ReviewHistoryTab} from '../types';
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 
-export const tabItems = [
+export const tabItems: {
+  value: UpvoteTargetTypeDto;
+  label: string;
+}[] = [
   {
-    value: 'place' as ReviewHistoryTab,
+    value: 'PLACE_REVIEW',
     label: '내부 이용 정보',
   },
   {
-    value: 'toilet' as ReviewHistoryTab,
+    value: 'TOILET_REVIEW',
     label: '장애인 화장실 정보',
   },
 ];

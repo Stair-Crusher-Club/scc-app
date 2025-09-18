@@ -2,6 +2,7 @@ import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import TabBar from '@/components/TabBar';
 import {color} from '@/constant/color';
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
@@ -11,12 +12,12 @@ import {useState} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 import {tabItems} from '../ReviewHistoryScreen/constants';
-import {ReviewHistoryTab} from '../ReviewHistoryScreen/types';
 import Item from './components/Item';
 
 export default function ReviewUpVoteScreen() {
   const {api} = useAppComponents();
-  const [currentTab, setCurrentTab] = useState<ReviewHistoryTab>('place');
+  const [currentTab, setCurrentTab] =
+    useState<UpvoteTargetTypeDto>('PLACE_REVIEW');
 
   const updateUpvoteStatus = async ({
     id,
@@ -47,7 +48,7 @@ export default function ReviewUpVoteScreen() {
     useInfiniteQuery({
       queryKey: ['ReviewsUpvoted', currentTab],
       queryFn: async ({pageParam}) => {
-        if (currentTab === 'place') {
+        if (currentTab === 'PLACE_REVIEW') {
           return (
             await api.listUpvotedPlaceReviewsPost({
               nextToken: pageParam,
@@ -76,7 +77,7 @@ export default function ReviewUpVoteScreen() {
       <FlashList
         data={
           data?.pages.flatMap(page => {
-            if (currentTab === 'place') {
+            if (currentTab === 'PLACE_REVIEW') {
               return (page as any).placeReviews;
             } else {
               return (page as any).toiletReviews;

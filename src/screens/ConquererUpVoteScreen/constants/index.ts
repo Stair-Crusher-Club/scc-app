@@ -1,12 +1,15 @@
-import {ConquererUpvoteTab} from '../types';
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 
-export const tabItems = [
+export const tabItems: {
+  value: UpvoteTargetTypeDto;
+  label: string;
+}[] = [
   {
-    value: 'place' as ConquererUpvoteTab,
+    value: 'PLACE_ACCESSIBILITY',
     label: '장소',
   },
   {
-    value: 'building' as ConquererUpvoteTab,
+    value: 'BUILDING_ACCESSIBILITY',
     label: '건물',
   },
 ];

@@ -1,11 +1,13 @@
 import {ScreenLayout} from '@/components/ScreenLayout';
 import TabBar from '@/components/TabBar';
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import {useState} from 'react';
 import {tabItems} from './constants';
-import {ConquererUpvoteTab} from './types';
 
 export default function ConquererUpvoteScreen() {
-  const [currentTab, setCurrentTab] = useState<ConquererUpvoteTab>('place');
+  const [currentTab, setCurrentTab] = useState<UpvoteTargetTypeDto>(
+    'PLACE_ACCESSIBILITY',
+  );
 
   return (
     <ScreenLayout isHeaderVisible={true}>

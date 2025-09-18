@@ -1,14 +1,16 @@
 import {useEffect, useState} from 'react';
 
 import {useCheckAuth} from '@/utils/checkAuth';
+import {useQueryClient} from '@tanstack/react-query';
 
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 
 interface UseUpvoteToggleParams {
   initialIsUpvoted: boolean;
   initialTotalCount: number | undefined;
   targetId: string | undefined;
-  targetType: UpdateUpvoteStatusParams['targetType'];
+  targetType: UpvoteTargetTypeDto;
   updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }
 
@@ -26,6 +28,7 @@ export function useUpvoteToggle({
   updateUpvoteStatus,
 }: UseUpvoteToggleParams): UseUpvoteToggleReturn {
   const checkAuth = useCheckAuth();
+  const queryClient = useQueryClient();
 
   const [isUpvoted, setIsUpvoted] = useState(initialIsUpvoted);
   const [totalUpvoteCount, setTotalUpvoteCount] = useState<number | undefined>(
@@ -41,13 +44,7 @@ export function useUpvoteToggle({
     checkAuth(async () => {
       if (!targetId) return;
 
-      // Optimistic update
       const newIsUpvoted = !isUpvoted;
-      setIsUpvoted(newIsUpvoted);
-      setTotalUpvoteCount(prev => {
-        const currentCount = prev ?? 0;
-        return newIsUpvoted ? currentCount + 1 : currentCount - 1;
-      });
 
       // API call
       const success = await updateUpvoteStatus?.({
@@ -56,12 +53,28 @@ export function useUpvoteToggle({
         targetType,
       });
 
-      // Rollback on failure
-      if (!success) {
-        setIsUpvoted(isUpvoted);
+      // Only update state and invalidate queries on success
+      if (success) {
+        setIsUpvoted(newIsUpvoted);
         setTotalUpvoteCount(prev => {
           const currentCount = prev ?? 0;
-          return isUpvoted ? currentCount + 1 : currentCount - 1;
+          return newIsUpvoted ? currentCount + 1 : currentCount - 1;
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['PlaceDetail'],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewList'],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewsUpvoted'],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewHistory'],
         });
       }
     });
