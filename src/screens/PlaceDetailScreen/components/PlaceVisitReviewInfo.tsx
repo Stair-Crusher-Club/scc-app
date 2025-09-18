@@ -6,7 +6,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
-import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
+import PlaceDetailPlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
 import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -37,7 +37,7 @@ export default function PlaceVisitReviewInfo({
       <ItemList>
         {reviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceReviewItem
+            <PlaceDetailPlaceReviewItem
               placeId={placeId}
               review={review}
               updateUpvoteStatus={updateUpvoteStatus}

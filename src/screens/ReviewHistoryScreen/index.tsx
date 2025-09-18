@@ -12,8 +12,8 @@ import {useState} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 import AchievementsSection from '../ConquererHistoryScreen/sections/AchievementsSection';
-import PlaceReviewItem from './components/PlaceReviewItem';
-import PlaceToiletReviewItem from './components/PlaceToiletReviewItem';
+import ReviewHistoryPlaceReviewItem from './components/PlaceReviewItem';
+import ReviewHistoryPlaceToiletReviewItem from './components/PlaceToiletReviewItem';
 import {tabItems} from './constants';
 
 // 지금까지 내가 작성한 리뷰
@@ -102,7 +102,7 @@ export default function ReviewHistoryScreen() {
                     padding: 20,
                     gap: 16,
                   }}>
-                  <PlaceReviewItem
+                  <ReviewHistoryPlaceReviewItem
                     placeId={item.placeId}
                     review={item}
                     updateUpvoteStatus={updateUpvoteStatus}
@@ -119,7 +119,7 @@ export default function ReviewHistoryScreen() {
                     padding: 20,
                     gap: 16,
                   }}>
-                  <PlaceToiletReviewItem
+                  <ReviewHistoryPlaceToiletReviewItem
                     placeId={item.placeId}
                     review={item}
                     updateUpvoteStatus={updateUpvoteStatus}

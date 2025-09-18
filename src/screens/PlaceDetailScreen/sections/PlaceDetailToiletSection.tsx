@@ -7,7 +7,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
-import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
+import PlaceDetailPlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -47,7 +47,7 @@ export default function PlaceDetailToiletSection({
       <ItemList>
         {toiletReviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceToiletReviewItem
+            <PlaceDetailPlaceToiletReviewItem
               placeId={placeId}
               review={review}
               updateUpvoteStatus={updateUpvoteStatus}
