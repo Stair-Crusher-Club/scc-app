@@ -3,14 +3,50 @@ import * as S from '../../ConquererScreen/sections/CrusherHistorySection.style';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
 import {color} from '@/constant/color';
+import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
+import {useQueries} from '@tanstack/react-query';
 
 export default function HistorySection() {
+  const {api} = useAppComponents();
   const navigation = useNavigation();
-  const data = {
-    totalNumberOfReviews: 10,
-    totalNumberOfUpvote: 3,
-  };
+
+  const [placeReview, toiletReview] = useQueries({
+    queries: [
+      {
+        queryKey: ['ReviewHistory', 'Review', 'Place'],
+        queryFn: async () =>
+          (await api.listRegisteredPlaceReviewsPost({limit: 1})).data,
+      },
+      {
+        queryKey: ['ReviewHistory', 'Review', 'Toilet'],
+        queryFn: async () =>
+          (await api.listRegisteredToiletReviewsPost({limit: 1})).data,
+      },
+    ],
+  }).map(r => r.data);
+  const [placeUpvote, toiletUpvote] = useQueries({
+    queries: [
+      {
+        queryKey: ['ReviewHistory', 'Upvote', 'Place'],
+        queryFn: async () =>
+          (await api.listUpvotedPlaceReviewsPost({limit: 1})).data,
+      },
+      {
+        queryKey: ['ReviewHistory', 'Upvote', 'Toilet'],
+        queryFn: async () =>
+          (await api.listUpvotedToiletReviewsPost({limit: 1})).data,
+      },
+    ],
+  }).map(r => r.data);
+
+  const totalNumberOfReviews =
+    (placeReview?.totalNumberOfItems ?? 0) +
+    (toiletReview?.totalNumberOfItems ?? 0);
+
+  const totalNumberOfUpvote =
+    +(placeUpvote?.totalNumberOfUpvotes ?? 0) +
+    (toiletUpvote?.totalNumberOfUpvotes ?? 0);
 
   return (
     <S.CrusherHistorySection>
@@ -24,7 +60,7 @@ export default function HistorySection() {
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
-            <S.Count>{data.totalNumberOfReviews.toLocaleString()}</S.Count>
+            <S.Count>{totalNumberOfReviews.toLocaleString()}</S.Count>
           </S.CountBadge>
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
@@ -37,7 +73,7 @@ export default function HistorySection() {
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
-            <S.Count>{data.totalNumberOfUpvote.toLocaleString()}</S.Count>
+            <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
           </S.CountBadge>
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
