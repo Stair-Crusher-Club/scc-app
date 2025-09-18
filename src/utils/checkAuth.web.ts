@@ -3,7 +3,7 @@
 // we skip auth checks and always allow actions
 
 export function useCheckAuth() {
-  const checkAuth = async (onAuth: () => void, onFailed?: () => void) => {
+  const checkAuth = async (onAuth: () => void, _onFailed?: () => void) => {
     // On web, always allow the action (anonymous users can do everything)
     onAuth();
   };

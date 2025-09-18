@@ -25,6 +25,27 @@ export default function DesktopApp() {
           <NavigationContainer
             documentTitle={{
               formatter: () => '계단뿌셔클럽',
+            }}
+            linking={{
+              prefixes: ['http://localhost:3000', 'https://your-domain.com'],
+              config: {
+                screens: {
+                  Search: {
+                    path: 'search/:query',
+                    exact: true,
+                    parse: {
+                      query: (query: string) => decodeURIComponent(query),
+                    },
+                  },
+                  PlaceDetail: {
+                    path: 'search/:query/place/:placeId',
+                    parse: {
+                      query: (query: string) => decodeURIComponent(query),
+                      placeId: (placeId: string) => placeId,
+                    },
+                  },
+                },
+              },
             }}>
             <WebNavigation />
           </NavigationContainer>

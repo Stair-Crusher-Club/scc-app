@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -14,10 +14,12 @@ export default function SearchListView({
   searchResults,
   isLoading,
   isVisible,
+  searchQuery,
 }: {
   isVisible: boolean;
   isLoading: boolean;
   searchResults: PlaceListItem[];
+  searchQuery?: string;
 }) {
   const navigation = useNavigation();
   return (
@@ -37,11 +39,20 @@ export default function SearchListView({
                   item={item}
                   isHeightFlex
                   onPress={() => {
-                    navigation.navigate('PlaceDetail', {
-                      placeInfo: {
+                    if (searchQuery && Platform.OS === 'web') {
+                      // Web navigation
+                      (navigation as any).navigate('PlaceDetail', {
+                        query: searchQuery,
                         placeId: item.place.id,
-                      },
-                    });
+                      });
+                    } else {
+                      // Native app navigation
+                      navigation.navigate('PlaceDetail', {
+                        placeInfo: {
+                          placeId: item.place.id,
+                        },
+                      });
+                    }
                   }}
                 />
               </ItemWrapper>

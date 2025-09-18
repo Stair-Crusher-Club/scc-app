@@ -1,19 +1,34 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import styled from 'styled-components';
+import {RouteProp} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 import {PlaceListItem} from '@/generated-sources/openapi';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import PlaceDetailScreen from '@/screens/PlaceDetailScreen/PlaceDetailScreen';
 import {api, apiConfig} from '../config/api';
+import {WebStackParamList} from '../navigation/WebNavigation';
 
-export default function WebSearchScreen() {
-  const [selectedPlace, setSelectedPlace] = useState<PlaceListItem | null>(
-    null,
-  );
+type WebSearchScreenProps = {
+  route: RouteProp<WebStackParamList, keyof WebStackParamList>;
+  navigation: StackNavigationProp<WebStackParamList>;
+};
+
+export default function WebSearchScreen({
+  route,
+  navigation,
+}: WebSearchScreenProps) {
+  const [selectedPlace] = useState<PlaceListItem | null>(null);
   const [searchResults, setSearchResults] = useState<PlaceListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const [lastSearchedQuery, setLastSearchedQuery] = useState<string>('');
+
+  // Extract placeId from URL path (since it's not in route params with exact: false)
+  const [placeId, setPlaceId] = useState<string | undefined>();
 
   // Initialize anonymous login
   useEffect(() => {
@@ -38,38 +53,63 @@ export default function WebSearchScreen() {
   }, []);
 
   // Real API search functionality
-  const handleSearch = async (query: string) => {
-    if (!query.trim() || !accessToken) return;
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (!query.trim() || !accessToken) return;
 
-    console.log('🔍 Search started:', query.trim());
-    setIsLoading(true);
-    try {
-      const response = await api.searchPlacesPost({
-        searchText: query.trim(),
-        // 강남역 좌표를 기본값으로 사용
-        currentLocation: {
-          lat: 37.4979,
-          lng: 127.0276,
-        },
-        distanceMetersLimit: 1000,
-      });
+      console.log('🔍 Search started:', query.trim());
+      setIsLoading(true);
+      try {
+        const response = await api.searchPlacesPost({
+          searchText: query.trim(),
+          // 강남역 좌표를 기본값으로 사용
+          currentLocation: {
+            lat: 37.4979,
+            lng: 127.0276,
+          },
+          distanceMetersLimit: 1000,
+        });
 
-      console.log('✅ Search response:', response.data);
-      console.log('📊 Search results count:', response.data.items?.length || 0);
-      setSearchResults(response.data.items || []);
-      setIsLoading(false);
-      console.log('🔄 Loading state set to false, results updated');
-    } catch (error) {
-      setIsLoading(false);
-      console.error('Search failed:', error);
-      // 에러 발생 시 빈 결과 표시
-      setSearchResults([]);
+        console.log('✅ Search response:', response.data);
+        console.log(
+          '📊 Search results count:',
+          response.data.items?.length || 0,
+        );
+        setSearchResults(response.data.items || []);
+        setLastSearchedQuery(query.trim()); // Update last searched query to prevent duplicate calls
+        setIsLoading(false);
+        console.log('🔄 Loading state set to false, results updated');
+
+      } catch (error) {
+        setIsLoading(false);
+        console.error('Search failed:', error);
+        // 에러 발생 시 빈 결과 표시
+        setSearchResults([]);
+      }
+    },
+    [accessToken, navigation],
+  );
+
+  // Update searchQuery and placeId when route params change
+  useEffect(() => {
+    if (route.name === 'Search') {
+      const params = route.params as WebStackParamList['Search'];
+      setSearchQuery(params?.query || '');
+      setPlaceId(undefined);
+    } else if (route.name === 'PlaceDetail') {
+      const params = route.params as WebStackParamList['PlaceDetail'];
+      setSearchQuery(params.query);
+      setPlaceId(params.placeId);
     }
-  };
+  }, [route.name, route.params]);
 
-  const handlePlaceSelect = (place: PlaceListItem) => {
-    setSelectedPlace(place);
-  };
+
+  // URL의 query로 초기 검색 실행 (중복 호출 방지)
+  useEffect(() => {
+    if (searchQuery && accessToken && searchQuery !== lastSearchedQuery) {
+      handleSearch(searchQuery);
+    }
+  }, [searchQuery, accessToken, handleSearch, lastSearchedQuery]);
 
   if (isInitializing) {
     return (
@@ -96,9 +136,14 @@ export default function WebSearchScreen() {
         <SearchHeader>
           <SearchInput
             placeholder="장소를 검색해보세요"
-            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            value={searchQuery}
+            onChange={e => {
+              setSearchQuery((e.target as any).value);
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
-                handleSearch((e.target as HTMLInputElement).value);
+                handleSearch(searchQuery);
+                navigation.navigate('Search', {query: searchQuery});
               }
             }}
           />
@@ -107,6 +152,7 @@ export default function WebSearchScreen() {
           searchResults={searchResults}
           isLoading={isLoading}
           isVisible={true}
+          searchQuery={searchQuery}
         />
         {/* Debug info */}
         <div
@@ -126,7 +172,20 @@ export default function WebSearchScreen() {
 
       {/* Right Panel - Place Detail (1/5 width) */}
       <RightPanel>
-        {selectedPlace ? (
+        {placeId ? (
+          <PlaceDetailScreen
+            route={{
+              key: 'PlaceDetail',
+              name: 'PlaceDetail',
+              params: {
+                placeInfo: {
+                  placeId: placeId,
+                },
+              },
+            }}
+            navigation={navigation as any}
+          />
+        ) : selectedPlace ? (
           <PlaceDetailScreen
             route={{
               key: 'PlaceDetail',
@@ -180,6 +239,8 @@ const RightPanel = styled.div`
   background-color: #ffffff;
   border-left: 1px solid #e0e0e0;
   z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const MapBackground = styled.div`

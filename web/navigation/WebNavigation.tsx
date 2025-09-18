@@ -3,19 +3,34 @@ import WebSearchScreen from '../screens/WebSearchScreen';
 import {createStackNavigator} from '@react-navigation/stack';
 
 export type WebStackParamList = {
-  Search: undefined;
+  Search: {
+    query?: string;
+  };
+  PlaceDetail: {
+    query: string;
+    placeId: string;
+  };
 };
 
 const Stack = createStackNavigator<WebStackParamList>();
 
 export default function WebNavigation() {
   return (
-    <Stack.Navigator
-      initialRouteName="Search"
-      screenOptions={{
-        headerShown: false,
+    <div
+      style={{
+        height: '100vh',
+        width: '100vw',
+        display: 'flex',
+        flexDirection: 'column',
       }}>
-      <Stack.Screen name="Search" component={WebSearchScreen} />
-    </Stack.Navigator>
+      <Stack.Navigator
+        initialRouteName="Search"
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Stack.Screen name="Search" component={WebSearchScreen} />
+        <Stack.Screen name="PlaceDetail" component={WebSearchScreen} />
+      </Stack.Navigator>
+    </div>
   );
 }
