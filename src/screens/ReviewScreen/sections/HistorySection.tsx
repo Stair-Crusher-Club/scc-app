@@ -16,7 +16,9 @@ export default function HistorySection() {
     <S.CrusherHistorySection>
       <S.Title>리뷰 히스토리</S.Title>
       <S.Divier />
-      <S.Link onPress={() => navigation.navigate('Review/History')}>
+      <S.Link
+        elementName="review_link"
+        onPress={() => navigation.navigate('Review/History')}>
         <S.LinkName>
           <S.LinkText>지금까지 내가 작성한 리뷰</S.LinkText>
         </S.LinkName>
@@ -27,7 +29,9 @@ export default function HistorySection() {
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
       </S.Link>
-      <S.Link onPress={() => navigation.navigate('Review/Upvote')}>
+      <S.Link
+        elementName="review_upvote_link"
+        onPress={() => navigation.navigate('Review/Upvote')}>
         <S.LinkName>
           <S.LinkText>도움이 되었어요</S.LinkText>
         </S.LinkName>
