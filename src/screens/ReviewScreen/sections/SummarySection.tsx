@@ -1,13 +1,20 @@
 import {useMe} from '@/atoms/Auth';
+import useAppComponents from '@/hooks/useAppComponents';
+import {useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import * as S from '../../ConquererScreen/sections/ConquererSummarySection.style';
 
 export default function SummarySection() {
+  const {api} = useAppComponents();
   const {userInfo} = useMe();
-  const data = {
-    todayReviewCount: 10,
-    thisMonthReviewCount: 2,
-  };
+
+  const {data} = useQuery({
+    queryKey: ['ReviewReport'],
+    queryFn: async () => (await api.getReviewActivityReportPost()).data,
+  });
+
+  const todayReviewedCount = data?.todayReviewedCount ?? 0;
+  const thisMonthReviewedCount = data?.thisMonthReviewedCount ?? 0;
 
   return (
     <S.ConquererSummarySection>
@@ -18,14 +25,12 @@ export default function SummarySection() {
       <S.Dashboard>
         <S.Item>
           <S.ItemTitle>오늘의 리뷰</S.ItemTitle>
-          <S.ItemValue>{data?.todayReviewCount.toLocaleString()}개</S.ItemValue>
+          <S.ItemValue>{todayReviewedCount.toLocaleString()}개</S.ItemValue>
         </S.Item>
         <S.Divider />
         <S.Item>
           <S.ItemTitle>이번달 리뷰</S.ItemTitle>
-          <S.ItemValue>
-            {data?.thisMonthReviewCount.toLocaleString()}개
-          </S.ItemValue>
+          <S.ItemValue>{thisMonthReviewedCount.toLocaleString()}개</S.ItemValue>
         </S.Item>
       </S.Dashboard>
     </S.ConquererSummarySection>
