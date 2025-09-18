@@ -4,8 +4,6 @@ import TabBar from '@/components/TabBar';
 import {color} from '@/constant/color';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
-import ToastUtils from '@/utils/ToastUtils';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
@@ -21,31 +19,6 @@ export default function ReviewHistoryScreen() {
   const {api} = useAppComponents();
   const [currentTab, setCurrentTab] =
     useState<UpvoteTargetTypeDto>('PLACE_REVIEW');
-
-  const updateUpvoteStatus = async ({
-    id,
-    newUpvotedStatus,
-    targetType,
-  }: UpdateUpvoteStatusParams) => {
-    try {
-      if (newUpvotedStatus === false) {
-        await api.cancelUpvotePost({
-          id,
-          targetType,
-        });
-      } else {
-        await api.giveUpvotePost({
-          id,
-          targetType,
-        });
-      }
-      ToastUtils.show('좋은 의견 감사합니다!');
-      return true;
-    } catch (error: any) {
-      ToastUtils.showOnApiError(error);
-      return false;
-    }
-  };
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
     useInfiniteQuery({
@@ -105,7 +78,6 @@ export default function ReviewHistoryScreen() {
                   <ReviewHistoryPlaceReviewItem
                     placeId={item.placeId}
                     review={item}
-                    updateUpvoteStatus={updateUpvoteStatus}
                   />
                 </View>
                 <Divider />
@@ -122,7 +94,6 @@ export default function ReviewHistoryScreen() {
                   <ReviewHistoryPlaceToiletReviewItem
                     placeId={item.placeId}
                     review={item}
-                    updateUpvoteStatus={updateUpvoteStatus}
                   />
                 </View>
                 <Divider />
@@ -137,6 +108,7 @@ export default function ReviewHistoryScreen() {
         }}
         onEndReachedThreshold={0.5}
         ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
+        ListFooterComponent={<PaddingBottom />}
       />
     </ScreenLayout>
   );
@@ -145,4 +117,8 @@ export default function ReviewHistoryScreen() {
 const Divider = styled.View`
   height: 1px;
   background-color: ${color.gray20};
+`;
+
+const PaddingBottom = styled.View`
+  padding-bottom: 100px;
 `;

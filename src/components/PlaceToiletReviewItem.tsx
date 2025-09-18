@@ -18,7 +18,6 @@ import {
 } from '@/generated-sources/openapi';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useNavigation from '@/navigation/useNavigation';
@@ -31,14 +30,12 @@ type ReviewVariant = 'detail' | 'history';
 interface PlaceToiletReviewItemProps {
   placeId: string;
   review: ToiletReviewDto | ToiletReviewListItemDto;
-  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
   variant?: ReviewVariant;
 }
 
 export default function PlaceToiletReviewItem({
   placeId,
   review,
-  updateUpvoteStatus,
   variant = 'detail',
 }: PlaceToiletReviewItemProps) {
   const navigation = useNavigation();
@@ -63,7 +60,6 @@ export default function PlaceToiletReviewItem({
       ? (review as ToiletReviewDto).id
       : (review as ToiletReviewListItemDto).toiletReviewId,
     targetType: 'TOILET_REVIEW',
-    updateUpvoteStatus,
   });
 
   const reviewImages = review.images;

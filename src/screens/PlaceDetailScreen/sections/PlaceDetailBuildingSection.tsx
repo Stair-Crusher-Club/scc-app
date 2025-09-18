@@ -38,7 +38,6 @@ export default function PlaceDetailBuildingSection({
   building,
   isAccessibilityRegistrable,
   showNegativeFeedbackBottomSheet,
-  updateUpvoteStatus,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -48,7 +47,6 @@ export default function PlaceDetailBuildingSection({
     initialTotalCount: accessibility?.buildingAccessibility?.totalUpvoteCount,
     targetId: accessibility?.buildingAccessibility?.id,
     targetType: 'BUILDING_ACCESSIBILITY',
-    updateUpvoteStatus,
   });
 
   if (!accessibility?.buildingAccessibility) {

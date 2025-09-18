@@ -7,15 +7,13 @@ import {
 } from '@/generated-sources/openapi/api';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
-import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import {Pressable, Text, View} from 'react-native';
 
 interface ItemProps {
   item: PlaceReviewListItemDto | ToiletReviewListItemDto;
-  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }
 
-export default function Item({item, updateUpvoteStatus}: ItemProps) {
+export default function Item({item}: ItemProps) {
   const navigation = useNavigation();
 
   const isPlaceReview = 'placeReviewId' in item;
@@ -27,7 +25,6 @@ export default function Item({item, updateUpvoteStatus}: ItemProps) {
     initialTotalCount: item.totalUpvoteCount,
     targetId,
     targetType,
-    updateUpvoteStatus,
   });
 
   return (

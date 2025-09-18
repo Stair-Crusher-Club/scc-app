@@ -40,7 +40,6 @@ import PlaceDetailCoverImage from './sections/PlaceDetailCoverImage';
 import PlaceDetailEntranceSection from './sections/PlaceDetailEntranceSection';
 import {PlaceDetailFeedbackSection} from './sections/PlaceDetailFeedbackSection';
 import PlaceDetailSummarySection from './sections/PlaceDetailSummarySection';
-import {UpdateUpvoteStatusParams} from './types';
 
 export interface PlaceDetailScreenParams {
   placeInfo:
@@ -238,31 +237,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     });
   };
 
-  const updateUpvoteStatus = async ({
-    id,
-    newUpvotedStatus,
-    targetType,
-  }: UpdateUpvoteStatusParams) => {
-    try {
-      if (newUpvotedStatus === false) {
-        await api.cancelUpvotePost({
-          id,
-          targetType,
-        });
-      } else {
-        await api.giveUpvotePost({
-          id,
-          targetType,
-        });
-      }
-      ToastUtils.show('좋은 의견 감사합니다!');
-      return true;
-    } catch (error: any) {
-      ToastUtils.showOnApiError(error);
-      return false;
-    }
-  };
-
   if (isLoading || !place || !building) {
     return null;
   }
@@ -285,7 +259,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
           onRegister={() => navigation.navigate('PlaceForm', {place, building})}
           showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
-          updateUpvoteStatus={updateUpvoteStatus}
         />
       ),
       order: 1,
@@ -301,7 +274,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           building={building}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
           showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
-          updateUpvoteStatus={updateUpvoteStatus}
         />
       ),
       order: isFirstFloor ? 7 : 2, // 1층이면 맨 마지막, 아니면 입구 다음
@@ -318,7 +290,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailIndoorSection
           reviews={reviewPost ?? []}
           placeId={place.id}
-          updateUpvoteStatus={updateUpvoteStatus}
         />
       ),
       order: 3,
@@ -354,7 +325,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailToiletSection
           toiletReviews={toiletPost ?? []}
           placeId={place.id}
-          updateUpvoteStatus={updateUpvoteStatus}
         />
       ),
       order: 5,

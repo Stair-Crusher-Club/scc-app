@@ -1,17 +1,15 @@
-import {useEffect, useState} from 'react';
-
-import {useCheckAuth} from '@/utils/checkAuth';
-import {useQueryClient} from '@tanstack/react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
-import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
+import ToastUtils from '@/utils/ToastUtils';
+
+import useAppComponents from './useAppComponents';
 
 interface UseUpvoteToggleParams {
   initialIsUpvoted: boolean;
   initialTotalCount: number | undefined;
   targetId: string | undefined;
   targetType: UpvoteTargetTypeDto;
-  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }
 
 interface UseUpvoteToggleReturn {
@@ -25,64 +23,59 @@ export function useUpvoteToggle({
   initialTotalCount,
   targetId,
   targetType,
-  updateUpvoteStatus,
 }: UseUpvoteToggleParams): UseUpvoteToggleReturn {
-  const checkAuth = useCheckAuth();
+  const {api} = useAppComponents();
   const queryClient = useQueryClient();
 
-  const [isUpvoted, setIsUpvoted] = useState(initialIsUpvoted);
-  const [totalUpvoteCount, setTotalUpvoteCount] = useState<number | undefined>(
-    initialTotalCount,
-  );
+  const {mutate, isPending} = useMutation({
+    mutationFn: async (currentIsUpvoted: boolean) => {
+      if (!targetId) throw new Error('targetId is required');
 
-  useEffect(() => {
-    setIsUpvoted(initialIsUpvoted);
-    setTotalUpvoteCount(initialTotalCount);
-  }, [initialIsUpvoted, initialTotalCount]);
-
-  const toggleUpvote = () => {
-    checkAuth(async () => {
-      if (!targetId) return;
-
-      const newIsUpvoted = !isUpvoted;
-
-      // API call
-      const success = await updateUpvoteStatus?.({
-        id: targetId,
-        newUpvotedStatus: newIsUpvoted,
-        targetType,
-      });
-
-      // Only update state and invalidate queries on success
-      if (success) {
-        setIsUpvoted(newIsUpvoted);
-        setTotalUpvoteCount(prev => {
-          const currentCount = prev ?? 0;
-          return newIsUpvoted ? currentCount + 1 : currentCount - 1;
+      if (currentIsUpvoted) {
+        return await api.cancelUpvotePost({
+          id: targetId,
+          targetType,
         });
-
-        queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail'],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ['ReviewList', targetType],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ['ReviewsUpvoted', targetType],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ['ReviewHistory', 'Upvote', targetType],
+      } else {
+        return await api.giveUpvotePost({
+          id: targetId,
+          targetType,
         });
       }
-    });
+    },
+    onSuccess: () => {
+      ToastUtils.show('좋은 의견 감사합니다!');
+
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['ReviewList', targetType],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['ReviewsUpvoted', targetType],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['ReviewHistory', 'Upvote', targetType],
+      });
+    },
+    onError: error => {
+      ToastUtils.showOnApiError(error);
+    },
+  });
+
+  const toggleUpvote = () => {
+    if (isPending || !targetId) return;
+
+    mutate(initialIsUpvoted);
   };
 
   return {
-    isUpvoted,
-    totalUpvoteCount,
+    isUpvoted: initialIsUpvoted,
+    totalUpvoteCount: initialTotalCount,
     toggleUpvote,
   };
 }

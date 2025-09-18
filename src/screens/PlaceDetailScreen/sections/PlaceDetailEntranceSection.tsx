@@ -34,7 +34,6 @@ export default function PlaceDetailEntranceSection({
   isAccessibilityRegistrable,
   onRegister,
   showNegativeFeedbackBottomSheet,
-  updateUpvoteStatus,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -44,7 +43,6 @@ export default function PlaceDetailEntranceSection({
     initialTotalCount: accessibility?.totalFavoriteCount,
     targetId: accessibility?.placeAccessibility?.id,
     targetType: 'PLACE_ACCESSIBILITY',
-    updateUpvoteStatus,
   });
 
   if (!accessibility?.placeAccessibility) {

@@ -20,7 +20,6 @@ import {
 } from '@/generated-sources/openapi';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useNavigation from '@/navigation/useNavigation';
@@ -33,14 +32,12 @@ type ReviewVariant = 'detail' | 'history';
 interface PlaceReviewItemProps {
   placeId: string;
   review: PlaceReviewDto | PlaceReviewListItemDto;
-  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
   variant?: ReviewVariant;
 }
 
 export default function PlaceReviewItem({
   placeId,
   review,
-  updateUpvoteStatus,
   variant = 'detail',
 }: PlaceReviewItemProps) {
   const navigation = useNavigation();
@@ -65,7 +62,6 @@ export default function PlaceReviewItem({
       ? (review as PlaceReviewDto).id
       : (review as PlaceReviewListItemDto).placeReviewId,
     targetType: 'PLACE_REVIEW',
-    updateUpvoteStatus,
   });
 
   const reviewText = review.comment;
