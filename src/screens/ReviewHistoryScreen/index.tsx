@@ -11,10 +11,10 @@ import {useState} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 import AchievementsSection from '../ConquererHistoryScreen/sections/AchievementsSection';
-import {tabItems} from '../ReviewScreen/constants';
-import {ReviewHistoryTab} from '../ReviewScreen/types';
 import PlaceReviewItem from './components/PlaceReviewItem';
 import PlaceToiletReviewItem from './components/PlaceToiletReviewItem';
+import {tabItems} from './constants';
+import {ReviewHistoryTab} from './types';
 
 export default function ReviewHistoryScreen() {
   const {api} = useAppComponents();

@@ -10,8 +10,8 @@ import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
-import {tabItems} from '../ReviewScreen/constants';
-import {ReviewHistoryTab} from '../ReviewScreen/types';
+import {tabItems} from '../ReviewHistoryScreen/constants';
+import {ReviewHistoryTab} from '../ReviewHistoryScreen/types';
 import Item from './components/Item';
 
 export default function ReviewUpVoteScreen() {
