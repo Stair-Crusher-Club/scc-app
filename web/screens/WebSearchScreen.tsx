@@ -8,6 +8,7 @@ import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import PlaceDetailScreen from '@/screens/PlaceDetailScreen/PlaceDetailScreen';
 import {api, apiConfig} from '../config/api';
 import {WebStackParamList} from '../navigation/WebNavigation';
+import NaverMapView from '../components/NaverMapView';
 
 type WebSearchScreenProps = {
   route: RouteProp<WebStackParamList, keyof WebStackParamList>;
@@ -24,13 +25,21 @@ export default function WebSearchScreen({
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentLocation, setCurrentLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const [lastSearchedQuery, setLastSearchedQuery] = useState<string>('');
+  const [mapCenter, setMapCenter] = useState<{lat: number; lng: number} | null>(
+    null,
+  );
+  const [showResearchButton, setShowResearchButton] = useState(false);
 
   // Extract placeId from URL path (since it's not in route params with exact: false)
   const [placeId, setPlaceId] = useState<string | undefined>();
 
-  // Initialize anonymous login
+  // Initialize anonymous login and current location
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -49,16 +58,52 @@ export default function WebSearchScreen({
       }
     };
 
+    const getCurrentLocation = () => {
+      if (typeof window !== 'undefined' && window.navigator && window.navigator.geolocation) {
+        window.navigator.geolocation.getCurrentPosition(
+          (position: any) => {
+            setCurrentLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error: any) => {
+            console.log('현재 위치를 가져올 수 없습니다:', error);
+            // 기본 위치 (강남역) 사용
+            setCurrentLocation({
+              lat: 37.4979,
+              lng: 127.0276,
+            });
+          },
+          {enableHighAccuracy: true},
+        );
+      } else {
+        // 기본 위치 (강남역) 사용
+        setCurrentLocation({
+          lat: 37.4979,
+          lng: 127.0276,
+        });
+      }
+    };
+
     initializeAuth();
+    getCurrentLocation();
   }, []);
 
   // Real API search functionality
   const handleSearch = useCallback(
-    async (query: string) => {
+    async (query: string, searchLocation?: {lat: number; lng: number}) => {
       if (!query.trim() || !accessToken) return;
+
+      const locationToUse = searchLocation ||
+        currentLocation || {
+          lat: 37.4979,
+          lng: 127.0276,
+        };
 
       console.log('🔍 Search started:', query.trim());
       setIsLoading(true);
+      setShowResearchButton(false); // 새 검색 시작 시 재검색 버튼 숨기기
       try {
         const response = await api.searchPlacesByNaturalLanguagePost({
           text: query.trim(),
@@ -77,7 +122,6 @@ export default function WebSearchScreen({
         setLastSearchedQuery(query.trim()); // Update last searched query to prevent duplicate calls
         setIsLoading(false);
         console.log('🔄 Loading state set to false, results updated');
-
       } catch (error) {
         setIsLoading(false);
         console.error('Search failed:', error);
@@ -85,8 +129,16 @@ export default function WebSearchScreen({
         setSearchResults([]);
       }
     },
-    [accessToken, navigation],
+    [accessToken, currentLocation],
   );
+
+  // Execute search and update URL
+  const executeSearch = useCallback(() => {
+    if (searchQuery.trim()) {
+      handleSearch(searchQuery);
+      navigation.navigate('Search', {query: searchQuery});
+    }
+  }, [searchQuery, handleSearch, navigation]);
 
   // Update searchQuery and placeId when route params change
   useEffect(() => {
@@ -101,13 +153,38 @@ export default function WebSearchScreen({
     }
   }, [route.name, route.params]);
 
+  // 지도 뷰포트 변경 시 재검색 버튼 표시
+  const handleMapViewportChange = useCallback(
+    (center: {lat: number; lng: number}) => {
+      if (searchQuery && accessToken) {
+        console.log('🗺️ Map viewport changed:', center);
+        setMapCenter(center);
+        setShowResearchButton(true);
+      }
+    },
+    [searchQuery, accessToken],
+  );
 
-  // URL의 query로 초기 검색 실행 (중복 호출 방지)
+  // 이 지역 재검색 버튼 클릭 핸들러
+  const handleResearchArea = useCallback(() => {
+    if (mapCenter && searchQuery) {
+      console.log('🔍 Re-searching in new area:', mapCenter);
+      handleSearch(searchQuery, mapCenter);
+      setShowResearchButton(false);
+    }
+  }, [mapCenter, searchQuery, handleSearch]);
+
+  // URL의 query로 초기 검색 실행 (URL 변경 시에만)
   useEffect(() => {
-    if (searchQuery && accessToken && searchQuery !== lastSearchedQuery) {
+    if (
+      searchQuery &&
+      accessToken &&
+      searchQuery !== lastSearchedQuery &&
+      route.params
+    ) {
       handleSearch(searchQuery);
     }
-  }, [searchQuery, accessToken, handleSearch, lastSearchedQuery]);
+  }, [route.params, accessToken, handleSearch]);
 
   if (isInitializing) {
     return (
@@ -127,24 +204,32 @@ export default function WebSearchScreen({
     );
   }
 
+  const isPlaceSelected = placeId || selectedPlace;
+
   return (
     <Container>
       {/* Left Panel - Search List (1/5 width) */}
       <LeftPanel>
         <SearchHeader>
-          <SearchInput
-            placeholder="장소를 검색해보세요"
-            value={searchQuery}
-            onChange={e => {
-              setSearchQuery((e.target as any).value);
-            }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === 'Enter') {
-                handleSearch(searchQuery);
-                navigation.navigate('Search', {query: searchQuery});
-              }
-            }}
-          />
+          <SearchInputContainer>
+            <SearchInput
+              placeholder="장소를 검색해보세요"
+              value={searchQuery}
+              onChange={e => {
+                setSearchQuery((e.target as any).value);
+              }}
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Enter') {
+                  executeSearch();
+                }
+              }}
+            />
+            <SearchButton
+              onClick={executeSearch}
+              disabled={!searchQuery.trim()}>
+              🔍
+            </SearchButton>
+          </SearchInputContainer>
         </SearchHeader>
         <SearchListView
           searchResults={searchResults}
@@ -168,47 +253,52 @@ export default function WebSearchScreen({
         </div>
       </LeftPanel>
 
-      {/* Right Panel - Place Detail (1/5 width) */}
-      <RightPanel>
-        {placeId ? (
-          <PlaceDetailScreen
-            route={{
-              key: 'PlaceDetail',
-              name: 'PlaceDetail',
-              params: {
-                placeInfo: {
-                  placeId: placeId,
+      {/* Right Panel - Place Detail (1/5 width) - Only show when place is selected */}
+      {isPlaceSelected && (
+        <RightPanel>
+          {placeId ? (
+            <PlaceDetailScreen
+              route={{
+                key: 'PlaceDetail',
+                name: 'PlaceDetail',
+                params: {
+                  placeInfo: {
+                    placeId: placeId,
+                  },
                 },
-              },
-            }}
-            navigation={navigation as any}
-          />
-        ) : selectedPlace ? (
-          <PlaceDetailScreen
-            route={{
-              key: 'PlaceDetail',
-              name: 'PlaceDetail',
-              params: {
-                placeInfo: {
-                  place: selectedPlace.place,
-                  building: selectedPlace.building,
+              }}
+              navigation={navigation as any}
+            />
+          ) : selectedPlace ? (
+            <PlaceDetailScreen
+              route={{
+                key: 'PlaceDetail',
+                name: 'PlaceDetail',
+                params: {
+                  placeInfo: {
+                    place: selectedPlace.place,
+                    building: selectedPlace.building,
+                  },
                 },
-              },
-            }}
-            navigation={{} as any}
-          />
-        ) : (
-          <PlaceholderContent>
-            <PlaceholderText>
-              장소를 선택하면 상세 정보가 표시됩니다
-            </PlaceholderText>
-          </PlaceholderContent>
-        )}
-      </RightPanel>
+              }}
+              navigation={{} as any}
+            />
+          ) : null}
+        </RightPanel>
+      )}
 
-      {/* Background - Map area (3/5 width) */}
-      <MapBackground>
-        <MapPlaceholder>지도 영역 (추후 구현)</MapPlaceholder>
+      {/* Background - Map area - Dynamic width based on whether right panel is shown */}
+      <MapBackground isRightPanelVisible={!!isPlaceSelected}>
+        <NaverMapView
+          searchResults={searchResults}
+          onMapViewportChange={handleMapViewportChange}
+          currentLocation={currentLocation}
+        />
+        {showResearchButton && (
+          <ResearchButton onClick={handleResearchArea}>
+            이 지역 재검색
+          </ResearchButton>
+        )}
       </MapBackground>
     </Container>
   );
@@ -241,10 +331,11 @@ const RightPanel = styled.div`
   overflow-x: hidden;
 `;
 
-const MapBackground = styled.div`
+const MapBackground = styled.div<{isRightPanelVisible: boolean}>`
   position: absolute;
-  left: 20%;
-  width: 60%;
+  left: ${props => (props.isRightPanelVisible ? '40%' : '20%')};
+  right: 0;
+  width: ${props => (props.isRightPanelVisible ? '60%' : '80%')};
   height: 100vh;
   background-color: #f5f5f5;
   display: flex;
@@ -261,8 +352,14 @@ const SearchHeader = styled.div`
   gap: 12px;
 `;
 
+const SearchInputContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
 const SearchInput = styled.input`
-  width: 100%;
+  flex: 1;
   padding: 12px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -274,23 +371,53 @@ const SearchInput = styled.input`
   }
 `;
 
-const MapPlaceholder = styled.div`
-  color: #666666;
-  font-size: 18px;
-  text-align: center;
-`;
-
-const PlaceholderContent = styled.div`
-  height: 100%;
+const SearchButton = styled.button`
+  padding: 12px 16px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+
+  &:hover {
+    background-color: #0056cc;
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
 
-const PlaceholderText = styled.div`
-  color: #666666;
+const ResearchButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 24px;
   font-size: 14px;
-  text-align: center;
-  line-height: 1.5;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  z-index: 1000;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #0056cc;
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+  }
+
+  &:active {
+    transform: translateX(-50%) translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  }
 `;
