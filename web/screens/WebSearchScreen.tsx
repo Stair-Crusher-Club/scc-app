@@ -60,14 +60,12 @@ export default function WebSearchScreen({
       console.log('🔍 Search started:', query.trim());
       setIsLoading(true);
       try {
-        const response = await api.searchPlacesPost({
-          searchText: query.trim(),
-          // 강남역 좌표를 기본값으로 사용
-          currentLocation: {
-            lat: 37.4979,
-            lng: 127.0276,
+        const response = await api.searchPlacesByNaturalLanguagePost({
+          text: query.trim(),
+          circleRegion: {
+            currentLocation: locationToUse,
+            distanceMetersLimit: 2000, // 지도 기반 검색을 위해 범위 확대
           },
-          distanceMetersLimit: 1000,
         });
 
         console.log('✅ Search response:', response.data);
