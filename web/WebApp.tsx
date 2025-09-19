@@ -30,6 +30,7 @@ export default function DesktopApp() {
               prefixes: ['http://localhost:3000', 'https://your-domain.com'],
               config: {
                 screens: {
+                  Home: '/',
                   Search: {
                     path: 'search/:query',
                     exact: true,

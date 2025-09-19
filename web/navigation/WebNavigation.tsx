@@ -1,8 +1,10 @@
 import React from 'react';
 import WebSearchScreen from '../screens/WebSearchScreen';
+import WebHomeScreen from '../screens/WebHomeScreen';
 import {createStackNavigator} from '@react-navigation/stack';
 
 export type WebStackParamList = {
+  Home: undefined;
   Search: {
     query?: string;
   };
@@ -24,10 +26,11 @@ export default function WebNavigation() {
         flexDirection: 'column',
       }}>
       <Stack.Navigator
-        initialRouteName="Search"
+        initialRouteName="Home"
         screenOptions={{
           headerShown: false,
         }}>
+        <Stack.Screen name="Home" component={WebHomeScreen} />
         <Stack.Screen name="Search" component={WebSearchScreen} />
         <Stack.Screen name="PlaceDetail" component={WebSearchScreen} />
       </Stack.Navigator>

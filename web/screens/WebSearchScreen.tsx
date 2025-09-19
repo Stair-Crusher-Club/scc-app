@@ -9,6 +9,8 @@ import PlaceDetailScreen from '@/screens/PlaceDetailScreen/PlaceDetailScreen';
 import {api, apiConfig} from '../config/api';
 import {WebStackParamList} from '../navigation/WebNavigation';
 import NaverMapView from '../components/NaverMapView';
+import SearchModal from '../components/SearchModal';
+import {useGlobalKeyboard} from '../hooks/useGlobalKeyboard';
 
 type WebSearchScreenProps = {
   route: RouteProp<WebStackParamList, keyof WebStackParamList>;
@@ -35,9 +37,29 @@ export default function WebSearchScreen({
     null,
   );
   const [showResearchButton, setShowResearchButton] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   // Extract placeId from URL path (since it's not in route params with exact: false)
   const [placeId, setPlaceId] = useState<string | undefined>();
+
+  // Primary shortcuts: Cmd/Ctrl + K (like Slack, VS Code, GitHub)
+  useGlobalKeyboard(
+    'k',
+    {meta: true},
+    () => {
+      setIsSearchModalOpen(true);
+    },
+    {priority: 'high'},
+  );
+
+  useGlobalKeyboard(
+    'k',
+    {ctrl: true},
+    () => {
+      setIsSearchModalOpen(true);
+    },
+    {priority: 'high'},
+  );
 
   // Initialize anonymous login and current location
   useEffect(() => {
@@ -59,8 +81,8 @@ export default function WebSearchScreen({
     };
 
     const getCurrentLocation = () => {
-      if (typeof window !== 'undefined' && window.navigator && window.navigator.geolocation) {
-        window.navigator.geolocation.getCurrentPosition(
+      if (typeof navigator !== 'undefined' && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
           (position: any) => {
             setCurrentLocation({
               lat: position.coords.latitude,
@@ -132,14 +154,6 @@ export default function WebSearchScreen({
     [accessToken, currentLocation],
   );
 
-  // Execute search and update URL
-  const executeSearch = useCallback(() => {
-    if (searchQuery.trim()) {
-      handleSearch(searchQuery);
-      navigation.navigate('Search', {query: searchQuery});
-    }
-  }, [searchQuery, handleSearch, navigation]);
-
   // Update searchQuery and placeId when route params change
   useEffect(() => {
     if (route.name === 'Search') {
@@ -208,29 +222,15 @@ export default function WebSearchScreen({
 
   return (
     <Container>
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        navigation={navigation}
+        initialQuery={searchQuery}
+      />
+
       {/* Left Panel - Search List (1/5 width) */}
       <LeftPanel>
-        <SearchHeader>
-          <SearchInputContainer>
-            <SearchInput
-              placeholder="장소를 검색해보세요"
-              value={searchQuery}
-              onChange={e => {
-                setSearchQuery((e.target as any).value);
-              }}
-              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (e.key === 'Enter') {
-                  executeSearch();
-                }
-              }}
-            />
-            <SearchButton
-              onClick={executeSearch}
-              disabled={!searchQuery.trim()}>
-              🔍
-            </SearchButton>
-          </SearchInputContainer>
-        </SearchHeader>
         <SearchListView
           searchResults={searchResults}
           isLoading={isLoading}
@@ -299,6 +299,15 @@ export default function WebSearchScreen({
             이 지역 재검색
           </ResearchButton>
         )}
+
+        {/* Bottom Search Bar */}
+        <BottomSearchBar onClick={() => setIsSearchModalOpen(true)}>
+          <SearchIcon>🔍</SearchIcon>
+          <SearchPlaceholder>
+            {searchQuery || '어떤 장소를 찾고 있나요?'}
+          </SearchPlaceholder>
+          <KeyboardHint>⌘K</KeyboardHint>
+        </BottomSearchBar>
       </MapBackground>
     </Container>
   );
@@ -344,53 +353,57 @@ const MapBackground = styled.div<{isRightPanelVisible: boolean}>`
   z-index: 1;
 `;
 
-const SearchHeader = styled.div`
-  padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+const BottomSearchBar = styled.div`
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 12px;
-`;
-
-const SearchInputContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-
-  &:focus {
-    border-color: #007aff;
-  }
-`;
-
-const SearchButton = styled.button`
-  padding: 12px 16px;
-  background-color: #007aff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.3s ease;
+  min-width: 320px;
+  max-width: 500px;
+  z-index: 100;
 
   &:hover {
-    background-color: #0056cc;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+    transform: translateX(-50%) translateY(-2px);
   }
 
-  &:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
+  &:active {
+    transform: translateX(-50%) translateY(0);
   }
+`;
+
+const SearchIcon = styled.span`
+  font-size: 16px;
+  color: #666;
+`;
+
+const SearchPlaceholder = styled.span`
+  flex: 1;
+  color: ${props => props.children && typeof props.children === 'string' && props.children.includes('?') ? '#999' : '#333'};
+  font-size: 15px;
+  font-weight: ${props => props.children && typeof props.children === 'string' && props.children.includes('?') ? '400' : '500'};
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const KeyboardHint = styled.span`
+  background: #f0f0f0;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
 `;
 
 const ResearchButton = styled.button`
