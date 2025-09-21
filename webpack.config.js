@@ -68,6 +68,10 @@ module.exports = {
         __dirname,
         'web/mocks/react-native-reanimated-carousel.tsx',
       ),
+      'react-native-image-zoom-viewer': path.resolve(
+        __dirname,
+        'web/mocks/react-native-image-zoom-viewer.tsx',
+      ),
     },
     // Disable fully specified imports for all dependencies
     fullySpecified: false,

@@ -2,6 +2,7 @@ import React from 'react';
 import WebSearchScreen from '../screens/WebSearchScreen';
 import WebHomeScreen from '../screens/WebHomeScreen';
 import {createStackNavigator} from '@react-navigation/stack';
+import ImageZoomViewerScreen from '../../src/screens/ImageZoomViewerScreen';
 
 export type WebStackParamList = {
   Home: undefined;
@@ -11,6 +12,11 @@ export type WebStackParamList = {
   PlaceDetail: {
     query: string;
     placeId: string;
+  };
+  ImageZoomViewer: {
+    imageUrls: string[];
+    index?: number;
+    types?: string[];
   };
 };
 
@@ -33,6 +39,15 @@ export default function WebNavigation() {
         <Stack.Screen name="Home" component={WebHomeScreen} />
         <Stack.Screen name="Search" component={WebSearchScreen} />
         <Stack.Screen name="PlaceDetail" component={WebSearchScreen} />
+        <Stack.Screen
+          name="ImageZoomViewer"
+          component={ImageZoomViewerScreen}
+          options={{
+            presentation: 'transparentModal',
+            headerShown: false,
+            cardStyle: { backgroundColor: 'transparent' }
+          }}
+        />
       </Stack.Navigator>
     </div>
   );

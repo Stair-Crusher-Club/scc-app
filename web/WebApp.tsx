@@ -45,6 +45,7 @@ export default function DesktopApp() {
                       placeId: (placeId: string) => placeId,
                     },
                   },
+                  ImageZoomViewer: 'images',
                 },
               },
             }}>
