@@ -250,12 +250,11 @@ export default function WebSearchScreen({
       searchQuery &&
       accessToken &&
       searchQuery !== lastSearchedQuery &&
-      route.params &&
       route.name === 'Search' // Search 화면일 때만 검색 실행
     ) {
       handleSearch(searchQuery);
     }
-  }, [route.params, accessToken, handleSearch, route.name]);
+  }, [searchQuery, accessToken, handleSearch, route.name]);
 
   if (isInitializing) {
     return (
