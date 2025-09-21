@@ -1,5 +1,7 @@
 import {useAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
+import {Platform} from 'react-native';
+import Toast from 'react-native-root-toast';
 
 import {loadingState} from '@/components/LoadingView';
 import {color} from '@/constant/color';
@@ -38,6 +40,13 @@ export const PlaceDetailFeedbackSection = ({
   }, [accessibility]);
 
   const toggleUpvote = async () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     checkAuth(async () => {
       const placeAccessibilityId = accessibility?.placeAccessibility?.id;
       if (placeAccessibilityId) {
@@ -64,18 +73,39 @@ export const PlaceDetailFeedbackSection = ({
   );
 
   const showNegativeFeedbackBottomSheet = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     checkAuth(() => {
       setIsNegativeFeedbackOptionModalVisible(true);
     });
   };
 
   const showPlaceDeleteConfirmBottomSheet = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     checkAuth(() => {
       setIsPlaceDeleteModalVisible(true);
     });
   };
 
   const showBuildingDeleteConfirmBottomSheet = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     checkAuth(() => {
       setIsBuildingDeleteModalVisible(true);
     });

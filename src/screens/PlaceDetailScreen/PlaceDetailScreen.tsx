@@ -3,9 +3,11 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   InteractionManager,
   NativeScrollEvent,
+  Platform,
   ScrollView,
   View,
 } from 'react-native';
+import Toast from 'react-native-root-toast';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -58,6 +60,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
+
 
   const isFocused = useIsFocused();
 
@@ -240,7 +243,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           accessibility={accessibilityPost}
           place={place}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-          onRegister={() => navigation.navigate('PlaceForm', {place, building})}
+          onRegister={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
+            navigation.navigate('PlaceForm', {place, building});
+          }}
         />
       ),
       order: 1,
@@ -283,13 +295,20 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           logKey="place_detail_review_nudge"
           title={`<b>${place.name}</b>에 방문하셨나요? 리뷰를 남겨주시면 다른 분들에게 큰 도움이 돼요.`}
           buttonText="방문 리뷰 쓰기"
-          onPress={() =>
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
             checkAuth(() => {
               navigation.navigate('ReviewForm/Place', {
                 placeId: place.id,
               });
-            })
-          }
+            });
+          }}
         />
       ),
       order: 4,
@@ -318,13 +337,20 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           logKey="place_detail_toilet_review_nudge"
           title="<b>장애인 화장실</b>이 있었나요? 정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요."
           buttonText="장애인 화장실 정보 등록"
-          onPress={() =>
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
             checkAuth(() => {
               navigation.navigate('ReviewForm/Toilet', {
                 placeId: place.id,
               });
-            })
-          }
+            });
+          }}
         />
       ),
       order: 6,

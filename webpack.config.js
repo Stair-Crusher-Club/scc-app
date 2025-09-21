@@ -50,7 +50,10 @@ module.exports = {
       '@shopify/flash-list': path.resolve(__dirname, 'web/mocks/flash-list.js'),
       'lottie-react-native': false,
       'react-native-svg': 'react-native-svg/lib/commonjs/ReactNativeSVG.web.js',
-      'react-native-root-toast': false,
+      'react-native-root-toast': path.resolve(
+        __dirname,
+        'web/mocks/react-native-root-toast.js',
+      ),
       // Mock Firebase libraries
       '@react-native-firebase/analytics': path.resolve(
         __dirname,

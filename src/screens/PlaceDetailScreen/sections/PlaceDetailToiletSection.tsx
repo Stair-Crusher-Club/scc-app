@@ -1,4 +1,6 @@
 import React from 'react';
+import {Platform} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
@@ -24,19 +26,28 @@ export default function PlaceDetailToiletSection({
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
+  const handleToiletReviewPress = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
+    checkAuth(() => {
+      navigation.navigate('ReviewForm/Toilet', {
+        placeId,
+      });
+    });
+  };
+
   return (
     <S.Section>
       <HeaderRow>
         <S.Title>장애인 화장실 정보</S.Title>
         <ReviewButton
           elementName="place_detail_toilet_review_write_button"
-          onPress={() =>
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Toilet', {
-                placeId,
-              });
-            })
-          }>
+          onPress={handleToiletReviewPress}>
           <PlusIcon color={color.white} />
           <ReviewButtonText>정보 등록</ReviewButtonText>
         </ReviewButton>

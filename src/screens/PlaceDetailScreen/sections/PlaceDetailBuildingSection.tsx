@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -37,6 +38,7 @@ export default function PlaceDetailBuildingSection({
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+
   if (!accessibility?.buildingAccessibility) {
     return (
       <NoBuildingInfoSection
@@ -53,6 +55,13 @@ export default function PlaceDetailBuildingSection({
   const comments = accessibility.buildingAccessibilityComments;
 
   function handlePressAddComment() {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     navigation.navigate('AddComment', {
       type: 'building',
       buildingId: building.id,
@@ -109,6 +118,19 @@ function NoBuildingInfoSection({
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
+  const handleBuildingRegister = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
+    checkAuth(() =>
+      navigation.navigate('BuildingForm', {place, building}),
+    );
+  };
+
   return (
     <S.Section>
       <S.SubSection>
@@ -134,11 +156,7 @@ function NoBuildingInfoSection({
           fontSize={18}
           fontFamily={font.pretendardBold}
           isDisabled={!isAccessibilityRegistrable}
-          onPress={() =>
-            checkAuth(() =>
-              navigation.navigate('BuildingForm', {place, building}),
-            )
-          }
+          onPress={handleBuildingRegister}
           elementName="place_detail_building_register"
         />
       </S.EmptyInfoContent>
