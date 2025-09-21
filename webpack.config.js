@@ -64,6 +64,10 @@ module.exports = {
         __dirname,
         'web/mocks/firebase-messaging.js',
       ),
+      'react-native-reanimated-carousel': path.resolve(
+        __dirname,
+        'web/mocks/react-native-reanimated-carousel.tsx',
+      ),
     },
     // Disable fully specified imports for all dependencies
     fullySpecified: false,
