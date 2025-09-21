@@ -213,7 +213,7 @@ export default function NaverMapView({
       };
 
       const markerIconType = getMarkerIconType(item.place.category);
-      const hasReview = (item.accessibilityInfo?.accessibilityScore || 0) > 0;
+      const hasReview = (item.accessibilityInfo?.reviewCount || 0) > 0;
       const accessibilityLevel: MarkerLevel = item.accessibilityInfo?.accessibilityScore !== undefined
         ? String(item.accessibilityInfo.accessibilityScore) as MarkerLevel
         : 'none';
@@ -470,7 +470,7 @@ export default function NaverMapView({
         };
 
         const markerIconType = getMarkerIconType(targetItem.place.category);
-        const hasReview = (targetItem.accessibilityInfo?.accessibilityScore || 0) > 0;
+        const hasReview = (targetItem.accessibilityInfo?.reviewCount || 0) > 0;
         const accessibilityLevel: MarkerLevel = targetItem.accessibilityInfo?.accessibilityScore !== undefined
           ? String(targetItem.accessibilityInfo.accessibilityScore) as MarkerLevel
           : 'none';
