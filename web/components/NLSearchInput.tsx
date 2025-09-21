@@ -25,31 +25,30 @@ export default function NLSearchInput({
   onSearchQueryChange,
   onSearch,
   onExampleClick,
-  placeholder = "어떤 장소를 찾고 있나요?",
+  placeholder = '당신은 어떤 분이고, 어디로 가고 싶나요?\n\n예: 나는 휠체어를 타고 계단 1칸 정도는 올라갈 수 있어. 홍대 근처 맛집 좀 찾아줄래?',
   autoFocus = false,
   showExamples = true,
   showShortcuts = true,
 }: NLSearchInputProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent new line
       onSearch();
     }
+    // Shift+Enter allows new line
   };
 
   return (
     <>
       <SearchInputWrapper>
-        <StyledSearchInput
+        <StyledSearchTextarea
           value={searchQuery}
-          onChange={(e) => onSearchQueryChange(e.target.value)}
+          onChange={e => onSearchQueryChange((e.target as HTMLTextAreaElement).value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus={autoFocus}
         />
-        <SearchButton
-          onClick={onSearch}
-          disabled={!searchQuery.trim()}
-        >
+        <SearchButton onClick={onSearch} disabled={!searchQuery.trim()}>
           🔍
         </SearchButton>
       </SearchInputWrapper>
@@ -57,10 +56,7 @@ export default function NLSearchInput({
       {showExamples && (
         <ExamplesSection>
           {exampleQueries.map((example, index) => (
-            <ExampleChip
-              key={index}
-              onClick={() => onExampleClick(example)}
-            >
+            <ExampleChip key={index} onClick={() => onExampleClick(example)}>
               {example}
             </ExampleChip>
           ))}
@@ -95,16 +91,23 @@ const SearchInputWrapper = styled.div`
   }
 `;
 
-const StyledSearchInput = styled.input`
+const StyledSearchTextarea = styled.textarea`
   flex: 1;
   border: none;
   background: transparent;
   font-size: 18px;
   outline: none;
   color: #2c3e50;
+  resize: none;
+  min-height: 100px;
+  font-family: inherit;
+  padding: 0;
+  line-height: 1.4;
 
   &::placeholder {
     color: #95a5a6;
+    font-size: 14px;
+    line-height: 1.6;
   }
 `;
 
