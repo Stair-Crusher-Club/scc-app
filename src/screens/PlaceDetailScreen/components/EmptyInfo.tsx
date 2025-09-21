@@ -1,3 +1,4 @@
+import React from 'react';
 import * as S from './PlaceInfo.style';
 
 export default function EmptyInfo({type}: {type: string}) {

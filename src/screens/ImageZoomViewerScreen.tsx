@@ -54,6 +54,7 @@ const ImageZoomViewerScreen = ({route}: ScreenProps<'ImageZoomViewer'>) => {
 
       <ImageViewer
         index={index}
+        onSwipeDown={() => navigation.goBack()}
         renderIndicator={(idx, all) => {
           return (
             <Text
