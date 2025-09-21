@@ -253,7 +253,7 @@ export default function WebSearchScreen({
       (route.name === 'Search' || route.name === 'PlaceDetail') // PlaceDetail 화면에서도 검색 실행
     ) {
       // 지도 센터가 있으면 그 위치를 기준으로, 없으면 현재 위치를 기준으로 검색
-      const searchLocation = mapCenter || currentLocation;
+      const searchLocation = mapCenter || currentLocation || undefined;
       handleSearch(searchQuery, searchLocation);
     }
   }, [searchQuery, accessToken, handleSearch, route.name, mapCenter, currentLocation]);

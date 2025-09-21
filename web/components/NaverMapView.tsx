@@ -46,6 +46,14 @@ export default function NaverMapView({
   // 기본 위치 (강남역)
   const defaultCenter = {lat: 37.4979, lng: 127.0276};
 
+  // 마커가 현재 뷰포트에 보이는지 확인하는 함수
+  const isMarkerVisible = useCallback((position: any) => {
+    if (!mapInstanceRef.current) return false;
+
+    const bounds = mapInstanceRef.current.getBounds();
+    return bounds.hasLatLng(position);
+  }, []);
+
   // 지도 실제 중앙으로 이동하는 함수 (오른쪽 패널 고려)
   const panToCenter = useCallback((position: any) => {
     if (!mapInstanceRef.current) return;
@@ -58,14 +66,10 @@ export default function NaverMapView({
     const mapHeight = mapDiv.offsetHeight;
 
     // 오른쪽에 PlaceDetail 패널이 있는지 확인 (URL에 placeId가 있으면 패널이 열려있음)
-    const hasRightPanel = window.location.pathname.includes('/place/');
+    const hasRightPanel = typeof window !== 'undefined' && window.location.pathname.includes('/place/');
 
-    // 오프셋 계산: 오른쪽 패널이 있으면 오른쪽으로 약간 이동 (왼쪽 패널 고려)
-    let offsetX = 0;
-    if (hasRightPanel) {
-      // 왼쪽 패널이 20%를 차지하므로 실제 지도 영역의 중앙으로 이동
-      offsetX = mapWidth * 0.2; // 20%만큼 오른쪽으로 이동해서 실제 중앙에 위치
-    }
+    // 오프셋 계산: 패널들을 고려한 실제 지도 중앙 계산
+    let offsetX = 0; // 오프셋 없음 - 지도 자체 중앙으로 이동
 
     // 현재 지도 중심에서 오프셋만큼 이동한 위치 계산
     const currentCenter = mapInstanceRef.current.getCenter();
@@ -314,9 +318,14 @@ export default function NaverMapView({
       // 마커 클릭 이벤트
       window.naver.maps.Event.addListener(marker, 'click', () => {
         console.log('마커 클릭됨:', item.place.name, position);
-        // 클릭한 마커를 지도 실제 중앙으로 부드럽게 이동 (오른쪽 패널 고려)
-        panToCenter(position);
-        console.log('지도 중앙 이동 완료');
+
+        // 마커가 현재 뷰포트에 보이지 않을 때만 지도를 이동
+        if (!isMarkerVisible(position)) {
+          console.log('마커가 화면 밖에 있음, 지도 이동 실행');
+          panToCenter(position);
+        } else {
+          console.log('마커가 화면에 보임, 지도 이동 생략');
+        }
 
         // 이전에 선택된 마커가 있다면 원래 상태로 되돌리기
         if (selectedMarkerId && selectedMarkerId !== item.place.id) {
@@ -347,12 +356,12 @@ export default function NaverMapView({
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          transform: scale(1.15);
+          transform: scale(1.35);
           transform-origin: center bottom;
         ">
           <div style="
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -360,13 +369,13 @@ export default function NaverMapView({
           <div style="
             background: rgba(255, 255, 255, 0.95);
             border-radius: 8px;
-            padding: 3px 6px;
-            font-size: 11px;
+            padding: 3px 7px;
+            font-size: 12px;
             font-weight: 600;
             color: #333;
             white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            max-width: 110px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 125px;
             overflow: hidden;
             text-overflow: ellipsis;
           ">${item.place.name}</div>
@@ -422,8 +431,15 @@ export default function NaverMapView({
     const targetMarker = markersRef.current.find(m => m.placeId === selectedPlaceId);
     if (targetMarker) {
       console.log('검색 결과에서 선택된 장소로 이동:', selectedPlaceId);
-      // 선택된 장소를 지도 실제 중앙으로 이동 (오른쪽 패널 고려)
-      panToCenter(targetMarker.marker.getPosition());
+
+      const markerPosition = targetMarker.marker.getPosition();
+      // 마커가 현재 뷰포트에 보이지 않을 때만 지도를 이동
+      if (!isMarkerVisible(markerPosition)) {
+        console.log('선택된 마커가 화면 밖에 있음, 지도 이동 실행');
+        panToCenter(markerPosition);
+      } else {
+        console.log('선택된 마커가 화면에 보임, 지도 이동 생략');
+      }
 
       // 기존 선택된 마커 초기화
       if (selectedMarkerId && selectedMarkerId !== selectedPlaceId) {
@@ -454,7 +470,7 @@ export default function NaverMapView({
         };
 
         const markerIconType = getMarkerIconType(targetItem.place.category);
-        const hasReview = (targetItem.accessibilityInfo?.reviewCount || 0) > 0;
+        const hasReview = (targetItem.accessibilityInfo?.accessibilityScore || 0) > 0;
         const accessibilityLevel: MarkerLevel = targetItem.accessibilityInfo?.accessibilityScore !== undefined
           ? String(targetItem.accessibilityInfo.accessibilityScore) as MarkerLevel
           : 'none';
@@ -475,12 +491,12 @@ export default function NaverMapView({
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          transform: scale(1.15);
+          transform: scale(1.35);
           transform-origin: center bottom;
         ">
           <div style="
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -488,13 +504,13 @@ export default function NaverMapView({
           <div style="
             background: rgba(255, 255, 255, 0.95);
             border-radius: 8px;
-            padding: 3px 6px;
-            font-size: 11px;
+            padding: 3px 7px;
+            font-size: 12px;
             font-weight: 600;
             color: #333;
             white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            max-width: 110px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 125px;
             overflow: hidden;
             text-overflow: ellipsis;
           ">${targetItem.place.name}</div>
@@ -516,15 +532,15 @@ export default function NaverMapView({
 
   // 현재 위치로 이동하는 함수
   const moveToCurrentLocation = useCallback(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+    if (typeof window !== 'undefined' && window.navigator?.geolocation) {
+      window.navigator.geolocation.getCurrentPosition(
         (position: any) => {
           const newLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
 
-          if (mapInstanceRef.current) {
+          if (mapInstanceRef.current && typeof window !== 'undefined') {
             const newCenter = new window.naver.maps.LatLng(
               newLocation.lat,
               newLocation.lng,
