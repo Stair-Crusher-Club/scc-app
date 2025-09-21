@@ -38,6 +38,18 @@ export default function WebSearchScreen({
   );
   const [showResearchButton, setShowResearchButton] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>();
+
+  // 지도 핀 클릭 핸들러
+  const handlePlaceClick = useCallback((placeId: string) => {
+    // 브라우저 히스토리에 추가
+    const newUrl = `/search/${encodeURIComponent(searchQuery)}/place/${placeId}`;
+    window.history.pushState(null, '', newUrl);
+
+    // 컴포넌트 상태 업데이트
+    setPlaceId(placeId);
+    setSelectedPlaceId(placeId);
+  }, [searchQuery]);
 
   // Extract placeId from URL path (since it's not in route params with exact: false)
   const [placeId, setPlaceId] = useState<string | undefined>();
@@ -232,17 +244,18 @@ export default function WebSearchScreen({
     }
   }, [mapCenter, searchQuery, handleSearch]);
 
-  // URL의 query로 초기 검색 실행 (URL 변경 시에만)
+  // URL의 query로 초기 검색 실행 (Search 화면일 때만)
   useEffect(() => {
     if (
       searchQuery &&
       accessToken &&
       searchQuery !== lastSearchedQuery &&
-      route.params
+      route.params &&
+      route.name === 'Search' // Search 화면일 때만 검색 실행
     ) {
       handleSearch(searchQuery);
     }
-  }, [route.params, accessToken, handleSearch]);
+  }, [route.params, accessToken, handleSearch, route.name]);
 
   if (isInitializing) {
     return (
@@ -280,6 +293,7 @@ export default function WebSearchScreen({
           isLoading={isLoading}
           isVisible={true}
           searchQuery={searchQuery}
+          onPlaceClick={handlePlaceClick}
         />
         {/* Debug info */}
         <div
@@ -337,6 +351,8 @@ export default function WebSearchScreen({
           searchResults={searchResults}
           onMapViewportChange={handleMapViewportChange}
           currentLocation={currentLocation}
+          onPlaceClick={handlePlaceClick}
+          selectedPlaceId={selectedPlaceId}
         />
         {showResearchButton && (
           <ResearchButton onClick={handleResearchArea}>

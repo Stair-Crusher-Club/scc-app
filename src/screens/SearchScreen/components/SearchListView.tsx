@@ -15,11 +15,13 @@ export default function SearchListView({
   isLoading,
   isVisible,
   searchQuery,
+  onPlaceClick,
 }: {
   isVisible: boolean;
   isLoading: boolean;
   searchResults: PlaceListItem[];
   searchQuery?: string;
+  onPlaceClick?: (placeId: string) => void;
 }) {
   const navigation = useNavigation();
   return (
@@ -40,11 +42,8 @@ export default function SearchListView({
                   isHeightFlex
                   onPress={() => {
                     if (searchQuery && Platform.OS === 'web') {
-                      // Web navigation
-                      (navigation as any).navigate('PlaceDetail', {
-                        query: searchQuery,
-                        placeId: item.place.id,
-                      });
+                      // Web: Use window.history.pushState like map marker click
+                      onPlaceClick?.(item.place.id);
                     } else {
                       // Native app navigation
                       navigation.navigate('PlaceDetail', {
