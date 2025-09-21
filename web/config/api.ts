@@ -2,7 +2,7 @@ import {DefaultApi, Configuration} from '@/generated-sources/openapi';
 
 // API configuration
 const apiConfig = new Configuration({
-  basePath: 'http://localhost:8080',
+  basePath: 'https://api.staircrusher.club',
 });
 
 export const api = new DefaultApi(apiConfig);

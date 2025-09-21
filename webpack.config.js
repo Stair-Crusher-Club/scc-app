@@ -16,7 +16,7 @@ module.exports = {
   target: 'web',
   entry: './web/index.tsx',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'web-dist'),
     filename: 'bundle.js',
     publicPath: '/',
     globalObject: 'this',

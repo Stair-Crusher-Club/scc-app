@@ -4,6 +4,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
 import {WebStackParamList} from '../navigation/WebNavigation';
 import NLSearchInput from '../components/NLSearchInput';
+import LogoSvg from '../assets/icons/logo.svg';
 
 type WebHomeScreenProps = {
   route: RouteProp<WebStackParamList, 'Home'>;
@@ -30,7 +31,9 @@ export default function WebHomeScreen({navigation}: WebHomeScreenProps) {
     <Container>
       <ContentWrapper>
         <LogoSection>
-          <Logo>계단뿌셔클럽</Logo>
+          <LogoWrapper>
+            <LogoSvg />
+          </LogoWrapper>
           <Subtitle>이동약자와 그 친구들의 막힘없는 이동 🚀</Subtitle>
         </LogoSection>
 
@@ -71,12 +74,16 @@ const LogoSection = styled.div`
   margin-bottom: 60px;
 `;
 
-const Logo = styled.h1`
-  font-size: 48px;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0 0 16px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+const LogoWrapper = styled.div`
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 16px auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+
+  & svg {
+    width: 100%;
+    height: auto;
+  }
 `;
 
 const Subtitle = styled.p`

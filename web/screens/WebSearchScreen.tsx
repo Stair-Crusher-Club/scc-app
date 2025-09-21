@@ -11,6 +11,7 @@ import {WebStackParamList} from '../navigation/WebNavigation';
 import NaverMapView from '../components/NaverMapView';
 import SearchModal from '../components/SearchModal';
 import {useGlobalKeyboard} from '../hooks/useGlobalKeyboard';
+import LogoSvg from '../assets/icons/logo.svg';
 
 type WebSearchScreenProps = {
   route: RouteProp<WebStackParamList, keyof WebStackParamList>;
@@ -50,6 +51,11 @@ export default function WebSearchScreen({
     setPlaceId(placeId);
     setSelectedPlaceId(placeId);
   }, [searchQuery]);
+
+  // 홈으로 네비게이션 핸들러
+  const handleLogoClick = useCallback(() => {
+    navigation.push('Home');
+  }, [navigation]);
 
   // Extract placeId from URL path (since it's not in route params with exact: false)
   const [placeId, setPlaceId] = useState<string | undefined>();
@@ -289,6 +295,9 @@ export default function WebSearchScreen({
 
       {/* Left Panel - Search List (1/5 width) */}
       <LeftPanel>
+        <LogoHeader onClick={handleLogoClick}>
+          <LogoSvg />
+        </LogoHeader>
         <SearchListView
           searchResults={searchResults}
           isLoading={isLoading}
@@ -389,6 +398,26 @@ const LeftPanel = styled.div`
   display: flex;
   flex-direction: column;
   z-index: 10;
+`;
+
+const LogoHeader = styled.div`
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  & svg {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
 `;
 
 const RightPanel = styled.div`
