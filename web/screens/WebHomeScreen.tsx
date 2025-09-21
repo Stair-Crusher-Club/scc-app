@@ -106,4 +106,3 @@ const SearchWrapper = styled.div`
     box-shadow: 0 12px 40px rgba(52, 152, 219, 0.2);
   }
 `;
-

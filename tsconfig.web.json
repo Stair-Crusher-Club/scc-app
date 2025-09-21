@@ -24,7 +24,11 @@
   "include": [
     "web",
     "src/constant/**/*",
-    "src/generated-sources/**/*"
+    "src/generated-sources/**/*",
+    "src/screens/**/*",
+    "src/components/**/*",
+    "src/utils/**/*",
+    "src/config/**/*"
   ],
   "exclude": [
     "node_modules",

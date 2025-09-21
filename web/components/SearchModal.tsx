@@ -129,4 +129,3 @@ const ModalContainer = styled.div`
 const ModalContent = styled.div`
   padding: 30px;
 `;
-

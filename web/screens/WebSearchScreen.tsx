@@ -65,14 +65,58 @@ export default function WebSearchScreen({
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Check localStorage for existing token
+        const storedToken =
+          typeof window !== 'undefined'
+            ? window.localStorage.getItem('anonymousAccessToken')
+            : null;
+        const tokenExpiry =
+          typeof window !== 'undefined'
+            ? window.localStorage.getItem('anonymousTokenExpiry')
+            : null;
+
+        // Check if token exists and is not expired (10 years validity)
+        if (storedToken && tokenExpiry) {
+          const expiryTime = parseInt(tokenExpiry, 10);
+          const currentTime = Date.now();
+
+          if (currentTime < expiryTime) {
+            // Use existing token
+            console.log('Using existing anonymous token from localStorage');
+            setAccessToken(storedToken);
+            apiConfig.accessToken = storedToken;
+            setIsInitializing(false);
+            return;
+          } else {
+            // Token expired, clear localStorage
+            console.log('Token expired, creating new anonymous login');
+            if (typeof window !== 'undefined') {
+              window.localStorage.removeItem('anonymousAccessToken');
+              window.localStorage.removeItem('anonymousTokenExpiry');
+            }
+          }
+        }
+
+        // No valid token found, create new anonymous login
+        console.log('Creating new anonymous login');
         const response = await api.createAnonymousUserPost();
         const {authTokens} = response.data;
+
+        // Save to localStorage with 10 year expiry
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(
+            'anonymousAccessToken',
+            authTokens.accessToken,
+          );
+          window.localStorage.setItem(
+            'anonymousTokenExpiry',
+            String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
+          );
+        }
+
         setAccessToken(authTokens.accessToken);
-
-        // Update API configuration with access token
         apiConfig.accessToken = authTokens.accessToken;
-
-        console.log('Anonymous login successful');
+        console.log('Anonymous login successful and saved to localStorage');
       } catch (error) {
         console.error('Anonymous login failed:', error);
       } finally {
@@ -388,9 +432,19 @@ const SearchIcon = styled.span`
 
 const SearchPlaceholder = styled.span`
   flex: 1;
-  color: ${props => props.children && typeof props.children === 'string' && props.children.includes('?') ? '#999' : '#333'};
+  color: ${props =>
+    props.children &&
+    typeof props.children === 'string' &&
+    props.children.includes('?')
+      ? '#999'
+      : '#333'};
   font-size: 15px;
-  font-weight: ${props => props.children && typeof props.children === 'string' && props.children.includes('?') ? '400' : '500'};
+  font-weight: ${props =>
+    props.children &&
+    typeof props.children === 'string' &&
+    props.children.includes('?')
+      ? '400'
+      : '500'};
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
