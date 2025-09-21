@@ -294,7 +294,7 @@ export default function WebSearchScreen({
           isLoading={isLoading}
           isVisible={true}
           searchQuery={searchQuery}
-          onPlaceClick={handlePlaceClick}
+          onWebPlaceClick={handlePlaceClick}
         />
         {/* Debug info */}
         <div
