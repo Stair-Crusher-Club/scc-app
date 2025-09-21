@@ -126,9 +126,7 @@ function NoBuildingInfoSection({
       });
       return;
     }
-    checkAuth(() =>
-      navigation.navigate('BuildingForm', {place, building}),
-    );
+    checkAuth(() => navigation.navigate('BuildingForm', {place, building}));
   };
 
   return (

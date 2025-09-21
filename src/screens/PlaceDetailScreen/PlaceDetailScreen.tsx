@@ -61,7 +61,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
 
-
   const isFocused = useIsFocused();
 
   const questModalVisible = useAtomValue(visibleAtom);
