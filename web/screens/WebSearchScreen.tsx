@@ -137,8 +137,8 @@ export default function WebSearchScreen({
     };
 
     const getCurrentLocation = () => {
-      if (typeof navigator !== 'undefined' && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
+      if (typeof window !== 'undefined' && window.navigator && window.navigator.geolocation) {
+        window.navigator.geolocation.getCurrentPosition(
           (position: any) => {
             setCurrentLocation({
               lat: position.coords.latitude,
@@ -244,17 +244,19 @@ export default function WebSearchScreen({
     }
   }, [mapCenter, searchQuery, handleSearch]);
 
-  // URL의 query로 초기 검색 실행 (Search 화면일 때만)
+  // URL의 query로 초기 검색 실행 (Search 화면이거나 PlaceDetail 화면일 때)
   useEffect(() => {
     if (
       searchQuery &&
       accessToken &&
       searchQuery !== lastSearchedQuery &&
-      route.name === 'Search' // Search 화면일 때만 검색 실행
+      (route.name === 'Search' || route.name === 'PlaceDetail') // PlaceDetail 화면에서도 검색 실행
     ) {
-      handleSearch(searchQuery);
+      // 지도 센터가 있으면 그 위치를 기준으로, 없으면 현재 위치를 기준으로 검색
+      const searchLocation = mapCenter || currentLocation;
+      handleSearch(searchQuery, searchLocation);
     }
-  }, [searchQuery, accessToken, handleSearch, route.name]);
+  }, [searchQuery, accessToken, handleSearch, route.name, mapCenter, currentLocation]);
 
   if (isInitializing) {
     return (
