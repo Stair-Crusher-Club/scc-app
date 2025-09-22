@@ -1,6 +1,7 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ChallengeQuestDto} from '@/generated-sources/openapi';
+import React from 'react';
 import styled from 'styled-components/native';
 import QuestItem from './QuestItem';
 

@@ -1,7 +1,7 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
-import {useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 

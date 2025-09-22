@@ -1,6 +1,7 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {EpochMillisTimestamp} from '@/generated-sources/openapi';
+import React from 'react';
 import {Text, View} from 'react-native';
 import {formatDateKorean} from '../utils/date';
 

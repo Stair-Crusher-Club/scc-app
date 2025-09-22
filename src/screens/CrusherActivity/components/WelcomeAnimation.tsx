@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Animated, View} from 'react-native';
 import styled from 'styled-components/native';
 

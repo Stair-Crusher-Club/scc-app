@@ -3,7 +3,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import MenuTabs, {Tab} from './components/MenuTabs';
 import WelcomeModal from './components/WelcomeModal';
 import CurrentSeasonView from './views/CurrentSeasonView';

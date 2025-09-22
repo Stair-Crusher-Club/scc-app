@@ -317,7 +317,6 @@ export default function WebSearchScreen({
             fontSize: '12px',
             borderRadius: '3px',
           }}>
-          Results: {searchResults.length} | Loading: {isLoading ? 'Yes' : 'No'}
         </div>
       </LeftPanel>
 

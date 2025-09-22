@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 

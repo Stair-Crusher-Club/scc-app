@@ -1,3 +1,4 @@
+import React from 'react';
 import {LayoutRectangle, Text, View} from 'react-native';
 
 import CoachBannerArrow from '@/assets/icon/coach_banner_arrow.svg';

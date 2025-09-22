@@ -1,5 +1,6 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import React from 'react';
 import {Image, Text, View} from 'react-native';
 
 export default function HistoryView() {

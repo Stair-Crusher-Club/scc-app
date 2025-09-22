@@ -10,5 +10,5 @@
     }
   },
   "exclude": ["node_modules", "babel.config.js", "metro.config.js",
-  "jest.config.js", "web", "dist", "**/*.web.tsx", "**/*.web.ts"]
+  "jest.config.js", "web", "dist", "web-dist", "**/*.web.tsx", "**/*.web.ts"]
 }

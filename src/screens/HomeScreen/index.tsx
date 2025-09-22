@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {CoachMarkProvider} from '@/screens/HomeScreen/contexts/CoachMarkContext';
 
 import Screen from './HomeScreen';

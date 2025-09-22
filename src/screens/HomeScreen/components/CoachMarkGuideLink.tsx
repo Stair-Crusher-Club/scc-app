@@ -1,3 +1,4 @@
+import React from 'react';
 import {LayoutRectangle, Text, View} from 'react-native';
 
 import CoachGuideArrow from '@/assets/icon/coach_guide_arrow.svg';

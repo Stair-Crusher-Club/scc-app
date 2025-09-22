@@ -4,7 +4,7 @@ import {getAnalytics} from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Platform, StatusBar} from 'react-native';
 import Config from 'react-native-config';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
