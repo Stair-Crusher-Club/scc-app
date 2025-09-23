@@ -4,15 +4,22 @@ import React, {useEffect, useState} from 'react';
 import {Dimensions} from 'react-native';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 import DraggableFlatList from 'react-native-draggable-flatlist';
+import {
+  launchImageLibrary,
+  ImagePickerResponse,
+  MediaType,
+} from 'react-native-image-picker';
 
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
 import FlashIcon from '@/assets/icon/ic_flash.svg';
+import AlbumIcon from '@/assets/icon/ic_album.svg';
 import {
   hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForToiletPhotoAtom,
   hasShownGuideForReviewPhotoAtom,
 } from '@/atoms/User';
+import {featureFlagAtom} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
@@ -54,6 +61,7 @@ export default function CameraScreen({
   const hasShownGuideForToiletPhoto = useAtomValue(
     hasShownGuideForToiletPhotoAtom,
   );
+  const featureFlag = useAtomValue(featureFlagAtom);
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
 
   // 기존 촬영한 이미지 체크
@@ -152,6 +160,37 @@ export default function CameraScreen({
 
   const canTakeMore = photoFiles.length < MAX_NUMBER_OF_TAKEN_PHOTOS;
 
+  async function selectFromAlbum() {
+    const remainingSlots = MAX_NUMBER_OF_TAKEN_PHOTOS - photoFiles.length;
+    if (remainingSlots <= 0) {
+      ToastUtils.show('최대 3장까지 선택할 수 있습니다.');
+      return;
+    }
+
+    const options = {
+      mediaType: 'photo' as MediaType,
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      selectionLimit: remainingSlots,
+    };
+
+    launchImageLibrary(options, (response: ImagePickerResponse) => {
+      if (response.didCancel || response.errorMessage) {
+        return;
+      }
+
+      if (response.assets) {
+        const newImages: ImageFile[] = response.assets.map(asset => ({
+          uri: asset.uri || '',
+          width: asset.width || 0,
+          height: asset.height || 0,
+        }));
+        setPhotoFiles(photos => photos.concat(newImages));
+      }
+    });
+  }
+
   return (
     <ScreenLayout
       isHeaderVisible={true}
@@ -235,6 +274,14 @@ export default function CameraScreen({
         )}
       </S.TakenPhotos>
       <S.ActionsWrapper>
+        {featureFlag?.isAlbumUploadAllowed && (
+          <S.AlbumButton
+            elementName="camera_album_button"
+            onPress={selectFromAlbum}>
+            <AlbumIcon width={28} height={28} />
+            <S.AlbumButtonText>앨범</S.AlbumButtonText>
+          </S.AlbumButton>
+        )}
         <S.CaptureButton
           elementName="camera_capture_button"
           disabled={!canTakeMore || isTakingPhoto}

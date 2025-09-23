@@ -30,6 +30,7 @@ export const accessTokenAtom = atomForLocal<string>('scc-token');
 export const featureFlagAtom = atom<{
   isMapVisible: boolean;
   isToiletVisible: boolean;
+  isAlbumUploadAllowed: boolean;
 } | null>(null);
 
 // useMe hook - centralized userInfo management
@@ -68,6 +69,7 @@ export function useMe() {
     setFeatureFlag({
       isMapVisible: data.flags?.includes('MAP_VISIBLE') ?? false,
       isToiletVisible: data.flags?.includes('TOILET_VISIBLE') ?? false,
+      isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
     });
   };
 

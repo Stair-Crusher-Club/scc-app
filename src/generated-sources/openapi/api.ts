@@ -1646,6 +1646,12 @@ export interface GetUserInfoResponseDto {
      * @memberof GetUserInfoResponseDto
      */
     'flags'?: Array<string>;
+    /**
+     * 앨범에서 이미지 업로드가 허용되는지 여부
+     * @type {boolean}
+     * @memberof GetUserInfoResponseDto
+     */
+    'isAlbumUploadAllowed'?: boolean;
 }
 /**
  * 

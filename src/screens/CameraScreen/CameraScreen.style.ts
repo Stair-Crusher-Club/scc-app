@@ -100,6 +100,7 @@ export const ActionsWrapper = styled.View({
   flexDirection: 'row',
   marginVertical: 24,
   paddingHorizontal: 30,
+  position: 'relative',
 });
 
 export const CaptureButton = styled(SccPressable)(props => ({
@@ -132,4 +133,26 @@ export const FlashButton = styled(SccPressable)({
   borderRadius: 28,
   justifyContent: 'center',
   alignItems: 'center',
+});
+
+export const AlbumButton = styled(SccPressable)({
+  position: 'absolute',
+  bottom: 12,
+  left: 32,
+  width: 56,
+  height: 56,
+  backgroundColor: color.blacka40,
+  borderRadius: 28,
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+});
+
+export const AlbumButtonText = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardRegular,
+  fontSize: 13,
+  textAlign: 'center',
+  position: 'absolute',
+  bottom: -19, // 6px margin + fontSize 100%
 });

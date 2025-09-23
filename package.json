@@ -78,6 +78,7 @@
     "react-native-device-info": "^14.0.4",
     "react-native-draggable-flatlist": "^4.0.3",
     "react-native-gesture-handler": "^2.26.0",
+    "react-native-image-picker": "^8.2.1",
     "react-native-image-zoom-viewer": "^3.0.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-markdown-display": "^7.0.2",
