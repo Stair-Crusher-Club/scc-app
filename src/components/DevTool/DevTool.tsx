@@ -154,7 +154,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
             <TouchableWithoutFeedback onPress={() => {}}>
               <SafeAreaView style={styles.bottomSheet}>
                 <View style={styles.bottomSheetHeader}>
-                  <Text style={styles.bottomSheetTitle}>DevTool Settings</Text>
+                  <Text style={styles.bottomSheetTitle}>개발자 도구 설정</Text>
                   <TouchableOpacity onPress={toggleBottomSheet}>
                     <Text style={styles.closeButton}>✕</Text>
                   </TouchableOpacity>
@@ -165,11 +165,10 @@ export const DevTool: React.FC<DevToolProps> = () => {
                   <View style={styles.settingRow}>
                     <View style={styles.settingInfo}>
                       <Text style={styles.settingLabel}>
-                        Show Search Radius
+                        검색 범위 표시
                       </Text>
                       <Text style={styles.settingDescription}>
-                        Display search range circle on map when calling
-                        /searchPlaces API
+                        지도에서 장소를 검색할 때 검색 범위를 원으로 표시
                       </Text>
                     </View>
                     <Switch
@@ -187,13 +186,13 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     style={styles.actionRow}
                     onPress={handleShowEventLogs}>
                     <View style={styles.settingInfo}>
-                      <Text style={styles.settingLabel}>Event Logs</Text>
+                      <Text style={styles.settingLabel}>GA 이벤트</Text>
                       <Text style={styles.settingDescription}>
-                        View realtime client events for QA testing
+                        GA에 찍히는 클라이언트 이벤트 확인
                       </Text>
                     </View>
                     <View style={styles.actionButton}>
-                      <Text style={styles.actionButtonText}>View Logs</Text>
+                      <Text style={styles.actionButtonText}>이벤트 보기</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -202,13 +201,13 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     style={styles.actionRow}
                     onPress={handleShowAPILogs}>
                     <View style={styles.settingInfo}>
-                      <Text style={styles.settingLabel}>API Logs</Text>
+                      <Text style={styles.settingLabel}>서버 통신 로그</Text>
                       <Text style={styles.settingDescription}>
-                        View API requests and responses for debugging
+                        앱과 서버 간 데이터 송수신 내역 확인
                       </Text>
                     </View>
                     <View style={styles.actionButton}>
-                      <Text style={styles.actionButtonText}>View APIs</Text>
+                      <Text style={styles.actionButtonText}>로그 보기</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -217,13 +216,13 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     style={styles.actionRow}
                     onPress={handleCopyAccessToken}>
                     <View style={styles.settingInfo}>
-                      <Text style={styles.settingLabel}>Access Token</Text>
+                      <Text style={styles.settingLabel}>로그인 토큰 복사</Text>
                       <Text style={styles.settingDescription}>
-                        Copy current access token to clipboard for API testing
+                        현재 로그인 정보를 클립보드에 복사 (개발자용)
                       </Text>
                     </View>
                     <View style={styles.actionButton}>
-                      <Text style={styles.actionButtonText}>Copy Token</Text>
+                      <Text style={styles.actionButtonText}>복사하기</Text>
                     </View>
                   </TouchableOpacity>
 
