@@ -5,6 +5,7 @@ import {User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {logDebug} from '@/utils/DebugUtils';
+import {useEffect} from 'react';
 
 const userInfoAtom = atomForLocal<User>('userInfo');
 
@@ -81,6 +82,13 @@ export function useMe() {
   const syncUserInfo = async () => {
     userInfo && (await _syncUserInfo(userInfo));
   };
+  
+  // Auto-sync when userInfo is loaded from storage
+  useEffect(() => {
+    if (userInfo && userInfo.id && userInfo.nickname !== ANONYMOUS_USER_TEMPLATE.nickname) {
+      _syncUserInfo(userInfo);
+    }
+  }, [userInfo?.id]);
 
   return {userInfo, setUserInfo, syncUserInfo};
 }

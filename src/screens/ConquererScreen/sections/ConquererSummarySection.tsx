@@ -8,7 +8,7 @@ import * as S from './ConquererSummarySection.style';
 
 export default function ConquererSummarySection() {
   const {api} = useAppComponents();
-  const me = useMe();
+  const {userInfo} = useMe();
   const {data} = useQuery({
     queryKey: ['ConquererActivity'],
     queryFn: async () => (await api.getAccessibilityActivityReportPost()).data,
@@ -17,7 +17,7 @@ export default function ConquererSummarySection() {
   return (
     <S.ConquererSummarySection>
       <S.Decotator>
-        <S.Title>{`${me.userInfo?.nickname}님\n정복 리포트`}</S.Title>
+        <S.Title>{`${userInfo?.nickname}님\n정복 리포트`}</S.Title>
         <S.DecoImage source={require('@/assets/img/bg_confetti.png')} />
       </S.Decotator>
       <S.Dashboard>
