@@ -38,11 +38,11 @@ export default function CrusherActivityScreen({
   }
 
   useEffect(() => {
-    if (params.qr === QR_CODE) {
+    if (params?.qr === QR_CODE) {
       setVisibleWelcomeModal(true);
       recordStartingDate();
     }
-  }, [params.qr]);
+  }, [params?.qr]);
 
   const {data} = useQuery({
     queryKey: ['CurrentCrusherActivity'],
