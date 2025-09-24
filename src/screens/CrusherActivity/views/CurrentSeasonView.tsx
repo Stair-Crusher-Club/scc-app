@@ -224,6 +224,7 @@ export default function CurrentSeasonView() {
                 visibleLine={
                   activityLogs.length - 1 !== index && activityLogs.length > 1
                 }
+                canceledAt={item.canceledAt}
               />
             )}
             ItemSeparatorComponent={ActivityItem.Gap}
