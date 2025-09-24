@@ -101,13 +101,13 @@ yarn ota-deploy:production -i # 운영 환경
 # Android
 cd android
 # 버전 지정 & git tag 따는 것은 fastlane 명령어 실행 도중에 함께 처리됨
-fastlane android release_candidate scheme:sandbox # 개발 환경
+fastlane android release_candidate scheme:sandbox # 개발 환경 - 주의 : git tag는 따지 말 것!
 fastlane android release_candidate scheme:production # 운영 환경
 
 # iOS
 cd ios
 # 버전 지정 & git tag 따는 것은 fastlane 명령어 실행 도중에 함께 처리됨
-fastlane ios release_candidate scheme:sandbox # 개발 환경
+fastlane ios release_candidate scheme:sandbox # 개발 환경 - 주의 : git tag는 따지 말 것!
 fastlane ios release_candidate scheme:production # 운영 환경
 ```
 
