@@ -16,6 +16,7 @@ import {
   Clipboard,
   Alert,
 } from 'react-native';
+import Config from 'react-native-config';
 
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
@@ -26,10 +27,18 @@ import {initializeEventLoggingDevTool} from '@/logging/Logger';
 import {accessTokenAtom} from '@/atoms/Auth';
 
 interface DevToolProps {
-  isVisible?: boolean;
 }
 
-export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
+/**
+ * Determines whether DevTool should be shown based on environment
+ * @returns true if DevTool should be visible (local dev or sandbox with ENABLE_DEVTOOL=true)
+ */
+export const shouldShowDevTool = (): boolean => {
+  return __DEV__ || Config.ENABLE_DEVTOOL === 'true';
+};
+
+export const DevTool: React.FC<DevToolProps> = () => {
+
   const {width: screenWidth, height: screenHeight} = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -39,9 +48,9 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
   const [accessToken] = useAtom(accessTokenAtom);
 
-  // Initialize event logging (always enabled in dev)
+  // Initialize event logging (enabled in dev or sandbox)
   useEffect(() => {
-    if (__DEV__) {
+    if (shouldShowDevTool()) {
       initializeEventLoggingDevTool(setLoggedEvents);
     }
   }, []);
@@ -103,7 +112,7 @@ export const DevTool: React.FC<DevToolProps> = ({isVisible = true}) => {
     }
   };
 
-  if (!isVisible || !__DEV__) {
+  if (!shouldShowDevTool()) {
     return null;
   }
 
