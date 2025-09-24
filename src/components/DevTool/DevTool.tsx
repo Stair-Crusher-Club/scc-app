@@ -35,7 +35,7 @@ interface DevToolProps {
  * @returns true if DevTool should be visible (local dev or sandbox with ENABLE_DEVTOOL=true)
  */
 export const shouldShowDevTool = (): boolean => {
-  return __DEV__ || Config.ENABLE_DEVTOOL === 'true';
+  return Config.ENABLE_DEVTOOL === 'true';
 };
 
 export const DevTool: React.FC<DevToolProps> = () => {
