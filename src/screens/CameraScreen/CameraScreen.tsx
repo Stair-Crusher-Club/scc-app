@@ -161,18 +161,12 @@ export default function CameraScreen({
   const canTakeMore = photoFiles.length < MAX_NUMBER_OF_TAKEN_PHOTOS;
 
   async function selectFromAlbum() {
-    const remainingSlots = MAX_NUMBER_OF_TAKEN_PHOTOS - photoFiles.length;
-    if (remainingSlots <= 0) {
-      ToastUtils.show('최대 3장까지 선택할 수 있습니다.');
-      return;
-    }
-
     const options = {
       mediaType: 'photo' as MediaType,
       includeBase64: false,
       maxHeight: 2000,
       maxWidth: 2000,
-      selectionLimit: remainingSlots,
+      selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
     launchImageLibrary(options, (response: ImagePickerResponse) => {
@@ -186,7 +180,8 @@ export default function CameraScreen({
           width: asset.width || 0,
           height: asset.height || 0,
         }));
-        setPhotoFiles(photos => photos.concat(newImages));
+        setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
+        confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
       }
     });
   }
@@ -198,7 +193,7 @@ export default function CameraScreen({
       style={{backgroundColor: color.gray90}}>
       <S.Header>
         <S.CancelButton onPress={goBack}>취소</S.CancelButton>
-        <S.SubmitButton onPress={confirm} disabled={photoFiles.length === 0}>
+        <S.SubmitButton onPress={() => confirm(photoFiles)} disabled={photoFiles.length === 0}>
           {`사진 등록 ${photoFiles.length > 0 ? `(${photoFiles.length})` : ''}`}
         </S.SubmitButton>
       </S.Header>
