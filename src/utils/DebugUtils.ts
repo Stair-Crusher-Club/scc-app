@@ -1,9 +1,10 @@
 import {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
 import {logAPICall} from '@/components/DevTool/devToolEventStore';
 import {shouldShowDevTool} from '@/components/DevTool/DevTool';
+import Config from 'react-native-config';
 
 // Global logging control flags
-let isAPILoggingEnabled = __DEV__;
+let isAPILoggingEnabled = Config.ENABLE_DEVTOOL === 'true';
 
 export const setAPILogging = (enabled: boolean) => {
   isAPILoggingEnabled = enabled;

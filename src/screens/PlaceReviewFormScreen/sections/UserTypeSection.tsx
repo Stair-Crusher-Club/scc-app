@@ -49,7 +49,7 @@ export default function UserTypeSection({nickname}: {nickname?: string}) {
           }}>
           <Controller
             name="mobilityTool"
-            rules={{required: true}}
+            rules={{required: '이동 수단을 선택해주세요'}}
             render={({field}) => (
               <>
                 {MOBILITY_TOOL_OPTIONS.filter(
