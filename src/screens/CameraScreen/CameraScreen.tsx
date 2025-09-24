@@ -100,7 +100,7 @@ export default function CameraScreen({
     navigation.goBack();
   }
 
-  function confirm() {
+  function confirm(photoFiles: ImageFile[]) {
     if (isTakingPhoto) {
       return;
     }
