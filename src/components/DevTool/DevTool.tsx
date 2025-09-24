@@ -21,8 +21,9 @@ import Config from 'react-native-config';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
 import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';
+import {APILoggingBottomSheet} from './APILoggingBottomSheet';
 import {useAtom, useSetAtom} from 'jotai';
-import {loggedEventsAtom} from './devToolEventStore';
+import {loggedEventsAtom, apiLogsAtom, initializeAPILoggingDevTool} from './devToolEventStore';
 import {initializeEventLoggingDevTool} from '@/logging/Logger';
 import {accessTokenAtom} from '@/atoms/Auth';
 
@@ -44,14 +45,17 @@ export const DevTool: React.FC<DevToolProps> = () => {
 
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isEventLoggingSheetOpen, setIsEventLoggingSheetOpen] = useState(false);
+  const [isAPILoggingSheetOpen, setIsAPILoggingSheetOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
+  const setAPILogs = useSetAtom(apiLogsAtom);
   const [accessToken] = useAtom(accessTokenAtom);
 
-  // Initialize event logging (enabled in dev or sandbox)
+  // Initialize event logging and API logging (enabled in dev or sandbox)
   useEffect(() => {
     if (shouldShowDevTool()) {
       initializeEventLoggingDevTool(setLoggedEvents);
+      initializeAPILoggingDevTool(setAPILogs);
     }
   }, []);
 
@@ -95,6 +99,11 @@ export const DevTool: React.FC<DevToolProps> = () => {
 
   const handleShowEventLogs = () => {
     setIsEventLoggingSheetOpen(true);
+    setIsBottomSheetOpen(false);
+  };
+
+  const handleShowAPILogs = () => {
+    setIsAPILoggingSheetOpen(true);
     setIsBottomSheetOpen(false);
   };
 
@@ -188,6 +197,21 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     </View>
                   </TouchableOpacity>
 
+                  {/* API Logging Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={handleShowAPILogs}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>API Logs</Text>
+                      <Text style={styles.settingDescription}>
+                        View API requests and responses for debugging
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>View APIs</Text>
+                    </View>
+                  </TouchableOpacity>
+
                   {/* Access Token Copy Button */}
                   <TouchableOpacity
                     style={styles.actionRow}
@@ -215,6 +239,12 @@ export const DevTool: React.FC<DevToolProps> = () => {
       <EventLoggingBottomSheet
         visible={isEventLoggingSheetOpen}
         onClose={() => setIsEventLoggingSheetOpen(false)}
+      />
+
+      {/* API Logging Bottom Sheet */}
+      <APILoggingBottomSheet
+        visible={isAPILoggingSheetOpen}
+        onClose={() => setIsAPILoggingSheetOpen(false)}
       />
     </>
   );
