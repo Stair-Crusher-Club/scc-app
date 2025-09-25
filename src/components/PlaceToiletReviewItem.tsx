@@ -60,6 +60,7 @@ export default function PlaceToiletReviewItem({
       ? (review as ToiletReviewDto).id
       : (review as ToiletReviewListItemDto).toiletReviewId,
     targetType: 'TOILET_REVIEW',
+    placeId,
   });
 
   const reviewImages = review.images;

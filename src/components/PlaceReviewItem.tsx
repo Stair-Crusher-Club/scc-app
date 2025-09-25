@@ -62,6 +62,7 @@ export default function PlaceReviewItem({
       ? (review as PlaceReviewDto).id
       : (review as PlaceReviewListItemDto).placeReviewId,
     targetType: 'PLACE_REVIEW',
+    placeId,
   });
 
   const reviewText = review.comment;

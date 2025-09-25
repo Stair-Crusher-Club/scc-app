@@ -47,6 +47,7 @@ export default function PlaceDetailBuildingSection({
     initialTotalCount: accessibility?.buildingAccessibility?.totalUpvoteCount,
     targetId: accessibility?.buildingAccessibility?.id,
     targetType: 'BUILDING_ACCESSIBILITY',
+    placeId: place.id,
   });
 
   if (!accessibility?.buildingAccessibility) {

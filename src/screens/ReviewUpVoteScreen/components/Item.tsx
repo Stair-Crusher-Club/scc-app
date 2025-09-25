@@ -25,6 +25,7 @@ export default function Item({item}: ItemProps) {
     initialTotalCount: item.totalUpvoteCount,
     targetId,
     targetType,
+    placeId: item.placeId,
   });
 
   return (

@@ -43,6 +43,7 @@ export default function PlaceDetailEntranceSection({
     initialTotalCount: accessibility?.totalFavoriteCount,
     targetId: accessibility?.placeAccessibility?.id,
     targetType: 'PLACE_ACCESSIBILITY',
+    placeId: place.id,
   });
 
   if (!accessibility?.placeAccessibility) {

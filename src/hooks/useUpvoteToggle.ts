@@ -10,6 +10,7 @@ interface UseUpvoteToggleParams {
   initialTotalCount: number | undefined;
   targetId: string | undefined;
   targetType: UpvoteTargetTypeDto;
+  placeId: string;
 }
 
 interface UseUpvoteToggleReturn {
@@ -23,6 +24,7 @@ export function useUpvoteToggle({
   initialTotalCount,
   targetId,
   targetType,
+  placeId,
 }: UseUpvoteToggleParams): UseUpvoteToggleReturn {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
@@ -46,21 +48,38 @@ export function useUpvoteToggle({
     onSuccess: () => {
       ToastUtils.show('좋은 의견 감사합니다!');
 
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail'],
-      });
+      if (
+        targetType === 'PLACE_ACCESSIBILITY' ||
+        targetType === 'BUILDING_ACCESSIBILITY'
+      ) {
+        if (placeId) {
+          queryClient.invalidateQueries({
+            queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+          });
+        }
+      }
 
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewList', targetType],
-      });
+      if (targetType === 'PLACE_REVIEW' || targetType === 'TOILET_REVIEW') {
+        queryClient.invalidateQueries({
+          queryKey: ['PlaceDetail', placeId, 'Review'],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewsUpvoted', targetType],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ['PlaceDetail', placeId, 'Toilet'],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewHistory', 'Upvote', targetType],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewList', targetType],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewsUpvoted', targetType],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewHistory', 'Upvote', targetType],
+        });
+      }
     },
     onError: error => {
       ToastUtils.showOnApiError(error);
