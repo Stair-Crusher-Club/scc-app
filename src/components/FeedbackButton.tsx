@@ -9,7 +9,8 @@ interface UpvoteButtonProps {
   total?: number;
   upvoted?: boolean;
   onPressUpvote?: () => void;
-  onPressInfoUpdateRequest?: () => void;
+  onPressInfoUpdateRequest?: () => void; // 정보수정 요청 버튼
+  onPressAnalytics?: () => void;
 }
 
 export default function FeedbackButton({
@@ -17,6 +18,7 @@ export default function FeedbackButton({
   upvoted,
   onPressUpvote,
   onPressInfoUpdateRequest,
+  onPressAnalytics,
 }: UpvoteButtonProps) {
   return (
     <View
@@ -63,6 +65,7 @@ export default function FeedbackButton({
         </TouchableOpacity>
         {(total ?? 0) > 0 && (
           <TouchableOpacity
+            onPress={onPressAnalytics}
             style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
             <Image
               source={require('@/assets/img/img_profile.png')}

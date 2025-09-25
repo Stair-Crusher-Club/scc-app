@@ -64,6 +64,12 @@ export default function Item({item}: ItemProps) {
         total={totalUpvoteCount}
         upvoted={isUpvoted}
         onPressUpvote={toggleUpvote}
+        onPressAnalytics={() => {
+          navigation.navigate('UpvoteAnalytics', {
+            targetType,
+            targetId,
+          });
+        }}
       />
     </View>
   );

@@ -209,6 +209,14 @@ export default function PlaceToiletReviewItem({
         upvoted={isUpvoted}
         total={totalUpvoteCount}
         onPressUpvote={toggleUpvote}
+        onPressAnalytics={() =>
+          navigation.navigate('UpvoteAnalytics', {
+            targetType: 'TOILET_REVIEW',
+            targetId: isDetailReview
+              ? (review as ToiletReviewDto).id
+              : (review as ToiletReviewListItemDto).toiletReviewId,
+          })
+        }
       />
 
       <DeleteBottomSheet

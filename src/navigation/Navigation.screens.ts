@@ -58,7 +58,9 @@ import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
 } from '@/screens/ToiletReviewFormScreen';
-import UpvoteAnalyticsScreen from '@/screens/UpvoteAnalyticsScreen';
+import UpvoteAnalyticsScreen, {
+  UpvoteAnalyticsScreenProps,
+} from '@/screens/UpvoteAnalyticsScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
@@ -257,7 +259,7 @@ export type ScreenParams = {
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   'Conquerer/Upvote': undefined;
-  UpvoteAnalytics: {placeId: string};
+  UpvoteAnalytics: UpvoteAnalyticsScreenProps;
   FavoritePlaces: undefined;
   CrusherActivity: CrusherActivityScreenParams;
 

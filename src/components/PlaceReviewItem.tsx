@@ -188,6 +188,14 @@ export default function PlaceReviewItem({
         upvoted={isUpvoted}
         total={totalUpvoteCount}
         onPressUpvote={toggleUpvote}
+        onPressAnalytics={() =>
+          navigation.navigate('UpvoteAnalytics', {
+            targetType: 'PLACE_REVIEW',
+            targetId: isDetailReview
+              ? (review as PlaceReviewDto).id
+              : (review as PlaceReviewListItemDto).placeReviewId,
+          })
+        }
       />
 
       <DeleteBottomSheet

@@ -79,6 +79,12 @@ export default function PlaceDetailEntranceSection({
         onPressInfoUpdateRequest={() =>
           showNegativeFeedbackBottomSheet?.('PLACE_ACCESSIBILITY')
         }
+        onPressAnalytics={() =>
+          navigation.navigate('UpvoteAnalytics', {
+            targetType: 'PLACE_ACCESSIBILITY',
+            targetId: accessibility?.placeAccessibility?.id || '',
+          })
+        }
       />
       <Divider />
       <View>

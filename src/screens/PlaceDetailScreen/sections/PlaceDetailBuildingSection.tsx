@@ -93,6 +93,12 @@ export default function PlaceDetailBuildingSection({
           onPressInfoUpdateRequest={() =>
             showNegativeFeedbackBottomSheet?.('BUILDING_ACCESSIBILITY')
           }
+          onPressAnalytics={() =>
+            navigation.navigate('UpvoteAnalytics', {
+              targetType: 'BUILDING_ACCESSIBILITY',
+              targetId: accessibility?.buildingAccessibility?.id || '',
+            })
+          }
         />
         <Divider />
         <View>
