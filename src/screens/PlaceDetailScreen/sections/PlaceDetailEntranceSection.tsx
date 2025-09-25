@@ -40,7 +40,7 @@ export default function PlaceDetailEntranceSection({
 
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted: accessibility?.placeAccessibility?.isUpvoted ?? false,
-    initialTotalCount: accessibility?.totalFavoriteCount,
+    initialTotalCount: accessibility?.placeAccessibility?.totalUpvoteCount,
     targetId: accessibility?.placeAccessibility?.id,
     targetType: 'PLACE_ACCESSIBILITY',
     placeId: place.id,
