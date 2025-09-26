@@ -21,7 +21,7 @@ export const Title = styled.Text({
 export const Description = styled.View({
   marginTop: 25,
   paddingHorizontal: 25,
-  marginBottom: 60,
+  marginBottom: 30,
 });
 
 export const GuideText = styled.Text({
