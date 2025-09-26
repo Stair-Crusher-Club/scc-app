@@ -1,6 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import {isEmpty} from 'lodash';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components/native';
 
 import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
@@ -15,6 +15,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import {SccButton} from '@/components/atoms';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {NativeScrollEvent, NativeSyntheticEvent} from 'react-native';
@@ -27,7 +28,6 @@ import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
 import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyActionBar';
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -63,6 +63,10 @@ const ChallengeDetailScreen = ({
     const result = await api.joinChallengePost(params);
     return result.data;
   });
+
+  useEffect(() => {
+    navigation.setOptions({headerTitle: challenge?.name ?? '계단뿌셔 챌린지'});
+  }, [challenge]);
 
   const prevY = useRef(0);
   const [visible, setVisible] = useState(false);
