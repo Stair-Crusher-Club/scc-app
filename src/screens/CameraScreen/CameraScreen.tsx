@@ -169,21 +169,25 @@ export default function CameraScreen({
       selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
-    launchImageLibrary(options, (response: ImagePickerResponse) => {
-      if (response.didCancel || response.errorMessage) {
-        return;
-      }
+    try {
+      launchImageLibrary(options, (response: ImagePickerResponse) => {
+        if (response.didCancel || response.errorMessage) {
+          return;
+        }
 
-      if (response.assets) {
-        const newImages: ImageFile[] = response.assets.map(asset => ({
-          uri: asset.uri || '',
-          width: asset.width || 0,
-          height: asset.height || 0,
-        }));
-        setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
-        confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
-      }
-    });
+        if (response.assets) {
+          const newImages: ImageFile[] = response.assets.map(asset => ({
+            uri: asset.uri || '',
+            width: asset.width || 0,
+            height: asset.height || 0,
+          }));
+          setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
+          confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
+        }
+      });
+    } catch (error: any) {
+      Logger.logError(error);
+    }
   }
 
   return (
