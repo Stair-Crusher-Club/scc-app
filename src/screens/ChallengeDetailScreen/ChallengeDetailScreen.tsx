@@ -16,9 +16,15 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
+import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {NativeScrollEvent, NativeSyntheticEvent} from 'react-native';
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Text,
+  View,
+} from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import * as S from './ChallengeDetailScreen.style';
 import ChallengeDetailCompanyModal from './components/ChallengeDetailCompanyModal';
@@ -130,13 +136,19 @@ const ChallengeDetailScreen = ({
                     <Markdown
                       style={{
                         body: {
-                          lineHeight: 26,
-                          fontSize: 16,
+                          lineHeight: 22,
+                          fontSize: 14,
                           fontFamily: font.pretendardRegular,
                         },
-                        link: {color: color.brand60},
-                      }}>
-                      {challenge?.description}
+                        link: {
+                          color: color.brand60,
+                          fontSize: 16,
+                          lineHeight: 24,
+                          fontFamily: font.pretendardMedium,
+                        },
+                      }}
+                      rules={rules}>
+                      {challenge.description}
                     </Markdown>
                   </S.Description>
                 ) : (
@@ -237,3 +249,50 @@ export default ChallengeDetailScreen;
 const ChallengeStatusBadgesWrapper = styled(ChallengeStatusBadges)`
   margin: 0 25px 14px 25px;
 `;
+
+const FoldableParagraph = ({children}: {children: React.ReactNode}) => {
+  const [collapsed, setCollapsed] = useState(false);
+  return (
+    <View>
+      <Text numberOfLines={collapsed ? 1 : undefined}>{children}</Text>
+      <SccTouchableOpacity
+        elementName="challenge_description_toggle"
+        onPress={() => setCollapsed(!collapsed)}
+        style={{
+          alignItems: 'flex-end',
+        }}>
+        <Text
+          style={{
+            color: color.gray40,
+            fontSize: 14,
+            fontFamily: font.pretendardRegular,
+            textDecorationLine: collapsed ? 'underline' : 'none',
+          }}>
+          {collapsed ? '더보기' : '접기'}
+        </Text>
+      </SccTouchableOpacity>
+    </View>
+  );
+};
+
+const rules = {
+  paragraph: (node: any, children: any, _: any, styles: any) => {
+    const hasLink = node?.children?.[0].children?.some(
+      (child: any) => child?.type === 'link',
+    );
+
+    if (hasLink) {
+      return (
+        <View key={node.key} style={styles._VIEW_SAFE_paragraph}>
+          {children}
+        </View>
+      );
+    }
+
+    return (
+      <FoldableParagraph key={node.key}>
+        <Text style={styles.paragraph}>{children}</Text>
+      </FoldableParagraph>
+    );
+  },
+};
