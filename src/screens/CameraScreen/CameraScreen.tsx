@@ -2,24 +2,24 @@ import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
 import {Dimensions} from 'react-native';
-import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
-  launchImageLibrary,
   ImagePickerResponse,
+  launchImageLibrary,
   MediaType,
 } from 'react-native-image-picker';
+import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 
+import AlbumIcon from '@/assets/icon/ic_album.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
 import FlashIcon from '@/assets/icon/ic_flash.svg';
-import AlbumIcon from '@/assets/icon/ic_album.svg';
+import {featureFlagAtom} from '@/atoms/Auth';
 import {
   hasShownGuideForEntrancePhotoAtom,
-  hasShownGuideForToiletPhotoAtom,
   hasShownGuideForReviewPhotoAtom,
+  hasShownGuideForToiletPhotoAtom,
 } from '@/atoms/User';
-import {featureFlagAtom} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
@@ -29,12 +29,12 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import CameraDeviceSelect from './CameraDeviceSelect';
 import CameraNotAuthorized from './CameraNotAuthorized';
 import CameraPreview from './CameraPreview';
 import * as S from './CameraScreen.style';
 import useCamera from './useCamera';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 export interface CameraScreenParams {
   takenPhotos: ImageFile[];
@@ -100,13 +100,13 @@ export default function CameraScreen({
     navigation.goBack();
   }
 
-  function confirm(photoFiles: ImageFile[]) {
+  function confirm(_photoFiles: ImageFile[]) {
     if (isTakingPhoto) {
       return;
     }
     // TODO: navigation 에 non-serializable 값을 넘겨주면 안된다. (https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state)
     if (route.params && route.params.onPhotosTaken) {
-      route.params.onPhotosTaken(photoFiles);
+      route.params.onPhotosTaken(_photoFiles);
     }
     navigation.goBack();
   }
@@ -169,21 +169,25 @@ export default function CameraScreen({
       selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
-    launchImageLibrary(options, (response: ImagePickerResponse) => {
-      if (response.didCancel || response.errorMessage) {
-        return;
-      }
+    try {
+      launchImageLibrary(options, (response: ImagePickerResponse) => {
+        if (response.didCancel || response.errorMessage) {
+          return;
+        }
 
-      if (response.assets) {
-        const newImages: ImageFile[] = response.assets.map(asset => ({
-          uri: asset.uri || '',
-          width: asset.width || 0,
-          height: asset.height || 0,
-        }));
-        setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
-        confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
-      }
-    });
+        if (response.assets) {
+          const newImages: ImageFile[] = response.assets.map(asset => ({
+            uri: asset.uri || '',
+            width: asset.width || 0,
+            height: asset.height || 0,
+          }));
+          setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
+          confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
+        }
+      });
+    } catch (error: any) {
+      Logger.logError(error);
+    }
   }
 
   return (
@@ -193,7 +197,9 @@ export default function CameraScreen({
       style={{backgroundColor: color.gray90}}>
       <S.Header>
         <S.CancelButton onPress={goBack}>취소</S.CancelButton>
-        <S.SubmitButton onPress={() => confirm(photoFiles)} disabled={photoFiles.length === 0}>
+        <S.SubmitButton
+          onPress={() => confirm(photoFiles)}
+          disabled={photoFiles.length === 0}>
           {`사진 등록 ${photoFiles.length > 0 ? `(${photoFiles.length})` : ''}`}
         </S.SubmitButton>
       </S.Header>
