@@ -14,8 +14,8 @@ import ContributionsBubble from './ContributionsBubble';
 import CurrentStepImage from './CurrentStepImage';
 
 export const Container = styled.View({
-  paddingTop: 50,
-  paddingBottom: 40,
+  paddingTop: 32,
+  paddingBottom: 16,
 });
 
 export const StepContainer = styled.View({

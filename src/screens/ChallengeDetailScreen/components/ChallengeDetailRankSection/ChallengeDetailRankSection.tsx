@@ -31,7 +31,7 @@ export default ChallengeDetailRankSection;
 
 const Separator = styled.View({
   width: '100%',
-  height: 13,
+  height: 8,
   backgroundColor: color.gray10,
 });
 

@@ -49,6 +49,6 @@ const Container = styled.View({
 
 const MilestoneText = styled.Text({
   color: color.gray90,
-  fontSize: 16,
+  fontSize: 13,
   fontFamily: font.pretendardMedium,
 });
