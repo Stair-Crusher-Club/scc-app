@@ -258,32 +258,53 @@ const FoldableParagraph = ({
   children,
   collapsed,
   onToggle,
+  shouldShowToggle,
 }: {
   children: React.ReactNode;
   collapsed: boolean;
   onToggle: () => void;
+  shouldShowToggle: boolean;
 }) => {
   return (
     <View>
       <Text numberOfLines={collapsed ? 1 : undefined}>{children}</Text>
-      <SccTouchableOpacity
-        elementName="challenge_description_toggle"
-        onPress={onToggle}
-        style={{
-          alignItems: 'flex-end',
-        }}>
-        <Text
+      {shouldShowToggle && (
+        <SccTouchableOpacity
+          elementName="challenge_description_toggle"
+          onPress={onToggle}
           style={{
-            color: color.gray40,
-            fontSize: 14,
-            fontFamily: font.pretendardRegular,
-            textDecorationLine: collapsed ? 'underline' : 'none',
+            alignItems: 'flex-end',
           }}>
-          {collapsed ? '더보기' : '접기'}
-        </Text>
-      </SccTouchableOpacity>
+          <Text
+            style={{
+              color: color.gray40,
+              fontSize: 14,
+              fontFamily: font.pretendardRegular,
+              textDecorationLine: collapsed ? 'underline' : 'none',
+            }}>
+            {collapsed ? '더보기' : '접기'}
+          </Text>
+        </SccTouchableOpacity>
+      )}
     </View>
   );
+};
+
+// 텍스트에서 링크 전까지의 길이를 체크하는 함수
+const getTextLengthBeforeLink = (node: any): number => {
+  if (!node?.children?.[0]?.children) return 0;
+
+  let length = 0;
+  for (const child of node.children[0].children) {
+    console.log(child);
+    if (child.type === 'link') {
+      break;
+    }
+    if (child.type === 'text') {
+      length += child.content?.length || 0;
+    }
+  }
+  return length;
 };
 
 const rules = (
@@ -303,11 +324,15 @@ const rules = (
       );
     }
 
+    const textLengthBeforeLink = getTextLengthBeforeLink(node);
+    const shouldShowToggle = textLengthBeforeLink >= 50;
+
     return (
       <FoldableParagraph
         key={node.key}
         collapsed={isDescriptionCollapsed}
-        onToggle={() => setIsDescriptionCollapsed(!isDescriptionCollapsed)}>
+        onToggle={() => setIsDescriptionCollapsed(!isDescriptionCollapsed)}
+        shouldShowToggle={shouldShowToggle}>
         <Text style={styles.paragraph}>{children}</Text>
       </FoldableParagraph>
     );
