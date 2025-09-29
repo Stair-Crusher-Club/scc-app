@@ -49,6 +49,7 @@ const ChallengeDetailScreen = ({
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [passcode, setPasscode] = useState<string>();
+  const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
 
   const {data} = useQuery({
     queryKey: ['ChallengeDetail', challengeId],
@@ -147,7 +148,10 @@ const ChallengeDetailScreen = ({
                           fontFamily: font.pretendardMedium,
                         },
                       }}
-                      rules={rules}>
+                      rules={rules(
+                        isDescriptionCollapsed,
+                        setIsDescriptionCollapsed,
+                      )}>
                       {challenge.description}
                     </Markdown>
                   </S.Description>
@@ -250,14 +254,21 @@ const ChallengeStatusBadgesWrapper = styled(ChallengeStatusBadges)`
   margin: 0 25px 14px 25px;
 `;
 
-const FoldableParagraph = ({children}: {children: React.ReactNode}) => {
-  const [collapsed, setCollapsed] = useState(false);
+const FoldableParagraph = ({
+  children,
+  collapsed,
+  onToggle,
+}: {
+  children: React.ReactNode;
+  collapsed: boolean;
+  onToggle: () => void;
+}) => {
   return (
     <View>
       <Text numberOfLines={collapsed ? 1 : undefined}>{children}</Text>
       <SccTouchableOpacity
         elementName="challenge_description_toggle"
-        onPress={() => setCollapsed(!collapsed)}
+        onPress={onToggle}
         style={{
           alignItems: 'flex-end',
         }}>
@@ -275,7 +286,10 @@ const FoldableParagraph = ({children}: {children: React.ReactNode}) => {
   );
 };
 
-const rules = {
+const rules = (
+  isDescriptionCollapsed: boolean,
+  setIsDescriptionCollapsed: (collapsed: boolean) => void,
+) => ({
   paragraph: (node: any, children: any, _: any, styles: any) => {
     const hasLink = node?.children?.[0].children?.some(
       (child: any) => child?.type === 'link',
@@ -290,9 +304,12 @@ const rules = {
     }
 
     return (
-      <FoldableParagraph key={node.key}>
+      <FoldableParagraph
+        key={node.key}
+        collapsed={isDescriptionCollapsed}
+        onToggle={() => setIsDescriptionCollapsed(!isDescriptionCollapsed)}>
         <Text style={styles.paragraph}>{children}</Text>
       </FoldableParagraph>
     );
   },
-};
+});
