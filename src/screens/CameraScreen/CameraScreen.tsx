@@ -161,6 +161,7 @@ export default function CameraScreen({
   const canTakeMore = photoFiles.length < MAX_NUMBER_OF_TAKEN_PHOTOS;
 
   async function selectFromAlbum() {
+    console.log('hahaha 1 selectFromAlbum')
     const options = {
       mediaType: 'photo' as MediaType,
       includeBase64: false,
@@ -170,10 +171,16 @@ export default function CameraScreen({
     };
 
     try {
+      console.log('hahaha 2 before launchImageLibrary')
       launchImageLibrary(options, (response: ImagePickerResponse) => {
         if (response.didCancel || response.errorMessage) {
+          const errorMessage = `didCancel ${response.didCancel} / errorCode: ${response.errorCode} / errorMessage: ${response.errorMessage}`;
+          console.error(`hahaha 3 error; ${errorMessage}`);
+          Logger.logError(Error(errorMessage));
           return;
         }
+
+        console.log(`hahaha 4 launchImageLibrary callback`);
 
         if (response.assets) {
           const newImages: ImageFile[] = response.assets.map(asset => ({
@@ -186,6 +193,7 @@ export default function CameraScreen({
         }
       });
     } catch (error: any) {
+      console.error('hahaha 5 error', error);
       Logger.logError(error);
     }
   }
