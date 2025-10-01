@@ -143,8 +143,8 @@ const ChallengeDetailScreen = ({
                         },
                         link: {
                           color: color.brand60,
-                          fontSize: 16,
-                          lineHeight: 24,
+                          fontSize: 14,
+                          lineHeight: 22,
                           fontFamily: font.pretendardMedium,
                         },
                       }}
