@@ -745,6 +745,32 @@ export type ChallengeStatusDto = typeof ChallengeStatusDto[keyof typeof Challeng
 /**
  * 
  * @export
+ * @interface CheckInToClubQuestRequestDto
+ */
+export interface CheckInToClubQuestRequestDto {
+    /**
+     * 체크인할 크러셔 클럽 퀘스트의 ID
+     * @type {string}
+     * @memberof CheckInToClubQuestRequestDto
+     */
+    'clubQuestId': string;
+}
+/**
+ * 
+ * @export
+ * @interface CheckInToClubQuestResponseDto
+ */
+export interface CheckInToClubQuestResponseDto {
+    /**
+     * 체크인 성공 여부
+     * @type {boolean}
+     * @memberof CheckInToClubQuestResponseDto
+     */
+    'success': boolean;
+}
+/**
+ * 
+ * @export
  * @interface CircleSearchRegionDto
  */
 export interface CircleSearchRegionDto {
@@ -4439,6 +4465,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 크러셔 클럽 퀘스트에 체크인한다.
+         * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkInToClubQuestPost: async (checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'checkInToClubQuestRequestDto' is not null or undefined
+            assertParamExists('checkInToClubQuestPost', 'checkInToClubQuestRequestDto', checkInToClubQuestRequestDto)
+            const localVarPath = `/checkInToClubQuest`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(checkInToClubQuestRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6832,6 +6898,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 크러셔 클럽 퀘스트에 체크인한다.
+         * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckInToClubQuestResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkInToClubQuestPost(checkInToClubQuestRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7529,6 +7606,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 크러셔 클럽 퀘스트에 체크인한다.
+         * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: any): AxiosPromise<CheckInToClubQuestResponseDto> {
+            return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -8168,6 +8255,18 @@ export class DefaultApi extends BaseAPI {
      */
     public cancelUpvotePost(cancelUpvoteRequestDto: CancelUpvoteRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).cancelUpvotePost(cancelUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 크러셔 클럽 퀘스트에 체크인한다.
+     * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
