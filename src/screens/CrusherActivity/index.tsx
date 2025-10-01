@@ -11,6 +11,7 @@ import HistoryView from './views/HistoryView';
 
 export interface CrusherActivityScreenParams {
   qr?: string;
+  clubQuestIdToCheckIn?: string;
 }
 
 const QR_CODE = '2025-autumn';
@@ -43,6 +44,29 @@ export default function CrusherActivityScreen({
       recordStartingDate();
     }
   }, [params?.qr]);
+
+  async function checkInToClubQuest() {
+    if (!params?.clubQuestIdToCheckIn) {
+      return;
+    }
+
+    try {
+      await api.checkInToClubQuestPost({
+        clubQuestId: params.clubQuestIdToCheckIn,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['CurrentCrusherActivity'],
+      });
+    } catch (error: any) {
+      Logger.logError(error);
+    }
+  }
+
+  useEffect(() => {
+    if (params?.clubQuestIdToCheckIn) {
+      checkInToClubQuest();
+    }
+  }, [params?.clubQuestIdToCheckIn]);
 
   const {data} = useQuery({
     queryKey: ['CurrentCrusherActivity'],

@@ -745,6 +745,32 @@ export type ChallengeStatusDto = typeof ChallengeStatusDto[keyof typeof Challeng
 /**
  * 
  * @export
+ * @interface CheckInToClubQuestRequestDto
+ */
+export interface CheckInToClubQuestRequestDto {
+    /**
+     * 체크인할 크러셔 클럽 퀘스트의 ID
+     * @type {string}
+     * @memberof CheckInToClubQuestRequestDto
+     */
+    'clubQuestId': string;
+}
+/**
+ * 
+ * @export
+ * @interface CheckInToClubQuestResponseDto
+ */
+export interface CheckInToClubQuestResponseDto {
+    /**
+     * 체크인 성공 여부
+     * @type {boolean}
+     * @memberof CheckInToClubQuestResponseDto
+     */
+    'success': boolean;
+}
+/**
+ * 
+ * @export
  * @interface CircleSearchRegionDto
  */
 export interface CircleSearchRegionDto {
@@ -2225,6 +2251,50 @@ export interface ListUpvotedPlaceReviewsResponseDto {
      * @memberof ListUpvotedPlaceReviewsResponseDto
      */
     'placeReviews': Array<PlaceReviewListItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedPlacesRequestDto
+ */
+export interface ListUpvotedPlacesRequestDto {
+    /**
+     * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
+     * @type {string}
+     * @memberof ListUpvotedPlacesRequestDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListUpvotedPlacesRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedPlacesResponseDto
+ */
+export interface ListUpvotedPlacesResponseDto {
+    /**
+     * 접근성 정보로 받은 도움이 되었어요 개수
+     * @type {number}
+     * @memberof ListUpvotedPlacesResponseDto
+     */
+    'totalNumberOfUpvotes': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListUpvotedPlacesResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<UpvotedPlaceDto>}
+     * @memberof ListUpvotedPlacesResponseDto
+     */
+    'places': Array<UpvotedPlaceDto>;
 }
 /**
  * 
@@ -4066,6 +4136,61 @@ export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof Upvote
 /**
  * 
  * @export
+ * @interface UpvotedPlaceDto
+ */
+export interface UpvotedPlaceDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'address': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpvotedPlaceDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpvotedPlaceDto
+     */
+    'totalUpvoteCount': number;
+    /**
+     * 
+     * @type {UpvoteTargetTypeDto}
+     * @memberof UpvotedPlaceDto
+     */
+    'accessibilityType'?: UpvoteTargetTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'accessibilityId'?: string;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof UpvotedPlaceDto
+     */
+    'upvotedAt': EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
  * @interface UpvotedUserDto
  */
 export interface UpvotedUserDto {
@@ -4332,6 +4457,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(cancelUpvoteRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 크러셔 클럽 퀘스트에 체크인한다.
+         * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkInToClubQuestPost: async (checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'checkInToClubQuestRequestDto' is not null or undefined
+            assertParamExists('checkInToClubQuestPost', 'checkInToClubQuestRequestDto', checkInToClubQuestRequestDto)
+            const localVarPath = `/checkInToClubQuest`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(checkInToClubQuestRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -5225,9 +5390,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUpvoteDetailsGet: async (getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getUpvoteDetailsPost: async (getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'getUpvoteDetailsRequestDto' is not null or undefined
-            assertParamExists('getUpvoteDetailsGet', 'getUpvoteDetailsRequestDto', getUpvoteDetailsRequestDto)
+            assertParamExists('getUpvoteDetailsPost', 'getUpvoteDetailsRequestDto', getUpvoteDetailsRequestDto)
             const localVarPath = `/getUpvoteDetails`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5236,7 +5401,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -5888,6 +6053,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(listUpvotedReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+         * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedPlacesPost: async (listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listUpvotedPlacesRequestDto' is not null or undefined
+            assertParamExists('listUpvotedPlacesPost', 'listUpvotedPlacesRequestDto', listUpvotedPlacesRequestDto)
+            const localVarPath = `/listUpvotedPlaces`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listUpvotedPlacesRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -6693,6 +6898,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 크러셔 클럽 퀘스트에 체크인한다.
+         * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckInToClubQuestResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkInToClubQuestPost(checkInToClubQuestRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6945,8 +7161,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetUpvoteDetailsResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options);
+        async getUpvoteDetailsPost(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetUpvoteDetailsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUpvoteDetailsPost(getUpvoteDetailsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -7124,6 +7340,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListUpvotedPlaceReviewsResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+         * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUpvotedPlacesPost(listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListUpvotedPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listUpvotedPlacesPost(listUpvotedPlacesRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -7379,6 +7606,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 크러셔 클럽 퀘스트에 체크인한다.
+         * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: any): AxiosPromise<CheckInToClubQuestResponseDto> {
+            return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7608,8 +7845,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: any): AxiosPromise<GetUpvoteDetailsResponseDto> {
-            return localVarFp.getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options).then((request) => request(axios, basePath));
+        getUpvoteDetailsPost(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: any): AxiosPromise<GetUpvoteDetailsResponseDto> {
+            return localVarFp.getUpvoteDetailsPost(getUpvoteDetailsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7771,6 +8008,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: any): AxiosPromise<ListUpvotedPlaceReviewsResponseDto> {
             return localVarFp.listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+         * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedPlacesPost(listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options?: any): AxiosPromise<ListUpvotedPlacesResponseDto> {
+            return localVarFp.listUpvotedPlacesPost(listUpvotedPlacesRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8008,6 +8255,18 @@ export class DefaultApi extends BaseAPI {
      */
     public cancelUpvotePost(cancelUpvoteRequestDto: CancelUpvoteRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).cancelUpvotePost(cancelUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 크러셔 클럽 퀘스트에 체크인한다.
+     * @param {CheckInToClubQuestRequestDto} checkInToClubQuestRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8288,8 +8547,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public getUpvoteDetailsPost(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUpvoteDetailsPost(getUpvoteDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8483,6 +8742,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto: ListUpvotedReviewsRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listUpvotedPlaceReviewsPost(listUpvotedReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+     * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listUpvotedPlacesPost(listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listUpvotedPlacesPost(listUpvotedPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
