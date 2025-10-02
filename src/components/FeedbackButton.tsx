@@ -3,7 +3,8 @@ import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Image, Text, View} from 'react-native';
+import {Image, Platform, Text, View} from 'react-native';
+import Toast from 'react-native-root-toast';
 import SccTouchableOpacity from './SccTouchableOpacity';
 
 interface UpvoteButtonProps {
@@ -32,7 +33,16 @@ export default function FeedbackButton({
       <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
         <SccTouchableOpacity
           elementName="place_detail_upvote_button"
-          onPress={onPressUpvote}
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
+            onPressUpvote?.();
+          }}
           style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           {upvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
           <Text
@@ -68,7 +78,17 @@ export default function FeedbackButton({
         {(total ?? 0) > 0 && (
           <SccTouchableOpacity
             elementName="navigate_to_upvote_analytics_button"
-            onPress={onPressAnalytics}
+            onPress={() => {
+              if (Platform.OS === 'web') {
+                Toast.show('준비 중입니다 💪', {
+                  duration: Toast.durations.SHORT,
+                  position: Toast.positions.BOTTOM,
+                });
+                return;
+              }
+
+              onPressAnalytics?.();
+            }}
             style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
             <Image
               source={require('@/assets/img/img_profile.png')}
@@ -85,7 +105,17 @@ export default function FeedbackButton({
       {onPressInfoUpdateRequest && (
         <SccTouchableOpacity
           elementName="place_detail_report_button"
-          onPress={onPressInfoUpdateRequest}>
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
+
+            onPressInfoUpdateRequest?.();
+          }}>
           <Text
             style={{
               fontFamily: font.pretendardRegular,
