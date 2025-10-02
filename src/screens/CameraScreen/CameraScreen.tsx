@@ -2,16 +2,23 @@ import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
 import {Dimensions} from 'react-native';
-import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 import DraggableFlatList from 'react-native-draggable-flatlist';
+import {
+  ImagePickerResponse,
+  launchImageLibrary,
+  MediaType,
+} from 'react-native-image-picker';
+import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 
+import AlbumIcon from '@/assets/icon/ic_album.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
 import FlashIcon from '@/assets/icon/ic_flash.svg';
+import {featureFlagAtom} from '@/atoms/Auth';
 import {
   hasShownGuideForEntrancePhotoAtom,
-  hasShownGuideForToiletPhotoAtom,
   hasShownGuideForReviewPhotoAtom,
+  hasShownGuideForToiletPhotoAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
@@ -22,12 +29,12 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import CameraDeviceSelect from './CameraDeviceSelect';
 import CameraNotAuthorized from './CameraNotAuthorized';
 import CameraPreview from './CameraPreview';
 import * as S from './CameraScreen.style';
 import useCamera from './useCamera';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 export interface CameraScreenParams {
   takenPhotos: ImageFile[];
@@ -54,6 +61,7 @@ export default function CameraScreen({
   const hasShownGuideForToiletPhoto = useAtomValue(
     hasShownGuideForToiletPhotoAtom,
   );
+  const featureFlag = useAtomValue(featureFlagAtom);
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
 
   // 기존 촬영한 이미지 체크
@@ -92,13 +100,13 @@ export default function CameraScreen({
     navigation.goBack();
   }
 
-  function confirm() {
+  function confirm(_photoFiles: ImageFile[]) {
     if (isTakingPhoto) {
       return;
     }
     // TODO: navigation 에 non-serializable 값을 넘겨주면 안된다. (https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state)
     if (route.params && route.params.onPhotosTaken) {
-      route.params.onPhotosTaken(photoFiles);
+      route.params.onPhotosTaken(_photoFiles);
     }
     navigation.goBack();
   }
@@ -152,6 +160,38 @@ export default function CameraScreen({
 
   const canTakeMore = photoFiles.length < MAX_NUMBER_OF_TAKEN_PHOTOS;
 
+  async function selectFromAlbum() {
+    const options = {
+      mediaType: 'photo' as MediaType,
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
+    };
+
+    try {
+      launchImageLibrary(options, (response: ImagePickerResponse) => {
+        if (response.didCancel || response.errorMessage) {
+          const errorMessage = `didCancel ${response.didCancel} / errorCode: ${response.errorCode} / errorMessage: ${response.errorMessage}`;
+          Logger.logError(Error(errorMessage));
+          return;
+        }
+
+        if (response.assets) {
+          const newImages: ImageFile[] = response.assets.map(asset => ({
+            uri: asset.uri || '',
+            width: asset.width || 0,
+            height: asset.height || 0,
+          }));
+          setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
+          confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
+        }
+      });
+    } catch (error: any) {
+      Logger.logError(error);
+    }
+  }
+
   return (
     <ScreenLayout
       isHeaderVisible={true}
@@ -159,7 +199,9 @@ export default function CameraScreen({
       style={{backgroundColor: color.gray90}}>
       <S.Header>
         <S.CancelButton onPress={goBack}>취소</S.CancelButton>
-        <S.SubmitButton onPress={confirm} disabled={photoFiles.length === 0}>
+        <S.SubmitButton
+          onPress={() => confirm(photoFiles)}
+          disabled={photoFiles.length === 0}>
           {`사진 등록 ${photoFiles.length > 0 ? `(${photoFiles.length})` : ''}`}
         </S.SubmitButton>
       </S.Header>
@@ -235,6 +277,14 @@ export default function CameraScreen({
         )}
       </S.TakenPhotos>
       <S.ActionsWrapper>
+        {featureFlag?.isAlbumUploadAllowed && (
+          <S.AlbumButton
+            elementName="camera_album_button"
+            onPress={selectFromAlbum}>
+            <AlbumIcon width={28} height={28} />
+            <S.AlbumButtonText>앨범</S.AlbumButtonText>
+          </S.AlbumButton>
+        )}
         <S.CaptureButton
           elementName="camera_capture_button"
           disabled={!canTakeMore || isTakingPhoto}

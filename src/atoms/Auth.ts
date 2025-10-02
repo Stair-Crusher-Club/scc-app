@@ -5,6 +5,7 @@ import {User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {logDebug} from '@/utils/DebugUtils';
+import {useEffect} from 'react';
 
 const userInfoAtom = atomForLocal<User>('userInfo');
 
@@ -30,6 +31,7 @@ export const accessTokenAtom = atomForLocal<string>('scc-token');
 export const featureFlagAtom = atom<{
   isMapVisible: boolean;
   isToiletVisible: boolean;
+  isAlbumUploadAllowed: boolean;
 } | null>(null);
 
 // useMe hook - centralized userInfo management
@@ -68,6 +70,7 @@ export function useMe() {
     setFeatureFlag({
       isMapVisible: data.flags?.includes('MAP_VISIBLE') ?? false,
       isToiletVisible: data.flags?.includes('TOILET_VISIBLE') ?? false,
+      isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
     });
   };
 
@@ -79,6 +82,13 @@ export function useMe() {
   const syncUserInfo = async () => {
     userInfo && (await _syncUserInfo(userInfo));
   };
+  
+  // Auto-sync when userInfo is loaded from storage
+  useEffect(() => {
+    if (userInfo && userInfo.id && userInfo.nickname !== ANONYMOUS_USER_TEMPLATE.nickname) {
+      _syncUserInfo(userInfo);
+    }
+  }, [userInfo?.id]);
 
   return {userInfo, setUserInfo, syncUserInfo};
 }

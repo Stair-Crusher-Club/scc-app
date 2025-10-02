@@ -1,6 +1,7 @@
 import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import React from 'react';
 import {Text, View} from 'react-native';
 
 export type Tab = 'current' | 'history';

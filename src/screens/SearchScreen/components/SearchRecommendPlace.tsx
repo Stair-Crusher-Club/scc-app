@@ -1,5 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import {useSetAtom} from 'jotai';
+import React from 'react';
 import {ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 

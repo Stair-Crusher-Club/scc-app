@@ -1,7 +1,7 @@
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Modal, ModalProps, View} from 'react-native';
 import styled from 'styled-components/native';
 

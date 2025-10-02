@@ -1,3 +1,4 @@
+import React from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
@@ -44,7 +45,9 @@ export default function IndoorInfoSection({
             }}>
             <Controller
               name="seatTypes"
-              rules={{required: true, validate: value => value.size > 0}}
+              rules={{
+                validate: value => value.size > 0 || '좌석 형태를 선택해주세요',
+              }}
               render={({field}) => (
                 <>
                   {SEAT_TYPE_OPTIONS.map((label, idx) => (
@@ -117,7 +120,9 @@ export default function IndoorInfoSection({
             }}>
             <Controller
               name="orderMethods"
-              rules={{required: true, validate: value => value.size > 0}}
+              rules={{
+                validate: value => value.size > 0 || '주문 방법을 선택해주세요',
+              }}
               render={({field}) => (
                 <>
                   {ORDER_METHOD_OPTIONS.map((label, idx) => (
@@ -184,7 +189,6 @@ export default function IndoorInfoSection({
           <SccButton
             elementName="place_review_form_save_button"
             text="저장하기"
-            isDisabled={!formState.isValid}
             style={{
               borderRadius: 10,
               backgroundColor: color.brand,

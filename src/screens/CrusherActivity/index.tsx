@@ -4,7 +4,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import WelcomeModal from './components/WelcomeModal';
 import {tabItems} from './constants';
 import {CrusherActivityTab} from './types';
@@ -40,11 +40,11 @@ export default function CrusherActivityScreen({
   }
 
   useEffect(() => {
-    if (params.qr === QR_CODE) {
+    if (params?.qr === QR_CODE) {
       setVisibleWelcomeModal(true);
       recordStartingDate();
     }
-  }, [params.qr]);
+  }, [params?.qr]);
 
   const {data} = useQuery({
     queryKey: ['CurrentCrusherActivity'],

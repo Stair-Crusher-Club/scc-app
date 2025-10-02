@@ -49,6 +49,7 @@ const PositionedModal = ({
         visible={visible ?? showModal}
         transparent
         animationType="fade"
+        statusBarTranslucent={true}
         onRequestClose={handleClose}>
         <SccTouchableWithoutFeedback
           elementName="positioned_modal_overlay"

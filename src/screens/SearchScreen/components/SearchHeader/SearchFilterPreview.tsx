@@ -1,10 +1,23 @@
 import {useAtomValue, useSetAtom} from 'jotai';
 import React from 'react';
-import {Keyboard, ScrollView} from 'react-native';
+import {Keyboard, ScrollView, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
-import DownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
-import FilterIcon from '@/assets/icon/ic_filter.svg';
+// Platform-specific SVG imports
+let DownIcon: any = null;
+let FilterIcon: any = null;
+
+if (Platform.OS !== 'web') {
+  try {
+    DownIcon = require('@/assets/icon/ic_angle_bracket_down.svg').default;
+    FilterIcon = require('@/assets/icon/ic_filter.svg').default;
+  } catch {
+    // Fallback if SVG files not found
+    DownIcon = null;
+    FilterIcon = null;
+  }
+}
+
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
@@ -34,7 +47,13 @@ export default function SearchFilterPreview() {
       style={{width: '100%', flexGrow: 0}}>
       <Container>
         <Chip onPress={() => onFilterPress('All')} isActive={false}>
-          <FilterIcon width={16} height={16} color={color.gray100} />
+          {Platform.OS === 'web' ? (
+            <WebIconText style={{color: color.gray100}}>⚙️</WebIconText>
+          ) : (
+            FilterIcon && (
+              <FilterIcon width={16} height={16} color={color.gray100} />
+            )
+          )}
           <ChipNumberText>필터</ChipNumberText>
         </Chip>
         <Chip isActive={false} onPress={() => onFilterPress('sortOption')}>
@@ -50,7 +69,11 @@ export default function SearchFilterPreview() {
               }
             })()}
           </ChipText>
-          <DownIcon width={20} height={20} color={color.black} />
+          {Platform.OS === 'web' ? (
+            <WebIconText style={{color: color.black}}>▼</WebIconText>
+          ) : (
+            DownIcon && <DownIcon width={20} height={20} color={color.black} />
+          )}
         </Chip>
         <Chip
           isActive={isHasSlopeActive}
@@ -155,4 +178,10 @@ const ChipNumberText = styled.Text`
   line-height: 20px;
   font-family: ${() => font.pretendardMedium};
   color: ${color.gray100};
+`;
+
+const WebIconText = styled.Text`
+  font-size: 16px;
+  text-align: center;
+  line-height: 16px;
 `;

@@ -108,7 +108,7 @@ const ChallengeDetailCompanyModal = ({
             field => field.name === 'participantName',
           ) && (
             <Input
-              placeholder="이름을 입력해주세요"
+              placeholder="실명을 입력해주세요"
               returnKeyType="next"
               value={participantName}
               onChangeText={setParticipantName}

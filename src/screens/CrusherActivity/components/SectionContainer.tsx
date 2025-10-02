@@ -1,5 +1,5 @@
 import {font} from '@/constant/font';
-import {PropsWithChildren} from 'react';
+import React, {PropsWithChildren} from 'react';
 import {Text, View} from 'react-native';
 
 interface SectionLayoutProps extends PropsWithChildren {

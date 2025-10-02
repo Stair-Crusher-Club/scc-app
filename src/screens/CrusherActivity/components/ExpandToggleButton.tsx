@@ -1,6 +1,7 @@
 import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import React from 'react';
 import {Text, TouchableOpacityProps} from 'react-native';
 
 export type ExpandToggleButtonStatus = 'expand' | 'collapse';

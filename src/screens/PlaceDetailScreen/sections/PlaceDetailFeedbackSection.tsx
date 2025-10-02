@@ -1,4 +1,6 @@
-import React, {useState} from 'react';
+import {default as React, useState} from 'react';
+import {Platform} from 'react-native';
+import Toast from 'react-native-root-toast';
 
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -30,12 +32,26 @@ export const PlaceDetailFeedbackSection = ({
   const checkAuth = useCheckAuth();
 
   const showPlaceDeleteConfirmBottomSheet = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     checkAuth(() => {
       setIsPlaceDeleteModalVisible(true);
     });
   };
 
   const showBuildingDeleteConfirmBottomSheet = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     checkAuth(() => {
       setIsBuildingDeleteModalVisible(true);
     });

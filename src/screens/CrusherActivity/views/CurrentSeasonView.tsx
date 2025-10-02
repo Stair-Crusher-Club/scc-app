@@ -4,7 +4,7 @@ import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ActivityItem from '../components/ActivityItem';
@@ -224,6 +224,7 @@ export default function CurrentSeasonView() {
                 visibleLine={
                   activityLogs.length - 1 !== index && activityLogs.length > 1
                 }
+                canceledAt={item.canceledAt}
               />
             )}
             ItemSeparatorComponent={ActivityItem.Gap}

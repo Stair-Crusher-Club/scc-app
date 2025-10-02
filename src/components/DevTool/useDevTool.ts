@@ -1,6 +1,7 @@
 import {useAtom, useAtomValue} from 'jotai';
 import {atom} from 'jotai';
 import {useCallback} from 'react';
+import {shouldShowDevTool} from './DevTool';
 
 // DevTool configuration
 interface DevToolConfig {
@@ -55,7 +56,7 @@ export const useDevTool = () => {
 
   const trackSearchCircle = useCallback(
     (location: {lat: number; lng: number}, radiusMeters: number) => {
-      if (!__DEV__) return;
+      if (!shouldShowDevTool()) return;
 
       if (config.searchRegion.enabled) {
         setData(prev => ({
@@ -77,7 +78,7 @@ export const useDevTool = () => {
       leftTopLocation: {lat: number; lng: number},
       rightBottomLocation: {lat: number; lng: number},
     ) => {
-      if (!__DEV__) return;
+      if (!shouldShowDevTool()) return;
 
       if (config.searchRegion.enabled) {
         setData(prev => ({
@@ -95,7 +96,7 @@ export const useDevTool = () => {
   );
 
   const shouldShowSearchRadius = useCallback(() => {
-    if (!__DEV__) return false;
+    if (!shouldShowDevTool()) return false;
     return config.searchRegion.enabled;
   }, [config.searchRegion.enabled]);
 

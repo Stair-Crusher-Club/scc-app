@@ -2,7 +2,7 @@ import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Animated, StyleProp, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
 

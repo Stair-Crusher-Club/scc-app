@@ -1,6 +1,7 @@
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {EpochMillisTimestamp} from '@/generated-sources/openapi';
+import React from 'react';
 import {Text, View} from 'react-native';
 import {formatDateKorean} from '../utils/date';
 
@@ -8,6 +9,7 @@ interface ActivityItemProps {
   activityDoneAt?: EpochMillisTimestamp;
   title: string;
   visibleLine?: boolean;
+  canceledAt?: EpochMillisTimestamp;
 }
 
 const ACTIVITY_ITEM_HEIGHT = 52;
@@ -18,7 +20,9 @@ export default function ActivityItem({
   activityDoneAt,
   title,
   visibleLine,
+  canceledAt,
 }: ActivityItemProps) {
+  const isCanceled = !!canceledAt;
   return (
     <View
       style={{
@@ -66,7 +70,8 @@ export default function ActivityItem({
               fontSize: 14,
               fontFamily: font.pretendardRegular,
               lineHeight: 20,
-              color: color.gray50,
+              color: isCanceled ? color.gray30 : color.gray50,
+              ...(isCanceled && {textDecorationLine: 'line-through'}),
             }}>
             {formatDateKorean(activityDoneAt?.value)}
           </Text>
@@ -75,7 +80,8 @@ export default function ActivityItem({
               fontSize: 18,
               fontFamily: font.pretendardMedium,
               lineHeight: 26,
-              color: color.gray90,
+              color: isCanceled ? color.gray30 : color.gray90,
+              ...(isCanceled && {textDecorationLine: 'line-through'}),
             }}>
             {title}
           </Text>

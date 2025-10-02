@@ -103,7 +103,7 @@ const PlaceDetailCoverImage = ({
       imageUrls: thumbnailImages
         .map(image => image.url)
         .filter(image => image !== undefined),
-      index: index,
+      index,
       types: thumbnailImages.map(t => t.type),
     });
   };

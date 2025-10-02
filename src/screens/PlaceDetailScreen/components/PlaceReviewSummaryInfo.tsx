@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';
@@ -25,6 +26,21 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
+  const handleReviewPress = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
+    checkAuth(() => {
+      navigation.navigate('ReviewForm/Place', {
+        placeId,
+      });
+    });
+  };
+
   const mobilityTypeCounts = useMemo(
     () => countMobilityTypes(reviews),
     [reviews],
@@ -49,13 +65,7 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
         </HeaderLeft>
         <ReviewButton
           elementName="place_detail_review_write_button"
-          onPress={() =>
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Place', {
-                placeId,
-              });
-            })
-          }>
+          onPress={handleReviewPress}>
           <PlusIcon color={color.white} />
           <ReviewButtonText>리뷰 쓰기</ReviewButtonText>
         </ReviewButton>

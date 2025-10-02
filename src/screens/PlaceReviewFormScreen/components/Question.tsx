@@ -1,4 +1,4 @@
-import {PropsWithChildren} from 'react';
+import React, {PropsWithChildren} from 'react';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
 

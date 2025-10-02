@@ -80,8 +80,8 @@ yarn android
 2. **운영 환경 배포**
 - 새로운 버전 태그를 푸시하면 자동으로 운영 환경에 배포됩니다.
 ```sh
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0-20250924-1
+git push origin v1.0-20250924-1
 ```
 
 ### 수동 OTA 업데이트
@@ -100,12 +100,14 @@ yarn ota-deploy:production -i # 운영 환경
 ```sh
 # Android
 cd android
-fastlane android release_candidate scheme:sandbox # 개발 환경
+# 버전 지정 & git tag 따는 것은 fastlane 명령어 실행 도중에 함께 처리됨
+fastlane android release_candidate scheme:sandbox # 개발 환경 - 주의 : git tag는 따지 말 것!
 fastlane android release_candidate scheme:production # 운영 환경
 
 # iOS
 cd ios
-fastlane ios release_candidate scheme:sandbox # 개발 환경
+# 버전 지정 & git tag 따는 것은 fastlane 명령어 실행 도중에 함께 처리됨
+fastlane ios release_candidate scheme:sandbox # 개발 환경 - 주의 : git tag는 따지 말 것!
 fastlane ios release_candidate scheme:production # 운영 환경
 ```
 

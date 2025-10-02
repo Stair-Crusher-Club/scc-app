@@ -1,3 +1,4 @@
+import React from 'react';
 import {PressableProps, Text} from 'react-native';
 
 import {SccPressable} from '@/components/SccPressable';

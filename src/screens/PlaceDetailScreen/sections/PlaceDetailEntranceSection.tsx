@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -60,6 +61,13 @@ export default function PlaceDetailEntranceSection({
   const comments = accessibility.placeAccessibilityComments;
 
   function handlePressAddComment() {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     navigation.navigate('AddComment', {type: 'place', placeId: place.id});
   }
 
@@ -116,6 +124,16 @@ function NoPlaceEntranceInfoSection({
   isAccessibilityRegistrable: boolean;
   onRegister?: () => void;
 }) {
+  const handleRegister = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
+    onRegister?.();
+  };
   return (
     <S.Section>
       <S.Row>
@@ -138,7 +156,7 @@ function NoPlaceEntranceInfoSection({
           fontSize={18}
           fontFamily={font.pretendardBold}
           isDisabled={!isAccessibilityRegistrable}
-          onPress={onRegister}
+          onPress={handleRegister}
           elementName="place_detail_entrance_register"
         />
       </S.EmptyInfoContent>

@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import {useState} from 'react';
+import React, {useState} from 'react';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';

@@ -200,7 +200,7 @@ const RootScreen = () => {
         }}>
         <Navigation />
       </NavigationContainer>
-      <DevTool isVisible={__DEV__} />
+      <DevTool />
     </>
   );
 };

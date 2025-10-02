@@ -1,3 +1,4 @@
+import React from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Text, View} from 'react-native';
 
@@ -39,7 +40,9 @@ export default function VisitorReviewSection() {
             }}>
             <Controller
               name="recommendedMobilityTypes"
-              rules={{required: true, validate: value => value.size > 0}}
+              rules={{
+                validate: value => value.size > 0 || '추천하는 이동 수단을 선택해주세요',
+              }}
               render={({field}) => (
                 <>
                   {makeRecommendedMobilityOptions([
@@ -75,7 +78,7 @@ export default function VisitorReviewSection() {
           <View style={{alignItems: 'flex-start', gap: 8}}>
             <Controller
               name="spaciousType"
-              rules={{required: true}}
+              rules={{required: '공간의 여유로움을 선택해주세요'}}
               render={({field}) => (
                 <>
                   {SPACIOUS_OPTIONS.map(({label, value}) => (

@@ -1,8 +1,8 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
-import {useMemo} from 'react';
-import {FormProvider, useForm} from 'react-hook-form';
+import React, {useMemo} from 'react';
+import {FormProvider, useForm, FieldErrors} from 'react-hook-form';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import {useMe} from '@/atoms/Auth';
@@ -76,6 +76,17 @@ export default function IndoorReviewView({
   const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
   const pushItems = useSetAtom(pushItemsAtom);
 
+  function onInvalid(errors: FieldErrors<FormValues>) {
+    console.log('fuckfuck 1');
+    // 첫 번째 에러 필드의 메시지를 토스트로 표시
+    const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
+    const firstError = errors[firstErrorField];
+
+    if (firstError?.message) {
+      ToastUtils.show(firstError.message);
+    }
+  }
+
   async function onValid(values: FormValues) {
     registerPlace(values, gotoPlaceDetail);
   }
@@ -133,8 +144,8 @@ export default function IndoorReviewView({
           <SectionSeparator />
 
           <IndoorInfoSection
-            onSave={form.handleSubmit(onValid)}
-            onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet)}
+            onSave={form.handleSubmit(onValid, onInvalid)}
+            onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet, onInvalid)}
           />
         </KeyboardAwareScrollView>
       </SafeAreaWrapper>

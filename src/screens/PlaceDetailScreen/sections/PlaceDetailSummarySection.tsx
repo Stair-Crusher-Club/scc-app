@@ -1,5 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React from 'react';
+import {Platform} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -44,6 +46,13 @@ const PlaceDetailSummarySection = ({
   };
 
   const onFavorite = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
     toggleFavorite({
       currentIsFavorite: isFavorite,
       placeId: place.id,

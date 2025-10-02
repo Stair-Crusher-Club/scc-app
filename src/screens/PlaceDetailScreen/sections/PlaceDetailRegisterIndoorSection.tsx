@@ -1,3 +1,4 @@
+import React from 'react';
 import {Text, View} from 'react-native';
 
 import PlusIcon from '@/assets/icon/ic_plus.svg';

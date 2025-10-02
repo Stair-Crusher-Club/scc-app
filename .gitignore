@@ -76,6 +76,7 @@ yarn-error.log
 .vscode/
 
 dist/
+web-dist/
 
 **/google-services.json
 **/GoogleService-Info.plist
