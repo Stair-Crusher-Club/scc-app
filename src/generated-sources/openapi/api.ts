@@ -909,6 +909,51 @@ export interface CreatePlaceFavoriteResponseDto {
 /**
  * 
  * @export
+ * @interface CrusherActivityHistorySummaryDto
+ */
+export interface CrusherActivityHistorySummaryDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CrusherActivityHistorySummaryDto
+     */
+    'title'?: string;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherActivityHistorySummaryDto
+     */
+    'startAt'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof CrusherActivityHistorySummaryDto
+     */
+    'endAt'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {CrusherActivityHistorySummaryTypeDto}
+     * @memberof CrusherActivityHistorySummaryDto
+     */
+    'historyType'?: CrusherActivityHistorySummaryTypeDto;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const CrusherActivityHistorySummaryTypeDto = {
+    Crew: 'CREW',
+    ConquerActivityGuest: 'CONQUER_ACTIVITY_GUEST'
+} as const;
+
+export type CrusherActivityHistorySummaryTypeDto = typeof CrusherActivityHistorySummaryTypeDto[keyof typeof CrusherActivityHistorySummaryTypeDto];
+
+
+/**
+ * 
+ * @export
  * @interface CrusherClubActivityLogDto
  */
 export interface CrusherClubActivityLogDto {
@@ -1481,6 +1526,25 @@ export interface GetCountForNextRankPost200Response {
      * @memberof GetCountForNextRankPost200Response
      */
     'countForNextRank': number;
+}
+/**
+ * 
+ * @export
+ * @interface GetCrusherActivityPageDataResponseDto
+ */
+export interface GetCrusherActivityPageDataResponseDto {
+    /**
+     * 
+     * @type {CurrentCrusherActivityDto}
+     * @memberof GetCrusherActivityPageDataResponseDto
+     */
+    'currentCrusherActivity'?: CurrentCrusherActivityDto;
+    /**
+     * 
+     * @type {Array<CrusherActivityHistorySummaryDto>}
+     * @memberof GetCrusherActivityPageDataResponseDto
+     */
+    'crusherActivityHistories'?: Array<CrusherActivityHistorySummaryDto>;
 }
 /**
  * 
@@ -5123,8 +5187,43 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+         * @summary 크러셔 활동 페이지를 그리기 위한 데이터를 조회한다.
          * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCrusherActivityPageDataPost: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/getCrusherActivityPageData`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary /getCrusherActivityPage 로 대체됨
+         * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         getCurrentCrusherActivityPost: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -7082,8 +7181,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+         * @summary 크러셔 활동 페이지를 그리기 위한 데이터를 조회한다.
          * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCrusherActivityPageDataPost(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetCrusherActivityPageDataResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCrusherActivityPageDataPost(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary /getCrusherActivityPage 로 대체됨
+         * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async getCurrentCrusherActivityPost(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetCurrentCrusherActivityResponseDto>> {
@@ -7773,8 +7883,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+         * @summary 크러셔 활동 페이지를 그리기 위한 데이터를 조회한다.
          * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCrusherActivityPageDataPost(options?: any): AxiosPromise<GetCrusherActivityPageDataResponseDto> {
+            return localVarFp.getCrusherActivityPageDataPost(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary /getCrusherActivityPage 로 대체됨
+         * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         getCurrentCrusherActivityPost(options?: any): AxiosPromise<GetCurrentCrusherActivityResponseDto> {
@@ -8460,8 +8580,20 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary 현재 진행 중인 크러셔 활동 내역을 조회한다.
+     * @summary 크러셔 활동 페이지를 그리기 위한 데이터를 조회한다.
      * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getCrusherActivityPageDataPost(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCrusherActivityPageDataPost(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary /getCrusherActivityPage 로 대체됨
+     * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */

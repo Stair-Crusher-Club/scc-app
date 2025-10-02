@@ -32,8 +32,12 @@ export default function CrusherActivityScreen({
       await api.recordCrusherClubActivityPost({
         questType: 'STARTING_DAY',
       });
-      queryClient.invalidateQueries({
-        queryKey: ['CurrentCrusherActivity'],
+      // invalidateQueries()는 한 번 query에 등록된 이후에만 동작한다.
+      // checkInToClubQuestPost()가 첫 getCrusherActivityPageDataPost() 호출 전에 끝나는 경우, invalidateQueries()는 refetch를 트리거하지 않는다.
+      // 이러면 오래된 데이터가 보일 수 있다.
+      // 따라서 강제로 refetch를 하도록 refetchQueries()를 사용한다.
+      await queryClient.refetchQueries({
+        queryKey: ['CrusherActivityPageData'],
       });
     } catch (error: any) {
       Logger.logError(error);
@@ -56,8 +60,12 @@ export default function CrusherActivityScreen({
       await api.checkInToClubQuestPost({
         clubQuestId: params.clubQuestIdToCheckIn,
       });
-      queryClient.invalidateQueries({
-        queryKey: ['CurrentCrusherActivity'],
+      // invalidateQueries()는 한 번 query에 등록된 이후에만 동작한다.
+      // checkInToClubQuestPost()가 첫 getCrusherActivityPageDataPost() 호출 전에 끝나는 경우, invalidateQueries()는 refetch를 트리거하지 않는다.
+      // 이러면 오래된 데이터가 보일 수 있다.
+      // 따라서 강제로 refetch를 하도록 refetchQueries()를 사용한다.
+      await queryClient.refetchQueries({
+        queryKey: ['CrusherActivityPageData'],
       });
     } catch (error: any) {
       Logger.logError(error);
@@ -71,12 +79,13 @@ export default function CrusherActivityScreen({
   }, [params?.clubQuestIdToCheckIn]);
 
   const {data} = useQuery({
-    queryKey: ['CurrentCrusherActivity'],
-    queryFn: async () => (await api.getCurrentCrusherActivityPost()).data,
+    queryKey: ['CrusherActivityPageData'],
+    queryFn: async () => (await api.getCrusherActivityPageDataPost()).data,
     staleTime: 1000 * 5,
   });
 
   const crewType = data?.currentCrusherActivity?.crusherClub.crewType;
+  const crusherActivityHistories = data?.crusherActivityHistories;
 
   const [currentTab, setCurrentTab] = useState<CrusherActivityTab>('current');
 
@@ -89,7 +98,12 @@ export default function CrusherActivityScreen({
       case 'current':
         return <CurrentSeasonView />;
       case 'history':
-        return <HistoryView />;
+        return (
+          <HistoryView
+            crusherActivityHistories={crusherActivityHistories}
+            isCurrentCrew={!!crewType}
+          />
+        );
     }
   }
 

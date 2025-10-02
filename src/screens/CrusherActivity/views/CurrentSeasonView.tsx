@@ -22,8 +22,8 @@ export default function CurrentSeasonView() {
   const [questToggleStatus, setQuestToggleStatus] =
     useState<ExpandToggleButtonStatus>('expand');
   const {data} = useQuery({
-    queryKey: ['CurrentCrusherActivity'],
-    queryFn: async () => (await api.getCurrentCrusherActivityPost()).data,
+    queryKey: ['CrusherActivityPageData'],
+    queryFn: async () => (await api.getCrusherActivityPageDataPost()).data,
     staleTime: 1000 * 5,
   });
 

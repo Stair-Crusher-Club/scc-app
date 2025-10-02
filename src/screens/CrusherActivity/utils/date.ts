@@ -19,3 +19,22 @@ export function formatDateKorean(epochMillis?: number | null): string {
   const weekDay = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
   return `${month}월 ${day}일(${weekDay})`;
 }
+
+export function formatDateRange(
+  startEpochMillis: number,
+  endEpochMillis: number,
+): string {
+  const startDate = new Date(startEpochMillis);
+  const endDate = new Date(endEpochMillis);
+
+  const isSameDay =
+    startDate.getFullYear() === endDate.getFullYear() &&
+    startDate.getMonth() === endDate.getMonth() &&
+    startDate.getDate() === endDate.getDate();
+
+  if (isSameDay) {
+    return formatDateKorean(startEpochMillis);
+  }
+
+  return `${formatDateKorean(startEpochMillis)} ~ ${formatDateKorean(endEpochMillis)}`;
+}
