@@ -108,7 +108,6 @@ export default function ReviewHistoryScreen() {
         }}
         onEndReachedThreshold={0.5}
         ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
-        ListFooterComponent={<PaddingBottom />}
       />
     </ScreenLayout>
   );
@@ -117,8 +116,4 @@ export default function ReviewHistoryScreen() {
 const Divider = styled.View`
   height: 1px;
   background-color: ${color.gray20};
-`;
-
-const PaddingBottom = styled.View`
-  padding-bottom: 100px;
 `;
