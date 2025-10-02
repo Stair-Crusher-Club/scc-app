@@ -37,7 +37,7 @@ export default function UpvoteAnalyticsScreen({
     queryKey: ['UpvoteDetails', targetType, targetId],
     queryFn: async () => {
       return (
-        await api.getUpvoteDetailsGet({
+        await api.getUpvoteDetailsPost({
           id: targetId,
           targetType,
         })
