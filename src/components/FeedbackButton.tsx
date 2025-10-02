@@ -3,7 +3,8 @@ import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
+import SccTouchableOpacity from './SccTouchableOpacity';
 
 interface UpvoteButtonProps {
   total?: number;
@@ -29,7 +30,8 @@ export default function FeedbackButton({
         justifyContent: 'space-between',
       }}>
       <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-        <TouchableOpacity
+        <SccTouchableOpacity
+          elementName="place_detail_upvote_button"
           onPress={onPressUpvote}
           style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           {upvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
@@ -62,9 +64,10 @@ export default function FeedbackButton({
               />
             </View>
           )}
-        </TouchableOpacity>
+        </SccTouchableOpacity>
         {(total ?? 0) > 0 && (
-          <TouchableOpacity
+          <SccTouchableOpacity
+            elementName="navigate_to_upvote_analytics_button"
             onPress={onPressAnalytics}
             style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
             <Image
@@ -75,12 +78,14 @@ export default function FeedbackButton({
               }}
             />
             <ChevronRightIcon />
-          </TouchableOpacity>
+          </SccTouchableOpacity>
         )}
       </View>
 
       {onPressInfoUpdateRequest && (
-        <TouchableOpacity onPress={onPressInfoUpdateRequest}>
+        <SccTouchableOpacity
+          elementName="place_detail_report_button"
+          onPress={onPressInfoUpdateRequest}>
           <Text
             style={{
               fontFamily: font.pretendardRegular,
@@ -93,7 +98,7 @@ export default function FeedbackButton({
             }}>
             정보수정 요청
           </Text>
-        </TouchableOpacity>
+        </SccTouchableOpacity>
       )}
     </View>
   );

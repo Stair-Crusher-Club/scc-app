@@ -1,4 +1,5 @@
 import FeedbackButton from '@/components/FeedbackButton';
+import SccPressable from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -7,7 +8,7 @@ import {
 } from '@/generated-sources/openapi/api';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
-import {Pressable, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 interface ItemProps {
   item: PlaceReviewListItemDto | ToiletReviewListItemDto;
@@ -30,7 +31,8 @@ export default function Item({item}: ItemProps) {
 
   return (
     <View style={{gap: 16}}>
-      <Pressable
+      <SccPressable
+        elementName="navigate_to_place_detail_button"
         onPress={() =>
           navigation.navigate('PlaceDetail', {
             placeInfo: {
@@ -59,7 +61,7 @@ export default function Item({item}: ItemProps) {
           }}>
           {item.placeAddress}
         </Text>
-      </Pressable>
+      </SccPressable>
 
       <FeedbackButton
         total={totalUpvoteCount}

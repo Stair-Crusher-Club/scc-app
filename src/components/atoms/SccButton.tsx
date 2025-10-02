@@ -93,7 +93,11 @@ const buttonStyles = (
       height: _height,
       backgroundColor: isDisabled ? color.gray30 : color[buttonColor],
       borderWidth: borderColor ? 1 : 0,
-      borderColor: borderColor ? (isDisabled ? color.gray30 : color[borderColor]) : 'undefined',
+      borderColor: borderColor
+        ? isDisabled
+          ? color.gray30
+          : color[borderColor]
+        : 'undefined',
     },
     text: {
       ...defaultButton,

@@ -2,6 +2,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
+import SccTouchableOpacity from './SccTouchableOpacity';
 
 type TabItem<T> = {
   value: T;
@@ -21,6 +22,7 @@ export default function TabBar<T>({
     <Container>
       {items.map(({value, label}) => (
         <TabButton
+          elementName={`${value}_tab_button`}
           key={String(value)}
           active={current === value}
           onPress={() => onChange(value)}>
@@ -37,14 +39,16 @@ const Container = styled.View({
   alignItems: 'center',
 });
 
-const TabButton = styled.TouchableOpacity<{active: boolean}>(({active}) => ({
-  flex: 1,
-  borderBottomWidth: active ? 2 : 1,
-  borderBottomColor: active ? color.brand50 : color.gray20,
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 12,
-}));
+const TabButton = styled(SccTouchableOpacity)<{active: boolean}>(
+  ({active}) => ({
+    flex: 1,
+    borderBottomWidth: active ? 2 : 1,
+    borderBottomColor: active ? color.brand50 : color.gray20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 12,
+  }),
+);
 
 const TabLabel = styled(Text)<{active: boolean}>(({active}) => ({
   fontSize: 16,

@@ -28,7 +28,7 @@ export default function Item({item}: ItemProps) {
   return (
     <View style={{gap: 16}}>
       <SccPressable
-        elementName="navigate_to_place_detail"
+        elementName="navigate_to_place_detail_button"
         onPress={() =>
           navigation.navigate('PlaceDetail', {
             placeInfo: {
