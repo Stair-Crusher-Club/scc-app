@@ -157,6 +157,7 @@ android {
             keyPassword project.env.get("MYAPP_UPLOAD_KEY_PASSWORD")
         }
     }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -168,6 +169,15 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+    }
+
+    packagingOptions {
+        // https://github.com/numandev1/react-native-compressor/issues/373
+        // libandroidlame.so 의 경우 16KB 대응이 완벽하게 안 되어 있다.
+        // 그런데 아래 so 파일의 경우 오디오 압축에만 쓰는데 현재 우리 코드에서 오디오 압축 쪽 코드를 안 사용한다
+        // 따라서 런타임 SoLoader 익셉션 터질일이 없어서, 워닝 치우고 스토어 업로드 지원을 위해 exclude 시킨다.
+        // 절 대 오디오 압축 코드를 위 이슈 해결 전에 쓰면 안됀다.
+        exclude 'lib/x86_64/libandroidlame.so'
     }
 }
 
