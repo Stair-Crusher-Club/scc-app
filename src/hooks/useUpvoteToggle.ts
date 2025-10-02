@@ -48,6 +48,10 @@ export function useUpvoteToggle({
     onSuccess: () => {
       ToastUtils.show('좋은 의견 감사합니다!');
 
+      if (!placeId) {
+        return;
+      }
+
       if (
         targetType === 'PLACE_ACCESSIBILITY' ||
         targetType === 'BUILDING_ACCESSIBILITY'
@@ -55,6 +59,14 @@ export function useUpvoteToggle({
         if (placeId) {
           queryClient.invalidateQueries({
             queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: ['PlacesUpvoted'],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: ['UpvotedForNumberOfItems'],
           });
         }
       }
