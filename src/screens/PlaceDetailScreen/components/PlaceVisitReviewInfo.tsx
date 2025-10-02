@@ -6,15 +6,21 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
-import PlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
+import PlaceDetailPlaceReviewItem from '@/screens/PlaceDetailScreen/components/PlaceReviewItem';
+import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import ToastUtils from '@/utils/ToastUtils';
 
 interface Props {
   reviews: PlaceReviewDto[];
   placeId: string;
+  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }
 
-export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
+export default function PlaceVisitReviewInfo({
+  reviews,
+  placeId,
+  updateUpvoteStatus,
+}: Props) {
   return (
     <>
       <ChipList>
@@ -31,7 +37,11 @@ export default function PlaceVisitReviewInfo({reviews, placeId}: Props) {
       <ItemList>
         {reviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceReviewItem placeId={placeId} review={review} />
+            <PlaceDetailPlaceReviewItem
+              placeId={placeId}
+              review={review}
+              updateUpvoteStatus={updateUpvoteStatus}
+            />
             {idx !== reviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}

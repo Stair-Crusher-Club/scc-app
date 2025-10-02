@@ -5,6 +5,7 @@ import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
 import MenuCrusherIcon from '@/assets/icon/menu_ic_crusher.svg';
 import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
+import MenuSCCRoadIcon from '@/assets/icon/menu_ic_scc_road.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
 import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -28,11 +29,15 @@ export default function MenuListSection() {
     navigation.navigate('CrusherActivity', {qr: undefined});
   }
 
-  function goToReviews() {
+  function goToSCCRoad() {
     navigation.navigate('Webview', {
       fixedTitle: '뿌클로드: 이동약자를 위한 진짜 리뷰',
       url: 'https://www.staircrusher.club/crusher_road',
     });
+  }
+
+  function goToReview() {
+    navigation.navigate('Review');
   }
 
   function goToSettings() {
@@ -46,6 +51,17 @@ export default function MenuListSection() {
   return (
     <S.MenuListSection>
       <SccTouchableOpacity
+        elementName="menu_favorite_places"
+        onPress={goToFavoritePlaces}>
+        <S.MenuItem>
+          <S.MenuTitleWrapper>
+            <MenuBookmarkIcon />
+            <S.MenuTitle>저장한 장소</S.MenuTitle>
+          </S.MenuTitleWrapper>
+          <RightAngleArrowIcon color={color.gray30} />
+        </S.MenuItem>
+      </SccTouchableOpacity>
+      <SccTouchableOpacity
         elementName="menu_conquerer_report"
         onPress={goToConquerer}>
         <S.MenuItem>
@@ -53,16 +69,16 @@ export default function MenuListSection() {
             <MenuFlagIcon />
             <S.MenuTitle>정복한 장소</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
-        elementName="menu_favorite_places"
-        onPress={goToFavoritePlaces}>
+        elementName="menu_review_report"
+        onPress={goToReview}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
-            <MenuBookmarkIcon />
-            <S.MenuTitle>저장한 장소</S.MenuTitle>
+            <MenuReviewIcon />
+            <S.MenuTitle>내 리뷰</S.MenuTitle>
           </S.MenuTitleWrapper>
           <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
@@ -84,14 +100,14 @@ export default function MenuListSection() {
         <S.MenuItem>
           <S.MenuTitle disabled>참여 챌린지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
         <S.MenuItem>
           <S.MenuTitle disabled>달성 뱃지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_seoul_toilet" onPress={goToToilet}>
@@ -100,16 +116,16 @@ export default function MenuListSection() {
             <MenuWheelChairIcon />
             <S.MenuTitle>서울 장애인 화장실 정보</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
-      <SccTouchableOpacity elementName="menu_bbucleroad" onPress={goToReviews}>
+      <SccTouchableOpacity elementName="menu_bbucleroad" onPress={goToSCCRoad}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
-            <MenuReviewIcon />
+            <MenuSCCRoadIcon />
             <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -118,7 +134,7 @@ export default function MenuListSection() {
         <S.MenuItem>
           <S.MenuTitle disabled>간편 로그인 설정</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_settings" onPress={goToSettings}>
@@ -127,7 +143,7 @@ export default function MenuListSection() {
             <MenuSettingIcon />
             <S.MenuTitle>설정</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -136,14 +152,14 @@ export default function MenuListSection() {
         <S.MenuItem>
           <S.MenuTitle disabled>참여 챌린지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
         <S.MenuItem>
           <S.MenuTitle disabled>달성 뱃지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray50} />
+          <RightAngleArrowIcon color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
     </S.MenuListSection>

@@ -19,6 +19,7 @@ import ConquererMonthlyScreen, {
   ConquererMonthlyScreenParams,
 } from '@/screens/ConquererMonthlyScreen';
 import ConquererScreen from '@/screens/ConquererScreen';
+import ConquererUpVoteScreen from '@/screens/ConquererUpVoteScreen';
 import CrusherActivityScreen, {
   CrusherActivityScreenParams,
 } from '@/screens/CrusherActivity';
@@ -47,6 +48,9 @@ import PlaceReviewFormScreen, {
 import {ProfileEditorDetailScreen} from '@/screens/ProfileEditorScreen';
 import {ProfileEditorDetailScreenParams} from '@/screens/ProfileEditorScreen/ProfileEditorDetailScreen';
 import ProfileEditorScreen from '@/screens/ProfileEditorScreen/ProfileEditorScreen';
+import ReviewHistoryScreen from '@/screens/ReviewHistoryScreen';
+import ReviewScreen from '@/screens/ReviewScreen';
+import ReviewUpVoteScreen from '@/screens/ReviewUpVoteScreen';
 import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
@@ -54,6 +58,9 @@ import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
 } from '@/screens/ToiletReviewFormScreen';
+import UpvoteAnalyticsScreen, {
+  UpvoteAnalyticsScreenProps,
+} from '@/screens/UpvoteAnalyticsScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
@@ -84,6 +91,21 @@ export const MainNavigationScreens: {
     options: {headerShown: true, headerTitle: '설정'},
   },
   {
+    name: 'Review',
+    component: ReviewScreen,
+    options: {headerShown: true, headerTitle: '내 리뷰'},
+  },
+  {
+    name: 'Review/History',
+    component: ReviewHistoryScreen,
+    options: {headerShown: true, headerTitle: '지금까지 내가 작성한 리뷰'},
+  },
+  {
+    name: 'Review/Upvote',
+    component: ReviewUpVoteScreen,
+    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+  },
+  {
     name: 'Conquerer',
     component: ConquererScreen,
     options: {headerShown: true, headerTitle: '정복한 장소'},
@@ -92,6 +114,16 @@ export const MainNavigationScreens: {
     name: 'Conquerer/History',
     component: ConquererHistoryScreen,
     options: {headerShown: true, headerTitle: '지금까지 내가 정복한 장소'},
+  },
+  {
+    name: 'Conquerer/Upvote',
+    component: ConquererUpVoteScreen,
+    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+  },
+  {
+    name: 'UpvoteAnalytics',
+    component: UpvoteAnalyticsScreen,
+    options: {headerShown: true, headerTitle: '도움돼요'},
   },
   {name: 'Camera', component: CameraScreen},
   {
@@ -220,9 +252,14 @@ export type ScreenParams = {
   Menu: undefined;
   ProfileEditor: undefined;
   'ProfileEditor/Detail': ProfileEditorDetailScreenParams;
+  Review: undefined;
+  'Review/History': undefined;
+  'Review/Upvote': undefined;
   Conquerer: undefined;
   'Conquerer/History': undefined;
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
+  'Conquerer/Upvote': undefined;
+  UpvoteAnalytics: UpvoteAnalyticsScreenProps;
   FavoritePlaces: undefined;
   CrusherActivity: CrusherActivityScreenParams;
 

@@ -9,7 +9,8 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
-import PlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
+import PlaceDetailPlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
+import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import * as S from './PlaceDetailEntranceSection.style';
@@ -17,11 +18,13 @@ import * as S from './PlaceDetailEntranceSection.style';
 interface Props {
   toiletReviews: ToiletReviewDto[];
   placeId: string;
+  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }
 
 export default function PlaceDetailToiletSection({
   toiletReviews,
   placeId,
+  updateUpvoteStatus,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -55,7 +58,11 @@ export default function PlaceDetailToiletSection({
       <ItemList>
         {toiletReviews.map((review, idx) => (
           <React.Fragment key={review.id}>
-            <PlaceToiletReviewItem placeId={placeId} review={review} />
+            <PlaceDetailPlaceToiletReviewItem
+              placeId={placeId}
+              review={review}
+              updateUpvoteStatus={updateUpvoteStatus}
+            />
             {idx !== toiletReviews.length - 1 && <Divider />}
           </React.Fragment>
         ))}

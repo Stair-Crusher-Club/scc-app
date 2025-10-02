@@ -2,6 +2,7 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtom} from 'jotai';
 
 import {loadingState} from '@/components/LoadingView';
+import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -36,10 +37,16 @@ export function useDeleteReview({
         queryClient.invalidateQueries({
           queryKey: ['PlaceDetail', placeId, 'Review'],
         });
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewList', UpvoteTargetTypeDto.PlaceReview],
+        });
         ToastUtils.show('장소 리뷰를 삭제했습니다.');
       } else {
         queryClient.invalidateQueries({
           queryKey: ['PlaceDetail', placeId, 'Toilet'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['ReviewList', UpvoteTargetTypeDto.ToiletReview],
         });
         ToastUtils.show('화장실 리뷰를 삭제했습니다.');
       }

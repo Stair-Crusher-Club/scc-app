@@ -1,0 +1,79 @@
+import FeedbackButton from '@/components/FeedbackButton';
+import SccPressable from '@/components/SccPressable';
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
+import {
+  PlaceReviewListItemDto,
+  ToiletReviewListItemDto,
+} from '@/generated-sources/openapi/api';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
+import useNavigation from '@/navigation/useNavigation';
+import {Text, View} from 'react-native';
+
+interface ItemProps {
+  item: PlaceReviewListItemDto | ToiletReviewListItemDto;
+}
+
+export default function Item({item}: ItemProps) {
+  const navigation = useNavigation();
+
+  const isPlaceReview = 'placeReviewId' in item;
+  const targetType = isPlaceReview ? 'PLACE_REVIEW' : 'TOILET_REVIEW';
+  const targetId = isPlaceReview ? item.placeReviewId : item.toiletReviewId;
+
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: item.isUpvoted,
+    initialTotalCount: item.totalUpvoteCount,
+    targetId,
+    targetType,
+    placeId: item.placeId,
+  });
+
+  return (
+    <View style={{gap: 16}}>
+      <SccPressable
+        elementName="navigate_to_place_detail_button"
+        onPress={() =>
+          navigation.navigate('PlaceDetail', {
+            placeInfo: {
+              placeId: item.placeId,
+            },
+          })
+        }
+        style={{
+          gap: 4,
+        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontFamily: font.pretendardBold,
+            lineHeight: 24,
+            color: color.gray90,
+          }}>
+          {item.placeName}
+        </Text>
+        <Text
+          style={{
+            fontSize: 13,
+            fontFamily: font.pretendardRegular,
+            lineHeight: 18,
+            color: color.gray50,
+          }}>
+          {item.placeAddress}
+        </Text>
+      </SccPressable>
+
+      <FeedbackButton
+        total={totalUpvoteCount}
+        upvoted={isUpvoted}
+        onPressUpvote={toggleUpvote}
+        onPressAnalytics={() => {
+          navigation.navigate('UpvoteAnalytics', {
+            targetType,
+            targetId,
+          });
+        }}
+      />
+    </View>
+  );
+}

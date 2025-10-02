@@ -1,11 +1,13 @@
 import {ScreenLayout} from '@/components/ScreenLayout';
+import TabBar from '@/components/TabBar';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import React, {useEffect, useState} from 'react';
-import MenuTabs, {Tab} from './components/MenuTabs';
 import WelcomeModal from './components/WelcomeModal';
+import {tabItems} from './constants';
+import {CrusherActivityTab} from './types';
 import CurrentSeasonView from './views/CurrentSeasonView';
 import HistoryView from './views/HistoryView';
 
@@ -52,7 +54,7 @@ export default function CrusherActivityScreen({
 
   const crewType = data?.currentCrusherActivity?.crusherClub.crewType;
 
-  const [currentTab, setCurrentTab] = useState<Tab>('current');
+  const [currentTab, setCurrentTab] = useState<CrusherActivityTab>('current');
 
   useEffect(() => {
     setCurrentTab(crewType ? 'current' : 'history');
@@ -69,9 +71,12 @@ export default function CrusherActivityScreen({
 
   return (
     <ScreenLayout isHeaderVisible={true}>
-      {/* TODO 리뷰 브랜치 머지 후 공통 컴포넌트 사용하기 */}
       {crewType && (
-        <MenuTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+        <TabBar
+          items={tabItems}
+          current={currentTab}
+          onChange={setCurrentTab}
+        />
       )}
       {renderView()}
 
