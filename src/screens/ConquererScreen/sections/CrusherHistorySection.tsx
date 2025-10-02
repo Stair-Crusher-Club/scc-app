@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query';
+import {useQueries} from '@tanstack/react-query';
 import React from 'react';
 
 import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
@@ -10,14 +10,27 @@ import * as S from './CrusherHistorySection.style';
 
 export default function CrusherHistorySection() {
   const {api} = useAppComponents();
-  const {data} = useQuery({
-    queryKey: ['ConqueredPlacesForNumberOfItems'],
-    queryFn: async () =>
-      (await api.listConqueredPlacesPost({limit: 1})).data?.totalNumberOfItems,
-  });
+  const [totalConqueredPlaces, totalUpvotedPlaces] = useQueries({
+    queries: [
+      {
+        queryKey: ['ConqueredPlacesForNumberOfItems'],
+        queryFn: async () =>
+          (await api.listConqueredPlacesPost({limit: 1})).data
+            ?.totalNumberOfItems,
+      },
+      {
+        queryKey: ['UpvotedForNumberOfItems'],
+        queryFn: async () =>
+          (await api.listUpvotedPlacesPost({limit: 1})).data
+            ?.totalNumberOfUpvotes,
+      },
+    ],
+  }).map(r => r.data);
+
+  const totalNumberOfPlaces = totalConqueredPlaces ?? 0;
+  const totalNumberOfUpvote = totalUpvotedPlaces ?? 0;
+
   const navigation = useNavigation();
-  const totalNumberOfPlaces = data ?? 0;
-  const totalNumberOfUpvote = 0; // TODO: API
 
   return (
     <S.CrusherHistorySection>
@@ -44,7 +57,7 @@ export default function CrusherHistorySection() {
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
-            <S.Count>{totalNumberOfUpvote}</S.Count>
+            <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
           </S.CountBadge>
           <RightAngleArrowIcon color={color.gray50} />
         </S.ClickGuide>
