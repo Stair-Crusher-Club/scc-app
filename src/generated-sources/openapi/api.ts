@@ -1646,6 +1646,12 @@ export interface GetUserInfoResponseDto {
      * @memberof GetUserInfoResponseDto
      */
     'flags'?: Array<string>;
+    /**
+     * 앨범에서 이미지 업로드가 허용되는지 여부
+     * @type {boolean}
+     * @memberof GetUserInfoResponseDto
+     */
+    'isAlbumUploadAllowed'?: boolean;
 }
 /**
  * 
@@ -2219,6 +2225,50 @@ export interface ListUpvotedPlaceReviewsResponseDto {
      * @memberof ListUpvotedPlaceReviewsResponseDto
      */
     'placeReviews': Array<PlaceReviewListItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedPlacesRequestDto
+ */
+export interface ListUpvotedPlacesRequestDto {
+    /**
+     * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
+     * @type {string}
+     * @memberof ListUpvotedPlacesRequestDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListUpvotedPlacesRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListUpvotedPlacesResponseDto
+ */
+export interface ListUpvotedPlacesResponseDto {
+    /**
+     * 접근성 정보로 받은 도움이 되었어요 개수
+     * @type {number}
+     * @memberof ListUpvotedPlacesResponseDto
+     */
+    'totalNumberOfUpvotes': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListUpvotedPlacesResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<UpvotedPlaceDto>}
+     * @memberof ListUpvotedPlacesResponseDto
+     */
+    'places': Array<UpvotedPlaceDto>;
 }
 /**
  * 
@@ -3457,6 +3507,93 @@ export type SearchPlaceSortDto = typeof SearchPlaceSortDto[keyof typeof SearchPl
 /**
  * 
  * @export
+ * @interface SearchPlacesByNaturalLanguageRequestDto
+ */
+export interface SearchPlacesByNaturalLanguageRequestDto {
+    /**
+     * 자연어 검색 텍스트 (예 - 휠체어로 혼자 갈 수 있는 근처 카페)
+     * @type {string}
+     * @memberof SearchPlacesByNaturalLanguageRequestDto
+     */
+    'text': string;
+    /**
+     * 
+     * @type {CircleSearchRegionDto}
+     * @memberof SearchPlacesByNaturalLanguageRequestDto
+     */
+    'circleRegion'?: CircleSearchRegionDto;
+    /**
+     * 
+     * @type {RectangleSearchRegionDto}
+     * @memberof SearchPlacesByNaturalLanguageRequestDto
+     */
+    'rectangleRegion'?: RectangleSearchRegionDto;
+}
+/**
+ * 
+ * @export
+ * @interface SearchPlacesByNaturalLanguageResponseDto
+ */
+export interface SearchPlacesByNaturalLanguageResponseDto {
+    /**
+     * 
+     * @type {Array<SearchPlacesByNaturalLanguageResultItemDto>}
+     * @memberof SearchPlacesByNaturalLanguageResponseDto
+     */
+    'items': Array<SearchPlacesByNaturalLanguageResultItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface SearchPlacesByNaturalLanguageResultItemDto
+ */
+export interface SearchPlacesByNaturalLanguageResultItemDto {
+    /**
+     * 
+     * @type {Place}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'place': Place;
+    /**
+     * 
+     * @type {Building}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'building': Building;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'hasBuildingAccessibility': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'hasPlaceAccessibility': boolean;
+    /**
+     * 요청에 currentLocation이 올라왔을 경우에만 non-null.
+     * @type {number}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'distanceMeters'?: number;
+    /**
+     * 접근성 정보를 등록할 수 있는지 여부.
+     * @type {boolean}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'isAccessibilityRegistrable': boolean;
+    /**
+     * 
+     * @type {CompactAccessibilityInfoDto}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'accessibilityInfo'?: CompactAccessibilityInfoDto;
+}
+/**
+ * 
+ * @export
  * @interface SearchPlacesRequestDto
  */
 export interface SearchPlacesRequestDto {
@@ -3970,6 +4107,61 @@ export const UpvoteTargetTypeDto = {
 export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof UpvoteTargetTypeDto];
 
 
+/**
+ * 
+ * @export
+ * @interface UpvotedPlaceDto
+ */
+export interface UpvotedPlaceDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'address': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpvotedPlaceDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpvotedPlaceDto
+     */
+    'totalUpvoteCount': number;
+    /**
+     * 
+     * @type {UpvoteTargetTypeDto}
+     * @memberof UpvotedPlaceDto
+     */
+    'accessibilityType'?: UpvoteTargetTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedPlaceDto
+     */
+    'accessibilityId'?: string;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof UpvotedPlaceDto
+     */
+    'upvotedAt': EpochMillisTimestamp;
+}
 /**
  * 
  * @export
@@ -5132,9 +5324,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUpvoteDetailsGet: async (getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getUpvoteDetailsPost: async (getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'getUpvoteDetailsRequestDto' is not null or undefined
-            assertParamExists('getUpvoteDetailsGet', 'getUpvoteDetailsRequestDto', getUpvoteDetailsRequestDto)
+            assertParamExists('getUpvoteDetailsPost', 'getUpvoteDetailsRequestDto', getUpvoteDetailsRequestDto)
             const localVarPath = `/getUpvoteDetails`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5143,7 +5335,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -5803,6 +5995,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+         * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedPlacesPost: async (listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listUpvotedPlacesRequestDto' is not null or undefined
+            assertParamExists('listUpvotedPlacesPost', 'listUpvotedPlacesRequestDto', listUpvotedPlacesRequestDto)
+            const localVarPath = `/listUpvotedPlaces`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listUpvotedPlacesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
          * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
          * @param {*} [options] Override http request option.
@@ -6314,6 +6546,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * ChatGPT나 Claude Desktop App처럼 자연어를 분석하여 장소를 검색한다.
+         * @summary 자연어로 장소를 검색한다.
+         * @param {SearchPlacesByNaturalLanguageRequestDto} searchPlacesByNaturalLanguageRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchPlacesByNaturalLanguagePost: async (searchPlacesByNaturalLanguageRequestDto: SearchPlacesByNaturalLanguageRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'searchPlacesByNaturalLanguageRequestDto' is not null or undefined
+            assertParamExists('searchPlacesByNaturalLanguagePost', 'searchPlacesByNaturalLanguageRequestDto', searchPlacesByNaturalLanguageRequestDto)
+            const localVarPath = `/searchPlacesByNaturalLanguage`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchPlacesByNaturalLanguageRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 점포를 검색한다. sort 가 null 인 경우에는 정확도순을 기본으로 한다.
          * @param {SearchPlacesRequestDto} searchPlacesRequestDto 
@@ -6812,8 +7084,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetUpvoteDetailsResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options);
+        async getUpvoteDetailsPost(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetUpvoteDetailsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUpvoteDetailsPost(getUpvoteDetailsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -6995,6 +7267,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+         * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUpvotedPlacesPost(listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListUpvotedPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listUpvotedPlacesPost(listUpvotedPlacesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
          * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
          * @param {*} [options] Override http request option.
@@ -7134,6 +7417,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async searchExternalAccessibilitiesPost(searchExternalAccessibilitiesPostRequest: SearchExternalAccessibilitiesPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchExternalAccessibilitiesPost200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.searchExternalAccessibilitiesPost(searchExternalAccessibilitiesPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * ChatGPT나 Claude Desktop App처럼 자연어를 분석하여 장소를 검색한다.
+         * @summary 자연어로 장소를 검색한다.
+         * @param {SearchPlacesByNaturalLanguageRequestDto} searchPlacesByNaturalLanguageRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchPlacesByNaturalLanguagePost(searchPlacesByNaturalLanguageRequestDto: SearchPlacesByNaturalLanguageRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchPlacesByNaturalLanguageResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchPlacesByNaturalLanguagePost(searchPlacesByNaturalLanguageRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -7464,8 +7758,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: any): AxiosPromise<GetUpvoteDetailsResponseDto> {
-            return localVarFp.getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options).then((request) => request(axios, basePath));
+        getUpvoteDetailsPost(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: any): AxiosPromise<GetUpvoteDetailsResponseDto> {
+            return localVarFp.getUpvoteDetailsPost(getUpvoteDetailsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7630,6 +7924,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+         * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUpvotedPlacesPost(listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options?: any): AxiosPromise<ListUpvotedPlacesResponseDto> {
+            return localVarFp.listUpvotedPlacesPost(listUpvotedPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
          * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
          * @param {*} [options] Override http request option.
@@ -7757,6 +8061,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         searchExternalAccessibilitiesPost(searchExternalAccessibilitiesPostRequest: SearchExternalAccessibilitiesPostRequest, options?: any): AxiosPromise<SearchExternalAccessibilitiesPost200Response> {
             return localVarFp.searchExternalAccessibilitiesPost(searchExternalAccessibilitiesPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * ChatGPT나 Claude Desktop App처럼 자연어를 분석하여 장소를 검색한다.
+         * @summary 자연어로 장소를 검색한다.
+         * @param {SearchPlacesByNaturalLanguageRequestDto} searchPlacesByNaturalLanguageRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchPlacesByNaturalLanguagePost(searchPlacesByNaturalLanguageRequestDto: SearchPlacesByNaturalLanguageRequestDto, options?: any): AxiosPromise<SearchPlacesByNaturalLanguageResponseDto> {
+            return localVarFp.searchPlacesByNaturalLanguagePost(searchPlacesByNaturalLanguageRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8134,8 +8448,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getUpvoteDetailsGet(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getUpvoteDetailsGet(getUpvoteDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public getUpvoteDetailsPost(getUpvoteDetailsRequestDto: GetUpvoteDetailsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUpvoteDetailsPost(getUpvoteDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8333,6 +8647,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary 내가 등록한 접근성 정보(건물/장소) 중 도움이 되었어요를 받은 장소를 페이징 해서 가져온다
+     * @param {ListUpvotedPlacesRequestDto} listUpvotedPlacesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listUpvotedPlacesPost(listUpvotedPlacesRequestDto: ListUpvotedPlacesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listUpvotedPlacesPost(listUpvotedPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 내가 작성한 화장실 리뷰 중 도움이 되었어요를 받은 리뷰를 페이징 해서 가져온다.
      * @param {ListUpvotedReviewsRequestDto} listUpvotedReviewsRequestDto 
      * @param {*} [options] Override http request option.
@@ -8485,6 +8811,18 @@ export class DefaultApi extends BaseAPI {
      */
     public searchExternalAccessibilitiesPost(searchExternalAccessibilitiesPostRequest: SearchExternalAccessibilitiesPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).searchExternalAccessibilitiesPost(searchExternalAccessibilitiesPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * ChatGPT나 Claude Desktop App처럼 자연어를 분석하여 장소를 검색한다.
+     * @summary 자연어로 장소를 검색한다.
+     * @param {SearchPlacesByNaturalLanguageRequestDto} searchPlacesByNaturalLanguageRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public searchPlacesByNaturalLanguagePost(searchPlacesByNaturalLanguageRequestDto: SearchPlacesByNaturalLanguageRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).searchPlacesByNaturalLanguagePost(searchPlacesByNaturalLanguageRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
