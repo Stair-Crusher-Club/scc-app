@@ -54,7 +54,7 @@ export default function FeedbackButton({
             }}>
             도움돼요
           </Text>
-          {(total ?? 0) > 0 && (
+          {typeof total === 'number' && total > 0 && (
             <View style={{gap: 10, flexDirection: 'row', alignItems: 'center'}}>
               <Text
                 style={{
@@ -75,7 +75,7 @@ export default function FeedbackButton({
             </View>
           )}
         </SccTouchableOpacity>
-        {(total ?? 0) > 0 && (
+        {typeof total === 'number' && total > 0 && (
           <SccTouchableOpacity
             elementName="navigate_to_upvote_analytics_button"
             onPress={() => {
