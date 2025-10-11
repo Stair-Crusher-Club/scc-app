@@ -109,9 +109,7 @@ export default function UpvoteAnalyticsScreen({
                   </Text>
                 </View>
               )}
-              ListEmptyComponent={
-                <EmptyViewText>아직 내역이 없어요.</EmptyViewText>
-              }
+              ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
             />
           ))}
 
@@ -179,9 +177,7 @@ export default function UpvoteAnalyticsScreen({
                   )}
               </>
             )}
-            ListEmptyComponent={
-              <EmptyViewText>아직 내역이 없어요.</EmptyViewText>
-            }
+            ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
           />
         )}
       </ContentContainer>
