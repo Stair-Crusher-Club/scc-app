@@ -16,9 +16,11 @@ import ScrollNavigation from '@/components/StickyScrollNavigation';
 import {
   Building,
   Place,
+  ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
@@ -26,10 +28,9 @@ import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sectio
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
-import {loadingState} from '@/components/LoadingView';
 import ToastUtils from '@/utils/ToastUtils';
 import {useIsFocused} from '@react-navigation/native';
-import {useAtom, useAtomValue} from 'jotai';
+import {useAtomValue} from 'jotai';
 import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
@@ -67,7 +68,14 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
-  const [loading, setLoading] = useAtom(loadingState);
+
+  const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
+    ['PlaceDetail', 'ReportAccessibility'],
+    async params => {
+      await api.reportAccessibilityPost(params);
+      ToastUtils.show('신고가 접수되었습니다.');
+    },
+  );
 
   const isFocused = useIsFocused();
 
@@ -475,15 +483,13 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
             const targetType = reportTargetType;
             setReportTargetType(null);
-            setLoading(new Map(loading).set('PlaceDetail', true));
-            await api.reportAccessibilityPost({
+
+            reportAccessibilityMutation.mutate({
               placeId: _placeId,
               reason,
               targetType,
               detail: text,
             });
-            setLoading(new Map(loading).set('PlaceDetail', false));
-            ToastUtils.show('신고가 접수되었습니다.');
           }}
         />
       )}
