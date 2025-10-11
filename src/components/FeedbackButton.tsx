@@ -10,7 +10,7 @@ import SccTouchableOpacity from './SccTouchableOpacity';
 interface FeedbackButtonProps {
   total?: number;
   isUpvoted?: boolean;
-  onPressUpvote?: () => void;
+  onPressUpvote: () => void;
   onPressInfoUpdateRequest?: () => void; // 정보수정 요청 버튼
   onPressAnalytics?: () => void;
 }
