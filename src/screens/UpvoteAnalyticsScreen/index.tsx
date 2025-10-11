@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 
+import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import Skeleton from '@/components/Skeleton';
 import TabBar from '@/components/TabBar';
@@ -187,13 +188,4 @@ export default function UpvoteAnalyticsScreen({
 
 const ContentContainer = styled.View`
   flex: 1;
-`;
-
-const EmptyViewText = styled.Text`
-  font-size: 14px;
-  font-family: ${() => font.pretendardMedium};
-  color: ${() => color.gray50};
-  align-items: center;
-  text-align: center;
-  padding-top: 60px;
 `;
