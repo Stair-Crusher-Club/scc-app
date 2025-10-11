@@ -14,25 +14,20 @@ import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
 import {Image, Text, View} from 'react-native';
 import styled from 'styled-components/native';
-
-type TabType = 'users' | 'stats';
+import {INITIAL_TAB, tabItems} from './constants';
+import {TabType} from './types';
 
 export interface UpvoteAnalyticsScreenProps {
   targetId: string;
   targetType: UpvoteTargetTypeDto;
 }
 
-const tabItems = [
-  {value: 'users' as TabType, label: '사용자'},
-  {value: 'stats' as TabType, label: '사용자 통계'},
-];
-
 export default function UpvoteAnalyticsScreen({
   route,
 }: ScreenProps<'UpvoteAnalytics'>) {
   const {targetType, targetId} = route.params;
   const {api} = useAppComponents();
-  const [currentTab, setCurrentTab] = useState<TabType>('users');
+  const [currentTab, setCurrentTab] = useState<TabType>(INITIAL_TAB);
 
   const {data, isLoading} = useQuery({
     queryKey: ['UpvoteDetails', targetType, targetId],
