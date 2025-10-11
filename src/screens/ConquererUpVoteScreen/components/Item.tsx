@@ -61,7 +61,7 @@ export default function Item({item}: ItemProps) {
 
       <FeedbackButton
         total={totalUpvoteCount}
-        upvoted={isUpvoted}
+        isUpvoted={isUpvoted}
         onPressUpvote={toggleUpvote}
         onPressAnalytics={() => {
           navigation.navigate('UpvoteAnalytics', {

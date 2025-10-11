@@ -186,7 +186,7 @@ export default function PlaceReviewItem({
       </ReviewContentColumn>
 
       <FeedbackButton
-        upvoted={isUpvoted}
+        isUpvoted={isUpvoted}
         total={totalUpvoteCount}
         onPressUpvote={toggleUpvote}
         onPressAnalytics={() =>

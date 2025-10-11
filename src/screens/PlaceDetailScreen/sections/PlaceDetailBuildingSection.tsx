@@ -96,7 +96,7 @@ export default function PlaceDetailBuildingSection({
         <BuildingElevatorInfo accessibility={accessibility} />
         <BuildingDoorInfo accessibility={accessibility} />
         <FeedbackButton
-          upvoted={isUpvoted}
+          isUpvoted={isUpvoted}
           total={totalUpvoteCount}
           onPressUpvote={toggleUpvote}
           onPressInfoUpdateRequest={() =>

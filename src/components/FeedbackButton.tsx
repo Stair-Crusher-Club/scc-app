@@ -9,7 +9,7 @@ import SccTouchableOpacity from './SccTouchableOpacity';
 
 interface FeedbackButtonProps {
   total?: number;
-  upvoted?: boolean;
+  isUpvoted?: boolean;
   onPressUpvote?: () => void;
   onPressInfoUpdateRequest?: () => void; // 정보수정 요청 버튼
   onPressAnalytics?: () => void;
@@ -17,7 +17,7 @@ interface FeedbackButtonProps {
 
 export default function FeedbackButton({
   total,
-  upvoted,
+  isUpvoted,
   onPressUpvote,
   onPressInfoUpdateRequest,
   onPressAnalytics,
@@ -44,13 +44,13 @@ export default function FeedbackButton({
             onPressUpvote?.();
           }}
           style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-          {upvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
+          {isUpvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
           <Text
             style={{
               fontFamily: font.pretendardMedium,
               fontSize: 13,
               lineHeight: 18,
-              color: upvoted ? color.gray80 : color.gray50,
+              color: isUpvoted ? color.gray80 : color.gray50,
             }}>
             도움돼요
           </Text>
@@ -61,7 +61,7 @@ export default function FeedbackButton({
                   fontFamily: font.pretendardMedium,
                   fontSize: 13,
                   lineHeight: 18,
-                  color: upvoted ? color.gray80 : color.gray50,
+                  color: isUpvoted ? color.gray80 : color.gray50,
                 }}>
                 {total}
               </Text>

@@ -82,7 +82,7 @@ export default function PlaceDetailEntranceSection({
       <PlaceEntranceStepInfo accessibility={accessibility} />
       <PlaceDoorInfo accessibility={accessibility} />
       <FeedbackButton
-        upvoted={isUpvoted}
+        isUpvoted={isUpvoted}
         total={totalUpvoteCount}
         onPressUpvote={toggleUpvote}
         onPressInfoUpdateRequest={() =>
