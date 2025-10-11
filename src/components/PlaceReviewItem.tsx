@@ -72,7 +72,7 @@ export default function PlaceReviewItem({
     if (variant === 'history' && isHistoryReview) {
       navigation.navigate('PlaceDetail', {
         placeInfo: {
-          placeId: (review as PlaceReviewListItemDto).placeId,
+          placeId,
         },
       });
     }
