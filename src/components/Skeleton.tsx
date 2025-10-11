@@ -1,12 +1,12 @@
 import {color} from '@/constant/color';
 import {useEffect, useRef} from 'react';
 import {Animated, ViewProps} from 'react-native';
-import styled from 'styled-components/native';
 
 export default function Skeleton({style}: ViewProps) {
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    let isMounted = true;
     const animate = () => {
       Animated.sequence([
         Animated.timing(animatedValue, {
@@ -19,10 +19,19 @@ export default function Skeleton({style}: ViewProps) {
           duration: 800,
           useNativeDriver: false,
         }),
-      ]).start(() => animate());
+      ]).start(() => {
+        if (isMounted) {
+          animate();
+        }
+      });
     };
 
     animate();
+
+    return () => {
+      isMounted = false;
+      animatedValue.stopAnimation();
+    };
   }, [animatedValue]);
 
   const backgroundColor = animatedValue.interpolate({
@@ -31,7 +40,7 @@ export default function Skeleton({style}: ViewProps) {
   });
 
   return (
-    <StyledSkeletonView
+    <Animated.View
       style={[
         {
           backgroundColor,
@@ -41,5 +50,3 @@ export default function Skeleton({style}: ViewProps) {
     />
   );
 }
-
-const StyledSkeletonView = styled(Animated.View)``;
