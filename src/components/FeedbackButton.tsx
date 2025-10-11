@@ -7,7 +7,7 @@ import {Image, Platform, Text, View} from 'react-native';
 import Toast from 'react-native-root-toast';
 import SccTouchableOpacity from './SccTouchableOpacity';
 
-interface UpvoteButtonProps {
+interface FeedbackButtonProps {
   total?: number;
   upvoted?: boolean;
   onPressUpvote?: () => void;
@@ -21,7 +21,7 @@ export default function FeedbackButton({
   onPressUpvote,
   onPressInfoUpdateRequest,
   onPressAnalytics,
-}: UpvoteButtonProps) {
+}: FeedbackButtonProps) {
   return (
     <View
       style={{
