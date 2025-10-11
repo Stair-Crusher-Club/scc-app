@@ -19,7 +19,6 @@ export default function ConquererUpvoteScreen() {
           nextToken: pageParam,
           limit: 20,
         });
-        console.log(result);
         return result.data;
       },
       getNextPageParam: lastPage => {
