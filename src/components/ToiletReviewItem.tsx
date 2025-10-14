@@ -283,7 +283,7 @@ const PlaceAddress = styled.Text`
   font-size: 13px;
   line-height: 18px;
   font-family: ${font.pretendardRegular};
-  color: ${color.gray50};
+  color: ${color.gray40};
 `;
 
 const ReviewDate = styled.Text`

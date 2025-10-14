@@ -43,7 +43,7 @@ export const CountBadge = styled.View({
   paddingVertical: 4,
   paddingHorizontal: 12,
   borderRadius: 12,
-  backgroundColor: color.brand10,
+  backgroundColor: color.brand5,
   marginRight: 4,
 });
 
