@@ -1,6 +1,6 @@
 import React from 'react';
 
-import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
+import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import MenuBookmarkIcon from '@/assets/icon/menu_ic_bookmark.svg';
 import MenuCrusherIcon from '@/assets/icon/menu_ic_crusher.svg';
 import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
@@ -58,7 +58,7 @@ export default function MenuListSection() {
             <MenuBookmarkIcon />
             <S.MenuTitle>저장한 장소</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -69,7 +69,7 @@ export default function MenuListSection() {
             <MenuFlagIcon />
             <S.MenuTitle>정복한 장소</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -80,7 +80,7 @@ export default function MenuListSection() {
             <MenuReviewIcon />
             <S.MenuTitle>내 리뷰</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -91,7 +91,7 @@ export default function MenuListSection() {
             <MenuCrusherIcon />
             <S.MenuTitle>크러셔 활동</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -100,14 +100,14 @@ export default function MenuListSection() {
         <S.MenuItem>
           <S.MenuTitle disabled>참여 챌린지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
         <S.MenuItem>
           <S.MenuTitle disabled>달성 뱃지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_seoul_toilet" onPress={goToToilet}>
@@ -116,7 +116,7 @@ export default function MenuListSection() {
             <MenuWheelChairIcon />
             <S.MenuTitle>서울 장애인 화장실 정보</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_bbucleroad" onPress={goToSCCRoad}>
@@ -125,7 +125,7 @@ export default function MenuListSection() {
             <MenuSCCRoadIcon />
             <S.MenuTitle>뿌클로드: 이동약자를 위한 진짜 리뷰</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -134,7 +134,7 @@ export default function MenuListSection() {
         <S.MenuItem>
           <S.MenuTitle disabled>간편 로그인 설정</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_settings" onPress={goToSettings}>
@@ -143,7 +143,7 @@ export default function MenuListSection() {
             <MenuSettingIcon />
             <S.MenuTitle>설정</S.MenuTitle>
           </S.MenuTitleWrapper>
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -152,14 +152,14 @@ export default function MenuListSection() {
         <S.MenuItem>
           <S.MenuTitle disabled>참여 챌린지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
         <S.MenuItem>
           <S.MenuTitle disabled>달성 뱃지 보기</S.MenuTitle>
           <NotAvailableBadge />
-          <RightAngleArrowIcon color={color.gray30} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.MenuItem>
       </SccTouchableOpacity>
     </S.MenuListSection>

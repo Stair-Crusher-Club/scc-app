@@ -1,7 +1,7 @@
 import {useQueries} from '@tanstack/react-query';
 import React from 'react';
 
-import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
+import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {color} from '@/constant/color';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
@@ -46,7 +46,7 @@ export default function CrusherHistorySection() {
           <S.CountBadge>
             <S.Count>{totalNumberOfPlaces.toLocaleString()}</S.Count>
           </S.CountBadge>
-          <RightAngleArrowIcon color={color.gray50} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.ClickGuide>
       </S.Link>
       <S.Link
@@ -59,7 +59,7 @@ export default function CrusherHistorySection() {
           <S.CountBadge>
             <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
           </S.CountBadge>
-          <RightAngleArrowIcon color={color.gray50} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.ClickGuide>
       </S.Link>
       <S.Link elementName="crusher_history_views_link">
@@ -70,7 +70,7 @@ export default function CrusherHistorySection() {
           </S.WIPBadge>
         </S.LinkName>
         <S.ClickGuide>
-          <RightAngleArrowIcon color={color.gray50} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.ClickGuide>
       </S.Link>
     </S.CrusherHistorySection>

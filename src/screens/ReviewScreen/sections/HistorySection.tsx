@@ -1,7 +1,7 @@
 import React from 'react';
 import * as S from '../../ConquererScreen/sections/CrusherHistorySection.style';
 
-import RightAngleArrowIcon from '@/assets/icon/ic_angle_bracket_right.svg';
+import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {color} from '@/constant/color';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -63,7 +63,7 @@ export default function HistorySection() {
           <S.CountBadge>
             <S.Count>{totalNumberOfReviews.toLocaleString()}</S.Count>
           </S.CountBadge>
-          <RightAngleArrowIcon color={color.gray50} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.ClickGuide>
       </S.Link>
       <S.Link
@@ -76,7 +76,7 @@ export default function HistorySection() {
           <S.CountBadge>
             <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
           </S.CountBadge>
-          <RightAngleArrowIcon color={color.gray50} />
+          <ChevronRightIcon width={20} height={20} color={color.gray30} />
         </S.ClickGuide>
       </S.Link>
     </S.CrusherHistorySection>
