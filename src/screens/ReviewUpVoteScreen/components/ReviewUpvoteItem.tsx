@@ -8,7 +8,7 @@ import {
 } from '@/generated-sources/openapi/api';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
-import {Text, View} from 'react-native';
+import styled from 'styled-components/native';
 
 interface ItemProps {
   item: PlaceReviewListItemDto | ToiletReviewListItemDto;
@@ -30,8 +30,8 @@ export default function ReviewUpvoteItem({item}: ItemProps) {
   });
 
   return (
-    <View style={{gap: 16}}>
-      <SccPressable
+    <Container>
+      <PlaceButton
         elementName="navigate_to_place_detail_button"
         onPress={() =>
           navigation.navigate('PlaceDetail', {
@@ -39,29 +39,10 @@ export default function ReviewUpvoteItem({item}: ItemProps) {
               placeId: item.placeId,
             },
           })
-        }
-        style={{
-          gap: 4,
-        }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: font.pretendardBold,
-            lineHeight: 24,
-            color: color.gray90,
-          }}>
-          {item.placeName}
-        </Text>
-        <Text
-          style={{
-            fontSize: 13,
-            fontFamily: font.pretendardRegular,
-            lineHeight: 18,
-            color: color.gray50,
-          }}>
-          {item.placeAddress}
-        </Text>
-      </SccPressable>
+        }>
+        <PlaceName>{item.placeName}</PlaceName>
+        <PlaceAddress>{item.placeAddress}</PlaceAddress>
+      </PlaceButton>
 
       <FeedbackButton
         total={totalUpvoteCount}
@@ -74,6 +55,28 @@ export default function ReviewUpvoteItem({item}: ItemProps) {
           });
         }}
       />
-    </View>
+    </Container>
   );
 }
+
+const Container = styled.View`
+  gap: 16px;
+`;
+
+const PlaceButton = styled(SccPressable)`
+  gap: 4px;
+`;
+
+const PlaceName = styled.Text`
+  font-size: 16px;
+  font-family: ${font.pretendardBold};
+  line-height: 24px;
+  color: ${color.gray90};
+`;
+
+const PlaceAddress = styled.Text`
+  font-size: 13px;
+  font-family: ${font.pretendardRegular};
+  line-height: 18px;
+  color: ${color.gray50};
+`;

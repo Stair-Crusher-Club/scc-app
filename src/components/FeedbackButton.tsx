@@ -3,8 +3,9 @@ import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Image, Platform, Text, View} from 'react-native';
+import {Image, Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
+import styled from 'styled-components/native';
 import SccTouchableOpacity from './SccTouchableOpacity';
 
 interface FeedbackButtonProps {
@@ -23,15 +24,9 @@ export default function FeedbackButton({
   onPressAnalytics,
 }: FeedbackButtonProps) {
   return (
-    <View
-      style={{
-        height: 24,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-      <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-        <SccTouchableOpacity
+    <Container>
+      <LeftSection>
+        <UpvoteButton
           elementName="place_detail_upvote_button"
           onPress={() => {
             if (Platform.OS === 'web') {
@@ -42,41 +37,18 @@ export default function FeedbackButton({
               return;
             }
             onPressUpvote?.();
-          }}
-          style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+          }}>
           {isUpvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
-          <Text
-            style={{
-              fontFamily: font.pretendardMedium,
-              fontSize: 13,
-              lineHeight: 18,
-              color: isUpvoted ? color.gray80 : color.gray50,
-            }}>
-            도움돼요
-          </Text>
+          <UpvoteText isUpvoted={isUpvoted}>도움돼요</UpvoteText>
           {typeof total === 'number' && total > 0 && (
-            <View style={{gap: 10, flexDirection: 'row', alignItems: 'center'}}>
-              <Text
-                style={{
-                  fontFamily: font.pretendardMedium,
-                  fontSize: 13,
-                  lineHeight: 18,
-                  color: isUpvoted ? color.gray80 : color.gray50,
-                }}>
-                {total}
-              </Text>
-              <View
-                style={{
-                  width: 1,
-                  height: 16,
-                  backgroundColor: color.gray20,
-                }}
-              />
-            </View>
+            <CountSection>
+              <CountText isUpvoted={isUpvoted}>{total}</CountText>
+              <Divider />
+            </CountSection>
           )}
-        </SccTouchableOpacity>
+        </UpvoteButton>
         {typeof total === 'number' && total > 0 && (
-          <SccTouchableOpacity
+          <AnalyticsButton
             elementName="navigate_to_upvote_analytics_button"
             onPress={() => {
               if (Platform.OS === 'web') {
@@ -88,22 +60,15 @@ export default function FeedbackButton({
               }
 
               onPressAnalytics?.();
-            }}
-            style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-            <Image
-              source={require('@/assets/img/img_profile.png')}
-              style={{
-                width: 24,
-                height: 24,
-              }}
-            />
+            }}>
+            <ProfileImage source={require('@/assets/img/img_profile.png')} />
             <ChevronRightIcon />
-          </SccTouchableOpacity>
+          </AnalyticsButton>
         )}
-      </View>
+      </LeftSection>
 
       {onPressInfoUpdateRequest && (
-        <SccTouchableOpacity
+        <InfoUpdateButton
           elementName="place_detail_report_button"
           onPress={() => {
             if (Platform.OS === 'web') {
@@ -116,20 +81,77 @@ export default function FeedbackButton({
 
             onPressInfoUpdateRequest?.();
           }}>
-          <Text
-            style={{
-              fontFamily: font.pretendardRegular,
-              fontSize: 13,
-              lineHeight: 18,
-              color: color.gray60,
-              textDecorationLine: 'underline',
-              textDecorationColor: color.gray60,
-              textDecorationStyle: 'solid',
-            }}>
-            정보수정 요청
-          </Text>
-        </SccTouchableOpacity>
+          <InfoUpdateText>정보수정 요청</InfoUpdateText>
+        </InfoUpdateButton>
       )}
-    </View>
+    </Container>
   );
 }
+
+const Container = styled.View`
+  height: 24px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const LeftSection = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+`;
+
+const UpvoteButton = styled(SccTouchableOpacity)`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const UpvoteText = styled.Text<{isUpvoted?: boolean}>`
+  font-family: ${font.pretendardMedium};
+  font-size: 13px;
+  line-height: 18px;
+  color: ${props => (props.isUpvoted ? color.gray80 : color.gray50)};
+`;
+
+const CountSection = styled.View`
+  gap: 10px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const CountText = styled.Text<{isUpvoted?: boolean}>`
+  font-family: ${font.pretendardMedium};
+  font-size: 13px;
+  line-height: 18px;
+  color: ${props => (props.isUpvoted ? color.gray80 : color.gray50)};
+`;
+
+const Divider = styled.View`
+  width: 1px;
+  height: 16px;
+  background-color: ${color.gray20};
+`;
+
+const AnalyticsButton = styled(SccTouchableOpacity)`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const ProfileImage = styled(Image)`
+  width: 24px;
+  height: 24px;
+`;
+
+const InfoUpdateButton = styled(SccTouchableOpacity)``;
+
+const InfoUpdateText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 13px;
+  line-height: 18px;
+  color: ${color.gray60};
+  text-decoration-line: underline;
+  text-decoration-color: ${color.gray60};
+  text-decoration-style: solid;
+`;
