@@ -67,18 +67,31 @@ export const DevTool: React.FC<DevToolProps> = () => {
     }),
   ).current;
 
+  // Track movement distance to distinguish tap from drag
+  const moveDistance = useRef(0);
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
+        moveDistance.current = 0;
         pan.extractOffset();
       },
-      onPanResponderMove: Animated.event([null, {dx: pan.x, dy: pan.y}], {
-        useNativeDriver: false,
-      }),
+      onPanResponderMove: (_, gestureState) => {
+        moveDistance.current = Math.sqrt(
+          gestureState.dx * gestureState.dx + gestureState.dy * gestureState.dy,
+        );
+        Animated.event([null, {dx: pan.x, dy: pan.y}], {
+          useNativeDriver: false,
+        })(_, gestureState);
+      },
       onPanResponderRelease: () => {
         pan.flattenOffset();
+        // If movement is less than 10px, treat as tap
+        if (moveDistance.current < 10) {
+          toggleBottomSheet();
+        }
       },
     }),
   ).current;
@@ -131,16 +144,13 @@ export const DevTool: React.FC<DevToolProps> = () => {
       <Animated.View
         style={[
           styles.floatingButton,
+          styles.floatingButtonTouchable,
           {
             transform: pan.getTranslateTransform(),
           },
         ]}
         {...panResponder.panHandlers}>
-        <TouchableOpacity
-          onPress={toggleBottomSheet}
-          style={styles.floatingButtonTouchable}>
-          <Text style={styles.floatingButtonText}>DEV</Text>
-        </TouchableOpacity>
+        <Text style={styles.floatingButtonText}>DEV</Text>
       </Animated.View>
 
       {/* Settings Modal */}
