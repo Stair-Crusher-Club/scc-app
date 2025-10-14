@@ -24,6 +24,7 @@ export default function AchievementsSection({
         <S.Text>총 </S.Text>
         <S.Total>{totalNumberOfPlaces.toLocaleString()}</S.Total>
         <S.Text>
+          {' '}
           개 {type === 'conquer' && '장소 정복'}
           {type === 'review' && '리뷰 작성'}중
         </S.Text>
