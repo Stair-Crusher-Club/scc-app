@@ -7,7 +7,6 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
-import {View} from 'react-native';
 import styled from 'styled-components/native';
 import {tabItems} from '../ReviewHistoryScreen/constants';
 import ReviewUpvoteItem from './components/ReviewUpvoteItem';
@@ -59,12 +58,9 @@ export default function ReviewUpVoteScreen() {
         }
         renderItem={({item}) => (
           <>
-            <View
-              style={{
-                padding: 20,
-              }}>
+            <ItemContainer>
               <ReviewUpvoteItem item={item} />
-            </View>
+            </ItemContainer>
             <Divider />
           </>
         )}
@@ -80,6 +76,10 @@ export default function ReviewUpVoteScreen() {
     </ScreenLayout>
   );
 }
+
+const ItemContainer = styled.View`
+  padding: 20px;
+`;
 
 const Divider = styled.View`
   height: 1px;

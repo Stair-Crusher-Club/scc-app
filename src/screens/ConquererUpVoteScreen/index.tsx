@@ -4,7 +4,6 @@ import {color} from '@/constant/color';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import {View} from 'react-native';
 import styled from 'styled-components/native';
 import UpvotedPlaceItem from './components/UpvotedPlaceItem';
 
@@ -31,22 +30,14 @@ export default function ConquererUpvoteScreen() {
 
   return (
     <ScreenLayout isHeaderVisible={false}>
-      <View
-        style={{
-          borderBottomWidth: 1,
-          borderBottomColor: color.gray20,
-        }}
-      />
+      <HeaderBorder />
       <FlashList
         data={places}
         renderItem={({item}) => (
           <>
-            <View
-              style={{
-                padding: 20,
-              }}>
+            <ItemContainer>
               <UpvotedPlaceItem item={item} />
-            </View>
+            </ItemContainer>
             <Divider />
           </>
         )}
@@ -62,6 +53,15 @@ export default function ConquererUpvoteScreen() {
     </ScreenLayout>
   );
 }
+
+const HeaderBorder = styled.View`
+  border-bottom-width: 1px;
+  border-bottom-color: ${color.gray20};
+`;
+
+const ItemContainer = styled.View`
+  padding: 20px;
+`;
 
 const Divider = styled.View`
   height: 1px;

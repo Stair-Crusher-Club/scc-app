@@ -52,58 +52,24 @@ export default function UpvoteAnalyticsScreen({
               {Array(5)
                 .fill(0)
                 .map((_, index) => (
-                  <View
-                    key={`user-skelton-${index}`}
-                    style={{
-                      padding: 20,
-                      gap: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <Image
+                  <SkeletonContainer key={`user-skeleton-${index}`}>
+                    <ProfileImage
                       source={require('@/assets/img/img_profile_big.png')}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
                     />
-                    <Skeleton
-                      style={{
-                        width: 100,
-                        height: 24,
-                        borderRadius: 8,
-                      }}
-                    />
-                  </View>
+                    <SkeletonWrapper />
+                  </SkeletonContainer>
                 ))}
             </View>
           ) : (
             <FlashList
               data={data?.upvotedUsers}
               renderItem={({item}) => (
-                <View
-                  style={{
-                    padding: 20,
-                    gap: 12,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <Image
+                <UserItemContainer>
+                  <ProfileImage
                     source={require('@/assets/img/img_profile_big.png')}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
                   />
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      lineHeight: 22,
-                      fontFamily: font.pretendardMedium,
-                    }}>
-                    {item.nickname}
-                  </Text>
-                </View>
+                  <UserNickname>{item.nickname}</UserNickname>
+                </UserItemContainer>
               )}
               ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
             />
@@ -114,62 +80,21 @@ export default function UpvoteAnalyticsScreen({
             data={data?.upvotedUserStatistics}
             renderItem={({item, index}) => (
               <>
-                <View
-                  style={{
-                    gap: 12,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: 20,
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      lineHeight: 22,
-                      fontFamily: font.pretendardMedium,
-                    }}>
+                <StatsItemContainer>
+                  <StatsLabel>
                     {MOBILITY_TOOL_LABELS[item.mobilityTool]}
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        lineHeight: 20,
-                        fontFamily: font.pretendardMedium,
-                        color: color.gray60,
-                      }}>
-                      {item.percentage}%
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        lineHeight: 18,
-                        fontFamily: font.pretendardRegular,
-                        color: color.gray40,
-                      }}>
-                      ({item.totalCount}명)
-                    </Text>
-                  </View>
-                </View>
+                  </StatsLabel>
+                  <StatsValueContainer>
+                    <StatsPercentage>{item.percentage}%</StatsPercentage>
+                    <StatsCount>({item.totalCount}명)</StatsCount>
+                  </StatsValueContainer>
+                </StatsItemContainer>
 
                 {data?.upvotedUserStatistics &&
                   index !== data?.upvotedUserStatistics?.length - 1 && (
-                    <View
-                      style={{
-                        paddingHorizontal: 20,
-                      }}>
-                      <View
-                        style={{
-                          height: 1,
-                          backgroundColor: color.gray20,
-                        }}
-                      />
-                    </View>
+                    <DividerContainer>
+                      <Divider />
+                    </DividerContainer>
                   )}
               </>
             )}
@@ -183,4 +108,78 @@ export default function UpvoteAnalyticsScreen({
 
 const ContentContainer = styled.View`
   flex: 1;
+`;
+
+const SkeletonContainer = styled.View`
+  padding: 20px;
+  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const ProfileImage = styled(Image)`
+  width: 32px;
+  height: 32px;
+`;
+
+const SkeletonWrapper = styled(Skeleton)`
+  width: 100px;
+  height: 24px;
+  border-radius: 8px;
+`;
+
+const UserItemContainer = styled.View`
+  padding: 20px;
+  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const UserNickname = styled(Text)`
+  font-size: 15px;
+  line-height: 22px;
+  font-family: ${font.pretendardMedium};
+`;
+
+const StatsItemContainer = styled.View`
+  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+`;
+
+const StatsLabel = styled(Text)`
+  font-size: 15px;
+  line-height: 22px;
+  font-family: ${font.pretendardMedium};
+`;
+
+const StatsValueContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const StatsPercentage = styled(Text)`
+  font-size: 14px;
+  line-height: 20px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.gray60};
+`;
+
+const StatsCount = styled(Text)`
+  font-size: 13px;
+  line-height: 18px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray40};
+`;
+
+const DividerContainer = styled.View`
+  padding-horizontal: 20px;
+`;
+
+const Divider = styled.View`
+  height: 1px;
+  background-color: ${color.gray20};
 `;
