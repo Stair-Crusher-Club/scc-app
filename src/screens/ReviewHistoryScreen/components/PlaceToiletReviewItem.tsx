@@ -1,6 +1,6 @@
 import React from 'react';
 
-import PlaceToiletReviewItem from '@/components/PlaceToiletReviewItem';
+import ToiletReviewItem from '@/components/ToiletReviewItem';
 import {ToiletReviewListItemDto} from '@/generated-sources/openapi';
 
 export default function ReviewHistoryPlaceToiletReviewItem({
@@ -11,10 +11,6 @@ export default function ReviewHistoryPlaceToiletReviewItem({
   review: ToiletReviewListItemDto;
 }) {
   return (
-    <PlaceToiletReviewItem
-      placeId={placeId}
-      review={review}
-      variant="history"
-    />
+    <ToiletReviewItem placeId={placeId} review={review} variant="history" />
   );
 }

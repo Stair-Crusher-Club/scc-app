@@ -1,6 +1,6 @@
 import React from 'react';
 
-import PlaceToiletReviewItem from '@/components/PlaceToiletReviewItem';
+import ToiletReviewItem from '@/components/ToiletReviewItem';
 import {ToiletReviewDto} from '@/generated-sources/openapi';
 import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 
@@ -14,7 +14,7 @@ export default function PlaceDetailPlaceToiletReviewItem({
   updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }) {
   return (
-    <PlaceToiletReviewItem
+    <ToiletReviewItem
       placeId={placeId}
       review={review}
       updateUpvoteStatus={updateUpvoteStatus}

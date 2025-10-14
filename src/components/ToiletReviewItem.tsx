@@ -45,6 +45,10 @@ export default function PlaceToiletReviewItem({
   const isDetailReview = variant === 'detail';
   const isHistoryReview = variant === 'history';
 
+  const targetId = isDetailReview
+    ? (review as ToiletReviewDto).id
+    : (review as ToiletReviewListItemDto).toiletReviewId;
+
   const deleteToiletReview = useDeleteReview({
     type: 'toilet',
     reviewId: isDetailReview
@@ -56,9 +60,7 @@ export default function PlaceToiletReviewItem({
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted: review.isUpvoted,
     initialTotalCount: review.totalUpvoteCount,
-    targetId: isDetailReview
-      ? (review as ToiletReviewDto).id
-      : (review as ToiletReviewListItemDto).toiletReviewId,
+    targetId,
     targetType: 'TOILET_REVIEW',
     placeId,
   });
@@ -213,9 +215,7 @@ export default function PlaceToiletReviewItem({
         onPressAnalytics={() =>
           navigation.navigate('UpvoteAnalytics', {
             targetType: 'TOILET_REVIEW',
-            targetId: isDetailReview
-              ? (review as ToiletReviewDto).id
-              : (review as ToiletReviewListItemDto).toiletReviewId,
+            targetId,
           })
         }
       />
