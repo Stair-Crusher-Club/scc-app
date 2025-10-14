@@ -7,14 +7,20 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import Toast from 'react-native-root-toast';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import Toast from 'react-native-root-toast';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import ScrollNavigation from '@/components/StickyScrollNavigation';
-import {Building, Place} from '@/generated-sources/openapi';
+import {
+  Building,
+  Place,
+  ReportAccessibilityPostRequest,
+  ReportTargetTypeDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
@@ -22,11 +28,13 @@ import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sectio
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import ToastUtils from '@/utils/ToastUtils';
 import {useIsFocused} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
+import PlaceDetailNegativeFeedbackBottomSheet from './modals/PlaceDetailNegativeFeedbackBottomSheet';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from './modals/RequireBuildingAccessibilityBottomSheet';
 import PlaceDetailAppBar from './sections/PlaceDetailAppBar';
@@ -60,6 +68,14 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
+
+  const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
+    ['PlaceDetail', 'ReportAccessibility'],
+    async params => {
+      await api.reportAccessibilityPost(params);
+      ToastUtils.show('신고가 접수되었습니다.');
+    },
+  );
 
   const isFocused = useIsFocused();
 
@@ -222,6 +238,15 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     }));
   }, []);
 
+  const [reportTargetType, setReportTargetType] =
+    useState<ReportTargetTypeDto | null>(null);
+
+  const showNegativeFeedbackBottomSheet = (type: ReportTargetTypeDto) => {
+    checkAuth(() => {
+      setReportTargetType(type);
+    });
+  };
+
   if (isLoading || !place || !building) {
     return null;
   }
@@ -252,6 +277,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             }
             navigation.navigate('PlaceForm', {place, building});
           }}
+          showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
         />
       ),
       order: 1,
@@ -266,6 +292,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           place={place}
           building={building}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+          showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
         />
       ),
       order: isFirstFloor ? 7 : 2, // 1층이면 맨 마지막, 아니면 입구 다음
@@ -441,6 +468,31 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
       </ScreenLayout>
+
+      {accessibilityPost?.placeAccessibility?.placeId && (
+        <PlaceDetailNegativeFeedbackBottomSheet
+          isVisible={reportTargetType !== null}
+          placeId={accessibilityPost.placeAccessibility.placeId}
+          onPressCloseButton={() => {
+            setReportTargetType(null);
+          }}
+          onPressSubmitButton={async (_placeId, reason, text) => {
+            if (!reportTargetType) {
+              return;
+            }
+
+            const targetType = reportTargetType;
+            setReportTargetType(null);
+
+            reportAccessibilityMutation.mutate({
+              placeId: _placeId,
+              reason,
+              targetType,
+              detail: text,
+            });
+          }}
+        />
+      )}
     </LogParamsProvider>
   );
 };

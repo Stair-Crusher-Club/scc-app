@@ -8,18 +8,21 @@ import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceDetailCommentSection from '@/screens/PlaceDetailScreen/components/PlaceDetailCommentSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import ImageList from '../components/PlaceDetailImageList';
 import PlaceDoorInfo from '../components/PlaceDoorInfo';
 import PlaceEntranceStepInfo from '../components/PlaceEntranceStepInfo';
 import PlaceFloorInfo from '../components/PlaceFloorInfo';
+import {UserInteractionHandlers} from '../types';
 import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
-interface Props {
+interface Props extends UserInteractionHandlers {
   accessibility?: AccessibilityInfoDto;
   place: Place;
   isAccessibilityRegistrable?: boolean;
@@ -31,9 +34,18 @@ export default function PlaceDetailEntranceSection({
   place,
   isAccessibilityRegistrable,
   onRegister,
+  showNegativeFeedbackBottomSheet,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: accessibility?.placeAccessibility?.isUpvoted ?? false,
+    initialTotalCount: accessibility?.placeAccessibility?.totalUpvoteCount,
+    targetId: accessibility?.placeAccessibility?.id,
+    targetType: 'PLACE_ACCESSIBILITY',
+    placeId: place.id,
+  });
 
   if (!accessibility?.placeAccessibility) {
     return (
@@ -69,6 +81,20 @@ export default function PlaceDetailEntranceSection({
       <PlaceFloorInfo accessibility={accessibility} />
       <PlaceEntranceStepInfo accessibility={accessibility} />
       <PlaceDoorInfo accessibility={accessibility} />
+      <FeedbackButton
+        isUpvoted={isUpvoted}
+        total={totalUpvoteCount}
+        onPressUpvote={toggleUpvote}
+        onPressInfoUpdateRequest={() =>
+          showNegativeFeedbackBottomSheet?.('PLACE_ACCESSIBILITY')
+        }
+        onPressAnalytics={() =>
+          navigation.navigate('UpvoteAnalytics', {
+            targetType: 'PLACE_ACCESSIBILITY',
+            targetId: accessibility?.placeAccessibility?.id || '',
+          })
+        }
+      />
       <Divider />
       <View>
         <PlaceDetailCommentSection

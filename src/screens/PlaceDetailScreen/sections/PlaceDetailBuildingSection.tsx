@@ -12,18 +12,21 @@ import {
   Building,
   Place,
 } from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import FeedbackButton from '@/components/FeedbackButton';
 import BuildingDoorInfo from '../components/BuildingDoorInfo';
 import BuildingElevatorInfo from '../components/BuildingElevatorInfo';
 import BuildingEntranceStepInfo from '../components/BuildingEntranceStepInfo';
 import PlaceDetailCommentSection from '../components/PlaceDetailCommentSection';
 import ImageList from '../components/PlaceDetailImageList';
+import {UserInteractionHandlers} from '../types';
 import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
-interface Props {
+interface Props extends UserInteractionHandlers {
   accessibility?: AccessibilityInfoDto;
   place: Place;
   building: Building;
@@ -35,9 +38,18 @@ export default function PlaceDetailBuildingSection({
   place,
   building,
   isAccessibilityRegistrable,
+  showNegativeFeedbackBottomSheet,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: accessibility?.buildingAccessibility?.isUpvoted ?? false,
+    initialTotalCount: accessibility?.buildingAccessibility?.totalUpvoteCount,
+    targetId: accessibility?.buildingAccessibility?.id,
+    targetType: 'BUILDING_ACCESSIBILITY',
+    placeId: place.id,
+  });
 
   if (!accessibility?.buildingAccessibility) {
     return (
@@ -83,6 +95,20 @@ export default function PlaceDetailBuildingSection({
         <BuildingEntranceStepInfo accessibility={accessibility} />
         <BuildingElevatorInfo accessibility={accessibility} />
         <BuildingDoorInfo accessibility={accessibility} />
+        <FeedbackButton
+          isUpvoted={isUpvoted}
+          total={totalUpvoteCount}
+          onPressUpvote={toggleUpvote}
+          onPressInfoUpdateRequest={() =>
+            showNegativeFeedbackBottomSheet?.('BUILDING_ACCESSIBILITY')
+          }
+          onPressAnalytics={() =>
+            navigation.navigate('UpvoteAnalytics', {
+              targetType: 'BUILDING_ACCESSIBILITY',
+              targetId: accessibility?.buildingAccessibility?.id || '',
+            })
+          }
+        />
         <Divider />
         <View>
           <PlaceDetailCommentSection

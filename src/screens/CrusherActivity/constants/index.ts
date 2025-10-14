@@ -3,6 +3,18 @@ import {
   CrusherClubQuestCompleteStampTypeDto,
 } from '@/generated-sources/openapi';
 import {ImageSourcePropType} from 'react-native';
+import {CrusherActivityTab} from '../types';
+
+export const tabItems = [
+  {
+    value: 'current' as CrusherActivityTab,
+    label: '현재시즌',
+  },
+  {
+    value: 'history' as CrusherActivityTab,
+    label: '히스토리',
+  },
+];
 
 export type Asset = {
   label: string;

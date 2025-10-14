@@ -45,7 +45,7 @@ export const Dashboard = styled.View({
   backgroundColor: color.white,
   borderRadius: 20,
   borderWidth: 2,
-  borderColor: color.gray30,
+  borderColor: color.gray20,
 });
 
 export const Item = styled.View({
