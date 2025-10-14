@@ -15,7 +15,7 @@ import {useQuery} from '@tanstack/react-query';
 import {Image, Text, View} from 'react-native';
 import styled from 'styled-components/native';
 import {INITIAL_TAB, tabItems} from './constants';
-import {TabType} from './types';
+import type {TabType} from './types';
 
 export interface UpvoteAnalyticsScreenProps {
   targetId: string;

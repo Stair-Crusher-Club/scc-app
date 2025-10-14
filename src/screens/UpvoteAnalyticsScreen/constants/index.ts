@@ -1,4 +1,4 @@
-import {TabType} from '../types';
+import type {TabType} from '../types';
 
 export const tabItems = [
   {value: 'users' as TabType, label: '사용자'},
