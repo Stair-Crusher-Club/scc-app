@@ -1,4 +1,5 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useEffect, useState} from 'react';
 
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
@@ -29,6 +30,24 @@ export function useUpvoteToggle({
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
 
+  const [isUpvoted, setIsUpvoted] = useState<boolean>(initialIsUpvoted);
+  const [totalUpvoteCount, setTotalUpvoteCount] = useState<number>(
+    initialTotalCount ?? 0,
+  );
+
+  useEffect(() => {
+    setIsUpvoted(initialIsUpvoted);
+  }, [initialIsUpvoted]);
+
+  useEffect(() => {
+    setTotalUpvoteCount(initialTotalCount ?? 0);
+  }, [initialTotalCount]);
+
+  useEffect(() => {
+    setIsUpvoted(initialIsUpvoted);
+    setTotalUpvoteCount(initialTotalCount ?? 0);
+  }, [targetId, initialIsUpvoted, initialTotalCount]);
+
   const {mutate, isPending} = useMutation({
     mutationFn: async (currentIsUpvoted: boolean) => {
       if (!targetId) throw new Error('targetId is required');
@@ -44,6 +63,10 @@ export function useUpvoteToggle({
           targetType,
         });
       }
+    },
+    onMutate: async wasUpvoted => {
+      setIsUpvoted(!wasUpvoted);
+      setTotalUpvoteCount(prev => Math.max(0, prev + (wasUpvoted ? -1 : 1)));
     },
     onSuccess: () => {
       ToastUtils.show('좋은 의견 감사합니다!');
@@ -93,20 +116,24 @@ export function useUpvoteToggle({
         });
       }
     },
-    onError: error => {
+    onError: (error, wasUpvoted) => {
+      setIsUpvoted(wasUpvoted);
+      setTotalUpvoteCount(prev => Math.max(0, prev + (wasUpvoted ? 1 : -1)));
       ToastUtils.showOnApiError(error);
     },
   });
 
   const toggleUpvote = () => {
-    if (isPending || !targetId) return;
+    if (isPending || !targetId) {
+      return;
+    }
 
-    mutate(initialIsUpvoted);
+    mutate(isUpvoted);
   };
 
   return {
-    isUpvoted: initialIsUpvoted,
-    totalUpvoteCount: initialTotalCount,
+    isUpvoted,
+    totalUpvoteCount,
     toggleUpvote,
   };
 }
