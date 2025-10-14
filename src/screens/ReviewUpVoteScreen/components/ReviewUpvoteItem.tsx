@@ -14,7 +14,7 @@ interface ItemProps {
   item: PlaceReviewListItemDto | ToiletReviewListItemDto;
 }
 
-export default function Item({item}: ItemProps) {
+export default function ReviewUpvoteItem({item}: ItemProps) {
   const navigation = useNavigation();
 
   const isPlaceReview = 'placeReviewId' in item;

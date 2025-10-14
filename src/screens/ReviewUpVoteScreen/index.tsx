@@ -10,7 +10,7 @@ import {useState} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 import {tabItems} from '../ReviewHistoryScreen/constants';
-import Item from './components/Item';
+import ReviewUpvoteItem from './components/ReviewUpvoteItem';
 
 export default function ReviewUpVoteScreen() {
   const {api} = useAppComponents();
@@ -63,7 +63,7 @@ export default function ReviewUpVoteScreen() {
               style={{
                 padding: 20,
               }}>
-              <Item item={item} />
+              <ReviewUpvoteItem item={item} />
             </View>
             <Divider />
           </>

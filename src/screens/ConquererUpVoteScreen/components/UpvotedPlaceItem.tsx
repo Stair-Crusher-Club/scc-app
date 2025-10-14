@@ -11,7 +11,7 @@ interface ItemProps {
   item: UpvotedPlaceDto;
 }
 
-export default function Item({item}: ItemProps) {
+export default function UpvotedPlaceItem({item}: ItemProps) {
   const navigation = useNavigation();
 
   const targetType = item.accessibilityType!!;

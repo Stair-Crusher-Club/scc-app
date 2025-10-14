@@ -6,7 +6,7 @@ import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
-import Item from './components/Item';
+import UpvotedPlaceItem from './components/UpvotedPlaceItem';
 
 export default function ConquererUpvoteScreen() {
   const {api} = useAppComponents();
@@ -45,7 +45,7 @@ export default function ConquererUpvoteScreen() {
               style={{
                 padding: 20,
               }}>
-              <Item item={item} />
+              <UpvotedPlaceItem item={item} />
             </View>
             <Divider />
           </>
