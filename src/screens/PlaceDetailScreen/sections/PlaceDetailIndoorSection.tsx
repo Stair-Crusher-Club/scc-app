@@ -7,19 +7,13 @@ import {PlaceReviewDto} from '@/generated-sources/openapi';
 import PlaceIndoorInfo from '@/screens/PlaceDetailScreen/components/PlaceIndoorInfo';
 import PlaceReviewSummaryInfo from '@/screens/PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '@/screens/PlaceDetailScreen/components/PlaceVisitReviewInfo';
-import {UpdateUpvoteStatusParams} from '@/screens/PlaceDetailScreen/types';
 
 interface Props {
   reviews: PlaceReviewDto[];
   placeId: string;
-  updateUpvoteStatus?: (params: UpdateUpvoteStatusParams) => Promise<boolean>;
 }
 
-export default function PlaceDetailIndoorSection({
-  reviews,
-  placeId,
-  updateUpvoteStatus,
-}: Props) {
+export default function PlaceDetailIndoorSection({reviews, placeId}: Props) {
   if (reviews.length === 0) {
     return null;
   }
@@ -36,11 +30,7 @@ export default function PlaceDetailIndoorSection({
       <Divider />
       <PlaceReviewSummaryInfo reviews={reviews} placeId={placeId} />
       <Divider />
-      <PlaceVisitReviewInfo
-        reviews={reviews}
-        placeId={placeId}
-        updateUpvoteStatus={updateUpvoteStatus}
-      />
+      <PlaceVisitReviewInfo reviews={reviews} placeId={placeId} />
     </View>
   );
 }
