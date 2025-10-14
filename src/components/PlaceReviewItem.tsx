@@ -47,20 +47,20 @@ export default function PlaceReviewItem({
   const isDetailReview = variant === 'detail';
   const isHistoryReview = variant === 'history';
 
+  const targetId = isDetailReview
+    ? (review as PlaceReviewDto).id
+    : (review as PlaceReviewListItemDto).placeReviewId;
+
   const deletePlaceReview = useDeleteReview({
     type: 'place',
-    reviewId: isDetailReview
-      ? (review as PlaceReviewDto).id
-      : (review as PlaceReviewListItemDto).placeReviewId,
+    reviewId: targetId,
     placeId,
   });
 
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted: review.isUpvoted,
     initialTotalCount: review.totalUpvoteCount,
-    targetId: isDetailReview
-      ? (review as PlaceReviewDto).id
-      : (review as PlaceReviewListItemDto).placeReviewId,
+    targetId,
     targetType: 'PLACE_REVIEW',
     placeId,
   });
@@ -192,9 +192,7 @@ export default function PlaceReviewItem({
         onPressAnalytics={() =>
           navigation.navigate('UpvoteAnalytics', {
             targetType: 'PLACE_REVIEW',
-            targetId: isDetailReview
-              ? (review as PlaceReviewDto).id
-              : (review as PlaceReviewListItemDto).placeReviewId,
+            targetId,
           })
         }
       />
