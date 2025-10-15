@@ -2,8 +2,10 @@ import {SccButton} from '@/components/atoms';
 import {SccTouchableWithoutFeedback} from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import Logger from '@/logging/Logger';
+import LottieView from 'lottie-react-native';
 import React from 'react';
-import {Modal} from 'react-native';
+import {Modal, View, useWindowDimensions} from 'react-native';
 import styled from 'styled-components/native';
 
 interface ClubQuestCheckInCompleteModalProps {
@@ -15,6 +17,8 @@ export default function ClubQuestCheckInCompleteModal({
   visible,
   onClose,
 }: ClubQuestCheckInCompleteModalProps) {
+  const {width: viewportWidth} = useWindowDimensions();
+
   return (
     <Modal
       visible={visible}
@@ -26,15 +30,44 @@ export default function ClubQuestCheckInCompleteModal({
         onPress={onClose}>
         <Backdrop>
           <Center>
-            <CompletionImage />
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <LottieView
+                onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
+                source={require('@/assets/animations/crusher_activity_welcome.lottie')}
+                autoPlay
+                loop
+                style={{
+                  width: viewportWidth * 0.65,
+                  height: viewportWidth * 0.20,
+                  bottom: viewportWidth * -0.10,
+                }}
+              />
+              <LottieView
+                onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
+                source={require('@/assets/animations/conquer_activity_checkin.json')}
+                autoPlay
+                loop
+                style={{
+                  width: viewportWidth * 0.70,
+                  height: viewportWidth * 0.70,
+                }}
+              />
+            </View>
           </Center>
 
           <TitleText>
-            {`정복활동 출석체크가 완료되었습니다.\n퀘스트 클리어까지 화이팅!`}
+            <TitleTextBold>정복활동 출석체크</TitleTextBold>가 완료되었습니다.
+            {'\n'}
+            퀘스트 클리어까지 화이팅!
           </TitleText>
 
           <ButtonContainer>
             <SccButton
+              style={{height: 58}}
               text="확인"
               textColor="white"
               fontFamily={font.pretendardBold}
@@ -57,26 +90,27 @@ const Backdrop = styled.View({
 const Center = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
-  paddingBottom: 92,
-});
-
-const CompletionImage = styled.Image.attrs({
-  source: require('@/assets/img/quest_completion.png'),
-})({
-  width: 271,
-  height: 77,
+  paddingBottom: 12,
 });
 
 const TitleText = styled.Text({
-  marginBottom: 20,
+  marginBottom: 0,
   textAlign: 'center',
   color: color.white,
   fontFamily: font.pretendardRegular,
-  fontSize: 16,
-  lineHeight: 24,
+  fontSize: 20,
+  lineHeight: 28, // 140%
+});
+
+const TitleTextBold = styled.Text({
+  color: color.white,
+  fontFamily: font.pretendardBold,
+  fontSize: 20,
+  lineHeight: 28, // 140%
 });
 
 const ButtonContainer = styled.View({
+  marginTop: 40,
   padding: 20,
   gap: 20,
 });

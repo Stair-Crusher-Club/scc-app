@@ -3,9 +3,10 @@ import {SccButton} from '@/components/atoms';
 import SccTouchableWithoutFeedback from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import Logger from '@/logging/Logger';
 import LottieView from 'lottie-react-native';
 import React, {useEffect, useState} from 'react';
-import {Modal, ModalProps, View} from 'react-native';
+import {Modal, ModalProps, View, useWindowDimensions} from 'react-native';
 import styled from 'styled-components/native';
 import WelcomeAnimation from './WelcomeAnimation';
 
@@ -14,6 +15,7 @@ export default function WelcomeModal({
   ...props
 }: ModalProps) {
   const {userInfo} = useMe();
+  const {width: viewportWidth} = useWindowDimensions();
   const [visible, setVisible] = useState(_visible);
 
   useEffect(() => {
@@ -42,12 +44,14 @@ export default function WelcomeModal({
                 alignItems: 'center',
               }}>
               <LottieView
+                onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
                 source={require('@/assets/animations/crusher_activity_welcome.lottie')}
                 autoPlay
                 loop
                 style={{
-                  width: 225,
-                  height: 60,
+                  width: viewportWidth * 0.65,
+                  height: viewportWidth * 0.20,
+                  bottom: viewportWidth * -0.10,
                 }}
               />
               <WelcomeAnimation />
