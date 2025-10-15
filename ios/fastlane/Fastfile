@@ -159,7 +159,7 @@ platform :ios do
 
   desc "Make IPA files for AppStore and Firebase Distribution. After this, you can upload the ipa files to Firebase Distribution and AppStore Connect using `fastlane ios firebase` or `fastlane ios itc`"
   lane :export do |options|
-    should_push = UI.confirm("Do you want to add commit and tag and push to GitHub?")
+    should_push = UI.confirm("Do you want to add commit and tag and push to GitHub? (Yes only when production release)")
     sh("rm -rf #{File.expand_path("../build/#{options[:scheme]}")}")
     increment_version_number(
       version_number: options[:version]
