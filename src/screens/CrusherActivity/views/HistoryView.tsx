@@ -46,27 +46,17 @@ export default function HistoryView({
 
   return (
     <ScrollView>
-      {crusherActivityHistories.map((history, index) => {
-        if (
-          !history.title ||
-          !history.startAt ||
-          !history.endAt ||
-          !history.historyType
-        ) {
-          return null;
-        }
-        return (
-          <HistoryItem
-            key={index}
-            title={history.title}
-            startAt={history.startAt}
-            endAt={history.endAt}
-            historyType={history.historyType}
-            isCurrentCrew={isCurrentCrew}
-            isFirst={index === 0}
-          />
-        );
-      })}
+      {crusherActivityHistories.map((history, index) => (
+        <HistoryItem
+          key={index}
+          title={history.title}
+          startAt={history.startAt}
+          endAt={history.endAt}
+          historyType={history.historyType}
+          isCurrentCrew={isCurrentCrew}
+          isFirst={index === 0}
+        />
+      ))}
     </ScrollView>
   );
 }

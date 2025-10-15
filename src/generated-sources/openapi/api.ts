@@ -917,25 +917,25 @@ export interface CrusherActivityHistorySummaryDto {
      * @type {string}
      * @memberof CrusherActivityHistorySummaryDto
      */
-    'title'?: string;
+    'title': string;
     /**
      * 
      * @type {EpochMillisTimestamp}
      * @memberof CrusherActivityHistorySummaryDto
      */
-    'startAt'?: EpochMillisTimestamp;
+    'startAt': EpochMillisTimestamp;
     /**
      * 
      * @type {EpochMillisTimestamp}
      * @memberof CrusherActivityHistorySummaryDto
      */
-    'endAt'?: EpochMillisTimestamp;
+    'endAt': EpochMillisTimestamp;
     /**
      * 
      * @type {CrusherActivityHistorySummaryTypeDto}
      * @memberof CrusherActivityHistorySummaryDto
      */
-    'historyType'?: CrusherActivityHistorySummaryTypeDto;
+    'historyType': CrusherActivityHistorySummaryTypeDto;
 }
 /**
  * 
