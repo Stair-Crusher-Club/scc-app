@@ -6,7 +6,7 @@ import type {
   EpochMillisTimestamp,
 } from '@/generated-sources/openapi';
 import React from 'react';
-import {Image, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 import styled from 'styled-components/native';
 import {formatDateRange} from '../utils/date';
 
