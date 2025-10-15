@@ -33,7 +33,7 @@ export default function HistoryItem({
   const isCrewType = historyType === 'CREW';
 
   const content = (
-    <Container showBorderTop={!!isFirst && !!isCurrentCrew}>
+    <Container showBorderTop={!!isFirst && !isCurrentCrew}>
       <ContentWrapper>
         <TextWrapper>
           <Title>
@@ -44,13 +44,6 @@ export default function HistoryItem({
           <DateText>{dateText}</DateText>
         </TextWrapper>
       </ContentWrapper>
-
-      {historyType === 'CONQUER_ACTIVITY_GUEST' && (
-        <BadgeIcon
-          source={require('@/assets/img/stamp/stamp_review_animated.png')}
-        />
-      )}
-
       {isCrewType && <ChevronIcon>&gt;</ChevronIcon>}
     </Container>
   );
@@ -102,11 +95,6 @@ const DateText = styled(Text)`
   font-family: ${font.pretendardRegular};
   line-height: 20px;
   color: ${color.gray50};
-`;
-
-const BadgeIcon = styled(Image)`
-  width: 52px;
-  height: 52px;
 `;
 
 const ChevronIcon = styled(Text)`
