@@ -21,6 +21,7 @@ interface AppPushOpenParams {
   body: string;
   campaignId?: string;
   campaignType?: string;
+  serverPushLogId?: string;
   extraParams?: Record<string, any>;
 }
 
@@ -135,6 +136,7 @@ const Logger = {
       push_body: params.body,
       push_campaign_id: params.campaignId,
       push_campaign_type: params.campaignType,
+      server_push_notification_log_id: params.serverPushLogId,
       user_id: currUserPropertiesForDebugging.userId,
     };
     trackEvent('app_push_open', eventParams);
