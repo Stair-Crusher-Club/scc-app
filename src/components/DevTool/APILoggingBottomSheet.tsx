@@ -86,7 +86,7 @@ export const APILoggingBottomSheet: React.FC<
       const textToCopy = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
       await Clipboard.setString(textToCopy);
       Alert.alert('복사 완료', `${label}가 클립보드에 복사되었습니다.`);
-    } catch (error) {
+    } catch (e) {
       Alert.alert('복사 실패', '클립보드에 복사하는데 실패했습니다.');
     }
   };
