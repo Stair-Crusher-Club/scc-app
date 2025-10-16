@@ -44,7 +44,7 @@ export default function WelcomeModal({
                 alignItems: 'center',
               }}>
               <LottieView
-                onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
+                onAnimationFailure={(error) => {Logger.logError(new Error(`Lottie animation error [crusher_activity_welcome.lottie]: ${error}`))}}
                 source={require('@/assets/animations/crusher_activity_welcome.lottie')}
                 autoPlay
                 loop
