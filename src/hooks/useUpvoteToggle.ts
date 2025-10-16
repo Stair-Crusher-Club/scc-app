@@ -3,7 +3,6 @@ import {useEffect, useState} from 'react';
 
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
-import {useCheckAuth} from '@/utils/checkAuth';
 
 import useAppComponents from './useAppComponents';
 
@@ -30,7 +29,6 @@ export function useUpvoteToggle({
 }: UseUpvoteToggleParams): UseUpvoteToggleReturn {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
-  const checkAuth = useCheckAuth();
 
   const [isUpvoted, setIsUpvoted] = useState<boolean>(initialIsUpvoted);
   const [totalUpvoteCount, setTotalUpvoteCount] = useState<number>(
@@ -130,9 +128,7 @@ export function useUpvoteToggle({
       return;
     }
 
-    checkAuth(() => {
-      mutate(isUpvoted);
-    });
+    mutate(isUpvoted);
   };
 
   return {

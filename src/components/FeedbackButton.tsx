@@ -3,6 +3,7 @@ import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {useCheckAuth} from '@/utils/checkAuth';
 import {Image, Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
@@ -23,6 +24,8 @@ export default function FeedbackButton({
   onPressInfoUpdateRequest,
   onPressAnalytics,
 }: FeedbackButtonProps) {
+  const checkAuth = useCheckAuth();
+
   return (
     <Container>
       <LeftSection>
@@ -36,7 +39,7 @@ export default function FeedbackButton({
               });
               return;
             }
-            onPressUpvote?.();
+            checkAuth(() => onPressUpvote?.());
           }}>
           {isUpvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
           <UpvoteText isUpvoted={isUpvoted}>도움돼요</UpvoteText>
@@ -59,7 +62,7 @@ export default function FeedbackButton({
                 return;
               }
 
-              onPressAnalytics?.();
+              checkAuth(() => onPressAnalytics?.());
             }}>
             <ProfileImage source={require('@/assets/img/img_profile.png')} />
             <ChevronRightIcon />
