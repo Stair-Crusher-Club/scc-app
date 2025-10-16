@@ -98,7 +98,7 @@ export const MainNavigationScreens: {
   {
     name: 'Review/History',
     component: ReviewHistoryScreen,
-    options: {headerShown: true, headerTitle: '지금까지 내가 작성한 리뷰'},
+    options: {headerShown: true, headerTitle: '내가 작성한 리뷰'},
   },
   {
     name: 'Review/Upvote',
@@ -113,7 +113,7 @@ export const MainNavigationScreens: {
   {
     name: 'Conquerer/History',
     component: ConquererHistoryScreen,
-    options: {headerShown: true, headerTitle: '지금까지 내가 정복한 장소'},
+    options: {headerShown: true, headerTitle: '내가 정복한 장소'},
   },
   {
     name: 'Conquerer/Upvote',
