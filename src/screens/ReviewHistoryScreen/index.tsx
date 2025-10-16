@@ -14,7 +14,7 @@ import ReviewHistoryPlaceReviewItem from './components/PlaceReviewItem';
 import ReviewHistoryPlaceToiletReviewItem from './components/PlaceToiletReviewItem';
 import {tabItems} from './constants';
 
-// 지금까지 내가 작성한 리뷰
+// 내가 작성한 리뷰
 export default function ReviewHistoryScreen() {
   const {api} = useAppComponents();
   const [currentTab, setCurrentTab] =
@@ -51,11 +51,6 @@ export default function ReviewHistoryScreen() {
   return (
     <ScreenLayout isHeaderVisible={true}>
       <TabBar items={tabItems} current={currentTab} onChange={setCurrentTab} />
-      <AchievementsSection
-        type="review"
-        totalNumberOfPlaces={totalNumberOfReviews}
-      />
-
       <FlashList
         data={
           data?.pages.flatMap(page => {
@@ -107,6 +102,12 @@ export default function ReviewHistoryScreen() {
           }
         }}
         onEndReachedThreshold={0.5}
+        ListHeaderComponent={
+          <AchievementsSection
+            type="review"
+            totalNumberOfPlaces={totalNumberOfReviews}
+          />
+        }
         ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
       />
     </ScreenLayout>
