@@ -24,6 +24,7 @@ import useNavigation from '@/navigation/useNavigation';
 import UserMobilityLabel from '@/screens/PlaceDetailScreen/components/UserMobilityLabel';
 import {useDeleteReview} from '@/screens/PlaceDetailScreen/hooks/useDeleteReview';
 import DeleteBottomSheet from '@/screens/PlaceDetailScreen/modals/DeleteBottomSheet';
+import SccPressable from './SccPressable';
 
 type ReviewVariant = 'detail' | 'history';
 
@@ -69,7 +70,7 @@ export default function PlaceToiletReviewItem({
   const reviewText = review.comment;
   const reviewDate = dayjs(review.createdAt.value).format('YYYY.MM.DD');
 
-  const handleContainerPress = () => {
+  const handleLinkPress = () => {
     if (variant === 'history' && isHistoryReview) {
       navigation.navigate('PlaceDetail', {
         placeInfo: {
@@ -100,12 +101,16 @@ export default function PlaceToiletReviewItem({
 
     if (variant === 'history' && isHistoryReview) {
       return (
-        <HeaderLeft variant={variant}>
-          <PlaceName>{(review as ToiletReviewListItemDto).placeName}</PlaceName>
-          <PlaceAddress>
-            {(review as ToiletReviewListItemDto).placeAddress}
-          </PlaceAddress>
-        </HeaderLeft>
+        <SccPressable elementName="place_detail_link" onPress={handleLinkPress}>
+          <HeaderLeft variant={variant}>
+            <PlaceName>
+              {(review as ToiletReviewListItemDto).placeName}
+            </PlaceName>
+            <PlaceAddress>
+              {(review as ToiletReviewListItemDto).placeAddress}
+            </PlaceAddress>
+          </HeaderLeft>
+        </SccPressable>
       );
     }
 
@@ -113,9 +118,7 @@ export default function PlaceToiletReviewItem({
   };
 
   return (
-    <Container
-      as={variant === 'history' ? PressableContainer : ViewContainer}
-      onPress={variant === 'history' ? handleContainerPress : undefined}>
+    <Container>
       <HeaderRow variant={variant}>
         {renderHeader()}
         {review.isDeletable && (
@@ -235,16 +238,6 @@ export default function PlaceToiletReviewItem({
 
 // styled-components
 const Container = styled.View`
-  gap: 16px;
-  flex-direction: column;
-`;
-
-const PressableContainer = styled(SccTouchableOpacity)`
-  gap: 16px;
-  flex-direction: column;
-`;
-
-const ViewContainer = styled.View`
   gap: 16px;
   flex-direction: column;
 `;
