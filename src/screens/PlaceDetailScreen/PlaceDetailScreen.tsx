@@ -385,7 +385,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     {
       id: 'feedback',
       shouldRender: !!(
-        accessibilityPost && accessibilityPost?.placeAccessibility
+        accessibilityPost &&
+        (accessibilityPost?.placeAccessibility ||
+          accessibilityPost?.buildingAccessibility)
       ),
       component: accessibilityPost ? (
         <PlaceDetailFeedbackSection accessibility={accessibilityPost} />
