@@ -12,7 +12,6 @@ import {
 import SearchCategory from '@/screens/SearchScreen/components/SearchHeader/SearchCategory.tsx';
 import SearchFilterPreview from '@/screens/SearchScreen/components/SearchHeader/SearchFilterPreview.tsx';
 import SearchInputText from '@/screens/SearchScreen/components/SearchHeader/SearchInputText.tsx';
-import {useCheckAuth} from '@/utils/checkAuth';
 
 export default function SearchHeader({
   onQueryUpdate,
@@ -30,7 +29,6 @@ export default function SearchHeader({
 }) {
   const [viewState] = useAtom(viewStateAtom);
   const [searchQuery] = useAtom(searchQueryAtom);
-  const checkAuth = useCheckAuth();
   return (
     <Container>
       <SearchInputText
@@ -50,11 +48,9 @@ export default function SearchHeader({
         <View style={{paddingBottom: 8, paddingHorizontal: 12}}>
           <SearchCategory
             onPressKeyword={keyword =>
-              checkAuth(() =>
-                onQueryUpdate(
-                  {text: keyword, useCameraRegion: viewState.type === 'map'},
-                  {shouldRecordHistory: false, shouldAnimate: false},
-                ),
+              onQueryUpdate(
+                {text: keyword, useCameraRegion: viewState.type === 'map'},
+                {shouldRecordHistory: false, shouldAnimate: false},
               )
             }
           />
