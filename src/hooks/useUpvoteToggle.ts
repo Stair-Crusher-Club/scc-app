@@ -83,10 +83,12 @@ export function useUpvoteToggle({
           queryKey: ['PlaceDetail', placeId, 'Accessibility'],
         });
 
+        // 정복한 장소 > 도움이 돼요 리스트
         queryClient.invalidateQueries({
           queryKey: ['PlacesUpvoted'],
         });
 
+        // 정복한 장소 > 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: ['UpvotedForNumberOfItems'],
         });
@@ -97,14 +99,17 @@ export function useUpvoteToggle({
           queryKey: ['PlaceDetail', placeId, targetType],
         });
 
+        // 내 리뷰 > 내가 작성한 리뷰 리스트
         queryClient.invalidateQueries({
-          queryKey: ['ReviewList', targetType],
+          queryKey: ['MyReviews', targetType],
         });
 
+        // 내 리뷰 > 도움이 돼요 리스트
         queryClient.invalidateQueries({
           queryKey: ['ReviewsUpvoted', targetType],
         });
 
+        // 내 리뷰 > 내가 작성한 리뷰, 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: ['ReviewHistory', 'Upvote', targetType],
         });

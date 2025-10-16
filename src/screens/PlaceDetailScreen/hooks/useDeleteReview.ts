@@ -37,16 +37,18 @@ export function useDeleteReview({
         queryClient.invalidateQueries({
           queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.PlaceReview],
         });
+
+        // 내 리뷰 > 내가 작성한 리뷰 리스트
         queryClient.invalidateQueries({
-          queryKey: ['ReviewList', UpvoteTargetTypeDto.PlaceReview],
+          queryKey: ['MyReviews', UpvoteTargetTypeDto.PlaceReview],
         });
+
+        // 내 리뷰 > 도움이 돼요 리스트
         queryClient.invalidateQueries({
-          queryKey: [
-            'ReviewHistory',
-            'Review',
-            UpvoteTargetTypeDto.PlaceReview,
-          ],
+          queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.PlaceReview],
         });
+
+        // 내 리뷰 > 내가 작성한 리뷰, 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: [
             'ReviewHistory',
@@ -54,27 +56,23 @@ export function useDeleteReview({
             UpvoteTargetTypeDto.PlaceReview,
           ],
         });
-        queryClient.invalidateQueries({
-          queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.PlaceReview],
-        });
         ToastUtils.show('장소 리뷰를 삭제했습니다.');
       } else {
         queryClient.invalidateQueries({
           queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.ToiletReview],
         });
+
+        // 내 리뷰 > 내가 작성한 리뷰 리스트
+        queryClient.invalidateQueries({
+          queryKey: ['MyReviews', UpvoteTargetTypeDto.ToiletReview],
+        });
+
+        // 내 리뷰 > 도움이 돼요 리스트
         queryClient.invalidateQueries({
           queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.ToiletReview],
         });
-        queryClient.invalidateQueries({
-          queryKey: ['ReviewList', UpvoteTargetTypeDto.ToiletReview],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [
-            'ReviewHistory',
-            'Review',
-            UpvoteTargetTypeDto.ToiletReview,
-          ],
-        });
+
+        // 내 리뷰 > 내가 작성한 리뷰, 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: [
             'ReviewHistory',
@@ -84,6 +82,8 @@ export function useDeleteReview({
         });
         ToastUtils.show('화장실 리뷰를 삭제했습니다.');
       }
+
+      // 내 리뷰 > 리뷰 리포트 통계
       queryClient.invalidateQueries({
         queryKey: ['ReviewReport'],
       });

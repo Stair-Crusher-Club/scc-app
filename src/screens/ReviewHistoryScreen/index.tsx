@@ -25,7 +25,7 @@ export default function ReviewHistoryScreen() {
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
     useInfiniteQuery({
-      queryKey: ['ReviewList', currentTab],
+      queryKey: ['MyReviews', currentTab],
       queryFn: async ({pageParam}) => {
         if (currentTab === 'PLACE_REVIEW') {
           return (
