@@ -48,7 +48,7 @@ export default function ClubQuestCheckInCompleteModal({
               />
               <LottieView
                 onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
-                source={require('@/assets/animations/conquer_activity_checkin.json')}
+                source={require('@/assets/animations/conquer_activity_checkin.lottie')}
                 autoPlay
                 loop
                 style={{
