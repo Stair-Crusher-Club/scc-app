@@ -62,7 +62,7 @@ export default function ClubQuestCheckInCompleteModal({
           <TitleText>
             <TitleTextBold>정복활동 출석체크</TitleTextBold>가 완료되었습니다.
             {'\n'}
-            퀘스트 클리어까지 화이팅!
+            이제 퀘스트를 뿌시러 가볼까요?
           </TitleText>
 
           <ButtonContainer>
