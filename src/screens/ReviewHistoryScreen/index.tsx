@@ -8,6 +8,7 @@ import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import AchievementsSection from '../ConquererHistoryScreen/sections/AchievementsSection';
 import ReviewHistoryPlaceReviewItem from './components/PlaceReviewItem';
@@ -16,6 +17,8 @@ import {tabItems} from './constants';
 
 // 내가 작성한 리뷰
 export default function ReviewHistoryScreen() {
+  const insets = useSafeAreaInsets();
+
   const {api} = useAppComponents();
   const [currentTab, setCurrentTab] =
     useState<UpvoteTargetTypeDto>('PLACE_REVIEW');
@@ -52,6 +55,9 @@ export default function ReviewHistoryScreen() {
     <ScreenLayout isHeaderVisible={true}>
       <TabBar items={tabItems} current={currentTab} onChange={setCurrentTab} />
       <FlashList
+        contentContainerStyle={{
+          paddingBottom: insets.bottom,
+        }}
         data={
           data?.pages.flatMap(page => {
             if (currentTab === 'PLACE_REVIEW') {
