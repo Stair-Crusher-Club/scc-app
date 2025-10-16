@@ -79,28 +79,22 @@ export function useUpvoteToggle({
         targetType === 'PLACE_ACCESSIBILITY' ||
         targetType === 'BUILDING_ACCESSIBILITY'
       ) {
-        if (placeId) {
-          queryClient.invalidateQueries({
-            queryKey: ['PlaceDetail', placeId, 'Accessibility'],
-          });
+        queryClient.invalidateQueries({
+          queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+        });
 
-          queryClient.invalidateQueries({
-            queryKey: ['PlacesUpvoted'],
-          });
+        queryClient.invalidateQueries({
+          queryKey: ['PlacesUpvoted'],
+        });
 
-          queryClient.invalidateQueries({
-            queryKey: ['UpvotedForNumberOfItems'],
-          });
-        }
+        queryClient.invalidateQueries({
+          queryKey: ['UpvotedForNumberOfItems'],
+        });
       }
 
       if (targetType === 'PLACE_REVIEW' || targetType === 'TOILET_REVIEW') {
         queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, 'Review'],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, 'Toilet'],
+          queryKey: ['PlaceDetail', placeId, targetType],
         });
 
         queryClient.invalidateQueries({

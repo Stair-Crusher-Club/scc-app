@@ -42,6 +42,26 @@ export function useDeleteAccessibility(
         queryKey: ['search'],
       });
 
+      queryClient.invalidateQueries({
+        queryKey: ['ConqueredPlacesForNumberOfItems'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['UpvotedForNumberOfItems'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['ConquererActivity'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['ConqueredPlaces'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['PlacesUpvoted'],
+      });
+
       if (type === 'place') {
         ToastUtils.show('장소 정보를 삭제했습니다.');
       } else {
