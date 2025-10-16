@@ -48,7 +48,16 @@ export function useDeleteReview({
           queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.PlaceReview],
         });
 
-        // 내 리뷰 > 내가 작성한 리뷰, 도움이 돼요 통계
+        // 내 리뷰 > 내가 작성한 리뷰 통계
+        queryClient.invalidateQueries({
+          queryKey: [
+            'ReviewHistory',
+            'Review',
+            UpvoteTargetTypeDto.PlaceReview,
+          ],
+        });
+
+        // 내 리뷰 > 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: [
             'ReviewHistory',
@@ -72,7 +81,16 @@ export function useDeleteReview({
           queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.ToiletReview],
         });
 
-        // 내 리뷰 > 내가 작성한 리뷰, 도움이 돼요 통계
+        // 내 리뷰 > 내가 작성한 리뷰 통계
+        queryClient.invalidateQueries({
+          queryKey: [
+            'ReviewHistory',
+            'Review',
+            UpvoteTargetTypeDto.ToiletReview,
+          ],
+        });
+
+        // 내 리뷰 > 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: [
             'ReviewHistory',
