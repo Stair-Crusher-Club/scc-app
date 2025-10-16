@@ -8,21 +8,24 @@ import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import AchievementsSection from '../ConquererHistoryScreen/sections/AchievementsSection';
 import ReviewHistoryPlaceReviewItem from './components/PlaceReviewItem';
 import ReviewHistoryPlaceToiletReviewItem from './components/PlaceToiletReviewItem';
 import {tabItems} from './constants';
 
-// 지금까지 내가 작성한 리뷰
+// 내가 작성한 리뷰
 export default function ReviewHistoryScreen() {
+  const insets = useSafeAreaInsets();
+
   const {api} = useAppComponents();
   const [currentTab, setCurrentTab] =
     useState<UpvoteTargetTypeDto>('PLACE_REVIEW');
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
     useInfiniteQuery({
-      queryKey: ['ReviewList', currentTab],
+      queryKey: ['MyReviews', currentTab],
       queryFn: async ({pageParam}) => {
         if (currentTab === 'PLACE_REVIEW') {
           return (
@@ -51,12 +54,10 @@ export default function ReviewHistoryScreen() {
   return (
     <ScreenLayout isHeaderVisible={true}>
       <TabBar items={tabItems} current={currentTab} onChange={setCurrentTab} />
-      <AchievementsSection
-        type="review"
-        totalNumberOfPlaces={totalNumberOfReviews}
-      />
-
       <FlashList
+        contentContainerStyle={{
+          paddingBottom: insets.bottom,
+        }}
         data={
           data?.pages.flatMap(page => {
             if (currentTab === 'PLACE_REVIEW') {
@@ -107,6 +108,12 @@ export default function ReviewHistoryScreen() {
           }
         }}
         onEndReachedThreshold={0.5}
+        ListHeaderComponent={
+          <AchievementsSection
+            type="review"
+            totalNumberOfPlaces={totalNumberOfReviews}
+          />
+        }
         ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
       />
     </ScreenLayout>

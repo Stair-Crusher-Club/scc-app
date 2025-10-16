@@ -57,7 +57,7 @@ export default function HistorySection() {
         elementName="review_link"
         onPress={() => navigation.navigate('Review/History')}>
         <S.LinkName>
-          <S.LinkText>지금까지 내가 작성한 리뷰</S.LinkText>
+          <S.LinkText>내가 작성한 리뷰</S.LinkText>
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
@@ -70,7 +70,7 @@ export default function HistorySection() {
         elementName="review_upvote_link"
         onPress={() => navigation.navigate('Review/Upvote')}>
         <S.LinkName>
-          <S.LinkText>도움이 되었어요</S.LinkText>
+          <S.LinkText>도움이 돼요</S.LinkText>
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>

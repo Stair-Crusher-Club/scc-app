@@ -18,6 +18,7 @@ import {
   Place,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
+  UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import usePost from '@/hooks/usePost';
@@ -150,12 +151,12 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
   });
   const {data: reviewPost} = useQuery({
-    queryKey: ['PlaceDetail', placeId, 'Review'],
+    queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.PlaceReview],
     queryFn: async ({queryKey}) =>
       (await api.listPlaceReviewsPost({placeId: queryKey[1]})).data,
   });
   const {data: toiletPost} = useQuery({
-    queryKey: ['PlaceDetail', placeId, 'Toilet'],
+    queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.ToiletReview],
     queryFn: async ({queryKey}) =>
       (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
@@ -384,7 +385,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     {
       id: 'feedback',
       shouldRender: !!(
-        accessibilityPost && accessibilityPost?.placeAccessibility
+        accessibilityPost &&
+        (accessibilityPost?.placeAccessibility ||
+          accessibilityPost?.buildingAccessibility)
       ),
       component: accessibilityPost ? (
         <PlaceDetailFeedbackSection accessibility={accessibilityPost} />

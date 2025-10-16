@@ -3,7 +3,6 @@ import {useEffect, useState} from 'react';
 
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
-import {useCheckAuth} from '@/utils/checkAuth';
 
 import useAppComponents from './useAppComponents';
 
@@ -30,7 +29,6 @@ export function useUpvoteToggle({
 }: UseUpvoteToggleParams): UseUpvoteToggleReturn {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
-  const checkAuth = useCheckAuth();
 
   const [isUpvoted, setIsUpvoted] = useState<boolean>(initialIsUpvoted);
   const [totalUpvoteCount, setTotalUpvoteCount] = useState<number>(
@@ -81,38 +79,37 @@ export function useUpvoteToggle({
         targetType === 'PLACE_ACCESSIBILITY' ||
         targetType === 'BUILDING_ACCESSIBILITY'
       ) {
-        if (placeId) {
-          queryClient.invalidateQueries({
-            queryKey: ['PlaceDetail', placeId, 'Accessibility'],
-          });
+        queryClient.invalidateQueries({
+          queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+        });
 
-          queryClient.invalidateQueries({
-            queryKey: ['PlacesUpvoted'],
-          });
+        // 정복한 장소 > 도움이 돼요 리스트
+        queryClient.invalidateQueries({
+          queryKey: ['PlacesUpvoted'],
+        });
 
-          queryClient.invalidateQueries({
-            queryKey: ['UpvotedForNumberOfItems'],
-          });
-        }
+        // 정복한 장소 > 도움이 돼요 통계
+        queryClient.invalidateQueries({
+          queryKey: ['UpvotedForNumberOfItems'],
+        });
       }
 
       if (targetType === 'PLACE_REVIEW' || targetType === 'TOILET_REVIEW') {
         queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, 'Review'],
+          queryKey: ['PlaceDetail', placeId, targetType],
         });
 
+        // 내 리뷰 > 내가 작성한 리뷰 리스트
         queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, 'Toilet'],
+          queryKey: ['MyReviews', targetType],
         });
 
-        queryClient.invalidateQueries({
-          queryKey: ['ReviewList', targetType],
-        });
-
+        // 내 리뷰 > 도움이 돼요 리스트
         queryClient.invalidateQueries({
           queryKey: ['ReviewsUpvoted', targetType],
         });
 
+        // 내 리뷰 > 내가 작성한 리뷰, 도움이 돼요 통계
         queryClient.invalidateQueries({
           queryKey: ['ReviewHistory', 'Upvote', targetType],
         });
@@ -130,9 +127,7 @@ export function useUpvoteToggle({
       return;
     }
 
-    checkAuth(() => {
-      mutate(isUpvoted);
-    });
+    mutate(isUpvoted);
   };
 
   return {

@@ -6,9 +6,12 @@ import styled from 'styled-components/native';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
 import ConqueredPlaceItem from '@/screens/ConquererHistoryScreen/sections/ConqueredPlaceItem';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import AchievementsSection from './sections/AchievementsSection';
 
 export default function ConquererHistoryScreen() {
+  const insets = useSafeAreaInsets();
+
   const {api} = useAppComponents();
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
     useInfiniteQuery({
@@ -31,7 +34,10 @@ export default function ConquererHistoryScreen() {
     <ScreenLayout isHeaderVisible={true}>
       <ListContainer>
         <FlashList
-          contentContainerStyle={{backgroundColor: 'white'}}
+          contentContainerStyle={{
+            backgroundColor: 'white',
+            paddingBottom: insets.bottom,
+          }}
           ListHeaderComponent={
             <AchievementsSection
               totalNumberOfPlaces={data?.pages[0].totalNumberOfItems ?? 0}

@@ -42,6 +42,31 @@ export function useDeleteAccessibility(
         queryKey: ['search'],
       });
 
+      // 정복한 장소 > 내가 정복한 장소 통계
+      queryClient.invalidateQueries({
+        queryKey: ['ConqueredPlacesForNumberOfItems'],
+      });
+
+      // 정복한 장소 > 도움이 돼요 통계
+      queryClient.invalidateQueries({
+        queryKey: ['UpvotedForNumberOfItems'],
+      });
+
+      // 정복한 장소 > 정복 리포트 통계
+      queryClient.invalidateQueries({
+        queryKey: ['ConquererActivity'],
+      });
+
+      // 정복한 장소 > 내가 정복한 장소 리스트
+      queryClient.invalidateQueries({
+        queryKey: ['ConqueredPlaces'],
+      });
+
+      //  정복한 장소 > 도움이 돼요 리스트
+      queryClient.invalidateQueries({
+        queryKey: ['PlacesUpvoted'],
+      });
+
       if (type === 'place') {
         ToastUtils.show('장소 정보를 삭제했습니다.');
       } else {

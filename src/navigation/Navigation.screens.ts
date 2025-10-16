@@ -98,12 +98,12 @@ export const MainNavigationScreens: {
   {
     name: 'Review/History',
     component: ReviewHistoryScreen,
-    options: {headerShown: true, headerTitle: '지금까지 내가 작성한 리뷰'},
+    options: {headerShown: true, headerTitle: '내가 작성한 리뷰'},
   },
   {
     name: 'Review/Upvote',
     component: ReviewUpVoteScreen,
-    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+    options: {headerShown: true, headerTitle: '도움이 돼요'},
   },
   {
     name: 'Conquerer',
@@ -113,12 +113,12 @@ export const MainNavigationScreens: {
   {
     name: 'Conquerer/History',
     component: ConquererHistoryScreen,
-    options: {headerShown: true, headerTitle: '지금까지 내가 정복한 장소'},
+    options: {headerShown: true, headerTitle: '내가 정복한 장소'},
   },
   {
     name: 'Conquerer/Upvote',
     component: ConquererUpVoteScreen,
-    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+    options: {headerShown: true, headerTitle: '도움이 돼요'},
   },
   {
     name: 'UpvoteAnalytics',
