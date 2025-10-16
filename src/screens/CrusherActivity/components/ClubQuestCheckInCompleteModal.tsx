@@ -36,7 +36,7 @@ export default function ClubQuestCheckInCompleteModal({
                 alignItems: 'center',
               }}>
               <LottieView
-                onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
+                onAnimationFailure={(error) => {Logger.logError(new Error(`Lottie animation error [crusher_activity_welcome.lottie]: ${error}`))}}
                 source={require('@/assets/animations/crusher_activity_welcome.lottie')}
                 autoPlay
                 loop
@@ -47,8 +47,8 @@ export default function ClubQuestCheckInCompleteModal({
                 }}
               />
               <LottieView
-                onAnimationFailure={(error) => {Logger.logError(new Error(error))}}
-                source={require('@/assets/animations/conquer_activity_checkin.lottie')}
+                onAnimationFailure={(error) => {Logger.logError(new Error(`Lottie animation error [conquer_activity_checkin.json]: ${error}`))}}
+                source={require('@/assets/animations/conquer_activity_checkin.json')}
                 autoPlay
                 loop
                 style={{
@@ -62,7 +62,7 @@ export default function ClubQuestCheckInCompleteModal({
           <TitleText>
             <TitleTextBold>정복활동 출석체크</TitleTextBold>가 완료되었습니다.
             {'\n'}
-            퀘스트 클리어까지 화이팅!
+            이제 퀘스트를 뿌시러 가볼까요?
           </TitleText>
 
           <ButtonContainer>
