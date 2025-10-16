@@ -103,7 +103,7 @@ export const MainNavigationScreens: {
   {
     name: 'Review/Upvote',
     component: ReviewUpVoteScreen,
-    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+    options: {headerShown: true, headerTitle: '도움이 돼요'},
   },
   {
     name: 'Conquerer',
@@ -118,7 +118,7 @@ export const MainNavigationScreens: {
   {
     name: 'Conquerer/Upvote',
     component: ConquererUpVoteScreen,
-    options: {headerShown: true, headerTitle: '도움이 되었어요'},
+    options: {headerShown: true, headerTitle: '도움이 돼요'},
   },
   {
     name: 'UpvoteAnalytics',

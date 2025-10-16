@@ -40,7 +40,7 @@ export default function CrusherHistorySection() {
         elementName="crusher_history_conquered_places_link"
         onPress={() => navigation.navigate('Conquerer/History')}>
         <S.LinkName>
-          <S.LinkText>지금까지 내가 정복한 장소</S.LinkText>
+          <S.LinkText>내가 정복한 장소</S.LinkText>
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
@@ -53,7 +53,7 @@ export default function CrusherHistorySection() {
         elementName="crusher_history_helpful_link"
         onPress={() => navigation.navigate('Conquerer/Upvote')}>
         <S.LinkName>
-          <S.LinkText>도움이 되었어요</S.LinkText>
+          <S.LinkText>도움이 돼요</S.LinkText>
         </S.LinkName>
         <S.ClickGuide>
           <S.CountBadge>
