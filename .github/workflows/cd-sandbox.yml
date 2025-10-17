@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      ios_version:
+        description: 'iOS minimum version (leave empty to use Info.plist)'
+        required: false
+        type: string
+      android_version:
+        description: 'Android minimum version (leave empty to use version.properties)'
+        required: false
+        type: string
 
 jobs:
   deploy:
@@ -28,17 +38,29 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Get iOS version from Info.plist
-        id: get_ios_version
+      - name: Set iOS version
+        id: set_ios_version
         run: |
-          IOS_VERSION=$(grep -A1 "<key>CFBundleShortVersionString</key>" ios/sccReactNative/Info.plist | grep "<string>" | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
-          echo "IOS_VERSION=$IOS_VERSION" >> $GITHUB_ENV
+          if [ -n "${{ github.event.inputs.ios_version }}" ]; then
+            echo "IOS_VERSION=${{ github.event.inputs.ios_version }}" >> $GITHUB_ENV
+            echo "Using manual input iOS version: ${{ github.event.inputs.ios_version }}"
+          else
+            IOS_VERSION=$(grep -A1 "<key>CFBundleShortVersionString</key>" ios/sccReactNative/Info.plist | grep "<string>" | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
+            echo "IOS_VERSION=$IOS_VERSION" >> $GITHUB_ENV
+            echo "Using iOS version from Info.plist: $IOS_VERSION"
+          fi
 
-      - name: Get Android version from version.properties
-        id: get_android_version
+      - name: Set Android version
+        id: set_android_version
         run: |
-          ANDROID_VERSION=$(cat android/app/version.properties | grep version | cut -d'=' -f2)
-          echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
+          if [ -n "${{ github.event.inputs.android_version }}" ]; then
+            echo "ANDROID_VERSION=${{ github.event.inputs.android_version }}" >> $GITHUB_ENV
+            echo "Using manual input Android version: ${{ github.event.inputs.android_version }}"
+          else
+            ANDROID_VERSION=$(cat android/app/version.properties | grep version | cut -d'=' -f2)
+            echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
+            echo "Using Android version from version.properties: $ANDROID_VERSION"
+          fi
 
       - name: Deploy iOS OTA
         run: yarn ota-deploy:sandbox -p ios -t ${{ env.IOS_VERSION }} -f
