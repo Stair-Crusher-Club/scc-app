@@ -18,11 +18,11 @@ import {
 import DeviceInfo from 'react-native-device-info';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import {accessTokenAtom, isAnonymousUserAtom} from '@/atoms/Auth';
+import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
-import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
@@ -30,11 +30,9 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
-import {useMe} from '@/atoms/Auth';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
 import CoachMarkGuideLink from '@/screens/HomeScreen/components/CoachMarkGuideLink';
-import CoachMarkOverlay from '@/screens/HomeScreen/components/CoachMarkOverlay';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils';
@@ -312,7 +310,7 @@ const HomeScreen = ({navigation}: any) => {
         </S.Container>
       </ScreenLayout>
 
-      <CoachMarkOverlay visible={showGeolocationPermission === false} />
+      {/* <CoachMarkOverlay visible={showGeolocationPermission === false} /> */}
     </>
   );
 };
