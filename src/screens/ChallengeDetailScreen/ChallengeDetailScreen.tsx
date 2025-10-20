@@ -34,6 +34,8 @@ import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
 import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyActionBar';
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
+import LastMonthRankingModal from './components/LastMonthRankingModal';
+import {isDismissedToday} from '@/atoms/challengeModalAtoms';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -50,6 +52,8 @@ const ChallengeDetailScreen = ({
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [passcode, setPasscode] = useState<string>();
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
+  const [showLastMonthRankingModal, setShowLastMonthRankingModal] =
+    useState(false);
 
   const {data} = useQuery({
     queryKey: ['ChallengeDetail', challengeId],
@@ -74,6 +78,16 @@ const ChallengeDetailScreen = ({
   useEffect(() => {
     navigation.setOptions({headerTitle: challenge?.name ?? '계단뿌셔 챌린지'});
   }, [challenge]);
+
+  useEffect(() => {
+    if (
+      hasJoined &&
+      challenge?.modalImageUrl &&
+      !isDismissedToday(challengeId)
+    ) {
+      setShowLastMonthRankingModal(true);
+    }
+  }, [hasJoined, challenge?.modalImageUrl, challengeId]);
 
   const prevY = useRef(0);
   const [visible, setVisible] = useState(false);
@@ -151,11 +165,12 @@ const ChallengeDetailScreen = ({
                 )}
               </>
             )}
-            {!isEmpty(ranks) && (
+            {hasJoined && (
               <ChallengeDetailRankSection
                 ranks={ranks}
                 myRank={myRank}
                 quests={data?.quests}
+                lastMonthRankImageUrl={challenge?.lastMonthRankImageUrl}
               />
             )}
           </S.Contents>
@@ -228,6 +243,14 @@ const ChallengeDetailScreen = ({
           }}
         />
         <ChallengeWelcomeModal visible={joinChallenge.isSuccess && isB2B} />
+        {challenge?.modalImageUrl && (
+          <LastMonthRankingModal
+            challengeId={challengeId}
+            imageUrl={challenge.modalImageUrl}
+            visible={showLastMonthRankingModal}
+            onClose={() => setShowLastMonthRankingModal(false)}
+          />
+        )}
       </ScreenLayout>
     </LogParamsProvider>
   );
