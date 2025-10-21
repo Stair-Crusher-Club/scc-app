@@ -174,6 +174,12 @@ const RootScreen = () => {
               CrusherActivity: {
                 path: 'crusher-activity',
               },
+              'Review/Upvote': {
+                path: 'review/upvote',
+              },
+              'Conquerer/Upvote': {
+                path: 'conquerer/upvote',
+              },
             },
           },
         }}
