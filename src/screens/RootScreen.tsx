@@ -3,7 +3,7 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useEffect, useRef} from 'react';
+import React, {useRef} from 'react';
 import {Linking} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
@@ -41,10 +41,6 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
 };
 
 const RootScreen = () => {
-  useEffect(() => {
-    SplashScreen.hide();
-  }, []);
-
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
@@ -54,6 +50,7 @@ const RootScreen = () => {
       <NavigationContainer
         ref={navigationRef}
         onReady={async () => {
+          SplashScreen.hide();
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
           logDebug(`App starts at ${currentScreenName}`);
@@ -86,7 +83,9 @@ const RootScreen = () => {
                 body: message.notification?.body || '',
                 campaignId: message.data?.campaign_id as string | undefined,
                 campaignType: message.data?.campaign_type as string | undefined,
-                serverPushLogId: message.data?.server_push_log_id as string | undefined,
+                serverPushLogId: message.data?.server_push_log_id as
+                  | string
+                  | undefined,
               });
               const data = message.data as {_d: string};
               return data?._d;
@@ -122,9 +121,15 @@ const RootScreen = () => {
                 Logger.logAppPushOpen({
                   title: remoteMessage.notification?.title || '',
                   body: remoteMessage.notification?.body || '',
-                  campaignId: remoteMessage.data?.campaign_id as string | undefined,
-                  campaignType: remoteMessage.data?.campaign_type as string | undefined,
-                  serverPushLogId: remoteMessage.data?.server_push_log_id as string | undefined,
+                  campaignId: remoteMessage.data?.campaign_id as
+                    | string
+                    | undefined,
+                  campaignType: remoteMessage.data?.campaign_type as
+                    | string
+                    | undefined,
+                  serverPushLogId: remoteMessage.data?.server_push_log_id as
+                    | string
+                    | undefined,
                 });
 
                 const data = remoteMessage.data as {_d?: string};
