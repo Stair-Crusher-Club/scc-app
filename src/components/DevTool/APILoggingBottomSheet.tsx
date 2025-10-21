@@ -20,9 +20,10 @@ interface APILoggingBottomSheetProps {
   onClose: () => void;
 }
 
-export const APILoggingBottomSheet: React.FC<
-  APILoggingBottomSheetProps
-> = ({visible, onClose}) => {
+export const APILoggingBottomSheet: React.FC<APILoggingBottomSheetProps> = ({
+  visible,
+  onClose,
+}) => {
   const [apiLogs, setAPILogs] = useAtom(apiLogsAtom);
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
   const translateX = useRef(new Animated.Value(20)).current;
@@ -44,12 +45,14 @@ export const APILoggingBottomSheet: React.FC<
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }) + `.${date.getMilliseconds().toString().padStart(3, '0')}`;
+    return (
+      date.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }) + `.${date.getMilliseconds().toString().padStart(3, '0')}`
+    );
   };
 
   const formatJSON = (data: any) => {
@@ -83,7 +86,10 @@ export const APILoggingBottomSheet: React.FC<
 
   const copyToClipboard = async (content: any, label: string) => {
     try {
-      const textToCopy = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+      const textToCopy =
+        typeof content === 'string'
+          ? content
+          : JSON.stringify(content, null, 2);
       await Clipboard.setString(textToCopy);
       Alert.alert('복사 완료', `${label}가 클립보드에 복사되었습니다.`);
     } catch (e) {
@@ -107,16 +113,16 @@ export const APILoggingBottomSheet: React.FC<
             </Text>
           </View>
           <View style={styles.logHeaderRight}>
-            <Text style={[styles.status, {color: getStatusColor(log.responseStatus, !!log.error)}]}>
+            <Text
+              style={[
+                styles.status,
+                {color: getStatusColor(log.responseStatus, !!log.error)},
+              ]}>
               {log.responseStatus || (log.error ? 'ERROR' : 'PENDING')}
             </Text>
-            <Text style={styles.time}>
-              {formatTime(log.timestamp)}
-            </Text>
+            <Text style={styles.time}>{formatTime(log.timestamp)}</Text>
             {log.duration && (
-              <Text style={styles.duration}>
-                {log.duration}ms
-              </Text>
+              <Text style={styles.duration}>{log.duration}ms</Text>
             )}
           </View>
         </View>
@@ -126,8 +132,12 @@ export const APILoggingBottomSheet: React.FC<
             {log.requestHeaders && (
               <TouchableOpacity
                 style={styles.section}
-                onPress={() => copyToClipboard(log.requestHeaders, 'Request Headers')}>
-                <Text style={styles.sectionTitle}>Request Headers: (터치해서 복사)</Text>
+                onPress={() =>
+                  copyToClipboard(log.requestHeaders, 'Request Headers')
+                }>
+                <Text style={styles.sectionTitle}>
+                  Request Headers: (터치해서 복사)
+                </Text>
                 <Text style={styles.jsonText}>
                   {formatJSON(log.requestHeaders)}
                 </Text>
@@ -137,8 +147,12 @@ export const APILoggingBottomSheet: React.FC<
             {log.requestBody && (
               <TouchableOpacity
                 style={styles.section}
-                onPress={() => copyToClipboard(log.requestBody, 'Request Body')}>
-                <Text style={styles.sectionTitle}>Request Body: (터치해서 복사)</Text>
+                onPress={() =>
+                  copyToClipboard(log.requestBody, 'Request Body')
+                }>
+                <Text style={styles.sectionTitle}>
+                  Request Body: (터치해서 복사)
+                </Text>
                 <Text style={styles.jsonText}>
                   {formatJSON(log.requestBody)}
                 </Text>
@@ -148,8 +162,12 @@ export const APILoggingBottomSheet: React.FC<
             {log.responseHeaders && (
               <TouchableOpacity
                 style={styles.section}
-                onPress={() => copyToClipboard(log.responseHeaders, 'Response Headers')}>
-                <Text style={styles.sectionTitle}>Response Headers: (터치해서 복사)</Text>
+                onPress={() =>
+                  copyToClipboard(log.responseHeaders, 'Response Headers')
+                }>
+                <Text style={styles.sectionTitle}>
+                  Response Headers: (터치해서 복사)
+                </Text>
                 <Text style={styles.jsonText}>
                   {formatJSON(log.responseHeaders)}
                 </Text>
@@ -159,8 +177,12 @@ export const APILoggingBottomSheet: React.FC<
             {log.responseBody && (
               <TouchableOpacity
                 style={styles.section}
-                onPress={() => copyToClipboard(log.responseBody, 'Response Body')}>
-                <Text style={styles.sectionTitle}>Response Body: (터치해서 복사)</Text>
+                onPress={() =>
+                  copyToClipboard(log.responseBody, 'Response Body')
+                }>
+                <Text style={styles.sectionTitle}>
+                  Response Body: (터치해서 복사)
+                </Text>
                 <Text style={styles.jsonText}>
                   {formatJSON(log.responseBody)}
                 </Text>
@@ -171,7 +193,9 @@ export const APILoggingBottomSheet: React.FC<
               <TouchableOpacity
                 style={styles.section}
                 onPress={() => copyToClipboard(log.error, 'Error')}>
-                <Text style={[styles.sectionTitle, {color: '#F44336'}]}>Error: (터치해서 복사)</Text>
+                <Text style={[styles.sectionTitle, {color: '#F44336'}]}>
+                  Error: (터치해서 복사)
+                </Text>
                 <Text style={[styles.jsonText, {color: '#F44336'}]}>
                   {log.error}
                 </Text>

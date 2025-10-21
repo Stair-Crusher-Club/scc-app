@@ -145,7 +145,10 @@ export default function IndoorReviewView({
 
           <IndoorInfoSection
             onSave={form.handleSubmit(onValid, onInvalid)}
-            onSaveAndToiletReview={form.handleSubmit(onValidAfterToilet, onInvalid)}
+            onSaveAndToiletReview={form.handleSubmit(
+              onValidAfterToilet,
+              onInvalid,
+            )}
           />
         </KeyboardAwareScrollView>
       </SafeAreaWrapper>

@@ -82,10 +82,14 @@ export function useMe() {
   const syncUserInfo = async () => {
     userInfo && (await _syncUserInfo(userInfo));
   };
-  
+
   // Auto-sync when userInfo is loaded from storage
   useEffect(() => {
-    if (userInfo && userInfo.id && userInfo.nickname !== ANONYMOUS_USER_TEMPLATE.nickname) {
+    if (
+      userInfo &&
+      userInfo.id &&
+      userInfo.nickname !== ANONYMOUS_USER_TEMPLATE.nickname
+    ) {
       _syncUserInfo(userInfo);
     }
   }, [userInfo?.id]);

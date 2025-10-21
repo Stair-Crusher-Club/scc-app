@@ -44,14 +44,20 @@ export default function WelcomeModal({
                 alignItems: 'center',
               }}>
               <LottieView
-                onAnimationFailure={(error) => {Logger.logError(new Error(`Lottie animation error [crusher_activity_welcome.lottie]: ${error}`))}}
+                onAnimationFailure={error => {
+                  Logger.logError(
+                    new Error(
+                      `Lottie animation error [crusher_activity_welcome.lottie]: ${error}`,
+                    ),
+                  );
+                }}
                 source={require('@/assets/animations/crusher_activity_welcome.lottie')}
                 autoPlay
                 loop
                 style={{
                   width: viewportWidth * 0.65,
-                  height: viewportWidth * 0.20,
-                  bottom: viewportWidth * -0.10,
+                  height: viewportWidth * 0.2,
+                  bottom: viewportWidth * -0.1,
                 }}
               />
               <WelcomeAnimation />

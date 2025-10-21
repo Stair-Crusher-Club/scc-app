@@ -41,7 +41,8 @@ export default function VisitorReviewSection() {
             <Controller
               name="recommendedMobilityTypes"
               rules={{
-                validate: value => value.size > 0 || '추천하는 이동 수단을 선택해주세요',
+                validate: value =>
+                  value.size > 0 || '추천하는 이동 수단을 선택해주세요',
               }}
               render={({field}) => (
                 <>

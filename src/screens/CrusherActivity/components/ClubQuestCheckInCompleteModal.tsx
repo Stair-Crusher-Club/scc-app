@@ -36,24 +36,36 @@ export default function ClubQuestCheckInCompleteModal({
                 alignItems: 'center',
               }}>
               <LottieView
-                onAnimationFailure={(error) => {Logger.logError(new Error(`Lottie animation error [crusher_activity_welcome.lottie]: ${error}`))}}
+                onAnimationFailure={error => {
+                  Logger.logError(
+                    new Error(
+                      `Lottie animation error [crusher_activity_welcome.lottie]: ${error}`,
+                    ),
+                  );
+                }}
                 source={require('@/assets/animations/crusher_activity_welcome.lottie')}
                 autoPlay
                 loop
                 style={{
                   width: viewportWidth * 0.65,
-                  height: viewportWidth * 0.20,
-                  bottom: viewportWidth * -0.10,
+                  height: viewportWidth * 0.2,
+                  bottom: viewportWidth * -0.1,
                 }}
               />
               <LottieView
-                onAnimationFailure={(error) => {Logger.logError(new Error(`Lottie animation error [conquer_activity_checkin.json]: ${error}`))}}
+                onAnimationFailure={error => {
+                  Logger.logError(
+                    new Error(
+                      `Lottie animation error [conquer_activity_checkin.json]: ${error}`,
+                    ),
+                  );
+                }}
                 source={require('@/assets/animations/conquer_activity_checkin.json')}
                 autoPlay
                 loop
                 style={{
-                  width: viewportWidth * 0.70,
-                  height: viewportWidth * 0.70,
+                  width: viewportWidth * 0.7,
+                  height: viewportWidth * 0.7,
                 }}
               />
             </View>

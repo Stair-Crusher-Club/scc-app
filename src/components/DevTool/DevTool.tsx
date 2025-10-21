@@ -23,12 +23,15 @@ import {useDevToolConfig} from './useDevTool';
 import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';
 import {APILoggingBottomSheet} from './APILoggingBottomSheet';
 import {useAtom, useSetAtom} from 'jotai';
-import {loggedEventsAtom, apiLogsAtom, initializeAPILoggingDevTool} from './devToolEventStore';
+import {
+  loggedEventsAtom,
+  apiLogsAtom,
+  initializeAPILoggingDevTool,
+} from './devToolEventStore';
 import {initializeEventLoggingDevTool} from '@/logging/Logger';
 import {accessTokenAtom} from '@/atoms/Auth';
 
-interface DevToolProps {
-}
+interface DevToolProps {}
 
 /**
  * Determines whether DevTool should be shown based on environment
@@ -39,7 +42,6 @@ export const shouldShowDevTool = (): boolean => {
 };
 
 export const DevTool: React.FC<DevToolProps> = () => {
-
   const {width: screenWidth, height: screenHeight} = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -174,9 +176,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
                   {/* Search Radius Toggle */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingInfo}>
-                      <Text style={styles.settingLabel}>
-                        검색 범위 표시
-                      </Text>
+                      <Text style={styles.settingLabel}>검색 범위 표시</Text>
                       <Text style={styles.settingDescription}>
                         지도에서 장소를 검색할 때 검색 범위를 원으로 표시
                       </Text>

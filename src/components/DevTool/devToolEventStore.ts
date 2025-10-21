@@ -64,18 +64,16 @@ export const convertToDevToolAPILog = (
 let apiLoggingEnabled = false;
 let setAPILogs: ((apiLogs: any) => void) | null = null;
 
-export const initializeAPILoggingDevTool = (
-  setter: (apiLogs: any) => void,
-) => {
+export const initializeAPILoggingDevTool = (setter: (apiLogs: any) => void) => {
   apiLoggingEnabled = true;
   setAPILogs = setter;
 };
 
-const trackAPI = (apiLog: Omit<DevToolAPILog, 'id' | 'timestamp'> & {timestamp?: number}) => {
+const trackAPI = (
+  apiLog: Omit<DevToolAPILog, 'id' | 'timestamp'> & {timestamp?: number},
+) => {
   if (shouldShowDevTool() && apiLoggingEnabled && setAPILogs) {
-    setAPILogs((prev: any) =>
-      convertToDevToolAPILog(prev, apiLog),
-    );
+    setAPILogs((prev: any) => convertToDevToolAPILog(prev, apiLog));
   }
 };
 
