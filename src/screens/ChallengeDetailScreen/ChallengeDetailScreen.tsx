@@ -133,28 +133,13 @@ const ChallengeDetailScreen = ({
                   numberOfContributions={challenge.contributionsCount}
                 />
                 {challenge?.description ? (
-                  <S.Description>
-                    <Markdown
-                      style={{
-                        body: {
-                          lineHeight: 22,
-                          fontSize: 14,
-                          fontFamily: font.pretendardRegular,
-                        },
-                        link: {
-                          color: color.brand60,
-                          fontSize: 14,
-                          lineHeight: 22,
-                          fontFamily: font.pretendardMedium,
-                        },
-                      }}
-                      rules={rules(
-                        isDescriptionCollapsed,
-                        setIsDescriptionCollapsed,
-                      )}>
-                      {challenge.description}
-                    </Markdown>
-                  </S.Description>
+                  <DescriptionRenderer
+                    description={challenge.description}
+                    isCollapsed={isDescriptionCollapsed}
+                    onToggleCollapse={() =>
+                      setIsDescriptionCollapsed(!isDescriptionCollapsed)
+                    }
+                  />
                 ) : (
                   <S.GuideText>{`${challenge.name} 챌린지에서 ${
                     challenge.goal
@@ -254,87 +239,87 @@ const ChallengeStatusBadgesWrapper = styled(ChallengeStatusBadges)`
   margin: 0 25px 14px 25px;
 `;
 
-const FoldableParagraph = ({
-  children,
-  collapsed,
-  onToggle,
-  shouldShowToggle,
-}: {
-  children: React.ReactNode;
-  collapsed: boolean;
-  onToggle: () => void;
-  shouldShowToggle: boolean;
-}) => {
+interface DescriptionRendererProps {
+  description: string;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
+const DESCRIPTION_COLLAPSE_THRESHOLD = 50;
+const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/;
+
+const DescriptionRenderer = ({
+  description,
+  isCollapsed,
+  onToggleCollapse,
+}: DescriptionRendererProps) => {
+  // description을 문단 단위로 분리
+  const paragraphs = description.split('\n');
+  const lastParagraph = paragraphs[paragraphs.length - 1];
+
+  // 마지막 문단에 링크가 있는지 확인 (Markdown 링크 패턴: [text](url))
+  const hasLinkInLastParagraph = MARKDOWN_LINK_REGEX.test(lastParagraph);
+
+  let mainContent: string;
+  let linkParagraph: string | null = null;
+
+  if (hasLinkInLastParagraph) {
+    // 마지막 문단에 링크가 있으면 분리
+    mainContent = paragraphs.slice(0, -1).join('\n');
+    linkParagraph = lastParagraph;
+  } else {
+    // 링크가 없으면 전체를 mainContent로 사용
+    mainContent = description;
+  }
+
+  // mainContent의 길이를 체크하여 접기/더보기 필요 여부 결정
+  const shouldShowToggle = mainContent.length >= DESCRIPTION_COLLAPSE_THRESHOLD;
+
+  const markdownStyle = {
+    body: {
+      lineHeight: 22,
+      fontSize: 14,
+      fontFamily: font.pretendardRegular,
+    },
+    link: {
+      color: color.brand60,
+      fontSize: 14,
+      lineHeight: 22,
+      fontFamily: font.pretendardMedium,
+    },
+  };
+
   return (
-    <View>
-      <Text numberOfLines={collapsed ? 1 : undefined}>{children}</Text>
-      {shouldShowToggle && (
-        <SccTouchableOpacity
-          elementName="challenge_description_toggle"
-          onPress={onToggle}
-          style={{
-            alignItems: 'flex-end',
-          }}>
-          <Text
+    <S.Description>
+      <View>
+        <Markdown style={markdownStyle}>
+          {isCollapsed && shouldShowToggle
+            ? mainContent.substring(0, DESCRIPTION_COLLAPSE_THRESHOLD) + '...'
+            : mainContent}
+        </Markdown>
+        {shouldShowToggle && (
+          <SccTouchableOpacity
+            elementName="challenge_description_toggle"
+            onPress={onToggleCollapse}
             style={{
-              color: color.gray40,
-              fontSize: 14,
-              fontFamily: font.pretendardRegular,
-              textDecorationLine: collapsed ? 'underline' : 'none',
+              alignItems: 'flex-end',
+              marginTop: 4,
             }}>
-            {collapsed ? '더보기' : '접기'}
-          </Text>
-        </SccTouchableOpacity>
+            <Text
+              style={{
+                color: color.gray40,
+                fontSize: 14,
+                fontFamily: font.pretendardRegular,
+                textDecorationLine: isCollapsed ? 'underline' : 'none',
+              }}>
+              {isCollapsed ? '더보기' : '접기'}
+            </Text>
+          </SccTouchableOpacity>
+        )}
+      </View>
+      {linkParagraph && (
+        <Markdown style={markdownStyle}>{linkParagraph}</Markdown>
       )}
-    </View>
+    </S.Description>
   );
 };
-
-// 텍스트에서 링크 전까지의 길이를 체크하는 함수
-const getTextLengthBeforeLink = (node: any): number => {
-  if (!node?.children?.[0]?.children) return 0;
-
-  let length = 0;
-  for (const child of node.children[0].children) {
-    console.log(child);
-    if (child.type === 'link') {
-      break;
-    }
-    if (child.type === 'text') {
-      length += child.content?.length || 0;
-    }
-  }
-  return length;
-};
-
-const rules = (
-  isDescriptionCollapsed: boolean,
-  setIsDescriptionCollapsed: (collapsed: boolean) => void,
-) => ({
-  paragraph: (node: any, children: any, _: any, styles: any) => {
-    const hasLink = node?.children?.[0].children?.some(
-      (child: any) => child?.type === 'link',
-    );
-
-    if (hasLink) {
-      return (
-        <View key={node.key} style={styles._VIEW_SAFE_paragraph}>
-          {children}
-        </View>
-      );
-    }
-
-    const textLengthBeforeLink = getTextLengthBeforeLink(node);
-    const shouldShowToggle = textLengthBeforeLink >= 50;
-
-    return (
-      <FoldableParagraph
-        key={node.key}
-        collapsed={isDescriptionCollapsed}
-        onToggle={() => setIsDescriptionCollapsed(!isDescriptionCollapsed)}
-        shouldShowToggle={shouldShowToggle}>
-        <Text style={styles.paragraph}>{children}</Text>
-      </FoldableParagraph>
-    );
-  },
-});
