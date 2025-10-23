@@ -38,10 +38,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install JavaScript dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -100,10 +102,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install JavaScript dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
