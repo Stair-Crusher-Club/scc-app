@@ -98,6 +98,13 @@ jobs:
           submodules: true
           ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
 
+      - name: Setup SSH agent for build certificates
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+            ${{ secrets.SCC_BUILD_CERTIFICATES_SSH_KEY }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
