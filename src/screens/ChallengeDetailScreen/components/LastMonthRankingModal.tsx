@@ -1,10 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Modal, ModalProps, ActivityIndicator, TouchableOpacity} from 'react-native';
+import {
+  Image,
+  Modal,
+  ModalProps,
+  ActivityIndicator,
+} from 'react-native';
 import styled from 'styled-components/native';
 
 import IcX from '@/assets/icon/ic_x_black.svg';
 
 import SccPressable from '@/components/SccPressable';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {setDismissedToday} from '@/atoms/challengeModalAtoms';
@@ -24,6 +30,9 @@ export default function LastMonthRankingModal({
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageAspectRatio, setImageAspectRatio] = useState<
+    number | undefined
+  >();
 
   useEffect(() => {
     setVisible(_visible);
@@ -34,23 +43,30 @@ export default function LastMonthRankingModal({
     onClose();
   };
 
+  const handleImageLoad = (e: any) => {
+    setImageLoading(false);
+    const {width, height} = e.nativeEvent.source;
+    if (width && height) {
+      setImageAspectRatio(width / height);
+    }
+  };
+
   return (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
       <Backdrop>
         <Container>
           <ImageWrapper>
-            {imageLoading && (
-              <LoadingContainer>
-                <ActivityIndicator size="large" color={color.brand60} />
-              </LoadingContainer>
-            )}
             <RankingImage
               source={{uri: imageUrl}}
               resizeMode="contain"
-              onLoad={() => setImageLoading(false)}
+              onLoad={handleImageLoad}
               onError={() => setImageLoading(false)}
+              style={{aspectRatio: imageAspectRatio}}
             />
-            <CloseButton onPress={handleClose}>
+            <CloseButton
+              onPress={handleClose}
+              elementName="last_month_ranking_modal_close"
+              logParams={{challengeId}}>
               <IcX />
             </CloseButton>
           </ImageWrapper>
@@ -83,6 +99,7 @@ const Backdrop = styled.View({
 });
 
 const Container = styled.View({
+  width: '100%',
   backgroundColor: color.white,
   borderRadius: 20,
   overflow: 'hidden',
@@ -90,24 +107,14 @@ const Container = styled.View({
 
 const ImageWrapper = styled.View({
   width: '100%',
-  aspectRatio: 1,
+  // aspectRatio: 1,
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: color.gray10,
 });
 
-const LoadingContainer = styled.View({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 1,
-});
-
 const RankingImage = styled(Image)({
   width: '100%',
-  height: '100%',
 });
 
 const CheckboxContainer = styled.View({
@@ -138,7 +145,7 @@ const CheckboxLabel = styled.Text({
   fontFamily: font.pretendardRegular,
 });
 
-const CloseButton = styled(TouchableOpacity)({
+const CloseButton = styled(SccTouchableOpacity)({
   position: 'absolute',
   top: 18,
   right: 18,

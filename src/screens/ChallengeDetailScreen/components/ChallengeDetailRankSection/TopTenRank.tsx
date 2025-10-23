@@ -50,7 +50,6 @@ const ListSection = styled.View({
   borderWidth: 1,
   borderRadius: 12,
   marginTop: 10,
-  marginBottom: 22,
   paddingVertical: 5,
 });
 

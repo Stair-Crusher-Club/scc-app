@@ -9,6 +9,7 @@ export const Container = styled.ScrollView({
 
 export const Contents = styled.View({
   paddingTop: 30,
+  marginBottom: 22,
 });
 
 export const Title = styled.Text({
