@@ -85,9 +85,9 @@ jobs:
         run: |
           cd android
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            fastlane android release_candidate scheme:${{ github.event.inputs.scheme }} skip_version_update:true
+            bundle exec fastlane android release_candidate scheme:${{ github.event.inputs.scheme }} skip_version_update:true
           else
-            fastlane android release_candidate scheme:sandbox skip_version_update:true
+            bundle exec fastlane android release_candidate scheme:sandbox skip_version_update:true
           fi
 
       # - name: Notify Slack on Success
@@ -170,9 +170,9 @@ jobs:
         run: |
           cd ios
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            fastlane ios release_candidate scheme:${{ github.event.inputs.scheme }} skip_version_update:true
+            bundle exec fastlane ios release_candidate scheme:${{ github.event.inputs.scheme }} skip_version_update:true
           else
-            fastlane ios release_candidate scheme:sandbox skip_version_update:true
+            bundle exec fastlane ios release_candidate scheme:sandbox skip_version_update:true
           fi
 
       # - name: Notify Slack on Success
