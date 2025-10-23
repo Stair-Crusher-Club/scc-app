@@ -4,11 +4,11 @@ interface DismissedModalRecord {
   [challengeId: string]: string; // challengeId -> date string
 }
 
-const STORAGE_KEY = 'challenge_modal_dismissed';
+const STORAGE_KEY_PREFIX = 'challenge_modal_dismissed::';
 
 export function isDismissedToday(challengeId: string): boolean {
   const today = new Date().toDateString();
-  const dismissed = storage.getString(STORAGE_KEY);
+  const dismissed = storage.getString(`${STORAGE_KEY_PREFIX}${challengeId}`);
 
   if (!dismissed) {
     return false;
@@ -24,7 +24,7 @@ export function isDismissedToday(challengeId: string): boolean {
 
 export function setDismissedToday(challengeId: string): void {
   const today = new Date().toDateString();
-  const dismissed = storage.getString(STORAGE_KEY);
+  const dismissed = storage.getString(`${STORAGE_KEY_PREFIX}${challengeId}`);
 
   let records: DismissedModalRecord = {};
 
@@ -37,5 +37,5 @@ export function setDismissedToday(challengeId: string): void {
   }
 
   records[challengeId] = today;
-  storage.set(STORAGE_KEY, JSON.stringify(records));
+  storage.set(`${STORAGE_KEY_PREFIX}${challengeId}`, JSON.stringify(records));
 }
