@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image, ActivityIndicator} from 'react-native';
+import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -55,15 +55,6 @@ const ImageWrapper = styled.View({
   backgroundColor: color.gray10,
   justifyContent: 'center',
   alignItems: 'center',
-});
-
-const LoadingContainer = styled.View({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 1,
 });
 
 const RankingImage = styled(Image)({
