@@ -159,6 +159,12 @@ platform :ios do
 
   desc "Ask for version, update files, commit and tag"
   lane :prepare_release do |options|
+    # Skip version update if skip_version_update is true
+    if options[:skip_version_update]
+      UI.message("Skipping version update as requested.")
+      return
+    end
+
     # 1. 다음 버전을 묻기
     version = options[:version] || prompt(text: "What version do you want to build? ex) 0.1.4")
     unless version.to_s.strip.empty?

@@ -1,0 +1,124 @@
+name: Native Build Deployment
+
+on:
+  push:
+    tags:
+      - 'v*-android'
+      - 'v*-ios'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build (android or ios)'
+        required: true
+        type: choice
+        options:
+          - android
+          - ios
+      scheme:
+        description: 'Build scheme (sandbox or production)'
+        required: true
+        type: choice
+        options:
+          - sandbox
+          - production
+
+jobs:
+  android:
+    if: startsWith(github.ref_name, 'v') && endsWith(github.ref_name, '-android') || (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'android')
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0.0'
+          bundler-cache: true
+
+      - name: Install Android dependencies
+        run: |
+          cd android
+          bundle install
+
+      - name: Run Android release candidate
+        run: |
+          cd android
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            fastlane android release_candidate scheme:${{ github.event.inputs.scheme }} skip_version_update:true
+          else
+            fastlane android release_candidate scheme:sandbox skip_version_update:true
+          fi
+
+      - name: Notify Slack on Success
+        if: success()
+        run: |
+          CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[NATIVE] Android Build Deployment Successful\", \"text\":\"Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        run: |
+          CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[NATIVE] Android Build Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+
+  ios:
+    if: startsWith(github.ref_name, 'v') && endsWith(github.ref_name, '-ios') || (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'ios')
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0.0'
+          bundler-cache: true
+
+      - name: Install iOS dependencies
+        run: |
+          cd ios
+          bundle install
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
+
+      - name: Run iOS release candidate
+        run: |
+          cd ios
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            fastlane ios release_candidate scheme:${{ github.event.inputs.scheme }} skip_version_update:true
+          else
+            fastlane ios release_candidate scheme:sandbox skip_version_update:true
+          fi
+
+      - name: Notify Slack on Success
+        if: success()
+        run: |
+          CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[NATIVE] iOS Build Deployment Successful\", \"text\":\"Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        run: |
+          CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[NATIVE] iOS Build Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
