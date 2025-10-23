@@ -7,14 +7,31 @@ import {ChallengeQuestDto, ChallengeRankDto} from '@/generated-sources/openapi';
 import ChallengeDetailQuestSection from '../ChallengeDetailQuestSection';
 import MyRank from './MyRank';
 import TopTenRank from './TopTenRank';
+import LastMonthRankingSection from './LastMonthRankingSection';
 
 interface PropsType {
   ranks: ChallengeRankDto[];
   myRank?: ChallengeRankDto;
   quests?: ChallengeQuestDto[];
+  lastMonthRankImageUrl?: string;
 }
 
-const ChallengeDetailRankSection = ({ranks, myRank, quests}: PropsType) => {
+const ChallengeDetailRankSection = ({
+  ranks,
+  myRank,
+  quests,
+  lastMonthRankImageUrl,
+}: PropsType) => {
+  const hasContent =
+    (ranks && ranks.length > 0) ||
+    myRank ||
+    (quests && quests.length > 0) ||
+    lastMonthRankImageUrl;
+
+  if (!hasContent) {
+    return null;
+  }
+
   return (
     <Container>
       <Separator />
@@ -22,7 +39,10 @@ const ChallengeDetailRankSection = ({ranks, myRank, quests}: PropsType) => {
         <ChallengeDetailQuestSection quests={quests} />
       )}
       {myRank && <MyRank myRank={myRank} />}
-      <TopTenRank ranks={ranks} />
+      {ranks && ranks.length > 0 && <TopTenRank ranks={ranks} />}
+      {lastMonthRankImageUrl && (
+        <LastMonthRankingSection imageUrl={lastMonthRankImageUrl} />
+      )}
     </Container>
   );
 };

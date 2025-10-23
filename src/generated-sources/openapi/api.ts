@@ -583,6 +583,18 @@ export interface ChallengeDto {
      * @memberof ChallengeDto
      */
     'b2bFormSchema'?: ChallengeB2bFormSchemaDto;
+    /**
+     * 지난달 랭킹 이미지 URL
+     * @type {string}
+     * @memberof ChallengeDto
+     */
+    'lastMonthRankImageUrl'?: string;
+    /**
+     * 팝업 모달 이미지 URL
+     * @type {string}
+     * @memberof ChallengeDto
+     */
+    'modalImageUrl'?: string;
 }
 /**
  * 선택형 필드의 옵션
