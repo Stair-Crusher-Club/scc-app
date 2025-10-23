@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Modal, ModalProps, ActivityIndicator} from 'react-native';
+import {Image, Modal, ModalProps, ActivityIndicator, TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
-import {SccButton} from '@/components/atoms';
+import IcX from '@/assets/icon/ic_x_black.svg';
+
 import SccPressable from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -22,7 +23,6 @@ export default function LastMonthRankingModal({
   ...props
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
-  const [dontShowToday, setDontShowToday] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
   useEffect(() => {
@@ -30,9 +30,6 @@ export default function LastMonthRankingModal({
   }, [_visible]);
 
   const handleClose = () => {
-    if (dontShowToday) {
-      setDismissedToday(challengeId);
-    }
     setVisible(false);
     onClose();
   };
@@ -53,31 +50,25 @@ export default function LastMonthRankingModal({
               onLoad={() => setImageLoading(false)}
               onError={() => setImageLoading(false)}
             />
+            <CloseButton onPress={handleClose}>
+              <IcX />
+            </CloseButton>
           </ImageWrapper>
           <CheckboxContainer>
             <SccPressable
-              onPress={() => setDontShowToday(!dontShowToday)}
+              onPress={() => {
+                setDismissedToday(challengeId);
+                setVisible(false);
+                onClose();
+              }}
               elementName="last_month_ranking_modal_dont_show_today"
-              logParams={{challengeId, checked: !dontShowToday}}>
+              logParams={{challengeId}}>
               <CheckboxRow>
-                <Checkbox checked={dontShowToday}>
-                  {dontShowToday && <CheckboxCheck>✓</CheckboxCheck>}
-                </Checkbox>
-                <CheckboxLabel>오늘 하루 보지 않기</CheckboxLabel>
+                <Checkbox checked={false} />
+                <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
               </CheckboxRow>
             </SccPressable>
           </CheckboxContainer>
-          <ButtonContainer>
-            <ConfirmButton
-              text="확인"
-              textColor="white"
-              buttonColor="brandColor"
-              fontFamily={font.pretendardBold}
-              onPress={handleClose}
-              elementName="last_month_ranking_modal_confirm"
-              logParams={{challengeId, dontShowToday}}
-            />
-          </ButtonContainer>
         </Container>
       </Backdrop>
     </Modal>
@@ -87,7 +78,7 @@ export default function LastMonthRankingModal({
 const Backdrop = styled.View({
   flex: 1,
   justifyContent: 'center',
-  backgroundColor: 'rgba(0,0,0,0.5)',
+  backgroundColor: 'rgba(0,0,0,0.7)',
   padding: 20,
 });
 
@@ -120,46 +111,42 @@ const RankingImage = styled(Image)({
 });
 
 const CheckboxContainer = styled.View({
-  paddingHorizontal: 20,
-  paddingVertical: 16,
+  padding: 16,
 });
 
 const CheckboxRow = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 8,
+  gap: 4,
 });
 
 const Checkbox = styled.View<{checked: boolean}>(({checked}) => ({
   width: 20,
   height: 20,
-  borderRadius: 4,
-  borderWidth: 1.5,
-  borderColor: checked ? color.brand60 : color.gray40,
+  borderRadius: 6,
+  borderWidth: 1.6,
+  borderColor: color.gray25,
   backgroundColor: checked ? color.brand60 : color.white,
   justifyContent: 'center',
   alignItems: 'center',
 }));
 
-const CheckboxCheck = styled.Text({
-  color: color.white,
-  fontSize: 14,
-  fontFamily: font.pretendardBold,
-});
-
 const CheckboxLabel = styled.Text({
-  color: color.black,
+  color: color.gray70,
   fontSize: 14,
+  height: 20,
   fontFamily: font.pretendardRegular,
 });
 
-const ButtonContainer = styled.View({
-  flexDirection: 'row',
-  gap: 10,
-  paddingVertical: 20,
-  paddingHorizontal: 20,
+const CloseButton = styled(TouchableOpacity)({
+  position: 'absolute',
+  top: 18,
+  right: 18,
+  width: 20,
+  height: 20,
+  borderRadius: 10,
+  backgroundColor: color.gray30,
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 2,
 });
-
-const ConfirmButton = styled(SccButton)`
-  flex: 1;
-`;
