@@ -162,7 +162,7 @@ platform :ios do
     # Skip version update if skip_version_update is true
     if options[:skip_version_update]
       UI.message("Skipping version update as requested.")
-      return
+      next
     end
 
     # 1. 다음 버전을 묻기
