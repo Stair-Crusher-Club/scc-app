@@ -3,8 +3,8 @@ import {
   Image,
   Modal,
   ModalProps,
-  ActivityIndicator,
   Animated,
+  Dimensions,
 } from 'react-native';
 import styled from 'styled-components/native';
 
@@ -31,9 +31,7 @@ export default function LastMonthRankingModal({
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
   const [imageLoading, setImageLoading] = useState(true);
-  const [imageAspectRatio, setImageAspectRatio] = useState<
-    number | undefined
-  >();
+  const [imageHeight, setImageHeight] = useState<number | undefined>();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -41,78 +39,79 @@ export default function LastMonthRankingModal({
     if (_visible) {
       setImageLoading(true);
       fadeAnim.setValue(0);
+
+      // Get image dimensions and calculate height for width 100%
+      const screenWidth = Dimensions.get('window').width;
+      const containerWidth = screenWidth - 40; // padding 20px on each side
+
+      Image.getSize(
+        imageUrl,
+        (width, height) => {
+          // Calculate height maintaining aspect ratio
+          const calculatedHeight = (containerWidth / width) * height;
+          setImageHeight(calculatedHeight);
+        },
+        () => {
+          // Error callback
+        },
+      );
     }
-  }, [_visible, fadeAnim]);
+  }, [_visible, fadeAnim, imageUrl]);
 
   useEffect(() => {
-    if (!imageLoading) {
+    if (!imageLoading && imageHeight !== undefined) {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 250,
         useNativeDriver: true,
       }).start();
     }
-  }, [imageLoading, fadeAnim]);
+  }, [imageLoading, imageHeight, fadeAnim]);
 
   const handleClose = () => {
     setVisible(false);
     onClose();
   };
 
-  const handleImageLoad = (e: any) => {
-    const {width, height} = e.nativeEvent.source;
-    if (width && height) {
-      setImageAspectRatio(width / height);
-    }
+  const handleImageLoad = () => {
     setImageLoading(false);
   };
+  console.log('fuckfuck 2', visible, imageLoading, imageHeight);
 
   return (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
       <AnimatedBackdrop style={{opacity: fadeAnim}}>
-        {imageLoading ? (
-          <>
-            <LoadingContainer>
-              <ActivityIndicator size="large" color={color.brand60} />
-            </LoadingContainer>
-            <HiddenImage
+        <Container>
+          <ImageWrapper style={{height: imageHeight}}>
+            <RankingImage
               source={{uri: imageUrl}}
+              resizeMode="cover"
               onLoad={handleImageLoad}
               onError={() => setImageLoading(false)}
             />
-          </>
-        ) : (
-          <Container>
-            <ImageWrapper>
-              <RankingImage
-                source={{uri: imageUrl}}
-                resizeMode="contain"
-                style={{aspectRatio: imageAspectRatio}}
-              />
-              <CloseButton
-                onPress={handleClose}
-                elementName="last_month_ranking_modal_close"
-                logParams={{challengeId}}>
-                <IcX />
-              </CloseButton>
-            </ImageWrapper>
-            <CheckboxContainer>
-              <SccPressable
-                onPress={() => {
-                  setDismissedToday(challengeId);
-                  setVisible(false);
-                  onClose();
-                }}
-                elementName="last_month_ranking_modal_dont_show_today"
-                logParams={{challengeId}}>
-                <CheckboxRow>
-                  <Checkbox checked={false} />
-                  <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
-                </CheckboxRow>
-              </SccPressable>
-            </CheckboxContainer>
-          </Container>
-        )}
+            <CloseButton
+              onPress={handleClose}
+              elementName="last_month_ranking_modal_close"
+              logParams={{challengeId}}>
+              <IcX />
+            </CloseButton>
+          </ImageWrapper>
+          <CheckboxContainer>
+            <SccPressable
+              onPress={() => {
+                setDismissedToday(challengeId);
+                setVisible(false);
+                onClose();
+              }}
+              elementName="last_month_ranking_modal_dont_show_today"
+              logParams={{challengeId}}>
+              <CheckboxRow>
+                <Checkbox checked={false} />
+                <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
+              </CheckboxRow>
+            </SccPressable>
+          </CheckboxContainer>
+        </Container>
       </AnimatedBackdrop>
     </Modal>
   );
@@ -125,18 +124,6 @@ const AnimatedBackdrop = styled(Animated.View)({
   padding: 20,
 });
 
-const LoadingContainer = styled.View({
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const HiddenImage = styled(Image)({
-  width: 1,
-  height: 1,
-  opacity: 0,
-  position: 'absolute',
-});
-
 const Container = styled.View({
   width: '100%',
   backgroundColor: color.white,
@@ -146,7 +133,6 @@ const Container = styled.View({
 
 const ImageWrapper = styled.View({
   width: '100%',
-  // aspectRatio: 1,
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: color.gray10,
@@ -154,6 +140,7 @@ const ImageWrapper = styled.View({
 
 const RankingImage = styled(Image)({
   width: '100%',
+  height: '100%',
 });
 
 const CheckboxContainer = styled.View({

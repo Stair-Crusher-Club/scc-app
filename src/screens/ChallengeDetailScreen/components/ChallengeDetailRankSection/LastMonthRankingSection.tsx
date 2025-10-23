@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {Image, Dimensions} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -12,24 +12,33 @@ interface LastMonthRankingSectionProps {
 export default function LastMonthRankingSection({
   imageUrl,
 }: LastMonthRankingSectionProps) {
-  const [imageAspectRatio, setImageAspectRatio] = useState<number | undefined>();
+  const [imageHeight, setImageHeight] = useState<number | undefined>();
 
-  const handleImageLoad = (e: any) => {
-    const {width, height} = e.nativeEvent.source;
-    if (width && height) {
-      setImageAspectRatio(width / height);
-    }
-  };
+  useEffect(() => {
+    // Get image dimensions and calculate height for width 100%
+    const screenWidth = Dimensions.get('window').width;
+    const containerWidth = screenWidth - 40; // paddingHorizontal 20px on each side
+
+    Image.getSize(
+      imageUrl,
+      (width, height) => {
+        // Calculate height maintaining aspect ratio
+        const calculatedHeight = (containerWidth / width) * height;
+        setImageHeight(calculatedHeight);
+      },
+      () => {
+        // Error callback
+      },
+    );
+  }, [imageUrl]);
 
   return (
     <Container>
       <SectionTitle>누적랭킹</SectionTitle>
-      <ImageWrapper>
+      <ImageWrapper style={{height: imageHeight}}>
         <RankingImage
           source={{uri: imageUrl}}
           resizeMode="contain"
-          onLoad={handleImageLoad}
-          style={{aspectRatio: imageAspectRatio}}
         />
       </ImageWrapper>
     </Container>
@@ -59,4 +68,5 @@ const ImageWrapper = styled.View({
 
 const RankingImage = styled(Image)({
   width: '100%',
+  height: '100%',
 });
