@@ -13,6 +13,7 @@ import {
   Place,
 } from '@/generated-sources/openapi';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {useFormScreenVersion} from '@/utils/accessibilityFlags';
@@ -145,6 +146,8 @@ function NoBuildingInfoSection({
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
   const formVersion = useFormScreenVersion();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
 
   const handleBuildingRegister = () => {
     if (Platform.OS === 'web') {
@@ -154,44 +157,54 @@ function NoBuildingInfoSection({
       });
       return;
     }
-    checkAuth(() => {
-      if (formVersion === 'v2') {
-        navigation.navigate('BuildingFormV2', {place, building});
-        return;
-      }
-      navigation.navigate('BuildingForm', {place, building});
+    checkAuth(async () => {
+      await navigateWithLocationCheck({
+        targetLocation: building.location,
+        address: building.address,
+        type: 'building',
+        onNavigate: () => {
+          if (formVersion === 'v2') {
+            navigation.navigate('BuildingFormV2', {place, building});
+            return;
+          }
+          navigation.navigate('BuildingForm', {place, building});
+        },
+      });
     });
   };
 
   return (
-    <S.Section>
-      <S.SubSection>
-        <S.Row>
-          <S.Title>건물 정보</S.Title>
-        </S.Row>
-        <S.Address>{place.address}</S.Address>
-      </S.SubSection>
-      <S.EmptyInfoContent>
-        <ImageList images={[]} roundCorners />
-        <BuildingEntranceStepInfo />
-        <BuildingElevatorInfo />
-        <BuildingDoorInfo />
-        <SccButton
-          text={
-            isAccessibilityRegistrable
-              ? '정보 등록하기'
-              : '서비스 지역이 아닙니다'
-          }
-          style={{
-            borderRadius: 10,
-          }}
-          fontSize={18}
-          fontFamily={font.pretendardBold}
-          isDisabled={!isAccessibilityRegistrable}
-          onPress={handleBuildingRegister}
-          elementName="place_detail_building_register"
-        />
-      </S.EmptyInfoContent>
-    </S.Section>
+    <>
+      <S.Section>
+        <S.SubSection>
+          <S.Row>
+            <S.Title>건물 정보</S.Title>
+          </S.Row>
+          <S.Address>{place.address}</S.Address>
+        </S.SubSection>
+        <S.EmptyInfoContent>
+          <ImageList images={[]} roundCorners />
+          <BuildingEntranceStepInfo />
+          <BuildingElevatorInfo />
+          <BuildingDoorInfo />
+          <SccButton
+            text={
+              isAccessibilityRegistrable
+                ? '정보 등록하기'
+                : '서비스 지역이 아닙니다'
+            }
+            style={{
+              borderRadius: 10,
+            }}
+            fontSize={18}
+            fontFamily={font.pretendardBold}
+            isDisabled={!isAccessibilityRegistrable}
+            onPress={handleBuildingRegister}
+            elementName="place_detail_building_register"
+          />
+        </S.EmptyInfoContent>
+      </S.Section>
+      {LocationConfirmModal}
+    </>
   );
 }
