@@ -19,7 +19,7 @@ export default function ChallengeDetailStickyActionBar({
   onGoConquer,
   style,
 }: Props) {
-  const translateY = useRef(new Animated.Value(BAR_HEIGHT)).current;
+  const progress = useRef(new Animated.Value(0)).current; // 0=hidden, 1=visible
   const [display, setDisplay] = useState<'flex' | 'none'>(
     visible ? 'flex' : 'none',
   );
@@ -27,28 +27,29 @@ export default function ChallengeDetailStickyActionBar({
   useEffect(() => {
     if (visible) {
       setDisplay('flex');
-      Animated.timing(translateY, {
-        toValue: 0,
+      Animated.timing(progress, {
+        toValue: 1,
         duration: 180,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start();
     } else {
-      Animated.timing(translateY, {
-        toValue: BAR_HEIGHT,
+      Animated.timing(progress, {
+        toValue: 0,
         duration: 180,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start(({finished}) => {
         if (finished) setDisplay('none');
       });
     }
-  }, [visible, translateY]);
+  }, [visible, progress]);
 
   const animatedStyle = {
-    transform: [{translateY}],
-    opacity: translateY.interpolate({
-      inputRange: [0, BAR_HEIGHT],
-      outputRange: [1, 0],
+    height: progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, BAR_HEIGHT],
     }),
+    opacity: progress,
+    overflow: 'hidden' as const,
   };
 
   return (

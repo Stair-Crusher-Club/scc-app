@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image, ActivityIndicator} from 'react-native';
+import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -12,22 +12,24 @@ interface LastMonthRankingSectionProps {
 export default function LastMonthRankingSection({
   imageUrl,
 }: LastMonthRankingSectionProps) {
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageAspectRatio, setImageAspectRatio] = useState<number | undefined>();
+
+  const handleImageLoad = (e: any) => {
+    const {width, height} = e.nativeEvent.source;
+    if (width && height) {
+      setImageAspectRatio(width / height);
+    }
+  };
 
   return (
     <Container>
-      <SectionTitle>지난달 랭킹</SectionTitle>
+      <SectionTitle>누적랭킹</SectionTitle>
       <ImageWrapper>
-        {imageLoading && (
-          <LoadingContainer>
-            <ActivityIndicator size="large" color={color.brand60} />
-          </LoadingContainer>
-        )}
         <RankingImage
           source={{uri: imageUrl}}
           resizeMode="contain"
-          onLoad={() => setImageLoading(false)}
-          onError={() => setImageLoading(false)}
+          onLoad={handleImageLoad}
+          style={{aspectRatio: imageAspectRatio}}
         />
       </ImageWrapper>
     </Container>
@@ -41,32 +43,20 @@ const Container = styled.View({
 });
 
 const SectionTitle = styled.Text({
-  fontSize: 18,
-  lineHeight: 26,
-  fontFamily: font.pretendardBold,
   color: color.black,
+  fontSize: 20,
+  fontFamily: font.pretendardBold,
+  padding: '10px 10px 0',
 });
 
 const ImageWrapper = styled.View({
   width: '100%',
-  aspectRatio: 1,
-  borderRadius: 12,
   overflow: 'hidden',
   backgroundColor: color.gray10,
   justifyContent: 'center',
   alignItems: 'center',
 });
 
-const LoadingContainer = styled.View({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 1,
-});
-
 const RankingImage = styled(Image)({
   width: '100%',
-  height: '100%',
 });

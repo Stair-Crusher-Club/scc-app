@@ -1,10 +1,17 @@
-import React, {useEffect, useState} from 'react';
-import {Image, Modal, ModalProps, ActivityIndicator, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState, useRef} from 'react';
+import {
+  Image,
+  Modal,
+  ModalProps,
+  ActivityIndicator,
+  Animated,
+} from 'react-native';
 import styled from 'styled-components/native';
 
 import IcX from '@/assets/icon/ic_x_black.svg';
 
 import SccPressable from '@/components/SccPressable';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {setDismissedToday} from '@/atoms/challengeModalAtoms';
@@ -24,65 +31,114 @@ export default function LastMonthRankingModal({
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageAspectRatio, setImageAspectRatio] = useState<
+    number | undefined
+  >();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     setVisible(_visible);
-  }, [_visible]);
+    if (_visible) {
+      setImageLoading(true);
+      fadeAnim.setValue(0);
+    }
+  }, [_visible, fadeAnim]);
+
+  useEffect(() => {
+    if (!imageLoading) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [imageLoading, fadeAnim]);
 
   const handleClose = () => {
     setVisible(false);
     onClose();
   };
 
+  const handleImageLoad = (e: any) => {
+    const {width, height} = e.nativeEvent.source;
+    if (width && height) {
+      setImageAspectRatio(width / height);
+    }
+    setImageLoading(false);
+  };
+
   return (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
-      <Backdrop>
-        <Container>
-          <ImageWrapper>
-            {imageLoading && (
-              <LoadingContainer>
-                <ActivityIndicator size="large" color={color.brand60} />
-              </LoadingContainer>
-            )}
-            <RankingImage
+      <AnimatedBackdrop style={{opacity: fadeAnim}}>
+        {imageLoading ? (
+          <>
+            <LoadingContainer>
+              <ActivityIndicator size="large" color={color.brand60} />
+            </LoadingContainer>
+            <HiddenImage
               source={{uri: imageUrl}}
-              resizeMode="contain"
-              onLoad={() => setImageLoading(false)}
+              onLoad={handleImageLoad}
               onError={() => setImageLoading(false)}
             />
-            <CloseButton onPress={handleClose}>
-              <IcX />
-            </CloseButton>
-          </ImageWrapper>
-          <CheckboxContainer>
-            <SccPressable
-              onPress={() => {
-                setDismissedToday(challengeId);
-                setVisible(false);
-                onClose();
-              }}
-              elementName="last_month_ranking_modal_dont_show_today"
-              logParams={{challengeId}}>
-              <CheckboxRow>
-                <Checkbox checked={false} />
-                <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
-              </CheckboxRow>
-            </SccPressable>
-          </CheckboxContainer>
-        </Container>
-      </Backdrop>
+          </>
+        ) : (
+          <Container>
+            <ImageWrapper>
+              <RankingImage
+                source={{uri: imageUrl}}
+                resizeMode="contain"
+                style={{aspectRatio: imageAspectRatio}}
+              />
+              <CloseButton
+                onPress={handleClose}
+                elementName="last_month_ranking_modal_close"
+                logParams={{challengeId}}>
+                <IcX />
+              </CloseButton>
+            </ImageWrapper>
+            <CheckboxContainer>
+              <SccPressable
+                onPress={() => {
+                  setDismissedToday(challengeId);
+                  setVisible(false);
+                  onClose();
+                }}
+                elementName="last_month_ranking_modal_dont_show_today"
+                logParams={{challengeId}}>
+                <CheckboxRow>
+                  <Checkbox checked={false} />
+                  <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
+                </CheckboxRow>
+              </SccPressable>
+            </CheckboxContainer>
+          </Container>
+        )}
+      </AnimatedBackdrop>
     </Modal>
   );
 }
 
-const Backdrop = styled.View({
+const AnimatedBackdrop = styled(Animated.View)({
   flex: 1,
   justifyContent: 'center',
   backgroundColor: 'rgba(0,0,0,0.7)',
   padding: 20,
 });
 
+const LoadingContainer = styled.View({
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const HiddenImage = styled(Image)({
+  width: 1,
+  height: 1,
+  opacity: 0,
+  position: 'absolute',
+});
+
 const Container = styled.View({
+  width: '100%',
   backgroundColor: color.white,
   borderRadius: 20,
   overflow: 'hidden',
@@ -90,24 +146,14 @@ const Container = styled.View({
 
 const ImageWrapper = styled.View({
   width: '100%',
-  aspectRatio: 1,
+  // aspectRatio: 1,
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: color.gray10,
 });
 
-const LoadingContainer = styled.View({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 1,
-});
-
 const RankingImage = styled(Image)({
   width: '100%',
-  height: '100%',
 });
 
 const CheckboxContainer = styled.View({
@@ -138,7 +184,7 @@ const CheckboxLabel = styled.Text({
   fontFamily: font.pretendardRegular,
 });
 
-const CloseButton = styled(TouchableOpacity)({
+const CloseButton = styled(SccTouchableOpacity)({
   position: 'absolute',
   top: 18,
   right: 18,
