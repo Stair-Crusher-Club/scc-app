@@ -42,6 +42,16 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn/cache
+            .yarn/install-state.gz
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install JavaScript dependencies
         run: yarn install --immutable
 
@@ -54,10 +64,22 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0.0'
+          bundler-cache: true
+          working-directory: android
 
       - name: Install Android dependencies
         run: |
@@ -113,6 +135,16 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn/cache
+            .yarn/install-state.gz
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install JavaScript dependencies
         run: yarn install --immutable
 
@@ -120,6 +152,8 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0.0'
+          bundler-cache: true
+          working-directory: ios
 
       - name: Install iOS dependencies
         run: |
@@ -127,6 +161,17 @@ jobs:
           gem install bundler
           bundle update --bundler
           bundle install
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
 
       - name: Install CocoaPods dependencies
         run: |
