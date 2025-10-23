@@ -18,10 +18,8 @@ export default function PlaceDetailCrusher({
     crusherGroupIcon?.imageWidth && crusherGroupIcon?.imageHeight
       ? crusherGroupIcon.imageWidth / crusherGroupIcon.imageHeight
       : 1;
-  const crusherName =
-    crusherNames.length === 1
-      ? crusherNames[0]
-      : `${crusherNames[0]} 외 ${crusherNames.length - 1}명`;
+  const crusherName = formatCrusherName(crusherNames);
+
   return (
     <Container>
       {crusherGroupIcon && (
@@ -37,7 +35,7 @@ export default function PlaceDetailCrusher({
       )}
       <CrusherRow>
         <CrusherLabel>정복자</CrusherLabel>
-        <CrusherName>{crusherName || '익명 비밀요원'}</CrusherName>
+        <CrusherName>{crusherName}</CrusherName>
       </CrusherRow>
     </Container>
   );
@@ -88,3 +86,9 @@ export const CrusherName = styled.Text({
   fontSize: 14,
   fontFamily: font.pretendardMedium,
 });
+
+function formatCrusherName(names: string[]): string {
+  if (names.length === 0) return '익명 비밀요원';
+  if (names.length === 1) return names[0];
+  return `${names[0]} 외 ${names.length - 1}명`;
+}
