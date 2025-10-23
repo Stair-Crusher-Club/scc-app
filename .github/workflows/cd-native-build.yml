@@ -47,11 +47,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0.0'
-          bundler-cache: true
 
       - name: Install Android dependencies
         run: |
           cd android
+          gem install bundler
           bundle install
 
       - name: Run Android release candidate
@@ -90,11 +90,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0.0'
-          bundler-cache: true
 
       - name: Install iOS dependencies
         run: |
           cd ios
+          gem install bundler
           bundle install
 
       - name: Install CocoaPods dependencies
