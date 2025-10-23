@@ -39,6 +39,14 @@ Upload a APK/AAB file to Firebase App Distribution
 
 
 
+### android prepare_release
+
+```sh
+[bundle exec] fastlane android prepare_release
+```
+
+Ask for version, update files, commit and tag
+
 ### android release_candidate
 
 ```sh

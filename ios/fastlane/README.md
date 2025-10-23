@@ -57,6 +57,14 @@ Upload IPA file to Firebase App Distribution.
 
 Upload a IPA file to AppStoreConnect.
 
+### ios prepare_release
+
+```sh
+[bundle exec] fastlane ios prepare_release
+```
+
+Ask for version, update files, commit and tag
+
 ### ios export
 
 ```sh
