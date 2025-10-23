@@ -69,7 +69,7 @@ export function useUpvoteToggle({
       setTotalUpvoteCount(prev => Math.max(0, prev + (wasUpvoted ? -1 : 1)));
     },
     onSuccess: () => {
-      ToastUtils.show('좋은 의견 감사합니다!');
+      ToastUtils.show('소중한 의견 감사해요');
 
       if (!placeId) {
         return;
