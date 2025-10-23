@@ -81,13 +81,6 @@ jobs:
           bundler-cache: true
           working-directory: android
 
-      - name: Install Android dependencies
-        run: |
-          cd android
-          gem install bundler
-          bundle update --bundler
-          bundle install
-
       - name: Run Android release candidate
         run: |
           cd android
@@ -154,13 +147,6 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: ios
-
-      - name: Install iOS dependencies
-        run: |
-          cd ios
-          gem install bundler
-          bundle update --bundler
-          bundle install
 
       - name: Cache CocoaPods
         uses: actions/cache@v4
