@@ -20,6 +20,7 @@ export default function SccRemoteImage({
   const [imageLoading, setImageLoading] = useState(true);
   const [imageHeight, setImageHeight] = useState<number | undefined>();
   const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
+  const [originalSize, setOriginalSize] = useState<{width: number; height: number} | undefined>();
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const {width} = event.nativeEvent.layout;
@@ -28,29 +29,33 @@ export default function SccRemoteImage({
     }
   };
 
+  // Get original image size only when imageUrl changes
   useEffect(() => {
-    // Wait for either containerWidth prop or measured width
-    const width = measuredWidth;
-    if (!width) {
-      return;
-    }
-
     setImageLoading(true);
     setImageHeight(undefined);
+    setOriginalSize(undefined);
 
     Image.getSize(
       imageUrl,
       (originalWidth, originalHeight) => {
-        // Calculate height maintaining aspect ratio
-        const calculatedHeight = (width / originalWidth) * originalHeight;
-        setImageHeight(calculatedHeight);
+        setOriginalSize({width: originalWidth, height: originalHeight});
       },
       () => {
         // Error callback - still set loading to false
         setImageLoading(false);
       },
     );
-  }, [imageUrl, measuredWidth]);
+  }, [imageUrl]);
+
+  // Calculate height when measured width or original size changes
+  useEffect(() => {
+    if (!measuredWidth || !originalSize) {
+      return;
+    }
+
+    const calculatedHeight = (measuredWidth / originalSize.width) * originalSize.height;
+    setImageHeight(calculatedHeight);
+  }, [measuredWidth, originalSize]);
 
   useEffect(() => {
     if (!imageLoading && imageHeight !== undefined) {
