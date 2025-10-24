@@ -36,10 +36,7 @@ export default function LastMonthRankingSection({
     <Container>
       <SectionTitle>누적랭킹</SectionTitle>
       <ImageWrapper style={{height: imageHeight}}>
-        <RankingImage
-          source={{uri: imageUrl}}
-          resizeMode="contain"
-        />
+        <RankingImage source={{uri: imageUrl}} resizeMode="contain" />
       </ImageWrapper>
     </Container>
   );

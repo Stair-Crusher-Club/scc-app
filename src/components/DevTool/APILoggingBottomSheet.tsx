@@ -76,7 +76,7 @@ export const APILoggingBottomSheet: React.FC<APILoggingBottomSheetProps> = ({
       return urlObj.pathname + urlObj.search;
     } catch {
       // URL 파싱에 실패하면 전체 URL에서 도메인 부분만 제거
-      return url.replace(/^https?:\/\/[^\/]+/, '');
+      return url.replace(/^https?:\/\/[^/]+/, '');
     }
   };
 
