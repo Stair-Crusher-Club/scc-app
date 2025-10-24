@@ -1,16 +1,11 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {
-  Image,
-  Modal,
-  ModalProps,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import {Modal, ModalProps, Animated, Dimensions} from 'react-native';
 import styled from 'styled-components/native';
 
 import IcX from '@/assets/icon/ic_x_black.svg';
 
 import SccPressable from '@/components/SccPressable';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -30,64 +25,41 @@ export default function LastMonthRankingModal({
   ...props
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
-  const [imageLoading, setImageLoading] = useState(true);
-  const [imageHeight, setImageHeight] = useState<number | undefined>();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const screenWidth = Dimensions.get('window').width;
+  const containerWidth = screenWidth - 40; // padding 20px on each side
 
   useEffect(() => {
     setVisible(_visible);
     if (_visible) {
-      setImageLoading(true);
       fadeAnim.setValue(0);
-
-      // Get image dimensions and calculate height for width 100%
-      const screenWidth = Dimensions.get('window').width;
-      const containerWidth = screenWidth - 40; // padding 20px on each side
-
-      Image.getSize(
-        imageUrl,
-        (width, height) => {
-          // Calculate height maintaining aspect ratio
-          const calculatedHeight = (containerWidth / width) * height;
-          setImageHeight(calculatedHeight);
-        },
-        () => {
-          // Error callback
-        },
-      );
     }
-  }, [_visible, fadeAnim, imageUrl]);
-
-  useEffect(() => {
-    if (!imageLoading && imageHeight !== undefined) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [imageLoading, imageHeight, fadeAnim]);
+  }, [_visible, fadeAnim]);
 
   const handleClose = () => {
     setVisible(false);
     onClose();
   };
 
-  const handleImageLoad = () => {
-    setImageLoading(false);
+  const handleImageReady = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
   };
-  console.log('fuckfuck 2', visible, imageLoading, imageHeight);
 
   return (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
       <AnimatedBackdrop style={{opacity: fadeAnim}}>
         <Container>
-          <ImageWrapper style={{height: imageHeight}}>
-            <RankingImage
-              source={{uri: imageUrl}}
+          <ImageContainer>
+            <SccRemoteImage
+              imageUrl={imageUrl}
+              containerWidth={containerWidth}
+              onReady={handleImageReady}
               resizeMode="cover"
-              onLoad={handleImageLoad}
-              onError={() => setImageLoading(false)}
             />
             <CloseButton
               onPress={handleClose}
@@ -95,7 +67,7 @@ export default function LastMonthRankingModal({
               logParams={{challengeId}}>
               <IcX />
             </CloseButton>
-          </ImageWrapper>
+          </ImageContainer>
           <CheckboxContainer>
             <SccPressable
               onPress={() => {
@@ -131,16 +103,9 @@ const Container = styled.View({
   overflow: 'hidden',
 });
 
-const ImageWrapper = styled.View({
+const ImageContainer = styled.View({
   width: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: color.gray10,
-});
-
-const RankingImage = styled(Image)({
-  width: '100%',
-  height: '100%',
+  position: 'relative',
 });
 
 const CheckboxContainer = styled.View({
