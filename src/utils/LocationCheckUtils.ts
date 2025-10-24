@@ -43,7 +43,7 @@ export async function getDistanceFromCurrentLocation(
     );
 
     return distance;
-  } catch (error) {
+  } catch (e) {
     // 현재 위치를 가져올 수 없으면 undefined 반환
     return undefined;
   }
