@@ -27,7 +27,8 @@ export default function useNavigateWithLocationCheck() {
       onNavigate,
     }: NavigateWithLocationCheckParams) => {
       // 거리 체크
-      const distance = await getDistanceMetersFromCurrentLocation(targetLocation);
+      const distance =
+        await getDistanceMetersFromCurrentLocation(targetLocation);
 
       if (distance !== undefined && distance <= 200) {
         // 200m 이내면 바로 navigate
