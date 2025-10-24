@@ -16,16 +16,16 @@ export function convertLocationToCoordinates(location: Location): {
 }
 
 /**
- * 현재 위치와 대상 위치 간의 거리를 체크하여 100m 이내인지 확인
+ * 현재 위치와 대상 위치 간의 거리를 계산
  * @param targetLocation 대상 위치
- * @returns isWithin100m: 100m 이내 여부, distance: 거리(미터)
+ * @returns 거리(미터), 현재 위치를 가져올 수 없거나 대상 위치가 없으면 undefined
  */
-export async function checkDistanceFromCurrentLocation(
+export async function getDistanceFromCurrentLocation(
   targetLocation?: Location,
-): Promise<{isWithin100m: boolean; distance?: number}> {
-  // targetLocation이 없으면 거리가 먼 것으로 취급
+): Promise<number | undefined> {
+  // targetLocation이 없으면 undefined 반환
   if (!targetLocation) {
-    return {isWithin100m: false, distance: undefined};
+    return undefined;
   }
 
   try {
@@ -42,12 +42,9 @@ export async function checkDistanceFromCurrentLocation(
       convertLocationToCoordinates(targetLocation),
     );
 
-    return {
-      isWithin100m: distance <= 100,
-      distance,
-    };
+    return distance;
   } catch (error) {
-    // 현재 위치를 가져올 수 없으면 거리가 먼 것으로 취급 (사용자 요구사항)
-    return {isWithin100m: false, distance: undefined};
+    // 현재 위치를 가져올 수 없으면 undefined 반환
+    return undefined;
   }
 }

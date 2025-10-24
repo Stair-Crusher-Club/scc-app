@@ -2,7 +2,7 @@ import React, {useState, useCallback} from 'react';
 
 import {Location} from '@/generated-sources/openapi';
 import LocationConfirmBottomSheet from '@/modals/LocationConfirmBottomSheet';
-import {checkDistanceFromCurrentLocation} from '@/utils/LocationCheckUtils';
+import {getDistanceFromCurrentLocation as getDistanceMetersFromCurrentLocation} from '@/utils/LocationCheckUtils';
 
 interface NavigateWithLocationCheckParams {
   targetLocation: Location | undefined;
@@ -27,15 +27,13 @@ export default function useNavigateWithLocationCheck() {
       onNavigate,
     }: NavigateWithLocationCheckParams) => {
       // 거리 체크
-      const {isWithin100m} = await checkDistanceFromCurrentLocation(
-        targetLocation,
-      );
+      const distance = await getDistanceMetersFromCurrentLocation(targetLocation);
 
-      if (isWithin100m) {
-        // 100m 이내면 바로 navigate
+      if (distance !== undefined && distance <= 200) {
+        // 200m 이내면 바로 navigate
         onNavigate();
       } else {
-        // 100m 초과면 모달 표시
+        // 200m 초과면 모달 표시
         setModalData({address, type, onNavigate});
         setIsModalVisible(true);
       }
