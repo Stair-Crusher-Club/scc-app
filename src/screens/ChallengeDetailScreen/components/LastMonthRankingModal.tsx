@@ -57,7 +57,6 @@ export default function LastMonthRankingModal({
           <ImageContainer>
             <SccRemoteImage
               imageUrl={imageUrl}
-              containerWidth={containerWidth}
               onReady={handleImageReady}
               resizeMode="cover"
             />

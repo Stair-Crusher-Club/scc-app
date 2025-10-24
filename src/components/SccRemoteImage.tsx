@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Dimensions, ViewStyle, ImageResizeMode} from 'react-native';
+import {Image, ViewStyle, ImageResizeMode, LayoutChangeEvent} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 
 interface SccRemoteImageProps {
   imageUrl: string;
-  containerWidth?: number;
   onReady?: () => void;
   resizeMode?: ImageResizeMode;
   style?: ViewStyle;
@@ -14,20 +13,30 @@ interface SccRemoteImageProps {
 
 export default function SccRemoteImage({
   imageUrl,
-  containerWidth,
   onReady,
   resizeMode = 'cover',
   style,
 }: SccRemoteImageProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageHeight, setImageHeight] = useState<number | undefined>();
+  const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const {width} = event.nativeEvent.layout;
+    if (width > 0) {
+      setMeasuredWidth(width);
+    }
+  };
 
   useEffect(() => {
+    // Wait for either containerWidth prop or measured width
+    const width = measuredWidth;
+    if (!width) {
+      return;
+    }
+
     setImageLoading(true);
     setImageHeight(undefined);
-
-    // Get image dimensions and calculate height for width 100%
-    const width = containerWidth ?? Dimensions.get('window').width;
 
     Image.getSize(
       imageUrl,
@@ -41,7 +50,7 @@ export default function SccRemoteImage({
         setImageLoading(false);
       },
     );
-  }, [imageUrl, containerWidth]);
+  }, [imageUrl, measuredWidth]);
 
   useEffect(() => {
     if (!imageLoading && imageHeight !== undefined) {
@@ -54,7 +63,7 @@ export default function SccRemoteImage({
   };
 
   return (
-    <ImageWrapper style={[{height: imageHeight}, style]}>
+    <ImageWrapper style={[{height: imageHeight}, style]} onLayout={handleLayout}>
       <StyledImage
         source={{uri: imageUrl}}
         resizeMode={resizeMode}

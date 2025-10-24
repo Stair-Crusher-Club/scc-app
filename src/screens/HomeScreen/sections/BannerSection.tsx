@@ -10,6 +10,7 @@ import useNavigation from '@/navigation/useNavigation';
 import CoachMarkBanner from '@/screens/HomeScreen/components/CoachMarkBanner';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import {useCheckAuth} from '@/utils/checkAuth';
+import SccRemoteImage from '@/components/SccRemoteImage';
 
 const BannerSection = () => {
   const {api} = useAppComponents();
@@ -65,7 +66,8 @@ const Banner = ({banner}: {banner: HomeBannerDto}) => {
       elementName="home_banner"
       logParams={{banner_key: banner.loggingKey}}
       onPress={() => checkAuth(openBanner)}>
-      <BannerImage source={{uri: banner.imageUrl}} aspectRatio={aspectRatio} />
+      {/* <BannerImage source={{uri: banner.imageUrl}} aspectRatio={aspectRatio} /> */}
+      <SccRemoteImage imageUrl={banner.imageUrl} style={{borderRadius: 6}} />
     </SccPressable>
   );
 };
