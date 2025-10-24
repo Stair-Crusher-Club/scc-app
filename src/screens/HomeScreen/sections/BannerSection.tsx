@@ -82,10 +82,3 @@ const Container = styled.View({
   paddingBottom: 30,
   paddingHorizontal: 20,
 });
-
-const BannerImage = styled.Image<{aspectRatio: number}>(({aspectRatio}) => ({
-  width: '100%',
-  height: 'auto',
-  aspectRatio: `${aspectRatio} / 1`,
-  borderRadius: 6,
-}));

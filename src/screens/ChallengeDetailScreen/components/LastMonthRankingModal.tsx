@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {Modal, ModalProps, Animated, Dimensions} from 'react-native';
+import {Modal, ModalProps, Animated} from 'react-native';
 import styled from 'styled-components/native';
 
 import IcX from '@/assets/icon/ic_x_black.svg';
@@ -26,9 +26,6 @@ export default function LastMonthRankingModal({
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const screenWidth = Dimensions.get('window').width;
-  const containerWidth = screenWidth - 40; // padding 20px on each side
 
   useEffect(() => {
     setVisible(_visible);

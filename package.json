@@ -18,7 +18,7 @@
     "web:build": "webpack --config webpack.config.js --mode production",
     "test": "jest",
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix --ignore-pattern 'web/' --ignore-pattern 'web-dist/'",
     "codegen": "openapi-generator-cli generate --generator-key dev",
     "ota-deploy:sandbox": "env-cmd -f subprojects/scc-frontend-build-configurations/sandbox/.env.hot-updater hot-updater deploy",
     "ota-deploy:production": "env-cmd -f subprojects/scc-frontend-build-configurations/production/.env.hot-updater hot-updater deploy",

@@ -1,5 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Image, ViewStyle, ImageResizeMode, LayoutChangeEvent} from 'react-native';
+import {
+  Image,
+  ViewStyle,
+  ImageResizeMode,
+  LayoutChangeEvent,
+} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -20,7 +25,9 @@ export default function SccRemoteImage({
   const [imageLoading, setImageLoading] = useState(true);
   const [imageHeight, setImageHeight] = useState<number | undefined>();
   const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
-  const [originalSize, setOriginalSize] = useState<{width: number; height: number} | undefined>();
+  const [originalSize, setOriginalSize] = useState<
+    {width: number; height: number} | undefined
+  >();
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const {width} = event.nativeEvent.layout;
@@ -53,7 +60,8 @@ export default function SccRemoteImage({
       return;
     }
 
-    const calculatedHeight = (measuredWidth / originalSize.width) * originalSize.height;
+    const calculatedHeight =
+      (measuredWidth / originalSize.width) * originalSize.height;
     setImageHeight(calculatedHeight);
   }, [measuredWidth, originalSize]);
 
@@ -68,7 +76,9 @@ export default function SccRemoteImage({
   };
 
   return (
-    <ImageWrapper style={[{height: imageHeight}, style]} onLayout={handleLayout}>
+    <ImageWrapper
+      style={[{height: imageHeight}, style]}
+      onLayout={handleLayout}>
       <StyledImage
         source={{uri: imageUrl}}
         resizeMode={resizeMode}
