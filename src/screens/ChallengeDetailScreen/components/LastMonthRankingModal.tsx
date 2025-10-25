@@ -75,10 +75,7 @@ export default function LastMonthRankingModal({
             }}
             elementName="last_month_ranking_modal_dont_show_today"
             logParams={{challengeId}}>
-            <CheckboxRow>
-              <Checkbox checked={false} />
-              <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
-            </CheckboxRow>
+            <DismissTodayLabel>오늘 하루동안 보지 않기</DismissTodayLabel>
           </SccPressable>
         </CheckboxContainer>
       </Container>
@@ -117,28 +114,14 @@ const CheckboxContainer = styled.View({
   padding: 16,
 });
 
-const CheckboxRow = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 4,
-});
-
-const Checkbox = styled.View<{checked: boolean}>(({checked}) => ({
-  width: 20,
-  height: 20,
-  borderRadius: 6,
-  borderWidth: 1.6,
-  borderColor: color.gray25,
-  backgroundColor: checked ? color.brand60 : color.white,
-  justifyContent: 'center',
-  alignItems: 'center',
-}));
-
-const CheckboxLabel = styled.Text({
+const DismissTodayLabel = styled.Text({
   color: color.gray70,
   fontSize: 14,
-  height: 20,
   fontFamily: font.pretendardRegular,
+  borderBottomWidth: 0.5,
+  borderBottomColor: color.gray70,
+  paddingBottom: 0,
+  alignSelf: 'flex-start',
 });
 
 const CloseButton = styled(SccTouchableOpacity)({
