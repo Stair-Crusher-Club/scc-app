@@ -80,10 +80,14 @@ const ChallengeDetailScreen = ({
   }, [challenge]);
 
   useEffect(() => {
+    // ChallengeWelcomeModal이 표시되어야 하면 LastMonthRankingModal은 표시하지 않음
+    const shouldShowWelcomeModal = joinChallenge.isSuccess && isB2B;
+
     if (
       hasJoined &&
       challenge?.modalImageUrl &&
-      !isDismissedToday(challengeId)
+      !isDismissedToday(challengeId) &&
+      !shouldShowWelcomeModal // 한 번에 하나의 모달만 띄운다.
     ) {
       setShowLastMonthRankingModal(true);
     }
