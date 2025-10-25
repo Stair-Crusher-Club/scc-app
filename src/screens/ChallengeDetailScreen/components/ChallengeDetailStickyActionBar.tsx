@@ -1,9 +1,9 @@
 import {SccButton} from '@/components/atoms';
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import React, {useEffect, useRef, useState} from 'react';
 import {Animated, StyleProp, ViewStyle} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 interface Props {
@@ -12,13 +12,16 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-const BAR_HEIGHT = 96;
+const BASE_BAR_HEIGHT = 96; // Button height + padding
 
 export default function ChallengeDetailStickyActionBar({
   visible = false,
   onGoConquer,
   style,
 }: Props) {
+  const insets = useSafeAreaInsets();
+  const BAR_HEIGHT = BASE_BAR_HEIGHT + insets.bottom;
+
   const progress = useRef(new Animated.Value(0)).current; // 0=hidden, 1=visible
   const [display, setDisplay] = useState<'flex' | 'none'>(
     visible ? 'flex' : 'none',
@@ -71,7 +74,7 @@ export default function ChallengeDetailStickyActionBar({
         style,
       ]}
       pointerEvents={visible ? 'auto' : 'none'}>
-      <SafeAreaWrapper edges={['bottom']}>
+      <InnerContainer bottomInset={insets.bottom}>
         <SccButton
           text="장소 정복하러 가기"
           textColor="white"
@@ -80,12 +83,15 @@ export default function ChallengeDetailStickyActionBar({
           onPress={onGoConquer}
           elementName="challenge_detail_go_conquer"
         />
-      </SafeAreaWrapper>
+      </InnerContainer>
     </ButtonContainer>
   );
 }
 
 const ButtonContainer = styled(Animated.View)({
   backgroundColor: color.white,
-  padding: '20px 20px 12px',
 });
+
+const InnerContainer = styled.View<{bottomInset: number}>`
+  padding: 20px 20px ${({bottomInset}) => 12 + bottomInset}px;
+`;
