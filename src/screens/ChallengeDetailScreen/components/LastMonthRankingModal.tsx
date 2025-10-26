@@ -25,12 +25,14 @@ export default function LastMonthRankingModal({
   ...props
 }: LastMonthRankingModalProps) {
   const [visible, setVisible] = useState(_visible);
+  const [isReady, setIsReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     setVisible(_visible);
     if (_visible) {
       fadeAnim.setValue(0);
+      setIsReady(false);
     }
   }, [_visible, fadeAnim]);
 
@@ -40,6 +42,7 @@ export default function LastMonthRankingModal({
   };
 
   const handleImageReady = () => {
+    setIsReady(true);
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 250,
@@ -47,41 +50,44 @@ export default function LastMonthRankingModal({
     }).start();
   };
 
-  return (
+  const content = (
+    <AnimatedBackdrop style={{opacity: fadeAnim}}>
+      <Container>
+        <ImageContainer>
+          <SccRemoteImage
+            imageUrl={imageUrl}
+            onReady={handleImageReady}
+            resizeMode="cover"
+          />
+          <CloseButton
+            onPress={handleClose}
+            elementName="last_month_ranking_modal_close"
+            logParams={{challengeId}}>
+            <IcX />
+          </CloseButton>
+        </ImageContainer>
+        <CheckboxContainer>
+          <SccPressable
+            onPress={() => {
+              setDismissedToday(challengeId);
+              setVisible(false);
+              onClose();
+            }}
+            elementName="last_month_ranking_modal_dont_show_today"
+            logParams={{challengeId}}>
+            <DismissTodayLabel>오늘 하루동안 보지 않기</DismissTodayLabel>
+          </SccPressable>
+        </CheckboxContainer>
+      </Container>
+    </AnimatedBackdrop>
+  );
+
+  return isReady ? (
     <Modal visible={visible} statusBarTranslucent transparent {...props}>
-      <AnimatedBackdrop style={{opacity: fadeAnim}}>
-        <Container>
-          <ImageContainer>
-            <SccRemoteImage
-              imageUrl={imageUrl}
-              onReady={handleImageReady}
-              resizeMode="cover"
-            />
-            <CloseButton
-              onPress={handleClose}
-              elementName="last_month_ranking_modal_close"
-              logParams={{challengeId}}>
-              <IcX />
-            </CloseButton>
-          </ImageContainer>
-          <CheckboxContainer>
-            <SccPressable
-              onPress={() => {
-                setDismissedToday(challengeId);
-                setVisible(false);
-                onClose();
-              }}
-              elementName="last_month_ranking_modal_dont_show_today"
-              logParams={{challengeId}}>
-              <CheckboxRow>
-                <Checkbox checked={false} />
-                <CheckboxLabel>오늘 하루동안 보지 않기</CheckboxLabel>
-              </CheckboxRow>
-            </SccPressable>
-          </CheckboxContainer>
-        </Container>
-      </AnimatedBackdrop>
+      {content}
     </Modal>
+  ) : (
+    <HiddenView>{content}</HiddenView>
   );
 }
 
@@ -108,28 +114,14 @@ const CheckboxContainer = styled.View({
   padding: 16,
 });
 
-const CheckboxRow = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 4,
-});
-
-const Checkbox = styled.View<{checked: boolean}>(({checked}) => ({
-  width: 20,
-  height: 20,
-  borderRadius: 6,
-  borderWidth: 1.6,
-  borderColor: color.gray25,
-  backgroundColor: checked ? color.brand60 : color.white,
-  justifyContent: 'center',
-  alignItems: 'center',
-}));
-
-const CheckboxLabel = styled.Text({
+const DismissTodayLabel = styled.Text({
   color: color.gray70,
   fontSize: 14,
-  height: 20,
   fontFamily: font.pretendardRegular,
+  borderBottomWidth: 0.5,
+  borderBottomColor: color.gray70,
+  paddingBottom: 0,
+  alignSelf: 'flex-start',
 });
 
 const CloseButton = styled(SccTouchableOpacity)({
@@ -143,4 +135,9 @@ const CloseButton = styled(SccTouchableOpacity)({
   justifyContent: 'center',
   alignItems: 'center',
   zIndex: 2,
+});
+
+const HiddenView = styled.View({
+  width: 0,
+  height: 0,
 });
