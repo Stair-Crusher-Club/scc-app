@@ -37,7 +37,7 @@ export default forwardRef<Camera, {device: CameraDevice}>(
           style={{flex: 1}}
           device={props.device}
           isActive={isActive}
-          zoom={props.device.neutralZoom}
+          zoom={props.device.neutralZoom ?? 1}
           enableZoomGesture
           photoQualityBalance={'speed'}
           androidPreviewViewType="surface-view"
