@@ -12,17 +12,12 @@ import Logger from '@/logging/Logger';
 import App from './App';
 import {name as appName} from './app.json';
 
-ErrorUtils.setGlobalHandler((error, isFatal) => {
-  console.log('🚨 Uncaught Error:', {...error, isFatal});
-  Logger.error(error);
-});
-
 const tracking = require('promise/setimmediate/rejection-tracking');
 tracking.enable({
   allRejections: true,
   onUnhandled: (_, error) => {
     console.log('🚨 Uncaught Promise Error:', error);
-    Logger.error(error);
+    Logger.logError(error);
   },
 });
 
