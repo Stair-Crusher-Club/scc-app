@@ -21,6 +21,7 @@ import {
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -69,6 +70,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetail', 'ReportAccessibility'],
@@ -224,12 +227,19 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     setPendingBottomSheet(null);
   }, [navigation]);
 
-  const goToBuildingForm = useCallback(() => {
+  const goToBuildingForm = useCallback(async () => {
     closeModals();
     if (place && building) {
-      navigation.navigate('BuildingForm', {place, building});
+      await navigateWithLocationCheck({
+        targetLocation: building.location,
+        address: building.address,
+        type: 'building',
+        onNavigate: () => {
+          navigation.navigate('BuildingForm', {place, building});
+        },
+      });
     }
-  }, [building, closeModals, navigation, place]);
+  }, [building, closeModals, navigation, navigateWithLocationCheck, place]);
 
   // 섹션의 y 위치를 업데이트하는 함수
   const updateSectionYPosition = useCallback((sectionId: string, y: number) => {
@@ -268,7 +278,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           accessibility={accessibilityPost}
           place={place}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-          onRegister={() => {
+          onRegister={async () => {
             if (Platform.OS === 'web') {
               Toast.show('준비 중입니다 💪', {
                 duration: Toast.durations.SHORT,
@@ -276,7 +286,14 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            navigation.navigate('PlaceForm', {place, building});
+            await navigateWithLocationCheck({
+              targetLocation: place.location,
+              address: place.address,
+              type: 'place',
+              onNavigate: () => {
+                navigation.navigate('PlaceForm', {place, building});
+              },
+            });
           }}
           showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
         />
@@ -310,6 +327,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailIndoorSection
           reviews={reviewPost ?? []}
           placeId={place.id}
+          place={place}
         />
       ),
       order: 3,
@@ -330,9 +348,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Place', {
-                placeId: place.id,
+            checkAuth(async () => {
+              await navigateWithLocationCheck({
+                targetLocation: place.location,
+                address: place.address,
+                type: 'place',
+                onNavigate: () => {
+                  navigation.navigate('ReviewForm/Place', {
+                    placeId: place.id,
+                  });
+                },
               });
             });
           }}
@@ -352,6 +377,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailToiletSection
           toiletReviews={toiletPost ?? []}
           placeId={place.id}
+          placeLocation={place.location}
+          placeAddress={place.address}
         />
       ),
       order: 5,
@@ -372,9 +399,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Toilet', {
-                placeId: place.id,
+            checkAuth(async () => {
+              await navigateWithLocationCheck({
+                targetLocation: place.location,
+                address: place.address,
+                type: 'place',
+                onNavigate: () => {
+                  navigation.navigate('ReviewForm/Toilet', {
+                    placeId: place.id,
+                  });
+                },
               });
             });
           }}
@@ -496,6 +530,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           }}
         />
       )}
+      {LocationConfirmModal}
     </LogParamsProvider>
   );
 };
