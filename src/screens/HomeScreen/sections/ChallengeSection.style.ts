@@ -64,6 +64,7 @@ export const ChallengeCard = styled.View({
   borderRadius: 20,
   paddingTop: 20,
   paddingLeft: 20,
+  paddingRight: 48,
   paddingBottom: 16,
 });
 

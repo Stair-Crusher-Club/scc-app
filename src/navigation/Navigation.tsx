@@ -36,11 +36,11 @@ export const NavigationHeader = ({
             onPress={() => navigation.goBack()}>
             <LeftArrowIcon width={24} height={24} color={color.black} />
           </SccPressable>
-          <S.Title>{title}</S.Title>
+          <S.Title ellipsizeMode="tail">{title}</S.Title>
         </S.ContentsContainer>
       ) : (
         <S.ContentsContainer style={{justifyContent: 'space-between'}}>
-          <S.Title>{title}</S.Title>
+          <S.Title ellipsizeMode="tail">{title}</S.Title>
           <SccPressable
             elementName="close_button"
             logParams={{screen_name: title}}

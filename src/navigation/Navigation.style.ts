@@ -22,4 +22,6 @@ export const Title = styled.Text({
   fontSize: 20 / PixelRatio.getFontScale(),
   fontFamily: font.pretendardMedium,
   color: color.black,
+  flex: 1,
+  numberOfLines: 1,
 });
