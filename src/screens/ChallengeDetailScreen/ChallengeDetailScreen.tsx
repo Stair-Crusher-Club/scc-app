@@ -211,22 +211,12 @@ const ChallengeDetailScreen = ({
             setShowCompanyModal(false);
             setPasscode(undefined);
           }}
-          onPressConfirmButton={(
-            companyName,
-            participantName,
-            organizationName,
-            employeeNumber,
-          ) => {
+          onPressConfirmButton={companyInfo => {
             setShowCompanyModal(false);
             joinChallenge.mutate({
               challengeId,
               passcode,
-              companyInfo: {
-                companyName,
-                participantName,
-                organizationName,
-                employeeIdentificationNumber: employeeNumber,
-              },
+              companyInfo,
             });
           }}
           formSchema={challenge?.b2bFormSchema}

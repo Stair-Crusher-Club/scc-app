@@ -6,42 +6,50 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-interface Props {
+interface FormFieldOptionSelectorProps {
+  title: string;
   value: string;
   onChange: (value: string) => void;
   onClose: () => void;
   options: string[];
 }
 
-export default function CompanySelector({
+/**
+ * Generic option selector for form fields
+ *
+ * Displays a bottom sheet with a list of options for the user to select from.
+ * Used by FormFieldRenderer for select-type fields (fields with options array).
+ */
+export default function FormFieldOptionSelector({
+  title,
   value,
   onChange,
   onClose,
   options,
-}: Props) {
+}: FormFieldOptionSelectorProps) {
   const renderItem = ({item}: {item: string}) => (
-    <YearButton
-      elementName="company_selector_year_button"
+    <OptionButton
+      elementName="form_field_option_button"
       onPress={() => {
         onChange(item);
         onClose();
       }}
       isSelected={item === value}>
-      <YearText isSelected={item === value}>{item}</YearText>
-    </YearButton>
+      <OptionText isSelected={item === value}>{item}</OptionText>
+    </OptionButton>
   );
 
   return (
     <Container>
       <Header>
         <HeaderButton
-          elementName="company_selector_cancel_button"
+          elementName="form_field_option_cancel_button"
           onPress={onClose}>
           <HeaderButtonText>취소</HeaderButtonText>
         </HeaderButton>
-        <HeaderTitle>소속 계열사</HeaderTitle>
+        <HeaderTitle>{title}</HeaderTitle>
         <HeaderButton
-          elementName="company_selector_done_button"
+          elementName="form_field_option_done_button"
           onPress={onClose}>
           <HeaderButtonText>완료</HeaderButtonText>
         </HeaderButton>
@@ -94,12 +102,12 @@ const ListContainer = styled.View`
   flex: 1;
 `;
 
-const YearButton = styled(SccTouchableOpacity)<{isSelected: boolean}>`
+const OptionButton = styled(SccTouchableOpacity)<{isSelected: boolean}>`
   padding: 16px;
   background-color: ${props => (props.isSelected ? color.gray10 : color.white)};
 `;
 
-const YearText = styled.Text<{isSelected: boolean}>`
+const OptionText = styled.Text<{isSelected: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 16px;
   color: ${props => (props.isSelected ? color.blue50 : color.gray100)};

@@ -2,27 +2,31 @@ import CloseIcon from '@/assets/icon/close.svg';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import BottomSheet from '@/modals/BottomSheet';
-import {isEmpty} from 'lodash';
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
 
 import {Modal, ScrollView, View} from 'react-native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import styled from 'styled-components/native';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import type {ChallengeB2bFormSchemaDto} from '@/generated-sources/openapi/api';
-import Input from './Input';
-import CompanySelector from './CompanySelector';
+import type {
+  ChallengeB2bFormSchemaDto,
+  JoinChallengeRequestCompanyJoinInfoDto,
+} from '@/generated-sources/openapi/api';
+import FormFieldRenderer from '@/components/molecules/FormFieldRenderer';
+import {
+  toFormField,
+  validateForm,
+  transformToApiRequest,
+  type FormField,
+  type FormState,
+} from '@/types/b2bForm';
 
 interface ChallengeDetailCompanyBottomSheetProps {
   isVisible: boolean;
   onPressCloseButton: () => void;
   onPressConfirmButton: (
-    companyName: string,
-    participantName: string,
-    organizationName: string,
-    employeeNumber: string,
+    companyInfo: JoinChallengeRequestCompanyJoinInfoDto,
   ) => void;
   formSchema?: ChallengeB2bFormSchemaDto;
 }
@@ -33,46 +37,45 @@ const ChallengeDetailCompanyModal = ({
   onPressConfirmButton,
   formSchema,
 }: ChallengeDetailCompanyBottomSheetProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [companyName, setCompanyName] = useState('');
-  const [participantName, setParticipantName] = useState('');
-  const [organizationName, setOrganizationName] = useState('');
-  const [employeeNumber, setEmployeeNumber] = useState('');
+  const [formState, setFormState] = useState<FormState>({});
+  const [fields, setFields] = useState<FormField[]>([]);
 
-  const reset = () => {
-    setCompanyName('');
-    setParticipantName('');
-    setOrganizationName('');
-    setEmployeeNumber('');
-  };
+  // Convert API DTO to FormField array
+  useEffect(() => {
+    if (formSchema?.availableFields) {
+      const convertedFields = formSchema.availableFields.map(dto =>
+        toFormField(dto),
+      );
+      setFields(convertedFields);
+    }
+  }, [formSchema]);
 
-  const getCompanyField = () => {
-    return formSchema?.availableFields?.find(
-      field => field.name === 'companyName',
-    );
-  };
+  // Reset form state
+  const reset = useCallback(() => {
+    setFormState({});
+  }, []);
 
-  const isFormValid = () => {
-    if (!formSchema?.availableFields) return false;
-    return formSchema.availableFields.every(field => {
-      let value = '';
-      switch (field.name) {
-        case 'participantName':
-          value = participantName;
-          break;
-        case 'companyName':
-          value = companyName;
-          break;
-        case 'organizationName':
-          value = organizationName;
-          break;
-        case 'employeeIdentificationNumber':
-          value = employeeNumber;
-          break;
-      }
-      return !isEmpty(value);
-    });
-  };
+  // Update field value
+  const handleFieldChange = useCallback((key: string, value: string) => {
+    setFormState(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  }, []);
+
+  // Get field value
+  const getFieldValue = useCallback(
+    (key: string) => {
+      return formState[key] || '';
+    },
+    [formState],
+  );
+
+  // Validate form
+  const isFormValid = useMemo(() => {
+    const validation = validateForm(formState, fields);
+    return validation.isValid;
+  }, [formState, fields]);
 
   return (
     <Modal visible={isVisible} statusBarTranslucent>
@@ -104,86 +107,32 @@ const ChallengeDetailCompanyModal = ({
             <Title>챌린지 참여를 환영합니다!</Title>
             <Description>서비스 사용에 필요한 정보를 알려주세요.</Description>
           </View>
-          {formSchema?.availableFields?.some(
-            field => field.name === 'participantName',
-          ) && (
-            <Input
-              placeholder="실명을 입력해주세요"
-              returnKeyType="next"
-              value={participantName}
-              onChangeText={setParticipantName}
-              isClearable={true}
+          {fields.map(field => (
+            <FormFieldRenderer
+              key={field.key}
+              field={field}
+              value={getFieldValue(field.key)}
+              onChange={value => handleFieldChange(field.key, value)}
+              elementNamePrefix="b2b-form"
             />
-          )}
-          {formSchema?.availableFields?.some(
-            field => field.name === 'companyName',
-          ) && (
-            <Input
-              placeholder="소속 계열사를 입력해주세요"
-              returnKeyType="next"
-              value={companyName}
-              isClearable={true}
-              onPress={() => setIsOpen(true)}
-            />
-          )}
-          {formSchema?.availableFields?.some(
-            field => field.name === 'organizationName',
-          ) && (
-            <Input
-              placeholder="조직을 입력해주세요 (예: CSR팀)"
-              returnKeyType="next"
-              value={organizationName}
-              onChangeText={setOrganizationName}
-              isClearable={true}
-            />
-          )}
-          {formSchema?.availableFields?.some(
-            field => field.name === 'employeeIdentificationNumber',
-          ) && (
-            <Input
-              placeholder="사원번호를 입력해주세요"
-              returnKeyType="done"
-              value={employeeNumber}
-              onChangeText={setEmployeeNumber}
-              isClearable={true}
-            />
-          )}
+          ))}
         </ScrollView>
         <ButtonContainer>
           <ConfirmButton
-            isDisabled={!isFormValid()}
+            isDisabled={!isFormValid}
             text="확인"
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
             onPress={() => {
-              onPressConfirmButton(
-                companyName,
-                participantName,
-                organizationName,
-                employeeNumber,
-              );
+              const companyInfo = transformToApiRequest(formState, fields);
+              onPressConfirmButton(companyInfo);
               reset();
             }}
             elementName="challenge_company_modal_confirm"
           />
         </ButtonContainer>
       </ScreenLayout>
-
-      {formSchema?.availableFields?.some(
-        field => field.name === 'companyName',
-      ) && (
-        <BottomSheet
-          isVisible={isOpen}
-          onPressBackground={() => setIsOpen(false)}>
-          <CompanySelector
-            value={companyName}
-            onChange={setCompanyName}
-            onClose={() => setIsOpen(false)}
-            options={getCompanyField()!.options!}
-          />
-        </BottomSheet>
-      )}
     </Modal>
   );
 };

@@ -421,6 +421,25 @@ export interface CancelUpvoteRequestDto {
     'id': string;
 }
 /**
+ * 
+ * @export
+ * @interface ChallengeB2bCustomFormResponseItemDto
+ */
+export interface ChallengeB2bCustomFormResponseItemDto {
+    /**
+     * 불변 key (camelCase, e.g. participantRank, department)
+     * @type {string}
+     * @memberof ChallengeB2bCustomFormResponseItemDto
+     */
+    'key': string;
+    /**
+     * 질문에 대한 답변
+     * @type {string}
+     * @memberof ChallengeB2bCustomFormResponseItemDto
+     */
+    'answer': string;
+}
+/**
  * B2B 챌린지 입장 시 받아야 하는 폼의 개별 필드 정의
  * @export
  * @interface ChallengeB2bFormAvailableFieldDto
@@ -431,13 +450,25 @@ export interface ChallengeB2bFormAvailableFieldDto {
      * @type {ChallengeB2bFormAvailableFieldNameTypeDto}
      * @memberof ChallengeB2bFormAvailableFieldDto
      */
-    'name': ChallengeB2bFormAvailableFieldNameTypeDto;
+    'name'?: ChallengeB2bFormAvailableFieldNameTypeDto;
     /**
-     * SELECT 타입 필드의 선택 옵션 목록 (SELECT 타입인 경우에만 존재)
+     * 불변 key (built-in은 participantName 등, custom은 camelCase)
+     * @type {string}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'key': string;
+    /**
+     * 화면에 표시될 질문명 (built-in 질문도 커스터마이징 가능)
+     * @type {string}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'displayName': string;
+    /**
+     * 객관식 옵션 목록 (null이면 주관식)
      * @type {Array<string>}
      * @memberof ChallengeB2bFormAvailableFieldDto
      */
-    'options'?: Array<string>;
+    'options'?: Array<string> | null;
 }
 /**
  * 
@@ -1890,29 +1921,35 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
  */
 export interface JoinChallengeRequestCompanyJoinInfoDto {
     /**
-     * 회사명
+     * 회사명 (built-in 필드)
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
     'companyName'?: string;
     /**
-     * 본인의 이름
+     * 본인의 이름 (built-in 필드)
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
     'participantName'?: string;
     /**
-     * 조직명
+     * 조직명 (built-in 필드)
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
     'organizationName'?: string;
     /**
-     * 사원번호
+     * 사원번호 (built-in 필드)
      * @type {string}
      * @memberof JoinChallengeRequestCompanyJoinInfoDto
      */
     'employeeIdentificationNumber'?: string;
+    /**
+     * Custom 질문에 대한 응답 (Array<{key, answer}>)
+     * @type {Array<ChallengeB2bCustomFormResponseItemDto>}
+     * @memberof JoinChallengeRequestCompanyJoinInfoDto
+     */
+    'b2bCustomFormResponse'?: Array<ChallengeB2bCustomFormResponseItemDto> | null;
 }
 /**
  * 
