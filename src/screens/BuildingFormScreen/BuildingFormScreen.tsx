@@ -1,3 +1,4 @@
+import {useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo, useState} from 'react';
@@ -64,6 +65,7 @@ export default function BuildingFormScreen({
   const elevatorSection = React.useRef<View>(null);
   const {api} = useAppComponents();
   const pushItems = useSetAtom(pushItemsAtom);
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useAtom(loadingState);
 
@@ -84,7 +86,13 @@ export default function BuildingFormScreen({
     () =>
       throttle(async (values: FormValues) => {
         setLoading(new Map(loading).set('BuildingForm', true));
-        const registered = await register(api, building.id, values);
+        const registered = await register(
+          api,
+          queryClient,
+          place.id,
+          building.id,
+          values,
+        );
         setLoading(new Map(loading).set('BuildingForm', false));
 
         // 장소 정보 등록에 실패, 이후 과정을 진행하지 않음
@@ -215,6 +223,8 @@ export default function BuildingFormScreen({
 
 async function register(
   api: DefaultApi,
+  queryClient: ReturnType<typeof useQueryClient>,
+  placeId: string,
   buildingId: string,
   values: FormValues,
 ) {
@@ -244,6 +254,16 @@ async function register(
         elevatorImageUrls: elevatorImages,
         elevatorStairHeightLevel: values.elevatorStairHeightLevel,
         comment: values.comment || undefined,
+      });
+
+      // PlaceDetailScreen 접근성 정보 갱신
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+      });
+
+      // PlaceDetailScreen 전체 데이터 갱신
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail', placeId],
       });
 
       return {
