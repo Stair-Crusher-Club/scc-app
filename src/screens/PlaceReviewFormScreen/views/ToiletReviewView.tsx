@@ -16,6 +16,7 @@ import {
   Place,
   RegisterToiletReviewRequestDto,
   ToiletLocationTypeDto,
+  UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useMe} from '@/atoms/Auth';
@@ -146,9 +147,32 @@ async function register({
         imageUrls: images,
         floor: isNoneOrEtc ? undefined : values.floor,
       } as unknown as RegisterToiletReviewRequestDto); // FIXME: update api yaml
+
+      // PlaceDetailScreen 화장실 리뷰 데이터 갱신
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', placeId, 'Toilet'],
+        queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.ToiletReview],
       });
+
+      // 내 리뷰 > 내가 작성한 리뷰 리스트
+      queryClient.invalidateQueries({
+        queryKey: ['MyReviews', UpvoteTargetTypeDto.ToiletReview],
+      });
+
+      // 내 리뷰 > 도움이 돼요 리스트
+      queryClient.invalidateQueries({
+        queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.ToiletReview],
+      });
+
+      // 내 리뷰 > 내가 작성한 리뷰 통계
+      queryClient.invalidateQueries({
+        queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.ToiletReview],
+      });
+
+      // 내 리뷰 > 도움이 돼요 통계
+      queryClient.invalidateQueries({
+        queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.ToiletReview],
+      });
+
       return true;
     } catch (error: any) {
       ToastUtils.showOnApiError(error);

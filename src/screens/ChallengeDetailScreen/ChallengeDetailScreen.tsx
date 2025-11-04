@@ -179,7 +179,7 @@ const ChallengeDetailScreen = ({
             )}
           </S.Contents>
         </S.Container>
-        {hasJoined === true && (
+        {hasJoined === true && challenge?.status !== 'Closed' && (
           <ChallengeDetailStickyActionBar
             visible={visible}
             onGoConquer={() => navigation.navigate('Search', {initKeyword: ''})}

@@ -48,9 +48,17 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
         buildingId: id,
       });
     }
+
+    // PlaceDetailScreen 전체 데이터 갱신
     queryClient.invalidateQueries({
       queryKey: ['PlaceDetail', placeId],
     });
+
+    // PlaceDetailScreen 접근성 정보 갱신 (코멘트 즉시 표시)
+    queryClient.invalidateQueries({
+      queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+    });
+
     ToastUtils.show('의견이 등록되었습니다.');
     navigation.goBack();
   });
