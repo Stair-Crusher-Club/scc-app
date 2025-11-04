@@ -1,7 +1,6 @@
 import {useBackHandler} from '@react-native-community/hooks';
-import {useFocusEffect} from '@react-navigation/native';
 import {useAtom, useSetAtom} from 'jotai';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Keyboard, Linking, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
@@ -44,7 +43,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
 
-  const {data, isLoading, updateQuery, setOnFetchCompleted, refetch} =
+  const {data, isLoading, updateQuery, setOnFetchCompleted} =
     useSearchRequest();
 
   const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
@@ -149,12 +148,6 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
     }
     return false;
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch]),
-  );
 
   return (
     <LogParamsProvider
