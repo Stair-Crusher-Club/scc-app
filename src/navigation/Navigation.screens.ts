@@ -57,6 +57,9 @@ import PlaceReviewFormScreen, {
 import {ProfileEditorDetailScreen} from '@/screens/ProfileEditorScreen';
 import {ProfileEditorDetailScreenParams} from '@/screens/ProfileEditorScreen/ProfileEditorDetailScreen';
 import ProfileEditorScreen from '@/screens/ProfileEditorScreen/ProfileEditorScreen';
+import RegistrationCompleteScreen, {
+  RegistrationCompleteScreenParams,
+} from '@/screens/RegistrationCompleteScreen';
 import ReviewHistoryScreen from '@/screens/ReviewHistoryScreen';
 import ReviewScreen from '@/screens/ReviewScreen';
 import ReviewUpVoteScreen from '@/screens/ReviewUpVoteScreen';
@@ -228,6 +231,11 @@ export const MainNavigationScreens: {
     options: {presentation: 'fullScreenModal'},
   },
   {
+    name: 'RegistrationComplete',
+    component: RegistrationCompleteScreen,
+    options: {presentation: 'fullScreenModal', headerShown: false},
+  },
+  {
     name: 'ReviewForm/Place',
     component: PlaceReviewFormScreen,
     options: {
@@ -299,6 +307,7 @@ export type ScreenParams = {
   PlacePhotoGuide: PlacePhotoGuideScreenParams;
   Webview: WebViewScreenParams;
   ImageZoomViewer: ImageZoomViewerScreenParams;
+  RegistrationComplete: RegistrationCompleteScreenParams;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =
