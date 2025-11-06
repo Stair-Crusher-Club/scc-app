@@ -11,7 +11,7 @@ import styled from 'styled-components/native';
 import WelcomeAnimation from './WelcomeAnimation';
 
 interface WelcomeModalProps {
-  questTypeToRecordActivity: string | null | undefined;
+  questTypeOrActivityId: string | null | undefined;
 }
 
 type ModalAnimationType =
@@ -54,25 +54,25 @@ const MODAL_CONFIG: Record<
 };
 
 export default function WelcomeModal({
-  questTypeToRecordActivity,
+  questTypeOrActivityId,
 }: WelcomeModalProps) {
   const {userInfo} = useMe();
   const {width: viewportWidth} = useWindowDimensions();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(!!questTypeToRecordActivity);
-  }, [questTypeToRecordActivity]);
+    setVisible(!!questTypeOrActivityId);
+  }, [questTypeOrActivityId]);
 
   const handleClose = () => {
     setVisible(false);
   };
 
-  if (!questTypeToRecordActivity) {
+  if (!questTypeOrActivityId) {
     return null;
   }
 
-  const config = MODAL_CONFIG[questTypeToRecordActivity];
+  const config = MODAL_CONFIG[questTypeOrActivityId];
   if (!config) {
     return null;
   }

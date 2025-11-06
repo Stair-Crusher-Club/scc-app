@@ -13,8 +13,8 @@ import CurrentSeasonView from './views/CurrentSeasonView';
 import HistoryView from './views/HistoryView';
 
 export interface CrusherActivityScreenParams {
-  qr?: string; // deprecated; please use questTypeToRecordActivity
-  questTypeToRecordActivity?: string; // Can be CrusherClubQuestTypeDto enum or hardcoded activity ID like 'impactSession'
+  qr?: string; // deprecated; please use questTypeOrActivityId
+  questTypeOrActivityId?: string; // Can be CrusherClubQuestTypeDto enum or hardcoded activity ID like 'impactSession'
   clubQuestIdToCheckIn?: string;
 }
 
@@ -56,10 +56,10 @@ export default function CrusherActivityScreen({
   }, [params?.qr]);
 
   useEffect(() => {
-    if (params?.questTypeToRecordActivity) {
-      recordCrusherClubActivity(params.questTypeToRecordActivity);
+    if (params?.questTypeOrActivityId) {
+      recordCrusherClubActivity(params.questTypeOrActivityId);
     }
-  }, [params?.questTypeToRecordActivity]);
+  }, [params?.questTypeOrActivityId]);
 
   async function checkInToClubQuest() {
     if (!params?.clubQuestIdToCheckIn) {
@@ -131,12 +131,11 @@ export default function CrusherActivityScreen({
       {renderView()}
 
       <WelcomeModal
-        questTypeToRecordActivity={
+        questTypeOrActivityId={
           params?.qr === QR_CODE
             ? 'STARTING_DAY'
-            : params?.questTypeToRecordActivity
+            : params?.questTypeOrActivityId
         }
-        // questTypeToRecordActivity={'impactSession'}
       />
       <ClubQuestCheckInCompleteModal
         visible={visibleCheckInCompleteModal}
