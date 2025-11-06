@@ -41,7 +41,7 @@ import PlaceDetailScreen, {
   PlaceDetailScreenParams,
 } from '@/screens/PlaceDetailScreen';
 import PlaceDetailV2Screen, {
-  PlaceDetailScreenParams as PlaceDetailV2ScreenParams,
+  PlaceDetailV2ScreenParams,
 } from '@/screens/PlaceDetailV2Screen';
 import PlaceFormScreen, {
   PlaceFormScreenParams,
