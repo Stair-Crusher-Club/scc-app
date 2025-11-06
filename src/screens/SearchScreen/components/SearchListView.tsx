@@ -4,11 +4,12 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
-import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {getAccessibilityVersion} from '@/utils/accessibilityFlags';
 
 export default function SearchListView({
   searchResults,
@@ -44,14 +45,25 @@ export default function SearchListView({
                     if (searchQuery && Platform.OS === 'web') {
                       // Web: Use window.history.pushState like map marker click
                       onWebPlaceClick?.(item.place.id);
-                    } else {
-                      // Native app navigation
-                      navigation.navigate('PlaceDetail', {
+                      return;
+                    }
+
+                    // Native app navigation
+                    const accessibilityVersion = getAccessibilityVersion();
+                    if (accessibilityVersion === 'v2') {
+                      navigation.navigate('PlaceDetailV2', {
                         placeInfo: {
                           placeId: item.place.id,
                         },
                       });
+                      return;
                     }
+
+                    navigation.navigate('PlaceDetail', {
+                      placeInfo: {
+                        placeId: item.place.id,
+                      },
+                    });
                   }}
                 />
               </ItemWrapper>
