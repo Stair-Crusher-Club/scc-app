@@ -156,7 +156,11 @@ export const MainNavigationScreens: {
   {
     name: 'PlaceFormV2',
     component: PlaceFormV2Screen,
-    options: {headerShown: true, headerTitle: '장소 접근성 입력하기'},
+    options: {
+      headerShown: true,
+      headerTitle: '장소 접근성 입력하기',
+      variant: 'close',
+    },
   },
   {name: 'PlaceDetail', component: PlaceDetailScreen},
   {name: 'PlaceDetailV2', component: PlaceDetailV2Screen},
@@ -172,7 +176,11 @@ export const MainNavigationScreens: {
   {
     name: 'BuildingFormV2',
     component: BuildingFormV2Screen,
-    options: {headerShown: true, headerTitle: '건물 정보 등록하기'},
+    options: {
+      headerShown: true,
+      headerTitle: '건물 정보 등록하기',
+      variant: 'close',
+    },
   },
   {
     name: 'AddComment',
