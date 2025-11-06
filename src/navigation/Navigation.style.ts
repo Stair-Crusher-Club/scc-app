@@ -1,4 +1,3 @@
-import {PixelRatio} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
@@ -19,7 +18,8 @@ export const ContentsContainer = styled.View({
 });
 
 export const Title = styled.Text({
-  fontSize: 20 / PixelRatio.getFontScale(),
+  fontSize: 18,
+  lineHeight: '26px',
   fontFamily: font.pretendardMedium,
   color: color.black,
   flex: 1,
