@@ -18,11 +18,11 @@ export default function PlaceInfoSection({
 }: PlaceInfoSectionProps) {
   return (
     <Container>
-      <TitleRow>
+      {target && <NewConquerTargetTooltip target={target} />}
+      <InfoContainer>
         <Title>{name}</Title>
-        {target && <NewConquerTargetTooltip target={target} />}
-      </TitleRow>
-      <Address>{address}</Address>
+        <Address>{address}</Address>
+      </InfoContainer>
     </Container>
   );
 }
@@ -30,24 +30,24 @@ export default function PlaceInfoSection({
 const Container = styled.View({
   padding: 20,
   backgroundColor: color.white,
-  gap: 4,
+  alignItems: 'flex-start',
+  gap: 8,
 });
 
-const TitleRow = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 8,
+const InfoContainer = styled.View({
+  gap: 2,
 });
 
 const Title = styled.Text({
   fontSize: 20,
   lineHeight: '28px',
-  fontFamily: font.pretendardBold,
+  fontFamily: font.pretendardSemibold,
+  color: color.gray90,
 });
 
 const Address = styled.Text({
-  fontSize: 14,
-  lineHeight: '18px',
-  color: color.gray80,
+  fontSize: 15,
+  lineHeight: '22px',
+  color: color.gray60,
   fontFamily: font.pretendardRegular,
 });
