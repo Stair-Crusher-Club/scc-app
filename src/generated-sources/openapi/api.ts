@@ -1871,6 +1871,43 @@ export interface HomeBannerDto {
 /**
  * 
  * @export
+ * @interface HumanInspectionResultDto
+ */
+export interface HumanInspectionResultDto {
+    /**
+     * 
+     * @type {InspectionStatusDto}
+     * @memberof HumanInspectionResultDto
+     */
+    'status': InspectionStatusDto;
+    /**
+     * 전체 검수 코멘트
+     * @type {string}
+     * @memberof HumanInspectionResultDto
+     */
+    'comment': string;
+    /**
+     * 검수 사유
+     * @type {string}
+     * @memberof HumanInspectionResultDto
+     */
+    'reason': string;
+    /**
+     * 이미지별 검수 사유
+     * @type {Array<ImageReasonDto>}
+     * @memberof HumanInspectionResultDto
+     */
+    'imageReasons'?: Array<ImageReasonDto>;
+    /**
+     * 
+     * @type {ModificationRequestDto}
+     * @memberof HumanInspectionResultDto
+     */
+    'modificationRequest'?: ModificationRequestDto;
+}
+/**
+ * 
+ * @export
  * @interface ImageDto
  */
 export interface ImageDto {
@@ -1902,6 +1939,31 @@ export interface ImageDto {
 /**
  * 
  * @export
+ * @interface ImageReasonDto
+ */
+export interface ImageReasonDto {
+    /**
+     * 이미지 순서 (0부터 시작)
+     * @type {number}
+     * @memberof ImageReasonDto
+     */
+    'imageIndex': number;
+    /**
+     * 이미지 URL (optional)
+     * @type {string}
+     * @memberof ImageReasonDto
+     */
+    'imageUrl'?: string;
+    /**
+     * 해당 이미지에 대한 검수 사유
+     * @type {string}
+     * @memberof ImageReasonDto
+     */
+    'reason': string;
+}
+/**
+ * 
+ * @export
  * @enum {string}
  */
 
@@ -1912,6 +1974,21 @@ export const ImageUploadPurpose = {
 } as const;
 
 export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUploadPurpose];
+
+
+/**
+ * 검수 상태 - PASS: 접근성 정보 승인 - FAIL: 접근성 정보 삭제 필요 - MODIFY: 수정 필요 
+ * @export
+ * @enum {string}
+ */
+
+export const InspectionStatusDto = {
+    Pass: 'PASS',
+    Fail: 'FAIL',
+    Modify: 'MODIFY'
+} as const;
+
+export type InspectionStatusDto = typeof InspectionStatusDto[keyof typeof InspectionStatusDto];
 
 
 /**
@@ -2543,6 +2620,49 @@ export interface LoginWithKakaoPostRequest {
     'kakaoTokens': KakaoTokensDto;
 }
 /**
+ * 
+ * @export
+ * @interface ModificationRequestDto
+ */
+export interface ModificationRequestDto {
+    /**
+     * 1층 여부 수정 요청
+     * @type {boolean}
+     * @memberof ModificationRequestDto
+     */
+    'isFirstFloor'?: boolean;
+    /**
+     * 층수 수정 요청
+     * @type {Array<number>}
+     * @memberof ModificationRequestDto
+     */
+    'floors'?: Array<number>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof ModificationRequestDto
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof ModificationRequestDto
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 경사로 유무 수정 요청
+     * @type {boolean}
+     * @memberof ModificationRequestDto
+     */
+    'hasSlope'?: boolean;
+    /**
+     * 출입문 유형 수정 요청
+     * @type {Array<EntranceDoorType>}
+     * @memberof ModificationRequestDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
+}
+/**
  * 점포 정보.
  * @export
  * @interface Place
@@ -3042,7 +3162,13 @@ export interface RecordCrusherClubActivityRequestDto {
      * @type {CrusherClubQuestTypeDto}
      * @memberof RecordCrusherClubActivityRequestDto
      */
-    'questType': CrusherClubQuestTypeDto;
+    'questType'?: CrusherClubQuestTypeDto;
+    /**
+     * 활동 ID. 다음 중 하나가 될 수 있음: 1. CrusherClubQuestTypeDto의 enum 값 (예: STARTING_DAY, SHORT_REVIEW 등) 2. 하드코딩된 활동 ID (예: impactSession → \'임팩트 세션\') 3. 직접 입력한 활동 제목 (그대로 사용됨) questType과 questTypeOrActivityId 중 하나만 제공해야 합니다. 
+     * @type {string}
+     * @memberof RecordCrusherClubActivityRequestDto
+     */
+    'questTypeOrActivityId'?: string;
 }
 /**
  * 
@@ -3193,6 +3319,58 @@ export interface RegisterBuildingAccessibilityResponseDto {
      * @memberof RegisterBuildingAccessibilityResponseDto
      */
     'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+}
+/**
+ * 
+ * @export
+ * @interface RegisterHumanInspectionResultRequestDto
+ */
+export interface RegisterHumanInspectionResultRequestDto {
+    /**
+     * PlaceAccessibility 또는 BuildingAccessibility의 ID
+     * @type {string}
+     * @memberof RegisterHumanInspectionResultRequestDto
+     */
+    'accessibilityId': string;
+    /**
+     * 접근성 정보 유형
+     * @type {string}
+     * @memberof RegisterHumanInspectionResultRequestDto
+     */
+    'accessibilityType': RegisterHumanInspectionResultRequestDtoAccessibilityTypeEnum;
+    /**
+     * 검수자 이름
+     * @type {string}
+     * @memberof RegisterHumanInspectionResultRequestDto
+     */
+    'inspectorName': string;
+    /**
+     * 
+     * @type {HumanInspectionResultDto}
+     * @memberof RegisterHumanInspectionResultRequestDto
+     */
+    'inspectionResult': HumanInspectionResultDto;
+}
+
+export const RegisterHumanInspectionResultRequestDtoAccessibilityTypeEnum = {
+    PlaceAccessibility: 'PLACE_ACCESSIBILITY',
+    BuildingAccessibility: 'BUILDING_ACCESSIBILITY'
+} as const;
+
+export type RegisterHumanInspectionResultRequestDtoAccessibilityTypeEnum = typeof RegisterHumanInspectionResultRequestDtoAccessibilityTypeEnum[keyof typeof RegisterHumanInspectionResultRequestDtoAccessibilityTypeEnum];
+
+/**
+ * 
+ * @export
+ * @interface RegisterHumanInspectionResultResponseDto
+ */
+export interface RegisterHumanInspectionResultResponseDto {
+    /**
+     * 생성된 검수 결과의 ID
+     * @type {string}
+     * @memberof RegisterHumanInspectionResultResponseDto
+     */
+    'accessibilityInspectionResultId': string;
 }
 /**
  * 
@@ -6521,6 +6699,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
+         * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerHumanInspectionResultPost: async (registerHumanInspectionResultRequestDto: RegisterHumanInspectionResultRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'registerHumanInspectionResultRequestDto' is not null or undefined
+            assertParamExists('registerHumanInspectionResultPost', 'registerHumanInspectionResultRequestDto', registerHumanInspectionResultRequestDto)
+            const localVarPath = `/registerHumanInspectionResult`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(registerHumanInspectionResultRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 점포에 의견을 추가한다.
          * @param {RegisterPlaceAccessibilityCommentPostRequest} registerPlaceAccessibilityCommentPostRequest 
          * @param {*} [options] Override http request option.
@@ -7591,6 +7809,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
+         * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async registerHumanInspectionResultPost(registerHumanInspectionResultRequestDto: RegisterHumanInspectionResultRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterHumanInspectionResultResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerHumanInspectionResultPost(registerHumanInspectionResultRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 점포에 의견을 추가한다.
          * @param {RegisterPlaceAccessibilityCommentPostRequest} registerPlaceAccessibilityCommentPostRequest 
          * @param {*} [options] Override http request option.
@@ -8257,6 +8486,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: any): AxiosPromise<RegisterBuildingAccessibilityResponseDto> {
             return localVarFp.registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
+         * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerHumanInspectionResultPost(registerHumanInspectionResultRequestDto: RegisterHumanInspectionResultRequestDto, options?: any): AxiosPromise<RegisterHumanInspectionResultResponseDto> {
+            return localVarFp.registerHumanInspectionResultPost(registerHumanInspectionResultRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9019,6 +9258,18 @@ export class DefaultApi extends BaseAPI {
      */
     public registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto: RegisterBuildingAccessibilityRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).registerBuildingAccessibilityPost(registerBuildingAccessibilityRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
+     * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public registerHumanInspectionResultPost(registerHumanInspectionResultRequestDto: RegisterHumanInspectionResultRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).registerHumanInspectionResultPost(registerHumanInspectionResultRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -29,7 +29,7 @@ import {
   initializeAPILoggingDevTool,
 } from './devToolEventStore';
 import {initializeEventLoggingDevTool} from '@/logging/Logger';
-import {accessTokenAtom} from '@/atoms/Auth';
+import {accessTokenAtom, useMe} from '@/atoms/Auth';
 
 interface DevToolProps {}
 
@@ -52,6 +52,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
   const setAPILogs = useSetAtom(apiLogsAtom);
   const [accessToken] = useAtom(accessTokenAtom);
+  const {userInfo} = useMe();
 
   // Initialize event logging and API logging (enabled in dev or sandbox)
   useEffect(() => {
@@ -133,6 +134,20 @@ export const DevTool: React.FC<DevToolProps> = () => {
       Alert.alert('복사 완료', 'Access Token이 클립보드에 복사되었습니다.');
     } catch (_) {
       Alert.alert('오류', 'Access Token 복사에 실패했습니다.');
+    }
+  };
+
+  const handleCopyUserId = async () => {
+    try {
+      if (!userInfo?.id) {
+        Alert.alert('알림', 'User ID가 없습니다. 로그인을 확인해주세요.');
+        return;
+      }
+
+      await Clipboard.setString(userInfo.id);
+      Alert.alert('복사 완료', 'User ID가 클립보드에 복사되었습니다.');
+    } catch (_) {
+      Alert.alert('오류', 'User ID 복사에 실패했습니다.');
     }
   };
 
@@ -229,6 +244,21 @@ export const DevTool: React.FC<DevToolProps> = () => {
                       <Text style={styles.settingLabel}>로그인 토큰 복사</Text>
                       <Text style={styles.settingDescription}>
                         현재 로그인 정보를 클립보드에 복사 (개발자용)
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>복사하기</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* User ID Copy Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={handleCopyUserId}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>User ID 복사</Text>
+                      <Text style={styles.settingDescription}>
+                        현재 사용자 ID를 클립보드에 복사 (개발자용)
                       </Text>
                     </View>
                     <View style={styles.actionButton}>
