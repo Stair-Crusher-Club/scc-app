@@ -9,6 +9,7 @@ interface ActivityItemProps {
   activityDoneAt?: EpochMillisTimestamp;
   title: string;
   visibleLine?: boolean;
+  isFirst?: boolean;
   canceledAt?: EpochMillisTimestamp;
 }
 
@@ -20,6 +21,7 @@ export default function ActivityItem({
   activityDoneAt,
   title,
   visibleLine,
+  isFirst,
   canceledAt,
 }: ActivityItemProps) {
   const isCanceled = !!canceledAt;
@@ -58,9 +60,9 @@ export default function ActivityItem({
               height: DOT_SIZE,
               borderRadius: DOT_SIZE / 2,
               paddingVertical: 2,
-              backgroundColor: color.gray50,
+              backgroundColor: isFirst ? color.brand50 : color.gray50,
               borderWidth: 2,
-              borderColor: color.gray20,
+              borderColor: isFirst ? color.brand10 : color.gray20,
             }}
           />
         </View>
