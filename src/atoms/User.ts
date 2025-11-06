@@ -39,6 +39,24 @@ export const hasShownCoachMarkForFirstVisitAtom = atomForLocalNonNull<boolean>(
 export const hasShownMapIconTooltipForFirstVisitAtom =
   atomForLocalNonNull<boolean>('hasShownMapIconTooltipForFirstVisit', false);
 
+// PlaceFormV2 Guide 모달 "다시보지않기" 상태
+export type PlaceFormV2GuideDismissed = {
+  firstFloor: boolean;
+  otherFloor: boolean;
+  multipleFloors: boolean;
+  standaloneSingleFloor: boolean;
+  standaloneMultipleFloors: boolean;
+};
+
+export const placeFormV2GuideDismissedAtom =
+  atomForLocalNonNull<PlaceFormV2GuideDismissed>('placeFormV2GuideDismissed', {
+    firstFloor: false,
+    otherFloor: false,
+    multipleFloors: false,
+    standaloneSingleFloor: false,
+    standaloneMultipleFloors: false,
+  });
+
 export const recentlyUsedMobilityToolAtom = atomForLocal<{
   name: UserMobilityToolMapDto;
   timestamp: number;
