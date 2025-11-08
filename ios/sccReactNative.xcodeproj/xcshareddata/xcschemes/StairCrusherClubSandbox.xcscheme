@@ -86,7 +86,7 @@
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "ReleaseSandbox"
+      buildConfiguration = "DebugSandbox"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"

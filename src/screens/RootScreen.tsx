@@ -3,7 +3,7 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Linking} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
@@ -41,6 +41,10 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
 };
 
 const RootScreen = () => {
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
