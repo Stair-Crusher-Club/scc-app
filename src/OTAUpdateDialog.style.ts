@@ -16,6 +16,9 @@ export const CoverImage = styled.Image({
   height: '69px',
 });
 
+// 사용하는 곳이 없지만 삭제하면 안 된다.
+// 삭제하면 iOS 크래시가 난다.
+// ref: https://staircrusherclub.slack.com/archives/C09G2SY1JCA/p1762610655019309
 export const ProgressBar = styled(Animated.View)`
   position: absolute;
   top: 0;
