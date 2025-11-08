@@ -146,7 +146,7 @@ export default HotUpdater.wrap({
       error: error.message,
     });
   },
-  fallbackComponent: ({progress}) => {
-    return <OTAUpdateDialog progress={progress} />;
+  fallbackComponent: () => {
+    return <OTAUpdateDialog />;
   },
 })(AppWithMigration);
