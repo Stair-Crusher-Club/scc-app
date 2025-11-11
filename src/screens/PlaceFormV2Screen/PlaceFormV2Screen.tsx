@@ -277,6 +277,7 @@ export default function PlaceFormV2Screen({
     floorMovement: (
       <FloorMovementStep
         place={place}
+        isStandaloneBuilding={selectedOption === 'standalone'}
         onSubmit={handleSubmit}
         onBack={handleBack}
       />
