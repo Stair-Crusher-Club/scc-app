@@ -1,17 +1,16 @@
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
-import {SccPressable} from '@/components/SccPressable';
+import {placeFormV2GuideDismissedAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import {ReactNode, useEffect, useState} from 'react';
-import {ScrollView, View} from 'react-native';
+import {useBackHandler} from '@react-native-community/hooks';
+import {useAtom} from 'jotai';
+import {ReactElement, useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import FloorSelect from '../PlaceReviewFormScreen/components/FloorSelect';
-import PlaceInfoSection from '../PlaceReviewFormScreen/sections/PlaceInfoSection';
+import FloorStep from './components/FloorStep';
+import GuideModal from './components/GuideModal';
+import InfoStep from './components/InfoStep';
 
 export interface PlaceFormV2ScreenParams {
   place: Place;
@@ -26,38 +25,16 @@ type FloorOptionKey =
 
 type StandaloneBuildingType = 'singleFloor' | 'multipleFloors';
 
-interface FloorOption {
-  key: FloorOptionKey;
-  label: string;
-}
+type Step = 'floor' | 'info';
 
-const FLOOR_OPTIONS: FloorOption[] = [
-  {key: 'firstFloor', label: '네, 1층에 있어요'},
-  {key: 'otherFloor', label: '아니요, 다른층이에요'},
-  {key: 'multipleFloors', label: '1층을 포함한 여러층이에요'},
-  {key: 'standalone', label: '단독건물이에요'},
-];
+const STEPS: Step[] = ['floor', 'info'];
 
-interface StandaloneBuildingOption {
-  key: StandaloneBuildingType;
-  label: string;
-}
-
-const STANDALONE_BUILDING_OPTIONS: StandaloneBuildingOption[] = [
-  {key: 'singleFloor', label: '단독 1층 건물이에요'},
-  {key: 'multipleFloors', label: '여러층 건물이에요'},
-];
-
-interface QuestionTextProps {
-  children: ReactNode;
-}
-
-export function QuestionText({children}: QuestionTextProps) {
-  return <QuestionTextStyled>{children}</QuestionTextStyled>;
-}
-
-export default function PlaceFormV2Screen({route}: ScreenProps<'PlaceFormV2'>) {
-  const {place} = route.params;
+export default function PlaceFormV2Screen({
+  route,
+  navigation,
+}: ScreenProps<'PlaceFormV2'>) {
+  const {place, building} = route.params;
+  const [stepIndex, setStepIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<FloorOptionKey | null>(
     null,
   );
@@ -66,6 +43,65 @@ export default function PlaceFormV2Screen({route}: ScreenProps<'PlaceFormV2'>) {
   const [selectedFloor, setSelectedFloor] = useState<number | undefined>(
     undefined,
   );
+
+  const step = STEPS[stepIndex];
+
+  // Guide 모달 표시 여부
+  const [isGuideModalVisible, setIsGuideModalVisible] = useState(false);
+
+  // Guide 모달 "다시보지않기" 상태 (읽기/쓰기)
+  const [guideDismissed, setGuideDismissed] = useAtom(
+    placeFormV2GuideDismissedAtom,
+  );
+
+  // 현재 세션에서 본 guide 추적
+  const [viewedGuidesInSession, setViewedGuidesInSession] = useState<
+    Set<string>
+  >(new Set());
+
+  // 현재 선택에 따른 Guide 모달 키 결정
+  const guideKey = (() => {
+    if (selectedOption === 'standalone') {
+      if (selectedStandaloneType === 'singleFloor') {
+        return 'standaloneSingleFloor';
+      }
+      if (selectedStandaloneType === 'multipleFloors') {
+        return 'standaloneMultipleFloors';
+      }
+      return null;
+    }
+    return selectedOption;
+  })();
+
+  // Guide 모달 표시 여부 확인
+  const shouldShowGuide = (() => {
+    if (!guideKey) return false;
+
+    // 영구적으로 차단된 경우
+    const isPermanentlyDismissed = (() => {
+      switch (guideKey) {
+        case 'firstFloor':
+          return guideDismissed.firstFloor;
+        case 'otherFloor':
+          return guideDismissed.otherFloor;
+        case 'multipleFloors':
+          return guideDismissed.multipleFloors;
+        case 'standaloneSingleFloor':
+          return guideDismissed.standaloneSingleFloor;
+        case 'standaloneMultipleFloors':
+          return guideDismissed.standaloneMultipleFloors;
+        default:
+          return false;
+      }
+    })();
+
+    if (isPermanentlyDismissed) return false;
+
+    // 현재 세션에서 이미 본 경우
+    if (viewedGuidesInSession.has(guideKey)) return false;
+
+    return true;
+  })();
 
   // 단독건물 선택 후 다른 옵션으로 변경하면 단독건물 타입 초기화
   useEffect(() => {
@@ -81,113 +117,138 @@ export default function PlaceFormV2Screen({route}: ScreenProps<'PlaceFormV2'>) {
     }
   }, [selectedOption]);
 
-  const isNextButtonDisabled = (() => {
-    // 기본 선택이 없으면 비활성화
-    if (!selectedOption) {
+  // API 호출 및 완료 처리
+  const handleSubmit = async () => {
+    try {
+      // 단독건물이 아닐 경우에만 event를 넘긴다.
+      const event =
+        selectedOption === 'standalone' ? undefined : 'registration-suggest';
+
+      navigation.navigate('RegistrationComplete', {
+        target: 'place',
+        event,
+        placeInfo: {
+          place,
+          building,
+        },
+      });
+    } catch (error) {
+      // TODO: 로깅
+      console.error('Registration failed:', error);
+    }
+  };
+
+  // 다음 단계로 이동
+  const handleNext = () => {
+    // floor에서 다음으로: guide가 필요하면 모달 표시, 아니면 info로
+    if (shouldShowGuide) {
+      setIsGuideModalVisible(true);
+    } else {
+      // guide를 건너뛰고 info로
+      const infoIndex = STEPS.indexOf('info');
+      if (infoIndex !== -1) {
+        setStepIndex(infoIndex);
+      }
+    }
+  };
+
+  // 이전 단계로 이동
+  const handleBack = () => {
+    // guide 모달이 열려있으면 모달 닫기
+    if (isGuideModalVisible) {
+      if (guideKey) {
+        setViewedGuidesInSession(prev => new Set(prev).add(guideKey));
+      }
+      setIsGuideModalVisible(false);
+      return;
+    }
+    setStepIndex(prev => Math.max(prev - 1, 0));
+  };
+
+  // "다시보지 않기" 버튼 핸들러
+  const handleDismissPermanently = () => {
+    if (!guideKey) return;
+
+    setGuideDismissed(prev => {
+      switch (guideKey) {
+        case 'firstFloor':
+          return {...prev, firstFloor: true};
+        case 'otherFloor':
+          return {...prev, otherFloor: true};
+        case 'multipleFloors':
+          return {...prev, multipleFloors: true};
+        case 'standaloneSingleFloor':
+          return {...prev, standaloneSingleFloor: true};
+        case 'standaloneMultipleFloors':
+          return {...prev, standaloneMultipleFloors: true};
+        default:
+          return prev;
+      }
+    });
+
+    // 모달 닫고 info로 이동
+    setIsGuideModalVisible(false);
+    const infoIndex = STEPS.indexOf('info');
+    if (infoIndex !== -1) {
+      setStepIndex(infoIndex);
+    }
+  };
+
+  // "확인했어요!" 버튼 핸들러: 현재 세션에서 본 것으로 표시
+  const handleConfirmGuide = () => {
+    if (guideKey) {
+      setViewedGuidesInSession(prev => new Set(prev).add(guideKey));
+    }
+    // 모달 닫고 info로 이동
+    setIsGuideModalVisible(false);
+    const infoIndex = STEPS.indexOf('info');
+    if (infoIndex !== -1) {
+      setStepIndex(infoIndex);
+    }
+  };
+
+  // 안드로이드 백 버튼 처리
+  useBackHandler(() => {
+    // guide 모달이 열려있으면 모달 닫기
+    if (isGuideModalVisible) {
+      handleBack();
       return true;
     }
-
-    // "단독건물이에요" 선택 시 단독건물 타입이 없으면 비활성화
-    if (selectedOption === 'standalone' && selectedStandaloneType === null) {
+    // 다른 step에서도 이전 step이 있으면 뒤로가기
+    if (stepIndex > 0) {
+      handleBack();
       return true;
     }
-
     return false;
-  })();
+  });
+
+  const stepConfig: Record<Step, ReactElement> = {
+    floor: (
+      <FloorStep
+        place={place}
+        selectedOption={selectedOption}
+        selectedStandaloneType={selectedStandaloneType}
+        selectedFloor={selectedFloor}
+        onOptionChange={setSelectedOption}
+        onStandaloneTypeChange={setSelectedStandaloneType}
+        onFloorChange={setSelectedFloor}
+        onNext={handleNext}
+      />
+    ),
+    info: (
+      <InfoStep place={place} onSubmit={handleSubmit} onBack={handleBack} />
+    ),
+  };
 
   return (
     <LogParamsProvider params={{place_id: place.id}}>
-      <ScreenLayout isHeaderVisible={true}>
-        <ScrollView>
-          <SafeAreaWrapper edges={['bottom']}>
-            <PlaceInfoSection
-              target="place"
-              name={place.name}
-              address={place.address}
-            />
-            <SectionSeparator />
-
-            <Container>
-              <View style={{gap: 20}}>
-                <QuestionSection>
-                  <SectionLabel>층정보</SectionLabel>
-                  <QuestionText>
-                    {place.name}
-                    {'은\n건물의 1층에 있나요?'}
-                  </QuestionText>
-                </QuestionSection>
-
-                <OptionsContainer>
-                  {FLOOR_OPTIONS.map(option => {
-                    const isSelected = selectedOption === option.key;
-                    return (
-                      <SccPressable
-                        key={option.key}
-                        elementName={`floor_option_${option.key}`}
-                        onPress={() => setSelectedOption(option.key)}>
-                        <OptionButton isSelected={isSelected}>
-                          <OptionText isSelected={isSelected}>
-                            {option.label}
-                          </OptionText>
-                        </OptionButton>
-                      </SccPressable>
-                    );
-                  })}
-                </OptionsContainer>
-              </View>
-
-              {selectedOption === 'otherFloor' && (
-                <AdditionalQuestionArea>
-                  <QuestionTextStyled>
-                    그럼 몇층에 있는 장소인가요?
-                  </QuestionTextStyled>
-                  <FloorSelect
-                    value={selectedFloor}
-                    onChange={setSelectedFloor}
-                  />
-                </AdditionalQuestionArea>
-              )}
-
-              {selectedOption === 'standalone' && (
-                <AdditionalQuestionArea>
-                  <QuestionTextStyled>
-                    어떤 유형의 단독건물인가요?
-                  </QuestionTextStyled>
-                  <RowOptionsContainer>
-                    {STANDALONE_BUILDING_OPTIONS.map(option => {
-                      const isSelected = selectedStandaloneType === option.key;
-                      return (
-                        <SccPressable
-                          key={option.key}
-                          elementName={`standalone_building_${option.key}`}
-                          onPress={() => setSelectedStandaloneType(option.key)}
-                          style={{flex: 1}}>
-                          <OptionButton isSelected={isSelected}>
-                            <OptionText isSelected={isSelected}>
-                              {option.label}
-                            </OptionText>
-                          </OptionButton>
-                        </SccPressable>
-                      );
-                    })}
-                  </RowOptionsContainer>
-                </AdditionalQuestionArea>
-              )}
-            </Container>
-          </SafeAreaWrapper>
-        </ScrollView>
-        <SubmitButtonWrapper>
-          <SccButton
-            text="다음"
-            buttonColor="brandColor"
-            isDisabled={isNextButtonDisabled}
-            onPress={() => {
-              // TODO: 다음 단계로 이동
-            }}
-            elementName="place_form_v2_next"
-          />
-        </SubmitButtonWrapper>
-      </ScreenLayout>
+      <ScreenLayout isHeaderVisible={true}>{stepConfig[step]}</ScreenLayout>
+      <GuideModal
+        visible={isGuideModalVisible}
+        onDismissPermanently={handleDismissPermanently}
+        onConfirm={handleConfirmGuide}
+        onRequestClose={handleBack}
+      />
     </LogParamsProvider>
   );
 }
@@ -196,68 +257,3 @@ export const SectionSeparator = styled.View({
   backgroundColor: color.gray10,
   height: 6,
 });
-
-const Container = styled.View`
-  padding-top: 30px;
-  padding-horizontal: 20px;
-  padding-bottom: 40px;
-  gap: 40px;
-`;
-
-const QuestionSection = styled.View`
-  gap: 8px;
-`;
-
-const SectionLabel = styled.Text`
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${font.pretendardBold};
-  color: ${color.brand50};
-`;
-
-const QuestionTextStyled = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
-`;
-
-const OptionsContainer = styled.View`
-  gap: 12px;
-  margin-top: 12px;
-`;
-
-const RowOptionsContainer = styled.View`
-  flex-direction: row;
-  gap: 12px;
-`;
-
-const OptionButton = styled.View<{isSelected: boolean}>`
-  border-width: 1.2px;
-  border-color: ${props => (props.isSelected ? color.blue40 : color.gray20)};
-  background-color: ${props => (props.isSelected ? color.brand5 : color.white)};
-  padding-horizontal: 14px;
-  padding-vertical: 12px;
-  border-radius: 14px;
-  align-items: center;
-  justify-content: center;
-`;
-
-const OptionText = styled.Text<{isSelected: boolean}>`
-  font-size: 16px;
-  line-height: 24px;
-  font-family: ${font.pretendardMedium};
-  color: ${props => (props.isSelected ? color.brand50 : color.gray80)};
-`;
-
-const AdditionalQuestionArea = styled.View`
-  gap: 20px;
-`;
-
-const SubmitButtonWrapper = styled.View`
-  background-color: ${color.white};
-  padding-vertical: 12px;
-  padding-horizontal: 20px;
-  border-top-width: 1px;
-  border-top-color: ${color.gray15};
-`;
