@@ -132,14 +132,21 @@ export default function PlaceFormV2Screen({
         event = undefined;
       } else {
         // 단독건물이 아닌 경우
-        // 1. 다른층 + 건물 밖 문 => registration-suggest
-        // 2. 그 외 => registration-force
+        // 1. 1층 + 건물 밖 문 => event 없음
+        // 2. 다른층 + 건물 밖 문 => registration-suggest
+        // 3. 그 외 => registration-force
+        const isFirstFloorWithOutsideDoor =
+          selectedOption === 'firstFloor' && doorDirection === 'outside';
         const isOtherFloorWithOutsideDoor =
           selectedOption === 'otherFloor' && doorDirection === 'outside';
 
-        event = isOtherFloorWithOutsideDoor
-          ? 'registration-suggest'
-          : 'registration-force';
+        if (isFirstFloorWithOutsideDoor) {
+          event = undefined;
+        } else if (isOtherFloorWithOutsideDoor) {
+          event = 'registration-suggest';
+        } else {
+          event = 'registration-force';
+        }
       }
 
       navigation.navigate('RegistrationComplete', {
