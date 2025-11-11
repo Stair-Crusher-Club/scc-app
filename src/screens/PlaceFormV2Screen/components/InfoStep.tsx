@@ -38,7 +38,7 @@ interface InfoStepProps {
   place: Place;
   isStandaloneBuilding: boolean;
   hasFloorMovementStep: boolean;
-  onSubmit: () => void;
+  onSubmit: (doorDirection?: BuildingDoorDirectionType) => void;
   onBack: () => void;
 }
 
@@ -50,6 +50,11 @@ export default function InfoStep({
   onBack,
 }: InfoStepProps) {
   const form = useForm<FormValues>();
+
+  const handleSubmit = () => {
+    const doorDirection = form.getValues('doorDirection');
+    onSubmit(doorDirection);
+  };
 
   return (
     <FormProvider {...form}>
@@ -285,7 +290,7 @@ export default function InfoStep({
         />
         <SccButton
           text={hasFloorMovementStep ? '다음' : '등록하기'}
-          onPress={onSubmit}
+          onPress={handleSubmit}
           fontFamily={font.pretendardMedium}
           buttonColor="brandColor"
           elementName={

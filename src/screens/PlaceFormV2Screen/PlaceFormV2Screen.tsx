@@ -26,6 +26,8 @@ type FloorOptionKey =
 
 type StandaloneBuildingType = 'singleFloor' | 'multipleFloors';
 
+type BuildingDoorDirectionType = 'inside' | 'outside';
+
 type Step = 'floor' | 'info' | 'floorMovement';
 
 const STEPS: Step[] = ['floor', 'info', 'floorMovement'];
@@ -44,6 +46,8 @@ export default function PlaceFormV2Screen({
   const [selectedFloor, setSelectedFloor] = useState<number | undefined>(
     undefined,
   );
+  const [doorDirection, setDoorDirection] =
+    useState<BuildingDoorDirectionType | null>(null);
 
   const step = STEPS[stepIndex];
 
@@ -121,9 +125,22 @@ export default function PlaceFormV2Screen({
   // API 호출 및 완료 처리
   const handleSubmit = async () => {
     try {
-      // 단독건물이 아닐 경우에만 event를 넘긴다.
-      const event =
-        selectedOption === 'standalone' ? undefined : 'registration-suggest';
+      let event: 'registration-suggest' | 'registration-force' | undefined;
+
+      if (selectedOption === 'standalone') {
+        // 단독건물이면 event 없음
+        event = undefined;
+      } else {
+        // 단독건물이 아닌 경우
+        // 1. 다른층 + 건물 밖 문 => registration-suggest
+        // 2. 그 외 => registration-force
+        const isOtherFloorWithOutsideDoor =
+          selectedOption === 'otherFloor' && doorDirection === 'outside';
+
+        event = isOtherFloorWithOutsideDoor
+          ? 'registration-suggest'
+          : 'registration-force';
+      }
 
       navigation.navigate('RegistrationComplete', {
         target: 'place',
@@ -173,7 +190,12 @@ export default function PlaceFormV2Screen({
   };
 
   // InfoStep에서 다음 버튼 핸들러
-  const handleInfoSubmit = () => {
+  const handleInfoSubmit = (door?: BuildingDoorDirectionType) => {
+    // doorDirection 저장
+    if (door) {
+      setDoorDirection(door);
+    }
+
     // floorMovement 단계가 필요한지 확인
     const needsFloorMovement =
       selectedOption === 'multipleFloors' ||
