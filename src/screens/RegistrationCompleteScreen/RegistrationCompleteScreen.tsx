@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -8,6 +8,7 @@ import {font} from '@/constant/font';
 import {Building, Place} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {BuildingRegistrationEvent} from '@/screens/PlaceDetailV2Screen/constants';
+import {useBackHandler} from '@react-native-community/hooks';
 import {REGISTRATION_COMPLETE_CONTENT} from './constants';
 
 export interface RegistrationCompleteScreenParams {
@@ -29,6 +30,18 @@ export default function RegistrationCompleteScreen({
 }: ScreenProps<'RegistrationComplete'>) {
   const {target, event, placeInfo} = route.params;
   const content = REGISTRATION_COMPLETE_CONTENT[target];
+
+  // 안드로이드 뒤로가기 버튼 막기
+  useBackHandler(() => {
+    return true; // true를 반환하여 뒤로가기 동작 차단
+  });
+
+  // iOS 스와이프 제스처 막기
+  useEffect(() => {
+    navigation.setOptions({
+      gestureEnabled: false,
+    });
+  }, [navigation]);
 
   const handleConfirm = () => {
     navigation.navigate('PlaceDetailV2', {
@@ -113,4 +126,3 @@ const StyledImage = styled.Image({
 const ButtonContainer = styled.View({
   paddingTop: 20,
 });
-
