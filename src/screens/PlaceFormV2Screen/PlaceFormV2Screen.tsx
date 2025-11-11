@@ -236,7 +236,12 @@ export default function PlaceFormV2Screen({
       />
     ),
     info: (
-      <InfoStep place={place} onSubmit={handleSubmit} onBack={handleBack} />
+      <InfoStep
+        place={place}
+        isStandaloneBuilding={selectedOption === 'standalone'}
+        onSubmit={handleSubmit}
+        onBack={handleBack}
+      />
     ),
   };
 
