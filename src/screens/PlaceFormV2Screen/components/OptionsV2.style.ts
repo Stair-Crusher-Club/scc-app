@@ -16,7 +16,8 @@ export const Options = styled.View({
 export const PressableOption = styled(SccPressable)<{
   selected: boolean;
   disabled: boolean;
-}>(({selected, disabled}) => ({
+  size: 'sm' | 'md';
+}>(({selected, disabled, size}) => ({
   borderRadius: 14,
   borderWidth: 1.2,
   display: 'flex',
@@ -26,8 +27,8 @@ export const PressableOption = styled(SccPressable)<{
   alignItems: 'center',
   flexGrow: 1,
   width: '40%', // 두 개 이상이면 다음 줄로 내려가도록
-  paddingHorizontal: 14,
-  paddingVertical: 12,
+  paddingHorizontal: size === 'sm' ? 16 : 14,
+  paddingVertical: size === 'sm' ? 8 : 12,
   opacity: disabled ? 0.3 : 1,
   borderColor: selected ? color.blue40 : color.gray20,
   backgroundColor: selected ? color.brand5 : color.white,
