@@ -1,5 +1,4 @@
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
-import {SccPressable} from '@/components/SccPressable';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -10,6 +9,7 @@ import styled from 'styled-components/native';
 import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {SectionSeparator} from '../PlaceFormV2Screen';
+import OptionsV2 from './OptionsV2';
 
 interface QuestionTextProps {
   children: ReactNode;
@@ -95,23 +95,15 @@ export default function FloorStep({
                 </QuestionText>
               </QuestionSection>
 
-              <OptionsContainer>
-                {FLOOR_OPTIONS.map(option => {
-                  const isSelected = selectedOption === option.key;
-                  return (
-                    <SccPressable
-                      key={option.key}
-                      elementName={`floor_option_${option.key}`}
-                      onPress={() => onOptionChange(option.key)}>
-                      <OptionButton isSelected={isSelected}>
-                        <OptionText isSelected={isSelected}>
-                          {option.label}
-                        </OptionText>
-                      </OptionButton>
-                    </SccPressable>
-                  );
-                })}
-              </OptionsContainer>
+              <OptionsV2
+                value={selectedOption}
+                columns={1}
+                options={FLOOR_OPTIONS.map(option => ({
+                  label: option.label,
+                  value: option.key,
+                }))}
+                onSelect={onOptionChange}
+              />
             </View>
 
             {selectedOption === 'otherFloor' && (
@@ -128,24 +120,15 @@ export default function FloorStep({
                 <QuestionTextStyled>
                   어떤 유형의 단독건물인가요?
                 </QuestionTextStyled>
-                <RowOptionsContainer>
-                  {STANDALONE_BUILDING_OPTIONS.map(option => {
-                    const isSelected = selectedStandaloneType === option.key;
-                    return (
-                      <SccPressable
-                        key={option.key}
-                        elementName={`standalone_building_${option.key}`}
-                        onPress={() => onStandaloneTypeChange(option.key)}
-                        style={{flex: 1}}>
-                        <OptionButton isSelected={isSelected}>
-                          <OptionText isSelected={isSelected}>
-                            {option.label}
-                          </OptionText>
-                        </OptionButton>
-                      </SccPressable>
-                    );
-                  })}
-                </RowOptionsContainer>
+                <OptionsV2
+                  value={selectedStandaloneType}
+                  columns={2}
+                  options={STANDALONE_BUILDING_OPTIONS.map(option => ({
+                    label: option.label,
+                    value: option.key,
+                  }))}
+                  onSelect={onStandaloneTypeChange}
+                />
               </AdditionalQuestionArea>
             )}
           </Container>
@@ -187,34 +170,6 @@ const QuestionTextStyled = styled.Text`
   line-height: 30px;
   font-family: ${font.pretendardSemibold};
   color: ${color.gray80};
-`;
-
-const OptionsContainer = styled.View`
-  gap: 12px;
-  margin-top: 12px;
-`;
-
-const RowOptionsContainer = styled.View`
-  flex-direction: row;
-  gap: 12px;
-`;
-
-const OptionButton = styled.View<{isSelected: boolean}>`
-  border-width: 1.2px;
-  border-color: ${props => (props.isSelected ? color.blue40 : color.gray20)};
-  background-color: ${props => (props.isSelected ? color.brand5 : color.white)};
-  padding-horizontal: 14px;
-  padding-vertical: 12px;
-  border-radius: 14px;
-  align-items: center;
-  justify-content: center;
-`;
-
-const OptionText = styled.Text<{isSelected: boolean}>`
-  font-size: 16px;
-  line-height: 24px;
-  font-family: ${font.pretendardMedium};
-  color: ${props => (props.isSelected ? color.brand50 : color.gray80)};
 `;
 
 const AdditionalQuestionArea = styled.View`
