@@ -37,6 +37,7 @@ interface FormValues {
 interface InfoStepProps {
   place: Place;
   isStandaloneBuilding: boolean;
+  hasFloorMovementStep: boolean;
   onSubmit: () => void;
   onBack: () => void;
 }
@@ -44,6 +45,7 @@ interface InfoStepProps {
 export default function InfoStep({
   place,
   isStandaloneBuilding,
+  hasFloorMovementStep,
   onSubmit,
   onBack,
 }: InfoStepProps) {
@@ -278,17 +280,20 @@ export default function InfoStep({
           buttonColor="gray10"
           textColor="black"
           fontFamily={font.pretendardMedium}
-          elementName="place_form_v2_prev"
+          elementName="place_form_v2_info_prev"
           style={{flex: 1}}
         />
         <SccButton
-          text="등록하기"
+          text={hasFloorMovementStep ? '다음' : '등록하기'}
           onPress={onSubmit}
           fontFamily={font.pretendardMedium}
           buttonColor="brandColor"
-          elementName="place_form_v2_submit"
+          elementName={
+            hasFloorMovementStep
+              ? 'place_form_v2_info_next'
+              : 'place_form_v2_submit'
+          }
           style={{flex: 2}}
-          isDisabled
         />
       </SubmitButtonWrapper>
     </FormProvider>

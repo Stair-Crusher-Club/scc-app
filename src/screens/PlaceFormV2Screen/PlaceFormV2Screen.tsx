@@ -8,6 +8,7 @@ import {useBackHandler} from '@react-native-community/hooks';
 import {useAtom} from 'jotai';
 import {ReactElement, useEffect, useState} from 'react';
 import styled from 'styled-components/native';
+import FloorMovementStep from './components/FloorMovementStep';
 import FloorStep from './components/FloorStep';
 import GuideModal from './components/GuideModal';
 import InfoStep from './components/InfoStep';
@@ -25,9 +26,9 @@ type FloorOptionKey =
 
 type StandaloneBuildingType = 'singleFloor' | 'multipleFloors';
 
-type Step = 'floor' | 'info';
+type Step = 'floor' | 'info' | 'floorMovement';
 
-const STEPS: Step[] = ['floor', 'info'];
+const STEPS: Step[] = ['floor', 'info', 'floorMovement'];
 
 export default function PlaceFormV2Screen({
   route,
@@ -140,15 +141,21 @@ export default function PlaceFormV2Screen({
 
   // 다음 단계로 이동
   const handleNext = () => {
-    // floor에서 다음으로: guide가 필요하면 모달 표시, 아니면 info로
-    if (shouldShowGuide) {
-      setIsGuideModalVisible(true);
-    } else {
-      // guide를 건너뛰고 info로
+    if (step === 'floor') {
+      // floor에서 다음으로: guide가 필요하면 모달 표시
+      if (shouldShowGuide) {
+        setIsGuideModalVisible(true);
+        return;
+      }
+
+      // floor에서는 항상 info로
       const infoIndex = STEPS.indexOf('info');
       if (infoIndex !== -1) {
         setStepIndex(infoIndex);
       }
+    } else {
+      // 다른 step에서는 순차적으로 다음으로
+      setStepIndex(prev => Math.min(prev + 1, STEPS.length - 1));
     }
   };
 
@@ -163,6 +170,25 @@ export default function PlaceFormV2Screen({
       return;
     }
     setStepIndex(prev => Math.max(prev - 1, 0));
+  };
+
+  // InfoStep에서 다음 버튼 핸들러
+  const handleInfoSubmit = () => {
+    // floorMovement 단계가 필요한지 확인
+    const needsFloorMovement =
+      selectedOption === 'multipleFloors' ||
+      (selectedOption === 'standalone' &&
+        selectedStandaloneType === 'multipleFloors');
+
+    if (needsFloorMovement) {
+      const floorMovementIndex = STEPS.indexOf('floorMovement');
+      if (floorMovementIndex !== -1) {
+        setStepIndex(floorMovementIndex);
+      }
+    } else {
+      // floorMovement가 필요없으면 바로 제출
+      handleSubmit();
+    }
   };
 
   // "다시보지 않기" 버튼 핸들러
@@ -239,6 +265,18 @@ export default function PlaceFormV2Screen({
       <InfoStep
         place={place}
         isStandaloneBuilding={selectedOption === 'standalone'}
+        hasFloorMovementStep={
+          selectedOption === 'multipleFloors' ||
+          (selectedOption === 'standalone' &&
+            selectedStandaloneType === 'multipleFloors')
+        }
+        onSubmit={handleInfoSubmit}
+        onBack={handleBack}
+      />
+    ),
+    floorMovement: (
+      <FloorMovementStep
+        place={place}
         onSubmit={handleSubmit}
         onBack={handleBack}
       />
