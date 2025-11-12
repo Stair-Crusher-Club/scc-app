@@ -16,6 +16,7 @@ import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {isReviewEnabled} from '@/models/Place';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import XSButton from '@/screens/SearchScreen/components/XSButton';
@@ -127,8 +128,6 @@ function SearchItemCard({
     item.accessibilityInfo?.reviewCount &&
     item.accessibilityInfo.reviewCount > 0
   );
-  const isReviewEnabledCategory =
-    item.place?.category === 'RESTAURANT' || item.place?.category === 'CAFE';
 
   return (
     <LogParamsProvider
@@ -209,7 +208,7 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
-            {registerStatus !== 'NONE' && (
+            {registerStatus !== 'UNAVAILABLE' && registerStatus !== 'NONE' && (
               <View
                 style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
                 {registerStatus === 'PLACE_ONLY' && (
@@ -220,7 +219,7 @@ function SearchItemCard({
                     onPress={() => onRegister('building')}
                   />
                 )}
-                {isReviewEnabledCategory && (
+                {isReviewEnabled(item.place) && (
                   <XSButton
                     text="리뷰"
                     hasPlusButton
@@ -256,7 +255,7 @@ function SearchItemCard({
               elementName="place_search_item_card_register_place_accessibility_button"
               onPress={() => onRegister('place')}
             />
-            {isReviewEnabledCategory && (
+            {isReviewEnabled(item.place) && (
               <LGButton
                 text="방문 리뷰 등록하기"
                 fillParent
