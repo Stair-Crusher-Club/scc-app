@@ -314,7 +314,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'placeReviewNudge',
-      shouldRender: isReviewEnabled(data.place),
+      shouldRender: isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
@@ -344,7 +344,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       shouldRender: !!(
         isReviewEnabled(data.place) &&
         toiletPost &&
-        toiletPost.length > 0
+        toiletPost.length > 0 &&
+        !!data?.isAccessibilityRegistrable
       ),
       component: (
         <PlaceDetailToiletSection
@@ -356,7 +357,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'toiletReviewNudge',
-      shouldRender: isReviewEnabled(data.place),
+      shouldRender: isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
@@ -385,7 +386,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       shouldRender: !!(
         accessibilityPost &&
         (accessibilityPost?.placeAccessibility ||
-          accessibilityPost?.buildingAccessibility)
+          accessibilityPost?.buildingAccessibility) &&
+        !!data?.isAccessibilityRegistrable
       ),
       component: accessibilityPost ? (
         <PlaceDetailFeedbackSection accessibility={accessibilityPost} />
