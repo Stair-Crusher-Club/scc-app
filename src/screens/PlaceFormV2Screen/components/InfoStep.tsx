@@ -4,15 +4,9 @@ import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
-import {
-  EntranceDoorType,
-  Place,
-  StairHeightLevel,
-  StairInfo,
-} from '@/generated-sources/openapi';
-import ImageFile from '@/models/ImageFile';
+import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import {MeasureGuide} from '@/screens/BuildingFormScreen/sections/ElevatorSection.style';
-import {Controller, FormProvider, useForm} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
@@ -22,17 +16,6 @@ import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
 
 type BuildingDoorDirectionType = 'inside' | 'outside';
-
-interface FormValues {
-  doorDirection: BuildingDoorDirectionType;
-  enterancePhotos: ImageFile[];
-  hasStairs: boolean;
-  stairInfo: StairInfo;
-  hasSlope: boolean;
-  doorType: EntranceDoorType[];
-  additionalInfo: string[];
-  comment: string | undefined;
-}
 
 interface InfoStepProps {
   place: Place;
@@ -49,7 +32,7 @@ export default function InfoStep({
   onSubmit,
   onBack,
 }: InfoStepProps) {
-  const form = useForm<FormValues>();
+  const form = useFormContext();
 
   const handleSubmit = () => {
     const doorDirection = form.getValues('doorDirection');
@@ -57,7 +40,7 @@ export default function InfoStep({
   };
 
   return (
-    <FormProvider {...form}>
+    <>
       <ScrollView>
         <SafeAreaWrapper edges={['bottom']}>
           <PlaceInfoSection
@@ -119,7 +102,7 @@ export default function InfoStep({
             <SubSection>
               <Label>출입구 사진을 등록해주세요</Label>
               <Controller
-                name="enterancePhotos"
+                name="entrancePhotos"
                 rules={{required: true}}
                 render={({field}) => (
                   <PhotosV2
@@ -301,7 +284,7 @@ export default function InfoStep({
           style={{flex: 2}}
         />
       </SubmitButtonWrapper>
-    </FormProvider>
+    </>
   );
 }
 

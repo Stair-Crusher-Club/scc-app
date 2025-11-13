@@ -9,9 +9,8 @@ import {
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
-import ImageFile from '@/models/ImageFile';
 import {MeasureGuide} from '@/screens/BuildingFormScreen/sections/ElevatorSection.style';
-import {Controller, FormProvider, useForm} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
@@ -19,16 +18,6 @@ import {SectionSeparator} from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
-
-interface FormValues {
-  floorMovementMethod: FloorMovingMethodTypeDto;
-  elevatorPhotos: ImageFile[];
-  hasStairs: boolean;
-  stairInfo: StairInfo;
-  elevatorStairHeightLevel: StairHeightLevel;
-  hasSlope: boolean;
-  comment: string | undefined;
-}
 
 interface FloorMovementStepProps {
   place: Place;
@@ -76,10 +65,10 @@ export default function FloorMovementStep({
   onSubmit,
   onBack,
 }: FloorMovementStepProps) {
-  const form = useForm<FormValues>();
+  const form = useFormContext();
 
   return (
-    <FormProvider {...form}>
+    <>
       <ScrollView>
         <SafeAreaWrapper edges={['bottom']}>
           <PlaceInfoSection
@@ -139,7 +128,7 @@ export default function FloorMovementStep({
                   <SubSection>
                     <Label>입구에 계단이 있나요?</Label>
                     <Controller
-                      name="hasStairs"
+                      name="elevatorHasStairs"
                       rules={{validate: v => typeof v === 'boolean'}}
                       render={({field}) => (
                         <OptionsV2
@@ -152,9 +141,9 @@ export default function FloorMovementStep({
                         />
                       )}
                     />
-                    {form.watch('hasStairs') && (
+                    {form.watch('elevatorHasStairs') && (
                       <Controller
-                        name="stairInfo"
+                        name="elevatorStairInfo"
                         rules={{required: true}}
                         render={({field}) => (
                           <OptionsV2
@@ -172,8 +161,8 @@ export default function FloorMovementStep({
                     )}
                   </SubSection>
 
-                  {form.watch('hasStairs') &&
-                    form.watch('stairInfo') === StairInfo.One && (
+                  {form.watch('elevatorHasStairs') &&
+                    form.watch('elevatorStairInfo') === StairInfo.One && (
                       <SubSection key="stair-height">
                         <Label>계단 1칸의 높이를 알려주세요</Label>
                         <MeasureGuide>
@@ -214,7 +203,7 @@ export default function FloorMovementStep({
                   <SubSection>
                     <Label>입구에 경사로가 있나요?</Label>
                     <Controller
-                      name="hasSlope"
+                      name="elevatorHasSlope"
                       rules={{validate: v => typeof v === 'boolean'}}
                       render={({field}) => (
                         <OptionsV2
@@ -234,7 +223,7 @@ export default function FloorMovementStep({
             <SubSection>
               <Label>더 도움이 될 정보가 있다면 알려주세요</Label>
               <Controller
-                name="comment"
+                name="floorMovementComment"
                 render={({field}) => (
                   <TextAreaV2
                     placeholder="예시: 엘리베이터는 건물 뒤쪽에 있어요"
@@ -266,7 +255,7 @@ export default function FloorMovementStep({
           style={{flex: 2}}
         />
       </SubmitButtonWrapper>
-    </FormProvider>
+    </>
   );
 }
 
