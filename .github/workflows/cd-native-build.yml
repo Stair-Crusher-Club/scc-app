@@ -166,7 +166,7 @@ jobs:
 
       - name: Run iOS release candidate
         env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
         run: |
           cd ios
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
