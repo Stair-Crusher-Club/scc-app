@@ -104,7 +104,7 @@ jobs:
 
   ios:
     if: startsWith(github.ref_name, 'v') && endsWith(github.ref_name, '-ios') || (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'ios')
-    runs-on: macos-latest
+    runs-on: macos-15-xlarge
 
     steps:
       - name: Checkout repository
