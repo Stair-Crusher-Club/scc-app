@@ -15,13 +15,11 @@ import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
 
-type BuildingDoorDirectionType = 'inside' | 'outside';
-
 interface InfoStepProps {
   place: Place;
   isStandaloneBuilding: boolean;
   hasFloorMovementStep: boolean;
-  onSubmit: (doorDirection?: BuildingDoorDirectionType) => void;
+  onSubmit: () => void;
   onBack: () => void;
 }
 
@@ -34,10 +32,54 @@ export default function InfoStep({
 }: InfoStepProps) {
   const form = useFormContext();
 
-  const handleSubmit = () => {
-    const doorDirection = form.getValues('doorDirection');
-    onSubmit(doorDirection);
-  };
+  // Watch all required fields
+  const doorDirection = form.watch('doorDirection');
+  const entrancePhotos = form.watch('entrancePhotos');
+  const hasStairs = form.watch('hasStairs');
+  const stairInfo = form.watch('stairInfo');
+  const entranceStairHeightLevel = form.watch('entranceStairHeightLevel');
+  const hasSlope = form.watch('hasSlope');
+  const doorType = form.watch('doorType');
+
+  // Check if all required fields are filled
+  const isFormValid = (() => {
+    // 출입구 사진은 필수
+    if (!entrancePhotos || entrancePhotos.length === 0) {
+      return false;
+    }
+
+    // 단독건물이 아닐 경우 매장 입구 방향 필수
+    if (!isStandaloneBuilding && !doorDirection) {
+      return false;
+    }
+
+    // 계단 여부는 필수 (boolean)
+    if (typeof hasStairs !== 'boolean') {
+      return false;
+    }
+
+    // 계단이 있을 경우 계단 정보 필수
+    if (hasStairs && !stairInfo) {
+      return false;
+    }
+
+    // 계단이 1칸일 경우 높이 정보 필수
+    if (hasStairs && stairInfo === StairInfo.One && !entranceStairHeightLevel) {
+      return false;
+    }
+
+    // 경사로 여부는 필수 (boolean)
+    if (typeof hasSlope !== 'boolean') {
+      return false;
+    }
+
+    // 출입문 종류는 필수
+    if (!doorType || doorType.length === 0) {
+      return false;
+    }
+
+    return true;
+  })();
 
   return (
     <>
@@ -273,7 +315,7 @@ export default function InfoStep({
         />
         <SccButton
           text={hasFloorMovementStep ? '다음' : '등록하기'}
-          onPress={handleSubmit}
+          onPress={onSubmit}
           fontFamily={font.pretendardMedium}
           buttonColor="brandColor"
           elementName={
@@ -282,6 +324,7 @@ export default function InfoStep({
               : 'place_form_v2_submit'
           }
           style={{flex: 2}}
+          isDisabled={!isFormValid}
         />
       </SubmitButtonWrapper>
     </>

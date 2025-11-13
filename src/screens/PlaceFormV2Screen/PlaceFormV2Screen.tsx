@@ -15,6 +15,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
 import {useQueryClient} from '@tanstack/react-query';
@@ -87,17 +88,15 @@ export default function PlaceFormV2Screen({
   const pushItems = useSetAtom(pushItemsAtom);
 
   const [stepIndex, setStepIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<FloorOptionKey | null>(
-    null,
-  );
-  const [selectedStandaloneType, setSelectedStandaloneType] =
-    useState<StandaloneBuildingType | null>(null);
-  const [selectedFloor, setSelectedFloor] = useState<number>();
-  const [doorDirection, setDoorDirection] =
-    useState<BuildingDoorDirectionType>();
 
   const form = useForm<PlaceFormV2Values>();
   const step = STEPS[stepIndex];
+
+  // form.watch()로 값 읽기
+  const selectedOption = form.watch('floorOption');
+  const selectedStandaloneType = form.watch('standaloneType');
+  const selectedFloor = form.watch('selectedFloor');
+  const doorDirection = form.watch('doorDirection');
 
   // Guide 모달 표시 여부
   const [isGuideModalVisible, setIsGuideModalVisible] = useState(false);
@@ -159,122 +158,50 @@ export default function PlaceFormV2Screen({
   // 단독건물 선택 후 다른 옵션으로 변경하면 단독건물 타입 초기화
   useEffect(() => {
     if (selectedOption !== 'standalone') {
-      setSelectedStandaloneType(null);
+      form.setValue('standaloneType', null);
     }
-  }, [selectedOption]);
+  }, [selectedOption, form]);
 
   // "아니요, 다른층이에요" 선택 후 다른 옵션으로 변경하면 층 정보 초기화
   useEffect(() => {
     if (selectedOption !== 'otherFloor') {
-      setSelectedFloor(undefined);
+      form.setValue('selectedFloor', undefined);
     }
-  }, [selectedOption]);
+  }, [selectedOption, form]);
 
   // API 호출 및 완료 처리
-  const handleSubmit = async (door?: BuildingDoorDirectionType) => {
+  const handleSubmit = async () => {
     const values = form.getValues();
 
-    try {
-      // Upload images first
-      // const uploadedImageUrls = await ImageFileUtils.uploadImages(
-      //   api,
-      //   values.entrancePhotos,
-      // );
+    const registered = await register(
+      api,
+      queryClient,
+      place.id,
+      values,
+      selectedOption,
+      selectedStandaloneType,
+      selectedFloor,
+      doorDirection,
+    );
 
-      // Prepare floor moving elevator accessibility if needed
-      // 단독건물 여러층이면서 엘리베이터를 선택한 경우에만 필요
-      let floorMovingElevatorAccessibility;
-      // const isStandaloneMultipleFloors =
-      //   selectedOption === 'standalone' &&
-      //   selectedStandaloneType === 'multipleFloors';
-      // if (
-      //   isStandaloneMultipleFloors &&
-      //   values.floorMovementMethod === FloorMovingMethodTypeDto.PlaceElevator
-      // ) {
-      //   const elevatorImageUrls = await ImageFileUtils.uploadImages(
-      //     api,
-      //     values.elevatorPhotos || [],
-      //   );
-
-      //   floorMovingElevatorAccessibility = {
-      //     imageUrls: elevatorImageUrls,
-      //     stairInfo: values.elevatorHasStairs
-      //       ? values.elevatorStairInfo
-      //       : StairInfo.None,
-      //     stairHeightLevel:
-      //       values.elevatorHasStairs &&
-      //       values.elevatorStairInfo === StairInfo.One
-      //         ? values.elevatorStairHeightLevel
-      //         : undefined,
-      //     hasSlope: values.elevatorHasSlope || false,
-      //   };
-      // }
-
-      // API request
-      const requestData: RegisterPlaceAccessibilityRequestDtoV2 = {
-        placeId: place.id,
-        isStandaloneBuildingBuilding: selectedOption === 'standalone',
-        doorDirectionType:
-          selectedOption === 'standalone'
-            ? PlaceDoorDirectionTypeDto.OutsideBuilding
-            : door === 'outside' || doorDirection === 'outside'
-              ? PlaceDoorDirectionTypeDto.OutsideBuilding
-              : PlaceDoorDirectionTypeDto.InsideBuilding,
-        floors: getFloors(selectedOption, selectedFloor),
-        imageUrls: [], // uploadedImageUrls
-        stairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
-        stairHeightLevel:
-          values.hasStairs && values.stairInfo === StairInfo.One
-            ? values.entranceStairHeightLevel
-            : undefined,
-        hasSlope: values.hasSlope || false,
-        entranceDoorTypes: values.doorType,
-        features: values.additionalInfo,
-        entranceComment: values.comment,
-        floorMovingMethodType: values.floorMovementMethod,
-        floorMovingMethodComment: values.floorMovementComment,
-        floorMovingElevatorAccessibility,
-      };
-
-      console.log(requestData);
-
-      // // Call API
-      // const res = await api.registerPlaceAccessibilityV2Post(requestData);
-
-      // // Invalidate queries to refresh data
-      // queryClient.invalidateQueries({
-      //   queryKey: ['PlaceDetail', place.id, 'Accessibility'],
-      // });
-      // queryClient.invalidateQueries({
-      //   queryKey: ['PlaceDetail', place.id],
-      // });
-
-      // // Push completed quest items
-      // if (res.data.contributedChallengeInfos) {
-      //   const items = res.data.contributedChallengeInfos.flatMap(info =>
-      //     info.completedQuestsByContribution.map(quest => ({
-      //       challengeId: info.challenge.id,
-      //       type: quest.completeStampType,
-      //       title: quest.title,
-      //     })),
-      //   );
-      //   pushItems(items);
-      // }
-
-      // Navigate to completion screen
-      const event = getEvent(selectedOption, door ?? doorDirection);
-      console.log(event);
-      // navigation.navigate('RegistrationComplete', {
-      //   target: 'place',
-      //   event,
-      //   placeInfo: {
-      //     place,
-      //     building,
-      //   },
-      // });
-    } catch (error: any) {
-      ToastUtils.showOnApiError(error);
+    if (!registered.success) {
+      return;
     }
+
+    if (registered.data) {
+      pushItems(registered.data);
+    }
+
+    // Navigate to completion screen
+    const event = getEvent(selectedOption, doorDirection);
+    navigation.navigate('RegistrationComplete', {
+      target: 'place',
+      event,
+      placeInfo: {
+        place,
+        building,
+      },
+    });
   };
 
   // 다음 단계로 이동
@@ -354,12 +281,7 @@ export default function PlaceFormV2Screen({
   };
 
   // InfoStep에서 다음 버튼 핸들러
-  const handleInfoSubmit = (door?: BuildingDoorDirectionType) => {
-    // doorDirection 저장
-    if (door) {
-      setDoorDirection(door);
-    }
-
+  const handleInfoSubmit = () => {
     // floorMovement 단계가 필요한지 확인
     const needsFloorMovement =
       selectedOption === 'multipleFloors' ||
@@ -373,7 +295,7 @@ export default function PlaceFormV2Screen({
       }
     } else {
       // floorMovement가 필요없으면 바로 제출
-      handleSubmit(door);
+      handleSubmit();
     }
   };
 
@@ -435,18 +357,7 @@ export default function PlaceFormV2Screen({
   });
 
   const stepConfig: Record<Step, ReactElement> = {
-    floor: (
-      <FloorStep
-        place={place}
-        selectedOption={selectedOption}
-        selectedStandaloneType={selectedStandaloneType}
-        selectedFloor={selectedFloor}
-        onOptionChange={setSelectedOption}
-        onStandaloneTypeChange={setSelectedStandaloneType}
-        onFloorChange={setSelectedFloor}
-        onNext={handleNext}
-      />
-    ),
+    floor: <FloorStep place={place} onNext={handleNext} />,
     info: (
       <InfoStep
         place={place}
@@ -490,9 +401,121 @@ export const SectionSeparator = styled.View({
   height: 6,
 });
 
+async function register(
+  api: ReturnType<typeof useAppComponents>['api'],
+  queryClient: ReturnType<typeof useQueryClient>,
+  placeId: string,
+  values: PlaceFormV2Values,
+  selectedOption: FloorOptionKey | null,
+  selectedStandaloneType: StandaloneBuildingType | null,
+  selectedFloor: number | undefined,
+  doorDirection?: BuildingDoorDirectionType,
+) {
+  try {
+    // Upload images first
+    const uploadedImageUrls = await ImageFileUtils.uploadImages(
+      api,
+      values.entrancePhotos,
+    );
+
+    // Prepare floor moving elevator accessibility if needed
+    let floorMovingElevatorAccessibility;
+    const hasMultipleFloors =
+      selectedOption === 'multipleFloors' ||
+      (selectedOption === 'standalone' &&
+        selectedStandaloneType === 'multipleFloors');
+    if (
+      hasMultipleFloors &&
+      values.floorMovementMethod === FloorMovingMethodTypeDto.PlaceElevator
+    ) {
+      const elevatorImageUrls = await ImageFileUtils.uploadImages(
+        api,
+        values.elevatorPhotos || [],
+      );
+
+      floorMovingElevatorAccessibility = {
+        imageUrls: elevatorImageUrls,
+        stairInfo: values.elevatorHasStairs
+          ? values.elevatorStairInfo
+          : StairInfo.None,
+        stairHeightLevel:
+          values.elevatorHasStairs && values.elevatorStairInfo === StairInfo.One
+            ? values.elevatorStairHeightLevel
+            : undefined,
+        hasSlope: values.elevatorHasSlope || false,
+      };
+    }
+
+    // Build API request
+    const requestData: RegisterPlaceAccessibilityRequestDtoV2 = {
+      placeId,
+      isStandaloneBuildingBuilding: selectedOption === 'standalone',
+      doorDirectionType:
+        selectedOption === 'standalone'
+          ? PlaceDoorDirectionTypeDto.OutsideBuilding
+          : doorDirection === 'outside'
+            ? PlaceDoorDirectionTypeDto.OutsideBuilding
+            : PlaceDoorDirectionTypeDto.InsideBuilding,
+      floors: getFloors(selectedOption, selectedFloor, selectedStandaloneType),
+      imageUrls: uploadedImageUrls,
+      stairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
+      stairHeightLevel:
+        values.hasStairs && values.stairInfo === StairInfo.One
+          ? values.entranceStairHeightLevel
+          : undefined,
+      hasSlope: values.hasSlope || false,
+      entranceDoorTypes: values.doorType,
+      features: values.additionalInfo,
+      entranceComment: values.comment,
+      floorMovingMethodType: values.floorMovementMethod,
+      floorMovingMethodComment: values.floorMovementComment,
+      floorMovingElevatorAccessibility,
+    };
+
+    console.log('🔥🔥🔥');
+    console.log(requestData);
+    console.log('🔥🔥🔥');
+
+    try {
+      // Call API
+      const res = await api.registerPlaceAccessibilityV2Post(requestData);
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetail', placeId],
+      });
+
+      return {
+        success: true,
+        data: res.data.contributedChallengeInfos?.flatMap(info =>
+          info.completedQuestsByContribution.map(quest => ({
+            challengeId: info.challenge.id,
+            type: quest.completeStampType,
+            title: quest.title,
+          })),
+        ),
+      };
+    } catch (error: any) {
+      ToastUtils.showOnApiError(error);
+      return {
+        success: false,
+      };
+    }
+  } catch (e) {
+    ToastUtils.show('사진 업로드를 실패했습니다.');
+    return {
+      success: false,
+    };
+  }
+}
+
 function getFloors(
   selectedOption: FloorOptionKey | null,
   selectedFloor: number | undefined,
+  selectedStandaloneType: StandaloneBuildingType | null,
 ): number[] {
   switch (selectedOption) {
     case 'firstFloor':
@@ -502,7 +525,7 @@ function getFloors(
     case 'multipleFloors':
       return [1, 2];
     case 'standalone':
-      return [1];
+      return selectedStandaloneType === 'multipleFloors' ? [1, 2] : [1];
     default:
       return [1];
   }

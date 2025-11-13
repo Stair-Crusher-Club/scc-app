@@ -14,6 +14,7 @@ import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
+import {makeFloorMovementOptions} from '../constants';
 import {SectionSeparator} from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
@@ -26,39 +27,6 @@ interface FloorMovementStepProps {
   onBack: () => void;
 }
 
-const makeFloorMovementOptions = (isStandaloneBuilding: boolean) => {
-  if (isStandaloneBuilding) {
-    return [
-      {label: '엘리베이터', value: FloorMovingMethodTypeDto.PlaceElevator},
-      {label: '계단', value: FloorMovingMethodTypeDto.PlaceStairs},
-      {label: '에스컬레이터', value: FloorMovingMethodTypeDto.PlaceEscalator},
-      {label: '모르겠음', value: FloorMovingMethodTypeDto.Unknown},
-    ];
-  }
-
-  return [
-    {
-      label: '매장 내부 엘리베이터',
-      value: FloorMovingMethodTypeDto.PlaceElevator,
-    },
-    {label: '매장 내부 계단', value: FloorMovingMethodTypeDto.PlaceStairs},
-    {
-      label: '매장 내부 에스컬레이터',
-      value: FloorMovingMethodTypeDto.PlaceEscalator,
-    },
-    {
-      label: '매장 외부 엘리베이터',
-      value: FloorMovingMethodTypeDto.BuildingElevator,
-    },
-    {label: '매장 외부 계단', value: FloorMovingMethodTypeDto.BuildingStairs},
-    {
-      label: '매장 외부 에스컬레이터',
-      value: FloorMovingMethodTypeDto.BuildingEscalator,
-    },
-    {label: '모르겠음', value: FloorMovingMethodTypeDto.Unknown},
-  ];
-};
-
 export default function FloorMovementStep({
   place,
   isStandaloneBuilding,
@@ -66,6 +34,56 @@ export default function FloorMovementStep({
   onBack,
 }: FloorMovementStepProps) {
   const form = useFormContext();
+
+  // Watch all required fields
+  const floorMovementMethod = form.watch('floorMovementMethod');
+  const elevatorPhotos = form.watch('elevatorPhotos');
+  const elevatorHasStairs = form.watch('elevatorHasStairs');
+  const elevatorStairInfo = form.watch('elevatorStairInfo');
+  const elevatorStairHeightLevel = form.watch('elevatorStairHeightLevel');
+  const elevatorHasSlope = form.watch('elevatorHasSlope');
+
+  // Check if all required fields are filled
+  const isFormValid = (() => {
+    // 층간 이동 방법은 필수
+    if (!floorMovementMethod) {
+      return false;
+    }
+
+    // 엘리베이터를 선택한 경우 추가 검증
+    if (floorMovementMethod === FloorMovingMethodTypeDto.PlaceElevator) {
+      // 엘리베이터 사진은 필수
+      if (!elevatorPhotos || elevatorPhotos.length === 0) {
+        return false;
+      }
+
+      // 계단 여부는 필수 (boolean)
+      if (typeof elevatorHasStairs !== 'boolean') {
+        return false;
+      }
+
+      // 계단이 있을 경우 계단 정보 필수
+      if (elevatorHasStairs && !elevatorStairInfo) {
+        return false;
+      }
+
+      // 계단이 1칸일 경우 높이 정보 필수
+      if (
+        elevatorHasStairs &&
+        elevatorStairInfo === StairInfo.One &&
+        !elevatorStairHeightLevel
+      ) {
+        return false;
+      }
+
+      // 경사로 여부는 필수 (boolean)
+      if (typeof elevatorHasSlope !== 'boolean') {
+        return false;
+      }
+    }
+
+    return true;
+  })();
 
   return (
     <>
@@ -100,125 +118,124 @@ export default function FloorMovementStep({
               />
             </SubSection>
 
-            {isStandaloneBuilding &&
-              form.watch('floorMovementMethod') ===
-                FloorMovingMethodTypeDto.PlaceElevator && (
-                <>
-                  <SubSection>
-                    <QuestionSection>
-                      <SectionLabel>엘리베이터 정보</SectionLabel>
-                      <QuestionTextStyled>
-                        엘리베이터 사진을 찍어주세요
-                      </QuestionTextStyled>
-                    </QuestionSection>
-                    <Controller
-                      name="elevatorPhotos"
-                      rules={{required: true}}
-                      render={({field}) => (
-                        <PhotosV2
-                          value={field.value ?? []}
-                          onChange={field.onChange}
-                          target="place"
-                          maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
-                        />
-                      )}
-                    />
-                  </SubSection>
-
-                  <SubSection>
-                    <Label>입구에 계단이 있나요?</Label>
-                    <Controller
-                      name="elevatorHasStairs"
-                      rules={{validate: v => typeof v === 'boolean'}}
-                      render={({field}) => (
-                        <OptionsV2
-                          value={field.value}
-                          options={[
-                            {label: '있어요', value: true},
-                            {label: '없어요', value: false},
-                          ]}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                    {form.watch('elevatorHasStairs') && (
-                      <Controller
-                        name="elevatorStairInfo"
-                        rules={{required: true}}
-                        render={({field}) => (
-                          <OptionsV2
-                            value={field.value}
-                            columns={3}
-                            options={[
-                              {label: '1칸', value: StairInfo.One},
-                              {label: '2-5칸', value: StairInfo.TwoToFive},
-                              {label: '6칸 이상', value: StairInfo.OverSix},
-                            ]}
-                            onSelect={field.onChange}
-                          />
-                        )}
+            {form.watch('floorMovementMethod') ===
+              FloorMovingMethodTypeDto.PlaceElevator && (
+              <>
+                <SubSection>
+                  <QuestionSection>
+                    <SectionLabel>엘리베이터 정보</SectionLabel>
+                    <QuestionTextStyled>
+                      엘리베이터 사진을 찍어주세요
+                    </QuestionTextStyled>
+                  </QuestionSection>
+                  <Controller
+                    name="elevatorPhotos"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <PhotosV2
+                        value={field.value ?? []}
+                        onChange={field.onChange}
+                        target="place"
+                        maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                       />
                     )}
-                  </SubSection>
+                  />
+                </SubSection>
 
-                  {form.watch('elevatorHasStairs') &&
-                    form.watch('elevatorStairInfo') === StairInfo.One && (
-                      <SubSection key="stair-height">
-                        <Label>계단 1칸의 높이를 알려주세요</Label>
-                        <MeasureGuide>
-                          <Image
-                            source={require('@/assets/img/stair_thumb.jpg')}
-                            style={{width: '100%', height: '100%'}}
-                          />
-                        </MeasureGuide>
-                        <View style={{gap: 16}}>
-                          <Controller
-                            name="elevatorStairHeightLevel"
-                            rules={{required: true}}
-                            render={({field}) => (
-                              <OptionsV2
-                                value={field.value}
-                                options={[
-                                  {
-                                    label: '엄지 한마디',
-                                    value: StairHeightLevel.HalfThumb,
-                                  },
-                                  {
-                                    label: '엄지 손가락',
-                                    value: StairHeightLevel.Thumb,
-                                  },
-                                  {
-                                    label: '엄지 손가락 이상',
-                                    value: StairHeightLevel.OverThumb,
-                                  },
-                                ]}
-                                onSelect={field.onChange}
-                              />
-                            )}
-                          />
-                        </View>
-                      </SubSection>
+                <SubSection>
+                  <Label>입구에 계단이 있나요?</Label>
+                  <Controller
+                    name="elevatorHasStairs"
+                    rules={{validate: v => typeof v === 'boolean'}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={[
+                          {label: '있어요', value: true},
+                          {label: '없어요', value: false},
+                        ]}
+                        onSelect={field.onChange}
+                      />
                     )}
-
-                  <SubSection>
-                    <Label>입구에 경사로가 있나요?</Label>
+                  />
+                  {form.watch('elevatorHasStairs') && (
                     <Controller
-                      name="elevatorHasSlope"
-                      rules={{validate: v => typeof v === 'boolean'}}
+                      name="elevatorStairInfo"
+                      rules={{required: true}}
                       render={({field}) => (
                         <OptionsV2
                           value={field.value}
+                          columns={3}
                           options={[
-                            {label: '있어요', value: true},
-                            {label: '없어요', value: false},
+                            {label: '1칸', value: StairInfo.One},
+                            {label: '2-5칸', value: StairInfo.TwoToFive},
+                            {label: '6칸 이상', value: StairInfo.OverSix},
                           ]}
                           onSelect={field.onChange}
                         />
                       )}
                     />
-                  </SubSection>
-                </>
-              )}
+                  )}
+                </SubSection>
+
+                {form.watch('elevatorHasStairs') &&
+                  form.watch('elevatorStairInfo') === StairInfo.One && (
+                    <SubSection key="stair-height">
+                      <Label>계단 1칸의 높이를 알려주세요</Label>
+                      <MeasureGuide>
+                        <Image
+                          source={require('@/assets/img/stair_thumb.jpg')}
+                          style={{width: '100%', height: '100%'}}
+                        />
+                      </MeasureGuide>
+                      <View style={{gap: 16}}>
+                        <Controller
+                          name="elevatorStairHeightLevel"
+                          rules={{required: true}}
+                          render={({field}) => (
+                            <OptionsV2
+                              value={field.value}
+                              options={[
+                                {
+                                  label: '엄지 한마디',
+                                  value: StairHeightLevel.HalfThumb,
+                                },
+                                {
+                                  label: '엄지 손가락',
+                                  value: StairHeightLevel.Thumb,
+                                },
+                                {
+                                  label: '엄지 손가락 이상',
+                                  value: StairHeightLevel.OverThumb,
+                                },
+                              ]}
+                              onSelect={field.onChange}
+                            />
+                          )}
+                        />
+                      </View>
+                    </SubSection>
+                  )}
+
+                <SubSection>
+                  <Label>입구에 경사로가 있나요?</Label>
+                  <Controller
+                    name="elevatorHasSlope"
+                    rules={{validate: v => typeof v === 'boolean'}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={[
+                          {label: '있어요', value: true},
+                          {label: '없어요', value: false},
+                        ]}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                </SubSection>
+              </>
+            )}
 
             <SubSection>
               <Label>더 도움이 될 정보가 있다면 알려주세요</Label>
@@ -253,6 +270,7 @@ export default function FloorMovementStep({
           buttonColor="brandColor"
           elementName="place_form_v2_floor_movement_next"
           style={{flex: 2}}
+          isDisabled={!isFormValid}
         />
       </SubmitButtonWrapper>
     </>
