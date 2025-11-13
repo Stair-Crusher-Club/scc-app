@@ -58,15 +58,67 @@ def git_current_branch()
   sh("git rev-parse --abbrev-ref HEAD").strip
 end
 
+def call_match(type:, api_key_path:, app_identifier:, force_for_new_devices: true, verbose: true)
+  params = {
+    type: type,
+    api_key_path: api_key_path,
+    app_identifier: app_identifier,
+    force_for_new_devices: force_for_new_devices,
+    verbose: verbose
+  }
+
+  # Only add keychain parameters in CI environment
+  if is_ci? && ENV["KEYCHAIN_NAME"]
+    params[:keychain_name] = ENV["KEYCHAIN_NAME"]
+    params[:keychain_password] = ENV["KEYCHAIN_PASSWORD"]
+  end
+
+  match(params)
+end
+
 platform :ios do
   desc ""
+
+  before_all do
+    # Only create keychain in CI environment
+    if is_ci?
+      keychain_name = ENV["KEYCHAIN_NAME"] || "fastlane_keychain"
+      keychain_password = ENV["KEYCHAIN_PASSWORD"] || ENV["MATCH_PASSWORD"] || SecureRandom.base64
+
+      create_keychain(
+        name: keychain_name,
+        password: keychain_password,
+        default_keychain: true,
+        unlock: true,
+        timeout: 7200,
+        lock_when_sleeps: false
+      )
+
+      ENV["KEYCHAIN_NAME"] = keychain_name
+      ENV["KEYCHAIN_PASSWORD"] = keychain_password
+    end
+  end
+
+  after_all do
+    # Only delete keychain in CI environment
+    if is_ci? && ENV["KEYCHAIN_NAME"]
+      delete_keychain(name: ENV["KEYCHAIN_NAME"])
+    end
+  end
+
+  error do |lane, exception|
+    # Only delete keychain in CI environment
+    if is_ci? && ENV["KEYCHAIN_NAME"]
+      delete_keychain(name: ENV["KEYCHAIN_NAME"])
+    end
+  end
 
   desc "Make a archive file. You can make IPA files using the archive file."
   lane :rbuild do |options|
     scheme = target_scheme(scheme: options[:scheme])
     identifier = target_identifier(scheme: options[:scheme])
     configuration = target_configuration(type: "Release", scheme: options[:scheme])
-    match(
+    call_match(
       type: "appstore",
       api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
       app_identifier: identifier,
@@ -89,7 +141,7 @@ platform :ios do
     identifier = target_identifier(scheme: options[:scheme])
     configuration = target_configuration(type: "Release", scheme: options[:scheme])
     bundle_version = bundle_version()
-    match(
+    call_match(
       type: "appstore",
       api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
       app_identifier: identifier,
@@ -113,7 +165,7 @@ platform :ios do
     scheme = target_scheme(scheme: options[:scheme])
     configuration = target_configuration(type: "Release", scheme: options[:scheme])
     bundler_version = bundle_version()
-    match(
+    call_match(
       type: "adhoc",
       api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
       app_identifier: identifier,
