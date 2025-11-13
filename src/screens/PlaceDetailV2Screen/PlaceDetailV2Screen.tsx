@@ -1,3 +1,4 @@
+import {SccButton} from '@/components/atoms';
 import {Building, Place} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useEffect, useState} from 'react';
@@ -18,9 +19,9 @@ export interface PlaceDetailV2ScreenParams {
 
 export default function PlaceDetailV2Screen({
   route,
-  navigation,
+  navigation: _navigation,
 }: ScreenProps<'PlaceDetailV2'>) {
-  const {placeInfo, event} = route.params;
+  const {placeInfo: _placeInfo, event} = route.params;
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
 
   useEffect(() => {
@@ -51,6 +52,26 @@ export default function PlaceDetailV2Screen({
           onPressCancel={handleCancel}
         />
       )}
+
+      <SccButton
+        elementName="back"
+        text="홈으로"
+        onPress={() => {
+          _navigation.navigate('Main');
+        }}
+      />
+      <SccButton
+        elementName="back"
+        text="뒤로가기"
+        onPress={() => {
+          if (_navigation.canGoBack()) {
+            _navigation.goBack();
+            return;
+          }
+
+          _navigation.navigate('Setting');
+        }}
+      />
     </>
   );
 }
