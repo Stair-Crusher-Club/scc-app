@@ -12,7 +12,7 @@ export const FormContainer = styled.View({
   backgroundColor: 'white',
   paddingVertical: 40,
   paddingHorizontal: 20,
-  gap: 48,
+  gap: 20,
 });
 
 export const SubSection = styled.View({
@@ -56,4 +56,8 @@ export const SubmitButtonWrapper = styled.View({
   paddingHorizontal: 20,
   borderTopWidth: 1,
   borderTopColor: color.gray15,
+});
+
+export const TabBarWrapper = styled.View({
+  backgroundColor: color.white,
 });

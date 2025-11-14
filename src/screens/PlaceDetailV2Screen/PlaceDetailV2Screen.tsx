@@ -19,9 +19,9 @@ export interface PlaceDetailV2ScreenParams {
 
 export default function PlaceDetailV2Screen({
   route,
-  navigation: _navigation,
+  navigation,
 }: ScreenProps<'PlaceDetailV2'>) {
-  const {placeInfo: _placeInfo, event} = route.params;
+  const {placeInfo, event} = route.params;
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
 
   useEffect(() => {
@@ -33,8 +33,14 @@ export default function PlaceDetailV2Screen({
 
   const handleConfirm = () => {
     setIsBottomSheetVisible(false);
-    // TODO: 건물 등록 화면으로 이동
-    // navigation.navigate('BuildingFormScreen', { ... });
+
+    // placeInfo에 place와 building이 있는 경우에만 BuildingFormV2로 이동
+    if ('place' in placeInfo && 'building' in placeInfo) {
+      navigation.navigate('BuildingFormV2', {
+        place: placeInfo.place,
+        building: placeInfo.building,
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -57,19 +63,19 @@ export default function PlaceDetailV2Screen({
         elementName="back"
         text="홈으로"
         onPress={() => {
-          _navigation.navigate('Main');
+          navigation.navigate('Main');
         }}
       />
       <SccButton
         elementName="back"
         text="뒤로가기"
         onPress={() => {
-          if (_navigation.canGoBack()) {
-            _navigation.goBack();
+          if (navigation.canGoBack()) {
+            navigation.goBack();
             return;
           }
 
-          _navigation.navigate('Setting');
+          navigation.navigate('Setting');
         }}
       />
     </>
