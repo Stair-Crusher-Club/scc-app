@@ -11,7 +11,9 @@ import {
   PlaceReviewDto,
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
+  Location,
 } from '@/generated-sources/openapi';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -20,11 +22,20 @@ import * as SS from '../sections/PlaceDetailEntranceSection.style';
 interface Props {
   reviews: PlaceReviewDto[];
   placeId: string;
+  placeLocation?: Location;
+  placeAddress: string;
 }
 
-export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
+export default function PlaceReviewSummaryInfo({
+  reviews,
+  placeId,
+  placeLocation,
+  placeAddress,
+}: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
 
   const handleReviewPress = () => {
     if (Platform.OS === 'web') {
@@ -34,9 +45,16 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
       });
       return;
     }
-    checkAuth(() => {
-      navigation.navigate('ReviewForm/Place', {
-        placeId,
+    checkAuth(async () => {
+      await navigateWithLocationCheck({
+        targetLocation: placeLocation,
+        address: placeAddress,
+        type: 'place',
+        onNavigate: () => {
+          navigation.navigate('ReviewForm/Place', {
+            placeId,
+          });
+        },
       });
     });
   };
@@ -108,6 +126,7 @@ export default function PlaceReviewSummaryInfo({reviews, placeId}: Props) {
           ))}
         </TextBoxRow>
       </SectionColumn>
+      {LocationConfirmModal}
     </Container>
   );
 }

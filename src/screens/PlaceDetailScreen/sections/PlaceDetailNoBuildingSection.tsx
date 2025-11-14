@@ -4,6 +4,7 @@ import BuildingIcon from '@/assets/icon/ic_building.svg';
 import {SccButton} from '@/components/atoms';
 import {font} from '@/constant/font';
 import {Building, Place} from '@/generated-sources/openapi';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -20,10 +21,19 @@ const PlaceDetailNoBuildingSection = ({
 }: PlaceDetailPlaceSectionProps) => {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
 
   const goToRegisterBuilding = () => {
-    checkAuth(() => {
-      navigation.navigate('BuildingForm', {place, building});
+    checkAuth(async () => {
+      await navigateWithLocationCheck({
+        targetLocation: building.location,
+        address: building.address,
+        type: 'building',
+        onNavigate: () => {
+          navigation.navigate('BuildingForm', {place, building});
+        },
+      });
     });
   };
 
@@ -45,6 +55,7 @@ const PlaceDetailNoBuildingSection = ({
           elementName="place_detail_conquer_building"
         />
       </S.NoBuildingCard>
+      {LocationConfirmModal}
     </S.PlaceDetailNoBuildingSection>
   );
 };
