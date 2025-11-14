@@ -22,7 +22,6 @@ import {useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
 import {ReactElement, useEffect, useState} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
-import {Alert} from 'react-native';
 import styled from 'styled-components/native';
 import {BuildingRegistrationEvent} from '../PlaceDetailV2Screen/constants';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
@@ -235,48 +234,7 @@ export default function PlaceFormV2Screen({
       return;
     }
 
-    // InfoStep에서 FloorStep으로 돌아갈 때 확인 Alert (입력한 내용이 있을 때만)
-    if (step === 'info') {
-      const values = form.getValues();
-      const hasInputData =
-        values.doorDirection ||
-        (values.entrancePhotos && values.entrancePhotos.length > 0) ||
-        values.hasStairs !== undefined ||
-        values.stairInfo ||
-        values.entranceStairHeightLevel ||
-        values.hasSlope !== undefined ||
-        (values.doorType && values.doorType.length > 0) ||
-        (values.additionalInfo && values.additionalInfo.length > 0) ||
-        values.comment;
-
-      if (hasInputData) {
-        Alert.alert(
-          '층 정보를 다시 입력하시겠어요?',
-          '이전 단계로 돌아가면 입력한 내용이 모두 사라집니다.',
-          [
-            {
-              text: '취소',
-              style: 'cancel',
-            },
-            {
-              text: '확인',
-              onPress: () => {
-                // 폼 초기화
-                form.reset();
-                // FloorStep으로 이동
-                setStepIndex(prev => Math.max(prev - 1, 0));
-              },
-            },
-          ],
-        );
-        return;
-      }
-
-      // 입력한 내용이 없으면 바로 이동
-      setStepIndex(prev => Math.max(prev - 1, 0));
-      return;
-    }
-
+    // 입력한 정보를 유지한 채로 이전 단계로 이동
     setStepIndex(prev => Math.max(prev - 1, 0));
   };
 
