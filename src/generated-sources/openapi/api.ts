@@ -191,6 +191,133 @@ export interface AuthTokensDto {
     'accessToken': string;
 }
 /**
+ * 
+ * @export
+ * @interface BbucleRoadMarkerDto
+ */
+export interface BbucleRoadMarkerDto {
+    /**
+     * 
+     * @type {BbucleRoadMarkerTypeDto}
+     * @memberof BbucleRoadMarkerDto
+     */
+    'markerType': BbucleRoadMarkerTypeDto;
+    /**
+     * 
+     * @type {Location}
+     * @memberof BbucleRoadMarkerDto
+     */
+    'location': Location;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadMarkerDto
+     */
+    'tooltipName': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadMarkerDto
+     */
+    'customImageUrl'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadMarkerDto
+     */
+    'customImageWidth'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadMarkerDto
+     */
+    'customImageHeight'?: number;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const BbucleRoadMarkerTypeDto = {
+    Restaurant: 'RESTAURANT',
+    Cafe: 'CAFE',
+    AccessibleToilet: 'ACCESSIBLE_TOILET',
+    AccessibilityInfo: 'ACCESSIBILITY_INFO',
+    TicketBooth: 'TICKET_BOOTH',
+    Entrance: 'ENTRANCE',
+    Elevator: 'ELEVATOR',
+    SubwayExit: 'SUBWAY_EXIT',
+    BusStop: 'BUS_STOP',
+    Parking: 'PARKING',
+    Custom: 'CUSTOM'
+} as const;
+
+export type BbucleRoadMarkerTypeDto = typeof BbucleRoadMarkerTypeDto[keyof typeof BbucleRoadMarkerTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface BbucleRoadSectionDto
+ */
+export interface BbucleRoadSectionDto {
+    /**
+     * 
+     * @type {BbucleRoadSectionTypeDto}
+     * @memberof BbucleRoadSectionDto
+     */
+    'sectionType': BbucleRoadSectionTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadSectionDto
+     */
+    'title'?: string;
+    /**
+     * 
+     * @type {Location}
+     * @memberof BbucleRoadSectionDto
+     */
+    'mapCenter'?: Location;
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadSectionDto
+     */
+    'mapZoomLevel'?: number | null;
+    /**
+     * 
+     * @type {Array<BbucleRoadMarkerDto>}
+     * @memberof BbucleRoadSectionDto
+     */
+    'markers'?: Array<BbucleRoadMarkerDto> | null;
+    /**
+     * 이미지 URL 목록. 단일 이미지 섹션은 1개, 카드 리스트 섹션은 여러 개
+     * @type {Array<string>}
+     * @memberof BbucleRoadSectionDto
+     */
+    'imageUrls'?: Array<string>;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const BbucleRoadSectionTypeDto = {
+    MapOverview: 'MAP_OVERVIEW',
+    Traffic: 'TRAFFIC',
+    Ticketing: 'TICKETING',
+    WheelchairView: 'WHEELCHAIR_VIEW',
+    NearbyRestaurants: 'NEARBY_RESTAURANTS',
+    NearbyCafes: 'NEARBY_CAFES'
+} as const;
+
+export type BbucleRoadSectionTypeDto = typeof BbucleRoadSectionTypeDto[keyof typeof BbucleRoadSectionTypeDto];
+
+
+/**
  * 건물 정보.
  * @export
  * @interface Building
@@ -375,6 +502,21 @@ export interface BuildingAccessibilityComment {
      */
     'createdAt': EpochMillisTimestamp;
 }
+/**
+ * 건물 입구 문의 방향 (도로쪽, 주차장쪽, 기타)
+ * @export
+ * @enum {string}
+ */
+
+export const BuildingDoorDirectionTypeDto = {
+    RoadDirection: 'ROAD_DIRECTION',
+    ParkingDirection: 'PARKING_DIRECTION',
+    Etc: 'ETC'
+} as const;
+
+export type BuildingDoorDirectionTypeDto = typeof BuildingDoorDirectionTypeDto[keyof typeof BuildingDoorDirectionTypeDto];
+
+
 /**
  * 
  * @export
@@ -1273,6 +1415,37 @@ export interface DeleteToiletReviewPostRequest {
     'toiletReviewId': string;
 }
 /**
+ * 엘리베이터 접근성 정보
+ * @export
+ * @interface ElevatorAccessibilityDto
+ */
+export interface ElevatorAccessibilityDto {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ElevatorAccessibilityDto
+     */
+    'imageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof ElevatorAccessibilityDto
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof ElevatorAccessibilityDto
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 엘리베이터까지 가는 경사로 유무
+     * @type {boolean}
+     * @memberof ElevatorAccessibilityDto
+     */
+    'hasSlope'?: boolean;
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -1372,6 +1545,25 @@ export interface ExternalAccessibility {
     'toilet_details'?: ToiletAccessibilityDetails;
 }
 /**
+ * 층간 이동 방법
+ * @export
+ * @enum {string}
+ */
+
+export const FloorMovingMethodTypeDto = {
+    PlaceElevator: 'PLACE_ELEVATOR',
+    PlaceStairs: 'PLACE_STAIRS',
+    PlaceEscalator: 'PLACE_ESCALATOR',
+    BuildingElevator: 'BUILDING_ELEVATOR',
+    BuildingStairs: 'BUILDING_STAIRS',
+    BuildingEscalator: 'BUILDING_ESCALATOR',
+    Unknown: 'UNKNOWN'
+} as const;
+
+export type FloorMovingMethodTypeDto = typeof FloorMovingMethodTypeDto[keyof typeof FloorMovingMethodTypeDto];
+
+
+/**
  * 
  * @export
  * @interface GetAccessibilityActivityReportResponseDto
@@ -1434,6 +1626,56 @@ export interface GetAccessibilityRankPost200Response {
      * @memberof GetAccessibilityRankPost200Response
      */
     'accessibilityRank': AccessibilityRankDto;
+}
+/**
+ * 
+ * @export
+ * @interface GetBbucleRoadPageRequestDto
+ */
+export interface GetBbucleRoadPageRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBbucleRoadPageRequestDto
+     */
+    'bbucleRoadId': string;
+}
+/**
+ * 
+ * @export
+ * @interface GetBbucleRoadPageResponseDto
+ */
+export interface GetBbucleRoadPageResponseDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'title': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'titleImageUrl': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'summaryItems': Array<string>;
+    /**
+     * 
+     * @type {Array<BbucleRoadSectionDto>}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'sections': Array<BbucleRoadSectionDto>;
 }
 /**
  * 
@@ -1948,12 +2190,6 @@ export interface ImageReasonDto {
      * @memberof ImageReasonDto
      */
     'imageIndex': number;
-    /**
-     * 이미지 URL (optional)
-     * @type {string}
-     * @memberof ImageReasonDto
-     */
-    'imageUrl'?: string;
     /**
      * 해당 이미지에 대한 검수 사유
      * @type {string}
@@ -2884,6 +3120,20 @@ export type PlaceCategoryDto = typeof PlaceCategoryDto[keyof typeof PlaceCategor
 
 
 /**
+ * 장소 입구 문이 건물 외부로 향하는지 내부로 향하는지
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceDoorDirectionTypeDto = {
+    OutsideBuilding: 'OUTSIDE_BUILDING',
+    InsideBuilding: 'INSIDE_BUILDING'
+} as const;
+
+export type PlaceDoorDirectionTypeDto = typeof PlaceDoorDirectionTypeDto[keyof typeof PlaceDoorDirectionTypeDto];
+
+
+/**
  * 
  * @export
  * @interface PlaceFavorite
@@ -3308,6 +3558,73 @@ export interface RegisterBuildingAccessibilityRequestDto {
     'comment'?: string;
 }
 /**
+ * 건물 입구 및 엘리베이터 접근성 정보 등록 요청 (v2 - 클로즈 베타). 각 건물에 대해 1번만 등록될 수 있다.
+ * @export
+ * @interface RegisterBuildingAccessibilityRequestDtoV2
+ */
+export interface RegisterBuildingAccessibilityRequestDtoV2 {
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'buildingId': string;
+    /**
+     * 
+     * @type {BuildingDoorDirectionTypeDto}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'doorDirectionType': BuildingDoorDirectionTypeDto;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'entranceStairInfo': StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'entranceStairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'entranceImageUrls': Array<string>;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'entranceDoorTypes': Array<EntranceDoorType>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'hasSlope': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'hasElevator': boolean;
+    /**
+     * 
+     * @type {ElevatorAccessibilityDto}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'elevatorAccessibility'?: ElevatorAccessibilityDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'comment'?: string;
+}
+/**
  * 
  * @export
  * @interface RegisterBuildingAccessibilityResponseDto
@@ -3317,6 +3634,19 @@ export interface RegisterBuildingAccessibilityResponseDto {
      * 이 정보 등록으로 인해 기여한 챌린지 목록
      * @type {Array<ContributedChallengeInfoDto>}
      * @memberof RegisterBuildingAccessibilityResponseDto
+     */
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+}
+/**
+ * 건물 입구 및 엘리베이터 접근성 정보 등록 응답 (v2 - 클로즈 베타)
+ * @export
+ * @interface RegisterBuildingAccessibilityResponseDtoV2
+ */
+export interface RegisterBuildingAccessibilityResponseDtoV2 {
+    /**
+     * 이 정보 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterBuildingAccessibilityResponseDtoV2
      */
     'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
 }
@@ -3383,7 +3713,7 @@ export interface RegisterPlaceAccessibilityCommentPost200Response {
      * @type {PlaceAccessibilityComment}
      * @memberof RegisterPlaceAccessibilityCommentPost200Response
      */
-    'placeAccessibilityComment': PlaceAccessibilityComment;
+    'placeAccessibilityComment'?: PlaceAccessibilityComment;
 }
 /**
  * 
@@ -3473,6 +3803,103 @@ export interface RegisterPlaceAccessibilityRequestDto {
     'comment'?: string;
 }
 /**
+ * 장소 입구 접근성 정보 등록 요청 (v2 - 클로즈 베타)
+ * @export
+ * @interface RegisterPlaceAccessibilityRequestDtoV2
+ */
+export interface RegisterPlaceAccessibilityRequestDtoV2 {
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'placeId': string;
+    /**
+     * 단독 건물 여부 (해당 장소가 건물 전체를 차지하는지)
+     * @type {boolean}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'isStandaloneBuilding': boolean;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'doorDirectionType': PlaceDoorDirectionTypeDto;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'floors': Array<number>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'imageUrls': Array<string>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'stairInfo': StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'hasSlope': boolean;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'entranceDoorTypes': Array<EntranceDoorType>;
+    /**
+     * 장소 입구 특이사항
+     * @type {Array<string>}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'features'?: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'entranceComment'?: string;
+    /**
+     * 
+     * @type {FloorMovingMethodTypeDto}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'floorMovingMethodType'?: FloorMovingMethodTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'floorMovingMethodComment'?: string;
+    /**
+     * 
+     * @type {ElevatorAccessibilityDto}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'floorMovingElevatorAccessibility'?: ElevatorAccessibilityDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterPlaceAccessibilityRequestDtoV2
+     */
+    'floorMovingElevatorComment'?: string;
+}
+/**
  * 
  * @export
  * @interface RegisterPlaceAccessibilityResponseDto
@@ -3494,6 +3921,31 @@ export interface RegisterPlaceAccessibilityResponseDto {
      * 이 정보 등록으로 인해 기여한 챌린지 목록
      * @type {Array<ContributedChallengeInfoDto>}
      * @memberof RegisterPlaceAccessibilityResponseDto
+     */
+    'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+}
+/**
+ * 장소 입구 접근성 정보 등록 응답 (v2 - 클로즈 베타)
+ * @export
+ * @interface RegisterPlaceAccessibilityResponseDtoV2
+ */
+export interface RegisterPlaceAccessibilityResponseDtoV2 {
+    /**
+     * 
+     * @type {AccessibilityInfoDto}
+     * @memberof RegisterPlaceAccessibilityResponseDtoV2
+     */
+    'accessibilityInfo': AccessibilityInfoDto;
+    /**
+     * \'n번째 정복자\'를 표시해주기 위한 값.
+     * @type {number}
+     * @memberof RegisterPlaceAccessibilityResponseDtoV2
+     */
+    'registeredUserOrder': number;
+    /**
+     * 이 정보 등록으로 인해 기여한 챌린지 목록
+     * @type {Array<ContributedChallengeInfoDto>}
+     * @memberof RegisterPlaceAccessibilityResponseDtoV2
      */
     'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
 }
@@ -5254,6 +5706,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 뿌클로드 페이지 정보를 조회한다.
+         * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBbucleRoadPage: async (getBbucleRoadPageRequestDto: GetBbucleRoadPageRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getBbucleRoadPageRequestDto' is not null or undefined
+            assertParamExists('getBbucleRoadPage', 'getBbucleRoadPageRequestDto', getBbucleRoadPageRequestDto)
+            const localVarPath = `/getBbucleRoadPage`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getBbucleRoadPageRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 챌린지 리스트에서 공개된 챌린지를 선택해서 챌린지를 조회한다.
          * @param {GetChallengeRequestDto} getChallengeRequestDto 
          * @param {*} [options] Override http request option.
@@ -6699,6 +7191,51 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 건물 입구 및 엘리베이터 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+         * @param {RegisterBuildingAccessibilityRequestDtoV2} registerBuildingAccessibilityRequestDtoV2 
+         * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerBuildingAccessibilityV2Post: async (registerBuildingAccessibilityRequestDtoV2: RegisterBuildingAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'registerBuildingAccessibilityRequestDtoV2' is not null or undefined
+            assertParamExists('registerBuildingAccessibilityV2Post', 'registerBuildingAccessibilityRequestDtoV2', registerBuildingAccessibilityRequestDtoV2)
+            const localVarPath = `/registerBuildingAccessibilityV2`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (xSCCREQUESTID != null) {
+                localVarHeaderParameter['X-SCC-REQUEST-ID'] = String(xSCCREQUESTID);
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(registerBuildingAccessibilityRequestDtoV2, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
          * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
          * @param {*} [options] Override http request option.
@@ -6811,6 +7348,51 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(registerPlaceAccessibilityRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 장소 입구 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+         * @param {RegisterPlaceAccessibilityRequestDtoV2} registerPlaceAccessibilityRequestDtoV2 
+         * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerPlaceAccessibilityV2Post: async (registerPlaceAccessibilityRequestDtoV2: RegisterPlaceAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'registerPlaceAccessibilityRequestDtoV2' is not null or undefined
+            assertParamExists('registerPlaceAccessibilityV2Post', 'registerPlaceAccessibilityRequestDtoV2', registerPlaceAccessibilityRequestDtoV2)
+            const localVarPath = `/registerPlaceAccessibilityV2`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (xSCCREQUESTID != null) {
+                localVarHeaderParameter['X-SCC-REQUEST-ID'] = String(xSCCREQUESTID);
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(registerPlaceAccessibilityRequestDtoV2, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -7404,6 +7986,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 뿌클로드 페이지 정보를 조회한다.
+         * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getBbucleRoadPage(getBbucleRoadPageRequestDto: GetBbucleRoadPageRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetBbucleRoadPageResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getBbucleRoadPage(getBbucleRoadPageRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 챌린지 리스트에서 공개된 챌린지를 선택해서 챌린지를 조회한다.
          * @param {GetChallengeRequestDto} getChallengeRequestDto 
          * @param {*} [options] Override http request option.
@@ -7809,6 +8402,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 건물 입구 및 엘리베이터 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+         * @param {RegisterBuildingAccessibilityRequestDtoV2} registerBuildingAccessibilityRequestDtoV2 
+         * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async registerBuildingAccessibilityV2Post(registerBuildingAccessibilityRequestDtoV2: RegisterBuildingAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterBuildingAccessibilityResponseDtoV2>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerBuildingAccessibilityV2Post(registerBuildingAccessibilityRequestDtoV2, xSCCREQUESTID, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
          * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
          * @param {*} [options] Override http request option.
@@ -7838,6 +8443,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async registerPlaceAccessibilityPost(registerPlaceAccessibilityRequestDto: RegisterPlaceAccessibilityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterPlaceAccessibilityResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerPlaceAccessibilityPost(registerPlaceAccessibilityRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 장소 입구 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+         * @param {RegisterPlaceAccessibilityRequestDtoV2} registerPlaceAccessibilityRequestDtoV2 
+         * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async registerPlaceAccessibilityV2Post(registerPlaceAccessibilityRequestDtoV2: RegisterPlaceAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RegisterPlaceAccessibilityResponseDtoV2>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerPlaceAccessibilityV2Post(registerPlaceAccessibilityRequestDtoV2, xSCCREQUESTID, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -8118,6 +8735,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getAccessibilityRankPost(body: object, options?: any): AxiosPromise<GetAccessibilityRankPost200Response> {
             return localVarFp.getAccessibilityRankPost(body, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 뿌클로드 페이지 정보를 조회한다.
+         * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBbucleRoadPage(getBbucleRoadPageRequestDto: GetBbucleRoadPageRequestDto, options?: any): AxiosPromise<GetBbucleRoadPageResponseDto> {
+            return localVarFp.getBbucleRoadPage(getBbucleRoadPageRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8489,6 +9116,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 건물 입구 및 엘리베이터 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+         * @param {RegisterBuildingAccessibilityRequestDtoV2} registerBuildingAccessibilityRequestDtoV2 
+         * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerBuildingAccessibilityV2Post(registerBuildingAccessibilityRequestDtoV2: RegisterBuildingAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options?: any): AxiosPromise<RegisterBuildingAccessibilityResponseDtoV2> {
+            return localVarFp.registerBuildingAccessibilityV2Post(registerBuildingAccessibilityRequestDtoV2, xSCCREQUESTID, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
          * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
          * @param {*} [options] Override http request option.
@@ -8516,6 +9154,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         registerPlaceAccessibilityPost(registerPlaceAccessibilityRequestDto: RegisterPlaceAccessibilityRequestDto, options?: any): AxiosPromise<RegisterPlaceAccessibilityResponseDto> {
             return localVarFp.registerPlaceAccessibilityPost(registerPlaceAccessibilityRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 장소 입구 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+         * @param {RegisterPlaceAccessibilityRequestDtoV2} registerPlaceAccessibilityRequestDtoV2 
+         * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerPlaceAccessibilityV2Post(registerPlaceAccessibilityRequestDtoV2: RegisterPlaceAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options?: any): AxiosPromise<RegisterPlaceAccessibilityResponseDtoV2> {
+            return localVarFp.registerPlaceAccessibilityV2Post(registerPlaceAccessibilityRequestDtoV2, xSCCREQUESTID, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8816,6 +9465,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getAccessibilityRankPost(body: object, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getAccessibilityRankPost(body, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 뿌클로드 페이지 정보를 조회한다.
+     * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getBbucleRoadPage(getBbucleRoadPageRequestDto: GetBbucleRoadPageRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getBbucleRoadPage(getBbucleRoadPageRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -9262,6 +9923,19 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary 건물 입구 및 엘리베이터 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+     * @param {RegisterBuildingAccessibilityRequestDtoV2} registerBuildingAccessibilityRequestDtoV2 
+     * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public registerBuildingAccessibilityV2Post(registerBuildingAccessibilityRequestDtoV2: RegisterBuildingAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).registerBuildingAccessibilityV2Post(registerBuildingAccessibilityRequestDtoV2, xSCCREQUESTID, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 사람이 검수한 접근성 정보 결과를 등록한다.
      * @param {RegisterHumanInspectionResultRequestDto} registerHumanInspectionResultRequestDto 
      * @param {*} [options] Override http request option.
@@ -9294,6 +9968,19 @@ export class DefaultApi extends BaseAPI {
      */
     public registerPlaceAccessibilityPost(registerPlaceAccessibilityRequestDto: RegisterPlaceAccessibilityRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).registerPlaceAccessibilityPost(registerPlaceAccessibilityRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 장소 입구 접근성 정보를 등록한다. (v2 - 클로즈 베타)
+     * @param {RegisterPlaceAccessibilityRequestDtoV2} registerPlaceAccessibilityRequestDtoV2 
+     * @param {string} [xSCCREQUESTID] Optional request ID header used for tracing, logging, and idempotency. 클라이언트에서 동일한 요청을 여러 번 보내도 한 번만 처리되도록 보장합니다. 같은 X-SCC-REQUEST-ID로 요청이 오면 이전 결과를 반환합니다. 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public registerPlaceAccessibilityV2Post(registerPlaceAccessibilityRequestDtoV2: RegisterPlaceAccessibilityRequestDtoV2, xSCCREQUESTID?: string, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).registerPlaceAccessibilityV2Post(registerPlaceAccessibilityRequestDtoV2, xSCCREQUESTID, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

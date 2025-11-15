@@ -1,6 +1,7 @@
 import React from 'react';
 import WebSearchScreen from '../screens/WebSearchScreen';
 import WebHomeScreen from '../screens/WebHomeScreen';
+import BbucleRoadScreen from '../screens/BbucleRoadScreen';
 import {createStackNavigator} from '@react-navigation/stack';
 import ImageZoomViewerScreen from '../../src/screens/ImageZoomViewerScreen';
 
@@ -12,6 +13,9 @@ export type WebStackParamList = {
   PlaceDetail: {
     query: string;
     placeId: string;
+  };
+  BbucleRoad: {
+    bbucleRoadId: string;
   };
   ImageZoomViewer: {
     imageUrls: string[];
@@ -39,6 +43,7 @@ export default function WebNavigation() {
         <Stack.Screen name="Home" component={WebHomeScreen} />
         <Stack.Screen name="Search" component={WebSearchScreen} />
         <Stack.Screen name="PlaceDetail" component={WebSearchScreen} />
+        <Stack.Screen name="BbucleRoad" component={BbucleRoadScreen} />
         <Stack.Screen
           name="ImageZoomViewer"
           component={ImageZoomViewerScreen}
