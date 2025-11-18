@@ -88,8 +88,8 @@ const ContentWrapper = styled(View)`
 const MapContainer = styled(View)`
   width: 100%;
   max-width: 1000px;
-  min-height: 500px;
-  max-height: 600px;
+  min-height: 300px;
+  max-height: 800px;
   aspect-ratio: 1;
   border-radius: 8px;
   overflow: hidden;
