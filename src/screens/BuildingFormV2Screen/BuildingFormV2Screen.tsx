@@ -19,6 +19,7 @@ import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {
   Building,
+  BuildingDoorDirectionTypeDto,
   DefaultApi,
   EntranceDoorType,
   Place,
@@ -155,43 +156,36 @@ export default function BuildingFormV2Screen({
 
     // 입구 사진은 필수
     if (!enterancePhotos || enterancePhotos.length === 0) {
-      console.log('[BuildingForm] Missing: enterancePhotos');
       return false;
     }
 
     // 계단 여부는 필수 (boolean)
     if (typeof hasStairs !== 'boolean') {
-      console.log('[BuildingForm] Missing: hasStairs', hasStairs);
       return false;
     }
 
     // 계단이 있을 경우 계단 정보 필수
     if (hasStairs && !stairInfo) {
-      console.log('[BuildingForm] Missing: stairInfo');
       return false;
     }
 
     // 계단이 1칸일 경우 높이 정보 필수
     if (hasStairs && stairInfo === StairInfo.One && !entranceStairHeightLevel) {
-      console.log('[BuildingForm] Missing: entranceStairHeightLevel');
       return false;
     }
 
     // 경사로 여부는 필수 (boolean)
     if (typeof hasSlope !== 'boolean') {
-      console.log('[BuildingForm] Missing: hasSlope', hasSlope);
       return false;
     }
 
     // 출입문 종류는 필수
     if (!doorTypes || doorTypes.length === 0) {
-      console.log('[BuildingForm] Missing: doorTypes');
       return false;
     }
 
     // 엘리베이터 여부는 필수 (boolean)
     if (typeof hasElevator !== 'boolean') {
-      console.log('[BuildingForm] Missing: hasElevator', hasElevator);
       return false;
     }
 
@@ -199,22 +193,16 @@ export default function BuildingFormV2Screen({
     if (hasElevator) {
       // 엘리베이터 사진은 필수
       if (!elevatorPhotos || elevatorPhotos.length === 0) {
-        console.log('[BuildingForm] Missing: elevatorPhotos');
         return false;
       }
 
       // 엘리베이터 계단 여부는 필수 (boolean)
       if (typeof elevatorHasStairs !== 'boolean') {
-        console.log(
-          '[BuildingForm] Missing: elevatorHasStairs',
-          elevatorHasStairs,
-        );
         return false;
       }
 
       // 계단이 있을 경우 계단 정보 필수
       if (elevatorHasStairs && !elevatorStairInfo) {
-        console.log('[BuildingForm] Missing: elevatorStairInfo');
         return false;
       }
 
@@ -224,12 +212,9 @@ export default function BuildingFormV2Screen({
         elevatorStairInfo === StairInfo.One &&
         !elevatorStairHeightLevel
       ) {
-        console.log('[BuildingForm] Missing: elevatorStairHeightLevel');
         return false;
       }
     }
-
-    console.log('[BuildingForm] All fields valid!');
     return true;
   })();
 
@@ -747,6 +732,21 @@ export default function BuildingFormV2Screen({
   );
 }
 
+function mapEntranceDirectionToDoorDirectionType(
+  entranceDirection: string,
+): BuildingDoorDirectionTypeDto {
+  switch (entranceDirection) {
+    case 'road':
+      return BuildingDoorDirectionTypeDto.RoadDirection;
+    case 'parking':
+      return BuildingDoorDirectionTypeDto.ParkingDirection;
+    case 'etc':
+      return BuildingDoorDirectionTypeDto.Etc;
+    default:
+      return BuildingDoorDirectionTypeDto.Etc;
+  }
+}
+
 async function register(
   api: DefaultApi,
   queryClient: ReturnType<typeof useQueryClient>,
@@ -764,21 +764,26 @@ async function register(
       values.elevatorPhotos,
     );
     try {
-      const res = await api.registerBuildingAccessibilityPost({
+      const res = await api.registerBuildingAccessibilityV2Post({
         buildingId,
+        doorDirectionType: mapEntranceDirectionToDoorDirectionType(
+          values.entranceDirection,
+        ),
         entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
         entranceStairHeightLevel: values.entranceStairHeightLevel,
         entranceDoorTypes: values.doorTypes,
         hasSlope: values.hasSlope || false,
         entranceImageUrls: enteranceImages,
         hasElevator: values.hasElevator || false,
-        elevatorStairInfo: values.hasElevator
-          ? values.elevatorHasStairs
-            ? values.elevatorStairInfo
-            : StairInfo.None
-          : StairInfo.Undefined,
-        elevatorImageUrls: elevatorImages,
-        elevatorStairHeightLevel: values.elevatorStairHeightLevel,
+        elevatorAccessibility: values.hasElevator
+          ? {
+              imageUrls: elevatorImages,
+              stairInfo: values.elevatorHasStairs
+                ? values.elevatorStairInfo
+                : StairInfo.None,
+              stairHeightLevel: values.elevatorStairHeightLevel,
+            }
+          : undefined,
         comment: values.comment || undefined,
       });
 
