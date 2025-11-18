@@ -314,7 +314,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'placeReviewNudge',
-      shouldRender: isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
+      shouldRender:
+        isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
@@ -357,7 +358,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'toiletReviewNudge',
-      shouldRender: isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
+      shouldRender:
+        isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"

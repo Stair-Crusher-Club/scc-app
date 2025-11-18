@@ -46,6 +46,13 @@ export default function DesktopApp() {
                     },
                   },
                   ImageZoomViewer: 'images',
+                  BbucleRoad: {
+                    path: 'bbucle-road/:bbucleRoadId',
+                    exact: true,
+                    parse: {
+                      bbucleRoadId: (bbucleRoadId: string) => bbucleRoadId,
+                    },
+                  }
                 },
               },
             }}>
