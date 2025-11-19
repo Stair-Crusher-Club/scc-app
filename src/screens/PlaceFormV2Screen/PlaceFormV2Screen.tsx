@@ -407,7 +407,7 @@ async function register(
     // Build API request
     const requestData: RegisterPlaceAccessibilityRequestDtoV2 = {
       placeId,
-      isStandaloneBuildingBuilding: selectedOption === 'standalone',
+      isStandaloneBuilding: selectedOption === 'standalone',
       doorDirectionType:
         selectedOption === 'standalone'
           ? PlaceDoorDirectionTypeDto.OutsideBuilding
@@ -425,8 +425,13 @@ async function register(
       entranceDoorTypes: values.doorType,
       features: values.additionalInfo,
       entranceComment: values.comment,
-      floorMovingMethodType: values.floorMovementMethod,
-      floorMovingMethodComment: values.floorMovementComment,
+      // floorMovingMethodType은 단독건물이면서 여러 층인 경우에만 전송
+      floorMovingMethodType: hasMultipleFloors
+        ? values.floorMovementMethod
+        : undefined,
+      floorMovingMethodComment: hasMultipleFloors
+        ? values.floorMovementComment
+        : undefined,
       floorMovingElevatorAccessibility,
     };
 
