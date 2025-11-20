@@ -46,6 +46,13 @@ export const SmallCameraButton = styled(SccPressable)({
   alignItems: 'center',
 });
 
+export const SmallCameraButtonText = styled.Text({
+  color: color.gray40,
+  fontSize: 12,
+  fontFamily: font.pretendardRegular,
+  marginTop: 4,
+});
+
 export const Thumbnail = styled.View({
   flex: 1,
   overflow: 'hidden',

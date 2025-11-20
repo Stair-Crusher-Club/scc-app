@@ -4,7 +4,7 @@ import ImageFile from '@/models/ImageFile';
 import useNavigation from '@/navigation/useNavigation';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 
-import CameraIcon from '@/assets/icon/ic_camera.svg';
+import CameraIcon from '@/assets/icon/ic_camera2.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import * as S from './PhotosV2.style';
 
@@ -40,8 +40,8 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
           <S.SmallCameraButton
             elementName="photo_small_camera_button"
             onPress={takePhoto}>
-            {/* FIXME: 카메라 아이콘 변경 체크 */}
             <CameraIcon width={36} height={36} />
+            <S.SmallCameraButtonText>사진 촬영하기</S.SmallCameraButtonText>
           </S.SmallCameraButton>
         </S.Photo>
       )}
