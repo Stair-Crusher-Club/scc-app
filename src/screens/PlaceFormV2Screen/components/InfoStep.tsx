@@ -1,5 +1,5 @@
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SccButton} from '@/components/atoms';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
@@ -10,6 +10,7 @@ import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
+import {formImages} from '../constants';
 import {SectionSeparator} from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
@@ -109,7 +110,7 @@ export default function InfoStep({
                       <DoorDirectionOption>
                         <DoorDirectionImageContainer>
                           <Image
-                            source={require('@/assets/img/img_enterance_example_out.png')}
+                            source={formImages.entrance.out}
                             style={{width: '100%', height: '100%'}}
                             resizeMode="cover"
                           />
@@ -124,7 +125,7 @@ export default function InfoStep({
                       <DoorDirectionOption>
                         <DoorDirectionImageContainer>
                           <Image
-                            source={require('@/assets/img/img_enterance_example_in.png')}
+                            source={formImages.entrance.in}
                             style={{width: '100%', height: '100%'}}
                             resizeMode="cover"
                           />
@@ -380,8 +381,10 @@ const DoorDirectionOption = styled.View`
 const DoorDirectionImageContainer = styled.View`
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
+  border-width: 1px;
+  border-color: ${color.gray20};
 `;
 
 const SubmitButtonWrapper = styled.View`

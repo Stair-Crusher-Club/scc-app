@@ -39,6 +39,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import OptionsV2 from '../PlaceFormV2Screen/components/OptionsV2';
 import PhotosV2 from '../PlaceFormV2Screen/components/PhotosV2';
 import TextAreaV2 from '../PlaceFormV2Screen/components/TextAreaV2';
+import {formImages} from '../PlaceFormV2Screen/constants';
 import PlaceInfoSection from '../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
 import * as S from './BuildingFormV2Screen.style';
@@ -428,6 +429,22 @@ export default function BuildingFormV2Screen({
                         건물의 출입구가 어느 방향에 있나요?
                       </S.QuestionText>
                     </S.QuestionSection>
+                    <View style={{flexDirection: 'row', gap: 12}}>
+                      <S.MeasureGuide style={{flex: 1}}>
+                        <Image
+                          source={formImages.entrance.out}
+                          style={{width: '100%', height: '100%'}}
+                          resizeMode="cover"
+                        />
+                      </S.MeasureGuide>
+                      <S.MeasureGuide style={{flex: 1}}>
+                        <Image
+                          source={formImages.entrance.in}
+                          style={{width: '100%', height: '100%'}}
+                          resizeMode="cover"
+                        />
+                      </S.MeasureGuide>
+                    </View>
                     <Controller
                       name="entranceDirection"
                       rules={{required: true}}

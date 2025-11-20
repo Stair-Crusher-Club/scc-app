@@ -46,8 +46,10 @@ export const Label = styled.Text({
 
 export const MeasureGuide = styled.View({
   aspectRatio: '315/152',
-  borderRadius: 20,
+  borderRadius: 8,
   overflow: 'hidden',
+  borderWidth: 1,
+  borderColor: color.gray20,
 });
 
 export const SubmitButtonWrapper = styled.View({
