@@ -22,6 +22,7 @@ import {useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
 import {ReactElement, useEffect, useMemo, useState} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
+import {Alert} from 'react-native';
 import styled from 'styled-components/native';
 import {BuildingRegistrationEvent} from '../PlaceDetailV2Screen/constants';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
@@ -174,6 +175,23 @@ export default function PlaceFormV2Screen({
       form.setValue('selectedFloor', undefined);
     }
   }, [selectedOption, form]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      e.preventDefault();
+
+      Alert.alert('정말 나갈까요?', '입력된 내용이 사라져요.', [
+        {
+          text: '나가기',
+          style: 'destructive',
+          onPress: () => navigation.dispatch(e.data.action),
+        },
+        {text: '계속 작성하기', style: 'cancel'},
+      ]);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   // API 호출 및 완료 처리
   const handleSubmit = async () => {

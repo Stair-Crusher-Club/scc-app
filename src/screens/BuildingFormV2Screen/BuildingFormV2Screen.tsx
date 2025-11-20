@@ -4,6 +4,7 @@ import {throttle} from 'lodash';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Controller, FormProvider, useForm} from 'react-hook-form';
 import {
+  Alert,
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -109,6 +110,23 @@ export default function BuildingFormV2Screen({
   const elevatorHasStairs = form.watch('elevatorHasStairs');
   const elevatorStairInfo = form.watch('elevatorStairInfo');
   const elevatorStairHeightLevel = form.watch('elevatorStairHeightLevel');
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      e.preventDefault();
+
+      Alert.alert('정말 나갈까요?', '입력된 내용이 사라져요.', [
+        {
+          text: '나가기',
+          style: 'destructive',
+          onPress: () => navigation.dispatch(e.data.action),
+        },
+        {text: '계속 작성하기', style: 'cancel'},
+      ]);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   // Reset elevator related fields when hasElevator changes to false
   useEffect(() => {
