@@ -46,6 +46,10 @@ export default function RegistrationCompleteScreen({
   }, [navigation]);
 
   const handleConfirm = () => {
+    // FormScreen과 CompleteScreen 스택에서 제거
+    navigation.pop();
+    navigation.pop();
+    // PlaceDetailV2로 이동
     navigation.navigate('PlaceDetailV2', {
       placeInfo,
       event,
