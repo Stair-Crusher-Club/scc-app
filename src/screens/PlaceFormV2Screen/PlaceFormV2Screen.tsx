@@ -1,5 +1,3 @@
-import type {ImageSourcePropType} from 'react-native';
-
 import {placeFormV2GuideDismissedAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
@@ -31,7 +29,7 @@ import FloorMovementStep from './components/FloorMovementStep';
 import FloorStep from './components/FloorStep';
 import GuideModal from './components/GuideModal';
 import InfoStep from './components/InfoStep';
-import {formImages} from './constants';
+import {GUIDE_CONTENTS} from './constants';
 
 export interface PlaceFormV2ScreenParams {
   place: Place;
@@ -157,43 +155,10 @@ export default function PlaceFormV2Screen({
     return true;
   })();
 
-  // guideKey에 따른 이미지와 타이틀 결정
-  const guideContent = useMemo((): {
-    image: ImageSourcePropType;
-    title: string;
-  } => {
-    switch (guideKey) {
-      case 'firstFloor':
-        return {
-          image: formImages.floor.first,
-          title: '1층 매장의 입구 사진을\n찍어주세요',
-        };
-      case 'otherFloor':
-        return {
-          image: formImages.floor.other,
-          title: '해당 층 매장의 입구 사진을\n찍어주세요',
-        };
-      case 'multipleFloors':
-        return {
-          image: formImages.floor.multi,
-          title: '1층 매장의 입구 사진을\n찍어주세요',
-        };
-      case 'standaloneSingleFloor':
-        return {
-          image: formImages.floor.firstStandalone,
-          title: '단독건물 입구 사진을\n찍어주세요',
-        };
-      case 'standaloneMultipleFloors':
-        return {
-          image: formImages.floor.multiStandalone,
-          title: '단독건물 입구 사진을\n찍어주세요',
-        };
-      default:
-        return {
-          image: formImages.floor.first,
-          title: '매장 입구 사진을\n찍어주세요',
-        };
-    }
+  // guideKey에 따른 가이드 콘텐츠 가져오기
+  const guideContent = useMemo(() => {
+    if (!guideKey) return GUIDE_CONTENTS.firstFloor;
+    return GUIDE_CONTENTS[guideKey] || GUIDE_CONTENTS.firstFloor;
   }, [guideKey]);
 
   // 단독건물 선택 후 다른 옵션으로 변경하면 단독건물 타입 초기화
@@ -387,8 +352,7 @@ export default function PlaceFormV2Screen({
         <ScreenLayout isHeaderVisible={true}>{stepConfig[step]}</ScreenLayout>
         <GuideModal
           visible={isGuideModalVisible}
-          image={guideContent.image}
-          title={guideContent.title}
+          guideContent={guideContent}
           onDismissPermanently={handleDismissPermanently}
           onConfirm={handleConfirmGuide}
           onRequestClose={handleBack}
