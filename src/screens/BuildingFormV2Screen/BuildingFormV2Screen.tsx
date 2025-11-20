@@ -10,10 +10,13 @@ import {
   ScrollView,
   View,
 } from 'react-native';
+import styled from 'styled-components/native';
 
 import {loadingState} from '@/components/LoadingView';
+import {SccPressable} from '@/components/SccPressable';
 import TabBar from '@/components/TabBar';
 import {SccButton} from '@/components/atoms';
+import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
@@ -512,6 +515,18 @@ export default function BuildingFormV2Screen({
                         )}
                       />
                     )}
+                    <GuideButton>
+                      <SccPressable
+                        elementName="building_entrance_stair_guide"
+                        onPress={() =>
+                          navigation.navigate('Webview', {
+                            fixedTitle: '계단 기준 알아보기',
+                            url: 'https://agnica.notion.site/8312cc653a8f4b9aa8bc920bbd668218',
+                          })
+                        }>
+                        <GuideText>계단 기준 알아보기 {'>'}</GuideText>
+                      </SccPressable>
+                    </GuideButton>
                   </S.SubSection>
 
                   {form.watch('hasStairs') &&
@@ -569,6 +584,18 @@ export default function BuildingFormV2Screen({
                         />
                       )}
                     />
+                    <GuideButton>
+                      <SccPressable
+                        elementName="building_entrance_slope_guide"
+                        onPress={() =>
+                          navigation.navigate('Webview', {
+                            fixedTitle: '경사로 기준 알아보기',
+                            url: 'https://agnica.notion.site/6f64035a062f41e28745faa4e7bd0770',
+                          })
+                        }>
+                        <GuideText>경사로 기준 알아보기 {'>'}</GuideText>
+                      </SccPressable>
+                    </GuideButton>
                   </S.SubSection>
 
                   <S.SubSection>
@@ -838,3 +865,12 @@ async function register(
     };
   }
 }
+
+const GuideButton = styled.View``;
+
+const GuideText = styled.Text`
+  color: ${color.brandColor};
+  font-size: 14px;
+  font-family: ${font.pretendardMedium};
+  text-align: right;
+`;
