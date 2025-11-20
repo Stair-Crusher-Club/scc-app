@@ -34,7 +34,10 @@ export default function BuildingRegistrationBottomSheet({
       }}>
       <BottomSheet isVisible={isVisible}>
         <Container>
-          <Title>{content.title}</Title>
+          <TitleSection>
+            <Title>{content.title}</Title>
+            <Description>{content.description}</Description>
+          </TitleSection>
           <ImageContainer>
             <StyledImage source={content.imagePath} resizeMode="contain" />
           </ImageContainer>
@@ -46,6 +49,7 @@ export default function BuildingRegistrationBottomSheet({
               fontFamily={font.pretendardMedium}
               onPress={onPressCancel}
               elementName="building_registration_cancel"
+              style={{maxWidth: 132, width: '100%'}}
             />
             <SccButton
               text={content.confirmButtonText}
@@ -54,6 +58,7 @@ export default function BuildingRegistrationBottomSheet({
               fontFamily={font.pretendardBold}
               onPress={onPressConfirm}
               elementName="building_registration_confirm"
+              style={{flex: 1}}
             />
           </ButtonContainer>
         </Container>
@@ -67,6 +72,10 @@ const Container = styled.View`
   gap: 24px;
 `;
 
+const TitleSection = styled.View`
+  gap: 4px;
+`;
+
 const Title = styled.Text`
   font-size: 22px;
   line-height: 30px;
@@ -75,10 +84,18 @@ const Title = styled.Text`
   text-align: center;
 `;
 
+const Description = styled.Text`
+  font-size: 18px;
+  line-height: 26px;
+  color: ${color.gray70};
+  text-align: center;
+`;
+
 const ImageContainer = styled.View`
   width: 100%;
   align-items: center;
   justify-content: center;
+  margin-top: -11px;
 `;
 
 const StyledImage = styled.Image`
@@ -89,6 +106,7 @@ const StyledImage = styled.Image`
 `;
 
 const ButtonContainer = styled.View`
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
+  margin-top: 24px;
 `;
