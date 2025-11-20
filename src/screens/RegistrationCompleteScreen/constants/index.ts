@@ -1,14 +1,14 @@
 export const REGISTRATION_COMPLETE_CONTENT = {
   place: {
-    title: '장소 정보 등록 완료!',
-    description: '등록해주신 정보가 많은 분들에게 도움이 될 거예요.',
-    // FIXME
-    imagePath: require('@/assets/img/img_crusher_welcome.png'),
+    title: '정보를 등록해주셔서\n감사합니다!',
+    description:
+      '크러셔님의 정복으로\n이동약자의 정보 탐색시간이 1/10 줄어들었어요',
+    imagePath: require('@/assets/img/form/thank_you.png'),
   },
   building: {
-    title: '건물 정보 등록 완료!',
-    description: '등록해주신 정보가 많은 분들에게 도움이 될 거예요.',
-    // FIXME
-    imagePath: require('@/assets/img/img_crusher_welcome.png'),
+    title: '정보를 등록해주셔서\n감사합니다!',
+    description:
+      '크러셔님의 정복으로\n이동약자의 정보 탐색시간이 1/10 줄어들었어요',
+    imagePath: require('@/assets/img/form/thank_you.png'),
   },
 } as const;

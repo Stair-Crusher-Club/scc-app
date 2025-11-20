@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 
+import {useMe} from '@/atoms/Auth';
 import {SccButton} from '@/components/atoms';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
@@ -30,6 +31,7 @@ export default function RegistrationCompleteScreen({
 }: ScreenProps<'RegistrationComplete'>) {
   const {target, event, placeInfo} = route.params;
   const content = REGISTRATION_COMPLETE_CONTENT[target];
+  const {userInfo} = useMe();
 
   // 안드로이드 뒤로가기 버튼 막기
   useBackHandler(() => {
@@ -54,14 +56,16 @@ export default function RegistrationCompleteScreen({
     <ScreenLayout
       isHeaderVisible={false}
       safeAreaEdges={['top', 'bottom']}
-      style={{backgroundColor: color.white}}>
+      style={{backgroundColor: color.gray15}}>
       <Container>
         <Content>
-          <Title>{content.title}</Title>
-          <Description>{content.description}</Description>
           <ImageContainer>
             <StyledImage source={content.imagePath} resizeMode="contain" />
           </ImageContainer>
+          <Title>{content.title}</Title>
+          <Description>
+            {userInfo?.nickname + ' ' + content.description}
+          </Description>
         </Content>
         <ButtonContainer>
           <SccButton
@@ -93,27 +97,27 @@ const Content = styled.View({
 });
 
 const Title = styled.Text({
-  color: color.white,
+  color: color.black,
   fontSize: 28,
   fontFamily: font.pretendardBold,
   textAlign: 'center',
-  marginBottom: 16,
+  marginBottom: 12,
   lineHeight: 40,
 });
 
 const Description = styled.Text({
-  color: color.white,
-  fontSize: 18,
-  fontFamily: font.pretendardMedium,
+  color: color.gray70,
+  fontSize: 16,
+  fontFamily: font.pretendardRegular,
   textAlign: 'center',
-  marginBottom: 40,
-  lineHeight: 28,
+  lineHeight: 26,
 });
 
 const ImageContainer = styled.View({
   width: '100%',
   alignItems: 'center',
   justifyContent: 'center',
+  marginBottom: 20,
 });
 
 const StyledImage = styled.Image({
