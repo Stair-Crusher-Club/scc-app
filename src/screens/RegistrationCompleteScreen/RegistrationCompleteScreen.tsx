@@ -59,9 +59,10 @@ export default function RegistrationCompleteScreen({
       });
       return;
     }
-    // v1은 event 타입이 다르므로 전달하지 않음
+    // v1으로 이동 (QA 모드에서도 event 전달)
     navigation.navigate('PlaceDetail', {
       placeInfo,
+      event,
     });
   };
 
