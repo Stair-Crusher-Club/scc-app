@@ -9,13 +9,20 @@ import {
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
-import {MeasureGuide} from '@/screens/BuildingFormScreen/sections/ElevatorSection.style';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {makeFloorMovementOptions} from '../constants';
-import {SectionSeparator} from '../PlaceFormV2Screen';
+import {
+  Label,
+  MeasureGuide,
+  QuestionSection,
+  QuestionText,
+  SectionLabel,
+  SectionSeparator,
+  SubSection,
+} from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
@@ -100,9 +107,9 @@ export default function FloorMovementStep({
             <SubSection>
               <QuestionSection>
                 <SectionLabel>층간 이동 정보</SectionLabel>
-                <QuestionTextStyled>
+                <QuestionText>
                   1층에서 다른층으로 이동가능한 방법을 모두 알려주세요
-                </QuestionTextStyled>
+                </QuestionText>
               </QuestionSection>
               <Controller
                 name="floorMovementMethod"
@@ -124,9 +131,7 @@ export default function FloorMovementStep({
                 <SubSection>
                   <QuestionSection>
                     <SectionLabel>엘리베이터 정보</SectionLabel>
-                    <QuestionTextStyled>
-                      엘리베이터 사진을 찍어주세요
-                    </QuestionTextStyled>
+                    <QuestionText>엘리베이터 사진을 찍어주세요</QuestionText>
                   </QuestionSection>
                   <Controller
                     name="elevatorPhotos"
@@ -282,35 +287,6 @@ const FormContainer = styled.View`
   padding-vertical: 40px;
   padding-horizontal: 20px;
   gap: 48px;
-`;
-
-const SectionLabel = styled.Text`
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${font.pretendardBold};
-  color: ${color.brand50};
-`;
-
-const QuestionTextStyled = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
-`;
-
-const QuestionSection = styled.View`
-  gap: 8px;
-`;
-
-const SubSection = styled.View`
-  gap: 20px;
-`;
-
-const Label = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
 `;
 
 const SubmitButtonWrapper = styled.View`

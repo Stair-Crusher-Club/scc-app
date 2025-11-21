@@ -7,13 +7,22 @@ import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
-import {MeasureGuide} from '@/screens/BuildingFormScreen/sections/ElevatorSection.style';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages} from '../constants';
-import {SectionSeparator} from '../PlaceFormV2Screen';
+import {
+  GuideButton,
+  GuideText,
+  Label,
+  MeasureGuide,
+  QuestionSection,
+  QuestionText,
+  SectionLabel,
+  SectionSeparator,
+  SubSection,
+} from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
@@ -101,9 +110,7 @@ export default function InfoStep({
               <SubSection>
                 <QuestionSection>
                   <SectionLabel>매장입구정보</SectionLabel>
-                  <QuestionTextStyled>
-                    매장의 출입구가 어디쪽에 있나요?
-                  </QuestionTextStyled>
+                  <QuestionText>매장의 출입구가 어디쪽에 있나요?</QuestionText>
                 </QuestionSection>
                 <Controller
                   name="doorDirection"
@@ -366,35 +373,6 @@ const InfoFormContainer = styled.View`
   gap: 48px;
 `;
 
-const SectionLabel = styled.Text`
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${font.pretendardBold};
-  color: ${color.brand50};
-`;
-
-const QuestionTextStyled = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
-`;
-
-const QuestionSection = styled.View`
-  gap: 8px;
-`;
-
-const SubSection = styled.View`
-  gap: 20px;
-`;
-
-const Label = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
-`;
-
 const DoorDirectionContainer = styled.View`
   flex-direction: row;
   gap: 12px;
@@ -422,13 +400,4 @@ const SubmitButtonWrapper = styled.View`
   border-top-color: ${color.gray15};
   flex-direction: row;
   gap: 12px;
-`;
-
-const GuideButton = styled.View``;
-
-const GuideText = styled.Text`
-  color: ${color.brandColor};
-  font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  text-align: right;
 `;
