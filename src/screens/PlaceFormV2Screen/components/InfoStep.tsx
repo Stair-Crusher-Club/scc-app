@@ -23,6 +23,7 @@ import {
   SectionSeparator,
   SubSection,
 } from '../PlaceFormV2Screen';
+import OptionsChip from './OptionsChip';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
@@ -306,9 +307,8 @@ export default function InfoStep({
               <Controller
                 name="additionalInfo"
                 render={({field}) => (
-                  <OptionsV2.Multiple
+                  <OptionsChip
                     values={field.value ?? []}
-                    size="sm"
                     options={[
                       {label: '배달전문점이에요', value: '배달전문점이에요'},
                       {

@@ -13,14 +13,12 @@ interface Props {
   value: any;
   options: Option[];
   columns?: 1 | 2 | 3; // 한줄, 두줄, 세줄로 나열하기
-  size?: 'sm' | 'md';
   onSelect: (value: any) => void;
 }
 export default function OptionsV2({
   options,
   value,
   columns = 2,
-  size = 'md',
   onSelect,
 }: Props) {
   const getWidth = () => {
@@ -39,7 +37,6 @@ export default function OptionsV2({
           style={{width: getWidth()}}
           selected={option.value === value}
           disabled={option.disabled ?? false}
-          size={size}
           onPress={() => onSelect(option.value)}>
           <S.OptionText selected={option.value === value}>
             {option.label}
@@ -54,14 +51,12 @@ interface MultipleProps {
   values: any[];
   options: Option[];
   columns?: 1 | 2 | 3; // 한줄, 두줄, 세줄로 나열하기
-  size?: 'sm' | 'md';
   onSelect: (values: any[]) => void;
 }
 OptionsV2.Multiple = function MultipleOptions({
   options,
   values,
   columns = 2,
-  size = 'md',
   onSelect,
 }: MultipleProps) {
   function handleSelect(value: any) {
@@ -94,7 +89,6 @@ OptionsV2.Multiple = function MultipleOptions({
             style={{width: getWidth()}}
             selected={selected}
             disabled={option.disabled ?? false}
-            size={size}
             onPress={() => handleSelect(option.value)}>
             <S.OptionText selected={selected}>{option.label}</S.OptionText>
           </S.PressableOption>
