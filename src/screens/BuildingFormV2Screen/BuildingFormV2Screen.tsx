@@ -10,6 +10,7 @@ import {
   ScrollView,
   View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {loadingState} from '@/components/LoadingView';
 import {SccPressable} from '@/components/SccPressable';
@@ -82,6 +83,7 @@ export default function BuildingFormV2Screen({
   const {api} = useAppComponents();
   const pushItems = useSetAtom(pushItemsAtom);
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useAtom(loadingState);
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
@@ -743,7 +745,7 @@ export default function BuildingFormV2Screen({
               </S.FormContainer>
             </SafeAreaWrapper>
           </ScrollView>
-          <S.SubmitButtonWrapper>
+          <S.SubmitButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
             <SccButton
               text="등록하기"
               buttonColor="brandColor"

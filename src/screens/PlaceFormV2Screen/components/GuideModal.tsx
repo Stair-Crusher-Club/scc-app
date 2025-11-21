@@ -6,6 +6,7 @@ import {font} from '@/constant/font';
 import {Image, Modal, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {GuideContent} from '../constants';
 
 interface GuideModalProps {
@@ -23,6 +24,8 @@ export default function GuideModal({
   onConfirm,
   onRequestClose,
 }: GuideModalProps) {
+  const insets = useSafeAreaInsets();
+
   if (!guideContent) {
     return null;
   }
@@ -78,7 +81,7 @@ export default function GuideModal({
           </ContentContainer>
         </ScrollView>
 
-        <ButtonWrapper>
+        <ButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
           <SccButton
             elementName="guide_modal_dismiss"
             text="다시보지 않기"

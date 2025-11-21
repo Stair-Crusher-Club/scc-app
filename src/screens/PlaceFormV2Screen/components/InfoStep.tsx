@@ -9,6 +9,7 @@ import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages} from '../constants';
@@ -45,6 +46,7 @@ export default function InfoStep({
 }: InfoStepProps) {
   const form = useFormContext();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   // Watch all required fields
   const doorDirection = form.watch('doorDirection');
@@ -338,7 +340,7 @@ export default function InfoStep({
           </InfoFormContainer>
         </SafeAreaWrapper>
       </ScrollView>
-      <SubmitButtonWrapper>
+      <SubmitButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
         <SccButton
           text="이전"
           onPress={onBack}
