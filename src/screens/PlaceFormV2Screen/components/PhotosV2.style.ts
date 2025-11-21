@@ -53,6 +53,10 @@ export const SmallCameraButtonText = styled.Text({
   marginTop: 4,
 });
 
+export const ThumbnailButton = styled(SccPressable)({
+  flex: 1,
+});
+
 export const Thumbnail = styled.View({
   flex: 1,
   overflow: 'hidden',

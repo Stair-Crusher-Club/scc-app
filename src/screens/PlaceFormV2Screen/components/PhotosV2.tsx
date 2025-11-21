@@ -30,6 +30,14 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
     onChange(newPhotos);
   };
 
+  const viewPhoto = (index: number) => {
+    const imageUrls = value.map(p => ImageFileUtils.filepathFromImageFile(p));
+    navigation.navigate('ImageZoomViewer', {
+      imageUrls,
+      index,
+    });
+  };
+
   const hasPhotos = value.length > 0;
 
   return (
@@ -46,13 +54,17 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
         </S.Photo>
       )}
       {/* 1~3장의 사진 */}
-      {value.slice(0, 3).map(photo => (
+      {value.slice(0, 3).map((photo, index) => (
         <S.Photo key={photo.uri}>
-          <S.Thumbnail>
-            <S.ThumbnailImage
-              source={{uri: ImageFileUtils.filepathFromImageFile(photo)}}
-            />
-          </S.Thumbnail>
+          <S.ThumbnailButton
+            elementName="photo_thumbnail"
+            onPress={() => viewPhoto(index)}>
+            <S.Thumbnail>
+              <S.ThumbnailImage
+                source={{uri: ImageFileUtils.filepathFromImageFile(photo)}}
+              />
+            </S.Thumbnail>
+          </S.ThumbnailButton>
           <S.DeleteButton
             elementName="photo_delete_button"
             onPress={() => deletePhoto(photo)}>
