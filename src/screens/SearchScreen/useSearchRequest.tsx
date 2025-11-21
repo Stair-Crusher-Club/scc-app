@@ -2,6 +2,7 @@ import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import {useRef, useEffect} from 'react';
+import {useKeyboard} from '@react-native-community/hooks';
 
 import {
   PlaceListItem,
@@ -33,6 +34,8 @@ export default function useSearchRequest() {
   const viewState = useAtomValue(viewStateAtom);
   const route = useRoute();
   const devTool = useDevTool();
+  const keyboard = useKeyboard();
+  const keyboardRef = useRef(keyboard);
   const {data, isFetching, refetch} = useQuery({
     initialData: [],
     throwOnError: error => {
@@ -140,12 +143,26 @@ export default function useSearchRequest() {
     },
   });
   const onFetchCompleted = useRef<(result: PlaceListItem[]) => void>(() => {});
+  const pendingCallbackRef = useRef<(() => void) | null>(null);
   const {updateQuery} = useUpdateSearchQuery();
   const setOnFetchCompleted: (
     callback: (result: PlaceListItem[]) => void,
   ) => void = callback => {
-    onFetchCompleted.current = callback;
+    onFetchCompleted.current = (result: PlaceListItem[]) => {
+      if (keyboardRef.current.keyboardShown) {
+        // 키보드가 올라와 있으면 실행 연기
+        pendingCallbackRef.current = () => callback(result);
+      } else {
+        // 키보드가 내려가 있으면 즉시 실행
+        setTimeout(() => callback(result), 100); // 지도 하단의 카드 리스트가 그려지는 것을 기다리기 위해 100ms 기다렸다가 렌더링한다. (100ms는 heuristic)
+      }
+    };
   };
+
+  // keyboard 상태가 변경될 때마다 ref 업데이트
+  useEffect(() => {
+    keyboardRef.current = keyboard;
+  }, [keyboard]);
 
   useEffect(() => {
     // autocomplete로 인해 input 모드에서 검색이 검색이
@@ -158,6 +175,15 @@ export default function useSearchRequest() {
       });
     }
   }, [viewState.inputMode, viewState.type]);
+
+  // 키보드가 내려가면 pending callback 실행
+  useEffect(() => {
+    if (!keyboard.keyboardShown && pendingCallbackRef.current) {
+      const pendingCallback = pendingCallbackRef.current;
+      setTimeout(pendingCallback, 100); // 지도 하단의 카드 리스트가 그려지는 것을 기다리기 위해 100ms 기다렸다가 렌더링한다. (100ms는 heuristic)
+      pendingCallbackRef.current = null;
+    }
+  }, [keyboard.keyboardShown]);
 
   return {
     data,

@@ -1,17 +1,12 @@
 import {useRoute} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
-import React, {useEffect} from 'react';
+import React from 'react';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location.ts';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {
-  getRegionFromItems,
-  getRegionCorners,
-  LatLng,
-  Region,
-} from '@/components/maps/Types.tsx';
+import {getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
 import {
   NativeMarkerItem,
@@ -64,7 +59,6 @@ export default function ItemMap<T extends MarkerItem>({
   selectedItemId: string | null;
   onCameraIdle?: (region: Region) => void;
 }) {
-  const [firstFittingDone, setFirstFittingDone] = React.useState(false);
   const [currentCameraRegion, setCurrentCameraRegion] =
     React.useState<Region | null>(null);
   const currentLocation = useAtomValue(currentLocationAtom);
@@ -170,15 +164,6 @@ export default function ItemMap<T extends MarkerItem>({
   }
 
   const route = useRoute();
-  useEffect(() => {
-    if (items.length > 0 && !firstFittingDone) {
-      setFirstFittingDone(true);
-      setTimeout(() => {
-        mapRef.current?.animateToRegion(getRegionFromItems(items), 10, 1);
-      }, 100);
-    }
-  }, [items.length]);
-
   return (
     <StyledMapView
       initialRegion={nativeRegion}
