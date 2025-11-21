@@ -255,7 +255,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   }, [building, closeModals, navigation, place]);
 
   const handleBuildingRegistrationConfirm = useCallback(() => {
-    setShowBuildingRegistrationBottomSheet(false);
+    handleBuildingRegistrationCancel();
+
     if (place && building) {
       const formVersion = getFormScreenVersion();
       if (formVersion === 'v2') {
