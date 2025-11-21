@@ -56,7 +56,7 @@ export const SmallCameraButtonText = styled.Text({
 export const Thumbnail = styled.View({
   flex: 1,
   overflow: 'hidden',
-  borderRadius: 20,
+  borderRadius: 14,
 });
 
 export const ThumbnailImage = styled.Image({
