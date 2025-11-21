@@ -20,7 +20,7 @@ export default function PlaceInfoSection({
   const Icon = target === 'place' ? IcPlace : IcBuilding;
   const badgeText =
     target === 'place' ? '새로운 장소 발견!' : '새로운 건물 발견!';
-  const badgeColor = target === 'place' ? color.yellow70 : color.brand50;
+  const badgeColor = target === 'place' ? color.orange40 : color.brand50;
 
   return (
     <Container>
