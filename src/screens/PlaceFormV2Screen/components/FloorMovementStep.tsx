@@ -13,7 +13,7 @@ import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
-import {makeFloorMovementOptions} from '../constants';
+import {formImages, makeFloorMovementOptions} from '../constants';
 import {
   Label,
   MeasureGuide,
@@ -189,7 +189,7 @@ export default function FloorMovementStep({
                       <Label>계단 1칸의 높이를 알려주세요</Label>
                       <MeasureGuide>
                         <Image
-                          source={require('@/assets/img/stair_thumb.jpg')}
+                          source={formImages.stair}
                           style={{width: '100%', height: '100%'}}
                         />
                       </MeasureGuide>

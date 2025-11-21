@@ -222,7 +222,7 @@ export default function InfoStep({
                   <Label>계단 1칸의 높이를 알려주세요</Label>
                   <MeasureGuide>
                     <Image
-                      source={require('@/assets/img/stair_thumb.jpg')}
+                      source={formImages.stair}
                       style={{width: '100%', height: '100%'}}
                     />
                   </MeasureGuide>

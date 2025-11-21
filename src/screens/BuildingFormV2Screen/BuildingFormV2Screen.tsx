@@ -426,7 +426,7 @@ export default function BuildingFormV2Screen({
               <PlaceInfoSection
                 target="building"
                 name={place.name}
-                address={place.name + '가 있는 건물'}
+                address={place.name + ' 장소가 있는 건물'}
               />
               <S.SectionSeparator />
             </SafeAreaWrapper>
@@ -448,22 +448,6 @@ export default function BuildingFormV2Screen({
                         건물의 출입구가 어느 방향에 있나요?
                       </S.QuestionText>
                     </S.QuestionSection>
-                    <View style={{flexDirection: 'row', gap: 12}}>
-                      <S.MeasureGuide style={{flex: 1}}>
-                        <Image
-                          source={formImages.entrance.out}
-                          style={{width: '100%', height: '100%'}}
-                          resizeMode="cover"
-                        />
-                      </S.MeasureGuide>
-                      <S.MeasureGuide style={{flex: 1}}>
-                        <Image
-                          source={formImages.entrance.in}
-                          style={{width: '100%', height: '100%'}}
-                          resizeMode="cover"
-                        />
-                      </S.MeasureGuide>
-                    </View>
                     <Controller
                       name="entranceDirection"
                       rules={{required: true}}
@@ -551,7 +535,7 @@ export default function BuildingFormV2Screen({
                         <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
                         <S.MeasureGuide>
                           <Image
-                            source={require('@/assets/img/stair_thumb.jpg')}
+                            source={formImages.stair}
                             style={{width: '100%', height: '100%'}}
                           />
                         </S.MeasureGuide>
@@ -738,7 +722,7 @@ export default function BuildingFormV2Screen({
                             <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
                             <S.MeasureGuide>
                               <Image
-                                source={require('@/assets/img/stair_thumb.jpg')}
+                                source={formImages.stair}
                                 style={{width: '100%', height: '100%'}}
                               />
                             </S.MeasureGuide>
