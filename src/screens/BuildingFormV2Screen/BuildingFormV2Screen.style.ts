@@ -1,6 +1,7 @@
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
+import {font} from '@/constant/font';
 
 // Re-export common styled components from PlaceFormV2Screen
 export {
@@ -34,3 +35,9 @@ export const SubmitButtonWrapper = styled.View({
 export const TabBarWrapper = styled.View({
   backgroundColor: color.white,
 });
+
+export const HeaderBackText = styled.Text`
+  font-size: 24px;
+  color: ${color.gray80};
+  font-family: ${font.pretendardMedium};
+`;
