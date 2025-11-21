@@ -504,10 +504,6 @@ async function register(
       floorMovingElevatorAccessibility,
     };
 
-    console.log('🔥🔥🔥');
-    console.log(requestData);
-    console.log('🔥🔥🔥');
-
     try {
       // Call API
       const res = await api.registerPlaceAccessibilityV2Post(requestData);

@@ -154,7 +154,6 @@ export default function BuildingFormV2Screen({
   const isFormValid = (() => {
     // 출입구 방향은 필수
     if (!entranceDirection) {
-      console.log('[BuildingForm] Missing: entranceDirection');
       return false;
     }
 
