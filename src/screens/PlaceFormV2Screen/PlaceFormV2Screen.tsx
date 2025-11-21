@@ -1,4 +1,5 @@
 import {placeFormV2GuideDismissedAtom} from '@/atoms/User';
+import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -88,6 +89,7 @@ export default function PlaceFormV2Screen({
   const queryClient = useQueryClient();
   const pushItems = useSetAtom(pushItemsAtom);
 
+  const [loading, setLoading] = useAtom(loadingState);
   const [stepIndex, setStepIndex] = useState(0);
 
   const form = useForm<PlaceFormV2Values>();
@@ -180,6 +182,7 @@ export default function PlaceFormV2Screen({
   const handleSubmit = async () => {
     const values = form.getValues();
 
+    setLoading(new Map(loading).set('PlaceForm', true));
     const registered = await register(
       api,
       queryClient,
@@ -190,6 +193,7 @@ export default function PlaceFormV2Screen({
       selectedFloor,
       doorDirection,
     );
+    setLoading(new Map(loading).set('PlaceForm', false));
 
     if (!registered.success) {
       return;
