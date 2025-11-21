@@ -1,6 +1,7 @@
 import {SccButton} from '@/components/atoms';
 import {Building, Place} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {getFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useEffect, useState} from 'react';
 import {BuildingRegistrationEvent} from './constants';
 import BuildingRegistrationBottomSheet from './modals/BuildingRegistrationBottomSheet';
@@ -34,9 +35,17 @@ export default function PlaceDetailV2Screen({
   const handleConfirm = () => {
     setIsBottomSheetVisible(false);
 
-    // placeInfo에 place와 building이 있는 경우에만 BuildingFormV2로 이동
+    // placeInfo에 place와 building이 있는 경우에만 BuildingForm으로 이동
     if ('place' in placeInfo && 'building' in placeInfo) {
-      navigation.navigate('BuildingFormV2', {
+      const formVersion = getFormScreenVersion();
+      if (formVersion === 'v2') {
+        navigation.navigate('BuildingFormV2', {
+          place: placeInfo.place,
+          building: placeInfo.building,
+        });
+        return;
+      }
+      navigation.navigate('BuildingForm', {
         place: placeInfo.place,
         building: placeInfo.building,
       });

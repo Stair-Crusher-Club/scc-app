@@ -25,7 +25,7 @@ import XSButton from '@/screens/SearchScreen/components/XSButton';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
-import {getAccessibilityVersion} from '@/utils/accessibilityFlags';
+import {getFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -107,7 +107,7 @@ function SearchItemCard({
   const onRegister = (type: 'building' | 'place' | 'review') => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);
-      const accessibilityVersion = getAccessibilityVersion();
+      const formVersion = getFormScreenVersion();
 
       switch (type) {
         case 'review':
@@ -117,7 +117,7 @@ function SearchItemCard({
           return;
 
         case 'building':
-          if (accessibilityVersion === 'v2') {
+          if (formVersion === 'v2') {
             navigation.navigate('BuildingFormV2', {
               place: item.place,
               building: item.building,
@@ -131,7 +131,7 @@ function SearchItemCard({
           return;
 
         case 'place':
-          if (accessibilityVersion === 'v2') {
+          if (formVersion === 'v2') {
             navigation.navigate('PlaceFormV2', {
               place: item.place,
               building: item.building,

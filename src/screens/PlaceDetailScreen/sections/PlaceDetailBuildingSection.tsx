@@ -15,6 +15,7 @@ import {
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
+import {getFormScreenVersion} from '@/utils/accessibilityFlags';
 
 import FeedbackButton from '@/components/FeedbackButton';
 import BuildingDoorInfo from '../components/BuildingDoorInfo';
@@ -152,7 +153,14 @@ function NoBuildingInfoSection({
       });
       return;
     }
-    checkAuth(() => navigation.navigate('BuildingForm', {place, building}));
+    checkAuth(() => {
+      const formVersion = getFormScreenVersion();
+      if (formVersion === 'v2') {
+        navigation.navigate('BuildingFormV2', {place, building});
+        return;
+      }
+      navigation.navigate('BuildingForm', {place, building});
+    });
   };
 
   return (

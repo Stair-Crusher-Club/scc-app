@@ -30,6 +30,7 @@ import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/Place
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import ToastUtils from '@/utils/ToastUtils';
+import {getFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useIsFocused} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import {visibleAtom} from '../SearchScreen/atoms/quest';
@@ -227,6 +228,11 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const goToBuildingForm = useCallback(() => {
     closeModals();
     if (place && building) {
+      const formVersion = getFormScreenVersion();
+      if (formVersion === 'v2') {
+        navigation.navigate('BuildingFormV2', {place, building});
+        return;
+      }
       navigation.navigate('BuildingForm', {place, building});
     }
   }, [building, closeModals, navigation, place]);
@@ -274,6 +280,11 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 duration: Toast.durations.SHORT,
                 position: Toast.positions.BOTTOM,
               });
+              return;
+            }
+            const formVersion = getFormScreenVersion();
+            if (formVersion === 'v2') {
+              navigation.navigate('PlaceFormV2', {place, building});
               return;
             }
             navigation.navigate('PlaceForm', {place, building});

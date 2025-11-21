@@ -9,7 +9,7 @@ import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
-import {getAccessibilityVersion} from '@/utils/accessibilityFlags';
+import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 export default function SearchListView({
   searchResults,
@@ -49,8 +49,8 @@ export default function SearchListView({
                     }
 
                     // Native app navigation
-                    const accessibilityVersion = getAccessibilityVersion();
-                    if (accessibilityVersion === 'v2') {
+                    const detailVersion = getDetailScreenVersion();
+                    if (detailVersion === 'v2') {
                       navigation.navigate('PlaceDetailV2', {
                         placeInfo: {
                           placeId: item.place.id,

@@ -9,6 +9,7 @@ import {font} from '@/constant/font';
 import {Building, Place} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {BuildingRegistrationEvent} from '@/screens/PlaceDetailV2Screen/constants';
+import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
 import {useBackHandler} from '@react-native-community/hooks';
 import {REGISTRATION_COMPLETE_CONTENT} from './constants';
 
@@ -49,10 +50,18 @@ export default function RegistrationCompleteScreen({
     // FormScreen과 CompleteScreen 스택에서 제거
     navigation.pop();
     navigation.pop();
-    // PlaceDetailV2로 이동
-    navigation.navigate('PlaceDetailV2', {
+    // PlaceDetail로 이동
+    const detailVersion = getDetailScreenVersion();
+    if (detailVersion === 'v2') {
+      navigation.navigate('PlaceDetailV2', {
+        placeInfo,
+        event,
+      });
+      return;
+    }
+    // v1은 event 타입이 다르므로 전달하지 않음
+    navigation.navigate('PlaceDetail', {
       placeInfo,
-      event,
     });
   };
 
