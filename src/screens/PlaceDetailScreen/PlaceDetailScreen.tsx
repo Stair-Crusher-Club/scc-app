@@ -85,17 +85,31 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
   const questModalVisible = useAtomValue(visibleAtom);
   const [pendingBottomSheet, setPendingBottomSheet] = useState<
-    null | 'registerComplete' | 'requireBuilding'
+    null | 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent
   >(null);
 
   const openBottomSheet = useCallback(
-    (which: 'registerComplete' | 'requireBuilding') => {
-      if (which === 'registerComplete')
+    (
+      which: 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent,
+    ) => {
+      if (which === 'registerComplete') {
         setShowRegisterCompleteBottomSheet(true);
-      if (which === 'requireBuilding')
-        setShowRequireBuildingAccessibilityBottomSheet(true);
+      }
+
+      // QA 모드에서 requireBuilding은 BuildingRegistrationEvent로 대체
+      if (which === 'requireBuilding') {
+        if (
+          isQAMode() &&
+          event &&
+          (event === 'registration-force' || event === 'registration-suggest')
+        ) {
+          setShowBuildingRegistrationBottomSheet(true);
+        } else {
+          setShowRequireBuildingAccessibilityBottomSheet(true);
+        }
+      }
     },
-    [],
+    [event],
   );
 
   const placeId =
@@ -179,26 +193,26 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   }, [navigation]);
 
   useEffect(() => {
-    // QA 모드에서 BuildingRegistrationEvent 처리
-    if (
-      isQAMode() &&
-      event &&
-      (event === 'registration-force' || event === 'registration-suggest')
-    ) {
-      setShowBuildingRegistrationBottomSheet(true);
-      return;
-    }
-
     // 등록된 정보 확인 후에 띄워주기
     if (!accessibilityPost) return;
 
     // 어떤 바텀시트를 열지 결정
-    let toOpen: null | 'registerComplete' | 'requireBuilding' = null;
+    let toOpen:
+      | null
+      | 'registerComplete'
+      | 'requireBuilding'
+      | BuildingRegistrationEvent = null;
 
-    if (event === 'submit-place') {
-      toOpen = accessibilityPost.buildingAccessibility
-        ? 'registerComplete'
-        : 'requireBuilding';
+    if (
+      event === 'submit-place' ||
+      event === 'registration-suggest' ||
+      event === 'registration-force'
+    ) {
+      if (accessibilityPost.buildingAccessibility) {
+        toOpen = 'registerComplete';
+      } else {
+        toOpen = 'requireBuilding';
+      }
     } else if (event === 'submit-building') {
       toOpen = 'registerComplete';
     }
