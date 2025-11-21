@@ -355,7 +355,10 @@ export default function PlaceFormV2Screen({
   return (
     <LogParamsProvider params={{place_id: place.id}}>
       <FormProvider {...form}>
-        <ScreenLayout isHeaderVisible={true}>{stepConfig[step]}</ScreenLayout>
+        <ScreenLayout isHeaderVisible={true}>
+          <HeaderBorder />
+          {stepConfig[step]}
+        </ScreenLayout>
         <GuideModal
           visible={isGuideModalVisible}
           guideContent={guideContent}
@@ -367,6 +370,11 @@ export default function PlaceFormV2Screen({
     </LogParamsProvider>
   );
 }
+
+export const HeaderBorder = styled.View({
+  borderBottomWidth: 1,
+  borderBottomColor: color.blue5,
+});
 
 export const SectionSeparator = styled.View({
   backgroundColor: color.gray10,

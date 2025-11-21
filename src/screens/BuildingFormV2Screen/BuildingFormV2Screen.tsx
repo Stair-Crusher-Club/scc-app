@@ -399,6 +399,7 @@ export default function BuildingFormV2Screen({
     <LogParamsProvider params={{building_id: building.id}}>
       <FormProvider {...form}>
         <ScreenLayout isHeaderVisible={true}>
+          <S.HeaderBorder />
           <ScrollView
             ref={scrollViewRef}
             stickyHeaderIndices={[1]}

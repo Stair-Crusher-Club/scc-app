@@ -7,6 +7,7 @@ import {font} from '@/constant/font';
 export {
   GuideButton,
   GuideText,
+  HeaderBorder,
   Label,
   MeasureGuide,
   QuestionSection,
