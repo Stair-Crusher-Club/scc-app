@@ -474,10 +474,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
       </ScreenLayout>
 
-      {accessibilityPost?.placeAccessibility?.placeId && (
+      {place?.id && (
         <PlaceDetailNegativeFeedbackBottomSheet
           isVisible={reportTargetType !== null}
-          placeId={accessibilityPost.placeAccessibility.placeId}
+          placeId={place.id}
           onPressCloseButton={() => {
             setReportTargetType(null);
           }}
