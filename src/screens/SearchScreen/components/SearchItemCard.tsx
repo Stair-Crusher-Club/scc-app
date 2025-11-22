@@ -15,6 +15,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {isReviewEnabled} from '@/models/Place';
 import useNavigation from '@/navigation/useNavigation';
@@ -44,6 +45,8 @@ function SearchItemCard({
   const [hasBeenRegisteredAccessibility, setHasBeenRegisteredAccessibility] =
     useAtom(hasBeenRegisteredAccessibilityAtom);
   const toggleFavorite = useToggleFavoritePlace();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
   const registerStatus: 'UNAVAILABLE' | 'NONE' | 'BOTH' | 'PLACE_ONLY' =
     (() => {
       if (!item.isAccessibilityRegistrable) {
@@ -105,23 +108,30 @@ function SearchItemCard({
   };
 
   const onRegister = (type: 'building' | 'place' | 'review') => {
-    checkAuth(() => {
+    checkAuth(async () => {
       setHasBeenRegisteredAccessibility(true);
-      if (type === 'building') {
-        navigation.navigate('BuildingForm', {
-          place: item.place,
-          building: item.building,
-        });
-      } else if (type === 'place') {
-        navigation.navigate('PlaceForm', {
-          place: item.place,
-          building: item.building,
-        });
-      } else if (type === 'review') {
-        navigation.navigate('ReviewForm/Place', {
-          placeId: item.place.id,
-        });
-      }
+      await navigateWithLocationCheck({
+        targetLocation: item.place.location,
+        address: item.place.address,
+        type: type === 'review' ? 'place' : type,
+        onNavigate: () => {
+          if (type === 'building') {
+            navigation.navigate('BuildingForm', {
+              place: item.place,
+              building: item.building,
+            });
+          } else if (type === 'place') {
+            navigation.navigate('PlaceForm', {
+              place: item.place,
+              building: item.building,
+            });
+          } else if (type === 'review') {
+            navigation.navigate('ReviewForm/Place', {
+              placeId: item.place.id,
+            });
+          }
+        },
+      });
     });
   };
   const hasReview = !!(
@@ -276,6 +286,7 @@ function SearchItemCard({
           </View>
         )}
       </Container>
+      {LocationConfirmModal}
     </LogParamsProvider>
   );
 }
