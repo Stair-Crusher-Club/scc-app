@@ -80,7 +80,6 @@ export default function IndoorReviewView({
   const pushItems = useSetAtom(pushItemsAtom);
 
   function onInvalid(errors: FieldErrors<FormValues>) {
-    console.log('fuckfuck 1');
     // 첫 번째 에러 필드의 메시지를 토스트로 표시
     const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
     const firstError = errors[firstErrorField];

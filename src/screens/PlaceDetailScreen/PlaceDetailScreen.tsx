@@ -23,6 +23,7 @@ import {
 import useAppComponents from '@/hooks/useAppComponents';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {isReviewEnabled} from '@/models/Place';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
 import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
@@ -307,9 +308,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     return null;
   }
 
-  const isReviewEnabledCategory =
-    data.place?.category === 'RESTAURANT' || data.place?.category === 'CAFE';
-
   const isFirstFloor =
     accessibilityPost?.placeAccessibility?.isFirstFloor ?? false;
 
@@ -362,7 +360,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       id: 'indoor',
       label: '이용 정보',
       shouldRender: !!(
-        isReviewEnabledCategory &&
+        isReviewEnabled(data.place) &&
         reviewPost &&
         reviewPost.length > 0
       ),
@@ -376,7 +374,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'placeReviewNudge',
-      shouldRender: isReviewEnabledCategory,
+      shouldRender:
+        isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_review_nudge"
@@ -404,9 +403,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       id: 'toilet',
       label: '화장실',
       shouldRender: !!(
-        isReviewEnabledCategory &&
+        isReviewEnabled(data.place) &&
         toiletPost &&
-        toiletPost.length > 0
+        toiletPost.length > 0 &&
+        !!data?.isAccessibilityRegistrable
       ),
       component: (
         <PlaceDetailToiletSection
@@ -418,7 +418,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     },
     {
       id: 'toiletReviewNudge',
-      shouldRender: isReviewEnabledCategory,
+      shouldRender:
+        isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
       component: (
         <PlaceDetailRegisterButtonSection
           logKey="place_detail_toilet_review_nudge"
@@ -447,7 +448,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       shouldRender: !!(
         accessibilityPost &&
         (accessibilityPost?.placeAccessibility ||
-          accessibilityPost?.buildingAccessibility)
+          accessibilityPost?.buildingAccessibility) &&
+        !!data?.isAccessibilityRegistrable
       ),
       component: accessibilityPost ? (
         <PlaceDetailFeedbackSection accessibility={accessibilityPost} />
@@ -549,10 +551,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           )}
       </ScreenLayout>
 
-      {accessibilityPost?.placeAccessibility?.placeId && (
+      {place?.id && (
         <PlaceDetailNegativeFeedbackBottomSheet
           isVisible={reportTargetType !== null}
-          placeId={accessibilityPost.placeAccessibility.placeId}
+          placeId={place.id}
           onPressCloseButton={() => {
             setReportTargetType(null);
           }}

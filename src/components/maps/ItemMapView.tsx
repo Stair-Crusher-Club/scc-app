@@ -151,7 +151,7 @@ const FRefInputComp = <T extends MarkerItem>(
          */
         selectedItemId={selectedItemId ?? (items && items[0]?.id)}
         mapPadding={{
-          top: 40, // 하드코딩된 값(헤더 높이), 차후 수정 필요
+          top: 90, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
           right: 20,
           bottom: insets.bottom + cardHeight + 20,
           left: 20,

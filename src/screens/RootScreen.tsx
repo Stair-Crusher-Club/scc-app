@@ -50,7 +50,9 @@ const RootScreen = () => {
       <NavigationContainer
         ref={navigationRef}
         onReady={async () => {
-          SplashScreen.hide();
+          setTimeout(() => {
+            SplashScreen.hide();
+          }, 150);
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
           logDebug(`App starts at ${currentScreenName}`);

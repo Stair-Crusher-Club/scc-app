@@ -8,9 +8,7 @@ const ShareUtils = {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: place.name,
-          url,
-          text: `[${place.name}]의 접근성 정보를 계단뿌셔클럽 앱에서 확인해보세요!`,
+          text: `[${place.name}]의 접근성 정보를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
         });
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {

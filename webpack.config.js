@@ -1,6 +1,13 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const dotenv = require('dotenv');
+
+// Load .env.local file
+const envFile = process.env.ENVFILE || '.env.local';
+const envConfig = dotenv.config({path: envFile}).parsed || {};
+console.log('📝 Loaded environment:', envFile);
+console.log('🌐 BASE_URL:', envConfig.BASE_URL || 'not set');
 
 const transpileDeps = [
   '@react-navigation',
@@ -139,7 +146,10 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
-      'process.env': JSON.stringify(process.env),
+      'process.env': JSON.stringify({
+        ...process.env,
+        ...envConfig,
+      }),
     }),
   ],
   devServer: {

@@ -211,7 +211,7 @@ export default function CurrentSeasonView() {
           style={{
             borderWidth: 1,
             borderColor: '#F2F2F5',
-            paddingVertical: 16,
+            paddingVertical: 24,
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
@@ -224,6 +224,7 @@ export default function CurrentSeasonView() {
                 visibleLine={
                   activityLogs.length - 1 !== index && activityLogs.length > 1
                 }
+                isFirst={index === 0}
                 canceledAt={item.canceledAt}
               />
             )}

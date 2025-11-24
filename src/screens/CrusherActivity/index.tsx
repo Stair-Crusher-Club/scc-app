@@ -13,11 +13,12 @@ import CurrentSeasonView from './views/CurrentSeasonView';
 import HistoryView from './views/HistoryView';
 
 export interface CrusherActivityScreenParams {
-  qr?: string;
+  qr?: string; // deprecated; please use questTypeOrActivityId
+  questTypeOrActivityId?: string; // Can be CrusherClubQuestTypeDto enum or hardcoded activity ID like 'impactSession'
   clubQuestIdToCheckIn?: string;
 }
 
-const QR_CODE = '2025-autumn';
+const QR_CODE = '2025-autumn'; // qr is deprecated
 
 export default function CrusherActivityScreen({
   route,
@@ -26,14 +27,13 @@ export default function CrusherActivityScreen({
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
 
-  const [visibleWelcomeModal, setVisibleWelcomeModal] = useState(false);
   const [visibleCheckInCompleteModal, setVisibleCheckInCompleteModal] =
     useState(false);
 
-  async function recordStartingDate() {
+  async function recordCrusherClubActivity(questTypeOrActivityId: string) {
     try {
       await api.recordCrusherClubActivityPost({
-        questType: 'STARTING_DAY',
+        questTypeOrActivityId,
       });
       // 진행 중인 쿼리를 취소하고 새로운 fetch를 실행하여 race condition 방지
       await queryClient.cancelQueries({
@@ -49,11 +49,17 @@ export default function CrusherActivityScreen({
   }
 
   useEffect(() => {
+    // 하위호환을 위해 qr을 남겨둔다.
     if (params?.qr === QR_CODE) {
-      setVisibleWelcomeModal(true);
-      recordStartingDate();
+      recordCrusherClubActivity('STARTING_DAY');
     }
   }, [params?.qr]);
+
+  useEffect(() => {
+    if (params?.questTypeOrActivityId) {
+      recordCrusherClubActivity(params.questTypeOrActivityId);
+    }
+  }, [params?.questTypeOrActivityId]);
 
   async function checkInToClubQuest() {
     if (!params?.clubQuestIdToCheckIn) {
@@ -124,7 +130,13 @@ export default function CrusherActivityScreen({
       )}
       {renderView()}
 
-      <WelcomeModal visible={visibleWelcomeModal} />
+      <WelcomeModal
+        questTypeOrActivityId={
+          params?.qr === QR_CODE
+            ? 'STARTING_DAY'
+            : params?.questTypeOrActivityId
+        }
+      />
       <ClubQuestCheckInCompleteModal
         visible={visibleCheckInCompleteModal}
         onClose={() => setVisibleCheckInCompleteModal(false)}
