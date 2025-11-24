@@ -6,10 +6,10 @@ import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
+import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import useNavigation from '@/navigation/useNavigation';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages} from '../constants';
@@ -47,7 +47,7 @@ export default function InfoStep({
 }: InfoStepProps) {
   const form = useFormContext();
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
+  const isKeyboardVisible = useKeyboardVisible();
 
   // Watch all required fields
   const doorDirection = form.watch('doorDirection');
@@ -341,30 +341,32 @@ export default function InfoStep({
           </InfoFormContainer>
         </SafeAreaWrapper>
       </ScrollView>
-      <SubmitButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
-        <SccButton
-          text="이전"
-          onPress={onBack}
-          buttonColor="gray10"
-          textColor="black"
-          fontFamily={font.pretendardMedium}
-          elementName="place_form_v2_info_prev"
-          style={{flex: 1}}
-        />
-        <SccButton
-          text={hasFloorMovementStep ? '다음' : '등록하기'}
-          onPress={onSubmit}
-          fontFamily={font.pretendardMedium}
-          buttonColor="brandColor"
-          elementName={
-            hasFloorMovementStep
-              ? 'place_form_v2_info_next'
-              : 'place_form_v2_submit'
-          }
-          style={{flex: 2}}
-          isDisabled={!isFormValid}
-        />
-      </SubmitButtonWrapper>
+      <SafeAreaWrapper edges={isKeyboardVisible ? [] : ['bottom']}>
+        <SubmitButtonWrapper>
+          <SccButton
+            text="이전"
+            onPress={onBack}
+            buttonColor="gray10"
+            textColor="black"
+            fontFamily={font.pretendardMedium}
+            elementName="place_form_v2_info_prev"
+            style={{flex: 1}}
+          />
+          <SccButton
+            text={hasFloorMovementStep ? '다음' : '등록하기'}
+            onPress={onSubmit}
+            fontFamily={font.pretendardMedium}
+            buttonColor="brandColor"
+            elementName={
+              hasFloorMovementStep
+                ? 'place_form_v2_info_next'
+                : 'place_form_v2_submit'
+            }
+            style={{flex: 2}}
+            isDisabled={!isFormValid}
+          />
+        </SubmitButtonWrapper>
+      </SafeAreaWrapper>
     </>
   );
 }

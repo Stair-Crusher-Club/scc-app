@@ -28,6 +28,7 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
@@ -85,6 +86,7 @@ export default function BuildingFormV2Screen({
 
   const [loading, setLoading] = useAtom(loadingState);
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
+  const isKeyboardVisible = useKeyboardVisible();
 
   const scrollViewRef = useRef<ScrollView>(null);
   const entranceRef = useRef<View>(null);
@@ -713,7 +715,7 @@ export default function BuildingFormV2Screen({
               </View>
             </S.FormContainer>
           </ScrollView>
-          <SafeAreaWrapper edges={['bottom']}>
+          <SafeAreaWrapper edges={isKeyboardVisible ? [] : ['bottom']}>
             <S.SubmitButtonWrapper>
               <SccButton
                 text="등록하기"
