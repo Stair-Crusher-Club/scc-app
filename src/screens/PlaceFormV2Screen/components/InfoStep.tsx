@@ -23,6 +23,7 @@ import {
   SectionLabel,
   SectionSeparator,
   SubSection,
+  SubmitButtonWrapper,
 } from '../PlaceFormV2Screen';
 import OptionsChip from './OptionsChip';
 import OptionsV2 from './OptionsV2';
@@ -392,14 +393,4 @@ const DoorDirectionImageContainer = styled.View`
   overflow: hidden;
   border-width: 1px;
   border-color: ${color.gray20};
-`;
-
-const SubmitButtonWrapper = styled.View`
-  background-color: ${color.white};
-  padding-vertical: 12px;
-  padding-horizontal: 20px;
-  border-top-width: 1px;
-  border-top-color: ${color.gray15};
-  flex-direction: row;
-  gap: 12px;
 `;

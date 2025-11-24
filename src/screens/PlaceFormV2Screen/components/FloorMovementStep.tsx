@@ -1,6 +1,5 @@
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SccButton} from '@/components/atoms';
-import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {
@@ -23,6 +22,7 @@ import {
   SectionLabel,
   SectionSeparator,
   SubSection,
+  SubmitButtonWrapper,
 } from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
@@ -289,14 +289,4 @@ const FormContainer = styled.View`
   padding-vertical: 40px;
   padding-horizontal: 20px;
   gap: 48px;
-`;
-
-const SubmitButtonWrapper = styled.View`
-  background-color: ${color.white};
-  padding-vertical: 12px;
-  padding-horizontal: 20px;
-  border-top-width: 1px;
-  border-top-color: ${color.gray15};
-  flex-direction: row;
-  gap: 12px;
 `;

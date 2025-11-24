@@ -428,6 +428,16 @@ export const GuideText = styled.Text`
   text-align: right;
 `;
 
+export const SubmitButtonWrapper = styled.View`
+  background-color: ${color.white};
+  padding-vertical: 12px;
+  padding-horizontal: 20px;
+  border-top-width: 1px;
+  border-top-color: ${color.gray15};
+  flex-direction: row;
+  gap: 12px;
+`;
+
 async function register(
   api: ReturnType<typeof useAppComponents>['api'],
   queryClient: ReturnType<typeof useQueryClient>,

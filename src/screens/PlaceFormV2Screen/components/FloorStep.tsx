@@ -1,9 +1,6 @@
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SccButton} from '@/components/atoms';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {Place} from '@/generated-sources/openapi';
-import {ReactNode} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -11,16 +8,14 @@ import styled from 'styled-components/native';
 import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FLOOR_OPTIONS, STANDALONE_BUILDING_OPTIONS} from '../constants';
-import {SectionSeparator} from '../PlaceFormV2Screen';
+import {
+  QuestionSection,
+  QuestionText,
+  SectionLabel,
+  SectionSeparator,
+  SubmitButtonWrapper,
+} from '../PlaceFormV2Screen';
 import OptionsV2 from './OptionsV2';
-
-interface QuestionTextProps {
-  children: ReactNode;
-}
-
-function QuestionText({children}: QuestionTextProps) {
-  return <QuestionTextStyled>{children}</QuestionTextStyled>;
-}
 
 interface FloorStepProps {
   place: Place;
@@ -77,9 +72,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
 
             {selectedOption === 'otherFloor' && (
               <AdditionalQuestionArea>
-                <QuestionTextStyled>
-                  그럼 몇층에 있는 장소인가요?
-                </QuestionTextStyled>
+                <QuestionText>그럼 몇층에 있는 장소인가요?</QuestionText>
                 <Controller
                   name="selectedFloor"
                   render={({field}) => (
@@ -94,9 +87,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
 
             {selectedOption === 'standalone' && (
               <AdditionalQuestionArea>
-                <QuestionTextStyled>
-                  어떤 유형의 단독건물인가요?
-                </QuestionTextStyled>
+                <QuestionText>어떤 유형의 단독건물인가요?</QuestionText>
                 <Controller
                   name="standaloneType"
                   render={({field}) => (
@@ -136,32 +127,6 @@ const Container = styled.View`
   gap: 40px;
 `;
 
-const QuestionSection = styled.View`
-  gap: 8px;
-`;
-
-const SectionLabel = styled.Text`
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${font.pretendardBold};
-  color: ${color.brand50};
-`;
-
-const QuestionTextStyled = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
-`;
-
 const AdditionalQuestionArea = styled.View`
   gap: 20px;
-`;
-
-const SubmitButtonWrapper = styled.View`
-  background-color: ${color.white};
-  padding-vertical: 12px;
-  padding-horizontal: 20px;
-  border-top-width: 1px;
-  border-top-color: ${color.gray15};
 `;
