@@ -285,33 +285,12 @@ export default function BuildingFormV2Screen({
     setCurrentTab(tab);
     isScrollingToSection.current = true;
 
-    if (tab === 'entrance') {
-      entranceRef.current?.measureLayout(
-        scrollViewRef.current as any,
-        (_x, y) => {
-          scrollViewRef.current?.scrollTo({y: y - 50, animated: true});
-          setTimeout(() => {
-            isScrollingToSection.current = false;
-          }, 500);
-        },
-        () => {
-          isScrollingToSection.current = false;
-        },
-      );
-    } else if (tab === 'elevator') {
-      elevatorRef.current?.measureLayout(
-        scrollViewRef.current as any,
-        (_x, y) => {
-          scrollViewRef.current?.scrollTo({y: y - 50, animated: true});
-          setTimeout(() => {
-            isScrollingToSection.current = false;
-          }, 500);
-        },
-        () => {
-          isScrollingToSection.current = false;
-        },
-      );
-    }
+    const targetY = tab === 'entrance' ? entranceY.current : elevatorY.current;
+    scrollViewRef.current?.scrollTo({y: targetY, animated: true});
+
+    setTimeout(() => {
+      isScrollingToSection.current = false;
+    }, 500);
   };
 
   async function submit() {
@@ -412,9 +391,9 @@ export default function BuildingFormV2Screen({
                 name={place.name}
                 address={place.name + ' 장소가 있는 건물'}
               />
-              <S.SectionSeparator />
             </SafeAreaWrapper>
             <S.TabBarWrapper>
+              <S.SectionSeparator />
               <TabBar
                 items={tabItems}
                 current={currentTab}
