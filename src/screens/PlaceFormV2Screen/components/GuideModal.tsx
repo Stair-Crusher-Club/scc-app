@@ -3,7 +3,7 @@ import React from 'react';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Image, Modal, ScrollView} from 'react-native';
+import {Image, Modal, Platform, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -81,7 +81,10 @@ export default function GuideModal({
           </ContentContainer>
         </ScrollView>
 
-        <ButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
+        <ButtonWrapper
+          style={{
+            paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
+          }}>
           <SccButton
             elementName="guide_modal_dismiss"
             text="다시보지 않기"
