@@ -1,11 +1,11 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import SccMapView, {
   NativeProps,
   Commands as SccMapViewCommands,
   SccMapViewType,
 } from '@/../specs/SccMapViewNativeComponent';
 import {Region} from '@/components/maps/Types.tsx';
-import { Platform } from 'react-native';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {Platform} from 'react-native';
 
 type LatLng = {
   latitude: number;

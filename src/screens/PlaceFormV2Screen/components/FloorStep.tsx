@@ -3,7 +3,6 @@ import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {Place} from '@/generated-sources/openapi';
 import {Controller, useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
@@ -24,7 +23,6 @@ interface FloorStepProps {
 
 export default function FloorStep({place, onNext}: FloorStepProps) {
   const form = useFormContext();
-  const insets = useSafeAreaInsets();
 
   const selectedOption = form.watch('floorOption');
   const selectedStandaloneType = form.watch('standaloneType');
@@ -107,17 +105,19 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
           </Container>
         </SafeAreaWrapper>
       </ScrollView>
-      <SubmitButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
-        <ButtonContainer>
-          <SccButton
-            text="다음"
-            onPress={onNext}
-            isDisabled={isNextButtonDisabled}
-            buttonColor="brandColor"
-            elementName="place_form_v2_next"
-          />
-        </ButtonContainer>
-      </SubmitButtonWrapper>
+      <SafeAreaWrapper edges={['bottom']}>
+        <SubmitButtonWrapper>
+          <ButtonContainer>
+            <SccButton
+              text="다음"
+              onPress={onNext}
+              isDisabled={isNextButtonDisabled}
+              buttonColor="brandColor"
+              elementName="place_form_v2_next"
+            />
+          </ButtonContainer>
+        </SubmitButtonWrapper>
+      </SafeAreaWrapper>
     </>
   );
 }

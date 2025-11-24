@@ -10,7 +10,6 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {loadingState} from '@/components/LoadingView';
 import {SccPressable} from '@/components/SccPressable';
@@ -29,6 +28,7 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
@@ -83,10 +83,10 @@ export default function BuildingFormV2Screen({
   const {api} = useAppComponents();
   const pushItems = useSetAtom(pushItemsAtom);
   const queryClient = useQueryClient();
-  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useAtom(loadingState);
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
+  const isKeyboardVisible = useKeyboardVisible();
 
   const scrollViewRef = useRef<ScrollView>(null);
   const entranceRef = useRef<View>(null);
@@ -285,33 +285,12 @@ export default function BuildingFormV2Screen({
     setCurrentTab(tab);
     isScrollingToSection.current = true;
 
-    if (tab === 'entrance') {
-      entranceRef.current?.measureLayout(
-        scrollViewRef.current as any,
-        (_x, y) => {
-          scrollViewRef.current?.scrollTo({y: y - 50, animated: true});
-          setTimeout(() => {
-            isScrollingToSection.current = false;
-          }, 500);
-        },
-        () => {
-          isScrollingToSection.current = false;
-        },
-      );
-    } else if (tab === 'elevator') {
-      elevatorRef.current?.measureLayout(
-        scrollViewRef.current as any,
-        (_x, y) => {
-          scrollViewRef.current?.scrollTo({y: y - 50, animated: true});
-          setTimeout(() => {
-            isScrollingToSection.current = false;
-          }, 500);
-        },
-        () => {
-          isScrollingToSection.current = false;
-        },
-      );
-    }
+    const targetY = tab === 'entrance' ? entranceY.current : elevatorY.current;
+    scrollViewRef.current?.scrollTo({y: targetY, animated: true});
+
+    setTimeout(() => {
+      isScrollingToSection.current = false;
+    }, 500);
   };
 
   async function submit() {
@@ -403,17 +382,15 @@ export default function BuildingFormV2Screen({
           <S.HeaderBorder />
           <ScrollView
             ref={scrollViewRef}
-            stickyHeaderIndices={[1]}
+            stickyHeaderIndices={[2]}
             onScroll={handleScroll}
             scrollEventThrottle={16}>
-            <SafeAreaWrapper edges={['bottom']}>
-              <PlaceInfoSection
-                target="building"
-                name={place.name}
-                address={place.name + ' 장소가 있는 건물'}
-              />
-              <S.SectionSeparator />
-            </SafeAreaWrapper>
+            <PlaceInfoSection
+              target="building"
+              name={place.name}
+              address={place.name + ' 장소가 있는 건물'}
+            />
+            <S.SectionSeparator />
             <S.TabBarWrapper>
               <TabBar
                 items={tabItems}
@@ -421,339 +398,335 @@ export default function BuildingFormV2Screen({
                 onChange={handleTabChange}
               />
             </S.TabBarWrapper>
-            <SafeAreaWrapper edges={['bottom']}>
-              <S.FormContainer>
-                {/* 건물 입구 정보 */}
-                <View ref={entranceRef} collapsable={false} style={{gap: 48}}>
-                  <S.SubSection>
-                    <S.QuestionSection>
-                      <S.SectionLabel>건물입구정보</S.SectionLabel>
-                      <S.QuestionText>
-                        건물의 출입구가 어느 방향에 있나요?
-                      </S.QuestionText>
-                    </S.QuestionSection>
-                    <Controller
-                      name="entranceDirection"
-                      rules={{required: true}}
-                      render={({field}) => (
-                        <OptionsV2
-                          value={field.value}
-                          options={[
-                            {label: '도로 방향 문', value: 'road'},
-                            {label: '주차장 쪽 연결 문', value: 'parking'},
-                            {label: '기타', value: 'etc'},
-                          ]}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                  </S.SubSection>
-
-                  <S.SubSection>
-                    <S.Label>건물 입구 사진을 찍어주세요</S.Label>
-                    <Controller
-                      name="enterancePhotos"
-                      rules={{required: true}}
-                      render={({field}) => (
-                        <PhotosV2
-                          value={field.value ?? []}
-                          onChange={field.onChange}
-                          target="building"
-                          maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
-                        />
-                      )}
-                    />
-                  </S.SubSection>
-
-                  <S.SubSection>
-                    <S.Label>건물 입구에 계단이 있나요?</S.Label>
-                    <Controller
-                      name="hasStairs"
-                      rules={{validate: v => typeof v === 'boolean'}}
-                      render={({field}) => (
-                        <OptionsV2
-                          value={field.value}
-                          options={[
-                            {label: '있어요', value: true},
-                            {label: '없어요', value: false},
-                          ]}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                    {form.watch('hasStairs') && (
-                      <Controller
-                        name="stairInfo"
-                        rules={{required: true}}
-                        render={({field}) => (
-                          <OptionsV2
-                            value={field.value}
-                            columns={3}
-                            options={[
-                              {label: '1칸', value: StairInfo.One},
-                              {label: '2-5칸', value: StairInfo.TwoToFive},
-                              {label: '6칸 이상', value: StairInfo.OverSix},
-                            ]}
-                            onSelect={field.onChange}
-                          />
-                        )}
+            <S.FormContainer>
+              {/* 건물 입구 정보 */}
+              <View ref={entranceRef} collapsable={false} style={{gap: 48}}>
+                <S.SubSection>
+                  <S.QuestionSection>
+                    <S.SectionLabel>건물입구정보</S.SectionLabel>
+                    <S.QuestionText>
+                      건물의 출입구가 어느 방향에 있나요?
+                    </S.QuestionText>
+                  </S.QuestionSection>
+                  <Controller
+                    name="entranceDirection"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={[
+                          {label: '도로 방향 문', value: 'road'},
+                          {label: '주차장 쪽 연결 문', value: 'parking'},
+                          {label: '기타', value: 'etc'},
+                        ]}
+                        onSelect={field.onChange}
                       />
                     )}
-                    <S.GuideButton>
-                      <SccPressable
-                        elementName="building_entrance_stair_guide"
-                        onPress={() =>
-                          navigation.navigate('Webview', {
-                            fixedTitle: '계단 기준 알아보기',
-                            url: 'https://agnica.notion.site/8312cc653a8f4b9aa8bc920bbd668218',
-                          })
-                        }>
-                        <S.GuideText>계단 기준 알아보기 {'>'}</S.GuideText>
-                      </SccPressable>
-                    </S.GuideButton>
-                  </S.SubSection>
+                  />
+                </S.SubSection>
 
-                  {form.watch('hasStairs') &&
-                    form.watch('stairInfo') === StairInfo.One && (
-                      <S.SubSection>
-                        <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
-                        <S.MeasureGuide>
-                          <Image
-                            source={formImages.stair}
-                            style={{width: '100%', height: '100%'}}
-                          />
-                        </S.MeasureGuide>
-                        <View style={{gap: 16}}>
-                          <Controller
-                            name="entranceStairHeightLevel"
-                            rules={{required: true}}
-                            render={({field}) => (
-                              <OptionsV2
-                                value={field.value}
-                                options={[
-                                  {
-                                    label: '엄지 한마디',
-                                    value: StairHeightLevel.HalfThumb,
-                                  },
-                                  {
-                                    label: '엄지 손가락',
-                                    value: StairHeightLevel.Thumb,
-                                  },
-                                  {
-                                    label: '엄지 손가락 이상',
-                                    value: StairHeightLevel.OverThumb,
-                                  },
-                                ]}
-                                onSelect={field.onChange}
-                              />
-                            )}
-                          />
-                        </View>
-                      </S.SubSection>
+                <S.SubSection>
+                  <S.Label>건물 입구 사진을 찍어주세요</S.Label>
+                  <Controller
+                    name="enterancePhotos"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <PhotosV2
+                        value={field.value ?? []}
+                        onChange={field.onChange}
+                        target="building"
+                        maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
+                      />
                     )}
+                  />
+                </S.SubSection>
 
-                  <S.SubSection>
-                    <S.Label>건물 입구에 경사로가 있나요?</S.Label>
+                <S.SubSection>
+                  <S.Label>건물 입구에 계단이 있나요?</S.Label>
+                  <Controller
+                    name="hasStairs"
+                    rules={{validate: v => typeof v === 'boolean'}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={[
+                          {label: '있어요', value: true},
+                          {label: '없어요', value: false},
+                        ]}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                  {form.watch('hasStairs') && (
                     <Controller
-                      name="hasSlope"
-                      rules={{validate: v => typeof v === 'boolean'}}
-                      render={({field}) => (
-                        <OptionsV2
-                          value={field.value}
-                          options={[
-                            {label: '있어요', value: true},
-                            {label: '없어요', value: false},
-                          ]}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                    <S.GuideButton>
-                      <SccPressable
-                        elementName="building_entrance_slope_guide"
-                        onPress={() =>
-                          navigation.navigate('Webview', {
-                            fixedTitle: '경사로 기준 알아보기',
-                            url: 'https://agnica.notion.site/6f64035a062f41e28745faa4e7bd0770',
-                          })
-                        }>
-                        <S.GuideText>경사로 기준 알아보기 {'>'}</S.GuideText>
-                      </SccPressable>
-                    </S.GuideButton>
-                  </S.SubSection>
-
-                  <S.SubSection>
-                    <S.Label>출입문은 어떤 종류인가요?</S.Label>
-                    <Controller
-                      name="doorTypes"
+                      name="stairInfo"
                       rules={{required: true}}
                       render={({field}) => (
-                        <OptionsV2.Multiple
-                          values={field.value}
-                          columns={3}
-                          options={makeDoorTypeOptions(
-                            form.watch('doorTypes') ?? [],
-                          )}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                  </S.SubSection>
-
-                  {/* 의견 추가 */}
-                  <S.SubSection>
-                    <S.Label>더 도움이 될 정보가 있다면 알려주세요</S.Label>
-                    <Controller
-                      name="comment"
-                      render={({field}) => (
-                        <TextAreaV2
-                          placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다 (최대 100자)"
-                          value={field.value}
-                          onChangeText={field.onChange}
-                        />
-                      )}
-                    />
-                  </S.SubSection>
-                </View>
-
-                {/* 엘리베이터 정보 */}
-                <View
-                  ref={elevatorRef}
-                  collapsable={false}
-                  style={{gap: 48, marginTop: 80}}>
-                  <S.SubSection>
-                    <S.QuestionSection>
-                      <S.SectionLabel>엘리베이터 정보</S.SectionLabel>
-                      <S.QuestionText>
-                        건물에 엘리베이터가 있나요?
-                      </S.QuestionText>
-                    </S.QuestionSection>
-                    <Controller
-                      name="hasElevator"
-                      rules={{validate: v => typeof v === 'boolean'}}
-                      render={({field}) => (
                         <OptionsV2
                           value={field.value}
+                          columns={3}
                           options={[
-                            {label: '있어요', value: true},
-                            {label: '없어요', value: false},
+                            {label: '1칸', value: StairInfo.One},
+                            {label: '2-5칸', value: StairInfo.TwoToFive},
+                            {label: '6칸 이상', value: StairInfo.OverSix},
                           ]}
                           onSelect={field.onChange}
                         />
                       )}
                     />
-                  </S.SubSection>
+                  )}
+                  <S.GuideButton>
+                    <SccPressable
+                      elementName="building_entrance_stair_guide"
+                      onPress={() =>
+                        navigation.navigate('Webview', {
+                          fixedTitle: '계단 기준 알아보기',
+                          url: 'https://agnica.notion.site/8312cc653a8f4b9aa8bc920bbd668218',
+                        })
+                      }>
+                      <S.GuideText>계단 기준 알아보기 {'>'}</S.GuideText>
+                    </SccPressable>
+                  </S.GuideButton>
+                </S.SubSection>
 
-                  {form.watch('hasElevator') && (
-                    <>
-                      <S.SubSection>
-                        <S.Label>엘리베이터 사진을 찍어주세요</S.Label>
-                        <Controller
-                          name="elevatorPhotos"
-                          rules={{required: true}}
-                          render={({field}) => (
-                            <PhotosV2
-                              value={field.value ?? []}
-                              onChange={field.onChange}
-                              target="building"
-                              maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
-                            />
-                          )}
+                {form.watch('hasStairs') &&
+                  form.watch('stairInfo') === StairInfo.One && (
+                    <S.SubSection>
+                      <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
+                      <S.MeasureGuide>
+                        <Image
+                          source={formImages.stair}
+                          style={{width: '100%', height: '100%'}}
                         />
-                      </S.SubSection>
-
-                      <S.SubSection>
-                        <S.Label>
-                          엘리베이터까지 가는 길에 계단이 있나요?
-                        </S.Label>
+                      </S.MeasureGuide>
+                      <View style={{gap: 16}}>
                         <Controller
-                          name="elevatorHasStairs"
-                          rules={{validate: v => typeof v === 'boolean'}}
+                          name="entranceStairHeightLevel"
+                          rules={{required: true}}
                           render={({field}) => (
                             <OptionsV2
                               value={field.value}
                               options={[
-                                {label: '있어요', value: true},
-                                {label: '없어요', value: false},
+                                {
+                                  label: '엄지 한마디',
+                                  value: StairHeightLevel.HalfThumb,
+                                },
+                                {
+                                  label: '엄지 손가락',
+                                  value: StairHeightLevel.Thumb,
+                                },
+                                {
+                                  label: '엄지 손가락 이상',
+                                  value: StairHeightLevel.OverThumb,
+                                },
                               ]}
                               onSelect={field.onChange}
                             />
                           )}
                         />
-                        {form.watch('elevatorHasStairs') && (
-                          <Controller
-                            name="elevatorStairInfo"
-                            rules={{required: true}}
-                            render={({field}) => (
-                              <OptionsV2
-                                value={field.value}
-                                columns={3}
-                                options={[
-                                  {label: '1칸', value: StairInfo.One},
-                                  {label: '2-5칸', value: StairInfo.TwoToFive},
-                                  {label: '6칸 이상', value: StairInfo.OverSix},
-                                ]}
-                                onSelect={field.onChange}
-                              />
-                            )}
+                      </View>
+                    </S.SubSection>
+                  )}
+
+                <S.SubSection>
+                  <S.Label>건물 입구에 경사로가 있나요?</S.Label>
+                  <Controller
+                    name="hasSlope"
+                    rules={{validate: v => typeof v === 'boolean'}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={[
+                          {label: '있어요', value: true},
+                          {label: '없어요', value: false},
+                        ]}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                  <S.GuideButton>
+                    <SccPressable
+                      elementName="building_entrance_slope_guide"
+                      onPress={() =>
+                        navigation.navigate('Webview', {
+                          fixedTitle: '경사로 기준 알아보기',
+                          url: 'https://agnica.notion.site/6f64035a062f41e28745faa4e7bd0770',
+                        })
+                      }>
+                      <S.GuideText>경사로 기준 알아보기 {'>'}</S.GuideText>
+                    </SccPressable>
+                  </S.GuideButton>
+                </S.SubSection>
+
+                <S.SubSection>
+                  <S.Label>출입문은 어떤 종류인가요?</S.Label>
+                  <Controller
+                    name="doorTypes"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <OptionsV2.Multiple
+                        values={field.value}
+                        columns={3}
+                        options={makeDoorTypeOptions(
+                          form.watch('doorTypes') ?? [],
+                        )}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                </S.SubSection>
+
+                {/* 의견 추가 */}
+                <S.SubSection>
+                  <S.Label>더 도움이 될 정보가 있다면 알려주세요</S.Label>
+                  <Controller
+                    name="comment"
+                    render={({field}) => (
+                      <TextAreaV2
+                        placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다 (최대 100자)"
+                        value={field.value}
+                        onChangeText={field.onChange}
+                      />
+                    )}
+                  />
+                </S.SubSection>
+              </View>
+
+              {/* 엘리베이터 정보 */}
+              <View
+                ref={elevatorRef}
+                collapsable={false}
+                style={{gap: 48, marginTop: 80}}>
+                <S.SubSection>
+                  <S.QuestionSection>
+                    <S.SectionLabel>엘리베이터 정보</S.SectionLabel>
+                    <S.QuestionText>건물에 엘리베이터가 있나요?</S.QuestionText>
+                  </S.QuestionSection>
+                  <Controller
+                    name="hasElevator"
+                    rules={{validate: v => typeof v === 'boolean'}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={[
+                          {label: '있어요', value: true},
+                          {label: '없어요', value: false},
+                        ]}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                </S.SubSection>
+
+                {form.watch('hasElevator') && (
+                  <>
+                    <S.SubSection>
+                      <S.Label>엘리베이터 사진을 찍어주세요</S.Label>
+                      <Controller
+                        name="elevatorPhotos"
+                        rules={{required: true}}
+                        render={({field}) => (
+                          <PhotosV2
+                            value={field.value ?? []}
+                            onChange={field.onChange}
+                            target="building"
+                            maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                           />
                         )}
-                      </S.SubSection>
+                      />
+                    </S.SubSection>
 
-                      {form.watch('elevatorHasStairs') &&
-                        form.watch('elevatorStairInfo') === StairInfo.One && (
-                          <S.SubSection>
-                            <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
-                            <S.MeasureGuide>
-                              <Image
-                                source={formImages.stair}
-                                style={{width: '100%', height: '100%'}}
-                              />
-                            </S.MeasureGuide>
-                            <View style={{gap: 16}}>
-                              <Controller
-                                name="elevatorStairHeightLevel"
-                                rules={{required: true}}
-                                render={({field}) => (
-                                  <OptionsV2
-                                    value={field.value}
-                                    options={[
-                                      {
-                                        label: '엄지 한마디',
-                                        value: StairHeightLevel.HalfThumb,
-                                      },
-                                      {
-                                        label: '엄지 손가락',
-                                        value: StairHeightLevel.Thumb,
-                                      },
-                                      {
-                                        label: '엄지 손가락 이상',
-                                        value: StairHeightLevel.OverThumb,
-                                      },
-                                    ]}
-                                    onSelect={field.onChange}
-                                  />
-                                )}
-                              />
-                            </View>
-                          </S.SubSection>
+                    <S.SubSection>
+                      <S.Label>엘리베이터까지 가는 길에 계단이 있나요?</S.Label>
+                      <Controller
+                        name="elevatorHasStairs"
+                        rules={{validate: v => typeof v === 'boolean'}}
+                        render={({field}) => (
+                          <OptionsV2
+                            value={field.value}
+                            options={[
+                              {label: '있어요', value: true},
+                              {label: '없어요', value: false},
+                            ]}
+                            onSelect={field.onChange}
+                          />
                         )}
-                    </>
-                  )}
-                </View>
-              </S.FormContainer>
-            </SafeAreaWrapper>
+                      />
+                      {form.watch('elevatorHasStairs') && (
+                        <Controller
+                          name="elevatorStairInfo"
+                          rules={{required: true}}
+                          render={({field}) => (
+                            <OptionsV2
+                              value={field.value}
+                              columns={3}
+                              options={[
+                                {label: '1칸', value: StairInfo.One},
+                                {label: '2-5칸', value: StairInfo.TwoToFive},
+                                {label: '6칸 이상', value: StairInfo.OverSix},
+                              ]}
+                              onSelect={field.onChange}
+                            />
+                          )}
+                        />
+                      )}
+                    </S.SubSection>
+
+                    {form.watch('elevatorHasStairs') &&
+                      form.watch('elevatorStairInfo') === StairInfo.One && (
+                        <S.SubSection>
+                          <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
+                          <S.MeasureGuide>
+                            <Image
+                              source={formImages.stair}
+                              style={{width: '100%', height: '100%'}}
+                            />
+                          </S.MeasureGuide>
+                          <View style={{gap: 16}}>
+                            <Controller
+                              name="elevatorStairHeightLevel"
+                              rules={{required: true}}
+                              render={({field}) => (
+                                <OptionsV2
+                                  value={field.value}
+                                  options={[
+                                    {
+                                      label: '엄지 한마디',
+                                      value: StairHeightLevel.HalfThumb,
+                                    },
+                                    {
+                                      label: '엄지 손가락',
+                                      value: StairHeightLevel.Thumb,
+                                    },
+                                    {
+                                      label: '엄지 손가락 이상',
+                                      value: StairHeightLevel.OverThumb,
+                                    },
+                                  ]}
+                                  onSelect={field.onChange}
+                                />
+                              )}
+                            />
+                          </View>
+                        </S.SubSection>
+                      )}
+                  </>
+                )}
+              </View>
+            </S.FormContainer>
           </ScrollView>
-          <S.SubmitButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
-            <SccButton
-              text="등록하기"
-              buttonColor="brandColor"
-              fontFamily={font.pretendardMedium}
-              onPress={submit}
-              elementName="building_form_submit"
-              isDisabled={!isFormValid}
-            />
-          </S.SubmitButtonWrapper>
+          <SafeAreaWrapper edges={isKeyboardVisible ? [] : ['bottom']}>
+            <S.SubmitButtonWrapper>
+              <SccButton
+                text="등록하기"
+                buttonColor="brandColor"
+                fontFamily={font.pretendardMedium}
+                onPress={submit}
+                elementName="building_form_submit"
+                isDisabled={!isFormValid}
+              />
+            </S.SubmitButtonWrapper>
+          </SafeAreaWrapper>
         </ScreenLayout>
       </FormProvider>
     </LogParamsProvider>

@@ -25,7 +25,6 @@ export const Input = styled(TextInput)`
   color: black;
   font-size: 16px;
   font-family: ${font.pretendardRegular};
-  padding-vertical: 0;
   text-align-vertical: top;
 `;
 
