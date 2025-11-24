@@ -1,5 +1,5 @@
-import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SccButton} from '@/components/atoms';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {Place} from '@/generated-sources/openapi';
 import {Controller, useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
@@ -108,13 +108,15 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
         </SafeAreaWrapper>
       </ScrollView>
       <SubmitButtonWrapper style={{paddingBottom: 12 + insets.bottom}}>
-        <SccButton
-          text="다음"
-          onPress={onNext}
-          isDisabled={isNextButtonDisabled}
-          buttonColor="brandColor"
-          elementName="place_form_v2_next"
-        />
+        <ButtonContainer>
+          <SccButton
+            text="다음"
+            onPress={onNext}
+            isDisabled={isNextButtonDisabled}
+            buttonColor="brandColor"
+            elementName="place_form_v2_next"
+          />
+        </ButtonContainer>
       </SubmitButtonWrapper>
     </>
   );
@@ -129,4 +131,8 @@ const Container = styled.View`
 
 const AdditionalQuestionArea = styled.View`
   gap: 20px;
+`;
+
+const ButtonContainer = styled.View`
+  flex: 1;
 `;
