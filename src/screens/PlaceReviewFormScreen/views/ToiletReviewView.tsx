@@ -25,12 +25,14 @@ import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import styled from 'styled-components/native';
 import PlaceReviewFormScreen from '..';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import ToiletSection from '../sections/ToiletSection';
 import UserTypeSection from '../sections/UserTypeSection';
 import {SectionSeparator} from '../sections/common.style';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
+import {color} from '@/constant/color';
 
 interface ToiletReviewViewProps {
   place?: Place;
@@ -104,7 +106,9 @@ export default function ToiletReviewView({
         <KeyboardAwareScrollView
           stickyHeaderIndices={[0]}
           contentContainerStyle={{flexGrow: 1}}>
-          <PlaceInfoSection name={place?.name} address={place?.address} />
+          <PlaceInfoSectionWrapper>
+            <PlaceInfoSection name={place?.name} address={place?.address} />
+          </PlaceInfoSectionWrapper>
           <SectionSeparator />
 
           <UserTypeSection nickname={userInfo?.nickname} />
@@ -183,3 +187,8 @@ async function register({
     return false;
   }
 }
+
+const PlaceInfoSectionWrapper = styled.View({
+  borderBottomWidth: 1,
+  borderBottomColor: color.gray20,
+});

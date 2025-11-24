@@ -8,6 +8,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
+import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 import FavoriteNoResult from './FavoriteNoResult';
 
@@ -51,6 +52,16 @@ export default function FavoriteListView() {
                   item={item}
                   isHeightFlex
                   onPress={() => {
+                    const detailVersion = getDetailScreenVersion();
+                    if (detailVersion === 'v2') {
+                      navigation.navigate('PlaceDetailV2', {
+                        placeInfo: {
+                          placeId: item.place.id,
+                        },
+                      });
+                      return;
+                    }
+
                     navigation.navigate('PlaceDetail', {
                       placeInfo: {
                         placeId: item.place.id,

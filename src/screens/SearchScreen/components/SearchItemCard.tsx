@@ -8,8 +8,8 @@ import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {SccPressable} from '@/components/SccPressable';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -19,13 +19,14 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {isReviewEnabled} from '@/models/Place';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import XSButton from '@/screens/SearchScreen/components/XSButton';
 import LGButton from '@/screens/SearchScreen/components/LGButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
+import XSButton from '@/screens/SearchScreen/components/XSButton';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
+import {getFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -107,20 +108,42 @@ function SearchItemCard({
   const onRegister = (type: 'building' | 'place' | 'review') => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);
-      if (type === 'building') {
-        navigation.navigate('BuildingForm', {
-          place: item.place,
-          building: item.building,
-        });
-      } else if (type === 'place') {
-        navigation.navigate('PlaceForm', {
-          place: item.place,
-          building: item.building,
-        });
-      } else if (type === 'review') {
-        navigation.navigate('ReviewForm/Place', {
-          placeId: item.place.id,
-        });
+      const formVersion = getFormScreenVersion();
+
+      switch (type) {
+        case 'review':
+          navigation.navigate('ReviewForm/Place', {
+            placeId: item.place.id,
+          });
+          return;
+
+        case 'building':
+          if (formVersion === 'v2') {
+            navigation.navigate('BuildingFormV2', {
+              place: item.place,
+              building: item.building,
+            });
+            return;
+          }
+          navigation.navigate('BuildingForm', {
+            place: item.place,
+            building: item.building,
+          });
+          return;
+
+        case 'place':
+          if (formVersion === 'v2') {
+            navigation.navigate('PlaceFormV2', {
+              place: item.place,
+              building: item.building,
+            });
+            return;
+          }
+          navigation.navigate('PlaceForm', {
+            place: item.place,
+            building: item.building,
+          });
+          return;
       }
     });
   };

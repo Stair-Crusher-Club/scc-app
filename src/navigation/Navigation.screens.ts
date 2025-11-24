@@ -9,6 +9,9 @@ import AddCommentScreen, {
 import BuildingFormScreen, {
   BuildingFormScreenParams,
 } from '@/screens/BuildingFormScreen';
+import BuildingFormV2Screen, {
+  BuildingFormV2ScreenParams,
+} from '@/screens/BuildingFormV2Screen';
 import {CameraScreenParams} from '@/screens/CameraScreen';
 import CameraScreen from '@/screens/CameraScreen/CameraScreen';
 import ChallengeDetailScreen, {
@@ -37,9 +40,15 @@ import MainScreen from '@/screens/MainScreen';
 import PlaceDetailScreen, {
   PlaceDetailScreenParams,
 } from '@/screens/PlaceDetailScreen';
+import PlaceDetailV2Screen, {
+  PlaceDetailV2ScreenParams,
+} from '@/screens/PlaceDetailV2Screen';
 import PlaceFormScreen, {
   PlaceFormScreenParams,
 } from '@/screens/PlaceFormScreen';
+import PlaceFormV2Screen, {
+  PlaceFormV2ScreenParams,
+} from '@/screens/PlaceFormV2Screen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
 import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
 import PlaceReviewFormScreen, {
@@ -48,6 +57,9 @@ import PlaceReviewFormScreen, {
 import {ProfileEditorDetailScreen} from '@/screens/ProfileEditorScreen';
 import {ProfileEditorDetailScreenParams} from '@/screens/ProfileEditorScreen/ProfileEditorDetailScreen';
 import ProfileEditorScreen from '@/screens/ProfileEditorScreen/ProfileEditorScreen';
+import RegistrationCompleteScreen, {
+  RegistrationCompleteScreenParams,
+} from '@/screens/RegistrationCompleteScreen';
 import ReviewHistoryScreen from '@/screens/ReviewHistoryScreen';
 import ReviewScreen from '@/screens/ReviewScreen';
 import ReviewUpVoteScreen from '@/screens/ReviewUpVoteScreen';
@@ -141,7 +153,17 @@ export const MainNavigationScreens: {
     component: PlaceFormScreen,
     options: {headerShown: true, headerTitle: '장소 등록하기'},
   },
+  {
+    name: 'PlaceFormV2',
+    component: PlaceFormV2Screen,
+    options: {
+      headerShown: true,
+      headerTitle: '장소 접근성 입력하기',
+      variant: 'close',
+    },
+  },
   {name: 'PlaceDetail', component: PlaceDetailScreen},
+  {name: 'PlaceDetailV2', component: PlaceDetailV2Screen},
   {
     name: 'ExternalAccessibilityDetail',
     component: ExternalAccessibilityDetailScreen,
@@ -150,6 +172,15 @@ export const MainNavigationScreens: {
     name: 'BuildingForm',
     component: BuildingFormScreen,
     options: {headerShown: true, headerTitle: '건물 등록하기'},
+  },
+  {
+    name: 'BuildingFormV2',
+    component: BuildingFormV2Screen,
+    options: {
+      headerShown: true,
+      headerTitle: '건물 정보 등록하기',
+      variant: 'close',
+    },
   },
   {
     name: 'AddComment',
@@ -208,6 +239,11 @@ export const MainNavigationScreens: {
     options: {presentation: 'fullScreenModal'},
   },
   {
+    name: 'RegistrationComplete',
+    component: RegistrationCompleteScreen,
+    options: {presentation: 'fullScreenModal', headerShown: false},
+  },
+  {
     name: 'ReviewForm/Place',
     component: PlaceReviewFormScreen,
     options: {
@@ -239,9 +275,12 @@ export type ScreenParams = {
   Search: SearchScreenParams;
   Camera: CameraScreenParams;
   PlaceForm: PlaceFormScreenParams;
+  PlaceFormV2: PlaceFormV2ScreenParams;
   PlaceDetail: PlaceDetailScreenParams;
+  PlaceDetailV2: PlaceDetailV2ScreenParams;
   ExternalAccessibilityDetail: ExternalAccessibilityDetailScreenParams;
   BuildingForm: BuildingFormScreenParams;
+  BuildingFormV2: BuildingFormV2ScreenParams;
   AddComment: AddCommentScreenParams;
 
   // 챌린지 탭
@@ -276,6 +315,7 @@ export type ScreenParams = {
   PlacePhotoGuide: PlacePhotoGuideScreenParams;
   Webview: WebViewScreenParams;
   ImageZoomViewer: ImageZoomViewerScreenParams;
+  RegistrationComplete: RegistrationCompleteScreenParams;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =

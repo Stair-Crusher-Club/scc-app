@@ -60,6 +60,7 @@ export const color = {
   orange40: '#F67600',
 
   yellow: '#FFD900',
+  yellow70: '#FF9D0A',
 
   success: '#00E794',
   success10: '#E1FCF2',

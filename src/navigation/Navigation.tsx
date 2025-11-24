@@ -4,8 +4,8 @@ import {
 } from '@react-navigation/native-stack';
 import React from 'react';
 
-import CloseIcon from '@/assets/icon/close.svg';
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
+import CloseIcon from '@/assets/icon/ic_x_black.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 

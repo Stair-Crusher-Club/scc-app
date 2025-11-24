@@ -31,8 +31,11 @@ import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/Place
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import ToastUtils from '@/utils/ToastUtils';
+import {getFormScreenVersion, isQAMode} from '@/utils/accessibilityFlags';
 import {useIsFocused} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
+import {BuildingRegistrationEvent} from '../PlaceDetailV2Screen/constants';
+import BuildingRegistrationBottomSheet from '../PlaceDetailV2Screen/modals/BuildingRegistrationBottomSheet';
 import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
@@ -55,7 +58,7 @@ export interface PlaceDetailScreenParams {
         isAccessibilityRegistrable?: boolean;
         accessibilityScore?: number;
       };
-  event?: 'submit-place' | 'submit-building';
+  event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
 }
 
 interface SectionConfig {
@@ -83,17 +86,31 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
 
   const questModalVisible = useAtomValue(visibleAtom);
   const [pendingBottomSheet, setPendingBottomSheet] = useState<
-    null | 'registerComplete' | 'requireBuilding'
+    null | 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent
   >(null);
 
   const openBottomSheet = useCallback(
-    (which: 'registerComplete' | 'requireBuilding') => {
-      if (which === 'registerComplete')
+    (
+      which: 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent,
+    ) => {
+      if (which === 'registerComplete') {
         setShowRegisterCompleteBottomSheet(true);
-      if (which === 'requireBuilding')
-        setShowRequireBuildingAccessibilityBottomSheet(true);
+      }
+
+      // QA 모드에서 requireBuilding은 BuildingRegistrationEvent로 대체
+      if (which === 'requireBuilding') {
+        if (
+          isQAMode() &&
+          event &&
+          (event === 'registration-force' || event === 'registration-suggest')
+        ) {
+          setShowBuildingRegistrationBottomSheet(true);
+        } else {
+          setShowRequireBuildingAccessibilityBottomSheet(true);
+        }
+      }
     },
-    [],
+    [event],
   );
 
   const placeId =
@@ -105,6 +122,10 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   ] = useState(false);
   const [showRegisterCompleteBottomSheet, setShowRegisterCompleteBottomSheet] =
     useState(false);
+  const [
+    showBuildingRegistrationBottomSheet,
+    setShowBuildingRegistrationBottomSheet,
+  ] = useState(false);
 
   // scrollY 는 state로 관리하면 너무 잦은 업데이트로 인해 리렌더가 너무 많이 일어남
   // 따라서 ref로 관리하고 이를 읽어야 하는 컴포넌트가 100ms 마다 업데이트하는 방식으로 처리
@@ -177,12 +198,22 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     if (!accessibilityPost) return;
 
     // 어떤 바텀시트를 열지 결정
-    let toOpen: null | 'registerComplete' | 'requireBuilding' = null;
+    let toOpen:
+      | null
+      | 'registerComplete'
+      | 'requireBuilding'
+      | BuildingRegistrationEvent = null;
 
-    if (event === 'submit-place') {
-      toOpen = accessibilityPost.buildingAccessibility
-        ? 'registerComplete'
-        : 'requireBuilding';
+    if (
+      event === 'submit-place' ||
+      event === 'registration-suggest' ||
+      event === 'registration-force'
+    ) {
+      if (accessibilityPost.buildingAccessibility) {
+        toOpen = 'registerComplete';
+      } else {
+        toOpen = 'requireBuilding';
+      }
     } else if (event === 'submit-building') {
       toOpen = 'registerComplete';
     }
@@ -213,6 +244,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     // 일단 둘밖에 없으니 둘 다 닫는걸로 처리하자
     setShowRequireBuildingAccessibilityBottomSheet(false);
     setShowRegisterCompleteBottomSheet(false);
+    setShowBuildingRegistrationBottomSheet(false);
     setPendingBottomSheet(null);
     // 복귀 후 모달을 다시 띄우지 않기 위한 처리
     navigation.setParams({event: undefined});
@@ -228,9 +260,32 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const goToBuildingForm = useCallback(() => {
     closeModals();
     if (place && building) {
+      const formVersion = getFormScreenVersion();
+      if (formVersion === 'v2') {
+        navigation.navigate('BuildingFormV2', {place, building});
+        return;
+      }
       navigation.navigate('BuildingForm', {place, building});
     }
   }, [building, closeModals, navigation, place]);
+
+  const handleBuildingRegistrationConfirm = useCallback(() => {
+    handleBuildingRegistrationCancel();
+
+    if (place && building) {
+      const formVersion = getFormScreenVersion();
+      if (formVersion === 'v2') {
+        navigation.navigate('BuildingFormV2', {place, building});
+        return;
+      }
+      navigation.navigate('BuildingForm', {place, building});
+    }
+  }, [building, navigation, place]);
+
+  const handleBuildingRegistrationCancel = useCallback(() => {
+    setShowBuildingRegistrationBottomSheet(false);
+    navigation.setParams({event: undefined});
+  }, [navigation]);
 
   // 섹션의 y 위치를 업데이트하는 함수
   const updateSectionYPosition = useCallback((sectionId: string, y: number) => {
@@ -272,6 +327,11 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 duration: Toast.durations.SHORT,
                 position: Toast.positions.BOTTOM,
               });
+              return;
+            }
+            const formVersion = getFormScreenVersion();
+            if (formVersion === 'v2') {
+              navigation.navigate('PlaceFormV2', {place, building});
               return;
             }
             navigation.navigate('PlaceForm', {place, building});
@@ -467,11 +527,28 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <RegisterCompleteBottomSheet
           isVisible={showRegisterCompleteBottomSheet}
           accessibilityPost={accessibilityPost}
-          event={event}
+          event={
+            event === 'submit-place' || event === 'submit-building'
+              ? event
+              : undefined
+          }
           onPressConfirmButton={closeModals}
         />
 
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
+
+        {/* QA 모드에서만 표시되는 BuildingRegistrationBottomSheet */}
+        {isQAMode() &&
+          event &&
+          (event === 'registration-force' ||
+            event === 'registration-suggest') && (
+            <BuildingRegistrationBottomSheet
+              isVisible={showBuildingRegistrationBottomSheet}
+              event={event as BuildingRegistrationEvent}
+              onPressConfirm={handleBuildingRegistrationConfirm}
+              onPressCancel={handleBuildingRegistrationCancel}
+            />
+          )}
       </ScreenLayout>
 
       {place?.id && (
