@@ -1,9 +1,9 @@
 import React from 'react';
 import {PixelRatio, StyleSheet, Text, TextStyle, ViewStyle} from 'react-native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {Color, color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
 type ButtonType = 'regular' | 'text';
 
@@ -56,7 +56,11 @@ export const SccButton = ({
         buttonStyles(buttonColor, isDisabled, width, height, borderColor)[type],
         style,
       ]}>
-      <Text style={textStyles(textColor, fontSize, fontFamily).text}>
+      <Text
+        style={
+          textStyles(isDisabled ? 'gray30' : textColor, fontSize, fontFamily)
+            .text
+        }>
         {text}
       </Text>
       {rightLabel && (
@@ -91,11 +95,11 @@ const buttonStyles = (
       ...defaultButton,
       width: _width,
       height: _height,
-      backgroundColor: isDisabled ? color.gray30 : color[buttonColor],
+      backgroundColor: isDisabled ? color.gray15 : color[buttonColor],
       borderWidth: borderColor ? 1 : 0,
       borderColor: borderColor
         ? isDisabled
-          ? color.gray30
+          ? color.gray15
           : color[borderColor]
         : 'undefined',
     },
