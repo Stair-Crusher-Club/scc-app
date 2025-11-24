@@ -9,6 +9,12 @@ const ShareUtils = {
       message: `[${place.name}]의 접근성 정보를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
     });
   },
+  async shareBbucleRoad(bbucleRoadId: string, title?: string) {
+    const url = `https://link.staircrusher.club/enz1zxm?bbucleRoadId=${bbucleRoadId}`;
+    return Share.share({
+      message: `[${title || '뿌클로드'}]를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
+    });
+  },
 };
 
 export default ShareUtils;

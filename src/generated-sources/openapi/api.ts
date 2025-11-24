@@ -4870,7 +4870,8 @@ export const UpvoteTargetTypeDto = {
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
     BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
-    ToiletReview: 'TOILET_REVIEW'
+    ToiletReview: 'TOILET_REVIEW',
+    BbucleRoad: 'BBUCLE_ROAD'
 } as const;
 
 export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof UpvoteTargetTypeDto];

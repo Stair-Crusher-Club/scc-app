@@ -17,6 +17,7 @@ interface SccButtonProps {
   textColor?: Color;
   fontSize?: TextStyle['fontSize'];
   fontFamily?: TextStyle['fontFamily'];
+  fontWeight?: TextStyle['fontWeight'];
   isDisabled?: boolean;
   style?: ViewStyle;
   onPress?: () => void;
@@ -37,6 +38,7 @@ export const SccButton = ({
   textColor = 'white',
   fontSize = 16,
   fontFamily = font.pretendardRegular,
+  fontWeight = 'normal',
   isDisabled = false,
   onPress = () => {},
   style = {},
@@ -58,7 +60,7 @@ export const SccButton = ({
       ]}>
       <Text
         style={
-          textStyles(isDisabled ? 'gray30' : textColor, fontSize, fontFamily)
+          textStyles(isDisabled ? 'gray30' : textColor, fontSize, fontFamily, fontWeight)
             .text
         }>
         {text}
@@ -66,8 +68,12 @@ export const SccButton = ({
       {rightLabel && (
         <Text
           style={[
-            textStyles(rightLabelColor, rightLabelSize, font.pretendardMedium)
-              .text,
+            textStyles(
+              rightLabelColor,
+              rightLabelSize,
+              font.pretendardMedium,
+              fontWeight,
+            ).text,
             {position: 'absolute', right: 20},
           ]}>
           {rightLabel}
@@ -112,11 +118,16 @@ const textStyles = (
   textColor: Color,
   _fontSize: TextStyle['fontSize'],
   _fontFamily: TextStyle['fontFamily'],
+  _fontWeight: TextStyle['fontWeight'],
 ) =>
   StyleSheet.create({
     text: {
       color: color[textColor],
       fontSize: (_fontSize ?? 0) / PixelRatio.getFontScale(), // 버튼 텍스트를 고정 크기로 설정한다.
       fontFamily: _fontFamily,
+      fontWeight: _fontWeight,
+      lineHeight: ((_fontSize ?? 0) / PixelRatio.getFontScale()) * 1.3,
+      includeFontPadding: false, // Android에서 폰트 상하 여백 제거
+      textAlignVertical: 'center', // Android에서 텍스트 수직 정렬
     },
   });

@@ -1,6 +1,6 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {SccPressable} from '@/components/SccPressable';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {PixelRatio, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 
@@ -10,6 +10,7 @@ import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import BbucleRoadFloatingBar from './WebViewScreen/components/BbucleRoadFloatingBar';
 
 export interface WebViewScreenParams {
   headerVariant?: 'appbar' | 'navigation';
@@ -21,10 +22,21 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   const {fixedTitle, url, headerVariant = 'appbar'} = route.params;
   const webViewRef = useRef<WebView>(null);
   const [canGoBack, setCanGoBack] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState(url);
 
   const [title, setTitle] = useState<string | undefined>(
     fixedTitle || undefined,
   );
+
+  // URL에서 뿌클로드 ID 추출 (UUID 형식만)
+  const bbucleRoadId = useMemo(() => {
+    const match = currentUrl.match(
+      /con\.staircrusher\.club\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/,
+    );
+    return match ? match[1] : null;
+  }, [currentUrl]);
+
+  const shouldShowFloatingBar = bbucleRoadId !== null;
 
   const onTapCloseButton = useCallback(() => {
     navigation.goBack();
@@ -70,8 +82,13 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         onMessage={handleMessage}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
+          setCurrentUrl(navState.url);
         }}
+        contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />
+      {shouldShowFloatingBar && bbucleRoadId && (
+        <BbucleRoadFloatingBar bbucleRoadId={bbucleRoadId} title={title} />
+      )}
     </SafeAreaWrapper>
   );
 };
