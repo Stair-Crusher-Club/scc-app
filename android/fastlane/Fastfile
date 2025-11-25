@@ -157,7 +157,6 @@ platform :android do
   end
 
   lane :release_candidate do |options|
-    prepare_release(options)
     bundle(scheme: options[:scheme])
     distribute(scheme: options[:scheme])
   end
