@@ -290,7 +290,7 @@ static BOOL areRectangleOverlaysEqual(const std::vector<SccMapViewRectangleOverl
 
 - (void)animateCamera:(double)latitude longitude:(double)longitude duration:(NSInteger)duration {
   NMGLatLng *position = [NMGLatLng latLngWithLat:latitude lng:longitude];
-  [_mapView animateCamera:position duration:(double)duration];
+  [_mapView animateCamera:position duration:(duration / 1000.0)];
 }
 
 - (void)fitToElements {
@@ -301,7 +301,7 @@ static BOOL areRectangleOverlaysEqual(const std::vector<SccMapViewRectangleOverl
   NMGLatLng *northEast = [NMGLatLng latLngWithLat:northEastLat lng:northEastLng];
   NMGLatLng *southWest = [NMGLatLng latLngWithLat:southWestLat lng:southWestLng];
   NMGLatLngBounds *bounds = [NMGLatLngBounds latLngBoundsSouthWest:southWest northEast:northEast];
-  [_mapView animateToRegion:bounds padding:(double)padding duration:(double)duration];
+  [_mapView animateToRegion:bounds padding:(double)padding duration:(duration / 1000.0)];
 }
 
 - (void)setPositionMode:(NSString *)mode {
