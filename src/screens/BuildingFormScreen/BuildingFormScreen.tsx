@@ -12,6 +12,7 @@ import {
   DefaultApi,
   EntranceDoorType,
   Place,
+  PlaceListItem,
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
@@ -265,6 +266,34 @@ async function register(
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
       });
+
+      // Asynchronously update search cache with full latest data
+      (async () => {
+        try {
+          const updatedPlace = await api.getPlaceWithBuildingPost({placeId});
+          queryClient.setQueriesData<PlaceListItem[]>(
+            {queryKey: ['search']},
+            oldData => {
+              if (!oldData) return oldData;
+              return oldData.map(item =>
+                item.place.id === placeId
+                  ? {
+                      ...item,
+                      place: updatedPlace.data.place,
+                      building: updatedPlace.data.building,
+                      hasBuildingAccessibility: true,
+                      isAccessibilityRegistrable:
+                        updatedPlace.data.isAccessibilityRegistrable,
+                      accessibilityInfo: updatedPlace.data.accessibilityInfo,
+                    }
+                  : item,
+              );
+            },
+          );
+        } catch (_) {
+          // Silently fail - not critical for user experience
+        }
+      })();
 
       return {
         success: true,

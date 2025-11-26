@@ -107,7 +107,9 @@ const FRefInputComp = <T extends MarkerItem>(
   }));
 
   useEffect(() => {
-    if (items.length > 0) {
+    if (items.find(it => it.id === selectedItemId)) {
+      // 이미 선택된 아이템이 리스트에 존재하면, 현재 선택을 유지한다.
+    } else if (items.length > 0) {
       onItemSelect(items[0], false);
     } else {
       setSelectedItemId(null);

@@ -17,6 +17,7 @@ import {
 import {
   DefaultApi,
   Place,
+  PlaceListItem,
   RecommendedMobilityTypeDto,
   SpaciousTypeDto,
   UpvoteTargetTypeDto,
@@ -216,6 +217,33 @@ async function register({
       queryClient.invalidateQueries({
         queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.PlaceReview],
       });
+
+      // Asynchronously update search cache with full latest data
+      (async () => {
+        try {
+          const updatedPlace = await api.getPlaceWithBuildingPost({placeId});
+          queryClient.setQueriesData<PlaceListItem[]>(
+            {queryKey: ['search']},
+            oldData => {
+              if (!oldData) return oldData;
+              return oldData.map(item =>
+                item.place.id === placeId
+                  ? {
+                      ...item,
+                      place: updatedPlace.data.place,
+                      building: updatedPlace.data.building,
+                      isAccessibilityRegistrable:
+                        updatedPlace.data.isAccessibilityRegistrable,
+                      accessibilityInfo: updatedPlace.data.accessibilityInfo,
+                    }
+                  : item,
+              );
+            },
+          );
+        } catch (_) {
+          // Silently fail - not critical for user experience
+        }
+      })();
 
       return {
         success: true,
