@@ -259,7 +259,6 @@ platform :ios do
   end
 
   lane :release_candidate do |options|
-    prepare_release(options)
     export(scheme: options[:scheme])
     firebase(scheme: options[:scheme])
     itc(scheme: options[:scheme])
