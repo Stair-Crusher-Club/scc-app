@@ -18,6 +18,7 @@ import {useMe} from '@/atoms/Auth';
 import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 interface BbucleRoadFloatingBarProps {
   bbucleRoadId: string;
@@ -57,6 +58,7 @@ export default function BbucleRoadFloatingBar({
     targetType: UpvoteTargetTypeDto.BbucleRoad,
     placeId: '', // 뿌클로드는 장소 ID가 없음
   });
+  const checkAuth = useCheckAuth();
 
   // 공유하기
   const handleShare = useCallback(async () => {
@@ -70,23 +72,24 @@ export default function BbucleRoadFloatingBar({
   // 정보 더 받아보기 (Tally 링크)
   const handleMoreInfo = useCallback(async () => {
     try {
-      const tallyUrl = 'https://tally.so/r/5BB64P';
+      const tallyUrl = 'https://forms.staircrusher.club/contents-alarm';
       await Linking.openURL(tallyUrl);
     } catch (_error) {
       ToastUtils.show('링크를 열 수 없습니다');
     }
   }, []);
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <Container style={{paddingBottom: insets.bottom}}>
       <ContentRow>
         {/* 도움이 돼요 버튼 */}
         <UpvoteButton
-          onPress={toggleUpvote}
+          onPress={() => {
+            checkAuth(
+              toggleUpvote,
+              () => ToastUtils.show("로그인이 필요합니다"),
+            );
+          }}
           elementName="bbucleroad-upvote"
           logParams={{bbucleRoadId}}>
           {isUpvoted ? (
@@ -99,15 +102,25 @@ export default function BbucleRoadFloatingBar({
           ) : null}
         </UpvoteButton>
 
+        <Spacer />
+
         {/* 공유하기 버튼 */}
-        <ShareButton
+        <SccButton
+          text="공유하기"
+          leftIcon={ShareIcon}
+          iconSize={16}
+          iconColor="gray50"
+          buttonColor="white"
+          textColor="gray90"
+          borderColor="gray25"
+          style={{paddingHorizontal: 20, borderRadius: 8}}
+          fontSize={14}
+          fontWeight={'500'}
+          height={40}
           onPress={handleShare}
           elementName="bbucleroad-share"
-          logParams={{bbucleRoadId}}>
-          <ShareIcon width={20} height={20} color={color.gray50} />
-        </ShareButton>
-
-        <Spacer />
+          logParams={{bbucleRoadId}}
+        />
 
         {/* 정보 더 받아보기 버튼 */}
         <SccButton
@@ -116,7 +129,7 @@ export default function BbucleRoadFloatingBar({
           textColor="white"
           style={{paddingHorizontal: 20, borderRadius: 8}}
           fontSize={14}
-          fontWeight={'bold'}
+          fontWeight={'500'}
           height={40}
           onPress={handleMoreInfo}
           elementName="bbucleroad-more-info"
@@ -156,7 +169,7 @@ const UpvoteButton = styled(SccPressable)`
   padding: 10px;
   border-radius: 8px;
   border-width: 1px;
-  border-color: ${color.gray20};
+  border-color: ${color.gray25};
   background-color: ${color.white};
 `;
 
@@ -164,14 +177,6 @@ const UpvoteCount = styled.Text<{isActive: boolean}>`
   font-size: 14px;
   font-family: ${font.pretendardSemibold};
   color: ${color.gray80};
-`;
-
-const ShareButton = styled(SccPressable)`
-  padding: 10px;
-  border-radius: 8px;
-  border-width: 1px;
-  border-color: ${color.gray20};
-  background-color: ${color.white};
 `;
 
 const Spacer = styled(View)`

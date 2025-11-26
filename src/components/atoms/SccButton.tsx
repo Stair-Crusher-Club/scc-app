@@ -1,5 +1,12 @@
 import React from 'react';
-import {PixelRatio, StyleSheet, Text, TextStyle, ViewStyle} from 'react-native';
+import {
+  PixelRatio,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {Color, color} from '@/constant/color';
@@ -24,6 +31,10 @@ interface SccButtonProps {
   rightLabel?: string;
   rightLabelColor?: Color;
   rightLabelSize?: TextStyle['fontSize'];
+  leftIcon?: React.ComponentType<any>;
+  rightIcon?: React.ComponentType<any>;
+  iconSize?: number;
+  iconColor?: Color;
   elementName: string;
   logParams?: Record<string, any>;
 }
@@ -45,9 +56,15 @@ export const SccButton = ({
   rightLabel,
   rightLabelColor = 'white',
   rightLabelSize = 14,
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
+  iconSize = 20,
+  iconColor,
   elementName,
   logParams,
 }: SccButtonProps) => {
+  const finalIconColor = iconColor || textColor;
+
   return (
     <SccTouchableOpacity
       elementName={elementName}
@@ -58,13 +75,33 @@ export const SccButton = ({
         buttonStyles(buttonColor, isDisabled, width, height, borderColor)[type],
         style,
       ]}>
-      <Text
-        style={
-          textStyles(isDisabled ? 'gray30' : textColor, fontSize, fontFamily, fontWeight)
-            .text
-        }>
-        {text}
-      </Text>
+      <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
+        {LeftIcon && (
+          <LeftIcon
+            width={iconSize}
+            height={iconSize}
+            color={color[isDisabled ? 'gray30' : finalIconColor]}
+          />
+        )}
+        <Text
+          style={
+            textStyles(
+              isDisabled ? 'gray30' : textColor,
+              fontSize,
+              fontFamily,
+              fontWeight,
+            ).text
+          }>
+          {text}
+        </Text>
+        {RightIcon && (
+          <RightIcon
+            width={iconSize}
+            height={iconSize}
+            color={color[isDisabled ? 'gray30' : finalIconColor]}
+          />
+        )}
+      </View>
       {rightLabel && (
         <Text
           style={[

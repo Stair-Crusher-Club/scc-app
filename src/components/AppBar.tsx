@@ -18,21 +18,17 @@ export const CloseAppBar = ({
   onTapCloseButton,
 }: CloseAppBarProps) => {
   const handleCloseButtonPress = useCallback(() => {
-    Alert.alert(
-      '정말 페이지를 나가시겠어요?',
-      '',
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '나가기',
-          onPress: onTapCloseButton,
-          style: 'destructive',
-        },
-      ],
-    );
+    Alert.alert('정말 페이지를 나가시겠어요?', '', [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '나가기',
+        onPress: onTapCloseButton,
+        style: 'destructive',
+      },
+    ]);
   }, [onTapCloseButton]);
 
   return (
