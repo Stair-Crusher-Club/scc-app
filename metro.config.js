@@ -1,4 +1,5 @@
 const {getDefaultConfig} = require('@react-native/metro-config');
+const { withNativeWind } = require("nativewind/metro");
 
 /**
  * Metro configuration
@@ -24,4 +25,4 @@ config.resolver = {
   sourceExts: [...resolver.sourceExts, 'svg', 'txt'],
 };
 
-module.exports = config;
+module.exports = withNativeWind(config, { input: "./global.css" });

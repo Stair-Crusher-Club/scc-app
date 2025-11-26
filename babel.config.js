@@ -4,6 +4,7 @@ module.exports = {
       'module:@react-native/babel-preset',
       {useTransformReactJSXExperimental: true},
     ],
+    'nativewind/babel',
   ],
   plugins: [
     ['@babel/plugin-transform-react-jsx', {runtime: 'automatic'}],

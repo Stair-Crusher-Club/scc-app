@@ -1,25 +1,27 @@
-import {HotUpdater} from '@hot-updater/react-native';
+import { HotUpdater } from '@hot-updater/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getAnalytics} from '@react-native-firebase/analytics';
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
-import {Provider, useAtomValue, useSetAtom} from 'jotai';
-import React, {useEffect, useState} from 'react';
-import {Platform, StatusBar} from 'react-native';
+import { getAnalytics } from '@react-native-firebase/analytics';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import globalAxios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { Provider, useAtomValue, useSetAtom } from 'jotai';
+import React, { useEffect, useState } from 'react';
+import { Platform, StatusBar } from 'react-native';
 import Config from 'react-native-config';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {RootSiblingParent} from 'react-native-root-siblings';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import {AppComponentsProvider} from '@/AppComponentsContext';
+import { AppComponentsProvider } from '@/AppComponentsContext';
 import OTAUpdateDialog from '@/OTAUpdateDialog';
-import {accessTokenAtom} from '@/atoms/Auth';
-import {storage} from '@/atoms/atomForLocal';
-import {LoadingView} from '@/components/LoadingView';
-import {color} from '@/constant/color';
-import {Configuration, DefaultApi} from '@/generated-sources/openapi';
+import { accessTokenAtom } from '@/atoms/Auth';
+import { storage } from '@/atoms/atomForLocal';
+import { LoadingView } from '@/components/LoadingView';
+import { color } from '@/constant/color';
+import { Configuration, DefaultApi } from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
-import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
+import { logError, logRequest, logResponse } from '@/utils/DebugUtils';
+
+import "./global.css";
 
 const queryClient = new QueryClient();
 
