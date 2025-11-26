@@ -14,7 +14,6 @@ import {
   DefaultApi,
   EntranceDoorType,
   Place,
-  PlaceListItem,
   RegisterToiletReviewRequestDto,
   ToiletLocationTypeDto,
   UpvoteTargetTypeDto,
@@ -23,6 +22,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {useMe} from '@/atoms/Auth';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -179,31 +179,7 @@ async function register({
       });
 
       // Asynchronously update search cache with full latest data
-      (async () => {
-        try {
-          const updatedPlace = await api.getPlaceWithBuildingPost({placeId});
-          queryClient.setQueriesData<PlaceListItem[]>(
-            {queryKey: ['search']},
-            oldData => {
-              if (!oldData) return oldData;
-              return oldData.map(item =>
-                item.place.id === placeId
-                  ? {
-                      ...item,
-                      place: updatedPlace.data.place,
-                      building: updatedPlace.data.building,
-                      isAccessibilityRegistrable:
-                        updatedPlace.data.isAccessibilityRegistrable,
-                      accessibilityInfo: updatedPlace.data.accessibilityInfo,
-                    }
-                  : item,
-              );
-            },
-          );
-        } catch (_) {
-          // Silently fail - not critical for user experience
-        }
-      })();
+      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
       return true;
     } catch (error: any) {

@@ -12,7 +12,6 @@ import {
   DefaultApi,
   EntranceDoorType,
   Place,
-  PlaceListItem,
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
@@ -22,6 +21,7 @@ import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -268,32 +268,7 @@ async function register(
       });
 
       // Asynchronously update search cache with full latest data
-      (async () => {
-        try {
-          const updatedPlace = await api.getPlaceWithBuildingPost({placeId});
-          queryClient.setQueriesData<PlaceListItem[]>(
-            {queryKey: ['search']},
-            oldData => {
-              if (!oldData) return oldData;
-              return oldData.map(item =>
-                item.place.id === placeId
-                  ? {
-                      ...item,
-                      place: updatedPlace.data.place,
-                      building: updatedPlace.data.building,
-                      hasBuildingAccessibility: true,
-                      isAccessibilityRegistrable:
-                        updatedPlace.data.isAccessibilityRegistrable,
-                      accessibilityInfo: updatedPlace.data.accessibilityInfo,
-                    }
-                  : item,
-              );
-            },
-          );
-        } catch (_) {
-          // Silently fail - not critical for user experience
-        }
-      })();
+      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
       return {
         success: true,
