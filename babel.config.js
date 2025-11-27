@@ -7,7 +7,10 @@ module.exports = {
     'nativewind/babel',
   ],
   plugins: [
-    ['@babel/plugin-transform-react-jsx', {runtime: 'automatic'}],
+    [
+      '@babel/plugin-transform-react-jsx',
+      {runtime: 'automatic', importSource: 'nativewind'},
+    ],
     'hot-updater/babel-plugin',
     [
       'module-resolver',
