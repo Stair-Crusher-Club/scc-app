@@ -34,7 +34,7 @@ export default function BbucleRoadFloatingBar({
   const {userInfo} = useMe();
 
   // Upvote 상태 조회
-  const {data: upvoteDetails, isLoading} = useQuery({
+  const {data: upvoteDetails} = useQuery({
     queryKey: ['BbucleRoadUpvoteDetails', bbucleRoadId],
     queryFn: async () => {
       return await api.getUpvoteDetailsPost({
@@ -85,9 +85,8 @@ export default function BbucleRoadFloatingBar({
         {/* 도움이 돼요 버튼 */}
         <UpvoteButton
           onPress={() => {
-            checkAuth(
-              toggleUpvote,
-              () => ToastUtils.show("로그인이 필요합니다"),
+            checkAuth(toggleUpvote, () =>
+              ToastUtils.show('로그인이 필요합니다'),
             );
           }}
           elementName="bbucleroad-upvote"

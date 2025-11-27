@@ -28,11 +28,9 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     fixedTitle || undefined,
   );
 
-  // URL에서 뿌클로드 ID 추출 (UUID 형식만)
+  // URL에서 뿌클로드 ID 추출 (모든 route)
   const bbucleRoadId = useMemo(() => {
-    const match = currentUrl.match(
-      /con\.staircrusher\.club\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/,
-    );
+    const match = currentUrl.match(/con\.staircrusher\.club\/([^/?#]+)/);
     return match ? match[1] : null;
   }, [currentUrl]);
 
