@@ -1,12 +1,11 @@
 import {HotUpdater} from '@hot-updater/react-native';
 import React from 'react';
-import {Linking, Platform, View} from 'react-native';
+import {Linking, Platform, Text, View} from 'react-native';
 import Config from 'react-native-config';
 import DeviceInfo from 'react-native-device-info';
 
+import {SccTouchableHighlight} from '@/components/SccTouchableHighlight';
 import {color} from '@/constant/color';
-
-import * as S from './Row.style';
 
 export default function VersionRow() {
   const flavor = Config.FLAVOR ? ` - ${Config.FLAVOR}` : '';
@@ -22,25 +21,30 @@ export default function VersionRow() {
     }
   }
   return (
-    <>
-      <S.Row>
-        <View>
-          <S.Title>현재 버전</S.Title>
-          <S.Subtitle>
-            {`${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()}${flavor})`}
-          </S.Subtitle>
-          <S.SubtitleBundle>{HotUpdater.getBundleId()}</S.SubtitleBundle>
-        </View>
-        <View>
-          <S.ActionButton
-            elementName="setting_version_store_button"
-            activeOpacity={0.9}
-            underlayColor={color.brandColor}
-            onPress={goToStore}>
-            <S.ActionButtonText>스토어로 이동</S.ActionButtonText>
-          </S.ActionButton>
-        </View>
-      </S.Row>
-    </>
+    <View className="flex-row justify-between items-center py-5 px-[25px]">
+      <View>
+        <Text className="text-black text-base font-pretendard-regular">
+          현재 버전
+        </Text>
+        <Text className="text-gray-70 text-sm font-pretendard-regular mt-0.5">
+          {`${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()}${flavor})`}
+        </Text>
+        <Text className="text-gray-70 text-[10px] font-pretendard-regular mt-0.5">
+          {HotUpdater.getBundleId()}
+        </Text>
+      </View>
+      <View>
+        <SccTouchableHighlight
+          elementName="setting_version_store_button"
+          activeOpacity={0.9}
+          underlayColor={color.brandColor}
+          onPress={goToStore}
+          className="rounded-[10px] bg-brand-10 px-[10px] py-2">
+          <Text className="text-link text-sm leading-[22px] font-pretendard-regular">
+            스토어로 이동
+          </Text>
+        </SccTouchableHighlight>
+      </View>
+    </View>
   );
 }

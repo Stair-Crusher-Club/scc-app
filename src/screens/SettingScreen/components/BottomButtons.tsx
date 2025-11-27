@@ -1,5 +1,6 @@
 import {useSetAtom} from 'jotai';
 import React, {useState} from 'react';
+import {View} from 'react-native';
 
 import {accessTokenAtom} from '@/atoms/Auth';
 import {SccButton} from '@/components/atoms';
@@ -8,8 +9,6 @@ import useAppComponents from '@/hooks/useAppComponents';
 import WithdrawConfirmBottomSheet from '@/modals/WithdrawConfirmBottomSheet/WithdrawConfirmBottomSheet';
 import useNavigation from '@/navigation/useNavigation';
 import ToastUtils from '@/utils/ToastUtils';
-
-import * as S from './BottomButtons.style';
 
 export default function BottomButtons() {
   const {api} = useAppComponents();
@@ -42,7 +41,7 @@ export default function BottomButtons() {
   }
 
   return (
-    <S.BottomButtons>
+    <View className="gap-[10px] pt-5 px-5 pb-3">
       <SccButton
         text="로그아웃"
         textColor="black"
@@ -65,6 +64,6 @@ export default function BottomButtons() {
         onConfirmButtonPressed={withdraw}
         onCloseButtonPressed={() => setIsConfirmVisible(false)}
       />
-    </S.BottomButtons>
+    </View>
   );
 }
