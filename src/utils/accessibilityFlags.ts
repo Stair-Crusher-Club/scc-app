@@ -1,13 +1,19 @@
+import { featureFlagAtom } from '@/atoms/Auth';
+import { getDefaultStore } from 'jotai';
 import Config from 'react-native-config';
 
 /**
  * QA 모드 여부를 확인합니다.
  * QA 모드에서는 상세(v1) → 등록(v2) 조합으로 동작합니다.
  *
+ * userInfo의 REGISTER_ACCESSIBILITY_V2 플래그를 체크합니다.
+ *
  * @returns QA 모드 활성화 여부
  */
 export const isQAMode = (): boolean => {
-  return Config.ENABLE_DEVTOOL === 'true';
+  const store = getDefaultStore();
+  const featureFlag = store.get(featureFlagAtom);
+  return featureFlag?.isRegisterAccessibilityV2 ?? false;
 };
 
 /**
