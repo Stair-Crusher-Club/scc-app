@@ -1,5 +1,12 @@
 import React from 'react';
-import {PixelRatio, StyleSheet, Text, TextStyle, ViewStyle} from 'react-native';
+import {
+  PixelRatio,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {Color, color} from '@/constant/color';
@@ -17,12 +24,17 @@ interface SccButtonProps {
   textColor?: Color;
   fontSize?: TextStyle['fontSize'];
   fontFamily?: TextStyle['fontFamily'];
+  fontWeight?: TextStyle['fontWeight'];
   isDisabled?: boolean;
   style?: ViewStyle;
   onPress?: () => void;
   rightLabel?: string;
   rightLabelColor?: Color;
   rightLabelSize?: TextStyle['fontSize'];
+  leftIcon?: React.ComponentType<any>;
+  rightIcon?: React.ComponentType<any>;
+  iconSize?: number;
+  iconColor?: Color;
   elementName: string;
   logParams?: Record<string, any>;
 }
@@ -37,15 +49,22 @@ export const SccButton = ({
   textColor = 'white',
   fontSize = 16,
   fontFamily = font.pretendardRegular,
+  fontWeight = 'normal',
   isDisabled = false,
   onPress = () => {},
   style = {},
   rightLabel,
   rightLabelColor = 'white',
   rightLabelSize = 14,
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
+  iconSize = 20,
+  iconColor,
   elementName,
   logParams,
 }: SccButtonProps) => {
+  const finalIconColor = iconColor || textColor;
+
   return (
     <SccTouchableOpacity
       elementName={elementName}
@@ -56,18 +75,42 @@ export const SccButton = ({
         buttonStyles(buttonColor, isDisabled, width, height, borderColor)[type],
         style,
       ]}>
-      <Text
-        style={
-          textStyles(isDisabled ? 'gray30' : textColor, fontSize, fontFamily)
-            .text
-        }>
-        {text}
-      </Text>
+      <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
+        {LeftIcon && (
+          <LeftIcon
+            width={iconSize}
+            height={iconSize}
+            color={color[isDisabled ? 'gray30' : finalIconColor]}
+          />
+        )}
+        <Text
+          style={
+            textStyles(
+              isDisabled ? 'gray30' : textColor,
+              fontSize,
+              fontFamily,
+              fontWeight,
+            ).text
+          }>
+          {text}
+        </Text>
+        {RightIcon && (
+          <RightIcon
+            width={iconSize}
+            height={iconSize}
+            color={color[isDisabled ? 'gray30' : finalIconColor]}
+          />
+        )}
+      </View>
       {rightLabel && (
         <Text
           style={[
-            textStyles(rightLabelColor, rightLabelSize, font.pretendardMedium)
-              .text,
+            textStyles(
+              rightLabelColor,
+              rightLabelSize,
+              font.pretendardMedium,
+              fontWeight,
+            ).text,
             {position: 'absolute', right: 20},
           ]}>
           {rightLabel}
@@ -112,11 +155,16 @@ const textStyles = (
   textColor: Color,
   _fontSize: TextStyle['fontSize'],
   _fontFamily: TextStyle['fontFamily'],
+  _fontWeight: TextStyle['fontWeight'],
 ) =>
   StyleSheet.create({
     text: {
       color: color[textColor],
       fontSize: (_fontSize ?? 0) / PixelRatio.getFontScale(), // 버튼 텍스트를 고정 크기로 설정한다.
       fontFamily: _fontFamily,
+      fontWeight: _fontWeight,
+      lineHeight: ((_fontSize ?? 0) / PixelRatio.getFontScale()) * 1.3,
+      includeFontPadding: false, // Android에서 폰트 상하 여백 제거
+      textAlignVertical: 'center', // Android에서 텍스트 수직 정렬
     },
   });
