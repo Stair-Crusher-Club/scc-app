@@ -1,16 +1,15 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useEffect, useState} from 'react';
-import {Image} from 'react-native';
-import styled from 'styled-components/native';
+import {Image, View} from 'react-native';
 
 import {SccPressable} from '@/components/SccPressable';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import {HomeBannerDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import CoachMarkBanner from '@/screens/HomeScreen/components/CoachMarkBanner';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import {useCheckAuth} from '@/utils/checkAuth';
-import SccRemoteImage from '@/components/SccRemoteImage';
 
 const BannerSection = () => {
   const {api} = useAppComponents();
@@ -23,7 +22,7 @@ const BannerSection = () => {
   const banners = data?.banners;
 
   return (
-    <Container>
+    <View className="flex-1 gap-3 flex-col pt-5 pb-[30px] px-5">
       {banners &&
         banners.map((banner, index) =>
           index === 0 ? (
@@ -37,7 +36,7 @@ const BannerSection = () => {
             <Banner key={banner.id} banner={banner} />
           ),
         )}
-    </Container>
+    </View>
   );
 };
 
@@ -73,12 +72,3 @@ const Banner = ({banner}: {banner: HomeBannerDto}) => {
 };
 
 export default BannerSection;
-
-const Container = styled.View({
-  flex: 1,
-  gap: 12,
-  flexDirection: 'column',
-  paddingTop: 20,
-  paddingBottom: 30,
-  paddingHorizontal: 20,
-});

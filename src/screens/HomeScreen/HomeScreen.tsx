@@ -2,34 +2,37 @@ import {
   AuthorizationStatus,
   getMessaging,
 } from '@react-native-firebase/messaging';
-import {useFocusEffect} from '@react-navigation/native';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useAtomValue, useSetAtom} from 'jotai';
+import { useFocusEffect } from '@react-navigation/native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
 import Lottie from 'lottie-react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
+  Image,
   Linking,
   PermissionsAndroid,
   Platform,
   ScrollView,
   StatusBar,
+  Text,
+  View,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
-import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
-import {ScreenLayout} from '@/components/ScreenLayout';
-import {color} from '@/constant/color';
+import { accessTokenAtom, isAnonymousUserAtom, useMe } from '@/atoms/Auth';
+import { currentLocationAtom } from '@/atoms/Location';
+import { hasShownGuideForFirstVisitAtom } from '@/atoms/User';
+import { SccTouchableOpacity } from '@/components/SccTouchableOpacity';
+import { ScreenLayout } from '@/components/ScreenLayout';
+import { color } from '@/constant/color';
 import {
   GetClientVersionStatusResponseDtoStatusEnum,
   ListChallengesItemDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useIsForeground} from '@/hooks/useIsForeground';
+import { useIsForeground } from '@/hooks/useIsForeground';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
 import CoachMarkGuideLink from '@/screens/HomeScreen/components/CoachMarkGuideLink';
@@ -39,7 +42,6 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import Logger from '@/logging/Logger';
 import ChallengeUpcomingBottomSheet from './ChallengeUpcomingBottomSheet';
-import * as S from './HomeScreen.style';
 import BannerSection from './sections/BannerSection';
 import SearchSection from './sections/SearchSection';
 
@@ -245,16 +247,18 @@ const HomeScreen = ({navigation}: any) => {
         isHeaderVisible={false}
         safeAreaEdges={['top']}
         style={{backgroundColor: color.brand}}>
-        <S.Header>
+        <View className="h-12 items-center justify-center bg-brand-50">
           <CrusherClubLogo />
-        </S.Header>
-        <S.Container>
+        </View>
+        <View className="flex-1 bg-white">
           <ScrollView bounces={false}>
-            <S.ContentsContainer>
-              <S.TitleContainer>
-                <S.Title allowFontScaling={false}>
+            <View className="flex-1">
+              <View className="pt-8 pb-4 px-5 bg-brand-50">
+                <Text
+                  allowFontScaling={false}
+                  className="text-white text-2xl font-pretendard-bold mb-[14px]">
                   {'일상 속의 계단정보를\n함께 모아요!'}
-                </S.Title>
+                </Text>
                 <CoachMarkTarget
                   id="guide"
                   style={{
@@ -264,16 +268,21 @@ const HomeScreen = ({navigation}: any) => {
                   <SccTouchableOpacity
                     elementName="scc_description"
                     onPress={goToGuide}>
-                    <S.Description allowFontScaling={false}>
+                    <Text
+                      allowFontScaling={false}
+                      className="ml-0.5 text-white font-pretendard-semibold text-[13px] underline self-start">
                       {'계단뿌셔클럽 사용설명서'}
-                    </S.Description>
+                    </Text>
                   </SccTouchableOpacity>
                 </CoachMarkTarget>
-              </S.TitleContainer>
-              <S.MainImage source={require('@/assets/img/bg_scc_main.png')} />
+              </View>
+              <Image
+                source={require('@/assets/img/bg_scc_main.png')}
+                className="w-full h-[142px]"
+              />
               <SearchSection />
               <BannerSection />
-            </S.ContentsContainer>
+            </View>
           </ScrollView>
           <GeolocationPermissionBottomSheet
             isVisible={showGeolocationPermission ?? false}
@@ -307,7 +316,7 @@ const HomeScreen = ({navigation}: any) => {
               }}
             />
           )}
-        </S.Container>
+        </View>
       </ScreenLayout>
 
       {/* <CoachMarkOverlay visible={showGeolocationPermission === false} /> */}

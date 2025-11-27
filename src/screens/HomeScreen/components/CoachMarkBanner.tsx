@@ -4,8 +4,6 @@ import {LayoutRectangle, Text, View} from 'react-native';
 import CoachBannerArrow from '@/assets/icon/coach_banner_arrow.svg';
 import {color} from '@/constant/color';
 
-import * as S from './CoachMark.style';
-
 export default function CoachMarkBanner({y}: Omit<LayoutRectangle, 'height'>) {
   return (
     <>
@@ -23,11 +21,13 @@ export default function CoachMarkBanner({y}: Omit<LayoutRectangle, 'height'>) {
           right: 24,
         }}>
         <View>
-          <S.Description>계단뿌셔클럽의</S.Description>
-          <S.Description>
+          <Text className="text-[15px] text-white font-pretendard-semibold">
+            계단뿌셔클럽의
+          </Text>
+          <Text className="text-[15px] text-white font-pretendard-semibold">
             <Text style={{color: color.yellow}}>주요소식</Text>을 확인할 수
             있어요.
-          </S.Description>
+          </Text>
         </View>
       </View>
     </>

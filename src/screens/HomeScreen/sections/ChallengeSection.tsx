@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {ScrollView} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -13,8 +13,6 @@ import {
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
-
-import * as S from './ChallengeSection.style';
 
 interface PropsType {
   onPressUpcomingChallenge: (challenge: ListChallengesItemDto) => void;
@@ -57,48 +55,84 @@ export default function ChallengeSection({
   };
 
   return (
-    <S.ChallengeSection>
-      <S.TitleArea>
-        <S.Title>계단뿌셔 챌린지</S.Title>
-        <S.Subtitle>진행 중인 챌린지에 참여해 보세요!</S.Subtitle>
-      </S.TitleArea>
+    <View className="bg-white">
+      <View className="pt-10 px-[25px]">
+        <Text className="font-pretendard-bold text-[28px] text-black">
+          계단뿌셔 챌린지
+        </Text>
+        <Text className="text-gray-80 font-pretendard-regular text-base">
+          진행 중인 챌린지에 참여해 보세요!
+        </Text>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <S.Filters>
-          <S.FilterButton
+        <View className="flex-row items-center my-[21px] gap-[6px] px-[25px]">
+          <SccPressable
             elementName="challenge_filter_all"
-            active={activeFilter === 'all'}
-            onPress={() => setActiveFilter('all')}>
-            <S.FilterButtonText active={activeFilter === 'all'}>
+            onPress={() => setActiveFilter('all')}
+            className={`py-[9px] px-[18px] border rounded-[56px] ${
+              activeFilter === 'all'
+                ? 'border-brand-20 bg-brand-10'
+                : 'border-gray-20 bg-white'
+            }`}>
+            <Text
+              className={`font-pretendard-regular text-sm ${
+                activeFilter === 'all' ? 'text-brand' : 'text-gray-90'
+              }`}
+              style={{letterSpacing: -0.005}}>
               전체보기
-            </S.FilterButtonText>
-          </S.FilterButton>
-          <S.FilterButton
+            </Text>
+          </SccPressable>
+          <SccPressable
             elementName="challenge_filter_in_progress"
-            active={activeFilter === 'InProgress'}
-            onPress={() => setActiveFilter('InProgress')}>
-            <S.FilterButtonText active={activeFilter === 'InProgress'}>
+            onPress={() => setActiveFilter('InProgress')}
+            className={`py-[9px] px-[18px] border rounded-[56px] ${
+              activeFilter === 'InProgress'
+                ? 'border-brand-20 bg-brand-10'
+                : 'border-gray-20 bg-white'
+            }`}>
+            <Text
+              className={`font-pretendard-regular text-sm ${
+                activeFilter === 'InProgress' ? 'text-brand' : 'text-gray-90'
+              }`}
+              style={{letterSpacing: -0.005}}>
               진행 중
-            </S.FilterButtonText>
-          </S.FilterButton>
-          <S.FilterButton
+            </Text>
+          </SccPressable>
+          <SccPressable
             elementName="challenge_filter_upcoming"
-            active={activeFilter === 'Upcoming'}
-            onPress={() => setActiveFilter('Upcoming')}>
-            <S.FilterButtonText active={activeFilter === 'Upcoming'}>
+            onPress={() => setActiveFilter('Upcoming')}
+            className={`py-[9px] px-[18px] border rounded-[56px] ${
+              activeFilter === 'Upcoming'
+                ? 'border-brand-20 bg-brand-10'
+                : 'border-gray-20 bg-white'
+            }`}>
+            <Text
+              className={`font-pretendard-regular text-sm ${
+                activeFilter === 'Upcoming' ? 'text-brand' : 'text-gray-90'
+              }`}
+              style={{letterSpacing: -0.005}}>
               오픈 예정
-            </S.FilterButtonText>
-          </S.FilterButton>
-          <S.FilterButton
+            </Text>
+          </SccPressable>
+          <SccPressable
             elementName="challenge_filter_closed"
-            active={activeFilter === 'Closed'}
-            onPress={() => setActiveFilter('Closed')}>
-            <S.FilterButtonText active={activeFilter === 'Closed'}>
+            onPress={() => setActiveFilter('Closed')}
+            className={`py-[9px] px-[18px] border rounded-[56px] ${
+              activeFilter === 'Closed'
+                ? 'border-brand-20 bg-brand-10'
+                : 'border-gray-20 bg-white'
+            }`}>
+            <Text
+              className={`font-pretendard-regular text-sm ${
+                activeFilter === 'Closed' ? 'text-brand' : 'text-gray-90'
+              }`}
+              style={{letterSpacing: -0.005}}>
               종료된 챌린지
-            </S.FilterButtonText>
-          </S.FilterButton>
-        </S.Filters>
+            </Text>
+          </SccPressable>
+        </View>
       </ScrollView>
-      <S.ChallengeList>
+      <View className="px-[25px] mb-20 gap-[15px]">
         {challenges.map(challenge => (
           <ChallengeCard
             key={challenge.id}
@@ -106,8 +140,8 @@ export default function ChallengeSection({
             onPress={() => checkAuth(() => handleChallengePress(challenge))}
           />
         ))}
-      </S.ChallengeList>
-    </S.ChallengeSection>
+      </View>
+    </View>
   );
 }
 
@@ -126,17 +160,21 @@ function ChallengeCard({
         onPress(challenge);
       }}
       key={challenge.id}>
-      <S.ChallengeCard>
+      <View className="border-2 border-gray-20 rounded-[20px] pt-5 pl-5 pr-12 pb-4">
         <ChallengeStatusBadges
           status={[challenge.status]}
           isMyChallenge={challenge.hasJoined}
         />
-        <S.ChallengeName>{challenge.name}</S.ChallengeName>
-        <S.ChallengeDate>{stringifyChallengeDate(challenge)}</S.ChallengeDate>
-        <S.ArrowWrapper>
+        <Text className="font-pretendard-bold text-xl text-black mt-3">
+          {challenge.name}
+        </Text>
+        <Text className="font-pretendard-regular text-sm text-gray-90 mt-0.5">
+          {stringifyChallengeDate(challenge)}
+        </Text>
+        <View className="absolute top-14 right-4">
           <RightArrowIcon color="black" />
-        </S.ArrowWrapper>
-      </S.ChallengeCard>
+        </View>
+      </View>
     </SccPressable>
   );
 }

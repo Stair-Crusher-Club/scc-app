@@ -1,16 +1,16 @@
-import {useIsFocused} from '@react-navigation/native';
-import {useQuery} from '@tanstack/react-query';
-import {useAtom, useAtomValue} from 'jotai';
-import React, {useEffect, useState} from 'react';
-import {Dimensions, Modal} from 'react-native';
-import Svg, {Mask, Rect} from 'react-native-svg';
+import { useIsFocused } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Modal } from 'react-native';
+import Svg, { Mask, Rect } from 'react-native-svg';
 
 import {
-  hasShownCoachMarkForFirstVisitAtom,
-  hasShownGuideForFirstVisitAtom,
+    hasShownCoachMarkForFirstVisitAtom,
+    hasShownGuideForFirstVisitAtom,
 } from '@/atoms/User';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useCoachMark} from '@/screens/HomeScreen/contexts/CoachMarkContext';
+import { useCoachMark } from '@/screens/HomeScreen/contexts/CoachMarkContext';
 
 const {width, height} = Dimensions.get('window');
 
@@ -83,7 +83,7 @@ export default function CoachMarkOverlay({
         }}
         width={width}
         height={height}
-        style={{position: 'absolute'}}>
+        className="absolute">
         <Mask id="coach-mark-target-mask">
           <Rect width={width} height={height} fill="white" />
           {items.map(rect => (

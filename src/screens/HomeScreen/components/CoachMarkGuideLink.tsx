@@ -4,8 +4,6 @@ import {LayoutRectangle, Text, View} from 'react-native';
 import CoachGuideArrow from '@/assets/icon/coach_guide_arrow.svg';
 import {color} from '@/constant/color';
 
-import * as S from './CoachMark.style';
-
 export default function CoachMarkGuideLink({
   x,
   y,
@@ -26,10 +24,10 @@ export default function CoachMarkGuideLink({
           top: y - 20,
           left: x + width + 50,
         }}>
-        <S.Description>
+        <Text className="text-[15px] text-white font-pretendard-semibold">
           <Text style={{color: color.yellow}}>사용설명서</Text>
           {'를 확인해서\n계단뿌셔클럽을 알아보세요.'}
-        </S.Description>
+        </Text>
       </View>
     </>
   );

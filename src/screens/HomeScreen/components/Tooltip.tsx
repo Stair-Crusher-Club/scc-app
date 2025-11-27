@@ -1,10 +1,10 @@
-import {ReactNode} from 'react';
-import {StyleSheet, Text, View, ViewProps} from 'react-native';
+import { ReactNode } from 'react';
+import { StyleSheet, Text, View, ViewProps } from 'react-native';
 
-import {SccPressable} from '@/components/SccPressable';
+import { SccPressable } from '@/components/SccPressable';
 
 import CloseIcon from '@/assets/icon/close.svg';
-import {color} from '@/constant/color';
+import { color } from '@/constant/color';
 
 interface TooltipProps extends ViewProps {
   visible?: boolean;
@@ -27,16 +27,18 @@ export default function Tooltip({
 
   return (
     <View style={[styles.tooltipContainer, style]} {...props}>
-      <View style={styles.tooltip}>
+      <View className="bg-[#262626] rounded-lg px-2 py-1.5 relative">
         <SccPressable
           elementName="tooltip_close_button"
           onPress={onPressClose}
-          style={styles.closeButton}>
+          className="absolute top-0 right-0 p-1.5 bg-transparent items-center justify-center z-10">
           <CloseIcon color={color.white} width={16} height={16} />
         </SccPressable>
 
         {isStringChild ? (
-          <Text style={styles.tooltipText}>{children}</Text>
+          <Text className="text-white text-[13px] leading-[18px]">
+            {children}
+          </Text>
         ) : (
           children
         )}
@@ -48,47 +50,10 @@ export default function Tooltip({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  pageContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  title: {
-    fontSize: 18,
-    color: color.white,
-    marginBottom: 20,
-    fontWeight: 'normal',
-  },
   tooltipContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
-  },
-  tooltip: {
-    backgroundColor: '#262626',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    position: 'relative',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    padding: 6,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  tooltipText: {
-    color: '#ffffff',
-    fontSize: 13,
-    lineHeight: 18,
   },
   arrow: {
     position: 'absolute',

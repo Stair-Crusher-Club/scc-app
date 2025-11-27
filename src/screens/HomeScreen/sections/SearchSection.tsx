@@ -1,6 +1,6 @@
 import {useAtom, useAtomValue} from 'jotai';
 import React from 'react';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 
 import MapIcon from '@/assets/icon/ic_map_detailed.svg';
 import SearchIcon from '@/assets/icon/ic_search_detailed.svg';
@@ -10,7 +10,6 @@ import {
 } from '@/atoms/User';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
 import CoachMarkMapButton from '@/screens/HomeScreen/components/CoachMarkMapButton';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
@@ -32,8 +31,10 @@ export default function SearchSection() {
   };
 
   return (
-    <Contents>
-      <Title>어느 장소를 정복할까요?</Title>
+    <View className="bg-white pt-5 relative">
+      <Text className="text-black text-xl font-pretendard-bold mx-5 pb-4">
+        어느 장소를 정복할까요?
+      </Text>
 
       <Tooltip
         visible={
@@ -46,7 +47,7 @@ export default function SearchSection() {
           top: 0,
           left: 20,
         }}>{`지도 아이콘을 누르면\n지도 화면으로 바로 이동할 수 있어요.`}</Tooltip>
-      <SearchInputContainer>
+      <View className="flex-row bg-gray-10 rounded-lg mx-5 gap-2 pt-3 pb-[13px] px-3 items-center">
         <CoachMarkTarget
           id="map-icon"
           rx={100}
@@ -68,54 +69,16 @@ export default function SearchSection() {
         <SccPressable
           elementName="place_search_input"
           onPress={() => goToSearch('')}
-          style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-          <SearchInputText>장소, 주소 검색</SearchInputText>
+          className="flex-row items-center flex-1">
+          <Text className="flex-1 text-gray-50 text-base leading-6 font-pretendard-regular">
+            장소, 주소 검색
+          </Text>
           <SearchIcon width={24} height={24} color={color.gray70} />
         </SccPressable>
-      </SearchInputContainer>
-      <SearchCategoryContainer>
+      </View>
+      <View className="overflow-visible px-5 py-4">
         <SearchCategory onPressKeyword={goToSearch} />
-      </SearchCategoryContainer>
-    </Contents>
+      </View>
+    </View>
   );
 }
-
-const Contents = styled.View`
-  background-color: ${color.white};
-  padding-top: 20px;
-  position: relative;
-`;
-
-const Title = styled.Text`
-  color: ${color.black};
-  font-size: 20px;
-  font-family: ${font.pretendardBold};
-  margin-horizontal: 20px;
-  padding-bottom: 16px;
-`;
-
-const SearchInputContainer = styled.View`
-  flex-direction: row;
-  background-color: ${color.gray10};
-  border-radius: 8px;
-  margin-horizontal: 20px;
-  gap: 8px;
-  padding-top: 12px;
-  padding-bottom: 13px;
-  padding-horizontal: 12px;
-  align-items: center;
-`;
-
-const SearchInputText = styled.Text`
-  flex: 1;
-  color: ${color.gray50};
-  font-size: 16px;
-  line-height: 24px;
-  font-family: ${font.pretendardRegular};
-`;
-
-const SearchCategoryContainer = styled.View`
-  overflow: visible;
-  padding-horizontal: 20px;
-  padding-vertical: 16px;
-`;
