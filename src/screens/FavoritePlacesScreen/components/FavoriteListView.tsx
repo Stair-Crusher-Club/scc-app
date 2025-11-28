@@ -8,13 +8,14 @@ import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
-import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
+import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 import FavoriteNoResult from './FavoriteNoResult';
 
 export default function FavoriteListView() {
   const navigation = useNavigation();
   const {api} = useAppComponents();
+  const detailVersion = useDetailScreenVersion();
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
     useInfiniteQuery({
       queryKey: ['FavoritePlaces'],
@@ -52,7 +53,6 @@ export default function FavoriteListView() {
                   item={item}
                   isHeightFlex
                   onPress={() => {
-                    const detailVersion = getDetailScreenVersion();
                     if (detailVersion === 'v2') {
                       navigation.navigate('PlaceDetailV2', {
                         placeInfo: {

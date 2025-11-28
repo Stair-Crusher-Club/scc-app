@@ -26,7 +26,7 @@ import XSButton from '@/screens/SearchScreen/components/XSButton';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
-import {getFormScreenVersion} from '@/utils/accessibilityFlags';
+import {useFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -45,6 +45,7 @@ function SearchItemCard({
   const [hasBeenRegisteredAccessibility, setHasBeenRegisteredAccessibility] =
     useAtom(hasBeenRegisteredAccessibilityAtom);
   const toggleFavorite = useToggleFavoritePlace();
+  const formVersion = useFormScreenVersion();
   const registerStatus: 'UNAVAILABLE' | 'NONE' | 'BOTH' | 'PLACE_ONLY' =
     (() => {
       if (!item.isAccessibilityRegistrable) {
@@ -108,7 +109,6 @@ function SearchItemCard({
   const onRegister = (type: 'building' | 'place' | 'review') => {
     checkAuth(() => {
       setHasBeenRegisteredAccessibility(true);
-      const formVersion = getFormScreenVersion();
 
       switch (type) {
         case 'review':

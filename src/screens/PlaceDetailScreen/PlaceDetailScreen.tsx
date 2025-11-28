@@ -31,7 +31,7 @@ import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/Place
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import ToastUtils from '@/utils/ToastUtils';
-import {getFormScreenVersion, isQAMode} from '@/utils/accessibilityFlags';
+import {useFormScreenVersion, useIsQAMode} from '@/utils/accessibilityFlags';
 import {useIsFocused} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import {BuildingRegistrationEvent} from '../PlaceDetailV2Screen/constants';
@@ -73,6 +73,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
+  const isQAMode = useIsQAMode();
+  const formVersion = useFormScreenVersion();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetail', 'ReportAccessibility'],
@@ -100,7 +102,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
       // QA 모드에서 requireBuilding은 BuildingRegistrationEvent로 대체
       if (which === 'requireBuilding') {
         if (
-          isQAMode() &&
+          isQAMode &&
           event &&
           (event === 'registration-force' || event === 'registration-suggest')
         ) {
@@ -110,7 +112,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         }
       }
     },
-    [event],
+    [event, isQAMode],
   );
 
   const placeId =
@@ -260,27 +262,25 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const goToBuildingForm = useCallback(() => {
     closeModals();
     if (place && building) {
-      const formVersion = getFormScreenVersion();
       if (formVersion === 'v2') {
         navigation.navigate('BuildingFormV2', {place, building});
         return;
       }
       navigation.navigate('BuildingForm', {place, building});
     }
-  }, [building, closeModals, navigation, place]);
+  }, [building, closeModals, formVersion, navigation, place]);
 
   const handleBuildingRegistrationConfirm = useCallback(() => {
     handleBuildingRegistrationCancel();
 
     if (place && building) {
-      const formVersion = getFormScreenVersion();
       if (formVersion === 'v2') {
         navigation.navigate('BuildingFormV2', {place, building});
         return;
       }
       navigation.navigate('BuildingForm', {place, building});
     }
-  }, [building, navigation, place]);
+  }, [building, formVersion, navigation, place]);
 
   const handleBuildingRegistrationCancel = useCallback(() => {
     setShowBuildingRegistrationBottomSheet(false);
@@ -329,7 +329,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            const formVersion = getFormScreenVersion();
             if (formVersion === 'v2') {
               navigation.navigate('PlaceFormV2', {place, building});
               return;
@@ -538,7 +537,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
 
         {/* QA 모드에서만 표시되는 BuildingRegistrationBottomSheet */}
-        {isQAMode() &&
+        {isQAMode &&
           event &&
           (event === 'registration-force' ||
             event === 'registration-suggest') && (

@@ -25,7 +25,7 @@ import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation.ts';
-import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
+import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
@@ -58,6 +58,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const detailVersion = useDetailScreenVersion();
   const onMyLocationPress = () => {
     mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
@@ -201,7 +202,6 @@ const FRefInputComp = <T extends MarkerItem>(
                 setCardHeight(event.nativeEvent.layout.height);
             }}
             onCardPress={item => {
-              const detailVersion = getDetailScreenVersion();
               if (detailVersion === 'v2') {
                 navigation.navigate('PlaceDetailV2', {
                   placeInfo: {placeId: item.id},

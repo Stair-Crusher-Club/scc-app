@@ -9,7 +9,7 @@ import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
-import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
+import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 export default function SearchListView({
   searchResults,
@@ -25,6 +25,7 @@ export default function SearchListView({
   onWebPlaceClick?: (placeId: string) => void;
 }) {
   const navigation = useNavigation();
+  const detailVersion = useDetailScreenVersion();
   return (
     <LogParamsProvider params={{search_view_mode: 'list'}}>
       <Container isVisible={isVisible}>
@@ -49,7 +50,6 @@ export default function SearchListView({
                     }
 
                     // Native app navigation
-                    const detailVersion = getDetailScreenVersion();
                     if (detailVersion === 'v2') {
                       navigation.navigate('PlaceDetailV2', {
                         placeInfo: {
