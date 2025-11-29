@@ -61,10 +61,8 @@ export default function ImageUploader({
 
         // Presigned URL 획득
         const presignedResponse = await api.getImageUploadUrlsPost({
-          getPresignedUrlsRequestDto: {
-            count: 1,
-            filenameExtension,
-          },
+          count: 1,
+          filenameExtension,
         });
 
         const presignedUrlData = presignedResponse.data[0];

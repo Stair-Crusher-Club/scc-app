@@ -1,19 +1,22 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Pressable, ScrollView } from 'react-native';
 import styled from 'styled-components/native';
 import Svg, { Polygon, Circle, Line } from 'react-native-svg';
 
 import type { BbucleRoadPolygonPointDto } from '@/generated-sources/openapi';
+import ImageUploader from './ImageUploader';
 
 interface PolygonEditorProps {
   /** 배경 이미지 URL */
   imageUrl: string;
-  /** 편집 완료 콜백 */
-  onComplete: (points: BbucleRoadPolygonPointDto[]) => void;
+  /** 편집 완료 콜백 - polygon과 modalImageUrls 전달 */
+  onComplete: (points: BbucleRoadPolygonPointDto[], modalImageUrls: string[]) => void;
   /** 취소 콜백 */
   onCancel: () => void;
   /** 기존 점들 (편집 시) */
   initialPoints?: BbucleRoadPolygonPointDto[];
+  /** 기존 모달 이미지 URL들 (편집 시) */
+  initialModalImageUrls?: string[];
 }
 
 export default function PolygonEditor({
@@ -21,9 +24,11 @@ export default function PolygonEditor({
   onComplete,
   onCancel,
   initialPoints = [],
+  initialModalImageUrls = [],
 }: PolygonEditorProps) {
   const containerRef = useRef<View>(null);
   const [points, setPoints] = useState<BbucleRoadPolygonPointDto[]>(initialPoints);
+  const [modalImageUrls, setModalImageUrls] = useState<string[]>(initialModalImageUrls);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [undoStack, setUndoStack] = useState<BbucleRoadPolygonPointDto[][]>([]);
@@ -120,8 +125,16 @@ export default function PolygonEditor({
       alert('최소 3개의 점이 필요합니다.');
       return;
     }
-    onComplete(points);
-  }, [points, onComplete]);
+    onComplete(points, modalImageUrls);
+  }, [points, modalImageUrls, onComplete]);
+
+  const handleModalImageUpload = useCallback((url: string) => {
+    setModalImageUrls((prev) => [...prev, url]);
+  }, []);
+
+  const handleRemoveModalImage = useCallback((index: number) => {
+    setModalImageUrls((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   const handleClear = useCallback(() => {
     if (points.length === 0) return;
@@ -218,20 +231,25 @@ export default function PolygonEditor({
         )}
       </ImageContainer>
 
-      <PointsList>
-        <PointsTitle>점 목록 ({points.length}개)</PointsTitle>
-        {points.map((point, index) => (
-          <PointItem key={index}>
-            <PointIndex>{index + 1}</PointIndex>
-            <PointCoords>
-              x: {point.x.toFixed(3)}, y: {point.y.toFixed(3)}
-            </PointCoords>
-            <RemoveButton onPress={() => handleRemovePoint(index)}>
-              <RemoveButtonText>×</RemoveButtonText>
-            </RemoveButton>
-          </PointItem>
-        ))}
-      </PointsList>
+      <ModalImagesSection>
+        <SectionTitle>클릭 시 표시할 이미지 ({modalImageUrls.length}개)</SectionTitle>
+        <ModalImagesList horizontal showsHorizontalScrollIndicator={false}>
+          {modalImageUrls.map((url, index) => (
+            <ModalImageItem key={index}>
+              <ModalImagePreview source={{ uri: url }} />
+              <ModalImageRemoveButton onPress={() => handleRemoveModalImage(index)}>
+                <RemoveButtonText>×</RemoveButtonText>
+              </ModalImageRemoveButton>
+            </ModalImageItem>
+          ))}
+          <AddModalImageButton>
+            <ImageUploader
+              onUploadComplete={handleModalImageUpload}
+              buttonText="+ 이미지 추가"
+            />
+          </AddModalImageButton>
+        </ModalImagesList>
+      </ModalImagesSection>
 
       <ButtonRow>
         <SecondaryButton onPress={handleClear} disabled={points.length === 0}>
@@ -299,47 +317,46 @@ const SvgOverlay = styled(Svg)`
   left: 0;
 `;
 
-const PointsList = styled(View)`
+const ModalImagesSection = styled(View)`
   margin-top: 16px;
-  max-height: 150px;
 `;
 
-const PointsTitle = styled(Text)`
+const SectionTitle = styled(Text)`
   font-size: 14px;
   font-weight: 600;
   color: #333;
   margin-bottom: 8px;
 `;
 
-const PointItem = styled(View)`
+const ModalImagesList = styled(ScrollView)`
   flex-direction: row;
-  align-items: center;
-  padding: 8px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  margin-bottom: 4px;
 `;
 
-const PointIndex = styled(Text)`
-  width: 24px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #007aff;
+const ModalImageItem = styled(View)`
+  position: relative;
+  margin-right: 12px;
 `;
 
-const PointCoords = styled(Text)`
-  flex: 1;
-  font-size: 12px;
-  color: #666;
-  font-family: monospace;
+const ModalImagePreview = styled(Image)`
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background-color: #f0f0f0;
 `;
 
-const RemoveButton = styled(TouchableOpacity)`
+const ModalImageRemoveButton = styled(TouchableOpacity)`
+  position: absolute;
+  top: -8px;
+  right: -8px;
   width: 24px;
   height: 24px;
   border-radius: 12px;
   background-color: #dc3545;
   align-items: center;
+  justify-content: center;
+`;
+
+const AddModalImageButton = styled(View)`
   justify-content: center;
 `;
 

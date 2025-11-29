@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, ScrollView, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -125,7 +124,6 @@ function EditModeContent() {
 
 export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   const { bbucleRoadId } = route.params;
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   const isEditMode = useMemo(() => getIsEditMode(), []);
@@ -142,62 +140,47 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     return createEmptyBbucleRoadData(bbucleRoadId);
   }, [configData, bbucleRoadId]);
 
-  // Initialize anonymous login
+  // Initialize auth for edit mode (image upload)
   useEffect(() => {
+    if (!isEditMode) {
+      setIsInitializing(false);
+      return;
+    }
+
     const initializeAuth = async () => {
       try {
         // Check localStorage for existing token
-        const storedToken =
-          typeof window !== 'undefined'
-            ? window.localStorage.getItem('anonymousAccessToken')
-            : null;
-        const tokenExpiry =
-          typeof window !== 'undefined'
-            ? window.localStorage.getItem('anonymousTokenExpiry')
-            : null;
+        const storedToken = window.localStorage.getItem('sccAccessToken');
+        if (storedToken) {
+          apiConfig.accessToken = storedToken;
+          setIsInitializing(false);
+          return;
+        }
 
-        // Check if token exists and is not expired (10 years validity)
-        if (storedToken && tokenExpiry) {
+        // Check for anonymous token
+        const anonymousToken = window.localStorage.getItem('anonymousAccessToken');
+        const tokenExpiry = window.localStorage.getItem('anonymousTokenExpiry');
+
+        if (anonymousToken && tokenExpiry) {
           const expiryTime = parseInt(tokenExpiry, 10);
-          const currentTime = Date.now();
-
-          if (currentTime < expiryTime) {
-            // Use existing token
-            console.log('Using existing anonymous token from localStorage');
-            setAccessToken(storedToken);
-            apiConfig.accessToken = storedToken;
+          if (Date.now() < expiryTime) {
+            apiConfig.accessToken = anonymousToken;
             setIsInitializing(false);
             return;
-          } else {
-            // Token expired, clear localStorage
-            console.log('Token expired, creating new anonymous login');
-            if (typeof window !== 'undefined') {
-              window.localStorage.removeItem('anonymousAccessToken');
-              window.localStorage.removeItem('anonymousTokenExpiry');
-            }
           }
         }
 
-        // No valid token found, create new anonymous login
-        console.log('Creating new anonymous login');
+        // Create new anonymous login
         const response = await api.createAnonymousUserPost();
         const { authTokens } = response.data;
 
-        // Save to localStorage with 10 year expiry
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(
-            'anonymousAccessToken',
-            authTokens.accessToken,
-          );
-          window.localStorage.setItem(
-            'anonymousTokenExpiry',
-            String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
-          );
-        }
+        window.localStorage.setItem('anonymousAccessToken', authTokens.accessToken);
+        window.localStorage.setItem(
+          'anonymousTokenExpiry',
+          String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
+        );
 
-        setAccessToken(authTokens.accessToken);
         apiConfig.accessToken = authTokens.accessToken;
-        console.log('Anonymous login successful and saved to localStorage');
       } catch (error) {
         console.error('Anonymous login failed:', error);
       } finally {
@@ -206,7 +189,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     };
 
     initializeAuth();
-  }, []);
+  }, [isEditMode]);
 
   // Edit Mode: Config 데이터 사용
   if (isEditMode) {
@@ -230,56 +213,11 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     );
   }
 
-  // View Mode: API에서 데이터 로드
-  return (
-    <ViewModeContent
-      bbucleRoadId={bbucleRoadId}
-      accessToken={accessToken}
-      isInitializing={isInitializing}
-    />
-  );
-}
-
-interface ViewModeContentProps {
-  bbucleRoadId: string;
-  accessToken: string | null;
-  isInitializing: boolean;
-}
-
-function ViewModeContent({
-  bbucleRoadId,
-  accessToken,
-  isInitializing,
-}: ViewModeContentProps) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['bbucleRoadPage', bbucleRoadId],
-    queryFn: async () => {
-      const response = await api.getBbucleRoadPage({ bbucleRoadId });
-      return response.data;
-    },
-    enabled: !!accessToken, // Only run query when we have a token
-  });
-
-  if (isInitializing) {
-    return (
-      <LoadingContainer>
-        <LoadingText>인증 중...</LoadingText>
-      </LoadingContainer>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <LoadingContainer>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </LoadingContainer>
-    );
-  }
-
-  if (error || !data) {
+  // View Mode: Config 데이터 사용
+  if (!configData) {
     return (
       <ErrorContainer>
-        <ErrorText>페이지를 불러올 수 없습니다.</ErrorText>
+        <ErrorText>페이지를 찾을 수 없습니다.</ErrorText>
       </ErrorContainer>
     );
   }
@@ -289,15 +227,15 @@ function ViewModeContent({
       <ScrollView>
         <ContentWrapper>
           <HeaderSection
-            titleImageUrl={data.titleImageUrl}
-            summaryItems={data.summaryItems}
+            titleImageUrl={configData.titleImageUrl}
+            summaryItems={configData.summaryItems}
           />
 
-          {data.routeSection && (
-            <RouteSection routeSection={data.routeSection} />
+          {configData.routeSection && (
+            <RouteSection routeSection={configData.routeSection} />
           )}
 
-          {data.sections.map((section: BbucleRoadSectionDto, index: number) =>
+          {configData.sections.map((section: BbucleRoadSectionDto, index: number) =>
             renderSection(section, index),
           )}
         </ContentWrapper>
@@ -321,7 +259,7 @@ const MainContent = styled(View)`
 `;
 
 const ContentWrapper = styled(View)`
-  max-width: 1000px;
+  max-width: 1100px;
   width: 100%;
   align-self: center;
   background-color: ${color.gray10};

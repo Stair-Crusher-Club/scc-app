@@ -1,9 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
 import styled from 'styled-components/native';
 
 import { useEditMode } from '../context/EditModeContext';
 import { apiConfig } from '../../../config/api';
+import ImageUploader from '../components/ImageUploader';
+import RegionDetailModal from '../components/RegionDetailModal';
+import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
 
 // Kakao SDK v2 type declaration
 declare global {
@@ -42,6 +45,17 @@ export default function EditSidebar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+
+  // 이미지 프리뷰용 fake region 객체 생성
+  const previewRegion = useMemo<BbucleRoadClickableRegionDto | null>(() => {
+    if (!previewImageUrl) return null;
+    return {
+      id: 'preview',
+      polygon: [],
+      modalImageUrls: [previewImageUrl],
+    };
+  }, [previewImageUrl]);
 
   // Check login status on mount
   useEffect(() => {
@@ -96,7 +110,21 @@ export default function EditSidebar() {
 
   if (!editContext) return null;
 
-  const { data, exportToJson, importFromJson } = editContext;
+  const {
+    data,
+    exportToJson,
+    importFromJson,
+    editingRegion,
+    startAddingRegion,
+    startEditingRegion,
+    addModalImageToRegion,
+    removeModalImageFromRegion,
+    clearRegionPoints,
+    undoRegionPoint,
+    saveEditingRegion,
+    cancelEditingRegion,
+    deleteRegion,
+  } = editContext;
 
   const handleExportJson = useCallback(async () => {
     const json = exportToJson();
@@ -183,6 +211,159 @@ export default function EditSidebar() {
             </InfoRow>
           </Section>
 
+          {/* Region 편집 */}
+          <Section>
+            <SectionTitle>Region 편집</SectionTitle>
+            {editingRegion ? (
+              // 편집 중인 region 컨트롤
+              <RegionEditPanel>
+                <RegionEditHeader>
+                  <RegionEditTitle>
+                    {editingRegion.regionIndex !== null
+                      ? `Region #${editingRegion.regionIndex + 1} 편집`
+                      : '새 Region 추가'}
+                  </RegionEditTitle>
+                  <RegionRouteTag>
+                    Route #{editingRegion.routeIndex + 1}
+                  </RegionRouteTag>
+                </RegionEditHeader>
+
+                <RegionEditInfo>
+                  <InfoRow>
+                    <InfoLabel>점 개수:</InfoLabel>
+                    <InfoValue>{editingRegion.points.length}개</InfoValue>
+                  </InfoRow>
+                </RegionEditInfo>
+
+                <RegionEditActions>
+                  <SmallButton onPress={clearRegionPoints}>
+                    <SmallButtonText>초기화</SmallButtonText>
+                  </SmallButton>
+                  <SmallButton
+                    onPress={undoRegionPoint}
+                    disabled={editingRegion.pointsUndoStack.length === 0}
+                    style={{
+                      opacity: editingRegion.pointsUndoStack.length > 0 ? 1 : 0.5,
+                    }}
+                  >
+                    <SmallButtonText>⌘Z 실행취소</SmallButtonText>
+                  </SmallButton>
+                </RegionEditActions>
+
+                {/* 모달 이미지 관리 */}
+                <ModalImageSection>
+                  <ModalImageLabel>
+                    클릭 시 표시할 이미지 ({editingRegion.modalImageUrls.length}개)
+                  </ModalImageLabel>
+                  <ModalImageList>
+                    {editingRegion.modalImageUrls.map((url, index) => (
+                      <ModalImageItem key={index}>
+                        <TouchableOpacity onPress={() => setPreviewImageUrl(url)}>
+                          <ModalImagePreview source={{ uri: url }} />
+                        </TouchableOpacity>
+                        <ModalImageRemove
+                          onPress={() => removeModalImageFromRegion(index)}
+                        >
+                          <ModalImageRemoveText>×</ModalImageRemoveText>
+                        </ModalImageRemove>
+                      </ModalImageItem>
+                    ))}
+                    <AddModalImageWrapper>
+                      <ImageUploader
+                        onUploadComplete={addModalImageToRegion}
+                        buttonText="+"
+                        compact
+                      />
+                    </AddModalImageWrapper>
+                  </ModalImageList>
+                </ModalImageSection>
+
+                {/* 저장/취소 버튼 */}
+                <RegionEditButtons>
+                  <CancelButton onPress={cancelEditingRegion}>
+                    <CancelButtonText>취소</CancelButtonText>
+                  </CancelButton>
+                  <SaveButton
+                    onPress={saveEditingRegion}
+                    disabled={editingRegion.points.length < 3}
+                    style={{
+                      opacity: editingRegion.points.length >= 3 ? 1 : 0.5,
+                    }}
+                  >
+                    <SaveButtonText>저장</SaveButtonText>
+                  </SaveButton>
+                </RegionEditButtons>
+              </RegionEditPanel>
+            ) : (
+              // Region 목록
+              <>
+                {data.routeSection?.routes.map((route, routeIndex) => {
+                  const regions = route.interactiveImage?.clickableRegions || [];
+                  if (!route.interactiveImage) return null;
+                  return (
+                    <RouteRegionSection key={routeIndex}>
+                      <RouteRegionHeader>
+                        <RouteRegionTitle>{route.tabLabel || `Route #${routeIndex + 1}`}</RouteRegionTitle>
+                        <AddRegionButton
+                          onPress={() => startAddingRegion(routeIndex)}
+                        >
+                          <AddRegionButtonText>+ Region</AddRegionButtonText>
+                        </AddRegionButton>
+                      </RouteRegionHeader>
+                      {regions.length > 0 ? (
+                        regions.map((region, regionIndex) => (
+                          <RegionListItem key={region.id}>
+                            <RegionListHeader>
+                              <RegionListInfo>
+                                <RegionListIndex>#{regionIndex + 1}</RegionListIndex>
+                                <RegionListDetail>
+                                  점 {region.polygon.length}개
+                                </RegionListDetail>
+                              </RegionListInfo>
+                              <RegionListActions>
+                                <RegionEditButton
+                                  onPress={() =>
+                                    startEditingRegion(
+                                      routeIndex,
+                                      regionIndex,
+                                      region.polygon,
+                                      region.modalImageUrls || [],
+                                    )
+                                  }
+                                >
+                                  <RegionEditButtonText>편집</RegionEditButtonText>
+                                </RegionEditButton>
+                                <RegionDeleteButton
+                                  onPress={() => deleteRegion(routeIndex, regionIndex)}
+                                >
+                                  <RegionDeleteButtonText>×</RegionDeleteButtonText>
+                                </RegionDeleteButton>
+                              </RegionListActions>
+                            </RegionListHeader>
+                            {(region.modalImageUrls?.length ?? 0) > 0 && (
+                              <RegionImageList>
+                                {region.modalImageUrls?.map((url: string, imgIndex: number) => (
+                                  <TouchableOpacity
+                                    key={imgIndex}
+                                    onPress={() => setPreviewImageUrl(url)}
+                                  >
+                                    <RegionImageThumb source={{ uri: url }} />
+                                  </TouchableOpacity>
+                                ))}
+                              </RegionImageList>
+                            )}
+                          </RegionListItem>
+                        ))
+                      ) : (
+                        <NoRegionsText>Region 없음</NoRegionsText>
+                      )}
+                    </RouteRegionSection>
+                  );
+                })}
+              </>
+            )}
+          </Section>
+
           {/* JSON Export */}
           <Section>
             <SectionTitle>JSON Export</SectionTitle>
@@ -220,6 +401,13 @@ export default function EditSidebar() {
           </Section>
         </SidebarContent>
       </ScrollView>
+
+      {/* 이미지 프리뷰 모달 */}
+      <RegionDetailModal
+        visible={!!previewImageUrl}
+        region={previewRegion}
+        onClose={() => setPreviewImageUrl(null)}
+      />
     </Container>
   );
 }
@@ -374,4 +562,253 @@ const LogoutButtonText = styled(Text)`
   font-size: 14px;
   font-weight: 600;
   color: #fff;
+`;
+
+// Region 편집 관련 스타일
+const RegionEditPanel = styled(View)`
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #007aff;
+`;
+
+const RegionEditHeader = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+`;
+
+const RegionEditTitle = styled(Text)`
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const RegionRouteTag = styled(Text)`
+  font-size: 11px;
+  color: #007aff;
+  background-color: #e8f4ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+`;
+
+const RegionEditInfo = styled(View)`
+  margin-bottom: 12px;
+`;
+
+const RegionEditActions = styled(View)`
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 12px;
+`;
+
+const SmallButton = styled(TouchableOpacity)`
+  flex: 1;
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  align-items: center;
+`;
+
+const SmallButtonText = styled(Text)`
+  font-size: 12px;
+  color: #333;
+`;
+
+const ModalImageSection = styled(View)`
+  margin-bottom: 12px;
+`;
+
+const ModalImageLabel = styled(Text)`
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+`;
+
+const ModalImageList = styled(View)`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const ModalImageItem = styled(View)`
+  position: relative;
+`;
+
+const ModalImagePreview = styled(Image)`
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+`;
+
+const ModalImageRemove = styled(TouchableOpacity)`
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background-color: #dc3545;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ModalImageRemoveText = styled(Text)`
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+`;
+
+const AddModalImageWrapper = styled(View)`
+  justify-content: center;
+`;
+
+const RegionEditButtons = styled(View)`
+  flex-direction: row;
+  gap: 8px;
+`;
+
+const CancelButton = styled(TouchableOpacity)`
+  flex: 1;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  align-items: center;
+`;
+
+const CancelButtonText = styled(Text)`
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+`;
+
+const SaveButton = styled(TouchableOpacity)`
+  flex: 1;
+  padding: 10px;
+  background-color: #007aff;
+  border-radius: 6px;
+  align-items: center;
+`;
+
+const SaveButtonText = styled(Text)`
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+`;
+
+const RouteRegionSection = styled(View)`
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+`;
+
+const RouteRegionHeader = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+`;
+
+const RouteRegionTitle = styled(Text)`
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const AddRegionButton = styled(TouchableOpacity)`
+  padding: 4px 8px;
+  background-color: #007aff;
+  border-radius: 4px;
+`;
+
+const AddRegionButtonText = styled(Text)`
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+`;
+
+const RegionListItem = styled(View)`
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 6px;
+`;
+
+const RegionListHeader = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const RegionListInfo = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+`;
+
+const RegionListIndex = styled(Text)`
+  font-size: 13px;
+  font-weight: 700;
+  color: #007aff;
+  width: 30px;
+`;
+
+const RegionListDetail = styled(Text)`
+  font-size: 12px;
+  color: #666;
+`;
+
+const RegionListActions = styled(View)`
+  flex-direction: row;
+  gap: 6px;
+`;
+
+const RegionEditButton = styled(TouchableOpacity)`
+  padding: 4px 10px;
+  background-color: #007aff;
+  border-radius: 4px;
+`;
+
+const RegionEditButtonText = styled(Text)`
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+`;
+
+const RegionDeleteButton = styled(TouchableOpacity)`
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: #dc3545;
+  align-items: center;
+  justify-content: center;
+`;
+
+const RegionDeleteButtonText = styled(Text)`
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+`;
+
+const NoRegionsText = styled(Text)`
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+`;
+
+const RegionImageList = styled(View)`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+`;
+
+const RegionImageThumb = styled(Image)`
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background-color: #e0e0e0;
 `;

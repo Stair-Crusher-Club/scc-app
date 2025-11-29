@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { View, Image, TouchableOpacity, Text, LayoutChangeEvent } from 'react-native';
+import { View, Image, Text, Pressable, LayoutChangeEvent, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
-import Svg, { Polygon } from 'react-native-svg';
+import Svg, { Polygon, Line } from 'react-native-svg';
 import type {
   BbucleRoadInteractiveImageDto,
   BbucleRoadClickableRegionDto,
@@ -9,7 +9,6 @@ import type {
 } from '@/generated-sources/openapi';
 
 import { useEditMode } from '../context/EditModeContext';
-import PolygonEditor from './PolygonEditor';
 import ImageUploader from './ImageUploader';
 
 interface InteractiveImageProps {
@@ -17,23 +16,22 @@ interface InteractiveImageProps {
   onRegionPress: (region: BbucleRoadClickableRegionDto) => void;
   /** 이미지 URL 변경 콜백 (edit mode) */
   onImageChange?: (url: string) => void;
-  /** Region 변경 콜백 (edit mode) */
-  onRegionsChange?: (regions: BbucleRoadClickableRegionDto[]) => void;
+  /** Route index (edit mode에서 region 편집 시 필요) */
+  routeIndex?: number;
 }
 
 export default function InteractiveImage({
   interactiveImage,
   onRegionPress,
   onImageChange,
-  onRegionsChange,
+  routeIndex = 0,
 }: InteractiveImageProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
+  const editingRegion = editContext?.editingRegion ?? null;
 
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [containerWidth, setContainerWidth] = useState(0);
-  const [isAddingRegion, setIsAddingRegion] = useState(false);
-  const [editingRegionIndex, setEditingRegionIndex] = useState<number | null>(null);
 
   const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
@@ -61,6 +59,18 @@ export default function InteractiveImage({
   // Convert relative polygon points (0-1) to absolute coordinates
   const getPolygonPoints = (region: BbucleRoadClickableRegionDto): string => {
     return region.polygon
+      .map((point: BbucleRoadPolygonPointDto) => {
+        const x = point.x * containerWidth;
+        const y = point.y * displayHeight;
+        return `${x},${y}`;
+      })
+      .join(' ');
+  };
+
+  // Convert editing region points to polygon string
+  const getEditingPolygonPoints = (): string => {
+    if (!editingRegion) return '';
+    return editingRegion.points
       .map((point) => {
         const x = point.x * containerWidth;
         const y = point.y * displayHeight;
@@ -71,56 +81,52 @@ export default function InteractiveImage({
 
   const clickableRegions = interactiveImage.clickableRegions || [];
 
-  // Edit mode handlers
-  const handleAddRegion = useCallback(() => {
-    setIsAddingRegion(true);
-    setEditingRegionIndex(null);
-  }, []);
+  // 현재 이 InteractiveImage가 편집 중인지 확인
+  const isEditingThisImage = editingRegion?.routeIndex === routeIndex;
+  console.log('fuckfuck 0', interactiveImage, isEditingThisImage)
 
-  const handleEditRegion = useCallback((index: number) => {
-    setEditingRegionIndex(index);
-    setIsAddingRegion(false);
-  }, []);
-
-  const handleDeleteRegion = useCallback(
-    (index: number) => {
-      if (!onRegionsChange) return;
-      const newRegions = clickableRegions.filter((_, i) => i !== index);
-      onRegionsChange(newRegions);
-    },
-    [clickableRegions, onRegionsChange],
-  );
-
-  const handlePolygonComplete = useCallback(
-    (points: BbucleRoadPolygonPointDto[]) => {
-      if (!onRegionsChange) return;
-
-      if (editingRegionIndex !== null) {
-        // 기존 region 수정
-        const newRegions = clickableRegions.map((region, index) =>
-          index === editingRegionIndex ? { ...region, polygon: points } : region,
-        );
-        onRegionsChange(newRegions);
-      } else {
-        // 새 region 추가
-        const newRegion: BbucleRoadClickableRegionDto = {
-          id: `region-${Date.now()}`,
-          polygon: points,
-          modalImageUrls: [],
-        };
-        onRegionsChange([...clickableRegions, newRegion]);
+  // 이미지 클릭 시 점 추가 (편집 중일 때)
+  const handleImageClick = useCallback(
+    (event: { nativeEvent: { offsetX: number; offsetY: number } }) => {
+      if (!isEditMode || !isEditingThisImage || !editContext?.addPointToRegion) {
+        return;
       }
 
-      setIsAddingRegion(false);
-      setEditingRegionIndex(null);
+      const { offsetX, offsetY } = event.nativeEvent;
+      console.log('fuckfuck 1', offsetX, offsetY, event)
+
+      // 상대 좌표로 변환 (0-1)
+      const relativeX = offsetX / containerWidth;
+      const relativeY = offsetY / displayHeight;
+
+      // 경계 체크
+      if (relativeX < 0 || relativeX > 1 || relativeY < 0 || relativeY > 1) {
+        return;
+      }
+
+      editContext.addPointToRegion({ x: relativeX, y: relativeY });
     },
-    [clickableRegions, editingRegionIndex, onRegionsChange],
+    [isEditMode, isEditingThisImage, editContext, containerWidth, displayHeight],
   );
 
-  const handlePolygonCancel = useCallback(() => {
-    setIsAddingRegion(false);
-    setEditingRegionIndex(null);
-  }, []);
+  // Region 클릭 핸들러
+  const handleRegionClick = useCallback(
+    (region: BbucleRoadClickableRegionDto, regionIndex: number) => {
+      if (isEditMode && editContext?.startEditingRegion) {
+        // Edit mode: 해당 region 편집 시작
+        editContext.startEditingRegion(
+          routeIndex,
+          regionIndex,
+          region.polygon,
+          region.modalImageUrls || [],
+        );
+      } else {
+        // View mode: 기존 동작
+        onRegionPress(region);
+      }
+    },
+    [isEditMode, editContext, routeIndex, onRegionPress],
+  );
 
   const handleImageUpload = useCallback(
     (url: string) => {
@@ -131,99 +137,161 @@ export default function InteractiveImage({
     [onImageChange],
   );
 
-  // Polygon Editor 표시 조건
-  const showPolygonEditor = isAddingRegion || editingRegionIndex !== null;
-  const editingPoints =
-    editingRegionIndex !== null
-      ? clickableRegions[editingRegionIndex]?.polygon
-      : undefined;
+  // 편집 중인 점 제거
+  const handleRemovePoint = useCallback(
+    (pointIndex: number) => {
+      if (editContext?.removePointFromRegion) {
+        editContext.removePointFromRegion(pointIndex);
+      }
+    },
+    [editContext],
+  );
 
-  if (showPolygonEditor) {
-    return (
-      <PolygonEditor
-        imageUrl={interactiveImage.url}
-        onComplete={handlePolygonComplete}
-        onCancel={handlePolygonCancel}
-        initialPoints={editingPoints}
-      />
-    );
-  }
+  // 상대 좌표를 픽셀 좌표로 변환
+  const toPixelX = (x: number) => x * containerWidth;
+  const toPixelY = (y: number) => y * displayHeight;
 
   return (
     <Container onLayout={handleContainerLayout}>
       {/* Edit Mode: 이미지 교체 버튼 */}
       {isEditMode && onImageChange && (
-        <EditImageOverlay>
-          <ImageUploader
-            currentImageUrl={interactiveImage.url}
-            onUploadComplete={handleImageUpload}
-            compact
-          />
-        </EditImageOverlay>
-      )}
-
-      <StyledImage
-        source={{ uri: interactiveImage.url }}
-        style={{ height: displayHeight || 'auto' }}
-        resizeMode="contain"
-        onLoad={handleImageLoad}
-      />
-
-      {displayHeight > 0 && clickableRegions.length > 0 && (
-        <SvgOverlay width={containerWidth} height={displayHeight}>
-          {clickableRegions.map((region, index) => (
-            <Polygon
-              key={region.id}
-              points={getPolygonPoints(region)}
-              fill="rgba(0, 122, 255, 0.2)"
-              stroke="rgba(0, 122, 255, 0.5)"
-              strokeWidth={2}
-              onPress={() => {
-                if (isEditMode) {
-                  handleEditRegion(index);
-                } else {
-                  onRegionPress(region);
-                }
-              }}
-            />
-          ))}
-        </SvgOverlay>
-      )}
-
-      {/* Edit Mode: Region 삭제 버튼들 */}
-      {isEditMode && displayHeight > 0 && clickableRegions.length > 0 && (
         <>
-          {clickableRegions.map((region, index) => {
-            // 중심점 계산
-            const centerX =
-              region.polygon.reduce((sum, p) => sum + p.x, 0) /
-              region.polygon.length;
-            const centerY =
-              region.polygon.reduce((sum, p) => sum + p.y, 0) /
-              region.polygon.length;
-
-            return (
-              <RegionDeleteButton
-                key={`delete-${region.id}`}
-                style={{
-                  left: centerX * containerWidth - 12,
-                  top: centerY * displayHeight - 12,
-                }}
-                onPress={() => handleDeleteRegion(index)}
-              >
-                <RegionDeleteButtonText>×</RegionDeleteButtonText>
-              </RegionDeleteButton>
-            );
-          })}
+          <AddRegionButtonOverlay
+            onPress={() => editContext?.startAddingRegion(routeIndex)}
+          >
+            <AddRegionButtonText>+ Region</AddRegionButtonText>
+          </AddRegionButtonOverlay>
+          <EditImageOverlay>
+            <ImageUploader
+              currentImageUrl={interactiveImage.url}
+              onUploadComplete={handleImageUpload}
+              compact
+            />
+          </EditImageOverlay>
         </>
       )}
 
-      {/* Edit Mode: Region 추가 버튼 */}
-      {isEditMode && onRegionsChange && (
-        <AddRegionButton onPress={handleAddRegion}>
-          <AddRegionButtonText>+ Region 추가</AddRegionButtonText>
-        </AddRegionButton>
+      {/* 이미지 - 편집 중일 때는 클릭 가능 */}
+      <Pressable onPress={isEditingThisImage ? handleImageClick : undefined}>
+        <StyledImage
+          source={{ uri: interactiveImage.url }}
+          style={{ height: displayHeight || 'auto' }}
+          resizeMode="contain"
+          onLoad={handleImageLoad}
+        />
+      </Pressable>
+
+      {/* SVG Overlay - 기존 regions + 편집 중인 region */}
+      {displayHeight > 0 && (
+        <SvgOverlay
+          width={containerWidth}
+          height={displayHeight}
+          pointerEvents={isEditingThisImage ? 'none' : 'box-none'}
+        >
+          {/* 기존 clickable regions */}
+          {clickableRegions.map((region: BbucleRoadClickableRegionDto, index: number) => {
+            // 현재 편집 중인 region은 다르게 표시
+            const isEditing =
+              isEditingThisImage && editingRegion?.regionIndex === index;
+
+            return (
+              <Polygon
+                key={region.id}
+                points={getPolygonPoints(region)}
+                fill={
+                  isEditMode
+                    ? isEditing
+                      ? 'rgba(255, 165, 0, 0.3)' // 편집 모드 & 편집 중: 주황색
+                      : 'rgba(0, 122, 255, 0.2)' // 편집 모드 & 일반: 파란색
+                    : 'rgba(0, 0, 0, 0)' // view 모드: 투명
+                }
+                stroke={
+                  isEditMode
+                    ? isEditing
+                      ? 'rgba(255, 165, 0, 0.8)'
+                      : 'rgba(0, 122, 255, 0.5)'
+                    : 'rgba(0, 0, 0, 0)'
+                }
+                strokeWidth={2}
+                onPress={
+                  !isEditingThisImage
+                    ? () => handleRegionClick(region, index)
+                    : undefined
+                }
+              />
+            );
+          })}
+
+          {/* 편집 중인 새 region (새로 추가 중일 때) */}
+          {isEditingThisImage &&
+            editingRegion?.regionIndex === null &&
+            editingRegion.points.length > 0 && (
+              <>
+                {/* Polygon 영역 (3점 이상일 때) */}
+                {editingRegion.points.length >= 3 && (
+                  <Polygon
+                    points={getEditingPolygonPoints()}
+                    fill="rgba(0, 200, 100, 0.2)"
+                    stroke="rgba(0, 200, 100, 0.8)"
+                    strokeWidth={2}
+                  />
+                )}
+
+                {/* 점들 연결 선 */}
+                {editingRegion.points.length >= 2 &&
+                  editingRegion.points.map((point, index) => {
+                    if (index === 0) return null;
+                    const prevPoint = editingRegion.points[index - 1];
+                    return (
+                      <Line
+                        key={`line-${index}`}
+                        x1={toPixelX(prevPoint.x)}
+                        y1={toPixelY(prevPoint.y)}
+                        x2={toPixelX(point.x)}
+                        y2={toPixelY(point.y)}
+                        stroke="rgba(0, 200, 100, 0.8)"
+                        strokeWidth={2}
+                      />
+                    );
+                  })}
+
+                {/* 마지막-첫번째 연결 선 (3점 이상일 때) */}
+                {editingRegion.points.length >= 3 && (
+                  <Line
+                    x1={toPixelX(
+                      editingRegion.points[editingRegion.points.length - 1].x,
+                    )}
+                    y1={toPixelY(
+                      editingRegion.points[editingRegion.points.length - 1].y,
+                    )}
+                    x2={toPixelX(editingRegion.points[0].x)}
+                    y2={toPixelY(editingRegion.points[0].y)}
+                    stroke="rgba(0, 200, 100, 0.8)"
+                    strokeWidth={2}
+                    strokeDasharray="5,5"
+                  />
+                )}
+              </>
+            )}
+        </SvgOverlay>
       )}
+
+      {/* 편집 중인 점들 (클릭으로 제거 가능) */}
+      {isEditingThisImage &&
+        editingRegion &&
+        displayHeight > 0 &&
+        editingRegion.points.map((point, index) => (
+          <PointMarker
+            key={`point-${index}`}
+            style={{
+              left: toPixelX(point.x) - 10,
+              top: toPixelY(point.y) - 10,
+            }}
+            onPress={() => handleRemovePoint(index)}
+          >
+            <PointMarkerText>{index + 1}</PointMarkerText>
+          </PointMarker>
+        ))}
     </Container>
   );
 }
@@ -250,33 +318,36 @@ const EditImageOverlay = styled(View)`
   z-index: 10;
 `;
 
-const RegionDeleteButton = styled(TouchableOpacity)`
+const PointMarker = styled(Pressable)`
   position: absolute;
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  background-color: #dc3545;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: #00c864;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 20;
+  border: 2px solid #fff;
 `;
 
-const RegionDeleteButtonText = styled(Text)`
+const PointMarkerText = styled(Text)`
   color: #fff;
-  font-size: 16px;
+  font-size: 10px;
   font-weight: 700;
 `;
 
-const AddRegionButton = styled(TouchableOpacity)`
-  margin-top: 12px;
-  padding: 12px;
+const AddRegionButtonOverlay = styled(TouchableOpacity)`
+  position: absolute;
+  top: 8px;
+  right: 50px;
+  z-index: 10;
+  padding: 4px 8px;
   background-color: #007aff;
-  border-radius: 8px;
-  align-items: center;
+  border-radius: 4px;
 `;
 
 const AddRegionButtonText = styled(Text)`
-  color: #fff;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
+  color: #fff;
 `;

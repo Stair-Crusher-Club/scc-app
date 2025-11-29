@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
 import type {
   BbucleRoadRouteSectionDto,
@@ -27,9 +27,13 @@ const ICON_MAP: Record<BbucleRoadRouteIconTypeDto, string> = {
 
 const ICON_OPTIONS: BbucleRoadRouteIconTypeDto[] = ['SUBWAY', 'TAXI', 'CAR', 'BUS'];
 
+const DESKTOP_BREAKPOINT = 900;
+
 export default function RouteSection({ routeSection }: RouteSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
+  const { width: windowWidth } = useWindowDimensions();
+  const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
 
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [selectedRegion, setSelectedRegion] =
@@ -139,17 +143,7 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
     [handleUpdateRoute, selectedRouteIndex, selectedRoute?.interactiveImage],
   );
 
-  const handleRegionsChange = useCallback(
-    (regions: BbucleRoadClickableRegionDto[]) => {
-      handleUpdateRoute(selectedRouteIndex, {
-        interactiveImage: {
-          ...selectedRoute.interactiveImage,
-          clickableRegions: regions,
-        },
-      });
-    },
-    [handleUpdateRoute, selectedRouteIndex, selectedRoute?.interactiveImage],
-  );
+  // Region 변경은 이제 EditModeContext에서 처리됨
 
   const handleTabLabelChange = useCallback(
     (index: number, label: string) => {
@@ -167,7 +161,9 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
 
   return (
     <Container>
-      <SectionTitle>{routeSection.title}</SectionTitle>
+      {isEditMode
+        ? <SectionTitleInput value={routeSection.title} />
+        : <SectionTitle>{routeSection.title}</SectionTitle>}
 
       {/* Tabs */}
       <TabsContainer horizontal showsHorizontalScrollIndicator={false}>
@@ -220,47 +216,53 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
 
       {/* Content */}
       {selectedRoute && (
-        <ContentContainer>
+        <ContentContainer
+          style={
+            isDesktop
+              ? { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' }
+              : { flexDirection: 'column-reverse' }
+          }
+        >
           {/* Description Image */}
-          <DescriptionImageContainer>
-            {isEditMode && (
-              <EditImageHeader>
-                <EditImageLabel>설명 이미지</EditImageLabel>
-                <ImageUploader
-                  currentImageUrl={selectedRoute.descriptionImageUrl}
-                  onUploadComplete={handleDescriptionImageChange}
-                  buttonText="이미지 변경"
-                />
-              </EditImageHeader>
-            )}
+          <DescriptionImageContainer style={isDesktop ? { width: '37%' } : undefined}>
             {selectedRoute.descriptionImageUrl ? (
-              <SccRemoteImage
-                imageUrl={selectedRoute.descriptionImageUrl}
-                resizeMode="contain"
-                style={{ borderRadius: 8 }}
-              />
+              <DescriptionImageWrapper>
+                <SccRemoteImage
+                  imageUrl={selectedRoute.descriptionImageUrl}
+                  resizeMode="contain"
+                  style={{ borderRadius: 8 }}
+                />
+                {isEditMode && (
+                  <DescriptionImageOverlay>
+                    <ImageUploader
+                      currentImageUrl={selectedRoute.descriptionImageUrl}
+                      onUploadComplete={handleDescriptionImageChange}
+                      compact
+                    />
+                  </DescriptionImageOverlay>
+                )}
+              </DescriptionImageWrapper>
             ) : (
               isEditMode && (
                 <EmptyImagePlaceholder>
                   <EmptyImageText>설명 이미지를 업로드하세요</EmptyImageText>
+                  <ImageUploader
+                    onUploadComplete={handleDescriptionImageChange}
+                    buttonText="이미지 업로드"
+                  />
                 </EmptyImagePlaceholder>
               )
             )}
           </DescriptionImageContainer>
 
           {/* Interactive Map Image */}
-          <InteractiveImageContainer>
-            {isEditMode && (
-              <EditImageHeader>
-                <EditImageLabel>인터랙티브 이미지</EditImageLabel>
-              </EditImageHeader>
-            )}
+          <InteractiveImageContainer style={isDesktop ? { width: '60%' } : undefined}>
             {selectedRoute.interactiveImage.url ? (
               <InteractiveImage
                 interactiveImage={selectedRoute.interactiveImage}
                 onRegionPress={handleRegionPress}
                 onImageChange={isEditMode ? handleInteractiveImageChange : undefined}
-                onRegionsChange={isEditMode ? handleRegionsChange : undefined}
+                routeIndex={selectedRouteIndex}
               />
             ) : (
               isEditMode && (
@@ -293,6 +295,19 @@ const Container = styled(View)`
 `;
 
 const SectionTitle = styled(Text)`
+  color: #000;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 130%;
+  letter-spacing: -2.4px;
+  margin-bottom: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+const SectionTitleInput = styled(TextInput)`
   color: #000;
   text-align: center;
   font-family: Pretendard;
@@ -344,7 +359,6 @@ const TabLabelInput = styled(TextInput)<{ active: boolean }>`
   font-size: 14px;
   font-weight: 600;
   color: ${({ active }) => (active ? '#FFF' : '#374151')};
-  min-width: 60px;
   padding: 0;
 `;
 
@@ -380,35 +394,30 @@ const AddTabButtonText = styled(Text)`
 `;
 
 const ContentContainer = styled(View)`
-  gap: 24px;
+  gap: 30px;
 `;
 
 const DescriptionImageContainer = styled(View)`
-  width: 100%;
   border-radius: 8px;
   overflow: hidden;
+  flex-shrink: 0;
+`;
+
+const DescriptionImageWrapper = styled(View)`
+  position: relative;
+`;
+
+const DescriptionImageOverlay = styled(View)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
 `;
 
 const InteractiveImageContainer = styled(View)`
-  width: 100%;
   border-radius: 8px;
   overflow: hidden;
-`;
-
-const EditImageHeader = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 8px;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-`;
-
-const EditImageLabel = styled(Text)`
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+  flex-shrink: 0;
 `;
 
 const EmptyImagePlaceholder = styled(View)`

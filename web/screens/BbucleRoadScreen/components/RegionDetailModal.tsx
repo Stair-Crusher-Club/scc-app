@@ -3,7 +3,6 @@ import {
   View,
   Modal,
   TouchableOpacity,
-  Text,
   ScrollView,
   Dimensions,
   NativeSyntheticEvent,
@@ -57,42 +56,40 @@ export default function RegionDetailModal({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      <ModalOverlay>
-        <ModalContent>
-          <CloseButton onPress={handleClose}>
-            <CloseButtonText>✕</CloseButtonText>
-          </CloseButton>
-
-          {imageUrls.length > 0 && (
-            <ImageContainer>
-              <ImageScrollView
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-              >
-                {imageUrls.map((imageUrl, index) => (
-                  <ImageWrapper key={index} style={{ width: imageWidth }}>
-                    <SccRemoteImage
-                      imageUrl={imageUrl}
-                      resizeMode="contain"
-                      style={{ borderRadius: 8 }}
-                    />
-                  </ImageWrapper>
-                ))}
-              </ImageScrollView>
-
-              {hasMultipleImages && (
-                <PageIndicatorContainer>
-                  {imageUrls.map((_, index) => (
-                    <PageDot key={index} active={index === currentIndex} />
+      <ModalOverlay onPress={handleClose}>
+        <ContentWrapper activeOpacity={1}>
+          <ModalContent>
+            {imageUrls.length > 0 && (
+              <ImageContainer>
+                <ImageScrollView
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onScroll={handleScroll}
+                  scrollEventThrottle={16}
+                >
+                  {imageUrls.map((imageUrl, index) => (
+                    <ImageWrapper key={index} style={{ width: imageWidth }}>
+                      <SccRemoteImage
+                        imageUrl={imageUrl}
+                        resizeMode="contain"
+                        style={{ borderRadius: 8 }}
+                      />
+                    </ImageWrapper>
                   ))}
-                </PageIndicatorContainer>
-              )}
-            </ImageContainer>
-          )}
-        </ModalContent>
+                </ImageScrollView>
+
+                {hasMultipleImages && (
+                  <PageIndicatorContainer>
+                    {imageUrls.map((_, index) => (
+                      <PageDot key={index} active={index === currentIndex} />
+                    ))}
+                  </PageIndicatorContainer>
+                )}
+              </ImageContainer>
+            )}
+          </ModalContent>
+        </ContentWrapper>
       </ModalOverlay>
     </Modal>
   );
@@ -107,35 +104,11 @@ const ModalOverlay = styled(TouchableOpacity).attrs({
   align-items: center;
 `;
 
-const ModalContent = styled(View)`
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 90%;
-  max-height: 80%;
-  position: relative;
-`;
+const ContentWrapper = styled(TouchableOpacity)``;
 
-const CloseButton = styled(TouchableOpacity)`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: rgba(0, 0, 0, 0.1);
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-`;
-
-const CloseButtonText = styled(Text)`
-  font-size: 18px;
-  color: #333;
-`;
+const ModalContent = styled(View)``;
 
 const ImageContainer = styled(View)`
-  margin-top: 20px;
 `;
 
 const ImageScrollView = styled(ScrollView)`
