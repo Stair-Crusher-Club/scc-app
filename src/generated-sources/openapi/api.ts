@@ -193,6 +193,50 @@ export interface AuthTokensDto {
 /**
  * 
  * @export
+ * @interface BbucleRoadClickableRegionDto
+ */
+export interface BbucleRoadClickableRegionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadClickableRegionDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {Array<BbucleRoadPolygonPointDto>}
+     * @memberof BbucleRoadClickableRegionDto
+     */
+    'polygon': Array<BbucleRoadPolygonPointDto>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof BbucleRoadClickableRegionDto
+     */
+    'modalImageUrls': Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface BbucleRoadInteractiveImageDto
+ */
+export interface BbucleRoadInteractiveImageDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadInteractiveImageDto
+     */
+    'url': string;
+    /**
+     * 
+     * @type {Array<BbucleRoadClickableRegionDto>}
+     * @memberof BbucleRoadInteractiveImageDto
+     */
+    'clickableRegions'?: Array<BbucleRoadClickableRegionDto>;
+}
+/**
+ * 
+ * @export
  * @interface BbucleRoadMarkerDto
  */
 export interface BbucleRoadMarkerDto {
@@ -256,6 +300,97 @@ export const BbucleRoadMarkerTypeDto = {
 export type BbucleRoadMarkerTypeDto = typeof BbucleRoadMarkerTypeDto[keyof typeof BbucleRoadMarkerTypeDto];
 
 
+/**
+ * 
+ * @export
+ * @interface BbucleRoadPolygonPointDto
+ */
+export interface BbucleRoadPolygonPointDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadPolygonPointDto
+     */
+    'x': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadPolygonPointDto
+     */
+    'y': number;
+}
+/**
+ * 
+ * @export
+ * @interface BbucleRoadRouteDto
+ */
+export interface BbucleRoadRouteDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteDto
+     */
+    'tabLabel': string;
+    /**
+     * 
+     * @type {BbucleRoadRouteIconTypeDto}
+     * @memberof BbucleRoadRouteDto
+     */
+    'tabIconType': BbucleRoadRouteIconTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteDto
+     */
+    'descriptionImageUrl': string;
+    /**
+     * 
+     * @type {BbucleRoadInteractiveImageDto}
+     * @memberof BbucleRoadRouteDto
+     */
+    'interactiveImage': BbucleRoadInteractiveImageDto;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const BbucleRoadRouteIconTypeDto = {
+    Subway: 'SUBWAY',
+    Taxi: 'TAXI',
+    Car: 'CAR',
+    Bus: 'BUS'
+} as const;
+
+export type BbucleRoadRouteIconTypeDto = typeof BbucleRoadRouteIconTypeDto[keyof typeof BbucleRoadRouteIconTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface BbucleRoadRouteSectionDto
+ */
+export interface BbucleRoadRouteSectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteSectionDto
+     */
+    'title': string;
+    /**
+     * 
+     * @type {Array<BbucleRoadRouteDto>}
+     * @memberof BbucleRoadRouteSectionDto
+     */
+    'routes': Array<BbucleRoadRouteDto>;
+}
 /**
  * 
  * @export
@@ -1676,6 +1811,12 @@ export interface GetBbucleRoadPageResponseDto {
      * @memberof GetBbucleRoadPageResponseDto
      */
     'sections': Array<BbucleRoadSectionDto>;
+    /**
+     * 
+     * @type {BbucleRoadRouteSectionDto}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'routeSection'?: BbucleRoadRouteSectionDto;
 }
 /**
  * 

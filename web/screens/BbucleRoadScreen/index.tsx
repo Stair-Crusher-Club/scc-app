@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, ScrollView, ActivityIndicator, Text } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
@@ -11,6 +11,7 @@ import type { BbucleRoadSectionDto } from '@/generated-sources/openapi';
 import { color } from '@/constant/color';
 
 import HeaderSection from './sections/HeaderSection';
+import RouteSection from './sections/RouteSection';
 import MapOverviewSection from './sections/MapOverviewSection';
 import TransportationSection from './sections/TransportationSection';
 import TicketingSection from './sections/TicketingSection';
@@ -18,12 +19,31 @@ import WheelchairViewSection from './sections/WheelchairViewSection';
 import NearbyRestaurantsSection from './sections/NearbyRestaurantsSection';
 import NearbyCafesSection from './sections/NearbyCafesSection';
 
+import {
+  getBbucleRoadConfig,
+  createEmptyBbucleRoadData,
+} from './config/bbucleRoadData';
+import { EditModeProvider, useEditMode } from './context/EditModeContext';
+import EditSidebar from './edit/EditSidebar';
+
 type BbucleRoadScreenRouteProp = RouteProp<WebStackParamList, 'BbucleRoad'>;
-type BbucleRoadScreenNavigationProp = NativeStackNavigationProp<WebStackParamList, 'BbucleRoad'>;
+type BbucleRoadScreenNavigationProp = NativeStackNavigationProp<
+  WebStackParamList,
+  'BbucleRoad'
+>;
 
 interface BbucleRoadScreenProps {
   route: BbucleRoadScreenRouteProp;
   navigation: BbucleRoadScreenNavigationProp;
+}
+
+/**
+ * URL에서 editMode queryParam 확인
+ */
+function getIsEditMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  const searchParams = new URLSearchParams(window.location.search);
+  return searchParams.get('editMode') === 'true';
 }
 
 function renderSection(section: BbucleRoadSectionDto, index: number) {
@@ -45,10 +65,58 @@ function renderSection(section: BbucleRoadSectionDto, index: number) {
   }
 }
 
+/**
+ * Edit Mode일 때의 콘텐츠 렌더링
+ */
+function EditModeContent() {
+  const editContext = useEditMode();
+  if (!editContext) return null;
+
+  const { data } = editContext;
+
+  return (
+    <EditModeContainer>
+      <MainContent>
+        <ScrollView>
+          <ContentWrapper>
+            <HeaderSection
+              titleImageUrl={data.titleImageUrl}
+              summaryItems={data.summaryItems}
+            />
+
+            {data.routeSection && (
+              <RouteSection routeSection={data.routeSection} />
+            )}
+
+            {data.sections.map((section: BbucleRoadSectionDto, index: number) =>
+              renderSection(section, index),
+            )}
+          </ContentWrapper>
+        </ScrollView>
+      </MainContent>
+      <EditSidebar />
+    </EditModeContainer>
+  );
+}
+
 export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   const { bbucleRoadId } = route.params;
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+
+  const isEditMode = useMemo(() => getIsEditMode(), []);
+
+  // Config에서 데이터 확인
+  const configData = useMemo(
+    () => getBbucleRoadConfig(bbucleRoadId),
+    [bbucleRoadId],
+  );
+
+  // Edit Mode용 초기 데이터
+  const editModeInitialData = useMemo(() => {
+    if (configData) return configData;
+    return createEmptyBbucleRoadData(bbucleRoadId);
+  }, [configData, bbucleRoadId]);
 
   // Initialize anonymous login
   useEffect(() => {
@@ -116,6 +184,49 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     initializeAuth();
   }, []);
 
+  // Edit Mode: Config 데이터 사용
+  if (isEditMode) {
+    if (isInitializing) {
+      return (
+        <LoadingContainer>
+          <LoadingText>인증 중...</LoadingText>
+        </LoadingContainer>
+      );
+    }
+
+    return (
+      <Container>
+        <EditModeProvider
+          isEditMode={true}
+          initialData={editModeInitialData}
+        >
+          <EditModeContent />
+        </EditModeProvider>
+      </Container>
+    );
+  }
+
+  // View Mode: API에서 데이터 로드
+  return (
+    <ViewModeContent
+      bbucleRoadId={bbucleRoadId}
+      accessToken={accessToken}
+      isInitializing={isInitializing}
+    />
+  );
+}
+
+interface ViewModeContentProps {
+  bbucleRoadId: string;
+  accessToken: string | null;
+  isInitializing: boolean;
+}
+
+function ViewModeContent({
+  bbucleRoadId,
+  accessToken,
+  isInitializing,
+}: ViewModeContentProps) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['bbucleRoadPage', bbucleRoadId],
     queryFn: async () => {
@@ -158,8 +269,12 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
             summaryItems={data.summaryItems}
           />
 
+          {data.routeSection && (
+            <RouteSection routeSection={data.routeSection} />
+          )}
+
           {data.sections.map((section: BbucleRoadSectionDto, index: number) =>
-            renderSection(section, index)
+            renderSection(section, index),
           )}
         </ContentWrapper>
       </ScrollView>
@@ -170,6 +285,15 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
 const Container = styled(View)`
   flex: 1;
   background-color: ${color.gray10};
+`;
+
+const EditModeContainer = styled(View)`
+  flex: 1;
+  flex-direction: row;
+`;
+
+const MainContent = styled(View)`
+  flex: 1;
 `;
 
 const ContentWrapper = styled(View)`
