@@ -1,9 +1,11 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
+import { useEditMode } from '../context/EditModeContext';
+import ImageUploader from '../components/ImageUploader';
 
 interface HeaderSectionProps {
   titleImageUrl: string;
@@ -11,16 +13,76 @@ interface HeaderSectionProps {
 }
 
 export default function HeaderSection({ titleImageUrl, summaryItems }: HeaderSectionProps) {
-  const validSummaryItems = summaryItems.filter(item => item && item.trim().length > 0);
+  const editContext = useEditMode();
+  const isEditMode = editContext?.isEditMode ?? false;
+
+  const validSummaryItems = isEditMode
+    ? summaryItems
+    : summaryItems.filter((item) => item && item.trim().length > 0);
   const summaryTitle = `휠체어석 ${validSummaryItems.length}줄 요약`;
+
+  const handleTitleImageChange = useCallback(
+    (url: string) => {
+      if (!editContext) return;
+      editContext.updateData((prev) => ({
+        ...prev,
+        titleImageUrl: url,
+      }));
+    },
+    [editContext],
+  );
+
+  const handleSummaryItemChange = useCallback(
+    (index: number, text: string) => {
+      if (!editContext) return;
+      editContext.updateData((prev) => ({
+        ...prev,
+        summaryItems: prev.summaryItems.map((item, i) => (i === index ? text : item)),
+      }));
+    },
+    [editContext],
+  );
+
+  const handleDeleteSummaryItem = useCallback(
+    (index: number) => {
+      if (!editContext) return;
+      editContext.updateData((prev) => ({
+        ...prev,
+        summaryItems: prev.summaryItems.filter((_, i) => i !== index),
+      }));
+    },
+    [editContext],
+  );
+
+  const handleAddSummaryItem = useCallback(() => {
+    if (!editContext) return;
+    editContext.updateData((prev) => ({
+      ...prev,
+      summaryItems: [...prev.summaryItems, ''],
+    }));
+  }, [editContext]);
 
   return (
     <Container>
       <ImageWrapper>
-        <SccRemoteImage
-          imageUrl={titleImageUrl}
-          resizeMode="contain"
-        />
+        {isEditMode && (
+          <EditImageOverlay>
+            <ImageUploader
+              currentImageUrl={titleImageUrl}
+              onUploadComplete={handleTitleImageChange}
+              compact
+            />
+          </EditImageOverlay>
+        )}
+        {titleImageUrl ? (
+          <SccRemoteImage imageUrl={titleImageUrl} resizeMode="contain" />
+        ) : (
+          isEditMode && (
+            <EmptyImagePlaceholder>
+              <EmptyImageText>타이틀 이미지를 업로드하세요</EmptyImageText>
+            </EmptyImagePlaceholder>
+          )
+        )}
       </ImageWrapper>
       <SummarySection>
         <SummaryTitle>{summaryTitle}</SummaryTitle>
@@ -30,9 +92,28 @@ export default function HeaderSection({ titleImageUrl, summaryItems }: HeaderSec
               <NumberBadge>
                 <NumberText>{index + 1}</NumberText>
               </NumberBadge>
-              <SummaryText>{item}</SummaryText>
+              {isEditMode ? (
+                <>
+                  <SummaryInput
+                    value={item}
+                    onChangeText={(text) => handleSummaryItemChange(index, text)}
+                    placeholder="요약 내용 입력..."
+                    placeholderTextColor="#999"
+                  />
+                  <DeleteButton onPress={() => handleDeleteSummaryItem(index)}>
+                    <DeleteButtonText>×</DeleteButtonText>
+                  </DeleteButton>
+                </>
+              ) : (
+                <SummaryText>{item}</SummaryText>
+              )}
             </SummaryItem>
           ))}
+          {isEditMode && (
+            <AddItemButton onPress={handleAddSummaryItem}>
+              <AddItemButtonText>+ 항목 추가</AddItemButtonText>
+            </AddItemButton>
+          )}
         </SummaryContainer>
       </SummarySection>
     </Container>
@@ -45,6 +126,7 @@ const Container = styled(View)`
 `;
 
 const ImageWrapper = styled(View)`
+  position: relative;
   width: 40%;
   align-self: center;
   margin-bottom: 20px;
@@ -105,4 +187,68 @@ const SummaryText = styled(Text)`
   font-weight: 400;
   line-height: 38px;
   color: #000000;
+`;
+
+const EditImageOverlay = styled(View)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+`;
+
+const EmptyImagePlaceholder = styled(View)`
+  padding: 60px 40px;
+  background-color: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  align-items: center;
+`;
+
+const EmptyImageText = styled(Text)`
+  font-size: 14px;
+  color: #666;
+`;
+
+const SummaryInput = styled(TextInput)`
+  flex: 1;
+  font-family: Pretendard;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 38px;
+  color: #000000;
+  padding: 4px 8px;
+  border-width: 1px;
+  border-color: #007aff;
+  border-radius: 4px;
+  background-color: #fff;
+`;
+
+const DeleteButton = styled(TouchableOpacity)`
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: #dc3545;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12px;
+`;
+
+const DeleteButtonText = styled(Text)`
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+`;
+
+const AddItemButton = styled(TouchableOpacity)`
+  padding: 16px;
+  background-color: #007aff;
+  border-radius: 8px;
+  align-items: center;
+  margin-top: 12px;
+`;
+
+const AddItemButtonText = styled(Text)`
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
 `;

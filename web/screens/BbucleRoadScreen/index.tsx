@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, ActivityIndicator, Text } from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, ScrollView, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -72,7 +72,25 @@ function EditModeContent() {
   const editContext = useEditMode();
   if (!editContext) return null;
 
-  const { data } = editContext;
+  const { data, updateData } = editContext;
+
+  const handleAddRouteSection = useCallback(() => {
+    updateData((prev) => ({
+      ...prev,
+      routeSection: {
+        title: '동선정보',
+        routes: [
+          {
+            id: `route-${Date.now()}`,
+            tabLabel: '새 동선',
+            tabIconType: 'SUBWAY' as const,
+            descriptionImageUrl: '',
+            interactiveImage: { url: '', clickableRegions: [] },
+          },
+        ],
+      },
+    }));
+  }, [updateData]);
 
   return (
     <EditModeContainer>
@@ -84,8 +102,14 @@ function EditModeContent() {
               summaryItems={data.summaryItems}
             />
 
-            {data.routeSection && (
+            {data.routeSection ? (
               <RouteSection routeSection={data.routeSection} />
+            ) : (
+              <AddSectionContainer>
+                <AddSectionButton onPress={handleAddRouteSection}>
+                  <AddSectionButtonText>+ 동선정보 섹션 추가</AddSectionButtonText>
+                </AddSectionButton>
+              </AddSectionContainer>
             )}
 
             {data.sections.map((section: BbucleRoadSectionDto, index: number) =>
@@ -327,4 +351,21 @@ const ErrorText = styled(Text)`
   font-size: 16px;
   color: #666666;
   text-align: center;
+`;
+
+const AddSectionContainer = styled(View)`
+  padding: 24px 16px;
+  align-items: center;
+`;
+
+const AddSectionButton = styled(TouchableOpacity)`
+  padding: 20px 40px;
+  background-color: #007aff;
+  border-radius: 12px;
+`;
+
+const AddSectionButtonText = styled(Text)`
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
 `;

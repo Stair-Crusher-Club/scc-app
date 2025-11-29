@@ -5,6 +5,31 @@ import type { GetBbucleRoadPageResponseDto } from '@/generated-sources/openapi';
  * API spec과 동일한 형태로 관리
  */
 export const BBUCLE_ROAD_DATA: Record<string, GetBbucleRoadPageResponseDto> = {
+  'asdf': {
+    "id": "asdf",
+    "title": "",
+    "titleImageUrl": "",
+    "summaryItems": [
+      "안녕안녕",
+      "하이하이"
+    ],
+    "sections": [],
+    "routeSection": {
+      "title": "동선정보",
+      "routes": [
+        {
+          "id": "route-1764393670990",
+          "tabLabel": "지하철-이미지",
+          "tabIconType": "TAXI",
+          "descriptionImageUrl": "",
+          "interactiveImage": {
+            "url": "",
+            "clickableRegions": []
+          }
+        }
+      ]
+    }
+  }
   // 예시 데이터 - 실제 데이터로 교체 필요
   // 'gocheok-skydome': {
   //   id: 'gocheok-skydome',
