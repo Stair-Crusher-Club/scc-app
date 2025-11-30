@@ -6,17 +6,10 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { WebStackParamList } from '../../navigation/WebNavigation';
 import { api, apiConfig } from '../../config/api';
-import type { BbucleRoadSectionDto } from '@/generated-sources/openapi';
 import { color } from '@/constant/color';
 
 import HeaderSection from './sections/HeaderSection';
 import RouteSection from './sections/RouteSection';
-import MapOverviewSection from './sections/MapOverviewSection';
-import TransportationSection from './sections/TransportationSection';
-import TicketingSection from './sections/TicketingSection';
-import WheelchairViewSection from './sections/WheelchairViewSection';
-import NearbyRestaurantsSection from './sections/NearbyRestaurantsSection';
-import NearbyCafesSection from './sections/NearbyCafesSection';
 
 import {
   getBbucleRoadConfig,
@@ -43,25 +36,6 @@ function getIsEditMode(): boolean {
   if (typeof window === 'undefined') return false;
   const searchParams = new URLSearchParams(window.location.search);
   return searchParams.get('editMode') === 'true';
-}
-
-function renderSection(section: BbucleRoadSectionDto, index: number) {
-  switch (section.sectionType) {
-    case 'MAP_OVERVIEW':
-      return <MapOverviewSection key={index} section={section} />;
-    case 'TRAFFIC':
-      return <TransportationSection key={index} section={section} />;
-    case 'TICKETING':
-      return <TicketingSection key={index} section={section} />;
-    case 'WHEELCHAIR_VIEW':
-      return <WheelchairViewSection key={index} section={section} />;
-    case 'NEARBY_RESTAURANTS':
-      return <NearbyRestaurantsSection key={index} section={section} />;
-    case 'NEARBY_CAFES':
-      return <NearbyCafesSection key={index} section={section} />;
-    default:
-      return null;
-  }
 }
 
 /**
@@ -109,10 +83,6 @@ function EditModeContent() {
                   <AddSectionButtonText>+ 동선정보 섹션 추가</AddSectionButtonText>
                 </AddSectionButton>
               </AddSectionContainer>
-            )}
-
-            {data.sections.map((section: BbucleRoadSectionDto, index: number) =>
-              renderSection(section, index),
             )}
           </ContentWrapper>
         </ScrollView>
@@ -233,10 +203,6 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
 
           {configData.routeSection && (
             <RouteSection routeSection={configData.routeSection} />
-          )}
-
-          {configData.sections.map((section: BbucleRoadSectionDto, index: number) =>
-            renderSection(section, index),
           )}
         </ContentWrapper>
       </ScrollView>
