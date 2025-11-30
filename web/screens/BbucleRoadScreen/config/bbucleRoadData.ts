@@ -16,6 +16,9 @@ export interface NearbyPlacesSectionData {
  */
 export interface BbucleRoadData extends GetBbucleRoadPageResponseDto {
   nearbyPlacesSection?: NearbyPlacesSectionData | null;
+  summaryTitle?: string;
+  summaryTitleColor?: string;
+  summaryBackgroundImageUrl?: string;
 }
 
 /**
@@ -28,8 +31,9 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "title": "",
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251129062436_77FB8C07B532496A.png",
   "summaryItems": [
-    "안녕안녕",
-    "하이하이"
+    "시야 OK, 약 40석",
+    "지하철에서 올 때 주의!",
+    "엘리베이터 이용 동선 체크!"
   ],
   "sections": [],
   "routeSection": {
@@ -209,17 +213,11 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "listImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130052115_7FA097A994D54CB8.png",
     "naverListUrl": "https://map.naver.com",
     "morePlacesUrl": "stair-crusher://place-group/asdf"
-  }
+  },
+  "summaryTitle": "고척 스카이돔, 휠체어석 {n}줄 요약",
+  "summaryTitleColor": "#FFFFFF",
+  "summaryBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130085809_410F0D1A2B024668.png"
 },
-  // 예시 데이터 - 실제 데이터로 교체 필요
-  // 'gocheok-skydome': {
-  //   id: 'gocheok-skydome',
-  //   title: '고척스카이돔',
-  //   titleImageUrl: 'https://example.com/image.jpg',
-  //   summaryItems: [],
-  //   sections: [],
-  //   routeSection: null,
-  // },
 };
 
 /**

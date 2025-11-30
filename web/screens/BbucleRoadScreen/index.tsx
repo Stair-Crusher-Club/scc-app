@@ -87,6 +87,9 @@ function EditModeContent() {
             <HeaderSection
               titleImageUrl={data.titleImageUrl}
               summaryItems={data.summaryItems}
+              summaryTitle={data.summaryTitle}
+              summaryTitleColor={data.summaryTitleColor}
+              summaryBackgroundImageUrl={data.summaryBackgroundImageUrl}
             />
 
             {data.routeSection ? (
@@ -231,6 +234,9 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
           <HeaderSection
             titleImageUrl={configData.titleImageUrl}
             summaryItems={configData.summaryItems}
+            summaryTitle={configData.summaryTitle}
+            summaryTitleColor={configData.summaryTitleColor}
+            summaryBackgroundImageUrl={configData.summaryBackgroundImageUrl}
           />
 
           {configData.routeSection && (
