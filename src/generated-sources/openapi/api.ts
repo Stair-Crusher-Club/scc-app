@@ -2090,6 +2090,38 @@ export interface GetNearbyAccessibilityStatusPostRequest {
 /**
  * 
  * @export
+ * @interface GetPlaceGroupRequestDto
+ */
+export interface GetPlaceGroupRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetPlaceGroupRequestDto
+     */
+    'placeGroupId': string;
+}
+/**
+ * 
+ * @export
+ * @interface GetPlaceGroupResponseDto
+ */
+export interface GetPlaceGroupResponseDto {
+    /**
+     * 
+     * @type {PlaceGroup}
+     * @memberof GetPlaceGroupResponseDto
+     */
+    'placeGroup': PlaceGroup;
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof GetPlaceGroupResponseDto
+     */
+    'places': Array<PlaceListItem>;
+}
+/**
+ * 
+ * @export
  * @interface GetReviewActivityReportResponseDto
  */
 export interface GetReviewActivityReportResponseDto {
@@ -3299,6 +3331,62 @@ export interface PlaceFavorite {
      */
     'createdAt'?: EpochMillisTimestamp;
 }
+/**
+ * 
+ * @export
+ * @interface PlaceGroup
+ */
+export interface PlaceGroup {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceGroup
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceGroup
+     */
+    'name': string;
+    /**
+     * 
+     * @type {PlaceGroupType}
+     * @memberof PlaceGroup
+     */
+    'type': PlaceGroupType;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PlaceGroup
+     */
+    'placeIds': Array<string>;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceGroup
+     */
+    'createdAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceGroup
+     */
+    'updatedAt': EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceGroupType = {
+    BbucleRoad: 'BBUCLE_ROAD'
+} as const;
+
+export type PlaceGroupType = typeof PlaceGroupType[keyof typeof PlaceGroupType];
+
+
 /**
  * 
  * @export
@@ -6271,6 +6359,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary PlaceGroup을 조회한다.
+         * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPlaceGroup: async (getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getPlaceGroupRequestDto' is not null or undefined
+            assertParamExists('getPlaceGroup', 'getPlaceGroupRequestDto', getPlaceGroupRequestDto)
+            const localVarPath = `/getPlaceGroup`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getPlaceGroupRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -6365,7 +6493,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Identified required
+            // authentication Anonymous required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -8247,6 +8375,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary PlaceGroup을 조회한다.
+         * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getPlaceGroup(getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPlaceGroupResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPlaceGroup(getPlaceGroupRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -8985,6 +9124,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest: GetNearbyAccessibilityStatusPostRequest, options?: any): AxiosPromise<GetNearbyAccessibilityStatusPost200Response> {
             return localVarFp.getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary PlaceGroup을 조회한다.
+         * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPlaceGroup(getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options?: any): AxiosPromise<GetPlaceGroupResponseDto> {
+            return localVarFp.getPlaceGroup(getPlaceGroupRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9737,6 +9886,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest: GetNearbyAccessibilityStatusPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary PlaceGroup을 조회한다.
+     * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getPlaceGroup(getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getPlaceGroup(getPlaceGroupRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
