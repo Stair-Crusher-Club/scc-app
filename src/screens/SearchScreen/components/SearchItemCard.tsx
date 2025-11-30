@@ -33,10 +33,12 @@ function SearchItemCard({
   item,
   isHeightFlex,
   onPress,
+  isReadOnly,
 }: {
   item: PlaceListItem;
   isHeightFlex?: boolean;
   onPress?: () => void;
+  isReadOnly?: boolean;
 }) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -231,30 +233,42 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
-            {registerStatus !== 'UNAVAILABLE' && registerStatus !== 'NONE' && (
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-                {registerStatus === 'PLACE_ONLY' && (
-                  <XSButton
-                    text="건물"
-                    hasPlusButton
-                    elementName="place_search_item_card_register_building_accessibility_button"
-                    onPress={() => onRegister('building')}
-                  />
-                )}
-                {isReviewEnabled(item.place) && (
-                  <XSButton
-                    text="리뷰"
-                    hasPlusButton
-                    elementName="place_search_item_card_register_review_button"
-                    onPress={() => onRegister('review')}
-                  />
-                )}
-              </View>
-            )}
+            {!isReadOnly &&
+              registerStatus !== 'UNAVAILABLE' &&
+              registerStatus !== 'NONE' && (
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  {registerStatus === 'PLACE_ONLY' && (
+                    <XSButton
+                      text="건물"
+                      hasPlusButton
+                      elementName="place_search_item_card_register_building_accessibility_button"
+                      onPress={() => onRegister('building')}
+                    />
+                  )}
+                  {isReviewEnabled(item.place) && (
+                    <XSButton
+                      text="리뷰"
+                      hasPlusButton
+                      elementName="place_search_item_card_register_review_button"
+                      onPress={() => onRegister('review')}
+                    />
+                  )}
+                </View>
+              )}
           </ExtraArea>
         </InfoArea>
-        {registerStatus === 'UNAVAILABLE' ? (
+        {isReadOnly ? (
+          <View
+            style={{
+              marginTop: 12,
+              width: '100%',
+              flexShrink: 2,
+              overflow: 'hidden',
+            }}>
+            <ImageList images={item.accessibilityInfo?.images ?? []} />
+          </View>
+        ) : registerStatus === 'UNAVAILABLE' ? (
           <View style={{width: '100%', gap: 4, marginTop: 12}}>
             <LGButton
               text="서비스지역이 아닙니다."

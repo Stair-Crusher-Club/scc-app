@@ -13,6 +13,7 @@ import InteractiveImage from '../components/InteractiveImage';
 import RegionDetailModal from '../components/RegionDetailModal';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
+import { DESKTOP_BREAKPOINT } from '../constants/layout';
 
 interface RouteSectionProps {
   routeSection: BbucleRoadRouteSectionDto;
@@ -26,8 +27,6 @@ const ICON_MAP: Record<BbucleRoadRouteIconTypeDto, string> = {
 };
 
 const ICON_OPTIONS: BbucleRoadRouteIconTypeDto[] = ['SUBWAY', 'TAXI', 'CAR', 'BUS'];
-
-const DESKTOP_BREAKPOINT = 900;
 
 export default function RouteSection({ routeSection }: RouteSectionProps) {
   const editContext = useEditMode();
@@ -162,7 +161,12 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
   return (
     <Container>
       {isEditMode
-        ? <SectionTitleInput value={routeSection.title} />
+        ? <SectionTitleInput
+            value={routeSection.title}
+            onChangeText={(text) => updateRouteSection((prev) => ({ ...prev, title: text }))}
+            placeholder="섹션 타이틀"
+            placeholderTextColor="#999"
+          />
         : <SectionTitle>{routeSection.title}</SectionTitle>}
 
       {/* Tabs */}

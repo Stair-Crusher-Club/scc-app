@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, Linking, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, TextInput, useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
+import { DESKTOP_BREAKPOINT } from '../constants/layout';
 
 interface NearbyPlacesSectionProps {
   title: string;
@@ -26,6 +27,8 @@ export default function NearbyPlacesSection({
 }: NearbyPlacesSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
+  const { width: windowWidth } = useWindowDimensions();
+  const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
 
   const handleNaverListPress = () => {
     Linking.openURL(naverListUrl);
@@ -146,7 +149,7 @@ export default function NearbyPlacesSection({
           )
         )}
 
-        <ButtonContainer>
+        <ButtonContainer style={!isDesktop ? { flexDirection: 'column' } : undefined}>
           <PrimaryButton onPress={handleNaverListPress}>
             <PrimaryButtonText>네이버 리스트</PrimaryButtonText>
           </PrimaryButton>
@@ -169,12 +172,14 @@ const ContentWrapper = styled(View)`
   align-items: center;
   gap: 60px;
   width: 100%;
+  padding: 0 16px;
 `;
 
 const TitleSection = styled(View)`
   align-items: center;
   gap: 20px;
-  width: 800px;
+  max-width: 800px;
+  width: 100%;
 `;
 
 const SubTitle = styled(Text)`
@@ -199,11 +204,13 @@ const MainTitleInput = styled(TextInput)`
   color: #000000;
   text-align: center;
   line-height: 54px;
-  width: 800px;
+  max-width: 800px;
+  width: 100%;
 `;
 
 const ImageContainer = styled(View)`
-  width: 1020px;
+  max-width: 1020px;
+  width: 100%;
   position: relative;
 `;
 
@@ -220,6 +227,7 @@ const PrimaryButton = styled(TouchableOpacity)`
 `;
 
 const PrimaryButtonText = styled(Text)`
+  text-align: center;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -233,7 +241,8 @@ const ImageOverlay = styled(View)`
 `;
 
 const EmptyImagePlaceholder = styled(View)`
-  width: 1020px;
+  max-width: 1020px;
+  width: 100%;
   padding: 60px;
   background-color: #fff;
   border: 2px dashed #ddd;

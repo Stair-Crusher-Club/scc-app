@@ -1,12 +1,12 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import styled from 'styled-components/native';
 import {match} from 'ts-pattern';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
-import ItemMapView from '@/components/maps/ItemMapView';
+import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {
   MarkerIcon,
   MarkerItem,
@@ -17,12 +17,22 @@ import {font} from '@/constant/font';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import PlaceGroupCard from '@/screens/PlaceGroupMapScreen/PlaceGroupCard';
+import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 
 export interface PlaceGroupMapScreenParams {
   placeGroupId: string;
 }
+
+type PlaceMarkerItem = MarkerItem & PlaceListItem;
+
+const PlaceGroupItemCard = ({
+  item,
+  onPress,
+}: {
+  item: PlaceMarkerItem;
+  onPress?: () => void;
+}) => <SearchItemCard item={item} onPress={onPress} isReadOnly />;
 
 const PlaceGroupMapScreen = ({
   route,
@@ -30,6 +40,7 @@ const PlaceGroupMapScreen = ({
 }: ScreenProps<'PlaceGroupMap'>) => {
   const {placeGroupId} = route.params;
   const {api} = useAppComponents();
+  const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
 
   const {data} = useQuery({
     queryKey: ['PlaceGroup', placeGroupId],
@@ -42,6 +53,14 @@ const PlaceGroupMapScreen = ({
   const items = useMemo(() => {
     return data?.places?.map(addMarkerInfo) ?? [];
   }, [data?.places]);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      setTimeout(() => {
+        mapRef.current?.fitToItems(items);
+      }, 150); // 카드뷰 렌더링 이후에 줌을 시켜야 올바르게 fit이 된다.
+    }
+  }, [items]);
 
   const title = data?.placeGroup?.name ?? '장소 목록';
 
@@ -57,8 +76,9 @@ const PlaceGroupMapScreen = ({
         <Title>{title}</Title>
       </Header>
       <ItemMapView
+        ref={mapRef}
         items={items}
-        ItemCard={PlaceGroupCard}
+        ItemCard={PlaceGroupItemCard}
         isRefreshVisible={false}
         onRefresh={() => {}}
         onCameraIdle={() => {}}
@@ -67,7 +87,7 @@ const PlaceGroupMapScreen = ({
   );
 };
 
-function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
+function addMarkerInfo(item: PlaceListItem): PlaceMarkerItem {
   return {
     ...item,
     id: item.place.id,

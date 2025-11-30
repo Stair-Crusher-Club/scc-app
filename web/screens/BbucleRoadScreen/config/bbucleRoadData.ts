@@ -208,7 +208,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130052102_DE22CB472F484409.png",
     "listImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130052115_7FA097A994D54CB8.png",
     "naverListUrl": "https://map.naver.com",
-    "morePlacesUrl": "https://map.naver.com"
+    "morePlacesUrl": "stair-crusher://place-group/asdf"
   }
 },
   // 예시 데이터 - 실제 데이터로 교체 필요
