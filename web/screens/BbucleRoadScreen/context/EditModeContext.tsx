@@ -7,14 +7,12 @@ import React, {
   useEffect,
   type ReactNode,
 } from 'react';
-import type {
-  GetBbucleRoadPageResponseDto,
-  BbucleRoadPolygonPointDto,
-} from '@/generated-sources/openapi';
+import type { BbucleRoadPolygonPointDto } from '@/generated-sources/openapi';
+import type { BbucleRoadData } from '../config/bbucleRoadData';
 
 interface UndoAction {
   type: string;
-  previousData: GetBbucleRoadPageResponseDto;
+  previousData: BbucleRoadData;
 }
 
 /** Region 편집 상태 */
@@ -35,15 +33,15 @@ interface EditModeContextValue {
   /** Edit 모드 활성화 여부 */
   isEditMode: boolean;
   /** 현재 편집 중인 데이터 */
-  data: GetBbucleRoadPageResponseDto;
+  data: BbucleRoadData;
   /** 데이터 업데이트 함수 */
   updateData: (
     updater: (
-      prev: GetBbucleRoadPageResponseDto,
-    ) => GetBbucleRoadPageResponseDto,
+      prev: BbucleRoadData,
+    ) => BbucleRoadData,
   ) => void;
   /** 데이터 전체 교체 (JSON import용) */
-  setData: (newData: GetBbucleRoadPageResponseDto) => void;
+  setData: (newData: BbucleRoadData) => void;
   /** Undo 스택 */
   undoStack: UndoAction[];
   /** Undo 실행 */
@@ -92,7 +90,7 @@ const EditModeContext = createContext<EditModeContextValue | null>(null);
 interface EditModeProviderProps {
   children: ReactNode;
   isEditMode: boolean;
-  initialData: GetBbucleRoadPageResponseDto;
+  initialData: BbucleRoadData;
 }
 
 export function EditModeProvider({
@@ -101,14 +99,14 @@ export function EditModeProvider({
   initialData,
 }: EditModeProviderProps) {
   const [data, setDataState] =
-    useState<GetBbucleRoadPageResponseDto>(initialData);
+    useState<BbucleRoadData>(initialData);
   const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
   const [editingRegion, setEditingRegion] = useState<EditingRegionState | null>(
     null,
   );
 
   const pushToUndoStack = useCallback(
-    (actionType: string, previousData: GetBbucleRoadPageResponseDto) => {
+    (actionType: string, previousData: BbucleRoadData) => {
       setUndoStack((prev) => [
         ...prev.slice(-49), // 최대 50개 유지
         { type: actionType, previousData },
@@ -120,8 +118,8 @@ export function EditModeProvider({
   const updateData = useCallback(
     (
       updater: (
-        prev: GetBbucleRoadPageResponseDto,
-      ) => GetBbucleRoadPageResponseDto,
+        prev: BbucleRoadData,
+      ) => BbucleRoadData,
     ) => {
       setDataState((prev) => {
         pushToUndoStack('update', prev);
@@ -132,7 +130,7 @@ export function EditModeProvider({
   );
 
   const setData = useCallback(
-    (newData: GetBbucleRoadPageResponseDto) => {
+    (newData: BbucleRoadData) => {
       setDataState((prev) => {
         pushToUndoStack('replace', prev);
         return newData;
@@ -158,7 +156,7 @@ export function EditModeProvider({
   const importFromJson = useCallback(
     (json: string): boolean => {
       try {
-        const parsed = JSON.parse(json) as GetBbucleRoadPageResponseDto;
+        const parsed = JSON.parse(json) as BbucleRoadData;
         // 기본 유효성 검사
         if (!parsed.id || typeof parsed.id !== 'string') {
           console.error('Invalid JSON: missing or invalid id');

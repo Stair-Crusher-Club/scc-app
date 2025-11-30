@@ -10,6 +10,7 @@ import { color } from '@/constant/color';
 
 import HeaderSection from './sections/HeaderSection';
 import RouteSection from './sections/RouteSection';
+import NearbyPlacesSection from './sections/NearbyPlacesSection';
 
 import {
   getBbucleRoadConfig,
@@ -65,6 +66,19 @@ function EditModeContent() {
     }));
   }, [updateData]);
 
+  const handleAddNearbyPlacesSection = useCallback(() => {
+    updateData((prev) => ({
+      ...prev,
+      nearbyPlacesSection: {
+        title: '근처 장소 정보',
+        mapImageUrl: '',
+        listImageUrl: '',
+        naverListUrl: 'https://map.naver.com',
+        morePlacesUrl: 'https://map.naver.com',
+      },
+    }));
+  }, [updateData]);
+
   return (
     <EditModeContainer>
       <MainContent>
@@ -84,6 +98,24 @@ function EditModeContent() {
                 </AddSectionButton>
               </AddSectionContainer>
             )}
+
+            {data.nearbyPlacesSection ? (
+              <NearbyPlacesSection
+                title={data.nearbyPlacesSection.title}
+                mapImageUrl={data.nearbyPlacesSection.mapImageUrl}
+                listImageUrl={data.nearbyPlacesSection.listImageUrl}
+                naverListUrl={data.nearbyPlacesSection.naverListUrl}
+                morePlacesUrl={data.nearbyPlacesSection.morePlacesUrl}
+              />
+            ) : (
+              <AddSectionContainer>
+                <AddSectionButton onPress={handleAddNearbyPlacesSection}>
+                  <AddSectionButtonText>+ 근처 장소 섹션 추가</AddSectionButtonText>
+                </AddSectionButton>
+              </AddSectionContainer>
+            )}
+
+            <Footer />
           </ContentWrapper>
         </ScrollView>
       </MainContent>
@@ -204,6 +236,18 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
           {configData.routeSection && (
             <RouteSection routeSection={configData.routeSection} />
           )}
+
+          {configData.nearbyPlacesSection && (
+            <NearbyPlacesSection
+              title={configData.nearbyPlacesSection.title}
+              mapImageUrl={configData.nearbyPlacesSection.mapImageUrl}
+              listImageUrl={configData.nearbyPlacesSection.listImageUrl}
+              naverListUrl={configData.nearbyPlacesSection.naverListUrl}
+              morePlacesUrl={configData.nearbyPlacesSection.morePlacesUrl}
+            />
+          )}
+
+          <Footer />
         </ContentWrapper>
       </ScrollView>
     </Container>
@@ -272,4 +316,8 @@ const AddSectionButtonText = styled(Text)`
   color: #fff;
   font-size: 16px;
   font-weight: 600;
+`;
+
+const Footer = styled(View)`
+  height: 120px;
 `;

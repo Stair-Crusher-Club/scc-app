@@ -291,7 +291,7 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
 
 const Container = styled(View)`
   padding: 24px 16px;
-  margin-bottom: 150px;
+  margin-top: 150px;
 `;
 
 const SectionTitle = styled(Text)`

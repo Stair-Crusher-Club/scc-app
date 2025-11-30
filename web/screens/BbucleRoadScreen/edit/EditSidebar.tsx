@@ -112,6 +112,7 @@ export default function EditSidebar() {
 
   const {
     data,
+    updateData,
     exportToJson,
     importFromJson,
     editingRegion,
@@ -363,6 +364,152 @@ export default function EditSidebar() {
               </>
             )}
           </Section>
+
+          {/* 근처 장소 섹션 편집 */}
+          {data.nearbyPlacesSection && (
+            <Section>
+              <SectionTitle>근처 장소 섹션</SectionTitle>
+              <NearbyPlacesEditPanel>
+                {/* 타이틀 */}
+                <FieldGroup>
+                  <FieldLabel>타이틀</FieldLabel>
+                  <FieldInput
+                    value={data.nearbyPlacesSection.title}
+                    onChangeText={(text: string) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        nearbyPlacesSection: prev.nearbyPlacesSection
+                          ? { ...prev.nearbyPlacesSection, title: text }
+                          : null,
+                      }))
+                    }
+                    placeholder="예: 고척스카이돔 근처 맛집 정보"
+                    placeholderTextColor="#999"
+                  />
+                </FieldGroup>
+
+                {/* 지도 이미지 */}
+                <FieldGroup>
+                  <FieldLabel>지도 이미지</FieldLabel>
+                  {data.nearbyPlacesSection.mapImageUrl ? (
+                    <ImagePreviewContainer>
+                      <ImagePreview
+                        source={{ uri: data.nearbyPlacesSection.mapImageUrl }}
+                      />
+                      <ImageRemoveButton
+                        onPress={() =>
+                          updateData((prev) => ({
+                            ...prev,
+                            nearbyPlacesSection: prev.nearbyPlacesSection
+                              ? { ...prev.nearbyPlacesSection, mapImageUrl: '' }
+                              : null,
+                          }))
+                        }
+                      >
+                        <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                      </ImageRemoveButton>
+                    </ImagePreviewContainer>
+                  ) : (
+                    <ImageUploader
+                      onUploadComplete={(url) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          nearbyPlacesSection: prev.nearbyPlacesSection
+                            ? { ...prev.nearbyPlacesSection, mapImageUrl: url }
+                            : null,
+                        }))
+                      }
+                      buttonText="지도 이미지 업로드"
+                    />
+                  )}
+                </FieldGroup>
+
+                {/* 목록 이미지 */}
+                <FieldGroup>
+                  <FieldLabel>장소 목록 이미지</FieldLabel>
+                  {data.nearbyPlacesSection.listImageUrl ? (
+                    <ImagePreviewContainer>
+                      <ImagePreview
+                        source={{ uri: data.nearbyPlacesSection.listImageUrl }}
+                      />
+                      <ImageRemoveButton
+                        onPress={() =>
+                          updateData((prev) => ({
+                            ...prev,
+                            nearbyPlacesSection: prev.nearbyPlacesSection
+                              ? { ...prev.nearbyPlacesSection, listImageUrl: '' }
+                              : null,
+                          }))
+                        }
+                      >
+                        <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                      </ImageRemoveButton>
+                    </ImagePreviewContainer>
+                  ) : (
+                    <ImageUploader
+                      onUploadComplete={(url) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          nearbyPlacesSection: prev.nearbyPlacesSection
+                            ? { ...prev.nearbyPlacesSection, listImageUrl: url }
+                            : null,
+                        }))
+                      }
+                      buttonText="목록 이미지 업로드"
+                    />
+                  )}
+                </FieldGroup>
+
+                {/* 네이버 리스트 URL */}
+                <FieldGroup>
+                  <FieldLabel>네이버 리스트 URL</FieldLabel>
+                  <FieldInput
+                    value={data.nearbyPlacesSection.naverListUrl || ''}
+                    onChangeText={(text: string) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        nearbyPlacesSection: prev.nearbyPlacesSection
+                          ? { ...prev.nearbyPlacesSection, naverListUrl: text }
+                          : null,
+                      }))
+                    }
+                    placeholder="https://map.naver.com/..."
+                    placeholderTextColor="#999"
+                  />
+                </FieldGroup>
+
+                {/* 더 많은 장소 URL */}
+                <FieldGroup>
+                  <FieldLabel>더 많은 장소 URL</FieldLabel>
+                  <FieldInput
+                    value={data.nearbyPlacesSection.morePlacesUrl || ''}
+                    onChangeText={(text: string) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        nearbyPlacesSection: prev.nearbyPlacesSection
+                          ? { ...prev.nearbyPlacesSection, morePlacesUrl: text }
+                          : null,
+                      }))
+                    }
+                    placeholder="https://..."
+                    placeholderTextColor="#999"
+                  />
+                </FieldGroup>
+
+                {/* 섹션 삭제 */}
+                <DeleteSectionButton
+                  onPress={() =>
+                    updateData((prev) => ({
+                      ...prev,
+                      nearbyPlacesSection: null,
+                    }))
+                  }
+                >
+                  <DeleteSectionButtonText>섹션 삭제</DeleteSectionButtonText>
+                </DeleteSectionButton>
+              </NearbyPlacesEditPanel>
+            </Section>
+          )}
 
           {/* JSON Export */}
           <Section>
@@ -811,4 +958,76 @@ const RegionImageThumb = styled(Image)`
   height: 40px;
   border-radius: 4px;
   background-color: #e0e0e0;
+`;
+
+// NearbyPlacesSection 편집 스타일
+const NearbyPlacesEditPanel = styled(View)`
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+`;
+
+const FieldGroup = styled(View)`
+  margin-bottom: 16px;
+`;
+
+const FieldLabel = styled(Text)`
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 6px;
+`;
+
+const FieldInput = styled(TextInput)`
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #333;
+`;
+
+const ImagePreviewContainer = styled(View)`
+  position: relative;
+  width: 100%;
+`;
+
+const ImagePreview = styled(Image)`
+  width: 100%;
+  height: 120px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+`;
+
+const ImageRemoveButton = styled(TouchableOpacity)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: #dc3545;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ImageRemoveButtonText = styled(Text)`
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+`;
+
+const DeleteSectionButton = styled(TouchableOpacity)`
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #dc3545;
+  border-radius: 6px;
+  align-items: center;
+`;
+
+const DeleteSectionButtonText = styled(Text)`
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
 `;

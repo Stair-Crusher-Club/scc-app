@@ -122,7 +122,6 @@ export default function HeaderSection({ titleImageUrl, summaryItems }: HeaderSec
 
 const Container = styled(View)`
   padding: 24px 16px;
-  margin-bottom: 150px;
 `;
 
 const ImageWrapper = styled(View)`

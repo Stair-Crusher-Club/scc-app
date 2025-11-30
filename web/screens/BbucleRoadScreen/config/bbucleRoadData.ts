@@ -1,10 +1,28 @@
 import type { GetBbucleRoadPageResponseDto } from '@/generated-sources/openapi';
 
 /**
+ * 근처 장소 섹션 데이터 타입
+ */
+export interface NearbyPlacesSectionData {
+  title: string;
+  mapImageUrl: string;
+  listImageUrl: string;
+  naverListUrl?: string;
+  morePlacesUrl?: string;
+}
+
+/**
+ * 확장된 뿌클로드 데이터 타입 (API 타입 + 추가 필드)
+ */
+export interface BbucleRoadData extends GetBbucleRoadPageResponseDto {
+  nearbyPlacesSection?: NearbyPlacesSectionData | null;
+}
+
+/**
  * ID별 하드코딩 데이터
  * API spec과 동일한 형태로 관리
  */
-export const BBUCLE_ROAD_DATA: Record<string, GetBbucleRoadPageResponseDto> = {
+export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   'asdf': {
   "id": "asdf",
   "title": "",
@@ -184,6 +202,13 @@ export const BBUCLE_ROAD_DATA: Record<string, GetBbucleRoadPageResponseDto> = {
         }
       }
     ]
+  },
+  "nearbyPlacesSection": {
+    "title": "근처 장소 정보",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130052102_DE22CB472F484409.png",
+    "listImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130052115_7FA097A994D54CB8.png",
+    "naverListUrl": "https://map.naver.com",
+    "morePlacesUrl": "https://map.naver.com"
   }
 },
   // 예시 데이터 - 실제 데이터로 교체 필요
@@ -200,13 +225,14 @@ export const BBUCLE_ROAD_DATA: Record<string, GetBbucleRoadPageResponseDto> = {
 /**
  * 빈 데이터 템플릿 (새 페이지 생성용)
  */
-export const EMPTY_BBUCLE_ROAD_DATA: GetBbucleRoadPageResponseDto = {
+export const EMPTY_BBUCLE_ROAD_DATA: BbucleRoadData = {
   id: '',
   title: '',
   titleImageUrl: '',
   summaryItems: [],
   sections: [],
   routeSection: null,
+  nearbyPlacesSection: null,
 };
 
 /**
@@ -216,7 +242,7 @@ export const EMPTY_BBUCLE_ROAD_DATA: GetBbucleRoadPageResponseDto = {
  */
 export function getBbucleRoadConfig(
   bbucleRoadId: string,
-): GetBbucleRoadPageResponseDto | undefined {
+): BbucleRoadData | undefined {
   return BBUCLE_ROAD_DATA[bbucleRoadId];
 }
 
@@ -227,7 +253,7 @@ export function getBbucleRoadConfig(
  */
 export function createEmptyBbucleRoadData(
   bbucleRoadId: string,
-): GetBbucleRoadPageResponseDto {
+): BbucleRoadData {
   return {
     ...EMPTY_BBUCLE_ROAD_DATA,
     id: bbucleRoadId,
