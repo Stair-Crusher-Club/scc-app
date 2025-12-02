@@ -154,10 +154,10 @@ const FRefInputComp = <T extends MarkerItem>(
          */
         selectedItemId={selectedItemId ?? (items && items[0]?.id)}
         mapPadding={{
-          top: 90, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
-          right: 20,
-          bottom: insets.bottom + cardHeight + 20,
-          left: 20,
+          top: 100, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
+          right: 30,
+          bottom: insets.bottom + cardHeight + 30,
+          left: 30,
         }}
       />
       <UpperShadow

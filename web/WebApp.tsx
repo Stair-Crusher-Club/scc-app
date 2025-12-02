@@ -52,7 +52,8 @@ export default function DesktopApp() {
                     parse: {
                       bbucleRoadId: (bbucleRoadId: string) => bbucleRoadId,
                     },
-                  }
+                  },
+                  KakaoCallback: 'oauth/kakao',
                 },
               },
             }}>

@@ -1,111 +1,241 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator, Text } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { WebStackParamList } from '../../navigation/WebNavigation';
 import { api, apiConfig } from '../../config/api';
-import type { BbucleRoadSectionDto } from '@/generated-sources/openapi';
 import { color } from '@/constant/color';
 
 import HeaderSection from './sections/HeaderSection';
-import MapOverviewSection from './sections/MapOverviewSection';
-import TransportationSection from './sections/TransportationSection';
-import TicketingSection from './sections/TicketingSection';
-import WheelchairViewSection from './sections/WheelchairViewSection';
-import NearbyRestaurantsSection from './sections/NearbyRestaurantsSection';
-import NearbyCafesSection from './sections/NearbyCafesSection';
+import RouteSection from './sections/RouteSection';
+import NearbyPlacesSection from './sections/NearbyPlacesSection';
+import StickyTabHeader, { SectionTab } from './components/StickyTabHeader';
+import useSectionNavigation from './hooks/useSectionNavigation';
+
+import {
+  getBbucleRoadConfig,
+  createEmptyBbucleRoadData,
+  type BbucleRoadData,
+} from './config/bbucleRoadData';
+import { EditModeProvider, useEditMode } from './context/EditModeContext';
+import EditSidebar from './edit/EditSidebar';
+
+// Section IDs for navigation
+const SECTION_IDS = {
+  ROUTE: 'route-section',
+  NEARBY_PLACES: 'nearby-places-section',
+} as const;
 
 type BbucleRoadScreenRouteProp = RouteProp<WebStackParamList, 'BbucleRoad'>;
-type BbucleRoadScreenNavigationProp = NativeStackNavigationProp<WebStackParamList, 'BbucleRoad'>;
+type BbucleRoadScreenNavigationProp = NativeStackNavigationProp<
+  WebStackParamList,
+  'BbucleRoad'
+>;
 
 interface BbucleRoadScreenProps {
   route: BbucleRoadScreenRouteProp;
   navigation: BbucleRoadScreenNavigationProp;
 }
 
-function renderSection(section: BbucleRoadSectionDto, index: number) {
-  switch (section.sectionType) {
-    case 'MAP_OVERVIEW':
-      return <MapOverviewSection key={index} section={section} />;
-    case 'TRAFFIC':
-      return <TransportationSection key={index} section={section} />;
-    case 'TICKETING':
-      return <TicketingSection key={index} section={section} />;
-    case 'WHEELCHAIR_VIEW':
-      return <WheelchairViewSection key={index} section={section} />;
-    case 'NEARBY_RESTAURANTS':
-      return <NearbyRestaurantsSection key={index} section={section} />;
-    case 'NEARBY_CAFES':
-      return <NearbyCafesSection key={index} section={section} />;
-    default:
-      return null;
-  }
+/**
+ * URL에서 editMode queryParam 확인
+ */
+function getIsEditMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  const searchParams = new URLSearchParams(window.location.search);
+  return searchParams.get('editMode') === 'true';
+}
+
+/**
+ * 순수 View 컴포넌트 - data 받아서 그리기만
+ */
+function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
+  const availableSections = useMemo(() => {
+    const sections: SectionTab[] = [];
+    if (data.routeSection) {
+      sections.push({ id: SECTION_IDS.ROUTE, label: '동선정보' });
+    }
+    if (data.nearbyPlacesSection) {
+      sections.push({ id: SECTION_IDS.NEARBY_PLACES, label: '근처맛집' });
+    }
+    return sections;
+  }, [data.routeSection, data.nearbyPlacesSection]);
+
+  const sectionIds = useMemo(
+    () => availableSections.map((s) => s.id),
+    [availableSections],
+  );
+
+  const { activeSection, scrollToSection } = useSectionNavigation({ sectionIds });
+
+  return (
+    <ScrollView>
+      <ContentWrapper>
+        <HeaderSection
+          titleImageUrl={data.titleImageUrl}
+          summaryItems={data.summaryItems}
+          summaryTitle={data.summaryTitle}
+          summaryTitleColor={data.summaryTitleColor}
+          summaryBackgroundImageUrl={data.summaryBackgroundImageUrl}
+        />
+
+        {availableSections.length > 0 && (
+          <StickyTabHeader
+            sections={availableSections}
+            activeSection={activeSection}
+            onTabPress={scrollToSection}
+          />
+        )}
+
+        {data.routeSection && (
+          <RouteSection
+            routeSection={data.routeSection}
+            sectionId={SECTION_IDS.ROUTE}
+          />
+        )}
+
+        {data.nearbyPlacesSection && (
+          <NearbyPlacesSection
+            title={data.nearbyPlacesSection.title}
+            mapImageUrl={data.nearbyPlacesSection.mapImageUrl}
+            listImageUrl={data.nearbyPlacesSection.listImageUrl}
+            naverListUrl={data.nearbyPlacesSection.naverListUrl}
+            morePlacesUrl={data.nearbyPlacesSection.morePlacesUrl}
+            sectionId={SECTION_IDS.NEARBY_PLACES}
+          />
+        )}
+
+        <Footer />
+      </ContentWrapper>
+    </ScrollView>
+  );
+}
+
+/**
+ * Edit Mode 전용 래퍼
+ */
+function EditModeContent() {
+  const editContext = useEditMode();
+  if (!editContext) return null;
+
+  const { data, updateData } = editContext;
+
+  const handleAddRouteSection = useCallback(() => {
+    updateData((prev) => ({
+      ...prev,
+      routeSection: {
+        title: '동선정보',
+        routes: [
+          {
+            id: `route-${Date.now()}`,
+            tabLabel: '새 동선',
+            tabIconType: 'SUBWAY' as const,
+            descriptionImageUrl: '',
+            interactiveImage: { url: '', clickableRegions: [] },
+          },
+        ],
+      },
+    }));
+  }, [updateData]);
+
+  const handleAddNearbyPlacesSection = useCallback(() => {
+    updateData((prev) => ({
+      ...prev,
+      nearbyPlacesSection: {
+        title: '근처 장소 정보',
+        mapImageUrl: '',
+        listImageUrl: '',
+        naverListUrl: 'https://map.naver.com',
+        morePlacesUrl: 'https://map.naver.com',
+      },
+    }));
+  }, [updateData]);
+
+  return (
+    <EditModeContainer>
+      <MainContent>
+        <BbucleRoadContent data={data} />
+        {!data.routeSection && (
+          <AddSectionContainer>
+            <AddSectionButton onPress={handleAddRouteSection}>
+              <AddSectionButtonText>+ 동선정보 섹션 추가</AddSectionButtonText>
+            </AddSectionButton>
+          </AddSectionContainer>
+        )}
+        {!data.nearbyPlacesSection && (
+          <AddSectionContainer>
+            <AddSectionButton onPress={handleAddNearbyPlacesSection}>
+              <AddSectionButtonText>+ 근처 장소 섹션 추가</AddSectionButtonText>
+            </AddSectionButton>
+          </AddSectionContainer>
+        )}
+      </MainContent>
+      <EditSidebar />
+    </EditModeContainer>
+  );
 }
 
 export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   const { bbucleRoadId } = route.params;
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Initialize anonymous login
+  const isEditMode = useMemo(() => getIsEditMode(), []);
+
+  // Config에서 데이터 확인
+  const configData = useMemo(
+    () => getBbucleRoadConfig(bbucleRoadId),
+    [bbucleRoadId],
+  );
+
+  // Edit Mode용 초기 데이터
+  const editModeInitialData = useMemo(() => {
+    if (configData) return configData;
+    return createEmptyBbucleRoadData(bbucleRoadId);
+  }, [configData, bbucleRoadId]);
+
+  // Initialize auth for edit mode (image upload)
   useEffect(() => {
+    if (!isEditMode) {
+      setIsInitializing(false);
+      return;
+    }
+
     const initializeAuth = async () => {
       try {
         // Check localStorage for existing token
-        const storedToken =
-          typeof window !== 'undefined'
-            ? window.localStorage.getItem('anonymousAccessToken')
-            : null;
-        const tokenExpiry =
-          typeof window !== 'undefined'
-            ? window.localStorage.getItem('anonymousTokenExpiry')
-            : null;
+        const storedToken = window.localStorage.getItem('sccAccessToken');
+        if (storedToken) {
+          apiConfig.accessToken = storedToken;
+          setIsInitializing(false);
+          return;
+        }
 
-        // Check if token exists and is not expired (10 years validity)
-        if (storedToken && tokenExpiry) {
+        // Check for anonymous token
+        const anonymousToken = window.localStorage.getItem('anonymousAccessToken');
+        const tokenExpiry = window.localStorage.getItem('anonymousTokenExpiry');
+
+        if (anonymousToken && tokenExpiry) {
           const expiryTime = parseInt(tokenExpiry, 10);
-          const currentTime = Date.now();
-
-          if (currentTime < expiryTime) {
-            // Use existing token
-            console.log('Using existing anonymous token from localStorage');
-            setAccessToken(storedToken);
-            apiConfig.accessToken = storedToken;
+          if (Date.now() < expiryTime) {
+            apiConfig.accessToken = anonymousToken;
             setIsInitializing(false);
             return;
-          } else {
-            // Token expired, clear localStorage
-            console.log('Token expired, creating new anonymous login');
-            if (typeof window !== 'undefined') {
-              window.localStorage.removeItem('anonymousAccessToken');
-              window.localStorage.removeItem('anonymousTokenExpiry');
-            }
           }
         }
 
-        // No valid token found, create new anonymous login
-        console.log('Creating new anonymous login');
+        // Create new anonymous login
         const response = await api.createAnonymousUserPost();
         const { authTokens } = response.data;
 
-        // Save to localStorage with 10 year expiry
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(
-            'anonymousAccessToken',
-            authTokens.accessToken,
-          );
-          window.localStorage.setItem(
-            'anonymousTokenExpiry',
-            String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
-          );
-        }
+        window.localStorage.setItem('anonymousAccessToken', authTokens.accessToken);
+        window.localStorage.setItem(
+          'anonymousTokenExpiry',
+          String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
+        );
 
-        setAccessToken(authTokens.accessToken);
         apiConfig.accessToken = authTokens.accessToken;
-        console.log('Anonymous login successful and saved to localStorage');
       } catch (error) {
         console.error('Anonymous login failed:', error);
       } finally {
@@ -114,69 +244,64 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     };
 
     initializeAuth();
-  }, []);
+  }, [isEditMode]);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['bbucleRoadPage', bbucleRoadId],
-    queryFn: async () => {
-      const response = await api.getBbucleRoadPage({ bbucleRoadId });
-      return response.data;
-    },
-    enabled: !!accessToken, // Only run query when we have a token
-  });
+  // Edit Mode: Config 데이터 사용
+  if (isEditMode) {
+    if (isInitializing) {
+      return (
+        <LoadingContainer>
+          <LoadingText>인증 중...</LoadingText>
+        </LoadingContainer>
+      );
+    }
 
-  if (isInitializing) {
     return (
-      <LoadingContainer>
-        <LoadingText>인증 중...</LoadingText>
-      </LoadingContainer>
+      <Container>
+        <EditModeProvider
+          isEditMode={true}
+          initialData={editModeInitialData}
+        >
+          <EditModeContent />
+        </EditModeProvider>
+      </Container>
     );
   }
 
-  if (isLoading) {
-    return (
-      <LoadingContainer>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </LoadingContainer>
-    );
-  }
-
-  if (error || !data) {
+  // View Mode: Config 데이터 사용
+  if (!configData) {
     return (
       <ErrorContainer>
-        <ErrorText>페이지를 불러올 수 없습니다.</ErrorText>
+        <ErrorText>페이지를 찾을 수 없습니다.</ErrorText>
       </ErrorContainer>
     );
   }
 
   return (
     <Container>
-      <ScrollView>
-        <ContentWrapper>
-          <HeaderSection
-            titleImageUrl={data.titleImageUrl}
-            summaryItems={data.summaryItems}
-          />
-
-          {data.sections.map((section: BbucleRoadSectionDto, index: number) =>
-            renderSection(section, index)
-          )}
-        </ContentWrapper>
-      </ScrollView>
+      <BbucleRoadContent data={configData} />
     </Container>
   );
 }
 
 const Container = styled(View)`
   flex: 1;
-  background-color: ${color.gray10};
+  background-color: white
+`;
+
+const EditModeContainer = styled(View)`
+  flex: 1;
+  flex-direction: row;
+`;
+
+const MainContent = styled(View)`
+  flex: 1;
 `;
 
 const ContentWrapper = styled(View)`
-  max-width: 1000px;
+  max-width: 1100px;
   width: 100%;
   align-self: center;
-  background-color: ${color.gray10};
 `;
 
 const LoadingContainer = styled(View)`
@@ -203,4 +328,25 @@ const ErrorText = styled(Text)`
   font-size: 16px;
   color: #666666;
   text-align: center;
+`;
+
+const AddSectionContainer = styled(View)`
+  padding: 24px 16px;
+  align-items: center;
+`;
+
+const AddSectionButton = styled(TouchableOpacity)`
+  padding: 20px 40px;
+  background-color: #007aff;
+  border-radius: 12px;
+`;
+
+const AddSectionButtonText = styled(Text)`
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+const Footer = styled(View)`
+  height: 120px;
 `;

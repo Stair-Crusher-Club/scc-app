@@ -181,6 +181,9 @@ const RootScreen = () => {
               CrusherActivity: {
                 path: 'crusher-activity',
               },
+              PlaceGroupMap: {
+                path: 'place-group/:placeGroupId',
+              },
               'Review/Upvote': {
                 path: 'review/upvote',
               },

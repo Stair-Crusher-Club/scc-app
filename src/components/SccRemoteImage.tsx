@@ -17,6 +17,7 @@ interface SccRemoteImageProps {
   onReady?: () => void;
   resizeMode?: ImageResizeMode;
   style?: ViewStyle;
+  wrapperBackgroundColor?: string | null;
 }
 
 export default function SccRemoteImage({
@@ -24,6 +25,7 @@ export default function SccRemoteImage({
   onReady,
   resizeMode = 'cover',
   style,
+  wrapperBackgroundColor,
 }: SccRemoteImageProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageHeight, setImageHeight] = useState<number | undefined>();
@@ -89,6 +91,11 @@ export default function SccRemoteImage({
     setImageLoading(false);
   };
 
+  const resolvedBackgroundColor =
+    wrapperBackgroundColor === null
+      ? 'transparent'
+      : (wrapperBackgroundColor ?? color.gray10);
+
   return (
     <ImageWrapper
       style={[
@@ -97,6 +104,7 @@ export default function SccRemoteImage({
           : originalSize
             ? {aspectRatio: originalSize.width / originalSize.height}
             : undefined,
+        {backgroundColor: resolvedBackgroundColor},
         style,
       ]}
       onLayout={handleLayout}>
@@ -114,7 +122,6 @@ const ImageWrapper = styled.View({
   width: '100%',
   justifyContent: 'center',
   alignItems: 'center',
-  backgroundColor: color.gray10,
 });
 
 const StyledImage = styled(Image)({
