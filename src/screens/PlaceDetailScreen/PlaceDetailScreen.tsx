@@ -21,6 +21,7 @@ import {
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {isReviewEnabled} from '@/models/Place';
@@ -75,6 +76,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {api} = useAppComponents();
   const isQAMode = useIsQAMode();
   const formVersion = useFormScreenVersion();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetail', 'ReportAccessibility'],
@@ -259,20 +262,33 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     setPendingBottomSheet(null);
   }, [navigation]);
 
-  const goToBuildingForm = useCallback(() => {
+  const goToBuildingForm = useCallback(async () => {
     closeModals();
     if (place && building) {
-      if (formVersion === 'v2') {
-        navigation.navigate('BuildingFormV2', {place, building});
-        return;
-      }
-      navigation.navigate('BuildingForm', {place, building});
+      await navigateWithLocationCheck({
+        targetLocation: building.location,
+        address: building.address,
+        type: 'building',
+        onNavigate: () => {
+          if (formVersion === 'v2') {
+            navigation.navigate('BuildingFormV2', {place, building});
+            return;
+          }
+          navigation.navigate('BuildingForm', {place, building});
+        },
+      });
     }
-  }, [building, closeModals, formVersion, navigation, place]);
+  }, [
+    building,
+    closeModals,
+    formVersion,
+    navigation,
+    navigateWithLocationCheck,
+    place,
+  ]);
 
   const handleBuildingRegistrationConfirm = useCallback(() => {
     handleBuildingRegistrationCancel();
-
     if (place && building) {
       if (formVersion === 'v2') {
         navigation.navigate('BuildingFormV2', {place, building});
@@ -321,7 +337,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           accessibility={accessibilityPost}
           place={place}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-          onRegister={() => {
+          onRegister={async () => {
             if (Platform.OS === 'web') {
               Toast.show('준비 중입니다 💪', {
                 duration: Toast.durations.SHORT,
@@ -329,11 +345,18 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            if (formVersion === 'v2') {
-              navigation.navigate('PlaceFormV2', {place, building});
-              return;
-            }
-            navigation.navigate('PlaceForm', {place, building});
+            await navigateWithLocationCheck({
+              targetLocation: place.location,
+              address: place.address,
+              type: 'place',
+              onNavigate: () => {
+                if (formVersion === 'v2') {
+                  navigation.navigate('PlaceFormV2', {place, building});
+                  return;
+                }
+                navigation.navigate('PlaceForm', {place, building});
+              },
+            });
           }}
           showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
         />
@@ -367,6 +390,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailIndoorSection
           reviews={reviewPost ?? []}
           placeId={place.id}
+          place={place}
         />
       ),
       order: 3,
@@ -388,9 +412,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Place', {
-                placeId: place.id,
+            checkAuth(async () => {
+              await navigateWithLocationCheck({
+                targetLocation: place.location,
+                address: place.address,
+                type: 'place',
+                onNavigate: () => {
+                  navigation.navigate('ReviewForm/Place', {
+                    placeId: place.id,
+                  });
+                },
               });
             });
           }}
@@ -411,6 +442,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailToiletSection
           toiletReviews={toiletPost ?? []}
           placeId={place.id}
+          placeLocation={place.location}
+          placeAddress={place.address}
         />
       ),
       order: 5,
@@ -432,9 +465,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               });
               return;
             }
-            checkAuth(() => {
-              navigation.navigate('ReviewForm/Toilet', {
-                placeId: place.id,
+            checkAuth(async () => {
+              await navigateWithLocationCheck({
+                targetLocation: place.location,
+                address: place.address,
+                type: 'place',
+                onNavigate: () => {
+                  navigation.navigate('ReviewForm/Toilet', {
+                    placeId: place.id,
+                  });
+                },
               });
             });
           }}
@@ -574,6 +614,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           }}
         />
       )}
+      {LocationConfirmModal}
     </LogParamsProvider>
   );
 };
