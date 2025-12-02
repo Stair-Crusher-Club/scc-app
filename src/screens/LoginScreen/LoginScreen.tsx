@@ -279,7 +279,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
         <Text className="text-[22px] leading-[31px] font-pretendard-semibold text-black text-center">
           {item.title}
         </Text>
-        <Image source={item.image} className="w-full h-auto aspect-[375/310]" />
+        <Image source={item.image} className="w-80 h-80" />
       </View>
     );
   }
