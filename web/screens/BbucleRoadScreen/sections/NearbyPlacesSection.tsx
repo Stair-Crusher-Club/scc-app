@@ -13,6 +13,7 @@ interface NearbyPlacesSectionProps {
   listImageUrl: string;
   naverListUrl?: string;
   morePlacesUrl?: string;
+  sectionId?: string;
 }
 
 const DEFAULT_NAVER_LIST_URL = 'https://map.naver.com';
@@ -24,6 +25,7 @@ export default function NearbyPlacesSection({
   listImageUrl,
   naverListUrl = DEFAULT_NAVER_LIST_URL,
   morePlacesUrl = DEFAULT_MORE_PLACES_URL,
+  sectionId,
 }: NearbyPlacesSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
@@ -73,8 +75,9 @@ export default function NearbyPlacesSection({
   );
 
   return (
-    <Container>
-      <ContentWrapper>
+    <div id={sectionId}>
+      <Container>
+        <ContentWrapper>
         <TitleSection>
           <SubTitle>계뿌클 픽!</SubTitle>
           {isEditMode ? (
@@ -157,8 +160,9 @@ export default function NearbyPlacesSection({
             <PrimaryButtonText>더 많은 장소 확인하기</PrimaryButtonText>
           </PrimaryButton>
         </ButtonContainer>
-      </ContentWrapper>
-    </Container>
+        </ContentWrapper>
+      </Container>
+    </div>
   );
 }
 

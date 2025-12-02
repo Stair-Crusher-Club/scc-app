@@ -11,6 +11,8 @@ import { color } from '@/constant/color';
 import HeaderSection from './sections/HeaderSection';
 import RouteSection from './sections/RouteSection';
 import NearbyPlacesSection from './sections/NearbyPlacesSection';
+import StickyTabHeader, { SectionTab } from './components/StickyTabHeader';
+import useSectionNavigation from './hooks/useSectionNavigation';
 
 import {
   getBbucleRoadConfig,
@@ -18,6 +20,12 @@ import {
 } from './config/bbucleRoadData';
 import { EditModeProvider, useEditMode } from './context/EditModeContext';
 import EditSidebar from './edit/EditSidebar';
+
+// Section IDs for navigation
+const SECTION_IDS = {
+  ROUTE: 'route-section',
+  NEARBY_PLACES: 'nearby-places-section',
+} as const;
 
 type BbucleRoadScreenRouteProp = RouteProp<WebStackParamList, 'BbucleRoad'>;
 type BbucleRoadScreenNavigationProp = NativeStackNavigationProp<
@@ -47,6 +55,25 @@ function EditModeContent() {
   if (!editContext) return null;
 
   const { data, updateData } = editContext;
+
+  // Build sections array based on available data
+  const availableSections = useMemo(() => {
+    const sections: SectionTab[] = [];
+    if (data.routeSection) {
+      sections.push({ id: SECTION_IDS.ROUTE, label: '동선정보' });
+    }
+    if (data.nearbyPlacesSection) {
+      sections.push({ id: SECTION_IDS.NEARBY_PLACES, label: '근처맛집' });
+    }
+    return sections;
+  }, [data.routeSection, data.nearbyPlacesSection]);
+
+  const sectionIds = useMemo(
+    () => availableSections.map((s) => s.id),
+    [availableSections],
+  );
+
+  const { activeSection, scrollToSection } = useSectionNavigation({ sectionIds });
 
   const handleAddRouteSection = useCallback(() => {
     updateData((prev) => ({
@@ -92,8 +119,19 @@ function EditModeContent() {
               summaryBackgroundImageUrl={data.summaryBackgroundImageUrl}
             />
 
+            {availableSections.length > 0 && (
+              <StickyTabHeader
+                sections={availableSections}
+                activeSection={activeSection}
+                onTabPress={scrollToSection}
+              />
+            )}
+
             {data.routeSection ? (
-              <RouteSection routeSection={data.routeSection} />
+              <RouteSection
+                routeSection={data.routeSection}
+                sectionId={SECTION_IDS.ROUTE}
+              />
             ) : (
               <AddSectionContainer>
                 <AddSectionButton onPress={handleAddRouteSection}>
@@ -109,6 +147,7 @@ function EditModeContent() {
                 listImageUrl={data.nearbyPlacesSection.listImageUrl}
                 naverListUrl={data.nearbyPlacesSection.naverListUrl}
                 morePlacesUrl={data.nearbyPlacesSection.morePlacesUrl}
+                sectionId={SECTION_IDS.NEARBY_PLACES}
               />
             ) : (
               <AddSectionContainer>
@@ -227,6 +266,40 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     );
   }
 
+  // Build sections array based on available data
+  const availableSections: SectionTab[] = [];
+  if (configData.routeSection) {
+    availableSections.push({ id: SECTION_IDS.ROUTE, label: '동선정보' });
+  }
+  if (configData.nearbyPlacesSection) {
+    availableSections.push({ id: SECTION_IDS.NEARBY_PLACES, label: '근처맛집' });
+  }
+
+  return (
+    <ViewModeContent
+      configData={configData}
+      availableSections={availableSections}
+    />
+  );
+}
+
+/**
+ * View Mode 콘텐츠 - 훅 사용을 위해 별도 컴포넌트로 분리
+ */
+function ViewModeContent({
+  configData,
+  availableSections,
+}: {
+  configData: NonNullable<ReturnType<typeof getBbucleRoadConfig>>;
+  availableSections: SectionTab[];
+}) {
+  const sectionIds = useMemo(
+    () => availableSections.map((s) => s.id),
+    [availableSections],
+  );
+
+  const { activeSection, scrollToSection } = useSectionNavigation({ sectionIds });
+
   return (
     <Container>
       <ScrollView>
@@ -239,8 +312,19 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
             summaryBackgroundImageUrl={configData.summaryBackgroundImageUrl}
           />
 
+          {availableSections.length > 0 && (
+            <StickyTabHeader
+              sections={availableSections}
+              activeSection={activeSection}
+              onTabPress={scrollToSection}
+            />
+          )}
+
           {configData.routeSection && (
-            <RouteSection routeSection={configData.routeSection} />
+            <RouteSection
+              routeSection={configData.routeSection}
+              sectionId={SECTION_IDS.ROUTE}
+            />
           )}
 
           {configData.nearbyPlacesSection && (
@@ -250,6 +334,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
               listImageUrl={configData.nearbyPlacesSection.listImageUrl}
               naverListUrl={configData.nearbyPlacesSection.naverListUrl}
               morePlacesUrl={configData.nearbyPlacesSection.morePlacesUrl}
+              sectionId={SECTION_IDS.NEARBY_PLACES}
             />
           )}
 

@@ -17,6 +17,7 @@ import { DESKTOP_BREAKPOINT } from '../constants/layout';
 
 interface RouteSectionProps {
   routeSection: BbucleRoadRouteSectionDto;
+  sectionId?: string;
 }
 
 const ICON_MAP: Record<BbucleRoadRouteIconTypeDto, string> = {
@@ -28,7 +29,7 @@ const ICON_MAP: Record<BbucleRoadRouteIconTypeDto, string> = {
 
 const ICON_OPTIONS: BbucleRoadRouteIconTypeDto[] = ['SUBWAY', 'TAXI', 'CAR', 'BUS'];
 
-export default function RouteSection({ routeSection }: RouteSectionProps) {
+export default function RouteSection({ routeSection, sectionId }: RouteSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const { width: windowWidth } = useWindowDimensions();
@@ -159,8 +160,9 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
   );
 
   return (
-    <Container>
-      {isEditMode
+    <div id={sectionId}>
+      <Container>
+        {isEditMode
         ? <SectionTitleInput
             value={routeSection.title}
             onChangeText={(text) => updateRouteSection((prev) => ({ ...prev, title: text }))}
@@ -284,12 +286,13 @@ export default function RouteSection({ routeSection }: RouteSectionProps) {
       )}
 
       {/* Region Detail Modal */}
-      <RegionDetailModal
-        visible={isModalVisible}
-        region={selectedRegion}
-        onClose={handleModalClose}
-      />
-    </Container>
+        <RegionDetailModal
+          visible={isModalVisible}
+          region={selectedRegion}
+          onClose={handleModalClose}
+        />
+      </Container>
+    </div>
   );
 }
 
