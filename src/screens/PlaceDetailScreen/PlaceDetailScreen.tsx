@@ -347,6 +347,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             }
             await navigateWithLocationCheck({
               targetLocation: place.location,
+              placeName: place.name,
               address: place.address,
               type: 'place',
               onNavigate: () => {
@@ -415,6 +416,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             checkAuth(async () => {
               await navigateWithLocationCheck({
                 targetLocation: place.location,
+                placeName: place.name,
                 address: place.address,
                 type: 'place',
                 onNavigate: () => {
@@ -442,6 +444,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         <PlaceDetailToiletSection
           toiletReviews={toiletPost ?? []}
           placeId={place.id}
+          placeName={place.name}
           placeLocation={place.location}
           placeAddress={place.address}
         />
@@ -468,6 +471,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
             checkAuth(async () => {
               await navigateWithLocationCheck({
                 targetLocation: place.location,
+                placeName: place.name,
                 address: place.address,
                 type: 'place',
                 onNavigate: () => {

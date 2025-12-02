@@ -9,6 +9,7 @@ import WarningIcon from '@/assets/icon/ic_warning.svg';
 
 interface LocationConfirmBottomSheetProps {
   isVisible: boolean;
+  placeName?: string;
   address: string;
   type: 'place' | 'building';
   onConfirm: () => void;
@@ -17,6 +18,7 @@ interface LocationConfirmBottomSheetProps {
 
 export default function LocationConfirmBottomSheet({
   isVisible,
+  placeName,
   address,
   type,
   onConfirm,
@@ -32,9 +34,9 @@ export default function LocationConfirmBottomSheet({
         </IconContainer>
         <Title>{`등록하려는 ${typeText}의 주소가\n맞는지 확인해주세요.`}</Title>
         <AddressBox>
-          <AddressSubtitle>
-            아래 주소의 {typeText} 정보를 등록합니다.
-          </AddressSubtitle>
+          {type === 'place' && placeName && (
+            <PlaceName>{`{${placeName}}`}</PlaceName>
+          )}
           <AddressText>{address}</AddressText>
         </AddressBox>
         <ButtonContainer>
@@ -78,23 +80,24 @@ const AddressBox = styled.View({
   backgroundColor: '#F7F8FA',
   borderRadius: 4,
   paddingVertical: 10,
+  paddingHorizontal: 16,
   alignItems: 'center',
   marginBottom: 20,
 });
 
-const AddressSubtitle = styled.Text({
-  fontSize: 14,
-  fontFamily: font.pretendardRegular,
-  color: '#585A64',
-  lineHeight: 20,
+const PlaceName = styled.Text({
+  fontSize: 16,
+  fontFamily: font.pretendardSemibold,
+  color: '#16181C',
+  lineHeight: 24,
   textAlign: 'center',
 });
 
 const AddressText = styled.Text({
-  fontSize: 16,
-  fontFamily: font.pretendardMedium,
-  color: '#16181C',
-  lineHeight: 24,
+  fontSize: 14,
+  fontFamily: font.pretendardRegular,
+  color: '#585A64',
+  lineHeight: 20,
   textAlign: 'center',
 });
 

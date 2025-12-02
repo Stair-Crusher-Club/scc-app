@@ -6,6 +6,7 @@ import {getDistanceFromCurrentLocation as getDistanceMetersFromCurrentLocation} 
 
 interface NavigateWithLocationCheckParams {
   targetLocation: Location | undefined;
+  placeName?: string;
   address: string;
   type: 'place' | 'building';
   onNavigate: () => void;
@@ -14,6 +15,7 @@ interface NavigateWithLocationCheckParams {
 export default function useNavigateWithLocationCheck() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState<{
+    placeName?: string;
     address: string;
     type: 'place' | 'building';
     onNavigate: () => void;
@@ -22,6 +24,7 @@ export default function useNavigateWithLocationCheck() {
   const navigateWithLocationCheck = useCallback(
     async ({
       targetLocation,
+      placeName,
       address,
       type,
       onNavigate,
@@ -35,7 +38,7 @@ export default function useNavigateWithLocationCheck() {
         onNavigate();
       } else {
         // 200m 초과면 모달 표시
-        setModalData({address, type, onNavigate});
+        setModalData({placeName, address, type, onNavigate});
         setIsModalVisible(true);
       }
     },
@@ -58,6 +61,7 @@ export default function useNavigateWithLocationCheck() {
   const LocationConfirmModal = (
     <LocationConfirmBottomSheet
       isVisible={isModalVisible}
+      placeName={modalData?.placeName}
       address={modalData?.address ?? ''}
       type={modalData?.type ?? 'place'}
       onConfirm={handleConfirm}

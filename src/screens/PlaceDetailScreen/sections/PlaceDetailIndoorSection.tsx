@@ -36,6 +36,7 @@ export default function PlaceDetailIndoorSection({
       <PlaceReviewSummaryInfo
         reviews={reviews}
         placeId={placeId}
+        placeName={place.name}
         placeLocation={place.location}
         placeAddress={place.address}
       />

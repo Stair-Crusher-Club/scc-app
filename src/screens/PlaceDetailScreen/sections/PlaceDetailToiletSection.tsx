@@ -18,6 +18,7 @@ import * as S from './PlaceDetailEntranceSection.style';
 interface Props {
   toiletReviews: ToiletReviewDto[];
   placeId: string;
+  placeName: string;
   placeLocation?: Location;
   placeAddress: string;
 }
@@ -25,6 +26,7 @@ interface Props {
 export default function PlaceDetailToiletSection({
   toiletReviews,
   placeId,
+  placeName,
   placeLocation,
   placeAddress,
 }: Props) {
@@ -44,6 +46,7 @@ export default function PlaceDetailToiletSection({
     checkAuth(async () => {
       await navigateWithLocationCheck({
         targetLocation: placeLocation,
+        placeName: placeName,
         address: placeAddress,
         type: 'place',
         onNavigate: () => {

@@ -114,6 +114,7 @@ function SearchItemCard({
       setHasBeenRegisteredAccessibility(true);
       await navigateWithLocationCheck({
         targetLocation: item.place.location,
+        placeName: type !== 'building' ? item.place.name : undefined,
         address: item.place.address,
         type: type === 'review' ? 'place' : type,
         onNavigate: () => {

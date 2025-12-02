@@ -22,6 +22,7 @@ import * as SS from '../sections/PlaceDetailEntranceSection.style';
 interface Props {
   reviews: PlaceReviewDto[];
   placeId: string;
+  placeName: string;
   placeLocation?: Location;
   placeAddress: string;
 }
@@ -29,6 +30,7 @@ interface Props {
 export default function PlaceReviewSummaryInfo({
   reviews,
   placeId,
+  placeName,
   placeLocation,
   placeAddress,
 }: Props) {
@@ -48,6 +50,7 @@ export default function PlaceReviewSummaryInfo({
     checkAuth(async () => {
       await navigateWithLocationCheck({
         targetLocation: placeLocation,
+        placeName: placeName,
         address: placeAddress,
         type: 'place',
         onNavigate: () => {
