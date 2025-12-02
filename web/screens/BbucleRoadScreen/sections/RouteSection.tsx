@@ -8,6 +8,7 @@ import type {
   BbucleRoadRouteIconTypeDto,
 } from '@/generated-sources/openapi';
 
+import { color } from '@/constant/color';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import InteractiveImage from '../components/InteractiveImage';
 import RegionDetailModal from '../components/RegionDetailModal';
@@ -196,10 +197,9 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
                 <TabLabelInput
                   value={route.tabLabel}
                   onChangeText={(text) => handleTabLabelChange(index, text)}
-                  active={index === selectedRouteIndex}
                 />
               ) : (
-                <TabLabel active={index === selectedRouteIndex}>
+                <TabLabel>
                   {route.tabLabel}
                 </TabLabel>
               )}
@@ -344,7 +344,7 @@ const TabButton = styled(TouchableOpacity)<{ active: boolean }>`
   align-items: center;
   padding: 12px 20px;
   border-radius: 24px;
-  background-color: ${({ active }) => (active ? '#007AFF' : '#F3F4F6')};
+  background-color: ${({ active }) => (active ? '#007AFF' : color.gray30 )};
 `;
 
 const IconSelector = styled(TouchableOpacity)`
@@ -356,16 +356,16 @@ const TabIcon = styled(Text)`
   margin-right: 8px;
 `;
 
-const TabLabel = styled(Text)<{ active: boolean }>`
+const TabLabel = styled(Text)`
   font-size: 14px;
   font-weight: 600;
-  color: ${({ active }) => (active ? '#FFF' : '#374151')};
+  color: white;
 `;
 
-const TabLabelInput = styled(TextInput)<{ active: boolean }>`
+const TabLabelInput = styled(TextInput)`
   font-size: 14px;
   font-weight: 600;
-  color: ${({ active }) => (active ? '#FFF' : '#374151')};
+  color: white;
   padding: 0;
 `;
 
