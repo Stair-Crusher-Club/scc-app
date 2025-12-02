@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, Linking, TextInput, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
@@ -19,6 +19,21 @@ interface NearbyPlacesSectionProps {
 const DEFAULT_NAVER_LIST_URL = 'https://map.naver.com';
 const DEFAULT_MORE_PLACES_URL = 'https://map.naver.com';
 
+// URL 열기 (딥링크/웹링크 모두 지원, iOS Safari 호환)
+const openUrl = (url: string) => {
+  const link = document.createElement('a');
+  link.href = url;
+  // 웹 링크는 새 탭에서 열기
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export default function NearbyPlacesSection({
   title,
   mapImageUrl,
@@ -33,11 +48,11 @@ export default function NearbyPlacesSection({
   const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
 
   const handleNaverListPress = () => {
-    Linking.openURL(naverListUrl);
+    openUrl(naverListUrl);
   };
 
   const handleMorePlacesPress = () => {
-    Linking.openURL(morePlacesUrl);
+    openUrl(morePlacesUrl);
   };
 
   const updateNearbyPlacesSection = useCallback(
