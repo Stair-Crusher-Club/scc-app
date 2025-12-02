@@ -278,7 +278,14 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         },
       });
     }
-  }, [building, closeModals, formVersion, navigation, navigateWithLocationCheck, place]);
+  }, [
+    building,
+    closeModals,
+    formVersion,
+    navigation,
+    navigateWithLocationCheck,
+    place,
+  ]);
 
   const handleBuildingRegistrationConfirm = useCallback(() => {
     handleBuildingRegistrationCancel();
