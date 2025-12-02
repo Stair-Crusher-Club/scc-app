@@ -1,24 +1,18 @@
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
 import styled from 'styled-components/native';
-import {match} from 'ts-pattern';
 
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
-import {
-  MarkerIcon,
-  MarkerItem,
-  MarkerLevel,
-} from '@/components/maps/MarkerItem';
+import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {
   draftCameraRegionAtom,
   searchQueryAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
-import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
-import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 export type SearchMapViewHandle = {
   fitToItems: (_items: MarkerItem[]) => void;
@@ -49,7 +43,7 @@ const SearchMapView = forwardRef<
   const viewState = useAtomValue(viewStateAtom);
   const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
   const datasForUI: (MarkerItem & PlaceListItem)[] = useMemo(() => {
-    return data?.map(addMarkerInfo) ?? [];
+    return data?.map(toPlaceMarkerItem) ?? [];
   }, [data]);
   const isSearchQueryEmpty = !searchQuery.text;
   return (
@@ -81,55 +75,3 @@ const Wrapper = styled.View`
   flex-grow: 1;
   overflow: hidden;
 `;
-
-function addMarkerInfo(item: PlaceListItem): MarkerItem & PlaceListItem {
-  return {
-    ...item,
-    id: item.place.id,
-    location: item.place.location,
-    displayName: item.place.name,
-    hasReview:
-      item.accessibilityInfo?.reviewCount !== undefined
-        ? item.accessibilityInfo.reviewCount > 0
-        : false,
-    markerIcon: {
-      icon: match<string | undefined, MarkerIcon>(item.place.category)
-        .with('RESTAURANT', () => 'rest')
-        .with('CAFE', () => 'cafe')
-        .with('CONVENIENCE_STORE', () => 'conv')
-        .with('PHARMACY', () => 'phar')
-        .with('HOSPITAL', () => 'hos')
-        .otherwise(() => 'default'),
-      level: match<number | undefined | 'processing', MarkerLevel>(
-        getPlaceAccessibilityScore({
-          score: item.accessibilityInfo?.accessibilityScore,
-          hasPlaceAccessibility: item.hasPlaceAccessibility,
-          hasBuildingAccessibility: item.hasBuildingAccessibility,
-        }),
-      )
-        .with('processing', () => 'progress')
-        .with(undefined, () => 'none')
-        .when(
-          score => score <= 0,
-          () => '0',
-        )
-        .when(
-          score => score <= 1,
-          () => '1',
-        )
-        .when(
-          score => score <= 2,
-          () => '2',
-        )
-        .when(
-          score => score <= 3,
-          () => '3',
-        )
-        .when(
-          score => score <= 4,
-          () => '4',
-        )
-        .otherwise(() => '5'),
-    },
-  };
-}

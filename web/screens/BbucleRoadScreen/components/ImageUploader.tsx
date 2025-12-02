@@ -50,41 +50,28 @@ export default function ImageUploader({
       setError(null);
       setIsUploading(true);
 
-      try {
-        // Blob URL 생성
-        const blobUrl = URL.createObjectURL(file);
+      const blobUrl = URL.createObjectURL(file);
 
+      try {
         // 파일 확장자 추출
         const extension = file.name.split('.').pop()?.toLowerCase() || 'jpeg';
         const filenameExtension =
           extension === 'jpg' ? 'jpeg' : (extension as 'jpeg' | 'png' | 'gif');
 
-        // Presigned URL 획득
-        const presignedResponse = await api.getImageUploadUrlsPost({
-          count: 1,
-          filenameExtension,
-        });
-
-        const presignedUrlData = presignedResponse.data[0];
-        if (!presignedUrlData) {
-          throw new Error('Presigned URL 획득 실패');
-        }
-
         // 이미지 업로드
-        const uploadResult = await ImageFileUtils.uploadImage(
-          presignedUrlData.url,
+        const uploadedUrl = await ImageFileUtils.uploadWebImage(
+          api,
           blobUrl,
+          filenameExtension,
         );
 
-        // Blob URL 정리
-        URL.revokeObjectURL(blobUrl);
-
         // 콜백 호출
-        onUploadComplete(uploadResult.url);
+        onUploadComplete(uploadedUrl);
       } catch (err) {
         console.error('Image upload failed:', err);
         setError('업로드 실패. 다시 시도해주세요.');
       } finally {
+        URL.revokeObjectURL(blobUrl);
         setIsUploading(false);
         // input 초기화 (같은 파일 재선택 가능하도록)
         if (fileInputRef.current) {

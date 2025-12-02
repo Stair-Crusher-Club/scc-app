@@ -302,7 +302,7 @@ const SectionTitle = styled(Text)`
   font-weight: 700;
   line-height: 130%;
   letter-spacing: -2.4px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
@@ -315,7 +315,7 @@ const SectionTitleInput = styled(TextInput)`
   font-weight: 700;
   line-height: 130%;
   letter-spacing: -2.4px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;

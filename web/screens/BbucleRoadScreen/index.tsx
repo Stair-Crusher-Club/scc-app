@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { View, ScrollView, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ import useSectionNavigation from './hooks/useSectionNavigation';
 import {
   getBbucleRoadConfig,
   createEmptyBbucleRoadData,
+  type BbucleRoadData,
 } from './config/bbucleRoadData';
 import { EditModeProvider, useEditMode } from './context/EditModeContext';
 import EditSidebar from './edit/EditSidebar';
@@ -48,15 +49,9 @@ function getIsEditMode(): boolean {
 }
 
 /**
- * Edit Mode일 때의 콘텐츠 렌더링
+ * 순수 View 컴포넌트 - data 받아서 그리기만
  */
-function EditModeContent() {
-  const editContext = useEditMode();
-  if (!editContext) return null;
-
-  const { data, updateData } = editContext;
-
-  // Build sections array based on available data
+function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
   const availableSections = useMemo(() => {
     const sections: SectionTab[] = [];
     if (data.routeSection) {
@@ -74,6 +69,58 @@ function EditModeContent() {
   );
 
   const { activeSection, scrollToSection } = useSectionNavigation({ sectionIds });
+
+  return (
+    <ScrollView>
+      <ContentWrapper>
+        <HeaderSection
+          titleImageUrl={data.titleImageUrl}
+          summaryItems={data.summaryItems}
+          summaryTitle={data.summaryTitle}
+          summaryTitleColor={data.summaryTitleColor}
+          summaryBackgroundImageUrl={data.summaryBackgroundImageUrl}
+        />
+
+        {availableSections.length > 0 && (
+          <StickyTabHeader
+            sections={availableSections}
+            activeSection={activeSection}
+            onTabPress={scrollToSection}
+          />
+        )}
+
+        {data.routeSection && (
+          <RouteSection
+            routeSection={data.routeSection}
+            sectionId={SECTION_IDS.ROUTE}
+          />
+        )}
+
+        {data.nearbyPlacesSection && (
+          <NearbyPlacesSection
+            title={data.nearbyPlacesSection.title}
+            mapImageUrl={data.nearbyPlacesSection.mapImageUrl}
+            listImageUrl={data.nearbyPlacesSection.listImageUrl}
+            naverListUrl={data.nearbyPlacesSection.naverListUrl}
+            morePlacesUrl={data.nearbyPlacesSection.morePlacesUrl}
+            sectionId={SECTION_IDS.NEARBY_PLACES}
+          />
+        )}
+
+        <Footer />
+      </ContentWrapper>
+    </ScrollView>
+  );
+}
+
+/**
+ * Edit Mode 전용 래퍼
+ */
+function EditModeContent() {
+  const editContext = useEditMode();
+  if (!editContext) return null;
+
+  const { data, updateData } = editContext;
 
   const handleAddRouteSection = useCallback(() => {
     updateData((prev) => ({
@@ -109,57 +156,21 @@ function EditModeContent() {
   return (
     <EditModeContainer>
       <MainContent>
-        <ScrollView>
-          <ContentWrapper>
-            <HeaderSection
-              titleImageUrl={data.titleImageUrl}
-              summaryItems={data.summaryItems}
-              summaryTitle={data.summaryTitle}
-              summaryTitleColor={data.summaryTitleColor}
-              summaryBackgroundImageUrl={data.summaryBackgroundImageUrl}
-            />
-
-            {availableSections.length > 0 && (
-              <StickyTabHeader
-                sections={availableSections}
-                activeSection={activeSection}
-                onTabPress={scrollToSection}
-              />
-            )}
-
-            {data.routeSection ? (
-              <RouteSection
-                routeSection={data.routeSection}
-                sectionId={SECTION_IDS.ROUTE}
-              />
-            ) : (
-              <AddSectionContainer>
-                <AddSectionButton onPress={handleAddRouteSection}>
-                  <AddSectionButtonText>+ 동선정보 섹션 추가</AddSectionButtonText>
-                </AddSectionButton>
-              </AddSectionContainer>
-            )}
-
-            {data.nearbyPlacesSection ? (
-              <NearbyPlacesSection
-                title={data.nearbyPlacesSection.title}
-                mapImageUrl={data.nearbyPlacesSection.mapImageUrl}
-                listImageUrl={data.nearbyPlacesSection.listImageUrl}
-                naverListUrl={data.nearbyPlacesSection.naverListUrl}
-                morePlacesUrl={data.nearbyPlacesSection.morePlacesUrl}
-                sectionId={SECTION_IDS.NEARBY_PLACES}
-              />
-            ) : (
-              <AddSectionContainer>
-                <AddSectionButton onPress={handleAddNearbyPlacesSection}>
-                  <AddSectionButtonText>+ 근처 장소 섹션 추가</AddSectionButtonText>
-                </AddSectionButton>
-              </AddSectionContainer>
-            )}
-
-            <Footer />
-          </ContentWrapper>
-        </ScrollView>
+        <BbucleRoadContent data={data} />
+        {!data.routeSection && (
+          <AddSectionContainer>
+            <AddSectionButton onPress={handleAddRouteSection}>
+              <AddSectionButtonText>+ 동선정보 섹션 추가</AddSectionButtonText>
+            </AddSectionButton>
+          </AddSectionContainer>
+        )}
+        {!data.nearbyPlacesSection && (
+          <AddSectionContainer>
+            <AddSectionButton onPress={handleAddNearbyPlacesSection}>
+              <AddSectionButtonText>+ 근처 장소 섹션 추가</AddSectionButtonText>
+            </AddSectionButton>
+          </AddSectionContainer>
+        )}
       </MainContent>
       <EditSidebar />
     </EditModeContainer>
@@ -266,81 +277,9 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     );
   }
 
-  // Build sections array based on available data
-  const availableSections: SectionTab[] = [];
-  if (configData.routeSection) {
-    availableSections.push({ id: SECTION_IDS.ROUTE, label: '동선정보' });
-  }
-  if (configData.nearbyPlacesSection) {
-    availableSections.push({ id: SECTION_IDS.NEARBY_PLACES, label: '근처맛집' });
-  }
-
-  return (
-    <ViewModeContent
-      configData={configData}
-      availableSections={availableSections}
-    />
-  );
-}
-
-/**
- * View Mode 콘텐츠 - 훅 사용을 위해 별도 컴포넌트로 분리
- */
-function ViewModeContent({
-  configData,
-  availableSections,
-}: {
-  configData: NonNullable<ReturnType<typeof getBbucleRoadConfig>>;
-  availableSections: SectionTab[];
-}) {
-  const sectionIds = useMemo(
-    () => availableSections.map((s) => s.id),
-    [availableSections],
-  );
-
-  const { activeSection, scrollToSection } = useSectionNavigation({ sectionIds });
-
   return (
     <Container>
-      <ScrollView>
-        <ContentWrapper>
-          <HeaderSection
-            titleImageUrl={configData.titleImageUrl}
-            summaryItems={configData.summaryItems}
-            summaryTitle={configData.summaryTitle}
-            summaryTitleColor={configData.summaryTitleColor}
-            summaryBackgroundImageUrl={configData.summaryBackgroundImageUrl}
-          />
-
-          {availableSections.length > 0 && (
-            <StickyTabHeader
-              sections={availableSections}
-              activeSection={activeSection}
-              onTabPress={scrollToSection}
-            />
-          )}
-
-          {configData.routeSection && (
-            <RouteSection
-              routeSection={configData.routeSection}
-              sectionId={SECTION_IDS.ROUTE}
-            />
-          )}
-
-          {configData.nearbyPlacesSection && (
-            <NearbyPlacesSection
-              title={configData.nearbyPlacesSection.title}
-              mapImageUrl={configData.nearbyPlacesSection.mapImageUrl}
-              listImageUrl={configData.nearbyPlacesSection.listImageUrl}
-              naverListUrl={configData.nearbyPlacesSection.naverListUrl}
-              morePlacesUrl={configData.nearbyPlacesSection.morePlacesUrl}
-              sectionId={SECTION_IDS.NEARBY_PLACES}
-            />
-          )}
-
-          <Footer />
-        </ContentWrapper>
-      </ScrollView>
+      <BbucleRoadContent data={configData} />
     </Container>
   );
 }

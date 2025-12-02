@@ -92,7 +92,6 @@ export default function InteractiveImage({
       }
 
       const { offsetX, offsetY } = event.nativeEvent;
-      console.log('fuckfuck 1', offsetX, offsetY, event)
 
       // 상대 좌표로 변환 (0-1)
       const relativeX = offsetX / containerWidth;
