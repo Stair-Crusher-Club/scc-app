@@ -1,4 +1,4 @@
-import type { GetBbucleRoadPageResponseDto } from '@/generated-sources/openapi';
+import type { GetBbucleRoadPageResponseDto, BbucleRoadRouteDto } from '@/generated-sources/openapi';
 
 /**
  * 근처 장소 섹션 데이터 타입
@@ -10,6 +10,13 @@ export interface NearbyPlacesSectionData {
   naverListUrl?: string;
   morePlacesUrl?: string;
 }
+
+/**
+ * 확장된 Route 데이터 타입 (API 타입 + descriptionHtml)
+ */
+export type ExtendedRouteDto = BbucleRoadRouteDto & {
+  descriptionHtml?: string;
+};
 
 /**
  * 확장된 뿌클로드 데이터 타입 (API 타입 + 추가 필드)
@@ -43,7 +50,36 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "id": "route-1764393670990",
         "tabLabel": "지하철 - 구일역",
         "tabIconType": "SUBWAY",
-        "descriptionImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251129062538_615167BBC69E4FA7.png",
+        "descriptionImageUrl": "",
+        "descriptionHtml": `<div style="font-family: Pretendard, sans-serif;">
+  <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 8px;">
+    <span style="font-size: 22px; font-weight: 700; color: #000; line-height: 32px;">1호선 구일역</span>
+    <span style="font-size: 16px; color: #767884; letter-spacing: -0.32px; line-height: 26px;">(도보 8분)</span>
+  </div>
+  <ul style="margin: 0; padding-left: 24px; font-size: 16px; color: #16181C; line-height: 26px;">
+    <li>구일역 2번 출구(엘리베이터) 탑승</li>
+    <li>고척스카이돔 방향으로 직진</li>
+    <li><span style="font-weight: 700; color: #E52123;">경사로 갈림길 1</span>에서 원하는 경사로를 통해 위로 이동
+      <ul style="list-style-type: disc; margin: 0; padding-left: 24px;">
+        <li>가파른 오르막</li>
+        <li>장애인 경사로</li>
+      </ul>
+    </li>
+    <li><span style="font-weight: 700; color: #E52123;">경사로 갈림길 2</span>에서 원하는 경사로를 통해 3루 매표소로 이동
+      <ul style="list-style-type: disc; margin: 0; padding-left: 24px;">
+        <li>가파른 내리막</li>
+        <li>외야-엘리베이터 연결 육교</li>
+      </ul>
+    </li>
+  </ul>
+  <div style="background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px; margin-top: 20px;">
+    <p style="font-size: 16px; font-weight: 700; color: #0E64D3; line-height: 24px; margin: 0 0 6px 0;">접근성 팁!</p>
+    <ul style="margin: 0; padding-left: 24px; font-size: 16px; color: #24262B; line-height: 26px;">
+      <li>개봉역에서도 고척돔 접근이 가능한데, 도보가 15분이고 인도가 잘 정비되지 않은 골목을 지나와야 해요.</li>
+      <li>자신의 상황에 따라서 체크해보시길 추천해요!</li>
+    </ul>
+  </div>
+</div>`,
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251129062550_B19C35CDC0FE45E9.png",
           "clickableRegions": [
@@ -126,7 +162,26 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "id": "route-1764400982753",
         "tabLabel": "지하철 - 개봉역",
         "tabIconType": "SUBWAY",
-        "descriptionImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251129072340_8CDEA314F1884E5E.png",
+        "descriptionImageUrl": "",
+        "descriptionHtml": `<div style="font-family: Pretendard, sans-serif;">
+  <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 8px;">
+    <span style="font-size: 22px; font-weight: 700; color: #000; line-height: 32px;">1호선 개봉역</span>
+    <span style="font-size: 16px; color: #767884; letter-spacing: -0.32px; line-height: 26px;">(도보 15분)</span>
+  </div>
+  <ul style="margin: 0; padding-left: 24px; font-size: 16px; color: #24262B; line-height: 26px;">
+    <li>개봉역 2번 출구(엘리베이터) 탑승</li>
+    <li>메가커피 방향으로 큰길이 나올때까지 직진</li>
+    <li>큰길에서 경기장 방향으로 길따라서 직진</li>
+    <li>3루 매표소에서 매표 진행</li>
+  </ul>
+  <div style="background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px; margin-top: 20px;">
+    <p style="font-size: 18px; font-weight: 700; color: #0E64D3; line-height: 26px; letter-spacing: -0.36px; margin: 0 0 6px 0;">접근성 팁!</p>
+    <ul style="margin: 0; padding-left: 24px; font-size: 16px; color: #24262B; line-height: 26px;">
+      <li>개봉역에서도 고척돔 접근이 가능한데, 도보가 15분이고 인도가 잘 정비되지 않은 골목을 지나와야 해요.</li>
+      <li>자신의 상황에 따라서 체크해보시길 추천해요!</li>
+    </ul>
+  </div>
+</div>`,
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251129072342_D4266AE618A74BFA.png",
           "clickableRegions": [

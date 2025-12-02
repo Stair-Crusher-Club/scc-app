@@ -167,7 +167,6 @@ export default function NearbyPlacesSection({
 }
 
 const Container = styled(View)`
-  background-color: #f7f8fa;
   padding-top: 140px;
   width: 100%;
 `;

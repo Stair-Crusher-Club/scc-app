@@ -92,7 +92,7 @@ const Container = styled(View)<{ isDesktop: boolean; isSticky: boolean }>`
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: ${color.gray10};
+  background-color: white;
   padding: ${({ isDesktop }) => (isDesktop ? '16px 0' : '12px 0')};
   border-bottom-width: ${({ isSticky }) => (isSticky ? '1px' : '0')};
   border-bottom-color: #e5e5e5;

@@ -83,7 +83,6 @@ export default function InteractiveImage({
 
   // 현재 이 InteractiveImage가 편집 중인지 확인
   const isEditingThisImage = editingRegion?.routeIndex === routeIndex;
-  console.log('fuckfuck 0', interactiveImage, isEditingThisImage)
 
   // 이미지 클릭 시 점 추가 (편집 중일 때)
   const handleImageClick = useCallback(

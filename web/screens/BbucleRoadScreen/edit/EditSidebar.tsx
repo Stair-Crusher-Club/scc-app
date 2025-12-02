@@ -365,6 +365,41 @@ export default function EditSidebar() {
             )}
           </Section>
 
+          {/* 동선 설명 HTML 편집 */}
+          {data.routeSection?.routes && data.routeSection.routes.length > 0 && (
+            <Section>
+              <SectionTitle>동선 설명 HTML</SectionTitle>
+              {data.routeSection.routes.map((route, routeIndex) => (
+                <RouteHtmlEditPanel key={route.id}>
+                  <RouteHtmlHeader>
+                    <RouteHtmlTitle>{route.tabLabel || `Route #${routeIndex + 1}`}</RouteHtmlTitle>
+                  </RouteHtmlHeader>
+                  <HtmlTextArea
+                    multiline
+                    value={(route as { descriptionHtml?: string }).descriptionHtml || ''}
+                    onChangeText={(text: string) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        routeSection: prev.routeSection
+                          ? {
+                              ...prev.routeSection,
+                              routes: prev.routeSection.routes.map((r, i) =>
+                                i === routeIndex
+                                  ? { ...r, descriptionHtml: text }
+                                  : r,
+                              ),
+                            }
+                          : null,
+                      }))
+                    }
+                    placeholder="<div>HTML 콘텐츠...</div>"
+                    placeholderTextColor="#999"
+                  />
+                </RouteHtmlEditPanel>
+              ))}
+            </Section>
+          )}
+
           {/* 근처 장소 섹션 편집 */}
           {data.nearbyPlacesSection && (
             <Section>
@@ -1030,4 +1065,35 @@ const DeleteSectionButtonText = styled(Text)`
   font-size: 13px;
   font-weight: 600;
   color: #fff;
+`;
+
+// Route HTML 편집 스타일
+const RouteHtmlEditPanel = styled(View)`
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+`;
+
+const RouteHtmlHeader = styled(View)`
+  margin-bottom: 8px;
+`;
+
+const RouteHtmlTitle = styled(Text)`
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const HtmlTextArea = styled(TextInput)`
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-height: 150px;
+  font-size: 12px;
+  font-family: monospace;
+  color: #333;
+  text-align-vertical: top;
 `;

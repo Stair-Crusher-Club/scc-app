@@ -7,6 +7,7 @@ import type {
   BbucleRoadClickableRegionDto,
   BbucleRoadRouteIconTypeDto,
 } from '@/generated-sources/openapi';
+import type { ExtendedRouteDto } from '../config/bbucleRoadData';
 
 import { color } from '@/constant/color';
 import SccRemoteImage from '@/components/SccRemoteImage';
@@ -16,8 +17,13 @@ import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
 import { DESKTOP_BREAKPOINT } from '../constants/layout';
 
+// Extended routeSection with descriptionHtml support
+interface ExtendedRouteSectionDto extends Omit<BbucleRoadRouteSectionDto, 'routes'> {
+  routes: ExtendedRouteDto[];
+}
+
 interface RouteSectionProps {
-  routeSection: BbucleRoadRouteSectionDto;
+  routeSection: ExtendedRouteSectionDto;
   sectionId?: string;
 }
 
@@ -73,11 +79,12 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
   );
 
   const handleAddRoute = useCallback(() => {
-    const newRoute: BbucleRoadRouteDto = {
+    const newRoute: ExtendedRouteDto = {
       id: `route-${Date.now()}`,
       tabLabel: '새 동선',
       tabIconType: 'SUBWAY',
       descriptionImageUrl: '',
+      descriptionHtml: '',
       interactiveImage: {
         url: '',
         clickableRegions: [],
@@ -229,37 +236,22 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
               : { flexDirection: 'column-reverse' }
           }
         >
-          {/* Description Image */}
-          <DescriptionImageContainer style={isDesktop ? { width: '37%' } : undefined}>
-            {selectedRoute.descriptionImageUrl ? (
+          {/* Description HTML */}
+          <DescriptionHtmlContainer style={isDesktop ? { width: '37%' } : undefined}>
+            {selectedRoute.descriptionHtml ? (
+              <div
+                dangerouslySetInnerHTML={{ __html: selectedRoute.descriptionHtml }}
+              />
+            ) : selectedRoute.descriptionImageUrl ? (
               <DescriptionImageWrapper>
                 <SccRemoteImage
                   imageUrl={selectedRoute.descriptionImageUrl}
                   resizeMode="contain"
                   style={{ borderRadius: 8 }}
                 />
-                {isEditMode && (
-                  <DescriptionImageOverlay>
-                    <ImageUploader
-                      currentImageUrl={selectedRoute.descriptionImageUrl}
-                      onUploadComplete={handleDescriptionImageChange}
-                      compact
-                    />
-                  </DescriptionImageOverlay>
-                )}
               </DescriptionImageWrapper>
-            ) : (
-              isEditMode && (
-                <EmptyImagePlaceholder>
-                  <EmptyImageText>설명 이미지를 업로드하세요</EmptyImageText>
-                  <ImageUploader
-                    onUploadComplete={handleDescriptionImageChange}
-                    buttonText="이미지 업로드"
-                  />
-                </EmptyImagePlaceholder>
-              )
-            )}
-          </DescriptionImageContainer>
+            ) : null}
+          </DescriptionHtmlContainer>
 
           {/* Interactive Map Image */}
           <InteractiveImageContainer style={isDesktop ? { width: '60%' } : undefined}>
@@ -404,7 +396,7 @@ const ContentContainer = styled(View)`
   gap: 30px;
 `;
 
-const DescriptionImageContainer = styled(View)`
+const DescriptionHtmlContainer = styled(View)`
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
@@ -412,13 +404,6 @@ const DescriptionImageContainer = styled(View)`
 
 const DescriptionImageWrapper = styled(View)`
   position: relative;
-`;
-
-const DescriptionImageOverlay = styled(View)`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
 `;
 
 const InteractiveImageContainer = styled(View)`

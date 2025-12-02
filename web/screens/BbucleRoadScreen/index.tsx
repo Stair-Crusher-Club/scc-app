@@ -347,7 +347,7 @@ function ViewModeContent({
 
 const Container = styled(View)`
   flex: 1;
-  background-color: ${color.gray10};
+  background-color: white
 `;
 
 const EditModeContainer = styled(View)`
@@ -363,7 +363,6 @@ const ContentWrapper = styled(View)`
   max-width: 1100px;
   width: 100%;
   align-self: center;
-  background-color: ${color.gray10};
 `;
 
 const LoadingContainer = styled(View)`
