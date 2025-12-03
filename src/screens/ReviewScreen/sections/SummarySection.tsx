@@ -1,8 +1,8 @@
+import {Image, Text, View} from 'react-native';
+
 import {useMe} from '@/atoms/Auth';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useQuery} from '@tanstack/react-query';
-import styled from 'styled-components/native';
-import * as S from '../../ConquererScreen/sections/ConquererSummarySection.style';
 
 export default function SummarySection() {
   const {api} = useAppComponents();
@@ -17,30 +17,35 @@ export default function SummarySection() {
   const thisMonthReviewedCount = data?.thisMonthReviewedCount ?? 0;
 
   return (
-    <S.ConquererSummarySection>
-      <S.Decotator>
-        <S.Title>{`${userInfo?.nickname}님\n리뷰 리포트`}</S.Title>
-        <DecoImage source={require('@/assets/img/bg_review.png')} />
-      </S.Decotator>
-      <S.Dashboard>
-        <S.Item>
-          <S.ItemTitle>오늘의 리뷰</S.ItemTitle>
-          <S.ItemValue>{todayReviewedCount.toLocaleString()}개</S.ItemValue>
-        </S.Item>
-        <S.Divider />
-        <S.Item>
-          <S.ItemTitle>이번달 리뷰</S.ItemTitle>
-          <S.ItemValue>{thisMonthReviewedCount.toLocaleString()}개</S.ItemValue>
-        </S.Item>
-      </S.Dashboard>
-    </S.ConquererSummarySection>
+    <View className="h-[228px] bg-white">
+      <View className="w-full h-[166px] bg-blue-50">
+        <Text className="absolute top-8 left-5 text-white text-[20px] leading-[32px] font-pretendard-bold">
+          {`${userInfo?.nickname}님\n리뷰 리포트`}
+        </Text>
+        <Image
+          source={require('@/assets/img/bg_review.png')}
+          className="absolute top-9 right-5 w-[150px] h-[84px]"
+        />
+      </View>
+      <View className="absolute left-5 right-5 bottom-0 flex-row justify-between items-center h-[112px] bg-white rounded-[20px] border-2 border-gray-20">
+        <View className="flex-1">
+          <Text className="font-pretendard text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
+            오늘의 리뷰
+          </Text>
+          <Text className="font-pretendard-bold text-[24px] leading-[26px] text-black text-center">
+            {todayReviewedCount.toLocaleString()}개
+          </Text>
+        </View>
+        <View className="w-px h-[48px] bg-gray-20" />
+        <View className="flex-1">
+          <Text className="font-pretendard text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
+            이번달 리뷰
+          </Text>
+          <Text className="font-pretendard-bold text-[24px] leading-[26px] text-black text-center">
+            {thisMonthReviewedCount.toLocaleString()}개
+          </Text>
+        </View>
+      </View>
+    </View>
   );
 }
-
-const DecoImage = styled.Image({
-  width: 150,
-  height: 84,
-  position: 'absolute',
-  right: 20,
-  top: 32,
-});

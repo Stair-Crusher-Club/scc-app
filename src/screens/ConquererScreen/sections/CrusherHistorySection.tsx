@@ -1,12 +1,12 @@
 import {useQueries} from '@tanstack/react-query';
 import React from 'react';
+import {Text, View} from 'react-native';
 
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
-
-import * as S from './CrusherHistorySection.style';
 
 export default function CrusherHistorySection() {
   const {api} = useAppComponents();
@@ -33,46 +33,65 @@ export default function CrusherHistorySection() {
   const navigation = useNavigation();
 
   return (
-    <S.CrusherHistorySection>
-      <S.Title>정복 히스토리</S.Title>
-      <S.Divier />
-      <S.Link
+    <View className="pt-3 px-5">
+      <Text className="py-5 text-[18px] leading-[29px] font-pretendard-bold">
+        정복 히스토리
+      </Text>
+      <View className="h-px bg-gray-20" />
+      <SccPressable
         elementName="crusher_history_conquered_places_link"
-        onPress={() => navigation.navigate('Conquerer/History')}>
-        <S.LinkName>
-          <S.LinkText>내가 정복한 장소</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfPlaces.toLocaleString()}</S.Count>
-          </S.CountBadge>
+        onPress={() => navigation.navigate('Conquerer/History')}
+        className="flex-row justify-between items-center py-5">
+        <View className="flex-row items-center">
+          <Text className="text-[16px] leading-[24px] font-pretendard">
+            내가 정복한 장소
+          </Text>
+        </View>
+        <View className="flex-row items-center">
+          <View className="py-1 px-3 rounded-xl bg-brand-5 mr-1">
+            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
+              {totalNumberOfPlaces.toLocaleString()}
+            </Text>
+          </View>
           <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-      <S.Link
+        </View>
+      </SccPressable>
+      <SccPressable
         elementName="crusher_history_helpful_link"
-        onPress={() => navigation.navigate('Conquerer/Upvote')}>
-        <S.LinkName>
-          <S.LinkText>도움이 돼요</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
-          </S.CountBadge>
+        onPress={() => navigation.navigate('Conquerer/Upvote')}
+        className="flex-row justify-between items-center py-5">
+        <View className="flex-row items-center">
+          <Text className="text-[16px] leading-[24px] font-pretendard">
+            도움이 돼요
+          </Text>
+        </View>
+        <View className="flex-row items-center">
+          <View className="py-1 px-3 rounded-xl bg-brand-5 mr-1">
+            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
+              {totalNumberOfUpvote.toLocaleString()}
+            </Text>
+          </View>
           <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-      <S.Link elementName="crusher_history_views_link">
-        <S.LinkName>
-          <S.WIPText>내 정복 장소 조회수</S.WIPText>
-          <S.WIPBadge>
-            <S.WIP>준비중</S.WIP>
-          </S.WIPBadge>
-        </S.LinkName>
-        <S.ClickGuide>
+        </View>
+      </SccPressable>
+      <SccPressable
+        elementName="crusher_history_views_link"
+        onPress={() => {}}
+        className="flex-row justify-between items-center py-5">
+        <View className="flex-row items-center">
+          <Text className="text-[16px] leading-[24px] font-pretendard text-gray-50">
+            내 정복 장소 조회수
+          </Text>
+          <View className="py-1 px-1.5 rounded-[10px] bg-gray-10 ml-2">
+            <Text className="text-[12px] leading-[19px] font-pretendard-bold text-gray-50">
+              준비중
+            </Text>
+          </View>
+        </View>
+        <View className="flex-row items-center">
           <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-    </S.CrusherHistorySection>
+        </View>
+      </SccPressable>
+    </View>
   );
 }

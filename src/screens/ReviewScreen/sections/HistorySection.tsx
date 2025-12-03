@@ -1,7 +1,8 @@
 import React from 'react';
-import * as S from '../../ConquererScreen/sections/CrusherHistorySection.style';
+import {Text, View} from 'react-native';
 
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -50,35 +51,47 @@ export default function HistorySection() {
     (toiletUpvote?.totalNumberOfUpvotes ?? 0);
 
   return (
-    <S.CrusherHistorySection>
-      <S.Title>리뷰 히스토리</S.Title>
-      <S.Divier />
-      <S.Link
+    <View className="pt-3 px-5">
+      <Text className="py-5 text-[18px] leading-[29px] font-pretendard-bold">
+        리뷰 히스토리
+      </Text>
+      <View className="h-px bg-gray-20" />
+      <SccPressable
         elementName="review_link"
-        onPress={() => navigation.navigate('Review/History')}>
-        <S.LinkName>
-          <S.LinkText>내가 작성한 리뷰</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfReviews.toLocaleString()}</S.Count>
-          </S.CountBadge>
+        onPress={() => navigation.navigate('Review/History')}
+        className="flex-row justify-between items-center py-5">
+        <View className="flex-row items-center">
+          <Text className="text-[16px] leading-[24px] font-pretendard">
+            내가 작성한 리뷰
+          </Text>
+        </View>
+        <View className="flex-row items-center">
+          <View className="py-1 px-3 rounded-xl bg-brand-5 mr-1">
+            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
+              {totalNumberOfReviews.toLocaleString()}
+            </Text>
+          </View>
           <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-      <S.Link
+        </View>
+      </SccPressable>
+      <SccPressable
         elementName="review_upvote_link"
-        onPress={() => navigation.navigate('Review/Upvote')}>
-        <S.LinkName>
-          <S.LinkText>도움이 돼요</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
-          </S.CountBadge>
+        onPress={() => navigation.navigate('Review/Upvote')}
+        className="flex-row justify-between items-center py-5">
+        <View className="flex-row items-center">
+          <Text className="text-[16px] leading-[24px] font-pretendard">
+            도움이 돼요
+          </Text>
+        </View>
+        <View className="flex-row items-center">
+          <View className="py-1 px-3 rounded-xl bg-brand-5 mr-1">
+            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
+              {totalNumberOfUpvote.toLocaleString()}
+            </Text>
+          </View>
           <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-    </S.CrusherHistorySection>
+        </View>
+      </SccPressable>
+    </View>
   );
 }
