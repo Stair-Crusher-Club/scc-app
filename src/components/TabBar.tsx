@@ -1,7 +1,4 @@
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
-import {Text} from 'react-native';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 import SccTouchableOpacity from './SccTouchableOpacity';
 
 type TabItem<T> = {
@@ -19,39 +16,29 @@ export default function TabBar<T>({
   onChange: (value: T) => void;
 }) {
   return (
-    <Container>
-      {items.map(({value, label}) => (
-        <TabButton
-          elementName={`${value}_tab_button`}
-          key={String(value)}
-          active={current === value}
-          onPress={() => onChange(value)}>
-          <TabLabel active={current === value}>{label}</TabLabel>
-        </TabButton>
-      ))}
-    </Container>
+    <View className="flex-row justify-center items-center">
+      {items.map(({value, label}) => {
+        const isActive = current === value;
+        return (
+          <SccTouchableOpacity
+            elementName={`${value}_tab_button`}
+            key={String(value)}
+            onPress={() => onChange(value)}
+            className={`flex-1 justify-center items-center p-[12px] ${
+              isActive
+                ? 'border-b-[2px] border-b-brand-50'
+                : 'border-b-[1px] border-b-gray-20'
+            }`}>
+            <Text
+              className={`font-pretendard-medium ${
+                isActive ? 'text-gray-80' : 'text-gray-40'
+              }`}
+              style={{fontSize: 16}}>
+              {label}
+            </Text>
+          </SccTouchableOpacity>
+        );
+      })}
+    </View>
   );
 }
-
-const Container = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const TabButton = styled(SccTouchableOpacity)<{active: boolean}>(
-  ({active}) => ({
-    flex: 1,
-    borderBottomWidth: active ? 2 : 1,
-    borderBottomColor: active ? color.brand50 : color.gray20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 12,
-  }),
-);
-
-const TabLabel = styled(Text)<{active: boolean}>(({active}) => ({
-  fontSize: 16,
-  fontFamily: font.pretendardMedium,
-  color: active ? color.gray80 : color.gray40,
-}));
