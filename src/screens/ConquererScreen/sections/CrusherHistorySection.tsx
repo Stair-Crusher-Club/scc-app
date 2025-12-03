@@ -43,7 +43,7 @@ export default function CrusherHistorySection() {
         onPress={() => navigation.navigate('Conquerer/History')}
         className="flex-row justify-between items-center py-5">
         <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard">
+          <Text className="text-[16px] leading-[24px] font-pretendard-regular">
             내가 정복한 장소
           </Text>
         </View>
@@ -61,7 +61,7 @@ export default function CrusherHistorySection() {
         onPress={() => navigation.navigate('Conquerer/Upvote')}
         className="flex-row justify-between items-center py-5">
         <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard">
+          <Text className="text-[16px] leading-[24px] font-pretendard-regular">
             도움이 돼요
           </Text>
         </View>
@@ -79,7 +79,7 @@ export default function CrusherHistorySection() {
         onPress={() => {}}
         className="flex-row justify-between items-center py-5">
         <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard text-gray-50">
+          <Text className="text-[16px] leading-[24px] font-pretendard-regular text-gray-50">
             내 정복 장소 조회수
           </Text>
           <View className="py-1 px-1.5 rounded-[10px] bg-gray-10 ml-2">

@@ -61,7 +61,7 @@ export default function HistorySection() {
         onPress={() => navigation.navigate('Review/History')}
         className="flex-row justify-between items-center py-5">
         <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard">
+          <Text className="text-[16px] leading-[24px] font-pretendard-regular">
             내가 작성한 리뷰
           </Text>
         </View>
@@ -79,7 +79,7 @@ export default function HistorySection() {
         onPress={() => navigation.navigate('Review/Upvote')}
         className="flex-row justify-between items-center py-5">
         <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard">
+          <Text className="text-[16px] leading-[24px] font-pretendard-regular">
             도움이 돼요
           </Text>
         </View>

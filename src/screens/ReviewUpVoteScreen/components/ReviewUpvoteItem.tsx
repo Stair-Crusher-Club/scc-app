@@ -43,7 +43,7 @@ export default function ReviewUpvoteItem({item}: ItemProps) {
         <Text className="text-[16px] font-pretendard-bold leading-[24px] text-gray-90">
           {item.placeName}
         </Text>
-        <Text className="text-[13px] font-pretendard leading-[18px] text-gray-50">
+        <Text className="text-[13px] font-pretendard-regular leading-[18px] text-gray-50">
           {item.placeAddress}
         </Text>
       </SccPressable>

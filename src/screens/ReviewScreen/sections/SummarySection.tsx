@@ -29,7 +29,7 @@ export default function SummarySection() {
       </View>
       <View className="absolute left-5 right-5 bottom-0 flex-row justify-between items-center h-[112px] bg-white rounded-[20px] border-2 border-gray-20">
         <View className="flex-1">
-          <Text className="font-pretendard text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
+          <Text className="font-pretendard-regular text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
             오늘의 리뷰
           </Text>
           <Text className="font-pretendard-bold text-[24px] leading-[26px] text-black text-center">
@@ -38,7 +38,7 @@ export default function SummarySection() {
         </View>
         <View className="w-px h-[48px] bg-gray-20" />
         <View className="flex-1">
-          <Text className="font-pretendard text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
+          <Text className="font-pretendard-regular text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
             이번달 리뷰
           </Text>
           <Text className="font-pretendard-bold text-[24px] leading-[26px] text-black text-center">
