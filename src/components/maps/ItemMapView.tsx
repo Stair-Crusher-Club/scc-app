@@ -76,6 +76,11 @@ const FRefInputComp = <T extends MarkerItem>(
   };
 
   useEffect(() => {
+    // 초기 현위치 마커 표시 (지도 초기화 대기)
+    const timer = setTimeout(() => {
+      mapRef.current?.setPositionMode('direction');
+    }, 100);
+
     const watchId = Geolocation.watchPosition(
       position => {
         setCurrentLocation({
@@ -93,6 +98,7 @@ const FRefInputComp = <T extends MarkerItem>(
       },
     );
     return () => {
+      clearTimeout(timer);
       Geolocation.clearWatch(watchId);
     };
   }, []);
