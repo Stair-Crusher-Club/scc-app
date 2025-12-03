@@ -1,10 +1,10 @@
-import { ReactNode } from 'react';
-import { StyleSheet, Text, View, ViewProps } from 'react-native';
+import {ReactNode} from 'react';
+import {StyleSheet, Text, View, ViewProps} from 'react-native';
 
-import { SccPressable } from '@/components/SccPressable';
+import {SccPressable} from '@/components/SccPressable';
 
 import CloseIcon from '@/assets/icon/close.svg';
-import { color } from '@/constant/color';
+import {color} from '@/constant/color';
 
 interface TooltipProps extends ViewProps {
   visible?: boolean;

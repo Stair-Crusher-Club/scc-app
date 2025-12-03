@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ScrollView } from 'react-native';
+import {Image, ScrollView} from 'react-native';
 
 import Divider from './components/Divider';
 import MenuListSection from './components/MenuListSection';
