@@ -304,12 +304,22 @@ export default function CameraScreen({
 }
 
 async function cropToRect(taken: PhotoFile) {
-  const size = Math.min(taken.width, taken.height);
-  // swap height, width intentionally (it works like this..)
+  // orientation이 landscape인 경우 센서 기준 width/height가 실제 이미지와 swap됨
+  const isLandscape =
+    taken.orientation === 'landscape-left' ||
+    taken.orientation === 'landscape-right';
+
+  // 실제 이미지 기준으로 dimensions 결정
+  const imageWidth = isLandscape ? taken.height : taken.width;
+  const imageHeight = isLandscape ? taken.width : taken.height;
+
+  const size = Math.min(imageWidth, imageHeight);
+
   const offset = {
-    x: Math.floor(Math.max(0, (taken.height - size) / 2)),
-    y: Math.floor(Math.max(0, (taken.width - size) / 2)),
+    x: Math.floor(Math.max(0, (imageWidth - size) / 2)),
+    y: Math.floor(Math.max(0, (imageHeight - size) / 2)),
   };
+
   const cropped = await ImageEditor.cropImage(
     ImageFileUtils.filepath(taken.path),
     {
