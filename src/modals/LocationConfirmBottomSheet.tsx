@@ -35,7 +35,7 @@ export default function LocationConfirmBottomSheet({
         <Title>{`등록하려는 ${typeText}의 주소가\n맞는지 확인해주세요.`}</Title>
         <AddressBox>
           {type === 'place' && placeName && (
-            <PlaceName>{`{${placeName}}`}</PlaceName>
+            <PlaceName>{placeName}</PlaceName>
           )}
           <AddressText>{address}</AddressText>
         </AddressBox>
