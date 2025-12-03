@@ -1,13 +1,14 @@
+import {View} from 'react-native';
+
 import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import TabBar from '@/components/TabBar';
-import {color} from '@/constant/color';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
-import styled from 'styled-components/native';
+
 import {tabItems} from '../ReviewHistoryScreen/constants';
 import ReviewUpvoteItem from './components/ReviewUpvoteItem';
 
@@ -58,10 +59,10 @@ export default function ReviewUpVoteScreen() {
         }
         renderItem={({item}) => (
           <>
-            <ItemContainer>
+            <View className="p-5">
               <ReviewUpvoteItem item={item} />
-            </ItemContainer>
-            <Divider />
+            </View>
+            <View className="h-px bg-gray-20" />
           </>
         )}
         onEndReached={() => {
@@ -71,21 +72,8 @@ export default function ReviewUpVoteScreen() {
         }}
         onEndReachedThreshold={0.5}
         ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
-        ListFooterComponent={<PaddingBottom />}
+        ListFooterComponent={<View className="pb-[100px]" />}
       />
     </ScreenLayout>
   );
 }
-
-const ItemContainer = styled.View`
-  padding: 20px;
-`;
-
-const Divider = styled.View`
-  height: 1px;
-  background-color: ${color.gray20};
-`;
-
-const PaddingBottom = styled.View`
-  padding-bottom: 100px;
-`;

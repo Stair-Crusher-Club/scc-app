@@ -1,11 +1,10 @@
+import {View, Text} from 'react-native';
+
 import FeedbackButton from '@/components/FeedbackButton';
 import SccPressable from '@/components/SccPressable';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {UpvotedPlaceDto} from '@/generated-sources/openapi/api';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
-import styled from 'styled-components/native';
 
 interface ItemProps {
   item: UpvotedPlaceDto;
@@ -26,8 +25,8 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
   });
 
   return (
-    <Container>
-      <PlaceButton
+    <View className="gap-4">
+      <SccPressable
         elementName="navigate_to_place_detail_button"
         onPress={() =>
           navigation.navigate('PlaceDetail', {
@@ -35,10 +34,15 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
               placeId: item.id!!,
             },
           })
-        }>
-        <PlaceName>{item.name}</PlaceName>
-        <PlaceAddress>{item.address}</PlaceAddress>
-      </PlaceButton>
+        }
+        className="gap-1">
+        <Text className="text-[16px] font-pretendard-bold leading-[24px] text-gray-90">
+          {item.name}
+        </Text>
+        <Text className="text-[13px] font-pretendard leading-[18px] text-gray-50">
+          {item.address}
+        </Text>
+      </SccPressable>
 
       <FeedbackButton
         total={totalUpvoteCount}
@@ -51,28 +55,6 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
           });
         }}
       />
-    </Container>
+    </View>
   );
 }
-
-const Container = styled.View`
-  gap: 16px;
-`;
-
-const PlaceButton = styled(SccPressable)`
-  gap: 4px;
-`;
-
-const PlaceName = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  line-height: 24px;
-  color: ${color.gray90};
-`;
-
-const PlaceAddress = styled.Text`
-  font-size: 13px;
-  font-family: ${font.pretendardRegular};
-  line-height: 18px;
-  color: ${color.gray50};
-`;
