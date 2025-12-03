@@ -1,15 +1,15 @@
+import {View} from 'react-native';
+
 import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import TabBar from '@/components/TabBar';
-import {color} from '@/constant/color';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useState} from 'react';
-import {View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled from 'styled-components/native';
+
 import AchievementsSection from '../ConquererHistoryScreen/sections/AchievementsSection';
 import ReviewHistoryPlaceReviewItem from './components/PlaceReviewItem';
 import ReviewHistoryPlaceToiletReviewItem from './components/PlaceToiletReviewItem';
@@ -71,33 +71,25 @@ export default function ReviewHistoryScreen() {
           if (currentTab === 'PLACE_REVIEW') {
             return (
               <>
-                <View
-                  style={{
-                    padding: 20,
-                    gap: 16,
-                  }}>
+                <View className="p-5 gap-4">
                   <ReviewHistoryPlaceReviewItem
                     placeId={item.placeId}
                     review={item}
                   />
                 </View>
-                <Divider />
+                <View className="h-px bg-gray-20" />
               </>
             );
           } else {
             return (
               <>
-                <View
-                  style={{
-                    padding: 20,
-                    gap: 16,
-                  }}>
+                <View className="p-5 gap-4">
                   <ReviewHistoryPlaceToiletReviewItem
                     placeId={item.placeId}
                     review={item}
                   />
                 </View>
-                <Divider />
+                <View className="h-px bg-gray-20" />
               </>
             );
           }
@@ -119,8 +111,3 @@ export default function ReviewHistoryScreen() {
     </ScreenLayout>
   );
 }
-
-const Divider = styled.View`
-  height: 1px;
-  background-color: ${color.gray20};
-`;

@@ -1,16 +1,16 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import styled from 'styled-components/native';
+import {Text} from 'react-native';
 
 import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 
 export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
   const navigation = useNavigation();
   return (
-    <PlaceRow
+    <SccPressable
+      className="p-[20px] border-b-[1px] border-b-gray-20"
       elementName="conquered_place_item"
       logParams={{place_id: p.place.id}}
       key={p.place.id}
@@ -19,35 +19,17 @@ export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
           placeInfo: {placeId: p.place.id},
         })
       }>
-      <PlaceName>{p.place.name}</PlaceName>
-      <PlaceAddress>{p.place.address}</PlaceAddress>
-      <ConqueredDate>
+      <Text
+        className="mb-[4px] font-pretendard-semibold text-black"
+        style={{fontSize: 16}}>
+        {p.place.name}
+      </Text>
+      <Text className="mb-[4px] text-gray-50" style={{fontSize: 14}}>
+        {p.place.address}
+      </Text>
+      <Text className="text-gray-50" style={{fontSize: 12}}>
         {dayjs(p.accessibilityInfo?.createdAt?.value).format('YYYY.MM.DD')}
-      </ConqueredDate>
-    </PlaceRow>
+      </Text>
+    </SccPressable>
   );
 }
-
-const PlaceRow = styled(SccPressable)`
-  padding: 20px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${color.gray20};
-`;
-
-const PlaceName = styled.Text`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${color.black};
-  margin-bottom: 4px;
-`;
-
-const PlaceAddress = styled.Text`
-  font-size: 14px;
-  color: ${color.gray50};
-  margin-bottom: 4px;
-`;
-
-const ConqueredDate = styled.Text`
-  font-size: 12px;
-  color: ${color.gray50};
-`;
