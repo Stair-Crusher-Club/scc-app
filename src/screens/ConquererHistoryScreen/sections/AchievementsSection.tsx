@@ -18,26 +18,20 @@ export default function AchievementsSection({
         resizeMode="cover"
       />
       <View className="flex-row items-center justify-center ml-[20px] mt-[20px]">
-        <Text
-          className="font-pretendard-regular text-gray-90"
-          style={{fontSize: 16, lineHeight: 26}}>
+        <Text className="font-pretendard-regular text-gray-90 text-[16px] leading-[26px]">
           지금까지
         </Text>
       </View>
       <View className="flex-row items-center justify-center ml-[20px]">
-        <Text
-          className="font-pretendard-regular text-gray-90"
-          style={{fontSize: 16, lineHeight: 26}}>
+        <Text className="font-pretendard-regular text-gray-90 text-[16px] leading-[26px]">
           총{' '}
         </Text>
         <Text
-          className="font-pretendard-bold text-black"
-          style={{fontSize: 28, lineHeight: 42, verticalAlign: 'middle'}}>
+          className="font-pretendard-bold text-black text-[28px] leading-[42px]"
+          style={{verticalAlign: 'middle'}}>
           {totalNumberOfPlaces.toLocaleString()}
         </Text>
-        <Text
-          className="font-pretendard-regular text-gray-90"
-          style={{fontSize: 16, lineHeight: 26}}>
+        <Text className="font-pretendard-regular text-gray-90 text-[16px] leading-[26px]">
           {' '}
           개 {type === 'conquer' && '장소 정복'}
           {type === 'review' && '리뷰 작성'}중

@@ -53,7 +53,7 @@ const LoginWith3rdParty = ({
         <View className="absolute left-4 top-[17px]">
           <KakaoLogo />
         </View>
-        <Text className="font-pretendard-bold text-base leading-6 text-blacka80">
+        <Text className="font-pretendard-bold text-base leading-6 text-blacka-80">
           카카오톡으로 계속하기
         </Text>
       </SccTouchableOpacity>

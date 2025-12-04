@@ -69,9 +69,7 @@ export default function UpvoteAnalyticsScreen({
                     source={require('@/assets/img/img_profile_big.png')}
                     className="w-[32px] h-[32px]"
                   />
-                  <Text
-                    className="font-pretendard-medium"
-                    style={{fontSize: 15, lineHeight: 22}}>
+                  <Text className="font-pretendard-medium text-[15px] leading-[22px]">
                     {item.nickname}
                   </Text>
                 </View>
@@ -86,20 +84,14 @@ export default function UpvoteAnalyticsScreen({
             renderItem={({item, index}) => (
               <>
                 <View className="gap-[12px] flex-row items-center justify-between p-[20px]">
-                  <Text
-                    className="font-pretendard-medium"
-                    style={{fontSize: 15, lineHeight: 22}}>
+                  <Text className="font-pretendard-medium text-[15px] leading-[22px]">
                     {MOBILITY_TOOL_LABELS[item.mobilityTool]}
                   </Text>
                   <View className="flex-row items-center gap-[4px]">
-                    <Text
-                      className="font-pretendard-medium text-gray-60"
-                      style={{fontSize: 14, lineHeight: 20}}>
+                    <Text className="font-pretendard-medium text-gray-60 text-[14px] leading-[20px]">
                       {item.percentage}%
                     </Text>
-                    <Text
-                      className="font-pretendard-regular text-gray-40"
-                      style={{fontSize: 13, lineHeight: 18}}>
+                    <Text className="font-pretendard-regular text-gray-40 text-[13px] leading-[18px]">
                       ({item.totalCount}명)
                     </Text>
                   </View>
