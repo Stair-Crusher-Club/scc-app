@@ -395,8 +395,8 @@ export const QuestionSection = styled.View({
 });
 
 export const QuestionText = styled.Text({
-  fontSize: 22,
-  lineHeight: 30,
+  fontSize: 20,
+  lineHeight: 28,
   fontFamily: font.pretendardSemibold,
   color: color.gray80,
 });
@@ -406,8 +406,8 @@ export const SubSection = styled.View({
 });
 
 export const Label = styled.Text({
-  fontSize: 22,
-  lineHeight: 30,
+  fontSize: 20,
+  lineHeight: 28,
   fontFamily: font.pretendardSemibold,
   color: color.gray80,
 });
