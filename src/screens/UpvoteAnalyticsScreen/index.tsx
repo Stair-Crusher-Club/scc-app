@@ -4,8 +4,6 @@ import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import Skeleton from '@/components/Skeleton';
 import TabBar from '@/components/TabBar';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {MOBILITY_TOOL_LABELS} from '@/constant/mobilityTool';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -13,7 +11,6 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
 import {Image, Text, View} from 'react-native';
-import styled from 'styled-components/native';
 import {INITIAL_TAB, tabItems} from './constants';
 import type {TabType} from './types';
 
@@ -45,31 +42,39 @@ export default function UpvoteAnalyticsScreen({
     <ScreenLayout isHeaderVisible={true}>
       <TabBar items={tabItems} current={currentTab} onChange={setCurrentTab} />
 
-      <ContentContainer>
+      <View className="flex-1">
         {currentTab === 'users' &&
           (isLoading ? (
             <View>
               {Array(5)
                 .fill(0)
                 .map((_, index) => (
-                  <SkeletonContainer key={`user-skeleton-${index}`}>
-                    <ProfileImage
+                  <View
+                    key={`user-skeleton-${index}`}
+                    className="p-[20px] gap-[12px] flex-row items-center">
+                    <Image
                       source={require('@/assets/img/img_profile_big.png')}
+                      className="w-[32px] h-[32px]"
                     />
-                    <SkeletonWrapper />
-                  </SkeletonContainer>
+                    <Skeleton className="w-[100px] h-[24px] rounded-[8px]" />
+                  </View>
                 ))}
             </View>
           ) : (
             <FlashList
               data={data?.upvotedUsers}
               renderItem={({item}) => (
-                <UserItemContainer>
-                  <ProfileImage
+                <View className="p-[20px] gap-[12px] flex-row items-center">
+                  <Image
                     source={require('@/assets/img/img_profile_big.png')}
+                    className="w-[32px] h-[32px]"
                   />
-                  <UserNickname>{item.nickname}</UserNickname>
-                </UserItemContainer>
+                  <Text
+                    className="font-pretendard-medium"
+                    style={{fontSize: 15, lineHeight: 22}}>
+                    {item.nickname}
+                  </Text>
+                </View>
               )}
               ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
             />
@@ -80,106 +85,38 @@ export default function UpvoteAnalyticsScreen({
             data={data?.upvotedUserStatistics}
             renderItem={({item, index}) => (
               <>
-                <StatsItemContainer>
-                  <StatsLabel>
+                <View className="gap-[12px] flex-row items-center justify-between p-[20px]">
+                  <Text
+                    className="font-pretendard-medium"
+                    style={{fontSize: 15, lineHeight: 22}}>
                     {MOBILITY_TOOL_LABELS[item.mobilityTool]}
-                  </StatsLabel>
-                  <StatsValueContainer>
-                    <StatsPercentage>{item.percentage}%</StatsPercentage>
-                    <StatsCount>({item.totalCount}명)</StatsCount>
-                  </StatsValueContainer>
-                </StatsItemContainer>
+                  </Text>
+                  <View className="flex-row items-center gap-[4px]">
+                    <Text
+                      className="font-pretendard-medium text-gray-60"
+                      style={{fontSize: 14, lineHeight: 20}}>
+                      {item.percentage}%
+                    </Text>
+                    <Text
+                      className="font-pretendard-regular text-gray-40"
+                      style={{fontSize: 13, lineHeight: 18}}>
+                      ({item.totalCount}명)
+                    </Text>
+                  </View>
+                </View>
 
                 {data?.upvotedUserStatistics &&
                   index !== data?.upvotedUserStatistics?.length - 1 && (
-                    <DividerContainer>
-                      <Divider />
-                    </DividerContainer>
+                    <View className="px-[20px]">
+                      <View className="h-[1px] bg-gray-20" />
+                    </View>
                   )}
               </>
             )}
             ListEmptyComponent={<EmptyViewText>{/* TODO */}</EmptyViewText>}
           />
         )}
-      </ContentContainer>
+      </View>
     </ScreenLayout>
   );
 }
-
-const ContentContainer = styled.View`
-  flex: 1;
-`;
-
-const SkeletonContainer = styled.View`
-  padding: 20px;
-  gap: 12px;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const ProfileImage = styled(Image)`
-  width: 32px;
-  height: 32px;
-`;
-
-const SkeletonWrapper = styled(Skeleton)`
-  width: 100px;
-  height: 24px;
-  border-radius: 8px;
-`;
-
-const UserItemContainer = styled.View`
-  padding: 20px;
-  gap: 12px;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const UserNickname = styled(Text)`
-  font-size: 15px;
-  line-height: 22px;
-  font-family: ${font.pretendardMedium};
-`;
-
-const StatsItemContainer = styled.View`
-  gap: 12px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-`;
-
-const StatsLabel = styled(Text)`
-  font-size: 15px;
-  line-height: 22px;
-  font-family: ${font.pretendardMedium};
-`;
-
-const StatsValueContainer = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-`;
-
-const StatsPercentage = styled(Text)`
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray60};
-`;
-
-const StatsCount = styled(Text)`
-  font-size: 13px;
-  line-height: 18px;
-  font-family: ${font.pretendardRegular};
-  color: ${color.gray40};
-`;
-
-const DividerContainer = styled.View`
-  padding-horizontal: 20px;
-`;
-
-const Divider = styled.View`
-  height: 1px;
-  background-color: ${color.gray20};
-`;
