@@ -1,10 +1,7 @@
 import React from 'react';
 
 import {SccButton} from '@/components/atoms';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
-import {Image, Modal, Platform, ScrollView} from 'react-native';
-import styled from 'styled-components/native';
+import {Image, Modal, Platform, ScrollView, Text, View} from 'react-native';
 
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {GuideContent} from '../constants';
@@ -38,52 +35,63 @@ export default function GuideModal({
       animationType="slide"
       transparent={false}
       onRequestClose={onRequestClose}>
-      <GuideModalContainer>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-          <ContentContainer>
+      <View className="flex-1 bg-white">
+        <ScrollView contentContainerClassName="flex-grow">
+          <View className="flex-1 gap-[24px]">
             {image && (
-              <ImageWrapper>
+              <View className="max-h-[260px]">
                 <Image
                   source={image}
-                  style={{width: '100%', height: '100%'}}
+                  className="w-full h-full"
                   resizeMode="cover"
                 />
-              </ImageWrapper>
+              </View>
             )}
 
             {/* 설명 섹션 */}
-            <DescriptionSection>
+            <View className="px-[20px] pb-[40px] gap-[20px]">
               {/* 타이틀 */}
-              <TitleText>{title}</TitleText>
+              <Text className="font-pretendard-semibold text-gray-80 text-center text-[22px] leading-[30px]">
+                {title}
+              </Text>
 
               {/* 순서 단계 */}
               {steps && steps.length > 0 && (
-                <StepsContainer>
+                <View>
                   {steps.map((step, index) => (
                     <React.Fragment key={step.number}>
-                      <StepItem>
-                        <StepNumberCircle>
-                          <StepNumber>{step.number}</StepNumber>
-                        </StepNumberCircle>
-                        <StepDescription>{step.description}</StepDescription>
-                      </StepItem>
-                      {index < steps.length - 1 && <StepConnector />}
+                      <View className="flex-row gap-[10px] items-center">
+                        <View className="w-[24px] h-[24px] rounded-[12px] bg-gray-15 items-center justify-center">
+                          <Text className="font-pretendard-medium text-gray-80 text-[13px]">
+                            {step.number}
+                          </Text>
+                        </View>
+                        <Text className="flex-1 font-pretendard-medium text-gray-80 text-[18px] leading-[26px]">
+                          {step.description}
+                        </Text>
+                      </View>
+                      {index < steps.length - 1 && (
+                        <View className="bg-gray-15 ml-[11px] mt-[4px] mb-[4px] w-[2px] h-[20px]" />
+                      )}
                     </React.Fragment>
                   ))}
-                </StepsContainer>
+                </View>
               )}
 
               {/* 추가 정보 */}
               {additionalInfo && (
-                <AdditionalInfo>{additionalInfo}</AdditionalInfo>
+                <Text className="font-pretendard-medium text-gray-90 bg-gray-10 rounded-[14px] p-[12px] text-[14px] leading-[22px]">
+                  {additionalInfo}
+                </Text>
               )}
-            </DescriptionSection>
-          </ContentContainer>
+            </View>
+          </View>
         </ScrollView>
 
-        <ButtonWrapper
+        <View
+          className="flex-row px-[20px] pt-[12px] gap-[8px] pb-[12px]"
           style={{
-            paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
+            paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
           }}>
           <SccButton
             elementName="guide_modal_dismiss"
@@ -91,7 +99,6 @@ export default function GuideModal({
             onPress={onDismissPermanently}
             buttonColor="gray10"
             textColor="black"
-            fontFamily={font.pretendardMedium}
             style={{maxWidth: 132, width: '100%'}}
           />
           <SccButton
@@ -100,94 +107,10 @@ export default function GuideModal({
             onPress={onConfirm}
             buttonColor="brandColor"
             textColor="white"
-            fontFamily={font.pretendardBold}
             style={{flex: 1}}
           />
-        </ButtonWrapper>
-      </GuideModalContainer>
+        </View>
+      </View>
     </Modal>
   );
 }
-
-const GuideModalContainer = styled.View`
-  flex: 1;
-  background-color: ${color.white};
-`;
-
-const ContentContainer = styled.View`
-  flex: 1;
-  gap: 24px;
-`;
-
-const ImageWrapper = styled.View`
-  max-height: 260px;
-`;
-
-const DescriptionSection = styled.View`
-  padding: 0 20px 40px 20px;
-  gap: 20px;
-`;
-
-const TitleText = styled.Text`
-  font-size: 22px;
-  line-height: 30px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
-  text-align: center;
-`;
-
-const StepsContainer = styled.View``;
-
-const StepItem = styled.View`
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-`;
-
-const StepNumberCircle = styled.View`
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  background-color: ${color.gray15};
-  align-items: center;
-  justify-content: center;
-`;
-
-const StepNumber = styled.Text`
-  font-size: 13px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray80};
-`;
-
-const StepDescription = styled.Text`
-  flex: 1;
-  font-size: 18px;
-  line-height: 26px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray80};
-`;
-
-const StepConnector = styled.View`
-  width: 2px;
-  height: 20px;
-  background-color: ${color.gray15};
-  margin-left: 11px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-`;
-
-const AdditionalInfo = styled.Text`
-  font-size: 14px;
-  line-height: 22px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray90};
-  background-color: ${color.gray10};
-  border-radius: 14px;
-  padding: 12px;
-`;
-
-const ButtonWrapper = styled.View`
-  flex-direction: row;
-  padding: 12px 20px;
-  gap: 8px;
-`;

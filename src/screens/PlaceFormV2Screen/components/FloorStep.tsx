@@ -3,7 +3,6 @@ import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {Place} from '@/generated-sources/openapi';
 import {Controller, useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
-import styled from 'styled-components/native';
 import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FLOOR_OPTIONS, STANDALONE_BUILDING_OPTIONS} from '../constants';
@@ -42,8 +41,8 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
           />
           <SectionSeparator />
 
-          <Container>
-            <View style={{gap: 20}}>
+          <View className="pt-[30px] px-[20px] pb-[40px] gap-[40px]">
+            <View className="gap-[20px]">
               <QuestionSection>
                 <SectionLabel>층정보</SectionLabel>
                 <QuestionText>
@@ -69,7 +68,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
             </View>
 
             {selectedOption === 'otherFloor' && (
-              <AdditionalQuestionArea>
+              <View className="gap-[20px]">
                 <QuestionText>그럼 몇층에 있는 장소인가요?</QuestionText>
                 <Controller
                   name="selectedFloor"
@@ -80,11 +79,11 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
                     />
                   )}
                 />
-              </AdditionalQuestionArea>
+              </View>
             )}
 
             {selectedOption === 'standalone' && (
-              <AdditionalQuestionArea>
+              <View className="gap-[20px]">
                 <QuestionText>어떤 유형의 단독건물인가요?</QuestionText>
                 <Controller
                   name="standaloneType"
@@ -100,14 +99,14 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
                     />
                   )}
                 />
-              </AdditionalQuestionArea>
+              </View>
             )}
-          </Container>
+          </View>
         </SafeAreaWrapper>
       </ScrollView>
       <SafeAreaWrapper edges={['bottom']}>
         <SubmitButtonWrapper>
-          <ButtonContainer>
+          <View className="flex-1">
             <SccButton
               text="다음"
               onPress={onNext}
@@ -115,24 +114,9 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
               buttonColor="brandColor"
               elementName="place_form_v2_next"
             />
-          </ButtonContainer>
+          </View>
         </SubmitButtonWrapper>
       </SafeAreaWrapper>
     </>
   );
 }
-
-const Container = styled.View`
-  padding-top: 30px;
-  padding-horizontal: 20px;
-  padding-bottom: 40px;
-  gap: 40px;
-`;
-
-const AdditionalQuestionArea = styled.View`
-  gap: 20px;
-`;
-
-const ButtonContainer = styled.View`
-  flex: 1;
-`;

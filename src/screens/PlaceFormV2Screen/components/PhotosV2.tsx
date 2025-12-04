@@ -1,12 +1,12 @@
 import React from 'react';
-
-import ImageFile from '@/models/ImageFile';
-import useNavigation from '@/navigation/useNavigation';
-import ImageFileUtils from '@/utils/ImageFileUtils';
+import {Image, Text, View} from 'react-native';
 
 import CameraIcon from '@/assets/icon/ic_camera2.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
-import * as S from './PhotosV2.style';
+import {SccPressable} from '@/components/SccPressable';
+import ImageFile from '@/models/ImageFile';
+import useNavigation from '@/navigation/useNavigation';
+import ImageFileUtils from '@/utils/ImageFileUtils';
 
 interface Props {
   value: ImageFile[];
@@ -41,46 +41,54 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
   const hasPhotos = value.length > 0;
 
   return (
-    <S.Photos>
+    <View className="flex-row justify-between gap-[10px]">
       {/* 3장 미만인 경우, 카메라 버튼 + 사진 1~2장 */}
       {value.length < maxPhotos && (
-        <S.Photo>
-          <S.SmallCameraButton
+        <View className="flex-1" style={{aspectRatio: 1}}>
+          <SccPressable
+            className="flex-1 border border-gray-15 rounded-[14px] justify-center items-center bg-gray-15"
             elementName="photo_small_camera_button"
             onPress={takePhoto}>
             <CameraIcon width={36} height={36} />
-            <S.SmallCameraButtonText>사진 촬영하기</S.SmallCameraButtonText>
-          </S.SmallCameraButton>
-        </S.Photo>
+            <Text className="font-pretendard-regular text-gray-40 mt-[4px] text-[12px]">
+              사진 촬영하기
+            </Text>
+          </SccPressable>
+        </View>
       )}
       {/* 1~3장의 사진 */}
       {value.slice(0, 3).map((photo, index) => (
-        <S.Photo key={photo.uri}>
-          <S.ThumbnailButton
+        <View key={photo.uri} className="flex-1" style={{aspectRatio: 1}}>
+          <SccPressable
+            className="flex-1"
             elementName="photo_thumbnail"
             onPress={() => viewPhoto(index)}>
-            <S.Thumbnail>
-              <S.ThumbnailImage
+            <View className="flex-1 overflow-hidden rounded-[14px]">
+              <Image
+                className="flex-1 bg-gray-20"
                 source={{uri: ImageFileUtils.filepathFromImageFile(photo)}}
               />
-            </S.Thumbnail>
-          </S.ThumbnailButton>
-          <S.DeleteButton
+            </View>
+          </SccPressable>
+          <SccPressable
+            className="absolute -top-[4px] -right-[4px]"
             elementName="photo_delete_button"
             onPress={() => deletePhoto(photo)}>
             <CircleCloseIcon width={24} height={24} />
-          </S.DeleteButton>
-        </S.Photo>
+          </SccPressable>
+        </View>
       ))}
       {/* 사진 0장 => 빈 공간 채우기 */}
       {!hasPhotos && (
         <>
-          <S.Photo />
-          <S.Photo />
+          <View className="flex-1" style={{aspectRatio: 1}} />
+          <View className="flex-1" style={{aspectRatio: 1}} />
         </>
       )}
       {/* 카메라 + 1장 => 빈 공간 채우기 */}
-      {value.length === 1 && <S.Photo />}
-    </S.Photos>
+      {value.length === 1 && (
+        <View className="flex-1" style={{aspectRatio: 1}} />
+      )}
+    </View>
   );
 }

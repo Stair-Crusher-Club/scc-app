@@ -1,8 +1,6 @@
 import {placeFormV2GuideDismissedAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {
   Building,
   EntranceDoorType,
@@ -22,9 +20,15 @@ import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
 import {useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
-import {ReactElement, useEffect, useMemo, useState} from 'react';
+import {
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 import {BuildingRegistrationEvent} from '../PlaceDetailV2Screen/constants';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
 import FloorMovementStep from './components/FloorMovementStep';
@@ -371,72 +375,54 @@ export default function PlaceFormV2Screen({
   );
 }
 
-export const HeaderBorder = styled.View({
-  borderBottomWidth: 1,
-  borderBottomColor: color.blue5,
-});
+// Common components shared across PlaceFormV2 and BuildingFormV2
+export const HeaderBorder = () => <View className="border-b border-blue-5" />;
 
-export const SectionSeparator = styled.View({
-  backgroundColor: color.gray10,
-  height: 6,
-});
+export const SectionSeparator = () => <View className="bg-gray-10 h-[6px]" />;
 
-// Common styled components shared across PlaceFormV2 and BuildingFormV2
-export const SectionLabel = styled.Text({
-  fontSize: 14,
-  lineHeight: 20,
-  fontFamily: font.pretendardBold,
-  color: color.brand50,
-});
+export const SectionLabel = ({children}: PropsWithChildren) => (
+  <Text className="font-pretendard-bold text-brand-50 text-[14px] leading-[20px]">
+    {children}
+  </Text>
+);
 
-export const QuestionSection = styled.View({
-  gap: 8,
-});
+export const QuestionSection = ({children}: PropsWithChildren) => (
+  <View className="gap-[8px]">{children}</View>
+);
 
-export const QuestionText = styled.Text({
-  fontSize: 22,
-  lineHeight: 30,
-  fontFamily: font.pretendardSemibold,
-  color: color.gray80,
-});
+export const QuestionText = ({children}: PropsWithChildren) => (
+  <Text className="font-pretendard-semibold text-gray-80 text-[20px] leading-[28px]">
+    {children}
+  </Text>
+);
 
-export const SubSection = styled.View({
-  gap: 20,
-});
+export const SubSection = ({children}: PropsWithChildren) => (
+  <View className="gap-[20px]">{children}</View>
+);
 
-export const Label = styled.Text({
-  fontSize: 22,
-  lineHeight: 30,
-  fontFamily: font.pretendardSemibold,
-  color: color.gray80,
-});
+export const MeasureGuide = ({children}: PropsWithChildren) => (
+  <View
+    className="rounded-[8px] overflow-hidden border border-gray-20"
+    style={{aspectRatio: 315 / 152}}>
+    {children}
+  </View>
+);
 
-export const MeasureGuide = styled.View({
-  aspectRatio: '315/152',
-  borderRadius: 8,
-  overflow: 'hidden',
-  borderWidth: 1,
-  borderColor: color.gray20,
-});
+export const GuideButton = ({children}: PropsWithChildren) => (
+  <View>{children}</View>
+);
 
-export const GuideButton = styled.View``;
+export const GuideText = ({children}: PropsWithChildren) => (
+  <Text className="font-pretendard-medium text-brand-50 text-right text-[14px]">
+    {children}
+  </Text>
+);
 
-export const GuideText = styled.Text`
-  color: ${color.brandColor};
-  font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  text-align: right;
-`;
-
-export const SubmitButtonWrapper = styled.View`
-  background-color: ${color.white};
-  padding-vertical: 12px;
-  padding-horizontal: 20px;
-  border-top-width: 1px;
-  border-top-color: ${color.gray15};
-  flex-direction: row;
-  gap: 12px;
-`;
+export const SubmitButtonWrapper = ({children}: PropsWithChildren) => (
+  <View className="bg-white py-[12px] px-[20px] border-t border-gray-15 flex-row gap-[12px]">
+    {children}
+  </View>
+);
 
 async function register(
   api: ReturnType<typeof useAppComponents>['api'],

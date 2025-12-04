@@ -1,22 +1,19 @@
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
+import {colors} from '@/constant/colors';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
-import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import useNavigation from '@/navigation/useNavigation';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
-import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages} from '../constants';
 import {
   GuideButton,
   GuideText,
-  Label,
   MeasureGuide,
   QuestionSection,
   QuestionText,
@@ -109,7 +106,7 @@ export default function InfoStep({
           />
           <SectionSeparator />
 
-          <InfoFormContainer>
+          <View className="bg-white py-[40px] px-[20px] gap-[48px]">
             {!isStandaloneBuilding && (
               <SubSection>
                 <QuestionSection>
@@ -120,44 +117,48 @@ export default function InfoStep({
                   name="doorDirection"
                   rules={{required: true}}
                   render={({field}) => (
-                    <DoorDirectionContainer>
-                      <DoorDirectionOption>
-                        <DoorDirectionImageContainer>
+                    <View className="flex-row gap-[12px]">
+                      <View className="flex-1 gap-[12px]">
+                        <View
+                          className="w-full rounded-[8px] overflow-hidden border border-gray-20"
+                          style={{aspectRatio: 1}}>
                           <Image
                             source={formImages.entrance.out}
-                            style={{width: '100%', height: '100%'}}
+                            className="w-full h-full"
                             resizeMode="cover"
                           />
-                        </DoorDirectionImageContainer>
+                        </View>
                         <OptionsV2
                           value={field.value}
                           columns={1}
                           options={[{label: '건물 밖', value: 'outside'}]}
                           onSelect={field.onChange}
                         />
-                      </DoorDirectionOption>
-                      <DoorDirectionOption>
-                        <DoorDirectionImageContainer>
+                      </View>
+                      <View className="flex-1 gap-[12px]">
+                        <View
+                          className="w-full rounded-[8px] overflow-hidden border border-gray-20"
+                          style={{aspectRatio: 1}}>
                           <Image
                             source={formImages.entrance.in}
-                            style={{width: '100%', height: '100%'}}
+                            className="w-full h-full"
                             resizeMode="cover"
                           />
-                        </DoorDirectionImageContainer>
+                        </View>
                         <OptionsV2
                           value={field.value}
                           columns={1}
                           options={[{label: '건물 안', value: 'inside'}]}
                           onSelect={field.onChange}
                         />
-                      </DoorDirectionOption>
-                    </DoorDirectionContainer>
+                      </View>
+                    </View>
                   )}
                 />
               </SubSection>
             )}
             <SubSection>
-              <Label>출입구 사진을 등록해주세요</Label>
+              <QuestionText>출입구 사진을 등록해주세요</QuestionText>
               <Controller
                 name="entrancePhotos"
                 rules={{required: true}}
@@ -173,7 +174,7 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>입구에 계단이 있나요?</Label>
+              <QuestionText>입구에 계단이 있나요?</QuestionText>
               <Controller
                 name="hasStairs"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -223,14 +224,14 @@ export default function InfoStep({
             {form.watch('hasStairs') &&
               form.watch('stairInfo') === StairInfo.One && (
                 <SubSection key="stair-height">
-                  <Label>계단 1칸의 높이를 알려주세요</Label>
+                  <QuestionText>계단 1칸의 높이를 알려주세요</QuestionText>
                   <MeasureGuide>
                     <Image
                       source={formImages.stair}
-                      style={{width: '100%', height: '100%'}}
+                      className="w-full h-full"
                     />
                   </MeasureGuide>
-                  <View style={{gap: 16}}>
+                  <View className="gap-[16px]">
                     <Controller
                       name="entranceStairHeightLevel"
                       rules={{required: true}}
@@ -260,7 +261,7 @@ export default function InfoStep({
               )}
 
             <SubSection>
-              <Label>입구에 경사로가 있나요?</Label>
+              <QuestionText>입구에 경사로가 있나요?</QuestionText>
               <Controller
                 name="hasSlope"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -290,7 +291,7 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>출입문은 어떤 종류인가요?</Label>
+              <QuestionText>출입문은 어떤 종류인가요?</QuestionText>
               <Controller
                 name="doorType"
                 rules={{required: true}}
@@ -306,7 +307,7 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>추가로 알려주실 내용이 있으신가요?</Label>
+              <QuestionText>추가로 알려주실 내용이 있으신가요?</QuestionText>
               <Controller
                 name="additionalInfo"
                 render={({field}) => (
@@ -326,7 +327,7 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>더 도움이 될 정보가 있다면 알려주세요</Label>
+              <QuestionText>더 도움이 될 정보가 있다면 알려주세요</QuestionText>
               <Controller
                 name="comment"
                 render={({field}) => (
@@ -338,7 +339,7 @@ export default function InfoStep({
                 )}
               />
             </SubSection>
-          </InfoFormContainer>
+          </View>
         </SafeAreaWrapper>
       </ScrollView>
       <SafeAreaWrapper edges={isKeyboardVisible ? [] : ['bottom']}>
@@ -348,14 +349,12 @@ export default function InfoStep({
             onPress={onBack}
             buttonColor="gray10"
             textColor="black"
-            fontFamily={font.pretendardMedium}
             elementName="place_form_v2_info_prev"
             style={{flex: 1}}
           />
           <SccButton
             text={hasFloorMovementStep ? '다음' : '등록하기'}
             onPress={onSubmit}
-            fontFamily={font.pretendardMedium}
             buttonColor="brandColor"
             elementName={
               hasFloorMovementStep
@@ -370,29 +369,3 @@ export default function InfoStep({
     </>
   );
 }
-
-const InfoFormContainer = styled.View`
-  background-color: white;
-  padding-vertical: 40px;
-  padding-horizontal: 20px;
-  gap: 48px;
-`;
-
-const DoorDirectionContainer = styled.View`
-  flex-direction: row;
-  gap: 12px;
-`;
-
-const DoorDirectionOption = styled.View`
-  flex: 1;
-  gap: 12px;
-`;
-
-const DoorDirectionImageContainer = styled.View`
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  border-width: 1px;
-  border-color: ${color.gray20};
-`;

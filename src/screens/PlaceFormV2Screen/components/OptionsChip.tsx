@@ -2,8 +2,7 @@ import React from 'react';
 import {Text, View} from 'react-native';
 
 import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
+import {cn} from '@/utils/cn';
 
 interface Option {
   label: string;
@@ -34,13 +33,7 @@ export default function OptionsChip({
   }
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 12,
-      }}>
+    <View className="flex-row flex-wrap items-start gap-[12px]">
       {options.map((option, idx) => {
         const selected = values?.includes(option.value);
         return (
@@ -48,28 +41,19 @@ export default function OptionsChip({
             key={option.label + idx}
             elementName="option_chip"
             disableLogging
-            style={{
-              borderRadius: 14,
-              borderWidth: 1.2,
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingHorizontal: 16,
-              paddingVertical: 8,
-              borderColor: selected ? color.blue40 : color.gray20,
-              backgroundColor: selected ? color.brand5 : color.white,
-            }}
+            className={cn(
+              'rounded-[14px] border-[1.2px] flex flex-row gap-[5px]',
+              'justify-center items-center px-[16px] py-[8px]',
+              selected
+                ? 'border-blue-40 bg-brand-5'
+                : 'border-gray-20 bg-white',
+            )}
             onPress={() => handleSelect(option.value)}>
             <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 16,
-                lineHeight: 24,
-                fontFamily: font.pretendardMedium,
-                color: selected ? color.brand50 : color.gray80,
-              }}>
+              className={cn(
+                'text-center text-[16px] leading-[24px] font-pretendard-medium',
+                selected ? 'text-brand-50' : 'text-gray-80',
+              )}>
               {option.label}
             </Text>
           </SccPressable>

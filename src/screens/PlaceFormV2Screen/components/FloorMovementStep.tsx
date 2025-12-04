@@ -1,7 +1,6 @@
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
-import {font} from '@/constant/font';
 import {
   FloorMovingMethodTypeDto,
   Place,
@@ -11,11 +10,9 @@ import {
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
-import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages, makeFloorMovementOptions} from '../constants';
 import {
-  Label,
   MeasureGuide,
   QuestionSection,
   QuestionText,
@@ -105,7 +102,7 @@ export default function FloorMovementStep({
           />
           <SectionSeparator />
 
-          <FormContainer>
+          <View className="bg-white py-[40px] px-[20px] gap-[48px]">
             <SubSection>
               <QuestionSection>
                 <SectionLabel>층간 이동 정보</SectionLabel>
@@ -150,7 +147,7 @@ export default function FloorMovementStep({
                 </SubSection>
 
                 <SubSection>
-                  <Label>입구에 계단이 있나요?</Label>
+                  <QuestionText>입구에 계단이 있나요?</QuestionText>
                   <Controller
                     name="elevatorHasStairs"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -188,14 +185,14 @@ export default function FloorMovementStep({
                 {form.watch('elevatorHasStairs') &&
                   form.watch('elevatorStairInfo') === StairInfo.One && (
                     <SubSection key="stair-height">
-                      <Label>계단 1칸의 높이를 알려주세요</Label>
+                      <QuestionText>계단 1칸의 높이를 알려주세요</QuestionText>
                       <MeasureGuide>
                         <Image
                           source={formImages.stair}
-                          style={{width: '100%', height: '100%'}}
+                          className="w-full h-full"
                         />
                       </MeasureGuide>
-                      <View style={{gap: 16}}>
+                      <View className="gap-[16px]">
                         <Controller
                           name="elevatorStairHeightLevel"
                           rules={{required: true}}
@@ -225,7 +222,7 @@ export default function FloorMovementStep({
                   )}
 
                 <SubSection>
-                  <Label>입구에 경사로가 있나요?</Label>
+                  <QuestionText>입구에 경사로가 있나요?</QuestionText>
                   <Controller
                     name="elevatorHasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -245,7 +242,7 @@ export default function FloorMovementStep({
             )}
 
             <SubSection>
-              <Label>더 도움이 될 정보가 있다면 알려주세요</Label>
+              <QuestionText>더 도움이 될 정보가 있다면 알려주세요</QuestionText>
               <Controller
                 name="floorMovementComment"
                 render={({field}) => (
@@ -257,7 +254,7 @@ export default function FloorMovementStep({
                 )}
               />
             </SubSection>
-          </FormContainer>
+          </View>
         </SafeAreaWrapper>
       </ScrollView>
       <SafeAreaWrapper edges={isKeyboardVisible ? [] : ['bottom']}>
@@ -267,14 +264,12 @@ export default function FloorMovementStep({
             onPress={onBack}
             buttonColor="gray10"
             textColor="black"
-            fontFamily={font.pretendardMedium}
             elementName="place_form_v2_floor_movement_prev"
             style={{flex: 1}}
           />
           <SccButton
             text="등록하기"
             onPress={onSubmit}
-            fontFamily={font.pretendardMedium}
             buttonColor="brandColor"
             elementName="place_form_v2_floor_movement_next"
             style={{flex: 2}}
@@ -285,10 +280,3 @@ export default function FloorMovementStep({
     </>
   );
 }
-
-const FormContainer = styled.View`
-  background-color: white;
-  padding-vertical: 40px;
-  padding-horizontal: 20px;
-  gap: 48px;
-`;

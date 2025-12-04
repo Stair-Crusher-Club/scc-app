@@ -1,7 +1,9 @@
 import React from 'react';
+import {Text, View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
-import * as S from './OptionsV2.style';
+import {SccPressable} from '@/components/SccPressable';
+import {cn} from '@/utils/cn';
 
 interface Option {
   label: string;
@@ -28,22 +30,39 @@ export default function OptionsV2({
   };
 
   return (
-    <S.Options>
-      {options.map((option, i) => (
-        <S.PressableOption
-          key={i}
-          elementName="option_single_select"
-          disableLogging
-          style={{width: getWidth()}}
-          selected={option.value === value}
-          disabled={option.disabled ?? false}
-          onPress={() => onSelect(option.value)}>
-          <S.OptionText selected={option.value === value}>
-            {option.label}
-          </S.OptionText>
-        </S.PressableOption>
-      ))}
-    </S.Options>
+    <View className="flex-row flex-wrap justify-between gap-y-[16px] gap-x-[12px]">
+      {options.map((option, i) => {
+        const selected = option.value === value;
+        const disabled = option.disabled ?? false;
+
+        return (
+          <SccPressable
+            key={i}
+            elementName="option_single_select"
+            disableLogging
+            className={cn(
+              'rounded-[14px] flex-row justify-center items-center flex-grow px-[14px] py-[12px] gap-[5px]',
+              'border-[1.2px]',
+              selected
+                ? 'border-blue-50 bg-brand-5'
+                : 'border-gray-20 bg-white',
+              disabled && 'opacity-30',
+            )}
+            style={{
+              width: getWidth(),
+            }}
+            onPress={() => onSelect(option.value)}>
+            <Text
+              className={cn(
+                'flex-1 text-center font-pretendard-medium text-[16px] leading-[24px]',
+                selected ? 'text-brand-50' : 'text-gray-80',
+              )}>
+              {option.label}
+            </Text>
+          </SccPressable>
+        );
+      })}
+    </View>
   );
 }
 
@@ -78,22 +97,38 @@ OptionsV2.Multiple = function MultipleOptions({
   };
 
   return (
-    <S.Options>
+    <View className="flex-row flex-wrap justify-between gap-y-[16px] gap-x-[12px]">
       {options.map((option, i) => {
         const selected = values?.includes(option.value);
+        const disabled = option.disabled ?? false;
+
         return (
-          <S.PressableOption
+          <SccPressable
             key={i}
             elementName="option_multi_select"
             disableLogging
-            style={{width: getWidth()}}
-            selected={selected}
-            disabled={option.disabled ?? false}
+            className={cn(
+              'rounded-[14px] flex-row justify-center items-center flex-grow px-[14px] py-[12px] gap-[5px]',
+              'border-[1.2px]',
+              selected
+                ? 'border-blue-40 bg-brand-5'
+                : 'border-gray-20 bg-white',
+              disabled && 'opacity-30',
+            )}
+            style={{
+              width: getWidth(),
+            }}
             onPress={() => handleSelect(option.value)}>
-            <S.OptionText selected={selected}>{option.label}</S.OptionText>
-          </S.PressableOption>
+            <Text
+              className={cn(
+                'flex-1 text-center font-pretendard-medium text-[16px] leading-[24px]',
+                selected ? 'text-brand-50' : 'text-gray-80',
+              )}>
+              {option.label}
+            </Text>
+          </SccPressable>
         );
       })}
-    </S.Options>
+    </View>
   );
 };
