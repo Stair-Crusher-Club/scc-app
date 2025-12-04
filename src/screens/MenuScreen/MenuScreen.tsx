@@ -1,7 +1,6 @@
 import React from 'react';
-import {Image, ScrollView} from 'react-native';
+import {Image, ScrollView, View} from 'react-native';
 
-import Divider from './components/Divider';
 import MenuListSection from './components/MenuListSection';
 import MyProfileSection from './components/MyProfileSection';
 
@@ -15,7 +14,7 @@ const MenuScreen = ({}: any) => {
         className="w-full h-[200px]"
       />
       <MyProfileSection />
-      <Divider />
+      <View className="w-full h-[10px] bg-gray-10" />
       <MenuListSection />
     </ScrollView>
   );

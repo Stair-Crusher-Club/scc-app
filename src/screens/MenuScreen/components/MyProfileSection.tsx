@@ -1,11 +1,9 @@
 import React from 'react';
-import {View} from 'react-native';
+import {Text, View} from 'react-native';
 
 import {useMe} from '@/atoms/Auth';
 import {SccPressable} from '@/components/SccPressable';
 import useNavigation from '@/navigation/useNavigation';
-
-import * as S from './MyProfileSection.style';
 
 export default function MyProfileSection() {
   const navigation = useNavigation();
@@ -15,20 +13,26 @@ export default function MyProfileSection() {
     navigation.navigate('ProfileEditor');
   }
   return (
-    <S.MyProfileSection>
+    <View className="flex-row justify-between items-center py-6 pl-6 pr-5">
       <View>
-        <S.Nickname>{userInfo?.nickname}</S.Nickname>
-        <S.Email>{userInfo?.email}</S.Email>
+        <Text className="font-pretendard-bold mb-[4px] text-[20px]">
+          {userInfo?.nickname}
+        </Text>
+        <Text className="font-pretendard-regular text-gray-80 text-[14px]">
+          {userInfo?.email}
+        </Text>
       </View>
       <View>
         <SccPressable
           elementName="edit_profile_button"
           onPress={openProfileEditorScreen}>
-          <S.EditProfileButton>
-            <S.ButtonText>프로필 수정</S.ButtonText>
-          </S.EditProfileButton>
+          <View className="py-2 px-3 bg-gray-10 rounded-[20px]">
+            <Text className="font-pretendard-semibold text-[14px] leading-[22px]">
+              프로필 수정
+            </Text>
+          </View>
         </SccPressable>
       </View>
-    </S.MyProfileSection>
+    </View>
   );
 }
