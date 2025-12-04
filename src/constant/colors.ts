@@ -70,8 +70,8 @@ export const colors = {
     90: '#000000E6',
   },
   // Utility colors
-  white: '#fff',
-  black: '#000',
+  white: '#ffffff',
+  black: '#000000',
   red: '#DB0B24',
   link: '#1067CD',
   'light-orange': '#FFA14B',

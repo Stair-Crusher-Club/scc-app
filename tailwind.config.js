@@ -77,6 +77,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        black: '#000000',
+        white: '#ffffff',
         // Black with alpha (transparency)
         blacka: {
           10: '#0000001A',
