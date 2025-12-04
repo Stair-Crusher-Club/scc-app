@@ -15,7 +15,7 @@ const ChallengeScreen = () => {
   >();
 
   return (
-    <ScrollView style={{backgroundColor: 'white'}}>
+    <ScrollView className="bg-white">
       <SafeAreaWrapper edges={['top']}>
         <ChallengeSection
           onPressUpcomingChallenge={challenge => {

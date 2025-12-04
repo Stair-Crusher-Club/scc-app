@@ -76,7 +76,7 @@ export default function ChallengeSection({
             }`}>
             <Text
               className={`font-pretendard-regular text-sm ${
-                activeFilter === 'all' ? 'text-brand' : 'text-gray-90'
+                activeFilter === 'all' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
               전체보기
@@ -92,7 +92,7 @@ export default function ChallengeSection({
             }`}>
             <Text
               className={`font-pretendard-regular text-sm ${
-                activeFilter === 'InProgress' ? 'text-brand' : 'text-gray-90'
+                activeFilter === 'InProgress' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
               진행 중
@@ -108,7 +108,7 @@ export default function ChallengeSection({
             }`}>
             <Text
               className={`font-pretendard-regular text-sm ${
-                activeFilter === 'Upcoming' ? 'text-brand' : 'text-gray-90'
+                activeFilter === 'Upcoming' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
               오픈 예정
@@ -124,7 +124,7 @@ export default function ChallengeSection({
             }`}>
             <Text
               className={`font-pretendard-regular text-sm ${
-                activeFilter === 'Closed' ? 'text-brand' : 'text-gray-90'
+                activeFilter === 'Closed' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
               종료된 챌린지
