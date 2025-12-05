@@ -209,7 +209,8 @@ const TitleLine2Input = styled(TextInput)<{ isDesktop: boolean }>`
 
 const ImageContainer = styled(View)<{ isDesktop: boolean }>`
   flex: ${({ isDesktop }) => (isDesktop ? '3' : 'none')};
-  width: ${({ isDesktop }) => (isDesktop ? 'auto' : '100%')};
+  width: ${({ isDesktop }) => (isDesktop ? 'auto' : 'calc(100% + 32px)')};
+  margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
   position: relative;
 `;
 

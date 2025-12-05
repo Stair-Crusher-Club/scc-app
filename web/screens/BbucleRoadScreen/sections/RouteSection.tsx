@@ -12,6 +12,10 @@ import type { ExtendedRouteDto } from '../config/bbucleRoadData';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
 import SccRemoteImage from '@/components/SccRemoteImage';
+import IcSubway from '@/assets/icon/ic_subway.svg';
+import IcTaxi from '@/assets/icon/ic_taxi.svg';
+import IcCar from '@/assets/icon/ic_car.svg';
+import IcBus from '@/assets/icon/ic_bus.svg';
 import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import InteractiveImage from '../components/InteractiveImage';
 import RegionDetailModal from '../components/RegionDetailModal';
@@ -31,11 +35,11 @@ interface RouteSectionProps {
   sectionId?: string;
 }
 
-const ICON_MAP: Record<BbucleRoadRouteIconTypeDto, string> = {
-  SUBWAY: '🚇',
-  TAXI: '🚕',
-  CAR: '🚗',
-  BUS: '🚌',
+const ICON_MAP: Record<BbucleRoadRouteIconTypeDto, React.FC<{ width?: number; height?: number; viewBox?: string; color?: string }>> = {
+  SUBWAY: IcSubway,
+  TAXI: IcTaxi,
+  CAR: IcCar,
+  BUS: IcBus,
 };
 
 const ICON_OPTIONS: BbucleRoadRouteIconTypeDto[] = ['SUBWAY', 'TAXI', 'CAR', 'BUS'];
@@ -213,7 +217,18 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
         </TitleSection>
 
       {/* Tabs */}
-      <TabsContainer isDesktop={isDesktop} horizontal showsHorizontalScrollIndicator={false}>
+      <TabsContainer 
+        isDesktop={isDesktop} 
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          flexWrap: 'wrap',
+          flexGrow: 1,
+          flexShrink: 1,
+          flexBasis: '0%',
+          gap: '8px',
+        }}
+      >
         {routeSection.routes.map((route, index) => (
           <TabWrapper key={route.id}>
             <TabButton
@@ -221,26 +236,31 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
               active={index === selectedRouteIndex}
               onPress={() => handleTabPress(index, route)}
             >
-              {isEditMode ? (
-                <IconSelector
-                  onPress={() => {
-                    const currentIndex = ICON_OPTIONS.indexOf(route.tabIconType);
-                    const nextIndex = (currentIndex + 1) % ICON_OPTIONS.length;
-                    handleIconTypeChange(index, ICON_OPTIONS[nextIndex]);
-                  }}
-                >
-                  <TabIcon>{ICON_MAP[route.tabIconType]}</TabIcon>
-                </IconSelector>
-              ) : (
-                <TabIcon>{ICON_MAP[route.tabIconType]}</TabIcon>
-              )}
+              {(() => {
+                const IconComponent = ICON_MAP[route.tabIconType];
+                const iconSize = isDesktop ? 24 : 18
+                const iconElement = <IconComponent width={iconSize} height={iconSize} viewBox={"0 0 16 16"} color={color.white} />;
+                return isEditMode ? (
+                  <IconSelector
+                    onPress={() => {
+                      const currentIndex = ICON_OPTIONS.indexOf(route.tabIconType);
+                      const nextIndex = (currentIndex + 1) % ICON_OPTIONS.length;
+                      handleIconTypeChange(index, ICON_OPTIONS[nextIndex]);
+                    }}
+                  >
+                    <TabIconWrapper isDesktop={isDesktop}>{iconElement}</TabIconWrapper>
+                  </IconSelector>
+                ) : (
+                  <TabIconWrapper isDesktop={isDesktop}>{iconElement}</TabIconWrapper>
+                );
+              })()}
               {isEditMode ? (
                 <TabLabelInput
                   value={route.tabLabel}
                   onChangeText={(text) => handleTabLabelChange(index, text)}
                 />
               ) : (
-                <TabLabel>
+                <TabLabel isDesktop={isDesktop}>
                   {route.tabLabel}
                 </TabLabel>
               )}
@@ -273,7 +293,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
                 />
               </HtmlContentWrapper>
             ) : selectedRoute.descriptionImageUrl ? (
-              <DescriptionImageWrapper>
+              <DescriptionImageWrapper isDesktop={isDesktop}>
                 <SccRemoteImage
                   imageUrl={selectedRoute.descriptionImageUrl}
                   resizeMode="contain"
@@ -381,13 +401,12 @@ const TabsContainer = styled(ScrollView)<{ isDesktop: boolean }>`
 const TabWrapper = styled(View)`
   flex-direction: row;
   align-items: center;
-  margin-right: 8px;
 `;
 
 const TabButton = styled(TouchableOpacity)<{ isDesktop: boolean, active: boolean }>`
   flex-direction: row;
   align-items: center;
-  padding: ${({ isDesktop }) => (isDesktop ? '12px 20px' : '6px 14px 6px 12px')};
+  padding: ${({ isDesktop }) => (isDesktop ? '12px 30px 12px 28px' : '6px 14px 6px 12px')};
   border-radius: 24px;
   background-color: ${({ active }) => (active ? color.iosBlue : color.gray30)};
 `;
@@ -396,13 +415,13 @@ const IconSelector = styled(TouchableOpacity)`
   margin-right: 8px;
 `;
 
-const TabIcon = styled(Text)`
-  font-size: 18px;
-  margin-right: 8px;
+const TabIconWrapper = styled(View)<{ isDesktop: boolean }>`
+  margin-right: ${({ isDesktop }) => (isDesktop ? '8px' : '4px')};
 `;
 
-const TabLabel = styled(Text)`
-  font-size: 14px;
+const TabLabel = styled(Text)<{ isDesktop: boolean }>`
+  font-size: ${({ isDesktop }) => (isDesktop ? '20px' : '14px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '28px' : '22px')};
   font-weight: 600;
   color: ${color.white};
 `;
@@ -454,18 +473,19 @@ const ContentContainer = styled(View)<{ isDesktop: boolean }>`
 
 const DescriptionHtmlContainer = styled(View)<{ isDesktop: boolean }>`
   width: ${({ isDesktop }) => (isDesktop ? '37%' : '100%')};
-  border-radius: 8px;
   overflow: hidden;
   ${({ isDesktop }) => (isDesktop ? 'flex: 2;' : 'flex-shrink: 0;')};
 `;
 
-const DescriptionImageWrapper = styled(View)`
+const DescriptionImageWrapper = styled(View)<{ isDesktop: boolean }>`
   position: relative;
+  width: ${({ isDesktop }) => (isDesktop ? '100%' : 'calc(100% + 32px)')};
+  margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
 `;
 
 const InteractiveImageContainer = styled(View)<{ isDesktop: boolean }>`
-  width: ${({ isDesktop }) => (isDesktop ? '60%' : '100%')};
-  border-radius: 8px;
+  width: ${({ isDesktop }) => (isDesktop ? '60%' : 'calc(100% + 32px)')};
+  margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
   overflow: hidden;
   ${({ isDesktop }) => (isDesktop ? 'flex: 3;' : 'flex-shrink: 0;')};
 `;

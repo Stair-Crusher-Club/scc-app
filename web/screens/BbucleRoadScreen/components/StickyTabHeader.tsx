@@ -28,6 +28,8 @@ export default function StickyTabHeader({
   const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
   const [isSticky, setIsSticky] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const tabPositions = useRef<Map<string, { left: number; width: number }>>(new Map());
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
 
@@ -50,6 +52,22 @@ export default function StickyTabHeader({
     return () => observer.disconnect();
   }, []);
 
+  // Active 탭이 바뀔 때 탭 바 내에서만 스크롤 (페이지 스크롤에 영향 없음)
+  useEffect(() => {
+    const tabPos = tabPositions.current.get(activeSection);
+    const scrollView = scrollViewRef.current;
+    if (!tabPos || !scrollView) return;
+
+    // 탭을 중앙에 오도록 스크롤 위치 계산
+    const scrollViewWidth = windowWidth;
+    const targetScrollX = tabPos.left - (scrollViewWidth / 2) + (tabPos.width / 2);
+
+    scrollView.scrollTo({
+      x: Math.max(0, targetScrollX),
+      animated: true,
+    });
+  }, [activeSection, windowWidth]);
+
   if (sections.length === 0) {
     return null;
   }
@@ -60,6 +78,7 @@ export default function StickyTabHeader({
       <div ref={sentinelRef} style={{ height: 1, marginBottom: -1 }} />
       <Container isDesktop={isDesktop} isSticky={isSticky}>
         <TabsScrollView
+          ref={scrollViewRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
@@ -72,20 +91,27 @@ export default function StickyTabHeader({
             {sections.map((section) => {
               const isActive = section.id === activeSection;
               return (
-                <SccPressable
-                  key={section.label}
-                  onPress={() => onTabPress(section.id)}
-                  elementName="bbucle-road-sticky-tab"
-                  logParams={{ tabId: section.id, tabLabel: section.label, isDesktop }}
-                  disableLogging={isEditMode}
+                <View
+                  key={section.id}
+                  onLayout={(e) => {
+                    const { x, width } = e.nativeEvent.layout;
+                    tabPositions.current.set(section.id, { left: x, width });
+                  }}
                 >
-                  <TabButtonContent isDesktop={isDesktop}>
-                    <TabLabel isActive={isActive} isDesktop={isDesktop}>
-                      {section.label}
-                    </TabLabel>
-                    {isActive && <ActiveIndicator />}
-                  </TabButtonContent>
-                </SccPressable>
+                  <SccPressable
+                    onPress={() => onTabPress(section.id)}
+                    elementName="bbucle-road-sticky-tab"
+                    logParams={{ tabId: section.id, tabLabel: section.label, isDesktop }}
+                    disableLogging={isEditMode}
+                  >
+                    <TabButtonContent isDesktop={isDesktop}>
+                      <TabLabel isActive={isActive} isDesktop={isDesktop}>
+                        {section.label}
+                      </TabLabel>
+                      {isActive && <ActiveIndicator />}
+                    </TabButtonContent>
+                  </SccPressable>
+                </View>
               );
             })}
           </TabsContainer>

@@ -189,7 +189,7 @@ export default function NearbyPlacesSection({
 
           {/* 지도 이미지 */}
           {mapImageUrl ? (
-            <MapImageContainer>
+            <MapImageContainer isDesktop={isDesktop}>
               <SccRemoteImage
                 imageUrl={mapImageUrl}
                 resizeMode="contain"
@@ -311,9 +311,10 @@ const TitleLine2Input = styled(TextInput)<{ isDesktop: boolean }>`
   width: 100%;
 `;
 
-const MapImageContainer = styled(View)`
+const MapImageContainer = styled(View)<{ isDesktop: boolean }>`
   max-width: 1020px;
-  width: 100%;
+  width: ${({ isDesktop }) => (isDesktop ? '100%' : 'calc(100% + 32px)')};
+  margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
   position: relative;
 `;
 

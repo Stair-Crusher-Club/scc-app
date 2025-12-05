@@ -264,17 +264,17 @@ const UpdateDateBadge = styled(View)<{ isDesktop: boolean }>`
   flex-direction: row;
   align-items: center;
   background-color: ${color.black};
-  padding: ${({ isDesktop }) => (isDesktop ? '4px 16px' : '3px 8px')};
+  padding: ${({ isDesktop }) => (isDesktop ? '4px 16px' : '3px 14px')};
   border-radius: 100px;
   margin-top: 12px;
   margin-bottom: ${({ isDesktop }) => (isDesktop ? '60px' : '40px')};
 `;
 
-const UpdateDateText = styled(Text)`
+const UpdateDateText = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: 16px;
+  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '14px')};
   font-weight: 500;
-  line-height: 24px;
+  line-height: ${({ isDesktop }) => (isDesktop ? '24px' : '18px')};
   color: ${color.white};
 `;
 

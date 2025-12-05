@@ -290,7 +290,7 @@ const BubbleRow = styled(View)<{ isLeft: boolean; isDesktop: boolean }>`
 `;
 
 const BubbleContainer = styled(View)<{ isLeft: boolean; isDesktop: boolean }>`
-  max-width: ${({ isDesktop }) => (isDesktop ? '85%' : '95%')};
+  max-width: ${({ isDesktop }) => (isDesktop ? '85%' : '100%')};
   align-items: ${({ isLeft }) => (isLeft ? 'flex-start' : 'flex-end')};
 `;
 

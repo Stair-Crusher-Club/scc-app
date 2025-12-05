@@ -120,7 +120,7 @@ export default function SeatViewSection({
 
           {/* Interactive 지도 이미지 */}
           {interactiveImage?.url ? (
-            <ImageContainer>
+            <ImageContainer isDesktop={isDesktop}>
               <InteractiveImage
                 interactiveImage={interactiveImage}
                 onRegionPress={handleRegionPress}
@@ -251,9 +251,10 @@ const DescriptionItem = styled(View)<{ isDesktop: boolean }>`
   flex-basis: ${({ isDesktop }) => (isDesktop ? '45%' : '100%')};
 `;
 
-const ImageContainer = styled(View)`
+const ImageContainer = styled(View)<{ isDesktop: boolean }>`
   max-width: 1020px;
-  width: 100%;
+  width: ${({ isDesktop }) => (isDesktop ? '100%' : 'calc(100% + 32px)')};
+  margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
   position: relative;
 `;
 
@@ -276,12 +277,12 @@ const EmptyImageText = styled(Text)`
 /* 모바일: Region 이미지 직접 표시 */
 const RegionImagesContainer = styled(View)`
   width: 100%;
+  margin-horizontal: 16px;
   gap: 12px;
 `;
 
 const RegionImageWrapper = styled(View)`
   width: 100%;
-  border-radius: 12px;
   overflow: hidden;
 `;
 

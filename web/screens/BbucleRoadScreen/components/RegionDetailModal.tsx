@@ -26,17 +26,19 @@ export default function RegionDetailModal({
   region,
   onClose,
 }: RegionDetailModalProps) {
-  const { windowWidth, isDesktop } = useResponsive();
+  const { isDesktop } = useResponsive();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const imageWidth = isDesktop ? Math.min(windowWidth * 0.6, 800) : Math.min(windowWidth - 48, 600);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetX = event.nativeEvent.contentOffset.x;
-      const index = Math.round(offsetX / imageWidth);
-      setCurrentIndex(index);
+      const pageWidth = event.nativeEvent.layoutMeasurement.width;
+      if (pageWidth > 0) {
+        const index = Math.round(offsetX / pageWidth);
+        setCurrentIndex(index);
+      }
     },
-    [imageWidth],
+    [],
   );
 
   const handleClose = useCallback(() => {
@@ -77,11 +79,12 @@ export default function RegionDetailModal({
                   scrollEventThrottle={16}
                 >
                   {imageUrls.map((imageUrl, index) => (
-                    <ImageWrapper key={index} style={{ width: imageWidth }}>
+                    <ImageWrapper key={index} isDesktop={isDesktop}>
                       <SccRemoteImage
                         imageUrl={imageUrl}
                         resizeMode="contain"
                         style={{ borderRadius: 8 }}
+                        wrapperBackgroundColor={null}
                       />
                     </ImageWrapper>
                   ))}
@@ -89,7 +92,7 @@ export default function RegionDetailModal({
 
                 {hasMultipleImages && (
                   <PageIndicatorContainer>
-                    {imageUrls.map((_, index) => (
+                    {imageUrls.map((_: string, index: number) => (
                       <PageDot key={index} active={index === currentIndex} />
                     ))}
                   </PageIndicatorContainer>
@@ -124,7 +127,9 @@ const ImageScrollView = styled(ScrollView)`
   overflow: hidden;
 `;
 
-const ImageWrapper = styled(View)`
+const ImageWrapper = styled(View)<{ isDesktop: boolean }>`
+  width: ${({ isDesktop }) => (isDesktop ? 'min(60vw, 800px)' : 'calc(100vw - 48px)')};
+  max-width: ${({ isDesktop }) => (isDesktop ? '800px' : '600px')};
   justify-content: center;
   align-items: center;
 `;
