@@ -4,7 +4,6 @@ import {throttle} from 'lodash';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Controller, FormProvider, useForm} from 'react-hook-form';
 import {
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
@@ -12,7 +11,6 @@ import {
 } from 'react-native';
 
 import {loadingState} from '@/components/LoadingView';
-import {SccPressable} from '@/components/SccPressable';
 import TabBar from '@/components/TabBar';
 import {SccButton} from '@/components/atoms';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
@@ -38,13 +36,19 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import FormQuestion from '../PlaceFormV2Screen/components/FormQuestion';
+import {
+  HeaderBorder,
+  SectionSeparator,
+} from '../PlaceFormV2Screen/components/FormStyles';
+import GuideLink from '../PlaceFormV2Screen/components/GuideLink';
+import MeasureGuide from '../PlaceFormV2Screen/components/MeasureGuide';
 import OptionsV2 from '../PlaceFormV2Screen/components/OptionsV2';
 import PhotosV2 from '../PlaceFormV2Screen/components/PhotosV2';
 import TextAreaV2 from '../PlaceFormV2Screen/components/TextAreaV2';
 import {formImages} from '../PlaceFormV2Screen/constants';
 import PlaceInfoSection from '../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
-import * as S from './BuildingFormV2Screen.style';
 
 type TabType = 'entrance' | 'elevator';
 
@@ -379,7 +383,7 @@ export default function BuildingFormV2Screen({
     <LogParamsProvider params={{building_id: building.id}}>
       <FormProvider {...form}>
         <ScreenLayout isHeaderVisible={true}>
-          <S.HeaderBorder />
+          <HeaderBorder />
           <ScrollView
             ref={scrollViewRef}
             stickyHeaderIndices={[2]}
@@ -390,24 +394,23 @@ export default function BuildingFormV2Screen({
               name={place.name}
               address={place.name + ' 장소가 있는 건물'}
             />
-            <S.SectionSeparator />
-            <S.TabBarWrapper>
+            <SectionSeparator />
+            <View className="bg-white">
               <TabBar
                 items={tabItems}
                 current={currentTab}
                 onChange={handleTabChange}
               />
-            </S.TabBarWrapper>
-            <S.FormContainer>
+            </View>
+            <View className="bg-white py-[40px] px-[20px] gap-[20px]">
               {/* 건물 입구 정보 */}
-              <View ref={entranceRef} collapsable={false} style={{gap: 48}}>
-                <S.SubSection>
-                  <S.QuestionSection>
-                    <S.SectionLabel>건물입구정보</S.SectionLabel>
-                    <S.QuestionText>
-                      건물의 출입구가 어느 방향에 있나요?
-                    </S.QuestionText>
-                  </S.QuestionSection>
+              <View
+                ref={entranceRef}
+                collapsable={false}
+                className="gap-[48px]">
+                <FormQuestion
+                  label="건물입구정보"
+                  question="건물의 출입구가 어느 방향에 있나요?">
                   <Controller
                     name="entranceDirection"
                     rules={{required: true}}
@@ -423,10 +426,9 @@ export default function BuildingFormV2Screen({
                       />
                     )}
                   />
-                </S.SubSection>
+                </FormQuestion>
 
-                <S.SubSection>
-                  <S.Label>건물 입구 사진을 찍어주세요</S.Label>
+                <FormQuestion question="건물 입구 사진을 찍어주세요">
                   <Controller
                     name="enterancePhotos"
                     rules={{required: true}}
@@ -439,10 +441,9 @@ export default function BuildingFormV2Screen({
                       />
                     )}
                   />
-                </S.SubSection>
+                </FormQuestion>
 
-                <S.SubSection>
-                  <S.Label>건물 입구에 계단이 있나요?</S.Label>
+                <FormQuestion question="건물 입구에 계단이 있나요?">
                   <Controller
                     name="hasStairs"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -475,31 +476,17 @@ export default function BuildingFormV2Screen({
                       )}
                     />
                   )}
-                  <S.GuideButton>
-                    <SccPressable
-                      elementName="building_entrance_stair_guide"
-                      onPress={() =>
-                        navigation.navigate('Webview', {
-                          fixedTitle: '계단 기준 알아보기',
-                          url: 'https://agnica.notion.site/8312cc653a8f4b9aa8bc920bbd668218',
-                        })
-                      }>
-                      <S.GuideText>계단 기준 알아보기 {'>'}</S.GuideText>
-                    </SccPressable>
-                  </S.GuideButton>
-                </S.SubSection>
+                  <GuideLink
+                    type="stairs"
+                    elementName="building_entrance_stair_guide"
+                  />
+                </FormQuestion>
 
                 {form.watch('hasStairs') &&
                   form.watch('stairInfo') === StairInfo.One && (
-                    <S.SubSection>
-                      <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
-                      <S.MeasureGuide>
-                        <Image
-                          source={formImages.stair}
-                          style={{width: '100%', height: '100%'}}
-                        />
-                      </S.MeasureGuide>
-                      <View style={{gap: 16}}>
+                    <FormQuestion question="계단 1칸의 높이를 알려주세요">
+                      <MeasureGuide source={formImages.stair} />
+                      <View className="gap-[16px]">
                         <Controller
                           name="entranceStairHeightLevel"
                           rules={{required: true}}
@@ -525,11 +512,10 @@ export default function BuildingFormV2Screen({
                           )}
                         />
                       </View>
-                    </S.SubSection>
+                    </FormQuestion>
                   )}
 
-                <S.SubSection>
-                  <S.Label>건물 입구에 경사로가 있나요?</S.Label>
+                <FormQuestion question="건물 입구에 경사로가 있나요?">
                   <Controller
                     name="hasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -544,22 +530,13 @@ export default function BuildingFormV2Screen({
                       />
                     )}
                   />
-                  <S.GuideButton>
-                    <SccPressable
-                      elementName="building_entrance_slope_guide"
-                      onPress={() =>
-                        navigation.navigate('Webview', {
-                          fixedTitle: '경사로 기준 알아보기',
-                          url: 'https://agnica.notion.site/6f64035a062f41e28745faa4e7bd0770',
-                        })
-                      }>
-                      <S.GuideText>경사로 기준 알아보기 {'>'}</S.GuideText>
-                    </SccPressable>
-                  </S.GuideButton>
-                </S.SubSection>
+                  <GuideLink
+                    type="slope"
+                    elementName="building_entrance_slope_guide"
+                  />
+                </FormQuestion>
 
-                <S.SubSection>
-                  <S.Label>출입문은 어떤 종류인가요?</S.Label>
+                <FormQuestion question="출입문은 어떤 종류인가요?">
                   <Controller
                     name="doorTypes"
                     rules={{required: true}}
@@ -574,11 +551,10 @@ export default function BuildingFormV2Screen({
                       />
                     )}
                   />
-                </S.SubSection>
+                </FormQuestion>
 
                 {/* 의견 추가 */}
-                <S.SubSection>
-                  <S.Label>더 도움이 될 정보가 있다면 알려주세요</S.Label>
+                <FormQuestion question="더 도움이 될 정보가 있다면 알려주세요">
                   <Controller
                     name="comment"
                     render={({field}) => (
@@ -589,19 +565,17 @@ export default function BuildingFormV2Screen({
                       />
                     )}
                   />
-                </S.SubSection>
+                </FormQuestion>
               </View>
 
               {/* 엘리베이터 정보 */}
               <View
                 ref={elevatorRef}
                 collapsable={false}
-                style={{gap: 48, marginTop: 80}}>
-                <S.SubSection>
-                  <S.QuestionSection>
-                    <S.SectionLabel>엘리베이터 정보</S.SectionLabel>
-                    <S.QuestionText>건물에 엘리베이터가 있나요?</S.QuestionText>
-                  </S.QuestionSection>
+                className="gap-[48px] mt-[80px]">
+                <FormQuestion
+                  label="엘리베이터 정보"
+                  question="건물에 엘리베이터가 있나요?">
                   <Controller
                     name="hasElevator"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -616,12 +590,11 @@ export default function BuildingFormV2Screen({
                       />
                     )}
                   />
-                </S.SubSection>
+                </FormQuestion>
 
                 {form.watch('hasElevator') && (
                   <>
-                    <S.SubSection>
-                      <S.Label>엘리베이터 사진을 찍어주세요</S.Label>
+                    <FormQuestion question="엘리베이터 사진을 찍어주세요">
                       <Controller
                         name="elevatorPhotos"
                         rules={{required: true}}
@@ -634,10 +607,9 @@ export default function BuildingFormV2Screen({
                           />
                         )}
                       />
-                    </S.SubSection>
+                    </FormQuestion>
 
-                    <S.SubSection>
-                      <S.Label>엘리베이터까지 가는 길에 계단이 있나요?</S.Label>
+                    <FormQuestion question="엘리베이터까지 가는 길에 계단이 있나요?">
                       <Controller
                         name="elevatorHasStairs"
                         rules={{validate: v => typeof v === 'boolean'}}
@@ -670,19 +642,13 @@ export default function BuildingFormV2Screen({
                           )}
                         />
                       )}
-                    </S.SubSection>
+                    </FormQuestion>
 
                     {form.watch('elevatorHasStairs') &&
                       form.watch('elevatorStairInfo') === StairInfo.One && (
-                        <S.SubSection>
-                          <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
-                          <S.MeasureGuide>
-                            <Image
-                              source={formImages.stair}
-                              style={{width: '100%', height: '100%'}}
-                            />
-                          </S.MeasureGuide>
-                          <View style={{gap: 16}}>
+                        <FormQuestion question="계단 1칸의 높이를 알려주세요">
+                          <MeasureGuide source={formImages.stair} />
+                          <View className="gap-[16px]">
                             <Controller
                               name="elevatorStairHeightLevel"
                               rules={{required: true}}
@@ -708,15 +674,15 @@ export default function BuildingFormV2Screen({
                               )}
                             />
                           </View>
-                        </S.SubSection>
+                        </FormQuestion>
                       )}
                   </>
                 )}
               </View>
-            </S.FormContainer>
+            </View>
           </ScrollView>
           <SafeAreaWrapper edges={isKeyboardVisible ? [] : ['bottom']}>
-            <S.SubmitButtonWrapper>
+            <View className="bg-white py-[12px] px-[20px] border-t border-gray-15">
               <SccButton
                 text="등록하기"
                 buttonColor="brandColor"
@@ -725,7 +691,7 @@ export default function BuildingFormV2Screen({
                 elementName="building_form_submit"
                 isDisabled={!isFormValid}
               />
-            </S.SubmitButtonWrapper>
+            </View>
           </SafeAreaWrapper>
         </ScreenLayout>
       </FormProvider>
