@@ -117,7 +117,9 @@ export default function EditSidebar() {
     importFromJson,
     editingRegion,
     startAddingRegion,
+    startAddingSeatViewRegion,
     startEditingRegion,
+    startEditingSeatViewRegion,
     addModalImageToRegion,
     removeModalImageFromRegion,
     clearRegionPoints,
@@ -125,6 +127,7 @@ export default function EditSidebar() {
     saveEditingRegion,
     cancelEditingRegion,
     deleteRegion,
+    deleteSeatViewRegion,
   } = editContext;
 
   const handleExportJson = useCallback(async () => {
@@ -210,6 +213,45 @@ export default function EditSidebar() {
                 {data.routeSection?.routes.length || 0}개
               </InfoValue>
             </InfoRow>
+          </Section>
+
+          {/* 헤더 섹션 */}
+          <Section>
+            <SectionTitle>헤더 섹션</SectionTitle>
+            <HeaderEditPanel>
+              {/* 최종 업데이트 */}
+              <FieldGroup>
+                <FieldLabel>최종 업데이트</FieldLabel>
+                <FieldInput
+                  value={data.lastUpdatedDate || ''}
+                  onChangeText={(text: string) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      lastUpdatedDate: text,
+                    }))
+                  }
+                  placeholder="예: 최종 업데이트 2025.12.05"
+                  placeholderTextColor="#999"
+                />
+              </FieldGroup>
+
+              {/* 접근성 한마디 */}
+              <FieldGroup>
+                <FieldLabel>접근성 한마디 (HTML)</FieldLabel>
+                <HtmlTextAreaSmall
+                  multiline
+                  value={data.wheelchairUserCommentHtml || ''}
+                  onChangeText={(text: string) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      wheelchairUserCommentHtml: text,
+                    }))
+                  }
+                  placeholder="<b>볼드 텍스트</b> 일반 텍스트..."
+                  placeholderTextColor="#999"
+                />
+              </FieldGroup>
+            </HeaderEditPanel>
           </Section>
 
           {/* Region 편집 */}
@@ -397,6 +439,279 @@ export default function EditSidebar() {
                   />
                 </RouteHtmlEditPanel>
               ))}
+            </Section>
+          )}
+
+          {/* 좌석 뷰 섹션 편집 */}
+          {data.seatViewSection && (
+            <Section>
+              <SectionTitle>좌석 뷰 섹션</SectionTitle>
+              <SeatViewEditPanel>
+                {/* 타이틀 */}
+                <FieldGroup>
+                  <FieldLabel>타이틀</FieldLabel>
+                  <FieldInput
+                    value={data.seatViewSection.title}
+                    onChangeText={(text: string) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        seatViewSection: prev.seatViewSection
+                          ? { ...prev.seatViewSection, title: text }
+                          : null,
+                      }))
+                    }
+                    placeholder="예: 좌석 시야 안내"
+                    placeholderTextColor="#999"
+                  />
+                </FieldGroup>
+
+                {/* Interactive 이미지 */}
+                <FieldGroup>
+                  <FieldLabel>Interactive 지도 이미지</FieldLabel>
+                  {data.seatViewSection.interactiveImage?.url ? (
+                    <ImagePreviewContainer>
+                      <ImagePreview
+                        source={{ uri: data.seatViewSection.interactiveImage.url }}
+                      />
+                      <ImageRemoveButton
+                        onPress={() =>
+                          updateData((prev) => ({
+                            ...prev,
+                            seatViewSection: prev.seatViewSection
+                              ? {
+                                  ...prev.seatViewSection,
+                                  interactiveImage: undefined,
+                                }
+                              : null,
+                          }))
+                        }
+                      >
+                        <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                      </ImageRemoveButton>
+                    </ImagePreviewContainer>
+                  ) : (
+                    <ImageUploader
+                      onUploadComplete={(url) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          seatViewSection: prev.seatViewSection
+                            ? {
+                                ...prev.seatViewSection,
+                                interactiveImage: {
+                                  url,
+                                  clickableRegions: [],
+                                },
+                              }
+                            : null,
+                        }))
+                      }
+                      buttonText="지도 이미지 업로드"
+                    />
+                  )}
+                </FieldGroup>
+
+                {/* seatViewSection Region 편집 */}
+                {data.seatViewSection.interactiveImage?.url && (
+                  <FieldGroup>
+                    <FieldLabel>Regions</FieldLabel>
+                    {editingRegion && editingRegion.sectionType === 'seatView' ? (
+                      <RegionEditPanel>
+                        <RegionEditHeader>
+                          <RegionEditTitle>
+                            {editingRegion.regionIndex !== null
+                              ? `Region #${editingRegion.regionIndex + 1} 편집`
+                              : '새 Region 추가'}
+                          </RegionEditTitle>
+                          <RegionRouteTag>SeatView</RegionRouteTag>
+                        </RegionEditHeader>
+
+                        <RegionEditInfo>
+                          <InfoRow>
+                            <InfoLabel>점 개수:</InfoLabel>
+                            <InfoValue>{editingRegion.points.length}개</InfoValue>
+                          </InfoRow>
+                        </RegionEditInfo>
+
+                        <RegionEditActions>
+                          <SmallButton onPress={clearRegionPoints}>
+                            <SmallButtonText>초기화</SmallButtonText>
+                          </SmallButton>
+                          <SmallButton
+                            onPress={undoRegionPoint}
+                            disabled={editingRegion.pointsUndoStack.length === 0}
+                            style={{
+                              opacity: editingRegion.pointsUndoStack.length > 0 ? 1 : 0.5,
+                            }}
+                          >
+                            <SmallButtonText>⌘Z 실행취소</SmallButtonText>
+                          </SmallButton>
+                        </RegionEditActions>
+
+                        <ModalImageSection>
+                          <ModalImageLabel>
+                            클릭 시 표시할 이미지 ({editingRegion.modalImageUrls.length}개)
+                          </ModalImageLabel>
+                          <ModalImageList>
+                            {editingRegion.modalImageUrls.map((url, index) => (
+                              <ModalImageItem key={index}>
+                                <TouchableOpacity onPress={() => setPreviewImageUrl(url)}>
+                                  <ModalImagePreview source={{ uri: url }} />
+                                </TouchableOpacity>
+                                <ModalImageRemove
+                                  onPress={() => removeModalImageFromRegion(index)}
+                                >
+                                  <ModalImageRemoveText>×</ModalImageRemoveText>
+                                </ModalImageRemove>
+                              </ModalImageItem>
+                            ))}
+                            <AddModalImageWrapper>
+                              <ImageUploader
+                                onUploadComplete={addModalImageToRegion}
+                                buttonText="+"
+                                compact
+                              />
+                            </AddModalImageWrapper>
+                          </ModalImageList>
+                        </ModalImageSection>
+
+                        <RegionEditButtons>
+                          <CancelButton onPress={cancelEditingRegion}>
+                            <CancelButtonText>취소</CancelButtonText>
+                          </CancelButton>
+                          <SaveButton
+                            onPress={saveEditingRegion}
+                            disabled={editingRegion.points.length < 3}
+                            style={{
+                              opacity: editingRegion.points.length >= 3 ? 1 : 0.5,
+                            }}
+                          >
+                            <SaveButtonText>저장</SaveButtonText>
+                          </SaveButton>
+                        </RegionEditButtons>
+                      </RegionEditPanel>
+                    ) : (
+                      <>
+                        <SeatViewRegionHeader>
+                          <AddRegionButton onPress={startAddingSeatViewRegion}>
+                            <AddRegionButtonText>+ Region 추가</AddRegionButtonText>
+                          </AddRegionButton>
+                        </SeatViewRegionHeader>
+                        {(data.seatViewSection.interactiveImage.clickableRegions || []).length > 0 ? (
+                          (data.seatViewSection.interactiveImage.clickableRegions || []).map(
+                            (region, regionIndex) => (
+                              <RegionListItem key={region.id}>
+                                <RegionListHeader>
+                                  <RegionListInfo>
+                                    <RegionListIndex>#{regionIndex + 1}</RegionListIndex>
+                                    <RegionListDetail>
+                                      점 {region.polygon.length}개
+                                    </RegionListDetail>
+                                  </RegionListInfo>
+                                  <RegionListActions>
+                                    <RegionEditButton
+                                      onPress={() =>
+                                        startEditingSeatViewRegion(
+                                          regionIndex,
+                                          region.polygon,
+                                          region.modalImageUrls || [],
+                                        )
+                                      }
+                                    >
+                                      <RegionEditButtonText>편집</RegionEditButtonText>
+                                    </RegionEditButton>
+                                    <RegionDeleteButton
+                                      onPress={() => deleteSeatViewRegion(regionIndex)}
+                                    >
+                                      <RegionDeleteButtonText>×</RegionDeleteButtonText>
+                                    </RegionDeleteButton>
+                                  </RegionListActions>
+                                </RegionListHeader>
+                                {(region.modalImageUrls?.length ?? 0) > 0 && (
+                                  <RegionImageList>
+                                    {region.modalImageUrls?.map((url: string, imgIndex: number) => (
+                                      <TouchableOpacity
+                                        key={imgIndex}
+                                        onPress={() => setPreviewImageUrl(url)}
+                                      >
+                                        <RegionImageThumb source={{ uri: url }} />
+                                      </TouchableOpacity>
+                                    ))}
+                                  </RegionImageList>
+                                )}
+                              </RegionListItem>
+                            ),
+                          )
+                        ) : (
+                          <NoRegionsText>Region 없음</NoRegionsText>
+                        )}
+                      </>
+                    )}
+                  </FieldGroup>
+                )}
+
+                {/* 설명 HTML */}
+                <FieldGroup>
+                  <FieldLabel>설명 HTML ({data.seatViewSection.descriptionHtmls?.length || 0}개)</FieldLabel>
+                  {data.seatViewSection.descriptionHtmls?.map((html, index) => (
+                    <HtmlEditRow key={index}>
+                      <HtmlTextAreaSmall
+                        multiline
+                        value={html}
+                        onChangeText={(text: string) =>
+                          updateData((prev) => ({
+                            ...prev,
+                            seatViewSection: prev.seatViewSection
+                              ? {
+                                  ...prev.seatViewSection,
+                                  descriptionHtmls: prev.seatViewSection.descriptionHtmls?.map(
+                                    (h, i) => (i === index ? text : h),
+                                  ),
+                                }
+                              : null,
+                          }))
+                        }
+                        placeholder="<div>HTML 콘텐츠...</div>"
+                        placeholderTextColor="#999"
+                      />
+                      <HtmlRemoveButton
+                        onPress={() =>
+                          updateData((prev) => ({
+                            ...prev,
+                            seatViewSection: prev.seatViewSection
+                              ? {
+                                  ...prev.seatViewSection,
+                                  descriptionHtmls: prev.seatViewSection.descriptionHtmls?.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                                }
+                              : null,
+                          }))
+                        }
+                      >
+                        <HtmlRemoveButtonText>×</HtmlRemoveButtonText>
+                      </HtmlRemoveButton>
+                    </HtmlEditRow>
+                  ))}
+                  <AddHtmlButton
+                    onPress={() =>
+                      updateData((prev) => ({
+                        ...prev,
+                        seatViewSection: prev.seatViewSection
+                          ? {
+                              ...prev.seatViewSection,
+                              descriptionHtmls: [
+                                ...(prev.seatViewSection.descriptionHtmls || []),
+                                '',
+                              ],
+                            }
+                          : null,
+                      }))
+                    }
+                  >
+                    <AddHtmlButtonText>+ 설명 추가</AddHtmlButtonText>
+                  </AddHtmlButton>
+                </FieldGroup>
+              </SeatViewEditPanel>
             </Section>
           )}
 
@@ -1096,4 +1411,80 @@ const HtmlTextArea = styled(TextInput)`
   font-family: monospace;
   color: #333;
   text-align-vertical: top;
+`;
+
+// SeatViewSection 편집 스타일
+const SeatViewEditPanel = styled(View)`
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+`;
+
+const RegionInfoText = styled(Text)`
+  font-size: 11px;
+  color: #666;
+  margin-top: 8px;
+  font-style: italic;
+`;
+
+const HtmlEditRow = styled(View)`
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+`;
+
+const HtmlTextAreaSmall = styled(TextInput)`
+  flex: 1;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 10px;
+  min-height: 80px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #333;
+  text-align-vertical: top;
+`;
+
+const HtmlRemoveButton = styled(TouchableOpacity)`
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: #dc3545;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+`;
+
+const HtmlRemoveButtonText = styled(Text)`
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+`;
+
+const AddHtmlButton = styled(TouchableOpacity)`
+  padding: 8px 12px;
+  background-color: #007aff;
+  border-radius: 6px;
+  align-items: center;
+  margin-top: 4px;
+`;
+
+const AddHtmlButtonText = styled(Text)`
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+`;
+
+const SeatViewRegionHeader = styled(View)`
+  margin-bottom: 8px;
+`;
+
+const HeaderEditPanel = styled(View)`
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
 `;

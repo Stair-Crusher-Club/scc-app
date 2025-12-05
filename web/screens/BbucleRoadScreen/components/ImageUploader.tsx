@@ -1,9 +1,11 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, type ChangeEvent } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 
 import { api } from '../../../config/api';
+import { color } from '@/constant/color';
 import ImageFileUtils from '@/utils/ImageFileUtils';
+import { useResponsive } from '../context/ResponsiveContext';
 
 interface ImageUploaderProps {
   /** 현재 이미지 URL (있으면 미리보기 표시) */
@@ -22,6 +24,7 @@ export default function ImageUploader({
   buttonText = '이미지 업로드',
   compact = false,
 }: ImageUploaderProps) {
+  const { isDesktop } = useResponsive();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,21 +85,29 @@ export default function ImageUploader({
     [onUploadComplete],
   );
 
+  // Web용 file input change handler
+  const handleInputChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      handleFileSelect(e);
+    },
+    [handleFileSelect],
+  );
+
   if (compact) {
     return (
       <CompactContainer>
         <input
-          ref={fileInputRef as any}
+          ref={fileInputRef}
           type="file"
           accept="image/*"
-          onChange={handleFileSelect as any}
+          onChange={handleInputChange}
           style={{ display: 'none' }}
         />
-        <CompactButton onPress={handleButtonPress} disabled={isUploading}>
+        <CompactButton isDesktop={isDesktop} onPress={handleButtonPress} disabled={isUploading}>
           {isUploading ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <CompactButtonText>📷</CompactButtonText>
+            <CompactButtonText isDesktop={isDesktop}>📷</CompactButtonText>
           )}
         </CompactButton>
       </CompactContainer>
@@ -106,18 +117,18 @@ export default function ImageUploader({
   return (
     <Container>
       <input
-        ref={fileInputRef as any}
+        ref={fileInputRef}
         type="file"
         accept="image/*"
-        onChange={handleFileSelect as any}
+        onChange={handleInputChange}
         style={{ display: 'none' }}
       />
 
-      <UploadButton onPress={handleButtonPress} disabled={isUploading}>
+      <UploadButton isDesktop={isDesktop} onPress={handleButtonPress} disabled={isUploading}>
         {isUploading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <UploadButtonText>{buttonText}</UploadButtonText>
+          <UploadButtonText isDesktop={isDesktop}>{buttonText}</UploadButtonText>
         )}
       </UploadButton>
 
@@ -139,34 +150,34 @@ const Container = styled(View)`
 
 const CompactContainer = styled(View)``;
 
-const UploadButton = styled(TouchableOpacity)`
-  background-color: #007aff;
-  padding: 12px 20px;
-  border-radius: 8px;
+const UploadButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
+  background-color: ${color.iosBlue};
+  padding: ${({ isDesktop }) => (isDesktop ? '14px 24px' : '12px 20px')};
+  border-radius: ${({ isDesktop }) => (isDesktop ? '10px' : '8px')};
   align-items: center;
 `;
 
-const UploadButtonText = styled(Text)`
-  color: #fff;
-  font-size: 14px;
+const UploadButtonText = styled(Text)<{ isDesktop: boolean }>`
+  color: ${color.white};
+  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '14px')};
   font-weight: 600;
 `;
 
-const CompactButton = styled(TouchableOpacity)`
-  background-color: rgba(0, 122, 255, 0.9);
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
+const CompactButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
+  background-color: ${color.iosBlue}E6;
+  width: ${({ isDesktop }) => (isDesktop ? '44px' : '36px')};
+  height: ${({ isDesktop }) => (isDesktop ? '44px' : '36px')};
+  border-radius: ${({ isDesktop }) => (isDesktop ? '22px' : '18px')};
   align-items: center;
   justify-content: center;
 `;
 
-const CompactButtonText = styled(Text)`
-  font-size: 16px;
+const CompactButtonText = styled(Text)<{ isDesktop: boolean }>`
+  font-size: ${({ isDesktop }) => (isDesktop ? '20px' : '16px')};
 `;
 
 const ErrorText = styled(Text)`
-  color: #dc3545;
+  color: ${color.danger};
   font-size: 12px;
   margin-top: 8px;
 `;
@@ -174,18 +185,18 @@ const ErrorText = styled(Text)`
 const CurrentImageInfo = styled(View)`
   margin-top: 12px;
   padding: 8px;
-  background-color: #f0f0f0;
+  background-color: ${color.gray10};
   border-radius: 4px;
 `;
 
 const InfoText = styled(Text)`
   font-size: 12px;
-  color: #666;
+  color: ${color.gray60};
   margin-bottom: 4px;
 `;
 
 const UrlText = styled(Text)`
   font-size: 11px;
-  color: #333;
+  color: ${color.gray70};
   font-family: monospace;
 `;

@@ -15,9 +15,14 @@ interface UndoAction {
   previousData: BbucleRoadData;
 }
 
+/** Region 편집 대상 섹션 타입 */
+export type RegionSectionType = 'route' | 'seatView';
+
 /** Region 편집 상태 */
 export interface EditingRegionState {
-  /** 어떤 route의 interactive image인지 */
+  /** 어떤 섹션의 interactive image인지 */
+  sectionType: RegionSectionType;
+  /** route 섹션일 때 어떤 route인지 (seatView일 때는 0) */
   routeIndex: number;
   /** 기존 region 편집 시 index, 새 region 추가 시 null */
   regionIndex: number | null;
@@ -56,11 +61,19 @@ interface EditModeContextValue {
   // === Region 편집 관련 ===
   /** 현재 편집 중인 region 상태 */
   editingRegion: EditingRegionState | null;
-  /** 새 region 편집 시작 */
+  /** 새 region 편집 시작 (route 섹션) */
   startAddingRegion: (routeIndex: number) => void;
-  /** 기존 region 편집 시작 */
+  /** 새 region 편집 시작 (seatView 섹션) */
+  startAddingSeatViewRegion: () => void;
+  /** 기존 region 편집 시작 (route 섹션) */
   startEditingRegion: (
     routeIndex: number,
+    regionIndex: number,
+    points: BbucleRoadPolygonPointDto[],
+    modalImageUrls: string[],
+  ) => void;
+  /** 기존 region 편집 시작 (seatView 섹션) */
+  startEditingSeatViewRegion: (
     regionIndex: number,
     points: BbucleRoadPolygonPointDto[],
     modalImageUrls: string[],
@@ -81,8 +94,10 @@ interface EditModeContextValue {
   saveEditingRegion: () => void;
   /** region 편집 취소 */
   cancelEditingRegion: () => void;
-  /** region 삭제 */
+  /** region 삭제 (route 섹션) */
   deleteRegion: (routeIndex: number, regionIndex: number) => void;
+  /** region 삭제 (seatView 섹션) */
+  deleteSeatViewRegion: (regionIndex: number) => void;
 }
 
 const EditModeContext = createContext<EditModeContextValue | null>(null);
@@ -176,7 +191,19 @@ export function EditModeProvider({
 
   const startAddingRegion = useCallback((routeIndex: number) => {
     setEditingRegion({
+      sectionType: 'route',
       routeIndex,
+      regionIndex: null,
+      points: [],
+      modalImageUrls: [],
+      pointsUndoStack: [],
+    });
+  }, []);
+
+  const startAddingSeatViewRegion = useCallback(() => {
+    setEditingRegion({
+      sectionType: 'seatView',
+      routeIndex: 0,
       regionIndex: null,
       points: [],
       modalImageUrls: [],
@@ -192,7 +219,26 @@ export function EditModeProvider({
       modalImageUrls: string[],
     ) => {
       setEditingRegion({
+        sectionType: 'route',
         routeIndex,
+        regionIndex,
+        points: [...points],
+        modalImageUrls: [...modalImageUrls],
+        pointsUndoStack: [],
+      });
+    },
+    [],
+  );
+
+  const startEditingSeatViewRegion = useCallback(
+    (
+      regionIndex: number,
+      points: BbucleRoadPolygonPointDto[],
+      modalImageUrls: string[],
+    ) => {
+      setEditingRegion({
+        sectionType: 'seatView',
+        routeIndex: 0,
         regionIndex,
         points: [...points],
         modalImageUrls: [...modalImageUrls],
@@ -274,53 +320,97 @@ export function EditModeProvider({
       return;
     }
 
-    const { routeIndex, regionIndex, points, modalImageUrls } = editingRegion;
+    const { sectionType, routeIndex, regionIndex, points, modalImageUrls } = editingRegion;
 
-    updateData((prev) => {
-      if (!prev.routeSection?.routes) return prev;
+    if (sectionType === 'seatView') {
+      // seatViewSection region 저장
+      updateData((prev) => {
+        if (!prev.seatViewSection?.interactiveImage) return prev;
 
-      const newRoutes = [...prev.routeSection.routes];
-      const route = newRoutes[routeIndex];
-      if (!route?.interactiveImage) return prev;
+        const currentRegions = prev.seatViewSection.interactiveImage.clickableRegions || [];
 
-      const currentRegions = route.interactiveImage.clickableRegions || [];
+        if (regionIndex !== null) {
+          // 기존 region 수정
+          const newRegions = currentRegions.map((region, i) =>
+            i === regionIndex ? { ...region, polygon: points, modalImageUrls } : region,
+          );
+          return {
+            ...prev,
+            seatViewSection: {
+              ...prev.seatViewSection,
+              interactiveImage: {
+                ...prev.seatViewSection.interactiveImage,
+                clickableRegions: newRegions,
+              },
+            },
+          };
+        } else {
+          // 새 region 추가
+          const newRegion = {
+            id: `region-${Date.now()}`,
+            polygon: points,
+            modalImageUrls,
+          };
+          return {
+            ...prev,
+            seatViewSection: {
+              ...prev.seatViewSection,
+              interactiveImage: {
+                ...prev.seatViewSection.interactiveImage,
+                clickableRegions: [...currentRegions, newRegion],
+              },
+            },
+          };
+        }
+      });
+    } else {
+      // routeSection region 저장
+      updateData((prev) => {
+        if (!prev.routeSection?.routes) return prev;
 
-      if (regionIndex !== null) {
-        // 기존 region 수정
-        const newRegions = currentRegions.map((region, i) =>
-          i === regionIndex ? { ...region, polygon: points, modalImageUrls } : region,
-        );
-        newRoutes[routeIndex] = {
-          ...route,
-          interactiveImage: {
-            ...route.interactiveImage,
-            clickableRegions: newRegions,
+        const newRoutes = [...prev.routeSection.routes];
+        const route = newRoutes[routeIndex];
+        if (!route?.interactiveImage) return prev;
+
+        const currentRegions = route.interactiveImage.clickableRegions || [];
+
+        if (regionIndex !== null) {
+          // 기존 region 수정
+          const newRegions = currentRegions.map((region, i) =>
+            i === regionIndex ? { ...region, polygon: points, modalImageUrls } : region,
+          );
+          newRoutes[routeIndex] = {
+            ...route,
+            interactiveImage: {
+              ...route.interactiveImage,
+              clickableRegions: newRegions,
+            },
+          };
+        } else {
+          // 새 region 추가
+          const newRegion = {
+            id: `region-${Date.now()}`,
+            polygon: points,
+            modalImageUrls,
+          };
+          newRoutes[routeIndex] = {
+            ...route,
+            interactiveImage: {
+              ...route.interactiveImage,
+              clickableRegions: [...currentRegions, newRegion],
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          routeSection: {
+            ...prev.routeSection,
+            routes: newRoutes,
           },
         };
-      } else {
-        // 새 region 추가
-        const newRegion = {
-          id: `region-${Date.now()}`,
-          polygon: points,
-          modalImageUrls,
-        };
-        newRoutes[routeIndex] = {
-          ...route,
-          interactiveImage: {
-            ...route.interactiveImage,
-            clickableRegions: [...currentRegions, newRegion],
-          },
-        };
-      }
-
-      return {
-        ...prev,
-        routeSection: {
-          ...prev.routeSection,
-          routes: newRoutes,
-        },
-      };
-    });
+      });
+    }
 
     setEditingRegion(null);
   }, [editingRegion, updateData]);
@@ -354,6 +444,29 @@ export function EditModeProvider({
           routeSection: {
             ...prev.routeSection,
             routes: newRoutes,
+          },
+        };
+      });
+    },
+    [updateData],
+  );
+
+  const deleteSeatViewRegion = useCallback(
+    (regionIndex: number) => {
+      updateData((prev) => {
+        if (!prev.seatViewSection?.interactiveImage) return prev;
+
+        const currentRegions = prev.seatViewSection.interactiveImage.clickableRegions || [];
+        const newRegions = currentRegions.filter((_, i) => i !== regionIndex);
+
+        return {
+          ...prev,
+          seatViewSection: {
+            ...prev.seatViewSection,
+            interactiveImage: {
+              ...prev.seatViewSection.interactiveImage,
+              clickableRegions: newRegions,
+            },
           },
         };
       });
@@ -408,7 +521,9 @@ export function EditModeProvider({
       // Region 편집 관련
       editingRegion,
       startAddingRegion,
+      startAddingSeatViewRegion,
       startEditingRegion,
+      startEditingSeatViewRegion,
       addPointToRegion,
       removePointFromRegion,
       clearRegionPoints,
@@ -418,6 +533,7 @@ export function EditModeProvider({
       saveEditingRegion,
       cancelEditingRegion,
       deleteRegion,
+      deleteSeatViewRegion,
     }),
     [
       isEditMode,
@@ -431,7 +547,9 @@ export function EditModeProvider({
       importFromJson,
       editingRegion,
       startAddingRegion,
+      startAddingSeatViewRegion,
       startEditingRegion,
+      startEditingSeatViewRegion,
       addPointToRegion,
       removePointFromRegion,
       clearRegionPoints,
@@ -441,6 +559,7 @@ export function EditModeProvider({
       saveEditingRegion,
       cancelEditingRegion,
       deleteRegion,
+      deleteSeatViewRegion,
     ],
   );
 

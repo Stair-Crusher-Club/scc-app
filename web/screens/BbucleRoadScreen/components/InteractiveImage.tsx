@@ -8,7 +8,10 @@ import type {
   BbucleRoadPolygonPointDto,
 } from '@/generated-sources/openapi';
 
-import { useEditMode } from '../context/EditModeContext';
+import { color } from '@/constant/color';
+import Logger from '@/logging/Logger';
+import { useEditMode, type RegionSectionType } from '../context/EditModeContext';
+import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from './ImageUploader';
 
 interface InteractiveImageProps {
@@ -16,8 +19,10 @@ interface InteractiveImageProps {
   onRegionPress: (region: BbucleRoadClickableRegionDto) => void;
   /** 이미지 URL 변경 콜백 (edit mode) */
   onImageChange?: (url: string) => void;
-  /** Route index (edit mode에서 region 편집 시 필요) */
+  /** Route index (edit mode에서 region 편집 시 필요, route 섹션일 때만) */
   routeIndex?: number;
+  /** 섹션 타입 (route 또는 seatView) */
+  sectionType?: RegionSectionType;
 }
 
 export default function InteractiveImage({
@@ -25,10 +30,12 @@ export default function InteractiveImage({
   onRegionPress,
   onImageChange,
   routeIndex = 0,
+  sectionType = 'route',
 }: InteractiveImageProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const editingRegion = editContext?.editingRegion ?? null;
+  const { isDesktop } = useResponsive();
 
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [containerWidth, setContainerWidth] = useState(0);
@@ -82,7 +89,9 @@ export default function InteractiveImage({
   const clickableRegions = interactiveImage.clickableRegions || [];
 
   // 현재 이 InteractiveImage가 편집 중인지 확인
-  const isEditingThisImage = editingRegion?.routeIndex === routeIndex;
+  const isEditingThisImage =
+    editingRegion?.sectionType === sectionType &&
+    editingRegion?.routeIndex === routeIndex;
 
   // 이미지 클릭 시 점 추가 (편집 중일 때)
   const handleImageClick = useCallback(
@@ -110,20 +119,39 @@ export default function InteractiveImage({
   // Region 클릭 핸들러
   const handleRegionClick = useCallback(
     (region: BbucleRoadClickableRegionDto, regionIndex: number) => {
-      if (isEditMode && editContext?.startEditingRegion) {
+      if (isEditMode) {
         // Edit mode: 해당 region 편집 시작
-        editContext.startEditingRegion(
-          routeIndex,
-          regionIndex,
-          region.polygon,
-          region.modalImageUrls || [],
-        );
+        if (sectionType === 'seatView' && editContext?.startEditingSeatViewRegion) {
+          editContext.startEditingSeatViewRegion(
+            regionIndex,
+            region.polygon,
+            region.modalImageUrls || [],
+          );
+        } else if (sectionType === 'route' && editContext?.startEditingRegion) {
+          editContext.startEditingRegion(
+            routeIndex,
+            regionIndex,
+            region.polygon,
+            region.modalImageUrls || [],
+          );
+        }
       } else {
-        // View mode: 기존 동작
+        // View mode: 로깅 후 기존 동작
+        Logger.logElementClick({
+          name: 'bbucle-road-image-region',
+          currScreenName: 'BbucleRoad',
+          extraParams: {
+            imageUrl: interactiveImage.url,
+            regionId: region.id,
+            sectionType,
+            routeIndex,
+            isDesktop,
+          },
+        });
         onRegionPress(region);
       }
     },
-    [isEditMode, editContext, routeIndex, onRegionPress],
+    [isEditMode, editContext, routeIndex, sectionType, onRegionPress],
   );
 
   const handleImageUpload = useCallback(
@@ -155,7 +183,13 @@ export default function InteractiveImage({
       {isEditMode && onImageChange && (
         <>
           <AddRegionButtonOverlay
-            onPress={() => editContext?.startAddingRegion(routeIndex)}
+            onPress={() => {
+              if (sectionType === 'seatView') {
+                editContext?.startAddingSeatViewRegion();
+              } else {
+                editContext?.startAddingRegion(routeIndex);
+              }
+            }}
           >
             <AddRegionButtonText>+ Region</AddRegionButtonText>
           </AddRegionButtonOverlay>
@@ -321,15 +355,15 @@ const PointMarker = styled(Pressable)`
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  background-color: #00c864;
+  background-color: ${color.success30};
   align-items: center;
   justify-content: center;
   z-index: 20;
-  border: 2px solid #fff;
+  border: 2px solid ${color.white};
 `;
 
 const PointMarkerText = styled(Text)`
-  color: #fff;
+  color: ${color.white};
   font-size: 10px;
   font-weight: 700;
 `;
@@ -340,12 +374,12 @@ const AddRegionButtonOverlay = styled(TouchableOpacity)`
   right: 50px;
   z-index: 10;
   padding: 4px 8px;
-  background-color: #007aff;
+  background-color: ${color.iosBlue};
   border-radius: 4px;
 `;
 
 const AddRegionButtonText = styled(Text)`
   font-size: 11px;
   font-weight: 600;
-  color: #fff;
+  color: ${color.white};
 `;

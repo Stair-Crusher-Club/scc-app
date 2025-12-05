@@ -12,6 +12,7 @@ export const color = {
   blacka90: '#000000E6',
 
   brand5: '#EBF5FF',
+  brandBg: '#E8F4FF',
   brand10: '#D6EBFF',
   brand15: '#B2D7FF',
   brand20: '#67AEFFCC',
@@ -33,6 +34,7 @@ export const color = {
   blue50: '#1D85FF',
   blue60: '#1067CD',
 
+  gray5: '#F7F8FA',
   gray10: '#F7F7F9',
   gray15: '#F2F2F5',
   gray20: '#EBEBEF',
@@ -65,6 +67,16 @@ export const color = {
   success: '#00E794',
   success10: '#E1FCF2',
   success30: '#12AC74',
+
+  // iOS 시스템 색상
+  iosBlue: '#007AFF',
+
+  // 위치/지도 관련
+  currentLocation: '#FF5722',
+
+  // 위험/삭제 관련
+  danger: '#dc3545',
+  dangerBright: '#ff4444',
 } as const;
 
 export type Color = keyof typeof color;

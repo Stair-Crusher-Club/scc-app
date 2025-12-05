@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
+import { color } from '@/constant/color';
+import { useResponsive } from '../context/ResponsiveContext';
+
 interface CategoryFilterProps {
   categories: string[];
   activeCategory: string | null;
@@ -13,22 +16,28 @@ export default function CategoryFilter({
   activeCategory,
   onCategoryChange,
 }: CategoryFilterProps) {
+  const { isDesktop } = useResponsive();
+
   return (
-    <Container>
+    <Container isDesktop={isDesktop}>
       <FilterButton
         isActive={activeCategory === null}
+        isDesktop={isDesktop}
         onPress={() => onCategoryChange(null)}
       >
-        <ButtonText isActive={activeCategory === null}>전체</ButtonText>
+        <ButtonText isActive={activeCategory === null} isDesktop={isDesktop}>
+          전체
+        </ButtonText>
       </FilterButton>
 
       {categories.map((category) => (
         <FilterButton
           key={category}
           isActive={activeCategory === category}
+          isDesktop={isDesktop}
           onPress={() => onCategoryChange(category)}
         >
-          <ButtonText isActive={activeCategory === category}>
+          <ButtonText isActive={activeCategory === category} isDesktop={isDesktop}>
             {category}
           </ButtonText>
         </FilterButton>
@@ -37,22 +46,22 @@ export default function CategoryFilter({
   );
 }
 
-const Container = styled(View)`
+const Container = styled(View)<{ isDesktop: boolean }>`
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: ${({ isDesktop }) => (isDesktop ? '12px' : '8px')};
+  margin-bottom: ${({ isDesktop }) => (isDesktop ? '24px' : '16px')};
 `;
 
-const FilterButton = styled(TouchableOpacity)<{ isActive: boolean }>`
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: ${({ isActive }) => (isActive ? '#007AFF' : '#F0F0F0')};
-  border: 1px solid ${({ isActive }) => (isActive ? '#007AFF' : '#E0E0E0')};
+const FilterButton = styled(TouchableOpacity)<{ isActive: boolean; isDesktop: boolean }>`
+  padding: ${({ isDesktop }) => (isDesktop ? '10px 20px' : '8px 16px')};
+  border-radius: ${({ isDesktop }) => (isDesktop ? '24px' : '20px')};
+  background-color: ${({ isActive }) => (isActive ? color.iosBlue : color.gray10)};
+  border: 1px solid ${({ isActive }) => (isActive ? color.iosBlue : color.gray25)};
 `;
 
-const ButtonText = styled(Text)<{ isActive: boolean }>`
-  font-size: 14px;
+const ButtonText = styled(Text)<{ isActive: boolean; isDesktop: boolean }>`
+  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '14px')};
   font-weight: ${({ isActive }) => (isActive ? '600' : '400')};
-  color: ${({ isActive }) => (isActive ? '#FFFFFF' : '#666666')};
+  color: ${({ isActive }) => (isActive ? color.white : color.gray60)};
 `;

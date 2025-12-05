@@ -4,7 +4,6 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
@@ -12,6 +11,9 @@ import styled from 'styled-components/native';
 import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
+import { color } from '@/constant/color';
+import Logger from '@/logging/Logger';
+import { useResponsive } from '../context/ResponsiveContext';
 
 interface RegionDetailModalProps {
   visible: boolean;
@@ -24,9 +26,9 @@ export default function RegionDetailModal({
   region,
   onClose,
 }: RegionDetailModalProps) {
+  const { windowWidth, isDesktop } = useResponsive();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const screenWidth = Dimensions.get('window').width;
-  const imageWidth = Math.min(screenWidth - 48, 600);
+  const imageWidth = isDesktop ? Math.min(windowWidth * 0.6, 800) : Math.min(windowWidth - 48, 600);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -38,9 +40,15 @@ export default function RegionDetailModal({
   );
 
   const handleClose = useCallback(() => {
+    // 모달 닫기 로깅
+    Logger.logElementClick({
+      name: 'bbucle-road-modal-close',
+      currScreenName: 'BbucleRoad',
+      extraParams: { regionId: region?.id, isDesktop },
+    });
     setCurrentIndex(0);
     onClose();
-  }, [onClose]);
+  }, [onClose, region?.id]);
 
   if (!region) {
     return null;
@@ -133,5 +141,5 @@ const PageDot = styled(View)<{ active: boolean }>`
   width: 8px;
   height: 8px;
   border-radius: 4px;
-  background-color: ${({ active }) => (active ? '#007AFF' : '#D1D5DB')};
+  background-color: ${({ active }) => (active ? color.iosBlue : color.gray30)};
 `;

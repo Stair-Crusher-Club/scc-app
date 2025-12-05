@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
+import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
 
 import { color } from '@/constant/color';
+import { SccPressable } from '@/components/SccPressable';
 
 import { DESKTOP_BREAKPOINT } from '../constants/layout';
+import { useEditMode } from '../context/EditModeContext';
 
 export interface SectionTab {
   id: string;
@@ -26,6 +28,8 @@ export default function StickyTabHeader({
   const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
   const [isSticky, setIsSticky] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const editContext = useEditMode();
+  const isEditMode = editContext?.isEditMode ?? false;
 
   // Sticky 상태 감지
   useEffect(() => {
@@ -68,17 +72,20 @@ export default function StickyTabHeader({
             {sections.map((section) => {
               const isActive = section.id === activeSection;
               return (
-                <TabButton
-                  key={section.id}
-                  isDesktop={isDesktop}
+                <SccPressable
+                  key={section.label}
                   onPress={() => onTabPress(section.id)}
-                  activeOpacity={0.7}
+                  elementName="bbucle-road-sticky-tab"
+                  logParams={{ tabId: section.id, tabLabel: section.label, isDesktop }}
+                  disableLogging={isEditMode}
                 >
-                  <TabLabel isActive={isActive} isDesktop={isDesktop}>
-                    {section.label}
-                  </TabLabel>
-                  {isActive && <ActiveIndicator />}
-                </TabButton>
+                  <TabButtonContent isDesktop={isDesktop}>
+                    <TabLabel isActive={isActive} isDesktop={isDesktop}>
+                      {section.label}
+                    </TabLabel>
+                    {isActive && <ActiveIndicator />}
+                  </TabButtonContent>
+                </SccPressable>
               );
             })}
           </TabsContainer>
@@ -107,7 +114,7 @@ const TabsContainer = styled(View)`
   flex-direction: row;
 `;
 
-const TabButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
+const TabButtonContent = styled(View)<{ isDesktop: boolean }>`
   padding: ${({ isDesktop }) => (isDesktop ? '8px 20px' : '8px 16px')};
   align-items: center;
 `;

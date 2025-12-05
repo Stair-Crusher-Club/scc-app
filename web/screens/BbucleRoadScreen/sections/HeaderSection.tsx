@@ -1,55 +1,41 @@
 import React, { useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
+import CharacterWheelyIcon from '@/assets/icon/character_wheely.svg';
 import { color } from '@/constant/color';
 import { useEditMode } from '../context/EditModeContext';
+import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from '../components/ImageUploader';
 
 interface HeaderSectionProps {
   titleImageUrl: string;
-  summaryItems: string[];
-  summaryTitle?: string;
-  summaryTitleColor?: string;
-  summaryBackgroundImageUrl?: string;
+  headerBackgroundImageUrl?: string;
+  lastUpdatedDate?: string;
+  wheelchairUserCommentHtml?: string;
 }
 
 export default function HeaderSection({
   titleImageUrl,
-  summaryItems,
-  summaryTitle: summaryTitleProp,
-  summaryTitleColor,
-  summaryBackgroundImageUrl,
+  headerBackgroundImageUrl,
+  lastUpdatedDate,
+  wheelchairUserCommentHtml,
 }: HeaderSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
+  const { isDesktop } = useResponsive();
 
   // edit mode에서는 editContext.data에서 읽어야 실시간 반영됨
-  const currentSummaryTitle = isEditMode
-    ? editContext?.data?.summaryTitle
-    : summaryTitleProp;
-  const currentSummaryTitleColor = isEditMode
-    ? editContext?.data?.summaryTitleColor
-    : summaryTitleColor;
-  const currentSummaryBackgroundImageUrl = isEditMode
-    ? editContext?.data?.summaryBackgroundImageUrl
-    : summaryBackgroundImageUrl;
-
-  const validSummaryItems = isEditMode
-    ? summaryItems
-    : summaryItems.filter((item) => item && item.trim().length > 0);
-  const itemCount = validSummaryItems.length;
-  const defaultSummaryTitle = `휠체어석 {n}줄 요약`;
-
-  // undefined/null이면 default 사용, 빈 문자열은 허용
-  const rawTitle = currentSummaryTitle !== undefined && currentSummaryTitle !== null
-    ? currentSummaryTitle
-    : defaultSummaryTitle;
-  // edit mode: {n} 그대로 표시, view mode: 실제 개수로 치환
-  const summaryTitleForEdit = rawTitle;
-  const summaryTitleForView = rawTitle.replace(/\{n\}/g, String(itemCount));
-  const hasSummaryBackground = !!currentSummaryBackgroundImageUrl;
+  const currentHeaderBackgroundImageUrl = isEditMode
+    ? editContext?.data?.headerBackgroundImageUrl
+    : headerBackgroundImageUrl;
+  const currentLastUpdatedDate = isEditMode
+    ? editContext?.data?.lastUpdatedDate
+    : lastUpdatedDate;
+  const currentWheelchairUserCommentHtml = isEditMode
+    ? editContext?.data?.wheelchairUserCommentHtml
+    : wheelchairUserCommentHtml;
 
   const handleTitleImageChange = useCallback(
     (url: string) => {
@@ -62,246 +48,194 @@ export default function HeaderSection({
     [editContext],
   );
 
-  const handleSummaryItemChange = useCallback(
-    (index: number, text: string) => {
-      if (!editContext) return;
-      editContext.updateData((prev) => ({
-        ...prev,
-        summaryItems: prev.summaryItems.map((item, i) => (i === index ? text : item)),
-      }));
-    },
-    [editContext],
-  );
-
-  const handleDeleteSummaryItem = useCallback(
-    (index: number) => {
-      if (!editContext) return;
-      editContext.updateData((prev) => ({
-        ...prev,
-        summaryItems: prev.summaryItems.filter((_, i) => i !== index),
-      }));
-    },
-    [editContext],
-  );
-
-  const handleAddSummaryItem = useCallback(() => {
-    if (!editContext) return;
-    editContext.updateData((prev) => ({
-      ...prev,
-      summaryItems: [...prev.summaryItems, ''],
-    }));
-  }, [editContext]);
-
-  const handleSummaryTitleChange = useCallback(
-    (text: string) => {
-      if (!editContext) return;
-      editContext.updateData((prev) => ({
-        ...prev,
-        summaryTitle: text,
-      }));
-    },
-    [editContext],
-  );
-
-  const handleSummaryTitleColorToggle = useCallback(() => {
-    if (!editContext) return;
-    editContext.updateData((prev) => ({
-      ...prev,
-      summaryTitleColor: prev.summaryTitleColor === '#FFFFFF' ? '#000000' : '#FFFFFF',
-    }));
-  }, [editContext]);
-
-  const handleSummaryBackgroundImageChange = useCallback(
+  const handleBackgroundImageChange = useCallback(
     (url: string) => {
       if (!editContext) return;
       editContext.updateData((prev) => ({
         ...prev,
-        summaryBackgroundImageUrl: url,
+        headerBackgroundImageUrl: url,
+      }));
+    },
+    [editContext],
+  );
+
+  const handleLastUpdatedDateChange = useCallback(
+    (text: string) => {
+      if (!editContext) return;
+      editContext.updateData((prev) => ({
+        ...prev,
+        lastUpdatedDate: text,
       }));
     },
     [editContext],
   );
 
   return (
-    <Container>
-      {hasSummaryBackground && (
+    <Container isDesktop={isDesktop}>
+      {/* 배경 이미지 + 오버레이 */}
+      {currentHeaderBackgroundImageUrl && (
         <>
-          <SummaryBackgroundWrapper>
+          <BackgroundWrapper>
             <SccRemoteImage
-              imageUrl={currentSummaryBackgroundImageUrl!}
+              imageUrl={currentHeaderBackgroundImageUrl}
               resizeMode="cover"
               style={{ width: '100%', height: '100%' }}
               wrapperBackgroundColor={null}
             />
-          </SummaryBackgroundWrapper>
-          <SummaryBackgroundOverlay />
+          </BackgroundWrapper>
+          <BackgroundOverlay />
         </>
       )}
+
+      {/* Edit Mode: 배경 이미지 교체 버튼 */}
       {isEditMode && (
-        <SummaryBackgroundEditOverlay>
+        <BackgroundEditOverlay>
           <ImageUploader
-            currentImageUrl={currentSummaryBackgroundImageUrl}
-            onUploadComplete={handleSummaryBackgroundImageChange}
+            currentImageUrl={currentHeaderBackgroundImageUrl}
+            onUploadComplete={handleBackgroundImageChange}
             compact
           />
-        </SummaryBackgroundEditOverlay>
+        </BackgroundEditOverlay>
       )}
-      <ImageWrapper>
-        {isEditMode && (
-          <EditImageOverlay>
-            <ImageUploader
-              currentImageUrl={titleImageUrl}
-              onUploadComplete={handleTitleImageChange}
-              compact
+
+      <ContentWrapper isDesktop={isDesktop}>
+        {/* 뿌클로드 특별 기획 */}
+        <SubTitle isDesktop={isDesktop}>뿌클로드 특별 기획</SubTitle>
+
+        {/* 타이틀 이미지 */}
+        <TitleImageWrapper isDesktop={isDesktop}>
+          {isEditMode && (
+            <EditImageOverlay>
+              <ImageUploader
+                currentImageUrl={titleImageUrl}
+                onUploadComplete={handleTitleImageChange}
+                compact
+              />
+            </EditImageOverlay>
+          )}
+          {titleImageUrl ? (
+            <SccRemoteImage
+              imageUrl={titleImageUrl}
+              resizeMode="contain"
+              wrapperBackgroundColor={null}
             />
-          </EditImageOverlay>
-        )}
-        {titleImageUrl ? (
-          <SccRemoteImage
-            imageUrl={titleImageUrl}
-            resizeMode="contain"
-            wrapperBackgroundColor={null}
-          />
+          ) : (
+            isEditMode && (
+              <EmptyImagePlaceholder>
+                <EmptyImageText>타이틀 이미지를 업로드하세요</EmptyImageText>
+              </EmptyImagePlaceholder>
+            )
+          )}
+        </TitleImageWrapper>
+
+        {/* 최종 업데이트 날짜 */}
+        {isEditMode ? (
+          <UpdateDateBadge isDesktop={isDesktop}>
+            <UpdateDateInput
+              value={currentLastUpdatedDate || ''}
+              onChangeText={handleLastUpdatedDateChange}
+              placeholder="최종 업데이트 YYYY.MM.DD"
+              placeholderTextColor={color.gray40}
+            />
+          </UpdateDateBadge>
         ) : (
-          isEditMode && (
-            <EmptyImagePlaceholder>
-              <EmptyImageText>타이틀 이미지를 업로드하세요</EmptyImageText>
-            </EmptyImagePlaceholder>
+          currentLastUpdatedDate && (
+            <UpdateDateBadge isDesktop={isDesktop}>
+              <UpdateDateText>{currentLastUpdatedDate}</UpdateDateText>
+            </UpdateDateBadge>
           )
         )}
-      </ImageWrapper>
-      <SummarySection>
-        {isEditMode ? (
-          <SummaryTitleRow>
-            <SummaryTitleInput
-              value={summaryTitleForEdit}
-              onChangeText={handleSummaryTitleChange}
-              placeholder="타이틀을 입력하세요 ({n}은 개수로 치환)"
-              placeholderTextColor="#999"
-              style={{ color: currentSummaryTitleColor || '#000000' }}
-            />
-            <ColorToggleButton onPress={handleSummaryTitleColorToggle}>
-              <ColorToggleText>
-                {currentSummaryTitleColor === '#FFFFFF' ? '흰→검' : '검→흰'}
-              </ColorToggleText>
-            </ColorToggleButton>
-          </SummaryTitleRow>
-        ) : (
-          <SummaryTitle style={{ color: currentSummaryTitleColor || '#000000' }}>
-            {summaryTitleForView}
-          </SummaryTitle>
-        )}
-        <SummaryContainer>
-          {validSummaryItems.map((item, index) => (
-            <SummaryItem key={index}>
-              <NumberBadge>
-                <NumberText>{index + 1}</NumberText>
-              </NumberBadge>
-              {isEditMode ? (
-                <>
-                  <SummaryInput
-                    value={item}
-                    onChangeText={(text) => handleSummaryItemChange(index, text)}
-                    placeholder="요약 내용 입력..."
-                    placeholderTextColor="#999"
-                  />
-                  <DeleteButton onPress={() => handleDeleteSummaryItem(index)}>
-                    <DeleteButtonText>×</DeleteButtonText>
-                  </DeleteButton>
-                </>
-              ) : (
-                <SummaryText>{item}</SummaryText>
-              )}
-            </SummaryItem>
-          ))}
-          {isEditMode && (
-            <AddItemButton onPress={handleAddSummaryItem}>
-              <AddItemButtonText>+ 항목 추가</AddItemButtonText>
-            </AddItemButton>
-          )}
-        </SummaryContainer>
-      </SummarySection>
+
+        {/* 휠체어 사용자의 한마디 섹션 */}
+        <CommentSection isDesktop={isDesktop}>
+          <CommentLabel isDesktop={isDesktop}>
+            휠체어 사용자의 고척돔 접근성 한마디
+          </CommentLabel>
+          <SpeechBubbleWithCharacter>
+            <SpeechBubbleWrapper>
+              <SpeechBubble isDesktop={isDesktop}>
+                {currentWheelchairUserCommentHtml ? (
+                  <CommentHtmlWrapper isDesktop={isDesktop}>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: currentWheelchairUserCommentHtml,
+                      }}
+                    />
+                  </CommentHtmlWrapper>
+                ) : (
+                  isEditMode && (
+                    <EmptyCommentPlaceholder>
+                      사이드바에서 접근성 한마디를 입력하세요
+                    </EmptyCommentPlaceholder>
+                  )
+                )}
+              </SpeechBubble>
+              <SpeechBubbleTail />
+            </SpeechBubbleWrapper>
+            <CharacterWrapper isDesktop={isDesktop}>
+              <CharacterWheelyIcon
+                width={isDesktop ? 89 : 60}
+                height={isDesktop ? 86 : 58}
+                viewBox="0 0 89 86"
+              />
+            </CharacterWrapper>
+          </SpeechBubbleWithCharacter>
+        </CommentSection>
+      </ContentWrapper>
     </Container>
   );
 }
 
-const Container = styled(View)`
-  padding: 150px 16px 120px;
+const Container = styled(View)<{ isDesktop: boolean }>`
   position: relative;
+  background-color: #b2d7ff;
+  overflow: hidden;
 `;
 
-const ImageWrapper = styled(View)`
-  position: relative;
-  width: 40%;
-  align-self: center;
-  margin-bottom: 20px;
-  z-index: 1;
+const BackgroundWrapper = styled(View)`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 `;
 
-const SummarySection = styled(View)`
-  margin-top: 60px;
-  gap: 20px;
+const BackgroundOverlay = styled(View)`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+`;
+
+const BackgroundEditOverlay = styled(View)`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+`;
+
+const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
   align-items: center;
+  padding-top: ${({ isDesktop }) => (isDesktop ? '119px' : '80px')};
   z-index: 1;
 `;
 
-const SummaryTitle = styled(Text)`
+const SubTitle = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: 36px;
+  font-size: ${({ isDesktop }) => (isDesktop ? '28px' : '20px')};
   font-weight: 700;
-  line-height: 48px;
+  line-height: ${({ isDesktop }) => (isDesktop ? '38px' : '28px')};
+  color: ${color.white};
   text-align: center;
-  width: 100%;
-  z-index: 1;
+  margin-bottom: 12px;
 `;
 
-const SummaryTitleRow = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-`;
-
-const SummaryContainer = styled(View)`
-  background-color: #ffffff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  gap: 20px;
-  width: 80%;
-  z-index: 1;
-`;
-
-const SummaryItem = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 18px;
-`;
-
-const NumberBadge = styled(View)`
-  width: 32px;
-  height: 32px;
-  background-color: #0e64d3;
-  border-radius: 100px;
-  align-items: center;
-  justify-content: center;
-`;
-
-const NumberText = styled(Text)`
-  font-family: Pretendard;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 24px;
-  color: #ffffff;
-  text-align: center;
-`;
-
-const SummaryText = styled(Text)`
-  flex: 1;
-  font-family: Pretendard;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 28px;
-  color: #000000;
+const TitleImageWrapper = styled(View)<{ isDesktop: boolean }>`
+  position: relative;
+  width: ${({ isDesktop }) => (isDesktop ? '487px' : '280px')};
+  aspect-ratio: 1.8;
 `;
 
 const EditImageOverlay = styled(View)`
@@ -312,110 +246,106 @@ const EditImageOverlay = styled(View)`
 `;
 
 const EmptyImagePlaceholder = styled(View)`
-  padding: 60px 40px;
-  background-color: #f8f9fa;
-  border: 2px dashed #ddd;
+  flex: 1;
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px dashed rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   align-items: center;
+  justify-content: center;
 `;
 
 const EmptyImageText = styled(Text)`
   font-size: 14px;
-  color: #666;
+  color: ${color.white};
 `;
 
-const SummaryInput = styled(TextInput)`
-  flex: 1;
-  font-family: Pretendard;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 28px;
-  color: #000000;
-  padding: 0;
-  background-color: transparent;
-`;
-
-const DeleteButton = styled(TouchableOpacity)`
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: #dc3545;
-  align-items: center;
-  justify-content: center;
-  margin-left: 12px;
-`;
-
-const DeleteButtonText = styled(Text)`
-  color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-`;
-
-const AddItemButton = styled(TouchableOpacity)`
-  padding: 16px;
-  background-color: #007aff;
-  border-radius: 8px;
-  align-items: center;
-  margin-top: 12px;
-`;
-
-const AddItemButtonText = styled(Text)`
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const SummaryBackgroundWrapper = styled(View)`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-`;
-
-const SummaryBackgroundOverlay = styled(View)`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  background-color: rgba(0, 0, 0, 0.4);
-`;
-
-const SummaryBackgroundEditOverlay = styled(View)`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
+const UpdateDateBadge = styled(View)<{ isDesktop: boolean }>`
   flex-direction: row;
-  gap: 8px;
   align-items: center;
+  background-color: ${color.black};
+  padding: ${({ isDesktop }) => (isDesktop ? '4px 16px' : '3px 8px')};
+  border-radius: 100px;
+  margin-top: 12px;
+  margin-bottom: ${({ isDesktop }) => (isDesktop ? '60px' : '40px')};
 `;
 
-const SummaryTitleInput = styled(TextInput)`
+const UpdateDateText = styled(Text)`
   font-family: Pretendard;
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 48px;
-  text-align: center;
-  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: ${color.white};
+`;
+
+const UpdateDateInput = styled(TextInput)`
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${color.white};
+  min-width: 80px;
   padding: 0;
-  background-color: transparent;
-  z-index: 1;
 `;
 
-const ColorToggleButton = styled(TouchableOpacity)`
-  padding: 8px 12px;
-  background-color: #6c757d;
-  border-radius: 6px;
+const CommentSection = styled(View)<{ isDesktop: boolean }>`
+  align-items: center;
+  gap: 12px;
+  max-width: ${({ isDesktop }) => (isDesktop ? '600px' : '90%')};
 `;
 
-const ColorToggleText = styled(Text)`
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+const CommentLabel = styled(Text)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '15px')};
+  font-weight: 500;
+  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '22px')};
+  letter-spacing: -0.36px;
+  color: ${color.white};
+  text-align: center;
 `;
+
+const SpeechBubbleWrapper = styled(View)`
+  align-items: flex-start;
+`;
+
+const SpeechBubble = styled(View)<{ isDesktop: boolean }>`
+  background-color: ${color.white};
+  padding: ${({ isDesktop }) => (isDesktop ? '14px 16px' : '12px 14px')};
+  border-radius: 12px;
+`;
+
+const SpeechBubbleTail = styled(View)`
+  width: 0;
+  height: 0;
+  border-left-width: 10px;
+  border-right-width: 10px;
+  border-top-width: 12px;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-top-color: ${color.white};
+  margin-left: 40px;
+`;
+
+const CommentHtmlWrapper = styled(View)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '15px' : '14px')};
+  font-weight: 400;
+  line-height: ${({ isDesktop }) => (isDesktop ? '24px' : '22px')};
+  letter-spacing: -0.75px;
+  color: ${color.black};
+`;
+
+const EmptyCommentPlaceholder = styled(Text)`
+  font-family: Pretendard;
+  font-size: 14px;
+  color: ${color.gray40};
+`;
+
+const SpeechBubbleWithCharacter = styled(View)`
+  align-items: flex-start;
+`;
+
+const CharacterWrapper = styled(View)<{ isDesktop: boolean }>`
+  margin-top: 16px;
+  margin-left: ${({ isDesktop }) => (isDesktop ? '-10px' : '10px')};
+`;
+

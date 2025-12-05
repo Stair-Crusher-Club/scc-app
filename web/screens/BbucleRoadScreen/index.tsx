@@ -9,8 +9,13 @@ import { api, apiConfig } from '../../config/api';
 import { color } from '@/constant/color';
 
 import HeaderSection from './sections/HeaderSection';
+import OverviewSection from './sections/OverviewSection';
 import RouteSection from './sections/RouteSection';
+import TicketInfoSection from './sections/TicketInfoSection';
+import SeatViewSection from './sections/SeatViewSection';
 import NearbyPlacesSection from './sections/NearbyPlacesSection';
+import ReviewSection from './sections/ReviewSection';
+import CTAFooterSection from './sections/CTAFooterSection';
 import StickyTabHeader, { SectionTab } from './components/StickyTabHeader';
 import useSectionNavigation from './hooks/useSectionNavigation';
 
@@ -20,12 +25,17 @@ import {
   type BbucleRoadData,
 } from './config/bbucleRoadData';
 import { EditModeProvider, useEditMode } from './context/EditModeContext';
+import { ResponsiveProvider } from './context/ResponsiveContext';
 import EditSidebar from './edit/EditSidebar';
 
 // Section IDs for navigation
 const SECTION_IDS = {
+  OVERVIEW: 'overview-section',
   ROUTE: 'route-section',
+  TICKET_INFO: 'ticket-info-section',
+  SEAT_VIEW: 'seat-view-section',
   NEARBY_PLACES: 'nearby-places-section',
+  REVIEW: 'review-section',
 } as const;
 
 type BbucleRoadScreenRouteProp = RouteProp<WebStackParamList, 'BbucleRoad'>;
@@ -54,14 +64,33 @@ function getIsEditMode(): boolean {
 function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
   const availableSections = useMemo(() => {
     const sections: SectionTab[] = [];
+    if (data.overviewSection) {
+      sections.push({ id: SECTION_IDS.OVERVIEW, label: '한눈에보기' });
+    }
     if (data.routeSection) {
-      sections.push({ id: SECTION_IDS.ROUTE, label: '동선정보' });
+      sections.push({ id: SECTION_IDS.ROUTE, label: '교통정보' });
+    }
+    if (data.ticketInfoSection) {
+      sections.push({ id: SECTION_IDS.TICKET_INFO, label: '매표정보' });
+    }
+    if (data.seatViewSection) {
+      sections.push({ id: SECTION_IDS.SEAT_VIEW, label: '시야정보' });
     }
     if (data.nearbyPlacesSection) {
       sections.push({ id: SECTION_IDS.NEARBY_PLACES, label: '근처맛집' });
     }
+    if (data.reviewSection) {
+      sections.push({ id: SECTION_IDS.REVIEW, label: '방문후기' });
+    }
     return sections;
-  }, [data.routeSection, data.nearbyPlacesSection]);
+  }, [
+    data.overviewSection,
+    data.routeSection,
+    data.ticketInfoSection,
+    data.seatViewSection,
+    data.nearbyPlacesSection,
+    data.reviewSection,
+  ]);
 
   const sectionIds = useMemo(
     () => availableSections.map((s) => s.id),
@@ -75,10 +104,9 @@ function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
       <ContentWrapper>
         <HeaderSection
           titleImageUrl={data.titleImageUrl}
-          summaryItems={data.summaryItems}
-          summaryTitle={data.summaryTitle}
-          summaryTitleColor={data.summaryTitleColor}
-          summaryBackgroundImageUrl={data.summaryBackgroundImageUrl}
+          headerBackgroundImageUrl={data.headerBackgroundImageUrl}
+          lastUpdatedDate={data.lastUpdatedDate}
+          wheelchairUserCommentHtml={data.wheelchairUserCommentHtml}
         />
 
         {availableSections.length > 0 && (
@@ -89,6 +117,13 @@ function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
           />
         )}
 
+        {data.overviewSection && (
+          <OverviewSection
+            overviewSection={data.overviewSection}
+            sectionId={SECTION_IDS.OVERVIEW}
+          />
+        )}
+
         {data.routeSection && (
           <RouteSection
             routeSection={data.routeSection}
@@ -96,22 +131,134 @@ function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
           />
         )}
 
+        {data.ticketInfoSection && (
+          <TicketInfoSection
+            ticketInfoSection={data.ticketInfoSection}
+            sectionId={SECTION_IDS.TICKET_INFO}
+          />
+        )}
+
+        {data.seatViewSection && (
+          <SeatViewSection
+            seatViewSection={data.seatViewSection}
+            sectionId={SECTION_IDS.SEAT_VIEW}
+          />
+        )}
+
         {data.nearbyPlacesSection && (
           <NearbyPlacesSection
-            title={data.nearbyPlacesSection.title}
-            mapImageUrl={data.nearbyPlacesSection.mapImageUrl}
-            listImageUrl={data.nearbyPlacesSection.listImageUrl}
-            naverListUrl={data.nearbyPlacesSection.naverListUrl}
-            morePlacesUrl={data.nearbyPlacesSection.morePlacesUrl}
+            nearbyPlacesSection={data.nearbyPlacesSection}
             sectionId={SECTION_IDS.NEARBY_PLACES}
           />
         )}
 
-        <Footer />
+        {data.reviewSection && (
+          <ReviewSection
+            reviewSection={data.reviewSection}
+            sectionId={SECTION_IDS.REVIEW}
+          />
+        )}
+
+        {data.ctaFooterSection && (
+          <CTAFooterSection ctaFooterSection={data.ctaFooterSection} />
+        )}
       </ContentWrapper>
     </ScrollView>
   );
 }
+
+/**
+ * 섹션 추가 템플릿 정의
+ */
+type SectionKey = keyof Pick<
+  BbucleRoadData,
+  | 'overviewSection'
+  | 'routeSection'
+  | 'ticketInfoSection'
+  | 'seatViewSection'
+  | 'nearbyPlacesSection'
+  | 'reviewSection'
+  | 'ctaFooterSection'
+>;
+
+interface SectionTemplate {
+  key: SectionKey;
+  label: string;
+  defaultData: NonNullable<BbucleRoadData[SectionKey]>;
+}
+
+const SECTION_TEMPLATES: SectionTemplate[] = [
+  {
+    key: 'overviewSection',
+    label: '한눈에보기',
+    defaultData: {
+      title: '근처 정보 한눈에 보기',
+      subtitle: '한눈에 보기',
+      mapImageUrl: '',
+    },
+  },
+  {
+    key: 'routeSection',
+    label: '동선정보',
+    defaultData: {
+      title: '동선정보',
+      routes: [
+        {
+          id: `route-${Date.now()}`,
+          tabLabel: '새 동선',
+          tabIconType: 'SUBWAY' as const,
+          descriptionImageUrl: '',
+          interactiveImage: { url: '', clickableRegions: [] },
+        },
+      ],
+    },
+  },
+  {
+    key: 'ticketInfoSection',
+    label: '매표정보',
+    defaultData: {
+      title: '매표정보',
+      imageUrl: '',
+      tips: [],
+    },
+  },
+  {
+    key: 'seatViewSection',
+    label: '시야정보',
+    defaultData: {
+      title: '시야정보',
+      descriptionHtmls: [],
+      interactiveImage: { url: '', clickableRegions: [] },
+    },
+  },
+  {
+    key: 'nearbyPlacesSection',
+    label: '근처 장소',
+    defaultData: {
+      title: '근처 장소 정보',
+      mapImageUrl: '',
+      listImageUrl: '',
+      naverListUrl: 'https://map.naver.com',
+      morePlacesUrl: 'https://map.naver.com',
+    },
+  },
+  {
+    key: 'reviewSection',
+    label: '방문후기',
+    defaultData: {
+      titleLine1: '장소명',
+      titleLine2: '휠체어 이용자의 후기',
+      descriptionHtmls: [],
+    },
+  },
+  {
+    key: 'ctaFooterSection',
+    label: 'CTA 푸터',
+    defaultData: {
+      buttonUrl: 'https://forms.staircrusher.club/contents-alarm',
+    },
+  },
+];
 
 /**
  * Edit Mode 전용 래퍼
@@ -122,54 +269,31 @@ function EditModeContent() {
 
   const { data, updateData } = editContext;
 
-  const handleAddRouteSection = useCallback(() => {
-    updateData((prev) => ({
-      ...prev,
-      routeSection: {
-        title: '동선정보',
-        routes: [
-          {
-            id: `route-${Date.now()}`,
-            tabLabel: '새 동선',
-            tabIconType: 'SUBWAY' as const,
-            descriptionImageUrl: '',
-            interactiveImage: { url: '', clickableRegions: [] },
-          },
-        ],
-      },
-    }));
-  }, [updateData]);
-
-  const handleAddNearbyPlacesSection = useCallback(() => {
-    updateData((prev) => ({
-      ...prev,
-      nearbyPlacesSection: {
-        title: '근처 장소 정보',
-        mapImageUrl: '',
-        listImageUrl: '',
-        naverListUrl: 'https://map.naver.com',
-        morePlacesUrl: 'https://map.naver.com',
-      },
-    }));
-  }, [updateData]);
+  const handleAddSection = useCallback(
+    (key: SectionKey, defaultData: NonNullable<BbucleRoadData[SectionKey]>) => {
+      updateData((prev) => ({
+        ...prev,
+        [key]: defaultData,
+      }));
+    },
+    [updateData],
+  );
 
   return (
     <EditModeContainer>
       <MainContent>
         <BbucleRoadContent data={data} />
-        {!data.routeSection && (
-          <AddSectionContainer>
-            <AddSectionButton onPress={handleAddRouteSection}>
-              <AddSectionButtonText>+ 동선정보 섹션 추가</AddSectionButtonText>
-            </AddSectionButton>
-          </AddSectionContainer>
-        )}
-        {!data.nearbyPlacesSection && (
-          <AddSectionContainer>
-            <AddSectionButton onPress={handleAddNearbyPlacesSection}>
-              <AddSectionButtonText>+ 근처 장소 섹션 추가</AddSectionButtonText>
-            </AddSectionButton>
-          </AddSectionContainer>
+        {SECTION_TEMPLATES.map(
+          (template) =>
+            !data[template.key] && (
+              <AddSectionContainer key={template.key}>
+                <AddSectionButton
+                  onPress={() => handleAddSection(template.key, template.defaultData)}
+                >
+                  <AddSectionButtonText>+ {template.label} 섹션 추가</AddSectionButtonText>
+                </AddSectionButton>
+              </AddSectionContainer>
+            ),
         )}
       </MainContent>
       <EditSidebar />
@@ -258,12 +382,14 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
 
     return (
       <Container>
-        <EditModeProvider
-          isEditMode={true}
-          initialData={editModeInitialData}
-        >
-          <EditModeContent />
-        </EditModeProvider>
+        <ResponsiveProvider>
+          <EditModeProvider
+            isEditMode={true}
+            initialData={editModeInitialData}
+          >
+            <EditModeContent />
+          </EditModeProvider>
+        </ResponsiveProvider>
       </Container>
     );
   }
@@ -279,14 +405,16 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
 
   return (
     <Container>
-      <BbucleRoadContent data={configData} />
+      <ResponsiveProvider>
+        <BbucleRoadContent data={configData} />
+      </ResponsiveProvider>
     </Container>
   );
 }
 
 const Container = styled(View)`
   flex: 1;
-  background-color: white
+  background-color: ${color.white};
 `;
 
 const EditModeContainer = styled(View)`
@@ -299,34 +427,32 @@ const MainContent = styled(View)`
 `;
 
 const ContentWrapper = styled(View)`
-  max-width: 1100px;
   width: 100%;
-  align-self: center;
 `;
 
 const LoadingContainer = styled(View)`
   flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff;
+  background-color: ${color.white};
 `;
 
 const LoadingText = styled(Text)`
   font-size: 18px;
-  color: #666666;
+  color: ${color.gray60};
 `;
 
 const ErrorContainer = styled(View)`
   flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff;
+  background-color: ${color.white};
   padding: 24px;
 `;
 
 const ErrorText = styled(Text)`
   font-size: 16px;
-  color: #666666;
+  color: ${color.gray60};
   text-align: center;
 `;
 
@@ -337,16 +463,12 @@ const AddSectionContainer = styled(View)`
 
 const AddSectionButton = styled(TouchableOpacity)`
   padding: 20px 40px;
-  background-color: #007aff;
+  background-color: ${color.iosBlue};
   border-radius: 12px;
 `;
 
 const AddSectionButtonText = styled(Text)`
-  color: #fff;
+  color: ${color.white};
   font-size: 16px;
   font-weight: 600;
-`;
-
-const Footer = styled(View)`
-  height: 120px;
 `;

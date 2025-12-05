@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 import type {
   BbucleRoadRouteSectionDto,
@@ -10,15 +10,19 @@ import type {
 import type { ExtendedRouteDto } from '../config/bbucleRoadData';
 
 import { color } from '@/constant/color';
+import Logger from '@/logging/Logger';
 import SccRemoteImage from '@/components/SccRemoteImage';
+import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import InteractiveImage from '../components/InteractiveImage';
 import RegionDetailModal from '../components/RegionDetailModal';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
-import { DESKTOP_BREAKPOINT } from '../constants/layout';
+import { useResponsive } from '../context/ResponsiveContext';
 
-// Extended routeSection with descriptionHtml support
-interface ExtendedRouteSectionDto extends Omit<BbucleRoadRouteSectionDto, 'routes'> {
+// Extended routeSection with descriptionHtml and two-line title support
+interface ExtendedRouteSectionDto extends Omit<BbucleRoadRouteSectionDto, 'routes' | 'title'> {
+  titleLine1: string;
+  titleLine2: string;
   routes: ExtendedRouteDto[];
 }
 
@@ -39,8 +43,7 @@ const ICON_OPTIONS: BbucleRoadRouteIconTypeDto[] = ['SUBWAY', 'TAXI', 'CAR', 'BU
 export default function RouteSection({ routeSection, sectionId }: RouteSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
-  const { width: windowWidth } = useWindowDimensions();
-  const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
+  const { isDesktop } = useResponsive();
 
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [selectedRegion, setSelectedRegion] =
@@ -49,9 +52,22 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
 
   const selectedRoute = routeSection.routes[selectedRouteIndex];
 
-  const handleTabPress = useCallback((index: number) => {
+  const handleTabPress = useCallback((index: number, route: ExtendedRouteDto) => {
+    // View mode에서만 로깅
+    if (!isEditMode) {
+      Logger.logElementClick({
+        name: 'bbucle-road-route-tab',
+        currScreenName: 'BbucleRoad',
+        extraParams: {
+          tabIndex: index,
+          tabLabel: route.tabLabel,
+          tabIconType: route.tabIconType,
+          isDesktop,
+        },
+      });
+    }
     setSelectedRouteIndex(index);
-  }, []);
+  }, [isEditMode]);
 
   const handleRegionPress = useCallback(
     (region: BbucleRoadClickableRegionDto) => {
@@ -169,23 +185,41 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
 
   return (
     <div id={sectionId}>
-      <Container>
-        {isEditMode
-        ? <SectionTitleInput
-            value={routeSection.title}
-            onChangeText={(text) => updateRouteSection((prev) => ({ ...prev, title: text }))}
-            placeholder="섹션 타이틀"
-            placeholderTextColor="#999"
-          />
-        : <SectionTitle>{routeSection.title}</SectionTitle>}
+      <Container isDesktop={isDesktop}>
+        <TitleSection>
+          {isEditMode ? (
+            <>
+              <TitleLine1Input
+                value={routeSection.titleLine1 ?? ''}
+                onChangeText={(text) => updateRouteSection((prev) => ({ ...prev, titleLine1: text }))}
+                placeholder="타이틀 1줄 (검정)"
+                placeholderTextColor={color.gray40}
+                isDesktop={isDesktop}
+              />
+              <TitleLine2Input
+                value={routeSection.titleLine2 ?? ''}
+                onChangeText={(text) => updateRouteSection((prev) => ({ ...prev, titleLine2: text }))}
+                placeholder="타이틀 2줄 (파랑)"
+                placeholderTextColor={color.gray40}
+                isDesktop={isDesktop}
+              />
+            </>
+          ) : (
+            <>
+              <TitleLine1 isDesktop={isDesktop}>{routeSection.titleLine1}</TitleLine1>
+              <TitleLine2 isDesktop={isDesktop}>{routeSection.titleLine2}</TitleLine2>
+            </>
+          )}
+        </TitleSection>
 
       {/* Tabs */}
-      <TabsContainer horizontal showsHorizontalScrollIndicator={false}>
+      <TabsContainer isDesktop={isDesktop} horizontal showsHorizontalScrollIndicator={false}>
         {routeSection.routes.map((route, index) => (
           <TabWrapper key={route.id}>
             <TabButton
+              isDesktop={isDesktop}
               active={index === selectedRouteIndex}
-              onPress={() => handleTabPress(index)}
+              onPress={() => handleTabPress(index, route)}
             >
               {isEditMode ? (
                 <IconSelector
@@ -229,19 +263,15 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
 
       {/* Content */}
       {selectedRoute && (
-        <ContentContainer
-          style={
-            isDesktop
-              ? { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' }
-              : { flexDirection: 'column-reverse' }
-          }
-        >
+        <ContentContainer isDesktop={isDesktop}>
           {/* Description HTML */}
-          <DescriptionHtmlContainer style={isDesktop ? { width: '37%' } : undefined}>
+          <DescriptionHtmlContainer isDesktop={isDesktop}>
             {selectedRoute.descriptionHtml ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: selectedRoute.descriptionHtml }}
-              />
+              <HtmlContentWrapper isDesktop={isDesktop}>
+                <div
+                  dangerouslySetInnerHTML={{ __html: selectedRoute.descriptionHtml }}
+                />
+              </HtmlContentWrapper>
             ) : selectedRoute.descriptionImageUrl ? (
               <DescriptionImageWrapper>
                 <SccRemoteImage
@@ -254,7 +284,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
           </DescriptionHtmlContainer>
 
           {/* Interactive Map Image */}
-          <InteractiveImageContainer style={isDesktop ? { width: '60%' } : undefined}>
+          <InteractiveImageContainer isDesktop={isDesktop}>
             {selectedRoute.interactiveImage.url ? (
               <InteractiveImage
                 interactiveImage={selectedRoute.interactiveImage}
@@ -288,41 +318,64 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
   );
 }
 
-const Container = styled(View)`
-  padding: 24px 16px;
-  margin-top: 150px;
+const Container = styled(View)<{ isDesktop: boolean }>`
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
+  padding-horizontal: 16px;
+  max-width: 1020px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
-const SectionTitle = styled(Text)`
-  color: #000;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 48px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 130%;
-  letter-spacing: -2.4px;
+const TitleSection = styled(View)`
+  align-items: center;
+  gap: 0;
+  max-width: 800px;
+  width: 100%;
+  padding: 0 16px;
   margin-bottom: 40px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-`;
-const SectionTitleInput = styled(TextInput)`
-  color: #000;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 48px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 130%;
-  letter-spacing: -2.4px;
-  margin-bottom: 40px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  align-self: center;
 `;
 
-const TabsContainer = styled(ScrollView)`
+const TitleLine1 = styled(Text)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-weight: 700;
+  color: ${color.black};
+  text-align: center;
+  line-height: ${({ isDesktop }) => (isDesktop ? '54px' : '34px')};
+`;
+
+const TitleLine2 = styled(Text)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-weight: 700;
+  color: #0e64d3;
+  text-align: center;
+  line-height: ${({ isDesktop }) => (isDesktop ? '54px' : '34px')};
+`;
+
+const TitleLine1Input = styled(TextInput)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-weight: 700;
+  color: ${color.black};
+  text-align: center;
+  width: 100%;
+`;
+
+const TitleLine2Input = styled(TextInput)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-weight: 700;
+  color: #0e64d3;
+  text-align: center;
+  width: 100%;
+`;
+
+const TabsContainer = styled(ScrollView)<{ isDesktop: boolean }>`
   flex-direction: row;
-  margin-bottom: 24px;
+  margin-bottom: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
 `;
 
 const TabWrapper = styled(View)`
@@ -331,12 +384,12 @@ const TabWrapper = styled(View)`
   margin-right: 8px;
 `;
 
-const TabButton = styled(TouchableOpacity)<{ active: boolean }>`
+const TabButton = styled(TouchableOpacity)<{ isDesktop: boolean, active: boolean }>`
   flex-direction: row;
   align-items: center;
-  padding: 12px 20px;
+  padding: ${({ isDesktop }) => (isDesktop ? '12px 20px' : '6px 14px 6px 12px')};
   border-radius: 24px;
-  background-color: ${({ active }) => (active ? '#007AFF' : color.gray30 )};
+  background-color: ${({ active }) => (active ? color.iosBlue : color.gray30)};
 `;
 
 const IconSelector = styled(TouchableOpacity)`
@@ -351,13 +404,13 @@ const TabIcon = styled(Text)`
 const TabLabel = styled(Text)`
   font-size: 14px;
   font-weight: 600;
-  color: white;
+  color: ${color.white};
 `;
 
 const TabLabelInput = styled(TextInput)`
   font-size: 14px;
   font-weight: 600;
-  color: white;
+  color: ${color.white};
   padding: 0;
 `;
 
@@ -365,7 +418,7 @@ const TabDeleteButton = styled(TouchableOpacity)`
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  background-color: #dc3545;
+  background-color: ${color.danger};
   align-items: center;
   justify-content: center;
   margin-left: -8px;
@@ -373,7 +426,7 @@ const TabDeleteButton = styled(TouchableOpacity)`
 `;
 
 const TabDeleteButtonText = styled(Text)`
-  color: #fff;
+  color: ${color.white};
   font-size: 14px;
   font-weight: 700;
 `;
@@ -382,40 +435,45 @@ const AddTabButton = styled(TouchableOpacity)`
   width: 48px;
   height: 48px;
   border-radius: 24px;
-  background-color: #e0e0e0;
+  background-color: ${color.gray20};
   align-items: center;
   justify-content: center;
 `;
 
 const AddTabButtonText = styled(Text)`
   font-size: 24px;
-  color: #666;
+  color: ${color.gray60};
 `;
 
-const ContentContainer = styled(View)`
+const ContentContainer = styled(View)<{ isDesktop: boolean }>`
+  flex-direction: ${({ isDesktop }) => (isDesktop ? 'row' : 'column-reverse')};
+  align-items: ${({ isDesktop }) => (isDesktop ? 'flex-start' : 'stretch')};
+  justify-content: ${({ isDesktop }) => (isDesktop ? 'center' : 'flex-start')};
   gap: 30px;
 `;
 
-const DescriptionHtmlContainer = styled(View)`
+const DescriptionHtmlContainer = styled(View)<{ isDesktop: boolean }>`
+  width: ${({ isDesktop }) => (isDesktop ? '37%' : '100%')};
   border-radius: 8px;
   overflow: hidden;
-  flex-shrink: 0;
+  ${({ isDesktop }) => (isDesktop ? 'flex: 2;' : 'flex-shrink: 0;')};
 `;
 
 const DescriptionImageWrapper = styled(View)`
   position: relative;
 `;
 
-const InteractiveImageContainer = styled(View)`
+const InteractiveImageContainer = styled(View)<{ isDesktop: boolean }>`
+  width: ${({ isDesktop }) => (isDesktop ? '60%' : '100%')};
   border-radius: 8px;
   overflow: hidden;
-  flex-shrink: 0;
+  ${({ isDesktop }) => (isDesktop ? 'flex: 3;' : 'flex-shrink: 0;')};
 `;
 
 const EmptyImagePlaceholder = styled(View)`
   padding: 40px;
-  background-color: #f8f9fa;
-  border: 2px dashed #ddd;
+  background-color: ${color.gray5};
+  border: 2px dashed ${color.gray25};
   border-radius: 8px;
   align-items: center;
   gap: 16px;
@@ -423,5 +481,5 @@ const EmptyImagePlaceholder = styled(View)`
 
 const EmptyImageText = styled(Text)`
   font-size: 14px;
-  color: #666;
+  color: ${color.gray60};
 `;
