@@ -1,27 +1,17 @@
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
-import {SccPressable} from '@/components/SccPressable';
-import {colors} from '@/constant/colors';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
-import useNavigation from '@/navigation/useNavigation';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages} from '../constants';
-import {
-  GuideButton,
-  GuideText,
-  MeasureGuide,
-  QuestionSection,
-  QuestionText,
-  SectionLabel,
-  SectionSeparator,
-  SubSection,
-  SubmitButtonWrapper,
-} from '../PlaceFormV2Screen';
+import FormQuestion from './FormQuestion';
+import {SectionSeparator, SubmitButtonWrapper} from './FormStyles';
+import GuideLink from './GuideLink';
+import MeasureGuide from './MeasureGuide';
 import OptionsChip from './OptionsChip';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
@@ -43,7 +33,6 @@ export default function InfoStep({
   onBack,
 }: InfoStepProps) {
   const form = useFormContext();
-  const navigation = useNavigation();
   const isKeyboardVisible = useKeyboardVisible();
 
   // Watch all required fields
@@ -108,11 +97,9 @@ export default function InfoStep({
 
           <View className="bg-white py-[40px] px-[20px] gap-[48px]">
             {!isStandaloneBuilding && (
-              <SubSection>
-                <QuestionSection>
-                  <SectionLabel>매장입구정보</SectionLabel>
-                  <QuestionText>매장의 출입구가 어디쪽에 있나요?</QuestionText>
-                </QuestionSection>
+              <FormQuestion
+                label="매장입구정보"
+                question="매장의 출입구가 어디쪽에 있나요?">
                 <Controller
                   name="doorDirection"
                   rules={{required: true}}
@@ -155,10 +142,9 @@ export default function InfoStep({
                     </View>
                   )}
                 />
-              </SubSection>
+              </FormQuestion>
             )}
-            <SubSection>
-              <QuestionText>출입구 사진을 등록해주세요</QuestionText>
+            <FormQuestion question="출입구 사진을 등록해주세요">
               <Controller
                 name="entrancePhotos"
                 rules={{required: true}}
@@ -171,10 +157,9 @@ export default function InfoStep({
                   />
                 )}
               />
-            </SubSection>
+            </FormQuestion>
 
-            <SubSection>
-              <QuestionText>입구에 계단이 있나요?</QuestionText>
+            <FormQuestion question="입구에 계단이 있나요?">
               <Controller
                 name="hasStairs"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -207,30 +192,15 @@ export default function InfoStep({
                   )}
                 />
               )}
-              <GuideButton>
-                <SccPressable
-                  elementName="place_info_stair_guide"
-                  onPress={() =>
-                    navigation.navigate('Webview', {
-                      fixedTitle: '계단 기준 알아보기',
-                      url: 'https://agnica.notion.site/8312cc653a8f4b9aa8bc920bbd668218',
-                    })
-                  }>
-                  <GuideText>계단 기준 알아보기 {'>'}</GuideText>
-                </SccPressable>
-              </GuideButton>
-            </SubSection>
+              <GuideLink type="stairs" elementName="place_info_stair_guide" />
+            </FormQuestion>
 
             {form.watch('hasStairs') &&
               form.watch('stairInfo') === StairInfo.One && (
-                <SubSection key="stair-height">
-                  <QuestionText>계단 1칸의 높이를 알려주세요</QuestionText>
-                  <MeasureGuide>
-                    <Image
-                      source={formImages.stair}
-                      className="w-full h-full"
-                    />
-                  </MeasureGuide>
+                <FormQuestion
+                  key="stair-height"
+                  question="계단 1칸의 높이를 알려주세요">
+                  <MeasureGuide source={formImages.stair} />
                   <View className="gap-[16px]">
                     <Controller
                       name="entranceStairHeightLevel"
@@ -257,11 +227,10 @@ export default function InfoStep({
                       )}
                     />
                   </View>
-                </SubSection>
+                </FormQuestion>
               )}
 
-            <SubSection>
-              <QuestionText>입구에 경사로가 있나요?</QuestionText>
+            <FormQuestion question="입구에 경사로가 있나요?">
               <Controller
                 name="hasSlope"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -276,22 +245,10 @@ export default function InfoStep({
                   />
                 )}
               />
-              <GuideButton>
-                <SccPressable
-                  elementName="place_info_slope_guide"
-                  onPress={() =>
-                    navigation.navigate('Webview', {
-                      fixedTitle: '경사로 기준 알아보기',
-                      url: 'https://agnica.notion.site/6f64035a062f41e28745faa4e7bd0770',
-                    })
-                  }>
-                  <GuideText>경사로 기준 알아보기 {'>'}</GuideText>
-                </SccPressable>
-              </GuideButton>
-            </SubSection>
+              <GuideLink type="slope" elementName="place_info_slope_guide" />
+            </FormQuestion>
 
-            <SubSection>
-              <QuestionText>출입문은 어떤 종류인가요?</QuestionText>
+            <FormQuestion question="출입문은 어떤 종류인가요?">
               <Controller
                 name="doorType"
                 rules={{required: true}}
@@ -304,10 +261,9 @@ export default function InfoStep({
                   />
                 )}
               />
-            </SubSection>
+            </FormQuestion>
 
-            <SubSection>
-              <QuestionText>추가로 알려주실 내용이 있으신가요?</QuestionText>
+            <FormQuestion question="추가로 알려주실 내용이 있으신가요?">
               <Controller
                 name="additionalInfo"
                 render={({field}) => (
@@ -324,10 +280,9 @@ export default function InfoStep({
                   />
                 )}
               />
-            </SubSection>
+            </FormQuestion>
 
-            <SubSection>
-              <QuestionText>더 도움이 될 정보가 있다면 알려주세요</QuestionText>
+            <FormQuestion question="더 도움이 될 정보가 있다면 알려주세요">
               <Controller
                 name="comment"
                 render={({field}) => (
@@ -338,7 +293,7 @@ export default function InfoStep({
                   />
                 )}
               />
-            </SubSection>
+            </FormQuestion>
           </View>
         </SafeAreaWrapper>
       </ScrollView>

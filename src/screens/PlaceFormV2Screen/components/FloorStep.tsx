@@ -6,13 +6,8 @@ import {ScrollView, View} from 'react-native';
 import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FLOOR_OPTIONS, STANDALONE_BUILDING_OPTIONS} from '../constants';
-import {
-  QuestionSection,
-  QuestionText,
-  SectionLabel,
-  SectionSeparator,
-  SubmitButtonWrapper,
-} from '../PlaceFormV2Screen';
+import FormQuestion from './FormQuestion';
+import {SectionSeparator, SubmitButtonWrapper} from './FormStyles';
 import OptionsV2 from './OptionsV2';
 
 interface FloorStepProps {
@@ -42,15 +37,14 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
           <SectionSeparator />
 
           <View className="pt-[30px] px-[20px] pb-[40px] gap-[40px]">
-            <View className="gap-[20px]">
-              <QuestionSection>
-                <SectionLabel>층정보</SectionLabel>
-                <QuestionText>
+            <FormQuestion
+              label="층정보"
+              question={
+                <>
                   {place.name}
                   {'은\n건물의 1층에 있나요?'}
-                </QuestionText>
-              </QuestionSection>
-
+                </>
+              }>
               <Controller
                 name="floorOption"
                 render={({field}) => (
@@ -65,11 +59,10 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
                   />
                 )}
               />
-            </View>
+            </FormQuestion>
 
             {selectedOption === 'otherFloor' && (
-              <View className="gap-[20px]">
-                <QuestionText>그럼 몇층에 있는 장소인가요?</QuestionText>
+              <FormQuestion question="그럼 몇층에 있는 장소인가요?">
                 <Controller
                   name="selectedFloor"
                   render={({field}) => (
@@ -79,12 +72,11 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
                     />
                   )}
                 />
-              </View>
+              </FormQuestion>
             )}
 
             {selectedOption === 'standalone' && (
-              <View className="gap-[20px]">
-                <QuestionText>어떤 유형의 단독건물인가요?</QuestionText>
+              <FormQuestion question="어떤 유형의 단독건물인가요?">
                 <Controller
                   name="standaloneType"
                   render={({field}) => (
@@ -99,7 +91,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
                     />
                   )}
                 />
-              </View>
+              </FormQuestion>
             )}
           </View>
         </SafeAreaWrapper>

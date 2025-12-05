@@ -9,18 +9,12 @@ import {
 } from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {Controller, useFormContext} from 'react-hook-form';
-import {Image, ScrollView, View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages, makeFloorMovementOptions} from '../constants';
-import {
-  MeasureGuide,
-  QuestionSection,
-  QuestionText,
-  SectionLabel,
-  SectionSeparator,
-  SubSection,
-  SubmitButtonWrapper,
-} from '../PlaceFormV2Screen';
+import FormQuestion from './FormQuestion';
+import {SectionSeparator, SubmitButtonWrapper} from './FormStyles';
+import MeasureGuide from './MeasureGuide';
 import OptionsV2 from './OptionsV2';
 import PhotosV2 from './PhotosV2';
 import TextAreaV2 from './TextAreaV2';
@@ -103,13 +97,9 @@ export default function FloorMovementStep({
           <SectionSeparator />
 
           <View className="bg-white py-[40px] px-[20px] gap-[48px]">
-            <SubSection>
-              <QuestionSection>
-                <SectionLabel>층간 이동 정보</SectionLabel>
-                <QuestionText>
-                  1층에서 다른층으로 이동가능한 방법을 모두 알려주세요
-                </QuestionText>
-              </QuestionSection>
+            <FormQuestion
+              label="층간 이동 정보"
+              question="1층에서 다른층으로 이동가능한 방법을 모두 알려주세요">
               <Controller
                 name="floorMovementMethod"
                 rules={{required: true}}
@@ -122,16 +112,14 @@ export default function FloorMovementStep({
                   />
                 )}
               />
-            </SubSection>
+            </FormQuestion>
 
             {form.watch('floorMovementMethod') ===
               FloorMovingMethodTypeDto.PlaceElevator && (
               <>
-                <SubSection>
-                  <QuestionSection>
-                    <SectionLabel>엘리베이터 정보</SectionLabel>
-                    <QuestionText>엘리베이터 사진을 찍어주세요</QuestionText>
-                  </QuestionSection>
+                <FormQuestion
+                  label="엘리베이터 정보"
+                  question="엘리베이터 사진을 찍어주세요">
                   <Controller
                     name="elevatorPhotos"
                     rules={{required: true}}
@@ -144,10 +132,9 @@ export default function FloorMovementStep({
                       />
                     )}
                   />
-                </SubSection>
+                </FormQuestion>
 
-                <SubSection>
-                  <QuestionText>입구에 계단이 있나요?</QuestionText>
+                <FormQuestion question="입구에 계단이 있나요?">
                   <Controller
                     name="elevatorHasStairs"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -180,18 +167,14 @@ export default function FloorMovementStep({
                       )}
                     />
                   )}
-                </SubSection>
+                </FormQuestion>
 
                 {form.watch('elevatorHasStairs') &&
                   form.watch('elevatorStairInfo') === StairInfo.One && (
-                    <SubSection key="stair-height">
-                      <QuestionText>계단 1칸의 높이를 알려주세요</QuestionText>
-                      <MeasureGuide>
-                        <Image
-                          source={formImages.stair}
-                          className="w-full h-full"
-                        />
-                      </MeasureGuide>
+                    <FormQuestion
+                      key="stair-height"
+                      question="계단 1칸의 높이를 알려주세요">
+                      <MeasureGuide source={formImages.stair} />
                       <View className="gap-[16px]">
                         <Controller
                           name="elevatorStairHeightLevel"
@@ -218,11 +201,10 @@ export default function FloorMovementStep({
                           )}
                         />
                       </View>
-                    </SubSection>
+                    </FormQuestion>
                   )}
 
-                <SubSection>
-                  <QuestionText>입구에 경사로가 있나요?</QuestionText>
+                <FormQuestion question="입구에 경사로가 있나요?">
                   <Controller
                     name="elevatorHasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -237,12 +219,11 @@ export default function FloorMovementStep({
                       />
                     )}
                   />
-                </SubSection>
+                </FormQuestion>
               </>
             )}
 
-            <SubSection>
-              <QuestionText>더 도움이 될 정보가 있다면 알려주세요</QuestionText>
+            <FormQuestion question="더 도움이 될 정보가 있다면 알려주세요">
               <Controller
                 name="floorMovementComment"
                 render={({field}) => (
@@ -253,7 +234,7 @@ export default function FloorMovementStep({
                   />
                 )}
               />
-            </SubSection>
+            </FormQuestion>
           </View>
         </SafeAreaWrapper>
       </ScrollView>
