@@ -190,6 +190,9 @@ const RootScreen = () => {
               'Conquerer/Upvote': {
                 path: 'conquerer/upvote',
               },
+              SearchUnconqueredPlaces: {
+                path: 'search-unconquered-places',
+              },
             },
           },
         }}

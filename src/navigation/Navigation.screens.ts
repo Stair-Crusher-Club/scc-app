@@ -69,6 +69,9 @@ import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import PlaceGroupMapScreen, {
   PlaceGroupMapScreenParams,
 } from '@/screens/PlaceGroupMapScreen';
+import SearchUnconqueredPlacesScreen, {
+  SearchUnconqueredPlacesScreenParams,
+} from '@/screens/SearchUnconqueredPlacesScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
@@ -242,6 +245,11 @@ export const MainNavigationScreens: {
     options: {headerShown: false},
   },
   {
+    name: 'SearchUnconqueredPlaces',
+    component: SearchUnconqueredPlacesScreen,
+    options: {headerShown: false},
+  },
+  {
     name: 'ImageZoomViewer',
     component: ImageZoomViewerScreen,
     options: {presentation: 'fullScreenModal'},
@@ -318,6 +326,7 @@ export type ScreenParams = {
   MapTest: undefined;
   ToiletMap: undefined;
   PlaceGroupMap: PlaceGroupMapScreenParams;
+  SearchUnconqueredPlaces: SearchUnconqueredPlacesScreenParams;
 
   // fullscreen modals
   GuideForFirstVisit: undefined;

@@ -4664,6 +4664,31 @@ export interface SearchPlacesResponseDto {
     'items': Array<PlaceListItem>;
 }
 /**
+ * 
+ * @export
+ * @interface SearchUnconqueredPlacesNearbyRequestDto
+ */
+export interface SearchUnconqueredPlacesNearbyRequestDto {
+    /**
+     * 
+     * @type {CircleSearchRegionDto}
+     * @memberof SearchUnconqueredPlacesNearbyRequestDto
+     */
+    'circleRegion'?: CircleSearchRegionDto;
+    /**
+     * 
+     * @type {RectangleSearchRegionDto}
+     * @memberof SearchUnconqueredPlacesNearbyRequestDto
+     */
+    'rectangleRegion'?: RectangleSearchRegionDto;
+    /**
+     * 최대 반환 개수
+     * @type {number}
+     * @memberof SearchUnconqueredPlacesNearbyRequestDto
+     */
+    'limit': number;
+}
+/**
  * 시군구를 표현하기 위한 모델.
  * @export
  * @interface SiGunGu
@@ -7910,6 +7935,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+         * @summary 정복 안 된 장소를 검색한다.
+         * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchUnconqueredPlacesNearbyPost: async (searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'searchUnconqueredPlacesNearbyRequestDto' is not null or undefined
+            assertParamExists('searchUnconqueredPlacesNearbyPost', 'searchUnconqueredPlacesNearbyRequestDto', searchUnconqueredPlacesNearbyRequestDto)
+            const localVarPath = `/searchUnconqueredPlacesNearby`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchUnconqueredPlacesNearbyRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -8805,6 +8870,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+         * @summary 정복 안 된 장소를 검색한다.
+         * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -9516,6 +9592,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         searchPlacesPost(searchPlacesRequestDto: SearchPlacesRequestDto, options?: any): AxiosPromise<SearchPlacesResponseDto> {
             return localVarFp.searchPlacesPost(searchPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+         * @summary 정복 안 된 장소를 검색한다.
+         * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options?: any): AxiosPromise<SearchPlacesResponseDto> {
+            return localVarFp.searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10356,6 +10442,18 @@ export class DefaultApi extends BaseAPI {
      */
     public searchPlacesPost(searchPlacesRequestDto: SearchPlacesRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).searchPlacesPost(searchPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+     * @summary 정복 안 된 장소를 검색한다.
+     * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

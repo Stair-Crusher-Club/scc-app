@@ -17,26 +17,33 @@ export async function updateSearchCacheForPlaceAsync(
 ): Promise<void> {
   try {
     const updatedPlace = await api.getPlaceWithBuildingPost({placeId});
+    const updateFn = (oldData: PlaceListItem[] | undefined) => {
+      if (!oldData) return oldData;
+      return oldData.map(item =>
+        item.place.id === placeId
+          ? {
+              ...item,
+              place: updatedPlace.data.place,
+              building: updatedPlace.data.building,
+              hasPlaceAccessibility: updatedPlace.data.hasPlaceAccessibility,
+              hasBuildingAccessibility:
+                updatedPlace.data.hasBuildingAccessibility,
+              isAccessibilityRegistrable:
+                updatedPlace.data.isAccessibilityRegistrable,
+              accessibilityInfo: updatedPlace.data.accessibilityInfo,
+            }
+          : item,
+      );
+    };
+    // Update SearchScreen cache
     queryClient.setQueriesData<PlaceListItem[]>(
       {queryKey: ['search']},
-      oldData => {
-        if (!oldData) return oldData;
-        return oldData.map(item =>
-          item.place.id === placeId
-            ? {
-                ...item,
-                place: updatedPlace.data.place,
-                building: updatedPlace.data.building,
-                hasPlaceAccessibility: updatedPlace.data.hasPlaceAccessibility,
-                hasBuildingAccessibility:
-                  updatedPlace.data.hasBuildingAccessibility,
-                isAccessibilityRegistrable:
-                  updatedPlace.data.isAccessibilityRegistrable,
-                accessibilityInfo: updatedPlace.data.accessibilityInfo,
-              }
-            : item,
-        );
-      },
+      updateFn,
+    );
+    // Update SearchUnconqueredPlaces cache
+    queryClient.setQueriesData<PlaceListItem[]>(
+      {queryKey: ['SearchUnconqueredPlaces']},
+      updateFn,
     );
   } catch (_) {
     // Silently fail - not critical for user experience
