@@ -41,6 +41,8 @@ function PlaceCard({
   place: NearbyPlaceData;
   isDesktop: boolean;
 }) {
+  const imageUrlsToRender = [...place.imageUrls, null, null, null].slice(0, 3)
+
   return (
     <CardContainer isDesktop={isDesktop}>
       <CardContent isDesktop={isDesktop}>
@@ -70,10 +72,18 @@ function PlaceCard({
 
         {/* 이미지 3개 (항상 하단에 고정) */}
         <ImagesRow isDesktop={isDesktop}>
-          {place.imageUrls.map((url, idx) => (
-            <PlaceImageWrapper key={idx} isDesktop={isDesktop}>
-              <PlaceImage source={{ uri: url }} resizeMode="cover" />
-            </PlaceImageWrapper>
+          {imageUrlsToRender.map((url, idx) => (
+            url != null
+              ? (
+                <PlaceImageWrapper key={idx} isDesktop={isDesktop}>
+                  <PlaceImage source={{ uri: url }} resizeMode="cover" />
+                </PlaceImageWrapper>
+              )
+              : (
+                <PlaceImageWrapper key={idx} isDesktop={isDesktop}>
+                  <DummyImage />
+                </PlaceImageWrapper>
+              )
           ))}
         </ImagesRow>
       </CardContent>
@@ -432,6 +442,11 @@ const PlaceImageWrapper = styled(View)<{ isDesktop: boolean }>`
 `;
 
 const PlaceImage = styled(Image)`
+  width: 100%;
+  height: 100%;
+`;
+
+const DummyImage = styled(Image)`
   width: 100%;
   height: 100%;
 `;

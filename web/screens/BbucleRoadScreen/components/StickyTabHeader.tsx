@@ -17,12 +17,14 @@ interface StickyTabHeaderProps {
   sections: SectionTab[];
   activeSection: string;
   onTabPress: (sectionId: string) => void;
+  topOffset?: number;
 }
 
 export default function StickyTabHeader({
   sections,
   activeSection,
   onTabPress,
+  topOffset = 0,
 }: StickyTabHeaderProps) {
   const { width: windowWidth } = useWindowDimensions();
   const isDesktop = windowWidth >= DESKTOP_BREAKPOINT;
@@ -76,7 +78,7 @@ export default function StickyTabHeader({
     <>
       {/* Sentinel element - sticky 감지용 */}
       <div ref={sentinelRef} style={{ height: 1, marginBottom: -1 }} />
-      <Container isDesktop={isDesktop} isSticky={isSticky}>
+      <Container isDesktop={isDesktop} isSticky={isSticky} topOffset={topOffset}>
         <TabsScrollView
           ref={scrollViewRef}
           horizontal
@@ -121,12 +123,12 @@ export default function StickyTabHeader({
   );
 }
 
-const Container = styled(View)<{ isDesktop: boolean; isSticky: boolean }>`
+const Container = styled(View)<{ isDesktop: boolean; isSticky: boolean; topOffset: number }>`
   position: sticky;
-  top: 0;
+  top: ${({ topOffset }) => topOffset}px;
   z-index: 100;
   background-color: white;
-  padding: ${({ isDesktop }) => (isDesktop ? '16px 0' : '12px 0')};
+  padding-top: ${({ isDesktop }) => (isDesktop ? '16px' : '12px')};
   border-bottom-width: ${({ isSticky }) => (isSticky ? '1px' : '0')};
   border-bottom-color: #e5e5e5;
   transition: background-color 0.2s ease, border-bottom-width 0.2s ease;

@@ -3,10 +3,14 @@ import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQuery } from '@tanstack/react-query';
 
 import type { WebStackParamList } from '../../navigation/WebNavigation';
 import { api, apiConfig } from '../../config/api';
 import { color } from '@/constant/color';
+import { UpvoteTargetTypeDto } from '@/generated-sources/openapi';
+import { useUpvoteToggle } from '@/hooks/useUpvoteToggle';
+import useAppComponents from '@/hooks/useAppComponents';
 
 import HeaderSection from './sections/HeaderSection';
 import OverviewSection from './sections/OverviewSection';
@@ -17,6 +21,8 @@ import NearbyPlacesSection from './sections/NearbyPlacesSection';
 import ReviewSection from './sections/ReviewSection';
 import CTAFooterSection from './sections/CTAFooterSection';
 import StickyTabHeader, { SectionTab } from './components/StickyTabHeader';
+import FloatingHeader from './components/FloatingHeader';
+import FloatingBottomBar from './components/FloatingBottomBar';
 import useSectionNavigation from './hooks/useSectionNavigation';
 
 import {
@@ -25,7 +31,7 @@ import {
   type BbucleRoadData,
 } from './config/bbucleRoadData';
 import { EditModeProvider, useEditMode } from './context/EditModeContext';
-import { ResponsiveProvider } from './context/ResponsiveContext';
+import { ResponsiveProvider, useResponsive } from './context/ResponsiveContext';
 import EditSidebar from './edit/EditSidebar';
 
 // Section IDs for navigation
@@ -61,7 +67,43 @@ function getIsEditMode(): boolean {
 /**
  * 순수 View 컴포넌트 - data 받아서 그리기만
  */
-function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
+function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucleRoadId: string }) {
+  const { isDesktop } = useResponsive();
+  const { api: appApi } = useAppComponents();
+
+  // 저장된 userId
+  const myUserId = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage.getItem('bbucleRoadUserId');
+  }, []);
+
+  // Upvote 상태 조회
+  const { data: upvoteDetails } = useQuery({
+    queryKey: ['BbucleRoadUpvoteDetails', bbucleRoadId],
+    queryFn: async () => {
+      return await appApi.getUpvoteDetailsPost({
+        targetType: UpvoteTargetTypeDto.BbucleRoad,
+        id: bbucleRoadId,
+      });
+    },
+    enabled: !!bbucleRoadId,
+  });
+
+  const upvotedUsers = upvoteDetails?.data?.upvotedUsers ?? [];
+  const totalCount = upvotedUsers.length;
+  const hasUpvoted = myUserId
+    ? upvotedUsers.some((user: any) => user.userId === myUserId)
+    : false;
+
+  // Upvote 토글 hook
+  const { isUpvoted, totalUpvoteCount, toggleUpvote } = useUpvoteToggle({
+    initialIsUpvoted: hasUpvoted,
+    initialTotalCount: totalCount,
+    targetId: bbucleRoadId,
+    targetType: UpvoteTargetTypeDto.BbucleRoad,
+    placeId: '',
+  });
+
   const availableSections = useMemo(() => {
     const sections: SectionTab[] = [];
     if (data.overviewSection) {
@@ -99,71 +141,91 @@ function BbucleRoadContent({ data }: { data: BbucleRoadData }) {
 
   const { activeSection, scrollToSection } = useSectionNavigation({ sectionIds });
 
+  // CTA URL - ctaFooterSection의 buttonUrl 또는 기본값 사용
+  const ctaButtonUrl = data.ctaFooterSection?.buttonUrl ?? 'https://forms.staircrusher.club/contents-alarm';
+
+  const hasFloatingHeader = !!data.floatingHeaderTitle;
+
   return (
-    <ScrollView>
-      <ContentWrapper>
-        <HeaderSection
-          titleImageUrl={data.titleImageUrl}
-          headerBackgroundImageUrl={data.headerBackgroundImageUrl}
-          lastUpdatedDate={data.lastUpdatedDate}
-          wheelchairUserCommentHtml={data.wheelchairUserCommentHtml}
-        />
-
-        {availableSections.length > 0 && (
-          <StickyTabHeader
-            sections={availableSections}
-            activeSection={activeSection}
-            onTabPress={scrollToSection}
+    <>
+      {hasFloatingHeader && (
+        <FloatingHeader title={data.floatingHeaderTitle!} />
+      )}
+      <ScrollView>
+        <ContentWrapper hasFloatingHeader={hasFloatingHeader} isDesktop={isDesktop}>
+          <HeaderSection
+            titleImageUrl={data.titleImageUrl}
+            headerBackgroundImageUrl={data.headerBackgroundImageUrl}
+            lastUpdatedDate={data.lastUpdatedDate}
+            wheelchairUserCommentHtml={data.wheelchairUserCommentHtml}
           />
-        )}
 
-        {data.overviewSection && (
-          <OverviewSection
-            overviewSection={data.overviewSection}
-            sectionId={SECTION_IDS.OVERVIEW}
-          />
-        )}
+          {availableSections.length > 0 && (
+            <StickyTabHeader
+              sections={availableSections}
+              activeSection={activeSection}
+              onTabPress={scrollToSection}
+              topOffset={hasFloatingHeader ? (isDesktop ? 80 : 50) : 0}
+            />
+          )}
 
-        {data.routeSection && (
-          <RouteSection
-            routeSection={data.routeSection}
-            sectionId={SECTION_IDS.ROUTE}
-          />
-        )}
+          {data.overviewSection && (
+            <OverviewSection
+              overviewSection={data.overviewSection}
+              sectionId={SECTION_IDS.OVERVIEW}
+            />
+          )}
 
-        {data.ticketInfoSection && (
-          <TicketInfoSection
-            ticketInfoSection={data.ticketInfoSection}
-            sectionId={SECTION_IDS.TICKET_INFO}
-          />
-        )}
+          {data.routeSection && (
+            <RouteSection
+              routeSection={data.routeSection}
+              sectionId={SECTION_IDS.ROUTE}
+            />
+          )}
 
-        {data.seatViewSection && (
-          <SeatViewSection
-            seatViewSection={data.seatViewSection}
-            sectionId={SECTION_IDS.SEAT_VIEW}
-          />
-        )}
+          {data.ticketInfoSection && (
+            <TicketInfoSection
+              ticketInfoSection={data.ticketInfoSection}
+              sectionId={SECTION_IDS.TICKET_INFO}
+            />
+          )}
 
-        {data.nearbyPlacesSection && (
-          <NearbyPlacesSection
-            nearbyPlacesSection={data.nearbyPlacesSection}
-            sectionId={SECTION_IDS.NEARBY_PLACES}
-          />
-        )}
+          {data.seatViewSection && (
+            <SeatViewSection
+              seatViewSection={data.seatViewSection}
+              sectionId={SECTION_IDS.SEAT_VIEW}
+            />
+          )}
 
-        {data.reviewSection && (
-          <ReviewSection
-            reviewSection={data.reviewSection}
-            sectionId={SECTION_IDS.REVIEW}
-          />
-        )}
+          {data.nearbyPlacesSection && (
+            <NearbyPlacesSection
+              nearbyPlacesSection={data.nearbyPlacesSection}
+              sectionId={SECTION_IDS.NEARBY_PLACES}
+            />
+          )}
 
-        {data.ctaFooterSection && (
-          <CTAFooterSection ctaFooterSection={data.ctaFooterSection} />
-        )}
-      </ContentWrapper>
-    </ScrollView>
+          {data.reviewSection && (
+            <ReviewSection
+              reviewSection={data.reviewSection}
+              sectionId={SECTION_IDS.REVIEW}
+            />
+          )}
+
+          {data.ctaFooterSection && (
+            <CTAFooterSection ctaFooterSection={data.ctaFooterSection} />
+          )}
+
+          {/* FloatingBottomBar 공간 확보 */}
+          <BottomBarSpacer isDesktop={isDesktop} />
+        </ContentWrapper>
+      </ScrollView>
+      <FloatingBottomBar
+        likeCount={totalUpvoteCount ?? 0}
+        isLiked={isUpvoted}
+        ctaButtonUrl={ctaButtonUrl}
+        onLikePress={toggleUpvote}
+      />
+    </>
   );
 }
 
@@ -263,7 +325,7 @@ const SECTION_TEMPLATES: SectionTemplate[] = [
 /**
  * Edit Mode 전용 래퍼
  */
-function EditModeContent() {
+function EditModeContent({ bbucleRoadId }: { bbucleRoadId: string }) {
   const editContext = useEditMode();
   if (!editContext) return null;
 
@@ -282,7 +344,7 @@ function EditModeContent() {
   return (
     <EditModeContainer>
       <MainContent>
-        <BbucleRoadContent data={data} />
+        <BbucleRoadContent data={data} bbucleRoadId={bbucleRoadId} />
         {SECTION_TEMPLATES.map(
           (template) =>
             !data[template.key] && (
@@ -319,13 +381,8 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     return createEmptyBbucleRoadData(bbucleRoadId);
   }, [configData, bbucleRoadId]);
 
-  // Initialize auth for edit mode (image upload)
+  // Initialize auth (for upvote and image upload)
   useEffect(() => {
-    if (!isEditMode) {
-      setIsInitializing(false);
-      return;
-    }
-
     const initializeAuth = async () => {
       try {
         // Check localStorage for existing token
@@ -344,6 +401,15 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
           const expiryTime = parseInt(tokenExpiry, 10);
           if (Date.now() < expiryTime) {
             apiConfig.accessToken = anonymousToken;
+            // userId 없으면 가져오기
+            if (!window.localStorage.getItem('bbucleRoadUserId')) {
+              try {
+                const userInfoResponse = await api.getUserInfoGet();
+                window.localStorage.setItem('bbucleRoadUserId', userInfoResponse.data.user.id);
+              } catch {
+                // ignore
+              }
+            }
             setIsInitializing(false);
             return;
           }
@@ -351,13 +417,14 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
 
         // Create new anonymous login
         const response = await api.createAnonymousUserPost();
-        const { authTokens } = response.data;
+        const { authTokens, userId } = response.data;
 
         window.localStorage.setItem('anonymousAccessToken', authTokens.accessToken);
         window.localStorage.setItem(
           'anonymousTokenExpiry',
           String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
         );
+        window.localStorage.setItem('bbucleRoadUserId', userId);
 
         apiConfig.accessToken = authTokens.accessToken;
       } catch (error) {
@@ -368,7 +435,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     };
 
     initializeAuth();
-  }, [isEditMode]);
+  }, []);
 
   // Edit Mode: Config 데이터 사용
   if (isEditMode) {
@@ -387,7 +454,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
             isEditMode={true}
             initialData={editModeInitialData}
           >
-            <EditModeContent />
+            <EditModeContent bbucleRoadId={bbucleRoadId} />
           </EditModeProvider>
         </ResponsiveProvider>
       </Container>
@@ -403,10 +470,18 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     );
   }
 
+  if (isInitializing) {
+    return (
+      <LoadingContainer>
+        <LoadingText>로딩 중...</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
   return (
     <Container>
       <ResponsiveProvider>
-        <BbucleRoadContent data={configData} />
+        <BbucleRoadContent data={configData} bbucleRoadId={bbucleRoadId} />
       </ResponsiveProvider>
     </Container>
   );
@@ -426,8 +501,9 @@ const MainContent = styled(View)`
   flex: 1;
 `;
 
-const ContentWrapper = styled(View)`
+const ContentWrapper = styled(View)<{ hasFloatingHeader?: boolean; isDesktop?: boolean }>`
   width: 100%;
+  padding-top: ${({ hasFloatingHeader, isDesktop }) => (hasFloatingHeader ? (isDesktop ? '80px' : '50px') : '0')};
 `;
 
 const LoadingContainer = styled(View)`
@@ -471,4 +547,8 @@ const AddSectionButtonText = styled(Text)`
   color: ${color.white};
   font-size: 16px;
   font-weight: 600;
+`;
+
+const BottomBarSpacer = styled(View)<{ isDesktop: boolean }>`
+  height: ${({ isDesktop }) => isDesktop ? '108px' : '90px'};
 `;

@@ -3,6 +3,7 @@ import { View, Text, TextInput, Image } from 'react-native';
 import styled from 'styled-components/native';
 
 import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
 import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import ImageUploader from '../components/ImageUploader';
@@ -159,9 +160,11 @@ export default function SeatViewSection({
             <RegionImagesContainer>
               {allModalImages.map((imageUrl, index) => (
                 <RegionImageWrapper key={index}>
-                  <RegionImage
-                    source={{ uri: imageUrl }}
+                  <SccRemoteImage
+                    imageUrl={imageUrl}
                     resizeMode="contain"
+                    style={{ borderRadius: 8 }}
+                    wrapperBackgroundColor={null}
                   />
                 </RegionImageWrapper>
               ))}
@@ -173,6 +176,7 @@ export default function SeatViewSection({
       {/* Region Detail Modal - 데스크톱에서만 사용 */}
       {isDesktop && (
         <RegionDetailModal
+          visible={!!selectedRegion}
           region={selectedRegion}
           onClose={handleCloseModal}
         />

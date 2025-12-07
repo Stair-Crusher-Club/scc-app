@@ -324,6 +324,13 @@ export default function InteractiveImage({
             <PointMarkerText>{index + 1}</PointMarkerText>
           </PointMarker>
         ))}
+
+      {/* 힌트 텍스트 */}
+      <HintContainer isDesktop={isDesktop}>
+        <HintText isDesktop={isDesktop}>
+          사진을 클릭하면, 크게 볼 수 있습니다 🔍
+        </HintText>
+      </HintContainer>
     </Container>
   );
 }
@@ -382,4 +389,20 @@ const AddRegionButtonText = styled(Text)`
   font-size: 11px;
   font-weight: 600;
   color: ${color.white};
+`;
+
+const HintContainer = styled(View)<{ isDesktop: boolean }>`
+  background-color: rgba(184, 255, 85, 0.3);
+  padding: ${({ isDesktop }) => (isDesktop ? '8px' : '6px')} 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  margin: ${({ isDesktop }) => (isDesktop ? '12px 0 0' : '8px 16px 0')};
+`;
+
+const HintText = styled(Text)<{ isDesktop: boolean }>`
+  font-size: ${({ isDesktop }) => (isDesktop ? '15px' : '13px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '22px' : '18px')};
+  font-weight: 500;
+  color: #16181c;
 `;

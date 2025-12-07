@@ -89,35 +89,40 @@ export default function OverviewSection({
           </TitleSection>
 
           {/* 지도 이미지 */}
-          {mapImageUrl ? (
-            <ImageContainer isDesktop={isDesktop}>
-              <SccRemoteImage
-                imageUrl={mapImageUrl}
-                resizeMode="contain"
-                style={{ borderRadius: 12 }}
-                wrapperBackgroundColor="white"
-              />
-              {isEditMode && (
-                <ImageOverlay>
-                  <ImageUploader
-                    currentImageUrl={mapImageUrl}
-                    onUploadComplete={handleMapImageChange}
-                    compact
-                  />
-                </ImageOverlay>
-              )}
-            </ImageContainer>
-          ) : (
-            isEditMode && (
-              <EmptyImagePlaceholder>
-                <EmptyImageText>지도 이미지를 업로드하세요</EmptyImageText>
-                <ImageUploader
-                  onUploadComplete={handleMapImageChange}
-                  buttonText="이미지 업로드"
+          <MapSection isDesktop={isDesktop}>
+            {mapImageUrl ? (
+              <ImageContainer isDesktop={isDesktop}>
+                <SccRemoteImage
+                  imageUrl={mapImageUrl}
+                  resizeMode="contain"
+                  style={{ borderRadius: 12 }}
+                  wrapperBackgroundColor="white"
                 />
-              </EmptyImagePlaceholder>
-            )
-          )}
+                {isEditMode && (
+                  <ImageOverlay>
+                    <ImageUploader
+                      currentImageUrl={mapImageUrl}
+                      onUploadComplete={handleMapImageChange}
+                      compact
+                    />
+                  </ImageOverlay>
+                )}
+              </ImageContainer>
+            ) : (
+              isEditMode && (
+                <EmptyImagePlaceholder>
+                  <EmptyImageText>지도 이미지를 업로드하세요</EmptyImageText>
+                  <ImageUploader
+                    onUploadComplete={handleMapImageChange}
+                    buttonText="이미지 업로드"
+                  />
+                </EmptyImagePlaceholder>
+              )
+            )}
+            <HintText isDesktop={isDesktop}>
+              *더 자세한 내용은 아래에서 확인해주세요
+            </HintText>
+          </MapSection>
         </ContentWrapper>
       </Container>
     </div>
@@ -209,4 +214,18 @@ const EmptyImagePlaceholder = styled(View)`
 const EmptyImageText = styled(Text)`
   font-size: 16px;
   color: ${color.gray60};
+`;
+
+const MapSection = styled(View)<{ isDesktop: boolean }>`
+  width: 100%;
+  max-width: 1020px;
+  gap: 16px;
+`;
+
+const HintText = styled(Text)<{ isDesktop: boolean }>`
+  font-size: ${({ isDesktop }) => (isDesktop ? '15px' : '12px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '22px' : '16px')};
+  font-weight: 400;
+  color: #767884;
+  padding: 0 ${({ isDesktop }) => (isDesktop ? '16px' : '0')};
 `;

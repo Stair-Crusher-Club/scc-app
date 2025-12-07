@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput, Image } from 'react-native';
 import styled from 'styled-components/native';
 
 import { color } from '@/constant/color';
@@ -8,6 +8,10 @@ import CharacterWheelyBuggyIcon from '@/assets/icon/character_wheely_buggy.svg';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import type { CTAFooterSectionData } from '../config/bbucleRoadData';
+
+// CTA Footer 이미지
+const ctaFooterImagePc = require('@/assets/icon/cta_bbucle_road_footer_pc.png');
+const ctaFooterImageMobile = require('@/assets/icon/cta_bbucle_road_footer_mobile.png');
 
 interface CTAFooterSectionProps {
   ctaFooterSection: CTAFooterSectionData;
@@ -65,7 +69,7 @@ export default function CTAFooterSection({
 
   return (
     <Container isDesktop={isDesktop}>
-      <ContentWrapper isDesktop={isDesktop}>
+      <OuterWrapper>
         <CharacterWrapper isDesktop={isDesktop}>
           <CharacterWheelyBuggyIcon
             width={isDesktop ? 121 : 52}
@@ -73,10 +77,11 @@ export default function CTAFooterSection({
             viewBox="0 0 121 71"
           />
         </CharacterWrapper>
-        <CTAContentWrapper isDesktop={isDesktop}>
-          <TitleWrapper>
-            <TitleLine isDesktop={isDesktop}>다른 공연장, 시설 정보와</TitleLine>
-            <TitleLine isDesktop={isDesktop}>맛집리스트도 받고 싶다면?</TitleLine>
+        <ContentWrapper isDesktop={isDesktop}>
+          <TextAndButtonWrapper isDesktop={isDesktop}>
+          <TitleWrapper isDesktop={isDesktop}>
+            <TitleLine isDesktop={isDesktop}>휠체어석 정보,</TitleLine>
+            <TitleLine isDesktop={isDesktop}>맛집 리스트도 받고 싶다면?</TitleLine>
           </TitleWrapper>
 
           <SccPressable
@@ -86,14 +91,23 @@ export default function CTAFooterSection({
             disableLogging={isEditMode}
           >
             <CTAButtonContent isDesktop={isDesktop}>
-              <CTAButtonText isDesktop={isDesktop}>정보 받아보기</CTAButtonText>
+              <CTAButtonText isDesktop={isDesktop}>🛎️ 정보 먼저 받기</CTAButtonText>
             </CTAButtonContent>
           </SccPressable>
-        </CTAContentWrapper>
-      </ContentWrapper>
+        </TextAndButtonWrapper>
+
+        <FooterImageWrapper isDesktop={isDesktop}>
+          <FooterImage
+            source={isDesktop ? ctaFooterImagePc : ctaFooterImageMobile}
+            resizeMode="contain"
+            isDesktop={isDesktop}
+          />
+        </FooterImageWrapper>
+        </ContentWrapper>
+      </OuterWrapper>
 
       {isEditMode && (
-        <EditFieldsContainer>
+        <EditFieldsContainer isDesktop={isDesktop}>
           <EditFieldRow>
             <EditLabel>버튼 URL:</EditLabel>
             <EditInput
@@ -112,61 +126,85 @@ export default function CTAFooterSection({
 const Container = styled(View)<{ isDesktop: boolean }>`
   width: 100%;
   background-color: #0e64d3;
-  padding-top: ${({ isDesktop }) => (isDesktop ? '80px' : '25px')};
-  padding-bottom: ${({ isDesktop }) => (isDesktop ? '80px' : '25px')};
+  padding-top: ${({ isDesktop }) => (isDesktop ? '60px' : '40px')};
+  padding-bottom: ${({ isDesktop }) => (isDesktop ? '60px' : '30px')};
 `;
 
-const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
+const OuterWrapper = styled(View)`
   max-width: 1020px;
   width: 100%;
   margin-horizontal: auto;
+  position: relative;
 `;
 
-const CTAContentWrapper = styled(View)<{ isDesktop: boolean }>`
+const CharacterWrapper = styled(View)<{ isDesktop: boolean }>`
+  position: absolute;
+  top: ${({ isDesktop }) => (isDesktop ? '-130px' : '-70px')};
+  left: ${({ isDesktop }) => (isDesktop ? '0px' : '18px')};
+`;
+
+const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
   width: 100%;
-  align-self: center;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: ${({ isDesktop }) => (isDesktop ? '40px' : '16px')};
-  padding-left: ${({ isDesktop }) => (isDesktop ? '0px' : '16px')};
-  padding-right: ${({ isDesktop }) => (isDesktop ? '0px' : '16px')};
+  gap: ${({ isDesktop }) => (isDesktop ? '40px' : '0px')};
+  padding: ${({ isDesktop }) => (isDesktop ? '0px' : '0px 14px 0px 16px')};
 `;
 
-const TitleWrapper = styled(View)`
+const TextAndButtonWrapper = styled(View)<{ isDesktop: boolean }>`
+  flex: ${({ isDesktop }) => (isDesktop ? 'none' : '1')};
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${({ isDesktop }) => (isDesktop ? '32px' : '12px')};
+`;
+
+const TitleWrapper = styled(View)<{ isDesktop: boolean }>`
   align-items: flex-start;
 `;
 
 const TitleLine = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '28px' : '18px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '28px' : '20px')};
   font-weight: 700;
-  color: ${color.white};
-  line-height: ${({ isDesktop }) => (isDesktop ? '38px' : '26px')};
+  color: #ffffff;
+  line-height: ${({ isDesktop }) => (isDesktop ? '38px' : '28px')};
   letter-spacing: -0.36px;
 `;
 
 const CTAButtonContent = styled(View)<{ isDesktop: boolean }>`
-  background-color: ${color.white};
-  border: 1px solid #0c76f7;
-  width: ${({ isDesktop }) => (isDesktop ? '200px' : '143px')};
-  height: ${({ isDesktop }) => (isDesktop ? '50px' : '34px')};
+  background-color: #ffffff;
+  padding-horizontal: ${({ isDesktop }) => (isDesktop ? '39px' : '21.5px')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '12px' : '7px')};
   border-radius: 100px;
+  border-width: 1px;
+  border-color: #0c76f7;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 `;
 
 const CTAButtonText = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
   font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '14px')};
   font-weight: 500;
-  color: ${color.black};
+  color: #232328;
   line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '20px')};
 `;
 
-const EditFieldsContainer = styled(View)`
-  background-color: rgba(255, 255, 255, 0.15);
+const FooterImageWrapper = styled(View)<{ isDesktop: boolean }>`
+  margin-right: ${({ isDesktop }) => (isDesktop ? '34px' : '0px')};
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+`;
+
+const FooterImage = styled(Image)<{ isDesktop: boolean }>`
+  width: ${({ isDesktop }) => (isDesktop ? '365.73px' : '138px')};
+  height: ${({ isDesktop }) => (isDesktop ? '150px' : '85px')};
+`;
+
+const EditFieldsContainer = styled(View)<{ isDesktop: boolean }>`
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 16px;
   gap: 12px;
@@ -183,7 +221,7 @@ const EditFieldRow = styled(View)`
 
 const EditLabel = styled(Text)`
   font-size: 14px;
-  color: ${color.white};
+  color: #ffffff;
   min-width: 80px;
 `;
 
@@ -195,10 +233,4 @@ const EditInput = styled(TextInput)`
   border-radius: 8px;
   padding: 8px 12px;
   min-width: 250px;
-`;
-
-const CharacterWrapper = styled(View)<{ isDesktop: boolean }>`
-  position: absolute;
-  margin-top: ${({ isDesktop }) => (isDesktop ? '-151px' : '-55px')};
-  margin-left: ${({ isDesktop }) => (isDesktop ? '29px' : '18px')};
 `;
