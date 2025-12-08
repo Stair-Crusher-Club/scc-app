@@ -343,6 +343,17 @@
 7. **SVG 색상**: `src/constant/colors.ts`에서 import하여 사용 (`colors.gray[90]`, `colors.brand[50]` 등)
 8. **조건부 스타일**: `cn` 유틸리티 사용 (삼항 연산자, 논리 연산자 등)
 
+### NativeWind vs 웹 Tailwind 차이점
+
+NativeWind는 웹 Tailwind CSS와 다르게 동작합니다. 다음 기능들은 React Native에서 지원하지 않습니다:
+
+- **CSS 가상 선택자**: `:hover`, `:focus`, `:active` 등 → JavaScript로 상태 관리 + props 전달
+- **box-shadow**: `shadow-lg` 등 → React Native의 `shadowColor`, `shadowOffset`, `elevation` 사용
+- **CSS transforms/transitions**: `transition-all`, `duration-300` 등 → `react-native-reanimated` 사용
+- **backdrop-filter**: `backdrop-blur` 등 → 지원 안 됨
+
+자세한 내용은 공식문서를 참고해주세요: https://www.nativewind.dev/docs
+
 ### cn 유틸리티 사용 (조건부 스타일링)
 
 **중요**: className과 style을 동시에 사용하면서 style에서 조건 분기하는 경우, `cn` 유틸리티를 사용하세요!
@@ -355,7 +366,7 @@
 
 #### 사용 예시
 
-```tsx
+```ts
 import {cn} from '@/utils/cn';
 
 // ❌ Bad: style에서 조건 분기
@@ -381,14 +392,24 @@ const backgroundColor = selected ? colors.brand[5] : colors.white;
 )}>
 
 // ❌ Bad: 포커스 상태를 style로 처리
-const borderColor = focused ? colors.brand[50] : colors.gray[20];
-<View style={{borderWidth: 1, borderColor}}>
+const borderColor = isFocused ? colors.brand[50] : colors.gray[20];
+<TextInput style={{borderWidth: 1, borderColor}} />
 
-// ✅ Good: cn으로 포커스 처리
-<View className={cn(
-  'border',
-  focused ? 'border-brand-50' : 'border-gray-20'
-)}>
+// ✅ Good: props로 상태를 받아 cn으로 처리
+interface InputProps {
+  isFocused: boolean;
+}
+
+function CustomInput({ isFocused }: InputProps) {
+  return (
+    <TextInput
+      className={cn(
+        'border',
+        isFocused ? 'border-brand-50' : 'border-gray-20'
+      )}
+    />
+  );
+}
 ```
 
 #### cn 패턴
