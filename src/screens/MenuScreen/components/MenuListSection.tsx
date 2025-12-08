@@ -10,7 +10,7 @@ import MenuSCCRoadIcon from '@/assets/icon/menu_ic_scc_road.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
 import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
-import {colors} from '@/constant/colors';
+import {tailwindColor} from '@/constant/tailwindColor';
 import useNavigation from '@/navigation/useNavigation';
 
 export default function MenuListSection() {
@@ -59,7 +59,11 @@ export default function MenuListSection() {
               저장한 장소
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -72,7 +76,11 @@ export default function MenuListSection() {
               정복한 장소
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -85,7 +93,11 @@ export default function MenuListSection() {
               내 리뷰
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -98,7 +110,11 @@ export default function MenuListSection() {
               크러셔 활동
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -109,7 +125,11 @@ export default function MenuListSection() {
             참여 챌린지 보기
           </Text>
           <NotAvailableBadge />
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
@@ -118,7 +138,11 @@ export default function MenuListSection() {
             달성 뱃지 보기
           </Text>
           <NotAvailableBadge />
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_seoul_toilet" onPress={goToToilet}>
@@ -129,7 +153,11 @@ export default function MenuListSection() {
               서울 장애인 화장실 정보
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_bbucleroad" onPress={goToSCCRoad}>
@@ -140,7 +168,11 @@ export default function MenuListSection() {
               뿌클로드: 이동약자를 위한 진짜 리뷰
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -151,7 +183,11 @@ export default function MenuListSection() {
             간편 로그인 설정
           </Text>
           <NotAvailableBadge />
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_settings" onPress={goToSettings}>
@@ -162,7 +198,11 @@ export default function MenuListSection() {
               설정
             </Text>
           </View>
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity
@@ -173,7 +213,11 @@ export default function MenuListSection() {
             참여 챌린지 보기
           </Text>
           <NotAvailableBadge />
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
       <SccTouchableOpacity elementName="menu_badge" style={{display: 'none'}}>
@@ -182,7 +226,11 @@ export default function MenuListSection() {
             달성 뱃지 보기
           </Text>
           <NotAvailableBadge />
-          <ChevronRightIcon width={20} height={20} color={colors.gray[30]} />
+          <ChevronRightIcon
+            width={20}
+            height={20}
+            color={tailwindColor.gray[30]}
+          />
         </View>
       </SccTouchableOpacity>
     </View>

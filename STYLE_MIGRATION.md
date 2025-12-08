@@ -504,37 +504,37 @@ ${font.pretendardSemiBold}→ className="font-pretendard-semibold"
 
 #### SVG 색상 사용
 
-SVG 컴포넌트에서 색상을 사용할 때는 `src/constant/colors.ts`에서 `colors` 객체를 import하여 사용하세요:
+SVG 컴포넌트에서 색상을 사용할 때는 `src/constant/tailwindColor.ts`에서 `tailwindColor` 객체를 import하여 사용하세요:
 
 ```tsx
-import {colors} from '@/constant/colors';
+import {tailwindColor} from '@/constant/tailwindColor';
 
 // SVG fill/stroke 색상
 <Svg>
-  <Path fill={colors.gray[90]} />
-  <Circle stroke={colors.brand[50]} />
-  <Rect fill={colors.blue[30]} />
+  <Path fill={tailwindColor.gray[90]} />
+  <Circle stroke={tailwindColor.brand[50]} />
+  <Rect fill={tailwindColor.blue[30]} />
 </Svg>;
 
 // 중첩된 객체 접근 방식 사용
-colors.gray[90]; // #141418
-colors.brand[50]; // #0E64D3
-colors.blue[30]; // #67AEFF
-colors.orange[40]; // #F67600
-colors.success[10]; // #E1FCF2
-colors.blacka[50]; // #00000080
+tailwindColor.gray[90]; // #141418
+tailwindColor.brand[50]; // #0E64D3
+tailwindColor.blue[30]; // #67AEFF
+tailwindColor.orange[40]; // #F67600
+tailwindColor.success[10]; // #E1FCF2
+tailwindColor.blacka[50]; // #00000080
 
 // 단일 색상
-colors.white; // #fff
-colors.black; // #000
-colors.red; // #DB0B24
+tailwindColor.white; // #fff
+tailwindColor.black; // #000
+tailwindColor.red; // #DB0B24
 ```
 
 **⚠️ 주의사항:**
 
-- SVG에서는 className의 색상 클래스가 작동하지 않으므로 반드시 `colors` 객체를 사용해야 합니다
-- `colors.gray.90`이 아닌 `colors.gray[90]` 형식으로 접근하세요 (TypeScript 타입 안정성)
-- `colors.orange.DEFAULT` 대신 `colors.orange.DEFAULT` 또는 단순히 `colors.orange`를 사용할 수 있습니다
+- SVG에서는 className의 색상 클래스가 작동하지 않으므로 반드시 `tailwindColor` 객체를 사용해야 합니다
+- `tailwindColor.gray.90`이 아닌 `tailwindColor.gray[90]` 형식으로 접근하세요 (TypeScript 타입 안정성)
+- `tailwindColor.orange.DEFAULT` 대신 단순히 `tailwindColor.orange`를 사용할 수 있습니다
 
 ### 예시
 

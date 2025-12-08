@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {TextInput, TextInputProps, View} from 'react-native';
 
-import {colors} from '@/constant/colors';
+import {tailwindColor} from '@/constant/tailwindColor';
 import {cn} from '@/utils/cn';
 
 interface Props extends TextInputProps {}
@@ -18,7 +18,7 @@ export default function TextAreaV2(props: Props) {
       <TextInput
         className="font-pretendard-regular text-black text-[16px]"
         style={{textAlignVertical: 'top'}}
-        placeholderTextColor={colors.gray[50]}
+        placeholderTextColor={tailwindColor.gray[50]}
         multiline
         {...props}
         onFocus={() => setFocused(true)}
