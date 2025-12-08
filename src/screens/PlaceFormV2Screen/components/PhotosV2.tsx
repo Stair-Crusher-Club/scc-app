@@ -44,7 +44,7 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
     <View className="flex-row justify-between gap-[10px]">
       {/* 3장 미만인 경우, 카메라 버튼 + 사진 1~2장 */}
       {value.length < maxPhotos && (
-        <View className="flex-1" style={{aspectRatio: 1}}>
+        <View className="flex-1 aspect-square">
           <SccPressable
             className="flex-1 border border-gray-15 rounded-[14px] justify-center items-center bg-gray-15"
             elementName="photo_small_camera_button"
@@ -58,7 +58,7 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
       )}
       {/* 1~3장의 사진 */}
       {value.slice(0, 3).map((photo, index) => (
-        <View key={photo.uri} className="flex-1" style={{aspectRatio: 1}}>
+        <View key={photo.uri} className="flex-1 aspect-square">
           <SccPressable
             className="flex-1"
             elementName="photo_thumbnail"
@@ -81,14 +81,12 @@ export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
       {/* 사진 0장 => 빈 공간 채우기 */}
       {!hasPhotos && (
         <>
-          <View className="flex-1" style={{aspectRatio: 1}} />
-          <View className="flex-1" style={{aspectRatio: 1}} />
+          <View className="flex-1 aspect-square" />
+          <View className="flex-1 aspect-square" />
         </>
       )}
       {/* 카메라 + 1장 => 빈 공간 채우기 */}
-      {value.length === 1 && (
-        <View className="flex-1" style={{aspectRatio: 1}} />
-      )}
+      {value.length === 1 && <View className="flex-1 aspect-square" />}
     </View>
   );
 }

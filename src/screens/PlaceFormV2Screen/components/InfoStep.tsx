@@ -106,9 +106,7 @@ export default function InfoStep({
                   render={({field}) => (
                     <View className="flex-row gap-[12px]">
                       <View className="flex-1 gap-[12px]">
-                        <View
-                          className="w-full rounded-[8px] overflow-hidden border border-gray-20"
-                          style={{aspectRatio: 1}}>
+                        <View className="w-full rounded-[8px] overflow-hidden border border-gray-20 aspect-square">
                           <Image
                             source={formImages.entrance.out}
                             className="w-full h-full"
@@ -123,9 +121,7 @@ export default function InfoStep({
                         />
                       </View>
                       <View className="flex-1 gap-[12px]">
-                        <View
-                          className="w-full rounded-[8px] overflow-hidden border border-gray-20"
-                          style={{aspectRatio: 1}}>
+                        <View className="w-full rounded-[8px] overflow-hidden border border-gray-20 aspect-square">
                           <Image
                             source={formImages.entrance.in}
                             className="w-full h-full"
