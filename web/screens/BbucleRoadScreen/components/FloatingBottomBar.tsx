@@ -11,6 +11,7 @@ import { useResponsive } from '../context/ResponsiveContext';
 import { useEditMode } from '../context/EditModeContext';
 
 interface FloatingBottomBarProps {
+  title: string;
   likeCount: number;
   isLiked?: boolean;
   ctaButtonUrl: string;
@@ -19,6 +20,7 @@ interface FloatingBottomBarProps {
 }
 
 export default function FloatingBottomBar({
+  title,
   likeCount,
   isLiked,
   ctaButtonUrl,
@@ -30,18 +32,19 @@ export default function FloatingBottomBar({
   const isEditMode = editContext?.isEditMode ?? false;
 
   const handleSharePress = useCallback(() => {
+    const shareText = `[${title}] 이동약자를 위한 진짜 리뷰를 뿌클로드에서 확인해보세요!\n${window.location.href}`
     if (onSharePress) {
       onSharePress();
     } else if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
         title: document.title,
-        url: window.location.href,
+        text: shareText,
       }).catch(() => {
         // User cancelled or share failed
       });
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard?.writeText(window.location.href);
+      navigator.clipboard?.writeText(shareText);
     }
   }, [onSharePress]);
 

@@ -33,6 +33,20 @@ const openUrl = (url: string) => {
   document.body.removeChild(link);
 };
 
+/** 접근레벨별 색상 설정 */
+const ACCESS_LEVEL_COLORS: Record<number, { background: string; text: string }> = {
+  0: { background: '#e6f5ec', text: '#06903b' },
+  1: { background: '#f0f9e7', text: '#6ac40f' },
+  2: { background: '#fff8e0', text: '#ffc109' },
+  3: { background: '#ffefe0', text: '#ff8c00' },
+  4: { background: '#ffe8e8', text: '#e52123' },
+  5: { background: '#f0e8ff', text: '#8b00ff' },
+};
+
+const getAccessLevelColors = (level: number) => {
+  return ACCESS_LEVEL_COLORS[level] ?? ACCESS_LEVEL_COLORS[0];
+};
+
 /** 장소 카드 컴포넌트 */
 function PlaceCard({
   place,
@@ -42,6 +56,7 @@ function PlaceCard({
   isDesktop: boolean;
 }) {
   const imageUrlsToRender = [...place.imageUrls, null, null, null].slice(0, 3)
+  const levelColors = getAccessLevelColors(place.accessLevel);
 
   return (
     <CardContainer isDesktop={isDesktop}>
@@ -49,8 +64,8 @@ function PlaceCard({
         {/* 상단 콘텐츠: 배지 + 장소정보 (flex: 1로 남은 공간 차지) */}
         <TopContent isDesktop={isDesktop}>
           {/* 접근레벨 태그 */}
-          <AccessLevelBadge>
-            <AccessLevelText>접근레벨 {place.accessLevel}</AccessLevelText>
+          <AccessLevelBadge backgroundColor={levelColors.background}>
+            <AccessLevelText textColor={levelColors.text}>접근레벨 {place.accessLevel}</AccessLevelText>
           </AccessLevelBadge>
 
           {/* 장소 정보 */}
@@ -103,6 +118,7 @@ export default function NearbyPlacesSection({
     titleLine1,
     titleLine2,
     mapImageUrl,
+    mobileMapImageUrl,
     places = [],
     naverListUrl = DEFAULT_NAVER_LIST_URL,
     morePlacesUrl = DEFAULT_MORE_PLACES_URL,
@@ -152,6 +168,13 @@ export default function NearbyPlacesSection({
     [updateNearbyPlacesSection],
   );
 
+  const handleMobileMapImageChange = useCallback(
+    (url: string) => {
+      updateNearbyPlacesSection({ mobileMapImageUrl: url });
+    },
+    [updateNearbyPlacesSection],
+  );
+
   const handleTitleLine1Change = useCallback(
     (text: string) => {
       updateNearbyPlacesSection({ titleLine1: text });
@@ -197,34 +220,68 @@ export default function NearbyPlacesSection({
             )}
           </TitleSection>
 
-          {/* 지도 이미지 */}
-          {mapImageUrl ? (
-            <MapImageContainer isDesktop={isDesktop}>
-              <SccRemoteImage
-                imageUrl={mapImageUrl}
-                resizeMode="contain"
-                style={{ borderRadius: 12 }}
-              />
-              {isEditMode && (
-                <ImageOverlay>
-                  <ImageUploader
-                    currentImageUrl={mapImageUrl}
-                    onUploadComplete={handleMapImageChange}
-                    compact
-                  />
-                </ImageOverlay>
-              )}
-            </MapImageContainer>
-          ) : (
-            isEditMode && (
-              <EmptyImagePlaceholder>
-                <EmptyImageText>지도 이미지를 업로드하세요</EmptyImageText>
-                <ImageUploader
-                  onUploadComplete={handleMapImageChange}
-                  buttonText="이미지 업로드"
+          {/* 지도 이미지 - 모바일에서 mobileMapImageUrl이 있으면 사용 */}
+          {(() => {
+            const activeMapImageUrl = !isDesktop && mobileMapImageUrl ? mobileMapImageUrl : mapImageUrl;
+            const activeHandler = !isDesktop && mobileMapImageUrl ? handleMobileMapImageChange : handleMapImageChange;
+
+            return activeMapImageUrl ? (
+              <MapImageContainer isDesktop={isDesktop}>
+                <SccRemoteImage
+                  imageUrl={activeMapImageUrl}
+                  resizeMode="contain"
+                  style={{ borderRadius: 12 }}
                 />
-              </EmptyImagePlaceholder>
-            )
+                {isEditMode && (
+                  <ImageOverlay>
+                    <ImageUploader
+                      currentImageUrl={activeMapImageUrl}
+                      onUploadComplete={activeHandler}
+                      compact
+                    />
+                  </ImageOverlay>
+                )}
+              </MapImageContainer>
+            ) : (
+              isEditMode && (
+                <EmptyImagePlaceholder>
+                  <EmptyImageText>지도 이미지를 업로드하세요</EmptyImageText>
+                  <ImageUploader
+                    onUploadComplete={handleMapImageChange}
+                    buttonText="이미지 업로드"
+                  />
+                </EmptyImagePlaceholder>
+              )
+            );
+          })()}
+
+          {/* Edit Mode: 모바일 이미지 관리 (데스크탑에서 편집 시) */}
+          {isEditMode && isDesktop && (
+            <MobileImageSection>
+              <MobileImageLabel>모바일용 지도 이미지 (선택사항)</MobileImageLabel>
+              {mobileMapImageUrl ? (
+                <MobileImagePreview>
+                  <SccRemoteImage
+                    imageUrl={mobileMapImageUrl}
+                    resizeMode="contain"
+                    style={{ borderRadius: 8, maxHeight: 200 }}
+                    wrapperBackgroundColor={null}
+                  />
+                  <MobileImageActions>
+                    <ImageUploader
+                      currentImageUrl={mobileMapImageUrl}
+                      onUploadComplete={handleMobileMapImageChange}
+                      compact
+                    />
+                  </MobileImageActions>
+                </MobileImagePreview>
+              ) : (
+                <ImageUploader
+                  onUploadComplete={handleMobileMapImageChange}
+                  buttonText="모바일 이미지 업로드"
+                />
+              )}
+            </MobileImageSection>
           )}
 
           {/* 장소 카드 목록 */}
@@ -240,10 +297,10 @@ export default function NearbyPlacesSection({
 
           <ButtonContainer isDesktop={isDesktop}>
             <NaverListButton isDesktop={isDesktop} onPress={handleNaverListPress}>
-              <NaverListButtonText>네이버 리스트로 보기</NaverListButtonText>
+              <NaverListButtonText isDesktop={isDesktop}>네이버 지도로 모아보기</NaverListButtonText>
             </NaverListButton>
             <PrimaryButton isDesktop={isDesktop} onPress={handleMorePlacesPress}>
-              <PrimaryButtonText>더 많은 장소 확인하기</PrimaryButtonText>
+              <PrimaryButtonText isDesktop={isDesktop}>접근성 기준으로 모아보기📱</PrimaryButtonText>
             </PrimaryButton>
           </ButtonContainer>
         </ContentWrapper>
@@ -359,18 +416,18 @@ const TopContent = styled(View)<{ isDesktop: boolean }>`
 `;
 
 /* 접근레벨 배지 */
-const AccessLevelBadge = styled(View)`
-  background-color: #e6f4eb;
+const AccessLevelBadge = styled(View)<{ backgroundColor: string }>`
+  background-color: ${({ backgroundColor }) => backgroundColor};
   border-radius: 6px;
   padding: 4px 6px;
   align-self: flex-start;
 `;
 
-const AccessLevelText = styled(Text)`
+const AccessLevelText = styled(Text)<{ textColor: string }>`
   font-family: Pretendard;
   font-size: 12px;
   font-weight: 500;
-  color: #06903b;
+  color: ${({ textColor }) => textColor};
   line-height: 15.6px;
 `;
 
@@ -468,9 +525,9 @@ const ButtonContainer = styled(View)<{ isDesktop: boolean }>`
 
 const NaverListButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
   display: flex;
-  width: ${({ isDesktop }) => (isDesktop ? '236px' : '100%')};
-  height: 50px;
-  padding: 20px 36px;
+  width: ${({ isDesktop }) => (isDesktop ? '242px' : '100%')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '12px' : '12px')};
+  padding-horizontal: auto;
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -479,21 +536,20 @@ const NaverListButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
   background-color: ${color.white};
 `;
 
-const NaverListButtonText = styled(Text)`
+const NaverListButtonText = styled(Text)<{ isDesktop: boolean }>`
   text-align: center;
-  font-family: Pretendard;
-  font-size: 18px;
-  font-weight: 500;
+  font-family: Pretendard-Medium;
+  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '16px')};;
   color: #0e64d3;
   letter-spacing: -0.36px;
-  line-height: 26px;
+  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '24px')};;
 `;
 
 const PrimaryButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
   display: flex;
-  width: ${({ isDesktop }) => (isDesktop ? '236px' : '100%')};
-  height: 50px;
-  padding: 20px 36px;
+  width: ${({ isDesktop }) => (isDesktop ? '242px' : '100%')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '12px' : '12px')};
+  padding-horizontal: auto;
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -501,11 +557,11 @@ const PrimaryButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
   background-color: ${color.brand40};
 `;
 
-const PrimaryButtonText = styled(Text)`
+const PrimaryButtonText = styled(Text)<{ isDesktop: boolean }>`
   text-align: center;
-  font-family: Pretendard;
-  font-size: 18px;
-  font-weight: 600;
+  font-family: Pretendard-Medium;
+  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '16px')};;
+  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '24px')};;
   color: ${color.white};
 `;
 
@@ -531,4 +587,32 @@ const EmptyImageText = styled(Text)`
   font-family: Pretendard;
   font-size: 16px;
   color: ${color.gray60};
+`;
+
+/* 모바일 이미지 관리 섹션 (데스크탑 Edit Mode) */
+const MobileImageSection = styled(View)`
+  max-width: 1020px;
+  width: 100%;
+  padding: 20px;
+  background-color: ${color.gray10};
+  border-radius: 12px;
+  gap: 12px;
+`;
+
+const MobileImageLabel = styled(Text)`
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${color.gray80};
+`;
+
+const MobileImagePreview = styled(View)`
+  position: relative;
+  max-width: 400px;
+`;
+
+const MobileImageActions = styled(View)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
 `;

@@ -28,6 +28,8 @@ export interface NearbyPlacesSectionData {
   /** 타이틀 둘째 줄 (파란색) */
   titleLine2: string;
   mapImageUrl: string;
+  /** 모바일용 지도 이미지 URL */
+  mobileMapImageUrl?: string;
   /** 장소 목록 (3개) */
   places: NearbyPlaceData[];
   naverListUrl?: string;
@@ -57,6 +59,8 @@ export interface SeatViewSectionData {
   titleLine2: string;
   descriptionHtmls?: string[];
   interactiveImage?: BbucleRoadInteractiveImageDto;
+  /** 모바일용 정적 이미지 URL (클릭 영역 없음) */
+  mobileImageUrl?: string;
 }
 
 /**
@@ -146,7 +150,7 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
 export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   'gocheok-skydome': {
   "id": "gocheok-skydome",
-  "title": "",
+  "title": "휠체어로 고척 어때?",
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204094524_BB2F52447BBD4666.png",
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251205015702_871B3E8C8194426B.png",
   "lastUpdatedDate": "최종 업데이트 2025.12.05",
@@ -165,30 +169,6 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035424_00B896BC6F734985.png",
           "clickableRegions": [
-            {
-              "id": "region-1764397994649",
-              "polygon": [
-                {
-                  "x": 0.03304347826086956,
-                  "y": 0.29080988917306055
-                },
-                {
-                  "x": 0.029565217391304348,
-                  "y": 0.6039897698209719
-                },
-                {
-                  "x": 0.37043478260869567,
-                  "y": 0.6107007672634271
-                },
-                {
-                  "x": 0.36869565217391304,
-                  "y": 0.2796248934356351
-                }
-              ],
-              "modalImageUrls": [
-                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035458_4032FBC9626F40AA.png"
-              ]
-            },
             {
               "id": "region-1764398015189",
               "polygon": [
@@ -211,6 +191,30 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
               ],
               "modalImageUrls": [
                 "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035519_E27E383C33B64B20.png"
+              ]
+            },
+            {
+              "id": "region-1764397994649",
+              "polygon": [
+                {
+                  "x": 0.03304347826086956,
+                  "y": 0.29080988917306055
+                },
+                {
+                  "x": 0.029565217391304348,
+                  "y": 0.6039897698209719
+                },
+                {
+                  "x": 0.37043478260869567,
+                  "y": 0.6107007672634271
+                },
+                {
+                  "x": 0.36869565217391304,
+                  "y": 0.2796248934356351
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035458_4032FBC9626F40AA.png"
               ]
             },
             {
@@ -250,30 +254,6 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035554_953F41BEF3954A6B.png",
           "clickableRegions": [
             {
-              "id": "region-1764401419616",
-              "polygon": [
-                {
-                  "x": 0.01217391304347826,
-                  "y": 0.07382097186700767
-                },
-                {
-                  "x": 0.008695652173913044,
-                  "y": 0.4116078431372549
-                },
-                {
-                  "x": 0.34956521739130436,
-                  "y": 0.40713384484228476
-                },
-                {
-                  "x": 0.34956521739130436,
-                  "y": 0.07605797101449276
-                }
-              ],
-              "modalImageUrls": [
-                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035618_240BE65C0A1741E7.png"
-              ]
-            },
-            {
               "id": "region-1764401440645",
               "polygon": [
                 {
@@ -298,6 +278,30 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
               ]
             },
             {
+              "id": "region-1764401419616",
+              "polygon": [
+                {
+                  "x": 0.01217391304347826,
+                  "y": 0.07382097186700767
+                },
+                {
+                  "x": 0.008695652173913044,
+                  "y": 0.4116078431372549
+                },
+                {
+                  "x": 0.34956521739130436,
+                  "y": 0.40713384484228476
+                },
+                {
+                  "x": 0.34956521739130436,
+                  "y": 0.07605797101449276
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035618_240BE65C0A1741E7.png"
+              ]
+            },
+            {
               "id": "region-1764401832173",
               "polygon": [
                 {
@@ -318,7 +322,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
                 }
               ],
               "modalImageUrls": [
-                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035658_1AD47219F58B4D21.png"
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208140014_66608E35D463429D.png"
               ]
             }
           ]
@@ -391,7 +395,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "descriptionImageUrl": "",
         "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;\">\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">고척스카이돔 2 지하주차장</span>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #16181C; line-height: 1.625em;\">\n      <li>장애인 등록차량 이동 시 주차장 사용이 가능합니다.</li>\n      <li>고척 스카이돔 지하 1층 장애인 주차구역 이용 (17자리 있음)</li>\n      <li>단, 콘서트에 따라 주차 안내가 다를 수 있으니, <b>공식 티켓판매처안내를 확인해주세요!</b></li>\n    </ul>\n  </div>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 6px 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p>\n    <p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">고척스카이돔 지하주차장 가는 상세한 방법이 궁금하다면 영상으로 확인할 수 있어요. <a target=\"_blank\" href=\"https://youtube.com\">영상보기</a>\n    </p>\n  </div>\n</div>\n<style>\n    a:visited {\n        color: #24262B; /* Example: blue color */\n        text-decoration: none; /* Optional: remove underline */\n    }\n</style>",
         "interactiveImage": {
-          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204113324_0DCBADCF45B74CC3.png",
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208073118_2408D2235BCD4C82.png",
           "clickableRegions": []
         }
       },
@@ -402,7 +406,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "descriptionImageUrl": "",
         "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;\">\n    <span style=\"font-size: 1.375em; font-weight: 600; color: #000; line-height: 2em;\">동양미래대학, 구로성심병원(중) 정류장</span>\n    <div style=\"display: flex; flex-direction: column; align-items: flex-start; gap: 4px; align-self: stretch;\">\n      <div style=\"display: flex; align-items: flex-start; gap: 8px; align-self: stretch; line-height: 1.625rem\">\n        <span style=\"color: #34A853; font-weight: 700;\">초록버스(지선)</span>\n        <span style=\"flex: 1 0 0; font-weight: 400;\">5626번, 5712번, 6713번, 6515번, 6511번, 6647번, 6640A번</span>\n      </div>\n      <div style=\"display: flex; align-items: flex-start; gap: 8px; align-self: stretch; line-height: 1.625rem\">\n        <span style=\"color: #4285F4; font-weight: 700;\">파란버스(간선)</span>\n        <span style=\"flex: 1 0 0; font-weight: 400;\">600번, 662번, 660번, 160번, N16번</span>\n      </div>\n    </div>\n  </div>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 6px 0;\">참고해주세요🦽</p>\n    <p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em; font-weight: 400\">위 라인 저상버스 포함해 운영 중이나 일부 차량은 저상버스가 아니므로 확인이 필요해요</p>\n  </div>\n</div>",
         "interactiveImage": {
-          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204113335_E2EEA6D41B2248C4.png",
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208073127_8D80EFAD510048D4.png",
           "clickableRegions": []
         }
       }
@@ -411,21 +415,21 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "nearbyPlacesSection": {
     "titleLine1": "고척스카이돔",
     "titleLine2": "근처 맛집 정보",
-    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251130052102_DE22CB472F484409.png",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208073509_54D57C6141664DBE.png",
     "places": [
       {
         "id": "place-1",
-        "accessLevel": 0,
+        "accessLevel": 1,
         "name": "서울아트책보고",
         "address": "서울 구로구 경인로 430 고척스카이돔 지하1층",
         "businessHours": "평일(화-금) | 10:00 - 19:00, 주말/공휴일 | 10:00 - 20:00",
         "tags": [
           "지하 1층",
-          "경사로없음",
+          "경사로없음"
         ],
         "imageUrls": [
           "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120013456_2A9624E2F0104000_b.webp",
-          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120013456_A419A89F9EE94809.webp",
+          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120013456_A419A89F9EE94809.webp"
         ]
       },
       {
@@ -435,38 +439,39 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "address": "구로구 경인로46길 51 (주)귀뚜라미에너지 복합건물 지상 1층",
         "businessHours": "매일 | 8:00 ~ 21:00",
         "tags": [
-          "1층",
+          "1층"
         ],
         "imageUrls": [
           "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251018015801_5F93B4222F1547D1.webp",
-          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251018015801_CE5D992A03424639_b.webp",
+          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251018015801_CE5D992A03424639_b.webp"
         ]
       },
       {
         "id": "place-3",
-        "accessLevel": 0,
-        "name": "샤브향",
+        "accessLevel": 2,
+        "name": "샤브향 구로점",
         "address": "서울 구로구 중앙로 13",
         "businessHours": "매일 | 11:00 ~ 21:00 (라스트오더 20:00)",
         "tags": [
           "1층",
-          "경사로없음",
+          "경사로없음"
         ],
         "imageUrls": [
           "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_F9C1512174224B55.webp",
           "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_4E597486312741E1.webp",
-          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_AFB6DA9B7CFE4186.webp",
+          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_AFB6DA9B7CFE4186.webp"
         ]
       }
     ],
-    "naverListUrl": "https://map.naver.com",
-    "morePlacesUrl": "https://link.staircrusher.club/ns539uk"
+    "naverListUrl": "https://naver.me/5YSWYw6R",
+    "morePlacesUrl": "https://link.staircrusher.club/ns539uk",
+    "mobileMapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208074355_862135F501BD47DE.png"
   },
   "ticketInfoSection": {
     "titleLine1": "고척스카이돔",
     "titleLine2": "매표 및 입장동선",
     "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;\">\n    <div style=\"background-color: #0C76F7; color: #fff; font-size: 0.9375em; font-weight: 500; padding: 2px 10px; border-radius: 50px; width: fit-content; line-height: 22px;\">매표</div>\n    <div style=\"display: flex; gap: 6px; align-items: center;\">\n      <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">3루 매표소</span>\n      <span style=\"font-size: 1em; font-weight: 600; color: #0E64D3; letter-spacing: -0.32px; line-height: 1.625em;\">(장애인 우대창구)</span>\n    </div>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #16181C; line-height: 1.625em;\">\n      <li>실물티켓 수령시 가장 접근성이 좋은 매표소</li>\n    </ul>\n  </div>\n  <div style=\"background-color: #fff; border-radius: 12px; padding: 16px 20px;\">\n    <p style=\"font-size: 0.9375em; font-weight: 700; color: #0E64D3; line-height: 1.625em; margin: 0 0 6px 0;\">콘서트/공연 입장 참고사항</p>\n    <p style=\"font-size: 1em; color: #16181C; line-height: 1.625em; font-weight: 400; margin: 0;\">콘서트에 따라 휠체어석 동선 안내가 다를 수 있으니, 전화 예매시 티켓수령 위치와 현장에서의 안내를 잘 확인해주세요!</p>\n  </div>\n</div>",
-    "imageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204083234_AB99ACBF21744F21.png",
+    "imageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251209013426_0D2B0706643948AA.png",
     "tips": []
   },
   "seatViewSection": {
@@ -477,7 +482,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
       "<div style=\"font-family: Pretendard, sans-serif; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; flex: 1 0 0;\">\n  <div style=\"display: flex; flex-direction: column; gap: 8px;\">\n    <div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: 0.8125em; font-weight: 500; padding: 5px 13px; display: flex; justify-content: center; align-items: center; border-radius: 50px; width: fit-content; line-height: 18px;\">좌석</div>\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">휠체어석 위치 및 시야</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; font-weight: 400; color: #16181C; line-height: 1.625em;\">\n    <li>T01·T02 구역 뒤쪽 통로에 휠체어석</li>\n    <li>T06·T07 구역 뒤쪽 통로에 휠체어석</li>\n    <li>좌석 앞 시야가 넓은 편이며, 동행인 1인 좌석 있음</li>\n  </ul>\n</div>"
     ],
     "interactiveImage": {
-      "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035943_21BD6BC454E840A0.png",
+      "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208073500_4E940490BED14B0A.png",
       "clickableRegions": [
         {
           "id": "region-1764840941176",
@@ -536,7 +541,8 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
           ]
         }
       ]
-    }
+    },
+    "mobileImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208074349_FCCB4DB379C447DF.png"
   },
   "reviewSection": {
     "titleLine1": "고척스카이돔",

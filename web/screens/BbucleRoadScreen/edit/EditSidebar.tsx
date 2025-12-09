@@ -774,42 +774,6 @@ export default function EditSidebar() {
                   )}
                 </FieldGroup>
 
-                {/* 목록 이미지 */}
-                <FieldGroup>
-                  <FieldLabel>장소 목록 이미지</FieldLabel>
-                  {data.nearbyPlacesSection.listImageUrl ? (
-                    <ImagePreviewContainer>
-                      <ImagePreview
-                        source={{ uri: data.nearbyPlacesSection.listImageUrl }}
-                      />
-                      <ImageRemoveButton
-                        onPress={() =>
-                          updateData((prev) => ({
-                            ...prev,
-                            nearbyPlacesSection: prev.nearbyPlacesSection
-                              ? { ...prev.nearbyPlacesSection, listImageUrl: '' }
-                              : null,
-                          }))
-                        }
-                      >
-                        <ImageRemoveButtonText>×</ImageRemoveButtonText>
-                      </ImageRemoveButton>
-                    </ImagePreviewContainer>
-                  ) : (
-                    <ImageUploader
-                      onUploadComplete={(url) =>
-                        updateData((prev) => ({
-                          ...prev,
-                          nearbyPlacesSection: prev.nearbyPlacesSection
-                            ? { ...prev.nearbyPlacesSection, listImageUrl: url }
-                            : null,
-                        }))
-                      }
-                      buttonText="목록 이미지 업로드"
-                    />
-                  )}
-                </FieldGroup>
-
                 {/* 네이버 리스트 URL */}
                 <FieldGroup>
                   <FieldLabel>네이버 리스트 URL</FieldLabel>

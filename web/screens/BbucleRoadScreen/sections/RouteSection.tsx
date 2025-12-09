@@ -330,7 +330,8 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
       {/* Region Detail Modal */}
         <RegionDetailModal
           visible={isModalVisible}
-          region={selectedRegion}
+          allRegions={selectedRoute?.interactiveImage?.clickableRegions || []}
+          initialRegionId={selectedRegion?.id}
           onClose={handleModalClose}
         />
       </Container>

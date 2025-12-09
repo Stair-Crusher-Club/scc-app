@@ -29,7 +29,7 @@ export default function SeatViewSection({
   const [selectedRegion, setSelectedRegion] =
     useState<BbucleRoadClickableRegionDto | null>(null);
 
-  const { titleLine1, titleLine2, descriptionHtmls, interactiveImage } = seatViewSection;
+  const { titleLine1, titleLine2, descriptionHtmls, interactiveImage, mobileImageUrl } = seatViewSection;
 
   const updateSeatViewSection = useCallback(
     (updates: Partial<SeatViewSectionData>) => {
@@ -68,6 +68,13 @@ export default function SeatViewSection({
       });
     },
     [interactiveImage, updateSeatViewSection],
+  );
+
+  const handleMobileImageChange = useCallback(
+    (url: string) => {
+      updateSeatViewSection({ mobileImageUrl: url });
+    },
+    [updateSeatViewSection],
   );
 
   const handleRegionPress = useCallback(
@@ -120,7 +127,25 @@ export default function SeatViewSection({
           </TitleSection>
 
           {/* Interactive 지도 이미지 */}
-          {interactiveImage?.url ? (
+          {/* 모바일에서 mobileImageUrl이 있으면 정적 이미지 표시 */}
+          {!isDesktop && mobileImageUrl ? (
+            <ImageContainer isDesktop={isDesktop}>
+              <SccRemoteImage
+                imageUrl={mobileImageUrl}
+                resizeMode="contain"
+                wrapperBackgroundColor={null}
+              />
+              {isEditMode && (
+                <MobileImageOverlay>
+                  <ImageUploader
+                    currentImageUrl={mobileImageUrl}
+                    onUploadComplete={handleMobileImageChange}
+                    compact
+                  />
+                </MobileImageOverlay>
+              )}
+            </ImageContainer>
+          ) : interactiveImage?.url ? (
             <ImageContainer isDesktop={isDesktop}>
               <InteractiveImage
                 interactiveImage={interactiveImage}
@@ -140,6 +165,35 @@ export default function SeatViewSection({
                 />
               </EmptyImagePlaceholder>
             )
+          )}
+
+          {/* Edit Mode: 모바일 이미지 관리 (데스크탑에서 편집 시) */}
+          {isEditMode && isDesktop && (
+            <MobileImageSection>
+              <MobileImageLabel>모바일용 이미지 (선택사항)</MobileImageLabel>
+              {mobileImageUrl ? (
+                <MobileImagePreview>
+                  <SccRemoteImage
+                    imageUrl={mobileImageUrl}
+                    resizeMode="contain"
+                    style={{ borderRadius: 8, maxHeight: 200 }}
+                    wrapperBackgroundColor={null}
+                  />
+                  <MobileImageActions>
+                    <ImageUploader
+                      currentImageUrl={mobileImageUrl}
+                      onUploadComplete={handleMobileImageChange}
+                      compact
+                    />
+                  </MobileImageActions>
+                </MobileImagePreview>
+              ) : (
+                <ImageUploader
+                  onUploadComplete={handleMobileImageChange}
+                  buttonText="모바일 이미지 업로드"
+                />
+              )}
+            </MobileImageSection>
           )}
 
           {/* Description HTML 그리드 */}
@@ -177,7 +231,8 @@ export default function SeatViewSection({
       {isDesktop && (
         <RegionDetailModal
           visible={!!selectedRegion}
-          region={selectedRegion}
+          allRegions={interactiveImage?.clickableRegions || []}
+          initialRegionId={selectedRegion?.id}
           onClose={handleCloseModal}
         />
       )}
@@ -293,4 +348,40 @@ const RegionImageWrapper = styled(View)`
 const RegionImage = styled(Image)`
   width: 100%;
   aspect-ratio: 1.78;
+`;
+
+/* 모바일 이미지 오버레이 (Edit Mode) */
+const MobileImageOverlay = styled(View)`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+`;
+
+/* 모바일 이미지 관리 섹션 (데스크탑 Edit Mode) */
+const MobileImageSection = styled(View)`
+  max-width: 1020px;
+  width: 100%;
+  padding: 20px;
+  background-color: ${color.gray10};
+  border-radius: 12px;
+  gap: 12px;
+`;
+
+const MobileImageLabel = styled(Text)`
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${color.gray80};
+`;
+
+const MobileImagePreview = styled(View)`
+  position: relative;
+  max-width: 400px;
+`;
+
+const MobileImageActions = styled(View)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
 `;

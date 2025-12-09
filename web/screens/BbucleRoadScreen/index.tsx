@@ -220,6 +220,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
         </ContentWrapper>
       </ScrollView>
       <FloatingBottomBar
+        title={data.title}
         likeCount={totalUpvoteCount ?? 0}
         isLiked={isUpvoted}
         ctaButtonUrl={ctaButtonUrl}
@@ -299,7 +300,6 @@ const SECTION_TEMPLATES: SectionTemplate[] = [
     defaultData: {
       title: '근처 장소 정보',
       mapImageUrl: '',
-      listImageUrl: '',
       naverListUrl: 'https://map.naver.com',
       morePlacesUrl: 'https://map.naver.com',
     },
