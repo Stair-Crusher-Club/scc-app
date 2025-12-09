@@ -9,7 +9,7 @@ import {font} from '@/constant/font';
 import {Building, Place} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {BuildingRegistrationEvent} from '@/screens/PlaceDetailV2Screen/constants';
-import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
+import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import {useBackHandler} from '@react-native-community/hooks';
 import {REGISTRATION_COMPLETE_CONTENT} from './constants';
 
@@ -33,6 +33,7 @@ export default function RegistrationCompleteScreen({
   const {target, event, placeInfo} = route.params;
   const content = REGISTRATION_COMPLETE_CONTENT[target];
   const {userInfo} = useMe();
+  const detailVersion = useDetailScreenVersion();
 
   // 안드로이드 뒤로가기 버튼 막기
   useBackHandler(() => {
@@ -51,7 +52,6 @@ export default function RegistrationCompleteScreen({
     navigation.pop();
     navigation.pop();
     // PlaceDetail로 이동
-    const detailVersion = getDetailScreenVersion();
     if (detailVersion === 'v2') {
       navigation.navigate('PlaceDetailV2', {
         placeInfo,

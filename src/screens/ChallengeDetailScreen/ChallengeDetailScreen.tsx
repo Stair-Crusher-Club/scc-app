@@ -36,6 +36,7 @@ import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyAc
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 import LastMonthRankingModal from './components/LastMonthRankingModal';
 import {isDismissedToday} from '@/atoms/challengeModalAtoms';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -46,6 +47,7 @@ const ChallengeDetailScreen = ({
   navigation,
 }: ScreenProps<'ChallengeDetail'>) => {
   const {challengeId} = route.params;
+  const checkAuth = useCheckAuth();
 
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
@@ -194,11 +196,13 @@ const ChallengeDetailScreen = ({
                 buttonColor="brandColor"
                 fontFamily={font.pretendardBold}
                 onPress={() => {
-                  if (hasPasscode || isB2B) {
-                    setShowPasscodeBottomSheet(true);
-                  } else {
-                    joinChallenge.mutate({challengeId});
-                  }
+                  checkAuth(() => {
+                    if (hasPasscode || isB2B) {
+                      setShowPasscodeBottomSheet(true);
+                    } else {
+                      joinChallenge.mutate({challengeId});
+                    }
+                  });
                 }}
                 elementName="challenge_detail_join"
               />

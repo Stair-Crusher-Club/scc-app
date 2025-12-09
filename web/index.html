@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>계단뿌셔클럽</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-B80XR4HWJE');
+    </script>
     <!-- Inline SVG favicon to prevent 404 -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23007aff'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='white'%3ES%3C/text%3E%3C/svg%3E">
+    <!-- Kakao JavaScript SDK -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        // Initialize Kakao SDK
+        Kakao.init('1ae6e66e491cf3bf3041015e235c08e1');
+        console.log('Kakao SDK initialized:', Kakao.isInitialized());
+    </script>
     <!-- Naver Map Web SDK -->
     <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=y43vn4vgkw&submodules=geocoder"></script>
     <script type="text/javascript">

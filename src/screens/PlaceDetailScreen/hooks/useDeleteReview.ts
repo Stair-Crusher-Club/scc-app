@@ -4,6 +4,7 @@ import {useAtom} from 'jotai';
 import {loadingState} from '@/components/LoadingView';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 export function useDeleteReview({
@@ -105,6 +106,9 @@ export function useDeleteReview({
       queryClient.invalidateQueries({
         queryKey: ['ReviewReport'],
       });
+
+      // Asynchronously update search cache with full latest data
+      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
     },
     onError: (_error, _variables) => {
       if (type === 'place') {

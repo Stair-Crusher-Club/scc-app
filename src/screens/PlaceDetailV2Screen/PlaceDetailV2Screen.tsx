@@ -1,7 +1,7 @@
 import {SccButton} from '@/components/atoms';
 import {Building, Place} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import {getFormScreenVersion} from '@/utils/accessibilityFlags';
+import {useFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useEffect, useState} from 'react';
 import {BuildingRegistrationEvent} from './constants';
 import BuildingRegistrationBottomSheet from './modals/BuildingRegistrationBottomSheet';
@@ -24,6 +24,7 @@ export default function PlaceDetailV2Screen({
 }: ScreenProps<'PlaceDetailV2'>) {
   const {placeInfo, event} = route.params;
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+  const formVersion = useFormScreenVersion();
 
   useEffect(() => {
     // event가 있을 경우에만 바텀시트 표시
@@ -37,7 +38,6 @@ export default function PlaceDetailV2Screen({
 
     // placeInfo에 place와 building이 있는 경우에만 BuildingForm으로 이동
     if ('place' in placeInfo && 'building' in placeInfo) {
-      const formVersion = getFormScreenVersion();
       if (formVersion === 'v2') {
         navigation.navigate('BuildingFormV2', {
           place: placeInfo.place,

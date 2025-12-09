@@ -1,6 +1,8 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useEffect, useState} from 'react';
-import {Image, View} from 'react-native';
+import {Image, Linking, View} from 'react-native';
+
+import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
@@ -54,10 +56,18 @@ const Banner = ({banner}: {banner: HomeBannerDto}) => {
   }, [banner, aspectRatio]);
 
   const openBanner = async () => {
-    navigation.navigate('Webview', {
-      fixedTitle: banner.clickPageTitle,
-      url: banner.clickPageUrl,
-    });
+    const url = banner.clickPageUrl;
+
+    if (isAppDeepLink(url)) {
+      // 딥링크/유니버셜링크면 Linking.openURL로 열어서 RootScreen의 linking config가 처리
+      await Linking.openURL(url);
+    } else {
+      // 외부 URL이면 웹뷰로 이동
+      navigation.navigate('Webview', {
+        fixedTitle: banner.clickPageTitle,
+        url: url,
+      });
+    }
   };
 
   return (

@@ -2,6 +2,7 @@ import React from 'react';
 import WebSearchScreen from '../screens/WebSearchScreen';
 import WebHomeScreen from '../screens/WebHomeScreen';
 import BbucleRoadScreen from '../screens/BbucleRoadScreen';
+import KakaoCallbackScreen from '../screens/KakaoCallbackScreen';
 import {createStackNavigator} from '@react-navigation/stack';
 import ImageZoomViewerScreen from '../../src/screens/ImageZoomViewerScreen';
 
@@ -22,6 +23,7 @@ export type WebStackParamList = {
     index?: number;
     types?: string[];
   };
+  KakaoCallback: undefined;
 };
 
 const Stack = createStackNavigator<WebStackParamList>();
@@ -44,6 +46,7 @@ export default function WebNavigation() {
         <Stack.Screen name="Search" component={WebSearchScreen} />
         <Stack.Screen name="PlaceDetail" component={WebSearchScreen} />
         <Stack.Screen name="BbucleRoad" component={BbucleRoadScreen} />
+        <Stack.Screen name="KakaoCallback" component={KakaoCallbackScreen} />
         <Stack.Screen
           name="ImageZoomViewer"
           component={ImageZoomViewerScreen}

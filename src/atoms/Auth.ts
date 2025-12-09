@@ -32,6 +32,7 @@ export const featureFlagAtom = atom<{
   isMapVisible: boolean;
   isToiletVisible: boolean;
   isAlbumUploadAllowed: boolean;
+  isRegisterAccessibilityV2: boolean;
 } | null>(null);
 
 // useMe hook - centralized userInfo management
@@ -71,6 +72,8 @@ export function useMe() {
       isMapVisible: data.flags?.includes('MAP_VISIBLE') ?? false,
       isToiletVisible: data.flags?.includes('TOILET_VISIBLE') ?? false,
       isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
+      isRegisterAccessibilityV2:
+        data.flags?.includes('REGISTER_ACCESSIBILITY_V2') ?? false,
     });
   };
 

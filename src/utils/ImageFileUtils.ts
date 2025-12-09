@@ -10,6 +10,37 @@ interface UploadImageResult {
   size: number;
 }
 
+/** presigned URL에 이미지 업로드 (내부 전용) */
+async function uploadToPresignedUrl(
+  presignedUrl: string,
+  imageFileUrl: string,
+): Promise<UploadImageResult> {
+  const url = new URL(presignedUrl);
+  const resp = await fetch(imageFileUrl);
+  const imageBody = await resp.blob();
+  const result = await fetch(url.href, {
+    method: 'PUT',
+    headers: {
+      'content-type': imageBody.type,
+      'x-amz-acl': 'public-read',
+    },
+    body: imageBody,
+  });
+  if (result.ok) {
+    return {
+      url: url.protocol + '//' + url.host + url.pathname,
+      size: imageBody.size,
+    };
+  } else {
+    const resultString = await result.text();
+    const error = new Error(
+      `Upload image to ${result.url} is failed. cause: ${resultString}`,
+    );
+    Logger.logError(error);
+    throw error;
+  }
+}
+
 const ImageFileUtils = {
   filepath(uri: string): string {
     const fileScheme = 'file://';
@@ -21,34 +52,24 @@ const ImageFileUtils = {
   filepathFromImageFile(imageFile: ImageFile): string {
     return this.filepath(imageFile.uri);
   },
-  async uploadImage(
-    presignedUrl: string,
-    imageFileUrl: string,
-  ): Promise<UploadImageResult> {
-    const url = new URL(presignedUrl);
-    const resp = await fetch(imageFileUrl);
-    const imageBody = await resp.blob();
-    const result = await fetch(url.href, {
-      method: 'PUT',
-      headers: {
-        'content-type': imageBody.type,
-        'x-amz-acl': 'public-read',
-      },
-      body: imageBody,
+  /** 웹용: presigned URL 발급 + 업로드를 한 번에 처리 */
+  async uploadWebImage(
+    api: DefaultApi,
+    imageUrl: string,
+    filenameExtension: 'jpeg' | 'png' | 'gif' = 'jpeg',
+  ): Promise<string> {
+    const presignedResponse = await api.getImageUploadUrlsPost({
+      count: 1,
+      filenameExtension,
     });
-    if (result.ok) {
-      return {
-        url: url.protocol + '//' + url.host + url.pathname,
-        size: imageBody.size,
-      };
-    } else {
-      const resultString = await result.text();
-      const error = new Error(
-        `Upload image to ${result.url} is failed. cause: ${resultString}`,
-      );
-      Logger.logError(error);
-      throw error;
+
+    const presignedUrlData = presignedResponse.data[0];
+    if (!presignedUrlData) {
+      throw new Error('Presigned URL 획득 실패');
     }
+
+    const result = await uploadToPresignedUrl(presignedUrlData.url, imageUrl);
+    return result.url;
   },
   async uploadImages(
     api: DefaultApi,
@@ -81,7 +102,7 @@ const ImageFileUtils = {
           maxHeight: 2560,
           quality: 0.9,
         });
-        const result = await ImageFileUtils.uploadImage(url, compressed);
+        const result = await uploadToPresignedUrl(url, compressed);
 
         durationOfUploadImages[`duration_millis_of_upload_image_${index}`] =
           Date.now() - startTimeOfImageUpload;

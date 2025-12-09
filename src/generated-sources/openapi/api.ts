@@ -193,6 +193,50 @@ export interface AuthTokensDto {
 /**
  * 
  * @export
+ * @interface BbucleRoadClickableRegionDto
+ */
+export interface BbucleRoadClickableRegionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadClickableRegionDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {Array<BbucleRoadPolygonPointDto>}
+     * @memberof BbucleRoadClickableRegionDto
+     */
+    'polygon': Array<BbucleRoadPolygonPointDto>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof BbucleRoadClickableRegionDto
+     */
+    'modalImageUrls': Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface BbucleRoadInteractiveImageDto
+ */
+export interface BbucleRoadInteractiveImageDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadInteractiveImageDto
+     */
+    'url': string;
+    /**
+     * 
+     * @type {Array<BbucleRoadClickableRegionDto>}
+     * @memberof BbucleRoadInteractiveImageDto
+     */
+    'clickableRegions'?: Array<BbucleRoadClickableRegionDto>;
+}
+/**
+ * 
+ * @export
  * @interface BbucleRoadMarkerDto
  */
 export interface BbucleRoadMarkerDto {
@@ -256,6 +300,97 @@ export const BbucleRoadMarkerTypeDto = {
 export type BbucleRoadMarkerTypeDto = typeof BbucleRoadMarkerTypeDto[keyof typeof BbucleRoadMarkerTypeDto];
 
 
+/**
+ * 
+ * @export
+ * @interface BbucleRoadPolygonPointDto
+ */
+export interface BbucleRoadPolygonPointDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadPolygonPointDto
+     */
+    'x': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BbucleRoadPolygonPointDto
+     */
+    'y': number;
+}
+/**
+ * 
+ * @export
+ * @interface BbucleRoadRouteDto
+ */
+export interface BbucleRoadRouteDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteDto
+     */
+    'tabLabel': string;
+    /**
+     * 
+     * @type {BbucleRoadRouteIconTypeDto}
+     * @memberof BbucleRoadRouteDto
+     */
+    'tabIconType': BbucleRoadRouteIconTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteDto
+     */
+    'descriptionImageUrl': string;
+    /**
+     * 
+     * @type {BbucleRoadInteractiveImageDto}
+     * @memberof BbucleRoadRouteDto
+     */
+    'interactiveImage': BbucleRoadInteractiveImageDto;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const BbucleRoadRouteIconTypeDto = {
+    Subway: 'SUBWAY',
+    Taxi: 'TAXI',
+    Car: 'CAR',
+    Bus: 'BUS'
+} as const;
+
+export type BbucleRoadRouteIconTypeDto = typeof BbucleRoadRouteIconTypeDto[keyof typeof BbucleRoadRouteIconTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface BbucleRoadRouteSectionDto
+ */
+export interface BbucleRoadRouteSectionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadRouteSectionDto
+     */
+    'title': string;
+    /**
+     * 
+     * @type {Array<BbucleRoadRouteDto>}
+     * @memberof BbucleRoadRouteSectionDto
+     */
+    'routes': Array<BbucleRoadRouteDto>;
+}
 /**
  * 
  * @export
@@ -1676,6 +1811,12 @@ export interface GetBbucleRoadPageResponseDto {
      * @memberof GetBbucleRoadPageResponseDto
      */
     'sections': Array<BbucleRoadSectionDto>;
+    /**
+     * 
+     * @type {BbucleRoadRouteSectionDto}
+     * @memberof GetBbucleRoadPageResponseDto
+     */
+    'routeSection'?: BbucleRoadRouteSectionDto;
 }
 /**
  * 
@@ -1945,6 +2086,38 @@ export interface GetNearbyAccessibilityStatusPostRequest {
      * @memberof GetNearbyAccessibilityStatusPostRequest
      */
     'distanceMetersLimit': number;
+}
+/**
+ * 
+ * @export
+ * @interface GetPlaceGroupRequestDto
+ */
+export interface GetPlaceGroupRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetPlaceGroupRequestDto
+     */
+    'placeGroupId': string;
+}
+/**
+ * 
+ * @export
+ * @interface GetPlaceGroupResponseDto
+ */
+export interface GetPlaceGroupResponseDto {
+    /**
+     * 
+     * @type {PlaceGroup}
+     * @memberof GetPlaceGroupResponseDto
+     */
+    'placeGroup': PlaceGroup;
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof GetPlaceGroupResponseDto
+     */
+    'places': Array<PlaceListItem>;
 }
 /**
  * 
@@ -3158,6 +3331,62 @@ export interface PlaceFavorite {
      */
     'createdAt'?: EpochMillisTimestamp;
 }
+/**
+ * 
+ * @export
+ * @interface PlaceGroup
+ */
+export interface PlaceGroup {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceGroup
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceGroup
+     */
+    'name': string;
+    /**
+     * 
+     * @type {PlaceGroupType}
+     * @memberof PlaceGroup
+     */
+    'type': PlaceGroupType;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PlaceGroup
+     */
+    'placeIds': Array<string>;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceGroup
+     */
+    'createdAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceGroup
+     */
+    'updatedAt': EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceGroupType = {
+    BbucleRoad: 'BBUCLE_ROAD'
+} as const;
+
+export type PlaceGroupType = typeof PlaceGroupType[keyof typeof PlaceGroupType];
+
+
 /**
  * 
  * @export
@@ -4435,6 +4664,31 @@ export interface SearchPlacesResponseDto {
     'items': Array<PlaceListItem>;
 }
 /**
+ * 
+ * @export
+ * @interface SearchUnconqueredPlacesNearbyRequestDto
+ */
+export interface SearchUnconqueredPlacesNearbyRequestDto {
+    /**
+     * 
+     * @type {CircleSearchRegionDto}
+     * @memberof SearchUnconqueredPlacesNearbyRequestDto
+     */
+    'circleRegion'?: CircleSearchRegionDto;
+    /**
+     * 
+     * @type {RectangleSearchRegionDto}
+     * @memberof SearchUnconqueredPlacesNearbyRequestDto
+     */
+    'rectangleRegion'?: RectangleSearchRegionDto;
+    /**
+     * 최대 반환 개수
+     * @type {number}
+     * @memberof SearchUnconqueredPlacesNearbyRequestDto
+     */
+    'limit': number;
+}
+/**
  * 시군구를 표현하기 위한 모델.
  * @export
  * @interface SiGunGu
@@ -4870,7 +5124,8 @@ export const UpvoteTargetTypeDto = {
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
     BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
-    ToiletReview: 'TOILET_REVIEW'
+    ToiletReview: 'TOILET_REVIEW',
+    BbucleRoad: 'BBUCLE_ROAD'
 } as const;
 
 export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof UpvoteTargetTypeDto];
@@ -6129,6 +6384,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary PlaceGroup을 조회한다.
+         * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPlaceGroup: async (getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getPlaceGroupRequestDto' is not null or undefined
+            assertParamExists('getPlaceGroup', 'getPlaceGroupRequestDto', getPlaceGroupRequestDto)
+            const localVarPath = `/getPlaceGroup`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getPlaceGroupRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -6223,7 +6518,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Identified required
+            // authentication Anonymous required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -7640,6 +7935,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+         * @summary 정복 안 된 장소를 검색한다.
+         * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchUnconqueredPlacesNearbyPost: async (searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'searchUnconqueredPlacesNearbyRequestDto' is not null or undefined
+            assertParamExists('searchUnconqueredPlacesNearbyPost', 'searchUnconqueredPlacesNearbyRequestDto', searchUnconqueredPlacesNearbyRequestDto)
+            const localVarPath = `/searchUnconqueredPlacesNearby`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchUnconqueredPlacesNearbyRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -8105,6 +8440,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary PlaceGroup을 조회한다.
+         * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getPlaceGroup(getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPlaceGroupResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPlaceGroup(getPlaceGroupRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -8524,6 +8870,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+         * @summary 정복 안 된 장소를 검색한다.
+         * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -8843,6 +9200,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest: GetNearbyAccessibilityStatusPostRequest, options?: any): AxiosPromise<GetNearbyAccessibilityStatusPost200Response> {
             return localVarFp.getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary PlaceGroup을 조회한다.
+         * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPlaceGroup(getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options?: any): AxiosPromise<GetPlaceGroupResponseDto> {
+            return localVarFp.getPlaceGroup(getPlaceGroupRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9227,6 +9594,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.searchPlacesPost(searchPlacesRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+         * @summary 정복 안 된 장소를 검색한다.
+         * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options?: any): AxiosPromise<SearchPlacesResponseDto> {
+            return localVarFp.searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -9595,6 +9972,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest: GetNearbyAccessibilityStatusPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getNearbyAccessibilityStatusPost(getNearbyAccessibilityStatusPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary PlaceGroup을 조회한다.
+     * @param {GetPlaceGroupRequestDto} getPlaceGroupRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getPlaceGroup(getPlaceGroupRequestDto: GetPlaceGroupRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getPlaceGroup(getPlaceGroupRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10053,6 +10442,18 @@ export class DefaultApi extends BaseAPI {
      */
     public searchPlacesPost(searchPlacesRequestDto: SearchPlacesRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).searchPlacesPost(searchPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 우리 DB에 있는 장소 중 정복 안 된 장소만 검색한다. 서드파티 API를 호출하지 않고 우리 DB만 조회하므로, 정보 등록할 장소를 찾을 때 사용한다. 
+     * @summary 정복 안 된 장소를 검색한다.
+     * @param {SearchUnconqueredPlacesNearbyRequestDto} searchUnconqueredPlacesNearbyRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto: SearchUnconqueredPlacesNearbyRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

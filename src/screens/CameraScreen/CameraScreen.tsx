@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Dimensions} from 'react-native';
+import {Dimensions, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -304,12 +304,36 @@ export default function CameraScreen({
 }
 
 async function cropToRect(taken: PhotoFile) {
-  const size = Math.min(taken.width, taken.height);
-  // swap height, width intentionally (it works like this..)
+  const isLandscape =
+    taken.orientation === 'landscape-left' ||
+    taken.orientation === 'landscape-right';
+
+  // 플랫폼별로 width/height swap 방향이 다름
+  // Android: isLandscape일 때 taken.width가 실제 imageWidth
+  // iOS: isLandscape일 때 taken.height가 실제 imageWidth
+  const isIOS = Platform.OS === 'ios';
+  const imageWidth = isLandscape
+    ? isIOS
+      ? taken.height
+      : taken.width
+    : isIOS
+      ? taken.width
+      : taken.height;
+  const imageHeight = isLandscape
+    ? isIOS
+      ? taken.width
+      : taken.height
+    : isIOS
+      ? taken.height
+      : taken.width;
+
+  const size = Math.min(imageWidth, imageHeight);
+
   const offset = {
-    x: Math.floor(Math.max(0, (taken.height - size) / 2)),
-    y: Math.floor(Math.max(0, (taken.width - size) / 2)),
+    x: Math.floor(Math.max(0, (imageWidth - size) / 2)),
+    y: Math.floor(Math.max(0, (imageHeight - size) / 2)),
   };
+
   const cropped = await ImageEditor.cropImage(
     ImageFileUtils.filepath(taken.path),
     {

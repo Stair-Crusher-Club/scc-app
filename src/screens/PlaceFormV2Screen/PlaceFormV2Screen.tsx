@@ -16,6 +16,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
 import {useQueryClient} from '@tanstack/react-query';
@@ -456,6 +457,9 @@ async function register(
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
       });
+
+      // Asynchronously update search cache with full latest data
+      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
       return {
         success: true,

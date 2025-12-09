@@ -25,7 +25,7 @@ import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation.ts';
-import {getDetailScreenVersion} from '@/utils/accessibilityFlags';
+import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
@@ -58,6 +58,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const detailVersion = useDetailScreenVersion();
   const onMyLocationPress = () => {
     mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
@@ -75,6 +76,11 @@ const FRefInputComp = <T extends MarkerItem>(
   };
 
   useEffect(() => {
+    // 초기 현위치 마커 표시 (지도 초기화 대기)
+    const timer = setTimeout(() => {
+      mapRef.current?.setPositionMode('direction');
+    }, 100);
+
     const watchId = Geolocation.watchPosition(
       position => {
         setCurrentLocation({
@@ -92,6 +98,7 @@ const FRefInputComp = <T extends MarkerItem>(
       },
     );
     return () => {
+      clearTimeout(timer);
       Geolocation.clearWatch(watchId);
     };
   }, []);
@@ -107,7 +114,9 @@ const FRefInputComp = <T extends MarkerItem>(
   }));
 
   useEffect(() => {
-    if (items.length > 0) {
+    if (items.find(it => it.id === selectedItemId)) {
+      // 이미 선택된 아이템이 리스트에 존재하면, 현재 선택을 유지한다.
+    } else if (items.length > 0) {
       onItemSelect(items[0], false);
     } else {
       setSelectedItemId(null);
@@ -151,10 +160,10 @@ const FRefInputComp = <T extends MarkerItem>(
          */
         selectedItemId={selectedItemId ?? (items && items[0]?.id)}
         mapPadding={{
-          top: 90, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
-          right: 20,
-          bottom: insets.bottom + cardHeight + 20,
-          left: 20,
+          top: 100, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
+          right: 30,
+          bottom: insets.bottom + cardHeight + 30,
+          left: 30,
         }}
       />
       <UpperShadow
@@ -199,7 +208,6 @@ const FRefInputComp = <T extends MarkerItem>(
                 setCardHeight(event.nativeEvent.layout.height);
             }}
             onCardPress={item => {
-              const detailVersion = getDetailScreenVersion();
               if (detailVersion === 'v2') {
                 navigation.navigate('PlaceDetailV2', {
                   placeInfo: {placeId: item.id},

@@ -1,3 +1,4 @@
+import React from 'react';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';

@@ -7,7 +7,8 @@ import PlusIcon from '@/assets/icon/ic_plus.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ToiletReviewDto} from '@/generated-sources/openapi';
+import {ToiletReviewDto, Location} from '@/generated-sources/openapi';
+import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceDetailPlaceToiletReviewItem from '@/screens/PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -17,14 +18,22 @@ import * as S from './PlaceDetailEntranceSection.style';
 interface Props {
   toiletReviews: ToiletReviewDto[];
   placeId: string;
+  placeName: string;
+  placeLocation?: Location;
+  placeAddress: string;
 }
 
 export default function PlaceDetailToiletSection({
   toiletReviews,
   placeId,
+  placeName,
+  placeLocation,
+  placeAddress,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
+  const {navigateWithLocationCheck, LocationConfirmModal} =
+    useNavigateWithLocationCheck();
 
   const handleToiletReviewPress = () => {
     if (Platform.OS === 'web') {
@@ -34,36 +43,47 @@ export default function PlaceDetailToiletSection({
       });
       return;
     }
-    checkAuth(() => {
-      navigation.navigate('ReviewForm/Toilet', {
-        placeId,
+    checkAuth(async () => {
+      await navigateWithLocationCheck({
+        targetLocation: placeLocation,
+        placeName: placeName,
+        address: placeAddress,
+        type: 'place',
+        onNavigate: () => {
+          navigation.navigate('ReviewForm/Toilet', {
+            placeId,
+          });
+        },
       });
     });
   };
 
   return (
-    <S.Section>
-      <HeaderRow>
-        <S.Title>장애인 화장실 정보</S.Title>
-        <ReviewButton
-          elementName="place_detail_toilet_review_write_button"
-          onPress={handleToiletReviewPress}>
-          <PlusIcon color={color.white} />
-          <ReviewButtonText>정보 등록</ReviewButtonText>
-        </ReviewButton>
-      </HeaderRow>
-      <ItemList>
-        {toiletReviews.map((review, idx) => (
-          <React.Fragment key={review.id}>
-            <PlaceDetailPlaceToiletReviewItem
-              placeId={placeId}
-              review={review}
-            />
-            {idx !== toiletReviews.length - 1 && <Divider />}
-          </React.Fragment>
-        ))}
-      </ItemList>
-    </S.Section>
+    <>
+      <S.Section>
+        <HeaderRow>
+          <S.Title>장애인 화장실 정보</S.Title>
+          <ReviewButton
+            elementName="place_detail_toilet_review_write_button"
+            onPress={handleToiletReviewPress}>
+            <PlusIcon color={color.white} />
+            <ReviewButtonText>정보 등록</ReviewButtonText>
+          </ReviewButton>
+        </HeaderRow>
+        <ItemList>
+          {toiletReviews.map((review, idx) => (
+            <React.Fragment key={review.id}>
+              <PlaceDetailPlaceToiletReviewItem
+                placeId={placeId}
+                review={review}
+              />
+              {idx !== toiletReviews.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
+        </ItemList>
+      </S.Section>
+      {LocationConfirmModal}
+    </>
   );
 }
 

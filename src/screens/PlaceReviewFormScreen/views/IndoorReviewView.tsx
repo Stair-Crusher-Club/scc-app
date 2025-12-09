@@ -24,6 +24,7 @@ import {
 import useAppComponents from '@/hooks/useAppComponents';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
@@ -216,6 +217,9 @@ async function register({
       queryClient.invalidateQueries({
         queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.PlaceReview],
       });
+
+      // Asynchronously update search cache with full latest data
+      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
       return {
         success: true,

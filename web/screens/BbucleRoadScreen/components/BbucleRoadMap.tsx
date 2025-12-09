@@ -6,10 +6,79 @@ import { getMarkerSvg, MarkerColors } from '@/assets/markers';
 import MarkerTicketBoothRaw from '@/assets/icon/ic_marker_ticket_booth.svg.txt';
 import MarkerBusStopRaw from '@/assets/icon/ic_marker_bus_stop.svg.txt';
 import MarkerElevatorRaw from '@/assets/icon/ic_marker_elevator.svg.txt';
+import { useResponsive } from '../context/ResponsiveContext';
+
+// Naver Maps 타입 정의
+interface NaverMaps {
+  Map: new (element: HTMLElement, options: NaverMapOptions) => NaverMapInstance;
+  LatLng: new (lat: number, lng: number) => NaverLatLng;
+  Marker: new (options: NaverMarkerOptions) => NaverMarker;
+  InfoWindow: new (options: NaverInfoWindowOptions) => NaverInfoWindow;
+  Point: new (x: number, y: number) => NaverPoint;
+  Event: {
+    addListener: (target: NaverMarker, event: string, handler: () => void) => void;
+  };
+  ZoomControlStyle: { SMALL: number };
+  Position: { TOP_RIGHT: number };
+}
+
+interface NaverMapOptions {
+  center: NaverLatLng;
+  zoom: number;
+  minZoom?: number;
+  maxZoom?: number;
+  mapTypeControl?: boolean;
+  zoomControl?: boolean;
+  zoomControlOptions?: {
+    style: number;
+    position: number;
+  };
+}
+
+interface NaverMapInstance {
+  setCenter: (position: NaverLatLng) => void;
+  setZoom: (level: number) => void;
+}
+
+interface NaverLatLng {
+  lat: () => number;
+  lng: () => number;
+}
+
+interface NaverMarkerOptions {
+  position: NaverLatLng;
+  map: NaverMapInstance | null;
+  icon?: {
+    content: string;
+    anchor: NaverPoint;
+  };
+  zIndex?: number;
+}
+
+interface NaverMarker {
+  setMap: (map: NaverMapInstance | null) => void;
+}
+
+interface NaverInfoWindowOptions {
+  content: string;
+}
+
+interface NaverInfoWindow {
+  open: (map: NaverMapInstance, marker: NaverMarker) => void;
+  close: () => void;
+  getMap: () => NaverMapInstance | null;
+}
+
+interface NaverPoint {
+  x: number;
+  y: number;
+}
 
 declare global {
   interface Window {
-    naver: any;
+    naver: {
+      maps: NaverMaps;
+    };
   }
 }
 
@@ -23,8 +92,8 @@ interface BbucleRoadMapProps {
 
 interface MapMarkerData {
   markerId: string;
-  marker: any;
-  infoWindow: any;
+  marker: NaverMarker;
+  infoWindow: NaverInfoWindow | null;
 }
 
 export default function BbucleRoadMap({
@@ -34,10 +103,11 @@ export default function BbucleRoadMap({
   activeCategory,
   currentLocation,
 }: BbucleRoadMapProps) {
+  const { isDesktop } = useResponsive();
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
+  const mapInstanceRef = useRef<NaverMapInstance | null>(null);
   const markersRef = useRef<MapMarkerData[]>([]);
-  const currentLocationMarkerRef = useRef<any>(null);
+  const currentLocationMarkerRef = useRef<NaverMarker | null>(null);
   const initialCenterRef = useRef<Location | undefined>(mapCenter);
   const initialZoomRef = useRef<number>(mapZoomLevel || 15);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
@@ -305,17 +375,25 @@ export default function BbucleRoadMap({
   return (
     <MapWrapper>
       <MapContainer ref={mapRef} />
-      <ControlButtons>
-        <ResetButton onClick={handleResetToInitialPosition} title="최초 지도 뷰로 초기화">
+      <ControlButtons isDesktop={isDesktop}>
+        <ControlButton
+          isDesktop={isDesktop}
+          onClick={handleResetToInitialPosition}
+          title="최초 지도 뷰로 초기화"
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M12 5V1L7 6L12 11V7C15.31 7 18 9.69 18 13C18 16.31 15.31 19 12 19C8.69 19 6 16.31 6 13H4C4 17.42 7.58 21 12 21C16.42 21 20 17.42 20 13C20 8.58 16.42 5 12 5Z" fill="#333333"/>
           </svg>
-        </ResetButton>
-        <CurrentLocationButton onClick={handleMoveToCurrentLocation} title="현위치로 이동">
+        </ControlButton>
+        <ControlButton
+          isDesktop={isDesktop}
+          onClick={handleMoveToCurrentLocation}
+          title="현위치로 이동"
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM20.94 11C20.48 6.83 17.17 3.52 13 3.06V1H11V3.06C6.83 3.52 3.52 6.83 3.06 11H1V13H3.06C3.52 17.17 6.83 20.48 11 20.94V23H13V20.94C17.17 20.48 20.48 17.17 20.94 13H23V11H20.94ZM12 19C8.13 19 5 15.87 5 12C5 8.13 8.13 5 12 5C15.87 5 19 8.13 19 12C19 15.87 15.87 19 12 19Z" fill="#FF5722"/>
           </svg>
-        </CurrentLocationButton>
+        </ControlButton>
       </ControlButtons>
     </MapWrapper>
   );
@@ -334,46 +412,23 @@ const MapContainer = styled.div`
   overflow: hidden;
 `;
 
-const ControlButtons = styled.div`
+const ControlButtons = styled.div<{ isDesktop: boolean }>`
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  bottom: ${({ isDesktop }) => (isDesktop ? '20px' : '12px')};
+  right: ${({ isDesktop }) => (isDesktop ? '20px' : '12px')};
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: ${({ isDesktop }) => (isDesktop ? '12px' : '8px')};
   z-index: 10;
 `;
 
-const ResetButton = styled.button`
-  width: 40px;
-  height: 40px;
+const ControlButton = styled.button<{ isDesktop: boolean }>`
+  width: ${({ isDesktop }) => (isDesktop ? '48px' : '40px')};
+  height: ${({ isDesktop }) => (isDesktop ? '48px' : '40px')};
   background-color: white;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: #f5f5f5;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
-const CurrentLocationButton = styled.button`
-  width: 40px;
-  height: 40px;
-  background-color: white;
-  border: none;
-  border-radius: 8px;
+  border-radius: ${({ isDesktop }) => (isDesktop ? '12px' : '8px')};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   display: flex;

@@ -3,6 +3,7 @@ import {useAtomValue} from 'jotai';
 
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
@@ -78,6 +79,9 @@ export function useToggleFavoritePlace() {
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', variables.placeId],
       });
+
+      // Asynchronously update search cache with full latest data
+      updateSearchCacheForPlaceAsync(api, queryClient, variables.placeId);
     },
     onError: (error, variables, context) => {
       ToastUtils.showOnApiError(error);

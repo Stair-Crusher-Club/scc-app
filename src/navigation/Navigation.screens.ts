@@ -66,6 +66,12 @@ import ReviewUpVoteScreen from '@/screens/ReviewUpVoteScreen';
 import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
+import PlaceGroupMapScreen, {
+  PlaceGroupMapScreenParams,
+} from '@/screens/PlaceGroupMapScreen';
+import SearchUnconqueredPlacesScreen, {
+  SearchUnconqueredPlacesScreenParams,
+} from '@/screens/SearchUnconqueredPlacesScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
@@ -234,6 +240,16 @@ export const MainNavigationScreens: {
     options: {headerShown: false},
   },
   {
+    name: 'PlaceGroupMap',
+    component: PlaceGroupMapScreen,
+    options: {headerShown: false},
+  },
+  {
+    name: 'SearchUnconqueredPlaces',
+    component: SearchUnconqueredPlacesScreen,
+    options: {headerShown: false},
+  },
+  {
     name: 'ImageZoomViewer',
     component: ImageZoomViewerScreen,
     options: {presentation: 'fullScreenModal'},
@@ -309,6 +325,8 @@ export type ScreenParams = {
   Setting: undefined;
   MapTest: undefined;
   ToiletMap: undefined;
+  PlaceGroupMap: PlaceGroupMapScreenParams;
+  SearchUnconqueredPlaces: SearchUnconqueredPlacesScreenParams;
 
   // fullscreen modals
   GuideForFirstVisit: undefined;

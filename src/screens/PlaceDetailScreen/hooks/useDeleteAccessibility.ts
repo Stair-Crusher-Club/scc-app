@@ -4,6 +4,7 @@ import {useAtom} from 'jotai';
 import {loadingState} from '@/components/LoadingView';
 import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 export function useDeleteAccessibility(
@@ -38,9 +39,14 @@ export function useDeleteAccessibility(
         queryKey: ['PlaceDetail', accessibilityDto.placeAccessibility?.placeId],
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ['search'],
-      });
+      // Asynchronously update search cache with full latest data
+      if (accessibilityDto.placeAccessibility?.placeId) {
+        updateSearchCacheForPlaceAsync(
+          api,
+          queryClient,
+          accessibilityDto.placeAccessibility.placeId,
+        );
+      }
 
       // 정복한 장소 > 내가 정복한 장소 통계
       queryClient.invalidateQueries({
