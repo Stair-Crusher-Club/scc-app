@@ -340,7 +340,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
 }
 
 const Container = styled(View)<{ isDesktop: boolean }>`
-  padding-vertical: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '140px' : '80px')};
   padding-horizontal: 16px;
   max-width: 1020px;
   width: 100%;
@@ -473,9 +473,9 @@ const ContentContainer = styled(View)<{ isDesktop: boolean }>`
 `;
 
 const DescriptionHtmlContainer = styled(View)<{ isDesktop: boolean }>`
-  width: ${({ isDesktop }) => (isDesktop ? '37%' : '100%')};
+  width: ${({ isDesktop }) => (isDesktop ? '414px' : '100%')};
   overflow: hidden;
-  ${({ isDesktop }) => (isDesktop ? 'flex: 2;' : 'flex-shrink: 0;')};
+  ${({ isDesktop }) => (isDesktop ? 'flex-shrink: 0;' : 'flex-shrink: 0;')};
 `;
 
 const DescriptionImageWrapper = styled(View)<{ isDesktop: boolean }>`
@@ -485,10 +485,10 @@ const DescriptionImageWrapper = styled(View)<{ isDesktop: boolean }>`
 `;
 
 const InteractiveImageContainer = styled(View)<{ isDesktop: boolean }>`
-  width: ${({ isDesktop }) => (isDesktop ? '60%' : 'calc(100% + 32px)')};
+  ${({ isDesktop }) => (isDesktop ? '' : 'width: calc(100% + 32px)')};
   margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
   overflow: hidden;
-  ${({ isDesktop }) => (isDesktop ? 'flex: 3;' : 'flex-shrink: 0;')};
+  ${({ isDesktop }) => (isDesktop ? 'flex: 1;' : 'flex-shrink: 0;')};
 `;
 
 const EmptyImagePlaceholder = styled(View)`

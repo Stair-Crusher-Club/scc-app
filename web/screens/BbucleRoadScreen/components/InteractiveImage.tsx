@@ -3,10 +3,10 @@ import { View, Image, Text, Pressable, LayoutChangeEvent, TouchableOpacity } fro
 import styled from 'styled-components/native';
 import Svg, { Polygon, Line } from 'react-native-svg';
 import type {
-  BbucleRoadInteractiveImageDto,
   BbucleRoadClickableRegionDto,
   BbucleRoadPolygonPointDto,
 } from '@/generated-sources/openapi';
+import type { ExtendedInteractiveImageDto } from '../config/bbucleRoadData';
 
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
@@ -15,7 +15,7 @@ import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from './ImageUploader';
 
 interface InteractiveImageProps {
-  interactiveImage: BbucleRoadInteractiveImageDto;
+  interactiveImage: ExtendedInteractiveImageDto;
   onRegionPress: (region: BbucleRoadClickableRegionDto) => void;
   /** 이미지 URL 변경 콜백 (edit mode) */
   onImageChange?: (url: string) => void;
@@ -37,6 +37,11 @@ export default function InteractiveImage({
   const editingRegion = editContext?.editingRegion ?? null;
   const { isDesktop } = useResponsive();
 
+  // 데스크탑이 아니면 모바일 이미지 우선 사용
+  const displayImageUrl = isDesktop
+    ? interactiveImage.url
+    : (interactiveImage.mobileUrl || interactiveImage.url);
+
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -47,7 +52,7 @@ export default function InteractiveImage({
 
   const handleImageLoad = useCallback(() => {
     Image.getSize(
-      interactiveImage.url,
+      displayImageUrl,
       (width, height) => {
         setImageSize({ width, height });
       },
@@ -55,7 +60,7 @@ export default function InteractiveImage({
         console.error('Failed to get image size:', error);
       },
     );
-  }, [interactiveImage.url]);
+  }, [displayImageUrl]);
 
   // Calculate display height maintaining aspect ratio
   const displayHeight =
@@ -206,7 +211,7 @@ export default function InteractiveImage({
       {/* 이미지 - 편집 중일 때는 클릭 가능 */}
       <Pressable onPress={isEditingThisImage ? handleImageClick : undefined}>
         <StyledImage
-          source={{ uri: interactiveImage.url }}
+          source={{ uri: displayImageUrl }}
           style={{ height: displayHeight || 'auto' }}
           resizeMode="contain"
           onLoad={handleImageLoad}

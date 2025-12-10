@@ -23,7 +23,11 @@ export default function TicketInfoSection({
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
 
-  const { titleLine1, titleLine2, descriptionHtml, imageUrl } = ticketInfoSection;
+  const { titleLine1, titleLine2, descriptionHtml, imageUrl, mobileImageUrl } =
+    ticketInfoSection;
+
+  // 데스크탑이 아니면 모바일 이미지 우선 사용
+  const displayImageUrl = isDesktop ? imageUrl : (mobileImageUrl || imageUrl);
 
   const updateTicketInfoSection = useCallback(
     (updates: Partial<TicketInfoSectionData>) => {
@@ -101,10 +105,10 @@ export default function TicketInfoSection({
             )}
 
             {/* 이미지 */}
-            {imageUrl ? (
+            {displayImageUrl ? (
               <ImageContainer isDesktop={isDesktop}>
                 <SccRemoteImage
-                  imageUrl={imageUrl}
+                  imageUrl={displayImageUrl}
                   resizeMode="contain"
                   style={{ borderRadius: 12 }}
                 />
@@ -137,8 +141,7 @@ export default function TicketInfoSection({
 }
 
 const Container = styled(View)<{ isDesktop: boolean }>`
-  padding-top: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
-  padding-bottom: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '140px' : '80px')};
   width: 100%;
   background-color: ${color.gray10};
 `;

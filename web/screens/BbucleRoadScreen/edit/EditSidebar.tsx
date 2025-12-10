@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 
 import { useEditMode } from '../context/EditModeContext';
 import { apiConfig } from '../../../config/api';
+import { color } from '@/constant/color';
 import ImageUploader from '../components/ImageUploader';
 import RegionDetailModal from '../components/RegionDetailModal';
 import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
@@ -235,9 +236,9 @@ export default function EditSidebar() {
                 />
               </FieldGroup>
 
-              {/* 접근성 한마디 */}
+              {/* 접근성 한마디 - 데스크탑 */}
               <FieldGroup>
-                <FieldLabel>접근성 한마디 (HTML)</FieldLabel>
+                <FieldLabel>접근성 한마디 (HTML) - 데스크탑</FieldLabel>
                 <HtmlTextAreaSmall
                   multiline
                   value={data.wheelchairUserCommentHtml || ''}
@@ -249,6 +250,101 @@ export default function EditSidebar() {
                   }
                   placeholder="<b>볼드 텍스트</b> 일반 텍스트..."
                   placeholderTextColor="#999"
+                />
+              </FieldGroup>
+
+              {/* 접근성 한마디 - 모바일 */}
+              <FieldGroup>
+                <FieldLabel>접근성 한마디 (HTML) - 모바일</FieldLabel>
+                <HtmlTextAreaSmall
+                  multiline
+                  value={data.wheelchairUserCommentHtmlMobile || ''}
+                  onChangeText={(text: string) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      wheelchairUserCommentHtmlMobile: text,
+                    }))
+                  }
+                  placeholder="모바일용 줄바꿈 다르게..."
+                  placeholderTextColor="#999"
+                />
+              </FieldGroup>
+
+              {/* 모바일 타이틀 이미지 */}
+              <FieldGroup>
+                <FieldLabel>모바일 타이틀 이미지 (@2x)</FieldLabel>
+                {data.mobileTitleImageUrl ? (
+                  <ImagePreviewContainer>
+                    <ImagePreview source={{ uri: data.mobileTitleImageUrl }} />
+                    <ImageRemoveButton
+                      onPress={() =>
+                        updateData((prev) => ({
+                          ...prev,
+                          mobileTitleImageUrl: undefined,
+                        }))
+                      }
+                    >
+                      <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                    </ImageRemoveButton>
+                  </ImagePreviewContainer>
+                ) : (
+                  <ImageUploader
+                    onUploadComplete={(url) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        mobileTitleImageUrl: url,
+                      }))
+                    }
+                    buttonText="모바일 타이틀 이미지 업로드"
+                  />
+                )}
+              </FieldGroup>
+
+              {/* 모바일 배경 이미지 */}
+              <FieldGroup>
+                <FieldLabel>모바일 배경 이미지 (@2x)</FieldLabel>
+                {data.mobileHeaderBackgroundImageUrl ? (
+                  <ImagePreviewContainer>
+                    <ImagePreview
+                      source={{ uri: data.mobileHeaderBackgroundImageUrl }}
+                    />
+                    <ImageRemoveButton
+                      onPress={() =>
+                        updateData((prev) => ({
+                          ...prev,
+                          mobileHeaderBackgroundImageUrl: undefined,
+                        }))
+                      }
+                    >
+                      <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                    </ImageRemoveButton>
+                  </ImagePreviewContainer>
+                ) : (
+                  <ImageUploader
+                    onUploadComplete={(url) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        mobileHeaderBackgroundImageUrl: url,
+                      }))
+                    }
+                    buttonText="모바일 배경 이미지 업로드"
+                  />
+                )}
+              </FieldGroup>
+
+              {/* 배경 이미지 캡션 */}
+              <FieldGroup>
+                <FieldLabel>배경 이미지 캡션</FieldLabel>
+                <FieldInput
+                  value={data.headerImageCaption || ''}
+                  onChangeText={(text: string) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      headerImageCaption: text,
+                    }))
+                  }
+                  placeholder="예: *플레이브 콘서트 사진"
+                  placeholderTextColor={color.gray40}
                 />
               </FieldGroup>
             </HeaderEditPanel>
@@ -437,6 +533,70 @@ export default function EditSidebar() {
                     placeholder="<div>HTML 콘텐츠...</div>"
                     placeholderTextColor="#999"
                   />
+
+                  {/* 모바일 Interactive 이미지 */}
+                  <FieldGroup style={{ marginTop: 12 }}>
+                    <FieldLabel>모바일 Interactive 이미지 (@2x)</FieldLabel>
+                    {(route.interactiveImage as { mobileUrl?: string })?.mobileUrl ? (
+                      <ImagePreviewContainer>
+                        <ImagePreview
+                          source={{
+                            uri: (route.interactiveImage as { mobileUrl?: string }).mobileUrl,
+                          }}
+                        />
+                        <ImageRemoveButton
+                          onPress={() =>
+                            updateData((prev) => ({
+                              ...prev,
+                              routeSection: prev.routeSection
+                                ? {
+                                    ...prev.routeSection,
+                                    routes: prev.routeSection.routes.map((r, i) =>
+                                      i === routeIndex
+                                        ? {
+                                            ...r,
+                                            interactiveImage: {
+                                              ...r.interactiveImage,
+                                              mobileUrl: undefined,
+                                            },
+                                          }
+                                        : r,
+                                    ),
+                                  }
+                                : null,
+                            }))
+                          }
+                        >
+                          <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                        </ImageRemoveButton>
+                      </ImagePreviewContainer>
+                    ) : (
+                      <ImageUploader
+                        onUploadComplete={(url) =>
+                          updateData((prev) => ({
+                            ...prev,
+                            routeSection: prev.routeSection
+                              ? {
+                                  ...prev.routeSection,
+                                  routes: prev.routeSection.routes.map((r, i) =>
+                                    i === routeIndex
+                                      ? {
+                                          ...r,
+                                          interactiveImage: {
+                                            ...r.interactiveImage,
+                                            mobileUrl: url,
+                                          },
+                                        }
+                                      : r,
+                                  ),
+                                }
+                              : null,
+                          }))
+                        }
+                        buttonText="모바일 이미지 업로드"
+                      />
+                    )}
+                  </FieldGroup>
                 </RouteHtmlEditPanel>
               ))}
             </Section>
@@ -506,6 +666,69 @@ export default function EditSidebar() {
                         }))
                       }
                       buttonText="지도 이미지 업로드"
+                    />
+                  )}
+                </FieldGroup>
+
+                {/* 모바일 Interactive 이미지 */}
+                <FieldGroup>
+                  <FieldLabel>모바일 Interactive 이미지 (@2x)</FieldLabel>
+                  {(data.seatViewSection.interactiveImage as { mobileUrl?: string })
+                    ?.mobileUrl ? (
+                    <ImagePreviewContainer>
+                      <ImagePreview
+                        source={{
+                          uri: (
+                            data.seatViewSection.interactiveImage as {
+                              mobileUrl?: string;
+                            }
+                          ).mobileUrl,
+                        }}
+                      />
+                      <ImageRemoveButton
+                        onPress={() =>
+                          updateData((prev) => ({
+                            ...prev,
+                            seatViewSection: prev.seatViewSection
+                              ? {
+                                  ...prev.seatViewSection,
+                                  interactiveImage: prev.seatViewSection.interactiveImage
+                                    ? {
+                                        ...prev.seatViewSection.interactiveImage,
+                                        mobileUrl: undefined,
+                                      }
+                                    : undefined,
+                                }
+                              : null,
+                          }))
+                        }
+                      >
+                        <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                      </ImageRemoveButton>
+                    </ImagePreviewContainer>
+                  ) : (
+                    <ImageUploader
+                      onUploadComplete={(url) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          seatViewSection: prev.seatViewSection
+                            ? {
+                                ...prev.seatViewSection,
+                                interactiveImage: prev.seatViewSection.interactiveImage
+                                  ? {
+                                      ...prev.seatViewSection.interactiveImage,
+                                      mobileUrl: url,
+                                    }
+                                  : {
+                                      url: '',
+                                      clickableRegions: [],
+                                      mobileUrl: url,
+                                    },
+                              }
+                            : null,
+                        }))
+                      }
+                      buttonText="모바일 이미지 업로드"
                     />
                   )}
                 </FieldGroup>
@@ -770,6 +993,42 @@ export default function EditSidebar() {
                         }))
                       }
                       buttonText="지도 이미지 업로드"
+                    />
+                  )}
+                </FieldGroup>
+
+                {/* 모바일 지도 이미지 */}
+                <FieldGroup>
+                  <FieldLabel>모바일 지도 이미지 (@2x)</FieldLabel>
+                  {data.nearbyPlacesSection.mobileMapImageUrl ? (
+                    <ImagePreviewContainer>
+                      <ImagePreview
+                        source={{ uri: data.nearbyPlacesSection.mobileMapImageUrl }}
+                      />
+                      <ImageRemoveButton
+                        onPress={() =>
+                          updateData((prev) => ({
+                            ...prev,
+                            nearbyPlacesSection: prev.nearbyPlacesSection
+                              ? { ...prev.nearbyPlacesSection, mobileMapImageUrl: '' }
+                              : null,
+                          }))
+                        }
+                      >
+                        <ImageRemoveButtonText>×</ImageRemoveButtonText>
+                      </ImageRemoveButton>
+                    </ImagePreviewContainer>
+                  ) : (
+                    <ImageUploader
+                      onUploadComplete={(url) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          nearbyPlacesSection: prev.nearbyPlacesSection
+                            ? { ...prev.nearbyPlacesSection, mobileMapImageUrl: url }
+                            : null,
+                        }))
+                      }
+                      buttonText="모바일 지도 이미지 업로드"
                     />
                   )}
                 </FieldGroup>

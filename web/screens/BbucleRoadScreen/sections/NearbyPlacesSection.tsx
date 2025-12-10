@@ -310,7 +310,7 @@ export default function NearbyPlacesSection({
 }
 
 const Container = styled(View)<{ isDesktop: boolean }>`
-  padding-vertical: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '140px' : '80px')};
   width: 100%;
   background-color: ${color.gray10};
 `;
@@ -559,7 +559,8 @@ const PrimaryButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
 
 const PrimaryButtonText = styled(Text)<{ isDesktop: boolean }>`
   text-align: center;
-  font-family: Pretendard-Medium;
+  font-family: Pretendard-Bold;
+  font-weight: 700;
   font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '16px')};;
   line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '24px')};;
   color: ${color.white};

@@ -17,6 +17,7 @@ interface FloatingBottomBarProps {
   ctaButtonUrl: string;
   onLikePress?: () => void;
   onSharePress?: () => void;
+  isVisible?: boolean;
 }
 
 export default function FloatingBottomBar({
@@ -26,6 +27,7 @@ export default function FloatingBottomBar({
   ctaButtonUrl,
   onLikePress,
   onSharePress,
+  isVisible = true,
 }: FloatingBottomBarProps) {
   const { isDesktop } = useResponsive();
   const editContext = useEditMode();
@@ -59,7 +61,7 @@ export default function FloatingBottomBar({
   }, [onLikePress]);
 
   return (
-    <Container isDesktop={isDesktop}>
+    <Container isDesktop={isDesktop} isVisible={isVisible}>
       <ContentWrapper isDesktop={isDesktop}>
         {/* Like Button */}
         <SccPressable
@@ -110,9 +112,9 @@ export default function FloatingBottomBar({
   );
 }
 
-const Container = styled(View)<{ isDesktop: boolean }>`
+const Container = styled(View)<{ isDesktop: boolean; isVisible: boolean }>`
   position: fixed;
-  bottom: 0;
+  bottom: ${({ isVisible }) => (isVisible ? '0' : '-120px')};
   left: 0;
   right: 0;
   z-index: 200;
@@ -120,8 +122,9 @@ const Container = styled(View)<{ isDesktop: boolean }>`
   border-top-width: 1px;
   border-top-color: #dedee3;
   padding-top: ${({ isDesktop }) => (isDesktop ? '16px' : '10px')};
-  padding-bottom: ${({ isDesktop }) => (isDesktop ? '32px' : '32px')};
+  padding-bottom: ${({ isDesktop }) => (isDesktop ? '20px' : '20px')};
   padding-horizontal: ${({ isDesktop }) => (isDesktop ? '24px' : '16px')};
+  transition: bottom 0.3s ease-out;
 `;
 
 const ContentWrapper = styled(View)<{ isDesktop: boolean }>`

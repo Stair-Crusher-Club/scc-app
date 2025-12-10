@@ -128,7 +128,7 @@ const Container = styled(View)<{ isDesktop: boolean; isSticky: boolean; topOffse
   top: ${({ topOffset }) => topOffset}px;
   z-index: 100;
   background-color: white;
-  padding-top: ${({ isDesktop }) => (isDesktop ? '16px' : '12px')};
+  padding-top: ${({ isDesktop }) => (isDesktop ? '16px' : '4px')};
   border-bottom-width: ${({ isSticky }) => (isSticky ? '1px' : '0')};
   border-bottom-color: #e5e5e5;
   transition: background-color 0.2s ease, border-bottom-width 0.2s ease;

@@ -22,7 +22,12 @@ export default function OverviewSection({
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
 
-  const { titleLine1, titleLine2, mapImageUrl } = overviewSection;
+  const { titleLine1, titleLine2, mapImageUrl, mobileMapImageUrl } = overviewSection;
+
+  // 데스크탑이 아니면 모바일 이미지 우선 사용
+  const displayMapImageUrl = isDesktop
+    ? mapImageUrl
+    : (mobileMapImageUrl || mapImageUrl);
 
   const updateOverviewSection = useCallback(
     (updates: Partial<OverviewSectionData>) => {
@@ -218,7 +223,7 @@ const EmptyImageText = styled(Text)`
 
 const MapSection = styled(View)<{ isDesktop: boolean }>`
   width: 100%;
-  max-width: 1020px;
+  max-width: 860px;
   gap: 16px;
 `;
 
@@ -227,5 +232,5 @@ const HintText = styled(Text)<{ isDesktop: boolean }>`
   line-height: ${({ isDesktop }) => (isDesktop ? '22px' : '16px')};
   font-weight: 400;
   color: #767884;
-  padding: 0 ${({ isDesktop }) => (isDesktop ? '16px' : '0')};
+  padding: 0 ${({ isDesktop }) => (isDesktop ? '0' : '0')};
 `;

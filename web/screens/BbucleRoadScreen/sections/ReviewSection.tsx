@@ -221,8 +221,7 @@ export default function ReviewSection({
 }
 
 const Container = styled(View)<{ isDesktop: boolean }>`
-  padding-top: ${({ isDesktop }) => (isDesktop ? '140px' : '60px')};
-  padding-bottom: ${({ isDesktop }) => (isDesktop ? '140px' : '60px')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '140px' : '80px')};
   width: 100%;
   background-color: #ebf5ff;
 `;

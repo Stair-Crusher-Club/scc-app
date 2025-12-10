@@ -1,6 +1,14 @@
 import type { GetBbucleRoadPageResponseDto, BbucleRoadRouteDto, BbucleRoadInteractiveImageDto } from '@/generated-sources/openapi';
 
 /**
+ * 확장된 Interactive 이미지 타입 (모바일 URL 지원)
+ */
+export type ExtendedInteractiveImageDto = BbucleRoadInteractiveImageDto & {
+  /** 모바일용 이미지 URL (@2x) */
+  mobileUrl?: string;
+};
+
+/**
  * 근처 장소 개별 데이터 타입
  */
 export interface NearbyPlaceData {
@@ -46,6 +54,8 @@ export interface TicketInfoSectionData {
   titleLine2: string;
   descriptionHtml?: string;
   imageUrl: string;
+  /** 모바일용 이미지 URL (@2x) */
+  mobileImageUrl?: string;
   tips?: string[];
 }
 
@@ -58,7 +68,7 @@ export interface SeatViewSectionData {
   /** 타이틀 둘째 줄 (파란색) */
   titleLine2: string;
   descriptionHtmls?: string[];
-  interactiveImage?: BbucleRoadInteractiveImageDto;
+  interactiveImage?: ExtendedInteractiveImageDto;
   /** 모바일용 정적 이미지 URL (클릭 영역 없음) */
   mobileImageUrl?: string;
 }
@@ -99,13 +109,16 @@ export interface OverviewSectionData {
   /** 타이틀 둘째 줄 (파란색) */
   titleLine2: string;
   mapImageUrl: string;
+  /** 모바일용 지도 이미지 URL (@2x) */
+  mobileMapImageUrl?: string;
 }
 
 /**
- * 확장된 Route 데이터 타입 (API 타입 + descriptionHtml)
+ * 확장된 Route 데이터 타입 (API 타입 + descriptionHtml + 확장된 interactiveImage)
  */
-export type ExtendedRouteDto = BbucleRoadRouteDto & {
+export type ExtendedRouteDto = Omit<BbucleRoadRouteDto, 'interactiveImage'> & {
   descriptionHtml?: string;
+  interactiveImage?: ExtendedInteractiveImageDto;
 };
 
 /**
@@ -130,8 +143,16 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
   lastUpdatedDate?: string;
   /** 휠체어 사용자의 한마디 (HTML 형식) */
   wheelchairUserCommentHtml?: string;
+  /** 모바일용 휠체어 사용자의 한마디 (HTML 형식) */
+  wheelchairUserCommentHtmlMobile?: string;
   /** 헤더 배경 이미지 URL */
   headerBackgroundImageUrl?: string;
+  /** 모바일용 타이틀 이미지 URL (@2x) */
+  mobileTitleImageUrl?: string;
+  /** 모바일용 헤더 배경 이미지 URL (@2x) */
+  mobileHeaderBackgroundImageUrl?: string;
+  /** 헤더 배경 이미지 캡션 (예: "*플레이브 콘서트 사진") */
+  headerImageCaption?: string;
   overviewSection?: OverviewSectionData | null;
   ticketInfoSection?: TicketInfoSectionData | null;
   seatViewSection?: SeatViewSectionData | null;
@@ -153,8 +174,9 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "title": "휠체어로 고척 어때?",
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204094524_BB2F52447BBD4666.png",
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251205015702_871B3E8C8194426B.png",
+  "headerImageCaption": "*플레이브 콘서트 사진",
   "lastUpdatedDate": "최종 업데이트 2025.12.05",
-  "wheelchairUserCommentHtml": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</br>이동</b> 추천합니다! 고척돔 주변 지형에 경사지대가 많아 <b>경기장 이동에는 어려움 있을 수 있지만, 경기장 내에서의 이동은 수월했습니다.</b></span></div>",
+  "wheelchairUserCommentHtml": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b>&nbsp;이동이 가장 숏컷이에요.<br>근데 경사가 좀 있어서, <b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
   "sections": [],
   "routeSection": {
     "titleLine1": "고척스카이돔",
@@ -165,7 +187,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "tabLabel": "지하철 - 구일역",
         "tabIconType": "SUBWAY",
         "descriptionImageUrl": "",
-        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; gap: 6px; align-items: center; margin-bottom: 8px;\">\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">1호선 구일역</span>\n    <span style=\"font-size: 1em; color: #767884; letter-spacing: -0.32px; line-height: 1.625em;\">(도보 8분)</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #16181C; line-height: 1.625em;\">\n    <li>구일역 2번 출구 쪽 엘리베이터 이용</li>\n    <li>고척스카이돔 방향으로 직진</li>\n    <li><span style=\"font-weight: 700; color: #E52123;\">경사로 1의</span> 갈림길 중 본인에게 편안한 길을 택해서 이동\n      <ul style=\"list-style-type: disc; margin: 0; padding-left: 24px;\">\n        <li>가파른 오르막이나, 짧은 거리 이동</li>\n        <li><b>(추천)장애인 경사로(나무데크)를 통해 안전하게 이동</b></li>\n        <li>나무데크 옆 아스팔트 인도, 가파른 내리막</li>\n      </ul>\n    </li>\n    <li><span style=\"font-weight: 700; color: #E52123;\">경사로 2의</span> <b>갈림길 중 하나를 택해</b> 3루 매표소로 이동\n      <ul style=\"list-style-type: disc; margin: 0; padding-left: 24px;\">\n        <li>가파른 내리막이나, 비교적 짧은 거리 이동</li>\n        <li>완만하게 연결된 육교를 건너, 엘리베이터 이용</li>\n      </ul>\n    </li>\n  </ul>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px; margin-top: 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; align-self: stretch; margin: 0 0 6px 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #24262B; line-height: 1.625em;\">\n      <li>개봉역에서도 이동이 가능한데, 수동휠체어로 20분 넘게 걸리고, 인도가 잘 정비되지 않은 골목을 지나와야 해요. (대신 좀 덜 붐벼요)</li>\n      <li>자신의 상황과 선호에 따라서 이용하길 추천해요!</li>\n    </ul>\n  </div>\n</div>",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; gap: 6px; align-items: center; margin-bottom: 8px;\">\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">구일역 → 고척스카이돔</span>\n    <span style=\"font-size: 0.875em; color: #767884; letter-spacing: -0.32px; line-height: 1.625em;\">(전동휠체어 8분, 수동휠체어 15분)</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #16181C; line-height: 1.625em;\">\n    <li>구일역 2번 출구 쪽 엘리베이터 이용</li>\n    <li>고척스카이돔 방향으로 직진</li>\n    <li><span style=\"font-weight: 700; color: #E52123;\">경사로 1의</span> 갈림길 중 본인에게 편안한 길을 택해서 이동\n      <ul style=\"list-style-type: disc; margin: 0; padding-left: 24px;\">\n        <li>가파른 오르막이나, 짧은 거리 이동</li>\n        <li><b>(추천)장애인 경사로(나무데크)를 통해 안전하게 이동</b></li>\n        <li>나무데크 옆 아스팔트 인도, 가파른 내리막</li>\n      </ul>\n    </li>\n    <li><span style=\"font-weight: 700; color: #E52123;\">경사로 2의</span> <b>갈림길 중 하나를 택해</b> 3루 매표소로 이동\n      <ul style=\"list-style-type: disc; margin: 0; padding-left: 24px;\">\n        <li>가파른 내리막이나, 비교적 짧은 거리 이동</li>\n        <li>완만하게 연결된 육교를 건너, 엘리베이터 이용</li>\n      </ul>\n    </li>\n  </ul>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px; margin-top: 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; align-self: stretch; margin: 0 0 6px 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #24262B; line-height: 1.625em;\">\n      <li>개봉역에서도 이동이 가능한데, 수동휠체어로 20분 넘게 걸리고, 인도가 잘 정비되지 않은 골목을 지나와야 해요. (대신 좀 덜 붐벼요)</li>\n      <li>자신의 상황과 선호에 따라서 이용하길 추천해요!</li>\n    </ul>\n  </div>\n</div>",
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035424_00B896BC6F734985.png",
           "clickableRegions": [
@@ -249,7 +271,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "tabLabel": "지하철 - 개봉역",
         "tabIconType": "SUBWAY",
         "descriptionImageUrl": "",
-        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; gap: 6px; align-items: center; margin-bottom: 8px;\">\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">1호선 개봉역</span>\n    <span style=\"font-size: 1em; color: #767884; letter-spacing: -0.32px; line-height: 1.625em;\">(전동휠체어 15분, 수동휠체어 25분)</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #24262B; line-height: 1.625em;\">\n    <li>개봉역 2번 출구 엘리베이터 이용</li>\n    <li>메가커피 방향으로 큰길이 나올때까지 직진</li>\n    <li>큰길에서 경기장 방향으로 길따라서 직진</li>\n    <li>3루 매표소에서 현장수령 등 진행</li>\n  </ul>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px; margin-top: 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 6px 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #24262B; line-height: 1.625em;\">\n      <li>개봉역은 수동휠체어로 20분 넘게 걸리고, 인도가 잘 정비되지 않은 골목을 지나와야 해요. (대신 좀 덜 붐벼요)</li>\n      <li>자신의 상황과 선호에 따라서 이용하길 추천해요!</li>\n    </ul>\n  </div>\n</div>",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; gap: 6px; align-items: center; margin-bottom: 8px;\">\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">개봉역 → 고척스카이돔</span>\n    <span style=\"font-size: 0.875em; color: #767884; letter-spacing: -0.32px; line-height: 1.625em;\">(전동휠체어 15분, 수동휠체어 25분)</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #24262B; line-height: 1.625em;\">\n    <li>개봉역 2번 출구 엘리베이터 이용</li>\n    <li>메가커피 방향으로 큰길이 나올때까지 직진</li>\n    <li>큰길에서 경기장 방향으로 길따라서 직진</li>\n    <li>3루 매표소에서 현장수령 등 진행</li>\n  </ul>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px; margin-top: 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 6px 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #24262B; line-height: 1.625em;\">\n      <li>개봉역은 수동휠체어로 20분 넘게 걸리고, 인도가 잘 정비되지 않은 골목을 지나와야 해요. (대신 좀 덜 붐벼요)</li>\n      <li>자신의 상황과 선호에 따라서 이용하길 추천해요!</li>\n    </ul>\n  </div>\n</div>",
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251207035554_953F41BEF3954A6B.png",
           "clickableRegions": [
@@ -415,7 +437,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "nearbyPlacesSection": {
     "titleLine1": "고척스카이돔",
     "titleLine2": "근처 맛집 정보",
-    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208073509_54D57C6141664DBE.png",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210043027_B9FE8E965C154E8D.png",
     "places": [
       {
         "id": "place-1",
@@ -448,24 +470,24 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
       },
       {
         "id": "place-3",
-        "accessLevel": 2,
+        "accessLevel": 1,
         "name": "샤브향 구로점",
         "address": "서울 구로구 중앙로 13",
         "businessHours": "매일 | 11:00 ~ 21:00 (라스트오더 20:00)",
         "tags": [
           "1층",
-          "경사로없음"
+          "경사로있음"
         ],
         "imageUrls": [
           "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_F9C1512174224B55.webp",
-          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_4E597486312741E1.webp",
+          "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120050829_CA99D584BF1540C2.webp",
           "https://scc-prod-accessibility-thumbnails.s3.ap-northeast-2.amazonaws.com/thumbnail_20251120022742_AFB6DA9B7CFE4186.webp"
         ]
       }
     ],
     "naverListUrl": "https://naver.me/5YSWYw6R",
     "morePlacesUrl": "https://link.staircrusher.club/ns539uk",
-    "mobileMapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208074355_862135F501BD47DE.png"
+    "mobileMapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210043023_8FCEF6A5F8154BD3.png"
   },
   "ticketInfoSection": {
     "titleLine1": "고척스카이돔",
@@ -565,10 +587,12 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "overviewSection": {
     "titleLine1": "고척스카이돔 근처 정보",
     "titleLine2": "한눈에 보기",
-    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251205015639_09108C7BCC314AD2.png"
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210133457_3841F6BBA4DB4DD3.png"
   },
   "floatingHeaderTitle": "휠체어로 고척 어때?",
-  "likeCount": 126
+  "likeCount": 126,
+  "wheelchairUserCommentHtmlMobile": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b><br>이동이 가장 숏컷이에요. 근데 경사가 좀 있어서,<br><b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
+  "mobileHeaderBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210130255_93AD412E8FE248C5.png"
 },
 };
 

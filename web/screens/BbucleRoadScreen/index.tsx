@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -70,6 +70,34 @@ function getIsEditMode(): boolean {
 function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucleRoadId: string }) {
   const { isDesktop } = useResponsive();
   const { api: appApi } = useAppComponents();
+
+  // 스크롤 방향 감지 - BottomBar visibility
+  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const isTouching = useRef(false);
+  const isScrollingUpRef = useRef(true);
+
+  const handleScroll = useCallback((event: any) => {
+    const currentScrollY = event.nativeEvent?.contentOffset?.y ?? 0;
+    if (currentScrollY !== lastScrollY.current) {
+      isScrollingUpRef.current = currentScrollY < lastScrollY.current;
+      lastScrollY.current = currentScrollY;
+
+      // 터치 중이 아닐 때만 상태 업데이트 (관성 스크롤)
+      if (!isTouching.current) {
+        setIsBottomBarVisible(isScrollingUpRef.current);
+      }
+    }
+  }, []);
+
+  const handleTouchStart = useCallback(() => {
+    isTouching.current = true;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    isTouching.current = false;
+    setIsBottomBarVisible(isScrollingUpRef.current);
+  }, []);
 
   // 저장된 userId
   const myUserId = useMemo(() => {
@@ -151,13 +179,22 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
       {hasFloatingHeader && (
         <FloatingHeader title={data.floatingHeaderTitle!} />
       )}
-      <ScrollView>
+      <ScrollView
+        onScroll={handleScroll}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        scrollEventThrottle={16}
+      >
         <ContentWrapper hasFloatingHeader={hasFloatingHeader} isDesktop={isDesktop}>
           <HeaderSection
             titleImageUrl={data.titleImageUrl}
+            mobileTitleImageUrl={data.mobileTitleImageUrl}
             headerBackgroundImageUrl={data.headerBackgroundImageUrl}
+            mobileHeaderBackgroundImageUrl={data.mobileHeaderBackgroundImageUrl}
+            headerImageCaption={data.headerImageCaption}
             lastUpdatedDate={data.lastUpdatedDate}
             wheelchairUserCommentHtml={data.wheelchairUserCommentHtml}
+            wheelchairUserCommentHtmlMobile={data.wheelchairUserCommentHtmlMobile}
           />
 
           {availableSections.length > 0 && (
@@ -225,6 +262,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
         isLiked={isUpvoted}
         ctaButtonUrl={ctaButtonUrl}
         onLikePress={toggleUpvote}
+        isVisible={isBottomBarVisible}
       />
     </>
   );

@@ -11,16 +11,24 @@ import ImageUploader from '../components/ImageUploader';
 
 interface HeaderSectionProps {
   titleImageUrl: string;
+  mobileTitleImageUrl?: string;
   headerBackgroundImageUrl?: string;
+  mobileHeaderBackgroundImageUrl?: string;
+  headerImageCaption?: string;
   lastUpdatedDate?: string;
   wheelchairUserCommentHtml?: string;
+  wheelchairUserCommentHtmlMobile?: string;
 }
 
 export default function HeaderSection({
   titleImageUrl,
+  mobileTitleImageUrl,
   headerBackgroundImageUrl,
+  mobileHeaderBackgroundImageUrl,
+  headerImageCaption,
   lastUpdatedDate,
   wheelchairUserCommentHtml,
+  wheelchairUserCommentHtmlMobile,
 }: HeaderSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
@@ -30,12 +38,38 @@ export default function HeaderSection({
   const currentHeaderBackgroundImageUrl = isEditMode
     ? editContext?.data?.headerBackgroundImageUrl
     : headerBackgroundImageUrl;
+  const currentMobileHeaderBackgroundImageUrl = isEditMode
+    ? editContext?.data?.mobileHeaderBackgroundImageUrl
+    : mobileHeaderBackgroundImageUrl;
+  const currentMobileTitleImageUrl = isEditMode
+    ? editContext?.data?.mobileTitleImageUrl
+    : mobileTitleImageUrl;
+
+  // 데스크탑이 아니면 모바일 이미지 우선 사용
+  const displayBackgroundImageUrl = isDesktop
+    ? currentHeaderBackgroundImageUrl
+    : (currentMobileHeaderBackgroundImageUrl || currentHeaderBackgroundImageUrl);
+  const displayTitleImageUrl = isDesktop
+    ? titleImageUrl
+    : (currentMobileTitleImageUrl || titleImageUrl);
   const currentLastUpdatedDate = isEditMode
     ? editContext?.data?.lastUpdatedDate
     : lastUpdatedDate;
   const currentWheelchairUserCommentHtml = isEditMode
     ? editContext?.data?.wheelchairUserCommentHtml
     : wheelchairUserCommentHtml;
+  const currentWheelchairUserCommentHtmlMobile = isEditMode
+    ? editContext?.data?.wheelchairUserCommentHtmlMobile
+    : wheelchairUserCommentHtmlMobile;
+
+  // 데스크탑이 아니면 모바일 HTML 우선 사용
+  const displayWheelchairUserCommentHtml = isDesktop
+    ? currentWheelchairUserCommentHtml
+    : (currentWheelchairUserCommentHtmlMobile || currentWheelchairUserCommentHtml);
+
+  const currentHeaderImageCaption = isEditMode
+    ? editContext?.data?.headerImageCaption
+    : headerImageCaption;
 
   const handleTitleImageChange = useCallback(
     (url: string) => {
@@ -73,11 +107,11 @@ export default function HeaderSection({
   return (
     <Container isDesktop={isDesktop}>
       {/* 배경 이미지 + 오버레이 */}
-      {currentHeaderBackgroundImageUrl && (
+      {displayBackgroundImageUrl && (
         <>
           <BackgroundWrapper>
             <SccRemoteImage
-              imageUrl={currentHeaderBackgroundImageUrl}
+              imageUrl={displayBackgroundImageUrl}
               resizeMode="cover"
               style={{ width: '100%', height: '100%' }}
               wrapperBackgroundColor={null}
@@ -85,6 +119,15 @@ export default function HeaderSection({
           </BackgroundWrapper>
           <BackgroundOverlay />
         </>
+      )}
+
+      {/* 배경 이미지 캡션 */}
+      {currentHeaderImageCaption && (
+        <ImageCaptionWrapper isDesktop={isDesktop}>
+          <ImageCaptionText isDesktop={isDesktop}>
+            {currentHeaderImageCaption}
+          </ImageCaptionText>
+        </ImageCaptionWrapper>
       )}
 
       {/* Edit Mode: 배경 이미지 교체 버튼 */}
@@ -113,9 +156,9 @@ export default function HeaderSection({
               />
             </EditImageOverlay>
           )}
-          {titleImageUrl ? (
+          {displayTitleImageUrl ? (
             <SccRemoteImage
-              imageUrl={titleImageUrl}
+              imageUrl={displayTitleImageUrl}
               resizeMode="contain"
               wrapperBackgroundColor={null}
             />
@@ -141,7 +184,7 @@ export default function HeaderSection({
         ) : (
           currentLastUpdatedDate && (
             <UpdateDateBadge isDesktop={isDesktop}>
-              <UpdateDateText>{currentLastUpdatedDate}</UpdateDateText>
+              <UpdateDateText isDesktop={isDesktop}>{currentLastUpdatedDate}</UpdateDateText>
             </UpdateDateBadge>
           )
         )}
@@ -152,13 +195,13 @@ export default function HeaderSection({
             휠체어 사용자의 고척돔 접근성 한마디
           </CommentLabel>
           <SpeechBubbleWithCharacter>
-            <SpeechBubbleWrapper>
+            <SpeechBubbleWrapper isDesktop={isDesktop}>
               <SpeechBubble isDesktop={isDesktop}>
-                {currentWheelchairUserCommentHtml ? (
+                {displayWheelchairUserCommentHtml ? (
                   <CommentHtmlWrapper isDesktop={isDesktop}>
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: currentWheelchairUserCommentHtml,
+                        __html: displayWheelchairUserCommentHtml,
                       }}
                     />
                   </CommentHtmlWrapper>
@@ -207,6 +250,21 @@ const BackgroundOverlay = styled(View)`
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, 0.4);
+`;
+
+const ImageCaptionWrapper = styled(View)<{ isDesktop: boolean }>`
+  position: absolute;
+  bottom: ${({ isDesktop }) => (isDesktop ? '20px' : '16px')};
+  right: ${({ isDesktop }) => (isDesktop ? '24px' : '16px')};
+  z-index: 2;
+`;
+
+const ImageCaptionText = styled(Text)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: ${({ isDesktop }) => (isDesktop ? '13px' : '12px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '18px' : '16px')};
+  font-weight: 400;
+  color: ${color.gray35};
 `;
 
 const BackgroundEditOverlay = styled(View)`
@@ -303,8 +361,8 @@ const CommentLabel = styled(Text)<{ isDesktop: boolean }>`
   text-align: center;
 `;
 
-const SpeechBubbleWrapper = styled(View)`
-  align-items: flex-start;
+const SpeechBubbleWrapper = styled(View)<{ isDesktop: boolean }>`
+  width: ${({ isDesktop }) => (isDesktop ? '537px' : '308px')};
 `;
 
 const SpeechBubble = styled(View)<{ isDesktop: boolean }>`

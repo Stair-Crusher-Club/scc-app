@@ -241,8 +241,7 @@ export default function SeatViewSection({
 }
 
 const Container = styled(View)<{ isDesktop: boolean }>`
-  padding-top: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
-  padding-bottom: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '140px' : '80px')};
   width: 100%;
 `;
 
