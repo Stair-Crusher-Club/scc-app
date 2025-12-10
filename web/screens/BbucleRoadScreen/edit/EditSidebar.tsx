@@ -347,6 +347,28 @@ export default function EditSidebar() {
                   placeholderTextColor={color.gray40}
                 />
               </FieldGroup>
+
+              {/* OG 공유 이미지 */}
+              <FieldGroup>
+                <FieldLabel>공유 미리보기 이미지 (OG)</FieldLabel>
+                <ImageUploader
+                  currentImageUrl={data.ogImageUrl}
+                  onUploadComplete={(url) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      ogImageUrl: url,
+                    }))
+                  }
+                />
+                {data.ogImageUrl && (
+                  <OgImagePreview>
+                    <OgImagePreviewImg
+                      source={{ uri: data.ogImageUrl }}
+                      resizeMode="contain"
+                    />
+                  </OgImagePreview>
+                )}
+              </FieldGroup>
             </HeaderEditPanel>
           </Section>
 
@@ -1710,4 +1732,16 @@ const HeaderEditPanel = styled(View)`
   border-radius: 8px;
   padding: 12px;
   border: 1px solid #e0e0e0;
+`;
+
+const OgImagePreview = styled(View)`
+  margin-top: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+`;
+
+const OgImagePreviewImg = styled(Image)`
+  width: 100%;
+  height: 100px;
 `;

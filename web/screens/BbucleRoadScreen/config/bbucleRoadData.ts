@@ -162,6 +162,8 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
   floatingHeaderTitle?: string;
   /** 좋아요 수 */
   likeCount?: number;
+  /** OG(Open Graph) 공유 미리보기 이미지 URL */
+  ogImageUrl?: string;
 }
 
 /**
@@ -175,6 +177,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204094524_BB2F52447BBD4666.png",
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251205015702_871B3E8C8194426B.png",
   "headerImageCaption": "*플레이브 콘서트 사진",
+  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210134039_05A23F65BACB4DB8.png",
   "lastUpdatedDate": "최종 업데이트 2025.12.05",
   "wheelchairUserCommentHtml": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b>&nbsp;이동이 가장 숏컷이에요.<br>근데 경사가 좀 있어서, <b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
   "sections": [],

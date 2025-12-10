@@ -15,7 +15,7 @@
     "web": "ENVFILE=.env.sandbox webpack serve --config webpack.config.js --mode development",
     "web:production": "ENVFILE=.env.production webpack serve --config webpack.config.js --mode development",
     "web:local": "node scripts/sync-env-local.js && ENVFILE=.env.local webpack serve --config webpack.config.js --mode development",
-    "web:build": "webpack --config webpack.config.js --mode production",
+    "web:build": "webpack --config webpack.config.js --mode production && node scripts/generate-og-pages.js",
     "test": "jest",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix --ignore-pattern 'web/' --ignore-pattern 'web-dist/'",
