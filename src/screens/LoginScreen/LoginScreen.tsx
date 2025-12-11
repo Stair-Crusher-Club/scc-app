@@ -53,7 +53,7 @@ const LoginWith3rdParty = ({
         <View className="absolute left-4 top-[17px]">
           <KakaoLogo />
         </View>
-        <Text className="font-pretendard-bold text-base leading-6 text-blacka-80">
+        <Text className="font-pretendard-bold text-[16px] leading-[24px] text-blacka-80">
           카카오톡으로 계속하기
         </Text>
       </SccTouchableOpacity>
@@ -66,7 +66,7 @@ const LoginWith3rdParty = ({
           <View className="absolute left-4 top-[17px]">
             <AppleLogo />
           </View>
-          <Text className="font-pretendard-bold text-base leading-6">
+          <Text className="font-pretendard-bold text-[16px] leading-[24px]">
             Apple로 계속하기
           </Text>
         </SccTouchableOpacity>
@@ -76,7 +76,7 @@ const LoginWith3rdParty = ({
           elementName="login_guest_button"
           onPress={onGuestButtonPressed}
           className="flex-row items-center justify-center p-4 w-full h-[58px] rounded-xl bg-white">
-          <Text className="font-pretendard-regular text-sm text-gray-90">
+          <Text className="font-pretendard-regular text-[14px] text-gray-70">
             비회원 둘러보기
           </Text>
         </SccTouchableOpacity>
@@ -279,7 +279,10 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
         <Text className="text-[22px] leading-[31px] font-pretendard-semibold text-black text-center">
           {item.title}
         </Text>
-        <Image source={item.image} className="w-80 h-80" />
+        <Image
+          source={item.image}
+          className="w-full h-auto max-w-96 max-h-96 min-w-80 min-h-80 aspect-square"
+        />
       </View>
     );
   }
