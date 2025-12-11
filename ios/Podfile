@@ -85,6 +85,8 @@ target 'sccReactNative' do
 
         text = File.read(file)
         new_contents = text.gsub('Node.h', 'SVGKit/Node.h')
+        new_contents = new_contents.gsub('CSSValue.h', 'SVGKit/CSSValue.h')
+        new_contents = new_contents.gsub('SVGLength.h', 'SVGKit/SVGLength.h')
         File.open(file, 'w') { |f| f.write(new_contents) }
       end
 
