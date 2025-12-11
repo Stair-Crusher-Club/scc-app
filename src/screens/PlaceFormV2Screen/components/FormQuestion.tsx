@@ -20,7 +20,7 @@ export default function FormQuestion({
             {label}
           </Text>
         )}
-        <Text className="font-pretendard-semibold text-gray-80 text-[20px] leading-[28px]">
+        <Text className="font-pretendard-semibold text-gray-80 text-[18px] leading-[26px]">
           {question}
         </Text>
       </View>

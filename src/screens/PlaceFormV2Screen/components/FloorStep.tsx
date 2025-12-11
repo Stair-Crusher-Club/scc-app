@@ -101,6 +101,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
           <View className="flex-1">
             <SccButton
               text="다음"
+              fontWeight="600"
               onPress={onNext}
               isDisabled={isNextButtonDisabled}
               buttonColor="brandColor"

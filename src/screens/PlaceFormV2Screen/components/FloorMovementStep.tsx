@@ -245,6 +245,7 @@ export default function FloorMovementStep({
             onPress={onBack}
             buttonColor="gray10"
             textColor="black"
+            fontWeight="500"
             elementName="place_form_v2_floor_movement_prev"
             style={{flex: 1}}
           />
@@ -252,6 +253,7 @@ export default function FloorMovementStep({
             text="등록하기"
             onPress={onSubmit}
             buttonColor="brandColor"
+            fontWeight="600"
             elementName="place_form_v2_floor_movement_next"
             style={{flex: 2}}
             isDisabled={!isFormValid}

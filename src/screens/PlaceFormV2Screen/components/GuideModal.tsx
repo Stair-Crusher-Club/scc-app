@@ -51,7 +51,7 @@ export default function GuideModal({
             {/* 설명 섹션 */}
             <View className="px-[20px] pb-[40px] gap-[20px]">
               {/* 타이틀 */}
-              <Text className="font-pretendard-semibold text-gray-80 text-center text-[22px] leading-[30px]">
+              <Text className="font-pretendard-bold text-gray-80 text-center text-[24px] leading-[30px]">
                 {title}
               </Text>
 
@@ -80,7 +80,7 @@ export default function GuideModal({
 
               {/* 추가 정보 */}
               {additionalInfo && (
-                <Text className="font-pretendard-medium text-gray-90 bg-gray-10 rounded-[14px] p-[12px] text-[14px] leading-[22px]">
+                <Text className="font-pretendard-medium text-gray-90 bg-gray-10 rounded-[14px] p-[12px] text-[16px] leading-[22px]">
                   {additionalInfo}
                 </Text>
               )}
@@ -99,6 +99,7 @@ export default function GuideModal({
             onPress={onDismissPermanently}
             buttonColor="gray10"
             textColor="black"
+            fontWeight="500"
             style={{maxWidth: 132, width: '100%'}}
           />
           <SccButton
@@ -107,6 +108,7 @@ export default function GuideModal({
             onPress={onConfirm}
             buttonColor="brandColor"
             textColor="white"
+            fontWeight="600"
             style={{flex: 1}}
           />
         </View>

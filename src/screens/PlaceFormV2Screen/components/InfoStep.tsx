@@ -300,6 +300,7 @@ export default function InfoStep({
             onPress={onBack}
             buttonColor="gray10"
             textColor="black"
+            fontWeight="500"
             elementName="place_form_v2_info_prev"
             style={{flex: 1}}
           />
@@ -312,6 +313,7 @@ export default function InfoStep({
                 ? 'place_form_v2_info_next'
                 : 'place_form_v2_submit'
             }
+            fontWeight="600"
             style={{flex: 2}}
             isDisabled={!isFormValid}
           />
