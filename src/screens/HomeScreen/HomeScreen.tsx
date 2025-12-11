@@ -256,7 +256,7 @@ const HomeScreen = ({navigation}: any) => {
               <View className="pt-8 pb-4 px-5 bg-brand-50">
                 <Text
                   allowFontScaling={false}
-                  className="text-white text-2xl font-pretendard-bold mb-[14px]">
+                  className="text-white text-[24px] font-pretendard-bold mb-[14px]">
                   {'일상 속의 계단정보를\n함께 모아요!'}
                 </Text>
                 <CoachMarkTarget

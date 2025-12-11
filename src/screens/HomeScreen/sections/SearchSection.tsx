@@ -32,7 +32,7 @@ export default function SearchSection() {
 
   return (
     <View className="bg-white pt-5 relative">
-      <Text className="text-black text-xl font-pretendard-bold mx-5 pb-4">
+      <Text className="text-black text-[20px] leading-[28px] font-pretendard-bold mx-5 pb-4">
         어느 장소를 정복할까요?
       </Text>
 
@@ -45,7 +45,7 @@ export default function SearchSection() {
         }}
         style={{
           top: 0,
-          left: 20,
+          left: 18,
         }}>{`지도 아이콘을 누르면\n지도 화면으로 바로 이동할 수 있어요.`}</Tooltip>
       <View className="flex-row bg-gray-10 rounded-lg mx-5 gap-2 pt-3 pb-[13px] px-3 items-center">
         <CoachMarkTarget
@@ -70,10 +70,10 @@ export default function SearchSection() {
           elementName="place_search_input"
           onPress={() => goToSearch('')}
           className="flex-row items-center flex-1">
-          <Text className="flex-1 text-gray-50 text-base leading-6 font-pretendard-regular">
+          <Text className="flex-1 text-gray-50 text-[16px] leading-[24px] font-pretendard-regular">
             장소, 주소 검색
           </Text>
-          <SearchIcon width={24} height={24} color={color.gray70} />
+          <SearchIcon width={24} height={24} color={color.gray60} />
         </SccPressable>
       </View>
       <View className="overflow-visible px-5 py-4">
