@@ -23,10 +23,10 @@ export default function VersionRow() {
   return (
     <View className="flex-row justify-between items-center py-5 px-[25px]">
       <View>
-        <Text className="text-black text-base font-pretendard-regular">
+        <Text className="text-black text-[16px] font-pretendard-regular">
           현재 버전
         </Text>
-        <Text className="text-gray-70 text-sm font-pretendard-regular mt-0.5">
+        <Text className="text-gray-70 text-[14px] font-pretendard-regular mt-0.5">
           {`${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()}${flavor})`}
         </Text>
         <Text className="text-gray-70 text-[10px] font-pretendard-regular mt-0.5">
@@ -40,7 +40,7 @@ export default function VersionRow() {
           underlayColor={color.brandColor}
           onPress={goToStore}
           className="rounded-[10px] bg-brand-10 px-[10px] py-2">
-          <Text className="text-link text-sm leading-[22px] font-pretendard-regular">
+          <Text className="text-link text-[14px] leading-[22px] font-pretendard-regular">
             스토어로 이동
           </Text>
         </SccTouchableHighlight>

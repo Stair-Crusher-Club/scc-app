@@ -1,6 +1,6 @@
+import {useFocusEffect} from '@react-navigation/native';
 import React, {useCallback, useState} from 'react';
 import {ScrollView, Text, View} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
 
 import {SccPressable} from '@/components/SccPressable';
 
@@ -60,7 +60,7 @@ export default function ChallengeSection({
         <Text className="font-pretendard-bold text-[28px] text-black">
           계단뿌셔 챌린지
         </Text>
-        <Text className="text-gray-80 font-pretendard-regular text-base">
+        <Text className="text-gray-80 font-pretendard-regular text-[16px]">
           진행 중인 챌린지에 참여해 보세요!
         </Text>
       </View>
@@ -75,7 +75,7 @@ export default function ChallengeSection({
                 : 'border-gray-20 bg-white'
             }`}>
             <Text
-              className={`font-pretendard-regular text-sm ${
+              className={`font-pretendard-regular text-[14px] ${
                 activeFilter === 'all' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
@@ -91,7 +91,7 @@ export default function ChallengeSection({
                 : 'border-gray-20 bg-white'
             }`}>
             <Text
-              className={`font-pretendard-regular text-sm ${
+              className={`font-pretendard-regular text-[14px] ${
                 activeFilter === 'InProgress' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
@@ -107,7 +107,7 @@ export default function ChallengeSection({
                 : 'border-gray-20 bg-white'
             }`}>
             <Text
-              className={`font-pretendard-regular text-sm ${
+              className={`font-pretendard-regular text-[14px] ${
                 activeFilter === 'Upcoming' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
@@ -123,7 +123,7 @@ export default function ChallengeSection({
                 : 'border-gray-20 bg-white'
             }`}>
             <Text
-              className={`font-pretendard-regular text-sm ${
+              className={`font-pretendard-regular text-[14px] ${
                 activeFilter === 'Closed' ? 'text-brand-50' : 'text-gray-90'
               }`}
               style={{letterSpacing: -0.005}}>
@@ -165,10 +165,10 @@ function ChallengeCard({
           status={[challenge.status]}
           isMyChallenge={challenge.hasJoined}
         />
-        <Text className="font-pretendard-bold text-xl text-black mt-3">
+        <Text className="font-pretendard-bold text-[20px] text-black mt-3">
           {challenge.name}
         </Text>
-        <Text className="font-pretendard-regular text-sm text-gray-90 mt-0.5">
+        <Text className="font-pretendard-regular text-[14px] text-gray-90 mt-0.5">
           {stringifyChallengeDate(challenge)}
         </Text>
         <View className="absolute top-14 right-4">
