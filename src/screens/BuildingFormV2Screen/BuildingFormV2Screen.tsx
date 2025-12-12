@@ -37,6 +37,7 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import FormQuestion from '../PlaceFormV2Screen/components/FormQuestion';
 import {
   HeaderBorder,
@@ -379,6 +380,9 @@ export default function BuildingFormV2Screen({
         ToastUtils.show(message || '필수 정보를 입력해주세요.');
     }
   }
+
+  // 화면 닫기 전에 Alert 띄우기
+  useFormExitConfirm(action => navigation.dispatch(action));
 
   return (
     <LogParamsProvider params={{building_id: building.id}}>

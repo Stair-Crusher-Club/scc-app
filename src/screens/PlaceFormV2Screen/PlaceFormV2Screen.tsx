@@ -12,6 +12,7 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -309,6 +310,9 @@ export default function PlaceFormV2Screen({
       setStepIndex(infoIndex);
     }
   };
+
+  // 화면 닫기 전에 Alert 띄우기
+  useFormExitConfirm(action => navigation.dispatch(action));
 
   // 안드로이드 백 버튼 처리
   useBackHandler(() => {
