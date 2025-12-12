@@ -15,7 +15,7 @@ interface WelcomeModalProps {
 }
 
 type ModalAnimationType =
-  | {type: 'lottie'}
+  | {type: 'lottie'; source: ReturnType<typeof require>}
   | {type: 'image'; source: ReturnType<typeof require>};
 
 type TextPart = {text: string; bold: boolean};
@@ -36,7 +36,10 @@ const MODAL_CONFIG: Record<
       {text: nickname, bold: true},
       {text: '님 환영합니다!', bold: false},
     ],
-    animation: {type: 'lottie'},
+    animation: {
+      type: 'lottie',
+      source: require('@/assets/animations/crusher_activity_welcome.lottie'),
+    },
   },
   impactSession: {
     buttonText: '출석 완료!',
@@ -49,6 +52,19 @@ const MODAL_CONFIG: Record<
     animation: {
       type: 'image',
       source: require('@/assets/img/img_impact_session_modal.png'),
+    },
+  },
+  awards: {
+    buttonText: '출석 완료! 즐거운 시간 되세요~', // TODO: 실제 텍스트로 변경
+    getTextParts: (nickname: string) => [
+      {text: '어워즈', bold: true}, // TODO: 실제 텍스트로 변경
+      {text: '에 온 크루\n', bold: false},
+      {text: nickname, bold: true},
+      {text: '님 환영합니다!', bold: false},
+    ],
+    animation: {
+      type: 'image',
+      source: require('@/assets/img/img_awards_modal.png'),
     },
   },
 };
@@ -107,7 +123,7 @@ export default function WelcomeModal({
               ),
             );
           }}
-          source={require('@/assets/animations/crusher_activity_welcome.lottie')}
+          source={config.animation.source}
           autoPlay
           loop
           style={{
