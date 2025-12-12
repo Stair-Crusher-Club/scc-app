@@ -37,7 +37,7 @@ export default function GuideModal({
       onRequestClose={onRequestClose}>
       <View className="flex-1 bg-white">
         <ScrollView contentContainerClassName="flex-grow">
-          <View className="flex-1 gap-[24px]">
+          <View className="flex-1 gap-6">
             {image && (
               <View className="max-h-[260px]">
                 <Image
@@ -49,7 +49,7 @@ export default function GuideModal({
             )}
 
             {/* 설명 섹션 */}
-            <View className="px-[20px] pb-[40px] gap-[20px]">
+            <View className="px-5 pb-10 gap-5">
               {/* 타이틀 */}
               <Text className="font-pretendard-bold text-gray-80 text-center text-[24px] leading-[30px]">
                 {title}
@@ -80,7 +80,7 @@ export default function GuideModal({
 
               {/* 추가 정보 */}
               {additionalInfo && (
-                <Text className="font-pretendard-medium text-gray-90 bg-gray-10 rounded-[14px] p-[12px] text-[16px] leading-[22px]">
+                <Text className="font-pretendard-medium text-gray-90 bg-gray-10 rounded-[14px] p-3 text-[16px] leading-[22px]">
                   {additionalInfo}
                 </Text>
               )}
@@ -89,9 +89,9 @@ export default function GuideModal({
         </ScrollView>
 
         <View
-          className="flex-row px-[20px] pt-[12px] gap-[8px] pb-[12px]"
+          className="flex-row px-5 pt-4 gap-2"
           style={{
-            paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
+            paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
           }}>
           <SccButton
             elementName="guide_modal_dismiss"
