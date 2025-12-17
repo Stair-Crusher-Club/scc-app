@@ -66,7 +66,7 @@ export default function FeedbackButton({
               checkAuth(() => onPressAnalytics?.());
             }}>
             <ProfileImage source={require('@/assets/img/img_profile.png')} />
-            <ChevronRightIcon />
+            <ChevronRightIcon color={color.gray30} />
           </AnalyticsButton>
         )}
       </LeftSection>

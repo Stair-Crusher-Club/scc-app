@@ -1,3 +1,4 @@
+import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -5,32 +6,46 @@ import type {
   CrusherActivityHistorySummaryTypeDto,
   EpochMillisTimestamp,
 } from '@/generated-sources/openapi';
-import React from 'react';
+import type {ScreenParams} from '@/navigation/Navigation.screens';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import React, {useCallback} from 'react';
 import {Text, View} from 'react-native';
 import styled from 'styled-components/native';
 import {formatDateRange} from '../utils/date';
 
 interface HistoryItemProps {
   title: string;
+  crusherClubId?: string;
   startAt: EpochMillisTimestamp;
   endAt: EpochMillisTimestamp;
   historyType: CrusherActivityHistorySummaryTypeDto;
-  onPress?: () => void;
   isCurrentCrew?: boolean;
   isFirst?: boolean;
 }
 
 export default function HistoryItem({
   title,
+  crusherClubId,
   startAt,
   endAt,
   historyType,
-  onPress,
   isCurrentCrew,
   isFirst,
 }: HistoryItemProps) {
+  const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const dateText = formatDateRange(startAt.value, endAt.value);
   const isCrewType = historyType === 'CREW';
+
+  const handlePress = useCallback(() => {
+    if (!crusherClubId) {
+      return;
+    }
+    navigation.navigate('PastSeasonDetail', {
+      crusherClubId,
+      title,
+    });
+  }, [navigation, crusherClubId, title]);
 
   const content = (
     <Container showBorderTop={!!isFirst && !isCurrentCrew}>
@@ -44,13 +59,13 @@ export default function HistoryItem({
           <DateText>{dateText}</DateText>
         </TextWrapper>
       </ContentWrapper>
-      {isCrewType && <ChevronIcon>&gt;</ChevronIcon>}
+      {isCrewType && <ChevronRightIcon color={color.gray80} />}
     </Container>
   );
 
-  if (isCrewType && onPress) {
+  if (isCrewType && crusherClubId) {
     return (
-      <SccPressable onPress={onPress} elementName="history-crew-item">
+      <SccPressable onPress={handlePress} elementName="history-crew-item">
         {content}
       </SccPressable>
     );
@@ -95,10 +110,4 @@ const DateText = styled(Text)`
   font-family: ${font.pretendardRegular};
   line-height: 20px;
   color: ${color.gray50};
-`;
-
-const ChevronIcon = styled(Text)`
-  font-size: 20px;
-  color: ${color.gray80};
-  line-height: 24px;
 `;

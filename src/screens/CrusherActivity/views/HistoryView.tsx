@@ -50,6 +50,7 @@ export default function HistoryView({
         <HistoryItem
           key={index}
           title={history.title}
+          crusherClubId={history.crusherClubId}
           startAt={history.startAt}
           endAt={history.endAt}
           historyType={history.historyType}

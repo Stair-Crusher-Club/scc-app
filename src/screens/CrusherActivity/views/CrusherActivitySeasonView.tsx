@@ -15,21 +15,45 @@ import QuestItem from '../components/QuestItem';
 import SectionContainer from '../components/SectionContainer';
 import {crewInfoAssets} from '../constants';
 
-export default function CurrentSeasonView() {
+interface CrusherActivitySeasonViewProps {
+  crusherClubId?: string;
+  title?: string;
+}
+
+export default function CrusherActivitySeasonView({
+  crusherClubId,
+  title: titleFromProps,
+}: CrusherActivitySeasonViewProps) {
   const {api} = useAppComponents();
   const {userInfo} = useMe();
   const insets = useSafeAreaInsets();
   const [questToggleStatus, setQuestToggleStatus] =
     useState<ExpandToggleButtonStatus>('expand');
-  const {data} = useQuery({
+
+  const isPastSeason = !!crusherClubId;
+
+  const {data: pastSeasonData} = useQuery({
+    queryKey: ['CrusherActivity', crusherClubId],
+    queryFn: async () =>
+      (await api.getCrusherActivityPost({crusherClubId: crusherClubId!})).data,
+    staleTime: 1000 * 5,
+    enabled: isPastSeason,
+  });
+
+  const {data: currentSeasonData} = useQuery({
     queryKey: ['CrusherActivityPageData'],
     queryFn: async () => (await api.getCrusherActivityPageDataPost()).data,
     staleTime: 1000 * 5,
+    enabled: !isPastSeason,
   });
 
-  const crewType = data?.currentCrusherActivity?.crusherClub.crewType;
+  const crusherActivity = isPastSeason
+    ? pastSeasonData?.crusherActivity
+    : currentSeasonData?.currentCrusherActivity;
 
-  const originQuests = data?.currentCrusherActivity?.quests ?? [];
+  const crewType = crusherActivity?.crusherClub.crewType;
+
+  const originQuests = crusherActivity?.quests ?? [];
 
   const [quests, setQuests] = useState(
     crewType
@@ -47,7 +71,7 @@ export default function CurrentSeasonView() {
     }
   }, [questToggleStatus, originQuests]);
 
-  const activityLogs = data?.currentCrusherActivity?.activityLogs ?? [];
+  const activityLogs = crusherActivity?.activityLogs ?? [];
 
   return (
     <ScrollView
@@ -59,7 +83,9 @@ export default function CurrentSeasonView() {
       }}>
       <SectionContainer
         title={
-          data?.currentCrusherActivity?.crusherClub.season ?? '25’ 가을 시즌'
+          titleFromProps ??
+          crusherActivity?.crusherClub.season ??
+          '25’ 가을 시즌'
         }>
         <View
           style={{
@@ -251,7 +277,7 @@ export default function CurrentSeasonView() {
                     lineHeight: 24,
                     fontFamily: font.pretendardRegular,
                     color: color.gray50,
-                  }}>{`이번 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
+                  }}>{`${isPastSeason ? '해당' : '이번'} 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
               </View>
             }
           />

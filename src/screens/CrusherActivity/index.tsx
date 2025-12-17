@@ -9,7 +9,7 @@ import ClubQuestCheckInCompleteModal from './components/ClubQuestCheckInComplete
 import WelcomeModal from './components/WelcomeModal';
 import {tabItems} from './constants';
 import {CrusherActivityTab} from './types';
-import CurrentSeasonView from './views/CurrentSeasonView';
+import CrusherActivitySeasonView from './views/CrusherActivitySeasonView';
 import HistoryView from './views/HistoryView';
 
 export interface CrusherActivityScreenParams {
@@ -108,7 +108,7 @@ export default function CrusherActivityScreen({
   function renderView() {
     switch (currentTab) {
       case 'current':
-        return <CurrentSeasonView />;
+        return <CrusherActivitySeasonView />;
       case 'history':
         return (
           <HistoryView

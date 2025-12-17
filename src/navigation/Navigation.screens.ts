@@ -26,6 +26,9 @@ import ConquererUpVoteScreen from '@/screens/ConquererUpVoteScreen';
 import CrusherActivityScreen, {
   CrusherActivityScreenParams,
 } from '@/screens/CrusherActivity';
+import PastSeasonDetailScreen, {
+  PastSeasonDetailScreenParams,
+} from '@/screens/PastSeasonDetail';
 import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
@@ -152,6 +155,11 @@ export const MainNavigationScreens: {
   {
     name: 'CrusherActivity',
     component: CrusherActivityScreen,
+    options: {headerShown: true, headerTitle: '크러셔 활동'},
+  },
+  {
+    name: 'PastSeasonDetail',
+    component: PastSeasonDetailScreen,
     options: {headerShown: true, headerTitle: '크러셔 활동'},
   },
   {
@@ -317,6 +325,7 @@ export type ScreenParams = {
   UpvoteAnalytics: UpvoteAnalyticsScreenProps;
   FavoritePlaces: undefined;
   CrusherActivity: CrusherActivityScreenParams;
+  PastSeasonDetail: PastSeasonDetailScreenParams;
 
   // 리뷰
   'ReviewForm/Place': PlaceReviewFormScreenParams;

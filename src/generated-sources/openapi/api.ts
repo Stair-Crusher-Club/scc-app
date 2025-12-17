@@ -1229,6 +1229,31 @@ export interface CreatePlaceFavoriteResponseDto {
 /**
  * 
  * @export
+ * @interface CrusherActivityDto
+ */
+export interface CrusherActivityDto {
+    /**
+     * 
+     * @type {CrusherClubDto}
+     * @memberof CrusherActivityDto
+     */
+    'crusherClub': CrusherClubDto;
+    /**
+     * 
+     * @type {Array<CrusherClubQuestDto>}
+     * @memberof CrusherActivityDto
+     */
+    'quests': Array<CrusherClubQuestDto>;
+    /**
+     * 사용자의 활동 로그
+     * @type {Array<CrusherClubActivityLogDto>}
+     * @memberof CrusherActivityDto
+     */
+    'activityLogs'?: Array<CrusherClubActivityLogDto>;
+}
+/**
+ * 
+ * @export
  * @interface CrusherActivityHistorySummaryDto
  */
 export interface CrusherActivityHistorySummaryDto {
@@ -1256,6 +1281,12 @@ export interface CrusherActivityHistorySummaryDto {
      * @memberof CrusherActivityHistorySummaryDto
      */
     'historyType': CrusherActivityHistorySummaryTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof CrusherActivityHistorySummaryDto
+     */
+    'crusherClubId'?: string;
 }
 /**
  * 
@@ -1427,31 +1458,6 @@ export const CrusherClubQuestTypeDto = {
 export type CrusherClubQuestTypeDto = typeof CrusherClubQuestTypeDto[keyof typeof CrusherClubQuestTypeDto];
 
 
-/**
- * 
- * @export
- * @interface CurrentCrusherActivityDto
- */
-export interface CurrentCrusherActivityDto {
-    /**
-     * 
-     * @type {CrusherClubDto}
-     * @memberof CurrentCrusherActivityDto
-     */
-    'crusherClub': CrusherClubDto;
-    /**
-     * 
-     * @type {Array<CrusherClubQuestDto>}
-     * @memberof CurrentCrusherActivityDto
-     */
-    'quests': Array<CrusherClubQuestDto>;
-    /**
-     * 사용자의 활동 로그
-     * @type {Array<CrusherClubActivityLogDto>}
-     * @memberof CurrentCrusherActivityDto
-     */
-    'activityLogs'?: Array<CrusherClubActivityLogDto>;
-}
 /**
  * 
  * @export
@@ -1961,10 +1967,10 @@ export interface GetCountForNextRankPost200Response {
 export interface GetCrusherActivityPageDataResponseDto {
     /**
      * 
-     * @type {CurrentCrusherActivityDto}
+     * @type {CrusherActivityDto}
      * @memberof GetCrusherActivityPageDataResponseDto
      */
-    'currentCrusherActivity'?: CurrentCrusherActivityDto;
+    'currentCrusherActivity'?: CrusherActivityDto;
     /**
      * 
      * @type {Array<CrusherActivityHistorySummaryDto>}
@@ -1975,15 +1981,41 @@ export interface GetCrusherActivityPageDataResponseDto {
 /**
  * 
  * @export
+ * @interface GetCrusherActivityRequestDto
+ */
+export interface GetCrusherActivityRequestDto {
+    /**
+     * 크러셔 클럽 ID
+     * @type {string}
+     * @memberof GetCrusherActivityRequestDto
+     */
+    'crusherClubId': string;
+}
+/**
+ * 
+ * @export
+ * @interface GetCrusherActivityResponseDto
+ */
+export interface GetCrusherActivityResponseDto {
+    /**
+     * 
+     * @type {CrusherActivityDto}
+     * @memberof GetCrusherActivityResponseDto
+     */
+    'crusherActivity'?: CrusherActivityDto;
+}
+/**
+ * 
+ * @export
  * @interface GetCurrentCrusherActivityResponseDto
  */
 export interface GetCurrentCrusherActivityResponseDto {
     /**
      * 
-     * @type {CurrentCrusherActivityDto}
+     * @type {CrusherActivityDto}
      * @memberof GetCurrentCrusherActivityResponseDto
      */
-    'currentCrusherActivity'?: CurrentCrusherActivityDto;
+    'currentCrusherActivity'?: CrusherActivityDto;
 }
 /**
  * 
@@ -3657,10 +3689,10 @@ export interface RecordCrusherClubActivityRequestDto {
 export interface RecordCrusherClubActivityResponseDto {
     /**
      * 
-     * @type {CurrentCrusherActivityDto}
+     * @type {CrusherActivityDto}
      * @memberof RecordCrusherClubActivityResponseDto
      */
-    'currentCrusherActivity'?: CurrentCrusherActivityDto;
+    'currentCrusherActivity'?: CrusherActivityDto;
 }
 /**
  * 
@@ -5198,6 +5230,12 @@ export interface UpvotedUserDto {
      * @memberof UpvotedUserDto
      */
     'nickname': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpvotedUserDto
+     */
+    'userId': string;
 }
 /**
  * 
@@ -5443,7 +5481,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Identified required
+            // authentication Anonymous required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -6195,6 +6233,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 특정 크러셔 클럽의 활동 정보를 조회한다.
+         * @param {GetCrusherActivityRequestDto} getCrusherActivityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCrusherActivityPost: async (getCrusherActivityRequestDto: GetCrusherActivityRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getCrusherActivityRequestDto' is not null or undefined
+            assertParamExists('getCrusherActivityPost', 'getCrusherActivityRequestDto', getCrusherActivityRequestDto)
+            const localVarPath = `/getCrusherActivity`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getCrusherActivityRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary /getCrusherActivityPage 로 대체됨
          * @param {*} [options] Override http request option.
          * @deprecated
@@ -6674,7 +6752,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Identified required
+            // authentication Anonymous required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -8386,6 +8464,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 특정 크러셔 클럽의 활동 정보를 조회한다.
+         * @param {GetCrusherActivityRequestDto} getCrusherActivityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCrusherActivityPost(getCrusherActivityRequestDto: GetCrusherActivityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetCrusherActivityResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCrusherActivityPost(getCrusherActivityRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary /getCrusherActivityPage 로 대체됨
          * @param {*} [options] Override http request option.
          * @deprecated
@@ -9154,6 +9243,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 특정 크러셔 클럽의 활동 정보를 조회한다.
+         * @param {GetCrusherActivityRequestDto} getCrusherActivityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCrusherActivityPost(getCrusherActivityRequestDto: GetCrusherActivityRequestDto, options?: any): AxiosPromise<GetCrusherActivityResponseDto> {
+            return localVarFp.getCrusherActivityPost(getCrusherActivityRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary /getCrusherActivityPage 로 대체됨
          * @param {*} [options] Override http request option.
          * @deprecated
@@ -9913,6 +10012,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getCrusherActivityPageDataPost(options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getCrusherActivityPageDataPost(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 특정 크러셔 클럽의 활동 정보를 조회한다.
+     * @param {GetCrusherActivityRequestDto} getCrusherActivityRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getCrusherActivityPost(getCrusherActivityRequestDto: GetCrusherActivityRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCrusherActivityPost(getCrusherActivityRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
