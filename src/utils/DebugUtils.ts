@@ -1,6 +1,6 @@
-import {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
-import {logAPICall} from '@/components/DevTool/devToolEventStore';
 import {shouldShowDevTool} from '@/components/DevTool/DevTool';
+import {logAPICall} from '@/components/DevTool/devToolEventStore';
+import {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
 import Config from 'react-native-config';
 
 // Global logging control flags
@@ -94,7 +94,15 @@ export const logError = (error: unknown, context?: string) => {
     // Clean up timestamp
     requestTimestamps.delete(requestKey);
 
-    console.error('❌ API Error:', {
+    let errorTitle = '';
+
+    if (error.name === 'CanceledError') {
+      errorTitle = '🚧 API Aborted:';
+    } else {
+      errorTitle = '❌ API Error:';
+    }
+
+    console.error(errorTitle, {
       context,
       status: error.response?.status,
       url: error.config?.url,

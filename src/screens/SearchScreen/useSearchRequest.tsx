@@ -1,28 +1,28 @@
+import {useKeyboard} from '@react-native-community/hooks';
 import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
-import {useRef, useEffect} from 'react';
-import {useKeyboard} from '@react-native-community/hooks';
+import {useEffect, useRef} from 'react';
 
+import {useDevTool} from '@/components/DevTool/useDevTool';
+import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 import {
   PlaceListItem,
-  SearchPlaceSortDto,
   RectangleSearchRegionDto,
+  SearchPlaceSortDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {
   SortOption,
+  draftCameraRegionAtom,
   filterAtom,
   searchQueryAtom,
-  draftCameraRegionAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
-import {useDevTool} from '@/components/DevTool/useDevTool';
-import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 
 export default function useSearchRequest() {
   const {api} = useAppComponents();
@@ -54,7 +54,7 @@ export default function useSearchRequest() {
         useCameraRegion,
       },
     ],
-    queryFn: async ({}) => {
+    queryFn: async ({signal}) => {
       if (!text) {
         return null; // No search text -> Do not call API because it is landing page
       }
@@ -110,22 +110,25 @@ export default function useSearchRequest() {
         devTool.searchRegion.trackCircle(searchLocation, searchRadius);
       }
 
-      const response = await api.searchPlacesPost({
-        searchText: text,
-        distanceMetersLimit: rectangleRegion
-          ? undefined
-          : (radiusMeter ?? 20000),
-        currentLocation: rectangleRegion
-          ? undefined
-          : (location ?? currentLocation),
-        rectangleRegion: rectangleRegion,
-        sort: sort,
-        filters: {
-          maxAccessibilityScore: scoreUnder ?? undefined,
-          hasSlope: hasSlope ?? undefined,
-          isRegistered: isRegistered ?? undefined,
+      const response = await api.searchPlacesPost(
+        {
+          searchText: text,
+          distanceMetersLimit: rectangleRegion
+            ? undefined
+            : (radiusMeter ?? 20000),
+          currentLocation: rectangleRegion
+            ? undefined
+            : (location ?? currentLocation),
+          rectangleRegion: rectangleRegion,
+          sort: sort,
+          filters: {
+            maxAccessibilityScore: scoreUnder ?? undefined,
+            hasSlope: hasSlope ?? undefined,
+            isRegistered: isRegistered ?? undefined,
+          },
         },
-      });
+        {signal},
+      );
       Logger.logElementClick({
         name: 'place_search',
         currScreenName: route.name,
