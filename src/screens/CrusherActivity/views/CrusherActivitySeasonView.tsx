@@ -4,7 +4,7 @@ import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ActivityItem from '../components/ActivityItem';
@@ -53,7 +53,10 @@ export default function CrusherActivitySeasonView({
 
   const crewType = crusherActivity?.crusherClub.crewType;
 
-  const originQuests = crusherActivity?.quests ?? [];
+  const originQuests = useMemo(
+    () => crusherActivity?.quests ?? [],
+    [crusherActivity?.quests],
+  );
 
   const [quests, setQuests] = useState(
     crewType
