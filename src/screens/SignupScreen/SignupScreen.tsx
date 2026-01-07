@@ -1,7 +1,7 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
 import {useSetAtom} from 'jotai';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, View} from 'react-native';
 
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
@@ -59,13 +59,29 @@ export default function SignupScreen({
     formState.email === 'VALID' &&
     formState.birthYear === 'VALID';
 
-  useBackHandler(() => {
+  const handleBack = useCallback(() => {
     if (step === 1) {
-      return false;
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      }
+      return;
     }
     setStep(prev => prev - 1);
+  }, [step, navigation]);
+
+  // 헤더 백버튼 커스터마이즈
+  useEffect(() => {
+    navigation.setOptions({onBackPress: handleBack} as any);
+    return () => {
+      navigation.setOptions({onBackPress: undefined} as any);
+    };
+  }, [navigation, handleBack]);
+
+  // 안드로이드 하드웨어 백버튼 처리
+  useBackHandler(() => {
+    handleBack();
     return true;
-  }, [step]);
+  }, [handleBack]);
 
   async function signup() {
     if (isSubmitting) return;
