@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
+import IcOutWhite from '@/assets/icon/ic_out_white.svg';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
@@ -113,6 +114,7 @@ export default function NearbyPlacesSection({
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
+  const iconSize = isDesktop ? 24 : 18;
 
   const {
     titleLine1,
@@ -122,6 +124,7 @@ export default function NearbyPlacesSection({
     places = [],
     naverListUrl = DEFAULT_NAVER_LIST_URL,
     morePlacesUrl = DEFAULT_MORE_PLACES_URL,
+    wheelchairUserTipHtml,
   } = nearbyPlacesSection;
 
   const handleNaverListPress = useCallback(() => {
@@ -227,19 +230,29 @@ export default function NearbyPlacesSection({
 
             return activeMapImageUrl ? (
               <MapImageContainer isDesktop={isDesktop}>
-                <SccRemoteImage
-                  imageUrl={activeMapImageUrl}
-                  resizeMode="contain"
-                  style={{ borderRadius: 12 }}
-                />
-                {isEditMode && (
-                  <ImageOverlay>
-                    <ImageUploader
-                      currentImageUrl={activeMapImageUrl}
-                      onUploadComplete={activeHandler}
-                      compact
+                {isEditMode ? (
+                  <>
+                    <SccRemoteImage
+                      imageUrl={activeMapImageUrl}
+                      resizeMode="contain"
+                      style={{ borderRadius: 12 }}
                     />
-                  </ImageOverlay>
+                    <ImageOverlay>
+                      <ImageUploader
+                        currentImageUrl={activeMapImageUrl}
+                        onUploadComplete={activeHandler}
+                        compact
+                      />
+                    </ImageOverlay>
+                  </>
+                ) : (
+                  <TouchableOpacity onPress={handleMorePlacesPress} activeOpacity={0.8}>
+                    <SccRemoteImage
+                      imageUrl={activeMapImageUrl}
+                      resizeMode="contain"
+                      style={{ borderRadius: 12 }}
+                    />
+                  </TouchableOpacity>
                 )}
               </MapImageContainer>
             ) : (
@@ -285,7 +298,7 @@ export default function NearbyPlacesSection({
           )}
 
           {/* 장소 카드 목록 */}
-          <PlacesContainer isDesktop={isDesktop}>
+          {places.length > 0 && <PlacesContainer isDesktop={isDesktop}>
             {places.map((place, index) => (
               <React.Fragment key={place.id}>
                 <PlaceCard place={place} isDesktop={isDesktop} />
@@ -293,16 +306,29 @@ export default function NearbyPlacesSection({
                 {!isDesktop && index < places.length - 1 && <Divider />}
               </React.Fragment>
             ))}
-          </PlacesContainer>
+          </PlacesContainer>}
 
           <ButtonContainer isDesktop={isDesktop}>
             <NaverListButton isDesktop={isDesktop} onPress={handleNaverListPress}>
               <NaverListButtonText isDesktop={isDesktop}>네이버 지도로 모아보기</NaverListButtonText>
             </NaverListButton>
             <PrimaryButton isDesktop={isDesktop} onPress={handleMorePlacesPress}>
-              <PrimaryButtonText isDesktop={isDesktop}>접근성 기준으로 모아보기📱</PrimaryButtonText>
+              <PrimaryButtonText isDesktop={isDesktop}>접근성 정보 자세히보기</PrimaryButtonText>
+              <IcOutWhite width={iconSize} height={iconSize} viewBox="0 0 24 24" style={{'margin-left': '-6px'}} />
             </PrimaryButton>
           </ButtonContainer>
+
+          {/* 이미 다녀온 휠체어 사용자의 후기 팁 박스 (optional) */}
+          {wheelchairUserTipHtml && (
+            <WheelchairUserTipBox isDesktop={isDesktop}>
+              <WheelchairUserTipTitle isDesktop={isDesktop}>
+                이미 다녀온 휠체어 사용자의 후기🦽
+              </WheelchairUserTipTitle>
+              <WheelchairUserTipContent isDesktop={isDesktop}>
+                <div dangerouslySetInnerHTML={{ __html: wheelchairUserTipHtml }} />
+              </WheelchairUserTipContent>
+            </WheelchairUserTipBox>
+          )}
         </ContentWrapper>
       </Container>
     </div>
@@ -317,7 +343,7 @@ const Container = styled(View)<{ isDesktop: boolean }>`
 
 const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
   align-items: center;
-  gap: ${({ isDesktop }) => (isDesktop ? '30px' : '20px')};
+  gap: ${({ isDesktop }) => (isDesktop ? '60px' : '40px')};
   width: 100%;
   max-width: 1020px;
   padding: 0 16px;
@@ -516,18 +542,17 @@ const Divider = styled(View)`
 `;
 
 const ButtonContainer = styled(View)<{ isDesktop: boolean }>`
-  margin-top: 20px;
   flex-direction: ${({ isDesktop }) => (isDesktop ? 'row' : 'column')};
-  gap: 16px;
+  gap: ${({ isDesktop }) => (isDesktop ? '16px' : '8px')};
   justify-content: center;
   width: ${({ isDesktop }) => (isDesktop ? 'auto' : '100%')};
 `;
 
 const NaverListButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
   display: flex;
-  width: ${({ isDesktop }) => (isDesktop ? '242px' : '100%')};
-  padding-vertical: ${({ isDesktop }) => (isDesktop ? '12px' : '12px')};
-  padding-horizontal: auto;
+  ${({ isDesktop }) => (isDesktop ? '' : 'width: 100%')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '20px' : '12px')};
+  padding-horizontal: ${({ isDesktop }) => (isDesktop ? '40px' : 'auto')};
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -538,18 +563,19 @@ const NaverListButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
 
 const NaverListButtonText = styled(Text)<{ isDesktop: boolean }>`
   text-align: center;
-  font-family: Pretendard-Medium;
-  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '16px')};;
+  font-family: ${({ isDesktop }) => (isDesktop ? 'Pretendard-Bold' : 'Pretendard-Medium')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '20px' : '16px')};
   color: #0e64d3;
   letter-spacing: -0.36px;
-  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '24px')};;
+  line-height: ${({ isDesktop }) => (isDesktop ? '28px' : '24px')};
 `;
 
 const PrimaryButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
   display: flex;
-  width: ${({ isDesktop }) => (isDesktop ? '242px' : '100%')};
-  padding-vertical: ${({ isDesktop }) => (isDesktop ? '12px' : '12px')};
-  padding-horizontal: auto;
+  flex-direction: row;
+  ${({ isDesktop }) => (isDesktop ? '' : 'width: 100%')};
+  padding-vertical: ${({ isDesktop }) => (isDesktop ? '20px' : '12px')};
+  padding-horizontal: ${({ isDesktop }) => (isDesktop ? '40px' : 'auto')};
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -559,10 +585,10 @@ const PrimaryButton = styled(TouchableOpacity)<{ isDesktop: boolean }>`
 
 const PrimaryButtonText = styled(Text)<{ isDesktop: boolean }>`
   text-align: center;
-  font-family: Pretendard-Bold;
-  font-weight: 700;
-  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '16px')};;
-  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '24px')};;
+  font-family: ${({ isDesktop }) => (isDesktop ? 'Pretendard-SemiBold' : 'Pretendard-Medium')};
+  font-weight: 600;
+  font-size: ${({ isDesktop }) => (isDesktop ? '20px' : '16px')};;
+  line-height: ${({ isDesktop }) => (isDesktop ? '28px' : '24px')};;
   color: ${color.white};
 `;
 
@@ -616,4 +642,29 @@ const MobileImageActions = styled(View)`
   position: absolute;
   top: 8px;
   right: 8px;
+`;
+
+/* 휠체어 사용자 팁 박스 */
+const WheelchairUserTipBox = styled(View)<{ isDesktop: boolean }>`
+  background-color: ${color.white};
+  border-radius: 4px;
+  padding: 16px;
+  gap: 6px;
+  width: ${({ isDesktop }) => (isDesktop ? '100%' : '100%')};
+`;
+
+const WheelchairUserTipTitle = styled(Text)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #0e64d3;
+`;
+
+const WheelchairUserTipContent = styled(View)<{ isDesktop: boolean }>`
+  font-family: Pretendard;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 26px;
+  color: #24262b;
 `;

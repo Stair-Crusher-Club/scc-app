@@ -195,6 +195,9 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
             lastUpdatedDate={data.lastUpdatedDate}
             wheelchairUserCommentHtml={data.wheelchairUserCommentHtml}
             wheelchairUserCommentHtmlMobile={data.wheelchairUserCommentHtmlMobile}
+            titleImageWidth={data.titleImageWidth}
+            mobileTitleImageWidth={data.mobileTitleImageWidth}
+            wheelchairUserCommentLabel={data.wheelchairUserCommentLabel}
           />
 
           {availableSections.length > 0 && (
@@ -202,7 +205,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
               sections={availableSections}
               activeSection={activeSection}
               onTabPress={scrollToSection}
-              topOffset={hasFloatingHeader ? (isDesktop ? 80 : 50) : 0}
+              topOffset={hasFloatingHeader ? (isDesktop ? 60 : 50) : 0}
             />
           )}
 
@@ -218,6 +221,11 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
               routeSection={data.routeSection}
               sectionId={SECTION_IDS.ROUTE}
             />
+          )}
+
+          {/* CTA를 중간에 한번 더 출현시켜준다. */}
+          {data.ctaFooterSection && (
+            <CTAFooterSection ctaFooterSection={data.ctaFooterSection} hideCharacter />
           )}
 
           {data.ticketInfoSection && (

@@ -4,7 +4,6 @@ import styled from 'styled-components/native';
 import type {
   BbucleRoadRouteSectionDto,
   BbucleRoadRouteDto,
-  BbucleRoadClickableRegionDto,
   BbucleRoadRouteIconTypeDto,
 } from '@/generated-sources/openapi';
 import type { ExtendedRouteDto } from '../config/bbucleRoadData';
@@ -18,7 +17,6 @@ import IcCar from '@/assets/icon/ic_car.svg';
 import IcBus from '@/assets/icon/ic_bus.svg';
 import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import InteractiveImage from '../components/InteractiveImage';
-import RegionDetailModal from '../components/RegionDetailModal';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
@@ -50,9 +48,6 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
   const { isDesktop } = useResponsive();
 
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
-  const [selectedRegion, setSelectedRegion] =
-    useState<BbucleRoadClickableRegionDto | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const selectedRoute = routeSection.routes[selectedRouteIndex];
 
@@ -72,19 +67,6 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
     }
     setSelectedRouteIndex(index);
   }, [isEditMode]);
-
-  const handleRegionPress = useCallback(
-    (region: BbucleRoadClickableRegionDto) => {
-      setSelectedRegion(region);
-      setIsModalVisible(true);
-    },
-    [],
-  );
-
-  const handleModalClose = useCallback(() => {
-    setIsModalVisible(false);
-    setSelectedRegion(null);
-  }, []);
 
   // Edit mode handlers
   const updateRouteSection = useCallback(
@@ -229,17 +211,19 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
           gap: '8px',
         }}
       >
-        {routeSection.routes.map((route, index) => (
+        {routeSection.routes.map((route, index) => {
+          const active = index === selectedRouteIndex
+          return (
           <TabWrapper key={route.id}>
             <TabButton
               isDesktop={isDesktop}
-              active={index === selectedRouteIndex}
+              active={active}
               onPress={() => handleTabPress(index, route)}
             >
               {(() => {
                 const IconComponent = ICON_MAP[route.tabIconType];
                 const iconSize = isDesktop ? 24 : 18
-                const iconElement = <IconComponent width={iconSize} height={iconSize} viewBox={"0 0 16 16"} color={color.white} />;
+                const iconElement = <IconComponent width={iconSize} height={iconSize} viewBox={"0 0 16 16"} color={active ? color.white : color.gray50} />;
                 return isEditMode ? (
                   <IconSelector
                     onPress={() => {
@@ -248,10 +232,10 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
                       handleIconTypeChange(index, ICON_OPTIONS[nextIndex]);
                     }}
                   >
-                    <TabIconWrapper isDesktop={isDesktop}>{iconElement}</TabIconWrapper>
+                    <TabIconWrapper isDesktop={isDesktop} active={active}>{iconElement}</TabIconWrapper>
                   </IconSelector>
                 ) : (
-                  <TabIconWrapper isDesktop={isDesktop}>{iconElement}</TabIconWrapper>
+                  <TabIconWrapper isDesktop={isDesktop} active={active}>{iconElement}</TabIconWrapper>
                 );
               })()}
               {isEditMode ? (
@@ -260,7 +244,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
                   onChangeText={(text) => handleTabLabelChange(index, text)}
                 />
               ) : (
-                <TabLabel isDesktop={isDesktop}>
+                <TabLabel isDesktop={isDesktop} active={active}>
                   {route.tabLabel}
                 </TabLabel>
               )}
@@ -271,7 +255,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
               </TabDeleteButton>
             )}
           </TabWrapper>
-        ))}
+        )})}
 
         {/* Add Tab Button */}
         {isEditMode && (
@@ -308,7 +292,6 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
             {selectedRoute.interactiveImage.url ? (
               <InteractiveImage
                 interactiveImage={selectedRoute.interactiveImage}
-                onRegionPress={handleRegionPress}
                 onImageChange={isEditMode ? handleInteractiveImageChange : undefined}
                 routeIndex={selectedRouteIndex}
               />
@@ -326,14 +309,6 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
           </InteractiveImageContainer>
         </ContentContainer>
       )}
-
-      {/* Region Detail Modal */}
-        <RegionDetailModal
-          visible={isModalVisible}
-          allRegions={selectedRoute?.interactiveImage?.clickableRegions || []}
-          initialRegionId={selectedRegion?.id}
-          onClose={handleModalClose}
-        />
       </Container>
     </div>
   );
@@ -407,24 +382,26 @@ const TabWrapper = styled(View)`
 const TabButton = styled(TouchableOpacity)<{ isDesktop: boolean, active: boolean }>`
   flex-direction: row;
   align-items: center;
-  padding: ${({ isDesktop }) => (isDesktop ? '12px 30px 12px 28px' : '6px 14px 6px 12px')};
+  padding: ${({ isDesktop }) => (isDesktop ? '10px 24px 10px 24px' : '6px 14px 6px 12px')};
   border-radius: 24px;
-  background-color: ${({ active }) => (active ? color.iosBlue : color.gray30)};
+  background-color: ${({ active }) => (active ? color.iosBlue : color.white)};
+  border: 1px ${({ active }) => (active ? color.iosBlue : color.gray50)} solid;
 `;
 
 const IconSelector = styled(TouchableOpacity)`
   margin-right: 8px;
 `;
 
-const TabIconWrapper = styled(View)<{ isDesktop: boolean }>`
+const TabIconWrapper = styled(View)<{ isDesktop: boolean, active: boolean }>`
   margin-right: ${({ isDesktop }) => (isDesktop ? '8px' : '4px')};
+  color: ${({ active }) => (active ? color.white : color.gray50)};
 `;
 
-const TabLabel = styled(Text)<{ isDesktop: boolean }>`
-  font-size: ${({ isDesktop }) => (isDesktop ? '20px' : '14px')};
-  line-height: ${({ isDesktop }) => (isDesktop ? '28px' : '22px')};
-  font-weight: 600;
-  color: ${color.white};
+const TabLabel = styled(Text)<{ isDesktop: boolean, active: boolean }>`
+  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '14px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '22px')};
+  font-weight:${({ active }) => (active ? 600 : 'normal')};
+  color: ${({ active }) => (active ? color.white : color.gray50)};
 `;
 
 const TabLabelInput = styled(TextInput)`

@@ -18,6 +18,12 @@ interface HeaderSectionProps {
   lastUpdatedDate?: string;
   wheelchairUserCommentHtml?: string;
   wheelchairUserCommentHtmlMobile?: string;
+  /** 타이틀 이미지 너비 (데스크탑, 기본값: 487px) */
+  titleImageWidth?: number;
+  /** 모바일 타이틀 이미지 너비 (기본값: 280px) */
+  mobileTitleImageWidth?: number;
+  /** 휠체어 사용자의 한마디 라벨 */
+  wheelchairUserCommentLabel?: string;
 }
 
 export default function HeaderSection({
@@ -29,6 +35,9 @@ export default function HeaderSection({
   lastUpdatedDate,
   wheelchairUserCommentHtml,
   wheelchairUserCommentHtmlMobile,
+  titleImageWidth,
+  mobileTitleImageWidth,
+  wheelchairUserCommentLabel,
 }: HeaderSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
@@ -146,7 +155,10 @@ export default function HeaderSection({
         <SubTitle isDesktop={isDesktop}>뿌클로드 특별 기획</SubTitle>
 
         {/* 타이틀 이미지 */}
-        <TitleImageWrapper isDesktop={isDesktop}>
+        <TitleImageWrapper
+          isDesktop={isDesktop}
+          customWidth={isDesktop ? titleImageWidth : mobileTitleImageWidth}
+        >
           {isEditMode && (
             <EditImageOverlay>
               <ImageUploader
@@ -192,7 +204,7 @@ export default function HeaderSection({
         {/* 휠체어 사용자의 한마디 섹션 */}
         <CommentSection isDesktop={isDesktop}>
           <CommentLabel isDesktop={isDesktop}>
-            휠체어 사용자의 고척돔 접근성 한마디
+            {wheelchairUserCommentLabel || '휠체어 사용자의 고척돔 접근성 한마디'}
           </CommentLabel>
           <SpeechBubbleWithCharacter>
             <SpeechBubbleWrapper isDesktop={isDesktop}>
@@ -282,18 +294,18 @@ const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
 
 const SubTitle = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '28px' : '20px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '24px' : '20px')};
   font-weight: 700;
-  line-height: ${({ isDesktop }) => (isDesktop ? '38px' : '28px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '32px' : '28px')};
   color: ${color.white};
   text-align: center;
   margin-bottom: 12px;
 `;
 
-const TitleImageWrapper = styled(View)<{ isDesktop: boolean }>`
+const TitleImageWrapper = styled(View)<{ isDesktop: boolean; customWidth?: number }>`
   position: relative;
-  width: ${({ isDesktop }) => (isDesktop ? '487px' : '280px')};
-  aspect-ratio: 1.8;
+  width: ${({ isDesktop, customWidth }) =>
+    customWidth ? `${customWidth}px` : (isDesktop ? '487px' : '280px')};
 `;
 
 const EditImageOverlay = styled(View)`
@@ -352,10 +364,9 @@ const CommentSection = styled(View)<{ isDesktop: boolean }>`
 `;
 
 const CommentLabel = styled(Text)<{ isDesktop: boolean }>`
-  font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '15px')};
-  font-weight: 500;
-  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '22px')};
+  font-family: ${({ isDesktop }) => (isDesktop ? 'Pretendard-Bold' : 'Pretendard')};;
+  font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '18px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '26px')};
   letter-spacing: -0.36px;
   color: ${color.white};
   text-align: center;
@@ -385,7 +396,7 @@ const SpeechBubbleTail = styled(View)`
 
 const CommentHtmlWrapper = styled(View)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '15px' : '14px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '14px')};
   font-weight: 400;
   line-height: ${({ isDesktop }) => (isDesktop ? '24px' : '22px')};
   letter-spacing: -0.75px;

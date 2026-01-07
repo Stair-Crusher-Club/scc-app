@@ -1,14 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TextInput, Image } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
-import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
 import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import ImageUploader from '../components/ImageUploader';
 import InteractiveImage from '../components/InteractiveImage';
-import RegionDetailModal from '../components/RegionDetailModal';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import type { SeatViewSectionData } from '../config/bbucleRoadData';
@@ -25,9 +23,6 @@ export default function SeatViewSection({
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
-
-  const [selectedRegion, setSelectedRegion] =
-    useState<BbucleRoadClickableRegionDto | null>(null);
 
   const { titleLine1, titleLine2, descriptionHtmls, interactiveImage, mobileImageUrl } = seatViewSection;
 
@@ -77,23 +72,11 @@ export default function SeatViewSection({
     [updateSeatViewSection],
   );
 
-  const handleRegionPress = useCallback(
-    (region: BbucleRoadClickableRegionDto) => {
-      // 데스크톱에서만 모달 표시
-      if (isDesktop) {
-        setSelectedRegion(region);
-      }
-    },
-    [isDesktop],
-  );
-
-  const handleCloseModal = useCallback(() => {
-    setSelectedRegion(null);
-  }, []);
-
-  // 모바일용: 모든 region의 modalImageUrls를 하나의 배열로 합침
+  // 모바일 + 정적 이미지용: 모든 region의 modalImageUrls를 하나의 배열로 합침 (모바일 URL 우선)
   const allModalImages = interactiveImage?.clickableRegions?.flatMap(
-    (region) => region.modalImageUrls || [],
+    (region) => region.mobileModalImageUrls?.length
+      ? region.mobileModalImageUrls
+      : region.modalImageUrls || [],
   ) || [];
 
   return (
@@ -149,10 +132,10 @@ export default function SeatViewSection({
             <ImageContainer isDesktop={isDesktop}>
               <InteractiveImage
                 interactiveImage={interactiveImage}
-                onRegionPress={handleRegionPress}
                 onImageChange={isEditMode ? handleInteractiveImageChange : undefined}
                 routeIndex={0}
                 sectionType="seatView"
+                hintTextBackgroundColor={color.brand5}
               />
             </ImageContainer>
           ) : (
@@ -209,8 +192,8 @@ export default function SeatViewSection({
             </DescriptionGrid>
           )}
 
-          {/* 모바일: modalImageUrls 이미지들 직접 표시 */}
-          {!isDesktop && allModalImages.length > 0 && (
+          {/* 모바일 + 정적 이미지 사용 시: modalImageUrls 이미지들 직접 표시 */}
+          {!isDesktop && mobileImageUrl && allModalImages.length > 0 && (
             <RegionImagesContainer>
               {allModalImages.map((imageUrl, index) => (
                 <RegionImageWrapper key={index}>
@@ -226,16 +209,6 @@ export default function SeatViewSection({
           )}
         </ContentWrapper>
       </Container>
-
-      {/* Region Detail Modal - 데스크톱에서만 사용 */}
-      {isDesktop && (
-        <RegionDetailModal
-          visible={!!selectedRegion}
-          allRegions={interactiveImage?.clickableRegions || []}
-          initialRegionId={selectedRegion?.id}
-          onClose={handleCloseModal}
-        />
-      )}
     </div>
   );
 }
@@ -342,11 +315,6 @@ const RegionImagesContainer = styled(View)`
 const RegionImageWrapper = styled(View)`
   width: 100%;
   overflow: hidden;
-`;
-
-const RegionImage = styled(Image)`
-  width: 100%;
-  aspect-ratio: 1.78;
 `;
 
 /* 모바일 이미지 오버레이 (Edit Mode) */

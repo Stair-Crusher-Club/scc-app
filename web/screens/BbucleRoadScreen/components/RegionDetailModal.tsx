@@ -10,9 +10,8 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import styled from 'styled-components/native';
-import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
-
 import SccRemoteImage from '@/components/SccRemoteImage';
+import type { ExtendedClickableRegionDto } from '../config/bbucleRoadData';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
 import IcLeft from '@/assets/icon/ic_left.svg';
@@ -27,7 +26,7 @@ interface ImageWithMeta {
 
 interface RegionDetailModalProps {
   visible: boolean;
-  allRegions?: BbucleRoadClickableRegionDto[];
+  allRegions?: ExtendedClickableRegionDto[];
   initialRegionId?: string;
   onClose: () => void;
 }
@@ -43,16 +42,20 @@ export default function RegionDetailModal({
   const scrollViewRef = useRef<ScrollView>(null);
   const isScrollingProgrammatically = useRef(false);
 
-  // 1. 모든 이미지를 flatmap + 메타데이터 유지
+  // 1. 모든 이미지를 flatmap + 메타데이터 유지 (모바일/데스크탑 분기)
   const allImages: ImageWithMeta[] = useMemo(() => {
-    return (allRegions ?? []).flatMap((region) =>
-      (region.modalImageUrls || []).map((url) => ({
+    return (allRegions ?? []).flatMap((region) => {
+      // 모바일이고 mobileModalImageUrls가 있으면 사용, 없으면 modalImageUrls 사용
+      const imageUrls = !isDesktop && region.mobileModalImageUrls?.length
+        ? region.mobileModalImageUrls
+        : region.modalImageUrls || [];
+      return imageUrls.map((url) => ({
         url,
         regionId: region.id,
         regionTitle: region.title || '',
-      })),
-    );
-  }, [allRegions]);
+      }));
+    });
+  }, [allRegions, isDesktop]);
 
   // 2. 초기 인덱스 계산 (클릭한 region의 첫 이미지)
   const initialIndex = useMemo(() => {

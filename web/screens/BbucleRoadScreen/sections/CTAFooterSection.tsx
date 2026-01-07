@@ -15,6 +15,7 @@ const ctaFooterImageMobile = require('@/assets/icon/cta_bbucle_road_footer_mobil
 
 interface CTAFooterSectionProps {
   ctaFooterSection: CTAFooterSectionData;
+  hideCharacter?: boolean;
 }
 
 // URL 열기 (딥링크/웹링크 모두 지원, iOS Safari 호환)
@@ -34,6 +35,7 @@ const openUrl = (url: string) => {
 
 export default function CTAFooterSection({
   ctaFooterSection,
+  hideCharacter,
 }: CTAFooterSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
@@ -70,13 +72,14 @@ export default function CTAFooterSection({
   return (
     <Container isDesktop={isDesktop}>
       <OuterWrapper>
-        <CharacterWrapper isDesktop={isDesktop}>
-          <CharacterWheelyBuggyIcon
-            width={isDesktop ? 121 : 52}
-            height={isDesktop ? 71 : 31}
-            viewBox="0 0 121 71"
-          />
-        </CharacterWrapper>
+        {!hideCharacter &&
+          <CharacterWrapper isDesktop={isDesktop}>
+            <CharacterWheelyBuggyIcon
+              width={isDesktop ? 121 : 52}
+              height={isDesktop ? 71 : 31}
+              viewBox="0 0 121 71"
+            />
+          </CharacterWrapper>}
         <ContentWrapper isDesktop={isDesktop}>
           <TextAndButtonWrapper isDesktop={isDesktop}>
           <TitleWrapper isDesktop={isDesktop}>

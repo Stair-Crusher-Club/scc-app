@@ -2,35 +2,33 @@ import React, { useState, useCallback } from 'react';
 import { View, Image, Text, Pressable, LayoutChangeEvent, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import Svg, { Polygon, Line } from 'react-native-svg';
-import type {
-  BbucleRoadClickableRegionDto,
-  BbucleRoadPolygonPointDto,
-} from '@/generated-sources/openapi';
-import type { ExtendedInteractiveImageDto } from '../config/bbucleRoadData';
+import type { BbucleRoadPolygonPointDto } from '@/generated-sources/openapi';
+import type { ExtendedInteractiveImageDto, ExtendedClickableRegionDto } from '../config/bbucleRoadData';
 
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
 import { useEditMode, type RegionSectionType } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from './ImageUploader';
+import RegionDetailModal from './RegionDetailModal';
 
 interface InteractiveImageProps {
   interactiveImage: ExtendedInteractiveImageDto;
-  onRegionPress: (region: BbucleRoadClickableRegionDto) => void;
   /** 이미지 URL 변경 콜백 (edit mode) */
   onImageChange?: (url: string) => void;
   /** Route index (edit mode에서 region 편집 시 필요, route 섹션일 때만) */
   routeIndex?: number;
   /** 섹션 타입 (route 또는 seatView) */
   sectionType?: RegionSectionType;
+  hintTextBackgroundColor?: string;
 }
 
 export default function InteractiveImage({
   interactiveImage,
-  onRegionPress,
   onImageChange,
   routeIndex = 0,
   sectionType = 'route',
+  hintTextBackgroundColor,
 }: InteractiveImageProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
@@ -44,6 +42,7 @@ export default function InteractiveImage({
 
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [containerWidth, setContainerWidth] = useState(0);
+  const [selectedRegion, setSelectedRegion] = useState<ExtendedClickableRegionDto | null>(null);
 
   const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
@@ -123,7 +122,7 @@ export default function InteractiveImage({
 
   // Region 클릭 핸들러
   const handleRegionClick = useCallback(
-    (region: BbucleRoadClickableRegionDto, regionIndex: number) => {
+    (region: ExtendedClickableRegionDto, regionIndex: number) => {
       if (isEditMode) {
         // Edit mode: 해당 region 편집 시작
         if (sectionType === 'seatView' && editContext?.startEditingSeatViewRegion) {
@@ -141,7 +140,7 @@ export default function InteractiveImage({
           );
         }
       } else {
-        // View mode: 로깅 후 기존 동작
+        // View mode: 로깅 후 모달 열기
         Logger.logElementClick({
           name: 'bbucle-road-image-region',
           currScreenName: 'BbucleRoad',
@@ -153,11 +152,15 @@ export default function InteractiveImage({
             isDesktop,
           },
         });
-        onRegionPress(region);
+        setSelectedRegion(region);
       }
     },
-    [isEditMode, editContext, routeIndex, sectionType, onRegionPress],
+    [isEditMode, editContext, routeIndex, sectionType, interactiveImage.url, isDesktop],
   );
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedRegion(null);
+  }, []);
 
   const handleImageUpload = useCallback(
     (url: string) => {
@@ -331,11 +334,20 @@ export default function InteractiveImage({
         ))}
 
       {/* 힌트 텍스트 */}
-      <HintContainer isDesktop={isDesktop}>
-        <HintText isDesktop={isDesktop}>
-          사진을 클릭하면, 크게 볼 수 있습니다 🔍
-        </HintText>
-      </HintContainer>
+      {interactiveImage.clickableRegions.length > 0 &&
+        <HintContainer isDesktop={isDesktop} hintTextBackgroundColor={hintTextBackgroundColor}>
+          <HintText isDesktop={isDesktop}>
+            사진을 클릭하면, 크게 볼 수 있습니다 🔍
+          </HintText>
+        </HintContainer>}
+
+      {/* Region Detail Modal */}
+      <RegionDetailModal
+        visible={!!selectedRegion}
+        allRegions={interactiveImage?.clickableRegions || []}
+        initialRegionId={selectedRegion?.id}
+        onClose={handleCloseModal}
+      />
     </Container>
   );
 }
@@ -396,13 +408,13 @@ const AddRegionButtonText = styled(Text)`
   color: ${color.white};
 `;
 
-const HintContainer = styled(View)<{ isDesktop: boolean }>`
-  background-color: rgba(184, 255, 85, 0.3);
+const HintContainer = styled(View)<{ isDesktop: boolean, hintTextBackgroundColor?: string }>`
+  background-color: ${({ hintTextBackgroundColor}) => hintTextBackgroundColor ?? color.gray10};
   padding: ${({ isDesktop }) => (isDesktop ? '8px' : '6px')} 0;
   align-items: center;
   justify-content: center;
   border-radius: 2px;
-  margin: ${({ isDesktop }) => (isDesktop ? '12px 0 0' : '8px 16px 0')};
+  margin: ${({ isDesktop }) => (isDesktop ? '0 0 0' : '0 0 0')};
 `;
 
 const HintText = styled(Text)<{ isDesktop: boolean }>`

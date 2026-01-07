@@ -65,8 +65,8 @@ export default function OverviewSection({
 
   return (
     <div id={sectionId}>
-      <Container>
-        <ContentWrapper>
+      <Container isDesktop={isDesktop}>
+        <ContentWrapper isDesktop={isDesktop}>
           <TitleSection>
             {isEditMode ? (
               <>
@@ -134,15 +134,15 @@ export default function OverviewSection({
   );
 }
 
-const Container = styled(View)`
-  padding-top: 60px;
-  padding-bottom: 80px;
+const Container = styled(View)<{ isDesktop: boolean }>`
+  padding-top: ${({ isDesktop }) => (isDesktop ? '120px' : '60px')};
+  padding-bottom: ${({ isDesktop }) => (isDesktop ? '120px' : '80px')};
   width: 100%;
 `;
 
-const ContentWrapper = styled(View)`
+const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
   align-items: center;
-  gap: 40px;
+  gap: ${({ isDesktop }) => (isDesktop ? '60px' : '40px')};
   width: 100%;
   padding: 0 16px;
 `;
@@ -223,14 +223,14 @@ const EmptyImageText = styled(Text)`
 
 const MapSection = styled(View)<{ isDesktop: boolean }>`
   width: 100%;
-  max-width: 860px;
-  gap: 16px;
+  max-width: 800px;
+  gap: 12px;
 `;
 
 const HintText = styled(Text)<{ isDesktop: boolean }>`
-  font-size: ${({ isDesktop }) => (isDesktop ? '15px' : '12px')};
-  line-height: ${({ isDesktop }) => (isDesktop ? '22px' : '16px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '12px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '24px' : '16px')};
   font-weight: 400;
-  color: #767884;
+  color: ${color.gray50};
   padding: 0 ${({ isDesktop }) => (isDesktop ? '0' : '0')};
 `;

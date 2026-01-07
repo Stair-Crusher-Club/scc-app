@@ -31,7 +31,7 @@ const Container = styled(View)<{ isDesktop: boolean }>`
 `;
 
 const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
-  padding: ${({ isDesktop }) => (isDesktop ? '25px 0px' : '10px 20px')};
+  padding: ${({ isDesktop }) => (isDesktop ? '15px 0px' : '10px 20px')};
   justify-content: center;
   align-items: center;
 `;

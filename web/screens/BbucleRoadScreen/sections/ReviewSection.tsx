@@ -21,8 +21,13 @@ export default function ReviewSection({
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
 
-  const { titleLine1, titleLine2, descriptionHtmls, investigatorInfo } =
+  const { titleLine1, titleLine2, descriptionHtmls, descriptionHtmlsMobile, investigatorInfo } =
     reviewSection;
+
+  // 데스크탑이 아니면 모바일용 HTML 우선 사용
+  const displayDescriptionHtmls = isDesktop
+    ? descriptionHtmls
+    : (descriptionHtmlsMobile || descriptionHtmls);
 
   const updateReviewSection = useCallback(
     (updates: Partial<ReviewSectionData>) => {
@@ -131,7 +136,7 @@ export default function ReviewSection({
 
           {/* 후기 말풍선 리스트 */}
           <BubbleList isDesktop={isDesktop}>
-            {descriptionHtmls.map((html, index) => {
+            {displayDescriptionHtmls.map((html, index) => {
               const isLeft = index % 2 === 0;
               return (
                 <BubbleRow
@@ -417,3 +422,4 @@ const InvestigatorMembersInput = styled(TextInput)`
   border-radius: 8px;
   padding: 8px 16px;
 `;
+

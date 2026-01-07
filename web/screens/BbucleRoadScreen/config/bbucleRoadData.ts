@@ -1,11 +1,21 @@
-import type { GetBbucleRoadPageResponseDto, BbucleRoadRouteDto, BbucleRoadInteractiveImageDto } from '@/generated-sources/openapi';
+import type { GetBbucleRoadPageResponseDto, BbucleRoadRouteDto, BbucleRoadInteractiveImageDto, BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
+
+/**
+ * 확장된 Clickable Region 타입 (모바일 모달 이미지 지원)
+ */
+export type ExtendedClickableRegionDto = BbucleRoadClickableRegionDto & {
+  /** 모바일용 모달 이미지 URLs */
+  mobileModalImageUrls?: string[];
+};
 
 /**
  * 확장된 Interactive 이미지 타입 (모바일 URL 지원)
  */
-export type ExtendedInteractiveImageDto = BbucleRoadInteractiveImageDto & {
+export type ExtendedInteractiveImageDto = Omit<BbucleRoadInteractiveImageDto, 'clickableRegions'> & {
   /** 모바일용 이미지 URL (@2x) */
   mobileUrl?: string;
+  /** 확장된 클릭 영역 (모바일 모달 이미지 포함) */
+  clickableRegions?: ExtendedClickableRegionDto[];
 };
 
 /**
@@ -42,6 +52,8 @@ export interface NearbyPlacesSectionData {
   places: NearbyPlaceData[];
   naverListUrl?: string;
   morePlacesUrl?: string;
+  /** "이미 다녀온 휠체어 사용자의 후기" 팁 박스 HTML (optional, kspo-dome에만 사용) */
+  wheelchairUserTipHtml?: string;
 }
 
 /**
@@ -81,8 +93,10 @@ export interface ReviewSectionData {
   titleLine1: string;
   /** 타이틀 둘째 줄 (파란색) */
   titleLine2: string;
-  /** 후기 HTML 목록 (좌우 번갈아 배치됨) */
+  /** 후기 HTML 목록 - 데스크탑용 (좌우 번갈아 배치됨) */
   descriptionHtmls: string[];
+  /** 후기 HTML 목록 - 모바일용 (줄바꿈/bold 위치가 다름) */
+  descriptionHtmlsMobile?: string[];
   /** 조사단 정보 */
   investigatorInfo?: {
     /** 조사단 이름 (예: "고척스카이돔 조사단") */
@@ -164,6 +178,12 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
   likeCount?: number;
   /** OG(Open Graph) 공유 미리보기 이미지 URL */
   ogImageUrl?: string;
+  /** 타이틀 이미지 너비 (데스크탑, 기본값: 487px) */
+  titleImageWidth?: number;
+  /** 모바일 타이틀 이미지 너비 (기본값: 280px) */
+  mobileTitleImageWidth?: number;
+  /** 휠체어 사용자의 한마디 라벨 (예: "휠체어 사용자의 고척돔 접근성 한마디") */
+  wheelchairUserCommentLabel?: string;
 }
 
 /**
@@ -180,6 +200,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210134039_05A23F65BACB4DB8.png",
   "lastUpdatedDate": "최종 업데이트 2025.12.05",
   "wheelchairUserCommentHtml": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b>&nbsp;이동이 가장 숏컷이에요.<br>근데 경사가 좀 있어서, <b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
+  "wheelchairUserCommentLabel": "휠체어 사용자의 고척돔 접근성 한마디",
   "sections": [],
   "routeSection": {
     "titleLine1": "고척스카이돔",
@@ -429,7 +450,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "tabLabel": "버스",
         "tabIconType": "BUS",
         "descriptionImageUrl": "",
-        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;\">\n    <span style=\"font-size: 1.375em; font-weight: 600; color: #000; line-height: 2em;\">동양미래대학, 구로성심병원(중) 정류장</span>\n    <div style=\"display: flex; flex-direction: column; align-items: flex-start; gap: 4px; align-self: stretch;\">\n      <div style=\"display: flex; align-items: flex-start; gap: 8px; align-self: stretch; line-height: 1.625rem\">\n        <span style=\"color: #34A853; font-weight: 700;\">초록버스(지선)</span>\n        <span style=\"flex: 1 0 0; font-weight: 400;\">5626번, 5712번, 6713번, 6515번, 6511번, 6647번, 6640A번</span>\n      </div>\n      <div style=\"display: flex; align-items: flex-start; gap: 8px; align-self: stretch; line-height: 1.625rem\">\n        <span style=\"color: #4285F4; font-weight: 700;\">파란버스(간선)</span>\n        <span style=\"flex: 1 0 0; font-weight: 400;\">600번, 662번, 660번, 160번, N16번</span>\n      </div>\n    </div>\n  </div>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 6px 0;\">참고해주세요🦽</p>\n    <p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em; font-weight: 400\">위 라인 저상버스 포함해 운영 중이나 일부 차량은 저상버스가 아니므로 확인이 필요해요</p>\n  </div>\n</div>",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;\">\n    <span style=\"font-size: 1.375em; font-weight: 600; color: #000; line-height: 2em;\">동양미래대학, 구로성심병원(중) 정류장</span>\n    <div style=\"display: flex; flex-direction: column; align-items: flex-start; gap: 4px; align-self: stretch;\">\n      <div style=\"display: flex; align-items: flex-start; gap: 8px; align-self: stretch; line-height: 1.625em\">\n        <span style=\"color: #34A853; font-weight: 700;\">초록버스(지선)</span>\n        <span style=\"flex: 1 0 0; font-weight: 400;\">5626번, 5712번, 6713번, 6515번, 6511번, 6647번, 6640A번</span>\n      </div>\n      <div style=\"display: flex; align-items: flex-start; gap: 8px; align-self: stretch; line-height: 1.625em\">\n        <span style=\"color: #4285F4; font-weight: 700;\">파란버스(간선)</span>\n        <span style=\"flex: 1 0 0; font-weight: 400;\">600번, 662번, 660번, 160번, N16번</span>\n      </div>\n    </div>\n  </div>\n  <div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 16px 20px;\">\n    <p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 6px 0;\">참고해주세요🦽</p>\n    <p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em; font-weight: 400\">위 라인 저상버스 포함해 운영 중이나 일부 차량은 저상버스가 아니므로 확인이 필요해요</p>\n  </div>\n</div>",
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251208073127_8D80EFAD510048D4.png",
           "clickableRegions": []
@@ -596,6 +617,318 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "likeCount": 126,
   "wheelchairUserCommentHtmlMobile": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b><br>이동이 가장 숏컷이에요. 근데 경사가 좀 있어서,<br><b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
   "mobileHeaderBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210130255_93AD412E8FE248C5.png"
+},
+  'kspo-dome': {
+  "id": "kspo-dome",
+  "title": "휠체어로 KSPO 어때?",
+  "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071246_ECA9AE7A79B9420C.png",
+  "titleImageWidth": 547,
+  "mobileTitleImageWidth": 300,
+  "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071250_CFDB368904344C9F.png",
+  "headerImageCaption": "*슈가 콘서트 사진",
+  "ogImageUrl": "",
+  "lastUpdatedDate": "최종 업데이트 2025.12.22",
+  "wheelchairUserCommentHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; line-height: 1.5em; max-width: 507px;\">KSPO DOME을 갈 때,<br><b>수동휠체어 타고 경사 빡센 곳을 힘들어 하신다면 P6-7</b>을 추천해요!</div>",
+  "wheelchairUserCommentLabel": "휠체어 사용자의 KSPO 접근성 한마디",
+  "sections": [],
+  "routeSection": {
+    "titleLine1": "KSPO DOME",
+    "titleLine2": "대중교통 및 주차장 동선",
+    "routes": [
+      {
+        "id": "route-kspo-subway",
+        "tabLabel": "지하철",
+        "tabIconType": "SUBWAY",
+        "descriptionImageUrl": "",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.375em; margin-bottom: 1.5em;\"><div style=\"background-color: #EBF5FF; color: #0E64D3; font-size: 0.875em; font-weight: 400; padding: 0.125em 0.3125em; border-radius: 1px; width: fit-content; line-height: 1.25em;\">전동휠체어 8분, 수동휠체어 15분</div><div style=\"display: flex; gap: 0.25em; align-items: center;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원역</span><span style=\"font-size: 1em;\">→</span><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">KSPO DOME</span></div></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ 올림픽공원역 3번 또는 4번 출구</b> 엘리베이터 이용</p><p style=\"margin: 0;\"><b>➋</b> KSPO DOME 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➌ 아치형 다리를</b> 건너 KSPO DOME 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➍ 티켓 및 MD 부스 구역</b> 티켓 수령하여 공연장 입구로 이동</p><p style=\"margin: 0;\"><b>➎ 휠체어 출입구</b>로 공연장 입장</p></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>전체적으로 평지이지만,<br>보도블럭이 일어난 구간들이 있어서 주의해야 해요.</li><li>4번 구간에 MD부스, 포토존들이 있어요!</li></ul></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125440_9DAED33D40C647EC.png",
+          "clickableRegions": [
+            {
+              "id": "region-1766494503356",
+              "polygon": [
+                {
+                  "x": 0.5404411764705882,
+                  "y": 0.021280276816608996
+                },
+                {
+                  "x": 0.5386029411764706,
+                  "y": 0.4445213379469435
+                },
+                {
+                  "x": 0.9779411764705882,
+                  "y": 0.4516147635524798
+                },
+                {
+                  "x": 0.9742647058823529,
+                  "y": 0.014186851211072665
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223130733_4276412FB0714731.png"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "route-kspo-taxi",
+        "tabLabel": "장애인 콜택시",
+        "tabIconType": "TAXI",
+        "descriptionImageUrl": "",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">1</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽 공원 P5</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">하차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 송파구 올림픽로 424 올림픽공원 P5 주차장</li><li>KSPO DOME에서 가장 가까운 주차장</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">2</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">한국체육대학교 주차장</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">승차지/하차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 송파구 양재대로 1239 한국체육대학교 철골주차장</li><li>KSPO DOME에서 가까운 외부 주차장</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">3</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">JYP 사옥 부근</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">승차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 강동구 강동대로 207</li><li>건물 앞 택시 정류장</li></ul></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">공연이 끝나고 집에 갈 때는 가능한 올림픽 공원 외부로 장콜을 부르는게 좋아요!</p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125546_A0EDC319E3474529.png",
+          "clickableRegions": [
+            {
+              "id": "region-1766494579853",
+              "polygon": [
+                {
+                  "x": 0.034926470588235295,
+                  "y": 0.04256055363321799
+                },
+                {
+                  "x": 0.03125,
+                  "y": 0.4658016147635525
+                },
+                {
+                  "x": 0.4319852941176471,
+                  "y": 0.4658016147635525
+                },
+                {
+                  "x": 0.43014705882352944,
+                  "y": 0.04256055363321799
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125615_B4115C60E85A45B1.png"
+              ]
+            },
+            {
+              "id": "region-1766494598048",
+              "polygon": [
+                {
+                  "x": 0.5919117647058824,
+                  "y": 0.28137254901960784
+                },
+                {
+                  "x": 0.5900735294117647,
+                  "y": 0.7164359861591695
+                },
+                {
+                  "x": 0.9889705882352942,
+                  "y": 0.7093425605536332
+                },
+                {
+                  "x": 0.9834558823529411,
+                  "y": 0.276643598615917
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125636_A2305864551D4F88.png"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "route-kspo-bus",
+        "tabLabel": "버스",
+        "tabIconType": "BUS",
+        "descriptionImageUrl": "",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 1.25em; margin-bottom: 2em;\"><p style=\"margin: 0;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원역</span><span style=\"font-size: 1.125em; font-weight: 400; color: #000; line-height: 2em;\">(올림픽공원 장미광장 방면)</span></p><div style=\"display: flex; flex-direction: column; gap: 0.25em;\"><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #00A005; font-weight: 700; font-size: 1em; line-height: 1.5em;\">초록버스(지선)</span><span style=\"color: #16181C; font-weight: 400;\">3216, 3412, 3413, 3414</span></div><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #0E64D3; font-weight: 700; font-size: 1em; line-height: 1.5em;\">파란버스(간선)</span><span style=\"color: #16181C; font-weight: 400;\">301, 302</span></div></div></div><div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 1em 1.25em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">위 라인 저상버스 포함해 운영 중이나 일부 차량은 저상버스가 아니므로 확인이 필요해요!</p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125647_DBCC1530A70F4843.png",
+          "clickableRegions": []
+        }
+      },
+      {
+        "id": "route-kspo-car-internal",
+        "tabLabel": "자차-올림픽공원 내부",
+        "tabIconType": "CAR",
+        "descriptionImageUrl": "",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"margin-bottom: 2em;\"><div style=\"display: flex; flex-direction: column; gap: 0.25em; margin-bottom: 1.25em;\"><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; width: fit-content; line-height: 1.25em;\">가장 가까운 주차장</span><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 P5</span></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; padding-left: 0.375em; color: #24262B; line-height: 1.625em;\"><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">1</div><span><b>P5</b> 장애인 주차장(7석)에 차량 주차</span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">2</div><span><b>오르막</b>을 따라서 만남의 광장 방향으로 이동</span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">3</div><span><b>아치형 다리를</b> 건너 KSPO DOME 방향으로 <b>직진</b></span></div></div></div><div style=\"margin-bottom: 2em;\"><div style=\"margin-bottom: 1.25em;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 P7</span></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; padding-left: 0.375em; color: #24262B; line-height: 1.625em;\"><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">4</div><span><b>P7</b> 장애인 주차장에 차량 주차</span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">5</div><span><b>휠체어 전용 경사로</b>를 따라서 공연장 방향으로 이동</span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">6</div><span><b>티켓링크 라이브 아레나를 둘러서</b> KSPO DOME으로 이동</span></div></div></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">올림픽공원 홈페이지에서<br><b>주차장의 실시간 혼잡도</b>를 확인할 수 있어요!<br><a href=\"https://www.ksponco.or.kr/olympicpark/parkingInfo?mid=a20111000000\" target=\"_blank\" style=\"color: #0E64D3; text-decoration: underline;\">실시간 혼잡도 확인하기 ></a></p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125716_BAA4E928B5FD44E9.png",
+          "clickableRegions": [
+            {
+              "id": "region-1766494665187",
+              "polygon": [
+                {
+                  "x": 0.6341911764705882,
+                  "y": 0.02364475201845444
+                },
+                {
+                  "x": 0.6323529411764706,
+                  "y": 0.3759515570934256
+                },
+                {
+                  "x": 0.9889705882352942,
+                  "y": 0.37358708189158013
+                },
+                {
+                  "x": 0.9871323529411765,
+                  "y": 0.026009227220299885
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125743_0C3873584526494C.png"
+              ]
+            },
+            {
+              "id": "region-1766494681605",
+              "polygon": [
+                {
+                  "x": 0.15625,
+                  "y": 0.6053056516724337
+                },
+                {
+                  "x": 0.15808823529411764,
+                  "y": 0.9576124567474048
+                },
+                {
+                  "x": 0.5202205882352942,
+                  "y": 0.9552479815455593
+                },
+                {
+                  "x": 0.5183823529411765,
+                  "y": 0.6076701268742791
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125800_E05E5A0A263042F9.png"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "route-kspo-car-external",
+        "tabLabel": "자차-올림픽공원 외부",
+        "tabIconType": "CAR",
+        "descriptionImageUrl": "",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"margin-bottom: 2em;\"><div style=\"margin-bottom: 1.25em;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">한국체육대학교 주차장</span></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; padding-left: 0.375em; color: #24262B; line-height: 1.625em;\"><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">1</div><span style=\"font-weight: 700;\">한국체육대학교 입구 주차장에 차량 주차</span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">2</div><span>주차장을 나와 <b>올림픽공원역 방향</b>으로 <b>직진</b></span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">3</div><span>KSPO DOME 방향으로 <b>직진</b></span></div><div style=\"display: flex; gap: 0.375em; align-items: flex-start;\"><div style=\"background-color: #24262B; color: #fff; min-width: 1em; height: 1em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 0.875em; margin-top: 0.3125em;\">4</div><span><b>아치형 다리를</b> 건너 KSPO DOME 방향으로 <b>직진</b></span></div></div></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">올림픽공원 내부 주차장은 공연이 끝나고 집갈 때 힘든데,<br>한체대 주차장은 집갈 때도 덜 막혀요.</p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125820_1865243FE1DC4056.png",
+          "clickableRegions": [
+            {
+              "id": "region-1766494724876",
+              "polygon": [
+                {
+                  "x": 0.5845588235294118,
+                  "y": 0.02364475201845444
+                },
+                {
+                  "x": 0.5845588235294118,
+                  "y": 0.4563437139561707
+                },
+                {
+                  "x": 0.9834558823529411,
+                  "y": 0.4563437139561707
+                },
+                {
+                  "x": 0.9797794117647058,
+                  "y": 0.009457900807381776
+                }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125843_2955EDEF820A41E2.png"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "nearbyPlacesSection": {
+    "titleLine1": "KSPO DOME",
+    "titleLine2": "근처 맛집 정보",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071548_60D3DB395FC0451D.png",
+    "places": [],
+    // "naverListUrl": "https://naver.me/5YSWYw6R",
+    "morePlacesUrl": "https://link.staircrusher.club/o0o7kx",
+    "wheelchairUserTipHtml": "공연이 끝나고 장콜을 기다려야 할 때는 외부에 있는 식당이나 카페를 이용하는 게 좋아요! 훨씬 덜 붐비고 차 타기도 쉬워요."
+  },
+  "ticketInfoSection": {
+    "titleLine1": "KSPO DOME",
+    "titleLine2": "매표 및 입장동선",
+    "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.5em; margin-bottom: 1.25em;\"><div style=\"border: 1px solid #D8D8DF; background-color: #fff; color: #0E64D3; font-size: 0.8125em; font-weight: 500; padding: 0.25em 0.75em; border-radius: 50px; width: fit-content; line-height: 1.125em;\">매표</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">부스형 매표소</span><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #16181C; line-height: 1.625em; margin-top: 8px;\"><li>콘서트에 따라 다른 위치에 매표소가 운영될 수 있음</li></ul></div><div style=\"background-color: #fff; border-radius: 12px; padding: 1em 1.25em;\"><p style=\"font-size: 0.9375em; font-weight: 700; color: #0E64D3; line-height: 1.375em; margin: 0 0 0.375em 0;\">콘서트/공연 입장 참고사항</p><p style=\"font-size: 0.9375em; color: #16181C; line-height: 1.375em; margin: 0;\">티켓 현장수령이 필요하니<br>사전에 <b>매표소(현장 티켓부스) 위치를 확인</b>하세요.</p></div></div>",
+    "imageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071512_239FAF1D9CCC4734.png",
+    "tips": []
+  },
+  "seatViewSection": {
+    "titleLine1": "KSPO DOME",
+    "titleLine2": "휠체어석 위치 및 시야 확인",
+    "descriptionHtmls": [
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; display: flex; flex-direction: column; gap: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.5em;\"><div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: 0.8125em; font-weight: 500; padding: 0.3125em 0.8125em; border-radius: 50px; width: fit-content; line-height: 1.125em;\">입장</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">주출입구</span></div><ul style=\"margin: 0; font-size: 1em; color: #16181C; line-height: 1.625em; padding-left: 1.5em;\"><li>휠체어석과 가까운 출입구 2-2 추천</li></ul><div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 0.75em 1em;\"><p style=\"font-size: 0.9375em; font-weight: 700; color: #16181C; line-height: 1.375em; margin: 0 0 0.75em 0; color: #0E64D3;\">참고사항</p><p style=\"font-size: 0.9375em; color: #24262B; line-height: 1.5em; margin: 0;\">콘서트에 따라 이용 가능한 출입구가 다를 수 있으니,<br>현장 스태프에게 꼭 확인하고 안내받는 것을 추천합니다!</p></div></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; display: flex; flex-direction: column; gap: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.5em;\"><div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: 0.8125em; font-weight: 500; padding: 0.3125em 0.8125em; border-radius: 50px; width: fit-content; line-height: 1.125em;\">좌석</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">휠체어석 위치 및 시야</span></div><ul style=\"margin: 0; font-size: 1em; color: #16181C; line-height: 1.625em; padding-left: 1.5em;\"><li>1층 5~11 뒷자석 통로 구역에 위치</li><li>전체를 조망하기에는 나쁘지 않지만, <b>앞사람들이 일어서면 시야가 가려짐</b></li></ul></div>"
+    ],
+    "interactiveImage": {
+      "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071525_4F491F9FF07E4C0D.png",
+      "clickableRegions": [
+        {
+          "id": "region-1766494760503",
+          "polygon": [
+            {
+              "x": 0.4950980392156863,
+              "y": 0.025396825396825397
+            },
+            {
+              "x": 0.4950980392156863,
+              "y": 0.4492063492063492
+            },
+            {
+              "x": 0.9813725490196078,
+              "y": 0.4492063492063492
+            },
+            {
+              "x": 0.9852941176470589,
+              "y": 0.0873015873015873
+            },
+            {
+              "x": 0.9558823529411765,
+              "y": 0.009523809523809525
+            }
+          ],
+          "modalImageUrls": [
+            "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125917_9D58EABEC6834234.png",
+          ],
+          "mobileModalImageUrls": [
+            "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223154935_0375E27206EE44ED.png",
+          ],
+        }
+      ]
+    },
+    // "mobileImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125956_80C08C5AEC314B9E.png"
+  },
+  "reviewSection": {
+    "titleLine1": "KSPO DOME",
+    "titleLine2": "휠체어 이용자의 후기",
+    "descriptionHtmls": [
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\">올림픽 공원은 평지고, 차가 다니지 않아서 생각보다 <b>경기장 접근이 어렵지 않아요.</b><br>다만 공연이 많으면 굉장히 혼잡하기 때문에 주차장 이용시 여유롭게 도착하는 것을 추천합니다!<br><b>KSPO DOME 갈 때, 수동휠체어 타고 경사 빡센 곳을 힘들어 하신다면 P6-7을 추천해요!</b></p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 야마하 수전동 휠체어 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\"><b>지하철</b>로 방문했는데, <b>4번출구 쪽 엘리베이터</b>로 나오면 대부분 평지였습니다.<br>오래된 공원/공연장이다 보니 <b>보도가 조금씩 깨져 있어서 살짝 주의해야 하지만</b> 이동에 큰 어려움은<br>없었습니다. 공연마다 다르겠지만, 제가 갔던 공연(데이식스)에서는 주최측에서도 휠체어석으로<br>들어가는 루트를 잘 안내해줘서 편했어요!</p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 동반인 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\">데이식스 공연이 진행되는 kspo돔 근처가 <b>다 평지여서 이동하기 편했어요~~</b><br>아치다리를 건너야하긴 했지만 <b>엄청 빡센 경사는 아니라 이동하는데에 어려움은 없었어요</b>!<br>주차는 일부러 올림픽공원이 아니라 한국체육대학교 건물 주차장에 주차했는데<br>혼란스럽지 않게 나올 수 있었어요~~!</p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 -</p></div>"
+    ],
+    "descriptionHtmlsMobile": [
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\">올림픽 공원은 평지고, 차가 다니지 않아서 생각보다 <b>경기장 접근이 어렵지 않아요.</b> 다만 공연이 많으면 굉장히 혼잡하기 때문에 주차장 이용시 여유롭게 도착하는 것을 추천합니다!<br><br></p><p style=\"margin: 0;\"><b>KSPO DOME 갈 때, 수동휠체어 타고 경사 빡센 곳을 힘들어 하신다면 P6-7을 추천해요!</b></p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 야마하 수전동 휠체어 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\"><b>지하철</b>로 방문했는데,<br><b>4번출구 쪽 엘리베이터</b>로 나오면 대부분 평지였습니다.<br>오래된 공원/공연장이다 보니 <b>보도가 조금씩 깨져 있어서<br>살짝 주의해야 하지만</b> 이동에 큰 어려움은 없었습니다.<br>공연마다 다르겠지만, 제가 갔던 공연(데이식스)에서는 주최측에서도 휠체어석으로 들어가는 루트를 잘 안내해줘서 편했어요!</p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 동반인 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\">kspo돔 근처가 <b>다 평지여서 이동하기 편했어요~~</b><br>아치다리를 건너야하긴 했지만 <b>엄청 빡센 경사는 아니라 이동하는데에 어려움은 없었어요!</b></p><p style=\"margin: 0;\">주차는 일부러 올림픽공원이 아니라 한국체육대학교 건물 주차장에 주차했는데 혼란스럽지 않게 나올 수 있었어요~~!</p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 -</p></div>"
+    ],
+    "investigatorInfo": {
+      "title": "KSPO DOME 조사단",
+      "members": "(박수빈, 박원, 백은하, 지수환, 주성희)"
+    }
+  },
+  "ctaFooterSection": {
+    "buttonUrl": "https://forms.staircrusher.club/contents-alarm"
+  },
+  "overviewSection": {
+    "titleLine1": "KSPO DOME 동선 정보",
+    "titleLine2": "한눈에 보기",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071430_C2B5A98BAA5C4C1C.png"
+  },
+  "floatingHeaderTitle": "휠체어로 KSPO 어때?",
+  "likeCount": 0
 },
 };
 
