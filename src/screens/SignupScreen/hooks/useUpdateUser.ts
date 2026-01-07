@@ -8,6 +8,8 @@ export interface UserFormValue {
   nickname: string;
   email: string;
   birthYear: string;
+  phoneNumber: string;
+  isPhoneVerified: boolean;
   mobilityTools: UserMobilityToolDto[];
   isNewsLetterSubscriptionAgreed: boolean;
 }
@@ -29,6 +31,8 @@ export function useUpdateUser({
     nickname: '',
     email: '',
     birthYear: '',
+    phoneNumber: '',
+    isPhoneVerified: false,
     mobilityTools: [],
     isNewsLetterSubscriptionAgreed: false,
   };

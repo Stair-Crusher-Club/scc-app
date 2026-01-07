@@ -14,7 +14,7 @@ interface SignupSecondPageProps {
   onSubmit: () => void;
 }
 
-export default function SignupSecondPage({
+export default function SignupMobilityToolPage({
   formValue,
   updateField,
   onSubmit,

@@ -18,7 +18,7 @@ interface SignupFirstPageProps {
   updateField: (field: keyof UserFormValue, value: any) => Promise<void>;
 }
 
-export default function SignupFirstPage({
+export default function SignupBasicPage({
   formValue,
   formState,
   updateField,
