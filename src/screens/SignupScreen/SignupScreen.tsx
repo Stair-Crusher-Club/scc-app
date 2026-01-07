@@ -127,7 +127,7 @@ export default function SignupScreen({
         return {
           text: '다음',
           disabled: !formValue.isPhoneVerified,
-          onPress: () => {},
+          onPress: () => setStep(3),
           rightLabel: '',
         };
       case 3:
@@ -165,7 +165,6 @@ export default function SignupScreen({
             formValue={formValue}
             formState={formState}
             updateField={updateField}
-            onVerificationComplete={() => setStep(3)}
             accessToken={route.params.token}
           />
         );

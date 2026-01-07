@@ -157,10 +157,7 @@ export default function UserPhoneForm({
         clearInterval(timerRef.current);
       }
 
-      // 2초 후 다음 단계로 이동
-      setTimeout(() => {
-        onVerificationComplete();
-      }, 2000);
+      onVerificationComplete();
     } catch {
       setVerificationStatus('ERROR');
     }

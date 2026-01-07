@@ -12,14 +12,12 @@ interface SignupPhonePageProps {
   formValue: UserFormValue;
   formState: UserFormState;
   updateField: (field: keyof UserFormValue, value: any) => Promise<void>;
-  onVerificationComplete: () => void;
   accessToken?: string;
 }
 
 export default function SignupPhonePage({
   formValue,
   updateField,
-  onVerificationComplete,
   accessToken,
 }: SignupPhonePageProps) {
   const handlePhoneNumberChange = useCallback(
@@ -31,8 +29,7 @@ export default function SignupPhonePage({
 
   const handleVerificationComplete = useCallback(() => {
     updateField('isPhoneVerified', true);
-    onVerificationComplete();
-  }, [updateField, onVerificationComplete]);
+  }, [updateField]);
 
   return (
     <>
