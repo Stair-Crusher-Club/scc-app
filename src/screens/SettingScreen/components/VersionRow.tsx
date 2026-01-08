@@ -1,6 +1,6 @@
 import {HotUpdater} from '@hot-updater/react-native';
 import React from 'react';
-import {Linking, Platform, View} from 'react-native';
+import {Linking, Platform} from 'react-native';
 import Config from 'react-native-config';
 import DeviceInfo from 'react-native-device-info';
 
@@ -21,26 +21,25 @@ export default function VersionRow() {
       Linking.openURL('https://itunes.apple.com/app/id/6444382843');
     }
   }
+
   return (
-    <>
-      <S.Row>
-        <View>
-          <S.Title>현재 버전</S.Title>
-          <S.Subtitle>
+    <S.Row>
+      <S.SectionLabel>현재 버전</S.SectionLabel>
+      <S.ValueRow>
+        <S.ValueContent>
+          <S.SectionValue>
             {`${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()}${flavor})`}
-          </S.Subtitle>
+          </S.SectionValue>
           <S.SubtitleBundle>{HotUpdater.getBundleId()}</S.SubtitleBundle>
-        </View>
-        <View>
-          <S.ActionButton
-            elementName="setting_version_store_button"
-            activeOpacity={0.9}
-            underlayColor={color.brandColor}
-            onPress={goToStore}>
-            <S.ActionButtonText>스토어로 이동</S.ActionButtonText>
-          </S.ActionButton>
-        </View>
-      </S.Row>
-    </>
+        </S.ValueContent>
+        <S.ActionButton
+          elementName="setting_version_store_button"
+          activeOpacity={0.9}
+          underlayColor={color.brandColor}
+          onPress={goToStore}>
+          <S.ActionButtonText>스토어로 이동</S.ActionButtonText>
+        </S.ActionButton>
+      </S.ValueRow>
+    </S.Row>
   );
 }

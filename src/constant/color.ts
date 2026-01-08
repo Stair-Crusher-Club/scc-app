@@ -13,7 +13,7 @@ export const color = {
 
   brand5: '#EBF5FF',
   brandBg: '#E8F4FF',
-  brand10: '#D6EBFF',
+  brand10: '#E5F1FF',
   brand15: '#B2D7FF',
   brand20: '#67AEFFCC',
   brand25: '#67AEFF',

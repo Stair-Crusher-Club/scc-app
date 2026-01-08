@@ -28,7 +28,7 @@ export default function SignupMobilityToolPage({
           display: 'flex',
         }}>
         <TitleText style={{marginTop: 12}}>
-          나에게 해당하는 이동 유형을 모두 선택해주세요.{' '}
+          나에게 해당하는 이동 유형을{'\n'}모두 선택해주세요.{' '}
           <Text
             style={{
               color: color.gray50,

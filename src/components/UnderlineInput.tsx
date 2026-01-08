@@ -169,7 +169,7 @@ export default UnderlineInput;
 const styles = StyleSheet.create({
   input: {
     flex: 1,
-    fontFamily: font.pretendardRegular,
+    fontFamily: font.pretendardMedium,
     fontSize: 16,
     color: color.gray90,
     padding: 0,

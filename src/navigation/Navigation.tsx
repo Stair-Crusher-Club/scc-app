@@ -44,7 +44,7 @@ export const NavigationHeader = ({
           <SccPressable
             elementName="navigation_back_button"
             onPress={handleBack}>
-            <LeftArrowIcon width={24} height={24} color={color.black} />
+            <LeftArrowIcon width={16} height={14} color={color.black} />
           </SccPressable>
           <S.Title ellipsizeMode="tail">{title}</S.Title>
         </S.ContentsContainer>

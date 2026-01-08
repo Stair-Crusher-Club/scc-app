@@ -5,31 +5,40 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
 export const Row = styled.View({
+  paddingVertical: 20,
+  paddingHorizontal: 20,
+});
+
+export const SectionLabel = styled.Text({
+  color: color.gray50,
+  fontSize: 14,
+  lineHeight: 20,
+  fontFamily: font.pretendardRegular,
+  marginBottom: 8,
+});
+
+export const ValueRow = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  paddingVertical: 20,
-  paddingHorizontal: 25,
 });
 
-export const Title = styled.Text({
+export const ValueContent = styled.View({
+  gap: 2,
+});
+
+export const SectionValue = styled.Text({
   color: color.black,
   fontSize: 16,
-  fontFamily: font.pretendardRegular,
-});
-
-export const Subtitle = styled.Text({
-  color: color.gray70,
-  fontSize: 14,
-  fontFamily: font.pretendardRegular,
-  marginTop: 2,
+  lineHeight: 26,
+  fontFamily: font.pretendardMedium,
 });
 
 export const SubtitleBundle = styled.Text({
-  color: color.gray70,
+  color: color.gray45,
   fontSize: 10,
+  lineHeight: 14,
   fontFamily: font.pretendardRegular,
-  marginTop: 2,
 });
 
 export const ActionButton = styled(SccTouchableHighlight)({
@@ -42,6 +51,20 @@ export const ActionButton = styled(SccTouchableHighlight)({
 export const ActionButtonText = styled.Text({
   color: color.link,
   fontSize: 14,
-  lineHeight: '22px',
+  lineHeight: 22,
   fontFamily: font.pretendardRegular,
+});
+
+export const CopyButton = styled(SccTouchableHighlight)({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 2,
+  padding: 4,
+});
+
+export const CopyButtonText = styled.Text({
+  color: color.brandColor,
+  fontSize: 13,
+  lineHeight: 18,
+  fontFamily: font.pretendardMedium,
 });

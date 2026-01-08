@@ -18,8 +18,8 @@ export const ContentsContainer = styled.View({
 });
 
 export const Title = styled.Text({
-  fontSize: 18,
-  lineHeight: '26px',
+  fontSize: 20,
+  lineHeight: 28,
   fontFamily: font.pretendardMedium,
   color: color.black,
   flex: 1,

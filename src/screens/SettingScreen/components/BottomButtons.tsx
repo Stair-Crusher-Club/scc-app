@@ -45,17 +45,18 @@ export default function BottomButtons() {
     <S.BottomButtons>
       <SccButton
         text="로그아웃"
-        textColor="black"
-        buttonColor="gray10"
+        textColor="gray80"
+        buttonColor="gray15"
         fontFamily={font.pretendardMedium}
         onPress={logout}
         elementName="setting_logout"
+        style={{borderRadius: 14}}
       />
       <SccButton
         text="탈퇴하기"
-        textColor="gray80"
+        textColor="gray50"
         buttonColor="white"
-        fontFamily={font.pretendardRegular}
+        fontFamily={font.pretendardMedium}
         onPress={() => setIsConfirmVisible(true)}
         elementName="setting_withdraw"
       />

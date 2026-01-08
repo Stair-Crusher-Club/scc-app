@@ -5,6 +5,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import BottomButtons from './components/BottomButtons';
+import IdRow from './components/IdRow';
 import VersionRow from './components/VersionRow';
 
 const SettingScreen = ({}: ScreenProps<'Setting'>) => {
@@ -12,6 +13,7 @@ const SettingScreen = ({}: ScreenProps<'Setting'>) => {
     <ScreenLayout isHeaderVisible safeAreaEdges={['bottom']}>
       <View style={{height: 26}} />
       <VersionRow />
+      <IdRow />
       <View style={{flex: 1}} />
       <BottomButtons />
     </ScreenLayout>
