@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
+import { SccPressable } from '@/components/atoms';
 import { color } from '@/constant/color';
+import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 
 interface CategoryFilterProps {
@@ -17,13 +19,19 @@ export default function CategoryFilter({
   onCategoryChange,
 }: CategoryFilterProps) {
   const { isDesktop } = useResponsive();
+  const editContext = useEditMode();
+  const isEditMode = editContext?.isEditMode ?? false;
 
   return (
     <Container isDesktop={isDesktop}>
       <FilterButton
+        as={SccPressable}
         isActive={activeCategory === null}
         isDesktop={isDesktop}
         onPress={() => onCategoryChange(null)}
+        elementName="bbucle-road-category-filter"
+        logParams={{ category: 'all' }}
+        disableLogging={isEditMode}
       >
         <ButtonText isActive={activeCategory === null} isDesktop={isDesktop}>
           전체
@@ -32,10 +40,14 @@ export default function CategoryFilter({
 
       {categories.map((category) => (
         <FilterButton
+          as={SccPressable}
           key={category}
           isActive={activeCategory === category}
           isDesktop={isDesktop}
           onPress={() => onCategoryChange(category)}
+          elementName="bbucle-road-category-filter"
+          logParams={{ category }}
+          disableLogging={isEditMode}
         >
           <ButtonText isActive={activeCategory === category} isDesktop={isDesktop}>
             {category}

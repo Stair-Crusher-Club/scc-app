@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
 import CharacterWheelyIcon from '@/assets/icon/character_wheely.svg';
 import { color } from '@/constant/color';
+import Logger from '@/logging/Logger';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from '../components/ImageUploader';
@@ -112,6 +113,27 @@ export default function HeaderSection({
     },
     [editContext],
   );
+
+  // 이미지 노출 로깅
+  useEffect(() => {
+    if (!isEditMode && displayBackgroundImageUrl) {
+      Logger.logElementView({
+        name: 'bbucle-road-header-background-image',
+        currScreenName: 'BbucleRoad',
+        extraParams: { imageUrl: displayBackgroundImageUrl, isDesktop },
+      });
+    }
+  }, [displayBackgroundImageUrl, isEditMode, isDesktop]);
+
+  useEffect(() => {
+    if (!isEditMode && displayTitleImageUrl) {
+      Logger.logElementView({
+        name: 'bbucle-road-header-title-image',
+        currScreenName: 'BbucleRoad',
+        extraParams: { imageUrl: displayTitleImageUrl, isDesktop },
+      });
+    }
+  }, [displayTitleImageUrl, isEditMode, isDesktop]);
 
   return (
     <Container isDesktop={isDesktop}>

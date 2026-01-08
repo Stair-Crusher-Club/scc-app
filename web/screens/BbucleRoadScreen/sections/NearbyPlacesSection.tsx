@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Image } from 'react-native';
 import styled from 'styled-components/native';
 
+import { SccPressable } from '@/components/atoms';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
 import IcOutWhite from '@/assets/icon/ic_out_white.svg';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
@@ -128,28 +128,12 @@ export default function NearbyPlacesSection({
   } = nearbyPlacesSection;
 
   const handleNaverListPress = useCallback(() => {
-    // View mode에서만 로깅
-    if (!isEditMode) {
-      Logger.logElementClick({
-        name: 'bbucle-road-naver-list',
-        currScreenName: 'BbucleRoad',
-        extraParams: { url: naverListUrl, isDesktop },
-      });
-    }
     openUrl(naverListUrl);
-  }, [isEditMode, naverListUrl]);
+  }, [naverListUrl]);
 
   const handleMorePlacesPress = useCallback(() => {
-    // View mode에서만 로깅
-    if (!isEditMode) {
-      Logger.logElementClick({
-        name: 'bbucle-road-nearby-more',
-        currScreenName: 'BbucleRoad',
-        extraParams: { url: morePlacesUrl, isDesktop },
-      });
-    }
     openUrl(morePlacesUrl);
-  }, [isEditMode, morePlacesUrl]);
+  }, [morePlacesUrl]);
 
   const updateNearbyPlacesSection = useCallback(
     (updates: Partial<NearbyPlacesSectionData>) => {
@@ -309,10 +293,24 @@ export default function NearbyPlacesSection({
           </PlacesContainer>}
 
           <ButtonContainer isDesktop={isDesktop}>
-            <NaverListButton isDesktop={isDesktop} onPress={handleNaverListPress}>
+            <NaverListButton
+              as={SccPressable}
+              isDesktop={isDesktop}
+              onPress={handleNaverListPress}
+              elementName="bbucle-road-naver-list"
+              logParams={{ url: naverListUrl, isDesktop }}
+              disableLogging={isEditMode}
+            >
               <NaverListButtonText isDesktop={isDesktop}>네이버 지도로 모아보기</NaverListButtonText>
             </NaverListButton>
-            <PrimaryButton isDesktop={isDesktop} onPress={handleMorePlacesPress}>
+            <PrimaryButton
+              as={SccPressable}
+              isDesktop={isDesktop}
+              onPress={handleMorePlacesPress}
+              elementName="bbucle-road-nearby-more"
+              logParams={{ url: morePlacesUrl, isDesktop }}
+              disableLogging={isEditMode}
+            >
               <PrimaryButtonText isDesktop={isDesktop}>접근성 정보 자세히보기</PrimaryButtonText>
               <IcOutWhite width={iconSize} height={iconSize} viewBox="0 0 24 24" style={{'margin-left': '-6px'}} />
             </PrimaryButton>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 import type {
@@ -8,6 +8,7 @@ import type {
 } from '@/generated-sources/openapi';
 import type { ExtendedRouteDto } from '../config/bbucleRoadData';
 
+import { SccPressable } from '@/components/atoms';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
 import SccRemoteImage from '@/components/SccRemoteImage';
@@ -51,22 +52,25 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
 
   const selectedRoute = routeSection.routes[selectedRouteIndex];
 
-  const handleTabPress = useCallback((index: number, route: ExtendedRouteDto) => {
-    // View mode에서만 로깅
-    if (!isEditMode) {
-      Logger.logElementClick({
-        name: 'bbucle-road-route-tab',
+  const handleTabPress = useCallback((index: number) => {
+    setSelectedRouteIndex(index);
+  }, []);
+
+  // 설명 이미지 노출 로깅
+  useEffect(() => {
+    if (!isEditMode && selectedRoute?.descriptionImageUrl) {
+      Logger.logElementView({
+        name: 'bbucle-road-route-description-image',
         currScreenName: 'BbucleRoad',
         extraParams: {
-          tabIndex: index,
-          tabLabel: route.tabLabel,
-          tabIconType: route.tabIconType,
+          imageUrl: selectedRoute.descriptionImageUrl,
+          routeIndex: selectedRouteIndex,
+          tabLabel: selectedRoute.tabLabel,
           isDesktop,
         },
       });
     }
-    setSelectedRouteIndex(index);
-  }, [isEditMode]);
+  }, [selectedRoute?.descriptionImageUrl, selectedRouteIndex, isEditMode, isDesktop]);
 
   // Edit mode handlers
   const updateRouteSection = useCallback(
@@ -216,9 +220,18 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
           return (
           <TabWrapper key={route.id}>
             <TabButton
+              as={SccPressable}
               isDesktop={isDesktop}
               active={active}
-              onPress={() => handleTabPress(index, route)}
+              onPress={() => handleTabPress(index)}
+              elementName="bbucle-road-route-tab"
+              logParams={{
+                tabIndex: index,
+                tabLabel: route.tabLabel,
+                tabIconType: route.tabIconType,
+                isDesktop,
+              }}
+              disableLogging={isEditMode}
             >
               {(() => {
                 const IconComponent = ICON_MAP[route.tabIconType];

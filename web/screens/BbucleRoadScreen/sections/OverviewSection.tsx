@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
+import Logger from '@/logging/Logger';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
@@ -62,6 +63,17 @@ export default function OverviewSection({
     },
     [updateOverviewSection],
   );
+
+  // 이미지 노출 로깅
+  useEffect(() => {
+    if (!isEditMode && displayMapImageUrl) {
+      Logger.logElementView({
+        name: 'bbucle-road-overview-map-image',
+        currScreenName: 'BbucleRoad',
+        extraParams: { imageUrl: displayMapImageUrl, isDesktop },
+      });
+    }
+  }, [displayMapImageUrl, isEditMode, isDesktop]);
 
   return (
     <div id={sectionId}>

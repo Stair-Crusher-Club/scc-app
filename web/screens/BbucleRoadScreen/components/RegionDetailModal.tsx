@@ -10,10 +10,10 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import styled from 'styled-components/native';
+import { SccPressable } from '@/components/atoms';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import type { ExtendedClickableRegionDto } from '../config/bbucleRoadData';
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
 import IcLeft from '@/assets/icon/ic_left.svg';
 import IcRight from '@/assets/icon/ic_right.svg';
 import { useResponsive } from '../context/ResponsiveContext';
@@ -94,14 +94,9 @@ export default function RegionDetailModal({
   );
 
   const handleClose = useCallback(() => {
-    Logger.logElementClick({
-      name: 'bbucle-road-modal-close',
-      currScreenName: 'BbucleRoad',
-      extraParams: { regionId: initialRegionId, isDesktop },
-    });
     setCurrentIndex(0);
     onClose();
-  }, [onClose, initialRegionId, isDesktop]);
+  }, [onClose]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -156,20 +151,28 @@ export default function RegionDetailModal({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      <ModalOverlay onPress={handleClose}>
+      <ModalOverlay
+        as={SccPressable}
+        onPress={handleClose}
+        elementName="bbucle-road-modal-close"
+        logParams={{ regionId: initialRegionId, isDesktop }}
+      >
         <ContentWrapper activeOpacity={1} onPress={(e) => e.stopPropagation()}>
           <ModalContent isDesktop={isDesktop}>
             {/* 이미지 + 네비게이션 영역 */}
             <ImageNavContainer>
               {/* 왼쪽 화살표 - 데스크톱에서만 표시 */}
               {isDesktop && hasMultipleImages && (
-                <NavButton
+                <NavButtonContainer
+                  as={SccPressable}
                   onPress={handlePrev}
                   disabled={!canGoPrev}
-                  isHidden={!canGoPrev}
+                  style={{ opacity: !canGoPrev ? 0 : 1 }}
+                  elementName="bbucle-road-modal-nav-prev"
+                  logParams={{ currentIndex, totalImages: allImages.length }}
                 >
                   <IcLeft width={11} height={21} viewBox={'0 0 11 21'} color={color.gray80} />
-                </NavButton>
+                </NavButtonContainer>
               )}
 
               {/* 이미지 슬라이더 */}
@@ -199,13 +202,16 @@ export default function RegionDetailModal({
 
               {/* 오른쪽 화살표 - 데스크톱에서만 표시 */}
               {isDesktop && hasMultipleImages && (
-                <NavButton
+                <NavButtonContainer
+                  as={SccPressable}
                   onPress={handleNext}
                   disabled={!canGoNext}
-                  isHidden={!canGoNext}
+                  style={{ opacity: !canGoNext ? 0 : 1 }}
+                  elementName="bbucle-road-modal-nav-next"
+                  logParams={{ currentIndex, totalImages: allImages.length }}
                 >
                   <IcRight width={11} height={21} viewBox={'0 0 11 21'} color={color.gray80} />
-                </NavButton>
+                </NavButtonContainer>
               )}
             </ImageNavContainer>
 
@@ -213,7 +219,13 @@ export default function RegionDetailModal({
             {hasMultipleImages && (
               <PageIndicatorContainer>
                 {allImages.map((_, index) => (
-                  <PageDotButton key={index} onPress={() => handleDotPress(index)}>
+                  <PageDotButton
+                    as={SccPressable}
+                    key={index}
+                    onPress={() => handleDotPress(index)}
+                    elementName="bbucle-road-modal-page-dot"
+                    logParams={{ targetIndex: index, currentIndex, totalImages: allImages.length }}
+                  >
                     <PageDot active={index === currentIndex} />
                   </PageDotButton>
                 ))}
@@ -250,25 +262,6 @@ const ImageNavContainer = styled(View)`
   align-items: center;
   gap: 20px;
 `;
-
-interface NavButtonProps {
-  onPress: () => void;
-  disabled?: boolean;
-  isHidden: boolean;
-  children: React.ReactNode;
-}
-
-function NavButton({ onPress, disabled, isHidden, children }: NavButtonProps) {
-  return (
-    <NavButtonContainer
-      onPress={onPress}
-      disabled={disabled || isHidden}
-      style={{ opacity: isHidden ? 0 : 1 }}
-    >
-      {children}
-    </NavButtonContainer>
-  );
-}
 
 const NavButtonContainer = styled(Pressable)`
   width: 48px;
