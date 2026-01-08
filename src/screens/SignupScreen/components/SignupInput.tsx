@@ -2,21 +2,11 @@ import React, {forwardRef} from 'react';
 import {
   NativeSyntheticEvent,
   ReturnKeyTypeOptions,
-  StyleSheet,
   TextInput,
   TextInputFocusEventData,
-  TextInputProps,
-  View,
 } from 'react-native';
-import styled from 'styled-components/native';
-import {match} from 'ts-pattern';
 
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
-import ArrowDownIcon from '@/assets/icon/ic_arrow_down.svg';
-import ClearIcon from '@/assets/icon/ic_clear.svg';
-import StyledText from '@/components/StyledText';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
+import UnderlineInput, {UnderlineInputState} from '@/components/UnderlineInput';
 import {FormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
 interface Props {
@@ -24,6 +14,7 @@ interface Props {
   placeholder: string;
   getLabel: (isFocused?: boolean) => string | undefined;
   state: FormState | undefined;
+  label?: string;
   onChangeText?: (text: string) => void;
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
@@ -32,6 +23,10 @@ interface Props {
   returnKeyType?: ReturnKeyTypeOptions;
 }
 
+/**
+ * SignupInput - UnderlineInput을 감싼 회원가입용 Input 컴포넌트
+ * 기존 호환성을 위해 유지
+ */
 const SignupInput = forwardRef<TextInput, Props>(
   (
     {
@@ -39,6 +34,7 @@ const SignupInput = forwardRef<TextInput, Props>(
       placeholder,
       getLabel,
       state,
+      label,
       onChangeText,
       onBlur,
       onPress,
@@ -48,103 +44,30 @@ const SignupInput = forwardRef<TextInput, Props>(
     }: Props,
     ref,
   ) => {
-    const [isFocused, setIsFocused] = React.useState(false);
-    const localRef = React.useRef<TextInput>(null);
-
-    React.useImperativeHandle(ref, () => localRef.current as TextInput);
-
-    const isValid =
-      state === undefined
-        ? undefined
-        : state === 'VALID' || state === 'PROGRESS';
-
-    const handleFocus = () => setIsFocused(true);
-    const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      setIsFocused(false);
-      onBlur?.(e);
+    // FormState를 UnderlineInputState로 변환
+    const convertState = (): UnderlineInputState => {
+      if (state === undefined) return undefined;
+      if (state === 'VALID') return 'VALID';
+      if (state === 'PROGRESS') return 'PROGRESS';
+      return 'INVALID';
     };
-
-    const handleClear = () => {
-      onChangeText?.('');
-      localRef.current?.focus();
-    };
-
-    const renderInput = (props?: TextInputProps) => (
-      <TextInput
-        ref={localRef}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={color.gray50}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onSubmitEditing={onSubmitEditing}
-        returnKeyType={returnKeyType}
-        editable={!onPress}
-        style={styles.input}
-        {...props}
-      />
-    );
-
-    const label = getLabel(isFocused);
 
     return (
-      <InputContainer>
-        <InputWrapper isFocused={isFocused} isValid={isValid}>
-          {onPress ? (
-            <SccTouchableOpacity
-              elementName="signup_input_dropdown"
-              onPress={onPress}
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingRight: 11,
-              }}>
-              {renderInput({
-                pointerEvents: 'none',
-              })}
-              <ArrowDownIcon width={20} height={20} />
-            </SccTouchableOpacity>
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingRight: 8,
-              }}>
-              {renderInput()}
-              {isClearable && value && (
-                <SccTouchableOpacity
-                  elementName="signup_input_clear"
-                  onPress={handleClear}>
-                  <ClearIcon width={20} height={20} />
-                </SccTouchableOpacity>
-              )}
-            </View>
-          )}
-        </InputWrapper>
-        {label && (
-          <StyledText
-            style={{
-              fontSize: 12,
-              fontFamily: font.pretendardMedium,
-              color: match(isValid)
-                .with(true, () => (isFocused ? color.brandColor : color.gray50))
-                .with(false, () => color.red)
-                .with(undefined, () => color.gray50)
-                .exhaustive(),
-            }}
-            boldStyle={{
-              fontSize: 12,
-              fontFamily: font.pretendardMedium,
-              color: color.brandColor,
-            }}
-            text={label}
-          />
-        )}
-      </InputContainer>
+      <UnderlineInput
+        ref={ref}
+        value={value}
+        placeholder={placeholder}
+        label={label}
+        getCaptionByFocus={getLabel}
+        state={convertState()}
+        onChangeText={onChangeText}
+        onBlur={onBlur}
+        onPress={onPress}
+        onSubmitEditing={onSubmitEditing}
+        returnKeyType={returnKeyType}
+        isClearable={isClearable}
+        containerStyle={{marginBottom: 12}}
+      />
     );
   },
 );
@@ -152,38 +75,3 @@ const SignupInput = forwardRef<TextInput, Props>(
 SignupInput.displayName = 'SignupInput';
 
 export default SignupInput;
-
-const styles = StyleSheet.create({
-  input: {
-    flex: 1,
-    fontFamily: font.pretendardMedium,
-    fontSize: 16,
-    color: color.gray100,
-    padding: 0,
-  },
-});
-
-const InputContainer = styled.View`
-  margin-bottom: 24px;
-`;
-
-const InputWrapper = styled.View<{
-  isFocused: boolean;
-  isValid: boolean | undefined;
-}>`
-  flex-direction: row;
-  align-items: center;
-  border-bottom-width: 1px;
-  border-bottom-color: ${props =>
-    match(props.isFocused)
-      .with(true, () =>
-        match(props.isValid)
-          .with(undefined, () => color.gray20)
-          .with(true, () => color.blue50)
-          .with(false, () => color.red)
-          .exhaustive(),
-      )
-      .otherwise(() => color.gray20)};
-  padding-bottom: 8px;
-  margin-bottom: 4px;
-`;

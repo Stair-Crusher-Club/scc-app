@@ -184,7 +184,7 @@ export default function SignupScreen({
   return (
     <ScreenLayout
       isHeaderVisible
-      isKeyboardAvoidingView={false}
+      isKeyboardAvoidingView={true}
       safeAreaEdges={['bottom']}>
       <View style={{flex: 1, backgroundColor: color.white}}>
         <View style={{paddingHorizontal: 20}}>

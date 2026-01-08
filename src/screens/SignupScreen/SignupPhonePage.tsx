@@ -41,7 +41,7 @@ export default function SignupPhonePage({
         }}>
         <TitleText style={{marginTop: 12}}>크러셔님 환영합니다!</TitleText>
         <SubTitleText style={{marginTop: 4}}>
-          서비스사용에 필요한 정보를 알려주세요
+          서비스 사용에 필요한 정보를 알려주세요.
         </SubTitleText>
       </View>
       <View style={{marginTop: 36}}>
@@ -63,7 +63,7 @@ const TitleText = styled.Text`
 `;
 
 const SubTitleText = styled.Text`
-  font-family: ${font.pretendardMedium};
+  font-family: ${font.pretendardRegular};
   font-size: 16px;
-  color: ${color.gray90};
+  color: ${color.gray70};
 `;

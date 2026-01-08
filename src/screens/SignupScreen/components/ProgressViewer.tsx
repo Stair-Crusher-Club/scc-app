@@ -36,7 +36,7 @@ export default function ProgressViewer({progress}: {progress: number}) {
         <MoveIcon
           width={49}
           height={49}
-          style={{marginTop: -25, marginLeft: -39, zIndex: 100}}
+          style={{marginTop: -35, marginLeft: -36, zIndex: 100}}
         />
       </ProgressBar>
       <GoalIcon

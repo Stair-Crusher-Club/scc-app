@@ -37,12 +37,13 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
       <View style={{paddingHorizontal: 20}}>
         <SignupInput
           ref={ref}
+          label="이메일"
           placeholder="이메일을 입력해주세요"
           returnKeyType="next"
           state={state.email}
           getLabel={isFocused =>
             match(state.email)
-              .with(undefined, () => '이메일을 입력해주세요.')
+              .with(undefined, () => '뉴스레터, 공지 등을 전달받아요.')
               .with('VALID', () =>
                 match(isFocused)
                   .with(true, () => '사용 가능한 이메일입니다.')
@@ -69,10 +70,10 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
             color={
               value.isNewsLetterSubscriptionAgreed
                 ? color.brandColor
-                : color.gray50
+                : color.gray25
             }
-            width={20}
-            height={20}
+            width={24}
+            height={24}
           />
           <LetterText>계단뿌셔클럽의 뉴스레터를 받아보시겠습니까?</LetterText>
         </LetterBox>

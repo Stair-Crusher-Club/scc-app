@@ -25,7 +25,7 @@ const queryClient = new QueryClient();
 
 // Get BASE_URL with local development override
 const getBaseURL = () => {
-  return 'http://10.10.88.128:8080';
+  return 'http://10.10.88.66:8080';
   // if (Config.FLAVOR === 'local') {
   //   return Platform.OS === 'ios'
   //     ? 'http://localhost:8080'

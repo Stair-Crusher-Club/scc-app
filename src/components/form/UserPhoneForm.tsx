@@ -1,9 +1,10 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {StyleSheet, TextInput} from 'react-native';
+import {TextInput} from 'react-native';
 import styled from 'styled-components/native';
 import {match} from 'ts-pattern';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import UnderlineInput, {UnderlineInputState} from '@/components/UnderlineInput';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -178,27 +179,46 @@ export default function UserPhoneForm({
   const requestButtonText =
     step === 'INPUT_PHONE' ? '인증번호 받기' : '다시받기';
 
+  // 전화번호 입력 상태
+  const phoneInputState: UnderlineInputState =
+    step === 'INPUT_CODE' ? 'VALID' : undefined;
+
+  // 인증번호 입력 상태
+  const codeInputState: UnderlineInputState = match(verificationStatus)
+    .with('ERROR', () => 'INVALID' as const)
+    .with('SUCCESS', () => 'VALID' as const)
+    .otherwise(() => undefined);
+
+  // 인증번호 캡션
+  const getCodeCaption = () => {
+    if (verificationStatus === 'ERROR') {
+      return '인증번호가 잘못되었습니다.';
+    }
+    if (verificationStatus === 'SUCCESS') {
+      return '인증이 완료되었습니다';
+    }
+    if (isTimerExpired && verificationStatus === 'IDLE') {
+      return '인증 시간이 만료되었습니다. 다시 요청해주세요.';
+    }
+    return undefined;
+  };
+
   return (
     <Container>
       {/* 전화번호 입력 */}
+      <FieldLabelText>휴대전화번호</FieldLabelText>
       <InputRow>
-        <InputWrapper
-          isFocused={step === 'INPUT_PHONE'}
-          isValid={step === 'INPUT_CODE' ? true : undefined}>
-          <TextInput
+        <InputFlexWrapper>
+          <UnderlineInput
             ref={phoneInputRef}
             value={phoneNumber}
             onChangeText={handlePhoneNumberChange}
-            placeholder="전화번호를 입력해주세요"
-            placeholderTextColor={color.gray50}
+            placeholder="'-' 없이 입력해주세요"
             keyboardType="number-pad"
             editable={step === 'INPUT_PHONE'}
-            style={[
-              styles.textInput,
-              step === 'INPUT_CODE' && styles.readOnlyInput,
-            ]}
+            state={phoneInputState}
           />
-        </InputWrapper>
+        </InputFlexWrapper>
         <RequestButton
           elementName="phone_verification_request"
           onPress={handleRequestCode}
@@ -214,29 +234,21 @@ export default function UserPhoneForm({
       {step === 'INPUT_CODE' && (
         <>
           <CodeInputRow>
-            <CodeInputWrapper
-              isFocused={true}
-              isValid={match(verificationStatus)
-                .with('ERROR', () => false)
-                .with('SUCCESS', () => true)
-                .otherwise(() => undefined)}>
-              <TextInput
+            <InputFlexWrapper>
+              <UnderlineInput
                 ref={codeInputRef}
                 value={verificationCode}
                 onChangeText={handleCodeChange}
                 placeholder="인증번호를 입력해주세요"
-                placeholderTextColor={color.gray50}
                 keyboardType="number-pad"
                 editable={
                   verificationStatus !== 'SUCCESS' &&
                   verificationStatus !== 'VERIFYING'
                 }
-                style={styles.textInput}
+                state={codeInputState}
+                timer={formatTime(timeRemaining)}
               />
-              <TimerText hasValue={verificationCode.length > 0}>
-                {formatTime(timeRemaining)}
-              </TimerText>
-            </CodeInputWrapper>
+            </InputFlexWrapper>
             <VerifyButton
               elementName="phone_verification_confirm"
               onPress={handleVerifyCode}
@@ -263,18 +275,10 @@ export default function UserPhoneForm({
               </VerifyButtonText>
             </VerifyButton>
           </CodeInputRow>
-
-          {/* 상태 메시지 */}
-          {verificationStatus === 'ERROR' && (
-            <MessageText isError={true}>인증번호가 잘못되었습니다.</MessageText>
-          )}
-          {verificationStatus === 'SUCCESS' && (
-            <MessageText isError={false}>인증이 완료되었습니다</MessageText>
-          )}
-          {isTimerExpired && verificationStatus === 'IDLE' && (
-            <MessageText isError={true}>
-              인증 시간이 만료되었습니다. 다시 요청해주세요.
-            </MessageText>
+          {getCodeCaption() && (
+            <CaptionText status={verificationStatus}>
+              {getCodeCaption()}
+            </CaptionText>
           )}
         </>
       )}
@@ -282,82 +286,45 @@ export default function UserPhoneForm({
   );
 }
 
-const styles = StyleSheet.create({
-  textInput: {
-    flex: 1,
-    fontFamily: font.pretendardMedium,
-    fontSize: 16,
-    color: color.gray100,
-    padding: 0,
-  },
-  readOnlyInput: {
-    color: color.gray50,
-  },
-});
-
 const Container = styled.View`
   padding-horizontal: 20px;
+  padding-bottom: 20px;
+`;
+
+const FieldLabelText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 13px;
+  line-height: 18px;
+  color: ${color.gray80};
+  margin-bottom: 8px;
 `;
 
 const InputRow = styled.View`
   flex-direction: row;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 8px;
-  margin-bottom: 24px;
 `;
 
 const CodeInputRow = styled.View`
   flex-direction: row;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-top: 12px;
 `;
 
-const InputWrapper = styled.View<{
-  isFocused: boolean;
-  isValid: boolean | undefined;
-}>`
+const InputFlexWrapper = styled.View`
   flex: 1;
-  border-bottom-width: 1px;
-  border-bottom-color: ${props =>
-    match({isFocused: props.isFocused, isValid: props.isValid})
-      .with({isFocused: true, isValid: true}, () => color.blue50)
-      .with({isFocused: true, isValid: false}, () => color.red)
-      .with({isFocused: true, isValid: undefined}, () => color.gray20)
-      .otherwise(() => color.gray20)};
-  padding-bottom: 8px;
-`;
-
-const CodeInputWrapper = styled.View<{
-  isFocused: boolean;
-  isValid: boolean | undefined;
-}>`
-  flex: 1;
-  flex-direction: row;
-  align-items: center;
-  border-bottom-width: 1px;
-  border-bottom-color: ${props =>
-    match(props.isValid)
-      .with(true, () => color.blue50)
-      .with(false, () => color.red)
-      .otherwise(() => color.gray20)};
-  padding-bottom: 8px;
-`;
-
-const TimerText = styled.Text<{hasValue: boolean}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  color: ${props => (props.hasValue ? color.gray50 : color.red)};
-  margin-left: 8px;
 `;
 
 const RequestButton = styled(SccTouchableOpacity)<{
   disabled?: boolean;
   isActive: boolean;
 }>`
-  padding-horizontal: 16px;
-  padding-vertical: 10px;
-  border-radius: 20px;
+  width: 120px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
   border-width: 1px;
   border-color: ${props => (props.isActive ? color.brand40 : color.gray20)};
   background-color: ${color.white};
@@ -366,28 +333,37 @@ const RequestButton = styled(SccTouchableOpacity)<{
 const RequestButtonText = styled.Text<{isActive: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
-  color: ${props => (props.isActive ? color.brand40 : color.gray30)};
+  line-height: 20px;
+  color: ${props => (props.isActive ? color.brand40 : color.gray25)};
 `;
 
 const VerifyButton = styled(SccTouchableOpacity)<{
   disabled?: boolean;
   isActive: boolean;
 }>`
-  padding-horizontal: 16px;
-  padding-vertical: 10px;
-  border-radius: 20px;
+  width: 120px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
   background-color: ${props => (props.isActive ? color.brand40 : color.gray15)};
 `;
 
 const VerifyButtonText = styled.Text<{isActive: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
+  line-height: 20px;
   color: ${props => (props.isActive ? color.white : color.gray30)};
 `;
 
-const MessageText = styled.Text<{isError: boolean}>`
-  font-family: ${font.pretendardMedium};
+const CaptionText = styled.Text<{status: VerificationStatus}>`
+  font-family: ${font.pretendardRegular};
   font-size: 12px;
-  color: ${props => (props.isError ? color.red : color.brandColor)};
+  line-height: 16px;
   margin-top: 4px;
+  color: ${props =>
+    match(props.status)
+      .with('ERROR', () => color.red)
+      .with('SUCCESS', () => color.brandColor)
+      .otherwise(() => color.gray40)};
 `;
