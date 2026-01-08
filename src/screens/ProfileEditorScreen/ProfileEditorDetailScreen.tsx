@@ -34,6 +34,8 @@ export default function ProfileEditorDetailScreen({
       nickname: userInfo?.nickname ?? '',
       email: userInfo?.email ?? '',
       birthYear: userInfo?.birthYear?.toString() ?? '',
+      phoneNumber: '',
+      isPhoneVerified: false,
       mobilityTools: userInfo?.mobilityTools ?? [],
       isNewsLetterSubscriptionAgreed:
         userInfo?.isNewsLetterSubscriptionAgreed ?? false,

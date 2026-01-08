@@ -86,6 +86,7 @@ import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
   variant?: 'back' | 'close';
+  onBackPress?: () => void;
 };
 
 export const MainNavigationScreens: {

@@ -22,18 +22,28 @@ export const NavigationHeader = ({
   navigation,
   title,
   variant = 'back',
+  onBackPress,
 }: {
   navigation: NativeStackNavigationProp<any, any>;
   title: string;
   variant?: 'back' | 'close';
+  onBackPress?: () => void;
 }) => {
+  const handleBack = () => {
+    if (onBackPress) {
+      onBackPress();
+    } else if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  };
+
   return (
     <S.Container edges={['top']}>
       {variant === 'back' ? (
         <S.ContentsContainer>
           <SccPressable
             elementName="navigation_back_button"
-            onPress={() => navigation.goBack()}>
+            onPress={handleBack}>
             <LeftArrowIcon width={24} height={24} color={color.black} />
           </SccPressable>
           <S.Title ellipsizeMode="tail">{title}</S.Title>
@@ -44,7 +54,7 @@ export const NavigationHeader = ({
           <SccPressable
             elementName="close_button"
             logParams={{screen_name: title}}
-            onPress={() => navigation.goBack()}>
+            onPress={handleBack}>
             <CloseIcon width={28} height={28} color={color.black} />
           </SccPressable>
         </S.ContentsContainer>
@@ -77,6 +87,7 @@ export const Navigation = () => {
               navigation={navigation}
               variant={variant}
               {...options}
+              onBackPress={customOptions.onBackPress}
             />
           );
         },

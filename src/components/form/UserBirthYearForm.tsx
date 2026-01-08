@@ -32,6 +32,7 @@ const UserBirthYearForm = forwardRef<
     <>
       <View style={{paddingHorizontal: 20}}>
         <SignupInput
+          label="출생년도"
           placeholder="태어난 해를 알려주세요"
           returnKeyType="done"
           state={state}

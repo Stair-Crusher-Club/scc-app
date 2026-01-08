@@ -172,7 +172,8 @@ export const ApiErrorResponseCodeEnum = {
     CHALLENGE_NOT_OPENED: '12',
     CHALLENGE_CLOSED: '13',
     INVALID_BIRTH_YEAR: '14',
-    B2B_INFO_REQUIRED: '15'
+    B2B_INFO_REQUIRED: '15',
+    PHONE_NUMBER_VERIFICATION_FAILED: '20'
 } as const;
 
 export type ApiErrorResponseCodeEnum = typeof ApiErrorResponseCodeEnum[keyof typeof ApiErrorResponseCodeEnum];
@@ -4721,6 +4722,32 @@ export interface SearchUnconqueredPlacesNearbyRequestDto {
     'limit': number;
 }
 /**
+ * 전화번호 인증 SMS 발송 요청
+ * @export
+ * @interface SendPhoneNumberVerifCodeSmsRequestDto
+ */
+export interface SendPhoneNumberVerifCodeSmsRequestDto {
+    /**
+     * 인증할 전화번호 (예 - \"010-1234-5678\", \"+82 10-1234-5678\")
+     * @type {string}
+     * @memberof SendPhoneNumberVerifCodeSmsRequestDto
+     */
+    'phoneNumber': string;
+}
+/**
+ * 전화번호 인증 SMS 발송 응답
+ * @export
+ * @interface SendPhoneNumberVerifCodeSmsResponseDto
+ */
+export interface SendPhoneNumberVerifCodeSmsResponseDto {
+    /**
+     * 인증 검증에 사용할 토큰 (3분간 유효)
+     * @type {string}
+     * @memberof SendPhoneNumberVerifCodeSmsResponseDto
+     */
+    'token': string;
+}
+/**
  * 시군구를 표현하기 위한 모델.
  * @export
  * @interface SiGunGu
@@ -5078,6 +5105,31 @@ export interface ToiletReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 인증번호로 전화번호 업데이트 요청
+ * @export
+ * @interface UpdatePhoneNumberWithVerifCodeRequestDto
+ */
+export interface UpdatePhoneNumberWithVerifCodeRequestDto {
+    /**
+     * 인증할 전화번호 (sendPhoneNumberVerifCodeSms에서 사용한 것과 동일해야 함)
+     * @type {string}
+     * @memberof UpdatePhoneNumberWithVerifCodeRequestDto
+     */
+    'phoneNumber': string;
+    /**
+     * SMS로 수신한 6자리 인증번호
+     * @type {string}
+     * @memberof UpdatePhoneNumberWithVerifCodeRequestDto
+     */
+    'verifCode': string;
+    /**
+     * sendPhoneNumberVerifCodeSms 응답에서 받은 토큰
+     * @type {string}
+     * @memberof UpdatePhoneNumberWithVerifCodeRequestDto
+     */
+    'token': string;
+}
+/**
  * 
  * @export
  * @interface UpdatePushTokenPostRequest
@@ -5292,6 +5344,12 @@ export interface User {
      * @memberof User
      */
     'email'?: string;
+    /**
+     * 사용자 고유 ID (앱에서 표시용)
+     * @type {string}
+     * @memberof User
+     */
+    'displayId'?: string;
     /**
      * 
      * @type {number}
@@ -8053,6 +8111,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 전화번호로 인증번호 SMS를 발송합니다. 발송된 인증번호는 3분간 유효합니다. 
+         * @summary 전화번호 인증 문자를 발송한다.
+         * @param {SendPhoneNumberVerifCodeSmsRequestDto} sendPhoneNumberVerifCodeSmsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendPhoneNumberVerifCodeSmsPost: async (sendPhoneNumberVerifCodeSmsRequestDto: SendPhoneNumberVerifCodeSmsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'sendPhoneNumberVerifCodeSmsRequestDto' is not null or undefined
+            assertParamExists('sendPhoneNumberVerifCodeSmsPost', 'sendPhoneNumberVerifCodeSmsRequestDto', sendPhoneNumberVerifCodeSmsRequestDto)
+            const localVarPath = `/sendPhoneNumberVerifCodeSms`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(sendPhoneNumberVerifCodeSmsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -8086,6 +8184,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(signUpPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
+         * @summary 인증번호로 전화번호를 검증하고 업데이트한다.
+         * @param {UpdatePhoneNumberWithVerifCodeRequestDto} updatePhoneNumberWithVerifCodeRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updatePhoneNumberWithVerifCodePost: async (updatePhoneNumberWithVerifCodeRequestDto: UpdatePhoneNumberWithVerifCodeRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'updatePhoneNumberWithVerifCodeRequestDto' is not null or undefined
+            assertParamExists('updatePhoneNumberWithVerifCodePost', 'updatePhoneNumberWithVerifCodeRequestDto', updatePhoneNumberWithVerifCodeRequestDto)
+            const localVarPath = `/updatePhoneNumberWithVerifCode`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePhoneNumberWithVerifCodeRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8970,6 +9108,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 전화번호로 인증번호 SMS를 발송합니다. 발송된 인증번호는 3분간 유효합니다. 
+         * @summary 전화번호 인증 문자를 발송한다.
+         * @param {SendPhoneNumberVerifCodeSmsRequestDto} sendPhoneNumberVerifCodeSmsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sendPhoneNumberVerifCodeSmsPost(sendPhoneNumberVerifCodeSmsRequestDto: SendPhoneNumberVerifCodeSmsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SendPhoneNumberVerifCodeSmsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sendPhoneNumberVerifCodeSmsPost(sendPhoneNumberVerifCodeSmsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -8978,6 +9127,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async signUpPost(signUpPostRequest: SignUpPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.signUpPost(signUpPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
+         * @summary 인증번호로 전화번호를 검증하고 업데이트한다.
+         * @param {UpdatePhoneNumberWithVerifCodeRequestDto} updatePhoneNumberWithVerifCodeRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updatePhoneNumberWithVerifCodePost(updatePhoneNumberWithVerifCodeRequestDto: UpdatePhoneNumberWithVerifCodeRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updatePhoneNumberWithVerifCodePost(updatePhoneNumberWithVerifCodeRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -9703,6 +9863,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.searchUnconqueredPlacesNearbyPost(searchUnconqueredPlacesNearbyRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * 전화번호로 인증번호 SMS를 발송합니다. 발송된 인증번호는 3분간 유효합니다. 
+         * @summary 전화번호 인증 문자를 발송한다.
+         * @param {SendPhoneNumberVerifCodeSmsRequestDto} sendPhoneNumberVerifCodeSmsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendPhoneNumberVerifCodeSmsPost(sendPhoneNumberVerifCodeSmsRequestDto: SendPhoneNumberVerifCodeSmsRequestDto, options?: any): AxiosPromise<SendPhoneNumberVerifCodeSmsResponseDto> {
+            return localVarFp.sendPhoneNumberVerifCodeSmsPost(sendPhoneNumberVerifCodeSmsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 회원가입을 한다.
          * @param {SignUpPostRequest} signUpPostRequest 
@@ -9711,6 +9881,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         signUpPost(signUpPostRequest: SignUpPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.signUpPost(signUpPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
+         * @summary 인증번호로 전화번호를 검증하고 업데이트한다.
+         * @param {UpdatePhoneNumberWithVerifCodeRequestDto} updatePhoneNumberWithVerifCodeRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updatePhoneNumberWithVerifCodePost(updatePhoneNumberWithVerifCodeRequestDto: UpdatePhoneNumberWithVerifCodeRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.updatePhoneNumberWithVerifCodePost(updatePhoneNumberWithVerifCodeRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10568,6 +10748,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 전화번호로 인증번호 SMS를 발송합니다. 발송된 인증번호는 3분간 유효합니다. 
+     * @summary 전화번호 인증 문자를 발송한다.
+     * @param {SendPhoneNumberVerifCodeSmsRequestDto} sendPhoneNumberVerifCodeSmsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public sendPhoneNumberVerifCodeSmsPost(sendPhoneNumberVerifCodeSmsRequestDto: SendPhoneNumberVerifCodeSmsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).sendPhoneNumberVerifCodeSmsPost(sendPhoneNumberVerifCodeSmsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 회원가입을 한다.
      * @param {SignUpPostRequest} signUpPostRequest 
@@ -10577,6 +10769,18 @@ export class DefaultApi extends BaseAPI {
      */
     public signUpPost(signUpPostRequest: SignUpPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).signUpPost(signUpPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
+     * @summary 인증번호로 전화번호를 검증하고 업데이트한다.
+     * @param {UpdatePhoneNumberWithVerifCodeRequestDto} updatePhoneNumberWithVerifCodeRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public updatePhoneNumberWithVerifCodePost(updatePhoneNumberWithVerifCodeRequestDto: UpdatePhoneNumberWithVerifCodeRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updatePhoneNumberWithVerifCodePost(updatePhoneNumberWithVerifCodeRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
