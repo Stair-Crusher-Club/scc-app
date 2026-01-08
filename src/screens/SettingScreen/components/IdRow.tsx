@@ -11,9 +11,11 @@ import * as S from './Row.style';
 export default function IdRow() {
   const {userInfo} = useMe();
 
+  const displayId = userInfo?.displayId ?? userInfo?.id
+
   function copyIdToClipboard() {
-    if (userInfo?.id) {
-      Clipboard.setString(userInfo.id);
+    if (displayId) {
+      Clipboard.setString(displayId);
       ToastUtils.show('ID가 복사되었습니다');
     }
   }
@@ -22,7 +24,7 @@ export default function IdRow() {
     <S.Row>
       <S.SectionLabel>ID</S.SectionLabel>
       <S.ValueRow>
-        <S.SectionValue>{userInfo?.displayId ?? userInfo?.id}</S.SectionValue>
+        <S.SectionValue>{displayId}</S.SectionValue>
         <S.CopyButton
           elementName="setting_copy_id_button"
           activeOpacity={0.7}
