@@ -32,5 +32,6 @@
 - (void)setRectangleOverlays:(NSArray<RNTSccRectangleOverlayData *> *)rectangleOverlays;
 - (void)setInitialRegion:(NMGLatLngBounds *)region;
 - (void)setMapPaddingWithTop:(CGFloat)top left:(CGFloat)left right:(CGFloat)right bottom:(CGFloat)bottom;
+- (void)setLogoPositionWithString:(NSString *)position;
 
 @end

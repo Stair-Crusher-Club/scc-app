@@ -1,5 +1,5 @@
 import type {CodegenTypes, HostComponent, ViewProps} from 'react-native';
-import {codegenNativeComponent, codegenNativeCommands} from 'react-native';
+import {codegenNativeCommands, codegenNativeComponent} from 'react-native';
 
 export type NativeMarkerItem = {
   id: string;
@@ -55,6 +55,28 @@ export interface NativeProps extends ViewProps {
     bottom: CodegenTypes.Int32;
     left: CodegenTypes.Int32;
   };
+  /**
+   * Position of the Naver logo on the map.
+   *
+   * @default 'leftBottom'
+   *
+   * Note: iOS does not support center positions. They will fallback to corner positions:
+   * - leftCenter, bottomCenter → leftBottom
+   * - rightCenter → rightBottom
+   * - topCenter → leftTop
+   * ref: https://navermaps.github.io/ios-map-sdk/reference/Enums/NMFLogoAlign.html
+   */
+  logoPosition?: CodegenTypes.WithDefault<
+    | 'leftBottom'
+    | 'leftTop'
+    | 'leftCenter'
+    | 'rightBottom'
+    | 'rightTop'
+    | 'rightCenter'
+    | 'bottomCenter'
+    | 'topCenter',
+    'leftBottom'
+  >;
 }
 
 export default codegenNativeComponent<NativeProps>(

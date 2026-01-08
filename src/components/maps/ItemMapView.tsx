@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {FlatList, View} from 'react-native';
+import {FlatList, Platform, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -162,9 +162,10 @@ const FRefInputComp = <T extends MarkerItem>(
         mapPadding={{
           top: 100, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
           right: 30,
-          bottom: insets.bottom + cardHeight + 30,
+          bottom: Platform.OS === 'android' ? insets.bottom : 0,
           left: 30,
         }}
+        logoPosition="leftBottom"
       />
       <UpperShadow
         style={{

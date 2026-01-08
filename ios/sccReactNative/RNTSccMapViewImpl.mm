@@ -78,6 +78,7 @@
   NSMutableArray<MarkerWithData *> *_markerList;
   NSMutableArray<CircleOverlayWithData *> *_circleOverlayList;
   NSMutableArray<RectangleOverlayWithData *> *_rectangleOverlayList;
+  NSString *_savedLogoPosition;
 }
 @end
 
@@ -271,6 +272,16 @@
                        right:(CGFloat)right
                       bottom:(CGFloat)bottom {
   self.contentInset = UIEdgeInsetsMake(top, left, bottom, right);
+
+  // Re-apply logo settings after changing content inset
+  // to prevent SDK from auto-adjusting logo position
+  // Use dispatch_async to ensure SDK has finished its internal adjustments
+  if (_savedLogoPosition) {
+    NSString *savedPosition = _savedLogoPosition;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self applyLogoPosition:savedPosition];
+    });
+  }
 }
 
 - (void)markerPress:(NSString *)identifier {
@@ -302,6 +313,47 @@
                          green:((rgbValue & 0xFF00) >> 8) / 255.0
                           blue:(rgbValue & 0xFF) / 255.0
                          alpha:1.0];
+}
+
+- (void)setLogoPositionWithString:(NSString *)position {
+  if (!position) return;
+  _savedLogoPosition = position;
+
+  // Apply immediately
+  [self applyLogoPosition:position];
+
+  // Also apply asynchronously to ensure it takes effect after any SDK adjustments
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self applyLogoPosition:position];
+  });
+}
+
+- (void)applyLogoPosition:(NSString *)position {
+  NMFLogoAlign logoAlignValue;
+  if ([position isEqualToString:@"leftTop"]) {
+    logoAlignValue = NMFLogoAlignLeftTop;
+  } else if ([position isEqualToString:@"leftBottom"]) {
+    logoAlignValue = NMFLogoAlignLeftBottom;
+  } else if ([position isEqualToString:@"rightTop"]) {
+    logoAlignValue = NMFLogoAlignRightTop;
+  } else if ([position isEqualToString:@"rightBottom"]) {
+    logoAlignValue = NMFLogoAlignRightBottom;
+  } else if ([position isEqualToString:@"leftCenter"]) {
+    // iOS doesn't support center positions, fallback to leftBottom
+    logoAlignValue = NMFLogoAlignLeftBottom;
+  } else if ([position isEqualToString:@"rightCenter"]) {
+    // iOS doesn't support center positions, fallback to rightBottom
+    logoAlignValue = NMFLogoAlignRightBottom;
+  } else if ([position isEqualToString:@"bottomCenter"]) {
+    // iOS doesn't support center positions, fallback to leftBottom
+    logoAlignValue = NMFLogoAlignLeftBottom;
+  } else if ([position isEqualToString:@"topCenter"]) {
+    // iOS doesn't support center positions, fallback to leftTop
+    logoAlignValue = NMFLogoAlignLeftTop;
+  } else {
+    logoAlignValue = NMFLogoAlignLeftBottom; // default
+  }
+  self.logoAlign = logoAlignValue;
 }
 
 @end
