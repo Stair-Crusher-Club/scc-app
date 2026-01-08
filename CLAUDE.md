@@ -35,6 +35,48 @@ After any code changes or implementation work, **ALWAYS** run these validation c
 - `element_click` logged on press events
 - Global registry prevents duplicate elements with same elementName+params
 
+### LogParamsProvider Pattern
+섹션/화면 단위로 공통 로깅 파라미터를 하위 컴포넌트에 자동 전파할 때 사용:
+
+```typescript
+import { LogParamsProvider, useLogParams } from '@/logging/LogParamsProvider';
+
+// 섹션 컴포넌트에서 Provider로 감싸기
+export default function MySection() {
+  return (
+    <LogParamsProvider params={{ displaySectionName: '섹션명' }}>
+      <Container>
+        {/* 하위 SccPressable, SccButton 등에 자동 적용 */}
+        <SccPressable elementName="my-button" logParams={{ buttonId: 1 }}>
+          {/* displaySectionName이 자동으로 포함됨 */}
+        </SccPressable>
+      </Container>
+    </LogParamsProvider>
+  );
+}
+
+// 직접 Logger 호출 시 useLogParams() 사용
+function ChildComponent() {
+  const globalLogParams = useLogParams();
+
+  const handleClick = () => {
+    Logger.logElementClick({
+      name: 'custom-event',
+      currScreenName: 'MyScreen',
+      extraParams: {
+        ...globalLogParams,  // displaySectionName 자동 포함
+        customParam: 'value',
+      },
+    });
+  };
+}
+```
+
+**핵심 규칙:**
+- 개별 logParams에 displaySectionName을 직접 넣지 말고 LogParamsProvider 사용
+- 중첩된 Provider에서 자식 params가 부모 params를 override
+- 하위 모든 SccXxx 컴포넌트와 직접 Logger 호출에 적용됨
+
 ## API Guidelines
 
 - Use generated API types from `src/generated-sources/openapi/` for all API responses and requests

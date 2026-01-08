@@ -2,9 +2,11 @@ import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Image } from 'react-native';
 import styled from 'styled-components/native';
 
-import { SccPressable } from '@/components/atoms';
+import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
+import Logger from '@/logging/Logger';
+import { LogParamsProvider, useLogParams } from '@/logging/LogParamsProvider';
 import IcOutWhite from '@/assets/icon/ic_out_white.svg';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
@@ -52,12 +54,25 @@ const getAccessLevelColors = (level: number) => {
 function PlaceCard({
   place,
   isDesktop,
+  isEditMode,
 }: {
   place: NearbyPlaceData;
   isDesktop: boolean;
+  isEditMode: boolean;
 }) {
+  const globalLogParams = useLogParams();
   const imageUrlsToRender = [...place.imageUrls, null, null, null].slice(0, 3)
   const levelColors = getAccessLevelColors(place.accessLevel);
+
+  const handleImageClick = useCallback((imageUrl: string, imageIndex: number) => {
+    if (!isEditMode) {
+      Logger.logElementClick({
+        name: 'bbucle-road-place-image',
+        currScreenName: 'BbucleRoad',
+        extraParams: { ...globalLogParams, placeId: place.id, placeName: place.name, imageUrl, imageIndex },
+      });
+    }
+  }, [place.id, place.name, isEditMode, globalLogParams]);
 
   return (
     <CardContainer isDesktop={isDesktop}>
@@ -91,7 +106,15 @@ function PlaceCard({
           {imageUrlsToRender.map((url, idx) => (
             url != null
               ? (
-                <PlaceImageWrapper key={idx} isDesktop={isDesktop}>
+                <PlaceImageWrapper
+                  as={SccPressable}
+                  key={idx}
+                  isDesktop={isDesktop}
+                  onPress={() => handleImageClick(url, idx)}
+                  elementName="bbucle-road-place-image"
+                  logParams={{ placeId: place.id, imageIndex: idx }}
+                  disableLogging={isEditMode}
+                >
                   <PlaceImage source={{ uri: url }} resizeMode="cover" />
                 </PlaceImageWrapper>
               )
@@ -177,6 +200,7 @@ export default function NearbyPlacesSection({
   );
 
   return (
+    <LogParamsProvider params={{ displaySectionName: '근처맛집' }}>
     <div id={sectionId}>
       <Container isDesktop={isDesktop}>
         <ContentWrapper isDesktop={isDesktop}>
@@ -230,13 +254,18 @@ export default function NearbyPlacesSection({
                     </ImageOverlay>
                   </>
                 ) : (
-                  <TouchableOpacity onPress={handleMorePlacesPress} activeOpacity={0.8}>
+                  <SccPressable
+                    onPress={handleMorePlacesPress}
+                    elementName="bbucle-road-nearby-map-image"
+                    logParams={{ imageUrl: activeMapImageUrl }}
+                    disableLogging={isEditMode}
+                  >
                     <SccRemoteImage
                       imageUrl={activeMapImageUrl}
                       resizeMode="contain"
                       style={{ borderRadius: 12 }}
                     />
-                  </TouchableOpacity>
+                  </SccPressable>
                 )}
               </MapImageContainer>
             ) : (
@@ -285,7 +314,7 @@ export default function NearbyPlacesSection({
           {places.length > 0 && <PlacesContainer isDesktop={isDesktop}>
             {places.map((place, index) => (
               <React.Fragment key={place.id}>
-                <PlaceCard place={place} isDesktop={isDesktop} />
+                <PlaceCard place={place} isDesktop={isDesktop} isEditMode={isEditMode} />
                 {/* 모바일에서만 구분선 */}
                 {!isDesktop && index < places.length - 1 && <Divider />}
               </React.Fragment>
@@ -298,7 +327,7 @@ export default function NearbyPlacesSection({
               isDesktop={isDesktop}
               onPress={handleNaverListPress}
               elementName="bbucle-road-naver-list"
-              logParams={{ url: naverListUrl, isDesktop }}
+              logParams={{ url: naverListUrl }}
               disableLogging={isEditMode}
             >
               <NaverListButtonText isDesktop={isDesktop}>네이버 지도로 모아보기</NaverListButtonText>
@@ -308,7 +337,7 @@ export default function NearbyPlacesSection({
               isDesktop={isDesktop}
               onPress={handleMorePlacesPress}
               elementName="bbucle-road-nearby-more"
-              logParams={{ url: morePlacesUrl, isDesktop }}
+              logParams={{ url: morePlacesUrl }}
               disableLogging={isEditMode}
             >
               <PrimaryButtonText isDesktop={isDesktop}>접근성 정보 자세히보기</PrimaryButtonText>
@@ -330,6 +359,7 @@ export default function NearbyPlacesSection({
         </ContentWrapper>
       </Container>
     </div>
+    </LogParamsProvider>
   );
 }
 

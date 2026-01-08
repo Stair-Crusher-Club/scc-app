@@ -2,10 +2,12 @@ import React, { useCallback, useEffect } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
+import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import CharacterWheelyIcon from '@/assets/icon/character_wheely.svg';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from '../components/ImageUploader';
@@ -136,11 +138,18 @@ export default function HeaderSection({
   }, [displayTitleImageUrl, isEditMode, isDesktop]);
 
   return (
+    <LogParamsProvider params={{ displaySectionName: '헤더' }}>
     <Container isDesktop={isDesktop}>
       {/* 배경 이미지 + 오버레이 */}
       {displayBackgroundImageUrl && (
         <>
-          <BackgroundWrapper>
+          <BackgroundWrapper
+            as={SccPressable}
+            onPress={() => {}}
+            elementName="bbucle-road-header-background-image-click"
+            logParams={{ imageUrl: displayBackgroundImageUrl }}
+            disableLogging={isEditMode}
+          >
             <SccRemoteImage
               imageUrl={displayBackgroundImageUrl}
               resizeMode="cover"
@@ -148,7 +157,7 @@ export default function HeaderSection({
               wrapperBackgroundColor={null}
             />
           </BackgroundWrapper>
-          <BackgroundOverlay />
+          <BackgroundOverlay pointerEvents="none" />
         </>
       )}
 
@@ -191,11 +200,18 @@ export default function HeaderSection({
             </EditImageOverlay>
           )}
           {displayTitleImageUrl ? (
-            <SccRemoteImage
-              imageUrl={displayTitleImageUrl}
-              resizeMode="contain"
-              wrapperBackgroundColor={null}
-            />
+            <SccPressable
+              onPress={() => {}}
+              elementName="bbucle-road-header-title-image-click"
+              logParams={{ imageUrl: displayTitleImageUrl }}
+              disableLogging={isEditMode}
+            >
+              <SccRemoteImage
+                imageUrl={displayTitleImageUrl}
+                resizeMode="contain"
+                wrapperBackgroundColor={null}
+              />
+            </SccPressable>
           ) : (
             isEditMode && (
               <EmptyImagePlaceholder>
@@ -260,6 +276,7 @@ export default function HeaderSection({
         </CommentSection>
       </ContentWrapper>
     </Container>
+    </LogParamsProvider>
   );
 }
 

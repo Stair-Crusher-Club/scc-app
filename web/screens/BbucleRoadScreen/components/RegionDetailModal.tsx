@@ -10,7 +10,7 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import styled from 'styled-components/native';
-import { SccPressable } from '@/components/atoms';
+import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import type { ExtendedClickableRegionDto } from '../config/bbucleRoadData';
 import { color } from '@/constant/color';

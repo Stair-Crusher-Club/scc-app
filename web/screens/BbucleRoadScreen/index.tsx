@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { WebStackParamList } from '../../navigation/WebNavigation';
 import { api, apiConfig } from '../../config/api';
 import { color } from '@/constant/color';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import { UpvoteTargetTypeDto } from '@/generated-sources/openapi';
 import { useUpvoteToggle } from '@/hooks/useUpvoteToggle';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -175,7 +176,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   const hasFloatingHeader = !!data.floatingHeaderTitle;
 
   return (
-    <>
+    <LogParamsProvider params={{ isDesktop }}>
       {hasFloatingHeader && (
         <FloatingHeader title={data.floatingHeaderTitle!} />
       )}
@@ -272,7 +273,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
         onLikePress={toggleUpvote}
         isVisible={isBottomBarVisible}
       />
-    </>
+    </LogParamsProvider>
   );
 }
 

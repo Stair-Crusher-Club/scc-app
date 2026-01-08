@@ -7,6 +7,7 @@ import type { ExtendedInteractiveImageDto, ExtendedClickableRegionDto } from '..
 
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
+import { useLogParams } from '@/logging/LogParamsProvider';
 import { useEditMode, type RegionSectionType } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from './ImageUploader';
@@ -34,6 +35,7 @@ export default function InteractiveImage({
   const isEditMode = editContext?.isEditMode ?? false;
   const editingRegion = editContext?.editingRegion ?? null;
   const { isDesktop } = useResponsive();
+  const globalLogParams = useLogParams();
 
   // 데스크탑이 아니면 모바일 이미지 우선 사용
   const displayImageUrl = isDesktop
@@ -97,27 +99,44 @@ export default function InteractiveImage({
     editingRegion?.sectionType === sectionType &&
     editingRegion?.routeIndex === routeIndex;
 
-  // 이미지 클릭 시 점 추가 (편집 중일 때)
+  // 이미지 클릭 시 점 추가 (편집 중일 때) 또는 non-region 클릭 로깅 (view 모드)
   const handleImageClick = useCallback(
     (event: { nativeEvent: { offsetX: number; offsetY: number } }) => {
-      if (!isEditMode || !isEditingThisImage || !editContext?.addPointToRegion) {
-        return;
+      if (isEditMode && isEditingThisImage && editContext?.addPointToRegion) {
+        // 편집 모드: 점 추가
+        const { offsetX, offsetY } = event.nativeEvent;
+
+        // 상대 좌표로 변환 (0-1)
+        const relativeX = offsetX / containerWidth;
+        const relativeY = offsetY / displayHeight;
+
+        // 경계 체크
+        if (relativeX < 0 || relativeX > 1 || relativeY < 0 || relativeY > 1) {
+          return;
+        }
+
+        editContext.addPointToRegion({ x: relativeX, y: relativeY });
+      } else if (!isEditMode) {
+        // View 모드: non-region 영역 클릭 로깅
+        const { offsetX, offsetY } = event.nativeEvent;
+        const relativeX = offsetX / containerWidth;
+        const relativeY = offsetY / displayHeight;
+
+        Logger.logElementClick({
+          name: 'bbucle-road-interactive-image-non-region-click',
+          currScreenName: 'BbucleRoad',
+          extraParams: {
+            ...globalLogParams,
+            imageUrl: interactiveImage.url,
+            sectionType,
+            routeIndex,
+            clickX: relativeX,
+            clickY: relativeY,
+          },
+        });
       }
-
-      const { offsetX, offsetY } = event.nativeEvent;
-
-      // 상대 좌표로 변환 (0-1)
-      const relativeX = offsetX / containerWidth;
-      const relativeY = offsetY / displayHeight;
-
-      // 경계 체크
-      if (relativeX < 0 || relativeX > 1 || relativeY < 0 || relativeY > 1) {
-        return;
-      }
-
-      editContext.addPointToRegion({ x: relativeX, y: relativeY });
     },
-    [isEditMode, isEditingThisImage, editContext, containerWidth, displayHeight],
+    [isEditMode, isEditingThisImage, editContext, containerWidth, displayHeight, interactiveImage.url, sectionType, routeIndex, globalLogParams],
   );
 
   // Region 클릭 핸들러
@@ -142,20 +161,20 @@ export default function InteractiveImage({
       } else {
         // View mode: 로깅 후 모달 열기
         Logger.logElementClick({
-          name: 'bbucle-road-image-region',
+          name: 'bbucle-road-interactive-image-region',
           currScreenName: 'BbucleRoad',
           extraParams: {
+            ...globalLogParams,
             imageUrl: interactiveImage.url,
             regionId: region.id,
             sectionType,
             routeIndex,
-            isDesktop,
           },
         });
         setSelectedRegion(region);
       }
     },
-    [isEditMode, editContext, routeIndex, sectionType, interactiveImage.url, isDesktop],
+    [isEditMode, editContext, routeIndex, sectionType, interactiveImage.url, globalLogParams],
   );
 
   const handleCloseModal = useCallback(() => {
@@ -211,8 +230,8 @@ export default function InteractiveImage({
         </>
       )}
 
-      {/* 이미지 - 편집 중일 때는 클릭 가능 */}
-      <Pressable onPress={isEditingThisImage ? handleImageClick : undefined}>
+      {/* 이미지 - 편집 모드 또는 view 모드에서 클릭 가능 */}
+      <Pressable onPress={handleImageClick}>
         <StyledImage
           source={{ uri: displayImageUrl }}
           style={{ height: displayHeight || 'auto' }}

@@ -2,8 +2,10 @@ import React, { useCallback } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
+import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
@@ -64,6 +66,7 @@ export default function TicketInfoSection({
   );
 
   return (
+    <LogParamsProvider params={{ displaySectionName: '매표정보' }}>
     <div id={sectionId}>
       <Container isDesktop={isDesktop}>
         <ContentWrapper isDesktop={isDesktop}>
@@ -107,11 +110,18 @@ export default function TicketInfoSection({
             {/* 이미지 */}
             {displayImageUrl ? (
               <ImageContainer isDesktop={isDesktop}>
-                <SccRemoteImage
-                  imageUrl={displayImageUrl}
-                  resizeMode="contain"
-                  style={{ borderRadius: 12 }}
-                />
+                <SccPressable
+                  onPress={() => {}}
+                  elementName="bbucle-road-ticket-info-image-click"
+                  logParams={{ imageUrl: displayImageUrl }}
+                  disableLogging={isEditMode}
+                >
+                  <SccRemoteImage
+                    imageUrl={displayImageUrl}
+                    resizeMode="contain"
+                    style={{ borderRadius: 12 }}
+                  />
+                </SccPressable>
                 {isEditMode && (
                   <ImageOverlay>
                     <ImageUploader
@@ -137,6 +147,7 @@ export default function TicketInfoSection({
         </ContentWrapper>
       </Container>
     </div>
+    </LogParamsProvider>
   );
 }
 

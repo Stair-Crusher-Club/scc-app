@@ -8,9 +8,10 @@ import type {
 } from '@/generated-sources/openapi';
 import type { ExtendedRouteDto } from '../config/bbucleRoadData';
 
-import { SccPressable } from '@/components/atoms';
+import SccPressable from '@/components/SccPressable';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import IcSubway from '@/assets/icon/ic_subway.svg';
 import IcTaxi from '@/assets/icon/ic_taxi.svg';
@@ -174,6 +175,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
   );
 
   return (
+    <LogParamsProvider params={{ displaySectionName: '교통정보', displayTabName: selectedRoute?.tabLabel }}>
     <div id={sectionId}>
       <Container isDesktop={isDesktop}>
         <TitleSection>
@@ -229,7 +231,6 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
                 tabIndex: index,
                 tabLabel: route.tabLabel,
                 tabIconType: route.tabIconType,
-                isDesktop,
               }}
               disableLogging={isEditMode}
             >
@@ -291,11 +292,22 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
               </HtmlContentWrapper>
             ) : selectedRoute.descriptionImageUrl ? (
               <DescriptionImageWrapper isDesktop={isDesktop}>
-                <SccRemoteImage
-                  imageUrl={selectedRoute.descriptionImageUrl}
-                  resizeMode="contain"
-                  style={{ borderRadius: 8 }}
-                />
+                <SccPressable
+                  onPress={() => {}}
+                  elementName="bbucle-road-route-description-image-click"
+                  logParams={{
+                    imageUrl: selectedRoute.descriptionImageUrl,
+                    routeIndex: selectedRouteIndex,
+                    tabLabel: selectedRoute.tabLabel,
+                  }}
+                  disableLogging={isEditMode}
+                >
+                  <SccRemoteImage
+                    imageUrl={selectedRoute.descriptionImageUrl}
+                    resizeMode="contain"
+                    style={{ borderRadius: 8 }}
+                  />
+                </SccPressable>
               </DescriptionImageWrapper>
             ) : null}
           </DescriptionHtmlContainer>
@@ -324,6 +336,7 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
       )}
       </Container>
     </div>
+    </LogParamsProvider>
   );
 }
 

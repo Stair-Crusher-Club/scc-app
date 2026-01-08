@@ -2,9 +2,11 @@ import React, { useCallback, useEffect } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
+import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
 import Logger from '@/logging/Logger';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
@@ -76,6 +78,7 @@ export default function OverviewSection({
   }, [displayMapImageUrl, isEditMode, isDesktop]);
 
   return (
+    <LogParamsProvider params={{ displaySectionName: '한눈에보기' }}>
     <div id={sectionId}>
       <Container isDesktop={isDesktop}>
         <ContentWrapper isDesktop={isDesktop}>
@@ -109,12 +112,19 @@ export default function OverviewSection({
           <MapSection isDesktop={isDesktop}>
             {mapImageUrl ? (
               <ImageContainer isDesktop={isDesktop}>
-                <SccRemoteImage
-                  imageUrl={mapImageUrl}
-                  resizeMode="contain"
-                  style={{ borderRadius: 12 }}
-                  wrapperBackgroundColor="white"
-                />
+                <SccPressable
+                  onPress={() => {}}
+                  elementName="bbucle-road-overview-map-image-click"
+                  logParams={{ imageUrl: displayMapImageUrl }}
+                  disableLogging={isEditMode}
+                >
+                  <SccRemoteImage
+                    imageUrl={mapImageUrl}
+                    resizeMode="contain"
+                    style={{ borderRadius: 12 }}
+                    wrapperBackgroundColor="white"
+                  />
+                </SccPressable>
                 {isEditMode && (
                   <ImageOverlay>
                     <ImageUploader
@@ -143,6 +153,7 @@ export default function OverviewSection({
         </ContentWrapper>
       </Container>
     </div>
+    </LogParamsProvider>
   );
 }
 

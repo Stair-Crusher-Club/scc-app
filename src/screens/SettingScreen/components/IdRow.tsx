@@ -11,7 +11,7 @@ import * as S from './Row.style';
 export default function IdRow() {
   const {userInfo} = useMe();
 
-  const displayId = userInfo?.displayId ?? userInfo?.id
+  const displayId = userInfo?.displayId ?? userInfo?.id;
 
   function copyIdToClipboard() {
     if (displayId) {

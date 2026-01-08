@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import HtmlContentWrapper from '../components/HtmlContentWrapper';
 import ImageUploader from '../components/ImageUploader';
 import InteractiveImage from '../components/InteractiveImage';
@@ -80,6 +81,7 @@ export default function SeatViewSection({
   ) || [];
 
   return (
+    <LogParamsProvider params={{ displaySectionName: '시야정보' }}>
     <div id={sectionId}>
       <Container isDesktop={isDesktop}>
         <ContentWrapper isDesktop={isDesktop}>
@@ -210,6 +212,7 @@ export default function SeatViewSection({
         </ContentWrapper>
       </Container>
     </div>
+    </LogParamsProvider>
   );
 }
 
