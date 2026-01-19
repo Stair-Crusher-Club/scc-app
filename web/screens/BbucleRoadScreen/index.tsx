@@ -3,6 +3,7 @@ import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 
 import type { WebStackParamList } from '../../navigation/WebNavigation';
@@ -70,6 +71,11 @@ function getIsEditMode(): boolean {
  */
 function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucleRoadId: string }) {
   const { isDesktop } = useResponsive();
+  const navigation = useNavigation<BbucleRoadScreenNavigationProp>();
+
+  const handleMenuPress = useCallback(() => {
+    navigation.navigate('BbucleRoadList');
+  }, [navigation]);
   const { api: appApi } = useAppComponents();
 
   // 스크롤 방향 감지 - BottomBar visibility
@@ -188,7 +194,10 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   return (
     <LogParamsProvider params={{ isDesktop }}>
       {hasFloatingHeader && (
-        <FloatingHeader title={data.floatingHeaderTitle!} />
+        <FloatingHeader
+          title={data.floatingHeaderTitle!}
+          onMenuPress={handleMenuPress}
+        />
       )}
       <ScrollView
         onScroll={handleScroll}

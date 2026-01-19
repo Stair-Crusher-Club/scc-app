@@ -27,7 +27,7 @@ export default function DesktopApp() {
               formatter: () => '계단뿌셔클럽',
             }}
             linking={{
-              prefixes: ['http://localhost:3000', 'https://your-domain.com'],
+              prefixes: ['http://localhost:3001', 'https://your-domain.com'],
               config: {
                 screens: {
                   Home: '/',
@@ -46,6 +46,10 @@ export default function DesktopApp() {
                     },
                   },
                   ImageZoomViewer: 'images',
+                  BbucleRoadList: {
+                    path: 'bbucle-road',
+                    exact: true,
+                  },
                   BbucleRoad: {
                     path: 'bbucle-road/:bbucleRoadId',
                     exact: true,

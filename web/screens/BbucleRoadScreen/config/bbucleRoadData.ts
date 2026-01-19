@@ -199,6 +199,8 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
   wheelchairUserCommentLabel?: string;
   /** 모바일용 휠체어 사용자의 한마디 라벨 */
   mobileWheelchairUserCommentLabel?: string;
+  /** 생성일 (정렬용, ISO 8601 형식: YYYY-MM-DD) */
+  createdAt?: string;
 }
 
 /**
@@ -212,7 +214,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204094524_BB2F52447BBD4666.png",
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251205015702_871B3E8C8194426B.png",
   "headerImageCaption": "*플레이브 콘서트 사진",
-  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210134039_05A23F65BACB4DB8.png",
+  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260119164457_GOCHEOK_THUMBNAIL.png",
   "lastUpdatedDate": "최종 업데이트 2025.12.05",
   "wheelchairUserCommentHtml": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b>&nbsp;이동이 가장 숏컷이에요.<br>근데 경사가 좀 있어서, <b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
   "wheelchairUserCommentLabel": "휠체어 사용자의 고척돔 접근성 한마디",
@@ -631,7 +633,8 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "floatingHeaderTitle": "휠체어로 고척 어때?",
   "likeCount": 126,
   "wheelchairUserCommentHtmlMobile": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b><br>이동이 가장 숏컷이에요. 근데 경사가 좀 있어서,<br><b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
-  "mobileHeaderBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210130255_93AD412E8FE248C5.png"
+  "mobileHeaderBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251210130255_93AD412E8FE248C5.png",
+  "createdAt": "2025-12-05"
 },
   'kspo-dome': {
   "id": "kspo-dome",
@@ -641,7 +644,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "mobileTitleImageWidth": 300,
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071250_CFDB368904344C9F.png",
   "headerImageCaption": "*슈가 콘서트 사진",
-  "ogImageUrl": "",
+  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260119164503_KSPO_THUMBNAIL.png",
   "lastUpdatedDate": "최종 업데이트 2025.12.22",
   "wheelchairUserCommentHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; line-height: 1.5em; max-width: 507px;\">KSPO DOME을 갈 때,<br><b>수동휠체어 타고 경사 빡센 곳을 힘들어 하신다면 P6-7</b>을 추천해요!</div>",
   "wheelchairUserCommentLabel": "휠체어 사용자의 KSPO 접근성 한마디",
@@ -943,7 +946,8 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071430_C2B5A98BAA5C4C1C.png"
   },
   "floatingHeaderTitle": "휠체어로 KSPO 어때?",
-  "likeCount": 0
+  "likeCount": 0,
+  "createdAt": "2025-12-22"
 },
   'ticketlink-live-arena': {
   "id": "ticketlink-live-arena",
@@ -953,7 +957,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "mobileTitleImageWidth": 280,
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116152333_76c3296c_tla-header-bg.png",
   "headerImageCaption": "*도영 콘서트 사진",
-  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116152333_76c3296c_tla-header-bg.png",
+  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260119164502_TLA_THUMBNAIL.png",
   "lastUpdatedDate": "최종 업데이트 2026.01.09",
   "wheelchairUserCommentHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; line-height: 1.5em; max-width: 507px;\">티켓링크 라이브 아레나를 자차로 가시는 분!,<br><b>수동휠체어 사용하고, 경사 빡센곳을 힘들어하신다면 P6-7 주차장</b>을 추천해요!</div>",
   "wheelchairUserCommentLabel": "휠체어 사용자의 티켓링크 라이브 아레나 접근성 한마디",
@@ -1132,8 +1136,9 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "titleLine2": "한눈에 보기",
     "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116181402_tla-overview-map.png"
   },
-  "floatingHeaderTitle": "휠체어로 티켓링크 라이브 아레나 어때?",
-  "likeCount": 0
+  "floatingHeaderTitle": "티켓링크 라이브 아레나 접근성",
+  "likeCount": 0,
+  "createdAt": "2026-01-09"
 },
 };
 
@@ -1182,4 +1187,12 @@ export function createEmptyBbucleRoadData(
     ...EMPTY_BBUCLE_ROAD_DATA,
     id: bbucleRoadId,
   };
+}
+
+/**
+ * 모든 뿌클로드 리스트 조회 (리스트 페이지용)
+ * @returns 뿌클로드 데이터 배열
+ */
+export function getAllBbucleRoadList(): BbucleRoadData[] {
+  return Object.values(BBUCLE_ROAD_DATA);
 }
