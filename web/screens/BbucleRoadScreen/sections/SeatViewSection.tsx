@@ -25,7 +25,7 @@ export default function SeatViewSection({
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
 
-  const { titleLine1, titleLine2, descriptionHtmls, interactiveImage, mobileImageUrl } = seatViewSection;
+  const { titleLine1, titleLine2, descriptionHtmls, interactiveImage, mobileImageUrl, noticeBox } = seatViewSection;
 
   const updateSeatViewSection = useCallback(
     (updates: Partial<SeatViewSectionData>) => {
@@ -120,6 +120,24 @@ export default function SeatViewSection({
                 resizeMode="contain"
                 wrapperBackgroundColor={null}
               />
+              {/* 제보 알림 박스 */}
+              {noticeBox && (
+                <NoticeBoxContainer isDesktop={isDesktop}>
+                  <NoticeBoxTitleRow>
+                    {noticeBox.title.startsWith('📢') && (
+                      <NoticeBoxEmoji>📢</NoticeBoxEmoji>
+                    )}
+                    <NoticeBoxTitle>
+                      {noticeBox.title.startsWith('📢') ? noticeBox.title.slice(2).trim() : noticeBox.title}
+                    </NoticeBoxTitle>
+                  </NoticeBoxTitleRow>
+                  <NoticeBoxDescription>
+                    <HtmlContentWrapper isDesktop={isDesktop}>
+                      <div dangerouslySetInnerHTML={{ __html: noticeBox.descriptionHtml }} />
+                    </HtmlContentWrapper>
+                  </NoticeBoxDescription>
+                </NoticeBoxContainer>
+              )}
               {isEditMode && (
                 <MobileImageOverlay>
                   <ImageUploader
@@ -139,6 +157,24 @@ export default function SeatViewSection({
                 sectionType="seatView"
                 hintTextBackgroundColor={color.brand5}
               />
+              {/* 제보 알림 박스 */}
+              {noticeBox && (
+                <NoticeBoxContainer isDesktop={isDesktop}>
+                  <NoticeBoxTitleRow>
+                    {noticeBox.title.startsWith('📢') && (
+                      <NoticeBoxEmoji>📢</NoticeBoxEmoji>
+                    )}
+                    <NoticeBoxTitle>
+                      {noticeBox.title.startsWith('📢') ? noticeBox.title.slice(2).trim() : noticeBox.title}
+                    </NoticeBoxTitle>
+                  </NoticeBoxTitleRow>
+                  <NoticeBoxDescription>
+                    <HtmlContentWrapper isDesktop={isDesktop}>
+                      <div dangerouslySetInnerHTML={{ __html: noticeBox.descriptionHtml }} />
+                    </HtmlContentWrapper>
+                  </NoticeBoxDescription>
+                </NoticeBoxContainer>
+              )}
             </ImageContainer>
           ) : (
             isEditMode && (
@@ -275,7 +311,7 @@ const TitleLine2Input = styled(TextInput)<{ isDesktop: boolean }>`
 const DescriptionGrid = styled(View)<{ isDesktop: boolean }>`
   flex-direction: ${({ isDesktop }) => (isDesktop ? 'row' : 'column')};
   flex-wrap: wrap;
-  gap: ${({ isDesktop }) => (isDesktop ? '60px' : '24px')};;
+  gap: ${({ isDesktop }) => (isDesktop ? '60px' : '32px')};
   max-width: 1020px;
   width: 100%;
 `;
@@ -283,6 +319,7 @@ const DescriptionGrid = styled(View)<{ isDesktop: boolean }>`
 const DescriptionItem = styled(View)<{ isDesktop: boolean }>`
   flex: 1;
   flex-basis: ${({ isDesktop }) => (isDesktop ? '45%' : '100%')};
+  width: ${({ isDesktop }) => (isDesktop ? 'auto' : '100%')};
 `;
 
 const ImageContainer = styled(View)<{ isDesktop: boolean }>`
@@ -354,4 +391,44 @@ const MobileImageActions = styled(View)`
   position: absolute;
   top: 8px;
   right: 8px;
+`;
+
+/* 제보 알림 박스 */
+const NoticeBoxContainer = styled(View)<{ isDesktop: boolean }>`
+  max-width: 1020px;
+  margin-top: ${({ isDesktop }) => (isDesktop ? '12px' : '0')};
+  background-color: rgba(184, 255, 85, 0.3);
+  border-radius: ${({ isDesktop }) => (isDesktop ? '12px' : '0')};
+  padding: 16px;
+  gap: 6px;
+`;
+
+const NoticeBoxTitleRow = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const NoticeBoxEmoji = styled(Text)`
+  font-family: Pretendard;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: ${color.brand50};
+`;
+
+const NoticeBoxTitle = styled(Text)`
+  font-family: Pretendard;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: ${color.black};
+`;
+
+const NoticeBoxDescription = styled(View)`
+  font-family: Pretendard;
+  font-size: 15px;
+  font-weight: 400;
+  color: ${color.gray80};
+  line-height: 24px;
 `;

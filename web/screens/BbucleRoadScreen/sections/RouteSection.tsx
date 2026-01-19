@@ -284,13 +284,19 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
         <ContentContainer isDesktop={isDesktop}>
           {/* Description HTML */}
           <DescriptionHtmlContainer isDesktop={isDesktop}>
-            {selectedRoute.descriptionHtml ? (
-              <HtmlContentWrapper isDesktop={isDesktop}>
-                <div
-                  dangerouslySetInnerHTML={{ __html: selectedRoute.descriptionHtml }}
-                />
-              </HtmlContentWrapper>
-            ) : selectedRoute.descriptionImageUrl ? (
+            {(() => {
+              const displayHtml = (!isDesktop && selectedRoute.mobileDescriptionHtml)
+                ? selectedRoute.mobileDescriptionHtml
+                : selectedRoute.descriptionHtml;
+              return displayHtml ? (
+                <HtmlContentWrapper isDesktop={isDesktop}>
+                  <div
+                    dangerouslySetInnerHTML={{ __html: displayHtml }}
+                  />
+                </HtmlContentWrapper>
+              ) : null;
+            })()}
+            {!selectedRoute.descriptionHtml && !selectedRoute.mobileDescriptionHtml && selectedRoute.descriptionImageUrl ? (
               <DescriptionImageWrapper isDesktop={isDesktop}>
                 <SccPressable
                   onPress={() => {}}

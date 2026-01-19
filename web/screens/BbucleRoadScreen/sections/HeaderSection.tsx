@@ -27,6 +27,8 @@ interface HeaderSectionProps {
   mobileTitleImageWidth?: number;
   /** 휠체어 사용자의 한마디 라벨 */
   wheelchairUserCommentLabel?: string;
+  /** 모바일용 휠체어 사용자의 한마디 라벨 */
+  mobileWheelchairUserCommentLabel?: string;
 }
 
 export default function HeaderSection({
@@ -41,6 +43,7 @@ export default function HeaderSection({
   titleImageWidth,
   mobileTitleImageWidth,
   wheelchairUserCommentLabel,
+  mobileWheelchairUserCommentLabel,
 }: HeaderSectionProps) {
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
@@ -242,7 +245,9 @@ export default function HeaderSection({
         {/* 휠체어 사용자의 한마디 섹션 */}
         <CommentSection isDesktop={isDesktop}>
           <CommentLabel isDesktop={isDesktop}>
-            {wheelchairUserCommentLabel || '휠체어 사용자의 고척돔 접근성 한마디'}
+            {isDesktop
+              ? (wheelchairUserCommentLabel || '휠체어 사용자의 고척돔 접근성 한마디')
+              : (mobileWheelchairUserCommentLabel || wheelchairUserCommentLabel || '휠체어 사용자의 고척돔 접근성 한마디')}
           </CommentLabel>
           <SpeechBubbleWithCharacter>
             <SpeechBubbleWrapper isDesktop={isDesktop}>
@@ -409,6 +414,7 @@ const CommentLabel = styled(Text)<{ isDesktop: boolean }>`
   letter-spacing: -0.36px;
   color: ${color.white};
   text-align: center;
+  white-space: pre-line;
 `;
 
 const SpeechBubbleWrapper = styled(View)<{ isDesktop: boolean }>`

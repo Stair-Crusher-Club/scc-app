@@ -48,6 +48,10 @@ export interface NearbyPlacesSectionData {
   mapImageUrl: string;
   /** 모바일용 지도 이미지 URL */
   mobileMapImageUrl?: string;
+  /** 두 번째 지도 이미지 URL (TLA 근처맛집처럼 2개 방면 지도가 있는 경우) */
+  secondMapImageUrl?: string;
+  /** 모바일용 두 번째 지도 이미지 URL */
+  mobileSecondMapImageUrl?: string;
   /** 장소 목록 (3개) */
   places: NearbyPlaceData[];
   naverListUrl?: string;
@@ -83,6 +87,13 @@ export interface SeatViewSectionData {
   interactiveImage?: ExtendedInteractiveImageDto;
   /** 모바일용 정적 이미지 URL (클릭 영역 없음) */
   mobileImageUrl?: string;
+  /** 제보 알림 박스 (선택) */
+  noticeBox?: {
+    /** 알림 제목 (예: "📢 휠체어석 시야 사진 제보 받아요!") */
+    title: string;
+    /** 알림 설명 HTML */
+    descriptionHtml: string;
+  } | null;
 }
 
 /**
@@ -132,6 +143,8 @@ export interface OverviewSectionData {
  */
 export type ExtendedRouteDto = Omit<BbucleRoadRouteDto, 'interactiveImage'> & {
   descriptionHtml?: string;
+  /** 모바일용 설명 HTML (폰트 크기, line-height 등 모바일 최적화) */
+  mobileDescriptionHtml?: string;
   interactiveImage?: ExtendedInteractiveImageDto;
 };
 
@@ -184,6 +197,8 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
   mobileTitleImageWidth?: number;
   /** 휠체어 사용자의 한마디 라벨 (예: "휠체어 사용자의 고척돔 접근성 한마디") */
   wheelchairUserCommentLabel?: string;
+  /** 모바일용 휠체어 사용자의 한마디 라벨 */
+  mobileWheelchairUserCommentLabel?: string;
 }
 
 /**
@@ -845,7 +860,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "titleLine2": "근처 맛집 정보",
     "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071548_60D3DB395FC0451D.png",
     "places": [],
-    // "naverListUrl": "https://naver.me/5YSWYw6R",
+    "naverListUrl": "https://naver.me/FLev5cng",
     "morePlacesUrl": "https://link.staircrusher.club/o0o7kx",
     "wheelchairUserTipHtml": "공연이 끝나고 장콜을 기다려야 할 때는 외부에 있는 식당이나 카페를 이용하는 게 좋아요! 훨씬 덜 붐비고 차 타기도 쉬워요."
   },
@@ -928,6 +943,196 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071430_C2B5A98BAA5C4C1C.png"
   },
   "floatingHeaderTitle": "휠체어로 KSPO 어때?",
+  "likeCount": 0
+},
+  'ticketlink-live-arena': {
+  "id": "ticketlink-live-arena",
+  "title": "휠체어로 티켓링크 라이브 아레나 어때?",
+  "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116170330_tla-title-image.png",
+  "titleImageWidth": 514,
+  "mobileTitleImageWidth": 280,
+  "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116152333_76c3296c_tla-header-bg.png",
+  "headerImageCaption": "*도영 콘서트 사진",
+  "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116152333_76c3296c_tla-header-bg.png",
+  "lastUpdatedDate": "최종 업데이트 2026.01.09",
+  "wheelchairUserCommentHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; line-height: 1.5em; max-width: 507px;\">티켓링크 라이브 아레나를 자차로 가시는 분!,<br><b>수동휠체어 사용하고, 경사 빡센곳을 힘들어하신다면 P6-7 주차장</b>을 추천해요!</div>",
+  "wheelchairUserCommentLabel": "휠체어 사용자의 티켓링크 라이브 아레나 접근성 한마디",
+  "mobileWheelchairUserCommentLabel": "휠체어 사용자의\n티켓링크 라이브 아레나 접근성 한마디",
+  "sections": [],
+  "routeSection": {
+    "titleLine1": "티켓링크 라이브 아레나",
+    "titleLine2": "대중교통 및 주차장 동선",
+    "routes": [
+      {
+        "id": "route-tla-subway",
+        "tabLabel": "지하철",
+        "tabIconType": "SUBWAY",
+        "descriptionImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-subway.png",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.375em; margin-bottom: 1.5em;\"><div style=\"background-color: #EBF5FF; color: #0E64D3; font-size: 0.875em; font-weight: 400; padding: 0.125em 0.3125em; border-radius: 1px; width: fit-content; line-height: 1.25em;\">전동휠체어 8분, 수동휠체어 15분</div><div style=\"display: flex; gap: 0.25em; align-items: center;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원역</span><span style=\"font-size: 1em;\">→</span><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">티켓링크 라이브 아레나</span></div></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ 올림픽공원역 3번 또는 4번 출구</b> 엘리베이터 이용</p><p style=\"margin: 0;\"><b>➋</b> 티켓링크 라이브 아레나 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➌ 아치형 다리를</b> 건너 티켓링크 라이브 아레나 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➍ 티켓 및 MD 부스 구역</b> 티켓 수령하여 공연장 입구로 이동</p><p style=\"margin: 0;\"><b>➎ 휠체어 출입구</b>로 공연장 입장</p></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>전체적으로 평지이지만,<br>보도블럭이 일어난 구간들이 있어서 주의해야 해요.</li><li>4번 구간에 MD부스, 포토존들이 있어요!</li></ul></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-subway.png",
+          "clickableRegions": [
+            {
+              "id": "region-tla-subway-arch-bridge",
+              "polygon": [
+                { "x": 0.5472, "y": 0.0216 },
+                { "x": 0.9817, "y": 0.0216 },
+                { "x": 0.9817, "y": 0.4412 },
+                { "x": 0.5472, "y": 0.4412 }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116181658_tla-subway-modal-arch-bridge.png"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "route-tla-taxi",
+        "tabLabel": "장애인 콜택시",
+        "tabIconType": "TAXI",
+        "descriptionImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-taxi.png",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">1</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">SK올림픽핸드볼경기장 주차장</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">하차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 송파구 올림픽로 424, 올림픽공원 SK올림픽핸드볼경기장 주차장 <a href=\"#\" style=\"color: #0E64D3; text-decoration: underline;\">복사</a></li><li>티켓링크 라이브 아레나 주차장 <b>입구</b> 쪽에서 하차 추천</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">2</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">한국체육대학교 주차장</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">승차지/하차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 송파구 양재대로 1239 한국체육대학교 철골주차장 <a href=\"#\" style=\"color: #0E64D3; text-decoration: underline;\">복사</a></li><li>티켓링크 라이브 아레나에서 가까운 외부 주차장</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">3</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">JYP 사옥 부근</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">승차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 강동구 강동대로 207 <a href=\"#\" style=\"color: #0E64D3; text-decoration: underline;\">복사</a></li><li>건물 앞 택시 정류장</li></ul></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">공연이 끝나고 집에 갈 때는 가능한 올림픽 공원 외부로 장콜을 부르는게 좋아요!</p></div></div>",
+        "mobileDescriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 15px;\"><div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px;\"><div style=\"display: flex; gap: 6px; align-items: center; flex-wrap: wrap;\"><div style=\"background-color: #0E64D3; color: #fff; width: 16px; height: 16px; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;\">1</div><span style=\"font-size: 18px; font-weight: 700; color: #000; line-height: 26px; letter-spacing: -0.36px;\">SK올림픽핸드볼경기장 주차장(P6)</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 12px; font-weight: 500; padding: 0 5px; border-radius: 4px; line-height: 16px;\">하차지 추천</span></div><ul style=\"margin: 0; padding-left: 24px; font-size: 15px; color: #24262B; line-height: 24px;\"><li>서울 송파구 올림픽로 424, 올림픽공원 SK올림픽핸드볼경기장 주차장 <a href=\"#\" style=\"color: #0E64D3; text-decoration: underline;\">복사</a></li><li>티켓링크 라이브 아레나 주차장 입구 쪽에서 하차 추천</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px;\"><div style=\"display: flex; gap: 6px; align-items: center; flex-wrap: wrap;\"><div style=\"background-color: #0E64D3; color: #fff; width: 16px; height: 16px; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;\">2</div><span style=\"font-size: 18px; font-weight: 700; color: #000; line-height: 26px; letter-spacing: -0.36px;\">한국체육대학교 주차장</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 12px; font-weight: 500; padding: 0 5px; border-radius: 4px; line-height: 16px;\">승차지/하차지 추천</span></div><ul style=\"margin: 0; padding-left: 24px; font-size: 15px; color: #24262B; line-height: 24px;\"><li>서울 송파구 양재대로 1239 한국체육대학교 철골주차장 <a href=\"#\" style=\"color: #0E64D3; text-decoration: underline;\">복사</a></li><li>티켓링크 라이브 아레나에서 가까운 외부 주차장</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px;\"><div style=\"display: flex; gap: 6px; align-items: center; flex-wrap: wrap;\"><div style=\"background-color: #0E64D3; color: #fff; width: 16px; height: 16px; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;\">3</div><span style=\"font-size: 18px; font-weight: 700; color: #000; line-height: 26px; letter-spacing: -0.36px;\">JYP 사옥 부근</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 12px; font-weight: 500; padding: 0 5px; border-radius: 4px; line-height: 16px;\">승차지 추천</span></div><ul style=\"margin: 0; padding-left: 24px; font-size: 15px; color: #24262B; line-height: 24px;\"><li>서울 강동구 강동대로 207 <a href=\"#\" style=\"color: #0E64D3; text-decoration: underline;\">복사</a></li><li>건물 앞 택시 정류장</li></ul></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 16px;\"><p style=\"font-size: 16px; font-weight: 700; color: #0E64D3; line-height: 24px; margin: 0 0 6px 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 16px; color: #24262B; line-height: 26px;\">공연이 끝나고 집에 갈때는 가능한 올림픽 공원 외부로 장콜을 부르는게 좋아요!</p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-taxi.png",
+          "clickableRegions": [
+            {
+              "id": "region-tla-taxi-sk-handball",
+              "polygon": [
+                { "x": 0.0274, "y": 0.2863 },
+                { "x": 0.4207, "y": 0.2863 },
+                { "x": 0.4207, "y": 0.7059 },
+                { "x": 0.0274, "y": 0.7059 }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116182647_tla-taxi-modal-olympic-p5.png"
+              ]
+            },
+            {
+              "id": "region-tla-taxi-knsu",
+              "polygon": [
+                { "x": 0.5793, "y": 0.2451 },
+                { "x": 0.9726, "y": 0.2451 },
+                { "x": 0.9726, "y": 0.6647 },
+                { "x": 0.5793, "y": 0.6647 }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116182647_tla-taxi-modal-hantae.png"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "route-tla-parking-closest",
+        "tabLabel": "자차",
+        "tabIconType": "CAR",
+        "descriptionImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-car.png",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 1.25em; margin-bottom: 2em;\"><div style=\"display: flex; flex-direction: column; gap: 0.25em;\"><div style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; width: fit-content; line-height: 1.25em;\">가장 가까운 주차장</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">SK올림픽핸드볼경기장 주차장 (올림픽공원 P6)</span></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; padding-left: 0.375em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ P6</b> 장애인 주차장(5석)에 차량 주차</p><p style=\"margin: 0;\"><b>➋ 오르막</b>을 따라 정면에 <b>한얼광장 방향</b>으로 이동</p><p style=\"margin: 0;\"><b>➌</b> 한얼광장에서 <b>티켓링크 라이브 아레나 방향</b>으로 이동</p><p style=\"margin: 0; font-size: 0.9375em; font-weight: 500; color: #E52123; line-height: 1.375em;\">*공연에 따라 통제 되는 경우도 있음</p></div></div><div style=\"display: flex; flex-direction: column; gap: 1.25em; margin-bottom: 2em;\"><div style=\"display: flex; flex-direction: column; gap: 0.25em;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 P7</span></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; padding-left: 0.375em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➍ P7</b> 장애인 주차장에 차량 주차</p><p style=\"margin: 0;\"><b>➎ 휠체어 전용 경사로</b>를 따라서 공연장 방향으로 이동</p><p style=\"margin: 0;\"><b>➏</b> 경사로에서 우측의 <b>티켓링크 라이브 아레나 방향</b>으로 이동</p></div></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em; display: flex; flex-direction: column; gap: 0.375em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"font-size: 1em; color: #24262B; line-height: 1.625em; margin: 0;\">올림픽공원 홈페이지에서 <br><b>주차장의 실시간 혼잡도</b>를 확인할 수 있어요!<br><a href=\"https://www.ksponco.or.kr/olympicpark/parkingInfo?mid=a20111000000\" style=\"color: #0E64D3; text-decoration: underline;\">실시간 혼잡도 확인하기 ></a></p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-car.png",
+          "clickableRegions": [
+            {
+              "id": "region-tla-car-p7-ramp",
+              "polygon": [
+                { "x": 0.0213, "y": 0.0275 },
+                { "x": 0.3720, "y": 0.0275 },
+                { "x": 0.3720, "y": 0.3657 },
+                { "x": 0.0213, "y": 0.3657 }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116182647_tla-car-modal-p7-ramp.png"
+              ]
+            },
+            {
+              "id": "region-tla-car-p6-ramp",
+              "polygon": [
+                { "x": 0.6280, "y": 0.6333 },
+                { "x": 0.9787, "y": 0.6333 },
+                { "x": 0.9787, "y": 0.9716 },
+                { "x": 0.6280, "y": 0.9716 }
+              ],
+              "modalImageUrls": [
+                "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116182647_tla-car-modal-p5-ramp.png"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "route-tla-bus",
+        "tabLabel": "버스",
+        "tabIconType": "BUS",
+        "descriptionImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-bus.png",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 1.25em; margin-bottom: 2em;\"><p style=\"margin: 0;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원역</span><span style=\"font-size: 1.125em; font-weight: 400; color: #000; line-height: 2em;\">(올림픽공원 장미광장 방면)</span></p><div style=\"display: flex; flex-direction: column; gap: 0.25em;\"><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #00A005; font-weight: 700; font-size: 1em; line-height: 1.5em;\">초록버스(지선)</span><span style=\"color: #16181C; font-weight: 400;\">3216, 3412, 3413, 3414</span></div><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #0E64D3; font-weight: 700; font-size: 1em; line-height: 1.5em;\">파란버스(간선)</span><span style=\"color: #16181C; font-weight: 400;\">301, 302</span></div></div></div><div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 1em 1.25em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">위 라인 저상버스 포함해 운영 중이나 일부 차량은 저상버스가 아니므로 확인이 필요해요!</p></div></div>",
+        "interactiveImage": {
+          "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116164822_tla-route-bus.png",
+          "clickableRegions": []
+        }
+      }
+    ]
+  },
+  "ticketInfoSection": {
+    "titleLine1": "티켓링크 라이브 아레나",
+    "titleLine2": "매표 및 입장동선",
+    "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;\">\n    <div style=\"border: 1px solid #D8D8DF; background-color: #fff; color: #0E64D3; font-size: 0.8125em; font-weight: 500; padding: 5px 13px; border-radius: 50px; width: fit-content; line-height: 18px;\">매표</div>\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">부스형 매표소</span>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #16181C; line-height: 1.625em;\">\n      <li>콘서트에 따라 다른 위치에 매표소가 운영될 수 있음</li>\n    </ul>\n  </div>\n  <div style=\"background-color: #fff; border-radius: 12px; padding: 16px;\">\n    <p style=\"font-size: 0.9375em; font-weight: 700; color: #0E64D3; line-height: 22px; margin: 0 0 6px 0;\">콘서트/공연 입장 참고사항</p>\n    <p style=\"font-size: 0.9375em; color: #16181C; line-height: 24px; font-weight: 400; margin: 0;\">티켓 현장수령이 필요하니<br>사전에 <b>매표소(현장 티켓부스) 위치를 확인</b>하세요.</p>\n  </div>\n</div>",
+    "imageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116165730_tla-ticket-info-map.png",
+    "tips": []
+  },
+  "seatViewSection": {
+    "titleLine1": "티켓링크 라이브 아레나",
+    "titleLine2": "휠체어석 위치 및 시야 확인",
+    "descriptionHtmls": [
+      "<div style=\"font-family: Pretendard, sans-serif; width: 100%;\">\n  <div style=\"display: flex; flex-direction: column; gap: var(--chip-gap, 8px); margin-bottom: 16px;\">\n    <div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: var(--chip-font-size, 13px); font-weight: 500; padding: 4px 12px; display: flex; justify-content: center; align-items: center; border-radius: 50px; width: fit-content; line-height: var(--chip-line-height, 18px);\">입장</div>\n    <span style=\"font-size: var(--title-font-size, 22px); font-weight: 700; color: #000; line-height: var(--title-line-height, 32px);\">주출입구</span>\n  </div>\n  <ul style=\"margin: 0 0 20px 0; padding-left: 24px; font-size: var(--list-font-size, 16px); font-weight: 400; color: #16181C; line-height: var(--list-line-height, 26px);\">\n    <li>휠체어석과 가까운 출입구 2-3추천</li>\n  </ul>\n  <div style=\"background-color: #F7F8FA; border-radius: var(--box-border-radius, 12px); padding: var(--box-padding, 16px); display: flex; flex-direction: column; gap: 6px;\">\n    <p style=\"font-size: 15px; font-weight: 700; color: #0E64D3; line-height: 22px; margin: 0;\">참고사항</p>\n    <p style=\"font-size: 15px; color: #24262B; line-height: 24px; margin: 0;\">콘서트에 따라 이용 가능한 출입구가 다를 수 있으니,<br>현장 스태프에게 꼭 확인하고 안내받는 것을 추천합니다!</p>\n  </div>\n</div>",
+      "<div style=\"font-family: Pretendard, sans-serif; width: 100%;\">\n  <div style=\"display: flex; flex-direction: column; gap: var(--chip-gap, 8px); margin-bottom: 16px;\">\n    <div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: var(--chip-font-size, 13px); font-weight: 500; padding: 4px 12px; display: flex; justify-content: center; align-items: center; border-radius: 50px; width: fit-content; line-height: var(--chip-line-height, 18px);\">좌석</div>\n    <span style=\"font-size: var(--title-font-size, 22px); font-weight: 700; color: #000; line-height: var(--title-line-height, 32px);\">휠체어석 위치</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: var(--list-font-size, 16px); font-weight: 400; color: #16181C; line-height: var(--list-line-height, 26px);\">\n    <li>2층 24~26 / 32~34 / 39~41 / 47~49 통로 구역에 위치</li>\n  </ul>\n</div>"
+    ],
+    "interactiveImage": {
+      "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116165730_tla-seat-view-map.png",
+      "clickableRegions": []
+    },
+    "noticeBox": {
+      "title": "📢 휠체어석 시야 사진 제보 받아요!",
+      "descriptionHtml": "<span style=\"font-size: 15px; color: #24262B; line-height: 24px;\">티켓링크 라이브 아레나 휠체어석 시야 사진을 <a href=\"https://tally.so/r/5B9q0E\" target=\"_blank\" style=\"color: #0E64D3; font-weight: 700; text-decoration: underline;\">여기로</a> 제보해주세요. 최초 제보자께는 소정의 리워드를 전달드릴게요.</span>"
+    }
+  },
+  "nearbyPlacesSection": {
+    "titleLine1": "티켓링크 라이브 아레나",
+    "titleLine2": "근처 맛집 정보",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116175702_tla-nearby-dunchon.png",
+    "secondMapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116175702_tla-nearby-bangi.png",
+    "places": [],
+    "naverListUrl": "https://naver.me/FLev5cng",
+    "morePlacesUrl": "https://link.staircrusher.club/o0o7kx",
+    "wheelchairUserTipHtml": "<p style=\"font-size: 1em; color: #24262B; line-height: 1.625em; margin: 0;\">공연이 끝나고 장콜을 기다려야할때는 <b>외부에 있는 식당이나 카페를 이용</b>하는게 좋아요! 훨씬 덜 붐비고 차 타기도 쉬워요.</p>"
+  },
+  "reviewSection": {
+    "titleLine1": "티켓링크 라이브 아레나",
+    "titleLine2": "휠체어 이용자의 후기",
+    "descriptionHtmls": [
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\">올림픽 공원은 평지고, 차가 다니지 않아서 생각보다 <b>경기장 접근이 어렵지 않아요.</b><br>다만 공연이 많으면 굉장히 혼잡하기 때문에 주차장 이용시 여유롭게 도착하는 것을 추천합니다!<br><b>티켓링크 라이브 아레나 갈 때, 수동휠체어 타고 경사 빡센곳을 힘들어하신다면 P6-7을 추천해요!</b></p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 야마하 수전동 휠체어 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\"><b>지하철</b>로 방문했는데, <b>4번출구 쪽 엘리베이터</b>로 나오면 대부분 평지였습니다.<br>오래된 공원/공연장이다 보니 <b>보도가 조금씩 깨져 있어서 살짝 주의해야 하지만</b> 이동에 큰 어려움은<br>없었습니다.</p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 동반인 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\">엔플라잉 공연이 진행되는 티켓링크 라이브 아레나 근처가 <b>다 평지여서 이동하기 편했어요~~</b><br>아치다리를 건너야하긴 했지만 <b>엄청 빡센 경사는 아니라 이동하는데에 어려움은 없었어요!</b><br>공연 끝나고 나서 방이역 쪽으로 이동해서 장콜 탑승했는데 혼란스럽지 않게 나올 수 있었어요~~!</p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 -</p></div>"
+    ],
+    "descriptionHtmlsMobile": [
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\">올림픽 공원은 평지고, 차가 다니지 않아서 생각보다 <b>경기장 접근이 어렵지 않아요.</b> 다만 공연이 많으면 굉장히 혼잡하기 때문에 주차장 이용시 여유롭게 도착하는 것을 추천합니다!<br><br></p><p style=\"margin: 0;\"><b>티켓링크 라이브 아레나 갈 때, 수동휠체어 타고 경사 빡센곳을 힘들어하신다면 P6-7을 추천해요!</b></p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 야마하 수전동 휠체어 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\"><b>지하철</b>로 방문했는데,<br><b>4번출구 쪽 엘리베이터</b>로 나오면 대부분 평지였습니다.<br>오래된 공원/공연장이다 보니 <b>보도가 조금씩 깨져 있어서<br>살짝 주의해야 하지만</b> 이동에 큰 어려움은 없었습니다.</p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 동반인 -</p></div>",
+      "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\">엔플라잉 공연이 진행되는 티켓링크 라이브 아레나 근처가 <b>다 평지여서 이동하기 편했어요~~</b><br>아치다리를 건너야하긴 했지만 <b>엄청 빡센 경사는 아니라 이동하는데에 어려움은 없었어요!</b></p><p style=\"margin: 0;\">공연 끝나고 나서 방이역 쪽으로 이동해서 장콜 탑승했는데 혼란스럽지 않게 나올 수 있었어요~~!</p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 -</p></div>"
+    ],
+    "investigatorInfo": {
+      "title": "티켓링크 라이브 아레나 조사단",
+      "members": "(박수빈, 박원, 백은하, 지수환, 주성희)"
+    }
+  },
+  "ctaFooterSection": {
+    "buttonUrl": "https://forms.staircrusher.club/contents-alarm"
+  },
+  "overviewSection": {
+    "titleLine1": "티켓링크 라이브 아레나 동선 정보",
+    "titleLine2": "한눈에 보기",
+    "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116181402_tla-overview-map.png"
+  },
+  "floatingHeaderTitle": "휠체어로 티켓링크 라이브 아레나 어때?",
   "likeCount": 0
 },
 };

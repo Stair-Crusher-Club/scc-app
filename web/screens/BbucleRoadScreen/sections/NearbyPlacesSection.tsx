@@ -144,6 +144,8 @@ export default function NearbyPlacesSection({
     titleLine2,
     mapImageUrl,
     mobileMapImageUrl,
+    secondMapImageUrl,
+    mobileSecondMapImageUrl,
     places = [],
     naverListUrl = DEFAULT_NAVER_LIST_URL,
     morePlacesUrl = DEFAULT_MORE_PLACES_URL,
@@ -181,6 +183,20 @@ export default function NearbyPlacesSection({
   const handleMobileMapImageChange = useCallback(
     (url: string) => {
       updateNearbyPlacesSection({ mobileMapImageUrl: url });
+    },
+    [updateNearbyPlacesSection],
+  );
+
+  const handleSecondMapImageChange = useCallback(
+    (url: string) => {
+      updateNearbyPlacesSection({ secondMapImageUrl: url });
+    },
+    [updateNearbyPlacesSection],
+  );
+
+  const handleMobileSecondMapImageChange = useCallback(
+    (url: string) => {
+      updateNearbyPlacesSection({ mobileSecondMapImageUrl: url });
     },
     [updateNearbyPlacesSection],
   );
@@ -281,6 +297,46 @@ export default function NearbyPlacesSection({
             );
           })()}
 
+          {/* 두 번째 지도 이미지 (있는 경우) */}
+          {(() => {
+            const activeSecondMapImageUrl = !isDesktop && mobileSecondMapImageUrl ? mobileSecondMapImageUrl : secondMapImageUrl;
+            const activeSecondHandler = !isDesktop && mobileSecondMapImageUrl ? handleMobileSecondMapImageChange : handleSecondMapImageChange;
+
+            return activeSecondMapImageUrl ? (
+              <MapImageContainer isDesktop={isDesktop}>
+                {isEditMode ? (
+                  <>
+                    <SccRemoteImage
+                      imageUrl={activeSecondMapImageUrl}
+                      resizeMode="contain"
+                      style={{ borderRadius: 12 }}
+                    />
+                    <ImageOverlay>
+                      <ImageUploader
+                        currentImageUrl={activeSecondMapImageUrl}
+                        onUploadComplete={activeSecondHandler}
+                        compact
+                      />
+                    </ImageOverlay>
+                  </>
+                ) : (
+                  <SccPressable
+                    onPress={handleMorePlacesPress}
+                    elementName="bbucle-road-nearby-map-image-2"
+                    logParams={{ imageUrl: activeSecondMapImageUrl }}
+                    disableLogging={isEditMode}
+                  >
+                    <SccRemoteImage
+                      imageUrl={activeSecondMapImageUrl}
+                      resizeMode="contain"
+                      style={{ borderRadius: 12 }}
+                    />
+                  </SccPressable>
+                )}
+              </MapImageContainer>
+            ) : null;
+          })()}
+
           {/* Edit Mode: 모바일 이미지 관리 (데스크탑에서 편집 시) */}
           {isEditMode && isDesktop && (
             <MobileImageSection>
@@ -304,6 +360,35 @@ export default function NearbyPlacesSection({
               ) : (
                 <ImageUploader
                   onUploadComplete={handleMobileMapImageChange}
+                  buttonText="모바일 이미지 업로드"
+                />
+              )}
+            </MobileImageSection>
+          )}
+
+          {/* Edit Mode: 두 번째 지도 모바일 이미지 관리 */}
+          {isEditMode && isDesktop && secondMapImageUrl && (
+            <MobileImageSection>
+              <MobileImageLabel>모바일용 두 번째 지도 이미지 (선택사항)</MobileImageLabel>
+              {mobileSecondMapImageUrl ? (
+                <MobileImagePreview>
+                  <SccRemoteImage
+                    imageUrl={mobileSecondMapImageUrl}
+                    resizeMode="contain"
+                    style={{ borderRadius: 8, maxHeight: 200 }}
+                    wrapperBackgroundColor={null}
+                  />
+                  <MobileImageActions>
+                    <ImageUploader
+                      currentImageUrl={mobileSecondMapImageUrl}
+                      onUploadComplete={handleMobileSecondMapImageChange}
+                      compact
+                    />
+                  </MobileImageActions>
+                </MobileImagePreview>
+              ) : (
+                <ImageUploader
+                  onUploadComplete={handleMobileSecondMapImageChange}
                   buttonText="모바일 이미지 업로드"
                 />
               )}
@@ -340,7 +425,7 @@ export default function NearbyPlacesSection({
               logParams={{ url: morePlacesUrl }}
               disableLogging={isEditMode}
             >
-              <PrimaryButtonText isDesktop={isDesktop}>접근성 정보 자세히보기</PrimaryButtonText>
+              <PrimaryButtonText isDesktop={isDesktop}>더 많은 장소 확인하기</PrimaryButtonText>
               <IcOutWhite width={iconSize} height={iconSize} viewBox="0 0 24 24" style={{'margin-left': '-6px'}} />
             </PrimaryButton>
           </ButtonContainer>

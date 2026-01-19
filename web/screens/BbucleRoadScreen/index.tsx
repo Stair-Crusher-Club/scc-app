@@ -77,16 +77,25 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   const lastScrollY = useRef(0);
   const isTouching = useRef(false);
   const isScrollingUpRef = useRef(true);
+  const isAtBottomRef = useRef(false);
 
   const handleScroll = useCallback((event: any) => {
-    const currentScrollY = event.nativeEvent?.contentOffset?.y ?? 0;
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent ?? {};
+    const currentScrollY = contentOffset?.y ?? 0;
+
+    // 최하단 도달 여부 체크 (약간의 여유값 포함)
+    const isAtBottom = contentSize && layoutMeasurement &&
+      (currentScrollY + layoutMeasurement.height >= contentSize.height - 10);
+    isAtBottomRef.current = isAtBottom;
+
     if (currentScrollY !== lastScrollY.current) {
       isScrollingUpRef.current = currentScrollY < lastScrollY.current;
       lastScrollY.current = currentScrollY;
 
       // 터치 중이 아닐 때만 상태 업데이트 (관성 스크롤)
       if (!isTouching.current) {
-        setIsBottomBarVisible(isScrollingUpRef.current);
+        // 최하단이면 항상 표시, 아니면 스크롤 방향에 따라
+        setIsBottomBarVisible(isAtBottom || isScrollingUpRef.current);
       }
     }
   }, []);
@@ -97,7 +106,8 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
 
   const handleTouchEnd = useCallback(() => {
     isTouching.current = false;
-    setIsBottomBarVisible(isScrollingUpRef.current);
+    // 최하단이면 항상 표시, 아니면 스크롤 방향에 따라
+    setIsBottomBarVisible(isAtBottomRef.current || isScrollingUpRef.current);
   }, []);
 
   // 저장된 userId
@@ -199,6 +209,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
             titleImageWidth={data.titleImageWidth}
             mobileTitleImageWidth={data.mobileTitleImageWidth}
             wheelchairUserCommentLabel={data.wheelchairUserCommentLabel}
+            mobileWheelchairUserCommentLabel={data.mobileWheelchairUserCommentLabel}
           />
 
           {availableSections.length > 0 && (
@@ -550,7 +561,7 @@ const MainContent = styled(View)`
 
 const ContentWrapper = styled(View)<{ hasFloatingHeader?: boolean; isDesktop?: boolean }>`
   width: 100%;
-  padding-top: ${({ hasFloatingHeader, isDesktop }) => (hasFloatingHeader ? (isDesktop ? '80px' : '50px') : '0')};
+  padding-top: ${({ hasFloatingHeader, isDesktop }) => (hasFloatingHeader ? (isDesktop ? '60px' : '50px') : '0')};
 `;
 
 const LoadingContainer = styled(View)`
@@ -597,5 +608,5 @@ const AddSectionButtonText = styled(Text)`
 `;
 
 const BottomBarSpacer = styled(View)<{ isDesktop: boolean }>`
-  height: ${({ isDesktop }) => isDesktop ? '108px' : '90px'};
+  height: ${({ isDesktop }) => isDesktop ? '97px' : '79px'};
 `;
