@@ -18,7 +18,13 @@ import * as S from './common.style';
 
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 
-export default function VisitorReviewSection() {
+interface VisitorReviewSectionProps {
+  onPhotoSectionLayout?: (y: number) => void;
+}
+
+export default function VisitorReviewSection({
+  onPhotoSectionLayout,
+}: VisitorReviewSectionProps) {
   const {watch} = useFormContext<FormValues>();
   const recommendedMobilityTypes = watch('recommendedMobilityTypes');
   return (
@@ -96,7 +102,9 @@ export default function VisitorReviewSection() {
           </View>
         </View>
 
-        <View style={{gap: 12}}>
+        <View
+          style={{gap: 12}}
+          onLayout={e => onPhotoSectionLayout?.(e.nativeEvent.layout.y)}>
           <Question>장소 이용 경험을 알려주세요.</Question>
           <Controller
             name="indoorPhotos"

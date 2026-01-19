@@ -193,6 +193,7 @@ export default function IndoorInfoSection({
               borderRadius: 10,
               backgroundColor: color.brand,
             }}
+            isDisabled={!formState.isValid}
             fontSize={18}
             fontFamily={font.pretendardBold}
             onPress={onSave}
@@ -203,10 +204,10 @@ export default function IndoorInfoSection({
             isDisabled={!formState.isValid}
             style={{
               borderRadius: 10,
-              backgroundColor: color.gray10,
+              backgroundColor: color.gray20,
             }}
             fontSize={18}
-            textColor="black"
+            textColor="gray90"
             fontFamily={font.pretendardMedium}
             onPress={onSaveAndToiletReview}
           />

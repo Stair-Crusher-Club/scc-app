@@ -1,8 +1,9 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
 import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {FieldErrors, FormProvider, useForm} from 'react-hook-form';
+import {View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import styled from 'styled-components/native';
 
@@ -28,6 +29,7 @@ import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
+import PhotoConfirmBottomSheet from '@/modals/PhotoConfirmBottomSheet';
 import {pushItemsAtom} from '@/screens/SearchScreen/atoms/quest';
 import PlaceReviewFormScreen from '..';
 import IndoorInfoSection from '../sections/IndoorInfoSection';
@@ -70,6 +72,7 @@ export default function IndoorReviewView({
       mobilityTool: getMobilityToolDefaultValue(userInfo?.mobilityTools),
       recommendedMobilityTypes: new Set(),
       spaciousType: undefined,
+      indoorPhotos: [],
       comment: '',
       seatTypes: new Set(),
       seatComment: '',
@@ -79,6 +82,13 @@ export default function IndoorReviewView({
   });
   const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
   const pushItems = useSetAtom(pushItemsAtom);
+
+  const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
+  const pendingSubmitRef = useRef<(() => void) | null>(null);
+  const hasShownPhotoModalRef = useRef(false);
+  const scrollViewRef = useRef<KeyboardAwareScrollView>(null);
+  const visitorSectionY = useRef<number>(0);
+  const photoAreaY = useRef<number>(0);
 
   function onInvalid(errors: FieldErrors<FormValues>) {
     // 첫 번째 에러 필드의 메시지를 토스트로 표시
@@ -91,14 +101,45 @@ export default function IndoorReviewView({
   }
 
   async function onValid(values: FormValues) {
+    if (!values.indoorPhotos?.length && !hasShownPhotoModalRef.current) {
+      pendingSubmitRef.current = () => registerPlace(values, gotoPlaceDetail);
+      hasShownPhotoModalRef.current = true;
+      setIsPhotoModalVisible(true);
+      return;
+    }
     registerPlace(values, gotoPlaceDetail);
   }
 
   async function onValidAfterToilet(values: FormValues) {
-    registerPlace(values, () => {
+    const afterSuccess = () => {
       setMobilityTool(values.mobilityTool);
       setReviewTypeToToilet();
-    });
+    };
+
+    if (!values.indoorPhotos?.length && !hasShownPhotoModalRef.current) {
+      pendingSubmitRef.current = () => registerPlace(values, afterSuccess);
+      hasShownPhotoModalRef.current = true;
+      setIsPhotoModalVisible(true);
+      return;
+    }
+    registerPlace(values, afterSuccess);
+  }
+
+  const handlePhotoModalConfirm = useCallback(() => {
+    // 사진 추가하기 - 바텀시트 닫고 사진 영역으로 스크롤
+    setIsPhotoModalVisible(false);
+    pendingSubmitRef.current = null;
+    setTimeout(() => {
+      const targetY = visitorSectionY.current + photoAreaY.current;
+      scrollViewRef.current?.scrollToPosition(0, targetY, true);
+    }, 300);
+  }, []);
+
+  function handlePhotoModalCancel() {
+    // 사진 없이 등록하기 - 등록 진행
+    setIsPhotoModalVisible(false);
+    pendingSubmitRef.current?.();
+    pendingSubmitRef.current = null;
   }
 
   const registerPlace = useMemo(
@@ -135,6 +176,7 @@ export default function IndoorReviewView({
     <FormProvider {...form}>
       <SafeAreaWrapper edges={['bottom']}>
         <KeyboardAwareScrollView
+          ref={scrollViewRef}
           stickyHeaderIndices={[0]}
           contentContainerStyle={{flexGrow: 1}}>
           <PlaceInfoSectionWrapper>
@@ -145,7 +187,16 @@ export default function IndoorReviewView({
           <UserTypeSection nickname={userInfo?.nickname} />
           <SectionSeparator />
 
-          <VisitorReviewSection />
+          <View
+            onLayout={e => {
+              visitorSectionY.current = e.nativeEvent.layout.y;
+            }}>
+            <VisitorReviewSection
+              onPhotoSectionLayout={y => {
+                photoAreaY.current = y;
+              }}
+            />
+          </View>
           <SectionSeparator />
 
           <IndoorInfoSection
@@ -156,6 +207,11 @@ export default function IndoorReviewView({
             )}
           />
         </KeyboardAwareScrollView>
+        <PhotoConfirmBottomSheet
+          isVisible={isPhotoModalVisible}
+          onConfirm={handlePhotoModalConfirm}
+          onCancel={handlePhotoModalCancel}
+        />
       </SafeAreaWrapper>
     </FormProvider>
   );
