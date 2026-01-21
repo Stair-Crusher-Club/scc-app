@@ -29,7 +29,7 @@ export default function ListHeader() {
       <ContentWrapper isDesktop={isDesktop}>
         <Title isDesktop={isDesktop}>뿌클로드</Title>
         <Description isDesktop={isDesktop}>
-          이동약자에게 꼭 필요한 정보를 담은 컨텐츠를 전합니다.
+          공연장, 경기장, 핫플까지 휠체어로 가는 법!<br />뿌클로드에서 동선, 시야, 접근성을 한 번에 확인해보세요 🙌
         </Description>
 
         <SccPressable
@@ -65,6 +65,7 @@ const Title = styled(Text)<{ isDesktop: boolean }>`
 `;
 
 const Description = styled(Text)<{ isDesktop: boolean }>`
+  ${({ isDesktop }) => (isDesktop ? 'text-align: center;' : '')}
   font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '14px')};
   color: ${color.gray60};
   margin-bottom: 20px;

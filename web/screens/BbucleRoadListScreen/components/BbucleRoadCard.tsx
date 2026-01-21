@@ -36,9 +36,9 @@ export default function BbucleRoadCard({
         <UpcomingCardContainer isDesktop={isDesktop}>
           <UpcomingThumbnailWrapper isDesktop={isDesktop}>
             <UpcomingOverlay />
-            <UpcomingBadge>
-              <UpcomingBadgeText>
-                {upcomingData.badgeText || '공개 예정'}
+            <UpcomingBadge isDesktop={isDesktop}>
+              <UpcomingBadgeText isDesktop={isDesktop}>
+                {upcomingData.badgeText || (isDesktop ? '알림신청 🔔' : '🔔')}
               </UpcomingBadgeText>
             </UpcomingBadge>
           </UpcomingThumbnailWrapper>
@@ -134,16 +134,17 @@ const UpcomingOverlay = styled(View)`
 `;
 
 const UpcomingBadge = styled(View)<{ isDesktop?: boolean }>`
-  background-color: ${color.brand30};
-  padding: 6px 12px;
-  border-radius: 16px;
+  background-color: ${({ isDesktop }) => (isDesktop ? color.brand30 : 'transparent')};
+  padding: ${({ isDesktop }) => (isDesktop ? '6px 14px' : '0')};
+  border-radius: ${({ isDesktop }) => (isDesktop ? '32px' : '0')};
   z-index: 1;
 `;
 
 const UpcomingBadgeText = styled(Text)<{ isDesktop?: boolean }>`
-  font-size: 12px;
+  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '24px')};
   font-weight: 600;
   color: ${color.white};
+  line-height: ${({ isDesktop }) => (isDesktop ? '24px' : '28px')};
 `;
 
 const ThumbnailImage = styled(Image)`
