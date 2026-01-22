@@ -30,11 +30,11 @@ export default function PhotoConfirmBottomSheet({
             }}
           />
         </IconContainer>
-        <Title>정말 사진없이 등록하실껀가요?</Title>
+        <Title>정말 사진 없이 등록할까요?</Title>
         <Description>
-          {
-            '계단뿌셔클럽 간담회에서 휠체어 사용자의 95%가\n사진이 있을 때 훨씬 도움이 된다고 답했어요!'
-          }
+          {'계단뿌셔클럽 간담회에서 휠체어 사용자의 '}
+          <BoldText>95%</BoldText>
+          {'가\n사진이 있을 때 훨씬 도움이 된다고 답했어요!'}
         </Description>
         <ButtonContainer>
           <SccButton
@@ -91,6 +91,10 @@ const Description = styled.Text({
   textAlign: 'center',
   marginTop: 5,
   marginBottom: 12,
+});
+
+const BoldText = styled.Text({
+  fontFamily: font.pretendardBold,
 });
 
 const ButtonContainer = styled.View({
