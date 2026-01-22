@@ -372,23 +372,23 @@ export default function InfoStep({
           <SccButton
             text="이전"
             onPress={onBack}
-            buttonColor="gray10"
-            textColor="black"
-            fontFamily={font.pretendardMedium}
+            buttonColor="gray20"
+            textColor="gray90"
+            fontFamily={font.pretendardSemibold}
             elementName="place_form_v2_info_prev"
-            style={{flex: 1}}
+            style={{flex: 1, borderRadius: 12}}
           />
           <SccButton
             text={hasFloorMovementStep ? '다음' : '등록하기'}
             onPress={onSubmit}
-            fontFamily={font.pretendardMedium}
+            fontFamily={font.pretendardSemibold}
             buttonColor="brandColor"
             elementName={
               hasFloorMovementStep
                 ? 'place_form_v2_info_next'
                 : 'place_form_v2_submit'
             }
-            style={{flex: 2}}
+            style={{flex: 2, borderRadius: 12}}
             isDisabled={!isFormValid}
           />
         </SubmitButtonWrapper>

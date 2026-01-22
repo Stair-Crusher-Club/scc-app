@@ -90,6 +90,7 @@ export default function RegistrationCompleteScreen({
               fontFamily={font.pretendardBold}
               onPress={handleConfirm}
               elementName="registration_complete_confirm"
+              style={{borderRadius: 12}}
             />
           </ButtonContainer>
         </Container>
@@ -121,6 +122,7 @@ export default function RegistrationCompleteScreen({
             fontFamily={font.pretendardBold}
             onPress={handleConfirm}
             elementName="registration_complete_confirm"
+            style={{borderRadius: 12}}
           />
         </ButtonContainer>
       </Container>

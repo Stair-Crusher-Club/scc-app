@@ -756,10 +756,11 @@ export default function BuildingFormV2Screen({
               <SccButton
                 text="등록하기"
                 buttonColor="brandColor"
-                fontFamily={font.pretendardMedium}
+                fontFamily={font.pretendardSemibold}
                 onPress={submit}
                 elementName="building_form_submit"
                 isDisabled={!isFormValid}
+                style={{borderRadius: 12}}
               />
             </S.SubmitButtonWrapper>
           </SafeAreaWrapper>

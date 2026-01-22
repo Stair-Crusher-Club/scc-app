@@ -82,24 +82,28 @@ export default function GuideModal({
         </ScrollView>
 
         <ButtonWrapper>
-          <SccButton
-            elementName="guide_modal_dismiss"
-            text="다시보지 않기"
-            onPress={onDismissPermanently}
-            buttonColor="gray10"
-            textColor="black"
-            fontFamily={font.pretendardMedium}
-            style={{maxWidth: 132, width: '100%'}}
-          />
-          <SccButton
-            elementName="guide_modal_confirm"
-            text="확인했어요!"
-            onPress={onConfirm}
-            buttonColor="brandColor"
-            textColor="white"
-            fontFamily={font.pretendardBold}
-            style={{flex: 1}}
-          />
+          <ButtonContainer>
+            <SccButton
+              elementName="guide_modal_dismiss"
+              text="다시보지 않기"
+              onPress={onDismissPermanently}
+              buttonColor="gray20"
+              textColor="gray90"
+              fontFamily={font.pretendardSemibold}
+              style={{borderRadius: 12}}
+            />
+          </ButtonContainer>
+          <ButtonContainer>
+            <SccButton
+              elementName="guide_modal_confirm"
+              text="확인했어요!"
+              onPress={onConfirm}
+              buttonColor="brandColor"
+              textColor="white"
+              fontFamily={font.pretendardBold}
+              style={{borderRadius: 12}}
+            />
+          </ButtonContainer>
         </ButtonWrapper>
       </SafeAreaWrapper>
     </Modal>
@@ -123,7 +127,7 @@ const DescriptionSection = styled.View`
 const TitleText = styled.Text`
   font-size: 22px;
   line-height: 30px;
-  font-family: ${font.pretendardSemibold};
+  font-family: ${font.pretendardBold};
   color: ${color.gray80};
   text-align: center;
 `;
@@ -169,8 +173,8 @@ const StepConnector = styled.View`
 `;
 
 const AdditionalInfo = styled.Text`
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 16px;
+  line-height: 24px;
   font-family: ${font.pretendardMedium};
   color: ${color.gray90};
   background-color: ${color.gray10};
@@ -182,4 +186,8 @@ const ButtonWrapper = styled.View`
   flex-direction: row;
   padding: 12px 20px;
   gap: 8px;
+`;
+
+const ButtonContainer = styled.View`
+  flex: 1;
 `;

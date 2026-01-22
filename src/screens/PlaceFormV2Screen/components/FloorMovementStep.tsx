@@ -288,19 +288,19 @@ export default function FloorMovementStep({
           <SccButton
             text="이전"
             onPress={onBack}
-            buttonColor="gray10"
-            textColor="black"
-            fontFamily={font.pretendardMedium}
+            buttonColor="gray20"
+            textColor="gray90"
+            fontFamily={font.pretendardSemibold}
             elementName="place_form_v2_floor_movement_prev"
-            style={{flex: 1}}
+            style={{flex: 1, borderRadius: 12}}
           />
           <SccButton
             text="등록하기"
             onPress={onSubmit}
-            fontFamily={font.pretendardMedium}
+            fontFamily={font.pretendardSemibold}
             buttonColor="brandColor"
             elementName="place_form_v2_floor_movement_next"
-            style={{flex: 2}}
+            style={{flex: 2, borderRadius: 12}}
             isDisabled={!isFormValid}
           />
         </SubmitButtonWrapper>

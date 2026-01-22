@@ -1,5 +1,6 @@
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
+import {font} from '@/constant/font';
 import {Place} from '@/generated-sources/openapi';
 import {Controller, useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
@@ -114,6 +115,8 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
               isDisabled={isNextButtonDisabled}
               buttonColor="brandColor"
               elementName="place_form_v2_next"
+              fontFamily={font.pretendardSemibold}
+              style={{borderRadius: 12}}
             />
           </ButtonContainer>
         </SubmitButtonWrapper>
