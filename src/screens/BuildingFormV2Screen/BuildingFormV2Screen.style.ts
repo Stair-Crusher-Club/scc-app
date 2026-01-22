@@ -8,10 +8,13 @@ export {
   GuideButton,
   GuideText,
   HeaderBorder,
+  Hint,
   Label,
   MeasureGuide,
+  OptionsGroup,
   QuestionSection,
   QuestionText,
+  RequiredMark,
   SectionLabel,
   SectionSeparator,
   SubSection,
@@ -41,4 +44,5 @@ export const HeaderBackText = styled.Text`
   font-size: 24px;
   color: ${color.gray80};
   font-family: ${font.pretendardMedium};
+  letter-spacing: -0.48px;
 `;

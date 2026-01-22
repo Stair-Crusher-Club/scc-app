@@ -124,13 +124,37 @@ export const STANDALONE_BUILDING_OPTIONS: StandaloneBuildingOption[] = [
   {key: 'multipleFloors', label: '여러층 건물이에요'},
 ];
 
-export const makeFloorMovementOptions = (isStandaloneBuilding: boolean) => {
+export const makeFloorMovementOptions = (
+  isStandaloneBuilding: boolean,
+  currentOptions: FloorMovingMethodTypeDto[] = [],
+) => {
+  const isUnknownSelected = currentOptions.includes(
+    FloorMovingMethodTypeDto.Unknown,
+  );
+  const isAnyMethodSelected = currentOptions.length > 0 && !isUnknownSelected;
+
   if (isStandaloneBuilding) {
     return [
-      {label: '엘리베이터', value: FloorMovingMethodTypeDto.PlaceElevator},
-      {label: '계단', value: FloorMovingMethodTypeDto.PlaceStairs},
-      {label: '에스컬레이터', value: FloorMovingMethodTypeDto.PlaceEscalator},
-      {label: '모르겠음', value: FloorMovingMethodTypeDto.Unknown},
+      {
+        label: '엘리베이터',
+        value: FloorMovingMethodTypeDto.PlaceElevator,
+        disabled: isUnknownSelected,
+      },
+      {
+        label: '계단',
+        value: FloorMovingMethodTypeDto.PlaceStairs,
+        disabled: isUnknownSelected,
+      },
+      {
+        label: '에스컬레이터',
+        value: FloorMovingMethodTypeDto.PlaceEscalator,
+        disabled: isUnknownSelected,
+      },
+      {
+        label: '모르겠음',
+        value: FloorMovingMethodTypeDto.Unknown,
+        disabled: isAnyMethodSelected,
+      },
     ];
   }
 
@@ -138,22 +162,38 @@ export const makeFloorMovementOptions = (isStandaloneBuilding: boolean) => {
     {
       label: '매장 내부 엘리베이터',
       value: FloorMovingMethodTypeDto.PlaceElevator,
+      disabled: isUnknownSelected,
     },
-    {label: '매장 내부 계단', value: FloorMovingMethodTypeDto.PlaceStairs},
+    {
+      label: '매장 내부 계단',
+      value: FloorMovingMethodTypeDto.PlaceStairs,
+      disabled: isUnknownSelected,
+    },
     {
       label: '매장 내부 에스컬레이터',
       value: FloorMovingMethodTypeDto.PlaceEscalator,
+      disabled: isUnknownSelected,
     },
     {
       label: '매장 외부 엘리베이터',
       value: FloorMovingMethodTypeDto.BuildingElevator,
+      disabled: isUnknownSelected,
     },
-    {label: '매장 외부 계단', value: FloorMovingMethodTypeDto.BuildingStairs},
+    {
+      label: '매장 외부 계단',
+      value: FloorMovingMethodTypeDto.BuildingStairs,
+      disabled: isUnknownSelected,
+    },
     {
       label: '매장 외부 에스컬레이터',
       value: FloorMovingMethodTypeDto.BuildingEscalator,
+      disabled: isUnknownSelected,
     },
-    {label: '모르겠음', value: FloorMovingMethodTypeDto.Unknown},
+    {
+      label: '모르겠음',
+      value: FloorMovingMethodTypeDto.Unknown,
+      disabled: isAnyMethodSelected,
+    },
   ];
 };
 

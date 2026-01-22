@@ -16,10 +16,13 @@ import {formImages} from '../constants';
 import {
   GuideButton,
   GuideText,
+  Hint,
   Label,
   MeasureGuide,
+  OptionsGroup,
   QuestionSection,
   QuestionText,
+  RequiredMark,
   SectionLabel,
   SectionSeparator,
   SubSection,
@@ -114,14 +117,18 @@ export default function InfoStep({
               <SubSection>
                 <QuestionSection>
                   <SectionLabel>매장입구정보</SectionLabel>
-                  <QuestionText>매장의 출입구가 어디쪽에 있나요?</QuestionText>
+                  <QuestionText>
+                    매장의 출입구가 어디쪽에 있나요?{' '}
+                    <RequiredMark>*</RequiredMark>
+                  </QuestionText>
                 </QuestionSection>
                 <Controller
                   name="doorDirection"
                   rules={{required: true}}
                   render={({field}) => (
                     <DoorDirectionContainer>
-                      <DoorDirectionOption>
+                      <DoorDirectionOption
+                        disabled={field.value && field.value !== 'outside'}>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.out}
@@ -136,7 +143,8 @@ export default function InfoStep({
                           onSelect={field.onChange}
                         />
                       </DoorDirectionOption>
-                      <DoorDirectionOption>
+                      <DoorDirectionOption
+                        disabled={field.value && field.value !== 'inside'}>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.in}
@@ -157,7 +165,12 @@ export default function InfoStep({
               </SubSection>
             )}
             <SubSection>
-              <Label>출입구 사진을 등록해주세요</Label>
+              <View style={{gap: 2}}>
+                <Label>
+                  출입구 사진을 등록해주세요 <RequiredMark>*</RequiredMark>
+                </Label>
+                <Hint>최대 3장까지 등록 가능해요</Hint>
+              </View>
               <Controller
                 name="entrancePhotos"
                 rules={{required: true}}
@@ -173,39 +186,43 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>입구에 계단이 있나요?</Label>
-              <Controller
-                name="hasStairs"
-                rules={{validate: v => typeof v === 'boolean'}}
-                render={({field}) => (
-                  <OptionsV2
-                    value={field.value}
-                    options={[
-                      {label: '있어요', value: true},
-                      {label: '없어요', value: false},
-                    ]}
-                    onSelect={field.onChange}
-                  />
-                )}
-              />
-              {form.watch('hasStairs') && (
+              <Label>
+                입구에 계단이 있나요? <RequiredMark>*</RequiredMark>
+              </Label>
+              <OptionsGroup>
                 <Controller
-                  name="stairInfo"
-                  rules={{required: true}}
+                  name="hasStairs"
+                  rules={{validate: v => typeof v === 'boolean'}}
                   render={({field}) => (
                     <OptionsV2
                       value={field.value}
-                      columns={3}
                       options={[
-                        {label: '1칸', value: StairInfo.One},
-                        {label: '2-5칸', value: StairInfo.TwoToFive},
-                        {label: '6칸 이상', value: StairInfo.OverSix},
+                        {label: '있어요', value: true},
+                        {label: '없어요', value: false},
                       ]}
                       onSelect={field.onChange}
                     />
                   )}
                 />
-              )}
+                {form.watch('hasStairs') && (
+                  <Controller
+                    name="stairInfo"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        columns={3}
+                        options={[
+                          {label: '1칸', value: StairInfo.One},
+                          {label: '2-5칸', value: StairInfo.TwoToFive},
+                          {label: '6칸 이상', value: StairInfo.OverSix},
+                        ]}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                )}
+              </OptionsGroup>
               <GuideButton>
                 <SccPressable
                   elementName="place_info_stair_guide"
@@ -223,7 +240,9 @@ export default function InfoStep({
             {form.watch('hasStairs') &&
               form.watch('stairInfo') === StairInfo.One && (
                 <SubSection key="stair-height">
-                  <Label>계단 1칸의 높이를 알려주세요</Label>
+                  <Label>
+                    계단 1칸의 높이를 알려주세요 <RequiredMark>*</RequiredMark>
+                  </Label>
                   <MeasureGuide>
                     <Image
                       source={formImages.stair}
@@ -260,7 +279,9 @@ export default function InfoStep({
               )}
 
             <SubSection>
-              <Label>입구에 경사로가 있나요?</Label>
+              <Label>
+                입구에 경사로가 있나요? <RequiredMark>*</RequiredMark>
+              </Label>
               <Controller
                 name="hasSlope"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -290,7 +311,9 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>출입문은 어떤 종류인가요?</Label>
+              <Label>
+                출입문은 어떤 종류인가요? <RequiredMark>*</RequiredMark>
+              </Label>
               <Controller
                 name="doorType"
                 rules={{required: true}}
@@ -306,7 +329,10 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>추가로 알려주실 내용이 있으신가요?</Label>
+              <View style={{gap: 2}}>
+                <Label>추가로 알려주실 내용이 있으신가요?</Label>
+                <Hint>중복선택이 가능해요</Hint>
+              </View>
               <Controller
                 name="additionalInfo"
                 render={({field}) => (
@@ -331,7 +357,7 @@ export default function InfoStep({
                 name="comment"
                 render={({field}) => (
                   <TextAreaV2
-                    placeholder="예시: 입구가 골목 안쪽이에요"
+                    placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다"
                     value={field.value}
                     onChangeText={field.onChange}
                   />
@@ -346,23 +372,23 @@ export default function InfoStep({
           <SccButton
             text="이전"
             onPress={onBack}
-            buttonColor="gray10"
-            textColor="black"
-            fontFamily={font.pretendardMedium}
+            buttonColor="gray20"
+            textColor="gray90"
+            fontFamily={font.pretendardSemibold}
             elementName="place_form_v2_info_prev"
-            style={{flex: 1}}
+            style={{flex: 1, borderRadius: 12}}
           />
           <SccButton
             text={hasFloorMovementStep ? '다음' : '등록하기'}
             onPress={onSubmit}
-            fontFamily={font.pretendardMedium}
+            fontFamily={font.pretendardSemibold}
             buttonColor="brandColor"
             elementName={
               hasFloorMovementStep
                 ? 'place_form_v2_info_next'
                 : 'place_form_v2_submit'
             }
-            style={{flex: 2}}
+            style={{flex: 2, borderRadius: 12}}
             isDisabled={!isFormValid}
           />
         </SubmitButtonWrapper>
@@ -375,17 +401,18 @@ const InfoFormContainer = styled.View`
   background-color: white;
   padding-vertical: 40px;
   padding-horizontal: 20px;
-  gap: 48px;
+  gap: 60px;
 `;
 
 const DoorDirectionContainer = styled.View`
   flex-direction: row;
-  gap: 12px;
+  gap: 8px;
 `;
 
-const DoorDirectionOption = styled.View`
+const DoorDirectionOption = styled.View<{disabled?: boolean}>`
   flex: 1;
-  gap: 12px;
+  gap: 8px;
+  opacity: ${({disabled}) => (disabled ? 0.3 : 1)};
 `;
 
 const DoorDirectionImageContainer = styled.View`

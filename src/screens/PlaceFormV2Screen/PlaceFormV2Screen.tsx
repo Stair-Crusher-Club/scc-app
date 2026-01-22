@@ -388,6 +388,7 @@ export const SectionLabel = styled.Text({
   lineHeight: 20,
   fontFamily: font.pretendardBold,
   color: color.brand50,
+  letterSpacing: -0.28,
 });
 
 export const QuestionSection = styled.View({
@@ -395,10 +396,11 @@ export const QuestionSection = styled.View({
 });
 
 export const QuestionText = styled.Text({
-  fontSize: 20,
-  lineHeight: 28,
+  fontSize: 18,
+  lineHeight: 26,
   fontFamily: font.pretendardSemibold,
   color: color.gray80,
+  letterSpacing: -0.4,
 });
 
 export const SubSection = styled.View({
@@ -406,10 +408,18 @@ export const SubSection = styled.View({
 });
 
 export const Label = styled.Text({
-  fontSize: 20,
-  lineHeight: 28,
+  fontSize: 18,
+  lineHeight: 26,
   fontFamily: font.pretendardSemibold,
   color: color.gray80,
+  letterSpacing: -0.4,
+});
+
+export const RequiredMark = styled.Text({
+  color: 'red',
+  fontSize: 18,
+  lineHeight: 26,
+  letterSpacing: -0.36,
 });
 
 export const MeasureGuide = styled.View({
@@ -427,6 +437,7 @@ export const GuideText = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardMedium};
   text-align: right;
+  letter-spacing: -0.28px;
 `;
 
 export const SubmitButtonWrapper = styled.View`
@@ -436,7 +447,19 @@ export const SubmitButtonWrapper = styled.View`
   border-top-width: 1px;
   border-top-color: ${color.gray15};
   flex-direction: row;
-  gap: 12px;
+  gap: 8px;
+`;
+
+export const OptionsGroup = styled.View`
+  gap: 8px;
+`;
+
+export const Hint = styled.Text`
+  font-size: 14px;
+  line-height: 20px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray60};
+  letter-spacing: -0.28px;
 `;
 
 async function register(

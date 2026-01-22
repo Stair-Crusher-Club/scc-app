@@ -81,6 +81,7 @@ OptionsV2.Multiple = function MultipleOptions({
     <S.Options>
       {options.map((option, i) => {
         const selected = values?.includes(option.value);
+        const isDisabled = (option.disabled ?? false) && !selected;
         return (
           <S.PressableOption
             key={i}
@@ -88,7 +89,7 @@ OptionsV2.Multiple = function MultipleOptions({
             disableLogging
             style={{width: getWidth()}}
             selected={selected}
-            disabled={option.disabled ?? false}
+            disabled={isDisabled}
             onPress={() => handleSelect(option.value)}>
             <S.OptionText selected={selected}>{option.label}</S.OptionText>
           </S.PressableOption>

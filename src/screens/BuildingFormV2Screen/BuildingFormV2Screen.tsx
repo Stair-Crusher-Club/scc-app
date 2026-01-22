@@ -401,12 +401,13 @@ export default function BuildingFormV2Screen({
             </S.TabBarWrapper>
             <S.FormContainer>
               {/* 건물 입구 정보 */}
-              <View ref={entranceRef} collapsable={false} style={{gap: 48}}>
+              <View ref={entranceRef} collapsable={false} style={{gap: 60}}>
                 <S.SubSection>
                   <S.QuestionSection>
                     <S.SectionLabel>건물입구정보</S.SectionLabel>
                     <S.QuestionText>
-                      건물의 출입구가 어느 방향에 있나요?
+                      건물의 출입구가 어느 방향에 있나요?{' '}
+                      <S.RequiredMark>*</S.RequiredMark>
                     </S.QuestionText>
                   </S.QuestionSection>
                   <Controller
@@ -427,7 +428,13 @@ export default function BuildingFormV2Screen({
                 </S.SubSection>
 
                 <S.SubSection>
-                  <S.Label>건물 입구 사진을 찍어주세요</S.Label>
+                  <View style={{gap: 2}}>
+                    <S.Label>
+                      건물 입구 사진을 찍어주세요{' '}
+                      <S.RequiredMark>*</S.RequiredMark>
+                    </S.Label>
+                    <S.Hint>최대 3장까지 등록 가능해요</S.Hint>
+                  </View>
                   <Controller
                     name="enterancePhotos"
                     rules={{required: true}}
@@ -443,39 +450,44 @@ export default function BuildingFormV2Screen({
                 </S.SubSection>
 
                 <S.SubSection>
-                  <S.Label>건물 입구에 계단이 있나요?</S.Label>
-                  <Controller
-                    name="hasStairs"
-                    rules={{validate: v => typeof v === 'boolean'}}
-                    render={({field}) => (
-                      <OptionsV2
-                        value={field.value}
-                        options={[
-                          {label: '있어요', value: true},
-                          {label: '없어요', value: false},
-                        ]}
-                        onSelect={field.onChange}
-                      />
-                    )}
-                  />
-                  {form.watch('hasStairs') && (
+                  <S.Label>
+                    건물 입구에 계단이 있나요?{' '}
+                    <S.RequiredMark>*</S.RequiredMark>
+                  </S.Label>
+                  <S.OptionsGroup>
                     <Controller
-                      name="stairInfo"
-                      rules={{required: true}}
+                      name="hasStairs"
+                      rules={{validate: v => typeof v === 'boolean'}}
                       render={({field}) => (
                         <OptionsV2
                           value={field.value}
-                          columns={3}
                           options={[
-                            {label: '1칸', value: StairInfo.One},
-                            {label: '2-5칸', value: StairInfo.TwoToFive},
-                            {label: '6칸 이상', value: StairInfo.OverSix},
+                            {label: '있어요', value: true},
+                            {label: '없어요', value: false},
                           ]}
                           onSelect={field.onChange}
                         />
                       )}
                     />
-                  )}
+                    {form.watch('hasStairs') && (
+                      <Controller
+                        name="stairInfo"
+                        rules={{required: true}}
+                        render={({field}) => (
+                          <OptionsV2
+                            value={field.value}
+                            columns={3}
+                            options={[
+                              {label: '1칸', value: StairInfo.One},
+                              {label: '2-5칸', value: StairInfo.TwoToFive},
+                              {label: '6칸 이상', value: StairInfo.OverSix},
+                            ]}
+                            onSelect={field.onChange}
+                          />
+                        )}
+                      />
+                    )}
+                  </S.OptionsGroup>
                   <S.GuideButton>
                     <SccPressable
                       elementName="building_entrance_stair_guide"
@@ -493,7 +505,10 @@ export default function BuildingFormV2Screen({
                 {form.watch('hasStairs') &&
                   form.watch('stairInfo') === StairInfo.One && (
                     <S.SubSection>
-                      <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
+                      <S.Label>
+                        계단 1칸의 높이를 알려주세요{' '}
+                        <S.RequiredMark>*</S.RequiredMark>
+                      </S.Label>
                       <S.MeasureGuide>
                         <Image
                           source={formImages.stair}
@@ -530,7 +545,10 @@ export default function BuildingFormV2Screen({
                   )}
 
                 <S.SubSection>
-                  <S.Label>건물 입구에 경사로가 있나요?</S.Label>
+                  <S.Label>
+                    건물 입구에 경사로가 있나요?{' '}
+                    <S.RequiredMark>*</S.RequiredMark>
+                  </S.Label>
                   <Controller
                     name="hasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -560,7 +578,9 @@ export default function BuildingFormV2Screen({
                 </S.SubSection>
 
                 <S.SubSection>
-                  <S.Label>출입문은 어떤 종류인가요?</S.Label>
+                  <S.Label>
+                    출입문은 어떤 종류인가요? <S.RequiredMark>*</S.RequiredMark>
+                  </S.Label>
                   <Controller
                     name="doorTypes"
                     rules={{required: true}}
@@ -584,7 +604,7 @@ export default function BuildingFormV2Screen({
                     name="comment"
                     render={({field}) => (
                       <TextAreaV2
-                        placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다 (최대 100자)"
+                        placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다"
                         value={field.value}
                         onChangeText={field.onChange}
                       />
@@ -601,7 +621,10 @@ export default function BuildingFormV2Screen({
                 <S.SubSection>
                   <S.QuestionSection>
                     <S.SectionLabel>엘리베이터 정보</S.SectionLabel>
-                    <S.QuestionText>건물에 엘리베이터가 있나요?</S.QuestionText>
+                    <S.QuestionText>
+                      건물에 엘리베이터가 있나요?{' '}
+                      <S.RequiredMark>*</S.RequiredMark>
+                    </S.QuestionText>
                   </S.QuestionSection>
                   <Controller
                     name="hasElevator"
@@ -622,7 +645,11 @@ export default function BuildingFormV2Screen({
                 {form.watch('hasElevator') && (
                   <>
                     <S.SubSection>
-                      <S.Label>엘리베이터 사진을 찍어주세요</S.Label>
+                      <S.Label>
+                        엘리베이터 사진을 찍어주세요{' '}
+                        <S.RequiredMark>*</S.RequiredMark>
+                      </S.Label>
+                      <S.Hint>최대 3장까지 등록 가능해요</S.Hint>
                       <Controller
                         name="elevatorPhotos"
                         rules={{required: true}}
@@ -638,45 +665,53 @@ export default function BuildingFormV2Screen({
                     </S.SubSection>
 
                     <S.SubSection>
-                      <S.Label>엘리베이터까지 가는 길에 계단이 있나요?</S.Label>
-                      <Controller
-                        name="elevatorHasStairs"
-                        rules={{validate: v => typeof v === 'boolean'}}
-                        render={({field}) => (
-                          <OptionsV2
-                            value={field.value}
-                            options={[
-                              {label: '있어요', value: true},
-                              {label: '없어요', value: false},
-                            ]}
-                            onSelect={field.onChange}
-                          />
-                        )}
-                      />
-                      {form.watch('elevatorHasStairs') && (
+                      <S.Label>
+                        엘리베이터까지 가는 길에 계단이 있나요?{' '}
+                        <S.RequiredMark>*</S.RequiredMark>
+                      </S.Label>
+                      <S.OptionsGroup>
                         <Controller
-                          name="elevatorStairInfo"
-                          rules={{required: true}}
+                          name="elevatorHasStairs"
+                          rules={{validate: v => typeof v === 'boolean'}}
                           render={({field}) => (
                             <OptionsV2
                               value={field.value}
-                              columns={3}
                               options={[
-                                {label: '1칸', value: StairInfo.One},
-                                {label: '2-5칸', value: StairInfo.TwoToFive},
-                                {label: '6칸 이상', value: StairInfo.OverSix},
+                                {label: '있어요', value: true},
+                                {label: '없어요', value: false},
                               ]}
                               onSelect={field.onChange}
                             />
                           )}
                         />
-                      )}
+                        {form.watch('elevatorHasStairs') && (
+                          <Controller
+                            name="elevatorStairInfo"
+                            rules={{required: true}}
+                            render={({field}) => (
+                              <OptionsV2
+                                value={field.value}
+                                columns={3}
+                                options={[
+                                  {label: '1칸', value: StairInfo.One},
+                                  {label: '2-5칸', value: StairInfo.TwoToFive},
+                                  {label: '6칸 이상', value: StairInfo.OverSix},
+                                ]}
+                                onSelect={field.onChange}
+                              />
+                            )}
+                          />
+                        )}
+                      </S.OptionsGroup>
                     </S.SubSection>
 
                     {form.watch('elevatorHasStairs') &&
                       form.watch('elevatorStairInfo') === StairInfo.One && (
                         <S.SubSection>
-                          <S.Label>계단 1칸의 높이를 알려주세요</S.Label>
+                          <S.Label>
+                            계단 1칸의 높이를 알려주세요{' '}
+                            <S.RequiredMark>*</S.RequiredMark>
+                          </S.Label>
                           <S.MeasureGuide>
                             <Image
                               source={formImages.stair}
@@ -721,10 +756,11 @@ export default function BuildingFormV2Screen({
               <SccButton
                 text="등록하기"
                 buttonColor="brandColor"
-                fontFamily={font.pretendardMedium}
+                fontFamily={font.pretendardSemibold}
                 onPress={submit}
                 elementName="building_form_submit"
                 isDisabled={!isFormValid}
+                style={{borderRadius: 12}}
               />
             </S.SubmitButtonWrapper>
           </SafeAreaWrapper>

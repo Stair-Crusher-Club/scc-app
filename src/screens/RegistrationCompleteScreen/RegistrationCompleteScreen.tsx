@@ -66,6 +66,39 @@ export default function RegistrationCompleteScreen({
     });
   };
 
+  if (target === 'building') {
+    return (
+      <ScreenLayout
+        isHeaderVisible={false}
+        safeAreaEdges={['top', 'bottom']}
+        style={{backgroundColor: color.gray80}}>
+        <Container>
+          <Content>
+            <BuildingTitle>{content.title}</BuildingTitle>
+            <BuildingDescription>
+              {userInfo?.nickname + ' ' + content.description}
+            </BuildingDescription>
+            <ImageContainer>
+              <StyledImage source={content.imagePath} resizeMode="contain" />
+            </ImageContainer>
+          </Content>
+          <ButtonContainer>
+            <SccButton
+              text="감사합니다"
+              textColor="white"
+              buttonColor="blue50"
+              fontFamily={font.pretendardBold}
+              onPress={handleConfirm}
+              elementName="registration_complete_confirm"
+              style={{borderRadius: 12}}
+            />
+          </ButtonContainer>
+        </Container>
+      </ScreenLayout>
+    );
+  }
+
+  // place variant (default)
   return (
     <ScreenLayout
       isHeaderVisible={false}
@@ -89,6 +122,7 @@ export default function RegistrationCompleteScreen({
             fontFamily={font.pretendardBold}
             onPress={handleConfirm}
             elementName="registration_complete_confirm"
+            style={{borderRadius: 12}}
           />
         </ButtonContainer>
       </Container>
@@ -110,6 +144,26 @@ const Content = styled.View({
   justifyContent: 'center',
 });
 
+// Building variant styles
+const BuildingTitle = styled.Text({
+  color: color.white,
+  fontSize: 28,
+  fontFamily: font.pretendardBold,
+  textAlign: 'center',
+  marginBottom: 12,
+  lineHeight: 40,
+});
+
+const BuildingDescription = styled.Text({
+  color: color.gray25,
+  fontSize: 16,
+  fontFamily: font.pretendardRegular,
+  textAlign: 'center',
+  lineHeight: 26,
+  marginBottom: 20,
+});
+
+// Place variant styles (original)
 const Title = styled.Text({
   color: color.black,
   fontSize: 28,

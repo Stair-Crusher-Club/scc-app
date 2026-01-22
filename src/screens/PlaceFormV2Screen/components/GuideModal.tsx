@@ -6,7 +6,7 @@ import {font} from '@/constant/font';
 import {Image, Modal, Platform, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import type {GuideContent} from '../constants';
 
 interface GuideModalProps {
@@ -24,8 +24,6 @@ export default function GuideModal({
   onConfirm,
   onRequestClose,
 }: GuideModalProps) {
-  const insets = useSafeAreaInsets();
-
   if (!guideContent) {
     return null;
   }
@@ -38,7 +36,9 @@ export default function GuideModal({
       animationType="slide"
       transparent={false}
       onRequestClose={onRequestClose}>
-      <GuideModalContainer>
+      <SafeAreaWrapper
+        edges={Platform.OS === 'ios' ? ['top', 'bottom'] : []}
+        style={[{flex: 1, backgroundColor: color.white}]}>
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
           <ContentContainer>
             {image && (
@@ -46,7 +46,7 @@ export default function GuideModal({
                 <Image
                   source={image}
                   style={{width: '100%', height: '100%'}}
-                  resizeMode="cover"
+                  resizeMode="stretch"
                 />
               </ImageWrapper>
             )}
@@ -81,38 +81,34 @@ export default function GuideModal({
           </ContentContainer>
         </ScrollView>
 
-        <ButtonWrapper
-          style={{
-            paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
-          }}>
-          <SccButton
-            elementName="guide_modal_dismiss"
-            text="다시보지 않기"
-            onPress={onDismissPermanently}
-            buttonColor="gray10"
-            textColor="black"
-            fontFamily={font.pretendardMedium}
-            style={{maxWidth: 132, width: '100%'}}
-          />
-          <SccButton
-            elementName="guide_modal_confirm"
-            text="확인했어요!"
-            onPress={onConfirm}
-            buttonColor="brandColor"
-            textColor="white"
-            fontFamily={font.pretendardBold}
-            style={{flex: 1}}
-          />
+        <ButtonWrapper>
+          <ButtonContainer>
+            <SccButton
+              elementName="guide_modal_dismiss"
+              text="다시보지 않기"
+              onPress={onDismissPermanently}
+              buttonColor="gray20"
+              textColor="gray90"
+              fontFamily={font.pretendardSemibold}
+              style={{borderRadius: 12}}
+            />
+          </ButtonContainer>
+          <ButtonContainer>
+            <SccButton
+              elementName="guide_modal_confirm"
+              text="확인했어요!"
+              onPress={onConfirm}
+              buttonColor="brandColor"
+              textColor="white"
+              fontFamily={font.pretendardBold}
+              style={{borderRadius: 12}}
+            />
+          </ButtonContainer>
         </ButtonWrapper>
-      </GuideModalContainer>
+      </SafeAreaWrapper>
     </Modal>
   );
 }
-
-const GuideModalContainer = styled.View`
-  flex: 1;
-  background-color: ${color.white};
-`;
 
 const ContentContainer = styled.View`
   flex: 1;
@@ -120,7 +116,7 @@ const ContentContainer = styled.View`
 `;
 
 const ImageWrapper = styled.View`
-  max-height: 260px;
+  max-height: 280px;
 `;
 
 const DescriptionSection = styled.View`
@@ -131,7 +127,7 @@ const DescriptionSection = styled.View`
 const TitleText = styled.Text`
   font-size: 22px;
   line-height: 30px;
-  font-family: ${font.pretendardSemibold};
+  font-family: ${font.pretendardBold};
   color: ${color.gray80};
   text-align: center;
 `;
@@ -177,8 +173,8 @@ const StepConnector = styled.View`
 `;
 
 const AdditionalInfo = styled.Text`
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 16px;
+  line-height: 24px;
   font-family: ${font.pretendardMedium};
   color: ${color.gray90};
   background-color: ${color.gray10};
@@ -190,4 +186,8 @@ const ButtonWrapper = styled.View`
   flex-direction: row;
   padding: 12px 20px;
   gap: 8px;
+`;
+
+const ButtonContainer = styled.View`
+  flex: 1;
 `;

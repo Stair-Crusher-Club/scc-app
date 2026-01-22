@@ -15,10 +15,13 @@ import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages, makeFloorMovementOptions} from '../constants';
 import {
+  Hint,
   Label,
   MeasureGuide,
+  OptionsGroup,
   QuestionSection,
   QuestionText,
+  RequiredMark,
   SectionLabel,
   SectionSeparator,
   SubSection,
@@ -45,7 +48,8 @@ export default function FloorMovementStep({
   const isKeyboardVisible = useKeyboardVisible();
 
   // Watch all required fields
-  const floorMovementMethod = form.watch('floorMovementMethod');
+  const floorMovementMethods: FloorMovingMethodTypeDto[] =
+    form.watch('floorMovementMethod') ?? [];
   const elevatorPhotos = form.watch('elevatorPhotos');
   const elevatorHasStairs = form.watch('elevatorHasStairs');
   const elevatorStairInfo = form.watch('elevatorStairInfo');
@@ -55,12 +59,12 @@ export default function FloorMovementStep({
   // Check if all required fields are filled
   const isFormValid = (() => {
     // 층간 이동 방법은 필수
-    if (!floorMovementMethod) {
+    if (!floorMovementMethods || floorMovementMethods.length === 0) {
       return false;
     }
 
     // 엘리베이터를 선택한 경우 추가 검증
-    if (floorMovementMethod === FloorMovingMethodTypeDto.PlaceElevator) {
+    if (floorMovementMethods.includes(FloorMovingMethodTypeDto.PlaceElevator)) {
       // 엘리베이터 사진은 필수
       if (!elevatorPhotos || elevatorPhotos.length === 0) {
         return false;
@@ -117,24 +121,34 @@ export default function FloorMovementStep({
                 name="floorMovementMethod"
                 rules={{required: true}}
                 render={({field}) => (
-                  <OptionsV2
+                  <OptionsV2.Multiple
                     columns={1}
-                    value={field.value}
-                    options={makeFloorMovementOptions(isStandaloneBuilding)}
+                    values={field.value}
+                    options={makeFloorMovementOptions(
+                      isStandaloneBuilding,
+                      field.value ?? [],
+                    )}
                     onSelect={field.onChange}
                   />
                 )}
               />
             </SubSection>
 
-            {form.watch('floorMovementMethod') ===
-              FloorMovingMethodTypeDto.PlaceElevator && (
+            {floorMovementMethods.includes(
+              FloorMovingMethodTypeDto.PlaceElevator,
+            ) && (
               <>
                 <SubSection>
-                  <QuestionSection>
-                    <SectionLabel>엘리베이터 정보</SectionLabel>
-                    <QuestionText>엘리베이터 사진을 찍어주세요</QuestionText>
-                  </QuestionSection>
+                  <View style={{gap: 2}}>
+                    <QuestionSection>
+                      <SectionLabel>엘리베이터 정보</SectionLabel>
+                      <QuestionText>
+                        엘리베이터 사진을 찍어주세요{' '}
+                        <RequiredMark>*</RequiredMark>
+                      </QuestionText>
+                    </QuestionSection>
+                    <Hint>최대 3장까지 등록 가능해요</Hint>
+                  </View>
                   <Controller
                     name="elevatorPhotos"
                     rules={{required: true}}
@@ -150,45 +164,52 @@ export default function FloorMovementStep({
                 </SubSection>
 
                 <SubSection>
-                  <Label>입구에 계단이 있나요?</Label>
-                  <Controller
-                    name="elevatorHasStairs"
-                    rules={{validate: v => typeof v === 'boolean'}}
-                    render={({field}) => (
-                      <OptionsV2
-                        value={field.value}
-                        options={[
-                          {label: '있어요', value: true},
-                          {label: '없어요', value: false},
-                        ]}
-                        onSelect={field.onChange}
-                      />
-                    )}
-                  />
-                  {form.watch('elevatorHasStairs') && (
+                  <Label>
+                    입구에 계단이 있나요? <RequiredMark>*</RequiredMark>
+                  </Label>
+                  <OptionsGroup>
                     <Controller
-                      name="elevatorStairInfo"
-                      rules={{required: true}}
+                      name="elevatorHasStairs"
+                      rules={{validate: v => typeof v === 'boolean'}}
                       render={({field}) => (
                         <OptionsV2
                           value={field.value}
-                          columns={3}
                           options={[
-                            {label: '1칸', value: StairInfo.One},
-                            {label: '2-5칸', value: StairInfo.TwoToFive},
-                            {label: '6칸 이상', value: StairInfo.OverSix},
+                            {label: '있어요', value: true},
+                            {label: '없어요', value: false},
                           ]}
                           onSelect={field.onChange}
                         />
                       )}
                     />
-                  )}
+                    {form.watch('elevatorHasStairs') && (
+                      <Controller
+                        name="elevatorStairInfo"
+                        rules={{required: true}}
+                        render={({field}) => (
+                          <OptionsV2
+                            value={field.value}
+                            columns={3}
+                            options={[
+                              {label: '1칸', value: StairInfo.One},
+                              {label: '2-5칸', value: StairInfo.TwoToFive},
+                              {label: '6칸 이상', value: StairInfo.OverSix},
+                            ]}
+                            onSelect={field.onChange}
+                          />
+                        )}
+                      />
+                    )}
+                  </OptionsGroup>
                 </SubSection>
 
                 {form.watch('elevatorHasStairs') &&
                   form.watch('elevatorStairInfo') === StairInfo.One && (
                     <SubSection key="stair-height">
-                      <Label>계단 1칸의 높이를 알려주세요</Label>
+                      <Label>
+                        계단 1칸의 높이를 알려주세요{' '}
+                        <RequiredMark>*</RequiredMark>
+                      </Label>
                       <MeasureGuide>
                         <Image
                           source={formImages.stair}
@@ -225,7 +246,9 @@ export default function FloorMovementStep({
                   )}
 
                 <SubSection>
-                  <Label>입구에 경사로가 있나요?</Label>
+                  <Label>
+                    입구에 경사로가 있나요? <RequiredMark>*</RequiredMark>
+                  </Label>
                   <Controller
                     name="elevatorHasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}
@@ -250,7 +273,7 @@ export default function FloorMovementStep({
                 name="floorMovementComment"
                 render={({field}) => (
                   <TextAreaV2
-                    placeholder="예시: 엘리베이터는 건물 뒤쪽에 있어요"
+                    placeholder="예시) 1층에 이용 공간이 충분해요"
                     value={field.value}
                     onChangeText={field.onChange}
                   />
@@ -265,19 +288,19 @@ export default function FloorMovementStep({
           <SccButton
             text="이전"
             onPress={onBack}
-            buttonColor="gray10"
-            textColor="black"
-            fontFamily={font.pretendardMedium}
+            buttonColor="gray20"
+            textColor="gray90"
+            fontFamily={font.pretendardSemibold}
             elementName="place_form_v2_floor_movement_prev"
-            style={{flex: 1}}
+            style={{flex: 1, borderRadius: 12}}
           />
           <SccButton
             text="등록하기"
             onPress={onSubmit}
-            fontFamily={font.pretendardMedium}
+            fontFamily={font.pretendardSemibold}
             buttonColor="brandColor"
             elementName="place_form_v2_floor_movement_next"
-            style={{flex: 2}}
+            style={{flex: 2, borderRadius: 12}}
             isDisabled={!isFormValid}
           />
         </SubmitButtonWrapper>
@@ -290,5 +313,5 @@ const FormContainer = styled.View`
   background-color: white;
   padding-vertical: 40px;
   padding-horizontal: 20px;
-  gap: 48px;
+  gap: 60px;
 `;
