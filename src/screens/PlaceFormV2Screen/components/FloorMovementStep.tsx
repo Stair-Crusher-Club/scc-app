@@ -15,6 +15,7 @@ import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {formImages, makeFloorMovementOptions} from '../constants';
 import {
+  Hint,
   Label,
   MeasureGuide,
   OptionsGroup,
@@ -138,13 +139,16 @@ export default function FloorMovementStep({
             ) && (
               <>
                 <SubSection>
-                  <QuestionSection>
-                    <SectionLabel>엘리베이터 정보</SectionLabel>
-                    <QuestionText>
-                      엘리베이터 사진을 찍어주세요{' '}
-                      <RequiredMark>*</RequiredMark>
-                    </QuestionText>
-                  </QuestionSection>
+                  <View style={{gap: 2}}>
+                    <QuestionSection>
+                      <SectionLabel>엘리베이터 정보</SectionLabel>
+                      <QuestionText>
+                        엘리베이터 사진을 찍어주세요{' '}
+                        <RequiredMark>*</RequiredMark>
+                      </QuestionText>
+                    </QuestionSection>
+                    <Hint>최대 3장까지 등록 가능해요</Hint>
+                  </View>
                   <Controller
                     name="elevatorPhotos"
                     rules={{required: true}}
@@ -269,7 +273,7 @@ export default function FloorMovementStep({
                 name="floorMovementComment"
                 render={({field}) => (
                   <TextAreaV2
-                    placeholder="예시: 엘리베이터는 건물 뒤쪽에 있어요"
+                    placeholder="예시) 1층에 이용 공간이 충분해요"
                     value={field.value}
                     onChangeText={field.onChange}
                   />
@@ -309,5 +313,5 @@ const FormContainer = styled.View`
   background-color: white;
   padding-vertical: 40px;
   padding-horizontal: 20px;
-  gap: 48px;
+  gap: 60px;
 `;

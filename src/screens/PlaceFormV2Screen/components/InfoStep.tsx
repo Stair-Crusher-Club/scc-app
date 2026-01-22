@@ -16,6 +16,7 @@ import {formImages} from '../constants';
 import {
   GuideButton,
   GuideText,
+  Hint,
   Label,
   MeasureGuide,
   OptionsGroup,
@@ -164,9 +165,12 @@ export default function InfoStep({
               </SubSection>
             )}
             <SubSection>
-              <Label>
-                출입구 사진을 등록해주세요 <RequiredMark>*</RequiredMark>
-              </Label>
+              <View style={{gap: 2}}>
+                <Label>
+                  출입구 사진을 등록해주세요 <RequiredMark>*</RequiredMark>
+                </Label>
+                <Hint>최대 3장까지 등록 가능해요</Hint>
+              </View>
               <Controller
                 name="entrancePhotos"
                 rules={{required: true}}
@@ -325,7 +329,10 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>추가로 알려주실 내용이 있으신가요?</Label>
+              <View style={{gap: 2}}>
+                <Label>추가로 알려주실 내용이 있으신가요?</Label>
+                <Hint>중복선택이 가능해요</Hint>
+              </View>
               <Controller
                 name="additionalInfo"
                 render={({field}) => (
@@ -350,7 +357,7 @@ export default function InfoStep({
                 name="comment"
                 render={({field}) => (
                   <TextAreaV2
-                    placeholder="예시: 입구가 골목 안쪽이에요"
+                    placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다"
                     value={field.value}
                     onChangeText={field.onChange}
                   />
@@ -394,7 +401,7 @@ const InfoFormContainer = styled.View`
   background-color: white;
   padding-vertical: 40px;
   padding-horizontal: 20px;
-  gap: 48px;
+  gap: 60px;
 `;
 
 const DoorDirectionContainer = styled.View`

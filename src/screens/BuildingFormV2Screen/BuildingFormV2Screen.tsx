@@ -401,7 +401,7 @@ export default function BuildingFormV2Screen({
             </S.TabBarWrapper>
             <S.FormContainer>
               {/* 건물 입구 정보 */}
-              <View ref={entranceRef} collapsable={false} style={{gap: 48}}>
+              <View ref={entranceRef} collapsable={false} style={{gap: 60}}>
                 <S.SubSection>
                   <S.QuestionSection>
                     <S.SectionLabel>건물입구정보</S.SectionLabel>
@@ -428,10 +428,13 @@ export default function BuildingFormV2Screen({
                 </S.SubSection>
 
                 <S.SubSection>
-                  <S.Label>
-                    건물 입구 사진을 찍어주세요{' '}
-                    <S.RequiredMark>*</S.RequiredMark>
-                  </S.Label>
+                  <View style={{gap: 2}}>
+                    <S.Label>
+                      건물 입구 사진을 찍어주세요{' '}
+                      <S.RequiredMark>*</S.RequiredMark>
+                    </S.Label>
+                    <S.Hint>최대 3장까지 등록 가능해요</S.Hint>
+                  </View>
                   <Controller
                     name="enterancePhotos"
                     rules={{required: true}}
@@ -601,7 +604,7 @@ export default function BuildingFormV2Screen({
                     name="comment"
                     render={({field}) => (
                       <TextAreaV2
-                        placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다 (최대 100자)"
+                        placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다"
                         value={field.value}
                         onChangeText={field.onChange}
                       />
@@ -646,6 +649,7 @@ export default function BuildingFormV2Screen({
                         엘리베이터 사진을 찍어주세요{' '}
                         <S.RequiredMark>*</S.RequiredMark>
                       </S.Label>
+                      <S.Hint>최대 3장까지 등록 가능해요</S.Hint>
                       <Controller
                         name="elevatorPhotos"
                         rules={{required: true}}
