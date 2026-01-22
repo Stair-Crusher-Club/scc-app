@@ -1,18 +1,25 @@
-import {useSetAtom} from 'jotai';
+import {useAtomValue, useSetAtom} from 'jotai';
 import React from 'react';
 import {ScrollView} from 'react-native';
 
+import CloseIcon from '@/assets/icon/ic_x_black.svg';
+import {isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
-import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
+import {SccPressable} from '@/components/SccPressable';
+import {ScreenLayout} from '@/components/ScreenLayout';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
 import * as S from './GuideForFirstVisitScreen.style';
 import GuideItem from './GuideItem';
 
 export default function GuideForFirstVisitScreen({
   navigation,
 }: ScreenProps<'GuideForFirstVisit'>) {
+  const {userInfo} = useMe();
+  const isAnonymous = useAtomValue(isAnonymousUserAtom);
   const setHasShownGuideForFirstVisit = useSetAtom(
     hasShownGuideForFirstVisitAtom,
   );
@@ -25,12 +32,20 @@ export default function GuideForFirstVisitScreen({
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
       <S.Container>
         <ScrollView style={{flex: 1}}>
+          <S.Header>
+            <SccPressable
+              onPress={onTapConfirmButton}
+              elementName="guide_first_visit_close">
+              <CloseIcon width={24} height={24} color={color.black} />
+            </SccPressable>
+          </S.Header>
           <S.CoverImage
-            source={require('@/assets/img/guide_for_first_visit_astronaut.png')}
+            source={require('@/assets/img/img_challenge_welcome_xl.png')}
           />
           <S.Title>
-            안녕하세요!{'\n'}
-            계단뿌셔클럽에 처음 오셨나요?
+            {isAnonymous
+              ? `계단뿌셔클럽에 오신 것을\n진심으로 환영합니다.`
+              : `${userInfo?.nickname}님\n계단뿌셔클럽에 오신 것을\n진심으로 환영합니다.`}
           </S.Title>
           <S.GuideItems>
             <GuideItem
@@ -44,9 +59,12 @@ export default function GuideForFirstVisitScreen({
           </S.GuideItems>
         </ScrollView>
         <SccButton
-          text={'확인했어요!'}
+          text="확인했어요!"
           onPress={onTapConfirmButton}
+          fontFamily={font.pretendardSemibold}
+          buttonColor="brand40"
           elementName="guide_first_visit_confirm"
+          style={{borderRadius: 12}}
         />
       </S.Container>
     </ScreenLayout>

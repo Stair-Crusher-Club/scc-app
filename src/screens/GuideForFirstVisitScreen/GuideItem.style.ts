@@ -4,23 +4,18 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
 export const GuideItem = styled.View({
-  flexDirection: 'row',
-  paddingVertical: 10,
+  gap: 4,
 });
-export const ContentsContainer = styled.View({
-  flex: 1,
-  flexDirection: 'column',
-  flexGrow: 1,
-  marginLeft: 10,
-});
+
 export const Title = styled.Text({
   color: color.black,
-  fontSize: 16,
-  fontFamily: font.pretendardBold,
+  fontSize: 18,
+  lineHeight: 26,
+  fontFamily: font.pretendardSemibold,
 });
 export const Description = styled.Text({
   color: color.gray90,
-  fontSize: 14,
+  fontSize: 15,
+  lineHeight: 24,
   fontFamily: font.pretendardRegular,
-  marginTop: 10,
 });
