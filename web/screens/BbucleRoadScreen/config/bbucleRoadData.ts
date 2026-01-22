@@ -210,7 +210,7 @@ export interface BbucleRoadData extends Omit<GetBbucleRoadPageResponseDto, 'rout
 export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   'gocheok-skydome': {
   "id": "gocheok-skydome",
-  "title": "휠체어로 고척 어때?",
+  "title": "[고척스카이돔] 휠체어석 가는 법, 시야, 주변 맛집 접근성",
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251204094524_BB2F52447BBD4666.png",
   "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251205015702_871B3E8C8194426B.png",
   "headerImageCaption": "*플레이브 콘서트 사진",
@@ -638,7 +638,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
 },
   'kspo-dome': {
   "id": "kspo-dome",
-  "title": "휠체어로 KSPO 어때?",
+  "title": "[KSPO DOME] 휠체어석 시야, 동선, 장애인 주차장 안내",
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223071246_ECA9AE7A79B9420C.png",
   "titleImageWidth": 547,
   "mobileTitleImageWidth": 300,
@@ -951,7 +951,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
 },
   'ticketlink-live-arena': {
   "id": "ticketlink-live-arena",
-  "title": "휠체어로 티켓링크 라이브 아레나 어때?",
+  "title": "[티켓링크 라이브 아레나] 휠체어 동선, 장애인 주차장, 장콜 스팟 추천",
   "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260116170330_tla-title-image.png",
   "titleImageWidth": 514,
   "mobileTitleImageWidth": 280,
