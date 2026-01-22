@@ -6,7 +6,7 @@ import {font} from '@/constant/font';
 import {Image, Modal, Platform, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import type {GuideContent} from '../constants';
 
 interface GuideModalProps {
@@ -24,8 +24,6 @@ export default function GuideModal({
   onConfirm,
   onRequestClose,
 }: GuideModalProps) {
-  const insets = useSafeAreaInsets();
-
   if (!guideContent) {
     return null;
   }
@@ -38,7 +36,9 @@ export default function GuideModal({
       animationType="slide"
       transparent={false}
       onRequestClose={onRequestClose}>
-      <GuideModalContainer>
+      <SafeAreaWrapper
+        edges={Platform.OS === 'ios' ? ['top', 'bottom'] : []}
+        style={[{flex: 1, backgroundColor: color.white}]}>
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
           <ContentContainer>
             {image && (
@@ -46,7 +46,7 @@ export default function GuideModal({
                 <Image
                   source={image}
                   style={{width: '100%', height: '100%'}}
-                  resizeMode="cover"
+                  resizeMode="stretch"
                 />
               </ImageWrapper>
             )}
@@ -81,10 +81,7 @@ export default function GuideModal({
           </ContentContainer>
         </ScrollView>
 
-        <ButtonWrapper
-          style={{
-            paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
-          }}>
+        <ButtonWrapper>
           <SccButton
             elementName="guide_modal_dismiss"
             text="다시보지 않기"
@@ -104,15 +101,10 @@ export default function GuideModal({
             style={{flex: 1}}
           />
         </ButtonWrapper>
-      </GuideModalContainer>
+      </SafeAreaWrapper>
     </Modal>
   );
 }
-
-const GuideModalContainer = styled.View`
-  flex: 1;
-  background-color: ${color.white};
-`;
 
 const ContentContainer = styled.View`
   flex: 1;
@@ -120,7 +112,7 @@ const ContentContainer = styled.View`
 `;
 
 const ImageWrapper = styled.View`
-  max-height: 260px;
+  max-height: 280px;
 `;
 
 const DescriptionSection = styled.View`
