@@ -20,6 +20,7 @@ import {
   MeasureGuide,
   QuestionSection,
   QuestionText,
+  RequiredMark,
   SectionLabel,
   SectionSeparator,
   SubSection,
@@ -114,14 +115,18 @@ export default function InfoStep({
               <SubSection>
                 <QuestionSection>
                   <SectionLabel>매장입구정보</SectionLabel>
-                  <QuestionText>매장의 출입구가 어디쪽에 있나요?</QuestionText>
+                  <QuestionText>
+                    매장의 출입구가 어디쪽에 있나요?{' '}
+                    <RequiredMark>*</RequiredMark>
+                  </QuestionText>
                 </QuestionSection>
                 <Controller
                   name="doorDirection"
                   rules={{required: true}}
                   render={({field}) => (
                     <DoorDirectionContainer>
-                      <DoorDirectionOption>
+                      <DoorDirectionOption
+                        disabled={field.value && field.value !== 'outside'}>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.out}
@@ -136,7 +141,8 @@ export default function InfoStep({
                           onSelect={field.onChange}
                         />
                       </DoorDirectionOption>
-                      <DoorDirectionOption>
+                      <DoorDirectionOption
+                        disabled={field.value && field.value !== 'inside'}>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.in}
@@ -157,7 +163,9 @@ export default function InfoStep({
               </SubSection>
             )}
             <SubSection>
-              <Label>출입구 사진을 등록해주세요</Label>
+              <Label>
+                출입구 사진을 등록해주세요 <RequiredMark>*</RequiredMark>
+              </Label>
               <Controller
                 name="entrancePhotos"
                 rules={{required: true}}
@@ -173,7 +181,9 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>입구에 계단이 있나요?</Label>
+              <Label>
+                입구에 계단이 있나요? <RequiredMark>*</RequiredMark>
+              </Label>
               <Controller
                 name="hasStairs"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -223,7 +233,9 @@ export default function InfoStep({
             {form.watch('hasStairs') &&
               form.watch('stairInfo') === StairInfo.One && (
                 <SubSection key="stair-height">
-                  <Label>계단 1칸의 높이를 알려주세요</Label>
+                  <Label>
+                    계단 1칸의 높이를 알려주세요 <RequiredMark>*</RequiredMark>
+                  </Label>
                   <MeasureGuide>
                     <Image
                       source={formImages.stair}
@@ -260,7 +272,9 @@ export default function InfoStep({
               )}
 
             <SubSection>
-              <Label>입구에 경사로가 있나요?</Label>
+              <Label>
+                입구에 경사로가 있나요? <RequiredMark>*</RequiredMark>
+              </Label>
               <Controller
                 name="hasSlope"
                 rules={{validate: v => typeof v === 'boolean'}}
@@ -290,7 +304,9 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>출입문은 어떤 종류인가요?</Label>
+              <Label>
+                출입문은 어떤 종류인가요? <RequiredMark>*</RequiredMark>
+              </Label>
               <Controller
                 name="doorType"
                 rules={{required: true}}
@@ -383,9 +399,10 @@ const DoorDirectionContainer = styled.View`
   gap: 12px;
 `;
 
-const DoorDirectionOption = styled.View`
+const DoorDirectionOption = styled.View<{disabled?: boolean}>`
   flex: 1;
   gap: 12px;
+  opacity: ${({disabled}) => (disabled ? 0.3 : 1)};
 `;
 
 const DoorDirectionImageContainer = styled.View`

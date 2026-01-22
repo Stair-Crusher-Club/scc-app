@@ -412,6 +412,10 @@ export const Label = styled.Text({
   color: color.gray80,
 });
 
+export const RequiredMark = styled.Text({
+  color: 'red',
+});
+
 export const MeasureGuide = styled.View({
   aspectRatio: '315/152',
   borderRadius: 8,
