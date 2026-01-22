@@ -9,8 +9,8 @@ export const Options = styled.View({
   flexWrap: 'wrap',
   flexDirection: 'row',
   justifyContent: 'space-between',
-  rowGap: 16,
-  columnGap: 12,
+  rowGap: 8,
+  columnGap: 8,
   color: color.gray70,
 });
 export const PressableOption = styled(SccPressable)<{

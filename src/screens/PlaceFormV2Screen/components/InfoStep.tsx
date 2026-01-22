@@ -18,6 +18,7 @@ import {
   GuideText,
   Label,
   MeasureGuide,
+  OptionsGroup,
   QuestionSection,
   QuestionText,
   RequiredMark,
@@ -184,38 +185,40 @@ export default function InfoStep({
               <Label>
                 입구에 계단이 있나요? <RequiredMark>*</RequiredMark>
               </Label>
-              <Controller
-                name="hasStairs"
-                rules={{validate: v => typeof v === 'boolean'}}
-                render={({field}) => (
-                  <OptionsV2
-                    value={field.value}
-                    options={[
-                      {label: '있어요', value: true},
-                      {label: '없어요', value: false},
-                    ]}
-                    onSelect={field.onChange}
-                  />
-                )}
-              />
-              {form.watch('hasStairs') && (
+              <OptionsGroup>
                 <Controller
-                  name="stairInfo"
-                  rules={{required: true}}
+                  name="hasStairs"
+                  rules={{validate: v => typeof v === 'boolean'}}
                   render={({field}) => (
                     <OptionsV2
                       value={field.value}
-                      columns={3}
                       options={[
-                        {label: '1칸', value: StairInfo.One},
-                        {label: '2-5칸', value: StairInfo.TwoToFive},
-                        {label: '6칸 이상', value: StairInfo.OverSix},
+                        {label: '있어요', value: true},
+                        {label: '없어요', value: false},
                       ]}
                       onSelect={field.onChange}
                     />
                   )}
                 />
-              )}
+                {form.watch('hasStairs') && (
+                  <Controller
+                    name="stairInfo"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        columns={3}
+                        options={[
+                          {label: '1칸', value: StairInfo.One},
+                          {label: '2-5칸', value: StairInfo.TwoToFive},
+                          {label: '6칸 이상', value: StairInfo.OverSix},
+                        ]}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                )}
+              </OptionsGroup>
               <GuideButton>
                 <SccPressable
                   elementName="place_info_stair_guide"
@@ -396,12 +399,12 @@ const InfoFormContainer = styled.View`
 
 const DoorDirectionContainer = styled.View`
   flex-direction: row;
-  gap: 12px;
+  gap: 8px;
 `;
 
 const DoorDirectionOption = styled.View<{disabled?: boolean}>`
   flex: 1;
-  gap: 12px;
+  gap: 8px;
   opacity: ${({disabled}) => (disabled ? 0.3 : 1)};
 `;
 

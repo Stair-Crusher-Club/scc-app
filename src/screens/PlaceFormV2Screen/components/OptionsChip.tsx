@@ -39,7 +39,7 @@ export default function OptionsChip({
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'flex-start',
-        gap: 12,
+        gap: 8,
       }}>
       {options.map((option, idx) => {
         const selected = values?.includes(option.value);

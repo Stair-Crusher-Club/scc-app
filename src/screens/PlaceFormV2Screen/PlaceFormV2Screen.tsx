@@ -440,7 +440,11 @@ export const SubmitButtonWrapper = styled.View`
   border-top-width: 1px;
   border-top-color: ${color.gray15};
   flex-direction: row;
-  gap: 12px;
+  gap: 8px;
+`;
+
+export const OptionsGroup = styled.View`
+  gap: 8px;
 `;
 
 async function register(
