@@ -32,6 +32,10 @@ export const Title = styled.Text({
   textAlign: 'center',
 });
 
+export const NicknameText = styled.Text({
+  color: color.brand50,
+});
+
 export const GuideItems = styled.View({
   marginTop: 20,
   backgroundColor: color.gray10,

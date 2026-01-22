@@ -43,9 +43,14 @@ export default function GuideForFirstVisitScreen({
             source={require('@/assets/img/img_challenge_welcome_xl.png')}
           />
           <S.Title>
-            {isAnonymous
-              ? `계단뿌셔클럽에 오신 것을\n진심으로 환영합니다.`
-              : `${userInfo?.nickname}님\n계단뿌셔클럽에 오신 것을\n진심으로 환영합니다.`}
+            {isAnonymous ? (
+              `계단뿌셔클럽에 오신 것을\n진심으로 환영합니다.`
+            ) : (
+              <>
+                <S.NicknameText>{userInfo?.nickname}</S.NicknameText>
+                {`님\n계단뿌셔클럽에 오신 것을\n진심으로 환영합니다.`}
+              </>
+            )}
           </S.Title>
           <S.GuideItems>
             <GuideItem
