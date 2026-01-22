@@ -30,14 +30,15 @@ export default function PhotoConfirmBottomSheet({
             }}
           />
         </IconContainer>
-        <Title>앗, 사진을 빠뜨리셨나요?</Title>
+        <Title>정말 사진없이 등록하실껀가요?</Title>
         <Description>
-          {'휠체어 사용자의 95%가 사진이 있을 때\n훨씬 도움이 된다고 답했어요!'}
+          {
+            '계단뿌셔클럽 간담회에서 휠체어 사용자의 95%가\n사진이 있을 때 훨씬 도움이 된다고 답했어요!'
+          }
         </Description>
-        <SubDescription>출처: 계단뿌셔클럽 간담회</SubDescription>
         <ButtonContainer>
           <SccButton
-            text="사진 없이 등록하기"
+            text="그냥 등록하기"
             elementName="photo_confirm_cancel_button"
             onPress={onCancel}
             buttonColor="gray20"
@@ -90,15 +91,6 @@ const Description = styled.Text({
   textAlign: 'center',
   marginTop: 5,
   marginBottom: 12,
-});
-
-const SubDescription = styled.Text({
-  fontSize: 14,
-  fontFamily: font.pretendardRegular,
-  color: color.gray50,
-  lineHeight: 20,
-  textAlign: 'center',
-  marginBottom: 16,
 });
 
 const ButtonContainer = styled.View({
