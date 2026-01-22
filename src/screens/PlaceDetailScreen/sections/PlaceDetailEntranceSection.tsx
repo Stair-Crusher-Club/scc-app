@@ -27,6 +27,7 @@ interface Props extends UserInteractionHandlers {
   place: Place;
   isAccessibilityRegistrable?: boolean;
   onRegister?: () => void;
+  allowDuplicateRegistration?: boolean;
 }
 
 export default function PlaceDetailEntranceSection({
@@ -35,6 +36,7 @@ export default function PlaceDetailEntranceSection({
   isAccessibilityRegistrable,
   onRegister,
   showNegativeFeedbackBottomSheet,
+  allowDuplicateRegistration,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -111,11 +113,29 @@ export default function PlaceDetailEntranceSection({
           crusherNames={registeredUserName ? [registeredUserName] : []}
         />
       </View>
+      {allowDuplicateRegistration && isAccessibilityRegistrable && (
+        <RegisterButtonContainer>
+          <SccButton
+            text="정보 등록하기"
+            style={{
+              borderRadius: 10,
+            }}
+            fontSize={18}
+            fontFamily={font.pretendardBold}
+            onPress={onRegister}
+            elementName="place_detail_entrance_register_v2"
+          />
+        </RegisterButtonContainer>
+      )}
     </S.Section>
   );
 }
 
 const Divider = styled.View({height: 1, backgroundColor: color.gray20});
+
+const RegisterButtonContainer = styled.View`
+  margin-top: 16px;
+`;
 
 function NoPlaceEntranceInfoSection({
   isAccessibilityRegistrable,
@@ -124,16 +144,6 @@ function NoPlaceEntranceInfoSection({
   isAccessibilityRegistrable: boolean;
   onRegister?: () => void;
 }) {
-  const handleRegister = () => {
-    if (Platform.OS === 'web') {
-      Toast.show('준비 중입니다 💪', {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-      });
-      return;
-    }
-    onRegister?.();
-  };
   return (
     <S.Section>
       <S.Row>
@@ -156,7 +166,7 @@ function NoPlaceEntranceInfoSection({
           fontSize={18}
           fontFamily={font.pretendardBold}
           isDisabled={!isAccessibilityRegistrable}
-          onPress={handleRegister}
+          onPress={onRegister}
           elementName="place_detail_entrance_register"
         />
       </S.EmptyInfoContent>

@@ -327,6 +327,31 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const isFirstFloor =
     accessibilityPost?.placeAccessibility?.isFirstFloor ?? false;
 
+  const handlePlaceRegister = () => {
+    checkAuth(async () => {
+      if (Platform.OS === 'web') {
+        Toast.show('준비 중입니다 💪', {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.BOTTOM,
+        });
+        return;
+      }
+      await navigateWithLocationCheck({
+        targetLocation: place.location,
+        placeName: place.name,
+        address: place.address,
+        type: 'place',
+        onNavigate: () => {
+          if (formVersion === 'v2') {
+            navigation.navigate('PlaceFormV2', {place, building});
+            return;
+          }
+          navigation.navigate('PlaceForm', {place, building});
+        },
+      });
+    });
+  };
+
   const sections: SectionConfig[] = [
     {
       id: 'entrance',
@@ -337,29 +362,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
           accessibility={accessibilityPost}
           place={place}
           isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-          onRegister={async () => {
-            if (Platform.OS === 'web') {
-              Toast.show('준비 중입니다 💪', {
-                duration: Toast.durations.SHORT,
-                position: Toast.positions.BOTTOM,
-              });
-              return;
-            }
-            await navigateWithLocationCheck({
-              targetLocation: place.location,
-              placeName: place.name,
-              address: place.address,
-              type: 'place',
-              onNavigate: () => {
-                if (formVersion === 'v2') {
-                  navigation.navigate('PlaceFormV2', {place, building});
-                  return;
-                }
-                navigation.navigate('PlaceForm', {place, building});
-              },
-            });
-          }}
+          onRegister={handlePlaceRegister}
           showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
+          allowDuplicateRegistration={isQAMode}
         />
       ),
       order: 1,
