@@ -45,9 +45,19 @@ export default function Photos({value, maxPhotos, target, onChange}: Props) {
         </S.Photo>
       )}
       {/* 1~3장의 사진 */}
-      {value.slice(0, 3).map(photo => (
+      {value.slice(0, 3).map((photo, index) => (
         <S.Photo key={photo.uri}>
-          <S.Thumbnail>
+          <S.Thumbnail
+            elementName="photo_thumbnail"
+            logParams={{photo_index: index}}
+            onPress={() => {
+              navigation.navigate('ImageZoomViewer', {
+                imageUrls: value.map(p =>
+                  ImageFileUtils.filepathFromImageFile(p),
+                ),
+                index,
+              });
+            }}>
             <S.ThumbnailImage
               source={{uri: ImageFileUtils.filepathFromImageFile(photo)}}
             />

@@ -45,7 +45,7 @@ export const SmallCameraButton = styled(SccPressable)({
   alignItems: 'center',
 });
 
-export const Thumbnail = styled.View({
+export const Thumbnail = styled(SccPressable)({
   flex: 1,
   overflow: 'hidden',
   borderRadius: 20,
