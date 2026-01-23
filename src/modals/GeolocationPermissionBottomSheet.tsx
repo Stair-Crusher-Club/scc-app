@@ -42,14 +42,13 @@ export type GeolocationErrorReason =
 export interface GeolocationPermissionBottomSheetInitParams {
   isVisible: boolean;
   errorReason?: GeolocationErrorReason;
-  onCloseButtonPressed: () => void;
 }
 
 const CONTENT = {
   permission_denied: {
     title: '앱 내 위치 권한을 허용해 주세요',
     message:
-      '검색 결과를 가까운 순으로 정렬하거나 추후 지도 기능을 이용하려면 위치권한이 꼭 필요해요.',
+      '검색 결과를 가까운 순으로 정렬하거나 추후 지도 기능을 이용하려면 위치 권한이 꼭 필요해요.',
     buttonText: '권한 설정하기',
   },
   location_unavailable: {
@@ -75,7 +74,6 @@ const openLocationSettings = () => {
 const GeolocationPermissionBottomSheet = ({
   isVisible,
   errorReason = 'permission_denied',
-  onCloseButtonPressed,
 }: GeolocationPermissionBottomSheetInitParams) => {
   const content = CONTENT[errorReason];
 
@@ -95,16 +93,10 @@ const GeolocationPermissionBottomSheet = ({
         <Message>{content.message}</Message>
       </ContentsContainer>
       <BottomSheetButtonGroup
-        layout={BottomSheetButtonGroupLayout.HORIZONTAL_1X2}
+        layout={BottomSheetButtonGroupLayout.HORIZONTAL}
         positiveButton={{
           text: content.buttonText,
           onPressed: handleConfirmPress,
-        }}
-        negativeButton={{
-          text: '닫기',
-          onPressed: () => {
-            onCloseButtonPressed();
-          },
         }}
       />
     </BottomSheet>

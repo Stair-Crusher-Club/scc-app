@@ -283,9 +283,6 @@ const HomeScreen = ({navigation}: any) => {
           <GeolocationPermissionBottomSheet
             isVisible={geolocationErrorReason !== null}
             errorReason={geolocationErrorReason ?? 'permission_denied'}
-            onCloseButtonPressed={() => {
-              setGeolocationErrorReason(null);
-            }}
           />
           <ChallengeUpcomingBottomSheet
             selectedUpcomingChallenge={selectedUpcomingChallenge}

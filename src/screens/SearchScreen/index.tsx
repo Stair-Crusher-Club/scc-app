@@ -1,13 +1,12 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {useAtom, useSetAtom} from 'jotai';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
-import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
 import {
@@ -51,8 +50,6 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   const setFilterModalState = useSetAtom(filterModalStateAtom);
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
-  const [showGeolocationPermission, setShowGeolocationPermission] =
-    useState(false);
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
 
   const onQueryUpdate = (
@@ -210,12 +207,6 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
             />
           )}
         </View>
-        <GeolocationPermissionBottomSheet
-          isVisible={showGeolocationPermission}
-          onCloseButtonPressed={() => {
-            setShowGeolocationPermission(false);
-          }}
-        />
         <FilterModal />
       </S.SearchScreenLayout>
     </LogParamsProvider>
