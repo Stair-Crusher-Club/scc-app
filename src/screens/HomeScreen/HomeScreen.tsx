@@ -31,7 +31,9 @@ import {
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
-import GeolocationPermissionBottomSheet from '@/modals/GeolocationPermissionBottomSheet';
+import GeolocationPermissionBottomSheet, {
+  GeolocationErrorReason,
+} from '@/modals/GeolocationPermissionBottomSheet';
 import CoachMarkGuideLink from '@/screens/HomeScreen/components/CoachMarkGuideLink';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import GeolocationUtils from '@/utils/GeolocationUtils';
@@ -50,9 +52,8 @@ const HomeScreen = ({navigation}: any) => {
 
   const accessToken = useAtomValue(accessTokenAtom);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
-  const [showGeolocationPermission, setShowGeolocationPermission] = useState<
-    boolean | undefined
-  >();
+  const [geolocationErrorReason, setGeolocationErrorReason] =
+    useState<GeolocationErrorReason | null>(null);
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
 
   const [selectedUpcomingChallenge, setSelectedUpcomingChallenge] = useState<
@@ -94,8 +95,8 @@ const HomeScreen = ({navigation}: any) => {
         // 위치 권한을 받지 않고  getCurrentPosition 을 호출하면 위치 권한 팝업을 띄운다.
         // 위치 권한이 없으면 설정으로 이동하기 위한 BottmSheet 를 보여준다.
         const location = await GeolocationUtils.getCurrentPosition();
-        if (showGeolocationPermission === undefined) {
-          setShowGeolocationPermission(false);
+        if (geolocationErrorReason !== null) {
+          setGeolocationErrorReason(null);
         }
         setCurrentLocation({
           latitude: location.coords.latitude,
@@ -103,8 +104,12 @@ const HomeScreen = ({navigation}: any) => {
         });
       } catch (error: any) {
         Logger.logError(error);
-        if (error.PERMISSION_DENIED) {
-          setShowGeolocationPermission(true);
+        if (error.code === 1) {
+          // PERMISSION_DENIED
+          setGeolocationErrorReason('permission_denied');
+        } else if (error.code === 2) {
+          // POSITION_UNAVAILABLE (GPS 꺼짐)
+          setGeolocationErrorReason('location_unavailable');
         }
       }
     };
@@ -276,12 +281,10 @@ const HomeScreen = ({navigation}: any) => {
             </S.ContentsContainer>
           </ScrollView>
           <GeolocationPermissionBottomSheet
-            isVisible={showGeolocationPermission ?? false}
-            onConfirmButtonPressed={() => {
-              Linking.openSettings();
-            }}
+            isVisible={geolocationErrorReason !== null}
+            errorReason={geolocationErrorReason ?? 'permission_denied'}
             onCloseButtonPressed={() => {
-              setShowGeolocationPermission(false);
+              setGeolocationErrorReason(null);
             }}
           />
           <ChallengeUpcomingBottomSheet
@@ -310,7 +313,7 @@ const HomeScreen = ({navigation}: any) => {
         </S.Container>
       </ScreenLayout>
 
-      {/* <CoachMarkOverlay visible={showGeolocationPermission === false} /> */}
+      {/* <CoachMarkOverlay visible={geolocationErrorReason === null} /> */}
     </>
   );
 };

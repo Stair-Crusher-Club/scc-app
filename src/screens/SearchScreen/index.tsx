@@ -1,7 +1,7 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {useAtom, useSetAtom} from 'jotai';
 import React, {useEffect, useRef, useState} from 'react';
-import {Keyboard, Linking, View} from 'react-native';
+import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
@@ -212,10 +212,6 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
         </View>
         <GeolocationPermissionBottomSheet
           isVisible={showGeolocationPermission}
-          onConfirmButtonPressed={() => {
-            Linking.openSettings();
-            setShowGeolocationPermission(false);
-          }}
           onCloseButtonPressed={() => {
             setShowGeolocationPermission(false);
           }}
