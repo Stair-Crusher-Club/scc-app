@@ -3844,6 +3844,12 @@ export interface RegisterBuildingAccessibilityRequestDtoV2 {
      */
     'doorDirectionType': BuildingDoorDirectionTypeDto;
     /**
+     * 출입구 방향이 기타(ETC)인 경우 출입구 방향에 대한 설명. doorDirectionType이 ETC인 경우 필수.
+     * @type {string}
+     * @memberof RegisterBuildingAccessibilityRequestDtoV2
+     */
+    'doorDirectionEtcComment'?: string;
+    /**
      * 
      * @type {StairInfo}
      * @memberof RegisterBuildingAccessibilityRequestDtoV2
@@ -5462,7 +5468,9 @@ export interface VendorPlaceIdDto {
 
 export const VendorPlaceIdDtoVendorTypeEnum = {
     Kakao: 'KAKAO',
-    Naver: 'NAVER'
+    Naver: 'NAVER',
+    Google: 'GOOGLE',
+    Tmap: 'TMAP'
 } as const;
 
 export type VendorPlaceIdDtoVendorTypeEnum = typeof VendorPlaceIdDtoVendorTypeEnum[keyof typeof VendorPlaceIdDtoVendorTypeEnum];
