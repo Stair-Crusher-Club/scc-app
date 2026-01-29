@@ -9,8 +9,9 @@ import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import useNavigation from '@/navigation/useNavigation';
 import ToastUtils from '@/utils/ToastUtils';
+import {useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
-import {Image, ScrollView, View} from 'react-native';
+import {Image, Platform, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FORM_TOAST_OPTIONS, formImages} from '../constants';
@@ -52,6 +53,14 @@ export default function InfoStep({
   const form = useFormContext();
   const navigation = useNavigation();
   const isKeyboardVisible = useKeyboardVisible();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const handleTextAreaFocus = () => {
+    if (Platform.OS !== 'ios') return;
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({animated: true});
+    }, 100);
+  };
 
   // Watch all required fields
   const doorDirection = form.watch('doorDirection');
@@ -147,7 +156,7 @@ export default function InfoStep({
 
   return (
     <>
-      <ScrollView>
+      <ScrollView ref={scrollViewRef}>
         <SafeAreaWrapper edges={['bottom']}>
           <PlaceInfoSection
             target="place"
@@ -171,7 +180,8 @@ export default function InfoStep({
                   rules={{required: true}}
                   render={({field}) => (
                     <DoorDirectionContainer>
-                      <DoorDirectionOption>
+                      <DoorDirectionOption
+                        disabled={field.value && field.value !== 'outside'}>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.out}
@@ -186,7 +196,8 @@ export default function InfoStep({
                           onSelect={field.onChange}
                         />
                       </DoorDirectionOption>
-                      <DoorDirectionOption>
+                      <DoorDirectionOption
+                        disabled={field.value && field.value !== 'inside'}>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.in}
@@ -405,6 +416,7 @@ export default function InfoStep({
                     placeholder="예시) 후문에는 계단이 없어 편하게 갈 수 있습니다"
                     value={field.value}
                     onChangeText={field.onChange}
+                    onFocus={handleTextAreaFocus}
                   />
                 )}
               />
@@ -453,9 +465,10 @@ const DoorDirectionContainer = styled.View`
   gap: 8px;
 `;
 
-const DoorDirectionOption = styled.View`
+const DoorDirectionOption = styled.View<{disabled?: boolean}>`
   flex: 1;
   gap: 8px;
+  opacity: ${({disabled}) => (disabled ? 0.4 : 1)};
 `;
 
 const DoorDirectionImageContainer = styled.View`

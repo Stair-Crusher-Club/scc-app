@@ -73,9 +73,10 @@ export const EntranceDirectionContainer = styled.View`
   gap: 8px;
 `;
 
-export const EntranceDirectionOption = styled.View`
+export const EntranceDirectionOption = styled.View<{disabled?: boolean}>`
   flex: 1;
   gap: 8px;
+  opacity: ${({disabled}) => (disabled ? 0.4 : 1)};
 `;
 
 export const EntranceDirectionImageContainer = styled.View`

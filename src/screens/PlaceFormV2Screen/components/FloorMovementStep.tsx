@@ -10,8 +10,9 @@ import {
 } from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import ToastUtils from '@/utils/ToastUtils';
+import {useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
-import {Image, ScrollView, View} from 'react-native';
+import {Image, Platform, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {
@@ -51,6 +52,14 @@ export default function FloorMovementStep({
 }: FloorMovementStepProps) {
   const form = useFormContext();
   const isKeyboardVisible = useKeyboardVisible();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const handleTextAreaFocus = () => {
+    if (Platform.OS !== 'ios') return;
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({animated: true});
+    }, 100);
+  };
 
   // Watch all required fields
   const floorMovementMethods: FloorMovingMethodTypeDto[] =
@@ -144,7 +153,7 @@ export default function FloorMovementStep({
 
   return (
     <>
-      <ScrollView>
+      <ScrollView ref={scrollViewRef}>
         <SafeAreaWrapper edges={['bottom']}>
           <PlaceInfoSection
             target="place"
@@ -320,6 +329,7 @@ export default function FloorMovementStep({
                     placeholder="예시) 1층에 이용 공간이 충분해요"
                     value={field.value}
                     onChangeText={field.onChange}
+                    onFocus={handleTextAreaFocus}
                   />
                 )}
               />
