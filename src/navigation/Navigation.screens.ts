@@ -26,9 +26,6 @@ import ConquererUpVoteScreen from '@/screens/ConquererUpVoteScreen';
 import CrusherActivityScreen, {
   CrusherActivityScreenParams,
 } from '@/screens/CrusherActivity';
-import PastSeasonDetailScreen, {
-  PastSeasonDetailScreenParams,
-} from '@/screens/PastSeasonDetail';
 import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
@@ -40,6 +37,9 @@ import ImageZoomViewerScreen, {
 import IntroScreen from '@/screens/IntroScreen';
 import LoginScreen, {LoginScreenParams} from '@/screens/LoginScreen';
 import MainScreen from '@/screens/MainScreen';
+import PastSeasonDetailScreen, {
+  PastSeasonDetailScreenParams,
+} from '@/screens/PastSeasonDetail';
 import PlaceDetailScreen, {
   PlaceDetailScreenParams,
 } from '@/screens/PlaceDetailScreen';
@@ -52,6 +52,9 @@ import PlaceFormScreen, {
 import PlaceFormV2Screen, {
   PlaceFormV2ScreenParams,
 } from '@/screens/PlaceFormV2Screen';
+import PlaceGroupMapScreen, {
+  PlaceGroupMapScreenParams,
+} from '@/screens/PlaceGroupMapScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
 import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
 import PlaceReviewFormScreen, {
@@ -67,14 +70,11 @@ import ReviewHistoryScreen from '@/screens/ReviewHistoryScreen';
 import ReviewScreen from '@/screens/ReviewScreen';
 import ReviewUpVoteScreen from '@/screens/ReviewUpVoteScreen';
 import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
-import SettingScreen from '@/screens/SettingScreen';
-import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
-import PlaceGroupMapScreen, {
-  PlaceGroupMapScreenParams,
-} from '@/screens/PlaceGroupMapScreen';
 import SearchUnconqueredPlacesScreen, {
   SearchUnconqueredPlacesScreenParams,
 } from '@/screens/SearchUnconqueredPlacesScreen';
+import SettingScreen from '@/screens/SettingScreen';
+import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
@@ -175,6 +175,7 @@ export const MainNavigationScreens: {
       headerShown: true,
       headerTitle: '장소 접근성 입력하기',
       variant: 'close',
+      gestureEnabled: false,
     },
   },
   {name: 'PlaceDetail', component: PlaceDetailScreen},
@@ -195,6 +196,7 @@ export const MainNavigationScreens: {
       headerShown: true,
       headerTitle: '건물 정보 등록하기',
       variant: 'close',
+      gestureEnabled: false,
     },
   },
   {
