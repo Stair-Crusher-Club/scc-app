@@ -75,16 +75,14 @@ export default function RegistrationCompleteScreen({
         <Container>
           <Content>
             <BuildingTitle>{content.title}</BuildingTitle>
-            <BuildingDescription>
-              {userInfo?.nickname + ' ' + content.description}
-            </BuildingDescription>
+            <BuildingDescription>{content.description()}</BuildingDescription>
             <ImageContainer>
               <StyledImage source={content.imagePath} resizeMode="contain" />
             </ImageContainer>
           </Content>
           <ButtonContainer>
             <SccButton
-              text="감사합니다"
+              text="닫기"
               textColor="white"
               buttonColor="blue50"
               fontFamily={font.pretendardBold}
@@ -110,13 +108,11 @@ export default function RegistrationCompleteScreen({
             <StyledImage source={content.imagePath} resizeMode="contain" />
           </ImageContainer>
           <Title>{content.title}</Title>
-          <Description>
-            {userInfo?.nickname + ' ' + content.description}
-          </Description>
+          <Description>{content.description(userInfo?.nickname)}</Description>
         </Content>
         <ButtonContainer>
           <SccButton
-            text="감사합니다"
+            text="닫기"
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
