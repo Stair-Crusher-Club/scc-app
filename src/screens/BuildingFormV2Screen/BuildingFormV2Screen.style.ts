@@ -1,3 +1,4 @@
+import {TextInput} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -45,4 +46,44 @@ export const HeaderBackText = styled.Text`
   color: ${color.gray80};
   font-family: ${font.pretendardMedium};
   letter-spacing: -0.48px;
+`;
+
+export const SubQuestion = styled.View`
+  margin-top: 16px;
+  gap: 8px;
+`;
+
+export const TextInputContainer = styled.View`
+  border-width: 1px;
+  border-color: ${color.gray20};
+  border-radius: 12px;
+  padding-horizontal: 16px;
+  padding-vertical: 12px;
+`;
+
+export const StyledTextInput = styled(TextInput)`
+  font-size: 16px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray100};
+  padding: 0;
+`;
+
+export const EntranceDirectionContainer = styled.View`
+  flex-direction: row;
+  gap: 8px;
+`;
+
+export const EntranceDirectionOption = styled.View<{disabled?: boolean}>`
+  flex: 1;
+  gap: 8px;
+  opacity: ${({disabled}) => (disabled ? 0.3 : 1)};
+`;
+
+export const EntranceDirectionImageContainer = styled.View`
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border-width: 1px;
+  border-color: ${color.gray20};
 `;

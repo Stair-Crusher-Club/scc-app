@@ -9,11 +9,16 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
+import ToastUtils from '@/utils/ToastUtils';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
-import {formImages, makeFloorMovementOptions} from '../constants';
+import {
+  FORM_TOAST_OPTIONS,
+  formImages,
+  makeFloorMovementOptions,
+} from '../constants';
 import {
   Hint,
   Label,
@@ -56,28 +61,57 @@ export default function FloorMovementStep({
   const elevatorStairHeightLevel = form.watch('elevatorStairHeightLevel');
   const elevatorHasSlope = form.watch('elevatorHasSlope');
 
-  // Check if all required fields are filled
-  const isFormValid = (() => {
+  type FormErrorKey =
+    | 'floorMovementMethod'
+    | 'elevatorPhotos'
+    | 'elevatorHasStairs'
+    | 'elevatorStairInfo'
+    | 'elevatorStairHeightLevel'
+    | 'elevatorHasSlope';
+
+  const noticeError = (errorKey: FormErrorKey) => {
+    switch (errorKey) {
+      case 'floorMovementMethod':
+        ToastUtils.show('층간 이동 방법을 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'elevatorPhotos':
+        ToastUtils.show('엘리베이터 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'elevatorHasStairs':
+      case 'elevatorStairInfo':
+      case 'elevatorStairHeightLevel':
+        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'elevatorHasSlope':
+        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      default:
+        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+    }
+  };
+
+  // 유효성 검사 및 첫 번째 에러 키 반환
+  const validateAndGetError = (): FormErrorKey | null => {
     // 층간 이동 방법은 필수
     if (!floorMovementMethods || floorMovementMethods.length === 0) {
-      return false;
+      return 'floorMovementMethod';
     }
 
     // 엘리베이터를 선택한 경우 추가 검증
     if (floorMovementMethods.includes(FloorMovingMethodTypeDto.PlaceElevator)) {
       // 엘리베이터 사진은 필수
       if (!elevatorPhotos || elevatorPhotos.length === 0) {
-        return false;
+        return 'elevatorPhotos';
       }
 
       // 계단 여부는 필수 (boolean)
       if (typeof elevatorHasStairs !== 'boolean') {
-        return false;
+        return 'elevatorHasStairs';
       }
 
       // 계단이 있을 경우 계단 정보 필수
       if (elevatorHasStairs && !elevatorStairInfo) {
-        return false;
+        return 'elevatorStairInfo';
       }
 
       // 계단이 1칸일 경우 높이 정보 필수
@@ -86,17 +120,27 @@ export default function FloorMovementStep({
         elevatorStairInfo === StairInfo.One &&
         !elevatorStairHeightLevel
       ) {
-        return false;
+        return 'elevatorStairHeightLevel';
       }
 
       // 경사로 여부는 필수 (boolean)
       if (typeof elevatorHasSlope !== 'boolean') {
-        return false;
+        return 'elevatorHasSlope';
       }
     }
 
-    return true;
-  })();
+    return null;
+  };
+
+  // 등록 버튼 핸들러
+  const handleSubmit = () => {
+    const errorKey = validateAndGetError();
+    if (errorKey) {
+      noticeError(errorKey);
+      return;
+    }
+    onSubmit();
+  };
 
   return (
     <>
@@ -296,12 +340,11 @@ export default function FloorMovementStep({
           />
           <SccButton
             text="등록하기"
-            onPress={onSubmit}
+            onPress={handleSubmit}
             fontFamily={font.pretendardSemibold}
             buttonColor="brandColor"
             elementName="place_form_v2_floor_movement_next"
             style={{flex: 2, borderRadius: 12}}
-            isDisabled={!isFormValid}
           />
         </SubmitButtonWrapper>
       </SafeAreaWrapper>

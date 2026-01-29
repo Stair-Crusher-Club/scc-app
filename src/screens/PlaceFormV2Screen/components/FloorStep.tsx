@@ -2,12 +2,17 @@ import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {font} from '@/constant/font';
 import {Place} from '@/generated-sources/openapi';
+import ToastUtils from '@/utils/ToastUtils';
 import {Controller, useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
-import {FLOOR_OPTIONS, STANDALONE_BUILDING_OPTIONS} from '../constants';
+import {
+  FLOOR_OPTIONS,
+  FORM_TOAST_OPTIONS,
+  STANDALONE_BUILDING_OPTIONS,
+} from '../constants';
 import {
   QuestionSection,
   QuestionText,
@@ -28,9 +33,41 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
   const selectedOption = form.watch('floorOption');
   const selectedStandaloneType = form.watch('standaloneType');
 
-  const isNextButtonDisabled =
-    !selectedOption ||
-    (selectedOption === 'standalone' && selectedStandaloneType === null);
+  type FormErrorKey = 'floorOption' | 'standaloneType';
+
+  const noticeError = (errorKey: FormErrorKey) => {
+    switch (errorKey) {
+      case 'floorOption':
+        ToastUtils.show('층 정보를 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'standaloneType':
+        ToastUtils.show('단독건물 유형을 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      default:
+        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+    }
+  };
+
+  // 유효성 검사 및 첫 번째 에러 키 반환
+  const validateAndGetError = (): FormErrorKey | null => {
+    if (!selectedOption) {
+      return 'floorOption';
+    }
+    if (selectedOption === 'standalone' && selectedStandaloneType === null) {
+      return 'standaloneType';
+    }
+    return null;
+  };
+
+  // 다음 버튼 핸들러
+  const handleNext = () => {
+    const errorKey = validateAndGetError();
+    if (errorKey) {
+      noticeError(errorKey);
+      return;
+    }
+    onNext();
+  };
 
   return (
     <>
@@ -111,8 +148,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
           <ButtonContainer>
             <SccButton
               text="다음"
-              onPress={onNext}
-              isDisabled={isNextButtonDisabled}
+              onPress={handleNext}
               buttonColor="brandColor"
               elementName="place_form_v2_next"
               fontFamily={font.pretendardSemibold}

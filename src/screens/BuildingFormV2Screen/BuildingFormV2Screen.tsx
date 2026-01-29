@@ -28,9 +28,11 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
+import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
@@ -42,7 +44,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import OptionsV2 from '../PlaceFormV2Screen/components/OptionsV2';
 import PhotosV2 from '../PlaceFormV2Screen/components/PhotosV2';
 import TextAreaV2 from '../PlaceFormV2Screen/components/TextAreaV2';
-import {formImages} from '../PlaceFormV2Screen/constants';
+import {FORM_TOAST_OPTIONS, formImages} from '../PlaceFormV2Screen/constants';
 import PlaceInfoSection from '../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {pushItemsAtom} from '../SearchScreen/atoms/quest';
 import * as S from './BuildingFormV2Screen.style';
@@ -61,6 +63,7 @@ export interface BuildingFormV2ScreenParams {
 
 interface FormValues {
   entranceDirection: string;
+  entranceDirectionName: string;
   hasStairs: boolean;
   stairInfo: StairInfo;
   hasSlope: boolean;
@@ -89,6 +92,11 @@ export default function BuildingFormV2Screen({
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
   const isKeyboardVisible = useKeyboardVisible();
 
+  // 뒤로가기 confirm
+  const formExitConfirm = useFormExitConfirm(action => {
+    navigation.dispatch(action);
+  });
+
   const scrollViewRef = useRef<ScrollView>(null);
   const entranceRef = useRef<View>(null);
   const elevatorRef = useRef<View>(null);
@@ -99,6 +107,7 @@ export default function BuildingFormV2Screen({
 
   // Watch all required fields
   const entranceDirection = form.watch('entranceDirection');
+  const entranceDirectionName = form.watch('entranceDirectionName');
   const enterancePhotos = form.watch('enterancePhotos');
   const hasStairs = form.watch('hasStairs');
   const stairInfo = form.watch('stairInfo');
@@ -151,63 +160,75 @@ export default function BuildingFormV2Screen({
     }
   }, [elevatorStairInfo, form]);
 
-  // Check if all required fields are filled
-  const isFormValid = (() => {
+  // Reset entranceDirectionName when entranceDirection is not 'etc'
+  useEffect(() => {
+    if (entranceDirection && entranceDirection !== 'etc') {
+      form.setValue('entranceDirectionName', undefined as any);
+    }
+  }, [entranceDirection, form]);
+
+  // 유효성 검사 및 첫 번째 에러 키 반환
+  const validateAndGetError = (): keyof FormValues | null => {
     // 출입구 방향은 필수
     if (!entranceDirection) {
-      return false;
+      return 'entranceDirection';
+    }
+
+    // 기타 선택 시 출입구 이름 필수
+    if (entranceDirection === 'etc' && !entranceDirectionName?.trim()) {
+      return 'entranceDirectionName';
     }
 
     // 입구 사진은 필수
     if (!enterancePhotos || enterancePhotos.length === 0) {
-      return false;
+      return 'enterancePhotos';
     }
 
     // 계단 여부는 필수 (boolean)
     if (typeof hasStairs !== 'boolean') {
-      return false;
+      return 'hasStairs';
     }
 
     // 계단이 있을 경우 계단 정보 필수
     if (hasStairs && !stairInfo) {
-      return false;
+      return 'stairInfo';
     }
 
     // 계단이 1칸일 경우 높이 정보 필수
     if (hasStairs && stairInfo === StairInfo.One && !entranceStairHeightLevel) {
-      return false;
+      return 'entranceStairHeightLevel';
     }
 
     // 경사로 여부는 필수 (boolean)
     if (typeof hasSlope !== 'boolean') {
-      return false;
+      return 'hasSlope';
     }
 
     // 출입문 종류는 필수
     if (!doorTypes || doorTypes.length === 0) {
-      return false;
+      return 'doorTypes';
     }
 
     // 엘리베이터 여부는 필수 (boolean)
     if (typeof hasElevator !== 'boolean') {
-      return false;
+      return 'hasElevator';
     }
 
     // 엘리베이터가 있을 경우 추가 검증
     if (hasElevator) {
       // 엘리베이터 사진은 필수
       if (!elevatorPhotos || elevatorPhotos.length === 0) {
-        return false;
+        return 'elevatorPhotos';
       }
 
       // 엘리베이터 계단 여부는 필수 (boolean)
       if (typeof elevatorHasStairs !== 'boolean') {
-        return false;
+        return 'elevatorHasStairs';
       }
 
       // 계단이 있을 경우 계단 정보 필수
       if (elevatorHasStairs && !elevatorStairInfo) {
-        return false;
+        return 'elevatorStairInfo';
       }
 
       // 계단이 1칸일 경우 높이 정보 필수
@@ -216,11 +237,11 @@ export default function BuildingFormV2Screen({
         elevatorStairInfo === StairInfo.One &&
         !elevatorStairHeightLevel
       ) {
-        return false;
+        return 'elevatorStairHeightLevel';
       }
     }
-    return true;
-  })();
+    return null;
+  };
 
   // Measure section positions on mount
   useEffect(() => {
@@ -294,12 +315,10 @@ export default function BuildingFormV2Screen({
     }, 500);
   };
 
-  async function submit() {
-    const isValid = await form.trigger();
-    if (!isValid) {
-      const errors = Object.keys(form.formState.errors) as (keyof FormValues)[];
-      if (!errors[0]) return;
-      noticeError(errors[0], form.formState.errors[errors[0]]?.message);
+  function submit() {
+    const errorKey = validateAndGetError();
+    if (errorKey) {
+      noticeError(errorKey);
       return;
     }
 
@@ -341,38 +360,44 @@ export default function BuildingFormV2Screen({
     [api, place, building, navigation, loading, setLoading],
   );
 
-  function noticeError(errorKey: keyof FormValues, message?: string) {
+  function noticeError(errorKey: keyof FormValues) {
     switch (errorKey) {
       case 'entranceDirection':
-        ToastUtils.show(message || '출입구 방향을 선택해주세요.');
+        ToastUtils.show('출입구 방향을 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'entranceDirectionName':
+        ToastUtils.show('출입구 이름을 입력해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'enterancePhotos':
-        ToastUtils.show(message || '입구 사진을 등록해주세요.');
+        ToastUtils.show('입구 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'stairInfo':
       case 'hasStairs':
       case 'entranceStairHeightLevel':
-        ToastUtils.show(message || '계단 정보를 입력해주세요.');
+        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'hasElevator':
-        ToastUtils.show(message || '엘리베이터 정보를 입력해주세요.');
+        ToastUtils.show('엘리베이터 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'elevatorPhotos':
-        ToastUtils.show(message || '엘리베이터 사진을 등록해주세요.');
+        ToastUtils.show('엘리베이터 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'elevatorHasStairs':
       case 'elevatorStairHeightLevel':
       case 'elevatorStairInfo':
-        ToastUtils.show(message || '엘리베이터 계단 정보를 입력해주세요.');
+        ToastUtils.show(
+          '엘리베이터 계단 정보를 입력해주세요.',
+          FORM_TOAST_OPTIONS,
+        );
         break;
       case 'hasSlope':
-        ToastUtils.show(message || '경사로 정보를 입력해주세요.');
+        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'doorTypes':
-        ToastUtils.show(message || '출입문 종류를 선택해주세요.');
+        ToastUtils.show('출입문 종류를 선택해주세요.', FORM_TOAST_OPTIONS);
         break;
       default:
-        ToastUtils.show(message || '필수 정보를 입력해주세요.');
+        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
     }
   }
 
@@ -404,27 +429,86 @@ export default function BuildingFormV2Screen({
               <View ref={entranceRef} collapsable={false} style={{gap: 60}}>
                 <S.SubSection>
                   <S.QuestionSection>
-                    <S.SectionLabel>건물입구정보</S.SectionLabel>
-                    <S.QuestionText>
-                      건물의 출입구가 어느 방향에 있나요?{' '}
-                      <S.RequiredMark>*</S.RequiredMark>
-                    </S.QuestionText>
+                    <S.SectionLabel>건물 입구 정보</S.SectionLabel>
+                    <View>
+                      <S.QuestionText>
+                        등록하려는 출입구 위치를 알려주세요{' '}
+                        <S.RequiredMark>*</S.RequiredMark>
+                      </S.QuestionText>
+                      <S.Hint>접근성 좋은 출입구를 입력하면 좋아요</S.Hint>
+                    </View>
                   </S.QuestionSection>
                   <Controller
                     name="entranceDirection"
                     rules={{required: true}}
                     render={({field}) => (
-                      <OptionsV2
-                        value={field.value}
-                        options={[
-                          {label: '도로 방향 문', value: 'road'},
-                          {label: '주차장 쪽 연결 문', value: 'parking'},
-                          {label: '기타', value: 'etc'},
-                        ]}
-                        onSelect={field.onChange}
-                      />
+                      <View style={{gap: 12}}>
+                        <S.EntranceDirectionContainer>
+                          <S.EntranceDirectionOption
+                            disabled={field.value && field.value !== 'road'}>
+                            <S.EntranceDirectionImageContainer>
+                              <Image
+                                source={formImages.buildingEntrance.road}
+                                style={{width: '100%', height: '100%'}}
+                                resizeMode="cover"
+                              />
+                            </S.EntranceDirectionImageContainer>
+                            <OptionsV2
+                              value={field.value}
+                              columns={1}
+                              options={[{label: '도로 방향 문', value: 'road'}]}
+                              onSelect={field.onChange}
+                            />
+                          </S.EntranceDirectionOption>
+                          <S.EntranceDirectionOption
+                            disabled={field.value && field.value !== 'parking'}>
+                            <S.EntranceDirectionImageContainer>
+                              <Image
+                                source={formImages.buildingEntrance.parking}
+                                style={{width: '100%', height: '100%'}}
+                                resizeMode="cover"
+                              />
+                            </S.EntranceDirectionImageContainer>
+                            <OptionsV2
+                              value={field.value}
+                              columns={1}
+                              options={[
+                                {label: '주차장 쪽 연결 문', value: 'parking'},
+                              ]}
+                              onSelect={field.onChange}
+                            />
+                          </S.EntranceDirectionOption>
+                        </S.EntranceDirectionContainer>
+                        <OptionsV2
+                          value={field.value}
+                          columns={1}
+                          options={[{label: '기타', value: 'etc'}]}
+                          onSelect={field.onChange}
+                        />
+                      </View>
                     )}
                   />
+                  {entranceDirection === 'etc' && (
+                    <S.SubQuestion>
+                      <S.QuestionText>
+                        출입구 이름을 알려주세요{' '}
+                        <S.RequiredMark>*</S.RequiredMark>
+                      </S.QuestionText>
+                      <Controller
+                        name="entranceDirectionName"
+                        rules={{required: entranceDirection === 'etc'}}
+                        render={({field}) => (
+                          <S.TextInputContainer>
+                            <S.StyledTextInput
+                              placeholder="예시) 서문 1, Gate 8"
+                              value={field.value}
+                              onChangeText={field.onChange}
+                            />
+                          </S.TextInputContainer>
+                        )}
+                      />
+                    </S.SubQuestion>
+                  )}
                 </S.SubSection>
 
                 <S.SubSection>
@@ -759,12 +843,16 @@ export default function BuildingFormV2Screen({
                 fontFamily={font.pretendardSemibold}
                 onPress={submit}
                 elementName="building_form_submit"
-                isDisabled={!isFormValid}
                 style={{borderRadius: 12}}
               />
             </S.SubmitButtonWrapper>
           </SafeAreaWrapper>
         </ScreenLayout>
+        <FormExitConfirmBottomSheet
+          isVisible={formExitConfirm.isVisible}
+          onConfirm={formExitConfirm.onConfirm}
+          onCancel={formExitConfirm.onCancel}
+        />
       </FormProvider>
     </LogParamsProvider>
   );
@@ -801,6 +889,15 @@ async function register(
       api,
       values.elevatorPhotos,
     );
+    // 기타 선택 시에만 출입구 이름을 comment에 포함
+    const entranceDirectionNameComment =
+      values.entranceDirection === 'etc' && values.entranceDirectionName?.trim()
+        ? `[출입구: ${values.entranceDirectionName.trim()}]`
+        : '';
+    const fullComment = [entranceDirectionNameComment, values.comment]
+      .filter(Boolean)
+      .join(' ');
+
     try {
       const res = await api.registerBuildingAccessibilityV2Post({
         buildingId,
@@ -822,7 +919,7 @@ async function register(
               stairHeightLevel: values.elevatorStairHeightLevel,
             }
           : undefined,
-        comment: values.comment || undefined,
+        comment: fullComment || undefined,
       });
 
       // PlaceDetailScreen 접근성 정보 갱신

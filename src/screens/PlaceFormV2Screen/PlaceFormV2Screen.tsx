@@ -14,7 +14,9 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
@@ -92,6 +94,11 @@ export default function PlaceFormV2Screen({
 
   const [loading, setLoading] = useAtom(loadingState);
   const [stepIndex, setStepIndex] = useState(0);
+
+  // 뒤로가기 confirm
+  const formExitConfirm = useFormExitConfirm(action => {
+    navigation.dispatch(action);
+  });
 
   const form = useForm<PlaceFormV2Values>();
   const step = STEPS[stepIndex];
@@ -367,6 +374,11 @@ export default function PlaceFormV2Screen({
           onConfirm={handleConfirmGuide}
           onRequestClose={handleBack}
         />
+        <FormExitConfirmBottomSheet
+          isVisible={formExitConfirm.isVisible}
+          onConfirm={formExitConfirm.onConfirm}
+          onCancel={formExitConfirm.onCancel}
+        />
       </FormProvider>
     </LogParamsProvider>
   );
@@ -458,7 +470,7 @@ export const Hint = styled.Text`
   font-size: 14px;
   line-height: 20px;
   font-family: ${font.pretendardRegular};
-  color: ${color.gray60};
+  color: ${color.gray45};
   letter-spacing: -0.28px;
 `;
 

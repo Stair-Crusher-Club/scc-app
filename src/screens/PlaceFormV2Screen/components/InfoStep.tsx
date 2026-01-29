@@ -8,11 +8,12 @@ import {makeDoorTypeOptions} from '@/constant/options';
 import {Place, StairHeightLevel, StairInfo} from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import useNavigation from '@/navigation/useNavigation';
+import ToastUtils from '@/utils/ToastUtils';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
-import {formImages} from '../constants';
+import {FORM_TOAST_OPTIONS, formImages} from '../constants';
 import {
   GuideButton,
   GuideText,
@@ -61,45 +62,88 @@ export default function InfoStep({
   const hasSlope = form.watch('hasSlope');
   const doorType = form.watch('doorType');
 
-  // Check if all required fields are filled
-  const isFormValid = (() => {
-    // 출입구 사진은 필수
-    if (!entrancePhotos || entrancePhotos.length === 0) {
-      return false;
-    }
+  type FormErrorKey =
+    | 'doorDirection'
+    | 'entrancePhotos'
+    | 'hasStairs'
+    | 'stairInfo'
+    | 'entranceStairHeightLevel'
+    | 'hasSlope'
+    | 'doorType';
 
+  const noticeError = (errorKey: FormErrorKey) => {
+    switch (errorKey) {
+      case 'doorDirection':
+        ToastUtils.show('매장 입구 방향을 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'entrancePhotos':
+        ToastUtils.show('출입구 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'hasStairs':
+      case 'stairInfo':
+      case 'entranceStairHeightLevel':
+        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'hasSlope':
+        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'doorType':
+        ToastUtils.show('출입문 종류를 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      default:
+        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+    }
+  };
+
+  // 유효성 검사 및 첫 번째 에러 키 반환
+  const validateAndGetError = (): FormErrorKey | null => {
     // 단독건물이 아닐 경우 매장 입구 방향 필수
     if (!isStandaloneBuilding && !doorDirection) {
-      return false;
+      return 'doorDirection';
+    }
+
+    // 출입구 사진은 필수
+    if (!entrancePhotos || entrancePhotos.length === 0) {
+      return 'entrancePhotos';
     }
 
     // 계단 여부는 필수 (boolean)
     if (typeof hasStairs !== 'boolean') {
-      return false;
+      return 'hasStairs';
     }
 
     // 계단이 있을 경우 계단 정보 필수
     if (hasStairs && !stairInfo) {
-      return false;
+      return 'stairInfo';
     }
 
     // 계단이 1칸일 경우 높이 정보 필수
     if (hasStairs && stairInfo === StairInfo.One && !entranceStairHeightLevel) {
-      return false;
+      return 'entranceStairHeightLevel';
     }
 
     // 경사로 여부는 필수 (boolean)
     if (typeof hasSlope !== 'boolean') {
-      return false;
+      return 'hasSlope';
     }
 
     // 출입문 종류는 필수
     if (!doorType || doorType.length === 0) {
-      return false;
+      return 'doorType';
     }
 
-    return true;
-  })();
+    return null;
+  };
+
+  // 다음/등록 버튼 핸들러
+  const handleSubmit = () => {
+    const errorKey = validateAndGetError();
+    if (errorKey) {
+      noticeError(errorKey);
+      return;
+    }
+    onSubmit();
+  };
 
   return (
     <>
@@ -116,7 +160,7 @@ export default function InfoStep({
             {!isStandaloneBuilding && (
               <SubSection>
                 <QuestionSection>
-                  <SectionLabel>매장입구정보</SectionLabel>
+                  <SectionLabel>매장 입구 정보</SectionLabel>
                   <QuestionText>
                     매장의 출입구가 어디쪽에 있나요?{' '}
                     <RequiredMark>*</RequiredMark>
@@ -380,7 +424,7 @@ export default function InfoStep({
           />
           <SccButton
             text={hasFloorMovementStep ? '다음' : '등록하기'}
-            onPress={onSubmit}
+            onPress={handleSubmit}
             fontFamily={font.pretendardSemibold}
             buttonColor="brandColor"
             elementName={
@@ -389,7 +433,6 @@ export default function InfoStep({
                 : 'place_form_v2_submit'
             }
             style={{flex: 2, borderRadius: 12}}
-            isDisabled={!isFormValid}
           />
         </SubmitButtonWrapper>
       </SafeAreaWrapper>
