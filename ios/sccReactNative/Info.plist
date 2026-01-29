@@ -50,6 +50,9 @@
 		<string>kakaokompassauth</string>
 		<string>kakaolink</string>
 		<string>nmap</string>
+		<string>kakaomap</string>
+		<string>comgooglemaps</string>
+		<string>tmap</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

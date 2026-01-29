@@ -3468,6 +3468,12 @@ export interface PlaceListItem {
      * @memberof PlaceListItem
      */
     'accessibilityInfo'?: CompactAccessibilityInfoDto;
+    /**
+     * 외부 지도 서비스의 장소 ID 목록 (카카오, 네이버 등)
+     * @type {Array<VendorPlaceIdDto>}
+     * @memberof PlaceListItem
+     */
+    'vendorPlaceIds'?: Array<VendorPlaceIdDto>;
 }
 /**
  * 
@@ -4621,6 +4627,12 @@ export interface SearchPlacesByNaturalLanguageResultItemDto {
      * @memberof SearchPlacesByNaturalLanguageResultItemDto
      */
     'accessibilityInfo'?: CompactAccessibilityInfoDto;
+    /**
+     * 외부 지도 서비스의 장소 ID 목록 (카카오, 네이버 등)
+     * @type {Array<VendorPlaceIdDto>}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'vendorPlaceIds'?: Array<VendorPlaceIdDto>;
 }
 /**
  * 
@@ -5428,6 +5440,33 @@ export interface ValidateUserProfilePostRequest {
      */
     'email'?: string;
 }
+/**
+ * 외부 지도 서비스의 장소 ID 정보
+ * @export
+ * @interface VendorPlaceIdDto
+ */
+export interface VendorPlaceIdDto {
+    /**
+     * 외부 지도 서비스 타입
+     * @type {string}
+     * @memberof VendorPlaceIdDto
+     */
+    'vendorType': VendorPlaceIdDtoVendorTypeEnum;
+    /**
+     * 해당 서비스에서의 장소 ID
+     * @type {string}
+     * @memberof VendorPlaceIdDto
+     */
+    'vendorPlaceId': string;
+}
+
+export const VendorPlaceIdDtoVendorTypeEnum = {
+    Kakao: 'KAKAO',
+    Naver: 'NAVER'
+} as const;
+
+export type VendorPlaceIdDtoVendorTypeEnum = typeof VendorPlaceIdDtoVendorTypeEnum[keyof typeof VendorPlaceIdDtoVendorTypeEnum];
+
 
 /**
  * DefaultApi - axios parameter creator

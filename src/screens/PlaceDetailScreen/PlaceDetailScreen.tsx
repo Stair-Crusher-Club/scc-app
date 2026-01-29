@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   InteractionManager,
   NativeScrollEvent,
@@ -11,6 +11,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
+import {currentLocationAtom} from '@/atoms/Location';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import ScrollNavigation from '@/components/StickyScrollNavigation';
 import {
@@ -22,6 +23,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
+import {useNavigationAppsAvailable} from '@/hooks/useNavigationAppsAvailable';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {isReviewEnabled} from '@/models/Place';
@@ -30,6 +32,7 @@ import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/Place
 import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
 import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
+import {distanceInMeter} from '@/utils/DistanceUtils';
 
 import ToastUtils from '@/utils/ToastUtils';
 import {useFormScreenVersion, useIsQAMode} from '@/utils/accessibilityFlags';
@@ -40,6 +43,7 @@ import BuildingRegistrationBottomSheet from '../PlaceDetailV2Screen/modals/Build
 import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import * as S from './PlaceDetailScreen.style';
+import NavigationAppsBottomSheet from './modals/NavigationAppsBottomSheet';
 import PlaceDetailNegativeFeedbackBottomSheet from './modals/PlaceDetailNegativeFeedbackBottomSheet';
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from './modals/RequireBuildingAccessibilityBottomSheet';
@@ -78,6 +82,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const formVersion = useFormScreenVersion();
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
+  const isNavigationAvailable = useNavigationAppsAvailable();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetail', 'ReportAccessibility'],
@@ -131,6 +136,8 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     showBuildingRegistrationBottomSheet,
     setShowBuildingRegistrationBottomSheet,
   ] = useState(false);
+  const [showNavigationBottomSheet, setShowNavigationBottomSheet] =
+    useState(false);
 
   // scrollY 는 state로 관리하면 너무 잦은 업데이트로 인해 리렌더가 너무 많이 일어남
   // 따라서 ref로 관리하고 이를 읽어야 하는 컴포넌트가 100ms 마다 업데이트하는 방식으로 처리
@@ -153,20 +160,37 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
         'accessibilityScore' in placeInfo
           ? placeInfo.accessibilityScore
           : undefined,
+      kakaoPlaceId: undefined as string | undefined,
     },
     queryKey: ['PlaceDetail', placeId],
     queryFn: async ({queryKey}) => {
       const result = await api.getPlaceWithBuildingPost({placeId: queryKey[1]});
+      const kakaoVendor = result.data.vendorPlaceIds?.find(
+        v => v.vendorType === 'KAKAO',
+      );
       return {
         place: result.data.place,
         building: result.data.building,
         isAccessibilityRegistrable: result.data.isAccessibilityRegistrable,
         accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
+        kakaoPlaceId: kakaoVendor?.vendorPlaceId,
       };
     },
   });
   const place = data?.place;
   const building = data?.building;
+  const kakaoPlaceId = data?.kakaoPlaceId;
+
+  const currentLocation = useAtomValue(currentLocationAtom);
+  const distanceToPlace = useMemo(() => {
+    if (!currentLocation || !place?.location) {
+      return undefined;
+    }
+    return distanceInMeter(currentLocation, {
+      latitude: place.location.lat,
+      longitude: place.location.lng,
+    });
+  }, [currentLocation, place?.location]);
 
   const {
     data: accessibilityPost,
@@ -543,6 +567,9 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               accessibility={accessibilityPost}
               accessibilityScore={data?.accessibilityScore}
               place={place}
+              kakaoPlaceId={kakaoPlaceId}
+              isNavigationAvailable={isNavigationAvailable ?? false}
+              onOpenNavigation={() => setShowNavigationBottomSheet(true)}
             />
             <S.SectionSeparator />
             <ScrollNavigation
@@ -621,6 +648,16 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               detail: text,
             });
           }}
+        />
+      )}
+      {place?.location && (
+        <NavigationAppsBottomSheet
+          isVisible={showNavigationBottomSheet}
+          latitude={place.location.lat}
+          longitude={place.location.lng}
+          placeName={place.name}
+          distanceMeters={distanceToPlace}
+          onClose={() => setShowNavigationBottomSheet(false)}
         />
       )}
       {LocationConfirmModal}
