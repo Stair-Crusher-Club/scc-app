@@ -28,9 +28,11 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
+import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
@@ -89,6 +91,11 @@ export default function BuildingFormV2Screen({
   const [loading, setLoading] = useAtom(loadingState);
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
   const isKeyboardVisible = useKeyboardVisible();
+
+  // 뒤로가기 confirm
+  const formExitConfirm = useFormExitConfirm(action => {
+    navigation.dispatch(action);
+  });
 
   const scrollViewRef = useRef<ScrollView>(null);
   const entranceRef = useRef<View>(null);
@@ -841,6 +848,11 @@ export default function BuildingFormV2Screen({
             </S.SubmitButtonWrapper>
           </SafeAreaWrapper>
         </ScreenLayout>
+        <FormExitConfirmBottomSheet
+          isVisible={formExitConfirm.isVisible}
+          onConfirm={formExitConfirm.onConfirm}
+          onCancel={formExitConfirm.onCancel}
+        />
       </FormProvider>
     </LogParamsProvider>
   );
