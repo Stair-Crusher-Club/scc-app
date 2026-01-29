@@ -21,7 +21,7 @@ interface NavigationApp {
   ) => string;
 }
 
-const NAVIGATION_APPS: NavigationApp[] = [
+export const NAVIGATION_APPS: NavigationApp[] = [
   {
     id: 'naver',
     name: '네이버 지도',

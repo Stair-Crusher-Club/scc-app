@@ -23,6 +23,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
+import {useNavigationAppsAvailable} from '@/hooks/useNavigationAppsAvailable';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {isReviewEnabled} from '@/models/Place';
@@ -81,6 +82,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const formVersion = useFormScreenVersion();
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
+  const isNavigationAvailable = useNavigationAppsAvailable();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetail', 'ReportAccessibility'],
@@ -566,6 +568,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               accessibilityScore={data?.accessibilityScore}
               place={place}
               kakaoPlaceId={kakaoPlaceId}
+              isNavigationAvailable={isNavigationAvailable ?? false}
               onOpenNavigation={() => setShowNavigationBottomSheet(true)}
             />
             <S.SectionSeparator />

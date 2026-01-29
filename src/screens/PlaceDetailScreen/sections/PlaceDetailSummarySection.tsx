@@ -33,6 +33,7 @@ interface PlaceDetailSummarySectionProps {
   place: Place;
   accessibilityScore?: number;
   kakaoPlaceId?: string;
+  isNavigationAvailable?: boolean;
   onOpenNavigation: () => void;
 }
 
@@ -41,6 +42,7 @@ const PlaceDetailSummarySection = ({
   place,
   accessibilityScore,
   kakaoPlaceId,
+  isNavigationAvailable = true,
   onOpenNavigation,
 }: PlaceDetailSummarySectionProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
@@ -128,12 +130,14 @@ const PlaceDetailSummarySection = ({
               <ClockIcon width={14} height={14} color={color.gray60} />
               <ExternalLinkText>영업시간</ExternalLinkText>
             </ExternalLinkButton>
-            <ExternalLinkButton
-              elementName="place_detail_summary_section_navigation_button"
-              onPress={onOpenNavigation}>
-              <NavigationIcon width={14} height={14} color={color.gray60} />
-              <ExternalLinkText>길찾기</ExternalLinkText>
-            </ExternalLinkButton>
+            {isNavigationAvailable && (
+              <ExternalLinkButton
+                elementName="place_detail_summary_section_navigation_button"
+                onPress={onOpenNavigation}>
+                <NavigationIcon width={14} height={14} color={color.gray60} />
+                <ExternalLinkText>길찾기</ExternalLinkText>
+              </ExternalLinkButton>
+            )}
           </ExternalLinkRow>
         </S.SubSection>
         <S.Separator />
@@ -198,12 +202,14 @@ const PlaceDetailSummarySection = ({
             <ClockIcon width={14} height={14} color={color.gray60} />
             <ExternalLinkText>영업시간</ExternalLinkText>
           </ExternalLinkButton>
-          <ExternalLinkButton
-            elementName="place_detail_summary_section_navigation_button"
-            onPress={onOpenNavigation}>
-            <NavigationIcon width={14} height={14} color={color.gray60} />
-            <ExternalLinkText>길찾기</ExternalLinkText>
-          </ExternalLinkButton>
+          {isNavigationAvailable && (
+            <ExternalLinkButton
+              elementName="place_detail_summary_section_navigation_button"
+              onPress={onOpenNavigation}>
+              <NavigationIcon width={14} height={14} color={color.gray60} />
+              <ExternalLinkText>길찾기</ExternalLinkText>
+            </ExternalLinkButton>
+          )}
         </ExternalLinkRow>
       </S.SubSection>
       <S.Separator />
