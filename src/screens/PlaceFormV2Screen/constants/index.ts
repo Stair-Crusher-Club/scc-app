@@ -30,6 +30,10 @@ const entranceOutIll = require('@/assets/img/form/entrance_out_ill.png');
 const entranceInReal = require('@/assets/img/form/entrance_in_real.png');
 const entranceOutReal = require('@/assets/img/form/entrance_out_real.png');
 
+// Building entrance images
+const buildingEntranceRoad = require('@/assets/img/form/building_entrance_road.png');
+const buildingEntranceParking = require('@/assets/img/form/building_entrance_parking.png');
+
 // Stair images
 const stairIll = require('@/assets/img/form/stair_img_ill.png');
 const stairReal = require('@/assets/img/form/stair_img_real.png');
@@ -55,6 +59,10 @@ interface FormImages {
     in: ImageSourcePropType;
     out: ImageSourcePropType;
   };
+  buildingEntrance: {
+    road: ImageSourcePropType;
+    parking: ImageSourcePropType;
+  };
   stair: ImageSourcePropType;
   thankYou: ImageSourcePropType;
 }
@@ -74,6 +82,10 @@ const illustrationImages: FormImages = {
   entrance: {
     in: entranceInIll,
     out: entranceOutIll,
+  },
+  buildingEntrance: {
+    road: buildingEntranceRoad,
+    parking: buildingEntranceParking,
   },
   stair: stairIll,
   thankYou: thankYou,
@@ -95,6 +107,10 @@ const realImages: FormImages = {
     in: entranceInReal,
     out: entranceOutReal,
   },
+  buildingEntrance: {
+    road: buildingEntranceRoad,
+    parking: buildingEntranceParking,
+  },
   stair: stairReal,
   thankYou: thankYou,
 };
@@ -111,6 +127,9 @@ export const formImages =
   IMAGE_STYLE === 'real' ? realImages : illustrationImages;
 
 export const STEPS = ['floor', 'info', 'floorMovement'] as const;
+
+// 폼 에러 토스트 옵션 (버튼 위에 표시)
+export const FORM_TOAST_OPTIONS = {position: -90};
 
 export const FLOOR_OPTIONS: FloorOption[] = [
   {key: 'firstFloor', label: '네, 1층에 있어요'},
@@ -262,10 +281,11 @@ export const GUIDE_CONTENTS: Record<string, GuideContent> = {
   standaloneMultipleFloors: {
     title: '단독건물인 장소\n정보등록 하는 방법',
     steps: [
-      {number: 1, description: '매장 출입구 방향을 선택해요'},
-      {number: 2, description: '계단, 경사로 등 접근성 정보를 입력하고'},
-      {number: 3, description: '층간 이동정보를 입력하면'},
-      {number: 4, description: '끝!'},
+      {number: 1, description: '건물 전경보다는 매장 출입구를 촬영해주세요'},
+      {number: 2, description: '매장 출입문이 전체적으로 나오도록 촬영하고'},
+      {number: 3, description: '계단, 경사로 등 등 접근성 정보를 입력합니다.'},
+      {number: 4, description: '층간 이동 방법도 알려주시면'},
+      {number: 5, description: '끝!'},
     ],
     additionalInfo:
       '기타정보나 특이사항을 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
