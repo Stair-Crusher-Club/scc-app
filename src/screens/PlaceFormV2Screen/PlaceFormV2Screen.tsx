@@ -458,7 +458,7 @@ export const Hint = styled.Text`
   font-size: 14px;
   line-height: 20px;
   font-family: ${font.pretendardRegular};
-  color: ${color.gray60};
+  color: ${color.gray45};
   letter-spacing: -0.28px;
 `;
 
