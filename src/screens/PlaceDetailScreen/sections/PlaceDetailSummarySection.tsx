@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React from 'react';
-import {Platform} from 'react-native';
+import {Linking, Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
@@ -8,6 +8,8 @@ import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
 import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
 import CopyIcon from '@/assets/icon/ic_copy.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
+
+const naverMapIcon = require('@/assets/icon/naver_map.png');
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -59,6 +61,29 @@ const PlaceDetailSummarySection = ({
     });
   };
 
+  const onOpenNaverMap = async () => {
+    const searchQuery = encodeURIComponent(`${place.name} ${place.address}`);
+    const naverMapAppUrl = `nmap://search?query=${searchQuery}&appname=club.staircrusher`;
+    const naverMapWebUrl = `https://map.naver.com/p/search/${searchQuery}`;
+
+    try {
+      if (Platform.OS === 'web') {
+        await Linking.openURL(naverMapWebUrl);
+        return;
+      }
+
+      const canOpen = await Linking.canOpenURL(naverMapAppUrl);
+
+      if (canOpen) {
+        await Linking.openURL(naverMapAppUrl);
+      } else {
+        await Linking.openURL(naverMapWebUrl);
+      }
+    } catch {
+      ToastUtils.show('링크를 열 수 없습니다');
+    }
+  };
+
   if (!accessibility?.placeAccessibility) {
     return (
       <S.Section>
@@ -68,12 +93,20 @@ const PlaceDetailSummarySection = ({
             <S.SectionTitle>{place.name}</S.SectionTitle>
           </S.Row>
           <S.Address>{place.address}</S.Address>
-          <CopyButton
-            elementName="place_detail_summary_section_copy_button"
-            onPress={onCopy}>
-            <CopyIcon />
-            <CopyText>복사</CopyText>
-          </CopyButton>
+          <AddressButtonRow>
+            <CopyButton
+              elementName="place_detail_summary_section_copy_button"
+              onPress={onCopy}>
+              <CopyIcon />
+              <CopyText>복사</CopyText>
+            </CopyButton>
+            <NaverMapLink
+              elementName="place_detail_summary_section_naver_map_link"
+              onPress={onOpenNaverMap}>
+              <NaverMapIcon source={naverMapIcon} />
+              <NaverMapText>네이버에서 보기</NaverMapText>
+            </NaverMapLink>
+          </AddressButtonRow>
         </S.SubSection>
         <S.Separator />
         <S.Row>
@@ -116,12 +149,20 @@ const PlaceDetailSummarySection = ({
           <S.SectionTitle>{place.name}</S.SectionTitle>
         </S.Row>
         <S.Address>{place.address}</S.Address>
-        <CopyButton
-          elementName="place_detail_summary_section_copy_button"
-          onPress={onCopy}>
-          <CopyIcon />
-          <CopyText>복사</CopyText>
-        </CopyButton>
+        <AddressButtonRow>
+          <CopyButton
+            elementName="place_detail_summary_section_copy_button"
+            onPress={onCopy}>
+            <CopyIcon />
+            <CopyText>복사</CopyText>
+          </CopyButton>
+          <NaverMapLink
+            elementName="place_detail_summary_section_naver_map_link"
+            onPress={onOpenNaverMap}>
+            <NaverMapIcon source={naverMapIcon} />
+            <NaverMapText>네이버에서 보기</NaverMapText>
+          </NaverMapLink>
+        </AddressButtonRow>
       </S.SubSection>
       <S.Separator />
       <S.Row>
@@ -159,7 +200,6 @@ const ButtonText = styled.Text`
 `;
 
 const CopyButton = styled(SccTouchableOpacity)`
-  margin-top: 4px;
   flex-direction: row;
   align-items: center;
   gap: 4px;
@@ -167,6 +207,32 @@ const CopyButton = styled(SccTouchableOpacity)`
 
 const CopyText = styled.Text`
   color: ${color.blue50};
+  font-family: ${font.pretendardMedium};
+  font-size: 13px;
+  text-decoration-line: underline;
+`;
+
+const AddressButtonRow = styled.View`
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 4px;
+`;
+
+const NaverMapLink = styled(SccTouchableOpacity)`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const NaverMapIcon = styled.Image`
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+`;
+
+const NaverMapText = styled.Text`
+  color: ${color.gray60};
   font-family: ${font.pretendardMedium};
   font-size: 13px;
   text-decoration-line: underline;

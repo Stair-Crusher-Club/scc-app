@@ -6,7 +6,7 @@
  */
 
 const puppeteer = require('puppeteer');
-const { spawn } = require('child_process');
+const {spawn} = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -55,7 +55,7 @@ async function startServer() {
       shell: true,
     });
 
-    server.stderr.on('data', (data) => {
+    server.stderr.on('data', data => {
       const message = data.toString();
       // serve가 ready 메시지를 stderr로 출력
       if (message.includes('Accepting connections')) {
@@ -64,7 +64,7 @@ async function startServer() {
       }
     });
 
-    server.on('error', (err) => {
+    server.on('error', err => {
       reject(err);
     });
 
@@ -80,7 +80,7 @@ async function startServer() {
  * 페이지 렌더링 및 HTML 추출
  */
 async function renderPage(browser, pageConfig) {
-  const { path: pagePath, waitFor, title, description } = pageConfig;
+  const {path: pagePath, waitFor, title, description} = pageConfig;
   const page = await browser.newPage();
 
   // 크롤러 User-Agent 설정
@@ -89,7 +89,7 @@ async function renderPage(browser, pageConfig) {
   );
 
   // 뷰포트 설정 (데스크톱)
-  await page.setViewport({ width: 1280, height: 800 });
+  await page.setViewport({width: 1280, height: 800});
 
   try {
     // 페이지 방문
@@ -100,23 +100,21 @@ async function renderPage(browser, pageConfig) {
 
     // React 렌더링 완료 대기
     if (waitFor) {
-      await page
-        .waitForSelector(waitFor, { timeout: 15000 })
-        .catch(() => {
-          console.warn(`  ⚠️ Selector not found: ${waitFor}`);
-        });
+      await page.waitForSelector(waitFor, {timeout: 15000}).catch(() => {
+        console.warn(`  ⚠️ Selector not found: ${waitFor}`);
+      });
     }
 
     // 추가 대기 (동적 콘텐츠 로딩)
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 2000));
 
     // OG 메타 태그 주입 (head에 추가)
     await page.evaluate(
-      (meta) => {
+      meta => {
         // 기존 OG 태그 제거
         document
           .querySelectorAll('meta[property^="og:"], meta[name^="twitter:"]')
-          .forEach((el) => el.remove());
+          .forEach(el => el.remove());
 
         const head = document.head;
 
@@ -140,7 +138,7 @@ async function renderPage(browser, pageConfig) {
           titleEl.textContent = meta.title;
         }
       },
-      { title, description, path: pagePath },
+      {title, description, path: pagePath},
     );
 
     // 전체 HTML 추출
@@ -160,7 +158,7 @@ function generateSitemap() {
   const today = new Date().toISOString().split('T')[0];
 
   const urls = SEO_PAGES.map(
-    (page) => `
+    page => `
   <url>
     <loc>${siteUrl}${page.path}</loc>
     <lastmod>${today}</lastmod>
@@ -209,7 +207,7 @@ async function main() {
 
       // 파일 저장
       const outputDir = path.join(DIST_DIR, pageConfig.path);
-      fs.mkdirSync(outputDir, { recursive: true });
+      fs.mkdirSync(outputDir, {recursive: true});
       fs.writeFileSync(path.join(outputDir, 'index.html'), html);
 
       console.log(
@@ -228,7 +226,7 @@ async function main() {
   console.log('\n🎉 Pre-rendering complete!');
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('❌ Pre-rendering failed:', err);
   process.exit(1);
 });

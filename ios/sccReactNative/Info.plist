@@ -49,6 +49,7 @@
 	<array>
 		<string>kakaokompassauth</string>
 		<string>kakaolink</string>
+		<string>nmap</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
