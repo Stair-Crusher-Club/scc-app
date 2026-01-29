@@ -1,5 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <queries>
+        <package android:name="com.nhn.android.nmap" />
+        <package android:name="net.daum.android.map" />
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.skt.tmap.ku" />
+    </queries>
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
