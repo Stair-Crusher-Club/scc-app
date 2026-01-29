@@ -160,7 +160,7 @@ export default function InfoStep({
             {!isStandaloneBuilding && (
               <SubSection>
                 <QuestionSection>
-                  <SectionLabel>매장입구정보</SectionLabel>
+                  <SectionLabel>매장 입구 정보</SectionLabel>
                   <QuestionText>
                     매장의 출입구가 어디쪽에 있나요?{' '}
                     <RequiredMark>*</RequiredMark>
