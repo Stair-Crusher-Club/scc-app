@@ -63,7 +63,7 @@ export interface BuildingFormV2ScreenParams {
 
 interface FormValues {
   entranceDirection: string;
-  entranceDirectionName: string;
+  doorDirectionEtcComment: string;
   hasStairs: boolean;
   stairInfo: StairInfo;
   hasSlope: boolean;
@@ -107,7 +107,7 @@ export default function BuildingFormV2Screen({
 
   // Watch all required fields
   const entranceDirection = form.watch('entranceDirection');
-  const entranceDirectionName = form.watch('entranceDirectionName');
+  const doorDirectionEtcComment = form.watch('doorDirectionEtcComment');
   const enterancePhotos = form.watch('enterancePhotos');
   const hasStairs = form.watch('hasStairs');
   const stairInfo = form.watch('stairInfo');
@@ -160,10 +160,10 @@ export default function BuildingFormV2Screen({
     }
   }, [elevatorStairInfo, form]);
 
-  // Reset entranceDirectionName when entranceDirection is not 'etc'
+  // Reset doorDirectionEtcComment when entranceDirection is not 'etc'
   useEffect(() => {
     if (entranceDirection && entranceDirection !== 'etc') {
-      form.setValue('entranceDirectionName', undefined as any);
+      form.setValue('doorDirectionEtcComment', undefined as any);
     }
   }, [entranceDirection, form]);
 
@@ -175,8 +175,8 @@ export default function BuildingFormV2Screen({
     }
 
     // 기타 선택 시 출입구 이름 필수
-    if (entranceDirection === 'etc' && !entranceDirectionName?.trim()) {
-      return 'entranceDirectionName';
+    if (entranceDirection === 'etc' && !doorDirectionEtcComment?.trim()) {
+      return 'doorDirectionEtcComment';
     }
 
     // 입구 사진은 필수
@@ -365,7 +365,7 @@ export default function BuildingFormV2Screen({
       case 'entranceDirection':
         ToastUtils.show('출입구 방향을 선택해주세요.', FORM_TOAST_OPTIONS);
         break;
-      case 'entranceDirectionName':
+      case 'doorDirectionEtcComment':
         ToastUtils.show('출입구 이름을 입력해주세요.', FORM_TOAST_OPTIONS);
         break;
       case 'enterancePhotos':
@@ -495,7 +495,7 @@ export default function BuildingFormV2Screen({
                         <S.RequiredMark>*</S.RequiredMark>
                       </S.QuestionText>
                       <Controller
-                        name="entranceDirectionName"
+                        name="doorDirectionEtcComment"
                         rules={{required: entranceDirection === 'etc'}}
                         render={({field}) => (
                           <S.TextInputContainer>
@@ -889,14 +889,6 @@ async function register(
       api,
       values.elevatorPhotos,
     );
-    // 기타 선택 시에만 출입구 이름을 comment에 포함
-    const entranceDirectionNameComment =
-      values.entranceDirection === 'etc' && values.entranceDirectionName?.trim()
-        ? `[출입구: ${values.entranceDirectionName.trim()}]`
-        : '';
-    const fullComment = [entranceDirectionNameComment, values.comment]
-      .filter(Boolean)
-      .join(' ');
 
     try {
       const res = await api.registerBuildingAccessibilityV2Post({
@@ -904,6 +896,11 @@ async function register(
         doorDirectionType: mapEntranceDirectionToDoorDirectionType(
           values.entranceDirection,
         ),
+        doorDirectionEtcComment:
+          values.entranceDirection === 'etc' &&
+          values.doorDirectionEtcComment?.trim()
+            ? values.doorDirectionEtcComment.trim()
+            : undefined,
         entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
         entranceStairHeightLevel: values.entranceStairHeightLevel,
         entranceDoorTypes: values.doorTypes,
@@ -919,7 +916,7 @@ async function register(
               stairHeightLevel: values.elevatorStairHeightLevel,
             }
           : undefined,
-        comment: fullComment || undefined,
+        comment: values.comment || undefined,
       });
 
       // PlaceDetailScreen 접근성 정보 갱신
