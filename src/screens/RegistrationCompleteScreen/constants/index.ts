@@ -3,7 +3,7 @@ export const REGISTRATION_COMPLETE_CONTENT = {
     title: '정보를 등록해주셔서\n감사합니다!',
     description: (nickname?: string) =>
       `이 장소의 계단정보,\n${nickname ?? ''}크러셔님 덕분에 찾을 수 있게 되었어요!`,
-    imagePath: require('@/assets/img/form/thank_you.png'),
+    imagePath: require('@/assets/img/form/thank_you_with_text.png'),
   },
   building: {
     title: '정보를 등록해주셔서\n감사합니다!',

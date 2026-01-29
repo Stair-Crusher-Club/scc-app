@@ -171,8 +171,7 @@ export default function InfoStep({
                   rules={{required: true}}
                   render={({field}) => (
                     <DoorDirectionContainer>
-                      <DoorDirectionOption
-                        disabled={field.value && field.value !== 'outside'}>
+                      <DoorDirectionOption>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.out}
@@ -187,8 +186,7 @@ export default function InfoStep({
                           onSelect={field.onChange}
                         />
                       </DoorDirectionOption>
-                      <DoorDirectionOption
-                        disabled={field.value && field.value !== 'inside'}>
+                      <DoorDirectionOption>
                         <DoorDirectionImageContainer>
                           <Image
                             source={formImages.entrance.in}
@@ -355,9 +353,12 @@ export default function InfoStep({
             </SubSection>
 
             <SubSection>
-              <Label>
-                출입문은 어떤 종류인가요? <RequiredMark>*</RequiredMark>
-              </Label>
+              <View style={{gap: 2}}>
+                <Label>
+                  출입문은 어떤 종류인가요? <RequiredMark>*</RequiredMark>
+                </Label>
+                <Hint>중복선택이 가능해요</Hint>
+              </View>
               <Controller
                 name="doorType"
                 rules={{required: true}}
@@ -452,10 +453,9 @@ const DoorDirectionContainer = styled.View`
   gap: 8px;
 `;
 
-const DoorDirectionOption = styled.View<{disabled?: boolean}>`
+const DoorDirectionOption = styled.View`
   flex: 1;
   gap: 8px;
-  opacity: ${({disabled}) => (disabled ? 0.3 : 1)};
 `;
 
 const DoorDirectionImageContainer = styled.View`

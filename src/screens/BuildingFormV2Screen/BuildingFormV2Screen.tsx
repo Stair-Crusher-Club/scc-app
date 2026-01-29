@@ -430,7 +430,7 @@ export default function BuildingFormV2Screen({
                 <S.SubSection>
                   <S.QuestionSection>
                     <S.SectionLabel>건물 입구 정보</S.SectionLabel>
-                    <View>
+                    <View style={{gap: 2}}>
                       <S.QuestionText>
                         등록하려는 출입구 위치를 알려주세요{' '}
                         <S.RequiredMark>*</S.RequiredMark>
@@ -444,8 +444,7 @@ export default function BuildingFormV2Screen({
                     render={({field}) => (
                       <View style={{gap: 12}}>
                         <S.EntranceDirectionContainer>
-                          <S.EntranceDirectionOption
-                            disabled={field.value && field.value !== 'road'}>
+                          <S.EntranceDirectionOption>
                             <S.EntranceDirectionImageContainer>
                               <Image
                                 source={formImages.buildingEntrance.road}
@@ -460,8 +459,7 @@ export default function BuildingFormV2Screen({
                               onSelect={field.onChange}
                             />
                           </S.EntranceDirectionOption>
-                          <S.EntranceDirectionOption
-                            disabled={field.value && field.value !== 'parking'}>
+                          <S.EntranceDirectionOption>
                             <S.EntranceDirectionImageContainer>
                               <Image
                                 source={formImages.buildingEntrance.parking}
@@ -482,7 +480,7 @@ export default function BuildingFormV2Screen({
                         <OptionsV2
                           value={field.value}
                           columns={1}
-                          options={[{label: '기타', value: 'etc'}]}
+                          options={[{label: '그 외 출입문', value: 'etc'}]}
                           onSelect={field.onChange}
                         />
                       </View>
@@ -491,7 +489,7 @@ export default function BuildingFormV2Screen({
                   {entranceDirection === 'etc' && (
                     <S.SubQuestion>
                       <S.QuestionText>
-                        출입구 이름을 알려주세요{' '}
+                        그 외 출입문 위치를 알려주세요{' '}
                         <S.RequiredMark>*</S.RequiredMark>
                       </S.QuestionText>
                       <Controller
@@ -500,7 +498,7 @@ export default function BuildingFormV2Screen({
                         render={({field}) => (
                           <S.TextInputContainer>
                             <S.StyledTextInput
-                              placeholder="예시) 서문 1, Gate 8"
+                              placeholder="예시) 서문 1, Gate 8, 지하 주차장 2층 상가방향"
                               value={field.value}
                               onChangeText={field.onChange}
                             />
@@ -662,9 +660,13 @@ export default function BuildingFormV2Screen({
                 </S.SubSection>
 
                 <S.SubSection>
-                  <S.Label>
-                    출입문은 어떤 종류인가요? <S.RequiredMark>*</S.RequiredMark>
-                  </S.Label>
+                  <View style={{gap: 2}}>
+                    <S.Label>
+                      출입문은 어떤 종류인가요?{' '}
+                      <S.RequiredMark>*</S.RequiredMark>
+                    </S.Label>
+                    <S.Hint>중복선택이 가능해요</S.Hint>
+                  </View>
                   <Controller
                     name="doorTypes"
                     rules={{required: true}}
@@ -729,11 +731,13 @@ export default function BuildingFormV2Screen({
                 {form.watch('hasElevator') && (
                   <>
                     <S.SubSection>
-                      <S.Label>
-                        엘리베이터 사진을 찍어주세요{' '}
-                        <S.RequiredMark>*</S.RequiredMark>
-                      </S.Label>
-                      <S.Hint>최대 3장까지 등록 가능해요</S.Hint>
+                      <View style={{gap: 2}}>
+                        <S.Label>
+                          엘리베이터 사진을 찍어주세요{' '}
+                          <S.RequiredMark>*</S.RequiredMark>
+                        </S.Label>
+                        <S.Hint>최대 3장까지 등록 가능해요</S.Hint>
+                      </View>
                       <Controller
                         name="elevatorPhotos"
                         rules={{required: true}}
