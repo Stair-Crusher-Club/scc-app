@@ -32,7 +32,7 @@ export default function FormExitConfirmBottomSheet({
         </IconContainer>
         <Title>앗, 입력을 중단하시겠어요?</Title>
         <Description>
-          작성 중인 내용은 저장되지 않고 바로 삭제됩니다.
+          {'작성 중인 내용은\n저장되지 않고 바로 삭제됩니다.'}
         </Description>
         <ButtonContainer>
           <SccButton

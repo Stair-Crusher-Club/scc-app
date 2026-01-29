@@ -444,9 +444,9 @@ export default function BuildingFormV2Screen({
                     render={({field}) => (
                       <View style={{gap: 12}}>
                         <S.EntranceDirectionContainer>
-                          <S.EntranceDirectionOption
-                            disabled={field.value && field.value !== 'road'}>
-                            <S.EntranceDirectionImageContainer>
+                          <S.EntranceDirectionOption>
+                            <S.EntranceDirectionImageContainer
+                              disabled={field.value && field.value !== 'road'}>
                               <Image
                                 source={formImages.buildingEntrance.road}
                                 style={{width: '100%', height: '100%'}}
@@ -460,9 +460,11 @@ export default function BuildingFormV2Screen({
                               onSelect={field.onChange}
                             />
                           </S.EntranceDirectionOption>
-                          <S.EntranceDirectionOption
-                            disabled={field.value && field.value !== 'parking'}>
-                            <S.EntranceDirectionImageContainer>
+                          <S.EntranceDirectionOption>
+                            <S.EntranceDirectionImageContainer
+                              disabled={
+                                field.value && field.value !== 'parking'
+                              }>
                               <Image
                                 source={formImages.buildingEntrance.parking}
                                 style={{width: '100%', height: '100%'}}

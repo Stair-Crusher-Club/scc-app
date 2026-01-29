@@ -474,6 +474,26 @@ export const Hint = styled.Text`
   letter-spacing: -0.28px;
 `;
 
+export const DoorDirectionContainer = styled.View`
+  flex-direction: row;
+  gap: 8px;
+`;
+
+export const DoorDirectionOption = styled.View`
+  flex: 1;
+  gap: 8px;
+`;
+
+export const DoorDirectionImageContainer = styled.View<{disabled?: boolean}>`
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border-width: 1px;
+  border-color: ${color.gray20};
+  opacity: ${({disabled}) => (disabled ? 0.4 : 1)};
+`;
+
 async function register(
   api: ReturnType<typeof useAppComponents>['api'],
   queryClient: ReturnType<typeof useQueryClient>,

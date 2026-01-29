@@ -16,8 +16,6 @@ export const TextAreaContainer = styled.View<{
         : color.gray20};
   border-width: 1px;
   border-radius: 12px;
-  padding-horizontal: 12px;
-  min-height: 160px;
 `;
 
 export const Input = styled(TextInput)`
@@ -26,6 +24,8 @@ export const Input = styled(TextInput)`
   font-family: ${font.pretendardRegular};
   text-align-vertical: top;
   padding-top: 12px;
+  padding-horizontal: 12px;
+  min-height: 160px;
 `;
 
 export const InputWithLabelContainer = styled.View`

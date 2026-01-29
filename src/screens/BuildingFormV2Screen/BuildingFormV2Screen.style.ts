@@ -6,6 +6,9 @@ import {font} from '@/constant/font';
 
 // Re-export common styled components from PlaceFormV2Screen
 export {
+  DoorDirectionContainer as EntranceDirectionContainer,
+  DoorDirectionImageContainer as EntranceDirectionImageContainer,
+  DoorDirectionOption as EntranceDirectionOption,
   GuideButton,
   GuideText,
   HeaderBorder,
@@ -66,24 +69,4 @@ export const StyledTextInput = styled(TextInput)`
   font-family: ${font.pretendardRegular};
   color: ${color.gray100};
   padding: 0;
-`;
-
-export const EntranceDirectionContainer = styled.View`
-  flex-direction: row;
-  gap: 8px;
-`;
-
-export const EntranceDirectionOption = styled.View<{disabled?: boolean}>`
-  flex: 1;
-  gap: 8px;
-  opacity: ${({disabled}) => (disabled ? 0.4 : 1)};
-`;
-
-export const EntranceDirectionImageContainer = styled.View`
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  border-width: 1px;
-  border-color: ${color.gray20};
 `;

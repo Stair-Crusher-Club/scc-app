@@ -1,7 +1,6 @@
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
@@ -16,6 +15,9 @@ import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FORM_TOAST_OPTIONS, formImages} from '../constants';
 import {
+  DoorDirectionContainer,
+  DoorDirectionImageContainer,
+  DoorDirectionOption,
   GuideButton,
   GuideText,
   Hint,
@@ -180,9 +182,9 @@ export default function InfoStep({
                   rules={{required: true}}
                   render={({field}) => (
                     <DoorDirectionContainer>
-                      <DoorDirectionOption
-                        disabled={field.value && field.value !== 'outside'}>
-                        <DoorDirectionImageContainer>
+                      <DoorDirectionOption>
+                        <DoorDirectionImageContainer
+                          disabled={field.value && field.value !== 'outside'}>
                           <Image
                             source={formImages.entrance.out}
                             style={{width: '100%', height: '100%'}}
@@ -196,9 +198,9 @@ export default function InfoStep({
                           onSelect={field.onChange}
                         />
                       </DoorDirectionOption>
-                      <DoorDirectionOption
-                        disabled={field.value && field.value !== 'inside'}>
-                        <DoorDirectionImageContainer>
+                      <DoorDirectionOption>
+                        <DoorDirectionImageContainer
+                          disabled={field.value && field.value !== 'inside'}>
                           <Image
                             source={formImages.entrance.in}
                             style={{width: '100%', height: '100%'}}
@@ -458,24 +460,4 @@ const InfoFormContainer = styled.View`
   padding-vertical: 40px;
   padding-horizontal: 20px;
   gap: 60px;
-`;
-
-const DoorDirectionContainer = styled.View`
-  flex-direction: row;
-  gap: 8px;
-`;
-
-const DoorDirectionOption = styled.View<{disabled?: boolean}>`
-  flex: 1;
-  gap: 8px;
-  opacity: ${({disabled}) => (disabled ? 0.4 : 1)};
-`;
-
-const DoorDirectionImageContainer = styled.View`
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  border-width: 1px;
-  border-color: ${color.gray20};
 `;
