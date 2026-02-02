@@ -1,11 +1,10 @@
 import {useBackHandler} from '@react-native-community/hooks';
-import {useAtom, useSetAtom} from 'jotai';
+import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
-import {PlaceListItem} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
@@ -14,11 +13,31 @@ import {
   draftKeywordAtom,
   filterAtom,
   filterModalStateAtom,
+  SearchMode,
+  searchModeAtom,
   SearchQuery,
   searchQueryAtom,
   SortOption,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
+import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
+import {PlaceListItem} from '@/generated-sources/openapi';
+
+function isPlaceListItem(item: SearchResultItem): item is PlaceListItem {
+  return 'place' in item;
+}
+
+function getItemId(item: SearchResultItem): string {
+  return isPlaceListItem(item) ? item.place.id : item.id;
+}
+
+function getItemLocation(item: SearchResultItem) {
+  return isPlaceListItem(item) ? item.place.location : item.location;
+}
+
+function getItemDisplayName(item: SearchResultItem): string {
+  return isPlaceListItem(item) ? item.place.name : item.displayName;
+}
 import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import SearchMapView, {
@@ -41,6 +60,8 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   const ref = useRef<SearchMapViewHandle>(null);
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
+  const setSearchMode = useSetAtom(searchModeAtom);
+  const searchMode = useAtomValue(searchModeAtom);
 
   const {data, isLoading, updateQuery, setOnFetchCompleted} =
     useSearchRequest();
@@ -58,11 +79,17 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
       shouldRecordHistory?: boolean;
       shouldAnimate?: boolean;
       shouldRemainInInputMode?: boolean;
+      mode?: SearchMode;
     },
   ) => {
     const shouldRecordHistory = option.shouldRecordHistory ?? false;
     const shouldAnimate = option.shouldAnimate ?? false;
     const shouldRemainInInputMode = option.shouldRemainInInputMode ?? false;
+
+    // Update search mode if specified
+    if (option.mode !== undefined) {
+      setSearchMode(option.mode);
+    }
 
     updateQuery(queryUpdate);
     if (!shouldRemainInInputMode) {
@@ -82,9 +109,9 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
           ref.current?.fitToItems(
             result.map(it => ({
               ...it,
-              id: it.place.id,
-              location: it.place.location,
-              displayName: it.place.name,
+              id: getItemId(it),
+              location: getItemLocation(it),
+              displayName: getItemDisplayName(it),
             })),
           );
         }
@@ -93,9 +120,9 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
       setOnFetchCompleted(_ => {});
     }
   };
-  const onItemSelect = (item: PlaceListItem) => {
+  const onItemSelect = (item: SearchResultItem) => {
     setViewState({type: 'map', inputMode: false});
-    ref.current?.moveToItem(item.place.id);
+    ref.current?.moveToItem(getItemId(item));
   };
 
   useEffect(() => {
@@ -135,6 +162,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
       setSearchQuery({text: null, location: null, radiusMeter: null});
       setDraftCameraRegion(null);
       setDraftKeyword(null);
+      setSearchMode('place');
     });
   }, [navigation]);
 
@@ -186,26 +214,32 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
               data={data ?? []}
             />
           </View>
-          {viewState.inputMode && (
+          {viewState.inputMode && searchMode === 'place' && (
             <SearchSummaryView
               onItemSelect={onItemSelect}
               isLoading={isLoading}
-              searchResults={data}
+              searchResults={data as PlaceListItem[] | null}
               onQueryUpdate={keyword => {
                 onQueryUpdate(
                   {text: keyword},
-                  {shouldRecordHistory: true, shouldAnimate: true},
+                  {
+                    shouldRecordHistory: true,
+                    shouldAnimate: true,
+                    mode: 'place',
+                  },
                 );
               }}
             />
           )}
-          {!viewState.inputMode && viewState.type === 'list' && (
-            <SearchListView
-              isVisible={true} // 리스트 매끄럽게 불러오기를 위함.
-              isLoading={isLoading}
-              searchResults={data ?? []}
-            />
-          )}
+          {!viewState.inputMode &&
+            viewState.type === 'list' &&
+            searchMode === 'place' && (
+              <SearchListView
+                isVisible={true} // 리스트 매끄럽게 불러오기를 위함.
+                isLoading={isLoading}
+                searchResults={(data ?? []) as PlaceListItem[]}
+              />
+            )}
         </View>
         <FilterModal />
       </S.SearchScreenLayout>

@@ -5,6 +5,7 @@ import {useAtomValue} from 'jotai';
 import {useEffect, useRef} from 'react';
 
 import {useDevTool} from '@/components/DevTool/useDevTool';
+import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 import {
   PlaceListItem,
@@ -17,12 +18,19 @@ import {
   SortOption,
   draftCameraRegionAtom,
   filterAtom,
+  searchModeAtom,
   searchQueryAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
+import {
+  mapToToiletDetails,
+  ToiletDetails,
+} from '@/screens/ToiletMapScreen/data';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
+
+export type SearchResultItem = PlaceListItem | (ToiletDetails & MarkerItem);
 
 export default function useSearchRequest() {
   const {api} = useAppComponents();
@@ -30,6 +38,7 @@ export default function useSearchRequest() {
     useAtomValue(filterAtom);
   const {text, location, radiusMeter, useCameraRegion} =
     useAtomValue(searchQueryAtom);
+  const searchMode = useAtomValue(searchModeAtom);
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
   const viewState = useAtomValue(viewStateAtom);
   const route = useRoute();
@@ -52,9 +61,10 @@ export default function useSearchRequest() {
         hasSlope,
         isRegistered,
         useCameraRegion,
+        searchMode,
       },
     ],
-    queryFn: async ({signal}) => {
+    queryFn: async ({signal}): Promise<SearchResultItem[] | null> => {
       if (!text) {
         return null; // No search text -> Do not call API because it is landing page
       }
@@ -110,6 +120,39 @@ export default function useSearchRequest() {
         devTool.searchRegion.trackCircle(searchLocation, searchRadius);
       }
 
+      // Call different API based on search mode
+      if (searchMode === 'toilet') {
+        // 화장실 카테고리 선택 시 API에는 '화장실'로 검색
+        const toiletSearchText = text === '서울 장애인 화장실' ? '화장실' : text;
+        // Toilet 모드는 항상 현위치 기반 검색 (ToiletMapScreen과 동일)
+        const toiletCurrentLocation = location ?? currentLocation;
+        const toiletSearchRadius = radiusMeter ?? 2000; // ToiletMapScreen 기본값과 동일
+        const response = await api.searchExternalAccessibilitiesPost(
+          {
+            searchText: toiletSearchText,
+            currentLocation: toiletCurrentLocation,
+            distanceMetersLimit: toiletSearchRadius,
+            categories: [],
+          },
+          {signal},
+        );
+        Logger.logElementClick({
+          name: 'toilet_search',
+          currScreenName: route.name,
+          extraParams: {
+            search_query: text,
+          },
+        });
+        const result = response?.data.items?.map(mapToToiletDetails) ?? [];
+        if (result.length === 0) {
+          ToastUtils.show('검색 결과가 없습니다.');
+        }
+        onFetchCompleted.current?.(result);
+        onFetchCompleted.current = () => {};
+        return result;
+      }
+
+      // Default: place search
       const response = await api.searchPlacesPost(
         {
           searchText: text,
@@ -145,13 +188,15 @@ export default function useSearchRequest() {
       return result;
     },
   });
-  const onFetchCompleted = useRef<(result: PlaceListItem[]) => void>(() => {});
+  const onFetchCompleted = useRef<(result: SearchResultItem[]) => void>(
+    () => {},
+  );
   const pendingCallbackRef = useRef<(() => void) | null>(null);
   const {updateQuery} = useUpdateSearchQuery();
   const setOnFetchCompleted: (
-    callback: (result: PlaceListItem[]) => void,
+    callback: (result: SearchResultItem[]) => void,
   ) => void = callback => {
-    onFetchCompleted.current = (result: PlaceListItem[]) => {
+    onFetchCompleted.current = (result: SearchResultItem[]) => {
       if (keyboardRef.current.keyboardShown) {
         // 키보드가 올라와 있으면 실행 연기
         pendingCallbackRef.current = () => callback(result);

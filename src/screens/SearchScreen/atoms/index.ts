@@ -2,6 +2,9 @@ import {atom} from 'jotai';
 
 import {Region} from '@/components/maps/Types.tsx';
 
+export type SearchMode = 'place' | 'toilet';
+export const searchModeAtom = atom<SearchMode>('place');
+
 export const searchKeywordAtom = atom<string>('');
 
 export type FilterOptions = {

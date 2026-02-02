@@ -1,4 +1,4 @@
-import {useAtom, useAtomValue} from 'jotai';
+import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React from 'react';
 import styled from 'styled-components/native';
 
@@ -15,6 +15,8 @@ import useNavigation from '@/navigation/useNavigation';
 import CoachMarkMapButton from '@/screens/HomeScreen/components/CoachMarkMapButton';
 import CoachMarkTarget from '@/screens/HomeScreen/components/CoachMarkTarget';
 import Tooltip from '@/screens/HomeScreen/components/Tooltip';
+import type {SearchMode} from '@/screens/SearchScreen/atoms';
+import {searchModeAtom} from '@/screens/SearchScreen/atoms';
 import SearchCategory from '@/screens/SearchScreen/components/SearchHeader/SearchCategory.tsx';
 
 export default function SearchSection() {
@@ -26,9 +28,16 @@ export default function SearchSection() {
     hasShownMapIconTooltipForFirstVisit,
     setHasShownMapIconTooltipForFirstVisit,
   ] = useAtom(hasShownMapIconTooltipForFirstVisitAtom);
+  const setSearchMode = useSetAtom(searchModeAtom);
 
-  const goToSearch = (initKeyword: string, toMap?: boolean) => {
-    navigation.navigate('Search', {initKeyword, toMap});
+  const goToSearch = (initKeyword: string, mode: SearchMode) => {
+    setSearchMode(mode);
+    navigation.navigate('Search', {initKeyword, toMap: false});
+  };
+
+  const goToMapSearch = () => {
+    setSearchMode('place');
+    navigation.navigate('Search', {initKeyword: '', toMap: true});
   };
 
   return (
@@ -59,7 +68,7 @@ export default function SearchSection() {
           <SccPressable
             elementName="place_search_map_direct"
             onPress={() => {
-              goToSearch('', true);
+              goToMapSearch();
               setHasShownMapIconTooltipForFirstVisit(true);
             }}>
             <MapIcon width={24} height={24} />
@@ -67,7 +76,7 @@ export default function SearchSection() {
         </CoachMarkTarget>
         <SccPressable
           elementName="place_search_input"
-          onPress={() => goToSearch('')}
+          onPress={() => goToSearch('', 'place')}
           style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
           <SearchInputText>장소, 주소 검색</SearchInputText>
           <SearchIcon width={24} height={24} color={color.gray70} />

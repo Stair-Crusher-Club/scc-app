@@ -9,42 +9,54 @@ import {PlaceListItem} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {
   draftCameraRegionAtom,
+  searchModeAtom,
   searchQueryAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
+import ToiletCard from '@/screens/ToiletMapScreen/ToiletCard';
+import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
+import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
 
 export type SearchMapViewHandle = {
   fitToItems: (_items: MarkerItem[]) => void;
   moveToItem: (targetId: string) => void;
 };
 
+type MapViewItem = (MarkerItem & PlaceListItem) | (ToiletDetails & MarkerItem);
+
 const SearchMapView = forwardRef<
   SearchMapViewHandle,
   {
-    data: PlaceListItem[];
+    data: SearchResultItem[];
     onRefresh: () => void;
   }
 >(({data, onRefresh}, ref) => {
+  const searchMode = useAtomValue(searchModeAtom);
+
   useImperativeHandle(ref, () => ({
     fitToItems: (_items: MarkerItem[]) => {
       mapViewRef.current?.fitToItems(_items);
     },
     moveToItem: (targetId: string) => {
-      const target = datasForUI?.find(it => it.place.id === targetId);
+      const target = datasForUI?.find(it => it.id === targetId);
       if (!target) return;
       mapViewRef.current?.moveToItem(target);
     },
   }));
 
-  const mapViewRef =
-    useRef<ItemMapViewHandle<MarkerItem & PlaceListItem>>(null);
+  const mapViewRef = useRef<ItemMapViewHandle<MapViewItem>>(null);
   const [searchQuery, _] = useAtom(searchQueryAtom);
   const viewState = useAtomValue(viewStateAtom);
   const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
-  const datasForUI: (MarkerItem & PlaceListItem)[] = useMemo(() => {
-    return data?.map(toPlaceMarkerItem) ?? [];
-  }, [data]);
+  const datasForUI: MapViewItem[] = useMemo(() => {
+    if (searchMode === 'toilet') {
+      // Toilet data is already mapped with MarkerItem
+      return (data as (ToiletDetails & MarkerItem)[]) ?? [];
+    }
+    // Place data needs to be mapped
+    return (data as PlaceListItem[])?.map(toPlaceMarkerItem) ?? [];
+  }, [data, searchMode]);
   const isSearchQueryEmpty = !searchQuery.text;
   return (
     <LogParamsProvider params={{search_view_mode: 'map'}}>
@@ -61,7 +73,13 @@ const SearchMapView = forwardRef<
           }}
           onRefresh={onRefresh}
           isRefreshVisible={!isSearchQueryEmpty}
-          ItemCard={SearchItemCard}
+          ItemCard={
+            (searchMode === 'toilet'
+              ? ToiletCard
+              : SearchItemCard) as React.FC<{
+              item: MapViewItem;
+            }>
+          }
         />
       </Wrapper>
     </LogParamsProvider>

@@ -4,6 +4,7 @@ import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color.ts';
+import type {SearchMode} from '@/screens/SearchScreen/atoms';
 import {
   SearchQuery,
   searchQueryAtom,
@@ -24,6 +25,7 @@ export default function SearchHeader({
       shouldRecordHistory?: boolean;
       shouldAnimate?: boolean;
       shouldRemainInInputMode?: boolean;
+      mode?: SearchMode;
     },
   ) => void;
 }) {
@@ -39,6 +41,7 @@ export default function SearchHeader({
               shouldRecordHistory: !isPreviewChange,
               shouldRemainInInputMode: isPreviewChange,
               shouldAnimate: true,
+              mode: 'place',
             },
           );
         }}
@@ -47,10 +50,10 @@ export default function SearchHeader({
       {!searchQuery.text ? (
         <View style={{paddingBottom: 8, paddingHorizontal: 12}}>
           <SearchCategory
-            onPressKeyword={keyword =>
+            onPressKeyword={(keyword, mode) =>
               onQueryUpdate(
                 {text: keyword, useCameraRegion: viewState.type === 'map'},
-                {shouldRecordHistory: false, shouldAnimate: false},
+                {shouldRecordHistory: false, shouldAnimate: false, mode},
               )
             }
           />

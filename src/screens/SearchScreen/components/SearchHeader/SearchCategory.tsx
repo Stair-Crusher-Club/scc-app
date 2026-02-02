@@ -5,27 +5,28 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import type {SearchMode} from '@/screens/SearchScreen/atoms';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
 
 export default function SearchCategory({
   onPressKeyword,
 }: {
-  onPressKeyword: (keyword: string) => void;
+  onPressKeyword: (keyword: string, mode: SearchMode) => void;
 }) {
   const _renderItem = ({
     item,
   }: {
-    item: {category: keyof typeof Icons; keyword: string};
+    item: SearchCategoryItem;
   }) => {
     return (
       <PressableCategory
         key={item.category}
         elementName="place_search_category"
-        logParams={{keyword: item.keyword}}
-        onPress={() => onPressKeyword(item.keyword)}>
+        logParams={{keyword: item.keyword, mode: item.mode}}
+        onPress={() => onPressKeyword(item.keyword, item.mode)}>
         <SearchCategoryIcon icon={item.category} size={20} />
-        <CategoryText>{item.keyword}</CategoryText>
+        <CategoryText>{item.label ?? item.keyword}</CategoryText>
       </PressableCategory>
     );
   };
@@ -61,25 +62,43 @@ const CategoryText = styled.Text`
   margin-left: 4px;
 `;
 
-const SEARCH_CATEGORIES: {category: keyof typeof Icons; keyword: string}[] = [
+type SearchCategoryItem = {
+  category: keyof typeof Icons;
+  label?: string; // 카테고리 버튼에 표시되는 텍스트 (없으면 keyword 사용)
+  keyword: string; // 검색창에 입력되는 텍스트
+  mode: SearchMode;
+};
+
+const SEARCH_CATEGORIES: SearchCategoryItem[] = [
+  {
+    category: 'TOILET',
+    label: '화장실',
+    keyword: '서울 장애인 화장실',
+    mode: 'toilet',
+  },
   {
     category: 'RESTAURANT',
     keyword: '음식점',
+    mode: 'place',
   },
   {
     category: 'CAFE',
     keyword: '카페',
+    mode: 'place',
   },
   {
     category: 'CONVENIENCE_STORE',
     keyword: '편의점',
+    mode: 'place',
   },
   {
     category: 'HOISPITAL',
     keyword: '병원',
+    mode: 'place',
   },
   {
     category: 'PHARMACY',
     keyword: '약국',
+    mode: 'place',
   },
 ];

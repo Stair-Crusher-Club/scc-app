@@ -10,9 +10,11 @@ import PharmacyIcon from '@/assets/icon/ic_pharmacy.svg';
 import PharmacyOnIcon from '@/assets/icon/ic_pharmacy_on.svg';
 import RestaurantIcon from '@/assets/icon/ic_restaurant.svg';
 import RestaurantOnIcon from '@/assets/icon/ic_restaurant_on.svg';
+import ToiletIcon from '@/assets/icon/ic_toilet.svg';
 import {color as colors} from '@/constant/color';
 
 export const Icons = {
+  TOILET: [ToiletIcon, ToiletIcon],
   CAFE: [CafeIcon, CafeOnIcon],
   CONVENIENCE_STORE: [ConvenienceIcon, ConvenienceOnIcon],
   RESTAURANT: [RestaurantIcon, RestaurantOnIcon],

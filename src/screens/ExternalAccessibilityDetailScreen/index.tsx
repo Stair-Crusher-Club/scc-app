@@ -65,6 +65,10 @@ const ExternalAccessibilityDetailScreen = ({
     ToastUtils.show('준비 중입니다.');
   };
 
+  // TODO: API에서 받아올 예정 (yyyy-MM-dd 형식)
+  const updateDateRaw = '2023-12-09';
+  const updateDateFormatted = updateDateRaw.replace(/-/g, '. ');
+
   return (
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
       <ScrollView>
@@ -110,7 +114,10 @@ const ExternalAccessibilityDetailScreen = ({
             </TitleArea>
           </Section>
           <Section>
-            <SectionTitleText>화장실 사용 정보</SectionTitleText>
+            <SectionTitleRow>
+              <SectionTitleText>화장실 사용 정보</SectionTitleText>
+              <SectionUpdateDate>{updateDateFormatted}</SectionUpdateDate>
+            </SectionTitleRow>
             <SectionDivider />
             {toiletDetails.gender && (
               <IconedSection>
@@ -305,6 +312,19 @@ const SectionTitleText = styled.Text`
   font-size: 18px;
   font-family: ${() => font.pretendardBold};
   color: ${color.black};
+`;
+
+const SectionTitleRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const SectionUpdateDate = styled.Text`
+  font-size: 12px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${color.gray70};
 `;
 
 const SectionDivider = styled.View`
