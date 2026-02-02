@@ -14,11 +14,7 @@ export default function SearchCategory({
 }: {
   onPressKeyword: (keyword: string, mode: SearchMode) => void;
 }) {
-  const _renderItem = ({
-    item,
-  }: {
-    item: SearchCategoryItem;
-  }) => {
+  const _renderItem = ({item}: {item: SearchCategoryItem}) => {
     return (
       <PressableCategory
         key={item.category}

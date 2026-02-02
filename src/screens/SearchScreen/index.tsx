@@ -22,6 +22,8 @@ import {
 } from '@/screens/SearchScreen/atoms';
 import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
 import {PlaceListItem} from '@/generated-sources/openapi';
+import {MarkerItem} from '@/components/maps/MarkerItem';
+import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 
 function isPlaceListItem(item: SearchResultItem): item is PlaceListItem {
   return 'place' in item;
@@ -44,6 +46,7 @@ import SearchMapView, {
   SearchMapViewHandle,
 } from '@/screens/SearchScreen/components/SearchMapView';
 import SearchSummaryView from '@/screens/SearchScreen/components/SearchSummaryView';
+import ToiletListView from '@/screens/SearchScreen/components/ToiletListView';
 import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
 import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 
@@ -235,9 +238,18 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
             viewState.type === 'list' &&
             searchMode === 'place' && (
               <SearchListView
-                isVisible={true} // 리스트 매끄럽게 불러오기를 위함.
+                isVisible={true}
                 isLoading={isLoading}
                 searchResults={(data ?? []) as PlaceListItem[]}
+              />
+            )}
+          {!viewState.inputMode &&
+            viewState.type === 'list' &&
+            searchMode === 'toilet' && (
+              <ToiletListView
+                isVisible={true}
+                isLoading={isLoading}
+                searchResults={(data ?? []) as (ToiletDetails & MarkerItem)[]}
               />
             )}
         </View>

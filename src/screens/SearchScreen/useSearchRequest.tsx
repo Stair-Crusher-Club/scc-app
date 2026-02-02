@@ -123,7 +123,8 @@ export default function useSearchRequest() {
       // Call different API based on search mode
       if (searchMode === 'toilet') {
         // 화장실 카테고리 선택 시 API에는 '화장실'로 검색
-        const toiletSearchText = text === '서울 장애인 화장실' ? '화장실' : text;
+        const toiletSearchText =
+          text === '서울 장애인 화장실' ? '화장실' : text;
         // Toilet 모드는 항상 현위치 기반 검색 (ToiletMapScreen과 동일)
         const toiletCurrentLocation = location ?? currentLocation;
         const toiletSearchRadius = radiusMeter ?? 2000; // ToiletMapScreen 기본값과 동일
