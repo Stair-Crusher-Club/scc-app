@@ -18,21 +18,6 @@ interface CTAFooterSectionProps {
   hideCharacter?: boolean;
 }
 
-// URL 열기 (딥링크/웹링크 모두 지원, iOS Safari 호환)
-const openUrl = (url: string) => {
-  const link = document.createElement('a');
-  link.href = url;
-  // 웹 링크는 새 탭에서 열기
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-  }
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
 export default function CTAFooterSection({
   ctaFooterSection,
   hideCharacter,
@@ -64,10 +49,8 @@ export default function CTAFooterSection({
   );
 
   const handleCTAPress = useCallback(() => {
-    if (buttonUrl) {
-      openUrl(buttonUrl);
-    }
-  }, [buttonUrl]);
+    window.location.href = '/bbucle-road';
+  }, []);
 
   return (
     <Container isDesktop={isDesktop}>
@@ -83,8 +66,8 @@ export default function CTAFooterSection({
         <ContentWrapper isDesktop={isDesktop}>
           <TextAndButtonWrapper isDesktop={isDesktop}>
           <TitleWrapper isDesktop={isDesktop}>
-            <TitleLine isDesktop={isDesktop}>휠체어석 정보,</TitleLine>
-            <TitleLine isDesktop={isDesktop}>맛집 리스트도 받고 싶다면?</TitleLine>
+            <TitleLine isDesktop={isDesktop}>다른 장소의 접근성 정보도</TitleLine>
+            <TitleLine isDesktop={isDesktop}>확인하고 싶다면?</TitleLine>
           </TitleWrapper>
 
           <SccPressable
@@ -94,7 +77,7 @@ export default function CTAFooterSection({
             disableLogging={isEditMode}
           >
             <CTAButtonContent isDesktop={isDesktop}>
-              <CTAButtonText isDesktop={isDesktop}>🛎️ 정보 먼저 받기</CTAButtonText>
+              <CTAButtonText isDesktop={isDesktop}>장소 목록 확인하기</CTAButtonText>
             </CTAButtonContent>
           </SccPressable>
         </TextAndButtonWrapper>
@@ -177,7 +160,7 @@ const TitleLine = styled(Text)<{ isDesktop: boolean }>`
 
 const CTAButtonContent = styled(View)<{ isDesktop: boolean }>`
   background-color: #ffffff;
-  padding-horizontal: ${({ isDesktop }) => (isDesktop ? '39px' : '21.5px')};
+  padding-horizontal: ${({ isDesktop }) => (isDesktop ? '35px' : '18px')};
   padding-vertical: ${({ isDesktop }) => (isDesktop ? '12px' : '7px')};
   border-radius: 100px;
   border-width: 1px;

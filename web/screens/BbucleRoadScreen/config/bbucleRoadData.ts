@@ -1196,27 +1196,27 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
             "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_a8bb9df4_OH_route-car.png",
             "clickableRegions": [
               {
-                "id": "region-olympic-hall-car-surface-1",
+                "id": "region-olympic-hall-car-surface-p1",
                 "polygon": [
-                  { "x": 0.02, "y": 0.60 },
-                  { "x": 0.40, "y": 0.60 },
-                  { "x": 0.40, "y": 0.98 },
-                  { "x": 0.02, "y": 0.98 }
+                  { "x": 0.02, "y": 0.63 },
+                  { "x": 0.37, "y": 0.63 },
+                  { "x": 0.37, "y": 0.97 },
+                  { "x": 0.02, "y": 0.97 }
                 ],
                 "modalImageUrls": [
-                  "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260202222718_41DB281AED42B09D_OH_modal-car-surface-1.png"
+                  "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203_OH_modal-car-surface-2.png"
                 ]
               },
               {
-                "id": "region-olympic-hall-car-surface-2",
+                "id": "region-olympic-hall-car-surface-p2",
                 "polygon": [
-                  { "x": 0.60, "y": 0.60 },
-                  { "x": 0.98, "y": 0.60 },
-                  { "x": 0.98, "y": 0.98 },
-                  { "x": 0.60, "y": 0.98 }
+                  { "x": 0.63, "y": 0.02 },
+                  { "x": 0.98, "y": 0.02 },
+                  { "x": 0.98, "y": 0.36 },
+                  { "x": 0.63, "y": 0.36 }
                 ],
                 "modalImageUrls": [
-                  "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260202222718_931F509246217283_OH_modal-car-surface-2.png"
+                  "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203_OH_modal-car-surface-1.png"
                 ]
               }
             ]
