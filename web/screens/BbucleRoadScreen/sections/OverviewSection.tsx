@@ -180,20 +180,20 @@ const TitleSection = styled(View)`
 
 const TitleLine1 = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '36px' : '24px')};
   font-weight: 700;
   color: ${color.black};
   text-align: center;
-  line-height: ${({ isDesktop }) => (isDesktop ? '54px' : '34px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '48px' : '34px')};
 `;
 
 const TitleLine2 = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '36px' : '24px')};
   font-weight: 700;
   color: #0e64d3;
   text-align: center;
-  line-height: ${({ isDesktop }) => (isDesktop ? '54px' : '34px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '48px' : '34px')};
 `;
 
 const TitleLine1Input = styled(TextInput)<{ isDesktop: boolean }>`

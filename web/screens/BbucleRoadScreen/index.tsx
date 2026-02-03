@@ -617,5 +617,5 @@ const AddSectionButtonText = styled(Text)`
 `;
 
 const BottomBarSpacer = styled(View)<{ isDesktop: boolean }>`
-  height: ${({ isDesktop }) => isDesktop ? '97px' : '79px'};
+  height: ${({ isDesktop }) => isDesktop ? '97px' : '110px'};
 `;

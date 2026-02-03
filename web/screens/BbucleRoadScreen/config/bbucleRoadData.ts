@@ -218,6 +218,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "lastUpdatedDate": "최종 업데이트 2025.12.05",
   "wheelchairUserCommentHtml": "<div style=\"max-width:507px\"><span style=\"font-size: 15px;\"><b>구일역 2번 출구 엘리베이터 > 3루 매표소 방향</b>&nbsp;이동이 가장 숏컷이에요.<br>근데 경사가 좀 있어서, <b>수동휠체어 이동은 장콜이나 자차</b>를 더 추천해요!</span></div>",
   "wheelchairUserCommentLabel": "휠체어 사용자의 고척돔 접근성 한마디",
+  "mobileWheelchairUserCommentLabel": "휠체어 사용자의\n고척돔 접근성 한마디",
   "sections": [],
   "routeSection": {
     "titleLine1": "고척스카이돔",
@@ -658,7 +659,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
         "tabLabel": "지하철",
         "tabIconType": "SUBWAY",
         "descriptionImageUrl": "",
-        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.375em; margin-bottom: 1.5em;\"><div style=\"background-color: #EBF5FF; color: #0E64D3; font-size: 0.875em; font-weight: 400; padding: 0.125em 0.3125em; border-radius: 1px; width: fit-content; line-height: 1.25em;\">전동휠체어 8분, 수동휠체어 15분</div><div style=\"display: flex; gap: 0.25em; align-items: center;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원역</span><span style=\"font-size: 1em;\">→</span><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">KSPO DOME</span></div></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 2em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ 올림픽공원역 3번 또는 4번 출구</b> 엘리베이터 이용</p><p style=\"margin: 0;\"><b>➋</b> KSPO DOME 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➌ 아치형 다리를</b> 건너 KSPO DOME 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➍ 티켓 및 MD 부스 구역</b> 티켓 수령하여 공연장 입구로 이동</p><p style=\"margin: 0;\"><b>➎ 휠체어 출입구</b>로 공연장 입장</p></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>전체적으로 평지이지만,<br>보도블럭이 일어난 구간들이 있어서 주의해야 해요.</li><li>4번 구간에 MD부스, 포토존들이 있어요!</li></ul></div></div>",
+        "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.375em; margin-bottom: 1.5em;\"><div style=\"background-color: #EBF5FF; color: #0E64D3; font-size: 0.875em; font-weight: 400; padding: 0.125em 0.3125em; border-radius: 1px; width: fit-content; line-height: 1.25em;\">전동휠체어 8분, 수동휠체어 15분</div><div style=\"display: flex; gap: 0.25em; align-items: center;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원역</span><span style=\"font-size: 1em;\">→</span><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">KSPO DOME</span></div></div><div style=\"display: flex; flex-direction: column; gap: 0.75em; margin-bottom: 1.8em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ 올림픽공원역 3번 또는 4번 출구</b> 엘리베이터 이용</p><p style=\"margin: 0;\"><b>➋</b> KSPO DOME 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➌ 아치형 다리를</b> 건너 KSPO DOME 방향으로 <b>직진</b></p><p style=\"margin: 0;\"><b>➍ 티켓 및 MD 부스 구역</b> 티켓 수령하여 공연장 입구로 이동</p><p style=\"margin: 0;\"><b>➎ 휠체어 출입구</b>로 공연장 입장</p></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>전체적으로 평지이지만,<br>보도블럭이 일어난 구간들이 있어서 주의해야 해요.</li><li>4번 구간에 MD부스, 포토존들이 있어요!</li></ul></div></div>",
         "interactiveImage": {
           "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20251223125440_9DAED33D40C647EC.png",
           "clickableRegions": [
@@ -1108,7 +1109,7 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
     "places": [],
     "naverListUrl": "https://naver.me/FLev5cng",
     "morePlacesUrl": "https://link.staircrusher.club/o0o7kx",
-    "wheelchairUserTipHtml": "<p style=\"font-size: 1em; color: #24262B; line-height: 1.625em; margin: 0;\">공연이 끝나고 장콜을 기다려야할때는 <b>외부에 있는 식당이나 카페를 이용</b>하는게 좋아요! 훨씬 덜 붐비고 차 타기도 쉬워요.</p>"
+    "wheelchairUserTipHtml": "<p style=\"font-size: 1em; color: #24262B; line-height: 1.625em; margin: 0;\">공연이 끝나고 장콜을 기다려야 할 때는 <b>외부에 있는 식당이나 카페를 이용</b>하는 게 좋아요! 훨씬 덜 붐비고 차 타기도 쉬워요.</p>"
   },
   "reviewSection": {
     "titleLine1": "티켓링크 라이브 아레나",
@@ -1140,6 +1141,158 @@ export const BBUCLE_ROAD_DATA: Record<string, BbucleRoadData> = {
   "likeCount": 0,
   "createdAt": "2026-01-09"
 },
+  'olympic-hall': {
+    "id": "olympic-hall",
+    "title": "[올림픽홀] 휠체어석 시야, 동선, 장애인 주차장 안내",
+    "titleImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203114240_OH_title_new.png",
+    "titleImageWidth": 487,
+    "mobileTitleImageWidth": 280,
+    "headerBackgroundImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260202222718_4D9FB3A07F2BD364_OH_header-bg.png",
+    "headerImageCaption": "*SF9 팬 콘서트 사진",
+    "ogImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260202222718_2A110E9B00A77B09_OH_og-image.png",
+    "lastUpdatedDate": "최종 업데이트 2026.01.28",
+    "wheelchairUserCommentHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; line-height: 1.5em; max-width: 507px;\">지하철을 타고 간다면 <b>공원 외부길을 추천해요!</b><br/>넓은 인도여서 휠체어로 이동하기 훨씬 수월해요!!</div>",
+    "wheelchairUserCommentLabel": "휠체어 사용자의 올림픽홀 접근성 한마디",
+    "mobileWheelchairUserCommentLabel": "휠체어 사용자의\n올림픽홀 접근성 한마디",
+    "sections": [],
+    "overviewSection": {
+      "titleLine1": "올림픽홀 동선 정보",
+      "titleLine2": "한눈에 보기",
+      "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_ae032e9e_OH_overview-map.png"
+    },
+    "routeSection": {
+      "titleLine1": "올림픽홀",
+      "titleLine2": "대중교통 및 주차장 동선",
+      "routes": [
+        {
+          "id": "route-olympic-hall-subway",
+          "tabLabel": "지하철",
+          "tabIconType": "SUBWAY",
+          "descriptionImageUrl": "",
+          "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 2em; margin-bottom: 1.8em;\"><div><div style=\"display: flex; flex-direction: column; gap: 0.375em; margin-bottom: 0.75em;\"><div style=\"background-color: #EBF5FF; color: #0E64D3; font-size: 0.875em; font-weight: 400; padding: 0.125em 0.3125em; border-radius: 1px; width: fit-content; line-height: 1.25em;\">전동휠체어 8분, 수동휠체어 15분</div><div style=\"display: flex; gap: 0.25em; align-items: center;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">공원 외부 길</span></div></div><div style=\"display: flex; flex-direction: column; gap: 0.6em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ 올림픽공원역 3번 또는 4번 출구</b> 엘리베이터 이용</p><p style=\"margin: 0;\">➋ <b>차도를 왼쪽</b>에 두고 남 1문(장미광장)까지 <b>직진</b></p><p style=\"margin: 0;\"><b>➌ 남 1문 공원입구</b>가 나타나면 입구 통해서 <b>공원 내부로 진입</b></p><p style=\"margin: 0;\"><b>➍</b> <b>공원 내 큰길</b>을 따라 올림픽홀 입구로 입장</p></div></div><div><div style=\"display: flex; flex-direction: column; gap: 0.375em; margin-bottom: 0.75em;\"><div style=\"background-color: #EBF5FF; color: #0E64D3; font-size: 0.875em; font-weight: 400; padding: 0.125em 0.3125em; border-radius: 1px; width: fit-content; line-height: 1.25em;\">전동휠체어 8분, 수동휠체어 15분</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">공원 내부 길</span></div><div style=\"display: flex; flex-direction: column; gap: 0.6em; color: #24262B; font-size: 1em; line-height: 1.625em;\"><p style=\"margin: 0;\"><b>➊ 올림픽공원역 3번 또는 4번 출구</b> 엘리베이터 이용</p><p style=\"margin: 0;\"><b>➋ 테니스 경기장 방향 산책로</b>를 따라 이동</p><p style=\"margin: 0;\"><b>➌ 경기장을 끼고 돌아</b> 올림픽홀 입구로 입장</p></div></div></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">공원 내부길은 인도와 차도가 섞여있어 위험할 수 있어요.</p></div></div>",
+          "interactiveImage": {
+            "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_e01969e1_OH_route-subway.png",
+            "clickableRegions": []
+          }
+        },
+        {
+          "id": "route-olympic-hall-taxi",
+          "tabLabel": "장애인 콜택시",
+          "tabIconType": "TAXI",
+          "descriptionImageUrl": "",
+          "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 0.6em; margin-bottom: 1.8em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">1</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 P2</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">하차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 송파구 올림픽로 424, 올림픽공원 P2 주차장(올림픽홀)</li><li>올림픽공원 P2 주차장 <b>입구</b> 쪽에서 하차 추천</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 0.6em; margin-bottom: 1.8em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">2</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">한국체육대학교 주차장</span><span style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; line-height: 1.25em;\">승차지/하차지 추천</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>서울 송파구 양재대로 1239 한국체육대학교 철골주차장</li><li>승하차가 용이한 외부 주차장</li></ul></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">공연이 끝나고 집에 갈 때는 가능한 올림픽 공원 외부로 장콜을 부르는게 좋아요!</p></div></div>",
+          "interactiveImage": {
+            "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_74a1f205_OH_route-taxi.png",
+            "clickableRegions": []
+          }
+        },
+        {
+          "id": "route-olympic-hall-car",
+          "tabLabel": "자차",
+          "tabIconType": "CAR",
+          "descriptionImageUrl": "",
+          "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"background-color: #F2F2F5; color: #585A64; font-size: 0.875em; font-weight: 500; padding: 0 0.3125em; border-radius: 4px; width: fit-content; line-height: 1.25em; margin-bottom: 1em;\">가장 가까운 주차장</div><div style=\"display: flex; flex-direction: column; gap: 0.6em; margin-bottom: 1.8em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">1</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽홀 장애인 주차장</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>장애인 주차장 3석</li></ul><p style=\"margin: 0; font-size: 0.9375em; font-weight: 500; color: #E52123; line-height: 1.375em;\">*공연에 따라 통제 되는 경우도 있음</p></div><div style=\"display: flex; flex-direction: column; gap: 0.6em; margin-bottom: 1.8em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">2</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 P2</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>장애인 주차장 4석</li><li>올림픽홀 방향 노면 상태 주의 필요</li></ul></div><div style=\"display: flex; flex-direction: column; gap: 0.6em; margin-bottom: 1.8em;\"><div style=\"display: flex; gap: 0.375em; align-items: center;\"><div style=\"background-color: #0E64D3; color: #fff; width: 1.25em; height: 1.25em; border-radius: 150px; display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700;\">3</div><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 P1A, P1B</span></div><ul style=\"margin: 0; padding-left: 1.5em; font-size: 1em; color: #24262B; line-height: 1.625em;\"><li>장애인 주차장 각 6석</li><li>올림픽홀 방향 인도가 한쪽으로 기울어져 있음</li></ul></div><div style=\"background-color: #F7F8FA; border-radius: 4px; padding: 1em; display: flex; flex-direction: column; gap: 0.375em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"font-size: 1em; color: #24262B; line-height: 1.625em; margin: 0;\">올림픽공원 홈페이지에서<br><b>주차장의 실시간 혼잡도</b>를 확인할 수 있어요!<br><a href=\"https://www.ksponco.or.kr/olympicpark/parkingInfo?mid=a20111000000\" target=\"_blank\" style=\"color: #0E64D3; text-decoration: underline;\">실시간 혼잡도 확인하기 ></a></p></div></div>",
+          "interactiveImage": {
+            "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_a8bb9df4_OH_route-car.png",
+            "clickableRegions": [
+              {
+                "id": "region-olympic-hall-car-surface-1",
+                "polygon": [
+                  { "x": 0.02, "y": 0.60 },
+                  { "x": 0.40, "y": 0.60 },
+                  { "x": 0.40, "y": 0.98 },
+                  { "x": 0.02, "y": 0.98 }
+                ],
+                "modalImageUrls": [
+                  "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260202222718_41DB281AED42B09D_OH_modal-car-surface-1.png"
+                ]
+              },
+              {
+                "id": "region-olympic-hall-car-surface-2",
+                "polygon": [
+                  { "x": 0.60, "y": 0.60 },
+                  { "x": 0.98, "y": 0.60 },
+                  { "x": 0.98, "y": 0.98 },
+                  { "x": 0.60, "y": 0.98 }
+                ],
+                "modalImageUrls": [
+                  "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260202222718_931F509246217283_OH_modal-car-surface-2.png"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "route-olympic-hall-bus",
+          "tabLabel": "버스",
+          "tabIconType": "BUS",
+          "descriptionImageUrl": "",
+          "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em;\"><div style=\"display: flex; flex-direction: column; gap: 1.25em; margin-bottom: 1.8em;\"><div><p style=\"margin: 0 0 0.5em 0;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 장미광장</span><span style=\"font-size: 1em; font-weight: 400; color: #585A64; line-height: 2em;\">(올림픽공원 남2문 방면)</span></p><div style=\"display: flex; flex-direction: column; gap: 0.25em;\"><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #00A005; font-weight: 700; font-size: 1em; line-height: 1.5em;\">초록버스(지선)</span><span style=\"color: #16181C; font-weight: 400;\">3323, 3412, 3413</span></div><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #0E64D3; font-weight: 700; font-size: 1em; line-height: 1.5em;\">파란버스(간선)</span><span style=\"color: #16181C; font-weight: 400;\">30-5, 35</span></div></div></div><div><p style=\"margin: 0 0 0.5em 0;\"><span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 2em;\">올림픽공원 테니스장</span><span style=\"font-size: 1em; font-weight: 400; color: #585A64; line-height: 2em;\">(오금동 대림아파트 방면)</span></p><div style=\"display: flex; flex-direction: column; gap: 0.25em;\"><div style=\"display: flex; gap: 0.5em; align-items: flex-start; line-height: 1.625em;\"><span style=\"color: #00A005; font-weight: 700; font-size: 1em; line-height: 1.5em;\">초록버스(지선)</span><span style=\"color: #16181C; font-weight: 400;\">3220, 3319</span></div></div></div></div><div style=\"background-color: #F7F8FA; border-radius: 12px; padding: 1em 1.25em;\"><p style=\"font-size: 1em; font-weight: 700; color: #0E64D3; line-height: 1.5em; margin: 0 0 0.375em 0;\">이미 다녀온 휠체어 사용자의 후기🦽</p><p style=\"margin: 0; font-size: 1em; color: #24262B; line-height: 1.625em;\">위 라인 저상버스 포함해 운영 중이나 일부 차량은 저상버스가 아니므로 확인이 필요해요!</p></div></div>",
+          "interactiveImage": {
+            "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_ffd16db2_OH_route-bus.png",
+            "clickableRegions": []
+          }
+        }
+      ]
+    },
+    "ticketInfoSection": {
+      "titleLine1": "올림픽홀",
+      "titleLine2": "매표 및 입장동선",
+      "descriptionHtml": "<div style=\"font-family: Pretendard, sans-serif;\">\n  <div style=\"display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;\">\n    <div style=\"border: 1px solid #D8D8DF; background-color: #fff; color: #0E64D3; font-size: 0.8125em; font-weight: 500; padding: 5px 13px; border-radius: 50px; width: fit-content; line-height: 18px;\">매표</div>\n    <span style=\"font-size: 1.375em; font-weight: 700; color: #000; line-height: 32px;\">박스형 매표소</span>\n    <ul style=\"margin: 0; padding-left: 24px; font-size: 1em; color: #16181C; line-height: 1.625em;\">\n      <li>콘서트에 따라 다른 위치에 매표소가 운영될 수 있음</li>\n    </ul>\n  </div>\n  <div style=\"background-color: #fff; border-radius: 12px; padding: 16px;\">\n    <p style=\"font-size: 0.9375em; font-weight: 700; color: #0E64D3; line-height: 22px; margin: 0 0 6px 0;\">콘서트/공연 입장 참고사항</p>\n    <p style=\"font-size: 0.9375em; color: #16181C; line-height: 24px; font-weight: 400; margin: 0;\">티켓 현장수령이 필요하니<br>사전에 <b>매표소(현장 티켓부스) 위치를 확인</b>하세요.</p>\n  </div>\n</div>",
+      "imageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203100948_1a9b75a6_OH_ticket-info.png",
+      "tips": []
+    },
+    "seatViewSection": {
+      "titleLine1": "올림픽홀",
+      "titleLine2": "휠체어석 위치 및 시야 확인",
+      "descriptionHtmls": [
+        "<div style=\"font-family: Pretendard, sans-serif; width: 100%;\">\n  <div style=\"display: flex; flex-direction: column; gap: var(--chip-gap, 8px); margin-bottom: 16px;\">\n    <div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: var(--chip-font-size, 13px); font-weight: 500; padding: 4px 12px; display: flex; justify-content: center; align-items: center; border-radius: 50px; width: fit-content; line-height: var(--chip-line-height, 18px);\">입장</div>\n    <span style=\"font-size: var(--title-font-size, 22px); font-weight: 700; color: #000; line-height: var(--title-line-height, 32px);\">주출입구</span>\n  </div>\n  <ul style=\"margin: 0 0 20px 0; padding-left: 24px; font-size: var(--list-font-size, 16px); font-weight: 400; color: #16181C; line-height: var(--list-line-height, 26px);\">\n    <li>휠체어석과 가까운 Gate 1, 4 추천</li>\n  </ul>\n  <div style=\"background-color: #F7F8FA; border-radius: var(--box-border-radius, 12px); padding: var(--box-padding, 16px); display: flex; flex-direction: column; gap: 6px;\">\n    <p style=\"font-size: 15px; font-weight: 700; color: #0E64D3; line-height: 22px; margin: 0;\">참고사항</p>\n    <p style=\"font-size: 15px; color: #24262B; line-height: 24px; margin: 0;\">콘서트에 따라 이용 가능한 출입구가 다를 수 있으니,<br>현장 스태프에게 꼭 확인하고 안내받는 것을 추천합니다!</p>\n  </div>\n</div>",
+        "<div style=\"font-family: Pretendard, sans-serif; width: 100%;\">\n  <div style=\"display: flex; flex-direction: column; gap: var(--chip-gap, 8px); margin-bottom: 16px;\">\n    <div style=\"border: 1px solid #D8D8DF; color: #0E64D3; font-size: var(--chip-font-size, 13px); font-weight: 500; padding: 4px 12px; display: flex; justify-content: center; align-items: center; border-radius: 50px; width: fit-content; line-height: var(--chip-line-height, 18px);\">좌석</div>\n    <span style=\"font-size: var(--title-font-size, 22px); font-weight: 700; color: #000; line-height: var(--title-line-height, 32px);\">휠체어석 위치</span>\n  </div>\n  <ul style=\"margin: 0; padding-left: 24px; font-size: var(--list-font-size, 16px); font-weight: 400; color: #16181C; line-height: var(--list-line-height, 26px);\">\n    <li>1층 B1 구역 2열 1~5, 1층 D1 구역 2열 1~5</li>\n  </ul>\n</div>"
+      ],
+      "interactiveImage": {
+        "url": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203114240_OH_seat-view.png",
+        "clickableRegions": []
+      },
+      "noticeBox": {
+        "title": "📢 휠체어석 시야 사진 제보 받아요!",
+        "descriptionHtml": "<span style=\"font-size: 15px; color: #24262B; line-height: 24px;\">올림픽홀 휠체어석 시야 사진을 <a href=\"https://tally.so/r/5B9q0E\" target=\"_blank\" style=\"color: #0E64D3; font-weight: 700; text-decoration: underline;\">여기로</a> 제보해주세요. 최초 제보자께는 소정의 리워드를 전달드릴게요.</span>"
+      }
+    },
+    "nearbyPlacesSection": {
+      "titleLine1": "올림픽홀",
+      "titleLine2": "근처 맛집 정보",
+      "mapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203114240_OH_nearby-dunchon.png",
+      "secondMapImageUrl": "https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260203114240_OH_nearby-bangi.png",
+      "places": [],
+      "naverListUrl": "https://naver.me/FLev5cng",
+      "morePlacesUrl": "https://link.staircrusher.club/o0o7kx",
+      "wheelchairUserTipHtml": "<p style=\"font-size: 1em; color: #24262B; line-height: 1.625em; margin: 0;\">공연이 끝나고 장콜을 기다려야 할 때는 <b>외부에 있는 식당이나 카페를 이용</b>하는 게 좋아요! 훨씬 덜 붐비고 차 타기도 쉬워요.</p>"
+    },
+    "reviewSection": {
+      "titleLine1": "올림픽홀",
+      "titleLine2": "휠체어 이용자의 후기",
+      "descriptionHtmls": [
+        "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\">올림픽 공원은 평지고, 차가 다니지 않아서 생각보다 <b>경기장 접근이 어렵지 않아요.</b><br>지하철 역에서 올림픽홀을 갈때 공원 내부의 주차장을 통해서 가야하는 경로여서<br><b>공원 외부 큰길로 가는걸 더 추천해요.</b></p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 야마하 수전동 휠체어 -</p></div>",
+        "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\"><b>올림픽홀은 근처에 주차장이 많아서 좋았어요.</b> 다만 가장 가까운 주차장인 올림픽홀 장애인 주차장 쪽은<br>주차장 진입로쪽 팬클럽 부스가 세워져 있다보니 상황에 따라서는 통제될 것 같기도 하더라구요.</p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 동반인 -</p></div>",
+        "<div style=\"font-family: Pretendard, sans-serif; font-size: 1em; color: #24262B; line-height: 1.6875em;\"><p style=\"margin: 0 0 0.5em 0;\">올림픽홀 바로 옆에 <b>이용가능한 카페</b>가 있어요~~~~!<br>공원 바깥길로 크게 돌아서 이동했는데 넓은 인도여서 편했어요! 생각보다 오래걸리지도 않구요!!<br>공연 끝나고 나서는 방이역 쪽으로 이동해서 장콜 탑승했는데 혼란스럽지 않게 나올 수 있었어요~~!</p><p style=\"margin: 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 -</p></div>"
+      ],
+      "descriptionHtmlsMobile": [
+        "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\">올림픽 공원은 평지고, 차가 다니지 않아서 생각보다 <b>경기장 접근이 어렵지 않아요.</b><br>지하철 역에서 올림픽홀을 갈때 공원 내부의 주차장을 통해서 가야하는 경로여서 <b>공원 외부 큰길로 가는걸 더 추천해요.</b></p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 야마하 수전동 휠체어 -</p></div>",
+        "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\"><b>올림픽홀은 근처에 주차장이 많아서 좋았어요.</b> 다만 가장 가까운 주차장인 올림픽홀 장애인 주차장 쪽은 주차장 진입로쪽 팬클럽 부스가 세워져 있다보니 상황에 따라서는 통제될 것 같기도 하더라구요.</p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 동반인 -</p></div>",
+        "<div style=\"font-family: Pretendard, sans-serif; font-size: 0.875em; color: #24262B; line-height: 1.375em;\"><p style=\"margin: 0;\">올림픽홀 바로 옆에 <b>이용가능한 카페</b>가 있어요~~~~!<br>공원 바깥길로 크게 돌아서 이동했는데 넓은 인도여서 편했어요! 생각보다 오래걸리지도 않구요!!<br>공연 끝나고 나서는 방이역 쪽으로 이동해서 장콜 탑승했는데 혼란스럽지 않게 나올 수 있었어요~~!</p><p style=\"margin: 1em 0 0 0; font-size: 0.875em; font-weight: 500; line-height: 1.25em; color: #0E64D3;\">- 아리아 수동 휠체어 -</p></div>"
+      ],
+      "investigatorInfo": {
+        "title": "올림픽홀 조사단",
+        "members": "(박수빈, 박원, 백은하, 지수환, 주성희)"
+      }
+    },
+    "ctaFooterSection": {
+      "buttonUrl": "https://forms.staircrusher.club/contents-alarm"
+    },
+    "floatingHeaderTitle": "올림픽홀 접근성",
+    "likeCount": 0,
+    "createdAt": "2026-01-28"
+  },
 };
 
 /**

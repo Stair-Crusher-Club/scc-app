@@ -408,8 +408,9 @@ const CommentSection = styled(View)<{ isDesktop: boolean }>`
 `;
 
 const CommentLabel = styled(Text)<{ isDesktop: boolean }>`
-  font-family: ${({ isDesktop }) => (isDesktop ? 'Pretendard-Bold' : 'Pretendard')};;
+  font-family: Pretendard;
   font-size: ${({ isDesktop }) => (isDesktop ? '18px' : '18px')};
+  font-weight: 600;
   line-height: ${({ isDesktop }) => (isDesktop ? '26px' : '26px')};
   letter-spacing: -0.36px;
   color: ${color.white};

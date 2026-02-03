@@ -150,13 +150,15 @@ export default function SeatViewSection({
             </ImageContainer>
           ) : interactiveImage?.url ? (
             <ImageContainer isDesktop={isDesktop}>
-              <InteractiveImage
-                interactiveImage={interactiveImage}
-                onImageChange={isEditMode ? handleInteractiveImageChange : undefined}
-                routeIndex={0}
-                sectionType="seatView"
-                hintTextBackgroundColor={color.brand5}
-              />
+              <ImageFrameWrapper isDesktop={isDesktop}>
+                <InteractiveImage
+                  interactiveImage={interactiveImage}
+                  onImageChange={isEditMode ? handleInteractiveImageChange : undefined}
+                  routeIndex={0}
+                  sectionType="seatView"
+                  hintTextBackgroundColor={color.brand5}
+                />
+              </ImageFrameWrapper>
               {/* 제보 알림 박스 */}
               {noticeBox && (
                 <NoticeBoxContainer isDesktop={isDesktop}>
@@ -274,20 +276,20 @@ const TitleSection = styled(View)`
 
 const TitleLine1 = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '36px' : '24px')};
   font-weight: 700;
   color: ${color.black};
   text-align: center;
-  line-height: ${({ isDesktop }) => (isDesktop ? '54px' : '34px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '48px' : '34px')};
 `;
 
 const TitleLine2 = styled(Text)<{ isDesktop: boolean }>`
   font-family: Pretendard;
-  font-size: ${({ isDesktop }) => (isDesktop ? '40px' : '24px')};
+  font-size: ${({ isDesktop }) => (isDesktop ? '36px' : '24px')};
   font-weight: 700;
   color: #0e64d3;
   text-align: center;
-  line-height: ${({ isDesktop }) => (isDesktop ? '54px' : '34px')};
+  line-height: ${({ isDesktop }) => (isDesktop ? '48px' : '34px')};
 `;
 
 const TitleLine1Input = styled(TextInput)<{ isDesktop: boolean }>`
@@ -314,6 +316,8 @@ const DescriptionGrid = styled(View)<{ isDesktop: boolean }>`
   gap: ${({ isDesktop }) => (isDesktop ? '60px' : '32px')};
   max-width: 1020px;
   width: 100%;
+  /* Figma: Image+noticeBox와 DescriptionGrid 사이 gap은 30px (ContentWrapper gap 60px - 30px) */
+  margin-top: ${({ isDesktop }) => (isDesktop ? '-30px' : '0')};
 `;
 
 const DescriptionItem = styled(View)<{ isDesktop: boolean }>`
@@ -327,6 +331,18 @@ const ImageContainer = styled(View)<{ isDesktop: boolean }>`
   width: ${({ isDesktop }) => (isDesktop ? '100%' : 'calc(100% + 32px)')};
   margin-horizontal: ${({ isDesktop }) => (isDesktop ? '0' : '-16px')};
   position: relative;
+`;
+
+/* Figma 디자인: 이미지 프레임 고정 높이 630px, overflow-clip */
+const ImageFrameWrapper = styled(View)<{ isDesktop: boolean }>`
+  width: 100%;
+  ${({ isDesktop }) => isDesktop && `
+    max-height: 630px;
+    overflow: hidden;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background-color: #f7f8fa;
+  `}
 `;
 
 const EmptyImagePlaceholder = styled(View)`
