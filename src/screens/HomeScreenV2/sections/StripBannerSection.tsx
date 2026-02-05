@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -12,17 +12,18 @@ import styled from 'styled-components/native';
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {HomeBannerDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+const AUTO_SCROLL_INTERVAL_MS = 4000;
+const INITIAL_DELAY_MS = 1500;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const BANNER_HORIZONTAL_PADDING = 20;
 const BANNER_WIDTH = SCREEN_WIDTH - BANNER_HORIZONTAL_PADDING * 2;
-const BANNER_HEIGHT = 100;
+const BANNER_HEIGHT = 67;
 const BANNER_GAP = 12;
 
 const BannerSeparator = () => <View style={{width: BANNER_GAP}} />;
@@ -34,6 +35,44 @@ interface StripBannerSectionProps {
 export default function StripBannerSection({banners}: StripBannerSectionProps) {
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const autoScrollTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const startAutoScroll = useCallback(() => {
+    if (banners.length <= 1) {
+      return;
+    }
+    autoScrollTimer.current = setInterval(() => {
+      setCurrentIndex(prevIndex => {
+        const nextIndex = (prevIndex + 1) % banners.length;
+        flatListRef.current?.scrollToOffset({
+          offset: nextIndex * (BANNER_WIDTH + BANNER_GAP),
+          animated: true,
+        });
+        return nextIndex;
+      });
+    }, AUTO_SCROLL_INTERVAL_MS);
+  }, [banners.length]);
+
+  const stopAutoScroll = useCallback(() => {
+    if (autoScrollTimer.current) {
+      clearInterval(autoScrollTimer.current);
+      autoScrollTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (banners.length > 1) {
+      // Start with initial delay to avoid simultaneous rolling with main banner
+      const initialTimer = setTimeout(() => {
+        startAutoScroll();
+      }, INITIAL_DELAY_MS);
+
+      return () => {
+        clearTimeout(initialTimer);
+        stopAutoScroll();
+      };
+    }
+  }, [banners.length, startAutoScroll, stopAutoScroll]);
 
   const handleMomentumScrollEnd = (
     event: NativeSyntheticEvent<NativeScrollEvent>,
@@ -41,6 +80,9 @@ export default function StripBannerSection({banners}: StripBannerSectionProps) {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / (BANNER_WIDTH + BANNER_GAP));
     setCurrentIndex(index);
+    // Restart auto scroll after manual interaction
+    stopAutoScroll();
+    startAutoScroll();
   };
 
   if (banners.length === 0) {
@@ -69,11 +111,11 @@ export default function StripBannerSection({banners}: StripBannerSectionProps) {
           keyExtractor={item => item.id}
         />
         {banners.length > 1 && (
-          <PageIndicator>
-            <PageIndicatorText>
-              {currentIndex + 1}/{banners.length}
-            </PageIndicatorText>
-          </PageIndicator>
+          <DotsContainer>
+            {banners.map((_, index) => (
+              <Dot key={index} active={index === currentIndex} />
+            ))}
+          </DotsContainer>
         )}
       </Container>
     </LogParamsProvider>
@@ -113,7 +155,7 @@ function StripBanner({banner, index}: StripBannerProps) {
           style={{
             width: BANNER_WIDTH,
             height: BANNER_HEIGHT,
-            borderRadius: 8,
+            borderRadius: 6,
           }}
         />
       </BannerContainer>
@@ -126,22 +168,21 @@ const Container = styled.View`
 `;
 
 const BannerContainer = styled.View`
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
 `;
 
-const PageIndicator = styled.View`
-  position: absolute;
-  bottom: 28px;
-  right: 32px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 12px;
-  padding-horizontal: 10px;
-  padding-vertical: 4px;
+const DotsContainer = styled.View`
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
 `;
 
-const PageIndicatorText = styled.Text`
-  color: ${color.white};
-  font-size: 12px;
-  font-family: ${font.pretendardMedium};
+const Dot = styled.View<{active: boolean}>`
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
+  background-color: ${({active}) => (active ? color.gray50 : color.gray20)};
 `;

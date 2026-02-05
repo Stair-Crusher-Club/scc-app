@@ -23,7 +23,7 @@ const AUTO_SCROLL_INTERVAL_MS = 4000;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const BANNER_HORIZONTAL_PADDING = 20;
 const BANNER_WIDTH = SCREEN_WIDTH - BANNER_HORIZONTAL_PADDING * 2;
-const BANNER_HEIGHT = 200;
+const BANNER_HEIGHT = 290;
 const BANNER_GAP = 12;
 
 const BannerSeparator = () => <View style={{width: BANNER_GAP}} />;
@@ -111,7 +111,7 @@ export default function MainBannerSection({banners}: MainBannerSectionProps) {
         {banners.length > 1 && (
           <PageIndicator>
             <PageIndicatorText>
-              {currentIndex + 1}/{banners.length}
+              {currentIndex + 1} / {banners.length}
             </PageIndicatorText>
           </PageIndicator>
         )}
@@ -173,12 +173,12 @@ const BannerContainer = styled.View`
 
 const PageIndicator = styled.View`
   position: absolute;
-  bottom: 28px;
+  top: 20px;
   right: 32px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 12px;
-  padding-horizontal: 10px;
-  padding-vertical: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 9px;
+  padding-horizontal: 8px;
+  padding-vertical: 1px;
 `;
 
 const PageIndicatorText = styled.Text`

@@ -14,7 +14,7 @@ import {isAppDeepLink} from '@/utils/deepLinkUtils';
 const CARD_WIDTH = 130;
 const CARD_HEIGHT = 160;
 const CARD_GAP = 12;
-const IMAGE_HEIGHT = 90;
+const IMAGE_SIZE = 72;
 
 const CardSeparator = () => <View style={{width: CARD_GAP}} />;
 
@@ -77,71 +77,77 @@ function ContentCard({content, index}: ContentCardProps) {
       logParams={{content_id: content.id, index}}
       onPress={openContent}>
       <CardContainer>
-        <ImageContainer>
-          <SccRemoteImage
-            imageUrl={content.imageUrl}
-            style={{
-              width: CARD_WIDTH,
-              height: IMAGE_HEIGHT,
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
-            }}
-          />
-        </ImageContainer>
         <TextContainer>
           <ContentTitle numberOfLines={1}>{content.title}</ContentTitle>
           <ContentDescription numberOfLines={2}>
             {content.description}
           </ContentDescription>
         </TextContainer>
+        <ImageContainer>
+          <SccRemoteImage
+            imageUrl={content.imageUrl}
+            style={{
+              width: IMAGE_SIZE,
+              height: IMAGE_SIZE,
+              borderRadius: 0,
+              backgroundColor: color.white,
+            }}
+          />
+        </ImageContainer>
       </CardContainer>
     </SccPressable>
   );
 }
 
 const Container = styled.View`
-  margin-bottom: 24px;
+  padding-top: 40px;
+  padding-bottom: 30px;
 `;
 
 const SectionTitle = styled.Text`
   color: ${color.gray90};
-  font-size: 18px;
-  font-family: ${font.pretendardBold};
+  font-size: 20px;
+  font-family: ${font.pretendardSemibold};
+  line-height: 28px;
+  letter-spacing: -0.4px;
   margin-horizontal: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 const CardContainer = styled.View`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
-  border-radius: 10px;
+  border-radius: 12px;
   background-color: ${color.white};
-  border-width: 1px;
-  border-color: ${color.gray20};
-  overflow: hidden;
-`;
-
-const ImageContainer = styled.View`
-  width: ${CARD_WIDTH}px;
-  height: ${IMAGE_HEIGHT}px;
-  overflow: hidden;
+  padding: 14px;
+  position: relative;
 `;
 
 const TextContainer = styled.View`
-  padding: 10px;
-  flex: 1;
+  gap: 2px;
 `;
 
 const ContentTitle = styled.Text`
-  color: ${color.gray90};
-  font-size: 13px;
+  color: #121a27;
+  font-size: 16px;
   font-family: ${font.pretendardBold};
-  margin-bottom: 2px;
+  line-height: 24px;
+  letter-spacing: -0.32px;
 `;
 
 const ContentDescription = styled.Text`
-  color: ${color.gray60};
-  font-size: 11px;
-  line-height: 14px;
+  color: ${color.gray50};
+  font-size: 12px;
+  line-height: 16px;
   font-family: ${font.pretendardRegular};
+  letter-spacing: -0.24px;
+`;
+
+const ImageContainer = styled.View`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: ${IMAGE_SIZE}px;
+  height: ${IMAGE_SIZE}px;
+  overflow: hidden;
 `;

@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Animated, Linking} from 'react-native';
 import styled from 'styled-components/native';
 
+import AnnouncementCharacter from '@/assets/icon/announcement_character.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -62,17 +63,22 @@ export default function AnnouncementSection({
   return (
     <LogParamsProvider params={{displaySectionName: 'announcement_section'}}>
       <Container>
-        <AnnouncementItem
-          announcement={currentAnnouncement}
-          translateY={translateY}
-        />
-        {announcements.length > 1 && (
+        <TextContainer>
           <AnnouncementItem
-            announcement={nextAnnouncement}
+            announcement={currentAnnouncement}
             translateY={translateY}
-            isNext
           />
-        )}
+          {announcements.length > 1 && (
+            <AnnouncementItem
+              announcement={nextAnnouncement}
+              translateY={translateY}
+              isNext
+            />
+          )}
+        </TextContainer>
+        <CharacterContainer>
+          <AnnouncementCharacter width={121} height={33} />
+        </CharacterContainer>
       </Container>
     </LogParamsProvider>
   );
@@ -116,8 +122,9 @@ function AnnouncementItem({
     <SccPressable
       elementName="home_v2_announcement"
       logParams={{announcement_id: announcement.id}}
-      onPress={openAnnouncement}>
-      <AnimatedItem style={[animatedStyle, isNext && {position: 'absolute'}]}>
+      onPress={openAnnouncement}
+      style={isNext ? {position: 'absolute', top: 0, left: 0, right: 0} : {}}>
+      <AnimatedItem style={animatedStyle}>
         <AnnouncementText numberOfLines={1}>
           {announcement.text}
         </AnnouncementText>
@@ -130,11 +137,26 @@ const Container = styled.View`
   margin-horizontal: 20px;
   margin-bottom: 16px;
   background-color: ${color.gray10};
-  border-radius: 8px;
-  padding-horizontal: 16px;
-  padding-vertical: 12px;
-  height: 48px;
+  border-radius: 12px;
+  padding-left: 16px;
+  padding-right: 12px;
+  padding-vertical: 14px;
+  height: 52px;
   overflow: hidden;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const TextContainer = styled.View`
+  flex: 1;
+  height: ${ITEM_HEIGHT}px;
+  overflow: hidden;
+`;
+
+const CharacterContainer = styled.View`
+  position: absolute;
+  right: -2px;
+  top: 19px;
 `;
 
 const AnimatedItem = styled(Animated.View)`
@@ -144,7 +166,8 @@ const AnimatedItem = styled(Animated.View)`
 
 const AnnouncementText = styled.Text`
   color: ${color.gray80};
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 24px;
   font-family: ${font.pretendardMedium};
+  letter-spacing: -0.32px;
 `;

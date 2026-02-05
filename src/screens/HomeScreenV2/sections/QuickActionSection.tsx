@@ -1,15 +1,35 @@
 import {useSetAtom} from 'jotai';
 import React from 'react';
+import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
-import SearchIcon from '@/assets/icon/ic_search_detailed.svg';
-import FlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import {searchModeAtom} from '@/screens/SearchScreen/atoms';
+
+const CARD_HEIGHT = 120;
+const CHARACTER_SIZE = 90;
+
+// Sprite positioning from Figma design
+// 조회하기: w=203.81% h=145.42% left=2.32% top=-15.43%
+// 정복하기: w=231.25% h=165% left=-100.85% top=-31.11%
+
+const SEARCH_SPRITE = {
+  width: CHARACTER_SIZE * 2.0381,
+  height: CHARACTER_SIZE * 1.4542,
+  left: CHARACTER_SIZE * 0.0232,
+  top: CHARACTER_SIZE * -0.1543,
+};
+
+const CONQUER_SPRITE = {
+  width: CHARACTER_SIZE * 2.3125,
+  height: CHARACTER_SIZE * 1.65,
+  left: CHARACTER_SIZE * -1.0085,
+  top: CHARACTER_SIZE * -0.3111,
+};
 
 export default function QuickActionSection() {
   const navigation = useNavigation();
@@ -21,8 +41,7 @@ export default function QuickActionSection() {
   };
 
   const goToConquer = () => {
-    setSearchMode('place');
-    navigation.navigate('Search', {initKeyword: '', toMap: true});
+    navigation.navigate('SearchUnconqueredPlaces');
   };
 
   return (
@@ -33,11 +52,25 @@ export default function QuickActionSection() {
           onPress={goToSearchPlace}
           style={{flex: 1}}>
           <ActionCard>
-            <IconContainer style={{backgroundColor: color.brand10}}>
-              <SearchIcon width={24} height={24} color={color.brand} />
-            </IconContainer>
-            <ActionTitle>조회하기</ActionTitle>
-            <ActionDescription>장소 접근성 정보 확인</ActionDescription>
+            <TextContainer>
+              <ActionTitle>조회하기</ActionTitle>
+              <ActionDescription>
+                접근성 기준으로{'\n'}장소 탐색하기
+              </ActionDescription>
+            </TextContainer>
+            <CharacterWrapper>
+              <Image
+                source={require('@/assets/img/quick_action_character.png')}
+                style={{
+                  position: 'absolute',
+                  width: SEARCH_SPRITE.width,
+                  height: SEARCH_SPRITE.height,
+                  left: SEARCH_SPRITE.left,
+                  top: SEARCH_SPRITE.top,
+                }}
+                resizeMode="cover"
+              />
+            </CharacterWrapper>
           </ActionCard>
         </SccPressable>
         <SccPressable
@@ -45,11 +78,25 @@ export default function QuickActionSection() {
           onPress={goToConquer}
           style={{flex: 1}}>
           <ActionCard>
-            <IconContainer style={{backgroundColor: color.orange10}}>
-              <FlagIcon width={24} height={24} color={color.orange} />
-            </IconContainer>
-            <ActionTitle>정복하기</ActionTitle>
-            <ActionDescription>접근성 정보 등록하기</ActionDescription>
+            <TextContainer>
+              <ActionTitle>정복하기</ActionTitle>
+              <ActionDescription>
+                정복 안 된 장소만{'\n'}모아보기
+              </ActionDescription>
+            </TextContainer>
+            <CharacterWrapper>
+              <Image
+                source={require('@/assets/img/quick_action_character.png')}
+                style={{
+                  position: 'absolute',
+                  width: CONQUER_SPRITE.width,
+                  height: CONQUER_SPRITE.height,
+                  left: CONQUER_SPRITE.left,
+                  top: CONQUER_SPRITE.top,
+                }}
+                resizeMode="cover"
+              />
+            </CharacterWrapper>
           </ActionCard>
         </SccPressable>
       </Container>
@@ -67,29 +114,36 @@ const Container = styled.View`
 const ActionCard = styled.View`
   background-color: ${color.white};
   border-radius: 12px;
-  border-width: 1px;
-  border-color: ${color.gray20};
-  padding: 16px;
+  height: ${CARD_HEIGHT}px;
+  padding: 16px 15px;
+  position: relative;
 `;
 
-const IconContainer = styled.View`
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
+const TextContainer = styled.View`
+  gap: 2px;
 `;
 
 const ActionTitle = styled.Text`
-  color: ${color.gray90};
-  font-size: 16px;
+  color: ${color.gray70};
+  font-size: 18px;
   font-family: ${font.pretendardBold};
-  margin-bottom: 4px;
+  line-height: 26px;
+  letter-spacing: -0.36px;
 `;
 
 const ActionDescription = styled.Text`
-  color: ${color.gray60};
+  color: ${color.gray50};
   font-size: 13px;
   font-family: ${font.pretendardRegular};
+  line-height: 18px;
+  letter-spacing: -0.26px;
+`;
+
+const CharacterWrapper = styled.View`
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: ${CHARACTER_SIZE}px;
+  height: ${CHARACTER_SIZE}px;
+  overflow: hidden;
 `;

@@ -37,22 +37,24 @@ const Container = styled.View`
   padding-horizontal: 20px;
   padding-top: 16px;
   padding-bottom: 16px;
-  background-color: ${color.white};
 `;
 
 const SearchButton = styled.View`
   flex-direction: row;
   align-items: center;
-  background-color: ${color.gray10};
-  border-radius: 8px;
-  padding-vertical: 14px;
-  padding-horizontal: 16px;
+  background-color: ${color.white};
+  border-radius: 12px;
+  padding-vertical: 12px;
+  padding-left: 15px;
+  padding-right: 12px;
+  gap: 8px;
 `;
 
 const SearchButtonText = styled.Text`
   flex: 1;
-  color: ${color.gray50};
+  color: ${color.gray40};
   font-size: 16px;
   line-height: 24px;
   font-family: ${font.pretendardRegular};
+  letter-spacing: -0.32px;
 `;

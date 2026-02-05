@@ -2,6 +2,10 @@ import React from 'react';
 import {Linking} from 'react-native';
 import styled from 'styled-components/native';
 
+import BoostersLogoSvg from '@/assets/icon/boosters_logo.svg';
+import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
+import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
+import FooterInfoIcon from '@/assets/icon/ic_footer_info.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -42,32 +46,39 @@ export default function FooterButtonsSection() {
   return (
     <LogParamsProvider params={{displaySectionName: 'footer_buttons_section'}}>
       <Container>
-        <SccPressable
-          elementName="home_v2_footer_guide"
-          onPress={goToGuide}
-          style={{flex: 1}}>
-          <FooterButton>
-            <FooterButtonText>앱 사용방법</FooterButtonText>
-          </FooterButton>
+        <SccPressable elementName="home_v2_footer_guide" onPress={goToGuide}>
+          <FooterRow>
+            <RowContent>
+              <FooterInfoIcon width={16} height={16} />
+              <FooterText>앱 사용방법</FooterText>
+            </RowContent>
+          </FooterRow>
         </SccPressable>
+
         <SccPressable
           elementName="home_v2_footer_report"
           onPress={goToContentReport}
-          style={{flex: 1}}
           disabled={!CONTENT_REPORT_URL}>
-          <FooterButton disabled={!CONTENT_REPORT_URL}>
-            <FooterButtonText disabled={!CONTENT_REPORT_URL}>
-              콘텐츠 제보
-            </FooterButtonText>
-          </FooterButton>
+          <FooterRow disabled={!CONTENT_REPORT_URL}>
+            <RowContent>
+              <FooterAirplaneIcon width={16} height={16} />
+              <FooterText disabled={!CONTENT_REPORT_URL}>
+                콘텐츠 제보
+              </FooterText>
+            </RowContent>
+          </FooterRow>
         </SccPressable>
+
         <SccPressable
           elementName="home_v2_footer_donation"
-          onPress={goToDonation}
-          style={{flex: 1}}>
-          <FooterButton>
-            <FooterButtonText>후원</FooterButtonText>
-          </FooterButton>
+          onPress={goToDonation}>
+          <FooterRow>
+            <RowContent>
+              <FooterDonationIcon width={16} height={16} />
+              <FooterText>후원</FooterText>
+            </RowContent>
+            <BoostersLogoSvg width={77} height={26} />
+          </FooterRow>
         </SccPressable>
       </Container>
     </LogParamsProvider>
@@ -75,25 +86,34 @@ export default function FooterButtonsSection() {
 }
 
 const Container = styled.View`
-  flex-direction: row;
   padding-horizontal: 20px;
-  padding-vertical: 20px;
+  padding-top: 20px;
+  padding-bottom: 40px;
   gap: 8px;
-  background-color: ${color.gray10};
 `;
 
-const FooterButton = styled.View<{disabled?: boolean}>`
-  align-items: center;
-  justify-content: center;
-  padding-vertical: 12px;
-  background-color: ${({disabled}) => (disabled ? color.gray10 : color.white)};
+const FooterRow = styled.View<{disabled?: boolean}>`
+  background-color: ${color.white};
   border-radius: 8px;
-  border-width: 1px;
-  border-color: ${({disabled}) => (disabled ? color.gray20 : color.gray20)};
+  height: 48px;
+  padding-horizontal: 14px;
+  padding-vertical: 8px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  opacity: ${({disabled}) => (disabled ? 0.5 : 1)};
 `;
 
-const FooterButtonText = styled.Text<{disabled?: boolean}>`
-  color: ${({disabled}) => (disabled ? color.gray40 : color.gray70)};
+const RowContent = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+`;
+
+const FooterText = styled.Text<{disabled?: boolean}>`
+  color: ${({disabled}) => (disabled ? color.gray40 : color.gray60)};
   font-size: 14px;
   font-family: ${font.pretendardMedium};
+  line-height: 20px;
+  letter-spacing: -0.28px;
 `;

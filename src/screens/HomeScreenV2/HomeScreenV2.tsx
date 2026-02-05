@@ -17,7 +17,7 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import styled from 'styled-components/native';
 
-import CrusherClubLogo from '@/assets/icon/logo.svg';
+import CrusherClubLogo from '@/assets/icon/logo_brand_color.svg';
 import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
@@ -187,12 +187,12 @@ const HomeScreenV2 = ({navigation}: any) => {
     useCallback(() => {
       StatusBar.setBarStyle('dark-content');
       if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor(color.white);
+        StatusBar.setBackgroundColor(color.gray15);
       }
       return () => {
         StatusBar.setBarStyle('dark-content');
         if (Platform.OS === 'android') {
-          StatusBar.setBackgroundColor('white');
+          StatusBar.setBackgroundColor(color.gray15);
         }
       };
     }, []),
@@ -237,12 +237,12 @@ const HomeScreenV2 = ({navigation}: any) => {
       <ScreenLayout
         isHeaderVisible={false}
         safeAreaEdges={['top']}
-        style={{backgroundColor: color.white}}>
-        <Header>
-          <CrusherClubLogo />
-        </Header>
+        style={{backgroundColor: color.gray15}}>
         <Container>
           <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+            <LogoContainer>
+              <CrusherClubLogo />
+            </LogoContainer>
             <SearchButtonSection />
             <MainBannerSection banners={homeData?.mainBanners ?? []} />
             <AnnouncementSection
@@ -284,14 +284,13 @@ const HomeScreenV2 = ({navigation}: any) => {
 
 export default HomeScreenV2;
 
-const Header = styled.View`
-  height: 48px;
-  align-items: center;
-  justify-content: center;
-  background-color: ${color.white};
-`;
-
 const Container = styled.View`
   flex: 1;
-  background-color: ${color.white};
+  background-color: ${color.gray15};
+`;
+
+const LogoContainer = styled.View`
+  align-items: center;
+  justify-content: center;
+  padding-vertical: 20px;
 `;
