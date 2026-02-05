@@ -35,8 +35,6 @@ export default function SearchButtonSection() {
 
 const Container = styled.View`
   padding-horizontal: 20px;
-  padding-top: 16px;
-  padding-bottom: 16px;
 `;
 
 const SearchButton = styled.View`

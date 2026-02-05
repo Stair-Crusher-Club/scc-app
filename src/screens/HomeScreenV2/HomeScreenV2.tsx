@@ -240,15 +240,17 @@ const HomeScreenV2 = ({navigation}: any) => {
         style={{backgroundColor: color.gray15}}>
         <Container>
           <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-            <LogoContainer>
-              <CrusherClubLogo />
-            </LogoContainer>
-            <SearchButtonSection />
-            <MainBannerSection banners={homeData?.mainBanners ?? []} />
-            <AnnouncementSection
-              announcements={homeData?.announcements ?? []}
-            />
-            <QuickActionSection />
+            <InnerContainer>
+              <LogoContainer>
+                <CrusherClubLogo />
+              </LogoContainer>
+              <SearchButtonSection />
+              <MainBannerSection banners={homeData?.mainBanners ?? []} />
+              <AnnouncementSection
+                announcements={homeData?.announcements ?? []}
+              />
+              <QuickActionSection />
+            </InnerContainer>
             <RecommendedContentSection
               contents={homeData?.recommendedContents ?? []}
             />
@@ -292,5 +294,9 @@ const Container = styled.View`
 const LogoContainer = styled.View`
   align-items: center;
   justify-content: center;
-  padding-vertical: 20px;
+  padding-vertical: 14px;
+`;
+
+const InnerContainer = styled.View`
+  gap: 12px;
 `;

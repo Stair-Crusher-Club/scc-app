@@ -1,5 +1,4 @@
 import React from 'react';
-import {Linking} from 'react-native';
 import styled from 'styled-components/native';
 
 import BoostersLogoSvg from '@/assets/icon/boosters_logo.svg';
@@ -13,8 +12,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 
 const DONATION_URL = 'https://staircrusher.club/donation';
-// TODO: 콘텐츠 제보 URL 확정 필요
-const CONTENT_REPORT_URL = '';
+const CONTENT_REPORT_URL = 'https://forms.staircrusher.club/contents-alarm';
 
 export default function FooterButtonsSection() {
   const navigation = useNavigation();
@@ -28,19 +26,17 @@ export default function FooterButtonsSection() {
   };
 
   const goToContentReport = () => {
-    // TODO: 콘텐츠 제보 URL 확정 후 구현
-    if (CONTENT_REPORT_URL) {
-      navigation.navigate('Webview', {
-        fixedTitle: '콘텐츠 제보',
-        url: CONTENT_REPORT_URL,
-      });
-    }
+    navigation.navigate('Webview', {
+      fixedTitle: '콘텐츠 제보',
+      url: CONTENT_REPORT_URL,
+    });
   };
 
   const goToDonation = () => {
-    Linking.openURL(DONATION_URL).catch(err =>
-      console.error('Failed to open donation URL:', err),
-    );
+    navigation.navigate('Webview', {
+      fixedTitle: '후원',
+      url: DONATION_URL,
+    });
   };
 
   return (
@@ -57,14 +53,11 @@ export default function FooterButtonsSection() {
 
         <SccPressable
           elementName="home_v2_footer_report"
-          onPress={goToContentReport}
-          disabled={!CONTENT_REPORT_URL}>
-          <FooterRow disabled={!CONTENT_REPORT_URL}>
+          onPress={goToContentReport}>
+          <FooterRow>
             <RowContent>
               <FooterAirplaneIcon width={16} height={16} />
-              <FooterText disabled={!CONTENT_REPORT_URL}>
-                콘텐츠 제보
-              </FooterText>
+              <FooterText>콘텐츠 제보</FooterText>
             </RowContent>
           </FooterRow>
         </SccPressable>

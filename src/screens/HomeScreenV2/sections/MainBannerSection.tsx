@@ -162,8 +162,6 @@ function MainBanner({banner, index}: MainBannerProps) {
 }
 
 const Container = styled.View`
-  padding-top: 8px;
-  padding-bottom: 16px;
 `;
 
 const BannerContainer = styled.View`

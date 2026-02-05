@@ -135,7 +135,6 @@ function AnnouncementItem({
 
 const Container = styled.View`
   margin-horizontal: 20px;
-  margin-bottom: 16px;
   background-color: ${color.gray10};
   border-radius: 12px;
   padding-left: 16px;
