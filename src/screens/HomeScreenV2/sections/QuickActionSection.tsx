@@ -41,7 +41,7 @@ export default function QuickActionSection() {
   };
 
   const goToConquer = () => {
-    navigation.navigate('SearchUnconqueredPlaces');
+    navigation.navigate('SearchUnconqueredPlaces', {});
   };
 
   return (
