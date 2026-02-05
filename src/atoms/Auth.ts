@@ -33,6 +33,7 @@ export const featureFlagAtom = atom<{
   isToiletVisible: boolean;
   isAlbumUploadAllowed: boolean;
   isRegisterAccessibilityV2: boolean;
+  isHomeScreenV2: boolean;
 } | null>(null);
 
 // useMe hook - centralized userInfo management
@@ -74,6 +75,7 @@ export function useMe() {
       isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
       isRegisterAccessibilityV2:
         data.flags?.includes('REGISTER_ACCESSIBILITY_V2') ?? false,
+      isHomeScreenV2: data.flags?.includes('HOME_SCREEN_V2') ?? false,
     });
   };
 

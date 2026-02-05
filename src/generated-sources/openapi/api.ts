@@ -2045,6 +2045,37 @@ export interface GetHomeBannersResponseDto {
     'banners': Array<HomeBannerDto>;
 }
 /**
+ * 홈 화면에 필요한 모든 데이터
+ * @export
+ * @interface GetHomeScreenDataResponseDto
+ */
+export interface GetHomeScreenDataResponseDto {
+    /**
+     * 메인 홈 배너 (대형 배너)
+     * @type {Array<HomeBannerDto>}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'mainBanners': Array<HomeBannerDto>;
+    /**
+     * 띠 홈 배너 (기존 배너)
+     * @type {Array<HomeBannerDto>}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'stripBanners': Array<HomeBannerDto>;
+    /**
+     * 공지사항 (롤링 텍스트)
+     * @type {Array<HomeAnnouncementDto>}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'announcements': Array<HomeAnnouncementDto>;
+    /**
+     * 추천 컨텐츠
+     * @type {Array<HomeRecommendedContentDto>}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'recommendedContents': Array<HomeRecommendedContentDto>;
+}
+/**
  * 
  * @export
  * @interface GetImageUploadUrlsPost200ResponseInner
@@ -2280,6 +2311,31 @@ export interface GiveUpvoteRequestDto {
     'id': string;
 }
 /**
+ * 홈 화면 공지사항
+ * @export
+ * @interface HomeAnnouncementDto
+ */
+export interface HomeAnnouncementDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeAnnouncementDto
+     */
+    'id': string;
+    /**
+     * 공지사항 텍스트
+     * @type {string}
+     * @memberof HomeAnnouncementDto
+     */
+    'text': string;
+    /**
+     * 클릭 시 이동할 URL
+     * @type {string}
+     * @memberof HomeAnnouncementDto
+     */
+    'linkUrl': string;
+}
+/**
  * 
  * @export
  * @interface HomeBannerDto
@@ -2315,6 +2371,43 @@ export interface HomeBannerDto {
      * @memberof HomeBannerDto
      */
     'clickPageTitle': string;
+}
+/**
+ * 홈 화면 추천 컨텐츠
+ * @export
+ * @interface HomeRecommendedContentDto
+ */
+export interface HomeRecommendedContentDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeRecommendedContentDto
+     */
+    'id': string;
+    /**
+     * 컨텐츠 제목
+     * @type {string}
+     * @memberof HomeRecommendedContentDto
+     */
+    'title': string;
+    /**
+     * 컨텐츠 설명
+     * @type {string}
+     * @memberof HomeRecommendedContentDto
+     */
+    'description': string;
+    /**
+     * 컨텐츠 이미지 URL
+     * @type {string}
+     * @memberof HomeRecommendedContentDto
+     */
+    'imageUrl': string;
+    /**
+     * 클릭 시 이동할 URL (딥링크 가능)
+     * @type {string}
+     * @memberof HomeRecommendedContentDto
+     */
+    'linkUrl': string;
 }
 /**
  * 
@@ -6487,6 +6580,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getHomeScreenData: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/getHomeScreenData`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 점포 정보 등록 등의 상황에서 이미지를 업로드하기 위한 URL을 받아 온다.
          * @param {GetImageUploadUrlsPostRequest} getImageUploadUrlsPostRequest 
          * @param {*} [options] Override http request option.
@@ -8692,6 +8819,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getHomeScreenData(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetHomeScreenDataResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getHomeScreenData(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 점포 정보 등록 등의 상황에서 이미지를 업로드하기 위한 URL을 받아 온다.
          * @param {GetImageUploadUrlsPostRequest} getImageUploadUrlsPostRequest 
          * @param {*} [options] Override http request option.
@@ -9486,6 +9623,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getHomeBanners(options?: any): AxiosPromise<GetHomeBannersResponseDto> {
             return localVarFp.getHomeBanners(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getHomeScreenData(options?: any): AxiosPromise<GetHomeScreenDataResponseDto> {
+            return localVarFp.getHomeScreenData(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10286,6 +10432,17 @@ export class DefaultApi extends BaseAPI {
      */
     public getHomeBanners(options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getHomeBanners(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getHomeScreenData(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getHomeScreenData(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
