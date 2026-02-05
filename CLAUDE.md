@@ -374,3 +374,68 @@ import { SccButton, SccPressable } from '@/components/atoms';
   <UserCardContent user={user} />
 </SccPressable>
 ```
+
+## Figma 디자인 비교 워크플로우
+
+Android 에뮬레이터 화면과 Figma 디자인을 비교하여 구현이 디자인과 일치하는지 검증하는 워크플로우.
+
+### 사전 요구사항
+
+- Android 에뮬레이터 실행 중 (`adb devices`로 확인)
+- Figma Desktop 앱에서 해당 디자인 노드 선택
+
+### 비교 방법
+
+**1. Android 스크린샷 캡처:**
+```bash
+adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/android-screenshot.png
+```
+
+**2. Figma 스크린샷 캡처:**
+```
+# Figma MCP 도구 사용
+mcp__figma-dev-mode-mcp-server__get_screenshot
+
+# 특정 노드 지정 시
+mcp__figma-dev-mode-mcp-server__get_screenshot(nodeId="123:456")
+```
+
+**3. 비교 분석:**
+- 두 이미지를 Read 도구로 열어 시각적 비교
+- 누락된 요소, 레이아웃 차이, 스타일 불일치 확인
+
+### 사용 가능한 Figma MCP 도구
+
+| 도구 | 용도 |
+|------|------|
+| `get_screenshot` | 노드의 스크린샷 생성 |
+| `get_design_context` | UI 코드 생성용 컨텍스트 (색상, 폰트, 레이아웃 등) |
+| `get_variable_defs` | 디자인 변수 정의 (색상 토큰 등) |
+| `get_metadata` | 노드 구조 메타데이터 (XML) |
+
+### 비교 체크리스트
+
+구현 검증 시 확인할 항목:
+
+- [ ] **레이아웃**: 요소 배치, 간격, 정렬
+- [ ] **색상**: 배경색, 텍스트색, 아이콘색
+- [ ] **타이포그래피**: 폰트 크기, 굵기, 행간
+- [ ] **컴포넌트 존재**: 모든 UI 요소가 구현되었는지
+- [ ] **상태별 UI**: 로딩, 에러, 빈 상태
+- [ ] **인터랙션**: 버튼, 스크롤, 애니메이션
+
+### 예시: HomeScreenV2 비교
+
+```
+# 1. Figma에서 HomeScreenV2 프레임 선택
+# 2. Android 앱에서 홈 화면으로 이동
+# 3. 비교 실행
+
+## 발견된 차이점 예시:
+| 요소 | Figma | Android | 상태 |
+|------|-------|---------|------|
+| 메인 배너 | ✅ | ❌ | 누락 |
+| 공지사항 롤링 | ✅ | ❌ | 누락 |
+| 추천 컨텐츠 | ✅ | ❌ | 누락 |
+| 검색바 | ✅ | ✅ | OK |
+```
