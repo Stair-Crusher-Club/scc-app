@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Animated, Linking} from 'react-native';
 import styled from 'styled-components/native';
 
-import AnnouncementCharacter from '@/assets/icon/announcement_character.svg';
+import AnnouncementCharacter from '@/assets/icon/ic_announcement_character.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -135,7 +135,7 @@ function AnnouncementItem({
 
 const Container = styled.View`
   margin-horizontal: 20px;
-  background-color: ${color.gray10};
+  background-color: ${color.white};
   border-radius: 12px;
   padding-left: 16px;
   padding-right: 12px;

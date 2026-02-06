@@ -76,17 +76,17 @@ export default function SearchFilterPreview() {
           )}
         </Chip>
         <Chip
-          isActive={isHasSlopeActive}
-          onPress={() => onFilterPress('hasSlope')}>
-          <ChipText isActive={isHasSlopeActive}>
+          isActive={isIsCompletedActive}
+          onPress={() => onFilterPress('isRegistered')}>
+          <ChipText isActive={isIsCompletedActive}>
             {(() => {
-              switch (hasSlope) {
+              switch (isRegistered) {
                 case false:
-                  return '경사로 없음';
+                  return '정복 안 된 곳';
                 case true:
-                  return '경사로 있음';
+                  return '정복된 곳';
                 case null:
-                  return '경사로 유무';
+                  return '정복 여부';
               }
             })()}
           </ChipText>
@@ -99,17 +99,17 @@ export default function SearchFilterPreview() {
           </ChipText>
         </Chip>
         <Chip
-          isActive={isIsCompletedActive}
-          onPress={() => onFilterPress('isRegistered')}>
-          <ChipText isActive={isIsCompletedActive}>
+          isActive={isHasSlopeActive}
+          onPress={() => onFilterPress('hasSlope')}>
+          <ChipText isActive={isHasSlopeActive}>
             {(() => {
-              switch (isRegistered) {
+              switch (hasSlope) {
                 case false:
-                  return '정복 안 된 곳';
+                  return '경사로 없음';
                 case true:
-                  return '정복된 곳';
+                  return '경사로 있음';
                 case null:
-                  return '정복 여부';
+                  return '경사로 유무';
               }
             })()}
           </ChipText>

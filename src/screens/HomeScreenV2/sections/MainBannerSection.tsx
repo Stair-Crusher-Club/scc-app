@@ -161,8 +161,7 @@ function MainBanner({banner, index}: MainBannerProps) {
   );
 }
 
-const Container = styled.View`
-`;
+const Container = styled.View``;
 
 const BannerContainer = styled.View`
   border-radius: 12px;
