@@ -28,6 +28,7 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
       markers,
       circleOverlays,
       rectangleOverlays,
+      logoPosition,
     },
     ref,
   ) => {
@@ -88,6 +89,7 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
         markers={markers}
         circleOverlays={circleOverlays}
         rectangleOverlays={rectangleOverlays}
+        logoPosition={logoPosition}
       />
     );
   },

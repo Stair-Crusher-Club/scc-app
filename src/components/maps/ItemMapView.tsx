@@ -165,6 +165,7 @@ const FRefInputComp = <T extends MarkerItem>(
           bottom: insets.bottom + cardHeight + 30,
           left: 30,
         }}
+        logoPosition="leftBottom"
       />
       <UpperShadow
         style={{

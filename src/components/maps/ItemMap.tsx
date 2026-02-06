@@ -3,20 +3,20 @@ import {useAtomValue} from 'jotai';
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {getMarkerSvg, MarkerColors} from '@/assets/markers';
 import {currentLocationAtom} from '@/atoms/Location.ts';
+import {useDevTool} from '@/components/DevTool/useDevTool';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
-import {
-  NativeMarkerItem,
-  NativeRegion,
-  NativeRectangleOverlay,
-} from '../../../specs/SccMapViewNativeComponent';
-import {MarkerColors, getMarkerSvg} from '@/assets/markers';
-import {useDevTool} from '@/components/DevTool/useDevTool';
-import {NativeCircleOverlay} from '../../../specs/SccMapViewNativeComponent';
 import {Platform} from 'react-native';
+import {
+  NativeCircleOverlay,
+  NativeMarkerItem,
+  NativeRectangleOverlay,
+  NativeRegion,
+} from '../../../specs/SccMapViewNativeComponent';
 
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
@@ -51,6 +51,7 @@ export default function ItemMap<T extends MarkerItem>({
   mapPadding,
   selectedItemId,
   onCameraIdle,
+  logoPosition,
 }: {
   items: T[];
   onMarkerPress?: (item: T) => void;
@@ -58,6 +59,15 @@ export default function ItemMap<T extends MarkerItem>({
   mapPadding?: {top: number; right: number; bottom: number; left: number};
   selectedItemId: string | null;
   onCameraIdle?: (region: Region) => void;
+  logoPosition?:
+    | 'leftBottom'
+    | 'leftTop'
+    | 'leftCenter'
+    | 'rightBottom'
+    | 'rightTop'
+    | 'rightCenter'
+    | 'bottomCenter'
+    | 'topCenter';
 }) {
   const [currentCameraRegion, setCurrentCameraRegion] =
     React.useState<Region | null>(null);
@@ -207,6 +217,7 @@ export default function ItemMap<T extends MarkerItem>({
       markers={allNativeMarkers}
       circleOverlays={nativeCircleOverlays}
       rectangleOverlays={nativeRectangleOverlays}
+      logoPosition={logoPosition}
     />
   );
 }

@@ -20,6 +20,13 @@ RCT_EXPORT_VIEW_PROPERTY(initialRegion, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(mapPadding, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(selectedItemId, NSString)
 
+RCT_CUSTOM_VIEW_PROPERTY(logoPosition, NSString, RNTMapView)
+{
+  if (json) {
+    [view setLogoPositionWithString:[RCTConvert NSString:json]];
+  }
+}
+
 RCT_EXPORT_VIEW_PROPERTY(onCameraIdle, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMarkerPress, RCTDirectEventBlock)
 

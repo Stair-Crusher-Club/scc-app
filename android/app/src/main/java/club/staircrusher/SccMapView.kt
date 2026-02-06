@@ -1,6 +1,7 @@
 package club.staircrusher
 
 import android.annotation.SuppressLint
+import android.view.Gravity
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactContext
@@ -24,7 +25,8 @@ import com.naver.maps.map.util.FusedLocationSource
 
 @SuppressLint("ViewConstructor")
 class SccMapView(private val reactContext: ThemedReactContext) : MapView(
-    reactContext, NaverMapOptions().zoomControlEnabled(false)
+    reactContext, NaverMapOptions()
+        .zoomControlEnabled(false)
 ) {
     private val markerImageService: MarkerImageService = MarkerImageService()
     private var isDestroyed = false
@@ -42,6 +44,7 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     private var circleOverlays: List<Pair<CircleOverlay, CircleOverlayData>> = emptyList()
     private var rectangleOverlays: List<Pair<PolygonOverlay, RectangleOverlayData>> = emptyList()
     private var locationTrackingMode: LocationTrackingMode? = null
+    private var savedLogoPosition: String? = null
 
     init {
         Marker.DEFAULT_ANCHOR
@@ -108,6 +111,10 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
         baseBottomMapPadding = bottom
         val m = map ?: return
         m.setContentPadding(left, top, right, bottom)
+
+        // Re-apply logo settings after changing content padding
+        // to prevent SDK from auto-adjusting logo position
+        savedLogoPosition?.let { applyLogoPosition(it, m) }
     }
 
     fun setMarkers(markerDatas: List<MarkerData>) {
@@ -218,6 +225,26 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
         map?.let {
             it.locationTrackingMode = parsedMode
         }
+    }
+
+    fun setLogoPosition(position: String) {
+        savedLogoPosition = position
+        map?.let { applyLogoPosition(position, it) }
+    }
+
+    private fun applyLogoPosition(position: String, naverMap: NaverMap) {
+        val gravity = when (position) {
+            "leftTop" -> Gravity.TOP or Gravity.LEFT
+            "leftBottom" -> Gravity.BOTTOM or Gravity.LEFT
+            "leftCenter" -> Gravity.CENTER_VERTICAL or Gravity.LEFT
+            "rightTop" -> Gravity.TOP or Gravity.RIGHT
+            "rightBottom" -> Gravity.BOTTOM or Gravity.RIGHT
+            "rightCenter" -> Gravity.CENTER_VERTICAL or Gravity.RIGHT
+            "bottomCenter" -> Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            "topCenter" -> Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            else -> Gravity.BOTTOM or Gravity.LEFT
+        }
+        naverMap.uiSettings.logoGravity = gravity
     }
 
     override fun requestLayout() {
