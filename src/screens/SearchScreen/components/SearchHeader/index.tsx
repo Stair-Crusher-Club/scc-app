@@ -1,5 +1,5 @@
 import {useAtom} from 'jotai';
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -31,6 +31,13 @@ export default function SearchHeader({
 }) {
   const [viewState] = useAtom(viewStateAtom);
   const [searchQuery] = useAtom(searchQueryAtom);
+  const hasBeenMapRef = useRef(false);
+
+  useEffect(() => {
+    if (!viewState.inputMode) {
+      hasBeenMapRef.current = true;
+    }
+  }, [viewState.inputMode]);
   return (
     <Container>
       <SearchInputText
@@ -53,7 +60,11 @@ export default function SearchHeader({
             onPressKeyword={(keyword, mode) =>
               onQueryUpdate(
                 {text: keyword, useCameraRegion: viewState.type === 'map'},
-                {shouldRecordHistory: false, shouldAnimate: false, mode},
+                {
+                  shouldRecordHistory: false,
+                  shouldAnimate: !hasBeenMapRef.current,
+                  mode,
+                },
               )
             }
           />
