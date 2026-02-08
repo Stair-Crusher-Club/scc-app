@@ -21,6 +21,7 @@ import {isReviewEnabled} from '@/models/Place';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import LGButton from '@/screens/SearchScreen/components/LGButton';
+import AccessibilityInfoRequestButton from '@/components/AccessibilityInfoRequestButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import XSButton from '@/screens/SearchScreen/components/XSButton';
@@ -33,10 +34,12 @@ import {useCheckAuth} from '@/utils/checkAuth';
 function SearchItemCard({
   item,
   isHeightFlex,
+  isConquestMode,
   onPress,
 }: {
   item: PlaceListItem;
   isHeightFlex?: boolean;
+  isConquestMode?: boolean;
   onPress?: () => void;
 }) {
   const navigation = useNavigation();
@@ -184,6 +187,12 @@ function SearchItemCard({
                 })}
                 isIconVisible
               />
+              {!item.hasPlaceAccessibility && !isConquestMode && (
+                <AccessibilityInfoRequestButton
+                  placeId={item.place.id}
+                  isRequested={item.isAccessibilityInfoRequested}
+                />
+              )}
             </View>
             <IconArea>
               <SccTouchableOpacity

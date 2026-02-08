@@ -69,6 +69,18 @@ export interface AccessibilityInfoDto {
      * @memberof AccessibilityInfoDto
      */
     'totalFavoriteCount': number;
+    /**
+     * 내가 접근성 정보를 요청했는지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoDto
+     */
+    'isAccessibilityInfoRequested': boolean;
+    /**
+     * 이 장소에 접근성 정보를 요청한 총 인원 수.
+     * @type {number}
+     * @memberof AccessibilityInfoDto
+     */
+    'totalAccessibilityInfoRequestCount': number;
 }
 /**
  * 
@@ -1198,6 +1210,38 @@ export interface CreateAnonymousUserResponseDto {
 /**
  * 
  * @export
+ * @interface CreatePlaceAccessibilityInfoRequestRequestDto
+ */
+export interface CreatePlaceAccessibilityInfoRequestRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreatePlaceAccessibilityInfoRequestRequestDto
+     */
+    'placeId': string;
+}
+/**
+ * 
+ * @export
+ * @interface CreatePlaceAccessibilityInfoRequestResponseDto
+ */
+export interface CreatePlaceAccessibilityInfoRequestResponseDto {
+    /**
+     * 접근성 정보 요청 상태.
+     * @type {boolean}
+     * @memberof CreatePlaceAccessibilityInfoRequestResponseDto
+     */
+    'isRequested': boolean;
+    /**
+     * 이 장소에 접근성 정보를 요청한 총 인원 수.
+     * @type {number}
+     * @memberof CreatePlaceAccessibilityInfoRequestResponseDto
+     */
+    'totalRequestCount': number;
+}
+/**
+ * 
+ * @export
  * @interface CreatePlaceFavoriteRequestDto
  */
 export interface CreatePlaceFavoriteRequestDto {
@@ -1490,6 +1534,38 @@ export interface DeleteBuildingAccessibilityPostRequest {
      * @memberof DeleteBuildingAccessibilityPostRequest
      */
     'buildingAccessibilityId': string;
+}
+/**
+ * 
+ * @export
+ * @interface DeletePlaceAccessibilityInfoRequestRequestDto
+ */
+export interface DeletePlaceAccessibilityInfoRequestRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof DeletePlaceAccessibilityInfoRequestRequestDto
+     */
+    'placeId': string;
+}
+/**
+ * 
+ * @export
+ * @interface DeletePlaceAccessibilityInfoRequestResponseDto
+ */
+export interface DeletePlaceAccessibilityInfoRequestResponseDto {
+    /**
+     * 접근성 정보 요청 상태.
+     * @type {boolean}
+     * @memberof DeletePlaceAccessibilityInfoRequestResponseDto
+     */
+    'isRequested': boolean;
+    /**
+     * 이 장소에 접근성 정보를 요청한 총 인원 수.
+     * @type {number}
+     * @memberof DeletePlaceAccessibilityInfoRequestResponseDto
+     */
+    'totalRequestCount': number;
 }
 /**
  * 
@@ -3567,6 +3643,12 @@ export interface PlaceListItem {
      * @memberof PlaceListItem
      */
     'vendorPlaceIds'?: Array<VendorPlaceIdDto>;
+    /**
+     * 내가 접근성 정보를 요청했는지 여부. 비인증 유저는 항상 false.
+     * @type {boolean}
+     * @memberof PlaceListItem
+     */
+    'isAccessibilityInfoRequested'?: boolean;
 }
 /**
  * 
@@ -4732,6 +4814,12 @@ export interface SearchPlacesByNaturalLanguageResultItemDto {
      * @memberof SearchPlacesByNaturalLanguageResultItemDto
      */
     'vendorPlaceIds'?: Array<VendorPlaceIdDto>;
+    /**
+     * 내가 접근성 정보를 요청했는지 여부. 비인증 유저는 항상 false.
+     * @type {boolean}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'isAccessibilityInfoRequested'?: boolean;
 }
 /**
  * 
@@ -5769,6 +5857,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 장소의 접근성 정보를 요청한다.
+         * @param {CreatePlaceAccessibilityInfoRequestRequestDto} createPlaceAccessibilityInfoRequestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createPlaceAccessibilityInfoRequestPost: async (createPlaceAccessibilityInfoRequestRequestDto: CreatePlaceAccessibilityInfoRequestRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createPlaceAccessibilityInfoRequestRequestDto' is not null or undefined
+            assertParamExists('createPlaceAccessibilityInfoRequestPost', 'createPlaceAccessibilityInfoRequestRequestDto', createPlaceAccessibilityInfoRequestRequestDto)
+            const localVarPath = `/createPlaceAccessibilityInfoRequest`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createPlaceAccessibilityInfoRequestRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 장소를 즐겨찾기에 추가한다.
          * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
@@ -5841,6 +5969,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(deleteBuildingAccessibilityPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 장소의 접근성 정보 요청을 취소한다.
+         * @param {DeletePlaceAccessibilityInfoRequestRequestDto} deletePlaceAccessibilityInfoRequestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deletePlaceAccessibilityInfoRequestPost: async (deletePlaceAccessibilityInfoRequestRequestDto: DeletePlaceAccessibilityInfoRequestRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deletePlaceAccessibilityInfoRequestRequestDto' is not null or undefined
+            assertParamExists('deletePlaceAccessibilityInfoRequestPost', 'deletePlaceAccessibilityInfoRequestRequestDto', deletePlaceAccessibilityInfoRequestRequestDto)
+            const localVarPath = `/deletePlaceAccessibilityInfoRequest`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deletePlaceAccessibilityInfoRequestRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8592,6 +8760,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 장소의 접근성 정보를 요청한다.
+         * @param {CreatePlaceAccessibilityInfoRequestRequestDto} createPlaceAccessibilityInfoRequestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto: CreatePlaceAccessibilityInfoRequestRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreatePlaceAccessibilityInfoRequestResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 장소를 즐겨찾기에 추가한다.
          * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
@@ -8610,6 +8789,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 장소의 접근성 정보 요청을 취소한다.
+         * @param {DeletePlaceAccessibilityInfoRequestRequestDto} deletePlaceAccessibilityInfoRequestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deletePlaceAccessibilityInfoRequestPost(deletePlaceAccessibilityInfoRequestRequestDto: DeletePlaceAccessibilityInfoRequestRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeletePlaceAccessibilityInfoRequestResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deletePlaceAccessibilityInfoRequestPost(deletePlaceAccessibilityInfoRequestRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -9420,6 +9610,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 장소의 접근성 정보를 요청한다.
+         * @param {CreatePlaceAccessibilityInfoRequestRequestDto} createPlaceAccessibilityInfoRequestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto: CreatePlaceAccessibilityInfoRequestRequestDto, options?: any): AxiosPromise<CreatePlaceAccessibilityInfoRequestResponseDto> {
+            return localVarFp.createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 장소를 즐겨찾기에 추가한다.
          * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
@@ -9437,6 +9637,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 장소의 접근성 정보 요청을 취소한다.
+         * @param {DeletePlaceAccessibilityInfoRequestRequestDto} deletePlaceAccessibilityInfoRequestRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deletePlaceAccessibilityInfoRequestPost(deletePlaceAccessibilityInfoRequestRequestDto: DeletePlaceAccessibilityInfoRequestRequestDto, options?: any): AxiosPromise<DeletePlaceAccessibilityInfoRequestResponseDto> {
+            return localVarFp.deletePlaceAccessibilityInfoRequestPost(deletePlaceAccessibilityInfoRequestRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10188,6 +10398,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary 장소의 접근성 정보를 요청한다.
+     * @param {CreatePlaceAccessibilityInfoRequestRequestDto} createPlaceAccessibilityInfoRequestRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto: CreatePlaceAccessibilityInfoRequestRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 장소를 즐겨찾기에 추가한다.
      * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
      * @param {*} [options] Override http request option.
@@ -10208,6 +10430,18 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest: DeleteBuildingAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteBuildingAccessibilityPost(deleteBuildingAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 장소의 접근성 정보 요청을 취소한다.
+     * @param {DeletePlaceAccessibilityInfoRequestRequestDto} deletePlaceAccessibilityInfoRequestRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public deletePlaceAccessibilityInfoRequestPost(deletePlaceAccessibilityInfoRequestRequestDto: DeletePlaceAccessibilityInfoRequestRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deletePlaceAccessibilityInfoRequestPost(deletePlaceAccessibilityInfoRequestRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

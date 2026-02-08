@@ -172,6 +172,7 @@ const SearchUnconqueredPlacesScreen = ({
                   <SearchItemCard
                     item={item}
                     isHeightFlex
+                    isConquestMode
                     onPress={() => handleItemPress(item)}
                   />
                 </ListItemWrapper>
