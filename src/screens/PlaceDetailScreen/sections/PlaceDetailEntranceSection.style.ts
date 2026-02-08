@@ -17,6 +17,7 @@ export const Row = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
+  overflow: 'visible',
 });
 
 export const Title = styled.Text({

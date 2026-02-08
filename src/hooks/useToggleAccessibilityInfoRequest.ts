@@ -2,8 +2,11 @@ import {QueryKey, useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 
 import {PlaceListItem} from '@/generated-sources/openapi';
-import {filterAtom, searchQueryAtom} from '@/screens/SearchScreen/atoms';
-import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
+import {
+  filterAtom,
+  searchModeAtom,
+  searchQueryAtom,
+} from '@/screens/SearchScreen/atoms';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
@@ -12,9 +15,10 @@ export function useToggleAccessibilityInfoRequest() {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
 
-  const {text, location} = useAtomValue(searchQueryAtom);
+  const {text, location, useCameraRegion} = useAtomValue(searchQueryAtom);
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
     useAtomValue(filterAtom);
+  const searchMode = useAtomValue(searchModeAtom);
 
   const {mutate, isPending} = useMutation({
     mutationFn: async ({
@@ -66,7 +70,7 @@ export function useToggleAccessibilityInfoRequest() {
     },
     onSuccess: (_data, variables) => {
       if (!variables.currentIsRequested) {
-        ToastUtils.show('접근성이 채워지면 알려드릴게요');
+        ToastUtils.show('정보가 등록되면 알림을 보내드릴게요 🔔');
       } else {
         ToastUtils.show('정보 요청이 취소되었어요');
       }
@@ -74,9 +78,6 @@ export function useToggleAccessibilityInfoRequest() {
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', variables.placeId],
       });
-
-      // Asynchronously update search cache with full latest data
-      updateSearchCacheForPlaceAsync(api, queryClient, variables.placeId);
     },
     onError: (error, variables, context) => {
       ToastUtils.showOnApiError(error);
@@ -102,7 +103,16 @@ export function useToggleAccessibilityInfoRequest() {
       ...args,
       searchQueryKey: [
         'search',
-        {text, location, sortOption, scoreUnder, hasSlope, isRegistered},
+        {
+          text,
+          location,
+          sortOption,
+          scoreUnder,
+          hasSlope,
+          isRegistered,
+          useCameraRegion,
+          searchMode,
+        },
       ],
     });
   };

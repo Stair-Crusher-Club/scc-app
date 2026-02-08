@@ -178,7 +178,7 @@ function SearchItemCard({
         onPress={onPress}>
         <InfoArea>
           <LabelIconArea>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+            {item.hasPlaceAccessibility || isConquestMode ? (
               <ScoreLabel
                 score={getPlaceAccessibilityScore({
                   score: item.accessibilityInfo?.accessibilityScore,
@@ -187,13 +187,12 @@ function SearchItemCard({
                 })}
                 isIconVisible
               />
-              {!item.hasPlaceAccessibility && !isConquestMode && (
-                <AccessibilityInfoRequestButton
-                  placeId={item.place.id}
-                  isRequested={item.isAccessibilityInfoRequested}
-                />
-              )}
-            </View>
+            ) : (
+              <AccessibilityInfoRequestButton
+                placeId={item.place.id}
+                isRequested={item.isAccessibilityInfoRequested}
+              />
+            )}
             <IconArea>
               <SccTouchableOpacity
                 elementName="place_search_item_card_bookmark_button"

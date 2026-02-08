@@ -1,10 +1,9 @@
 import React from 'react';
-import {View} from 'react-native';
 import styled from 'styled-components/native';
 
-import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -30,31 +29,31 @@ export default function AccessibilityInfoRequestButton({
   };
 
   return (
-    <View>
-      <RequestButton
-        elementName="accessibility_info_request_button"
-        logParams={{
-          place_id: placeId,
-          is_requested: isRequested,
-        }}
-        onPress={handlePress}>
-        <RequestText isRequested={isRequested}>
-          {isRequested ? '정보 요청됨' : '정보 요청하기'}
-        </RequestText>
-      </RequestButton>
-    </View>
+    <ButtonContainer
+      elementName="accessibility_info_request_button"
+      logParams={{placeId, isRequested}}
+      activeOpacity={0.6}
+      onPress={handlePress}
+      isRequested={isRequested}>
+      <RequestText isRequested={isRequested}>
+        {isRequested ? '접근성 정보 요청한 장소' : '이 장소의 접근성 정보 요청하기'}
+      </RequestText>
+    </ButtonContainer>
   );
 }
 
-const RequestButton = styled(SccPressable)`
-  padding-horizontal: 8px;
-  padding-vertical: 4px;
-  border-radius: 4px;
-  background-color: ${color.gray10};
+const ButtonContainer = styled(SccTouchableOpacity)<{isRequested?: boolean}>`
+  padding: 5px 8px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: ${({isRequested}) =>
+    isRequested ? color.brandColor : color.brandColor};
+  background-color: ${({isRequested}) =>
+    isRequested ? color.brandColor : 'transparent'};
 `;
 
 const RequestText = styled.Text<{isRequested?: boolean}>`
   font-size: 12px;
   font-family: ${font.pretendardMedium};
-  color: ${({isRequested}) => (isRequested ? color.brandColor : color.gray70)};
+  color: ${({isRequested}) => (isRequested ? color.white : color.brandColor)};
 `;
