@@ -13,6 +13,7 @@ import useNavigation from '@/navigation/useNavigation';
 import PlaceDetailCommentSection from '@/screens/PlaceDetailScreen/components/PlaceDetailCommentSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+import AccessibilityInfoRequestButton from '@/components/AccessibilityInfoRequestButton';
 import FeedbackButton from '@/components/FeedbackButton';
 import ImageList from '../components/PlaceDetailImageList';
 import PlaceDoorInfo from '../components/PlaceDoorInfo';
@@ -54,6 +55,10 @@ export default function PlaceDetailEntranceSection({
       <NoPlaceEntranceInfoSection
         isAccessibilityRegistrable={isAccessibilityRegistrable ?? false}
         onRegister={onRegister}
+        placeId={place.id}
+        isAccessibilityInfoRequested={
+          accessibility?.isAccessibilityInfoRequested
+        }
       />
     );
   }
@@ -140,14 +145,22 @@ const RegisterButtonContainer = styled.View`
 function NoPlaceEntranceInfoSection({
   isAccessibilityRegistrable,
   onRegister,
+  placeId,
+  isAccessibilityInfoRequested,
 }: {
   isAccessibilityRegistrable: boolean;
   onRegister?: () => void;
+  placeId: string;
+  isAccessibilityInfoRequested?: boolean;
 }) {
   return (
     <S.Section>
       <S.Row>
         <S.Title>입구 접근성</S.Title>
+        <AccessibilityInfoRequestButton
+          placeId={placeId}
+          isRequested={isAccessibilityInfoRequested}
+        />
       </S.Row>
       <S.EmptyInfoContent>
         <ImageList images={[]} roundCorners />
