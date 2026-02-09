@@ -25,7 +25,7 @@ export default function SearchButtonSection() {
         <SccPressable elementName="home_v2_search_button" onPress={goToSearch}>
           <SearchButton>
             <SearchButtonText>크러셔님, 오늘은 어디로 갈까요?</SearchButtonText>
-            <SearchIcon width={24} height={24} color={color.gray70} />
+            <SearchIcon width={24} height={24} color={color.brand50} />
           </SearchButton>
         </SccPressable>
       </Container>

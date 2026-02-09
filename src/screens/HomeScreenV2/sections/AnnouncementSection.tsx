@@ -1,8 +1,8 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Animated, Linking} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Animated, Easing, Linking} from 'react-native';
 import styled from 'styled-components/native';
 
-import AnnouncementCharacter from '@/assets/icon/announcement_character.svg';
+import AnnouncementCharacter from '@/assets/icon/ic_announcement_character.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -11,9 +11,13 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
-const ROLLING_INTERVAL_MS = 5200; // 5.2 seconds (4s main banner × 1.3)
-const ANIMATION_DURATION_MS = 300;
+const ROLLING_INTERVAL_MS = 5000;
+const ANIMATION_DURATION_MS = 600;
 const ITEM_HEIGHT = 24;
+
+// Render current ± WINDOW_HALF items (total 5).
+// Items at absolute coordinates; scrollPosition accumulates and never resets.
+const WINDOW_HALF = 2;
 
 interface AnnouncementSectionProps {
   announcements: HomeAnnouncementDto[];
@@ -22,59 +26,84 @@ interface AnnouncementSectionProps {
 export default function AnnouncementSection({
   announcements,
 }: AnnouncementSectionProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const translateY = useRef(new Animated.Value(0)).current;
-  const rollingTimer = useRef<NodeJS.Timeout | null>(null);
+  const len = announcements.length;
 
-  const rollToNext = useCallback(() => {
-    if (announcements.length <= 1) {
+  // scrollPosition: accumulated translateY. Never reset.
+  // slot N is visible when scrollPosition = -N * ITEM_HEIGHT.
+  const scrollPosition = useRef(new Animated.Value(0)).current;
+  const scrollPosRef = useRef(0);
+
+  const renderCenterRef = useRef(0);
+  const [renderCenter, setRenderCenter] = useState(0);
+
+  // Mirror animated value to JS ref
+  useEffect(() => {
+    const id = scrollPosition.addListener(({value}) => {
+      scrollPosRef.current = value;
+    });
+    return () => scrollPosition.removeListener(id);
+  }, [scrollPosition]);
+
+  // Render only items within [renderCenter - WINDOW_HALF, renderCenter + WINDOW_HALF].
+  const items = useMemo(() => {
+    if (len <= 1) {
+      return announcements.map((a, i) => ({announcement: a, slot: i}));
+    }
+    return Array.from({length: WINDOW_HALF * 2 + 1}, (_, i) => {
+      const slot = renderCenter - WINDOW_HALF + i;
+      const ringIdx = ((slot % len) + len) % len;
+      return {announcement: announcements[ringIdx], slot};
+    });
+  }, [announcements, renderCenter, len]);
+
+  const updateCenter = useCallback((newCenter: number) => {
+    renderCenterRef.current = newCenter;
+    setRenderCenter(newCenter);
+  }, []);
+
+  // Auto scroll
+  useEffect(() => {
+    if (len <= 1) {
       return;
     }
 
-    Animated.timing(translateY, {
-      toValue: -ITEM_HEIGHT,
-      duration: ANIMATION_DURATION_MS,
-      useNativeDriver: true,
-    }).start(() => {
-      translateY.setValue(0);
-      setCurrentIndex(prevIndex => (prevIndex + 1) % announcements.length);
-    });
-  }, [announcements.length, translateY]);
+    const timer = setInterval(() => {
+      const currentSlot = Math.round(-scrollPosRef.current / ITEM_HEIGHT);
+      const targetPos = -(currentSlot + 1) * ITEM_HEIGHT;
 
-  useEffect(() => {
-    if (announcements.length > 1) {
-      rollingTimer.current = setInterval(rollToNext, ROLLING_INTERVAL_MS);
-      return () => {
-        if (rollingTimer.current) {
-          clearInterval(rollingTimer.current);
+      Animated.timing(scrollPosition, {
+        toValue: targetPos,
+        duration: ANIMATION_DURATION_MS,
+        easing: Easing.inOut(Easing.cubic),
+        useNativeDriver: true,
+      }).start(({finished}) => {
+        if (!finished) {
+          return;
         }
-      };
-    }
-  }, [announcements.length, rollToNext]);
+        updateCenter(currentSlot + 1);
+      });
+    }, ROLLING_INTERVAL_MS);
 
-  if (announcements.length === 0) {
+    return () => clearInterval(timer);
+  }, [len, scrollPosition, updateCenter]);
+
+  if (len === 0) {
     return null;
   }
-
-  const currentAnnouncement = announcements[currentIndex];
-  const nextIndex = (currentIndex + 1) % announcements.length;
-  const nextAnnouncement = announcements[nextIndex];
 
   return (
     <LogParamsProvider params={{displaySectionName: 'announcement_section'}}>
       <Container>
         <TextContainer>
-          <AnnouncementItem
-            announcement={currentAnnouncement}
-            translateY={translateY}
-          />
-          {announcements.length > 1 && (
-            <AnnouncementItem
-              announcement={nextAnnouncement}
-              translateY={translateY}
-              isNext
-            />
-          )}
+          <Animated.View style={{transform: [{translateY: scrollPosition}]}}>
+            {items.map(item => (
+              <AnnouncementSlot
+                key={item.slot}
+                style={{top: item.slot * ITEM_HEIGHT}}>
+                <AnnouncementItem announcement={item.announcement} />
+              </AnnouncementSlot>
+            ))}
+          </Animated.View>
         </TextContainer>
         <CharacterContainer>
           <AnnouncementCharacter width={121} height={33} />
@@ -86,15 +115,9 @@ export default function AnnouncementSection({
 
 interface AnnouncementItemProps {
   announcement: HomeAnnouncementDto;
-  translateY: Animated.Value;
-  isNext?: boolean;
 }
 
-function AnnouncementItem({
-  announcement,
-  translateY,
-  isNext = false,
-}: AnnouncementItemProps) {
+function AnnouncementItem({announcement}: AnnouncementItemProps) {
   const navigation = useNavigation();
 
   const openAnnouncement = async () => {
@@ -110,32 +133,19 @@ function AnnouncementItem({
     }
   };
 
-  const animatedStyle = {
-    transform: [
-      {
-        translateY: isNext ? Animated.add(translateY, ITEM_HEIGHT) : translateY,
-      },
-    ],
-  };
-
   return (
     <SccPressable
       elementName="home_v2_announcement"
       logParams={{announcement_id: announcement.id}}
-      onPress={openAnnouncement}
-      style={isNext ? {position: 'absolute', top: 0, left: 0, right: 0} : {}}>
-      <AnimatedItem style={animatedStyle}>
-        <AnnouncementText numberOfLines={1}>
-          {announcement.text}
-        </AnnouncementText>
-      </AnimatedItem>
+      onPress={openAnnouncement}>
+      <AnnouncementText numberOfLines={1}>{announcement.text}</AnnouncementText>
     </SccPressable>
   );
 }
 
 const Container = styled.View`
   margin-horizontal: 20px;
-  background-color: ${color.gray10};
+  background-color: ${color.white};
   border-radius: 12px;
   padding-left: 16px;
   padding-right: 12px;
@@ -158,7 +168,10 @@ const CharacterContainer = styled.View`
   top: 19px;
 `;
 
-const AnimatedItem = styled(Animated.View)`
+const AnnouncementSlot = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
   height: ${ITEM_HEIGHT}px;
   justify-content: center;
 `;
