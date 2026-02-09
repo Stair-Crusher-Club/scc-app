@@ -135,7 +135,7 @@ export default function AccessibilityInfoRequestButton({
               padding: 5,
               paddingHorizontal: 10,
               borderRadius: 100,
-              borderWidth: 1.5,
+              borderWidth: 1,
               borderColor: animatedBorderColor,
             }}>
             <Animated.Text
@@ -171,7 +171,7 @@ export default function AccessibilityInfoRequestButton({
 const ButtonContainer = styled(SccTouchableOpacity)<{isRequested?: boolean}>`
   padding: 5px 10px;
   border-radius: 100px;
-  border-width: 1.5px;
+  border-width: 1px;
   border-color: transparent;
   background-color: ${({isRequested}) =>
     isRequested ? color.gray20 : color.brand40};
