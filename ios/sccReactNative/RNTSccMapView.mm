@@ -264,13 +264,17 @@ static BOOL areRectangleOverlaysEqual(const std::vector<SccMapViewRectangleOverl
 }
 
 // Emitting event back to JS. This method is called from Swift view
-- (void)onCameraIdle:(NMGLatLngBounds *)region {
+- (void)onCameraIdle:(NMGLatLngBounds *)region zoom:(double)zoom centerLat:(double)centerLat centerLng:(double)centerLng reason:(int)reason {
   if (_eventEmitter) {
     SccMapViewEventEmitter::OnCameraIdle eventStruct;
     eventStruct.northEastLat = region.northEastLat;
     eventStruct.northEastLng = region.northEastLng;
     eventStruct.southWestLat = region.southWestLat;
     eventStruct.southWestLng = region.southWestLng;
+    eventStruct.zoom = zoom;
+    eventStruct.centerLat = centerLat;
+    eventStruct.centerLng = centerLng;
+    eventStruct.reason = reason;
     self.eventEmitter.onCameraIdle(eventStruct);
   }
 }

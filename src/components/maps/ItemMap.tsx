@@ -18,6 +18,8 @@ import {
   NativeRegion,
 } from '../../../specs/SccMapViewNativeComponent';
 
+const ZOOM_CHANGE_THRESHOLD = 0.5;
+
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
 
@@ -71,6 +73,10 @@ export default function ItemMap<T extends MarkerItem>({
 }) {
   const [currentCameraRegion, setCurrentCameraRegion] =
     React.useState<Region | null>(null);
+  const previousZoomRef = React.useRef<number | null>(null);
+  const previousCenterRef = React.useRef<{lat: number; lng: number} | null>(
+    null,
+  );
   const currentLocation = useAtomValue(currentLocationAtom);
   const region = currentLocation ? getRegion(currentLocation) : DefaultRegion;
   const devTool = useDevTool();
@@ -212,6 +218,56 @@ export default function ItemMap<T extends MarkerItem>({
         };
         setCurrentCameraRegion(newRegion);
         onCameraIdle?.(newRegion);
+
+        // reason: 0=gesture, 1=control, 2=location, 3=developer
+        if (nativeEvent.reason !== 0) {
+          previousZoomRef.current = nativeEvent.zoom;
+          previousCenterRef.current = {
+            lat: nativeEvent.centerLat,
+            lng: nativeEvent.centerLng,
+          };
+          return;
+        }
+
+        const currentZoom = nativeEvent.zoom;
+        const previousZoom = previousZoomRef.current;
+
+        const latDelta = nativeEvent.northEastLat - nativeEvent.southWestLat;
+        const visibleRangeM = Math.round(latDelta * 111320);
+
+        let eventName: string;
+        if (previousZoom !== null) {
+          const zoomDiff = currentZoom - previousZoom;
+          if (zoomDiff > ZOOM_CHANGE_THRESHOLD) {
+            eventName = 'map_zoom_in';
+          } else if (zoomDiff < -ZOOM_CHANGE_THRESHOLD) {
+            eventName = 'map_zoom_out';
+          } else {
+            eventName = 'map_camera_move';
+          }
+        } else {
+          eventName = 'map_camera_move';
+        }
+
+        Logger.logElementClick({
+          name: eventName,
+          currScreenName: route.name,
+          extraParams: {
+            before_center_lat: previousCenterRef.current?.lat,
+            before_center_lng: previousCenterRef.current?.lng,
+            after_center_lat: nativeEvent.centerLat,
+            after_center_lng: nativeEvent.centerLng,
+            before_zoom: previousZoom,
+            after_zoom: currentZoom,
+            visible_range_m: visibleRangeM,
+          },
+        });
+
+        previousZoomRef.current = currentZoom;
+        previousCenterRef.current = {
+          lat: nativeEvent.centerLat,
+          lng: nativeEvent.centerLng,
+        };
       }}
       mapPadding={mapPadding}
       markers={allNativeMarkers}
