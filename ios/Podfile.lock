@@ -230,7 +230,7 @@ PODS:
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
   - NMapsGeometry (1.0.2)
-  - NMapsMap (3.23.0):
+  - NMapsMap (3.22.1):
     - NMapsGeometry
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
@@ -3445,7 +3445,7 @@ SPEC CHECKSUMS:
   lottie-react-native: 29078ab5b3fd60b35793d708afaa9b0b01d97be4
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NMapsGeometry: 4e02554fa9880ef02ed96b075dc84355d6352479
-  NMapsMap: 1964e6f9073301ad3cbe3a12235ba36f6f6cd905
+  NMapsMap: 09552eb050059e13b4c8fc294055760713cfdad8
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
