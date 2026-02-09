@@ -325,14 +325,15 @@ const RequestInfoButton = styled(SccTouchableOpacity)<{
   padding: 14px;
   border-radius: 12px;
   border-width: 1px;
-  border-color: ${color.gray20};
+  border-color: ${({isRequested}) =>
+    isRequested ? color.brandColor : color.brandColor};
   background-color: ${({isRequested}) =>
-    isRequested ? color.gray90 : color.white};
+    isRequested ? color.brandColor : 'transparent'};
   align-items: center;
 `;
 
 const RequestInfoButtonText = styled.Text<{isRequested?: boolean}>`
   font-size: 16px;
   font-family: ${font.pretendardBold};
-  color: ${({isRequested}) => (isRequested ? color.white : color.gray100)};
+  color: ${({isRequested}) => (isRequested ? color.white : color.brandColor)};
 `;
