@@ -40,6 +40,17 @@ export type NativeRegion = {
   southWestLng: CodegenTypes.Double;
 };
 
+export type NativeCameraIdleEvent = {
+  northEastLat: CodegenTypes.Double;
+  northEastLng: CodegenTypes.Double;
+  southWestLat: CodegenTypes.Double;
+  southWestLng: CodegenTypes.Double;
+  zoom: CodegenTypes.Double;
+  centerLat: CodegenTypes.Double;
+  centerLng: CodegenTypes.Double;
+  reason: CodegenTypes.Int32; // 0=gesture, 1=control, 2=location, 3=developer
+};
+
 export interface NativeProps extends ViewProps {
   markers: NativeMarkerItem[];
   circleOverlays?: NativeCircleOverlay[];
@@ -47,7 +58,7 @@ export interface NativeProps extends ViewProps {
   onMarkerPress?: CodegenTypes.BubblingEventHandler<{
     id: string;
   }> | null;
-  onCameraIdle?: CodegenTypes.BubblingEventHandler<NativeRegion> | null;
+  onCameraIdle?: CodegenTypes.BubblingEventHandler<NativeCameraIdleEvent> | null;
   initialRegion: NativeRegion;
   mapPadding?: {
     top: CodegenTypes.Int32;

@@ -45,6 +45,7 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     private var rectangleOverlays: List<Pair<PolygonOverlay, RectangleOverlayData>> = emptyList()
     private var locationTrackingMode: LocationTrackingMode? = null
     private var savedLogoPosition: String? = null
+    private var lastCameraChangeReason: Int = -1
 
     init {
         Marker.DEFAULT_ANCHOR
@@ -76,6 +77,9 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
 
         getMapAsync {
             map = it
+            it.addOnCameraChangeListener { reason, _ ->
+                lastCameraChangeReason = reason
+            }
             it.addOnCameraIdleListener {
                 val bound = this@SccMapView.map?.contentBounds ?: return@addOnCameraIdleListener
                 emitCameraOnIdleEvent(bound)
@@ -272,6 +276,8 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     }
 
     private fun emitCameraOnIdleEvent(region: LatLngBounds) {
+        val m = map ?: return
+        val cameraPosition = m.cameraPosition
         val reactContext = context as ReactContext
         val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
         val eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
@@ -280,6 +286,15 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
             putDouble("northEastLng", region.eastLongitude)
             putDouble("southWestLat", region.southLatitude)
             putDouble("southWestLng", region.westLongitude)
+            putDouble("zoom", cameraPosition.zoom)
+            putDouble("centerLat", cameraPosition.target.latitude)
+            putDouble("centerLng", cameraPosition.target.longitude)
+            putInt("reason", when (lastCameraChangeReason) {
+                -1 -> 0 // gesture
+                -2 -> 1 // control
+                -3 -> 2 // location
+                else -> 3 // developer (0) or unknown
+            })
         }
         val event = OnCameraIdleEvent(surfaceId, id, payload)
         eventDispatcher?.dispatchEvent(event)

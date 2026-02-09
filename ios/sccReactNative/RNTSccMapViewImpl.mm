@@ -79,6 +79,7 @@
   NSMutableArray<CircleOverlayWithData *> *_circleOverlayList;
   NSMutableArray<RectangleOverlayWithData *> *_rectangleOverlayList;
   NSString *_savedLogoPosition;
+  int _lastCameraChangeReason;
 }
 @end
 
@@ -88,6 +89,7 @@
   self = [super initWithFrame:frame];
   if (self) {
     _isInitialRegionSet = NO;
+    _lastCameraChangeReason = -1;
     _markerList = [NSMutableArray array];
     _circleOverlayList = [NSMutableArray array];
     _rectangleOverlayList = [NSMutableArray array];
@@ -100,6 +102,7 @@
   self = [super initWithCoder:aDecoder];
   if (self) {
     _isInitialRegionSet = NO;
+    _lastCameraChangeReason = -1;
     _markerList = [NSMutableArray array];
     _circleOverlayList = [NSMutableArray array];
     _rectangleOverlayList = [NSMutableArray array];
@@ -290,16 +293,33 @@
   }
 }
 
-- (void)cameraIdle:(NMGLatLngBounds *)bounds {
-  if ([self.mapDelegate respondsToSelector:@selector(onCameraIdle:)]) {
-    [self.mapDelegate onCameraIdle:bounds];
+- (void)cameraIdleWithBounds:(NMGLatLngBounds *)bounds zoom:(double)zoom centerLat:(double)centerLat centerLng:(double)centerLng reason:(int)reason {
+  if ([self.mapDelegate respondsToSelector:@selector(onCameraIdle:zoom:centerLat:centerLng:reason:)]) {
+    [self.mapDelegate onCameraIdle:bounds zoom:zoom centerLat:centerLat centerLng:centerLng reason:reason];
   }
 }
 
 #pragma mark - NMFMapViewCameraDelegate
 
+- (void)mapView:(NMFMapView *)mapView cameraIsChangingByReason:(NSInteger)reason {
+  _lastCameraChangeReason = (int)reason;
+}
+
 - (void)mapViewCameraIdle:(NMFMapView *)mapView {
-  [self cameraIdle:mapView.contentBounds];
+  NMGLatLngBounds *bounds = mapView.contentBounds;
+  NMFCameraPosition *cameraPosition = mapView.cameraPosition;
+  int normalizedReason;
+  switch (_lastCameraChangeReason) {
+    case -1: normalizedReason = 0; break; // gesture
+    case -2: normalizedReason = 1; break; // control
+    case -3: normalizedReason = 2; break; // location
+    default: normalizedReason = 3; break; // developer (0) or unknown
+  }
+  [self cameraIdleWithBounds:bounds
+                        zoom:cameraPosition.zoom
+                   centerLat:cameraPosition.target.lat
+                   centerLng:cameraPosition.target.lng
+                      reason:normalizedReason];
 }
 
 #pragma mark - Private Methods

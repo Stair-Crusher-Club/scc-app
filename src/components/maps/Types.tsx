@@ -11,6 +11,13 @@ export type Region = {
   southWest: LatLng;
 };
 
+export type CameraIdleEvent = {
+  region: Region;
+  zoom: number;
+  center: LatLng;
+  reason: number; // 0=gesture, 1=control, 2=location, 3=developer
+};
+
 export function getCenterAndRadius(region: Region) {
   const center = {
     latitude: (region.northEast.latitude + region.southWest.latitude) / 2,
