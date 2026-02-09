@@ -191,6 +191,7 @@ function SearchItemCard({
               <AccessibilityInfoRequestButton
                 placeId={item.place.id}
                 isRequested={item.isAccessibilityInfoRequested}
+                animated
               />
             )}
             <IconArea>

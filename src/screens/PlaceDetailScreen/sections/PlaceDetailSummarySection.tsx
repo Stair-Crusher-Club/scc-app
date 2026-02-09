@@ -177,8 +177,7 @@ const PlaceDetailSummarySection = ({
           onPress={() =>
             checkAuth(() => {
               toggleRequest({
-                currentIsRequested:
-                  accessibility?.isAccessibilityInfoRequested,
+                currentIsRequested: accessibility?.isAccessibilityInfoRequested,
                 placeId: place.id,
               });
             })
@@ -325,16 +324,15 @@ const RequestInfoButton = styled(SccTouchableOpacity)<{
   width: 100%;
   padding: 14px;
   border-radius: 12px;
-  border-width: 1.5px;
-  border-color: ${({isRequested}) =>
-    isRequested ? color.brandColor : color.brandColor};
+  border-width: 1px;
+  border-color: ${color.gray20};
   background-color: ${({isRequested}) =>
-    isRequested ? color.brandColor : 'transparent'};
+    isRequested ? color.gray90 : color.white};
   align-items: center;
 `;
 
 const RequestInfoButtonText = styled.Text<{isRequested?: boolean}>`
   font-size: 16px;
   font-family: ${font.pretendardBold};
-  color: ${({isRequested}) => (isRequested ? color.white : color.brandColor)};
+  color: ${({isRequested}) => (isRequested ? color.white : color.gray100)};
 `;
