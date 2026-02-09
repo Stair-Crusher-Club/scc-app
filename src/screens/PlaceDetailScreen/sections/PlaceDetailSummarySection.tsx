@@ -323,6 +323,7 @@ const RequestInfoButton = styled(SccTouchableOpacity)<{
 }>`
   width: 100%;
   padding: 14px;
+  border-radius: 12px;
   background-color: ${({isRequested}) =>
     isRequested ? color.gray20 : color.brand40};
   align-items: center;
