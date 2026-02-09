@@ -50,6 +50,8 @@ import ToiletListView from '@/screens/SearchScreen/components/ToiletListView';
 import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
 import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 
+import {resetHighlightAnimation} from '@/components/AccessibilityInfoRequestButton';
+
 import * as S from './SearchScreen.style';
 
 export interface SearchScreenParams {
@@ -166,6 +168,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
       setDraftCameraRegion(null);
       setDraftKeyword(null);
       setSearchMode('place');
+      resetHighlightAnimation();
     });
   }, [navigation]);
 

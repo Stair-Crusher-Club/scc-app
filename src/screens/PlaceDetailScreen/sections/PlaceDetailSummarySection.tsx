@@ -18,6 +18,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
+import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import type {ScreenParams} from '@/navigation/Navigation.screens';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
@@ -48,6 +49,7 @@ const PlaceDetailSummarySection = ({
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const isFavorite = place.isFavorite;
   const toggleFavorite = useToggleFavoritePlace();
+  const toggleRequest = useToggleAccessibilityInfoRequest();
   const checkAuth = useCheckAuth();
 
   const onShare = () => {
@@ -163,6 +165,30 @@ const PlaceDetailSummarySection = ({
             <ButtonText>공유</ButtonText>
           </S.Summary>
         </S.Row>
+        <S.Separator />
+        <RequestInfoButton
+          elementName="place_detail_accessibility_info_request_button"
+          logParams={{
+            placeId: place.id,
+            isRequested: accessibility?.isAccessibilityInfoRequested,
+          }}
+          activeOpacity={0.6}
+          isRequested={accessibility?.isAccessibilityInfoRequested}
+          onPress={() =>
+            checkAuth(() => {
+              toggleRequest({
+                currentIsRequested: accessibility?.isAccessibilityInfoRequested,
+                placeId: place.id,
+              });
+            })
+          }>
+          <RequestInfoButtonText
+            isRequested={accessibility?.isAccessibilityInfoRequested}>
+            {accessibility?.isAccessibilityInfoRequested
+              ? '접근성 정보 요청됨'
+              : '접근성 정보 요청하기'}
+          </RequestInfoButtonText>
+        </RequestInfoButton>
       </S.Section>
     );
   }
@@ -290,4 +316,24 @@ const ExternalLinkText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
   text-decoration-line: underline;
+`;
+
+const RequestInfoButton = styled(SccTouchableOpacity)<{
+  isRequested?: boolean;
+}>`
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border-width: 1px;
+  border-color: ${({isRequested}) =>
+    isRequested ? color.brandColor : color.brandColor};
+  background-color: ${({isRequested}) =>
+    isRequested ? color.brandColor : 'transparent'};
+  align-items: center;
+`;
+
+const RequestInfoButtonText = styled.Text<{isRequested?: boolean}>`
+  font-size: 16px;
+  font-family: ${font.pretendardBold};
+  color: ${({isRequested}) => (isRequested ? color.white : color.brandColor)};
 `;

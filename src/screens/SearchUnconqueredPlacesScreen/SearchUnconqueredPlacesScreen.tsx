@@ -27,6 +27,13 @@ export interface SearchUnconqueredPlacesScreenParams {}
 
 type PlaceMarkerItem = MarkerItem & PlaceListItem;
 
+const ConquestSearchItemCard: React.FC<{
+  item: PlaceMarkerItem;
+  onPress?: () => void;
+}> = ({item, onPress}) => (
+  <SearchItemCard item={item} onPress={onPress} isConquestMode />
+);
+
 type ViewMode = 'map' | 'list';
 
 const SearchUnconqueredPlacesScreen = ({
@@ -155,7 +162,7 @@ const SearchUnconqueredPlacesScreen = ({
           <ItemMapView
             ref={mapRef}
             items={items}
-            ItemCard={SearchItemCard}
+            ItemCard={ConquestSearchItemCard}
             isRefreshVisible={shouldShowRefresh}
             onRefresh={handleRefresh}
             onCameraIdle={handleCameraIdle}
@@ -172,6 +179,7 @@ const SearchUnconqueredPlacesScreen = ({
                   <SearchItemCard
                     item={item}
                     isHeightFlex
+                    isConquestMode
                     onPress={() => handleItemPress(item)}
                   />
                 </ListItemWrapper>

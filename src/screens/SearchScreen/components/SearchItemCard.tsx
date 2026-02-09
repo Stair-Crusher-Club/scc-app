@@ -21,6 +21,7 @@ import {isReviewEnabled} from '@/models/Place';
 import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import LGButton from '@/screens/SearchScreen/components/LGButton';
+import AccessibilityInfoRequestButton from '@/components/AccessibilityInfoRequestButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
 import XSButton from '@/screens/SearchScreen/components/XSButton';
@@ -33,10 +34,12 @@ import {useCheckAuth} from '@/utils/checkAuth';
 function SearchItemCard({
   item,
   isHeightFlex,
+  isConquestMode,
   onPress,
 }: {
   item: PlaceListItem;
   isHeightFlex?: boolean;
+  isConquestMode?: boolean;
   onPress?: () => void;
 }) {
   const navigation = useNavigation();
@@ -175,7 +178,7 @@ function SearchItemCard({
         onPress={onPress}>
         <InfoArea>
           <LabelIconArea>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+            {item.hasPlaceAccessibility || isConquestMode ? (
               <ScoreLabel
                 score={getPlaceAccessibilityScore({
                   score: item.accessibilityInfo?.accessibilityScore,
@@ -184,7 +187,13 @@ function SearchItemCard({
                 })}
                 isIconVisible
               />
-            </View>
+            ) : (
+              <AccessibilityInfoRequestButton
+                placeId={item.place.id}
+                isRequested={item.isAccessibilityInfoRequested}
+                animated
+              />
+            )}
             <IconArea>
               <SccTouchableOpacity
                 elementName="place_search_item_card_bookmark_button"
