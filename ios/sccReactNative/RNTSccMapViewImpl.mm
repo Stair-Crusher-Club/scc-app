@@ -308,7 +308,13 @@
 - (void)mapViewCameraIdle:(NMFMapView *)mapView {
   NMGLatLngBounds *bounds = mapView.contentBounds;
   NMFCameraPosition *cameraPosition = mapView.cameraPosition;
-  int normalizedReason = (_lastCameraChangeReason == -1) ? 3 : _lastCameraChangeReason;
+  int normalizedReason;
+  switch (_lastCameraChangeReason) {
+    case -1: normalizedReason = 0; break; // gesture
+    case -2: normalizedReason = 1; break; // control
+    case -3: normalizedReason = 2; break; // location
+    default: normalizedReason = 3; break; // developer (0) or unknown
+  }
   [self cameraIdleWithBounds:bounds
                         zoom:cameraPosition.zoom
                    centerLat:cameraPosition.target.lat

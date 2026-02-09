@@ -289,7 +289,12 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
             putDouble("zoom", cameraPosition.zoom)
             putDouble("centerLat", cameraPosition.target.latitude)
             putDouble("centerLng", cameraPosition.target.longitude)
-            putInt("reason", if (lastCameraChangeReason == -1) 3 else lastCameraChangeReason)
+            putInt("reason", when (lastCameraChangeReason) {
+                -1 -> 0 // gesture
+                -2 -> 1 // control
+                -3 -> 2 // location
+                else -> 3 // developer (0) or unknown
+            })
         }
         val event = OnCameraIdleEvent(surfaceId, id, payload)
         eventDispatcher?.dispatchEvent(event)
