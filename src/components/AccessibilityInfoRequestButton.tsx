@@ -160,14 +160,12 @@ export default function AccessibilityInfoRequestButton({
 const ButtonContainer = styled(SccTouchableOpacity)<{isRequested?: boolean}>`
   padding: 5px 8px;
   border-radius: 100px;
-  border-width: 1px;
-  border-color: ${color.gray20};
   background-color: ${({isRequested}) =>
-    isRequested ? color.gray90 : color.white};
+    isRequested ? color.gray20:  color.brand40};
 `;
 
 const RequestText = styled.Text<{isRequested?: boolean}>`
   font-size: 12px;
   font-family: ${font.pretendardMedium};
-  color: ${({isRequested}) => (isRequested ? color.white : color.gray100)};
+  color: ${({isRequested}) => (isRequested ? color.black : color.white)};
 `;
