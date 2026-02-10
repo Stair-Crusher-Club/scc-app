@@ -6,6 +6,7 @@ import {
   Linking,
   PanResponder,
 } from 'react-native';
+
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -14,8 +15,8 @@ import {color} from '@/constant/color';
 import {HomeBannerDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
-import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
+import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
 const AUTO_SCROLL_INTERVAL_MS = 5000;
 const INITIAL_DELAY_MS = 1500;

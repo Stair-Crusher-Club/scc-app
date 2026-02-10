@@ -6,7 +6,6 @@ const DEEP_LINK_PREFIXES = [
   'stair-crusher://',
   'https://scc.airbridge.io/',
   'https://app.staircrusher.club/',
-  'https://link.staircrusher.club/',
 ];
 
 /**
