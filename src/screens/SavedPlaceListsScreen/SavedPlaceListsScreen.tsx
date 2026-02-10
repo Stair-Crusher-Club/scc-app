@@ -16,21 +16,27 @@ export default function SavedPlaceListsScreen() {
   const navigation = useNavigation();
   const {api} = useAppComponents();
 
-  const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
-    useInfiniteQuery({
-      queryKey: ['SavedPlaceLists'],
-      queryFn: async ({pageParam}) =>
-        (
-          await api.listSavedPlaceLists({
-            cursor: pageParam ?? undefined,
-            limit: 20,
-          })
-        ).data,
-      getNextPageParam: lastPage => {
-        return lastPage.cursor ?? undefined;
-      },
-      initialPageParam: undefined as string | undefined,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: ['SavedPlaceLists'],
+    queryFn: async ({pageParam}) =>
+      (
+        await api.listSavedPlaceLists({
+          cursor: pageParam ?? undefined,
+          limit: 20,
+        })
+      ).data,
+    getNextPageParam: lastPage => {
+      return lastPage.cursor ?? undefined;
+    },
+    initialPageParam: undefined as string | undefined,
+  });
 
   const placeLists = data?.pages.flatMap(page => page.items ?? []) ?? [];
 
@@ -42,6 +48,10 @@ export default function SavedPlaceListsScreen() {
     <ScreenLayout isHeaderVisible={true}>
       {isLoading ? (
         <SearchLoading />
+      ) : isError ? (
+        <NoResultContainer>
+          <NoResultText>리스트를 불러올 수 없습니다.</NoResultText>
+        </NoResultContainer>
       ) : placeLists.length === 0 ? (
         <NoResultContainer>
           <NoResultText>저장한 리스트가 없습니다.</NoResultText>
@@ -50,10 +60,11 @@ export default function SavedPlaceListsScreen() {
         <ListContainer>
           <FlashList
             contentContainerStyle={{
-              backgroundColor: 'white',
+              backgroundColor: color.white,
               paddingBottom: 100,
             }}
             data={placeLists}
+            keyExtractor={item => item.id}
             renderItem={({item, index}) => (
               <SccPressable
                 elementName="saved_place_list_item"

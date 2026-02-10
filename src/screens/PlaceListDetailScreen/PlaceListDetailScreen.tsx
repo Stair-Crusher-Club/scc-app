@@ -19,6 +19,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {useSavePlaceList} from '@/hooks/useSavePlaceList';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
+import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
@@ -42,7 +43,7 @@ const PlaceListDetailScreen = ({
   const checkAuth = useCheckAuth();
   const toggleSave = useSavePlaceList();
 
-  const {data} = useQuery({
+  const {data, isLoading, isError} = useQuery({
     queryKey: ['PlaceListDetail', placeListId],
     queryFn: async () => {
       const result = await api.getPlaceList({placeListId});
@@ -131,36 +132,46 @@ const PlaceListDetailScreen = ({
           <DescriptionText>{data.placeList.description}</DescriptionText>
         </DescriptionContainer>
       )}
-      <ContentContainer>
-        <MapContainer>
-          <ItemMapView
-            ref={mapRef}
-            items={items}
-            ItemCard={SearchItemCard}
-            isRefreshVisible={false}
-            onRefresh={() => {}}
-            onCameraIdle={() => {}}
-          />
-        </MapContainer>
-        {viewMode === 'list' && (
-          <ListContainer>
-            <FlatList
-              data={items}
-              keyExtractor={item => item.place.id}
-              contentContainerStyle={{paddingBottom: 100}}
-              renderItem={({item}) => (
-                <ListItemWrapper>
-                  <SearchItemCard
-                    item={item}
-                    isHeightFlex
-                    onPress={() => handleItemPress(item)}
-                  />
-                </ListItemWrapper>
-              )}
-            />
-          </ListContainer>
-        )}
-      </ContentContainer>
+      {isLoading ? (
+        <SearchLoading />
+      ) : isError ? (
+        <ErrorContainer>
+          <ErrorText>리스트를 불러올 수 없습니다.</ErrorText>
+        </ErrorContainer>
+      ) : (
+        <ContentContainer>
+          {viewMode === 'map' && (
+            <MapContainer>
+              <ItemMapView
+                ref={mapRef}
+                items={items}
+                ItemCard={SearchItemCard}
+                isRefreshVisible={false}
+                onRefresh={() => {}}
+                onCameraIdle={() => {}}
+              />
+            </MapContainer>
+          )}
+          {viewMode === 'list' && (
+            <ListContainer>
+              <FlatList
+                data={items}
+                keyExtractor={item => item.place.id}
+                contentContainerStyle={{paddingBottom: 100}}
+                renderItem={({item}) => (
+                  <ListItemWrapper>
+                    <SearchItemCard
+                      item={item}
+                      isHeightFlex
+                      onPress={() => handleItemPress(item)}
+                    />
+                  </ListItemWrapper>
+                )}
+              />
+            </ListContainer>
+          )}
+        </ContentContainer>
+      )}
     </Layout>
   );
 };
@@ -174,11 +185,7 @@ const ContentContainer = styled.View`
 `;
 
 const MapContainer = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex: 1;
 `;
 
 const ListContainer = styled.View`
@@ -241,6 +248,18 @@ const DescriptionText = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardRegular};
   color: ${color.gray60};
+`;
+
+const ErrorContainer = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ErrorText = styled.Text`
+  font-size: 14px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.gray50};
 `;
 
 export default PlaceListDetailScreen;
