@@ -31,9 +31,13 @@ const WINDOW_HALF = 10;
 
 interface StripBannerSectionProps {
   banners: HomeBannerDto[];
+  onPanStateChange?: (isPanning: boolean) => void;
 }
 
-export default function StripBannerSection({banners}: StripBannerSectionProps) {
+export default function StripBannerSection({
+  banners,
+  onPanStateChange,
+}: StripBannerSectionProps) {
   const len = banners.length;
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
@@ -45,6 +49,8 @@ export default function StripBannerSection({banners}: StripBannerSectionProps) {
 
   const autoScrollTimer = useRef<NodeJS.Timeout | null>(null);
   const panStartRef = useRef(0);
+  const onPanStateChangeRef = useRef(onPanStateChange);
+  onPanStateChangeRef.current = onPanStateChange;
 
   useEffect(() => {
     const id = scrollPosition.addListener(({value}) => {
@@ -126,6 +132,7 @@ export default function StripBannerSection({banners}: StripBannerSectionProps) {
         onMoveShouldSetPanResponderCapture: (_, {dx, dy}) =>
           Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10,
         onPanResponderGrant: () => {
+          onPanStateChangeRef.current?.(true);
           stopAutoScroll();
           panStartRef.current = scrollPosRef.current;
         },
@@ -141,6 +148,7 @@ export default function StripBannerSection({banners}: StripBannerSectionProps) {
           }
         },
         onPanResponderRelease: (_, {dx, vx}) => {
+          onPanStateChangeRef.current?.(false);
           const startSlot = Math.round(-panStartRef.current / ITEM_SLOT_WIDTH);
           let targetSlot = startSlot;
 
@@ -166,6 +174,18 @@ export default function StripBannerSection({banners}: StripBannerSectionProps) {
             startAutoScroll();
           });
         },
+        onPanResponderTerminate: () => {
+          onPanStateChangeRef.current?.(false);
+          const currentSlot = Math.round(
+            -scrollPosRef.current / ITEM_SLOT_WIDTH,
+          );
+          const targetPos = -currentSlot * ITEM_SLOT_WIDTH;
+          scrollPosition.setValue(targetPos);
+          scrollPosRef.current = targetPos;
+          updateCenter(currentSlot);
+          startAutoScroll();
+        },
+        onPanResponderTerminationRequest: () => false,
       }),
     [scrollPosition, stopAutoScroll, startAutoScroll, updateCenter],
   );
