@@ -1,0 +1,8 @@
+{
+  "sdkEnabled": true,
+  "logLevel": "warning",
+  "autoStartTrackingEnabled": true,
+  "sessionTimeoutInSecond": 300,
+  "trackAirbridgeDeeplinkOnlyEnabled": false,
+  "autoDetermineTrackingAuthorizationTimeoutInSecond": 30
+}

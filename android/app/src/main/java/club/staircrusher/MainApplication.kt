@@ -15,6 +15,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.uimanager.ReactShadowNode
 import com.facebook.react.uimanager.ViewManager
+import co.ab180.airbridge.reactnative.AirbridgeReactNative
 import com.hotupdater.HotUpdater
 import java.io.File
 
@@ -75,6 +76,10 @@ class MainApplication : Application(), ReactApplication {
     override fun onCreate() {
         super.onCreate()
         clean()
+        // Airbridge SDK: production에서만 초기화 (sandbox 데이터 오염 방지)
+        if (BuildConfig.FLAVOR == "production") {
+            AirbridgeReactNative.initializeSDK(this, "scc", "270c418e2f3e40118622b749b94c590e")
+        }
         loadReactNative(this)
     }
 

@@ -1,4 +1,8 @@
 PODS:
+  - airbridge-ios-sdk (4.8.1)
+  - airbridge-react-native-sdk (4.8.0):
+    - airbridge-ios-sdk (= 4.8.1)
+    - React
   - Alamofire (5.9.1)
   - boost (1.84.0)
   - CocoaLumberjack (3.9.0):
@@ -2117,6 +2121,8 @@ PODS:
     - Yoga
   - react-native-splash-screen (3.3.0):
     - React-Core
+  - react-native-tracking-transparency (0.1.2):
+    - React
   - react-native-webview (13.15.0):
     - boost
     - DoubleConversion
@@ -3071,6 +3077,7 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
+  - airbridge-react-native-sdk (from `../node_modules/airbridge-react-native-sdk`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - CocoaLumberjack
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -3131,6 +3138,7 @@ DEPENDENCIES:
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
+  - react-native-tracking-transparency (from `../node_modules/react-native-tracking-transparency`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -3184,6 +3192,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - airbridge-ios-sdk
     - Alamofire
     - CocoaLumberjack
     - Firebase
@@ -3213,6 +3222,8 @@ SPEC REPOS:
     - SVGKit
 
 EXTERNAL SOURCES:
+  airbridge-react-native-sdk:
+    :path: "../node_modules/airbridge-react-native-sdk"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
@@ -3316,6 +3327,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-splash-screen:
     :path: "../node_modules/react-native-splash-screen"
+  react-native-tracking-transparency:
+    :path: "../node_modules/react-native-tracking-transparency"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-NativeModulesApple:
@@ -3414,6 +3427,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  airbridge-ios-sdk: 1a224a4f7e70904219e923cc9217bf78b7b14d44
+  airbridge-react-native-sdk: b1fc66725a8170c91e78672cb1ab7df1da4b99bb
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CocoaLumberjack: 5644158777912b7de7469fa881f8a3f259c2512a
@@ -3489,6 +3504,7 @@ SPEC CHECKSUMS:
   react-native-mmkv: 7fb4729ad5cb787a4394e6c4bd48e4b8ec30f25c
   react-native-safe-area-context: 3bae4f8474c13ab141c40ed6c5c33f6177778d71
   react-native-splash-screen: 95994222cc95c236bd3cdc59fe45ed5f27969594
+  react-native-tracking-transparency: 15eb319f2b982070eb9831582af27d87badfa624
   react-native-webview: 9a8ea59197aa76145b8ce72aa3eea69f1e89dd38
   React-NativeModulesApple: e16d5c133019987285f001fbf1461a861e40426f
   React-oscompat: 7c0a341cc31e350da71ddf2e46de0a845d1d1626
