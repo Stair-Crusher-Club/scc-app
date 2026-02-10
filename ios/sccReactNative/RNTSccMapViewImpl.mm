@@ -80,6 +80,8 @@
   NSMutableArray<RectangleOverlayWithData *> *_rectangleOverlayList;
   NSString *_savedLogoPosition;
   int _lastCameraChangeReason;
+  CGFloat _baseBottomMapPadding;
+
 }
 @end
 
@@ -90,10 +92,15 @@
   if (self) {
     _isInitialRegionSet = NO;
     _lastCameraChangeReason = -1;
+    _savedLogoPosition = @"leftBottom";
     _markerList = [NSMutableArray array];
     _circleOverlayList = [NSMutableArray array];
     _rectangleOverlayList = [NSMutableArray array];
     [self addCameraDelegate:self];
+    // Fix logo at bottom-left so contentInset changes don't move it
+    self.logoAlign = NMFLogoAlignLeftBottom;
+    self.logoMargin = UIEdgeInsetsZero;
+
   }
   return self;
 }
@@ -103,10 +110,15 @@
   if (self) {
     _isInitialRegionSet = NO;
     _lastCameraChangeReason = -1;
+    _savedLogoPosition = @"leftBottom";
     _markerList = [NSMutableArray array];
     _circleOverlayList = [NSMutableArray array];
     _rectangleOverlayList = [NSMutableArray array];
     [self addCameraDelegate:self];
+    // Fix logo at bottom-left so contentInset changes don't move it
+    self.logoAlign = NMFLogoAlignLeftBottom;
+    self.logoMargin = UIEdgeInsetsZero;
+
   }
   return self;
 }
@@ -274,17 +286,12 @@
                         left:(CGFloat)left
                        right:(CGFloat)right
                       bottom:(CGFloat)bottom {
+  _baseBottomMapPadding = bottom;
   self.contentInset = UIEdgeInsetsMake(top, left, bottom, right);
-
-  // Re-apply logo settings after changing content inset
-  // to prevent SDK from auto-adjusting logo position
-  // Use dispatch_async to ensure SDK has finished its internal adjustments
-  if (_savedLogoPosition) {
-    NSString *savedPosition = _savedLogoPosition;
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [self applyLogoPosition:savedPosition];
-    });
-  }
+  // Move logo & scale bar back toward viewport bottom after SDK layout
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self fixBottomWidgetPositions:bottom];
+  });
 }
 
 - (void)markerPress:(NSString *)identifier {
@@ -348,6 +355,30 @@
   });
 }
 
+- (void)fixBottomWidgetPositions:(CGFloat)bottomPadding {
+  CGFloat baseTranslation = bottomPadding - 12;
+  // Logo is a UIImageView (class name doesn't contain "logo"), access via KVC
+  UIView *logoView = nil;
+  @try {
+    logoView = [self valueForKey:@"logoImageView"];
+  } @catch (NSException *exception) {
+    // Property not found on this SDK version, skip
+  }
+  if (!logoView) return;
+
+  logoView.transform = CGAffineTransformMakeTranslation(0, baseTranslation);
+  [self disableClippingForView:logoView];
+}
+
+- (void)disableClippingForView:(UIView *)view {
+  UIView *parent = view.superview;
+  while (parent && parent != self) {
+    parent.clipsToBounds = NO;
+    parent = parent.superview;
+  }
+  self.clipsToBounds = NO;
+}
+
 - (void)applyLogoPosition:(NSString *)position {
   NMFLogoAlign logoAlignValue;
   if ([position isEqualToString:@"leftTop"]) {
@@ -374,6 +405,7 @@
     logoAlignValue = NMFLogoAlignLeftBottom; // default
   }
   self.logoAlign = logoAlignValue;
+  self.logoMargin = UIEdgeInsetsZero;
 }
 
 @end

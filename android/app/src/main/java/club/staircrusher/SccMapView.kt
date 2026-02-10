@@ -2,6 +2,8 @@ package club.staircrusher
 
 import android.annotation.SuppressLint
 import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactContext
@@ -44,7 +46,7 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
     private var circleOverlays: List<Pair<CircleOverlay, CircleOverlayData>> = emptyList()
     private var rectangleOverlays: List<Pair<PolygonOverlay, RectangleOverlayData>> = emptyList()
     private var locationTrackingMode: LocationTrackingMode? = null
-    private var savedLogoPosition: String? = null
+    private var savedLogoPosition: String? = "leftBottom"
     private var lastCameraChangeReason: Int = -1
 
     init {
@@ -77,12 +79,15 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
 
         getMapAsync {
             map = it
+            // Fix logo at bottom-left so contentPadding changes don't move it
+            it.uiSettings.logoGravity = Gravity.BOTTOM or Gravity.START
+            it.uiSettings.setLogoMargin(0, 0, 0, 0)
             it.addOnCameraChangeListener { reason, _ ->
                 lastCameraChangeReason = reason
             }
             it.addOnCameraIdleListener {
-                val bound = this@SccMapView.map?.contentBounds ?: return@addOnCameraIdleListener
-                emitCameraOnIdleEvent(bound)
+                val m = this@SccMapView.map ?: return@addOnCameraIdleListener
+                emitCameraOnIdleEvent(m.contentBounds)
             }
             reactContext.currentActivity?.let { activity ->
                 it.locationSource = FusedLocationSource(activity, 100)
@@ -115,10 +120,8 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
         baseBottomMapPadding = bottom
         val m = map ?: return
         m.setContentPadding(left, top, right, bottom)
-
-        // Re-apply logo settings after changing content padding
-        // to prevent SDK from auto-adjusting logo position
-        savedLogoPosition?.let { applyLogoPosition(it, m) }
+        // Move logo & scale bar back toward viewport bottom after SDK layout
+        post { fixBottomWidgetPositions(bottom) }
     }
 
     fun setMarkers(markerDatas: List<MarkerData>) {
@@ -236,6 +239,64 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
         map?.let { applyLogoPosition(position, it) }
     }
 
+    private fun fixBottomWidgetPositions(bottomPadding: Int) {
+        val offset = resources.displayMetrics.density * 48
+        val baseTranslation = bottomPadding.toFloat() - offset
+        val widgets = findWidgetViews(this, listOf("logo", "scalebar"))
+        if (widgets.isEmpty()) return
+
+        // Find the widget with the lowest bottom edge (in MapView coordinates)
+        var maxBottom = 0
+        val bottomPositions = mutableMapOf<View, Int>()
+        for (widget in widgets) {
+            val bottom = getBottomInAncestor(widget)
+            bottomPositions[widget] = bottom
+            if (bottom > maxBottom) maxBottom = bottom
+        }
+
+        // Translate all widgets: align their bottom edges, then shift down
+        for (widget in widgets) {
+            val alignOffset = maxBottom - (bottomPositions[widget] ?: maxBottom)
+            widget.translationY = baseTranslation + alignOffset
+            disableClipping(widget)
+        }
+    }
+
+    private fun getBottomInAncestor(view: View): Int {
+        var y = view.bottom
+        var parent = view.parent
+        while (parent is View && parent !== this) {
+            y += (parent as View).top
+            parent = parent.parent
+        }
+        return y
+    }
+
+    private fun disableClipping(view: View) {
+        var parent = view.parent
+        while (parent is ViewGroup) {
+            parent.clipChildren = false
+            parent.clipToPadding = false
+            if (parent === this) break
+            parent = parent.parent
+        }
+    }
+
+    private fun findWidgetViews(viewGroup: ViewGroup, keywords: List<String>): List<View> {
+        val result = mutableListOf<View>()
+        for (i in 0 until viewGroup.childCount) {
+            val child = viewGroup.getChildAt(i)
+            val className = child.javaClass.name.lowercase()
+            if (keywords.any { className.contains(it) }) {
+                result.add(child)
+            }
+            if (child is ViewGroup) {
+                result.addAll(findWidgetViews(child, keywords))
+            }
+        }
+        return result
+    }
+
     private fun applyLogoPosition(position: String, naverMap: NaverMap) {
         val gravity = when (position) {
             "leftTop" -> Gravity.TOP or Gravity.LEFT
@@ -249,6 +310,7 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
             else -> Gravity.BOTTOM or Gravity.LEFT
         }
         naverMap.uiSettings.logoGravity = gravity
+        naverMap.uiSettings.setLogoMargin(0, 0, 0, 0)
     }
 
     override fun requestLayout() {

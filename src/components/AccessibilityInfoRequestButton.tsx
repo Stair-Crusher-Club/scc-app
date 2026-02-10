@@ -51,7 +51,7 @@ export default function AccessibilityInfoRequestButton({
       // 3. Grow bigger + color fill
       Animated.parallel([
         Animated.timing(scaleAnim, {
-          toValue: 1.10,
+          toValue: 1.1,
           duration: 220,
           useNativeDriver: false,
         }),
