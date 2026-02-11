@@ -1,8 +1,11 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import React from 'react';
+import {Linking} from 'react-native';
 import styled from 'styled-components/native';
 
+import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
+import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -44,6 +47,11 @@ export default function SavedPlaceListsScreen() {
     navigation.navigate('PlaceListDetail', {placeListId: item.id});
   };
 
+  const handleBannerPress = () => {
+    // TODO: 실제 URL 연결
+    Linking.openURL('https://www.staircrusher.club');
+  };
+
   return (
     <ScreenLayout isHeaderVisible={true}>
       {isLoading ? (
@@ -54,14 +62,14 @@ export default function SavedPlaceListsScreen() {
         </NoResultContainer>
       ) : placeLists.length === 0 ? (
         <NoResultContainer>
-          <NoResultText>저장한 리스트가 없습니다.</NoResultText>
+          <NoResultText>저장한 장소가 없습니다.</NoResultText>
         </NoResultContainer>
       ) : (
         <ListContainer>
           <FlashList
             contentContainerStyle={{
               backgroundColor: color.white,
-              paddingBottom: 100,
+              paddingBottom: 140,
             }}
             data={placeLists}
             keyExtractor={item => item.id}
@@ -71,17 +79,15 @@ export default function SavedPlaceListsScreen() {
                 logParams={{placeListId: item.id}}
                 onPress={() => handleItemPress(item)}>
                 <ItemWrapper isFirst={index === 0}>
+                  <IconCircle
+                    isMyPlaces={item.type === PlaceListTypeDto.MyPlaces}>
+                    <BookmarkIcon width={20} height={20} color={color.white} />
+                  </IconCircle>
                   <ItemContent>
-                    <ItemNameRow>
-                      <ItemName numberOfLines={1}>{item.name}</ItemName>
-                      {item.type === PlaceListTypeDto.MyPlaces && (
-                        <TypeBadge>
-                          <TypeBadgeText>MY</TypeBadgeText>
-                        </TypeBadge>
-                      )}
-                    </ItemNameRow>
-                    <ItemPlaceCount>{item.placeCount}개의 장소</ItemPlaceCount>
+                    <ItemName numberOfLines={1}>{item.name}</ItemName>
+                    <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
                   </ItemContent>
+                  <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
                 </ItemWrapper>
               </SccPressable>
             )}
@@ -93,6 +99,21 @@ export default function SavedPlaceListsScreen() {
             }}
             onEndReachedThreshold={0.5}
           />
+          <BannerContainer>
+            <SccPressable
+              elementName="saved_place_lists_request_banner"
+              onPress={handleBannerPress}>
+              <BannerContent>
+                <BannerTextContainer>
+                  <BannerSubText>
+                    계단뿌셔클럽이 직접 만들어 드릴게요!
+                  </BannerSubText>
+                  <BannerMainText>저장리스트를 요청해주세요~</BannerMainText>
+                </BannerTextContainer>
+                <BannerEmoji>📢</BannerEmoji>
+              </BannerContent>
+            </SccPressable>
+          </BannerContainer>
         </ListContainer>
       )}
     </ScreenLayout>
@@ -119,42 +140,78 @@ const NoResultText = styled.Text`
 `;
 
 const ItemWrapper = styled.View<{isFirst: boolean}>`
-  padding: 16px 20px;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 16px;
+  padding-vertical: 20px;
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
-  border-top-color: ${() => color.gray20};
+  border-top-color: #eff0f2;
+  gap: 12px;
+`;
+
+const IconCircle = styled.View<{isMyPlaces: boolean}>`
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: ${({isMyPlaces}) => (isMyPlaces ? '#67AEFF' : '#FFC01E')};
+  align-items: center;
+  justify-content: center;
 `;
 
 const ItemContent = styled.View`
-  gap: 4px;
-`;
-
-const ItemNameRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
+  flex: 1;
+  gap: 2px;
 `;
 
 const ItemName = styled.Text`
   font-size: 16px;
-  font-family: ${() => font.pretendardBold};
-  color: ${() => color.black};
-  flex-shrink: 1;
-`;
-
-const TypeBadge = styled.View`
-  background-color: ${() => color.blue5};
-  border-radius: 4px;
-  padding: 2px 6px;
-`;
-
-const TypeBadgeText = styled.Text`
-  font-size: 11px;
-  font-family: ${() => font.pretendardMedium};
-  color: ${() => color.blue50};
+  font-family: ${() => font.pretendardRegular};
+  color: #16181c;
+  line-height: 24px;
 `;
 
 const ItemPlaceCount = styled.Text`
   font-size: 13px;
   font-family: ${() => font.pretendardRegular};
-  color: ${() => color.gray50};
+  color: #a0a2ae;
+  line-height: 18px;
+`;
+
+const BannerContainer = styled.View`
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  align-items: center;
+`;
+
+const BannerContent = styled.View`
+  width: 350px;
+  height: 67px;
+  background-color: rgba(103, 174, 255, 0.8);
+  border-radius: 6px;
+  flex-direction: row;
+  align-items: center;
+  padding-horizontal: 20px;
+`;
+
+const BannerTextContainer = styled.View`
+  flex: 1;
+`;
+
+const BannerSubText = styled.Text`
+  font-size: 11px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${() => color.white};
+`;
+
+const BannerMainText = styled.Text`
+  font-size: 16px;
+  font-family: ${() => font.pretendardBold};
+  color: ${() => color.white};
+`;
+
+const BannerEmoji = styled.Text`
+  font-size: 28px;
 `;

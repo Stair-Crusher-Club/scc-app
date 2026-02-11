@@ -24,9 +24,9 @@ export function useSavePlaceList() {
     },
     onSuccess: (_data, variables) => {
       if (!variables.isSaved) {
-        ToastUtils.show('리스트를 저장했어요');
+        ToastUtils.show('리스트를 [메뉴 > 저장한 장소]에 저장했습니다.');
       } else {
-        ToastUtils.show('리스트 저장을 해제했어요');
+        ToastUtils.show('리스트 저장을 해제했습니다.');
       }
 
       queryClient.invalidateQueries({queryKey: ['SavedPlaceLists']});

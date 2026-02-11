@@ -1,13 +1,15 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {FlatList} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {FlatList, ListRenderItemInfo, Share} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
-import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
-import ListIcon from '@/assets/icon/ic_list.svg';
+import ExitIcon from '@/assets/icon/ic_exit.svg';
 import MapIcon from '@/assets/icon/ic_map.svg';
+import MenuIcon from '@/assets/icon/ic_menu.svg';
+import ShareIcon from '@/assets/icon/ic_share.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
@@ -23,6 +25,8 @@ import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
+import FilterBar from './sections/FilterBar';
+
 export interface PlaceListDetailScreenParams {
   placeListId: string;
 }
@@ -31,6 +35,11 @@ type PlaceMarkerItem = MarkerItem & PlaceListItem;
 
 type ViewMode = 'map' | 'list';
 
+type ListSection =
+  | {type: 'header'; key: string}
+  | {type: 'filter'; key: string}
+  | {type: 'place'; key: string; data: PlaceMarkerItem};
+
 const PlaceListDetailScreen = ({
   route,
   navigation,
@@ -38,10 +47,11 @@ const PlaceListDetailScreen = ({
   const {placeListId} = route.params;
   const {api} = useAppComponents();
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const detailVersion = useDetailScreenVersion();
   const checkAuth = useCheckAuth();
   const toggleSave = useSavePlaceList();
+  const insets = useSafeAreaInsets();
 
   const {data, isLoading, isError} = useQuery({
     queryKey: ['PlaceListDetail', placeListId],
@@ -64,74 +74,172 @@ const PlaceListDetailScreen = ({
   }, [items]);
 
   const title = data?.placeList?.name ?? '장소 리스트';
+  const description = data?.placeList?.description;
   const isSaved = data?.placeList?.isSaved ?? false;
 
-  const handleItemPress = (item: PlaceMarkerItem) => {
-    if (detailVersion === 'v2') {
-      navigation.navigate('PlaceDetailV2', {
+  const handleItemPress = useCallback(
+    (item: PlaceMarkerItem) => {
+      if (detailVersion === 'v2') {
+        navigation.navigate('PlaceDetailV2', {
+          placeInfo: {placeId: item.place.id},
+        });
+        return;
+      }
+      navigation.navigate('PlaceDetail', {
         placeInfo: {placeId: item.place.id},
       });
-      return;
-    }
-    navigation.navigate('PlaceDetail', {
-      placeInfo: {placeId: item.place.id},
-    });
-  };
+    },
+    [detailVersion, navigation],
+  );
 
-  const toggleViewMode = () => {
+  const toggleViewMode = useCallback(() => {
     setViewMode(prev => (prev === 'map' ? 'list' : 'map'));
-  };
+  }, []);
 
-  const handleToggleSave = () => {
+  const handleToggleSave = useCallback(() => {
     checkAuth(() => {
       toggleSave({isSaved, placeListId});
     });
-  };
+  }, [checkAuth, toggleSave, isSaved, placeListId]);
+
+  const handleShare = useCallback(async () => {
+    try {
+      await Share.share({
+        message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!`,
+      });
+    } catch {
+      // ignore
+    }
+  }, [title]);
+
+  const listData: ListSection[] = useMemo(
+    () => [
+      {type: 'header', key: 'header'},
+      {type: 'filter', key: 'filter'},
+      ...items.map(item => ({
+        type: 'place' as const,
+        key: item.place.id,
+        data: item,
+      })),
+    ],
+    [items],
+  );
+
+  // Wrapper for ItemMapView's ItemCard prop with hideActions
+  const PlaceListItemCard = useCallback(
+    (props: {item: PlaceMarkerItem; onPress?: () => void}) => (
+      <SearchItemCard
+        item={props.item}
+        isHeightFlex
+        hideActions
+        onPress={props.onPress}
+      />
+    ),
+    [],
+  );
+
+  // Card height from ItemMapList (242 + 28 = 270)
+  const MAP_CARD_HEIGHT = 270;
+  const floatingBottom =
+    insets.bottom + (items.length > 0 ? MAP_CARD_HEIGHT + 16 : 16);
+
+  const renderListItem = useCallback(
+    ({item, index}: ListRenderItemInfo<ListSection>) => {
+      if (item.type === 'header') {
+        return (
+          <HeaderSection>
+            {description ? (
+              <DescriptionContainer>
+                <DescriptionText>{description}</DescriptionText>
+              </DescriptionContainer>
+            ) : null}
+            <SaveShareRow>
+              <SaveButtonContainer
+                elementName="place_list_detail_save_button"
+                activeOpacity={0.8}
+                onPress={handleToggleSave}
+                $isSaved={isSaved}>
+                {isSaved ? (
+                  <BookmarkOnIcon
+                    width={16}
+                    height={16}
+                    color={color.brandColor}
+                  />
+                ) : (
+                  <BookmarkIcon width={16} height={16} color={color.white} />
+                )}
+                <SaveButtonText $isSaved={isSaved}>
+                  리스트 저장하기
+                </SaveButtonText>
+              </SaveButtonContainer>
+              <ShareButtonContainer
+                elementName="place_list_detail_share_button"
+                activeOpacity={0.8}
+                onPress={handleShare}>
+                <ShareIcon width={20} height={20} color="#24262B" />
+              </ShareButtonContainer>
+            </SaveShareRow>
+          </HeaderSection>
+        );
+      }
+      if (item.type === 'filter') {
+        return <FilterBar mode="list" />;
+      }
+      return (
+        <ListItemWrapper isFirst={index === 2}>
+          <SearchItemCard
+            item={item.data}
+            isHeightFlex
+            hideActions
+            onPress={() => handleItemPress(item.data)}
+          />
+        </ListItemWrapper>
+      );
+    },
+    [description, isSaved, handleToggleSave, handleShare, handleItemPress],
+  );
 
   return (
     <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
-      <Header>
-        <SccTouchableOpacity
-          elementName="place_list_detail_back_button"
-          activeOpacity={0.8}
-          onPress={() => navigation.goBack()}>
-          <LeftArrowIcon width={24} height={24} color={color.black} />
-        </SccTouchableOpacity>
-        <Title numberOfLines={1}>{title}</Title>
-        <HeaderRight>
-          <SccTouchableOpacity
-            elementName="place_list_detail_save_button"
-            activeOpacity={0.8}
-            onPress={handleToggleSave}>
-            {isSaved ? (
-              <BookmarkOnIcon width={24} height={24} />
-            ) : (
-              <BookmarkIcon width={24} height={24} />
-            )}
-          </SccTouchableOpacity>
-          <ViewModeToggle
-            elementName="place_list_detail_view_mode_toggle"
+      {viewMode === 'list' ? (
+        <ListHeader>
+          <HeaderLeftToggle
+            elementName="place_list_detail_map_toggle"
             activeOpacity={0.8}
             onPress={toggleViewMode}>
-            {viewMode === 'map' ? (
-              <>
-                <ListIcon width={20} height={20} />
-                <ViewModeText>목록</ViewModeText>
-              </>
-            ) : (
-              <>
-                <MapIcon width={20} height={20} />
-                <ViewModeText>지도</ViewModeText>
-              </>
-            )}
-          </ViewModeToggle>
-        </HeaderRight>
-      </Header>
-      {data?.placeList?.description && (
-        <DescriptionContainer>
-          <DescriptionText>{data.placeList.description}</DescriptionText>
-        </DescriptionContainer>
+            <MapIcon width={24} height={24} color={color.black} />
+            <HeaderToggleText>지도</HeaderToggleText>
+          </HeaderLeftToggle>
+          <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
+          <SccTouchableOpacity
+            elementName="place_list_detail_close"
+            activeOpacity={0.8}
+            onPress={() => navigation.goBack()}>
+            <ExitIcon width={24} height={24} color={color.black} />
+          </SccTouchableOpacity>
+        </ListHeader>
+      ) : (
+        <MapHeaderContainer>
+          <MapHeaderRow>
+            <HeaderLeftToggle
+              elementName="place_list_detail_list_toggle"
+              activeOpacity={0.8}
+              onPress={toggleViewMode}>
+              <MenuIcon width={24} height={24} color={color.black} />
+              <HeaderToggleText>목록</HeaderToggleText>
+            </HeaderLeftToggle>
+            <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
+            <SccTouchableOpacity
+              elementName="place_list_detail_close"
+              activeOpacity={0.8}
+              onPress={() => navigation.goBack()}>
+              <ExitIcon width={24} height={24} color={color.black} />
+            </SccTouchableOpacity>
+          </MapHeaderRow>
+          <FilterBar mode="map" />
+        </MapHeaderContainer>
       )}
+
       {isLoading ? (
         <SearchLoading />
       ) : isError ? (
@@ -140,35 +248,75 @@ const PlaceListDetailScreen = ({
         </ErrorContainer>
       ) : (
         <ContentContainer>
-          {viewMode === 'map' && (
-            <MapContainer>
-              <ItemMapView
-                ref={mapRef}
-                items={items}
-                ItemCard={SearchItemCard}
-                isRefreshVisible={false}
-                onRefresh={() => {}}
-                onCameraIdle={() => {}}
-              />
-            </MapContainer>
-          )}
-          {viewMode === 'list' && (
-            <ListContainer>
+          {/* Fix 1: 지도 항상 렌더링 (뒤에 깔아두기) */}
+          <MapAbsoluteContainer
+            style={viewMode === 'list' ? {opacity: 0} : undefined}
+            pointerEvents={viewMode === 'list' ? 'none' : 'auto'}>
+            <ItemMapView
+              ref={mapRef}
+              items={items}
+              ItemCard={PlaceListItemCard}
+              isRefreshVisible={false}
+              onRefresh={() => {}}
+              onCameraIdle={() => {}}
+            />
+          </MapAbsoluteContainer>
+
+          {viewMode === 'list' ? (
+            <ListOverlay>
               <FlatList
-                data={items}
-                keyExtractor={item => item.place.id}
+                data={listData}
+                keyExtractor={item => item.key}
+                stickyHeaderIndices={[1]}
                 contentContainerStyle={{paddingBottom: 100}}
-                renderItem={({item}) => (
-                  <ListItemWrapper>
-                    <SearchItemCard
-                      item={item}
-                      isHeightFlex
-                      onPress={() => handleItemPress(item)}
-                    />
-                  </ListItemWrapper>
-                )}
+                renderItem={renderListItem}
               />
-            </ListContainer>
+              <FloatingViewModeButton
+                elementName="place_list_detail_floating_map"
+                activeOpacity={0.8}
+                onPress={toggleViewMode}
+                $isBlue>
+                <MapIcon width={16} height={16} color={color.white} />
+                <FloatingViewModeText $isBlue>지도보기</FloatingViewModeText>
+              </FloatingViewModeButton>
+            </ListOverlay>
+          ) : (
+            <>
+              <MapRightFloatingContainer>
+                <FloatingCircleButton
+                  elementName="place_list_detail_map_save"
+                  activeOpacity={0.8}
+                  onPress={handleToggleSave}>
+                  {isSaved ? (
+                    <BookmarkOnIcon
+                      width={24}
+                      height={24}
+                      color={color.brandColor}
+                    />
+                  ) : (
+                    <BookmarkIcon width={24} height={24} color="#3F3F45" />
+                  )}
+                </FloatingCircleButton>
+                <FloatingCircleButton
+                  elementName="place_list_detail_map_share"
+                  activeOpacity={0.8}
+                  onPress={handleShare}>
+                  <ShareIcon width={24} height={24} color={color.black} />
+                </FloatingCircleButton>
+              </MapRightFloatingContainer>
+              {/* Fix 2: 동적 bottom으로 카드 위에 배치 */}
+              <FloatingViewModeButton
+                elementName="place_list_detail_floating_list"
+                activeOpacity={0.8}
+                onPress={toggleViewMode}
+                style={{bottom: floatingBottom}}
+                $isBlue={false}>
+                <MenuIcon width={16} height={16} color="#24262B" />
+                <FloatingViewModeText $isBlue={false}>
+                  목록보기
+                </FloatingViewModeText>
+              </FloatingViewModeButton>
+            </>
           )}
         </ContentContainer>
       )}
@@ -176,42 +324,42 @@ const PlaceListDetailScreen = ({
   );
 };
 
+export default PlaceListDetailScreen;
+
+// Styled Components
+
 const Layout = styled(ScreenLayout)`
   background-color: ${color.white};
 `;
 
-const ContentContainer = styled.View`
-  flex: 1;
-`;
-
-const MapContainer = styled.View`
-  flex: 1;
-`;
-
-const ListContainer = styled.View`
-  flex: 1;
+const ListHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  padding-horizontal: 20px;
+  padding-vertical: 7px;
+  gap: 12px;
   background-color: ${color.white};
 `;
 
-const Header = styled.View`
-  display: flex;
+const MapHeaderContainer = styled.View`
+  flex-direction: column;
+  background-color: ${color.white};
+  shadow-color: #000;
+  shadow-offset: 0px 4px;
+  shadow-opacity: 0.12;
+  shadow-radius: 16px;
+  elevation: 3;
+`;
+
+const MapHeaderRow = styled.View`
   flex-direction: row;
   align-items: center;
-  padding-vertical: 10px;
   padding-horizontal: 20px;
-  gap: 12px;
-  height: 64px;
-`;
-
-const HeaderRight = styled.View`
-  margin-left: auto;
-  flex-direction: row;
-  align-items: center;
+  padding-vertical: 7px;
   gap: 12px;
 `;
 
-const ViewModeToggle = styled(SccTouchableOpacity)`
-  display: flex;
+const HeaderLeftToggle = styled(SccTouchableOpacity)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -219,35 +367,141 @@ const ViewModeToggle = styled(SccTouchableOpacity)`
   height: 38px;
 `;
 
-const ViewModeText = styled.Text`
-  font-size: 12px;
+const HeaderToggleText = styled.Text`
+  font-size: 10px;
   font-family: ${font.pretendardRegular};
   color: ${color.black};
 `;
 
-const ListItemWrapper = styled.View`
-  padding: 20px;
-  border-top-width: 1px;
-  border-top-color: ${color.gray20};
+const HeaderTitle = styled.Text`
+  flex: 1;
+  font-size: 18px;
+  font-family: ${font.pretendardSemibold};
+  color: ${color.black};
+  text-align: center;
 `;
 
-const Title = styled.Text`
-  font-size: 18px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  flex-shrink: 1;
+const HeaderSection = styled.View`
+  background-color: ${color.white};
+  padding-horizontal: 20px;
+  padding-top: 20px;
+  padding-bottom: 16px;
 `;
 
 const DescriptionContainer = styled.View`
-  padding-horizontal: 20px;
   padding-bottom: 12px;
-  background-color: ${color.white};
 `;
 
 const DescriptionText = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardRegular};
   color: ${color.gray60};
+`;
+
+const SaveShareRow = styled.View`
+  flex-direction: row;
+  gap: 8px;
+`;
+
+const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 8px;
+  background-color: ${({$isSaved}) => ($isSaved ? '#F2F2F5' : '#0C76F7')};
+  gap: 6px;
+`;
+
+const SaveButtonText = styled.Text<{$isSaved: boolean}>`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  color: ${({$isSaved}) => ($isSaved ? '#24262B' : color.white)};
+`;
+
+const ShareButtonContainer = styled(SccTouchableOpacity)`
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: #e3e4e8;
+  background-color: ${color.white};
+  align-items: center;
+  justify-content: center;
+`;
+
+const ContentContainer = styled.View`
+  flex: 1;
+`;
+
+const MapAbsoluteContainer = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+`;
+
+const ListOverlay = styled.View`
+  flex: 1;
+  background-color: ${color.white};
+`;
+
+const ListItemWrapper = styled.View<{isFirst: boolean}>`
+  padding: 20px;
+  border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
+  border-top-color: #eff0f2;
+`;
+
+const FloatingViewModeButton = styled(SccTouchableOpacity)<{$isBlue: boolean}>`
+  position: absolute;
+  bottom: 40px;
+  align-self: center;
+  z-index: 20;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 20px;
+  padding-vertical: 10px;
+  border-radius: 27px;
+  background-color: ${({$isBlue}) => ($isBlue ? '#0C76F7' : color.white)};
+  gap: 4px;
+  shadow-color: #000;
+  shadow-offset: 0px 4px;
+  shadow-opacity: 0.15;
+  shadow-radius: 10px;
+  elevation: 20;
+`;
+
+const FloatingViewModeText = styled.Text<{$isBlue: boolean}>`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  color: ${({$isBlue}) => ($isBlue ? color.white : '#24262B')};
+`;
+
+const MapRightFloatingContainer = styled.View`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  gap: 8px;
+  z-index: 20;
+  elevation: 20;
+`;
+
+const FloatingCircleButton = styled(SccTouchableOpacity)`
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: ${color.white};
+  align-items: center;
+  justify-content: center;
+  shadow-color: #000;
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.15;
+  shadow-radius: 4px;
+  elevation: 3;
 `;
 
 const ErrorContainer = styled.View`
@@ -261,5 +515,3 @@ const ErrorText = styled.Text`
   font-family: ${font.pretendardMedium};
   color: ${color.gray50};
 `;
-
-export default PlaceListDetailScreen;

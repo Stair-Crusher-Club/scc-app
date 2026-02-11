@@ -21,8 +21,8 @@ export default function MenuListSection() {
     navigation.navigate('Conquerer');
   }
 
-  function goToFavoritePlaces() {
-    navigation.navigate('FavoritePlaces');
+  function goToSavedPlaceLists() {
+    navigation.navigate('SavedPlaceLists');
   }
 
   function goToCrusherHistory() {
@@ -52,7 +52,7 @@ export default function MenuListSection() {
     <S.MenuListSection>
       <SccTouchableOpacity
         elementName="menu_favorite_places"
-        onPress={goToFavoritePlaces}>
+        onPress={goToSavedPlaceLists}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
             <MenuBookmarkIcon />
