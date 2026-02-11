@@ -44,6 +44,10 @@ export default function SavedPlaceListsScreen() {
   const placeLists = data?.pages.flatMap(page => page.items ?? []) ?? [];
 
   const handleItemPress = (item: PlaceListDto) => {
+    if (item.type === PlaceListTypeDto.MyPlaces) {
+      navigation.navigate('FavoritePlaces');
+      return;
+    }
     navigation.navigate('PlaceListDetail', {placeListId: item.id});
   };
 

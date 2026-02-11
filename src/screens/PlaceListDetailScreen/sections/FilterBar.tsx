@@ -150,6 +150,7 @@ const MapFilterContainer = styled.View`
   padding-horizontal: 0px;
   padding-top: 4px;
   padding-bottom: 10px;
+  background-color: ${color.white};
 `;
 
 const mapChipBase = `

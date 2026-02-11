@@ -68,7 +68,7 @@ const PlaceListDetailScreen = ({
   useEffect(() => {
     if (items.length > 0) {
       setTimeout(() => {
-        mapRef.current?.fitToItems(items);
+        mapRef.current?.fitToItems(items, 60);
       }, 300);
     }
   }, [items]);
@@ -351,7 +351,6 @@ const HeaderTitle = styled.Text`
   font-size: 18px;
   font-family: ${font.pretendardSemibold};
   color: ${color.black};
-  text-align: center;
 `;
 
 const HeaderSection = styled.View`
@@ -461,7 +460,7 @@ const MapFilterOverlay = styled.View`
 
 const MapRightFloatingContainer = styled.View`
   position: absolute;
-  top: 16px;
+  top: 60px;
   right: 16px;
   gap: 8px;
   z-index: 20;
