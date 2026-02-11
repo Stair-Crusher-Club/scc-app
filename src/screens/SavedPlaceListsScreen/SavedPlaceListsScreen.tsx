@@ -1,10 +1,11 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import React from 'react';
-import {Linking} from 'react-native';
+import {Dimensions, Image, Linking} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
+import BannerDecoration from '@/assets/icon/ic_banner_decoration.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
@@ -114,7 +115,12 @@ export default function SavedPlaceListsScreen() {
                   </BannerSubText>
                   <BannerMainText>저장리스트를 요청해주세요~</BannerMainText>
                 </BannerTextContainer>
-                <BannerEmoji>📢</BannerEmoji>
+                <MegaphoneImage
+                  source={require('@/assets/img/banner_megaphone.png')}
+                />
+                <DecorationContainer>
+                  <BannerDecoration width={24} height={18} />
+                </DecorationContainer>
               </BannerContent>
             </SccPressable>
           </BannerContainer>
@@ -191,31 +197,46 @@ const BannerContainer = styled.View`
 `;
 
 const BannerContent = styled.View`
-  width: 350px;
+  width: ${Math.min(350, Dimensions.get('window').width - 40)}px;
   height: 67px;
   background-color: rgba(103, 174, 255, 0.8);
   border-radius: 6px;
   flex-direction: row;
   align-items: center;
-  padding-horizontal: 20px;
+  padding-left: 12px;
+  padding-right: 16px;
+  overflow: hidden;
 `;
 
 const BannerTextContainer = styled.View`
   flex: 1;
+  gap: 4px;
 `;
 
 const BannerSubText = styled.Text`
   font-size: 11px;
   font-family: ${() => font.pretendardRegular};
   color: ${() => color.white};
+  letter-spacing: -0.44px;
 `;
 
 const BannerMainText = styled.Text`
   font-size: 16px;
   font-family: ${() => font.pretendardBold};
   color: ${() => color.white};
+  letter-spacing: -0.32px;
+  line-height: 19.2px;
 `;
 
-const BannerEmoji = styled.Text`
-  font-size: 28px;
+const MegaphoneImage = styled(Image)`
+  width: 71px;
+  height: 71px;
+  transform: rotate(1.23deg);
+`;
+
+const DecorationContainer = styled.View`
+  position: absolute;
+  bottom: -4px;
+  right: 40px;
+  transform: rotate(-7.64deg);
 `;
