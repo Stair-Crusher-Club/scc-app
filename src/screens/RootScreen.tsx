@@ -193,6 +193,9 @@ const RootScreen = () => {
               SearchUnconqueredPlaces: {
                 path: 'search-unconquered-places',
               },
+              PlaceListDetail: {
+                path: 'place-list/:placeListId',
+              },
             },
           },
         }}
