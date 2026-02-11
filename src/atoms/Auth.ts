@@ -35,6 +35,7 @@ export const featureFlagAtom = atom<{
   isRegisterAccessibilityV2: boolean;
   isHomeScreenV2: boolean;
   isMultipleDoorRegistration: boolean;
+  isPlaceListEnabled: boolean;
 } | null>(null);
 
 // useMe hook - centralized userInfo management
@@ -79,6 +80,8 @@ export function useMe() {
       isHomeScreenV2: data.flags?.includes('HOME_SCREEN_V2') ?? false,
       isMultipleDoorRegistration:
         data.flags?.includes('MULTIPLE_DOOR_REGISTRATION') ?? false,
+      isPlaceListEnabled:
+        data.flags?.includes('PLACE_LIST_ENABLED') ?? false,
     });
   };
 

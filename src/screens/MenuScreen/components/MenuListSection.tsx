@@ -11,18 +11,24 @@ import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import useNavigation from '@/navigation/useNavigation';
+import {useIsPlaceListEnabled} from '@/utils/accessibilityFlags';
 
 import * as S from './MenuListSection.style';
 
 export default function MenuListSection() {
   const navigation = useNavigation();
+  const isPlaceListEnabled = useIsPlaceListEnabled();
 
   function goToConquerer() {
     navigation.navigate('Conquerer');
   }
 
-  function goToSavedPlaceLists() {
-    navigation.navigate('SavedPlaceLists');
+  function goToSavedPlaces() {
+    if (isPlaceListEnabled) {
+      navigation.navigate('SavedPlaceLists');
+    } else {
+      navigation.navigate('FavoritePlaces');
+    }
   }
 
   function goToCrusherHistory() {
@@ -52,7 +58,7 @@ export default function MenuListSection() {
     <S.MenuListSection>
       <SccTouchableOpacity
         elementName="menu_favorite_places"
-        onPress={goToSavedPlaceLists}>
+        onPress={goToSavedPlaces}>
         <S.MenuItem>
           <S.MenuTitleWrapper>
             <MenuBookmarkIcon />
