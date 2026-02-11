@@ -166,15 +166,7 @@ const FRefInputComp = <T extends MarkerItem>(
           left: 30,
         }}
       />
-      <UpperShadow
-        style={{
-          shadowColor: color.black,
-          shadowOffset: {width: 0, height: 4},
-          shadowOpacity: 0.15,
-          shadowRadius: 5,
-          elevation: 5,
-        }}
-      />
+      <UpperShadow />
       {isRefreshVisible && (
         <RefreshButton
           elementName="map_refresh_button"
@@ -285,10 +277,11 @@ const RefreshButton = styled(SccTouchableOpacity)`
 
 const UpperShadow = styled.View`
   width: 100%;
-  height: 20px;
-  background-color: white;
-  top: -20px;
+  height: 0px;
   position: absolute;
+  top: 0;
+  border-bottom-width: 1px;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
 `;
 
 const RefreshText = styled.Text`
