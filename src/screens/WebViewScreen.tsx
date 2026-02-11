@@ -1,8 +1,9 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {SccPressable} from '@/components/SccPressable';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {PixelRatio, StyleSheet, Text, View} from 'react-native';
+import {Linking, PixelRatio, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
+import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import {CloseAppBar} from '@/components/AppBar';
@@ -52,6 +53,19 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     return false;
   }, [canGoBack]);
 
+  const handleShouldStartLoad = useCallback(
+    (request: ShouldStartLoadRequest) => {
+      const reqUrl = request.url;
+      if (reqUrl.startsWith('http://') || reqUrl.startsWith('https://')) {
+        return true;
+      }
+      // 커스텀 스킴 딥링크 (stair-crusher://, intent:// 등)는 네이티브로 처리
+      Linking.openURL(reqUrl).catch(() => {});
+      return false;
+    },
+    [],
+  );
+
   useBackHandler(handleBackPress);
 
   return (
@@ -78,6 +92,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         source={{uri: url}}
         injectedJavaScript="window.postMessage(document.title)"
         onMessage={handleMessage}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
           setCurrentUrl(navState.url);

@@ -51,13 +51,20 @@ export default function AccessibilityInfoRequestButton({
       // 3. Grow bigger + color fill
       Animated.parallel([
         Animated.timing(scaleAnim, {
-          toValue: 1.08,
+          toValue: 1.1,
           duration: 220,
           useNativeDriver: false,
         }),
         Animated.timing(colorAnim, {
           toValue: 1,
           duration: 220,
+          useNativeDriver: false,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 1.08,
+          duration: 20,
           useNativeDriver: false,
         }),
       ]),
@@ -101,11 +108,15 @@ export default function AccessibilityInfoRequestButton({
   if (enableAnimation && !isRequested) {
     const animatedBg = colorAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [color.white, color.gray90],
+      outputRange: [color.brand40, color.white],
     });
     const animatedTextColor = colorAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [color.gray100, color.white],
+      outputRange: [color.white, color.brand40],
+    });
+    const animatedBorderColor = colorAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['transparent', color.brand40],
     });
 
     return (
@@ -125,7 +136,7 @@ export default function AccessibilityInfoRequestButton({
               paddingHorizontal: 10,
               borderRadius: 100,
               borderWidth: 1,
-              borderColor: color.gray20,
+              borderColor: animatedBorderColor,
             }}>
             <Animated.Text
               style={{
@@ -158,16 +169,16 @@ export default function AccessibilityInfoRequestButton({
 }
 
 const ButtonContainer = styled(SccTouchableOpacity)<{isRequested?: boolean}>`
-  padding: 5px 8px;
+  padding: 5px 10px;
   border-radius: 100px;
   border-width: 1px;
-  border-color: ${color.gray20};
+  border-color: transparent;
   background-color: ${({isRequested}) =>
-    isRequested ? color.gray90 : color.white};
+    isRequested ? color.gray20 : color.brand40};
 `;
 
 const RequestText = styled.Text<{isRequested?: boolean}>`
   font-size: 12px;
   font-family: ${font.pretendardMedium};
-  color: ${({isRequested}) => (isRequested ? color.white : color.gray100)};
+  color: ${({isRequested}) => (isRequested ? color.black : color.white)};
 `;

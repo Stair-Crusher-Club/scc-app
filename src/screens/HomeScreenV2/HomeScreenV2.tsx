@@ -198,6 +198,11 @@ const HomeScreenV2 = ({navigation}: any) => {
     }, []),
   );
 
+  const [isScrollEnabled, setIsScrollEnabled] = useState(true);
+  const handleBannerPanStateChange = useCallback((isPanning: boolean) => {
+    setIsScrollEnabled(!isPanning);
+  }, []);
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -239,13 +244,19 @@ const HomeScreenV2 = ({navigation}: any) => {
         safeAreaEdges={['top']}
         style={{backgroundColor: color.gray15}}>
         <Container>
-          <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            bounces={false}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={isScrollEnabled}>
             <InnerContainer>
               <LogoContainer>
                 <CrusherClubLogo />
               </LogoContainer>
               <SearchButtonSection />
-              <MainBannerSection banners={homeData?.mainBanners ?? []} />
+              <MainBannerSection
+                banners={homeData?.mainBanners ?? []}
+                onPanStateChange={handleBannerPanStateChange}
+              />
               <AnnouncementSection
                 announcements={homeData?.announcements ?? []}
               />
@@ -254,7 +265,10 @@ const HomeScreenV2 = ({navigation}: any) => {
             <RecommendedContentSection
               contents={homeData?.recommendedContents ?? []}
             />
-            <StripBannerSection banners={homeData?.stripBanners ?? []} />
+            <StripBannerSection
+              banners={homeData?.stripBanners ?? []}
+              onPanStateChange={handleBannerPanStateChange}
+            />
             <FooterButtonsSection />
           </ScrollView>
           <GeolocationPermissionBottomSheet
