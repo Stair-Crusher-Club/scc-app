@@ -201,44 +201,32 @@ const PlaceListDetailScreen = ({
 
   return (
     <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
-      {viewMode === 'list' ? (
-        <ListHeader>
-          <HeaderLeftToggle
-            elementName="place_list_detail_map_toggle"
-            activeOpacity={0.8}
-            onPress={toggleViewMode}>
+      <HeaderRow $isMapMode={viewMode === 'map'}>
+        <HeaderLeftToggle
+          elementName={
+            viewMode === 'list'
+              ? 'place_list_detail_map_toggle'
+              : 'place_list_detail_list_toggle'
+          }
+          activeOpacity={0.8}
+          onPress={toggleViewMode}>
+          {viewMode === 'list' ? (
             <MapIcon width={24} height={24} color={color.black} />
-            <HeaderToggleText>지도</HeaderToggleText>
-          </HeaderLeftToggle>
-          <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
-          <SccTouchableOpacity
-            elementName="place_list_detail_close"
-            activeOpacity={0.8}
-            onPress={() => navigation.goBack()}>
-            <ExitIcon width={24} height={24} color={color.black} />
-          </SccTouchableOpacity>
-        </ListHeader>
-      ) : (
-        <MapHeaderContainer>
-          <MapHeaderRow>
-            <HeaderLeftToggle
-              elementName="place_list_detail_list_toggle"
-              activeOpacity={0.8}
-              onPress={toggleViewMode}>
-              <MenuIcon width={24} height={24} color={color.black} />
-              <HeaderToggleText>목록</HeaderToggleText>
-            </HeaderLeftToggle>
-            <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
-            <SccTouchableOpacity
-              elementName="place_list_detail_close"
-              activeOpacity={0.8}
-              onPress={() => navigation.goBack()}>
-              <ExitIcon width={24} height={24} color={color.black} />
-            </SccTouchableOpacity>
-          </MapHeaderRow>
-          <FilterBar mode="map" />
-        </MapHeaderContainer>
-      )}
+          ) : (
+            <MenuIcon width={24} height={24} color={color.black} />
+          )}
+          <HeaderToggleText>
+            {viewMode === 'list' ? '지도' : '목록'}
+          </HeaderToggleText>
+        </HeaderLeftToggle>
+        <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
+        <SccTouchableOpacity
+          elementName="place_list_detail_close"
+          activeOpacity={0.8}
+          onPress={() => navigation.goBack()}>
+          <ExitIcon width={24} height={24} color={color.black} />
+        </SccTouchableOpacity>
+      </HeaderRow>
 
       {isLoading ? (
         <SearchLoading />
@@ -282,6 +270,9 @@ const PlaceListDetailScreen = ({
             </ListOverlay>
           ) : (
             <>
+              <MapFilterOverlay>
+                <FilterBar mode="map" />
+              </MapFilterOverlay>
               <MapRightFloatingContainer>
                 <FloatingCircleButton
                   elementName="place_list_detail_map_save"
@@ -332,31 +323,13 @@ const Layout = styled(ScreenLayout)`
   background-color: ${color.white};
 `;
 
-const ListHeader = styled.View`
+const HeaderRow = styled.View<{$isMapMode: boolean}>`
   flex-direction: row;
   align-items: center;
   padding-horizontal: 20px;
   padding-vertical: 7px;
   gap: 12px;
   background-color: ${color.white};
-`;
-
-const MapHeaderContainer = styled.View`
-  flex-direction: column;
-  background-color: ${color.white};
-  shadow-color: #000;
-  shadow-offset: 0px 4px;
-  shadow-opacity: 0.12;
-  shadow-radius: 16px;
-  elevation: 3;
-`;
-
-const MapHeaderRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  padding-horizontal: 20px;
-  padding-vertical: 7px;
-  gap: 12px;
 `;
 
 const HeaderLeftToggle = styled(SccTouchableOpacity)`
@@ -479,6 +452,11 @@ const FloatingViewModeText = styled.Text<{$isBlue: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
   color: ${({$isBlue}) => ($isBlue ? color.white : '#24262B')};
+`;
+
+const MapFilterOverlay = styled.View`
+  z-index: 10;
+  elevation: 10;
 `;
 
 const MapRightFloatingContainer = styled.View`
