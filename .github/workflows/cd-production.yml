@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-      - '!v*-android'
-      - '!v*-ios'
   workflow_dispatch:
     inputs:
       ios_version:

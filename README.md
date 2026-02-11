@@ -95,21 +95,38 @@ yarn ota-deploy:production -i # 운영 환경
 
 ### 앱스토어/플레이스토어 배포
 
-[Fastlane](https://fastlane.tools/)을 사용한 배포:
+[Fastlane](https://fastlane.tools/)과 GitHub Actions를 사용한 네이티브 빌드 배포:
+
+#### 1. Release 브랜치 생성 (로컬)
+
+`release-X.Y.Z` 형식의 브랜치를 생성하고 push합니다. 버전 bump는 CI가 브랜치명에서 추출하여 자동 처리합니다.
 
 ```sh
-# Android
-cd android
-# 버전 지정 & git tag 따는 것은 fastlane 명령어 실행 도중에 함께 처리됨
-fastlane android release_candidate scheme:sandbox # 개발 환경 - 주의 : git tag는 따지 말 것!
-fastlane android release_candidate scheme:production # 운영 환경
-
-# iOS
-cd ios
-# 버전 지정 & git tag 따는 것은 fastlane 명령어 실행 도중에 함께 처리됨
-fastlane ios release_candidate scheme:sandbox # 개발 환경 - 주의 : git tag는 따지 말 것!
-fastlane ios release_candidate scheme:production # 운영 환경
+git checkout -b release-1.3.2
+git push origin release-1.3.2
 ```
+
+> (선택) 로컬에서 미리 버전을 올리고 싶다면 기존 `prepare_release`도 사용 가능:
+> ```sh
+> cd ios && bundle exec fastlane ios prepare_release version:1.3.2
+> cd android && bundle exec fastlane android prepare_release version:1.3.2
+> ```
+
+#### 2. Sandbox 네이티브 빌드 (자동)
+
+`release-*` 브랜치에 `ios/**` 또는 `android/**` 파일이 변경되면 GitHub Actions(`cd-native-build.yml`)가 자동으로 sandbox 네이티브 빌드를 실행합니다:
+- 브랜치명에서 버전을 추출하여 버전 파일이 안 맞으면 자동 bump
+- 변경된 플랫폼만 빌드 (iOS/Android path filter 기반)
+
+#### 3. Production 네이티브 빌드 (수동)
+
+GitHub Actions에서 `cd-native-build.yml` 워크플로우를 **수동 실행(workflow_dispatch)**합니다:
+- platform: `android` 또는 `ios` 선택
+- scheme: `production` 선택
+
+#### 4. main 머지 → 태그 자동 생성
+
+Release 브랜치를 main에 머지하면, `auto-tag-on-merge.yml`이 버전 파일에서 버전을 읽어 `v1.3.2-ios`, `v1.3.2-android` 태그를 자동 생성합니다 (기록용).
 
 ## 기여하기
 

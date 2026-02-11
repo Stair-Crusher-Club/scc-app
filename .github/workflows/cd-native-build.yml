@@ -2,9 +2,11 @@ name: Native Build Deployment
 
 on:
   push:
-    tags:
-      - 'v*-android'
-      - 'v*-ios'
+    branches:
+      - 'release-[0-9]+.[0-9]+.[0-9]+*'
+    paths:
+      - 'ios/**'
+      - 'android/**'
   workflow_dispatch:
     inputs:
       platform:
@@ -23,16 +25,53 @@ on:
           - production
 
 jobs:
+  detect-changes:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      build_ios: ${{ steps.decide.outputs.build_ios }}
+      build_android: ${{ steps.decide.outputs.build_android }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ios:
+              - 'ios/**'
+            android:
+              - 'android/**'
+      - name: Decide platforms to build
+        id: decide
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          # 플랫폼별 브랜치면 해당 플랫폼만, 아니면 변경된 파일 기준
+          if [[ "$BRANCH" =~ -ios$ ]]; then
+            echo "build_ios=${{ steps.filter.outputs.ios }}" >> $GITHUB_OUTPUT
+            echo "build_android=false" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ -android$ ]]; then
+            echo "build_ios=false" >> $GITHUB_OUTPUT
+            echo "build_android=${{ steps.filter.outputs.android }}" >> $GITHUB_OUTPUT
+          else
+            echo "build_ios=${{ steps.filter.outputs.ios }}" >> $GITHUB_OUTPUT
+            echo "build_android=${{ steps.filter.outputs.android }}" >> $GITHUB_OUTPUT
+          fi
+
   android:
-    if: startsWith(github.ref_name, 'v') && endsWith(github.ref_name, '-android') || (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'android')
+    needs: [detect-changes]
+    if: >
+      always() &&
+      ((github.event_name == 'push' && needs.detect-changes.outputs.build_android == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'android'))
     runs-on: macos-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: true
           ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -81,29 +120,47 @@ jobs:
           bundler-cache: true
           working-directory: android
 
+      - name: Configure git for push
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+      - name: Ensure version matches branch
+        if: github.event_name == 'push'
+        run: |
+          VERSION=$(echo "${{ github.ref_name }}" | sed -E 's/^release-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          cd android
+          bundle exec fastlane android prepare_release version:$VERSION
+
       - name: Run Android release candidate
         run: |
           cd android
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             bundle exec fastlane android release_candidate scheme:${{ github.event.inputs.scheme }}
           else
-            bundle exec fastlane android release_candidate scheme:production
+            bundle exec fastlane android release_candidate scheme:sandbox
           fi
 
       - name: Notify Slack on Success
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[NATIVE] Android Build Deployment Successful\", \"text\":\"Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[NATIVE] Android Build Deployment Successful\", \"text\":\"Branch: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
       - name: Notify Slack on Failure
         if: failure()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[NATIVE] Android Build Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[NATIVE] Android Build Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> Branch: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
   ios:
-    if: startsWith(github.ref_name, 'v') && endsWith(github.ref_name, '-ios') || (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'ios')
+    needs: [detect-changes]
+    if: >
+      always() &&
+      ((github.event_name == 'push' && needs.detect-changes.outputs.build_ios == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'ios'))
     runs-on: macos-15-xlarge
 
     steps:
@@ -112,6 +169,7 @@ jobs:
         with:
           submodules: true
           ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup SSH agent for build certificates
         uses: webfactory/ssh-agent@v0.9.0
@@ -164,6 +222,20 @@ jobs:
           cd ios
           pod install
 
+      - name: Configure git for push
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+      - name: Ensure version matches branch
+        if: github.event_name == 'push'
+        run: |
+          VERSION=$(echo "${{ github.ref_name }}" | sed -E 's/^release-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          cd ios
+          bundle exec fastlane ios prepare_release version:$VERSION
+
       - name: Run iOS release candidate
         run: |
           export MATCH_PASSWORD='${{ secrets.MATCH_PASSWORD }}'
@@ -171,17 +243,17 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             bundle exec fastlane ios release_candidate scheme:${{ github.event.inputs.scheme }}
           else
-            bundle exec fastlane ios release_candidate scheme:production
+            bundle exec fastlane ios release_candidate scheme:sandbox
           fi
 
       - name: Notify Slack on Success
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[NATIVE] iOS Build Deployment Successful\", \"text\":\"Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[NATIVE] iOS Build Deployment Successful\", \"text\":\"Branch: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
       - name: Notify Slack on Failure
         if: failure()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[NATIVE] iOS Build Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> Tag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[NATIVE] iOS Build Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> Branch: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}

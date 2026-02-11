@@ -146,14 +146,11 @@ platform :android do
     version_code = next_build_number(version_name: version)
     update_version(version_name: version, version_code: version_code)
 
-    # 3. commit & tag
+    # 3. commit & push
     sh("git add #{File.expand_path("../app/version.properties")}")
-    sh("git commit -m \"Release android #{version}\"")
-    tag_name = "v#{version}-android"
-    sh("git tag #{tag_name}")
+    sh("git commit -m \"Release android #{version} [skip ci]\"")
     branch = git_current_branch()
     sh("git push origin #{branch}")
-    sh("git push origin #{tag_name}")
   end
 
   lane :release_candidate do |options|
