@@ -3,7 +3,7 @@
 #import "RNFBMessagingModule.h"
 
 #import <AirbridgeReactNative/AirbridgeReactNative.h>
-#import "ReactNativeConfig.h"
+#import <react-native-config/RNCConfig.h>
 #import <RNKakaoLogins.h>
 #import <React/RCTBundleURLProvider.h>
 #import <HotUpdater/HotUpdater.h>
@@ -17,7 +17,7 @@
   [FIRApp configure];
 
   // Airbridge SDK: production에서만 초기화 (sandbox 데이터 오염 방지)
-  NSString *flavor = [ReactNativeConfig envFor:@"FLAVOR"];
+  NSString *flavor = [RNCConfig envFor:@"FLAVOR"];
   if ([flavor isEqualToString:@"production"]) {
     [AirbridgeReactNative initializeSDKWithName:@"scc" token:@"270c418e2f3e40118622b749b94c590e"];
   }
