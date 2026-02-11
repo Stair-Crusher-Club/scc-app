@@ -1,4 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
+import {useAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {FlatList, ListRenderItemInfo, Share} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -16,7 +17,7 @@ import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceListItem} from '@/generated-sources/openapi';
+import {PlaceListItem, SearchPlaceSortDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useSavePlaceList} from '@/hooks/useSavePlaceList';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -26,7 +27,9 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
+import {placeListFilterAtom, placeListFilterModalStateAtom} from './atoms';
 import FilterBar from './sections/FilterBar';
+import PlaceListFilterModal from './sections/PlaceListFilterModal';
 
 export interface PlaceListDetailScreenParams {
   placeListId: string;
@@ -53,11 +56,28 @@ const PlaceListDetailScreen = ({
   const checkAuth = useCheckAuth();
   const toggleSave = useSavePlaceList();
   const insets = useSafeAreaInsets();
+  const [filters] = useAtom(placeListFilterAtom);
+  const [, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
 
   const {data, isLoading, isError} = useQuery({
-    queryKey: ['PlaceListDetail', placeListId],
+    queryKey: ['PlaceListDetail', placeListId, filters],
     queryFn: async () => {
-      const result = await api.getPlaceList({placeListId});
+      let sort: SearchPlaceSortDto | undefined;
+      if (filters.sortOption === 'distance') {
+        sort = SearchPlaceSortDto.Distance;
+      } else if (filters.sortOption === 'accessibility_score') {
+        sort = SearchPlaceSortDto.AccessibilityScore;
+      }
+
+      const result = await api.getPlaceList({
+        placeListId,
+        sort,
+        filters: {
+          maxAccessibilityScore: filters.scoreUnder ?? undefined,
+          hasSlope: filters.hasSlope ?? undefined,
+          isRegistered: filters.isRegistered ?? undefined,
+        },
+      });
       return result.data;
     },
   });
@@ -186,7 +206,11 @@ const PlaceListDetailScreen = ({
       if (item.type === 'filter') {
         return (
           <LogParamsProvider params={{viewMode: 'list'}}>
-            <FilterBar mode="list" />
+            <FilterBar
+              mode="list"
+              filters={filters}
+              onOpenFilterModal={setFilterModalState}
+            />
           </LogParamsProvider>
         );
       }
@@ -208,6 +232,8 @@ const PlaceListDetailScreen = ({
       handleShare,
       handleItemPress,
       items,
+      filters,
+      setFilterModalState,
     ],
   );
 
@@ -284,7 +310,11 @@ const PlaceListDetailScreen = ({
             <>
               <LogParamsProvider params={{viewMode: 'map'}}>
                 <MapFilterOverlay>
-                  <FilterBar mode="map" />
+                  <FilterBar
+                    mode="map"
+                    filters={filters}
+                    onOpenFilterModal={setFilterModalState}
+                  />
                 </MapFilterOverlay>
               </LogParamsProvider>
               <MapRightFloatingContainer>
@@ -325,6 +355,7 @@ const PlaceListDetailScreen = ({
           )}
         </ContentContainer>
       )}
+      <PlaceListFilterModal />
     </Layout>
   );
 };

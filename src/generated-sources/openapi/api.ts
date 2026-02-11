@@ -2277,6 +2277,18 @@ export interface GetPlaceListRequestDto {
      * @memberof GetPlaceListRequestDto
      */
     'currentLocation'?: Location;
+    /**
+     * 
+     * @type {SearchPlaceSortDto}
+     * @memberof GetPlaceListRequestDto
+     */
+    'sort'?: SearchPlaceSortDto;
+    /**
+     * 
+     * @type {SearchPlaceFilterDto}
+     * @memberof GetPlaceListRequestDto
+     */
+    'filters'?: SearchPlaceFilterDto;
 }
 /**
  * 
