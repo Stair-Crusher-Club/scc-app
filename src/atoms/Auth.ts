@@ -80,8 +80,7 @@ export function useMe() {
       isHomeScreenV2: data.flags?.includes('HOME_SCREEN_V2') ?? false,
       isMultipleDoorRegistration:
         data.flags?.includes('MULTIPLE_DOOR_REGISTRATION') ?? false,
-      isPlaceListEnabled:
-        data.flags?.includes('PLACE_LIST_ENABLED') ?? false,
+      isPlaceListEnabled: data.flags?.includes('PLACE_LIST_ENABLED') ?? false,
     });
   };
 

@@ -11,7 +11,7 @@ import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import useNavigation from '@/navigation/useNavigation';
-import {useIsPlaceListEnabled} from '@/utils/accessibilityFlags';
+import {useIsPlaceListEnabled} from '@/hooks/useFeatureFlags';
 
 import * as S from './MenuListSection.style';
 

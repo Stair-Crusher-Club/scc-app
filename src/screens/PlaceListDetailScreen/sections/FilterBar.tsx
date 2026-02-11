@@ -13,175 +13,112 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({mode}: FilterBarProps) {
-  if (mode === 'list') {
-    return (
-      <ListFilterContainer>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 20, gap: 6}}>
-          <DropdownChip
-            elementName="filter_sort"
-            activeOpacity={0.7}
-            onPress={() => {
-              // TODO: 정렬 필터 로직
-            }}>
-            <ListChipText>가까운순</ListChipText>
-            <AngleBracketDownIcon width={14} height={14} color="#16181C" />
-          </DropdownChip>
-          <PlainChip
-            elementName="filter_slope"
-            activeOpacity={0.7}
-            onPress={() => {
-              // TODO: 경사로 필터 로직
-            }}>
-            <ListChipText>경사로 유무</ListChipText>
-          </PlainChip>
-          <PlainChip
-            elementName="filter_access_level"
-            activeOpacity={0.7}
-            onPress={() => {
-              // TODO: 접근레벨 필터 로직
-            }}>
-            <ListChipText>접근레벨</ListChipText>
-          </PlainChip>
-          <PlainChip
-            elementName="filter_conquered"
-            activeOpacity={0.7}
-            onPress={() => {
-              // TODO: 정복여부 필터 로직
-            }}>
-            <ListChipText>정복여부</ListChipText>
-          </PlainChip>
-        </ScrollView>
-      </ListFilterContainer>
-    );
-  }
+  const isMap = mode === 'map';
 
   return (
-    <MapFilterContainer>
+    <FilterContainer $isMap={isMap}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{paddingHorizontal: 12, gap: 6}}>
-        <MapFilterChip
-          elementName="filter_icon"
+        contentContainerStyle={{
+          paddingHorizontal: isMap ? 12 : 20,
+          gap: 6,
+        }}>
+        {isMap && (
+          <IconChip
+            elementName="filter_icon"
+            activeOpacity={0.7}
+            onPress={() => {
+              // TODO: 필터 모달
+            }}>
+            <FilterIcon width={16} height={16} color="#24262B" />
+          </IconChip>
+        )}
+        <DropdownChip
+          elementName="filter_sort"
           activeOpacity={0.7}
-          onPress={() => {
-            // TODO: 필터 모달
-          }}>
-          <FilterIcon width={16} height={16} color="#24262B" />
-        </MapFilterChip>
-        <MapDropdownChip
-          elementName="filter_sort_map"
-          activeOpacity={0.7}
+          $isMap={isMap}
           onPress={() => {
             // TODO: 정렬 필터 로직
           }}>
-          <MapChipText>가까운순</MapChipText>
-          <AngleBracketDownIcon width={14} height={14} color="#24262B" />
-        </MapDropdownChip>
-        <MapPlainChip
-          elementName="filter_slope_map"
+          <ChipText $isMap={isMap}>가까운순</ChipText>
+          <AngleBracketDownIcon
+            width={14}
+            height={14}
+            color={isMap ? '#24262B' : '#16181C'}
+          />
+        </DropdownChip>
+        <PlainChip
+          elementName="filter_slope"
           activeOpacity={0.7}
+          $isMap={isMap}
           onPress={() => {
             // TODO: 경사로 필터 로직
           }}>
-          <MapChipText>경사로 유무</MapChipText>
-        </MapPlainChip>
-        <MapPlainChip
-          elementName="filter_access_level_map"
+          <ChipText $isMap={isMap}>경사로 유무</ChipText>
+        </PlainChip>
+        <PlainChip
+          elementName="filter_access_level"
           activeOpacity={0.7}
+          $isMap={isMap}
           onPress={() => {
             // TODO: 접근레벨 필터 로직
           }}>
-          <MapChipText>접근레벨</MapChipText>
-        </MapPlainChip>
-        <MapPlainChip
-          elementName="filter_conquered_map"
+          <ChipText $isMap={isMap}>접근레벨</ChipText>
+        </PlainChip>
+        <PlainChip
+          elementName="filter_conquered"
           activeOpacity={0.7}
+          $isMap={isMap}
           onPress={() => {
             // TODO: 정복여부 필터 로직
           }}>
-          <MapChipText>정복여부</MapChipText>
-        </MapPlainChip>
+          <ChipText $isMap={isMap}>정복여부</ChipText>
+        </PlainChip>
       </ScrollView>
-    </MapFilterContainer>
+    </FilterContainer>
   );
 }
 
-// List mode styles
-const ListFilterContainer = styled.View`
-  background-color: ${color.gray5};
-  padding-vertical: 10px;
+const FilterContainer = styled.View<{$isMap: boolean}>`
+  background-color: ${({$isMap}) => ($isMap ? color.white : color.gray5)};
+  padding-top: ${({$isMap}) => ($isMap ? '4px' : '10px')};
+  padding-bottom: 10px;
 `;
 
 const chipBase = `
   flex-direction: row;
   align-items: center;
-  border-radius: 56px;
-  border-width: 1px;
-  border-color: #EAEAEF;
-`;
-
-const DropdownChip = styled(SccTouchableOpacity)`
-  ${chipBase}
-  background-color: ${color.white};
-  padding-horizontal: 10px;
-  padding-vertical: 6px;
-  gap: 2px;
-`;
-
-const PlainChip = styled(SccTouchableOpacity)`
-  ${chipBase}
-  background-color: ${color.white};
-  padding-horizontal: 10px;
-  padding-vertical: 6px;
-`;
-
-const ListChipText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 13px;
-  color: #16181c;
-`;
-
-// Map mode styles
-const MapFilterContainer = styled.View`
-  padding-horizontal: 0px;
-  padding-top: 4px;
-  padding-bottom: 10px;
-  background-color: ${color.white};
-`;
-
-const mapChipBase = `
-  flex-direction: row;
-  align-items: center;
   justify-content: center;
-  background-color: ${color.white};
+  background-color: white;
   border-radius: 56px;
   border-width: 1px;
   border-color: #EAEAEF;
-  height: 30px;
 `;
 
-const MapFilterChip = styled(SccTouchableOpacity)`
-  ${mapChipBase}
+const IconChip = styled(SccTouchableOpacity)`
+  ${chipBase}
+  height: 30px;
   padding-horizontal: 7px;
 `;
 
-const MapDropdownChip = styled(SccTouchableOpacity)`
-  ${mapChipBase}
-  padding-horizontal: 13px;
+const DropdownChip = styled(SccTouchableOpacity)<{$isMap: boolean}>`
+  ${chipBase}
+  height: ${({$isMap}) => ($isMap ? '30px' : 'auto')};
+  padding-horizontal: ${({$isMap}) => ($isMap ? '13px' : '10px')};
+  padding-vertical: ${({$isMap}) => ($isMap ? '0px' : '6px')};
   gap: 2px;
 `;
 
-const MapPlainChip = styled(SccTouchableOpacity)`
-  ${mapChipBase}
-  padding-horizontal: 13px;
+const PlainChip = styled(SccTouchableOpacity)<{$isMap: boolean}>`
+  ${chipBase}
+  height: ${({$isMap}) => ($isMap ? '30px' : 'auto')};
+  padding-horizontal: ${({$isMap}) => ($isMap ? '13px' : '10px')};
+  padding-vertical: ${({$isMap}) => ($isMap ? '0px' : '6px')};
 `;
 
-const MapChipText = styled.Text`
+const ChipText = styled.Text<{$isMap: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 13px;
-  color: #24262b;
+  color: ${({$isMap}) => ($isMap ? '#24262b' : '#16181c')};
 `;

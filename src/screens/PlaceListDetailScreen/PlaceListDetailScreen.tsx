@@ -22,6 +22,7 @@ import {useSavePlaceList} from '@/hooks/useSavePlaceList';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
@@ -144,7 +145,7 @@ const PlaceListDetailScreen = ({
     insets.bottom + (items.length > 0 ? MAP_CARD_HEIGHT + 16 : 16);
 
   const renderListItem = useCallback(
-    ({item, index}: ListRenderItemInfo<ListSection>) => {
+    ({item}: ListRenderItemInfo<ListSection>) => {
       if (item.type === 'header') {
         return (
           <HeaderSection>
@@ -183,10 +184,14 @@ const PlaceListDetailScreen = ({
         );
       }
       if (item.type === 'filter') {
-        return <FilterBar mode="list" />;
+        return (
+          <LogParamsProvider params={{viewMode: 'list'}}>
+            <FilterBar mode="list" />
+          </LogParamsProvider>
+        );
       }
       return (
-        <ListItemWrapper isFirst={index === 2}>
+        <ListItemWrapper isFirst={items.indexOf(item.data) === 0}>
           <SearchItemCard
             item={item.data}
             isHeightFlex
@@ -196,7 +201,14 @@ const PlaceListDetailScreen = ({
         </ListItemWrapper>
       );
     },
-    [description, isSaved, handleToggleSave, handleShare, handleItemPress],
+    [
+      description,
+      isSaved,
+      handleToggleSave,
+      handleShare,
+      handleItemPress,
+      items,
+    ],
   );
 
   return (
@@ -270,9 +282,11 @@ const PlaceListDetailScreen = ({
             </ListOverlay>
           ) : (
             <>
-              <MapFilterOverlay>
-                <FilterBar mode="map" />
-              </MapFilterOverlay>
+              <LogParamsProvider params={{viewMode: 'map'}}>
+                <MapFilterOverlay>
+                  <FilterBar mode="map" />
+                </MapFilterOverlay>
+              </LogParamsProvider>
               <MapRightFloatingContainer>
                 <FloatingCircleButton
                   elementName="place_list_detail_map_save"

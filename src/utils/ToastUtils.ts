@@ -1,10 +1,12 @@
 import {AxiosError} from 'axios';
+import {Dimensions} from 'react-native';
 import Toast, {ToastOptions} from 'react-native-root-toast';
 
 import {font} from '@/constant/font';
 
 const ToastUtils = {
   show(message: string, options?: ToastOptions): Toast {
+    const screenWidth = Dimensions.get('window').width;
     return Toast.show(message, {
       duration: 2500,
       position: -55,
@@ -13,7 +15,7 @@ const ToastUtils = {
       opacity: 1,
       delay: 0,
       containerStyle: {
-        width: 350,
+        width: Math.min(350, screenWidth - 40),
         minHeight: 56,
         backgroundColor: 'rgba(0, 0, 0, 0.85)',
         borderRadius: 12,

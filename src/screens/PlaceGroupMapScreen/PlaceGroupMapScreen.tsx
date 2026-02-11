@@ -16,10 +16,8 @@ import {PlaceListItem} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
-import {
-  useDetailScreenVersion,
-  useIsPlaceListEnabled,
-} from '@/utils/accessibilityFlags';
+import {useIsPlaceListEnabled} from '@/hooks/useFeatureFlags';
+import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 export interface PlaceGroupMapScreenParams {
   placeGroupId: string;
