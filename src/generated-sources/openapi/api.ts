@@ -3714,6 +3714,12 @@ export interface PlaceListDto {
      */
     'thumbnailUrl'?: string | null;
     /**
+     * 아이콘 배경색 (hex, e.g. \"#FFC01E\"). null이면 기본색 사용.
+     * @type {string}
+     * @memberof PlaceListDto
+     */
+    'iconColor'?: string | null;
+    /**
      * 리스트에 포함된 장소 수
      * @type {number}
      * @memberof PlaceListDto

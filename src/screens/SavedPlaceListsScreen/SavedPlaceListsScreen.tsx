@@ -119,7 +119,11 @@ export default function SavedPlaceListsScreen() {
                 <ItemWrapper isFirst={index === 0}>
                   <IconTextGroup>
                     <IconCircle
-                      isMyPlaces={item.type === PlaceListTypeDto.MyPlaces}>
+                      bgColor={
+                        item.type === PlaceListTypeDto.MyPlaces
+                          ? '#67AEFF'
+                          : (item.iconColor ?? '#FFC01E')
+                      }>
                       <BookmarkOnIcon
                         width={20}
                         height={20}
@@ -199,11 +203,11 @@ const IconTextGroup = styled.View`
   gap: 8px;
 `;
 
-const IconCircle = styled.View<{isMyPlaces: boolean}>`
+const IconCircle = styled.View<{bgColor: string}>`
   width: 32px;
   height: 32px;
   border-radius: 16px;
-  background-color: ${({isMyPlaces}) => (isMyPlaces ? '#67AEFF' : '#FFC01E')};
+  background-color: ${({bgColor}) => bgColor};
   align-items: center;
   justify-content: center;
 `;
