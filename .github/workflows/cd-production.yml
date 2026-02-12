@@ -23,6 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: true
           ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
 
@@ -68,11 +69,30 @@ jobs:
       - name: Deploy Android OTA
         run: yarn ota-deploy:production -p android -t ${{ env.ANDROID_VERSION }} -f
 
+      - name: Generate changelog
+        id: changelog
+        run: |
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | grep -v "^${CURRENT_TAG}$" | head -1)
+          if [ -n "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --format="• %s" ${PREV_TAG}..HEAD --no-merges | head -20)
+            RANGE_TEXT="Changes since ${PREV_TAG}:"
+          else
+            CHANGELOG=$(git log --format="• %s" -20 --no-merges)
+            RANGE_TEXT="Recent changes:"
+          fi
+          {
+            echo "CHANGELOG<<EOF"
+            echo "${RANGE_TEXT}"
+            echo "${CHANGELOG}"
+            echo "EOF"
+          } >> $GITHUB_ENV
+
       - name: Notify Slack on Success
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[PROD] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nTag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[PROD] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nTag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\n\n${{ env.CHANGELOG }}\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
       - name: Notify Slack on Failure
         if: failure()
