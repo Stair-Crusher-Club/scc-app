@@ -1,3 +1,4 @@
+import type {QueryKey} from '@tanstack/react-query';
 import {useAtom, useAtomValue} from 'jotai';
 import React, {memo} from 'react';
 import {View} from 'react-native';
@@ -37,12 +38,14 @@ function SearchItemCard({
   isConquestMode,
   hideActions,
   onPress,
+  listQueryKey,
 }: {
   item: PlaceListItem;
   isHeightFlex?: boolean;
   isConquestMode?: boolean;
   hideActions?: boolean;
   onPress?: () => void;
+  listQueryKey?: QueryKey;
 }) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -194,6 +197,7 @@ function SearchItemCard({
                 placeId={item.place.id}
                 isRequested={item.isAccessibilityInfoRequested}
                 animated
+                listQueryKey={listQueryKey}
               />
             )}
             {!hideActions && (

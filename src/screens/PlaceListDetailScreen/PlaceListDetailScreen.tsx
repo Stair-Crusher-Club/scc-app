@@ -26,6 +26,7 @@ import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
+import GeolocationUtils from '@/utils/GeolocationUtils';
 
 import {placeListFilterAtom, placeListFilterModalStateAtom} from './atoms';
 import FilterBar from './sections/FilterBar';
@@ -59,8 +60,13 @@ const PlaceListDetailScreen = ({
   const [filters] = useAtom(placeListFilterAtom);
   const [, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
 
+  const placeListQueryKey = useMemo(
+    () => ['PlaceListDetail', placeListId, filters],
+    [placeListId, filters],
+  );
+
   const {data, isLoading, isError} = useQuery({
-    queryKey: ['PlaceListDetail', placeListId, filters],
+    queryKey: placeListQueryKey,
     queryFn: async () => {
       let sort: SearchPlaceSortDto | undefined;
       if (filters.sortOption === 'distance') {
@@ -69,8 +75,20 @@ const PlaceListDetailScreen = ({
         sort = SearchPlaceSortDto.AccessibilityScore;
       }
 
+      let currentLocation: {lat: number; lng: number} | undefined;
+      try {
+        const pos = await GeolocationUtils.getCurrentPosition();
+        currentLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        };
+      } catch {
+        // 위치 권한 없으면 무시
+      }
+
       const result = await api.getPlaceList({
         placeListId,
+        currentLocation,
         sort,
         filters: {
           maxAccessibilityScore: filters.scoreUnder ?? undefined,
@@ -157,9 +175,10 @@ const PlaceListDetailScreen = ({
         isHeightFlex
         hideActions
         onPress={props.onPress}
+        listQueryKey={placeListQueryKey}
       />
     ),
-    [],
+    [placeListQueryKey],
   );
 
   // Card height from ItemMapList (242 + 28 = 270)
@@ -224,6 +243,7 @@ const PlaceListDetailScreen = ({
             isHeightFlex
             hideActions
             onPress={() => handleItemPress(item.data)}
+            listQueryKey={placeListQueryKey}
           />
         </ListItemWrapper>
       );
@@ -237,6 +257,7 @@ const PlaceListDetailScreen = ({
       items,
       filters,
       setFilterModalState,
+      placeListQueryKey,
     ],
   );
 

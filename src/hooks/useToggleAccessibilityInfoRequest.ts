@@ -11,7 +11,7 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
 
-export function useToggleAccessibilityInfoRequest() {
+export function useToggleAccessibilityInfoRequest(listQueryKey?: QueryKey) {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
 
@@ -44,25 +44,34 @@ export function useToggleAccessibilityInfoRequest() {
         queryKey: variables.searchQueryKey,
       });
 
-      const previousSearchData = queryClient.getQueryData<PlaceListItem[]>(
+      const previousSearchData = queryClient.getQueryData(
         variables.searchQueryKey,
       );
 
-      queryClient.setQueryData<PlaceListItem[]>(
-        variables.searchQueryKey,
-        oldData => {
-          if (!oldData) return oldData;
+      queryClient.setQueryData(variables.searchQueryKey, (oldData: unknown) => {
+        if (!oldData) return oldData;
 
-          return oldData.map(data =>
-            data.place.id === variables.placeId
-              ? {
-                  ...data,
-                  isAccessibilityInfoRequested: !variables.currentIsRequested,
-                }
-              : data,
-          );
-        },
-      );
+        const toggleItem = (item: PlaceListItem) =>
+          item.place.id === variables.placeId
+            ? {
+                ...item,
+                isAccessibilityInfoRequested: !variables.currentIsRequested,
+              }
+            : item;
+
+        // search 쿼리: PlaceListItem[]
+        if (Array.isArray(oldData)) {
+          return (oldData as PlaceListItem[]).map(toggleItem);
+        }
+
+        // PlaceListDetail 쿼리: { placeList, places: PlaceListItem[] }
+        const wrapper = oldData as {places?: PlaceListItem[]};
+        if (wrapper.places) {
+          return {...wrapper, places: wrapper.places.map(toggleItem)};
+        }
+
+        return oldData;
+      });
 
       return {
         previousSearchData,
@@ -101,7 +110,7 @@ export function useToggleAccessibilityInfoRequest() {
     if (isPending) return;
     mutate({
       ...args,
-      searchQueryKey: [
+      searchQueryKey: listQueryKey ?? [
         'search',
         {
           text,

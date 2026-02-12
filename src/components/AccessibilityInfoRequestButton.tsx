@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import type {QueryKey} from '@tanstack/react-query';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -18,15 +19,17 @@ interface Props {
   placeId: string;
   isRequested?: boolean;
   animated?: boolean;
+  listQueryKey?: QueryKey;
 }
 
 export default function AccessibilityInfoRequestButton({
   placeId,
   isRequested,
   animated: enableAnimation,
+  listQueryKey,
 }: Props) {
   const checkAuth = useCheckAuth();
-  const toggleRequest = useToggleAccessibilityInfoRequest();
+  const toggleRequest = useToggleAccessibilityInfoRequest(listQueryKey);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const colorAnim = useRef(new Animated.Value(0)).current;
 
