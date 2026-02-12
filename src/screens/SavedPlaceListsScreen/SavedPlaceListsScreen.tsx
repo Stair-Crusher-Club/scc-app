@@ -1,10 +1,11 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import React from 'react';
-import {Dimensions, Image, Linking} from 'react-native';
+import React, {useState} from 'react';
+import {Dimensions, Image, Linking, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
-import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
+import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
@@ -17,10 +18,17 @@ import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 
 const BANNER_WIDTH = Math.min(350, Dimensions.get('window').width - 40);
 const BANNER_HEIGHT = (BANNER_WIDTH / 350) * 67;
+const ESTIMATED_ITEM_HEIGHT = 80;
+const BANNER_GAP = 16;
 
 export default function SavedPlaceListsScreen() {
   const navigation = useNavigation();
   const {api} = useAppComponents();
+  const insets = useSafeAreaInsets();
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  const bannerBottomOffset = insets.bottom + 80;
+  const bannerTotalHeight = BANNER_HEIGHT + BANNER_GAP;
 
   const {
     data,
@@ -46,6 +54,13 @@ export default function SavedPlaceListsScreen() {
 
   const placeLists = data?.pages.flatMap(page => page.items ?? []) ?? [];
 
+  // 리스트 아이템이 배너 영역과 겹치는지 판단
+  const estimatedContentHeight = placeLists.length * ESTIMATED_ITEM_HEIGHT;
+  const bannerAreaTop =
+    containerHeight - bannerBottomOffset - bannerTotalHeight;
+  const shouldInlineBanner =
+    containerHeight > 0 && estimatedContentHeight > bannerAreaTop;
+
   const handleItemPress = (item: PlaceListDto) => {
     if (item.type === PlaceListTypeDto.MyPlaces) {
       navigation.navigate('FavoritePlaces');
@@ -58,6 +73,19 @@ export default function SavedPlaceListsScreen() {
     // TODO: 실제 URL 연결
     Linking.openURL('https://www.staircrusher.club');
   };
+
+  const renderBanner = () => (
+    <BannerWrapper>
+      <SccPressable
+        elementName="saved_place_lists_request_banner"
+        onPress={handleBannerPress}>
+        <BannerImage
+          source={require('@/assets/img/saved_place_lists_banner.png')}
+          resizeMode="contain"
+        />
+      </SccPressable>
+    </BannerWrapper>
+  );
 
   return (
     <ScreenLayout isHeaderVisible={true}>
@@ -72,11 +100,14 @@ export default function SavedPlaceListsScreen() {
           <NoResultText>저장한 장소가 없습니다.</NoResultText>
         </NoResultContainer>
       ) : (
-        <ListContainer>
+        <ListContainer
+          onLayout={e => setContainerHeight(e.nativeEvent.layout.height)}>
           <FlashList
             contentContainerStyle={{
               backgroundColor: color.white,
-              paddingBottom: 140,
+              paddingBottom: shouldInlineBanner
+                ? BANNER_GAP
+                : bannerBottomOffset + bannerTotalHeight,
             }}
             data={placeLists}
             keyExtractor={item => item.id}
@@ -86,19 +117,26 @@ export default function SavedPlaceListsScreen() {
                 logParams={{placeListId: item.id}}
                 onPress={() => handleItemPress(item)}>
                 <ItemWrapper isFirst={index === 0}>
-                  <IconCircle
-                    isMyPlaces={item.type === PlaceListTypeDto.MyPlaces}>
-                    <BookmarkIcon width={20} height={20} color={color.white} />
-                  </IconCircle>
-                  <ItemContent>
-                    <ItemName numberOfLines={1}>{item.name}</ItemName>
-                    <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
-                  </ItemContent>
+                  <IconTextGroup>
+                    <IconCircle
+                      isMyPlaces={item.type === PlaceListTypeDto.MyPlaces}>
+                      <BookmarkOnIcon
+                        width={20}
+                        height={20}
+                        color={color.white}
+                      />
+                    </IconCircle>
+                    <ItemContent>
+                      <ItemName numberOfLines={1}>{item.name}</ItemName>
+                      <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
+                    </ItemContent>
+                  </IconTextGroup>
                   <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
                 </ItemWrapper>
               </SccPressable>
             )}
-            estimatedItemSize={80}
+            ListFooterComponent={shouldInlineBanner ? renderBanner : undefined}
+            estimatedItemSize={ESTIMATED_ITEM_HEIGHT}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {
                 fetchNextPage();
@@ -106,16 +144,18 @@ export default function SavedPlaceListsScreen() {
             }}
             onEndReachedThreshold={0.5}
           />
-          <BannerContainer>
-            <SccPressable
-              elementName="saved_place_lists_request_banner"
-              onPress={handleBannerPress}>
-              <BannerImage
-                source={require('@/assets/img/saved_place_lists_banner.png')}
-                resizeMode="contain"
-              />
-            </SccPressable>
-          </BannerContainer>
+          {!shouldInlineBanner && (
+            <View
+              style={{
+                position: 'absolute',
+                bottom: bannerBottomOffset,
+                left: 0,
+                right: 0,
+                alignItems: 'center',
+              }}>
+              {renderBanner()}
+            </View>
+          )}
         </ListContainer>
       )}
     </ScreenLayout>
@@ -148,8 +188,15 @@ const ItemWrapper = styled.View<{isFirst: boolean}>`
   padding-right: 16px;
   padding-vertical: 20px;
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
-  border-top-color: #eff0f2;
-  gap: 12px;
+  border-top-color: #f2f2f5;
+  gap: 8px;
+`;
+
+const IconTextGroup = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
 `;
 
 const IconCircle = styled.View<{isMyPlaces: boolean}>`
@@ -171,6 +218,7 @@ const ItemName = styled.Text`
   font-family: ${() => font.pretendardRegular};
   color: #16181c;
   line-height: 24px;
+  letter-spacing: -0.32px;
 `;
 
 const ItemPlaceCount = styled.Text`
@@ -178,14 +226,12 @@ const ItemPlaceCount = styled.Text`
   font-family: ${() => font.pretendardRegular};
   color: #a0a2ae;
   line-height: 18px;
+  letter-spacing: -0.26px;
 `;
 
-const BannerContainer = styled.View`
-  position: absolute;
-  bottom: 16px;
-  left: 0;
-  right: 0;
+const BannerWrapper = styled.View`
   align-items: center;
+  padding-vertical: ${BANNER_GAP}px;
 `;
 
 const BannerImage = styled(Image)`
