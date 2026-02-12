@@ -1,0 +1,50 @@
+name: Auto Tag on Merge
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/sccReactNative/Info.plist'
+      - 'android/app/version.properties'
+
+jobs:
+  create-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read iOS version
+        id: ios_version
+        run: |
+          VERSION=$(grep -A1 'CFBundleShortVersionString' ios/sccReactNative/Info.plist | grep '<string>' | sed -E 's/.*<string>(.*)<\/string>.*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Read Android version
+        id: android_version
+        run: |
+          VERSION=$(grep 'version=' android/app/version.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create iOS tag if missing
+        run: |
+          TAG="v${{ steps.ios_version.outputs.version }}-ios"
+          if ! git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Created tag: $TAG"
+          else
+            echo "Tag $TAG already exists, skipping."
+          fi
+
+      - name: Create Android tag if missing
+        run: |
+          TAG="v${{ steps.android_version.outputs.version }}-android"
+          if ! git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Created tag: $TAG"
+          else
+            echo "Tag $TAG already exists, skipping."
+          fi
