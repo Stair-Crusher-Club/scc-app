@@ -92,7 +92,7 @@ jobs:
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[PROD] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nTag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\n\n${{ env.CHANGELOG }}\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[PROD] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nTag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\n\n${{ env.CHANGELOG }}\"}]}" https://hooks.slack.com/services/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
 
       - name: Notify Slack on Failure
         if: failure()
