@@ -92,7 +92,7 @@ jobs:
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"✅ 계단정복지도 앱 업데이트 배포 완료\", \"text\":\"앱을 재시작하면 새 버전이 자동으로 적용됩니다.\n\n*배포 버전*\niOS: ${{ env.IOS_VERSION }} / Android: ${{ env.ANDROID_VERSION }}\n태그: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|배포 상세보기>)\n\n${{ env.CHANGELOG }}\"}]}" https://hooks.slack.com/services/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
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"✅ 계단정복지도 앱 업데이트 배포 완료\", \"text\":\"앱을 재시작하면 새 버전이 자동으로 적용됩니다.\n\n*배포 버전*\niOS: ${{ env.IOS_VERSION }} / Android: ${{ env.ANDROID_VERSION }}\n태그: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|배포 상세보기>)\n\n${{ env.CHANGELOG }}\"}]}" ${{ secrets.SCC_APP_DEPLOY_NOTICE_SLACK_URL }}
 
       - name: Notify Slack on Failure
         if: failure()
