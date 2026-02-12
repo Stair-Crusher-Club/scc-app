@@ -80,14 +80,17 @@ const PlaceListDetailScreen = ({
       });
       return result.data;
     },
+    placeholderData: previousData => previousData,
   });
 
   const items = useMemo(() => {
     return data?.places?.map(toPlaceMarkerItem) ?? [];
   }, [data?.places]);
 
+  const hasFittedRef = useRef(false);
   useEffect(() => {
-    if (items.length > 0) {
+    if (items.length > 0 && !hasFittedRef.current) {
+      hasFittedRef.current = true;
       setTimeout(() => {
         mapRef.current?.fitToItems(items, 60);
       }, 300);
