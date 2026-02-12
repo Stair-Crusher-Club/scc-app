@@ -1,0 +1,263 @@
+import {useAtom} from 'jotai';
+import React, {useState} from 'react';
+import {Dimensions, ScrollView, Text} from 'react-native';
+import styled from 'styled-components/native';
+
+import InfoIcon from '@/assets/icon/ic_info.svg';
+import PositionedModal from '@/components/PositionedModal';
+import {SccButton} from '@/components/atoms';
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
+import BottomSheet from '@/modals/BottomSheet';
+import {ScoreUnder} from '@/screens/SearchScreen/atoms';
+import ChipSelector from '@/screens/SearchScreen/modals/ChipSelector';
+import ScoreSelector from '@/screens/SearchScreen/modals/ScoreSelector.tsx';
+
+import {
+  type PlaceListFilterOptions,
+  type PlaceListSortOption,
+  placeListFilterAtom,
+  placeListFilterModalStateAtom,
+} from '../atoms';
+
+const {height} = Dimensions.get('window');
+
+export default function PlaceListFilterModal() {
+  const [savedFilter, setSavedFilter] = useAtom(placeListFilterAtom);
+  const [state, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
+
+  const [draftSortOption, setDraftSortOption] = useState<
+    PlaceListFilterOptions['sortOption'] | undefined
+  >();
+  const [draftHasSlope, setDraftHasSlope] = useState<
+    PlaceListFilterOptions['hasSlope'] | undefined
+  >();
+  const [draftScoreUnder, setDraftScoreUnder] = useState<
+    PlaceListFilterOptions['scoreUnder'] | undefined
+  >();
+  const [draftIsRegistered, setDraftIsRegistered] = useState<
+    PlaceListFilterOptions['isRegistered'] | undefined
+  >();
+
+  const sortOption =
+    draftSortOption === undefined ? savedFilter.sortOption : draftSortOption;
+  const hasSlope =
+    draftHasSlope === undefined ? savedFilter.hasSlope : draftHasSlope;
+  const scoreUnder =
+    draftScoreUnder === undefined ? savedFilter.scoreUnder : draftScoreUnder;
+  const isRegistered =
+    draftIsRegistered === undefined
+      ? savedFilter.isRegistered
+      : draftIsRegistered;
+
+  const saveFilter = () => {
+    setSavedFilter({
+      sortOption,
+      hasSlope,
+      scoreUnder,
+      isRegistered,
+    });
+    setFilterModalState(null);
+  };
+
+  const reset = () => {
+    setDraftSortOption(undefined);
+    setDraftHasSlope(undefined);
+    setDraftScoreUnder(undefined);
+    setDraftIsRegistered(undefined);
+    setSavedFilter({
+      sortOption: null,
+      scoreUnder: null,
+      hasSlope: null,
+      isRegistered: null,
+    });
+  };
+
+  return (
+    <BottomSheet
+      isVisible={state !== null}
+      onPressBackground={() => {
+        setFilterModalState(null);
+      }}>
+      <ScrollView
+        bounces={false}
+        style={{
+          maxHeight: (height * 80) / 100,
+        }}
+        contentContainerStyle={{
+          gap: 36,
+          paddingVertical: 24,
+          paddingHorizontal: 20,
+        }}
+        showsVerticalScrollIndicator={false}>
+        {(state === 'All' || state === 'sortOption') && (
+          <FilterItem>
+            <FilterLabel>정렬</FilterLabel>
+            <ChipSelector<PlaceListSortOption>
+              items={[
+                {
+                  label: '가까운 순',
+                  option: 'distance',
+                  isSelected: sortOption === 'distance',
+                },
+                {
+                  label: '접근레벨 낮은 순',
+                  option: 'accessibility_score',
+                  isSelected: sortOption === 'accessibility_score',
+                },
+              ]}
+              onPress={option => {
+                setDraftSortOption(option);
+              }}
+            />
+          </FilterItem>
+        )}
+        {(state === 'All' || state === 'scoreUnder') && (
+          <FilterItem>
+            <LabelIconArea>
+              <FilterLabel>접근레벨</FilterLabel>
+              <PositionedModal
+                modalContent={
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontFamily: font.pretendardMedium,
+                      color: color.white,
+                    }}>
+                    레벨이 낮을 수록 매장 입구 접근이 쉬워요.
+                  </Text>
+                }>
+                <InfoIcon width={16} height={16} color={color.gray30} />
+              </PositionedModal>
+            </LabelIconArea>
+            <ScoreSelector
+              score={scoreUnder}
+              onChange={(score: ScoreUnder | null) => {
+                setDraftScoreUnder(score);
+              }}
+            />
+          </FilterItem>
+        )}
+        {(state === 'All' || state === 'hasSlope') && (
+          <FilterItem>
+            <FilterLabel>경사로 유무</FilterLabel>
+            <ChipSelector
+              items={[
+                {
+                  label: '전체',
+                  option: null,
+                  isSelected: hasSlope === null,
+                },
+                {
+                  label: '경사로 있음',
+                  option: true,
+                  isSelected: hasSlope === true,
+                },
+                {
+                  label: '경사로 없음',
+                  option: false,
+                  isSelected: hasSlope === false,
+                },
+              ]}
+              onPress={option => {
+                setDraftHasSlope(option);
+              }}
+            />
+          </FilterItem>
+        )}
+        {(state === 'All' || state === 'isRegistered') && (
+          <FilterItem>
+            <FilterLabel>정복 여부</FilterLabel>
+            <ChipSelector
+              items={[
+                {
+                  label: '전체',
+                  option: null,
+                  isSelected: isRegistered === null,
+                },
+                {
+                  label: '정복완료만 보기',
+                  option: true,
+                  isSelected: isRegistered === true,
+                },
+                {
+                  label: '정복 안 된 곳만 보기',
+                  option: false,
+                  isSelected: isRegistered === false,
+                },
+              ]}
+              onPress={option => {
+                setDraftIsRegistered(option);
+              }}
+            />
+          </FilterItem>
+        )}
+      </ScrollView>
+      <Divider />
+      <ButtonBox>
+        {state === 'All' && (
+          <SccButton
+            text={'초기화'}
+            textColor="black"
+            buttonColor="white"
+            borderColor="gray20"
+            fontFamily={font.pretendardMedium}
+            style={{flexGrow: 0, paddingHorizontal: 20}}
+            onPress={() => {
+              reset();
+            }}
+            elementName="place_list_filter_reset"
+          />
+        )}
+        <SccButton
+          text={'결과보기'}
+          textColor="white"
+          buttonColor="brandColor"
+          fontFamily={font.pretendardMedium}
+          style={{flexGrow: 1}}
+          onPress={() => {
+            saveFilter();
+          }}
+          elementName="place_list_filter_apply"
+        />
+      </ButtonBox>
+    </BottomSheet>
+  );
+}
+
+const ButtonBox = styled.View`
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`;
+
+const FilterItem = styled.View`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+`;
+
+const FilterLabel = styled.Text`
+  font-size: 16px;
+  font-family: ${() => font.pretendardBold};
+  color: ${() => color.black};
+`;
+
+const Divider = styled.View`
+  width: 100%;
+  height: 1px;
+  background-color: ${() => color.gray20};
+`;
+
+const LabelIconArea = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;

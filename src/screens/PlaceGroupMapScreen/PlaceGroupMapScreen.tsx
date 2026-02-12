@@ -16,6 +16,7 @@ import {PlaceListItem} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
+import {useIsPlaceListEnabled} from '@/hooks/useFeatureFlags';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 export interface PlaceGroupMapScreenParams {
@@ -35,6 +36,13 @@ const PlaceGroupMapScreen = ({
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const detailVersion = useDetailScreenVersion();
+  const isPlaceListEnabled = useIsPlaceListEnabled();
+
+  useEffect(() => {
+    if (isPlaceListEnabled) {
+      navigation.replace('PlaceListDetail', {placeListId: placeGroupId});
+    }
+  }, [isPlaceListEnabled, placeGroupId, navigation]);
 
   const {data} = useQuery({
     queryKey: ['PlaceGroup', placeGroupId],

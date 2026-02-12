@@ -30,7 +30,7 @@ import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
-  fitToItems: (items: MarkerItem[]) => void;
+  fitToItems: (items: MarkerItem[], padding?: number) => void;
 };
 
 type ItemMapViewProps<T extends MarkerItem> = {
@@ -107,9 +107,9 @@ const FRefInputComp = <T extends MarkerItem>(
     moveToItem: _item => {
       onItemSelect(_item, true);
     },
-    fitToItems: _items => {
+    fitToItems: (_items, padding = 30) => {
       const region = getRegionFromItems(_items);
-      mapRef.current?.animateToRegion(region, 30, 200);
+      mapRef.current?.animateToRegion(region, padding, 200);
     },
   }));
 

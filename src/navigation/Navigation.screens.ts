@@ -30,6 +30,9 @@ import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
 import FavoritePlacesScreen from '@/screens/FavoritePlacesScreen';
+import PlaceListDetailScreen, {
+  PlaceListDetailScreenParams,
+} from '@/screens/PlaceListDetailScreen';
 import GuideForFirstVisitScreen from '@/screens/GuideForFirstVisitScreen';
 import ImageZoomViewerScreen, {
   ImageZoomViewerScreenParams,
@@ -55,6 +58,7 @@ import PlaceFormV2Screen, {
 import PlaceGroupMapScreen, {
   PlaceGroupMapScreenParams,
 } from '@/screens/PlaceGroupMapScreen';
+import SavedPlaceListsScreen from '@/screens/SavedPlaceListsScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
 import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
 import PlaceReviewFormScreen, {
@@ -256,6 +260,16 @@ export const MainNavigationScreens: {
     options: {headerShown: false},
   },
   {
+    name: 'SavedPlaceLists',
+    component: SavedPlaceListsScreen,
+    options: {headerShown: true, headerTitle: '저장한 장소'},
+  },
+  {
+    name: 'PlaceListDetail',
+    component: PlaceListDetailScreen,
+    options: {headerShown: false},
+  },
+  {
     name: 'SearchUnconqueredPlaces',
     component: SearchUnconqueredPlacesScreen,
     options: {headerShown: false},
@@ -327,6 +341,8 @@ export type ScreenParams = {
   'Conquerer/Upvote': undefined;
   UpvoteAnalytics: UpvoteAnalyticsScreenProps;
   FavoritePlaces: undefined;
+  SavedPlaceLists: undefined;
+  PlaceListDetail: PlaceListDetailScreenParams;
   CrusherActivity: CrusherActivityScreenParams;
   PastSeasonDetail: PastSeasonDetailScreenParams;
 

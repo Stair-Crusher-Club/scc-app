@@ -35,11 +35,13 @@ function SearchItemCard({
   item,
   isHeightFlex,
   isConquestMode,
+  hideActions,
   onPress,
 }: {
   item: PlaceListItem;
   isHeightFlex?: boolean;
   isConquestMode?: boolean;
+  hideActions?: boolean;
   onPress?: () => void;
 }) {
   const navigation = useNavigation();
@@ -194,42 +196,44 @@ function SearchItemCard({
                 animated
               />
             )}
-            <IconArea>
-              <SccTouchableOpacity
-                elementName="place_search_item_card_bookmark_button"
-                logParams={{is_favorite: isFavorite}}
-                style={{
-                  paddingLeft: 5,
-                  paddingRight: 5,
-                  paddingBottom: 5,
-                }}
-                activeOpacity={0.6}
-                onPress={() => checkAuth(onFavorite)}>
-                {isFavorite ? (
-                  <BookmarkIconOn
-                    color={color.brandColor}
-                    width={24}
-                    height={24}
-                  />
-                ) : (
-                  <BookmarkIconOff
-                    color={color.gray70}
-                    width={24}
-                    height={24}
-                  />
-                )}
-              </SccTouchableOpacity>
-              <SccTouchableOpacity
-                elementName="place_search_item_card_share_button"
-                style={{
-                  paddingLeft: 5,
-                  paddingBottom: 5,
-                }}
-                activeOpacity={0.6}
-                onPress={() => checkAuth(onShare)}>
-                <ShareIcon color={color.gray70} width={24} height={24} />
-              </SccTouchableOpacity>
-            </IconArea>
+            {!hideActions && (
+              <IconArea>
+                <SccTouchableOpacity
+                  elementName="place_search_item_card_bookmark_button"
+                  logParams={{is_favorite: isFavorite}}
+                  style={{
+                    paddingLeft: 5,
+                    paddingRight: 5,
+                    paddingBottom: 5,
+                  }}
+                  activeOpacity={0.6}
+                  onPress={() => checkAuth(onFavorite)}>
+                  {isFavorite ? (
+                    <BookmarkIconOn
+                      color={color.brandColor}
+                      width={24}
+                      height={24}
+                    />
+                  ) : (
+                    <BookmarkIconOff
+                      color={color.gray70}
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                </SccTouchableOpacity>
+                <SccTouchableOpacity
+                  elementName="place_search_item_card_share_button"
+                  style={{
+                    paddingLeft: 5,
+                    paddingBottom: 5,
+                  }}
+                  activeOpacity={0.6}
+                  onPress={() => checkAuth(onShare)}>
+                  <ShareIcon color={color.gray70} width={24} height={24} />
+                </SccTouchableOpacity>
+              </IconArea>
+            )}
           </LabelIconArea>
           <TitleArea>
             <TextWrapper>

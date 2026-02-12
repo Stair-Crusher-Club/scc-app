@@ -2262,6 +2262,56 @@ export interface GetPlaceGroupResponseDto {
 /**
  * 
  * @export
+ * @interface GetPlaceListRequestDto
+ */
+export interface GetPlaceListRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetPlaceListRequestDto
+     */
+    'placeListId': string;
+    /**
+     * 
+     * @type {Location}
+     * @memberof GetPlaceListRequestDto
+     */
+    'currentLocation'?: Location;
+    /**
+     * 
+     * @type {SearchPlaceSortDto}
+     * @memberof GetPlaceListRequestDto
+     */
+    'sort'?: SearchPlaceSortDto;
+    /**
+     * 
+     * @type {SearchPlaceFilterDto}
+     * @memberof GetPlaceListRequestDto
+     */
+    'filters'?: SearchPlaceFilterDto;
+}
+/**
+ * 
+ * @export
+ * @interface GetPlaceListResponseDto
+ */
+export interface GetPlaceListResponseDto {
+    /**
+     * 
+     * @type {PlaceListDto}
+     * @memberof GetPlaceListResponseDto
+     */
+    'placeList': PlaceListDto;
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof GetPlaceListResponseDto
+     */
+    'places': Array<PlaceListItem>;
+}
+/**
+ * 
+ * @export
  * @interface GetReviewActivityReportResponseDto
  */
 export interface GetReviewActivityReportResponseDto {
@@ -3005,6 +3055,44 @@ export interface ListRegisteredToiletReviewsResponseDto {
 /**
  * 
  * @export
+ * @interface ListSavedPlaceListsRequestDto
+ */
+export interface ListSavedPlaceListsRequestDto {
+    /**
+     * 페이지네이션 커서
+     * @type {string}
+     * @memberof ListSavedPlaceListsRequestDto
+     */
+    'cursor'?: string | null;
+    /**
+     * 페이지당 항목 수. 기본값 20.
+     * @type {number}
+     * @memberof ListSavedPlaceListsRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListSavedPlaceListsResponseDto
+ */
+export interface ListSavedPlaceListsResponseDto {
+    /**
+     * 
+     * @type {Array<PlaceListDto>}
+     * @memberof ListSavedPlaceListsResponseDto
+     */
+    'items': Array<PlaceListDto>;
+    /**
+     * 다음 페이지 커서 (없으면 마지막 페이지)
+     * @type {string}
+     * @memberof ListSavedPlaceListsResponseDto
+     */
+    'cursor'?: string | null;
+}
+/**
+ * 
+ * @export
  * @interface ListSearchKeywordsOfPlaceCategoryPost200Response
  */
 export interface ListSearchKeywordsOfPlaceCategoryPost200Response {
@@ -3590,6 +3678,73 @@ export type PlaceGroupType = typeof PlaceGroupType[keyof typeof PlaceGroupType];
 
 
 /**
+ * 저장 리스트 정보
+ * @export
+ * @interface PlaceListDto
+ */
+export interface PlaceListDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceListDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceListDto
+     */
+    'name': string;
+    /**
+     * 
+     * @type {PlaceListTypeDto}
+     * @memberof PlaceListDto
+     */
+    'type': PlaceListTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceListDto
+     */
+    'description'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceListDto
+     */
+    'thumbnailUrl'?: string | null;
+    /**
+     * 아이콘 배경색 (hex, e.g. \"#FFC01E\"). null이면 기본색 사용.
+     * @type {string}
+     * @memberof PlaceListDto
+     */
+    'iconColor'?: string | null;
+    /**
+     * 리스트에 포함된 장소 수
+     * @type {number}
+     * @memberof PlaceListDto
+     */
+    'placeCount': number;
+    /**
+     * 내가 저장한 리스트인지 여부. 비인증 유저는 항상 false.
+     * @type {boolean}
+     * @memberof PlaceListDto
+     */
+    'isSaved': boolean;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceListDto
+     */
+    'createdAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof PlaceListDto
+     */
+    'updatedAt': EpochMillisTimestamp;
+}
+/**
  * 
  * @export
  * @interface PlaceListItem
@@ -3650,6 +3805,20 @@ export interface PlaceListItem {
      */
     'isAccessibilityInfoRequested'?: boolean;
 }
+/**
+ * 저장 리스트 타입
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceListTypeDto = {
+    MyPlaces: 'MY_PLACES',
+    Normal: 'NORMAL'
+} as const;
+
+export type PlaceListTypeDto = typeof PlaceListTypeDto[keyof typeof PlaceListTypeDto];
+
+
 /**
  * 
  * @export
@@ -4597,6 +4766,38 @@ export type ReportTargetTypeDto = typeof ReportTargetTypeDto[keyof typeof Report
 /**
  * 
  * @export
+ * @interface SavePlaceListRequestDto
+ */
+export interface SavePlaceListRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SavePlaceListRequestDto
+     */
+    'placeListId': string;
+}
+/**
+ * 
+ * @export
+ * @interface SavePlaceRequestDto
+ */
+export interface SavePlaceRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SavePlaceRequestDto
+     */
+    'placeId': string;
+    /**
+     * 저장할 PlaceList ID. 미지정 시 MY_PLACES에 추가.
+     * @type {string}
+     * @memberof SavePlaceRequestDto
+     */
+    'placeListId'?: string;
+}
+/**
+ * 
+ * @export
  * @interface SearchExternalAccessibilitiesPost200Response
  */
 export interface SearchExternalAccessibilitiesPost200Response {
@@ -5304,6 +5505,38 @@ export interface ToiletReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 
+ * @export
+ * @interface UnsavePlaceListRequestDto
+ */
+export interface UnsavePlaceListRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UnsavePlaceListRequestDto
+     */
+    'placeListId': string;
+}
+/**
+ * 
+ * @export
+ * @interface UnsavePlaceRequestDto
+ */
+export interface UnsavePlaceRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UnsavePlaceRequestDto
+     */
+    'placeId': string;
+    /**
+     * 제거할 PlaceList ID. 미지정 시 MY_PLACES에서 제거.
+     * @type {string}
+     * @memberof UnsavePlaceRequestDto
+     */
+    'placeListId'?: string;
+}
+/**
  * 인증번호로 전화번호 업데이트 요청
  * @export
  * @interface UpdatePhoneNumberWithVerifCodeRequestDto
@@ -5896,10 +6129,11 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 
+         * /savePlace를 사용하세요.
          * @summary 장소를 즐겨찾기에 추가한다.
          * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         createPlaceFavoritePost: async (createPlaceFavoriteRequestDto: CreatePlaceFavoriteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -6056,10 +6290,11 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 
+         * /unsavePlace를 사용하세요.
          * @summary 장소를 즐겨찾기에서 삭제한다.
          * @param {DeletePlaceFavoriteRequestDto} deletePlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         deletePlaceFavoritePost: async (deletePlaceFavoriteRequestDto: DeletePlaceFavoriteRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -6902,6 +7137,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary PlaceList(저장 리스트)를 조회한다.
+         * @param {GetPlaceListRequestDto} getPlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPlaceList: async (getPlaceListRequestDto: GetPlaceListRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getPlaceListRequestDto' is not null or undefined
+            assertParamExists('getPlaceList', 'getPlaceListRequestDto', getPlaceListRequestDto)
+            const localVarPath = `/getPlaceList`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getPlaceListRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -7295,6 +7570,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 즐겨찾기한 장소 목록을 조회한다.
          * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         listPlaceFavoritesPost: async (listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -7484,6 +7760,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(listRegisteredReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 내가 저장한 PlaceList 목록을 조회한다.
+         * @param {ListSavedPlaceListsRequestDto} listSavedPlaceListsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSavedPlaceLists: async (listSavedPlaceListsRequestDto: ListSavedPlaceListsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listSavedPlaceListsRequestDto' is not null or undefined
+            assertParamExists('listSavedPlaceLists', 'listSavedPlaceListsRequestDto', listSavedPlaceListsRequestDto)
+            const localVarPath = `/listSavedPlaceLists`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listSavedPlaceListsRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8294,6 +8610,86 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 장소를 내 저장 리스트에 추가한다.
+         * @param {SavePlaceRequestDto} savePlaceRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        savePlace: async (savePlaceRequestDto: SavePlaceRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'savePlaceRequestDto' is not null or undefined
+            assertParamExists('savePlace', 'savePlaceRequestDto', savePlaceRequestDto)
+            const localVarPath = `/savePlace`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(savePlaceRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary PlaceList를 내 저장 목록에 추가한다.
+         * @param {SavePlaceListRequestDto} savePlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        savePlaceList: async (savePlaceListRequestDto: SavePlaceListRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'savePlaceListRequestDto' is not null or undefined
+            assertParamExists('savePlaceList', 'savePlaceListRequestDto', savePlaceListRequestDto)
+            const localVarPath = `/savePlaceList`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(savePlaceListRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 외부 접근성 정보가 등록된 장소를 검색한다.
          * @param {SearchExternalAccessibilitiesPostRequest} searchExternalAccessibilitiesPostRequest 
          * @param {*} [options] Override http request option.
@@ -8526,6 +8922,86 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(signUpPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 장소를 내 저장 리스트에서 제거한다.
+         * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsavePlace: async (unsavePlaceRequestDto: UnsavePlaceRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'unsavePlaceRequestDto' is not null or undefined
+            assertParamExists('unsavePlace', 'unsavePlaceRequestDto', unsavePlaceRequestDto)
+            const localVarPath = `/unsavePlace`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(unsavePlaceRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary PlaceList를 내 저장 목록에서 제거한다.
+         * @param {UnsavePlaceListRequestDto} unsavePlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsavePlaceList: async (unsavePlaceListRequestDto: UnsavePlaceListRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'unsavePlaceListRequestDto' is not null or undefined
+            assertParamExists('unsavePlaceList', 'unsavePlaceListRequestDto', unsavePlaceListRequestDto)
+            const localVarPath = `/unsavePlaceList`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(unsavePlaceListRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8770,10 +9246,11 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 
+         * /savePlace를 사용하세요.
          * @summary 장소를 즐겨찾기에 추가한다.
          * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async createPlaceFavoritePost(createPlaceFavoriteRequestDto: CreatePlaceFavoriteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreatePlaceFavoriteResponseDto>> {
@@ -8814,10 +9291,11 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 
+         * /unsavePlace를 사용하세요.
          * @summary 장소를 즐겨찾기에서 삭제한다.
          * @param {DeletePlaceFavoriteRequestDto} deletePlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async deletePlaceFavoritePost(deletePlaceFavoriteRequestDto: DeletePlaceFavoriteRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeletePlaceFavoriteResponseDto>> {
@@ -9052,6 +9530,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary PlaceList(저장 리스트)를 조회한다.
+         * @param {GetPlaceListRequestDto} getPlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getPlaceList(getPlaceListRequestDto: GetPlaceListRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPlaceListResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPlaceList(getPlaceListRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -9165,6 +9654,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 즐겨찾기한 장소 목록을 조회한다.
          * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async listPlaceFavoritesPost(listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListPlaceFavoritesResponseDto>> {
@@ -9213,6 +9703,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRegisteredToiletReviewsResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 내가 저장한 PlaceList 목록을 조회한다.
+         * @param {ListSavedPlaceListsRequestDto} listSavedPlaceListsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listSavedPlaceLists(listSavedPlaceListsRequestDto: ListSavedPlaceListsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSavedPlaceListsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSavedPlaceLists(listSavedPlaceListsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -9439,6 +9940,28 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 장소를 내 저장 리스트에 추가한다.
+         * @param {SavePlaceRequestDto} savePlaceRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async savePlace(savePlaceRequestDto: SavePlaceRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.savePlace(savePlaceRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary PlaceList를 내 저장 목록에 추가한다.
+         * @param {SavePlaceListRequestDto} savePlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async savePlaceList(savePlaceListRequestDto: SavePlaceListRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.savePlaceList(savePlaceListRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 외부 접근성 정보가 등록된 장소를 검색한다.
          * @param {SearchExternalAccessibilitiesPostRequest} searchExternalAccessibilitiesPostRequest 
          * @param {*} [options] Override http request option.
@@ -9501,6 +10024,28 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async signUpPost(signUpPostRequest: SignUpPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.signUpPost(signUpPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 장소를 내 저장 리스트에서 제거한다.
+         * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async unsavePlace(unsavePlaceRequestDto: UnsavePlaceRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unsavePlace(unsavePlaceRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary PlaceList를 내 저장 목록에서 제거한다.
+         * @param {UnsavePlaceListRequestDto} unsavePlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async unsavePlaceList(unsavePlaceListRequestDto: UnsavePlaceListRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unsavePlaceList(unsavePlaceListRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -9619,10 +10164,11 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.createPlaceAccessibilityInfoRequestPost(createPlaceAccessibilityInfoRequestRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * /savePlace를 사용하세요.
          * @summary 장소를 즐겨찾기에 추가한다.
          * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         createPlaceFavoritePost(createPlaceFavoriteRequestDto: CreatePlaceFavoriteRequestDto, options?: any): AxiosPromise<CreatePlaceFavoriteResponseDto> {
@@ -9659,10 +10205,11 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.deletePlaceAccessibilityPost(deletePlaceAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * /unsavePlace를 사용하세요.
          * @summary 장소를 즐겨찾기에서 삭제한다.
          * @param {DeletePlaceFavoriteRequestDto} deletePlaceFavoriteRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         deletePlaceFavoritePost(deletePlaceFavoriteRequestDto: DeletePlaceFavoriteRequestDto, options?: any): AxiosPromise<DeletePlaceFavoriteResponseDto> {
@@ -9875,6 +10422,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary PlaceList(저장 리스트)를 조회한다.
+         * @param {GetPlaceListRequestDto} getPlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPlaceList(getPlaceListRequestDto: GetPlaceListRequestDto, options?: any): AxiosPromise<GetPlaceListResponseDto> {
+            return localVarFp.getPlaceList(getPlaceListRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 건물 & 점포 정보를 조회한다.
          * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
          * @param {*} [options] Override http request option.
@@ -9978,6 +10535,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary 즐겨찾기한 장소 목록을 조회한다.
          * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         listPlaceFavoritesPost(listPlaceFavoritesRequestDto: ListPlaceFavoritesRequestDto, options?: any): AxiosPromise<ListPlaceFavoritesResponseDto> {
@@ -10022,6 +10580,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: any): AxiosPromise<ListRegisteredToiletReviewsResponseDto> {
             return localVarFp.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 내가 저장한 PlaceList 목록을 조회한다.
+         * @param {ListSavedPlaceListsRequestDto} listSavedPlaceListsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSavedPlaceLists(listSavedPlaceListsRequestDto: ListSavedPlaceListsRequestDto, options?: any): AxiosPromise<ListSavedPlaceListsResponseDto> {
+            return localVarFp.listSavedPlaceLists(listSavedPlaceListsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 음식점, 카페, 편의점, 병원 같이 키워드를 내려주면 searchPlaces 키워드로 쓸 수 있습니다.
@@ -10227,6 +10795,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 장소를 내 저장 리스트에 추가한다.
+         * @param {SavePlaceRequestDto} savePlaceRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        savePlace(savePlaceRequestDto: SavePlaceRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.savePlace(savePlaceRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary PlaceList를 내 저장 목록에 추가한다.
+         * @param {SavePlaceListRequestDto} savePlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        savePlaceList(savePlaceListRequestDto: SavePlaceListRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.savePlaceList(savePlaceListRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 외부 접근성 정보가 등록된 장소를 검색한다.
          * @param {SearchExternalAccessibilitiesPostRequest} searchExternalAccessibilitiesPostRequest 
          * @param {*} [options] Override http request option.
@@ -10284,6 +10872,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         signUpPost(signUpPostRequest: SignUpPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.signUpPost(signUpPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 장소를 내 저장 리스트에서 제거한다.
+         * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsavePlace(unsavePlaceRequestDto: UnsavePlaceRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.unsavePlace(unsavePlaceRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary PlaceList를 내 저장 목록에서 제거한다.
+         * @param {UnsavePlaceListRequestDto} unsavePlaceListRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsavePlaceList(unsavePlaceListRequestDto: UnsavePlaceListRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.unsavePlaceList(unsavePlaceListRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
@@ -10409,10 +11017,11 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 
+     * /savePlace를 사용하세요.
      * @summary 장소를 즐겨찾기에 추가한다.
      * @param {CreatePlaceFavoriteRequestDto} createPlaceFavoriteRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
@@ -10457,10 +11066,11 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 
+     * /unsavePlace를 사용하세요.
      * @summary 장소를 즐겨찾기에서 삭제한다.
      * @param {DeletePlaceFavoriteRequestDto} deletePlaceFavoriteRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
@@ -10717,6 +11327,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary PlaceList(저장 리스트)를 조회한다.
+     * @param {GetPlaceListRequestDto} getPlaceListRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getPlaceList(getPlaceListRequestDto: GetPlaceListRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getPlaceList(getPlaceListRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 건물 & 점포 정보를 조회한다.
      * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
      * @param {*} [options] Override http request option.
@@ -10840,6 +11462,7 @@ export class DefaultApi extends BaseAPI {
      * @summary 즐겨찾기한 장소 목록을 조회한다.
      * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
@@ -10893,6 +11516,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 내가 저장한 PlaceList 목록을 조회한다.
+     * @param {ListSavedPlaceListsRequestDto} listSavedPlaceListsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listSavedPlaceLists(listSavedPlaceListsRequestDto: ListSavedPlaceListsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listSavedPlaceLists(listSavedPlaceListsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -11139,6 +11774,30 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary 장소를 내 저장 리스트에 추가한다.
+     * @param {SavePlaceRequestDto} savePlaceRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public savePlace(savePlaceRequestDto: SavePlaceRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).savePlace(savePlaceRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary PlaceList를 내 저장 목록에 추가한다.
+     * @param {SavePlaceListRequestDto} savePlaceListRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public savePlaceList(savePlaceListRequestDto: SavePlaceListRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).savePlaceList(savePlaceListRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary 외부 접근성 정보가 등록된 장소를 검색한다.
      * @param {SearchExternalAccessibilitiesPostRequest} searchExternalAccessibilitiesPostRequest 
      * @param {*} [options] Override http request option.
@@ -11207,6 +11866,30 @@ export class DefaultApi extends BaseAPI {
      */
     public signUpPost(signUpPostRequest: SignUpPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).signUpPost(signUpPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 장소를 내 저장 리스트에서 제거한다.
+     * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public unsavePlace(unsavePlaceRequestDto: UnsavePlaceRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unsavePlace(unsavePlaceRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary PlaceList를 내 저장 목록에서 제거한다.
+     * @param {UnsavePlaceListRequestDto} unsavePlaceListRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public unsavePlaceList(unsavePlaceListRequestDto: UnsavePlaceListRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unsavePlaceList(unsavePlaceListRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
