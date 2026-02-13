@@ -11,6 +11,7 @@ import {
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import SearchCategory from '@/screens/SearchScreen/components/SearchHeader/SearchCategory.tsx';
+import SavedFilterBalloon from '@/screens/SearchScreen/components/SearchHeader/SavedFilterBalloon';
 import SearchFilterPreview from '@/screens/SearchScreen/components/SearchHeader/SearchFilterPreview.tsx';
 import SearchInputText from '@/screens/SearchScreen/components/SearchHeader/SearchInputText.tsx';
 
@@ -70,7 +71,12 @@ export default function SearchHeader({
           />
         </View>
       ) : (
-        !viewState.inputMode && <SearchFilterPreview />
+        !viewState.inputMode && (
+          <>
+            <SearchFilterPreview />
+            <SavedFilterBalloon />
+          </>
+        )
       )}
     </Container>
   );

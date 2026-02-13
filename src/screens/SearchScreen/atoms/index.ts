@@ -61,3 +61,9 @@ export const searchQueryAtom = atom<SearchQuery>({
 export const draftCameraRegionAtom = atom<Region | null>(null);
 
 export const draftKeywordAtom = atom<string | null>(null);
+
+// '조회하기' 진입 여부 (세션 한정)
+export const isFromLookupAtom = atom<boolean>(false);
+
+// 이번 세션에서 saved filter가 복원되었는지 (말풍선 트리거)
+export const savedFilterAppliedThisSessionAtom = atom<boolean>(false);
