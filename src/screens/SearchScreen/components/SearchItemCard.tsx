@@ -183,7 +183,9 @@ function SearchItemCard({
         onPress={onPress}>
         <InfoArea>
           <LabelIconArea>
-            {item.hasPlaceAccessibility || isConquestMode ? (
+            {item.hasPlaceAccessibility ||
+            isConquestMode ||
+            !item.place.address.startsWith('서울') ? (
               <ScoreLabel
                 score={getPlaceAccessibilityScore({
                   score: item.accessibilityInfo?.accessibilityScore,
