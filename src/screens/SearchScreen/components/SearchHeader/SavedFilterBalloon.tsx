@@ -6,10 +6,11 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {hasShownSavedFilterTooltipAtom} from '@/atoms/User';
-import {savedFilterAppliedThisSessionAtom} from '@/screens/SearchScreen/atoms';
+import {useSearchScreenContext} from '@/screens/SearchScreen/SearchScreenContext';
 
 export default function SavedFilterBalloon() {
-  const savedFilterApplied = useAtomValue(savedFilterAppliedThisSessionAtom);
+  const {savedFilterAppliedThisSession: savedFilterApplied} =
+    useSearchScreenContext();
   const hasShownTooltip = useAtomValue(hasShownSavedFilterTooltipAtom);
   const setHasShownTooltip = useSetAtom(hasShownSavedFilterTooltipAtom);
   const opacity = useRef(new Animated.Value(0)).current;
@@ -21,22 +22,35 @@ export default function SavedFilterBalloon() {
       return;
     }
 
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let isCancelled = false;
+
     Animated.timing(opacity, {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
     }).start(() => {
+      if (isCancelled) return;
       // 3초 후 fade-out
-      setTimeout(() => {
+      timer = setTimeout(() => {
+        if (isCancelled) return;
         Animated.timing(opacity, {
           toValue: 0,
           duration: 300,
           useNativeDriver: true,
         }).start(() => {
-          setHasShownTooltip(true);
+          if (!isCancelled) {
+            setHasShownTooltip(true);
+          }
         });
       }, 3000);
     });
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+      opacity.stopAnimation();
+    };
   }, [shouldShow]);
 
   if (!shouldShow) {
@@ -57,7 +71,9 @@ export default function SavedFilterBalloon() {
       pointerEvents="none">
       <TailUp />
       <BalloonContainer>
-        <BalloonText>마지막으로 적용했던 필터가 자동으로 적용됐어요!</BalloonText>
+        <BalloonText>
+          마지막으로 적용했던 필터가 자동으로 적용됐어요!
+        </BalloonText>
       </BalloonContainer>
     </Animated.View>
   );

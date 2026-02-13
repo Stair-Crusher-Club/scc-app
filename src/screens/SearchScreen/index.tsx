@@ -12,14 +12,12 @@ import {color} from '@/constant/color.ts';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
+import type {FilterOptions} from '@/screens/SearchScreen/atoms';
 import {
   draftCameraRegionAtom,
   draftKeywordAtom,
   filterAtom,
-  FilterOptions,
   filterModalStateAtom,
-  isFromLookupAtom,
-  savedFilterAppliedThisSessionAtom,
   SearchMode,
   searchModeAtom,
   SearchQuery,
@@ -27,10 +25,28 @@ import {
   SortOption,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
+import {
+  SearchScreenProvider,
+  useSearchScreenContext,
+} from '@/screens/SearchScreen/SearchScreenContext';
+import SavedFilterBalloon from '@/screens/SearchScreen/components/SearchHeader/SavedFilterBalloon';
+import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
+import SearchListView from '@/screens/SearchScreen/components/SearchListView';
+import SearchMapView, {
+  SearchMapViewHandle,
+} from '@/screens/SearchScreen/components/SearchMapView';
+import SearchSummaryView from '@/screens/SearchScreen/components/SearchSummaryView';
+import ToiletListView from '@/screens/SearchScreen/components/ToiletListView';
+import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
 import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
+import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {MarkerItem} from '@/components/maps/MarkerItem';
 import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
+
+import {resetHighlightAnimation} from '@/components/AccessibilityInfoRequestButton';
+
+import * as S from './SearchScreen.style';
 
 function isPlaceListItem(item: SearchResultItem): item is PlaceListItem {
   return 'place' in item;
@@ -47,20 +63,6 @@ function getItemLocation(item: SearchResultItem) {
 function getItemDisplayName(item: SearchResultItem): string {
   return isPlaceListItem(item) ? item.place.name : item.displayName;
 }
-import SavedFilterBalloon from '@/screens/SearchScreen/components/SearchHeader/SavedFilterBalloon';
-import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
-import SearchListView from '@/screens/SearchScreen/components/SearchListView';
-import SearchMapView, {
-  SearchMapViewHandle,
-} from '@/screens/SearchScreen/components/SearchMapView';
-import SearchSummaryView from '@/screens/SearchScreen/components/SearchSummaryView';
-import ToiletListView from '@/screens/SearchScreen/components/ToiletListView';
-import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
-import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
-
-import {resetHighlightAnimation} from '@/components/AccessibilityInfoRequestButton';
-
-import * as S from './SearchScreen.style';
 
 function hasMeaningfulFilter(filter: FilterOptions): boolean {
   return (
@@ -79,6 +81,18 @@ export interface SearchScreenParams {
 }
 
 const SearchScreen = ({route}: ScreenProps<'Search'>) => {
+  return (
+    <SearchScreenProvider>
+      <SearchScreenContent route={route} />
+    </SearchScreenProvider>
+  );
+};
+
+const SearchScreenContent = ({
+  route,
+}: {
+  route: ScreenProps<'Search'>['route'];
+}) => {
   const {
     initKeyword,
     toMap,
@@ -102,8 +116,8 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
   const savedFilter = useAtomValue(savedSearchFilterAtom);
   const hasShownTooltip = useAtomValue(hasShownSavedFilterTooltipAtom);
-  const setIsFromLookup = useSetAtom(isFromLookupAtom);
-  const setSavedFilterApplied = useSetAtom(savedFilterAppliedThisSessionAtom);
+  const {setIsFromLookup, setSavedFilterAppliedThisSession} =
+    useSearchScreenContext();
 
   const onQueryUpdate = (
     queryUpdate: Partial<SearchQuery>,
@@ -168,7 +182,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
         : savedFilter;
       setFilter(filterToApply);
       if (!hasShownTooltip) {
-        setSavedFilterApplied(true);
+        setSavedFilterAppliedThisSession(true);
       }
     } else if (fromLookup) {
       setFilter(prev => ({...prev, isRegistered: true}));
@@ -200,7 +214,7 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   useEffect(() => {
     return navigation.addListener('beforeRemove', () => {
       setIsFromLookup(false);
-      setSavedFilterApplied(false);
+      setSavedFilterAppliedThisSession(false);
       setFilter({
         sortOption: SortOption.ACCURACY,
         hasSlope: null,

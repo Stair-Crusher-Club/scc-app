@@ -1,4 +1,4 @@
-import {useAtom, useAtomValue, useSetAtom} from 'jotai';
+import {useAtom, useSetAtom} from 'jotai';
 import React, {useState} from 'react';
 import {Dimensions, ScrollView, Text} from 'react-native';
 import styled from 'styled-components/native';
@@ -15,8 +15,8 @@ import {
   SortOption,
   filterAtom,
   filterModalStateAtom,
-  isFromLookupAtom,
 } from '@/screens/SearchScreen/atoms';
+import {useSearchScreenContext} from '@/screens/SearchScreen/SearchScreenContext';
 import ChipSelector from '@/screens/SearchScreen/modals/ChipSelector';
 import ScoreSelector from '@/screens/SearchScreen/modals/ScoreSelector.tsx';
 
@@ -27,7 +27,7 @@ export default function FilterModal() {
   const [savedFilter, setSavedFilter] = useAtom(filterAtom);
   const [state, setFilterModalState] = useAtom(filterModalStateAtom);
   const setSavedSearchFilter = useSetAtom(savedSearchFilterAtom);
-  const isFromLookup = useAtomValue(isFromLookupAtom);
+  const {isFromLookup} = useSearchScreenContext();
 
   const [draftSortOption, setDraftSortOption] =
     useState<FilterOptions['sortOption']>();
