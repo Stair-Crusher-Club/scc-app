@@ -1,5 +1,6 @@
 import {atomForLocal, atomForLocalNonNull} from '@/atoms/atomForLocal';
 import {UserMobilityToolMapDto} from '@/constant/review';
+import type {FilterOptions} from '@/screens/SearchScreen/atoms';
 
 export const searchHistoriesAtom = atomForLocalNonNull<string[]>(
   'searchHistories',
@@ -61,3 +62,15 @@ export const recentlyUsedMobilityToolAtom = atomForLocal<{
   name: UserMobilityToolMapDto;
   timestamp: number;
 }>('recentlyUsedMobilityTool');
+
+// 마지막으로 사용한 검색 필터 (MMKV 저장)
+export const savedSearchFilterAtom = atomForLocalNonNull<FilterOptions | null>(
+  'savedSearchFilter',
+  null,
+);
+
+// 저장된 필터 복원 말풍선 표시 여부 (최초 1회)
+export const hasShownSavedFilterTooltipAtom = atomForLocalNonNull<boolean>(
+  'hasShownSavedFilterTooltip',
+  false,
+);

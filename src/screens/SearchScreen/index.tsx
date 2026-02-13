@@ -3,11 +3,16 @@ import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
 
-import {searchHistoriesAtom} from '@/atoms/User';
+import {
+  searchHistoriesAtom,
+  savedSearchFilterAtom,
+  hasShownSavedFilterTooltipAtom,
+} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
+import type {FilterOptions} from '@/screens/SearchScreen/atoms';
 import {
   draftCameraRegionAtom,
   draftKeywordAtom,
@@ -20,10 +25,28 @@ import {
   SortOption,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
+import {
+  SearchScreenProvider,
+  useSearchScreenContext,
+} from '@/screens/SearchScreen/SearchScreenContext';
+import SavedFilterBalloon from '@/screens/SearchScreen/components/SearchHeader/SavedFilterBalloon';
+import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
+import SearchListView from '@/screens/SearchScreen/components/SearchListView';
+import SearchMapView, {
+  SearchMapViewHandle,
+} from '@/screens/SearchScreen/components/SearchMapView';
+import SearchSummaryView from '@/screens/SearchScreen/components/SearchSummaryView';
+import ToiletListView from '@/screens/SearchScreen/components/ToiletListView';
+import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
 import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
+import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {MarkerItem} from '@/components/maps/MarkerItem';
 import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
+
+import {resetHighlightAnimation} from '@/components/AccessibilityInfoRequestButton';
+
+import * as S from './SearchScreen.style';
 
 function isPlaceListItem(item: SearchResultItem): item is PlaceListItem {
   return 'place' in item;
@@ -40,28 +63,42 @@ function getItemLocation(item: SearchResultItem) {
 function getItemDisplayName(item: SearchResultItem): string {
   return isPlaceListItem(item) ? item.place.name : item.displayName;
 }
-import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
-import SearchListView from '@/screens/SearchScreen/components/SearchListView';
-import SearchMapView, {
-  SearchMapViewHandle,
-} from '@/screens/SearchScreen/components/SearchMapView';
-import SearchSummaryView from '@/screens/SearchScreen/components/SearchSummaryView';
-import ToiletListView from '@/screens/SearchScreen/components/ToiletListView';
-import FilterModal from '@/screens/SearchScreen/modals/FilterModal';
-import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 
-import {resetHighlightAnimation} from '@/components/AccessibilityInfoRequestButton';
-
-import * as S from './SearchScreen.style';
+function hasMeaningfulFilter(filter: FilterOptions): boolean {
+  return (
+    filter.sortOption !== SortOption.ACCURACY ||
+    filter.scoreUnder !== null ||
+    filter.hasSlope !== null ||
+    filter.isRegistered !== null
+  );
+}
 
 export interface SearchScreenParams {
   initKeyword?: string;
   toMap?: boolean;
   searchQuery?: string;
+  fromLookup?: boolean;
 }
 
 const SearchScreen = ({route}: ScreenProps<'Search'>) => {
-  const {initKeyword, toMap, searchQuery: deepLinkSearchQuery} = route.params;
+  return (
+    <SearchScreenProvider>
+      <SearchScreenContent route={route} />
+    </SearchScreenProvider>
+  );
+};
+
+const SearchScreenContent = ({
+  route,
+}: {
+  route: ScreenProps<'Search'>['route'];
+}) => {
+  const {
+    initKeyword,
+    toMap,
+    searchQuery: deepLinkSearchQuery,
+    fromLookup,
+  } = route.params;
   const ref = useRef<SearchMapViewHandle>(null);
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
@@ -77,6 +114,10 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
+  const savedFilter = useAtomValue(savedSearchFilterAtom);
+  const hasShownTooltip = useAtomValue(hasShownSavedFilterTooltipAtom);
+  const {setIsFromLookup, setSavedFilterAppliedThisSession} =
+    useSearchScreenContext();
 
   const onQueryUpdate = (
     queryUpdate: Partial<SearchQuery>,
@@ -131,11 +172,27 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   };
 
   useEffect(() => {
-    if (!initKeyword) {
-      return;
+    // 1. fromLookup 상태 설정
+    setIsFromLookup(!!fromLookup);
+
+    // 2. 저장된 필터 복원 (text가 null인 상태에서 실행 → API 호출 없음)
+    if (savedFilter && hasMeaningfulFilter(savedFilter)) {
+      const filterToApply = fromLookup
+        ? {...savedFilter, isRegistered: true}
+        : savedFilter;
+      setFilter(filterToApply);
+      if (!hasShownTooltip) {
+        setSavedFilterAppliedThisSession(true);
+      }
+    } else if (fromLookup) {
+      setFilter(prev => ({...prev, isRegistered: true}));
     }
-    onQueryUpdate({text: initKeyword}, {shouldAnimate: true});
-  }, [initKeyword]);
+
+    // 3. initKeyword로 검색 트리거 (필터가 이미 설정된 상태)
+    if (initKeyword) {
+      onQueryUpdate({text: initKeyword}, {shouldAnimate: true});
+    }
+  }, []);
 
   useEffect(() => {
     if (toMap) {
@@ -156,6 +213,8 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
   // 화면 나갈 때 상태 돌려놓기
   useEffect(() => {
     return navigation.addListener('beforeRemove', () => {
+      setIsFromLookup(false);
+      setSavedFilterAppliedThisSession(false);
       setFilter({
         sortOption: SortOption.ACCURACY,
         hasSlope: null,
@@ -192,6 +251,9 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
           onQueryUpdate={onQueryUpdate}
           autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
         />
+        <View style={{zIndex: 100}}>
+          <SavedFilterBalloon />
+        </View>
         <View
           style={{
             width: '100%',

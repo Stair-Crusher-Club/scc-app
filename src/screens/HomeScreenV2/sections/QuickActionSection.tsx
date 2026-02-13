@@ -8,7 +8,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
-import {filterAtom, searchModeAtom} from '@/screens/SearchScreen/atoms';
+import {searchModeAtom} from '@/screens/SearchScreen/atoms';
 
 const CARD_HEIGHT = 120;
 const CHARACTER_SIZE = 90;
@@ -34,12 +34,14 @@ const CONQUER_SPRITE = {
 export default function QuickActionSection() {
   const navigation = useNavigation();
   const setSearchMode = useSetAtom(searchModeAtom);
-  const setFilter = useSetAtom(filterAtom);
 
   const goToSearchPlace = () => {
     setSearchMode('place');
-    setFilter(prev => ({...prev, isRegistered: true}));
-    navigation.navigate('Search', {initKeyword: '맛집', toMap: false});
+    navigation.navigate('Search', {
+      initKeyword: '맛집',
+      toMap: false,
+      fromLookup: true,
+    });
   };
 
   const goToConquer = () => {
