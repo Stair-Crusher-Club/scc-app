@@ -30,6 +30,7 @@ export default function PlaceDetailRegisterButtonSection({
       <StyledText
         text={title}
         style={{
+          flexShrink: 1,
           fontSize: 16,
           lineHeight: 26,
           color: color.black,
