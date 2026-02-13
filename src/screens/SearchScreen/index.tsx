@@ -47,6 +47,7 @@ function getItemLocation(item: SearchResultItem) {
 function getItemDisplayName(item: SearchResultItem): string {
   return isPlaceListItem(item) ? item.place.name : item.displayName;
 }
+import SavedFilterBalloon from '@/screens/SearchScreen/components/SearchHeader/SavedFilterBalloon';
 import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import SearchMapView, {
@@ -236,6 +237,9 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
           onQueryUpdate={onQueryUpdate}
           autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
         />
+        <View style={{zIndex: 100}}>
+          <SavedFilterBalloon />
+        </View>
         <View
           style={{
             width: '100%',

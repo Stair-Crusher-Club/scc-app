@@ -15,7 +15,19 @@ export default function SavedFilterBalloon() {
 
   const shouldShow = savedFilterApplied && !hasShownTooltip;
 
+  // TODO: 테스트용 상시 노출 - 테스트 완료 후 제거
+  const DEBUG_ALWAYS_SHOW = true;
+
   useEffect(() => {
+    if (DEBUG_ALWAYS_SHOW) {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+      return;
+    }
+
     if (!shouldShow) {
       return;
     }
@@ -38,15 +50,25 @@ export default function SavedFilterBalloon() {
     });
   }, [shouldShow]);
 
-  if (!shouldShow) {
+  if (!DEBUG_ALWAYS_SHOW && !shouldShow) {
     return null;
   }
 
   return (
-    <Animated.View style={{opacity, paddingHorizontal: 20}}>
+    <Animated.View
+      style={{
+        opacity,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        paddingHorizontal: 20,
+      }}
+      pointerEvents="none">
       <TailUp />
       <BalloonContainer>
-        <BalloonText>마지막으로 적용했던 필터가 자동 적용됐어요!</BalloonText>
+        <BalloonText>마지막으로 적용했던 필터가 자동으로 적용됐어요!</BalloonText>
       </BalloonContainer>
     </Animated.View>
   );
