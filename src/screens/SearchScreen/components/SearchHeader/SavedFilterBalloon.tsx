@@ -15,19 +15,7 @@ export default function SavedFilterBalloon() {
 
   const shouldShow = savedFilterApplied && !hasShownTooltip;
 
-  // TODO: 테스트용 상시 노출 - 테스트 완료 후 제거
-  const DEBUG_ALWAYS_SHOW = true;
-
   useEffect(() => {
-    if (DEBUG_ALWAYS_SHOW) {
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-      return;
-    }
-
     if (!shouldShow) {
       return;
     }
@@ -50,7 +38,7 @@ export default function SavedFilterBalloon() {
     });
   }, [shouldShow]);
 
-  if (!DEBUG_ALWAYS_SHOW && !shouldShow) {
+  if (!shouldShow) {
     return null;
   }
 
