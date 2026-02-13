@@ -251,9 +251,11 @@ const SearchScreenContent = ({
           onQueryUpdate={onQueryUpdate}
           autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
         />
-        <View style={{zIndex: 100}}>
-          <SavedFilterBalloon />
-        </View>
+        {!viewState.inputMode && (
+          <View style={{zIndex: 100}}>
+            <SavedFilterBalloon />
+          </View>
+        )}
         <View
           style={{
             width: '100%',
