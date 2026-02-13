@@ -3,6 +3,7 @@ import {Animated} from 'react-native';
 import {useAtomValue, useSetAtom} from 'jotai';
 import styled from 'styled-components/native';
 
+import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {hasShownSavedFilterTooltipAtom} from '@/atoms/User';
 import {savedFilterAppliedThisSessionAtom} from '@/screens/SearchScreen/atoms';
@@ -63,7 +64,7 @@ export default function SavedFilterBalloon() {
 }
 
 const BalloonContainer = styled.View`
-  background-color: #262626;
+  background-color: ${color.brandColor};
   border-radius: 8px;
   padding: 8px 12px;
   align-self: flex-start;
@@ -78,7 +79,7 @@ const BalloonText = styled.Text`
 const TailUp = styled.View`
   width: 10px;
   height: 10px;
-  background-color: #262626;
+  background-color: ${color.brandColor};
   transform: rotate(45deg);
   margin-left: 16px;
   margin-bottom: -5px;
