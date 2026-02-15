@@ -81,6 +81,12 @@ export interface AccessibilityInfoDto {
      * @memberof AccessibilityInfoDto
      */
     'totalAccessibilityInfoRequestCount': number;
+    /**
+     * 
+     * @type {PlaceUpvoteInfoDto}
+     * @memberof AccessibilityInfoDto
+     */
+    'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
 }
 /**
  * 
@@ -3996,6 +4002,25 @@ export interface PlaceReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 장소 단위 도움이 돼요 정보
+ * @export
+ * @interface PlaceUpvoteInfoDto
+ */
+export interface PlaceUpvoteInfoDto {
+    /**
+     * 현재 유저가 이 장소에 도움이 돼요를 눌렀는지 여부
+     * @type {boolean}
+     * @memberof PlaceUpvoteInfoDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 이 장소가 받은 총 도움이 돼요 수 (기존 PLACE_ACCESSIBILITY + BUILDING_ACCESSIBILITY 합산 포함)
+     * @type {number}
+     * @memberof PlaceUpvoteInfoDto
+     */
+    'totalUpvoteCount': number;
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -5637,6 +5662,7 @@ export interface UpdateUserInfoPostRequest {
  */
 
 export const UpvoteTargetTypeDto = {
+    Place: 'PLACE',
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
     BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
