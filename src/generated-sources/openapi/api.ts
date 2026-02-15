@@ -83,6 +83,86 @@ export interface AccessibilityInfoDto {
     'totalAccessibilityInfoRequestCount': number;
 }
 /**
+ * 건물 & 점포의 접근성 정보 (v2 - 클로즈 베타). placeUpvoteInfo 추가.
+ * @export
+ * @interface AccessibilityInfoV2Dto
+ */
+export interface AccessibilityInfoV2Dto {
+    /**
+     * 
+     * @type {BuildingAccessibility}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'buildingAccessibility'?: BuildingAccessibility;
+    /**
+     * 정보가 아직 채워지지 않았으면 empty list.
+     * @type {Array<BuildingAccessibilityComment>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'buildingAccessibilityComments': Array<BuildingAccessibilityComment>;
+    /**
+     * 
+     * @type {PlaceAccessibility}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeAccessibility'?: PlaceAccessibility;
+    /**
+     * 정보가 아직 채워지지 않았으면 empty list.
+     * @type {Array<PlaceAccessibilityComment>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeAccessibilityComments': Array<PlaceAccessibilityComment>;
+    /**
+     * \'이 건물의 다른 점포 등록하기\'를 보여줄지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'hasOtherPlacesToRegisterInBuilding': boolean;
+    /**
+     * 내가 즐겨찾기한 장소인지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'isFavoritePlace': boolean;
+    /**
+     * 이 장소를 즐겨찾기한 사람 수.
+     * @type {number}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'totalFavoriteCount': number;
+    /**
+     * 내가 접근성 정보를 요청했는지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'isAccessibilityInfoRequested': boolean;
+    /**
+     * 이 장소에 접근성 정보를 요청한 총 인원 수.
+     * @type {number}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'totalAccessibilityInfoRequestCount': number;
+    /**
+     * 
+     * @type {PlaceUpvoteInfoDto}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
+}
+/**
+ * 
+ * @export
+ * @interface AccessibilityInfoV2DtoAllOf
+ */
+export interface AccessibilityInfoV2DtoAllOf {
+    /**
+     * 
+     * @type {PlaceUpvoteInfoDto}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
+}
+/**
  * 
  * @export
  * @interface AccessibilityRankDto
@@ -3996,6 +4076,25 @@ export interface PlaceReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 장소 단위 도움이 돼요 정보
+ * @export
+ * @interface PlaceUpvoteInfoDto
+ */
+export interface PlaceUpvoteInfoDto {
+    /**
+     * 현재 유저가 이 장소에 도움이 돼요를 눌렀는지 여부
+     * @type {boolean}
+     * @memberof PlaceUpvoteInfoDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 이 장소가 받은 총 도움이 돼요 수 (기존 PLACE_ACCESSIBILITY + BUILDING_ACCESSIBILITY 합산 포함)
+     * @type {number}
+     * @memberof PlaceUpvoteInfoDto
+     */
+    'totalUpvoteCount': number;
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -5637,6 +5736,7 @@ export interface UpdateUserInfoPostRequest {
  */
 
 export const UpvoteTargetTypeDto = {
+    Place: 'PLACE',
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
     BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
@@ -6592,6 +6692,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+         * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccessibilityV2Post: async (getAccessibilityPostRequest: GetAccessibilityPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getAccessibilityPostRequest' is not null or undefined
+            assertParamExists('getAccessibilityV2Post', 'getAccessibilityPostRequest', getAccessibilityPostRequest)
+            const localVarPath = `/getAccessibilityV2`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getAccessibilityPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -9379,6 +9519,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+         * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccessibilityV2Post(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccessibilityInfoV2Dto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccessibilityV2Post(getAccessibilityPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 뿌클로드 페이지 정보를 조회한다.
          * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
          * @param {*} [options] Override http request option.
@@ -10285,6 +10436,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+         * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccessibilityV2Post(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: any): AxiosPromise<AccessibilityInfoV2Dto> {
+            return localVarFp.getAccessibilityV2Post(getAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary 뿌클로드 페이지 정보를 조회한다.
          * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
          * @param {*} [options] Override http request option.
@@ -11158,6 +11319,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getAccessibilityRankPost(body: object, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getAccessibilityRankPost(body, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+     * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getAccessibilityV2Post(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getAccessibilityV2Post(getAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

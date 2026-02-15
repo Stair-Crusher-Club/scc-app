@@ -3,7 +3,7 @@ import React from 'react';
 import StepFlatIcon from '@/assets/icon/step_flat.svg';
 import StepSlopeIcon from '@/assets/icon/step_slope.svg';
 import StepStairIcon from '@/assets/icon/step_stair.svg';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
@@ -14,7 +14,7 @@ import {
 } from './PlaceInfo.utils';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
 }
 export default function BuildingEntranceStepInfo({accessibility}: Props) {
   if (!accessibility) {
@@ -61,7 +61,7 @@ export function DetailIcon({
   }
 }
 
-function getMessages(accessibility: AccessibilityInfoDto) {
+function getMessages(accessibility: AccessibilityInfoV2Dto) {
   const entranceStepType = getBuildingEntranceStepType(accessibility);
   const stairInfo = accessibility.placeAccessibility?.stairInfo;
   const stairHeightLevel = accessibility.placeAccessibility?.stairHeightLevel;
