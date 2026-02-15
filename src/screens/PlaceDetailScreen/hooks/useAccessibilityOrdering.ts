@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
 
 export type AccessibilitySectionType =
   | 'floor'
@@ -21,7 +21,7 @@ export type AccessibilitySectionType =
  * - 단독건물 여러층: 층 정보 → 매장(건물 출입구) → 층간 이동 정보 → 내부 이용 정보
  */
 export function useAccessibilityOrdering(
-  accessibility?: AccessibilityInfoDto,
+  accessibility?: AccessibilityInfoV2Dto,
 ): AccessibilitySectionType[] {
   return useMemo(() => {
     if (!accessibility?.placeAccessibility) {

@@ -3,12 +3,12 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
 
 import PlaceDetailCrusher from '../sections/PlaceDetailCrusher';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
 }
 
 export default function PlaceDetailConquerorTab({accessibility}: Props) {

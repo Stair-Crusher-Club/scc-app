@@ -6,7 +6,7 @@ import Carousel from 'react-native-reanimated-carousel';
 
 import {SccPressable} from '@/components/SccPressable';
 import {
-  AccessibilityInfoDto,
+  AccessibilityInfoV2Dto,
   PlaceReviewDto,
   ToiletReviewDto,
 } from '@/generated-sources/openapi';
@@ -20,7 +20,7 @@ interface SlideData {
   thumbnailUrl: string | undefined;
 }
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
   placeIndoorReviews?: PlaceReviewDto[];
   toiletReviews?: ToiletReviewDto[];
 }

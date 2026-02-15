@@ -191,7 +191,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   } = useQuery({
     queryKey: ['PlaceDetail', placeId, 'Accessibility'],
     queryFn: async ({queryKey}) =>
-      (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
+      (await api.getAccessibilityV2Post({placeId: queryKey[1]})).data,
   });
   const {data: reviewPost} = useQuery({
     queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.PlaceReview],
