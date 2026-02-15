@@ -26,6 +26,14 @@ export default function ImageList({
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
   const hiddenImages = isSinglePreview ? images.slice(1) : images.slice(3);
 
+  const sourceAttributions = [
+    ...new Set(
+      images
+        .map(image => image.sourceAttribution)
+        .filter((attr): attr is string => !!attr),
+    ),
+  ];
+
   function onPressImage(index: number) {
     initialFocusedIndex.current = index;
     navigation.navigate('ImageZoomViewer', {
@@ -35,40 +43,47 @@ export default function ImageList({
   }
 
   return (
-    <ImageListView roundCorners={roundCorners}>
-      {isSinglePreview ? (
-        <ImageBox
-          image={images[0]}
-          onPress={() => onPressImage(0)}
-          isSinglePreview
-          hiddenImageLength={hiddenImages.length}
-          elementName="place_detail_image"
-          index={0}
-        />
-      ) : (
-        <>
+    <>
+      <ImageListView roundCorners={roundCorners}>
+        {isSinglePreview ? (
           <ImageBox
             image={images[0]}
             onPress={() => onPressImage(0)}
+            isSinglePreview
+            hiddenImageLength={hiddenImages.length}
             elementName="place_detail_image"
             index={0}
           />
-          <ImageBox
-            image={images[1]}
-            onPress={() => onPressImage(1)}
-            elementName="place_detail_image"
-            index={1}
-          />
-          <ImageBox
-            image={images[2]}
-            hiddenImageLength={hiddenImages.length}
-            onPress={() => onPressImage(2)}
-            elementName="place_detail_image"
-            index={2}
-          />
-        </>
+        ) : (
+          <>
+            <ImageBox
+              image={images[0]}
+              onPress={() => onPressImage(0)}
+              elementName="place_detail_image"
+              index={0}
+            />
+            <ImageBox
+              image={images[1]}
+              onPress={() => onPressImage(1)}
+              elementName="place_detail_image"
+              index={1}
+            />
+            <ImageBox
+              image={images[2]}
+              hiddenImageLength={hiddenImages.length}
+              onPress={() => onPressImage(2)}
+              elementName="place_detail_image"
+              index={2}
+            />
+          </>
+        )}
+      </ImageListView>
+      {sourceAttributions.length > 0 && (
+        <SourceAttributionText>
+          {sourceAttributions.map(attr => `사진 제공: ${attr}`).join(', ')}
+        </SourceAttributionText>
       )}
-    </ImageListView>
+    </>
   );
 }
 
@@ -159,4 +174,12 @@ const MoreImageCount = styled.Text`
   font-size: 12px;
   line-height: 14px;
   font-family: ${font.pretendardBold};
+`;
+
+const SourceAttributionText = styled.Text`
+  color: ${color.gray50};
+  font-size: 11px;
+  line-height: 16px;
+  font-family: ${font.pretendardRegular};
+  margin-top: 4px;
 `;
