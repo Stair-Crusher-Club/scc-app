@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import {font} from '@/constant/font';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
 import AstronautsBottomSheet from '@/modals/AstronautsBottomSheet/AstronautsBottomSheet';
 
 interface RegisterCompleteBottomSheetProps {
   isVisible: boolean;
-  accessibilityPost?: AccessibilityInfoDto;
+  accessibilityPost?: AccessibilityInfoV2Dto;
   event?: 'submit-place' | 'submit-building';
   onPressConfirmButton: () => void;
 }

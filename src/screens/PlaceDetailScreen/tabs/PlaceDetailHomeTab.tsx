@@ -6,7 +6,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  AccessibilityInfoDto,
+  AccessibilityInfoV2Dto,
   Place,
   PlaceReviewDto,
 } from '@/generated-sources/openapi';
@@ -18,7 +18,7 @@ import PlaceReviewItem from '../components/PlaceReviewItem';
 import AccessibilitySummarySection from '../sections/AccessibilitySummarySection';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
   place: Place;
   reviews: PlaceReviewDto[];
   onPressAccessibilityTab: () => void;

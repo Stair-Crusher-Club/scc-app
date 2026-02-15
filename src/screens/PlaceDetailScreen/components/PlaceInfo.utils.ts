@@ -1,5 +1,5 @@
 import {
-  AccessibilityInfoDto,
+  AccessibilityInfoV2Dto,
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
@@ -16,7 +16,7 @@ export enum FloorAccessibilityType {
   Unknown,
 }
 
-export function getFloorAccessibility(accessibility: AccessibilityInfoDto): {
+export function getFloorAccessibility(accessibility: AccessibilityInfoV2Dto): {
   type: FloorAccessibilityType;
   title: string;
   description?: string;
@@ -115,7 +115,7 @@ export enum EntranceStepType {
   Unknown,
 }
 export function getPlaceEntranceStepType(
-  accessibility: AccessibilityInfoDto,
+  accessibility: AccessibilityInfoV2Dto,
 ): EntranceStepType {
   const stairInfo = accessibility.placeAccessibility?.stairInfo;
   const hasSlope = accessibility.placeAccessibility?.hasSlope;
@@ -136,7 +136,7 @@ export function getPlaceEntranceStepType(
 }
 
 export function getBuildingEntranceStepType(
-  accessibility: AccessibilityInfoDto,
+  accessibility: AccessibilityInfoV2Dto,
 ): EntranceStepType {
   const stairInfo = accessibility.buildingAccessibility?.entranceStairInfo;
   const hasSlope = accessibility.buildingAccessibility?.hasSlope;
@@ -162,7 +162,7 @@ export enum ElevatorType {
   NoElevator,
 }
 export function getBuildingElevatorType(
-  accessibility: AccessibilityInfoDto,
+  accessibility: AccessibilityInfoV2Dto,
 ): ElevatorType {
   const hasElevator = accessibility.buildingAccessibility?.hasElevator;
   const stairInfo = accessibility.buildingAccessibility?.elevatorStairInfo;

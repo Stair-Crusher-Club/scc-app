@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoDto, StairInfo} from '@/generated-sources/openapi';
+import {AccessibilityInfoV2Dto, StairInfo} from '@/generated-sources/openapi';
 
 import {
   EntranceStepType,
@@ -13,7 +13,7 @@ import {
 } from '../components/PlaceInfo.utils';
 
 interface Props {
-  accessibility: AccessibilityInfoDto;
+  accessibility: AccessibilityInfoV2Dto;
 }
 
 export default function AccessibilitySummarySection({accessibility}: Props) {
@@ -30,7 +30,7 @@ export default function AccessibilitySummarySection({accessibility}: Props) {
   );
 }
 
-function generateSummary(accessibility: AccessibilityInfoDto): string | null {
+function generateSummary(accessibility: AccessibilityInfoV2Dto): string | null {
   if (!accessibility.placeAccessibility) {
     return null;
   }

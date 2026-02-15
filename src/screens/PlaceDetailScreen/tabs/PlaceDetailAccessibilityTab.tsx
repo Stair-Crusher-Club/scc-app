@@ -9,7 +9,7 @@ import FeedbackButton from '@/components/FeedbackButton';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  AccessibilityInfoDto,
+  AccessibilityInfoV2Dto,
   Building,
   Place,
   ReportTargetTypeDto,
@@ -36,7 +36,7 @@ import PlaceDetailCrusher from '../sections/PlaceDetailCrusher';
 import * as S from '../sections/PlaceDetailEntranceSection.style';
 
 interface Props {
-  accessibility?: AccessibilityInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
   place: Place;
   building: Building;
   isAccessibilityRegistrable?: boolean;

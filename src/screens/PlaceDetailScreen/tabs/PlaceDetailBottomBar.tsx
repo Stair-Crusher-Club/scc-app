@@ -9,7 +9,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  AccessibilityInfoDto,
+  AccessibilityInfoV2Dto,
   PlaceUpvoteInfoDto,
 } from '@/generated-sources/openapi';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
@@ -17,7 +17,7 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 interface Props {
   placeId: string;
-  accessibility?: AccessibilityInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
   placeUpvoteInfo?: PlaceUpvoteInfoDto;
   onPressRegister: () => void;
   onPressWriteReview: () => void;
