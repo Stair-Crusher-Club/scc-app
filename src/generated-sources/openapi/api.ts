@@ -2602,6 +2602,12 @@ export interface ImageDto {
      * @memberof ImageDto
      */
     'thumbnailUrl'?: string;
+    /**
+     * 사진 출처 정보 (예: \"사진 제공: 홍길동\"). 없으면 null.
+     * @type {string}
+     * @memberof ImageDto
+     */
+    'sourceAttribution'?: string;
 }
 /**
  * 
