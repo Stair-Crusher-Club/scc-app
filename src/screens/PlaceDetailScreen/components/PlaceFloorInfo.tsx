@@ -8,14 +8,14 @@ import FloorUndergroundBadIcon from '@/assets/icon/floor_underground_bad.svg';
 import FloorUndergroundGoodIcon from '@/assets/icon/floor_underground_good.svg';
 import FloorUpperBadIcon from '@/assets/icon/floor_upper_bad.svg';
 import FloorUpperGoodIcon from '@/assets/icon/floor_upper_good.svg';
-import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 import {FloorAccessibilityType, getFloorAccessibility} from './PlaceInfo.utils';
 
 interface Props {
-  accessibility?: AccessibilityInfoV2Dto;
+  accessibility?: AccessibilityInfoDto;
 }
 
 export default function PlaceFloorInfo({accessibility}: Props) {

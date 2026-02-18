@@ -3,7 +3,8 @@ import {Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
-import {SccButton} from '@/components/atoms';
+import PlusIcon from '@/assets/icon/ic_plus.svg';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto, Location} from '@/generated-sources/openapi';
@@ -28,7 +29,7 @@ export default function PlaceDetailRestroomTab({
   placeName,
   placeLocation,
   placeAddress,
-  isAccessibilityRegistrable,
+  isAccessibilityRegistrable: _isAccessibilityRegistrable,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -60,20 +61,25 @@ export default function PlaceDetailRestroomTab({
 
   if (toiletReviews.length === 0) {
     return (
-      <EmptyContainer>
-        <EmptyText>아직 등록된 장애인 화장실 정보가 없습니다.</EmptyText>
-        {isAccessibilityRegistrable && (
-          <SccButton
-            text="화장실 정보 등록하기"
-            style={{borderRadius: 10}}
-            fontSize={16}
-            fontFamily={font.pretendardBold}
-            onPress={handleToiletReviewPress}
-            elementName="place_detail_restroom_tab_write_empty"
-          />
-        )}
+      <EmptyStateContainer>
+        <EmptyStateTextBlock>
+          <EmptyStateTitle>
+            {'아직 등록된 화장실 정보가 없어요🥲'}
+          </EmptyStateTitle>
+          <EmptyStateDescription>
+            {
+              '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
+            }
+          </EmptyStateDescription>
+        </EmptyStateTextBlock>
+        <EmptyStateCTAButton
+          elementName="place_detail_restroom_tab_empty_register"
+          onPress={handleToiletReviewPress}>
+          <PlusIcon width={20} height={20} color={color.brand40} />
+          <EmptyStateCTAText>장애인 화장실 정보 등록</EmptyStateCTAText>
+        </EmptyStateCTAButton>
         {LocationConfirmModal}
-      </EmptyContainer>
+      </EmptyStateContainer>
     );
   }
 
@@ -108,18 +114,56 @@ const SectionContainer = styled.View`
   gap: 20px;
 `;
 
-const EmptyContainer = styled.View`
-  background-color: ${color.white};
-  padding: 40px 20px;
+const EmptyStateContainer = styled.View`
+  flex: 1;
+  background-color: ${color.gray5};
+  padding-top: 40px;
+  padding-horizontal: 20px;
+  padding-bottom: 20px;
   gap: 16px;
+`;
+
+const EmptyStateTextBlock = styled.View`
+  gap: 8px;
   align-items: center;
 `;
 
-const EmptyText = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 14px;
-  color: ${color.gray40};
+const EmptyStateTitle = styled.Text`
+  font-family: ${font.pretendardSemibold};
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.36px;
+  color: ${color.gray80};
   text-align: center;
+`;
+
+const EmptyStateDescription = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: -0.3px;
+  color: ${color.gray50};
+  text-align: center;
+`;
+
+const EmptyStateCTAButton = styled(SccTouchableOpacity)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: ${color.white};
+  border-width: 1px;
+  border-color: ${color.brand40};
+  border-radius: 8px;
+  padding-vertical: 12px;
+  padding-horizontal: 28px;
+`;
+
+const EmptyStateCTAText = styled.Text`
+  font-family: ${font.pretendardSemibold};
+  font-size: 16px;
+  line-height: 24px;
+  color: ${color.brand40};
 `;
 
 const ItemList = styled.View`

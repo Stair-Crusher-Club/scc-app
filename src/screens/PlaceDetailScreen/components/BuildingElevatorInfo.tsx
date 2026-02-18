@@ -3,7 +3,7 @@ import React from 'react';
 import ElevatorDifficultIcon from '@/assets/icon/elevator_difficult.svg';
 import ElevatorEasyIcon from '@/assets/icon/elevator_easy.svg';
 import ElevatorNoneIcon from '@/assets/icon/elevator_not_exist.svg';
-import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
@@ -14,7 +14,7 @@ import {
 } from './PlaceInfo.utils';
 
 interface Props {
-  accessibility?: AccessibilityInfoV2Dto;
+  accessibility?: AccessibilityInfoDto;
 }
 export default function BuildingElevatorInfo({accessibility}: Props) {
   if (!accessibility) {
@@ -55,7 +55,7 @@ export function DetailIcon({elevatorType}: {elevatorType: ElevatorType}) {
   }
 }
 
-function getMessages(accessibility: AccessibilityInfoV2Dto) {
+function getMessages(accessibility: AccessibilityInfoDto) {
   const elevatorType = getBuildingElevatorType(accessibility);
   const stairInfo = accessibility.buildingAccessibility?.elevatorStairInfo;
   const stairHeightLevel =

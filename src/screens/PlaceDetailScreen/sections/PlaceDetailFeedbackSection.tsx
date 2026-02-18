@@ -2,7 +2,7 @@ import {default as React, useState} from 'react';
 import {Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 
-import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import {useDeleteAccessibility} from '../hooks/useDeleteAccessibility';
@@ -10,7 +10,7 @@ import DeleteBottomSheet from '../modals/DeleteBottomSheet';
 import * as S from './PlaceDetailFeedbackSection.style';
 
 interface PlaceDetailFeedbackSectionProps {
-  accessibility: AccessibilityInfoV2Dto;
+  accessibility: AccessibilityInfoDto;
 }
 
 export const PlaceDetailFeedbackSection = ({

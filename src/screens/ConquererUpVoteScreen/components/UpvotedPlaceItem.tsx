@@ -3,6 +3,7 @@ import SccPressable from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {UpvotedPlaceDto} from '@/generated-sources/openapi/api';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import styled from 'styled-components/native';
@@ -13,6 +14,7 @@ interface ItemProps {
 
 export default function UpvotedPlaceItem({item}: ItemProps) {
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
 
   const targetType = item.accessibilityType!!;
   const targetId = item.accessibilityId!!;
@@ -30,7 +32,7 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
       <PlaceButton
         elementName="navigate_to_place_detail_button"
         onPress={() =>
-          navigation.navigate('PlaceDetail', {
+          navigation.navigate(pdpScreen, {
             placeInfo: {
               placeId: item.id!!,
             },

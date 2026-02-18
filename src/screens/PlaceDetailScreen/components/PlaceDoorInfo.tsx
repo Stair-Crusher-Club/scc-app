@@ -8,7 +8,7 @@ import RevolvingDoorIcon from '@/assets/icon/door_revolving.svg';
 import SlidingDoorIcon from '@/assets/icon/door_sliding.svg';
 import {doorTypeMap} from '@/constant/options';
 import {
-  AccessibilityInfoV2Dto,
+  AccessibilityInfoDto,
   EntranceDoorType,
 } from '@/generated-sources/openapi';
 
@@ -16,7 +16,7 @@ import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
 
 interface Props {
-  accessibility?: AccessibilityInfoV2Dto;
+  accessibility?: AccessibilityInfoDto;
 }
 export default function PlaceDoorInfo({accessibility}: Props) {
   // 장소 정보 자체가 없는 경우는 회색 체크 상태로 노출

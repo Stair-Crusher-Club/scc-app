@@ -1,13 +1,19 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {InteractionManager, Platform, ScrollView, View} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  InteractionManager,
+  NativeScrollEvent,
+  Platform,
+  ScrollView,
+  View,
+} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {currentLocationAtom} from '@/atoms/Location';
-import TabBar from '@/components/TabBar';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import ScrollNavigation from '@/components/StickyScrollNavigation';
 import {
   Building,
   Place,
@@ -20,7 +26,11 @@ import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import {useNavigationAppsAvailable} from '@/hooks/useNavigationAppsAvailable';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {isReviewEnabled} from '@/models/Place';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import PlaceDetailIndoorSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailIndoorSection';
+import PlaceDetailRegisterButtonSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailRegisterIndoorSection';
+import PlaceDetailToiletSection from '@/screens/PlaceDetailScreen/sections/PlaceDetailToiletSection';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
 
@@ -38,16 +48,11 @@ import PlaceDetailNegativeFeedbackBottomSheet from './modals/PlaceDetailNegative
 import RegisterCompleteBottomSheet from './modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from './modals/RequireBuildingAccessibilityBottomSheet';
 import PlaceDetailAppBar from './sections/PlaceDetailAppBar';
+import PlaceDetailBuildingSection from './sections/PlaceDetailBuildingSection';
 import PlaceDetailCoverImage from './sections/PlaceDetailCoverImage';
+import PlaceDetailEntranceSection from './sections/PlaceDetailEntranceSection';
 import {PlaceDetailFeedbackSection} from './sections/PlaceDetailFeedbackSection';
 import PlaceDetailSummarySection from './sections/PlaceDetailSummarySection';
-import PlaceDetailHomeTab from './tabs/PlaceDetailHomeTab';
-import PlaceDetailAccessibilityTab from './tabs/PlaceDetailAccessibilityTab';
-import PlaceDetailReviewTab from './tabs/PlaceDetailReviewTab';
-import PlaceDetailRestroomTab from './tabs/PlaceDetailRestroomTab';
-import PlaceDetailConquerorTab from './tabs/PlaceDetailConquerorTab';
-import PlaceDetailBottomBar from './tabs/PlaceDetailBottomBar';
-import PlaceDetailRegistrationSheet from './tabs/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailScreenParams {
   placeInfo:
@@ -61,15 +66,13 @@ export interface PlaceDetailScreenParams {
   event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
 }
 
-type TabType = 'home' | 'accessibility' | 'review' | 'restroom' | 'conqueror';
-
-const TAB_ITEMS: {value: TabType; label: string}[] = [
-  {value: 'home', label: '홈'},
-  {value: 'accessibility', label: '접근성'},
-  {value: 'review', label: '리뷰'},
-  {value: 'restroom', label: '화장실'},
-  {value: 'conqueror', label: '정복자'},
-];
+interface SectionConfig {
+  id: string;
+  label?: string;
+  shouldRender: boolean;
+  component: React.ReactNode;
+  order: number;
+}
 
 const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {event, placeInfo} = route.params;
@@ -80,7 +83,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
   const isNavigationAvailable = useNavigationAppsAvailable();
-  const {top} = useSafeAreaInsets();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetail', 'ReportAccessibility'],
@@ -96,9 +98,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   const [pendingBottomSheet, setPendingBottomSheet] = useState<
     null | 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent
   >(null);
-
-  const [currentTab, setCurrentTab] = useState<TabType>('home');
-  const [showRegistrationSheet, setShowRegistrationSheet] = useState(false);
 
   const openBottomSheet = useCallback(
     (
@@ -139,6 +138,15 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   ] = useState(false);
   const [showNavigationBottomSheet, setShowNavigationBottomSheet] =
     useState(false);
+
+  // scrollY 는 state로 관리하면 너무 잦은 업데이트로 인해 리렌더가 너무 많이 일어남
+  // 따라서 ref로 관리하고 이를 읽어야 하는 컴포넌트가 100ms 마다 업데이트하는 방식으로 처리
+  const scrollEventRef = useRef<null | NativeScrollEvent>(null);
+  const scrollView = useRef<ScrollView>(null);
+  const [sectionYPositions, setSectionYPositions] = useState<{
+    [key: string]: number;
+  }>({});
+  const {top} = useSafeAreaInsets();
 
   const {data} = useQuery({
     initialData: {
@@ -191,7 +199,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   } = useQuery({
     queryKey: ['PlaceDetail', placeId, 'Accessibility'],
     queryFn: async ({queryKey}) =>
-      (await api.getAccessibilityV2Post({placeId: queryKey[1]})).data,
+      (await api.getAccessibilityPost({placeId: queryKey[1]})).data,
   });
   const {data: reviewPost} = useQuery({
     queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.PlaceReview],
@@ -262,13 +270,17 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
   }, [questModalVisible, pendingBottomSheet, isFocused, openBottomSheet]);
 
   const closeModals = useCallback(() => {
+    // 일단 둘밖에 없으니 둘 다 닫는걸로 처리하자
     setShowRequireBuildingAccessibilityBottomSheet(false);
     setShowRegisterCompleteBottomSheet(false);
     setShowBuildingRegistrationBottomSheet(false);
     setPendingBottomSheet(null);
+    // 복귀 후 모달을 다시 띄우지 않기 위한 처리
     navigation.setParams({event: undefined});
   }, [navigation]);
 
+  // 챌린지 퀘스트 완료 페이지로 이동하는 등의 시나리오에서
+  // 백버튼을 눌러서 돌아왔을 때 바텀시트를 이어서 띄우는 문제가 없도록 맥락을 초기화해준다.
   const onNavigateToOtherPage = useCallback(() => {
     navigation.setParams({event: undefined});
     setPendingBottomSheet(null);
@@ -315,6 +327,14 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     navigation.setParams({event: undefined});
   }, [navigation]);
 
+  // 섹션의 y 위치를 업데이트하는 함수
+  const updateSectionYPosition = useCallback((sectionId: string, y: number) => {
+    setSectionYPositions(prev => ({
+      ...prev,
+      [sectionId]: y,
+    }));
+  }, []);
+
   const [reportTargetType, setReportTargetType] =
     useState<ReportTargetTypeDto | null>(null);
 
@@ -324,236 +344,255 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
     });
   };
 
-  // 정보 등록 핸들러들
-  const handlePlaceRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
-      if (!place) return;
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          if (formVersion === 'v2') {
-            navigation.navigate('PlaceFormV2', {place, building: building!});
-            return;
-          }
-          navigation.navigate('PlaceForm', {place, building: building!});
-        },
-      });
-    });
-  }, [
-    building,
-    checkAuth,
-    formVersion,
-    navigation,
-    navigateWithLocationCheck,
-    place,
-  ]);
-
-  const handleBuildingRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
-      if (!place || !building) return;
-      await navigateWithLocationCheck({
-        targetLocation: building.location,
-        address: building.address,
-        type: 'building',
-        onNavigate: () => {
-          if (formVersion === 'v2') {
-            navigation.navigate('BuildingFormV2', {place, building});
-            return;
-          }
-          navigation.navigate('BuildingForm', {place, building});
-        },
-      });
-    });
-  }, [
-    building,
-    checkAuth,
-    formVersion,
-    navigation,
-    navigateWithLocationCheck,
-    place,
-  ]);
-
-  const handleReviewRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
-      if (!place) return;
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Place', {
-            placeId: place.id,
-          });
-        },
-      });
-    });
-  }, [checkAuth, navigation, navigateWithLocationCheck, place]);
-
-  const handleToiletRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
-      if (!place) return;
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Toilet', {
-            placeId: place.id,
-          });
-        },
-      });
-    });
-  }, [checkAuth, navigation, navigateWithLocationCheck, place]);
-
   if (isLoading || !place || !building) {
     return null;
   }
 
-  const renderTabContent = () => {
-    switch (currentTab) {
-      case 'home':
-        return (
-          <PlaceDetailHomeTab
-            accessibility={accessibilityPost}
-            place={place}
-            reviews={reviewPost ?? []}
-            onPressAccessibilityTab={() => setCurrentTab('accessibility')}
-            onPressReviewTab={() => setCurrentTab('review')}
-          />
-        );
-      case 'accessibility':
-        return (
-          <PlaceDetailAccessibilityTab
-            accessibility={accessibilityPost}
-            place={place}
-            building={building}
-            isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-            onRegister={handlePlaceRegister}
-            showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
-            allowDuplicateRegistration={isQAMode}
-          />
-        );
-      case 'review':
-        return (
-          <PlaceDetailReviewTab
-            reviews={reviewPost ?? []}
-            place={place}
-            isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-          />
-        );
-      case 'restroom':
-        return (
-          <PlaceDetailRestroomTab
-            toiletReviews={toiletPost ?? []}
-            placeId={place.id}
-            placeName={place.name}
-            placeLocation={place.location}
-            placeAddress={place.address}
-            isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-          />
-        );
-      case 'conqueror':
-        return <PlaceDetailConquerorTab accessibility={accessibilityPost} />;
-      default:
-        return null;
-    }
+  const isFirstFloor =
+    accessibilityPost?.placeAccessibility?.isFirstFloor ?? false;
+
+  const handlePlaceRegister = () => {
+    checkAuth(async () => {
+      if (Platform.OS === 'web') {
+        Toast.show('준비 중입니다 💪', {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.BOTTOM,
+        });
+        return;
+      }
+      await navigateWithLocationCheck({
+        targetLocation: place.location,
+        placeName: place.name,
+        address: place.address,
+        type: 'place',
+        onNavigate: () => {
+          if (formVersion === 'v2') {
+            navigation.navigate('PlaceFormV2', {place, building});
+            return;
+          }
+          navigation.navigate('PlaceForm', {place, building});
+        },
+      });
+    });
   };
 
-  const showFeedbackSection =
-    accessibilityPost &&
-    (accessibilityPost?.placeAccessibility ||
-      accessibilityPost?.buildingAccessibility) &&
-    data?.isAccessibilityRegistrable;
+  const sections: SectionConfig[] = [
+    {
+      id: 'entrance',
+      label: '입구 접근성',
+      shouldRender: true,
+      component: (
+        <PlaceDetailEntranceSection
+          accessibility={accessibilityPost}
+          place={place}
+          isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+          onRegister={handlePlaceRegister}
+          showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
+          allowDuplicateRegistration={isQAMode}
+        />
+      ),
+      order: 1,
+    },
+    {
+      id: 'building',
+      label: '건물 정보',
+      shouldRender: true,
+      component: (
+        <PlaceDetailBuildingSection
+          accessibility={accessibilityPost}
+          place={place}
+          building={building}
+          isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+          showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
+        />
+      ),
+      order: isFirstFloor ? 7 : 2, // 1층이면 맨 마지막, 아니면 입구 다음
+    },
+    {
+      id: 'indoor',
+      label: '이용 정보',
+      shouldRender: !!(
+        isReviewEnabled(data.place) &&
+        reviewPost &&
+        reviewPost.length > 0
+      ),
+      component: (
+        <PlaceDetailIndoorSection
+          reviews={reviewPost ?? []}
+          placeId={place.id}
+          place={place}
+        />
+      ),
+      order: 3,
+    },
+    {
+      id: 'placeReviewNudge',
+      shouldRender:
+        isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
+      component: (
+        <PlaceDetailRegisterButtonSection
+          logKey="place_detail_review_nudge"
+          title={`<b>${place.name}</b>에 방문하셨나요? 리뷰를 남겨주시면 다른 분들에게 큰 도움이 돼요.`}
+          buttonText="방문 리뷰 쓰기"
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
+            checkAuth(async () => {
+              await navigateWithLocationCheck({
+                targetLocation: place.location,
+                placeName: place.name,
+                address: place.address,
+                type: 'place',
+                onNavigate: () => {
+                  navigation.navigate('ReviewForm/Place', {
+                    placeId: place.id,
+                  });
+                },
+              });
+            });
+          }}
+        />
+      ),
+      order: 4,
+    },
+    {
+      id: 'toilet',
+      label: '화장실',
+      shouldRender: !!(
+        isReviewEnabled(data.place) &&
+        toiletPost &&
+        toiletPost.length > 0 &&
+        !!data?.isAccessibilityRegistrable
+      ),
+      component: (
+        <PlaceDetailToiletSection
+          toiletReviews={toiletPost ?? []}
+          placeId={place.id}
+          placeName={place.name}
+          placeLocation={place.location}
+          placeAddress={place.address}
+        />
+      ),
+      order: 5,
+    },
+    {
+      id: 'toiletReviewNudge',
+      shouldRender:
+        isReviewEnabled(data.place) && !!data?.isAccessibilityRegistrable,
+      component: (
+        <PlaceDetailRegisterButtonSection
+          logKey="place_detail_toilet_review_nudge"
+          title="<b>장애인 화장실</b>이 있었나요? 정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요."
+          buttonText="장애인 화장실 정보 등록"
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              Toast.show('준비 중입니다 💪', {
+                duration: Toast.durations.SHORT,
+                position: Toast.positions.BOTTOM,
+              });
+              return;
+            }
+            checkAuth(async () => {
+              await navigateWithLocationCheck({
+                targetLocation: place.location,
+                placeName: place.name,
+                address: place.address,
+                type: 'place',
+                onNavigate: () => {
+                  navigation.navigate('ReviewForm/Toilet', {
+                    placeId: place.id,
+                  });
+                },
+              });
+            });
+          }}
+        />
+      ),
+      order: 6,
+    },
+    {
+      id: 'feedback',
+      shouldRender: !!(
+        accessibilityPost &&
+        (accessibilityPost?.placeAccessibility ||
+          accessibilityPost?.buildingAccessibility) &&
+        !!data?.isAccessibilityRegistrable
+      ),
+      component: accessibilityPost ? (
+        <PlaceDetailFeedbackSection accessibility={accessibilityPost} />
+      ) : null,
+      order: 8,
+    },
+  ];
+
+  const visibleSections = sections
+    .filter(section => section.shouldRender)
+    .sort((a, b) => a.order - b.order);
+
+  // 네비게이션 메뉴 구성 - y 위치를 포함
+  const navigationMenus = visibleSections
+    .filter(section => section.label)
+    .map(section => ({
+      label: section.label!,
+      y: sectionYPositions[section.id] || 0,
+    }));
 
   return (
     <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
+        {/* 안드로이드 이미지 캐로셀 이슈 */}
         <GestureHandlerRootView style={{flex: 1}}>
-          <View style={{flex: 1}}>
-            <ScrollView style={{flex: 1}} scrollEventThrottle={100}>
-              <PlaceDetailAppBar />
-              <View style={{marginTop: -top}}>
-                <PlaceDetailCoverImage
-                  accessibility={accessibilityPost}
-                  placeIndoorReviews={reviewPost ?? []}
-                  toiletReviews={toiletPost ?? []}
-                />
-              </View>
-              <PlaceDetailSummarySection
+          <ScrollView
+            ref={scrollView}
+            stickyHeaderIndices={[4]}
+            onScroll={e => {
+              scrollEventRef.current = e.nativeEvent;
+            }}
+            style={{overflow: 'visible'}}
+            scrollEventThrottle={100}>
+            <PlaceDetailAppBar />
+            <View style={{marginTop: -top}}>
+              <PlaceDetailCoverImage
                 accessibility={accessibilityPost}
-                accessibilityScore={data?.accessibilityScore}
-                place={place}
-                kakaoPlaceId={kakaoPlaceId}
-                isNavigationAvailable={isNavigationAvailable ?? false}
-                onOpenNavigation={() => setShowNavigationBottomSheet(true)}
+                placeIndoorReviews={reviewPost ?? []}
+                toiletReviews={toiletPost ?? []}
               />
-              <S.SectionSeparator />
-
-              {/* Tab Bar */}
-              <TabBar
-                items={TAB_ITEMS}
-                current={currentTab}
-                onChange={setCurrentTab}
-              />
-
-              {/* Tab Content */}
-              {renderTabContent()}
-
-              {/* Feedback Section (삭제 기능) - 홈 탭 이외에서도 접근 가능 */}
-              {showFeedbackSection && currentTab === 'home' && (
-                <>
-                  <S.SectionSeparator />
-                  <PlaceDetailFeedbackSection
-                    accessibility={accessibilityPost!}
-                  />
-                </>
-              )}
-            </ScrollView>
-
-            {/* Bottom Bar */}
-            <PlaceDetailBottomBar
-              placeId={place.id}
+            </View>
+            <PlaceDetailSummarySection
               accessibility={accessibilityPost}
-              placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
-              onPressRegister={() => setShowRegistrationSheet(true)}
-              onPressWriteReview={handleReviewRegister}
+              accessibilityScore={data?.accessibilityScore}
+              place={place}
+              kakaoPlaceId={kakaoPlaceId}
+              isNavigationAvailable={isNavigationAvailable ?? false}
+              onOpenNavigation={() => setShowNavigationBottomSheet(true)}
             />
-          </View>
+            <S.SectionSeparator />
+            <ScrollNavigation
+              scrollContainer={scrollView}
+              scrollEventRef={scrollEventRef}
+              menus={navigationMenus}
+              placeName={place.name}
+            />
+            {visibleSections.map((section, index) => (
+              <React.Fragment key={section.id}>
+                <View
+                  onLayout={e => {
+                    const {y} = e.nativeEvent.layout;
+                    updateSectionYPosition(section.id, y);
+                  }}
+                  collapsable={false}>
+                  {section.component}
+                </View>
+                {index < visibleSections.length - 1 && <S.SectionSeparator />}
+              </React.Fragment>
+            ))}
+          </ScrollView>
         </GestureHandlerRootView>
-
         <RequireBuildingAccessibilityBottomSheet
           isVisible={!isFetching && showRequireBuildingAccessibilityBottomSheet}
           isFirstFloor={accessibilityPost?.placeAccessibility?.isFirstFloor}
@@ -585,17 +624,6 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
               onPressCancel={handleBuildingRegistrationCancel}
             />
           )}
-
-        {/* Registration Sheet */}
-        <PlaceDetailRegistrationSheet
-          isVisible={showRegistrationSheet}
-          onClose={() => setShowRegistrationSheet(false)}
-          onPressPlaceRegister={handlePlaceRegister}
-          onPressBuildingRegister={handleBuildingRegister}
-          onPressReviewRegister={handleReviewRegister}
-          onPressToiletRegister={handleToiletRegister}
-          isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
-        />
       </ScreenLayout>
 
       {place?.id && (

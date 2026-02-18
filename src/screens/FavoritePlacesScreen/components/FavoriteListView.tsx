@@ -5,17 +5,17 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import useAppComponents from '@/hooks/useAppComponents';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
-import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 import FavoriteNoResult from './FavoriteNoResult';
 
 export default function FavoriteListView() {
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
   const {api} = useAppComponents();
-  const detailVersion = useDetailScreenVersion();
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
     useInfiniteQuery({
       queryKey: ['FavoritePlaces'],
@@ -53,16 +53,7 @@ export default function FavoriteListView() {
                   item={item}
                   isHeightFlex
                   onPress={() => {
-                    if (detailVersion === 'v2') {
-                      navigation.navigate('PlaceDetailV2', {
-                        placeInfo: {
-                          placeId: item.place.id,
-                        },
-                      });
-                      return;
-                    }
-
-                    navigation.navigate('PlaceDetail', {
+                    navigation.navigate(pdpScreen, {
                       placeInfo: {
                         placeId: item.place.id,
                       },

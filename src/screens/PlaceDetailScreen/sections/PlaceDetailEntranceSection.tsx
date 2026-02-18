@@ -7,7 +7,7 @@ import styled from 'styled-components/native';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import PlaceDetailCommentSection from '@/screens/PlaceDetailScreen/components/PlaceDetailCommentSection';
@@ -23,7 +23,7 @@ import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props extends UserInteractionHandlers {
-  accessibility?: AccessibilityInfoV2Dto;
+  accessibility?: AccessibilityInfoDto;
   place: Place;
   isAccessibilityRegistrable?: boolean;
   onRegister?: () => void;

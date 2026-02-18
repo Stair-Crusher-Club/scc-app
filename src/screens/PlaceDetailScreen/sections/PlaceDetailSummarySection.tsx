@@ -17,7 +17,7 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto, Place} from '@/generated-sources/openapi';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import type {ScreenParams} from '@/navigation/Navigation.screens';
@@ -30,7 +30,7 @@ import {useCheckAuth} from '@/utils/checkAuth';
 import * as S from './PlaceDetailSummarySection.style';
 
 interface PlaceDetailSummarySectionProps {
-  accessibility?: AccessibilityInfoV2Dto;
+  accessibility?: AccessibilityInfoDto;
   place: Place;
   accessibilityScore?: number;
   kakaoPlaceId?: string;

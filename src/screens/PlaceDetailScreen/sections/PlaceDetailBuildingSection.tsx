@@ -8,7 +8,7 @@ import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  AccessibilityInfoV2Dto,
+  AccessibilityInfoDto,
   Building,
   Place,
 } from '@/generated-sources/openapi';
@@ -29,7 +29,7 @@ import PlaceDetailCrusher from './PlaceDetailCrusher';
 import * as S from './PlaceDetailEntranceSection.style';
 
 interface Props extends UserInteractionHandlers {
-  accessibility?: AccessibilityInfoV2Dto;
+  accessibility?: AccessibilityInfoDto;
   place: Place;
   building: Building;
   isAccessibilityRegistrable?: boolean;

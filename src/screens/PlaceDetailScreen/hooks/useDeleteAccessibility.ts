@@ -2,14 +2,14 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtom} from 'jotai';
 
 import {loadingState} from '@/components/LoadingView';
-import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
+import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 export function useDeleteAccessibility(
   type: 'place' | 'building',
-  accessibilityDto: AccessibilityInfoV2Dto,
+  accessibilityDto: AccessibilityInfoDto,
 ) {
   const {api} = useAppComponents();
   const [loading, setLoading] = useAtom(loadingState);

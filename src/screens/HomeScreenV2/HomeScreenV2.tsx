@@ -261,6 +261,16 @@ const HomeScreenV2 = ({navigation}: any) => {
                 announcements={homeData?.announcements ?? []}
               />
               <QuickActionSection />
+              {__DEV__ && (
+                <DebugButton
+                  onPress={() =>
+                    navigation.navigate('PlaceDetailV2', {
+                      placeInfo: {placeId: 'PLC_01KHFYQWEWSSJY9EKZ2Y8Z7Q0R'},
+                    })
+                  }>
+                  <DebugButtonText>PDP V2 테스트</DebugButtonText>
+                </DebugButton>
+              )}
             </InnerContainer>
             <RecommendedContentSection
               contents={homeData?.recommendedContents ?? []}
@@ -303,6 +313,20 @@ export default HomeScreenV2;
 const Container = styled.View`
   flex: 1;
   background-color: ${color.gray15};
+`;
+
+const DebugButton = styled.TouchableOpacity`
+  background-color: red;
+  padding: 16px;
+  margin-horizontal: 20px;
+  border-radius: 8px;
+  align-items: center;
+`;
+
+const DebugButtonText = styled.Text`
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
 `;
 
 const LogoContainer = styled.View`
