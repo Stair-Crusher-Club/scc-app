@@ -579,7 +579,13 @@ async function register(
         queryKey: ['PlaceDetail', placeId, 'Accessibility'],
       });
       queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
+      });
+      queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
       });
 
       // Asynchronously update search cache with full latest data

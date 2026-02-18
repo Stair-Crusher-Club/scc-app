@@ -71,7 +71,7 @@ const Container = styled.View`
 const StairLevelBadge = styled.View<{hasScore: boolean}>`
   background-color: ${({hasScore}) => (hasScore ? '#D7F6E1' : color.gray15)};
   border-radius: 4px;
-  padding-horizontal: 7px;
+  padding-horizontal: ${({hasScore}) => (hasScore ? '6px' : '7px')};
   padding-vertical: 4px;
   align-self: flex-start;
 `;
@@ -79,6 +79,7 @@ const StairLevelBadge = styled.View<{hasScore: boolean}>`
 const StairLevelText = styled.Text<{hasScore: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
+  letter-spacing: -0.24px;
   color: ${({hasScore}) => (hasScore ? '#06903B' : color.gray50)};
 `;
 
@@ -143,4 +144,5 @@ const SirenButton = styled(SccPressable)`
   background-color: ${color.gray15};
   align-items: center;
   justify-content: center;
+  padding: 10px;
 `;

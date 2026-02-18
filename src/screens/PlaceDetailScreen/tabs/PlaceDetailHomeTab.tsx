@@ -249,6 +249,7 @@ const PlaceInfoTitle = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 16px;
   line-height: 24px;
+  letter-spacing: -0.32px;
   color: ${color.black};
 `;
 
@@ -266,6 +267,7 @@ const AddressText = styled.Text`
   font-family: ${font.pretendardRegular};
   font-size: 14px;
   line-height: 20px;
+  letter-spacing: -0.28px;
   color: ${color.gray70};
   flex-shrink: 1;
 `;
@@ -280,6 +282,7 @@ const CopyText = styled.Text`
   font-family: ${font.pretendardRegular};
   font-size: 12px;
   line-height: 16px;
+  letter-spacing: -0.24px;
   color: ${color.brand50};
 `;
 
@@ -289,6 +292,7 @@ const ExternalLinkText = styled.Text`
   font-family: ${font.pretendardRegular};
   font-size: 14px;
   line-height: 20px;
+  letter-spacing: -0.28px;
   color: ${color.gray70};
   text-decoration-line: underline;
 `;
@@ -296,13 +300,11 @@ const ExternalLinkText = styled.Text`
 /* 2. AskBanner */
 const AskBannerContainer = styled.View`
   padding-vertical: 20px;
-  padding-horizontal: 20px;
 `;
 
 const AskBannerInner = styled.View`
   background-color: ${color.gray15};
   padding: 20px;
-  border-radius: 12px;
   overflow: hidden;
   gap: 12px;
 `;
@@ -310,6 +312,8 @@ const AskBannerInner = styled.View`
 const AskBannerText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.28px;
   color: ${color.black};
 `;
 
@@ -325,6 +329,7 @@ const RequestButtonText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
   line-height: 16px;
+  letter-spacing: -0.24px;
   color: ${color.white};
 `;
 
@@ -344,6 +349,7 @@ const SectionTitle = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 18px;
   line-height: 26px;
+  letter-spacing: -0.36px;
   color: ${color.black};
 `;
 
@@ -351,6 +357,7 @@ const ReviewSectionTitle = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 18px;
   line-height: 26px;
+  letter-spacing: -0.36px;
   color: ${color.gray90};
 `;
 
@@ -361,6 +368,7 @@ const MoreButton = styled(SccTouchableOpacity)`
 const MoreText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
+  letter-spacing: -0.28px;
   color: ${color.brand50};
 `;
 
@@ -377,6 +385,7 @@ const EmptyCardTitle = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 18px;
   line-height: 26px;
+  letter-spacing: -0.36px;
   color: ${color.gray80};
   text-align: center;
 `;
@@ -385,6 +394,7 @@ const EmptyCardDescription = styled.Text`
   font-family: ${font.pretendardRegular};
   font-size: 15px;
   line-height: 24px;
+  letter-spacing: -0.3px;
   color: #767884;
   text-align: center;
 `;
@@ -409,6 +419,8 @@ const CTAButtonContent = styled.View`
 const CTAButtonText = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.32px;
   color: ${color.brand40};
 `;
 

@@ -393,6 +393,7 @@ const BuildingCTAText = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 16px;
   line-height: 24px;
+  letter-spacing: -0.32px;
   color: ${color.gray80};
 `;
 
@@ -449,5 +450,6 @@ const EmptyStateCTAText = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 16px;
   line-height: 24px;
+  letter-spacing: -0.32px;
   color: ${color.brand40};
 `;

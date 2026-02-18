@@ -122,7 +122,9 @@ export default function PlaceFormScreen({
         const currentIndex = state.index;
         const previousRoute =
           currentIndex > 0 ? state.routes[currentIndex - 1] : null;
-        const isPreviousPlaceDetail = previousRoute?.name === 'PlaceDetail';
+        const isPreviousPlaceDetail =
+          previousRoute?.name === 'PlaceDetail' ||
+          previousRoute?.name === 'PlaceDetailV2';
 
         if (isPreviousPlaceDetail) {
           // 이전 화면이 PlaceDetail인 경우: 기존 로직 유지
@@ -209,10 +211,16 @@ async function register(
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId, 'Accessibility'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
+      });
 
       // PlaceDetailScreen 전체 데이터 갱신
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
       });
 
       // Asynchronously update search cache with full latest data

@@ -6,7 +6,7 @@ import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location';
-import TabBar from '@/components/TabBar';
+import V2TabBar from './components/V2TabBar';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -143,7 +143,7 @@ export default function PlaceDetailV2Screen({
   const [showNavigationBottomSheet, setShowNavigationBottomSheet] =
     useState(false);
 
-  const {data} = useQuery({
+  const {data, isError: isPlaceError} = useQuery({
     initialData: {
       place: 'place' in placeInfo ? placeInfo.place : undefined,
       building: 'building' in placeInfo ? placeInfo.building : undefined,
@@ -206,6 +206,14 @@ export default function PlaceDetailV2Screen({
     queryFn: async ({queryKey}) =>
       (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
+
+  // API 에러 시 토스트 + goBack
+  useEffect(() => {
+    if (isPlaceError) {
+      ToastUtils.show('장소 정보를 불러올 수 없습니다.');
+      navigation.goBack();
+    }
+  }, [isPlaceError, navigation]);
 
   // 네비게이션 블러 시 안전장치: 보류/열림 전부 닫기
   useEffect(() => {
@@ -551,7 +559,7 @@ export default function PlaceDetailV2Screen({
             />
 
             {/* Tab Bar */}
-            <TabBar
+            <V2TabBar
               items={TAB_ITEMS}
               current={currentTab}
               onChange={setCurrentTab}
