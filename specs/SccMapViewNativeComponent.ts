@@ -1,5 +1,5 @@
 import type {CodegenTypes, HostComponent, ViewProps} from 'react-native';
-import {codegenNativeComponent, codegenNativeCommands} from 'react-native';
+import {codegenNativeCommands, codegenNativeComponent} from 'react-native';
 
 export type NativeMarkerItem = {
   id: string;
@@ -40,6 +40,17 @@ export type NativeRegion = {
   southWestLng: CodegenTypes.Double;
 };
 
+export type NativeCameraIdleEvent = {
+  northEastLat: CodegenTypes.Double;
+  northEastLng: CodegenTypes.Double;
+  southWestLat: CodegenTypes.Double;
+  southWestLng: CodegenTypes.Double;
+  zoom: CodegenTypes.Double;
+  centerLat: CodegenTypes.Double;
+  centerLng: CodegenTypes.Double;
+  reason: CodegenTypes.Int32; // 0=gesture, 1=control, 2=location, 3=developer
+};
+
 export interface NativeProps extends ViewProps {
   markers: NativeMarkerItem[];
   circleOverlays?: NativeCircleOverlay[];
@@ -47,7 +58,7 @@ export interface NativeProps extends ViewProps {
   onMarkerPress?: CodegenTypes.BubblingEventHandler<{
     id: string;
   }> | null;
-  onCameraIdle?: CodegenTypes.BubblingEventHandler<NativeRegion> | null;
+  onCameraIdle?: CodegenTypes.BubblingEventHandler<NativeCameraIdleEvent> | null;
   initialRegion: NativeRegion;
   mapPadding?: {
     top: CodegenTypes.Int32;
@@ -55,6 +66,28 @@ export interface NativeProps extends ViewProps {
     bottom: CodegenTypes.Int32;
     left: CodegenTypes.Int32;
   };
+  /**
+   * Position of the Naver logo on the map.
+   *
+   * @default 'leftBottom'
+   *
+   * Note: iOS does not support center positions. They will fallback to corner positions:
+   * - leftCenter, bottomCenter → leftBottom
+   * - rightCenter → rightBottom
+   * - topCenter → leftTop
+   * ref: https://navermaps.github.io/ios-map-sdk/reference/Enums/NMFLogoAlign.html
+   */
+  logoPosition?: CodegenTypes.WithDefault<
+    | 'leftBottom'
+    | 'leftTop'
+    | 'leftCenter'
+    | 'rightBottom'
+    | 'rightTop'
+    | 'rightCenter'
+    | 'bottomCenter'
+    | 'topCenter',
+    'leftBottom'
+  >;
 }
 
 export default codegenNativeComponent<NativeProps>(

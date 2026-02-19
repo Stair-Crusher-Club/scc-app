@@ -199,6 +199,13 @@ internal class SccMapViewManager : SimpleViewManager<SccMapView>(),
         }
     }
 
+    @ReactProp(name = "logoPosition")
+    override fun setLogoPosition(view: SccMapView, logoPosition: String?) {
+        logoPosition?.let {
+            view.setLogoPosition(it)
+        }
+    }
+
     override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any> {
         return mutableMapOf(
             "onMarkerPress" to mapOf("registrationName" to "onMarkerPress"),

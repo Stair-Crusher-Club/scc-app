@@ -16,7 +16,7 @@
 @class RCTDirectEventBlock; // Assuming this is from React Native for event callbacks
 
 @protocol NativeSccMapDelegate <NSObject>
-- (void)onCameraIdle:(NMGLatLngBounds *)region;
+- (void)onCameraIdle:(NMGLatLngBounds *)region zoom:(double)zoom centerLat:(double)centerLat centerLng:(double)centerLng reason:(int)reason;
 - (void)onMarkerPress:(NSString *)markerId;
 @end
 
@@ -32,5 +32,6 @@
 - (void)setRectangleOverlays:(NSArray<RNTSccRectangleOverlayData *> *)rectangleOverlays;
 - (void)setInitialRegion:(NMGLatLngBounds *)region;
 - (void)setMapPaddingWithTop:(CGFloat)top left:(CGFloat)left right:(CGFloat)right bottom:(CGFloat)bottom;
+- (void)setLogoPositionWithString:(NSString *)position;
 
 @end

@@ -19,7 +19,9 @@ import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
-import {logRequest, logResponse, logError} from '@/utils/DebugUtils';
+import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
+
+import './global.css';
 
 const queryClient = new QueryClient();
 

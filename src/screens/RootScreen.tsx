@@ -4,8 +4,11 @@ import {
   useNavigationContainerRef,
 } from '@react-navigation/native';
 import React, {useRef} from 'react';
-import {Linking} from 'react-native';
+import {Linking, Platform} from 'react-native';
+import Config from 'react-native-config';
 import SplashScreen from 'react-native-splash-screen';
+import {requestTrackingPermission} from 'react-native-tracking-transparency';
+import {Airbridge} from 'airbridge-react-native-sdk';
 
 import DevTool from '@/components/DevTool/DevTool';
 import {useLogParams} from '@/logging/LogParamsProvider';
@@ -52,6 +55,9 @@ const RootScreen = () => {
         onReady={async () => {
           setTimeout(() => {
             SplashScreen.hide();
+            if (Platform.OS === 'ios') {
+              requestTrackingPermission();
+            }
           }, 150);
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
@@ -69,6 +75,21 @@ const RootScreen = () => {
           ],
           // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
           getInitialURL: async () => {
+            // Airbridge 디퍼드 딥링크 확인 (production만)
+            if (Config.FLAVOR === 'production') {
+              const airbridgeUrl = await new Promise<string | null>(resolve => {
+                const timeout = setTimeout(() => resolve(null), 3000);
+                Airbridge.setOnDeeplinkReceived((deeplink: string) => {
+                  clearTimeout(timeout);
+                  resolve(deeplink);
+                });
+              });
+              if (airbridgeUrl) {
+                logDebug('Airbridge deferred deeplink received', airbridgeUrl);
+                return airbridgeUrl;
+              }
+            }
+
             // 일반 딥링크 처리
             const url = await Linking.getInitialURL();
             if (url) {

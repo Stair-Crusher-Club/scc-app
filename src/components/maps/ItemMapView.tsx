@@ -28,6 +28,9 @@ import useNavigation from '@/navigation/useNavigation.ts';
 import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
+// ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
+const CARD_LIST_HEIGHT = 270;
+
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
   fitToItems: (items: MarkerItem[], padding?: number) => void;
@@ -54,7 +57,6 @@ const FRefInputComp = <T extends MarkerItem>(
   const mapRef = useRef<MapViewHandle>(null);
   const cardsRef = useRef<FlatList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
-  const [cardHeight, setCardHeight] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -162,9 +164,10 @@ const FRefInputComp = <T extends MarkerItem>(
         mapPadding={{
           top: 100, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
           right: 30,
-          bottom: insets.bottom + cardHeight + 30,
+          bottom: insets.bottom + CARD_LIST_HEIGHT + 30,
           left: 30,
         }}
+        logoPosition="leftBottom"
       />
       <UpperShadow />
       {isRefreshVisible && (
@@ -195,10 +198,6 @@ const FRefInputComp = <T extends MarkerItem>(
           <ItemMapList<T>
             ref={cardsRef}
             searchResults={items}
-            onLayout={event => {
-              event.nativeEvent.layout.height !== cardHeight &&
-                setCardHeight(event.nativeEvent.layout.height);
-            }}
             onCardPress={item => {
               if (detailVersion === 'v2') {
                 navigation.navigate('PlaceDetailV2', {

@@ -78,6 +78,10 @@
   NSMutableArray<MarkerWithData *> *_markerList;
   NSMutableArray<CircleOverlayWithData *> *_circleOverlayList;
   NSMutableArray<RectangleOverlayWithData *> *_rectangleOverlayList;
+  NSString *_savedLogoPosition;
+  int _lastCameraChangeReason;
+  CGFloat _baseBottomMapPadding;
+
 }
 @end
 
@@ -87,10 +91,16 @@
   self = [super initWithFrame:frame];
   if (self) {
     _isInitialRegionSet = NO;
+    _lastCameraChangeReason = -1;
+    _savedLogoPosition = @"leftBottom";
     _markerList = [NSMutableArray array];
     _circleOverlayList = [NSMutableArray array];
     _rectangleOverlayList = [NSMutableArray array];
     [self addCameraDelegate:self];
+    // Fix logo at bottom-left so contentInset changes don't move it
+    self.logoAlign = NMFLogoAlignLeftBottom;
+    self.logoMargin = UIEdgeInsetsZero;
+
   }
   return self;
 }
@@ -99,10 +109,16 @@
   self = [super initWithCoder:aDecoder];
   if (self) {
     _isInitialRegionSet = NO;
+    _lastCameraChangeReason = -1;
+    _savedLogoPosition = @"leftBottom";
     _markerList = [NSMutableArray array];
     _circleOverlayList = [NSMutableArray array];
     _rectangleOverlayList = [NSMutableArray array];
     [self addCameraDelegate:self];
+    // Fix logo at bottom-left so contentInset changes don't move it
+    self.logoAlign = NMFLogoAlignLeftBottom;
+    self.logoMargin = UIEdgeInsetsZero;
+
   }
   return self;
 }
@@ -270,7 +286,12 @@
                         left:(CGFloat)left
                        right:(CGFloat)right
                       bottom:(CGFloat)bottom {
+  _baseBottomMapPadding = bottom;
   self.contentInset = UIEdgeInsetsMake(top, left, bottom, right);
+  // Move logo & scale bar back toward viewport bottom after SDK layout
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self fixBottomWidgetPositions:bottom];
+  });
 }
 
 - (void)markerPress:(NSString *)identifier {
@@ -279,16 +300,33 @@
   }
 }
 
-- (void)cameraIdle:(NMGLatLngBounds *)bounds {
-  if ([self.mapDelegate respondsToSelector:@selector(onCameraIdle:)]) {
-    [self.mapDelegate onCameraIdle:bounds];
+- (void)cameraIdleWithBounds:(NMGLatLngBounds *)bounds zoom:(double)zoom centerLat:(double)centerLat centerLng:(double)centerLng reason:(int)reason {
+  if ([self.mapDelegate respondsToSelector:@selector(onCameraIdle:zoom:centerLat:centerLng:reason:)]) {
+    [self.mapDelegate onCameraIdle:bounds zoom:zoom centerLat:centerLat centerLng:centerLng reason:reason];
   }
 }
 
 #pragma mark - NMFMapViewCameraDelegate
 
+- (void)mapView:(NMFMapView *)mapView cameraIsChangingByReason:(NSInteger)reason {
+  _lastCameraChangeReason = (int)reason;
+}
+
 - (void)mapViewCameraIdle:(NMFMapView *)mapView {
-  [self cameraIdle:mapView.contentBounds];
+  NMGLatLngBounds *bounds = mapView.contentBounds;
+  NMFCameraPosition *cameraPosition = mapView.cameraPosition;
+  int normalizedReason;
+  switch (_lastCameraChangeReason) {
+    case -1: normalizedReason = 0; break; // gesture
+    case -2: normalizedReason = 1; break; // control
+    case -3: normalizedReason = 2; break; // location
+    default: normalizedReason = 3; break; // developer (0) or unknown
+  }
+  [self cameraIdleWithBounds:bounds
+                        zoom:cameraPosition.zoom
+                   centerLat:cameraPosition.target.lat
+                   centerLng:cameraPosition.target.lng
+                      reason:normalizedReason];
 }
 
 #pragma mark - Private Methods
@@ -302,6 +340,72 @@
                          green:((rgbValue & 0xFF00) >> 8) / 255.0
                           blue:(rgbValue & 0xFF) / 255.0
                          alpha:1.0];
+}
+
+- (void)setLogoPositionWithString:(NSString *)position {
+  if (!position) return;
+  _savedLogoPosition = position;
+
+  // Apply immediately
+  [self applyLogoPosition:position];
+
+  // Also apply asynchronously to ensure it takes effect after any SDK adjustments
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self applyLogoPosition:position];
+  });
+}
+
+- (void)fixBottomWidgetPositions:(CGFloat)bottomPadding {
+  CGFloat baseTranslation = bottomPadding - 12;
+  // Logo is a UIImageView (class name doesn't contain "logo"), access via KVC
+  UIView *logoView = nil;
+  @try {
+    logoView = [self valueForKey:@"logoImageView"];
+  } @catch (NSException *exception) {
+    // Property not found on this SDK version, skip
+  }
+  if (!logoView) return;
+
+  logoView.transform = CGAffineTransformMakeTranslation(0, baseTranslation);
+  [self disableClippingForView:logoView];
+}
+
+- (void)disableClippingForView:(UIView *)view {
+  UIView *parent = view.superview;
+  while (parent && parent != self) {
+    parent.clipsToBounds = NO;
+    parent = parent.superview;
+  }
+  self.clipsToBounds = NO;
+}
+
+- (void)applyLogoPosition:(NSString *)position {
+  NMFLogoAlign logoAlignValue;
+  if ([position isEqualToString:@"leftTop"]) {
+    logoAlignValue = NMFLogoAlignLeftTop;
+  } else if ([position isEqualToString:@"leftBottom"]) {
+    logoAlignValue = NMFLogoAlignLeftBottom;
+  } else if ([position isEqualToString:@"rightTop"]) {
+    logoAlignValue = NMFLogoAlignRightTop;
+  } else if ([position isEqualToString:@"rightBottom"]) {
+    logoAlignValue = NMFLogoAlignRightBottom;
+  } else if ([position isEqualToString:@"leftCenter"]) {
+    // iOS doesn't support center positions, fallback to leftBottom
+    logoAlignValue = NMFLogoAlignLeftBottom;
+  } else if ([position isEqualToString:@"rightCenter"]) {
+    // iOS doesn't support center positions, fallback to rightBottom
+    logoAlignValue = NMFLogoAlignRightBottom;
+  } else if ([position isEqualToString:@"bottomCenter"]) {
+    // iOS doesn't support center positions, fallback to leftBottom
+    logoAlignValue = NMFLogoAlignLeftBottom;
+  } else if ([position isEqualToString:@"topCenter"]) {
+    // iOS doesn't support center positions, fallback to leftTop
+    logoAlignValue = NMFLogoAlignLeftTop;
+  } else {
+    logoAlignValue = NMFLogoAlignLeftBottom; // default
+  }
+  self.logoAlign = logoAlignValue;
+  self.logoMargin = UIEdgeInsetsZero;
 }
 
 @end

@@ -3,20 +3,22 @@ import {useAtomValue} from 'jotai';
 import React from 'react';
 import styled from 'styled-components/native';
 
+import {getMarkerSvg, MarkerColors} from '@/assets/markers';
 import {currentLocationAtom} from '@/atoms/Location.ts';
+import {useDevTool} from '@/components/DevTool/useDevTool';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
 import Logger from '@/logging/Logger';
-import {
-  NativeMarkerItem,
-  NativeRegion,
-  NativeRectangleOverlay,
-} from '../../../specs/SccMapViewNativeComponent';
-import {MarkerColors, getMarkerSvg} from '@/assets/markers';
-import {useDevTool} from '@/components/DevTool/useDevTool';
-import {NativeCircleOverlay} from '../../../specs/SccMapViewNativeComponent';
 import {Platform} from 'react-native';
+import {
+  NativeCircleOverlay,
+  NativeMarkerItem,
+  NativeRectangleOverlay,
+  NativeRegion,
+} from '../../../specs/SccMapViewNativeComponent';
+
+const ZOOM_CHANGE_THRESHOLD = 0.5;
 
 const DefaultLatitudeDelta = 0.03262934222916414;
 const DefaultLongitudeDelta = 0.03680795431138506;
@@ -51,6 +53,7 @@ export default function ItemMap<T extends MarkerItem>({
   mapPadding,
   selectedItemId,
   onCameraIdle,
+  logoPosition,
 }: {
   items: T[];
   onMarkerPress?: (item: T) => void;
@@ -58,9 +61,22 @@ export default function ItemMap<T extends MarkerItem>({
   mapPadding?: {top: number; right: number; bottom: number; left: number};
   selectedItemId: string | null;
   onCameraIdle?: (region: Region) => void;
+  logoPosition?:
+    | 'leftBottom'
+    | 'leftTop'
+    | 'leftCenter'
+    | 'rightBottom'
+    | 'rightTop'
+    | 'rightCenter'
+    | 'bottomCenter'
+    | 'topCenter';
 }) {
   const [currentCameraRegion, setCurrentCameraRegion] =
     React.useState<Region | null>(null);
+  const previousZoomRef = React.useRef<number | null>(null);
+  const previousCenterRef = React.useRef<{lat: number; lng: number} | null>(
+    null,
+  );
   const currentLocation = useAtomValue(currentLocationAtom);
   const region = currentLocation ? getRegion(currentLocation) : DefaultRegion;
   const devTool = useDevTool();
@@ -202,11 +218,62 @@ export default function ItemMap<T extends MarkerItem>({
         };
         setCurrentCameraRegion(newRegion);
         onCameraIdle?.(newRegion);
+
+        // reason: 0=gesture, 1=control, 2=location, 3=developer
+        if (nativeEvent.reason !== 0) {
+          previousZoomRef.current = nativeEvent.zoom;
+          previousCenterRef.current = {
+            lat: nativeEvent.centerLat,
+            lng: nativeEvent.centerLng,
+          };
+          return;
+        }
+
+        const currentZoom = nativeEvent.zoom;
+        const previousZoom = previousZoomRef.current;
+
+        const latDelta = nativeEvent.northEastLat - nativeEvent.southWestLat;
+        const visibleRangeM = Math.round(latDelta * 111320);
+
+        let eventName: string;
+        if (previousZoom !== null) {
+          const zoomDiff = currentZoom - previousZoom;
+          if (zoomDiff > ZOOM_CHANGE_THRESHOLD) {
+            eventName = 'map_zoom_in';
+          } else if (zoomDiff < -ZOOM_CHANGE_THRESHOLD) {
+            eventName = 'map_zoom_out';
+          } else {
+            eventName = 'map_camera_move';
+          }
+        } else {
+          eventName = 'map_camera_move';
+        }
+
+        Logger.logElementClick({
+          name: eventName,
+          currScreenName: route.name,
+          extraParams: {
+            before_center_lat: previousCenterRef.current?.lat,
+            before_center_lng: previousCenterRef.current?.lng,
+            after_center_lat: nativeEvent.centerLat,
+            after_center_lng: nativeEvent.centerLng,
+            before_zoom: previousZoom,
+            after_zoom: currentZoom,
+            visible_range_m: visibleRangeM,
+          },
+        });
+
+        previousZoomRef.current = currentZoom;
+        previousCenterRef.current = {
+          lat: nativeEvent.centerLat,
+          lng: nativeEvent.centerLng,
+        };
       }}
       mapPadding={mapPadding}
       markers={allNativeMarkers}
       circleOverlays={nativeCircleOverlays}
       rectangleOverlays={nativeRectangleOverlays}
+      logoPosition={logoPosition}
     />
   );
 }

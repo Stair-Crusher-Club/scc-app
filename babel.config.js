@@ -4,9 +4,13 @@ module.exports = {
       'module:@react-native/babel-preset',
       {useTransformReactJSXExperimental: true},
     ],
+    'nativewind/babel',
   ],
   plugins: [
-    ['@babel/plugin-transform-react-jsx', {runtime: 'automatic'}],
+    [
+      '@babel/plugin-transform-react-jsx',
+      {runtime: 'automatic', importSource: 'nativewind'},
+    ],
     'hot-updater/babel-plugin',
     [
       'module-resolver',
@@ -28,6 +32,6 @@ module.exports = {
         },
       },
     ],
-    'react-native-reanimated/plugin',
+    'react-native-worklets/plugin',
   ],
 };

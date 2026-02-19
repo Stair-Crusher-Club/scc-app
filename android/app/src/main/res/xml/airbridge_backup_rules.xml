@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="sharedpref" path="airbridge-internal" />
+    <exclude domain="sharedpref" path="airbridge-install" />
+    <exclude domain="sharedpref" path="airbridge-user-info" />
+    <exclude domain="sharedpref" path="airbridge-user-alias" />
+    <exclude domain="sharedpref" path="airbridge-user-attributes" />
+    <exclude domain="sharedpref" path="airbridge-device-alias" />
+    <exclude domain="database" path="airbridge.db" />
+</full-backup-content>
