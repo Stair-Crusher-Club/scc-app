@@ -47,6 +47,7 @@ import PlaceDetailAccessibilityTab from '../PlaceDetailScreen/tabs/PlaceDetailAc
 import PlaceDetailReviewTab from '../PlaceDetailScreen/tabs/PlaceDetailReviewTab';
 import PlaceDetailRestroomTab from '../PlaceDetailScreen/tabs/PlaceDetailRestroomTab';
 import PlaceDetailConquerorTab from '../PlaceDetailScreen/tabs/PlaceDetailConquerorTab';
+import PlaceDetailBottomBar from '../PlaceDetailScreen/tabs/PlaceDetailBottomBar';
 import PlaceDetailRegistrationSheet from '../PlaceDetailScreen/tabs/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
@@ -579,6 +580,14 @@ export default function PlaceDetailV2Screen({
             )}
           </ScrollView>
         </GestureHandlerRootView>
+
+        <PlaceDetailBottomBar
+          placeId={place.id}
+          accessibility={accessibilityPost}
+          placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
+          onPressRegister={() => setShowRegistrationSheet(true)}
+          onPressWriteReview={handleReviewRegister}
+        />
 
         <RequireBuildingAccessibilityBottomSheet
           isVisible={!isFetching && showRequireBuildingAccessibilityBottomSheet}

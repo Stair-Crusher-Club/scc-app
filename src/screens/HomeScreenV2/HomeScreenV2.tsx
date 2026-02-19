@@ -265,7 +265,7 @@ const HomeScreenV2 = ({navigation}: any) => {
                 <DebugButton
                   onPress={() =>
                     navigation.navigate('PlaceDetailV2', {
-                      placeInfo: {placeId: 'PLC_01KHFYQWEWSSJY9EKZ2Y8Z7Q0R'},
+                      placeInfo: {placeId: 'PLC_01KHR1HJM79RMHT1Z0PSA9EWTJ'},
                     })
                   }>
                   <DebugButtonText>PDP V2 테스트</DebugButtonText>
