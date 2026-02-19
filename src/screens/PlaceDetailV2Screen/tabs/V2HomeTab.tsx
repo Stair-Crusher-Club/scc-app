@@ -4,10 +4,10 @@ import React from 'react';
 import {Image, Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
-import ClockIcon from '@/assets/icon/ic_clock.svg';
-import PlaceIcon from '@/assets/icon/ic_place.svg';
+import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
+import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
-import ReviewOutlineIcon from '@/assets/icon/ic_review_outline.svg';
+import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
@@ -16,7 +16,9 @@ import {doorTypeMap} from '@/constant/options';
 import {
   AccessibilityInfoV2Dto,
   Building,
+  BuildingDoorDirectionTypeDto,
   Place,
+  PlaceDoorDirectionTypeDto,
   PlaceReviewDto,
   ToiletReviewDto,
 } from '@/generated-sources/openapi';
@@ -29,6 +31,7 @@ import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceRevi
 import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {
+  getFloorAccessibility,
   getPlaceEntranceStepType,
   getBuildingEntranceStepType,
   getBuildingElevatorType,
@@ -64,7 +67,7 @@ export default function V2HomeTab({
   isAccessibilityInfoRequested,
   isAccessibilityRegistrable: _isAccessibilityRegistrable,
   onRequestInfo,
-  onPressAccessibilityTab,
+  onPressAccessibilityTab: _onPressAccessibilityTab,
   onPressReviewTab,
   onPressPlaceRegister,
   onPressReviewRegister,
@@ -141,7 +144,7 @@ export default function V2HomeTab({
         <PlaceInfoContent>
           {/* 주소 */}
           <PlaceInfoRow>
-            <PlaceIcon width={20} height={20} color={color.gray70} />
+            <StoreAddressIcon width={20} height={20} color={color.gray30} />
             <AddressText>{place.address}</AddressText>
             <CopyButton elementName="v2_home_tab_copy_address" onPress={onCopy}>
               <CopyText>복사</CopyText>
@@ -150,7 +153,7 @@ export default function V2HomeTab({
 
           {/* 영업시간 및 메뉴 */}
           <PlaceInfoRow>
-            <ClockIcon width={20} height={20} color={color.gray70} />
+            <StoreInfoIcon width={20} height={20} color={color.gray30} />
             <ExternalLinkButton
               elementName="v2_home_tab_business_hours"
               onPress={onOpenBusinessHours}>
@@ -160,7 +163,7 @@ export default function V2HomeTab({
 
           {/* 카카오 리뷰 */}
           <PlaceInfoRow>
-            <ReviewOutlineIcon width={20} height={20} color={color.gray70} />
+            <KakaoReviewIcon width={20} height={20} color={color.gray30} />
             <ExternalLinkButton
               elementName="v2_home_tab_kakao_review"
               onPress={onOpenKakaoReview}>
@@ -195,18 +198,15 @@ export default function V2HomeTab({
       <Section>
         <SectionHeader>
           <SectionTitle>접근성</SectionTitle>
-          {hasAccessibility && (
-            <MoreButton
-              elementName="v2_home_tab_accessibility_more"
-              onPress={onPressAccessibilityTab}
-              accessibilityLabel="접근성 탭으로 이동">
-              <MoreText>더보기</MoreText>
-            </MoreButton>
-          )}
         </SectionHeader>
         {hasAccessibility ? (
           <>
-            <AccessibilitySummarySection accessibility={accessibility!} />
+            <AccessibilitySummarySection
+              accessibility={accessibility!}
+              showLabel
+            />
+
+            <FloorInfoRow accessibility={accessibility} />
 
             {/* 3a. 건물 출입구 */}
             {hasBuildingAccessibility &&
@@ -230,6 +230,9 @@ export default function V2HomeTab({
                     <BuildingEntranceInfoRows accessibility={accessibility} />
                     <BuildingElevatorInfoRow accessibility={accessibility} />
                     <BuildingDoorInfoRow accessibility={accessibility} />
+                    <BuildingDoorDirectionInfoRow
+                      accessibility={accessibility}
+                    />
                   </InfoRowsContainer>
                 </AccessibilitySubSection>
               )}
@@ -248,6 +251,7 @@ export default function V2HomeTab({
               <InfoRowsContainer>
                 <PlaceEntranceInfoRows accessibility={accessibility} />
                 <PlaceDoorInfoRow accessibility={accessibility} />
+                <PlaceDoorDirectionInfoRow accessibility={accessibility} />
               </InfoRowsContainer>
             </AccessibilitySubSection>
           </>
@@ -585,6 +589,71 @@ function PlaceDoorInfoRow({
   }
   const title = doorTypes.map(d => doorTypeMap[d]).join(', ');
   return <InfoRow label="출입문 유형" value={title} />;
+}
+
+function BuildingDoorDirectionInfoRow({
+  accessibility,
+}: {
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  const doorDir = accessibility?.buildingAccessibility?.doorDirectionType;
+  if (!doorDir) {
+    return null;
+  }
+  let title = '';
+  switch (doorDir) {
+    case BuildingDoorDirectionTypeDto.RoadDirection:
+      title = '지상/보도 연결 문';
+      break;
+    case BuildingDoorDirectionTypeDto.ParkingDirection:
+      title = '주차장 방향';
+      break;
+    case BuildingDoorDirectionTypeDto.Etc:
+      title = '기타';
+      break;
+  }
+  return <InfoRow label="출입구 방향" value={title} />;
+}
+
+function PlaceDoorDirectionInfoRow({
+  accessibility,
+}: {
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  const doorDir = accessibility?.placeAccessibility?.doorDirectionType;
+  if (!doorDir) {
+    return null;
+  }
+  let title = '';
+  switch (doorDir) {
+    case PlaceDoorDirectionTypeDto.OutsideBuilding:
+      title = '건물 밖';
+      break;
+    case PlaceDoorDirectionTypeDto.InsideBuilding:
+      title = '건물 안';
+      break;
+  }
+  return <InfoRow label="출입구 방향" value={title} />;
+}
+
+function FloorInfoRow({
+  accessibility,
+}: {
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  if (!accessibility?.placeAccessibility) {
+    return null;
+  }
+  const floorInfo = getFloorAccessibility(accessibility as any);
+  return (
+    <InfoRowsContainer>
+      <InfoRow
+        label="층 정보"
+        value={floorInfo.title}
+        subValue={floorInfo.description}
+      />
+    </InfoRowsContainer>
+  );
 }
 
 // ──────────────── Styled Components ────────────────
