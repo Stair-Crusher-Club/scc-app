@@ -1,33 +1,104 @@
 import React from 'react';
+import {LayoutChangeEvent, Platform} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
-import ReviewIcon from '@/assets/icon/ic_review.svg';
-import WarningIcon from '@/assets/icon/ic_warning.svg';
+import FlagIcon from '@/assets/icon/menu_ic_flag.svg';
+import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
+import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
+import ThumbsUpIcon from '@/assets/icon/ic_thumbsup_colored.svg';
 import {SccPressable} from '@/components/SccPressable';
+import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Place} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoV2Dto,
+  Place,
+  PlaceUpvoteInfoDto,
+} from '@/generated-sources/openapi';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
+import {useCheckAuth} from '@/utils/checkAuth';
 
 interface V2SummarySectionProps {
   place: Place;
+  placeId: string;
   accessibilityScore?: number;
   hasPlaceAccessibility: boolean;
   hasBuildingAccessibility: boolean;
+  hasAccessibility: boolean;
+  placeUpvoteInfo?: PlaceUpvoteInfoDto;
+  accessibility?: AccessibilityInfoV2Dto;
+  reviewCount: number;
   onPressRegister: () => void;
   onPressWriteReview: () => void;
   onPressSiren: () => void;
+  onNameLayout?: (event: LayoutChangeEvent) => void;
 }
 
 export default function V2SummarySection({
   place,
+  placeId,
   accessibilityScore,
+  hasAccessibility,
+  placeUpvoteInfo,
+  accessibility,
+  reviewCount,
   onPressRegister,
   onPressWriteReview,
   onPressSiren,
+  onNameLayout,
 }: V2SummarySectionProps) {
+  const checkAuth = useCheckAuth();
   const hasScore =
     accessibilityScore !== undefined && accessibilityScore !== null;
+
+  const {
+    isUpvoted: _isUpvoted,
+    totalUpvoteCount,
+    toggleUpvote,
+  } = useUpvoteToggle({
+    initialIsUpvoted: placeUpvoteInfo?.isUpvoted ?? false,
+    initialTotalCount: placeUpvoteInfo?.totalUpvoteCount,
+    targetId: placeId,
+    targetType: 'PLACE',
+    placeId: placeId,
+  });
+
+  const handleUpvote = () => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
+    checkAuth(() => toggleUpvote());
+  };
+
+  const tagTexts = (() => {
+    const pa = accessibility?.placeAccessibility;
+    if (!pa) {
+      return [];
+    }
+
+    let floorTag;
+    let slopeTag;
+
+    const floors = pa.floors ?? [];
+    floorTag = floors.length
+      ? `${floors[0]}층${floors.length > 1 ? '+' : ''}`
+      : undefined;
+
+    slopeTag = pa.hasSlope
+      ? '경사로있음'
+      : !pa.hasSlope && (accessibilityScore ?? 0) !== 0
+        ? '경사로없음'
+        : undefined;
+
+    return [floorTag, slopeTag].filter(tag => tag) as string[];
+  })();
+
+  const hasReview = reviewCount > 0;
 
   return (
     <Container>
@@ -36,28 +107,48 @@ export default function V2SummarySection({
           {hasScore ? `접근레벨 ${accessibilityScore}` : '접근레벨 -'}
         </StairLevelText>
       </StairLevelBadge>
-      <NameContainer>
+      <NameContainer onLayout={onNameLayout}>
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
+      {accessibility?.placeAccessibility && (
+        <TagsContainer>
+          <Tags
+            texts={tagTexts}
+            hasReview={hasReview}
+            reviewCount={reviewCount}
+          />
+        </TagsContainer>
+      )}
       <ActionButtonsRow>
         <RegisterButton
           elementName="place_detail_v2_register_button"
           onPress={onPressRegister}>
-          <PlusIcon width={16} height={16} color={color.white} />
+          <FlagIcon width={16} height={16} />
           <RegisterButtonText>정보등록</RegisterButtonText>
         </RegisterButton>
         <ReviewButton
           elementName="place_detail_v2_write_review_button"
           onPress={onPressWriteReview}>
-          <ReviewIcon width={16} height={16} color="#24262B" />
+          <PencilIcon width={16} height={16} />
           <ReviewButtonText>리뷰작성</ReviewButtonText>
         </ReviewButton>
         <SirenButton
           elementName="place_detail_v2_siren_button"
           onPress={onPressSiren}>
-          <WarningIcon width={20} height={20} color="#16181C" />
+          <SirenIcon width={20} height={20} />
         </SirenButton>
       </ActionButtonsRow>
+      {hasAccessibility && (
+        <UpvoteButton
+          elementName="place_detail_v2_upvote_button"
+          onPress={handleUpvote}>
+          <ThumbsUpIcon width={16} height={16} />
+          <UpvoteButtonText>
+            도움돼요
+            {(totalUpvoteCount ?? 0) > 0 ? ` ${totalUpvoteCount}` : ''}
+          </UpvoteButtonText>
+        </UpvoteButton>
+      )}
     </Container>
   );
 }
@@ -96,6 +187,10 @@ const PlaceName = styled.Text`
   color: ${color.black};
 `;
 
+const TagsContainer = styled.View`
+  margin-top: 6px;
+`;
+
 const ActionButtonsRow = styled.View`
   flex-direction: row;
   gap: 8px;
@@ -107,7 +202,7 @@ const RegisterButton = styled(SccPressable)`
   flex: 1;
   height: 44px;
   border-radius: 8px;
-  background-color: ${color.brand40};
+  background-color: ${color.gray15};
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -117,7 +212,7 @@ const RegisterButton = styled(SccPressable)`
 const RegisterButtonText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
-  color: ${color.white};
+  color: ${color.gray80};
 `;
 
 const ReviewButton = styled(SccPressable)`
@@ -145,4 +240,22 @@ const SirenButton = styled(SccPressable)`
   align-items: center;
   justify-content: center;
   padding: 10px;
+`;
+
+const UpvoteButton = styled(SccPressable)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 8px;
+  margin-right: 20px;
+  padding-vertical: 12px;
+  border-radius: 8px;
+  background-color: #0e64d3;
+`;
+
+const UpvoteButtonText = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  color: ${color.white};
 `;
