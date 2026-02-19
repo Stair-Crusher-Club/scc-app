@@ -42,11 +42,11 @@ import PlaceDetailNegativeFeedbackBottomSheet from '../PlaceDetailScreen/modals/
 import RegisterCompleteBottomSheet from '../PlaceDetailScreen/modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from '../PlaceDetailScreen/modals/RequireBuildingAccessibilityBottomSheet';
 import {PlaceDetailFeedbackSection} from '../PlaceDetailScreen/sections/PlaceDetailFeedbackSection';
-import PlaceDetailHomeTab from '../PlaceDetailScreen/tabs/PlaceDetailHomeTab';
-import PlaceDetailAccessibilityTab from '../PlaceDetailScreen/tabs/PlaceDetailAccessibilityTab';
-import PlaceDetailReviewTab from '../PlaceDetailScreen/tabs/PlaceDetailReviewTab';
+import V2HomeTab from './tabs/V2HomeTab';
+import V2AccessibilityTab from './tabs/V2AccessibilityTab';
+import V2ReviewTab from './tabs/V2ReviewTab';
 import PlaceDetailRestroomTab from '../PlaceDetailScreen/tabs/PlaceDetailRestroomTab';
-import PlaceDetailConquerorTab from '../PlaceDetailScreen/tabs/PlaceDetailConquerorTab';
+import V2ConquerorTab from './tabs/V2ConquerorTab';
 import PlaceDetailBottomBar from '../PlaceDetailScreen/tabs/PlaceDetailBottomBar';
 import PlaceDetailRegistrationSheet from '../PlaceDetailScreen/tabs/PlaceDetailRegistrationSheet';
 
@@ -458,14 +458,17 @@ export default function PlaceDetailV2Screen({
     switch (currentTab) {
       case 'home':
         return (
-          <PlaceDetailHomeTab
+          <V2HomeTab
             accessibility={accessibilityPost}
             place={place}
+            building={building}
             reviews={reviewPost ?? []}
+            toiletReviews={toiletPost ?? []}
             kakaoPlaceId={kakaoPlaceId}
             isAccessibilityInfoRequested={
               accessibilityPost?.isAccessibilityInfoRequested
             }
+            isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
             onRequestInfo={() => {
               checkAuth(() => {
                 toggleRequest({
@@ -479,15 +482,17 @@ export default function PlaceDetailV2Screen({
             onPressReviewTab={() => setCurrentTab('review')}
             onPressPlaceRegister={handlePlaceRegister}
             onPressReviewRegister={handleReviewRegister}
+            onPressToiletRegister={handleToiletRegister}
           />
         );
       case 'accessibility':
         return (
-          <PlaceDetailAccessibilityTab
+          <V2AccessibilityTab
             accessibility={accessibilityPost}
             place={place}
             building={building}
             isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
+            reviews={reviewPost ?? []}
             onRegister={handlePlaceRegister}
             showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
             allowDuplicateRegistration={isQAMode}
@@ -495,7 +500,7 @@ export default function PlaceDetailV2Screen({
         );
       case 'review':
         return (
-          <PlaceDetailReviewTab
+          <V2ReviewTab
             reviews={reviewPost ?? []}
             place={place}
             isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
@@ -514,7 +519,7 @@ export default function PlaceDetailV2Screen({
         );
       case 'conqueror':
         return (
-          <PlaceDetailConquerorTab
+          <V2ConquerorTab
             accessibility={accessibilityPost}
             onPressRegister={handlePlaceRegister}
           />
