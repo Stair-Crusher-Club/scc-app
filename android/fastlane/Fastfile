@@ -150,7 +150,18 @@ platform :android do
     sh("git add #{File.expand_path("../app/version.properties")}")
     sh("git commit -m \"Release android #{version} [skip ci]\"")
     branch = git_current_branch()
-    sh("git push origin #{branch}")
+    retries = 0
+    begin
+      sh("git pull --rebase origin #{branch}")
+      sh("git push origin #{branch}")
+    rescue => e
+      retries += 1
+      if retries < 3
+        UI.message("Push failed, retrying after pull --rebase... (#{retries}/3)")
+        retry
+      end
+      raise
+    end
   end
 
   lane :release_candidate do |options|

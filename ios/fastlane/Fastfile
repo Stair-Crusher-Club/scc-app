@@ -244,7 +244,18 @@ platform :ios do
     sh("git add ../sccReactNative/Info.plist ../sccReactNativeTests/Info.plist ../sccReactNative.xcodeproj/project.pbxproj")
     sh("git commit -m \"Release ios #{version} [skip ci]\"")
     branch = git_current_branch()
-    sh("git push origin #{branch}")
+    retries = 0
+    begin
+      sh("git pull --rebase origin #{branch}")
+      sh("git push origin #{branch}")
+    rescue => e
+      retries += 1
+      if retries < 3
+        UI.message("Push failed, retrying after pull --rebase... (#{retries}/3)")
+        retry
+      end
+      raise
+    end
   end
 
   desc "Make IPA files for AppStore and Firebase Distribution. After this, you can upload the ipa files to Firebase Distribution and AppStore Connect using `fastlane ios firebase` or `fastlane ios itc`"
