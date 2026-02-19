@@ -42,7 +42,9 @@ export default function V2TabBar<T>({
   );
 }
 
-const Container = styled.View``;
+const Container = styled.View`
+  background-color: ${color.white};
+`;
 
 const TabRow = styled.View`
   flex-direction: row;

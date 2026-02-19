@@ -1,6 +1,13 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {InteractionManager, Platform, ScrollView} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  InteractionManager,
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
@@ -47,7 +54,7 @@ import V2AccessibilityTab from './tabs/V2AccessibilityTab';
 import V2ReviewTab from './tabs/V2ReviewTab';
 import PlaceDetailRestroomTab from '../PlaceDetailScreen/tabs/PlaceDetailRestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
-import PlaceDetailBottomBar from '../PlaceDetailScreen/tabs/PlaceDetailBottomBar';
+import V2BottomBar from './components/V2BottomBar';
 import PlaceDetailRegistrationSheet from '../PlaceDetailScreen/tabs/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
@@ -450,6 +457,24 @@ export default function PlaceDetailV2Screen({
     });
   }, [checkAuth, navigation, navigateWithLocationCheck, place]);
 
+  // Scroll-dependent AppBar title
+  const [showAppBarTitle, setShowAppBarTitle] = useState(false);
+  const nameBottomYRef = useRef<number>(0);
+
+  const handleNameLayout = useCallback((e: LayoutChangeEvent) => {
+    const {y, height} = e.nativeEvent.layout;
+    nameBottomYRef.current = y + height;
+  }, []);
+
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const scrollY = e.nativeEvent.contentOffset.y;
+      const shouldShow = scrollY > nameBottomYRef.current;
+      setShowAppBarTitle(prev => (prev !== shouldShow ? shouldShow : prev));
+    },
+    [],
+  );
+
   if (isLoading || !place || !building) {
     return null;
   }
@@ -539,32 +564,47 @@ export default function PlaceDetailV2Screen({
     <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
         <GestureHandlerRootView style={{flex: 1}}>
-          <ScrollView style={{flex: 1}} scrollEventThrottle={100}>
-            <V2AppBar
-              isFavorite={place.isFavorite}
-              onToggleFavorite={() =>
-                checkAuth(() =>
-                  toggleFavorite({
-                    currentIsFavorite: place.isFavorite,
-                    placeId: place.id,
-                  }),
-                )
-              }
-              onShare={() => ShareUtils.sharePlace(place)}
-            />
+          <V2AppBar
+            isFavorite={place.isFavorite}
+            onToggleFavorite={() =>
+              checkAuth(() =>
+                toggleFavorite({
+                  currentIsFavorite: place.isFavorite,
+                  placeId: place.id,
+                }),
+              )
+            }
+            onShare={() => ShareUtils.sharePlace(place)}
+            placeName={place.name}
+            showTitle={showAppBarTitle}
+          />
+          <ScrollView
+            style={{flex: 1}}
+            scrollEventThrottle={16}
+            onScroll={handleScroll}
+            stickyHeaderIndices={[1]}>
             <V2SummarySection
               place={place}
+              placeId={place.id}
               accessibilityScore={data?.accessibilityScore}
               hasPlaceAccessibility={!!accessibilityPost?.placeAccessibility}
               hasBuildingAccessibility={
                 !!accessibilityPost?.buildingAccessibility
               }
+              hasAccessibility={
+                !!accessibilityPost?.placeAccessibility ||
+                !!accessibilityPost?.buildingAccessibility
+              }
+              placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
+              accessibility={accessibilityPost}
+              reviewCount={(reviewPost ?? []).length}
               onPressRegister={() => setShowRegistrationSheet(true)}
               onPressWriteReview={handleReviewRegister}
               onPressSiren={() => setShowNavigationBottomSheet(true)}
+              onNameLayout={handleNameLayout}
             />
 
-            {/* Tab Bar */}
+            {/* Tab Bar - sticky at index 1 */}
             <V2TabBar
               items={TAB_ITEMS}
               current={currentTab}
@@ -586,12 +626,13 @@ export default function PlaceDetailV2Screen({
           </ScrollView>
         </GestureHandlerRootView>
 
-        <PlaceDetailBottomBar
+        <V2BottomBar
           placeId={place.id}
           accessibility={accessibilityPost}
           placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
           onPressRegister={() => setShowRegistrationSheet(true)}
           onPressWriteReview={handleReviewRegister}
+          onPressSiren={() => setShowNavigationBottomSheet(true)}
         />
 
         <RequireBuildingAccessibilityBottomSheet

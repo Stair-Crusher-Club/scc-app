@@ -657,6 +657,12 @@ export interface BuildingAccessibility {
      */
     'buildingId': string;
     /**
+     * 
+     * @type {BuildingDoorDirectionTypeDto}
+     * @memberof BuildingAccessibility
+     */
+    'doorDirectionType'?: BuildingDoorDirectionTypeDto;
+    /**
      * 익명으로 등록되었으면 null.
      * @type {string}
      * @memberof BuildingAccessibility
@@ -3588,6 +3594,18 @@ export interface PlaceAccessibility {
      * @memberof PlaceAccessibility
      */
     'totalUpvoteCount': number;
+    /**
+     * 단독 건물 여부 (해당 장소가 건물 전체를 차지하는지). V2로 등록된 접근성만 값이 존재.
+     * @type {boolean}
+     * @memberof PlaceAccessibility
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof PlaceAccessibility
+     */
+    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
     /**
      * 
      * @type {EpochMillisTimestamp}

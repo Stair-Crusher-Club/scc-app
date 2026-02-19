@@ -11,9 +11,11 @@ import {doorTypeMap} from '@/constant/options';
 import {
   AccessibilityInfoV2Dto,
   Building,
+  BuildingDoorDirectionTypeDto,
   Place,
   PlaceAccessibilityComment,
   BuildingAccessibilityComment,
+  PlaceDoorDirectionTypeDto,
   PlaceReviewDto,
   ReportTargetTypeDto,
 } from '@/generated-sources/openapi';
@@ -70,18 +72,57 @@ export default function V2AccessibilityTab({
     );
   }
 
-  // 서브탭 칩 목록 생성
-  const chips: string[] = ['층 정보'];
-  if (hasBuildingAccessibility) {
-    chips.push('건물 출입구');
-  }
-  chips.push('매장 출입구');
-  if (hasIndoorReviews) {
-    chips.push('내부 이용 정보');
-  }
-
   const placeAccessibility = accessibility!.placeAccessibility!;
   const buildingAccessibility = accessibility?.buildingAccessibility;
+
+  // V2 건물유형 분기 필드
+  const isStandalone = placeAccessibility.isStandaloneBuilding === true;
+  const doorDir = placeAccessibility.doorDirectionType;
+  const floors = placeAccessibility.floors ?? [];
+  const isFirstFloor =
+    floors.length > 0
+      ? floors.length === 1 && floors[0] === 1
+      : placeAccessibility.isFirstFloor === true;
+  const hasV2Fields =
+    placeAccessibility.isStandaloneBuilding != null && doorDir != null;
+
+  // 서브탭 칩 목록 생성 (건물유형별 분기)
+  const chips: string[] = ['층 정보'];
+
+  if (hasV2Fields) {
+    if (isStandalone) {
+      // 단독건물: 매장(건물 출입구)
+      chips.push('매장(건물 출입구)');
+      if (!isFirstFloor) {
+        chips.push('층간 이동 정보');
+      }
+      chips.push('내부 이용 정보');
+    } else if (doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding) {
+      // 비단독 + 외부문
+      chips.push('매장 출입구');
+      if (!isFirstFloor) {
+        chips.push('층간 이동 정보');
+        chips.push('내부 이용 정보');
+      }
+    } else {
+      // 비단독 + 내부문 (INSIDE_BUILDING)
+      chips.push('건물 출입구');
+      chips.push('매장 출입구');
+      if (!isFirstFloor) {
+        chips.push('층간 이동 정보');
+      }
+      chips.push('내부 이용 정보');
+    }
+  } else {
+    // Fallback: V2 필드가 없는 기존 데이터
+    if (hasBuildingAccessibility) {
+      chips.push('건물 출입구');
+    }
+    chips.push('매장 출입구');
+    if (hasIndoorReviews) {
+      chips.push('내부 이용 정보');
+    }
+  }
   const placeComments = accessibility?.placeAccessibilityComments ?? [];
   const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
 
@@ -119,7 +160,7 @@ export default function V2AccessibilityTab({
 
       {/* 섹션들 */}
       <SectionsContainer>
-        {/* 층 정보 */}
+        {/* 층 정보 (항상 첫 번째) */}
         <SectionContainer>
           <SectionHeader>
             <SectionTitle>층 정보</SectionTitle>
@@ -134,76 +175,189 @@ export default function V2AccessibilityTab({
           </InfoRowsContainer>
         </SectionContainer>
 
-        {/* 건물 출입구 */}
-        {hasBuildingAccessibility && buildingAccessibility && (
-          <SectionContainer>
-            <SectionHeader>
-              <SectionTitle>건물 출입구</SectionTitle>
-              <SectionDate>{buildingDate}</SectionDate>
-            </SectionHeader>
-
-            <SectionContent>
-              {/* 사진 */}
-              <PhotoRow
-                images={[
-                  ...(buildingAccessibility.entranceImages ?? []),
-                  ...(buildingAccessibility.elevatorImages ?? []),
-                ]}
-              />
-
-              {/* 정보 행 */}
-              <InfoRowsContainer>
-                <BuildingEntranceInfoRows accessibility={accessibility} />
-                <BuildingElevatorInfoRow accessibility={accessibility} />
-                <BuildingDoorInfoRow accessibility={accessibility} />
-              </InfoRowsContainer>
-
-              {/* 코멘트 */}
-              {buildingComments.length > 0 && (
-                <CommentBox
-                  comments={buildingComments}
-                  registeredUserName={buildingAccessibility.registeredUserName}
+        {hasV2Fields ? (
+          <>
+            {isStandalone ? (
+              <>
+                {/* 단독건물: 매장(건물 출입구) */}
+                <PlaceEntranceSection
+                  title="매장(건물 출입구)"
+                  placeDate={placeDate}
+                  placeAccessibility={placeAccessibility}
+                  accessibility={accessibility}
+                  placeComments={placeComments}
                 />
-              )}
-            </SectionContent>
-          </SectionContainer>
-        )}
-
-        {/* 매장 출입구 */}
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>
-              매장 출입구{hasBuildingAccessibility ? ' - 주 출입구' : ''}
-            </SectionTitle>
-            <SectionDate>{placeDate}</SectionDate>
-          </SectionHeader>
-
-          <SectionContent>
-            {/* 사진 */}
-            <PhotoRow images={placeAccessibility.images ?? []} />
-
-            {/* 정보 행 */}
-            <InfoRowsContainer>
-              <PlaceEntranceInfoRows accessibility={accessibility} />
-              <PlaceDoorInfoRow accessibility={accessibility} />
-            </InfoRowsContainer>
-
-            {/* 코멘트 */}
-            {placeComments.length > 0 && (
-              <CommentBox
-                comments={placeComments}
-                registeredUserName={placeAccessibility.registeredUserName}
+                {!isFirstFloor && <FloorMovementSection />}
+                <IndoorInfoSection reviews={reviews} />
+              </>
+            ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
+              <>
+                {/* 비단독 + 외부문 */}
+                <PlaceEntranceSection
+                  title="매장 출입구"
+                  placeDate={placeDate}
+                  placeAccessibility={placeAccessibility}
+                  accessibility={accessibility}
+                  placeComments={placeComments}
+                />
+                {!isFirstFloor && (
+                  <>
+                    <FloorMovementSection />
+                    <IndoorInfoSection reviews={reviews} />
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
+                {hasBuildingAccessibility && buildingAccessibility && (
+                  <BuildingEntranceSection
+                    buildingDate={buildingDate}
+                    buildingAccessibility={buildingAccessibility}
+                    accessibility={accessibility}
+                    buildingComments={buildingComments}
+                  />
+                )}
+                <PlaceEntranceSection
+                  title="매장 출입구"
+                  placeDate={placeDate}
+                  placeAccessibility={placeAccessibility}
+                  accessibility={accessibility}
+                  placeComments={placeComments}
+                />
+                {!isFirstFloor && <FloorMovementSection />}
+                <IndoorInfoSection reviews={reviews} />
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Fallback: V2 필드 없는 기존 데이터 */}
+            {hasBuildingAccessibility && buildingAccessibility && (
+              <BuildingEntranceSection
+                buildingDate={buildingDate}
+                buildingAccessibility={buildingAccessibility}
+                accessibility={accessibility}
+                buildingComments={buildingComments}
               />
             )}
-          </SectionContent>
-        </SectionContainer>
-
-        {/* 내부 이용 정보 */}
-        {hasIndoorReviews && <IndoorInfoSection reviews={reviews} />}
+            <PlaceEntranceSection
+              title={
+                hasBuildingAccessibility
+                  ? '매장 출입구 - 주 출입구'
+                  : '매장 출입구'
+              }
+              placeDate={placeDate}
+              placeAccessibility={placeAccessibility}
+              accessibility={accessibility}
+              placeComments={placeComments}
+            />
+            {hasIndoorReviews && <IndoorInfoSection reviews={reviews} />}
+          </>
+        )}
       </SectionsContainer>
 
       <BottomPadding />
     </Container>
+  );
+}
+
+// ──────────────── 섹션 컴포넌트 ────────────────
+
+function BuildingEntranceSection({
+  buildingDate,
+  buildingAccessibility,
+  accessibility,
+  buildingComments,
+}: {
+  buildingDate: string;
+  buildingAccessibility: NonNullable<
+    AccessibilityInfoV2Dto['buildingAccessibility']
+  >;
+  accessibility?: AccessibilityInfoV2Dto;
+  buildingComments: BuildingAccessibilityComment[];
+}) {
+  return (
+    <SectionContainer>
+      <SectionHeader>
+        <SectionTitle>건물 출입구</SectionTitle>
+        <SectionDate>{buildingDate}</SectionDate>
+      </SectionHeader>
+
+      <SectionContent>
+        <PhotoRow
+          images={[
+            ...(buildingAccessibility.entranceImages ?? []),
+            ...(buildingAccessibility.elevatorImages ?? []),
+          ]}
+        />
+        <InfoRowsContainer>
+          <BuildingEntranceInfoRows accessibility={accessibility} />
+          <BuildingElevatorInfoRow accessibility={accessibility} />
+          <BuildingDoorInfoRow accessibility={accessibility} />
+          <BuildingDoorDirectionInfoRow accessibility={accessibility} />
+        </InfoRowsContainer>
+        {buildingComments.length > 0 && (
+          <CommentBox
+            comments={buildingComments}
+            registeredUserName={buildingAccessibility.registeredUserName}
+          />
+        )}
+      </SectionContent>
+    </SectionContainer>
+  );
+}
+
+function PlaceEntranceSection({
+  title,
+  placeDate,
+  placeAccessibility,
+  accessibility,
+  placeComments,
+}: {
+  title: string;
+  placeDate: string;
+  placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
+  accessibility?: AccessibilityInfoV2Dto;
+  placeComments: PlaceAccessibilityComment[];
+}) {
+  return (
+    <SectionContainer>
+      <SectionHeader>
+        <SectionTitle>{title}</SectionTitle>
+        <SectionDate>{placeDate}</SectionDate>
+      </SectionHeader>
+
+      <SectionContent>
+        <PhotoRow images={placeAccessibility.images ?? []} />
+        <InfoRowsContainer>
+          <PlaceEntranceInfoRows accessibility={accessibility} />
+          <PlaceDoorInfoRow accessibility={accessibility} />
+          <PlaceDoorDirectionInfoRow accessibility={accessibility} />
+        </InfoRowsContainer>
+        {placeComments.length > 0 && (
+          <CommentBox
+            comments={placeComments}
+            registeredUserName={placeAccessibility.registeredUserName}
+          />
+        )}
+      </SectionContent>
+    </SectionContainer>
+  );
+}
+
+function FloorMovementSection() {
+  return (
+    <SectionContainer>
+      <SectionHeader>
+        <SectionTitle>층간 이동 정보</SectionTitle>
+      </SectionHeader>
+      <FloorMovementEmptyContainer>
+        <FloorMovementEmptyText>
+          아직 등록된 층간 이동 정보가 없어요
+        </FloorMovementEmptyText>
+      </FloorMovementEmptyContainer>
+    </SectionContainer>
   );
 }
 
@@ -345,6 +499,51 @@ function BuildingDoorInfoRow({
   }
   const title = doorTypes.map(d => doorTypeMap[d]).join(', ');
   return <InfoRow label="출입문 유형" value={title} />;
+}
+
+function BuildingDoorDirectionInfoRow({
+  accessibility,
+}: {
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  const doorDir = accessibility?.buildingAccessibility?.doorDirectionType;
+  if (!doorDir) {
+    return null;
+  }
+  let title = '';
+  switch (doorDir) {
+    case BuildingDoorDirectionTypeDto.RoadDirection:
+      title = '지상/보도 연결 문';
+      break;
+    case BuildingDoorDirectionTypeDto.ParkingDirection:
+      title = '주차장 방향';
+      break;
+    case BuildingDoorDirectionTypeDto.Etc:
+      title = '기타';
+      break;
+  }
+  return <InfoRow label="출입구 방향" value={title} />;
+}
+
+function PlaceDoorDirectionInfoRow({
+  accessibility,
+}: {
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  const doorDir = accessibility?.placeAccessibility?.doorDirectionType;
+  if (!doorDir) {
+    return null;
+  }
+  let title = '';
+  switch (doorDir) {
+    case PlaceDoorDirectionTypeDto.OutsideBuilding:
+      title = '건물 밖';
+      break;
+    case PlaceDoorDirectionTypeDto.InsideBuilding:
+      title = '건물 안';
+      break;
+  }
+  return <InfoRow label="출입구 방향" value={title} />;
 }
 
 function PlaceEntranceInfoRows({
@@ -757,6 +956,23 @@ const IndoorFeatureText = styled.Text`
   line-height: 22px;
   letter-spacing: -0.28px;
   color: ${color.gray90};
+`;
+
+// 층간 이동 정보 빈 상태
+const FloorMovementEmptyContainer = styled.View`
+  background-color: ${color.gray5};
+  border-radius: 12px;
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+`;
+
+const FloorMovementEmptyText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.28px;
+  color: ${color.gray50};
 `;
 
 const BottomPadding = styled.View`

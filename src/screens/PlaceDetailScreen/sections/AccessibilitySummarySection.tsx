@@ -14,9 +14,13 @@ import {
 
 interface Props {
   accessibility: AccessibilityInfoV2Dto;
+  showLabel?: boolean;
 }
 
-export default function AccessibilitySummarySection({accessibility}: Props) {
+export default function AccessibilitySummarySection({
+  accessibility,
+  showLabel,
+}: Props) {
   const summary = generateSummary(accessibility);
 
   if (!summary) {
@@ -25,6 +29,7 @@ export default function AccessibilitySummarySection({accessibility}: Props) {
 
   return (
     <Container>
+      {showLabel && <LabelText>AI 요약</LabelText>}
       <SummaryText>{summary}</SummaryText>
     </Container>
   );
@@ -116,6 +121,14 @@ const Container = styled.View`
   background-color: ${color.brand5};
   border-radius: 12px;
   padding: 16px;
+  gap: 8px;
+`;
+
+const LabelText = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 12px;
+  line-height: 16px;
+  color: ${color.gray50};
 `;
 
 const SummaryText = styled.Text`
