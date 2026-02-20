@@ -59,7 +59,7 @@ export default function V2ReviewTab({
       <EmptyStateContainer>
         <EmptyStateTextBlock>
           <EmptyStateTitle>
-            {'아직 등록된  방문 리뷰가 없어요🥲'}
+            {'아직 등록된 방문 리뷰가 없어요🥲'}
           </EmptyStateTitle>
           <EmptyStateDescription>
             {

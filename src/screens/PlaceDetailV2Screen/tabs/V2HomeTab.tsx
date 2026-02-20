@@ -217,7 +217,7 @@ export default function V2HomeTab({
           )}
         </SectionHeader>
         {hasAccessibility ? (
-          <>
+          <SectionContainer>
             <AccessibilitySummarySection
               accessibility={accessibility!}
               showLabel
@@ -284,11 +284,11 @@ export default function V2HomeTab({
                 />
               </>
             )}
-          </>
+          </SectionContainer>
         ) : (
           <EmptyCard>
             <EmptyCardTitle>
-              {'아직 등록된  접근성 정보가 없어요🥲'}
+              {'아직 등록된 접근성 정보가 없어요🥲'}
             </EmptyCardTitle>
             <EmptyCardDescription>
               {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
@@ -395,7 +395,7 @@ export default function V2HomeTab({
         ) : (
           <EmptyCard>
             <EmptyCardTitle>
-              {'아직 등록된  방문 리뷰가 없어요🥲'}
+              {'아직 등록된 방문 리뷰가 없어요🥲'}
             </EmptyCardTitle>
             <EmptyCardDescription>
               {
@@ -910,6 +910,11 @@ const SectionHeader = styled.View`
   align-items: center;
   justify-content: space-between;
 `;
+
+const SectionContainer = styled.View`
+  flex-direction: column;
+  gap: 40px;
+`
 
 const SectionTitle = styled.Text`
   font-family: ${font.pretendardSemibold};

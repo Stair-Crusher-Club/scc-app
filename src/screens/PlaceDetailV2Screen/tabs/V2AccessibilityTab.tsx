@@ -56,7 +56,7 @@ export default function V2AccessibilityTab({
       <EmptyStateContainer>
         <EmptyStateTextBlock>
           <EmptyStateTitle>
-            {'아직 등록된  접근성 정보가 없어요🥲'}
+            {'아직 등록된 접근성 정보가 없어요🥲'}
           </EmptyStateTitle>
           <EmptyStateDescription>
             {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
