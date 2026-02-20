@@ -914,7 +914,7 @@ const SectionHeader = styled.View`
 const SectionContainer = styled.View`
   flex-direction: column;
   gap: 40px;
-`
+`;
 
 const SectionTitle = styled.Text`
   font-family: ${font.pretendardSemibold};

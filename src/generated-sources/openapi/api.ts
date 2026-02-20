@@ -4617,10 +4617,10 @@ export interface RegisterPlaceAccessibilityRequestDtoV2 {
     'entranceComment'?: string;
     /**
      * 
-     * @type {FloorMovingMethodTypeDto}
+     * @type {Array<FloorMovingMethodTypeDto>}
      * @memberof RegisterPlaceAccessibilityRequestDtoV2
      */
-    'floorMovingMethodType'?: FloorMovingMethodTypeDto;
+    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
     /**
      * 
      * @type {string}
