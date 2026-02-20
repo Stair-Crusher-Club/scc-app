@@ -562,7 +562,7 @@ export default function PlaceDetailV2Screen({
 
   return (
     <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
-      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
+      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <GestureHandlerRootView style={{flex: 1}}>
           <V2AppBar
             isFavorite={place.isFavorite}

@@ -2688,6 +2688,12 @@ export interface ImageDto {
      * @memberof ImageDto
      */
     'thumbnailUrl'?: string;
+    /**
+     * 사진 출처 정보 (예: \"사진 제공: 홍길동\"). 없으면 null.
+     * @type {string}
+     * @memberof ImageDto
+     */
+    'sourceAttribution'?: string;
 }
 /**
  * 
@@ -3565,6 +3571,18 @@ export interface PlaceAccessibility {
      */
     'entranceDoorTypes'?: Array<EntranceDoorType>;
     /**
+     * 독립 건물 여부 (매장이 건물 전체를 차지하는 경우)
+     * @type {boolean}
+     * @memberof PlaceAccessibility
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof PlaceAccessibility
+     */
+    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
+    /**
      * 익명으로 등록되었으면 null.
      * @type {string}
      * @memberof PlaceAccessibility
@@ -3594,18 +3612,6 @@ export interface PlaceAccessibility {
      * @memberof PlaceAccessibility
      */
     'totalUpvoteCount': number;
-    /**
-     * 단독 건물 여부 (해당 장소가 건물 전체를 차지하는지). V2로 등록된 접근성만 값이 존재.
-     * @type {boolean}
-     * @memberof PlaceAccessibility
-     */
-    'isStandaloneBuilding'?: boolean;
-    /**
-     * 
-     * @type {PlaceDoorDirectionTypeDto}
-     * @memberof PlaceAccessibility
-     */
-    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
     /**
      * 
      * @type {EpochMillisTimestamp}
@@ -5356,6 +5362,44 @@ export const StairInfo = {
 export type StairInfo = typeof StairInfo[keyof typeof StairInfo];
 
 
+/**
+ * 
+ * @export
+ * @interface SuggestPlacesRequestDto
+ */
+export interface SuggestPlacesRequestDto {
+    /**
+     * 자동완성 검색어 prefix
+     * @type {string}
+     * @memberof SuggestPlacesRequestDto
+     */
+    'query': string;
+    /**
+     * 
+     * @type {Location}
+     * @memberof SuggestPlacesRequestDto
+     */
+    'currentLocation'?: Location;
+    /**
+     * 현재 위치 기준 검색 반경 (미터)
+     * @type {number}
+     * @memberof SuggestPlacesRequestDto
+     */
+    'distanceMetersLimit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface SuggestPlacesResponseDto
+ */
+export interface SuggestPlacesResponseDto {
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof SuggestPlacesResponseDto
+     */
+    'items': Array<PlaceListItem>;
+}
 /**
  * 
  * @export
@@ -9087,6 +9131,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+         * @summary 장소 자동완성 제안을 반환한다.
+         * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        suggestPlacesPost: async (suggestPlacesRequestDto: SuggestPlacesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'suggestPlacesRequestDto' is not null or undefined
+            assertParamExists('suggestPlacesPost', 'suggestPlacesRequestDto', suggestPlacesRequestDto)
+            const localVarPath = `/suggestPlaces`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(suggestPlacesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에서 제거한다.
          * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
@@ -10196,6 +10280,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+         * @summary 장소 자동완성 제안을 반환한다.
+         * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuggestPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.suggestPlacesPost(suggestPlacesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에서 제거한다.
          * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
@@ -11051,6 +11146,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         signUpPost(signUpPostRequest: SignUpPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.signUpPost(signUpPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+         * @summary 장소 자동완성 제안을 반환한다.
+         * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: any): AxiosPromise<SuggestPlacesResponseDto> {
+            return localVarFp.suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12057,6 +12162,18 @@ export class DefaultApi extends BaseAPI {
      */
     public signUpPost(signUpPostRequest: SignUpPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).signUpPost(signUpPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+     * @summary 장소 자동완성 제안을 반환한다.
+     * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

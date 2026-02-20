@@ -1,9 +1,10 @@
 import React from 'react';
 import {Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
-import FlagIcon from '@/assets/icon/menu_ic_flag.svg';
+import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
@@ -35,6 +36,7 @@ export default function V2BottomBar({
   onPressSiren,
 }: Props) {
   const checkAuth = useCheckAuth();
+  const insets = useSafeAreaInsets();
 
   const hasAccessibility =
     !!accessibility?.placeAccessibility ||
@@ -60,14 +62,14 @@ export default function V2BottomBar({
   };
 
   return (
-    <Container>
+    <Container bottomInset={insets.bottom}>
       <ButtonRow>
         {hasAccessibility && (
           <UpvoteButton
             elementName="v2_place_detail_bottom_bar_upvote_button"
             onPress={handleUpvote}>
             <ThumbsUpYellowIcon width={16} height={16} />
-            <UpvoteText>
+            <UpvoteText numberOfLines={1}>
               도움돼요
               {(totalUpvoteCount ?? 0) > 0 ? ` ${totalUpvoteCount}` : ''}
             </UpvoteText>
@@ -77,13 +79,13 @@ export default function V2BottomBar({
           elementName="v2_place_detail_bottom_bar_register_button"
           onPress={onPressRegister}>
           <FlagIcon width={16} height={16} />
-          <ActionButtonText>정보등록</ActionButtonText>
+          <ActionButtonText numberOfLines={1}>정보등록</ActionButtonText>
         </ActionButton>
         <ActionButton
           elementName="v2_place_detail_bottom_bar_review_button"
           onPress={onPressWriteReview}>
           <PencilIcon width={16} height={16} />
-          <ActionButtonText>리뷰작성</ActionButtonText>
+          <ActionButtonText numberOfLines={1}>리뷰작성</ActionButtonText>
         </ActionButton>
         <SirenButton
           elementName="v2_place_detail_bottom_bar_siren_button"
@@ -95,7 +97,7 @@ export default function V2BottomBar({
   );
 }
 
-const Container = styled.View`
+const Container = styled.View<{bottomInset: number}>`
   background-color: ${color.white};
   shadow-color: #000;
   shadow-offset: 0px -4px;
@@ -103,7 +105,7 @@ const Container = styled.View`
   shadow-radius: 16px;
   elevation: 8;
   padding-top: 12px;
-  padding-bottom: 24px;
+  padding-bottom: ${({bottomInset}) => 24 + bottomInset}px;
   padding-horizontal: 20px;
 `;
 
@@ -119,8 +121,10 @@ const UpvoteButton = styled(SccPressable)`
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 12px 28px;
+  height: 44px;
+  padding: 0px 8px;
   border-radius: 8px;
+  overflow: hidden;
   background-color: ${color.brand40};
 `;
 
@@ -129,6 +133,7 @@ const UpvoteText = styled.Text`
   font-size: 14px;
   line-height: 20px;
   color: ${color.white};
+  flex-shrink: 1;
 `;
 
 const ActionButton = styled(SccPressable)`
@@ -137,8 +142,10 @@ const ActionButton = styled(SccPressable)`
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 12px 28px;
+  height: 44px;
+  padding: 0px 8px;
   border-radius: 8px;
+  overflow: hidden;
   background-color: ${color.gray15};
 `;
 
@@ -147,6 +154,7 @@ const ActionButtonText = styled.Text`
   font-size: 14px;
   line-height: 20px;
   color: #24262b;
+  flex-shrink: 1;
 `;
 
 const SirenButton = styled(SccPressable)`

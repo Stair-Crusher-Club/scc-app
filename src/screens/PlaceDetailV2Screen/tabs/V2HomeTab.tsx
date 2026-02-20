@@ -77,6 +77,20 @@ export default function V2HomeTab({
   const hasAccessibility = !!accessibility?.placeAccessibility;
   const hasBuildingAccessibility = !!accessibility?.buildingAccessibility;
 
+  // V2 건물유형 분기 필드
+  const placeAcc = accessibility?.placeAccessibility;
+  const isStandalone = placeAcc?.isStandaloneBuilding === true;
+  const doorDir = placeAcc?.doorDirectionType;
+  const floors = placeAcc?.floors ?? [];
+  const isMultiFloor = floors.length > 1;
+  const hasV2Fields = placeAcc?.isStandaloneBuilding != null && doorDir != null;
+  const isInsideDoor = doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
+  // "층간 이동 정보"는 여러층일 때만 표시
+  const showFloorMovement = isMultiFloor;
+  // "내부 이용 정보"는 단독건물이거나, 내부문이거나, 여러층일 때 표시 (V2 미적용 데이터는 항상 표시)
+  const showIndoorInfo =
+    !hasV2Fields || isStandalone || isInsideDoor || isMultiFloor;
+
   // ── 가게정보 helpers ──
   const onCopy = () => {
     Clipboard.setString(place.address);
@@ -198,6 +212,9 @@ export default function V2HomeTab({
       <Section>
         <SectionHeader>
           <SectionTitle>접근성</SectionTitle>
+          {hasAccessibility && (
+            <ConquerorText>{formatConquerorText(accessibility)}</ConquerorText>
+          )}
         </SectionHeader>
         {hasAccessibility ? (
           <>
@@ -206,54 +223,67 @@ export default function V2HomeTab({
               showLabel
             />
 
+            {/* 층 정보 (항상 첫 번째) */}
             <FloorInfoRow accessibility={accessibility} />
 
-            {/* 3a. 건물 출입구 */}
-            {hasBuildingAccessibility &&
-              accessibility?.buildingAccessibility && (
-                <AccessibilitySubSection>
-                  <SubSectionHeader>
-                    <SubSectionTitle>건물 출입구</SubSectionTitle>
-                    <SubSectionDate>{buildingDate}</SubSectionDate>
-                  </SubSectionHeader>
-
-                  <PhotoRow
-                    images={[
-                      ...(accessibility.buildingAccessibility.entranceImages ??
-                        []),
-                      ...(accessibility.buildingAccessibility.elevatorImages ??
-                        []),
-                    ]}
-                  />
-
-                  <InfoRowsContainer>
-                    <BuildingEntranceInfoRows accessibility={accessibility} />
-                    <BuildingElevatorInfoRow accessibility={accessibility} />
-                    <BuildingDoorInfoRow accessibility={accessibility} />
-                    <BuildingDoorDirectionInfoRow
+            {hasV2Fields ? (
+              <>
+                {isStandalone ? (
+                  <>
+                    {/* 단독건물: 매장(건물 출입구) */}
+                    <HomeStoreSectionBlock
+                      title="매장(건물 출입구)"
+                      placeDate={placeDate}
                       accessibility={accessibility}
                     />
-                  </InfoRowsContainer>
-                </AccessibilitySubSection>
-              )}
-
-            {/* 3b. 매장 출입구 */}
-            <AccessibilitySubSection>
-              <SubSectionHeader>
-                <SubSectionTitle>매장 출입구</SubSectionTitle>
-                <SubSectionDate>{placeDate}</SubSectionDate>
-              </SubSectionHeader>
-
-              <PhotoRow
-                images={accessibility!.placeAccessibility!.images ?? []}
-              />
-
-              <InfoRowsContainer>
-                <PlaceEntranceInfoRows accessibility={accessibility} />
-                <PlaceDoorInfoRow accessibility={accessibility} />
-                <PlaceDoorDirectionInfoRow accessibility={accessibility} />
-              </InfoRowsContainer>
-            </AccessibilitySubSection>
+                    {showFloorMovement && <HomeFloorMovementBlock />}
+                  </>
+                ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
+                  <>
+                    {/* 비단독 + 외부문 */}
+                    <HomeStoreSectionBlock
+                      title="매장 출입구"
+                      placeDate={placeDate}
+                      accessibility={accessibility}
+                    />
+                    {showFloorMovement && <HomeFloorMovementBlock />}
+                  </>
+                ) : (
+                  <>
+                    {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
+                    {hasBuildingAccessibility &&
+                      accessibility?.buildingAccessibility && (
+                        <HomeBuildingSectionBlock
+                          buildingDate={buildingDate}
+                          accessibility={accessibility}
+                        />
+                      )}
+                    <HomeStoreSectionBlock
+                      title="매장 출입구"
+                      placeDate={placeDate}
+                      accessibility={accessibility}
+                    />
+                    {showFloorMovement && <HomeFloorMovementBlock />}
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Fallback: V2 필드 없는 기존 데이터 */}
+                {hasBuildingAccessibility &&
+                  accessibility?.buildingAccessibility && (
+                    <HomeBuildingSectionBlock
+                      buildingDate={buildingDate}
+                      accessibility={accessibility}
+                    />
+                  )}
+                <HomeStoreSectionBlock
+                  title="매장 출입구"
+                  placeDate={placeDate}
+                  accessibility={accessibility}
+                />
+              </>
+            )}
           </>
         ) : (
           <EmptyCard>
@@ -278,8 +308,8 @@ export default function V2HomeTab({
       {/* ── 4. Thick Divider ── */}
       <ThickDivider />
 
-      {/* ── 5. 내부공간 섹션 ── */}
-      {hasIndoorData && (
+      {/* ── 5. 내부공간 섹션 (V2: 단독건물/내부문/여러층일 때만 표시) ── */}
+      {hasIndoorData && showIndoorInfo && (
         <>
           <Section>
             <SectionHeader>
@@ -430,6 +460,29 @@ export default function V2HomeTab({
       <BottomPadding />
     </Container>
   );
+}
+
+// ──────────────── Helpers ────────────────
+
+function formatConquerorText(accessibility?: AccessibilityInfoV2Dto): string {
+  const names: string[] = [];
+  if (accessibility?.placeAccessibility?.registeredUserName) {
+    names.push(accessibility.placeAccessibility.registeredUserName);
+  }
+  if (accessibility?.buildingAccessibility?.registeredUserName) {
+    const buildingName = accessibility.buildingAccessibility.registeredUserName;
+    if (!names.includes(buildingName)) {
+      names.push(buildingName);
+    }
+  }
+
+  if (names.length === 0) {
+    return '정복자 익명 비밀요원';
+  }
+  if (names.length === 1) {
+    return `정복자 ${names[0]}`;
+  }
+  return `정복자 ${names[0]} 외 ${names.length - 1}명`;
 }
 
 // ──────────────── Sub-components ────────────────
@@ -645,14 +698,104 @@ function FloorInfoRow({
     return null;
   }
   const floorInfo = getFloorAccessibility(accessibility as any);
+  const floorDate = dayjs(
+    accessibility.placeAccessibility.createdAt.value,
+  ).format('YYYY.MM.DD');
   return (
-    <InfoRowsContainer>
-      <InfoRow
-        label="층 정보"
-        value={floorInfo.title}
-        subValue={floorInfo.description}
+    <AccessibilitySubSection>
+      <SubSectionHeader>
+        <SubSectionTitle>층 정보</SubSectionTitle>
+        <SubSectionDate>{floorDate}</SubSectionDate>
+      </SubSectionHeader>
+      <InfoRowsContainer>
+        <InfoRow
+          label="층 정보"
+          value={floorInfo.title}
+          subValue={floorInfo.description}
+        />
+      </InfoRowsContainer>
+    </AccessibilitySubSection>
+  );
+}
+
+// ── 홈탭 접근성 섹션 블록 컴포넌트 ──
+
+function HomeBuildingSectionBlock({
+  buildingDate,
+  accessibility,
+}: {
+  buildingDate: string;
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  if (!accessibility?.buildingAccessibility) {
+    return null;
+  }
+  return (
+    <AccessibilitySubSection>
+      <SubSectionHeader>
+        <SubSectionTitle>건물 출입구</SubSectionTitle>
+        <SubSectionDate>{buildingDate}</SubSectionDate>
+      </SubSectionHeader>
+
+      <PhotoRow
+        images={[
+          ...(accessibility.buildingAccessibility.entranceImages ?? []),
+          ...(accessibility.buildingAccessibility.elevatorImages ?? []),
+        ]}
       />
-    </InfoRowsContainer>
+
+      <InfoRowsContainer>
+        <BuildingEntranceInfoRows accessibility={accessibility} />
+        <BuildingElevatorInfoRow accessibility={accessibility} />
+        <BuildingDoorInfoRow accessibility={accessibility} />
+        <BuildingDoorDirectionInfoRow accessibility={accessibility} />
+      </InfoRowsContainer>
+    </AccessibilitySubSection>
+  );
+}
+
+function HomeStoreSectionBlock({
+  title,
+  placeDate,
+  accessibility,
+}: {
+  title: string;
+  placeDate: string;
+  accessibility?: AccessibilityInfoV2Dto;
+}) {
+  if (!accessibility?.placeAccessibility) {
+    return null;
+  }
+  return (
+    <AccessibilitySubSection>
+      <SubSectionHeader>
+        <SubSectionTitle>{title}</SubSectionTitle>
+        <SubSectionDate>{placeDate}</SubSectionDate>
+      </SubSectionHeader>
+
+      <PhotoRow images={accessibility.placeAccessibility.images ?? []} />
+
+      <InfoRowsContainer>
+        <PlaceEntranceInfoRows accessibility={accessibility} />
+        <PlaceDoorInfoRow accessibility={accessibility} />
+        <PlaceDoorDirectionInfoRow accessibility={accessibility} />
+      </InfoRowsContainer>
+    </AccessibilitySubSection>
+  );
+}
+
+function HomeFloorMovementBlock() {
+  return (
+    <AccessibilitySubSection>
+      <SubSectionHeader>
+        <SubSectionTitle>층간 이동 정보</SubSectionTitle>
+      </SubSectionHeader>
+      <FloorMovementEmptyContainer>
+        <FloorMovementEmptyText>
+          아직 등록된 층간 이동 정보가 없어요
+        </FloorMovementEmptyText>
+      </FloorMovementEmptyContainer>
+    </AccessibilitySubSection>
   );
 }
 
@@ -774,6 +917,16 @@ const SectionTitle = styled.Text`
   line-height: 26px;
   letter-spacing: -0.36px;
   color: ${color.gray90};
+`;
+
+const ConquerorText = styled.Text`
+  flex: 1;
+  font-family: ${font.pretendardRegular};
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.24px;
+  color: #767884;
+  text-align: right;
 `;
 
 const MoreButton = styled(SccTouchableOpacity)`
@@ -999,6 +1152,23 @@ const ToiletDivider = styled.View`
 const ThickDivider = styled.View`
   height: 6px;
   background-color: ${color.gray5};
+`;
+
+/* 층간 이동 정보 빈 상태 */
+const FloorMovementEmptyContainer = styled.View`
+  background-color: ${color.gray5};
+  border-radius: 12px;
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+`;
+
+const FloorMovementEmptyText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.28px;
+  color: ${color.gray50};
 `;
 
 /* Bottom Padding */

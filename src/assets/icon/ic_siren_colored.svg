@@ -1,7 +1,12 @@
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g transform="translate(3.5, 2.5)">
-    <path d="M0.75 6.16667C0.75 3.17512 3.17512 0.75 6.16667 0.75C9.15821 0.75 11.5833 3.17512 11.5833 6.16667V12H0.75V6.16667Z" stroke="#16181C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.25 -1.75C9 -1.75 7.33333 -1.33333 6.91667 0.75" stroke="#16181C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Base bar -->
+  <rect x="2.917" y="13.75" width="14.167" height="3.333" stroke="#16181C" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dome -->
+  <g transform="translate(3.833, 1.75)">
+    <path d="M0.75 6.16667C0.75 3.17512 3.17512 0.75 6.16667 0.75C9.15821 0.75 11.5833 3.17512 11.5833 6.16667V12H0.75V6.16667Z" stroke="#16181C" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <line x1="2" y1="16.25" x2="18" y2="16.25" stroke="#16181C" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Bell curve -->
+  <g transform="translate(5.917, 3.833)">
+    <path d="M4.08348 0.75C2.83348 0.75 1.16681 1.167 0.75 3.25" stroke="#16181C" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

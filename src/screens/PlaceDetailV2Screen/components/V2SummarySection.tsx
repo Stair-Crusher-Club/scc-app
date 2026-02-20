@@ -3,12 +3,12 @@ import {LayoutChangeEvent, Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
-import FlagIcon from '@/assets/icon/menu_ic_flag.svg';
+import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
+import ReviewOutlineIcon from '@/assets/icon/ic_review_outline.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
 import ThumbsUpIcon from '@/assets/icon/ic_thumbsup_colored.svg';
 import {SccPressable} from '@/components/SccPressable';
-import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -111,13 +111,30 @@ export default function V2SummarySection({
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
       {accessibility?.placeAccessibility && (
-        <TagsContainer>
-          <Tags
-            texts={tagTexts}
-            hasReview={hasReview}
-            reviewCount={reviewCount}
-          />
-        </TagsContainer>
+        <V2TagsRow>
+          {tagTexts.map((text, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && <V2TagDot />}
+              <V2TagText>{text}</V2TagText>
+            </React.Fragment>
+          ))}
+          {hasReview && (
+            <>
+              {tagTexts.length > 0 && <V2TagDot />}
+              <V2ReviewContainer>
+                <ReviewOutlineIcon
+                  width={16}
+                  height={16}
+                  color={color.gray60}
+                />
+                <V2TagText>
+                  {'리뷰 '}
+                  <V2ReviewCount>{reviewCount}</V2ReviewCount>
+                </V2TagText>
+              </V2ReviewContainer>
+            </>
+          )}
+        </V2TagsRow>
       )}
       <ActionButtonsRow>
         <RegisterButton
@@ -187,8 +204,40 @@ const PlaceName = styled.Text`
   color: ${color.black};
 `;
 
-const TagsContainer = styled.View`
+const V2TagsRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
   margin-top: 6px;
+`;
+
+const V2TagDot = styled.View`
+  width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: ${color.gray30};
+`;
+
+const V2TagText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.26px;
+  color: ${color.gray60};
+`;
+
+const V2ReviewContainer = styled.View`
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 2px;
+`;
+
+const V2ReviewCount = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.26px;
+  color: ${color.brand50};
 `;
 
 const ActionButtonsRow = styled.View`

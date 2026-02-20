@@ -79,10 +79,7 @@ export default function V2AccessibilityTab({
   const isStandalone = placeAccessibility.isStandaloneBuilding === true;
   const doorDir = placeAccessibility.doorDirectionType;
   const floors = placeAccessibility.floors ?? [];
-  const isFirstFloor =
-    floors.length > 0
-      ? floors.length === 1 && floors[0] === 1
-      : placeAccessibility.isFirstFloor === true;
+  const isMultiFloor = floors.length > 1;
   const hasV2Fields =
     placeAccessibility.isStandaloneBuilding != null && doorDir != null;
 
@@ -93,14 +90,14 @@ export default function V2AccessibilityTab({
     if (isStandalone) {
       // 단독건물: 매장(건물 출입구)
       chips.push('매장(건물 출입구)');
-      if (!isFirstFloor) {
+      if (isMultiFloor) {
         chips.push('층간 이동 정보');
       }
       chips.push('내부 이용 정보');
     } else if (doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding) {
       // 비단독 + 외부문
       chips.push('매장 출입구');
-      if (!isFirstFloor) {
+      if (isMultiFloor) {
         chips.push('층간 이동 정보');
         chips.push('내부 이용 정보');
       }
@@ -108,7 +105,7 @@ export default function V2AccessibilityTab({
       // 비단독 + 내부문 (INSIDE_BUILDING)
       chips.push('건물 출입구');
       chips.push('매장 출입구');
-      if (!isFirstFloor) {
+      if (isMultiFloor) {
         chips.push('층간 이동 정보');
       }
       chips.push('내부 이용 정보');
@@ -187,7 +184,7 @@ export default function V2AccessibilityTab({
                   accessibility={accessibility}
                   placeComments={placeComments}
                 />
-                {!isFirstFloor && <FloorMovementSection />}
+                {isMultiFloor && <FloorMovementSection />}
                 <IndoorInfoSection reviews={reviews} />
               </>
             ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
@@ -200,7 +197,7 @@ export default function V2AccessibilityTab({
                   accessibility={accessibility}
                   placeComments={placeComments}
                 />
-                {!isFirstFloor && (
+                {isMultiFloor && (
                   <>
                     <FloorMovementSection />
                     <IndoorInfoSection reviews={reviews} />
@@ -225,7 +222,7 @@ export default function V2AccessibilityTab({
                   accessibility={accessibility}
                   placeComments={placeComments}
                 />
-                {!isFirstFloor && <FloorMovementSection />}
+                {isMultiFloor && <FloorMovementSection />}
                 <IndoorInfoSection reviews={reviews} />
               </>
             )}
