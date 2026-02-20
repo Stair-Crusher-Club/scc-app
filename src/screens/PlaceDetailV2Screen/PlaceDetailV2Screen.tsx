@@ -52,10 +52,10 @@ import {PlaceDetailFeedbackSection} from '../PlaceDetailScreen/sections/PlaceDet
 import V2HomeTab from './tabs/V2HomeTab';
 import V2AccessibilityTab from './tabs/V2AccessibilityTab';
 import V2ReviewTab from './tabs/V2ReviewTab';
-import PlaceDetailRestroomTab from '../PlaceDetailScreen/tabs/PlaceDetailRestroomTab';
+import PlaceDetailRestroomTab from './tabs/PlaceDetailRestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
 import V2BottomBar from './components/V2BottomBar';
-import PlaceDetailRegistrationSheet from '../PlaceDetailScreen/tabs/PlaceDetailRegistrationSheet';
+import PlaceDetailRegistrationSheet from './tabs/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
   placeInfo:

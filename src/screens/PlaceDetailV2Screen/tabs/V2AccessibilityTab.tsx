@@ -29,7 +29,7 @@ import {
   getStairDescription,
   EntranceStepType,
   ElevatorType,
-} from '../../PlaceDetailScreen/components/PlaceInfo.utils';
+} from '../components/PlaceInfo.utils';
 
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;

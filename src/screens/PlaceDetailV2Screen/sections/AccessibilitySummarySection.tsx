@@ -125,10 +125,10 @@ const Container = styled.View`
 `;
 
 const LabelText = styled.Text`
-  font-family: ${font.pretendardMedium};
+  font-family: ${font.pretendardBold};
   font-size: 12px;
   line-height: 16px;
-  color: ${color.gray50};
+  color: ${color.brand50};
 `;
 
 const SummaryText = styled.Text`

@@ -26,7 +26,7 @@ import useNavigation from '@/navigation/useNavigation';
 import {SEAT_TYPE_OPTIONS} from '@/screens/PlaceReviewFormScreen/constants';
 import ToastUtils from '@/utils/ToastUtils';
 
-import AccessibilitySummarySection from '../../PlaceDetailScreen/sections/AccessibilitySummarySection';
+import AccessibilitySummarySection from '../sections/AccessibilitySummarySection';
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
@@ -38,7 +38,7 @@ import {
   getStairDescription,
   EntranceStepType,
   ElevatorType,
-} from '../../PlaceDetailScreen/components/PlaceInfo.utils';
+} from '../components/PlaceInfo.utils';
 
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;

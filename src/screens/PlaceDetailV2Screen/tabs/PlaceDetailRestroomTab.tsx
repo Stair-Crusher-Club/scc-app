@@ -12,7 +12,7 @@ import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
-import PlaceDetailPlaceToiletReviewItem from '../components/PlaceToiletReviewItem';
+import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 
 interface Props {
   toiletReviews: ToiletReviewDto[];
