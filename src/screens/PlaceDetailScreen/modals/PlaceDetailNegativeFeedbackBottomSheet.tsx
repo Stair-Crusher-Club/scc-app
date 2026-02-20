@@ -45,7 +45,12 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   }, []);
 
   return (
-    <BottomSheet isVisible={isVisible}>
+    <BottomSheet
+      isVisible={isVisible}
+      onPressBackground={() => {
+        onClear();
+        onPressCloseButton();
+      }}>
       <ContentsContainer>
         <Title>
           {step === 'select'
