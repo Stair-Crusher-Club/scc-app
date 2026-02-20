@@ -83,6 +83,7 @@ const Container = styled.View`
   background-color: ${color.white};
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
+  padding-top: 12px;
 `;
 
 const MenuItem = styled(SccPressable)`
