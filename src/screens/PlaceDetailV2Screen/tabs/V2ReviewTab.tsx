@@ -3,8 +3,6 @@ import {Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {Place, PlaceReviewDto} from '@/generated-sources/openapi';
@@ -14,6 +12,7 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
+import {StrokeCTAButton} from '../components/AccessibilityInfoComponents';
 
 interface Props {
   reviews: PlaceReviewDto[];
@@ -67,12 +66,11 @@ export default function V2ReviewTab({
             }
           </EmptyStateDescription>
         </EmptyStateTextBlock>
-        <EmptyStateCTAButton
+        <StrokeCTAButton
+          text="내부 리뷰 작성하기"
+          onPress={handleReviewPress}
           elementName="v2_review_tab_empty_write"
-          onPress={handleReviewPress}>
-          <PlusIcon width={20} height={20} color={color.brand40} />
-          <EmptyStateCTAText>내부 리뷰 작성하기</EmptyStateCTAText>
-        </EmptyStateCTAButton>
+        />
         {LocationConfirmModal}
       </EmptyStateContainer>
     );
@@ -163,23 +161,3 @@ const EmptyStateDescription = styled.Text`
   text-align: center;
 `;
 
-const EmptyStateCTAButton = styled(SccTouchableOpacity)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background-color: ${color.white};
-  border-width: 1px;
-  border-color: ${color.brand40};
-  border-radius: 8px;
-  padding-vertical: 12px;
-  padding-horizontal: 28px;
-`;
-
-const EmptyStateCTAText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.brand40};
-`;

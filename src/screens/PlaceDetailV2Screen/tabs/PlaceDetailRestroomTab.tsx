@@ -3,8 +3,6 @@ import {Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ToiletReviewDto, Location} from '@/generated-sources/openapi';
@@ -13,6 +11,7 @@ import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
+import {StrokeCTAButton} from '../components/AccessibilityInfoComponents';
 
 interface Props {
   toiletReviews: ToiletReviewDto[];
@@ -72,12 +71,11 @@ export default function PlaceDetailRestroomTab({
             }
           </EmptyStateDescription>
         </EmptyStateTextBlock>
-        <EmptyStateCTAButton
+        <StrokeCTAButton
+          text="장애인 화장실 정보 등록"
+          onPress={handleToiletReviewPress}
           elementName="place_detail_restroom_tab_empty_register"
-          onPress={handleToiletReviewPress}>
-          <PlusIcon width={20} height={20} color={color.brand40} />
-          <EmptyStateCTAText>장애인 화장실 정보 등록</EmptyStateCTAText>
-        </EmptyStateCTAButton>
+        />
         {LocationConfirmModal}
       </EmptyStateContainer>
     );
@@ -144,27 +142,6 @@ const EmptyStateDescription = styled.Text`
   letter-spacing: -0.3px;
   color: ${color.gray50};
   text-align: center;
-`;
-
-const EmptyStateCTAButton = styled(SccTouchableOpacity)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background-color: ${color.white};
-  border-width: 1px;
-  border-color: ${color.brand40};
-  border-radius: 8px;
-  padding-vertical: 12px;
-  padding-horizontal: 28px;
-`;
-
-const EmptyStateCTAText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.brand40};
 `;
 
 const ItemList = styled.View`

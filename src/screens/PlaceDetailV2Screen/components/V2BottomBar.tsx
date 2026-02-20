@@ -101,17 +101,19 @@ const UpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 44px;
-  padding: 0px 8px;
+  padding: 12px 0px;
   border-radius: 8px;
   overflow: hidden;
   background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : color.brand40)};
 `;
 
-const UpvoteText = styled.Text<{isUpvoted: boolean}>`
+const UpvoteText = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})<{isUpvoted: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
   line-height: 20px;
+  letter-spacing: -0.28px;
   color: ${({isUpvoted}) => (isUpvoted ? '#000000' : color.white)};
   flex-shrink: 1;
 `;
@@ -122,17 +124,19 @@ const ActionButton = styled(SccPressable)`
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 44px;
-  padding: 0px 8px;
+  padding: 12px 0px;
   border-radius: 8px;
   overflow: hidden;
   background-color: ${color.gray15};
 `;
 
-const ActionButtonText = styled.Text`
+const ActionButtonText = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
   line-height: 20px;
+  letter-spacing: -0.28px;
   color: #24262b;
   flex-shrink: 1;
 `;

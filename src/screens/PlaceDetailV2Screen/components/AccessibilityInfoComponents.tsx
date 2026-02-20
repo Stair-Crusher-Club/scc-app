@@ -3,7 +3,7 @@ import React from 'react';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
+import PlusStrokeIcon from '@/assets/icon/ic_plus_stroke.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -308,6 +308,32 @@ export function FloorInfoRow({
   );
 }
 
+// ──────────────── StrokeCTAButton (H-48px Stroke + Left icon) ────────────────
+
+export function StrokeCTAButton({
+  text,
+  onPress,
+  elementName,
+  fullWidth = false,
+}: {
+  text: string;
+  onPress?: () => void;
+  elementName: string;
+  fullWidth?: boolean;
+}) {
+  return (
+    <StrokeCTAContainer
+      elementName={elementName}
+      onPress={onPress}
+      style={fullWidth ? {width: '100%'} : undefined}>
+      <StrokeCTAContent>
+        <PlusStrokeIcon width={20} height={20} color={color.brand40} />
+        <StrokeCTAText>{text}</StrokeCTAText>
+      </StrokeCTAContent>
+    </StrokeCTAContainer>
+  );
+}
+
 // ──────────────── EmptyStateCard ────────────────
 
 export function EmptyStateCard({
@@ -315,22 +341,24 @@ export function EmptyStateCard({
   description,
   buttonText,
   onPress,
+  elementName = 'empty_state_card_cta',
 }: {
   title: string;
   description: string;
   buttonText: string;
   onPress?: () => void;
+  elementName?: string;
 }) {
   return (
     <EmptyStateCardContainer>
       <EmptyStateCardTitle>{title}</EmptyStateCardTitle>
       <EmptyStateCardDescription>{description}</EmptyStateCardDescription>
-      <EmptyStateCardButton
-        elementName="empty_state_card_cta"
-        onPress={onPress}>
-        <PlusIcon width={20} height={20} color={color.brand40} />
-        <EmptyStateCardButtonText>{buttonText}</EmptyStateCardButtonText>
-      </EmptyStateCardButton>
+      <StrokeCTAButton
+        text={buttonText}
+        onPress={onPress}
+        elementName={elementName}
+        fullWidth
+      />
     </EmptyStateCardContainer>
   );
 }
@@ -364,20 +392,27 @@ const EmptyStateCardDescription = styled.Text`
   text-align: center;
 `;
 
-const EmptyStateCardButton = styled(SccTouchableOpacity)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+// StrokeCTAButton (Figma H-48px Stroke + Left icon)
+const StrokeCTAContainer = styled(SccTouchableOpacity)`
   background-color: ${color.white};
   border-width: 1px;
   border-color: ${color.brand40};
   border-radius: 8px;
   padding-vertical: 12px;
   padding-horizontal: 28px;
+  align-items: center;
+  justify-content: center;
 `;
 
-const EmptyStateCardButtonText = styled.Text`
+const StrokeCTAContent = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+`;
+
+const StrokeCTAText = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})`
   font-family: ${font.pretendardSemibold};
   font-size: 16px;
   line-height: 24px;

@@ -3,8 +3,6 @@ import React from 'react';
 import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
-import PlusIcon from '@/assets/icon/ic_plus.svg';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -19,6 +17,7 @@ import {
 import {
   InfoRow,
   InfoRowsContainer,
+  StrokeCTAButton,
 } from '../components/AccessibilityInfoComponents';
 import {
   BuildingEntranceSection,
@@ -59,12 +58,11 @@ export default function V2AccessibilityTab({
             {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
           </EmptyStateDescription>
         </EmptyStateTextBlock>
-        <EmptyStateCTAButton
+        <StrokeCTAButton
+          text="정보 등록하기"
+          onPress={onRegister}
           elementName="v2_accessibility_tab_empty_register"
-          onPress={onRegister}>
-          <PlusIcon width={20} height={20} color={color.brand40} />
-          <EmptyStateCTAText>정보 등록하기</EmptyStateCTAText>
-        </EmptyStateCTAButton>
+        />
       </EmptyStateContainer>
     );
   }
@@ -291,27 +289,6 @@ const EmptyStateDescription = styled.Text`
   letter-spacing: -0.3px;
   color: ${color.gray50};
   text-align: center;
-`;
-
-const EmptyStateCTAButton = styled(SccTouchableOpacity)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background-color: ${color.white};
-  border-width: 1px;
-  border-color: ${color.brand40};
-  border-radius: 8px;
-  padding-vertical: 12px;
-  padding-horizontal: 28px;
-`;
-
-const EmptyStateCTAText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.brand40};
 `;
 
 // 서브탭 칩

@@ -6,7 +6,6 @@ import styled from 'styled-components/native';
 
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
 import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
-import PlusIcon from '@/assets/icon/ic_plus.svg';
 import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -28,7 +27,10 @@ import AccessibilitySummarySection from '../sections/AccessibilitySummarySection
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
-import {FloorInfoRow} from '../components/AccessibilityInfoComponents';
+import {
+  FloorInfoRow,
+  StrokeCTAButton,
+} from '../components/AccessibilityInfoComponents';
 import {
   BuildingEntranceSection,
   BuildingEntranceEmptySection,
@@ -308,14 +310,12 @@ export default function V2HomeTab({
             <EmptyCardDescription>
               {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
             </EmptyCardDescription>
-            <CTAButton
+            <StrokeCTAButton
+              text="정보 등록하기"
+              onPress={onPressPlaceRegister}
               elementName="v2_home_tab_register_place"
-              onPress={onPressPlaceRegister}>
-              <CTAButtonContent>
-                <PlusIcon width={20} height={20} color={color.brand40} />
-                <CTAButtonText>정보 등록하기</CTAButtonText>
-              </CTAButtonContent>
-            </CTAButton>
+              fullWidth
+            />
           </EmptyCard>
         )}
       </Section>
@@ -374,14 +374,12 @@ export default function V2HomeTab({
                 '장소 내부 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'
               }
             </EmptyCardDescription>
-            <CTAButton
+            <StrokeCTAButton
+              text="내부 리뷰 작성하기"
+              onPress={onPressReviewRegister}
               elementName="v2_home_tab_register_review"
-              onPress={onPressReviewRegister}>
-              <CTAButtonContent>
-                <PlusIcon width={20} height={20} color={color.brand40} />
-                <CTAButtonText>내부 리뷰 작성하기</CTAButtonText>
-              </CTAButtonContent>
-            </CTAButton>
+              fullWidth
+            />
           </EmptyCard>
         )}
       </Section>
@@ -416,14 +414,12 @@ export default function V2HomeTab({
                 '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
               }
             </EmptyCardDescription>
-            <CTAButton
+            <StrokeCTAButton
+              text="장애인 화장실 정보 등록"
+              onPress={onPressToiletRegister}
               elementName="v2_home_tab_register_toilet"
-              onPress={onPressToiletRegister}>
-              <CTAButtonContent>
-                <PlusIcon width={20} height={20} color={color.brand40} />
-                <CTAButtonText>장애인 화장실 정보 등록</CTAButtonText>
-              </CTAButtonContent>
-            </CTAButton>
+              fullWidth
+            />
           </EmptyCard>
         )}
       </Section>
@@ -628,31 +624,6 @@ const EmptyCardDescription = styled.Text`
   letter-spacing: -0.3px;
   color: #767884;
   text-align: center;
-`;
-
-const CTAButton = styled(SccTouchableOpacity)`
-  background-color: ${color.white};
-  border-width: 1px;
-  border-color: ${color.brand40};
-  border-radius: 8px;
-  padding-vertical: 12px;
-  padding-horizontal: 28px;
-  width: 100%;
-`;
-
-const CTAButtonContent = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-`;
-
-const CTAButtonText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.brand40};
 `;
 
 /* Toilet reviews */

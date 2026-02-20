@@ -206,11 +206,15 @@ const EmptyStateCTAButton = styled(SccTouchableOpacity)`
   padding-horizontal: 28px;
 `;
 
-const EmptyStateCTAIcon = styled.Text`
+const EmptyStateCTAIcon = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})`
   font-size: 20px;
 `;
 
-const EmptyStateCTAText = styled.Text`
+const EmptyStateCTAText = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})`
   font-family: ${font.pretendardSemibold};
   font-size: 16px;
   line-height: 24px;
