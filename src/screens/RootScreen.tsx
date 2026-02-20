@@ -44,11 +44,6 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
   return extracted;
 };
 
-const MIN_SPLASH_DURATION_MS = 1000;
-
-// JS 번들 로드 직후 (HotUpdater/MMKV migration 이전) 시점을 기준으로 잡는다
-const JS_READY_TIME = Date.now();
-
 const RootScreen = () => {
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
@@ -59,15 +54,11 @@ const RootScreen = () => {
       <NavigationContainer
         ref={navigationRef}
         onReady={async () => {
-          const elapsed = Date.now() - JS_READY_TIME;
-          const delay = Math.max(150, MIN_SPLASH_DURATION_MS - elapsed);
-          setTimeout(() => {
-            SplashScreen.hide();
-            dismissSplashOverlay();
-            if (Platform.OS === 'ios') {
-              requestTrackingPermission();
-            }
-          }, delay);
+          SplashScreen.hide();
+          dismissSplashOverlay();
+          if (Platform.OS === 'ios') {
+            requestTrackingPermission();
+          }
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
           logDebug(`App starts at ${currentScreenName}`);
