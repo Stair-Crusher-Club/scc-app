@@ -4,6 +4,7 @@ import Toast from 'react-native-root-toast';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
@@ -42,7 +43,7 @@ export default function V2BottomBar({
     !!accessibility?.placeAccessibility ||
     !!accessibility?.buildingAccessibility;
 
-  const {totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted: placeUpvoteInfo?.isUpvoted ?? false,
     initialTotalCount: placeUpvoteInfo?.totalUpvoteCount,
     targetId: placeId,
@@ -66,12 +67,16 @@ export default function V2BottomBar({
       <ButtonRow>
         {hasAccessibility && (
           <UpvoteButton
+            isUpvoted={isUpvoted}
             elementName="v2_place_detail_bottom_bar_upvote_button"
             onPress={handleUpvote}>
-            <ThumbsUpYellowIcon width={16} height={16} />
-            <UpvoteText numberOfLines={1}>
-              도움돼요
-              {(totalUpvoteCount ?? 0) > 0 ? ` ${totalUpvoteCount}` : ''}
+            {isUpvoted ? (
+              <CheckColoredIcon width={16} height={16} />
+            ) : (
+              <ThumbsUpYellowIcon width={16} height={16} />
+            )}
+            <UpvoteText isUpvoted={isUpvoted} numberOfLines={1}>
+              {isUpvoted ? '도움됐어요' : '도움돼요'}
             </UpvoteText>
           </UpvoteButton>
         )}
@@ -115,7 +120,7 @@ const ButtonRow = styled.View`
   gap: 8px;
 `;
 
-const UpvoteButton = styled(SccPressable)`
+const UpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
   flex: 1;
   flex-direction: row;
   align-items: center;
@@ -125,14 +130,14 @@ const UpvoteButton = styled(SccPressable)`
   padding: 0px 8px;
   border-radius: 8px;
   overflow: hidden;
-  background-color: ${color.brand40};
+  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : color.brand40)};
 `;
 
-const UpvoteText = styled.Text`
+const UpvoteText = styled.Text<{isUpvoted: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
   line-height: 20px;
-  color: ${color.white};
+  color: ${({isUpvoted}) => (isUpvoted ? '#000000' : color.white)};
   flex-shrink: 1;
 `;
 

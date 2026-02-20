@@ -3,6 +3,7 @@ import {LayoutChangeEvent, Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
+import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import ReviewOutlineIcon from '@/assets/icon/ic_review_outline.svg';
@@ -53,7 +54,7 @@ export default function V2SummarySection({
     accessibilityScore !== undefined && accessibilityScore !== null;
 
   const {
-    isUpvoted: _isUpvoted,
+    isUpvoted,
     totalUpvoteCount,
     toggleUpvote,
   } = useUpvoteToggle({
@@ -157,12 +158,16 @@ export default function V2SummarySection({
       </ActionButtonsRow>
       {hasAccessibility && (
         <UpvoteButton
+          isUpvoted={isUpvoted}
           elementName="place_detail_v2_upvote_button"
           onPress={handleUpvote}>
-          <ThumbsUpIcon width={16} height={16} />
-          <UpvoteButtonText>
-            도움돼요
-            {(totalUpvoteCount ?? 0) > 0 ? ` ${totalUpvoteCount}` : ''}
+          {isUpvoted ? (
+            <CheckColoredIcon width={16} height={16} />
+          ) : (
+            <ThumbsUpIcon width={16} height={16} />
+          )}
+          <UpvoteButtonText isUpvoted={isUpvoted}>
+            {isUpvoted ? '도움됐어요' : '도움돼요'}
           </UpvoteButtonText>
         </UpvoteButton>
       )}
@@ -291,7 +296,7 @@ const SirenButton = styled(SccPressable)`
   padding: 10px;
 `;
 
-const UpvoteButton = styled(SccPressable)`
+const UpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -300,11 +305,11 @@ const UpvoteButton = styled(SccPressable)`
   margin-right: 20px;
   padding-vertical: 12px;
   border-radius: 8px;
-  background-color: #0e64d3;
+  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : '#0e64d3')};
 `;
 
-const UpvoteButtonText = styled.Text`
+const UpvoteButtonText = styled.Text<{isUpvoted: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
-  color: ${color.white};
+  color: ${({isUpvoted}) => (isUpvoted ? '#000000' : color.white)};
 `;
