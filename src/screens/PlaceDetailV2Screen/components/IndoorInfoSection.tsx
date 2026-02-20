@@ -7,19 +7,37 @@ import {font} from '@/constant/font';
 import {PlaceReviewDto} from '@/generated-sources/openapi';
 import {SEAT_TYPE_OPTIONS} from '@/screens/PlaceReviewFormScreen/constants';
 
+import {EmptyStateCard} from './AccessibilityInfoComponents';
+
 interface Props {
   reviews: PlaceReviewDto[];
   title?: string;
   showDate?: boolean;
+  onRegister?: () => void;
 }
 
 export default function IndoorInfoSection({
   reviews,
   title = '내부 이용 정보',
   showDate = true,
+  onRegister,
 }: Props) {
   if (reviews.length === 0) {
-    return null;
+    return (
+      <SectionContainer>
+        <SectionHeader>
+          <SectionTitle>{title}</SectionTitle>
+        </SectionHeader>
+        <EmptyStateCard
+          title={'아직 등록된 방문 리뷰가 없어요🥲'}
+          description={
+            '장소 내부 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'
+          }
+          buttonText="내부 리뷰 작성하기"
+          onPress={onRegister}
+        />
+      </SectionContainer>
+    );
   }
 
   const updatedAt = dayjs(
@@ -43,7 +61,21 @@ export default function IndoorInfoSection({
   const hasData =
     seatTypes.length > 0 || orderMethods.length > 0 || features.length > 0;
   if (!hasData) {
-    return null;
+    return (
+      <SectionContainer>
+        <SectionHeader>
+          <SectionTitle>{title}</SectionTitle>
+        </SectionHeader>
+        <EmptyStateCard
+          title={'아직 등록된 방문 리뷰가 없어요🥲'}
+          description={
+            '장소 내부 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'
+          }
+          buttonText="내부 리뷰 작성하기"
+          onPress={onRegister}
+        />
+      </SectionContainer>
+    );
   }
 
   return (

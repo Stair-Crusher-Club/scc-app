@@ -22,6 +22,7 @@ import {
 } from '../components/AccessibilityInfoComponents';
 import {
   BuildingEntranceSection,
+  BuildingEntranceEmptySection,
   PlaceEntranceSection,
   FloorMovementSection,
 } from '../components/EntranceSection';
@@ -46,7 +47,6 @@ export default function V2AccessibilityTab({
 }: Props) {
   const hasPlaceAccessibility = !!accessibility?.placeAccessibility;
   const hasBuildingAccessibility = !!accessibility?.buildingAccessibility;
-  const hasIndoorReviews = reviews.length > 0;
 
   if (!hasPlaceAccessibility) {
     return (
@@ -113,9 +113,7 @@ export default function V2AccessibilityTab({
       chips.push('건물 출입구');
     }
     chips.push('매장 출입구');
-    if (hasIndoorReviews) {
-      chips.push('내부 이용 정보');
-    }
+    chips.push('내부 이용 정보');
   }
   const placeComments = accessibility?.placeAccessibilityComments ?? [];
   const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
@@ -181,7 +179,7 @@ export default function V2AccessibilityTab({
                   placeComments={placeComments}
                 />
                 {isMultiFloor && <FloorMovementSection placeAccessibility={placeAccessibility} />}
-                <IndoorInfoSection reviews={reviews} />
+                <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
               </>
             ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
               <>
@@ -196,20 +194,22 @@ export default function V2AccessibilityTab({
                 {isMultiFloor && (
                   <>
                     <FloorMovementSection placeAccessibility={placeAccessibility} />
-                    <IndoorInfoSection reviews={reviews} />
+                    <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
                   </>
                 )}
               </>
             ) : (
               <>
                 {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
-                {hasBuildingAccessibility && buildingAccessibility && (
+                {hasBuildingAccessibility && buildingAccessibility ? (
                   <BuildingEntranceSection
                     buildingDate={buildingDate}
                     buildingAccessibility={buildingAccessibility}
                     accessibility={accessibility}
                     buildingComments={buildingComments}
                   />
+                ) : (
+                  <BuildingEntranceEmptySection onRegister={onRegister} />
                 )}
                 <PlaceEntranceSection
                   title="매장 출입구"
@@ -219,7 +219,7 @@ export default function V2AccessibilityTab({
                   placeComments={placeComments}
                 />
                 {isMultiFloor && <FloorMovementSection placeAccessibility={placeAccessibility} />}
-                <IndoorInfoSection reviews={reviews} />
+                <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
               </>
             )}
           </>
@@ -245,7 +245,7 @@ export default function V2AccessibilityTab({
               accessibility={accessibility}
               placeComments={placeComments}
             />
-            {hasIndoorReviews && <IndoorInfoSection reviews={reviews} />}
+            <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
           </>
         )}
       </SectionsContainer>

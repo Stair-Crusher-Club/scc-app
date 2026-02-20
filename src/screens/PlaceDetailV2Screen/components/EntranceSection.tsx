@@ -27,6 +27,7 @@ import {
   InfoRowsContainer,
   FloorMovementEmptyContainer,
   FloorMovementEmptyText,
+  EmptyStateCard,
 } from './AccessibilityInfoComponents';
 import {getStairDescription} from './PlaceInfo.utils';
 
@@ -77,6 +78,33 @@ export function BuildingEntranceSection({
           />
         )}
       </SectionContent>
+    </Container>
+  );
+}
+
+// ──────────────── BuildingEntranceEmptySection ────────────────
+
+export function BuildingEntranceEmptySection({
+  compact = false,
+  onRegister,
+}: {
+  compact?: boolean;
+  onRegister?: () => void;
+}) {
+  const Container = compact ? CompactSectionContainer : SectionContainer;
+  const Title = compact ? CompactSectionTitle : SectionTitle;
+
+  return (
+    <Container>
+      <SectionHeader>
+        <Title>건물 출입구</Title>
+      </SectionHeader>
+      <EmptyStateCard
+        title={'아직 등록된 건물 정보가 없어요🥲'}
+        description={'건물 정보가 없으면\n정확한 접근성을 확인할 수 없어요.'}
+        buttonText="건물정보 등록"
+        onPress={onRegister}
+      />
     </Container>
   );
 }

@@ -21,7 +21,7 @@ import {
   ToiletReviewDto,
 } from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
-import {SEAT_TYPE_OPTIONS} from '@/screens/PlaceReviewFormScreen/constants';
+
 import ToastUtils from '@/utils/ToastUtils';
 
 import AccessibilitySummarySection from '../sections/AccessibilitySummarySection';
@@ -31,6 +31,7 @@ import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components
 import {FloorInfoRow} from '../components/AccessibilityInfoComponents';
 import {
   BuildingEntranceSection,
+  BuildingEntranceEmptySection,
   PlaceEntranceSection,
   FloorMovementSection,
 } from '../components/EntranceSection';
@@ -86,16 +87,6 @@ export default function V2HomeTab({
   // "내부 이용 정보"는 단독건물이거나, 내부문이거나, 여러층일 때 표시 (V2 미적용 데이터는 항상 표시)
   const showIndoorInfo =
     !hasV2Fields || isStandalone || isInsideDoor || isMultiFloor;
-
-  // ── 내부공간 데이터 ──
-  const allSeatTypes = [...new Set(reviews.flatMap(r => r.seatTypes))];
-  const seatTypes = allSeatTypes.filter(item =>
-    SEAT_TYPE_OPTIONS.includes(item),
-  );
-  const orderMethods = [...new Set(reviews.flatMap(r => r.orderMethods))];
-  const features = [...new Set(reviews.flatMap(r => r.features ?? []))];
-  const hasIndoorData =
-    seatTypes.length > 0 || orderMethods.length > 0 || features.length > 0;
 
   // ── 가게정보 helpers ──
   const onCopy = () => {
@@ -255,17 +246,22 @@ export default function V2HomeTab({
                   <>
                     {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
                     {hasBuildingAccessibility &&
-                      accessibility?.buildingAccessibility && (
-                        <BuildingEntranceSection
-                          buildingDate={buildingDate}
-                          buildingAccessibility={
-                            accessibility.buildingAccessibility
-                          }
-                          accessibility={accessibility}
-                          buildingComments={buildingComments}
-                          compact
-                        />
-                      )}
+                    accessibility?.buildingAccessibility ? (
+                      <BuildingEntranceSection
+                        buildingDate={buildingDate}
+                        buildingAccessibility={
+                          accessibility.buildingAccessibility
+                        }
+                        accessibility={accessibility}
+                        buildingComments={buildingComments}
+                        compact
+                      />
+                    ) : (
+                      <BuildingEntranceEmptySection
+                        compact
+                        onRegister={onPressPlaceRegister}
+                      />
+                    )}
                     <PlaceEntranceSection
                       title="매장 출입구"
                       placeDate={placeDate}
@@ -328,13 +324,14 @@ export default function V2HomeTab({
       <ThickDivider />
 
       {/* ── 5. 내부공간 섹션 (V2: 단독건물/내부문/여러층일 때만 표시) ── */}
-      {showIndoorInfo && hasIndoorData && (
+      {showIndoorInfo && (
         <>
           <Section>
             <IndoorInfoSection
               reviews={reviews}
               title="내부공간"
               showDate={false}
+              onRegister={onPressReviewRegister}
             />
           </Section>
 
