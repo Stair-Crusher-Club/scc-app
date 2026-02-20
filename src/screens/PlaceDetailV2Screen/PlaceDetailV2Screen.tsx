@@ -600,7 +600,11 @@ export default function PlaceDetailV2Screen({
               reviewCount={(reviewPost ?? []).length}
               onPressRegister={() => setShowRegistrationSheet(true)}
               onPressWriteReview={handleReviewRegister}
-              onPressSiren={() => setShowNavigationBottomSheet(true)}
+              onPressSiren={() =>
+                showNegativeFeedbackBottomSheet(
+                  ReportTargetTypeDto.PlaceAccessibility,
+                )
+              }
               onNameLayout={handleNameLayout}
             />
 
@@ -632,7 +636,11 @@ export default function PlaceDetailV2Screen({
           placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
           onPressRegister={() => setShowRegistrationSheet(true)}
           onPressWriteReview={handleReviewRegister}
-          onPressSiren={() => setShowNavigationBottomSheet(true)}
+          onPressSiren={() =>
+            showNegativeFeedbackBottomSheet(
+              ReportTargetTypeDto.PlaceAccessibility,
+            )
+          }
         />
 
         <RequireBuildingAccessibilityBottomSheet
