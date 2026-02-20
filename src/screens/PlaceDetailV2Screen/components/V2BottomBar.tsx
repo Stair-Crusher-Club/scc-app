@@ -1,6 +1,4 @@
 import React from 'react';
-import {Platform} from 'react-native';
-import Toast from 'react-native-root-toast';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -12,55 +10,32 @@ import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  AccessibilityInfoV2Dto,
-  PlaceUpvoteInfoDto,
-} from '@/generated-sources/openapi';
-import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
-import {useCheckAuth} from '@/utils/checkAuth';
+import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
 
 interface Props {
-  placeId: string;
   accessibility?: AccessibilityInfoV2Dto;
-  placeUpvoteInfo?: PlaceUpvoteInfoDto;
+  isUpvoted: boolean;
+  totalUpvoteCount: number | undefined;
+  onPressUpvote: () => void;
   onPressRegister: () => void;
   onPressWriteReview: () => void;
   onPressSiren: () => void;
 }
 
 export default function V2BottomBar({
-  placeId,
   accessibility,
-  placeUpvoteInfo,
+  isUpvoted,
+  totalUpvoteCount: _totalUpvoteCount,
+  onPressUpvote,
   onPressRegister,
   onPressWriteReview,
   onPressSiren,
 }: Props) {
-  const checkAuth = useCheckAuth();
   const insets = useSafeAreaInsets();
 
   const hasAccessibility =
     !!accessibility?.placeAccessibility ||
     !!accessibility?.buildingAccessibility;
-
-  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
-    initialIsUpvoted: placeUpvoteInfo?.isUpvoted ?? false,
-    initialTotalCount: placeUpvoteInfo?.totalUpvoteCount,
-    targetId: placeId,
-    targetType: 'PLACE',
-    placeId: placeId,
-  });
-
-  const handleUpvote = () => {
-    if (Platform.OS === 'web') {
-      Toast.show('준비 중입니다 💪', {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-      });
-      return;
-    }
-    checkAuth(() => toggleUpvote());
-  };
 
   return (
     <Container bottomInset={insets.bottom}>
@@ -69,7 +44,7 @@ export default function V2BottomBar({
           <UpvoteButton
             isUpvoted={isUpvoted}
             elementName="v2_place_detail_bottom_bar_upvote_button"
-            onPress={handleUpvote}>
+            onPress={onPressUpvote}>
             {isUpvoted ? (
               <CheckColoredIcon width={16} height={16} />
             ) : (

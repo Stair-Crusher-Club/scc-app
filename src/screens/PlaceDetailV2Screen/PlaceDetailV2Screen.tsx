@@ -28,6 +28,7 @@ import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import usePost from '@/hooks/usePost';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
+import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ShareUtils from '@/utils/ShareUtils';
@@ -214,6 +215,27 @@ export default function PlaceDetailV2Screen({
     queryFn: async ({queryKey}) =>
       (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
+
+  // Upvote state lifted from V2SummarySection & V2BottomBar so both stay in sync
+  const placeUpvoteInfo = accessibilityPost?.placeUpvoteInfo;
+  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
+    initialIsUpvoted: placeUpvoteInfo?.isUpvoted ?? false,
+    initialTotalCount: placeUpvoteInfo?.totalUpvoteCount,
+    targetId: placeId,
+    targetType: 'PLACE',
+    placeId: placeId,
+  });
+
+  const handleUpvote = useCallback(() => {
+    if (Platform.OS === 'web') {
+      Toast.show('준비 중입니다 💪', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+      return;
+    }
+    checkAuth(() => toggleUpvote());
+  }, [checkAuth, toggleUpvote]);
 
   // API 에러 시 토스트 + goBack
   useEffect(() => {
@@ -585,17 +607,14 @@ export default function PlaceDetailV2Screen({
             stickyHeaderIndices={[1]}>
             <V2SummarySection
               place={place}
-              placeId={place.id}
               accessibilityScore={data?.accessibilityScore}
-              hasPlaceAccessibility={!!accessibilityPost?.placeAccessibility}
-              hasBuildingAccessibility={
-                !!accessibilityPost?.buildingAccessibility
-              }
               hasAccessibility={
                 !!accessibilityPost?.placeAccessibility ||
                 !!accessibilityPost?.buildingAccessibility
               }
-              placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
+              isUpvoted={isUpvoted}
+              totalUpvoteCount={totalUpvoteCount}
+              onPressUpvote={handleUpvote}
               accessibility={accessibilityPost}
               reviewCount={(reviewPost ?? []).length}
               onPressRegister={() => setShowRegistrationSheet(true)}
@@ -631,9 +650,10 @@ export default function PlaceDetailV2Screen({
         </GestureHandlerRootView>
 
         <V2BottomBar
-          placeId={place.id}
           accessibility={accessibilityPost}
-          placeUpvoteInfo={accessibilityPost?.placeUpvoteInfo}
+          isUpvoted={isUpvoted}
+          totalUpvoteCount={totalUpvoteCount}
+          onPressUpvote={handleUpvote}
           onPressRegister={() => setShowRegistrationSheet(true)}
           onPressWriteReview={handleReviewRegister}
           onPressSiren={() =>

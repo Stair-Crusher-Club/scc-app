@@ -1,6 +1,5 @@
 import React from 'react';
-import {LayoutChangeEvent, Platform} from 'react-native';
-import Toast from 'react-native-root-toast';
+import {LayoutChangeEvent} from 'react-native';
 import styled from 'styled-components/native';
 
 import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
@@ -12,22 +11,15 @@ import ThumbsUpIcon from '@/assets/icon/ic_thumbsup_colored.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  AccessibilityInfoV2Dto,
-  Place,
-  PlaceUpvoteInfoDto,
-} from '@/generated-sources/openapi';
-import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
-import {useCheckAuth} from '@/utils/checkAuth';
+import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
 
 interface V2SummarySectionProps {
   place: Place;
-  placeId: string;
   accessibilityScore?: number;
-  hasPlaceAccessibility: boolean;
-  hasBuildingAccessibility: boolean;
   hasAccessibility: boolean;
-  placeUpvoteInfo?: PlaceUpvoteInfoDto;
+  isUpvoted: boolean;
+  totalUpvoteCount: number | undefined;
+  onPressUpvote: () => void;
   accessibility?: AccessibilityInfoV2Dto;
   reviewCount: number;
   onPressRegister: () => void;
@@ -38,10 +30,11 @@ interface V2SummarySectionProps {
 
 export default function V2SummarySection({
   place,
-  placeId,
   accessibilityScore,
   hasAccessibility,
-  placeUpvoteInfo,
+  isUpvoted,
+  totalUpvoteCount: _totalUpvoteCount,
+  onPressUpvote,
   accessibility,
   reviewCount,
   onPressRegister,
@@ -49,32 +42,8 @@ export default function V2SummarySection({
   onPressSiren,
   onNameLayout,
 }: V2SummarySectionProps) {
-  const checkAuth = useCheckAuth();
   const hasScore =
     accessibilityScore !== undefined && accessibilityScore !== null;
-
-  const {
-    isUpvoted,
-    totalUpvoteCount,
-    toggleUpvote,
-  } = useUpvoteToggle({
-    initialIsUpvoted: placeUpvoteInfo?.isUpvoted ?? false,
-    initialTotalCount: placeUpvoteInfo?.totalUpvoteCount,
-    targetId: placeId,
-    targetType: 'PLACE',
-    placeId: placeId,
-  });
-
-  const handleUpvote = () => {
-    if (Platform.OS === 'web') {
-      Toast.show('준비 중입니다 💪', {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-      });
-      return;
-    }
-    checkAuth(() => toggleUpvote());
-  };
 
   const tagTexts = (() => {
     const pa = accessibility?.placeAccessibility;
@@ -160,7 +129,7 @@ export default function V2SummarySection({
         <UpvoteButton
           isUpvoted={isUpvoted}
           elementName="place_detail_v2_upvote_button"
-          onPress={handleUpvote}>
+          onPress={onPressUpvote}>
           {isUpvoted ? (
             <CheckColoredIcon width={16} height={16} />
           ) : (
