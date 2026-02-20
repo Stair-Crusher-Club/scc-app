@@ -3,9 +3,10 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useRef} from 'react';
-import {Linking, Platform} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {Linking, Platform, StyleSheet} from 'react-native';
 import Config from 'react-native-config';
+import Animated, {FadeOut} from 'react-native-reanimated';
 import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
@@ -14,6 +15,7 @@ import DevTool from '@/components/DevTool/DevTool';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
+import * as SplashStyle from '@/OTAUpdateDialog.style';
 import {logDebug} from '@/utils/DebugUtils';
 
 // 전체 화면 공용 로깅 규칙 정의
@@ -43,7 +45,13 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
   return extracted;
 };
 
+const MIN_SPLASH_DURATION_MS = 1000;
+
+const SPLASH_FADE_OUT_DURATION_MS = 300;
+
 const RootScreen = () => {
+  const [isReady, setIsReady] = useState(false);
+  const mountTimeRef = useRef(Date.now());
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
@@ -53,12 +61,15 @@ const RootScreen = () => {
       <NavigationContainer
         ref={navigationRef}
         onReady={async () => {
+          const elapsed = Date.now() - mountTimeRef.current;
+          const delay = Math.max(150, MIN_SPLASH_DURATION_MS - elapsed);
           setTimeout(() => {
             SplashScreen.hide();
+            setIsReady(true);
             if (Platform.OS === 'ios') {
               requestTrackingPermission();
             }
-          }, 150);
+          }, delay);
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
           logDebug(`App starts at ${currentScreenName}`);
@@ -241,6 +252,17 @@ const RootScreen = () => {
         }}>
         <Navigation />
       </NavigationContainer>
+      {!isReady && (
+        <Animated.View
+          style={StyleSheet.absoluteFill}
+          exiting={FadeOut.duration(SPLASH_FADE_OUT_DURATION_MS)}>
+          <SplashStyle.Container>
+            <SplashStyle.CoverImage
+              source={require('../assets/img/app_logo.png')}
+            />
+          </SplashStyle.Container>
+        </Animated.View>
+      )}
       <DevTool />
     </>
   );

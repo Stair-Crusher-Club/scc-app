@@ -5,7 +5,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Platform, StatusBar} from 'react-native';
+import {Platform, StatusBar, View} from 'react-native';
 import Config from 'react-native-config';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {RootSiblingParent} from 'react-native-root-siblings';
@@ -13,6 +13,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AppComponentsProvider} from '@/AppComponentsContext';
 import OTAUpdateDialog from '@/OTAUpdateDialog';
+import * as SplashStyle from '@/OTAUpdateDialog.style';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {storage} from '@/atoms/atomForLocal';
 import {LoadingView} from '@/components/LoadingView';
@@ -37,16 +38,18 @@ const getBaseURL = () => {
 
 const AppWithProviders = () => {
   return (
-    <Provider>
-      <SafeAreaProvider>
-        <AppComponentsProvider
-          api={new DefaultApi(new Configuration({basePath: getBaseURL()}))}>
-          <QueryClientProvider client={queryClient}>
-            <App />
-          </QueryClientProvider>
-        </AppComponentsProvider>
-      </SafeAreaProvider>
-    </Provider>
+    <View style={{flex: 1, backgroundColor: color.brand30}}>
+      <Provider>
+        <SafeAreaProvider>
+          <AppComponentsProvider
+            api={new DefaultApi(new Configuration({basePath: getBaseURL()}))}>
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </AppComponentsProvider>
+        </SafeAreaProvider>
+      </Provider>
+    </View>
   );
 };
 
@@ -102,7 +105,7 @@ const App = () => {
     };
   }, [accessToken]);
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: color.brand30}}>
       <RootSiblingParent>
         <StatusBar barStyle={'dark-content'} backgroundColor={color.white} />
         <RootScreen />
@@ -138,7 +141,15 @@ const AppWithMigration = () => {
     };
     migrateAsyncStorageToMMKV();
   }, []);
-  return isMigrated ? <AppWithProviders /> : null;
+  return isMigrated ? (
+    <AppWithProviders />
+  ) : (
+    <SplashStyle.Container>
+      <SplashStyle.CoverImage
+        source={require('./src/assets/img/app_logo.png')}
+      />
+    </SplashStyle.Container>
+  );
 };
 
 export default HotUpdater.wrap({
