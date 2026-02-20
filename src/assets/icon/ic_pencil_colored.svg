@@ -1,0 +1,10 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Red eraser (behind) -->
+  <g transform="translate(9.31, 6.58) rotate(-138.36) translate(-2.248, -6.406)">
+    <path d="M3.99577 10.5641V2.24788C3.99577 1.28255 3.21321 0.5 2.24788 0.5C1.28255 0.5 0.5 1.28255 0.5 2.24788V10.5641C0.5 11.5294 1.28255 12.312 2.24788 12.312C3.21321 12.312 3.99577 11.5294 3.99577 10.5641Z" fill="#FF5D71" stroke="black" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Yellow body (on top) -->
+  <g transform="translate(6.94, 9.24) rotate(-138.36) translate(-2.252, -7.470)">
+    <path d="M4.00261 14.4385V2.82312L2.2513 0.5L0.5 2.82312V14.4385H4.00261Z" fill="#FFD770" stroke="black" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

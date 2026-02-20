@@ -5,11 +5,11 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
-import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 
 export default function SearchListView({
   searchResults,
@@ -25,7 +25,7 @@ export default function SearchListView({
   onWebPlaceClick?: (placeId: string) => void;
 }) {
   const navigation = useNavigation();
-  const detailVersion = useDetailScreenVersion();
+  const pdpScreen = usePlaceDetailScreenName();
   return (
     <LogParamsProvider params={{search_view_mode: 'list'}}>
       <Container isVisible={isVisible}>
@@ -50,16 +50,7 @@ export default function SearchListView({
                     }
 
                     // Native app navigation
-                    if (detailVersion === 'v2') {
-                      navigation.navigate('PlaceDetailV2', {
-                        placeInfo: {
-                          placeId: item.place.id,
-                        },
-                      });
-                      return;
-                    }
-
-                    navigation.navigate('PlaceDetail', {
+                    navigation.navigate(pdpScreen, {
                       placeInfo: {
                         placeId: item.place.id,
                       },

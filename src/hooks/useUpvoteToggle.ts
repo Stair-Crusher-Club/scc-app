@@ -78,6 +78,7 @@ export function useUpvoteToggle({
       }
 
       if (
+        targetType === 'PLACE' ||
         targetType === 'PLACE_ACCESSIBILITY' ||
         targetType === 'BUILDING_ACCESSIBILITY'
       ) {

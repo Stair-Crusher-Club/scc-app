@@ -931,10 +931,16 @@ async function register(
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId, 'Accessibility'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
+      });
 
       // PlaceDetailScreen 전체 데이터 갱신
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
       });
 
       // Asynchronously update search cache with full latest data

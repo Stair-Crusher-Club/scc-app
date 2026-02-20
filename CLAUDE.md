@@ -413,6 +413,18 @@ mcp__figma-dev-mode-mcp-server__get_screenshot(nodeId="123:456")
 | `get_variable_defs` | 디자인 변수 정의 (색상 토큰 등) |
 | `get_metadata` | 노드 구조 메타데이터 (XML) |
 
+### Two-Phase Design Implementation (필수)
+
+디자인 구현은 반드시 **두 단계**를 거쳐야 한다:
+
+1. **Layout Phase**: 큰 구조 (탭 분리, 섹션 순서, 컴포넌트 배치) 구현
+2. **Precision Phase**: Figma `get_screenshot` + `get_design_context`로 정밀 검증
+   - 색상, 폰트 사이즈/웨이트, padding/margin, 아이콘, border-radius 등 수치 대조
+   - 에뮬레이터 스크린샷 vs Figma 스크린샷 비교 검증
+   - 차이점 발견 시 반복 수정 (converge until match)
+
+**Layout만 하고 "완료"라고 하지 말 것.** Precision Phase 없이는 미완성.
+
 ### 비교 체크리스트
 
 구현 검증 시 확인할 항목:

@@ -24,8 +24,8 @@ import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation.ts';
-import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 // ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
@@ -59,8 +59,8 @@ const FRefInputComp = <T extends MarkerItem>(
   const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
   const insets = useSafeAreaInsets();
-  const detailVersion = useDetailScreenVersion();
   const onMyLocationPress = () => {
     mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
@@ -199,14 +199,7 @@ const FRefInputComp = <T extends MarkerItem>(
             ref={cardsRef}
             searchResults={items}
             onCardPress={item => {
-              if (detailVersion === 'v2') {
-                navigation.navigate('PlaceDetailV2', {
-                  placeInfo: {placeId: item.id},
-                });
-                return;
-              }
-
-              navigation.navigate('PlaceDetail', {
+              navigation.navigate(pdpScreen, {
                 placeInfo: {placeId: item.id},
               });
             }}

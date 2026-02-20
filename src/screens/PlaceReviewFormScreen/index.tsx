@@ -9,6 +9,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import useAppComponents from '@/hooks/useAppComponents';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import IndoorReviewView from './views/IndoorReviewView';
 import ToiletReviewView from './views/ToiletReviewView';
 
@@ -21,6 +22,7 @@ export default function PlaceReviewFormScreen({
   navigation,
 }: ScreenProps<'ReviewForm/Place'>) {
   const {api} = useAppComponents();
+  const pdpScreen = usePlaceDetailScreenName();
 
   const placeId = route.params?.placeId;
   const {data} = useQuery<{
@@ -55,14 +57,18 @@ export default function PlaceReviewFormScreen({
     const previousRoute =
       currentRouteIndex > 0 ? state.routes[currentRouteIndex - 1] : null;
 
-    // 이전 화면이 PlaceDetail인 경우에만 goBack 사용
-    if (navigation.canGoBack() && previousRoute?.name === 'PlaceDetail') {
+    // 이전 화면이 PlaceDetail(V1/V2)인 경우에만 goBack 사용
+    if (
+      navigation.canGoBack() &&
+      (previousRoute?.name === 'PlaceDetail' ||
+        previousRoute?.name === 'PlaceDetailV2')
+    ) {
       navigation.goBack();
       return;
     }
 
     // 이전 화면이 PlaceDetail이 아니거나 없는 경우 replace 사용
-    navigation.replace('PlaceDetail', {
+    navigation.replace(pdpScreen, {
       placeInfo: {
         placeId: data?.place?.id!,
       },

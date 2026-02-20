@@ -16,6 +16,7 @@ import {
   StairInfo,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
@@ -58,6 +59,7 @@ export default function BuildingFormScreen({
   route,
   navigation,
 }: ScreenProps<'BuildingForm'>) {
+  const pdpScreen = usePlaceDetailScreenName();
   const [scrollY, setScrollY] = useState(0);
   const {place, building} = route.params;
   const form = useForm<FormValues>();
@@ -110,14 +112,16 @@ export default function BuildingFormScreen({
         const currentIndex = state.index;
         const previousRoute =
           currentIndex > 0 ? state.routes[currentIndex - 1] : null;
-        const isPreviousPlaceDetail = previousRoute?.name === 'PlaceDetail';
+        const isPreviousPlaceDetail =
+          previousRoute?.name === 'PlaceDetail' ||
+          previousRoute?.name === 'PlaceDetailV2';
 
         if (isPreviousPlaceDetail) {
           // 이전 화면이 PlaceDetail인 경우: 기존 로직 유지
           // BuildingForm 을 없애고 PlaceDetail로 이동
           navigation.pop(1);
           // PlaceDetail에서 장소 등록 완료 모달을 열어주기
-          navigation.replace('PlaceDetail', {
+          navigation.replace(pdpScreen, {
             placeInfo: {
               place,
               building,
@@ -128,7 +132,7 @@ export default function BuildingFormScreen({
           // 이전 화면이 PlaceDetail이 아닌 경우 (예: Search에서 직접 진입)
           // BuildingForm을 pop하고 PlaceDetail을 push하여 히스토리 유지
           navigation.pop(1);
-          navigation.navigate('PlaceDetail', {
+          navigation.navigate(pdpScreen, {
             placeInfo: {
               place,
               building,
@@ -261,10 +265,16 @@ async function register(
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId, 'Accessibility'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
+      });
 
       // PlaceDetailScreen 전체 데이터 갱신
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
       });
 
       // Asynchronously update search cache with full latest data

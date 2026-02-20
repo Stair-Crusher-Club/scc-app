@@ -12,7 +12,7 @@ import {AccessibilityInfoDto} from '@/generated-sources/openapi';
 
 import EmptyInfo from './EmptyInfo';
 import * as S from './PlaceInfo.style';
-import {FloorAccessibilityType, getFloorAccessibility} from './PlaceInfo.utils';
+import {FloorAccessibilityType, getFloorAccessibility} from '../../PlaceDetailV2Screen/components/PlaceInfo.utils';
 
 interface Props {
   accessibility?: AccessibilityInfoDto;
