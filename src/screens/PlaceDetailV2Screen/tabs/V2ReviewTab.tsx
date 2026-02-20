@@ -160,4 +160,3 @@ const EmptyStateDescription = styled.Text`
   color: ${color.gray50};
   text-align: center;
 `;
-

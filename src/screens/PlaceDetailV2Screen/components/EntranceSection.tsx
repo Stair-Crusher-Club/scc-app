@@ -168,7 +168,7 @@ const FLOOR_MOVING_METHOD_LABELS: Record<FloorMovingMethodTypeDto, string> = {
 };
 
 function getElevatorStairTitle(
-  stairInfo?: typeof StairInfo[keyof typeof StairInfo],
+  stairInfo?: (typeof StairInfo)[keyof typeof StairInfo],
   hasSlope?: boolean,
 ): string {
   if (stairInfo === StairInfo.None || stairInfo === StairInfo.Undefined) {

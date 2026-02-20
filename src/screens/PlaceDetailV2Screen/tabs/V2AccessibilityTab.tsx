@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import {ScrollView} from 'react-native';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -28,6 +28,46 @@ import {
 import IndoorInfoSection from '../components/IndoorInfoSection';
 import {getFloorAccessibility} from '../components/PlaceInfo.utils';
 
+/** Compute the chip list for the accessibility tab chip bar. */
+export function getAccessibilityChips(
+  accessibility?: AccessibilityInfoV2Dto,
+): string[] {
+  if (!accessibility?.placeAccessibility) return [];
+
+  const pa = accessibility.placeAccessibility;
+  const hasBuildingAccessibility = !!accessibility.buildingAccessibility;
+  const isStandalone = pa.isStandaloneBuilding === true;
+  const doorDir = pa.doorDirectionType;
+  const floors = pa.floors ?? [];
+  const isMultiFloor = floors.length > 1;
+  const hasV2Fields = pa.isStandaloneBuilding != null && doorDir != null;
+
+  const chips: string[] = ['층 정보'];
+
+  if (hasV2Fields) {
+    if (isStandalone) {
+      chips.push('매장(건물 출입구)');
+      if (isMultiFloor) chips.push('층간 이동 정보');
+      chips.push('내부 이용 정보');
+    } else if (doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding) {
+      chips.push('매장 출입구');
+      if (isMultiFloor) chips.push('층간 이동 정보');
+      chips.push('내부 이용 정보');
+    } else {
+      chips.push('건물 출입구');
+      chips.push('매장 출입구');
+      if (isMultiFloor) chips.push('층간 이동 정보');
+      chips.push('내부 이용 정보');
+    }
+  } else {
+    if (hasBuildingAccessibility) chips.push('건물 출입구');
+    chips.push('매장 출입구');
+    chips.push('내부 이용 정보');
+  }
+
+  return chips;
+}
+
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;
   place: Place;
@@ -37,12 +77,14 @@ interface Props {
   onRegister?: () => void;
   showNegativeFeedbackBottomSheet?: (type: ReportTargetTypeDto) => void;
   allowDuplicateRegistration?: boolean;
+  onSectionLayout?: (chipName: string, y: number) => void;
 }
 
 export default function V2AccessibilityTab({
   accessibility,
   reviews = [],
   onRegister,
+  onSectionLayout,
 }: Props) {
   const hasPlaceAccessibility = !!accessibility?.placeAccessibility;
   const hasBuildingAccessibility = !!accessibility?.buildingAccessibility;
@@ -78,41 +120,6 @@ export default function V2AccessibilityTab({
   const hasV2Fields =
     placeAccessibility.isStandaloneBuilding != null && doorDir != null;
 
-  // 서브탭 칩 목록 생성 (건물유형별 분기)
-  const chips: string[] = ['층 정보'];
-
-  if (hasV2Fields) {
-    if (isStandalone) {
-      // 단독건물: 매장(건물 출입구)
-      chips.push('매장(건물 출입구)');
-      if (isMultiFloor) {
-        chips.push('층간 이동 정보');
-      }
-      chips.push('내부 이용 정보');
-    } else if (doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding) {
-      // 비단독 + 외부문
-      chips.push('매장 출입구');
-      if (isMultiFloor) {
-        chips.push('층간 이동 정보');
-        chips.push('내부 이용 정보');
-      }
-    } else {
-      // 비단독 + 내부문 (INSIDE_BUILDING)
-      chips.push('건물 출입구');
-      chips.push('매장 출입구');
-      if (isMultiFloor) {
-        chips.push('층간 이동 정보');
-      }
-      chips.push('내부 이용 정보');
-    }
-  } else {
-    // Fallback: V2 필드가 없는 기존 데이터
-    if (hasBuildingAccessibility) {
-      chips.push('건물 출입구');
-    }
-    chips.push('매장 출입구');
-    chips.push('내부 이용 정보');
-  }
   const placeComments = accessibility?.placeAccessibilityComments ?? [];
   const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
 
@@ -134,90 +141,123 @@ export default function V2AccessibilityTab({
     'YYYY.MM.DD',
   );
 
+  const sectionLayout =
+    (name: string) => (e: {nativeEvent: {layout: {y: number}}}) => {
+      onSectionLayout?.(name, e.nativeEvent.layout.y);
+    };
+
   return (
     <Container>
-      {/* 서브탭 칩 */}
-      <ChipScrollContainer>
-        <ChipRow>
-          {chips.map(chip => (
-            <Chip key={chip}>
-              <ChipText>{chip}</ChipText>
-            </Chip>
-          ))}
-        </ChipRow>
-      </ChipScrollContainer>
-
       {/* 섹션들 */}
       <SectionsContainer>
         {/* 층 정보 (항상 첫 번째) */}
-        <FloorSectionContainer>
-          <FloorSectionHeader>
-            <FloorSectionTitle>층 정보</FloorSectionTitle>
-            <FloorSectionDate>{floorDate}</FloorSectionDate>
-          </FloorSectionHeader>
-          <InfoRowsContainer>
-            <InfoRow
-              label="층 정보"
-              value={floorInfo.title}
-              subValue={floorInfo.description}
-            />
-          </InfoRowsContainer>
-        </FloorSectionContainer>
+        <View onLayout={sectionLayout('층 정보')}>
+          <FloorSectionContainer>
+            <FloorSectionHeader>
+              <FloorSectionTitle>층 정보</FloorSectionTitle>
+              <FloorSectionDate>{floorDate}</FloorSectionDate>
+            </FloorSectionHeader>
+            <InfoRowsContainer>
+              <InfoRow
+                label="층 정보"
+                value={floorInfo.title}
+                subValue={floorInfo.description}
+              />
+            </InfoRowsContainer>
+          </FloorSectionContainer>
+        </View>
 
         {hasV2Fields ? (
           <>
             {isStandalone ? (
               <>
                 {/* 단독건물: 매장(건물 출입구) */}
-                <PlaceEntranceSection
-                  title="매장(건물 출입구)"
-                  placeDate={placeDate}
-                  placeAccessibility={placeAccessibility}
-                  accessibility={accessibility}
-                  placeComments={placeComments}
-                />
-                {isMultiFloor && <FloorMovementSection placeAccessibility={placeAccessibility} />}
-                <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
+                <View onLayout={sectionLayout('매장(건물 출입구)')}>
+                  <PlaceEntranceSection
+                    title="매장(건물 출입구)"
+                    placeDate={placeDate}
+                    placeAccessibility={placeAccessibility}
+                    accessibility={accessibility}
+                    placeComments={placeComments}
+                  />
+                </View>
+                {isMultiFloor && (
+                  <View onLayout={sectionLayout('층간 이동 정보')}>
+                    <FloorMovementSection
+                      placeAccessibility={placeAccessibility}
+                    />
+                  </View>
+                )}
+                <View onLayout={sectionLayout('내부 이용 정보')}>
+                  <IndoorInfoSection
+                    reviews={reviews}
+                    onRegister={onRegister}
+                  />
+                </View>
               </>
             ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
               <>
                 {/* 비단독 + 외부문 */}
-                <PlaceEntranceSection
-                  title="매장 출입구"
-                  placeDate={placeDate}
-                  placeAccessibility={placeAccessibility}
-                  accessibility={accessibility}
-                  placeComments={placeComments}
-                />
+                <View onLayout={sectionLayout('매장 출입구')}>
+                  <PlaceEntranceSection
+                    title="매장 출입구"
+                    placeDate={placeDate}
+                    placeAccessibility={placeAccessibility}
+                    accessibility={accessibility}
+                    placeComments={placeComments}
+                  />
+                </View>
                 {isMultiFloor && (
-                  <>
-                    <FloorMovementSection placeAccessibility={placeAccessibility} />
-                    <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
-                  </>
+                  <View onLayout={sectionLayout('층간 이동 정보')}>
+                    <FloorMovementSection
+                      placeAccessibility={placeAccessibility}
+                    />
+                  </View>
                 )}
+                <View onLayout={sectionLayout('내부 이용 정보')}>
+                  <IndoorInfoSection
+                    reviews={reviews}
+                    onRegister={onRegister}
+                  />
+                </View>
               </>
             ) : (
               <>
                 {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
-                {hasBuildingAccessibility && buildingAccessibility ? (
-                  <BuildingEntranceSection
-                    buildingDate={buildingDate}
-                    buildingAccessibility={buildingAccessibility}
+                <View onLayout={sectionLayout('건물 출입구')}>
+                  {hasBuildingAccessibility && buildingAccessibility ? (
+                    <BuildingEntranceSection
+                      buildingDate={buildingDate}
+                      buildingAccessibility={buildingAccessibility}
+                      accessibility={accessibility}
+                      buildingComments={buildingComments}
+                    />
+                  ) : (
+                    <BuildingEntranceEmptySection onRegister={onRegister} />
+                  )}
+                </View>
+                <View onLayout={sectionLayout('매장 출입구')}>
+                  <PlaceEntranceSection
+                    title="매장 출입구"
+                    placeDate={placeDate}
+                    placeAccessibility={placeAccessibility}
                     accessibility={accessibility}
-                    buildingComments={buildingComments}
+                    placeComments={placeComments}
                   />
-                ) : (
-                  <BuildingEntranceEmptySection onRegister={onRegister} />
+                </View>
+                {isMultiFloor && (
+                  <View onLayout={sectionLayout('층간 이동 정보')}>
+                    <FloorMovementSection
+                      placeAccessibility={placeAccessibility}
+                    />
+                  </View>
                 )}
-                <PlaceEntranceSection
-                  title="매장 출입구"
-                  placeDate={placeDate}
-                  placeAccessibility={placeAccessibility}
-                  accessibility={accessibility}
-                  placeComments={placeComments}
-                />
-                {isMultiFloor && <FloorMovementSection placeAccessibility={placeAccessibility} />}
-                <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
+                <View onLayout={sectionLayout('내부 이용 정보')}>
+                  <IndoorInfoSection
+                    reviews={reviews}
+                    onRegister={onRegister}
+                  />
+                </View>
               </>
             )}
           </>
@@ -225,25 +265,31 @@ export default function V2AccessibilityTab({
           <>
             {/* Fallback: V2 필드 없는 기존 데이터 */}
             {hasBuildingAccessibility && buildingAccessibility && (
-              <BuildingEntranceSection
-                buildingDate={buildingDate}
-                buildingAccessibility={buildingAccessibility}
-                accessibility={accessibility}
-                buildingComments={buildingComments}
-              />
+              <View onLayout={sectionLayout('건물 출입구')}>
+                <BuildingEntranceSection
+                  buildingDate={buildingDate}
+                  buildingAccessibility={buildingAccessibility}
+                  accessibility={accessibility}
+                  buildingComments={buildingComments}
+                />
+              </View>
             )}
-            <PlaceEntranceSection
-              title={
-                hasBuildingAccessibility
-                  ? '매장 출입구 - 주 출입구'
-                  : '매장 출입구'
-              }
-              placeDate={placeDate}
-              placeAccessibility={placeAccessibility}
-              accessibility={accessibility}
-              placeComments={placeComments}
-            />
-            <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
+            <View onLayout={sectionLayout('매장 출입구')}>
+              <PlaceEntranceSection
+                title={
+                  hasBuildingAccessibility
+                    ? '매장 출입구 - 주 출입구'
+                    : '매장 출입구'
+                }
+                placeDate={placeDate}
+                placeAccessibility={placeAccessibility}
+                accessibility={accessibility}
+                placeComments={placeComments}
+              />
+            </View>
+            <View onLayout={sectionLayout('내부 이용 정보')}>
+              <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
+            </View>
           </>
         )}
       </SectionsContainer>
@@ -289,41 +335,6 @@ const EmptyStateDescription = styled.Text`
   letter-spacing: -0.3px;
   color: ${color.gray50};
   text-align: center;
-`;
-
-// 서브탭 칩
-const ChipScrollContainer = styled(ScrollView).attrs({
-  horizontal: true,
-  showsHorizontalScrollIndicator: false,
-  contentContainerStyle: {
-    paddingHorizontal: 20,
-    gap: 8,
-  },
-})`
-  padding-top: 12px;
-  padding-bottom: 4px;
-`;
-
-const ChipRow = styled.View`
-  flex-direction: row;
-  gap: 8px;
-`;
-
-const Chip = styled.View`
-  border-width: 1px;
-  border-color: ${color.gray20};
-  border-radius: 100px;
-  padding-horizontal: 14px;
-  padding-vertical: 8px;
-  background-color: ${color.white};
-`;
-
-const ChipText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 13px;
-  line-height: 18px;
-  letter-spacing: -0.26px;
-  color: ${color.gray90};
 `;
 
 // 섹션

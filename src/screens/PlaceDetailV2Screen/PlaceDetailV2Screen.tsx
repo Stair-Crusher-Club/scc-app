@@ -7,6 +7,8 @@ import {
   NativeSyntheticEvent,
   Platform,
   ScrollView,
+  View,
+  useWindowDimensions,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
@@ -51,7 +53,10 @@ import RegisterCompleteBottomSheet from '../PlaceDetailScreen/modals/RegisterCom
 import RequireBuildingAccessibilityBottomSheet from '../PlaceDetailScreen/modals/RequireBuildingAccessibilityBottomSheet';
 import {PlaceDetailFeedbackSection} from '../PlaceDetailScreen/sections/PlaceDetailFeedbackSection';
 import V2HomeTab from './tabs/V2HomeTab';
-import V2AccessibilityTab from './tabs/V2AccessibilityTab';
+import V2AccessibilityTab, {
+  getAccessibilityChips,
+} from './tabs/V2AccessibilityTab';
+import V2ChipBar from './components/V2ChipBar';
 import V2ReviewTab from './tabs/V2ReviewTab';
 import PlaceDetailRestroomTab from './tabs/PlaceDetailRestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
@@ -111,6 +116,7 @@ export default function PlaceDetailV2Screen({
 
   const [currentTab, setCurrentTab] = useState<TabType>('home');
   const [showRegistrationSheet, setShowRegistrationSheet] = useState(false);
+  const {height: windowHeight} = useWindowDimensions();
 
   const openBottomSheet = useCallback(
     (
@@ -483,6 +489,42 @@ export default function PlaceDetailV2Screen({
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
   const nameBottomYRef = useRef<number>(0);
 
+  // Chip bar state (accessibility tab)
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [activeChipIndex, setActiveChipIndex] = useState(0);
+  const sectionLayoutsRef = useRef<Record<string, number>>({});
+  const tabContentYRef = useRef(0);
+  const isScrollingFromChipRef = useRef(false);
+  const chips = useMemo(
+    () => getAccessibilityChips(accessibilityPost),
+    [accessibilityPost],
+  );
+  const showChipBar = currentTab === 'accessibility' && chips.length > 0;
+
+  const handleSectionLayout = useCallback((chipName: string, y: number) => {
+    sectionLayoutsRef.current[chipName] = y;
+  }, []);
+
+  const handleChipPress = useCallback(
+    (index: number) => {
+      setActiveChipIndex(index);
+      isScrollingFromChipRef.current = true;
+      const chipName = chips[index];
+      const sectionY = sectionLayoutsRef.current[chipName] ?? 0;
+      // SectionsContainer padding-top=20, sticky headers ≈ TabBar(~41) + ChipBar(~50)
+      const stickyHeight = 91;
+      const targetY = tabContentYRef.current + 20 + sectionY - stickyHeight;
+      scrollViewRef.current?.scrollTo({
+        y: Math.max(0, targetY),
+        animated: true,
+      });
+      setTimeout(() => {
+        isScrollingFromChipRef.current = false;
+      }, 500);
+    },
+    [chips],
+  );
+
   const handleNameLayout = useCallback((e: LayoutChangeEvent) => {
     const {y, height} = e.nativeEvent.layout;
     nameBottomYRef.current = y + height;
@@ -493,8 +535,26 @@ export default function PlaceDetailV2Screen({
       const scrollY = e.nativeEvent.contentOffset.y;
       const shouldShow = scrollY > nameBottomYRef.current;
       setShowAppBarTitle(prev => (prev !== shouldShow ? shouldShow : prev));
+
+      // Active chip tracking for accessibility tab (skip during programmatic scroll)
+      if (showChipBar && chips.length > 0 && !isScrollingFromChipRef.current) {
+        const stickyHeight = 91;
+        const adjustedY = scrollY + stickyHeight;
+        let newIndex = 0;
+        for (let i = chips.length - 1; i >= 0; i--) {
+          const sectionAbsY =
+            tabContentYRef.current +
+            20 +
+            (sectionLayoutsRef.current[chips[i]] ?? 0);
+          if (adjustedY >= sectionAbsY) {
+            newIndex = i;
+            break;
+          }
+        }
+        setActiveChipIndex(prev => (prev !== newIndex ? newIndex : prev));
+      }
     },
-    [],
+    [showChipBar, chips],
   );
 
   if (isLoading || !place || !building) {
@@ -543,6 +603,7 @@ export default function PlaceDetailV2Screen({
             onRegister={handlePlaceRegister}
             showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
             allowDuplicateRegistration={isQAMode}
+            onSectionLayout={handleSectionLayout}
           />
         );
       case 'review':
@@ -601,6 +662,7 @@ export default function PlaceDetailV2Screen({
             showTitle={showAppBarTitle}
           />
           <ScrollView
+            ref={scrollViewRef}
             style={{flex: 1}}
             scrollEventThrottle={16}
             onScroll={handleScroll}
@@ -627,25 +689,48 @@ export default function PlaceDetailV2Screen({
               onNameLayout={handleNameLayout}
             />
 
-            {/* Tab Bar - sticky at index 1 */}
-            <V2TabBar
-              items={TAB_ITEMS}
-              current={currentTab}
-              onChange={setCurrentTab}
-            />
-
-            {/* Tab Content */}
-            {renderTabContent()}
-
-            {/* Feedback Section (삭제 기능) - 홈 탭에서만 표시 */}
-            {showFeedbackSection && currentTab === 'home' && (
-              <>
-                <SectionSeparator />
-                <PlaceDetailFeedbackSection
-                  accessibility={accessibilityPost!}
+            {/* Tab Bar + Chip Bar — combined sticky header at index 1 */}
+            <View>
+              <V2TabBar
+                items={TAB_ITEMS}
+                current={currentTab}
+                onChange={setCurrentTab}
+              />
+              {showChipBar && (
+                <V2ChipBar
+                  chips={chips}
+                  activeIndex={activeChipIndex}
+                  onChipPress={handleChipPress}
                 />
-              </>
-            )}
+              )}
+            </View>
+
+            {/* Tab Content — minHeight prevents layout jump when switching to short tabs */}
+            <View
+              onLayout={e => {
+                tabContentYRef.current = e.nativeEvent.layout.y;
+              }}
+              style={{
+                minHeight: windowHeight,
+                backgroundColor:
+                  currentTab === 'review' ||
+                  currentTab === 'restroom' ||
+                  currentTab === 'conqueror'
+                    ? color.gray5
+                    : color.white,
+              }}>
+              {renderTabContent()}
+
+              {/* Feedback Section (삭제 기능) - 홈 탭에서만 표시 */}
+              {showFeedbackSection && currentTab === 'home' && (
+                <>
+                  <SectionSeparator />
+                  <PlaceDetailFeedbackSection
+                    accessibility={accessibilityPost!}
+                  />
+                </>
+              )}
+            </View>
           </ScrollView>
         </GestureHandlerRootView>
 

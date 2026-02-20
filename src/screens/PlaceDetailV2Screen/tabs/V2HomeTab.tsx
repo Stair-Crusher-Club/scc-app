@@ -229,7 +229,12 @@ export default function V2HomeTab({
                       placeComments={placeComments}
                       compact
                     />
-                    {showFloorMovement && <FloorMovementSection compact placeAccessibility={accessibility?.placeAccessibility} />}
+                    {showFloorMovement && (
+                      <FloorMovementSection
+                        compact
+                        placeAccessibility={accessibility?.placeAccessibility}
+                      />
+                    )}
                   </>
                 ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
                   <>
@@ -242,7 +247,12 @@ export default function V2HomeTab({
                       placeComments={placeComments}
                       compact
                     />
-                    {showFloorMovement && <FloorMovementSection compact placeAccessibility={accessibility?.placeAccessibility} />}
+                    {showFloorMovement && (
+                      <FloorMovementSection
+                        compact
+                        placeAccessibility={accessibility?.placeAccessibility}
+                      />
+                    )}
                   </>
                 ) : (
                   <>
@@ -272,7 +282,12 @@ export default function V2HomeTab({
                       placeComments={placeComments}
                       compact
                     />
-                    {showFloorMovement && <FloorMovementSection compact placeAccessibility={accessibility?.placeAccessibility} />}
+                    {showFloorMovement && (
+                      <FloorMovementSection
+                        compact
+                        placeAccessibility={accessibility?.placeAccessibility}
+                      />
+                    )}
                   </>
                 )}
               </>
