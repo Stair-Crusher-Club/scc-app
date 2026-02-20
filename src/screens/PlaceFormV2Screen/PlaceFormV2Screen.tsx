@@ -519,7 +519,9 @@ async function register(
         selectedStandaloneType === 'multipleFloors');
     if (
       hasMultipleFloors &&
-      values.floorMovementMethod?.includes(FloorMovingMethodTypeDto.PlaceElevator)
+      values.floorMovementMethod?.includes(
+        FloorMovingMethodTypeDto.PlaceElevator,
+      )
     ) {
       const elevatorImageUrls = await ImageFileUtils.uploadImages(
         api,

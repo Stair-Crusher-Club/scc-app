@@ -1,7 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
 import React from 'react';
-import {Image, Linking, Platform} from 'react-native';
+import {Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
@@ -12,11 +12,9 @@ import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {doorTypeMap} from '@/constant/options';
 import {
   AccessibilityInfoV2Dto,
   Building,
-  BuildingDoorDirectionTypeDto,
   Place,
   PlaceDoorDirectionTypeDto,
   PlaceReviewDto,
@@ -30,15 +28,13 @@ import AccessibilitySummarySection from '../sections/AccessibilitySummarySection
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
+import {FloorInfoRow} from '../components/AccessibilityInfoComponents';
 import {
-  getFloorAccessibility,
-  getPlaceEntranceStepType,
-  getBuildingEntranceStepType,
-  getBuildingElevatorType,
-  getStairDescription,
-  EntranceStepType,
-  ElevatorType,
-} from '../components/PlaceInfo.utils';
+  BuildingEntranceSection,
+  PlaceEntranceSection,
+  FloorMovementSection,
+} from '../components/EntranceSection';
+import IndoorInfoSection from '../components/IndoorInfoSection';
 
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;
@@ -91,6 +87,16 @@ export default function V2HomeTab({
   const showIndoorInfo =
     !hasV2Fields || isStandalone || isInsideDoor || isMultiFloor;
 
+  // ── 내부공간 데이터 ──
+  const allSeatTypes = [...new Set(reviews.flatMap(r => r.seatTypes))];
+  const seatTypes = allSeatTypes.filter(item =>
+    SEAT_TYPE_OPTIONS.includes(item),
+  );
+  const orderMethods = [...new Set(reviews.flatMap(r => r.orderMethods))];
+  const features = [...new Set(reviews.flatMap(r => r.features ?? []))];
+  const hasIndoorData =
+    seatTypes.length > 0 || orderMethods.length > 0 || features.length > 0;
+
   // ── 가게정보 helpers ──
   const onCopy = () => {
     Clipboard.setString(place.address);
@@ -137,18 +143,9 @@ export default function V2HomeTab({
       )
     : '';
 
-  // ── 내부공간 데이터 ──
-  const allSeatTypes = [...new Set(reviews.flatMap(r => r.seatTypes))];
-  const seatTypes = allSeatTypes.filter(item =>
-    SEAT_TYPE_OPTIONS.includes(item),
-  );
-  const seatComments = allSeatTypes.filter(
-    item => !SEAT_TYPE_OPTIONS.includes(item),
-  );
-  const orderMethods = [...new Set(reviews.flatMap(r => r.orderMethods))];
-  const features = [...new Set(reviews.flatMap(r => r.features))];
-  const hasIndoorData =
-    seatTypes.length > 0 || orderMethods.length > 0 || features.length > 0;
+  // ── 코멘트 ──
+  const placeComments = accessibility?.placeAccessibilityComments ?? [];
+  const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
 
   return (
     <Container>
@@ -217,7 +214,7 @@ export default function V2HomeTab({
           )}
         </SectionHeader>
         {hasAccessibility ? (
-          <SectionContainer>
+          <AccessibilitySectionContainer>
             <AccessibilitySummarySection
               accessibility={accessibility!}
               showLabel
@@ -231,39 +228,53 @@ export default function V2HomeTab({
                 {isStandalone ? (
                   <>
                     {/* 단독건물: 매장(건물 출입구) */}
-                    <HomeStoreSectionBlock
+                    <PlaceEntranceSection
                       title="매장(건물 출입구)"
                       placeDate={placeDate}
+                      placeAccessibility={accessibility!.placeAccessibility!}
                       accessibility={accessibility}
+                      placeComments={placeComments}
+                      compact
                     />
-                    {showFloorMovement && <HomeFloorMovementBlock />}
+                    {showFloorMovement && <FloorMovementSection compact placeAccessibility={accessibility?.placeAccessibility} />}
                   </>
                 ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
                   <>
                     {/* 비단독 + 외부문 */}
-                    <HomeStoreSectionBlock
+                    <PlaceEntranceSection
                       title="매장 출입구"
                       placeDate={placeDate}
+                      placeAccessibility={accessibility!.placeAccessibility!}
                       accessibility={accessibility}
+                      placeComments={placeComments}
+                      compact
                     />
-                    {showFloorMovement && <HomeFloorMovementBlock />}
+                    {showFloorMovement && <FloorMovementSection compact placeAccessibility={accessibility?.placeAccessibility} />}
                   </>
                 ) : (
                   <>
                     {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
                     {hasBuildingAccessibility &&
                       accessibility?.buildingAccessibility && (
-                        <HomeBuildingSectionBlock
+                        <BuildingEntranceSection
                           buildingDate={buildingDate}
+                          buildingAccessibility={
+                            accessibility.buildingAccessibility
+                          }
                           accessibility={accessibility}
+                          buildingComments={buildingComments}
+                          compact
                         />
                       )}
-                    <HomeStoreSectionBlock
+                    <PlaceEntranceSection
                       title="매장 출입구"
                       placeDate={placeDate}
+                      placeAccessibility={accessibility!.placeAccessibility!}
                       accessibility={accessibility}
+                      placeComments={placeComments}
+                      compact
                     />
-                    {showFloorMovement && <HomeFloorMovementBlock />}
+                    {showFloorMovement && <FloorMovementSection compact placeAccessibility={accessibility?.placeAccessibility} />}
                   </>
                 )}
               </>
@@ -272,19 +283,27 @@ export default function V2HomeTab({
                 {/* Fallback: V2 필드 없는 기존 데이터 */}
                 {hasBuildingAccessibility &&
                   accessibility?.buildingAccessibility && (
-                    <HomeBuildingSectionBlock
+                    <BuildingEntranceSection
                       buildingDate={buildingDate}
+                      buildingAccessibility={
+                        accessibility.buildingAccessibility
+                      }
                       accessibility={accessibility}
+                      buildingComments={buildingComments}
+                      compact
                     />
                   )}
-                <HomeStoreSectionBlock
+                <PlaceEntranceSection
                   title="매장 출입구"
                   placeDate={placeDate}
+                  placeAccessibility={accessibility!.placeAccessibility!}
                   accessibility={accessibility}
+                  placeComments={placeComments}
+                  compact
                 />
               </>
             )}
-          </SectionContainer>
+          </AccessibilitySectionContainer>
         ) : (
           <EmptyCard>
             <EmptyCardTitle>
@@ -309,58 +328,14 @@ export default function V2HomeTab({
       <ThickDivider />
 
       {/* ── 5. 내부공간 섹션 (V2: 단독건물/내부문/여러층일 때만 표시) ── */}
-      {hasIndoorData && showIndoorInfo && (
+      {showIndoorInfo && hasIndoorData && (
         <>
           <Section>
-            <SectionHeader>
-              <SectionTitle>내부공간</SectionTitle>
-            </SectionHeader>
-
-            <IndoorContent>
-              {seatTypes.length > 0 && (
-                <IndoorRow>
-                  <IndoorLabel>좌석 구성</IndoorLabel>
-                  <IndoorValueContainer>
-                    <TagWrap>
-                      {seatTypes.map(t => (
-                        <Tag key={t}>
-                          <TagText>{t}</TagText>
-                        </Tag>
-                      ))}
-                    </TagWrap>
-                    {seatComments.length > 0 && (
-                      <IndoorDescription>
-                        {seatComments.join(', ')}
-                      </IndoorDescription>
-                    )}
-                  </IndoorValueContainer>
-                </IndoorRow>
-              )}
-
-              {orderMethods.length > 0 && (
-                <IndoorRow>
-                  <IndoorLabel>주문방법</IndoorLabel>
-                  <IndoorValueContainer>
-                    <TagWrap>
-                      {orderMethods.map(m => (
-                        <Tag key={m}>
-                          <TagText>{m}</TagText>
-                        </Tag>
-                      ))}
-                    </TagWrap>
-                  </IndoorValueContainer>
-                </IndoorRow>
-              )}
-
-              {features.length > 0 && (
-                <IndoorRow>
-                  <IndoorLabel>특이사항</IndoorLabel>
-                  <IndoorValueContainer>
-                    <IndoorFeatureText>{features.join(', ')}</IndoorFeatureText>
-                  </IndoorValueContainer>
-                </IndoorRow>
-              )}
-            </IndoorContent>
+            <IndoorInfoSection
+              reviews={reviews}
+              title="내부공간"
+              showDate={false}
+            />
           </Section>
 
           {/* ── 6. Thick Divider ── */}
@@ -485,320 +460,6 @@ function formatConquerorText(accessibility?: AccessibilityInfoV2Dto): string {
   return `정복자 ${names[0]} 외 ${names.length - 1}명`;
 }
 
-// ──────────────── Sub-components ────────────────
-
-function InfoRow({
-  label,
-  value,
-  subValue,
-}: {
-  label: string;
-  value: string;
-  subValue?: string;
-}) {
-  return (
-    <InfoRowContainer>
-      <InfoLabel>{label}</InfoLabel>
-      <InfoValueContainer>
-        <InfoValue>{value}</InfoValue>
-        {subValue ? <InfoSubValue>{subValue}</InfoSubValue> : null}
-      </InfoValueContainer>
-    </InfoRowContainer>
-  );
-}
-
-function PhotoRow({images}: {images: Array<{imageUrl: string}>}) {
-  if (images.length === 0) {
-    return null;
-  }
-  return (
-    <PhotoRowContainer>
-      {images.slice(0, 3).map((img, index) => (
-        <PhotoThumbnail key={index} source={{uri: img.imageUrl}} />
-      ))}
-    </PhotoRowContainer>
-  );
-}
-
-function BuildingEntranceInfoRows({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  if (!accessibility) {
-    return null;
-  }
-  const entranceStepType = getBuildingEntranceStepType(accessibility as any);
-  const stairInfo = accessibility.buildingAccessibility?.entranceStairInfo;
-  const stairHeight =
-    accessibility.buildingAccessibility?.entranceStairHeightLevel;
-  const description = getStairDescription(stairHeight, stairInfo);
-
-  let title = '';
-  switch (entranceStepType) {
-    case EntranceStepType.Flat:
-      title = '계단, 경사로 없음';
-      break;
-    case EntranceStepType.SlopeOnly:
-      title = '경사로 있음';
-      break;
-    case EntranceStepType.StairAndSlope:
-      title = '계단과 경사로 있음';
-      break;
-    case EntranceStepType.StairOnly:
-      title = '계단 있음';
-      break;
-  }
-
-  return <InfoRow label="입구 정보" value={title} subValue={description} />;
-}
-
-function BuildingElevatorInfoRow({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  if (!accessibility?.buildingAccessibility) {
-    return null;
-  }
-  const elevatorType = getBuildingElevatorType(accessibility as any);
-  const stairInfo = accessibility.buildingAccessibility.elevatorStairInfo;
-  const stairHeight =
-    accessibility.buildingAccessibility.elevatorStairHeightLevel;
-  const description = getStairDescription(stairHeight, stairInfo);
-
-  let title = '';
-  switch (elevatorType) {
-    case ElevatorType.ElevatorAfterStair:
-      title = '엘리베이터 있지만,\n가는 길에 계단 있음';
-      break;
-    case ElevatorType.ElevatorNoBarriers:
-      title = '엘리베이터 있음';
-      break;
-    case ElevatorType.NoElevator:
-      title = '엘리베이터 없음';
-      break;
-  }
-
-  return (
-    <InfoRow label="엘리베이터 정보" value={title} subValue={description} />
-  );
-}
-
-function BuildingDoorInfoRow({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  const doorTypes =
-    accessibility?.buildingAccessibility?.entranceDoorTypes ?? [];
-  if (doorTypes.length === 0) {
-    return null;
-  }
-  const title = doorTypes.map(d => doorTypeMap[d]).join(', ');
-  return <InfoRow label="출입문 유형" value={title} />;
-}
-
-function PlaceEntranceInfoRows({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  if (!accessibility) {
-    return null;
-  }
-  const entranceStepType = getPlaceEntranceStepType(accessibility as any);
-  const stairInfo = accessibility.placeAccessibility?.stairInfo;
-  const stairHeight = accessibility.placeAccessibility?.stairHeightLevel;
-  const description = getStairDescription(stairHeight, stairInfo);
-
-  let title = '';
-  switch (entranceStepType) {
-    case EntranceStepType.Flat:
-      title = '계단, 경사로 없음';
-      break;
-    case EntranceStepType.SlopeOnly:
-      title = '경사로 있음';
-      break;
-    case EntranceStepType.StairAndSlope:
-      title = '계단과 경사로 있음';
-      break;
-    case EntranceStepType.StairOnly:
-      title = '계단 있음';
-      break;
-  }
-
-  return <InfoRow label="입구 정보" value={title} subValue={description} />;
-}
-
-function PlaceDoorInfoRow({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  const doorTypes = accessibility?.placeAccessibility?.entranceDoorTypes ?? [];
-  if (doorTypes.length === 0) {
-    return null;
-  }
-  const title = doorTypes.map(d => doorTypeMap[d]).join(', ');
-  return <InfoRow label="출입문 유형" value={title} />;
-}
-
-function BuildingDoorDirectionInfoRow({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  const doorDir = accessibility?.buildingAccessibility?.doorDirectionType;
-  if (!doorDir) {
-    return null;
-  }
-  let title = '';
-  switch (doorDir) {
-    case BuildingDoorDirectionTypeDto.RoadDirection:
-      title = '지상/보도 연결 문';
-      break;
-    case BuildingDoorDirectionTypeDto.ParkingDirection:
-      title = '주차장 방향';
-      break;
-    case BuildingDoorDirectionTypeDto.Etc:
-      title = '기타';
-      break;
-  }
-  return <InfoRow label="출입구 방향" value={title} />;
-}
-
-function PlaceDoorDirectionInfoRow({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  const doorDir = accessibility?.placeAccessibility?.doorDirectionType;
-  if (!doorDir) {
-    return null;
-  }
-  let title = '';
-  switch (doorDir) {
-    case PlaceDoorDirectionTypeDto.OutsideBuilding:
-      title = '건물 밖';
-      break;
-    case PlaceDoorDirectionTypeDto.InsideBuilding:
-      title = '건물 안';
-      break;
-  }
-  return <InfoRow label="출입구 방향" value={title} />;
-}
-
-function FloorInfoRow({
-  accessibility,
-}: {
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  if (!accessibility?.placeAccessibility) {
-    return null;
-  }
-  const floorInfo = getFloorAccessibility(accessibility as any);
-  const floorDate = dayjs(
-    accessibility.placeAccessibility.createdAt.value,
-  ).format('YYYY.MM.DD');
-  return (
-    <AccessibilitySubSection>
-      <SubSectionHeader>
-        <SubSectionTitle>층 정보</SubSectionTitle>
-        <SubSectionDate>{floorDate}</SubSectionDate>
-      </SubSectionHeader>
-      <InfoRowsContainer>
-        <InfoRow
-          label="층 정보"
-          value={floorInfo.title}
-          subValue={floorInfo.description}
-        />
-      </InfoRowsContainer>
-    </AccessibilitySubSection>
-  );
-}
-
-// ── 홈탭 접근성 섹션 블록 컴포넌트 ──
-
-function HomeBuildingSectionBlock({
-  buildingDate,
-  accessibility,
-}: {
-  buildingDate: string;
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  if (!accessibility?.buildingAccessibility) {
-    return null;
-  }
-  return (
-    <AccessibilitySubSection>
-      <SubSectionHeader>
-        <SubSectionTitle>건물 출입구</SubSectionTitle>
-        <SubSectionDate>{buildingDate}</SubSectionDate>
-      </SubSectionHeader>
-
-      <PhotoRow
-        images={[
-          ...(accessibility.buildingAccessibility.entranceImages ?? []),
-          ...(accessibility.buildingAccessibility.elevatorImages ?? []),
-        ]}
-      />
-
-      <InfoRowsContainer>
-        <BuildingEntranceInfoRows accessibility={accessibility} />
-        <BuildingElevatorInfoRow accessibility={accessibility} />
-        <BuildingDoorInfoRow accessibility={accessibility} />
-        <BuildingDoorDirectionInfoRow accessibility={accessibility} />
-      </InfoRowsContainer>
-    </AccessibilitySubSection>
-  );
-}
-
-function HomeStoreSectionBlock({
-  title,
-  placeDate,
-  accessibility,
-}: {
-  title: string;
-  placeDate: string;
-  accessibility?: AccessibilityInfoV2Dto;
-}) {
-  if (!accessibility?.placeAccessibility) {
-    return null;
-  }
-  return (
-    <AccessibilitySubSection>
-      <SubSectionHeader>
-        <SubSectionTitle>{title}</SubSectionTitle>
-        <SubSectionDate>{placeDate}</SubSectionDate>
-      </SubSectionHeader>
-
-      <PhotoRow images={accessibility.placeAccessibility.images ?? []} />
-
-      <InfoRowsContainer>
-        <PlaceEntranceInfoRows accessibility={accessibility} />
-        <PlaceDoorInfoRow accessibility={accessibility} />
-        <PlaceDoorDirectionInfoRow accessibility={accessibility} />
-      </InfoRowsContainer>
-    </AccessibilitySubSection>
-  );
-}
-
-function HomeFloorMovementBlock() {
-  return (
-    <AccessibilitySubSection>
-      <SubSectionHeader>
-        <SubSectionTitle>층간 이동 정보</SubSectionTitle>
-      </SubSectionHeader>
-      <FloorMovementEmptyContainer>
-        <FloorMovementEmptyText>
-          아직 등록된 층간 이동 정보가 없어요
-        </FloorMovementEmptyText>
-      </FloorMovementEmptyContainer>
-    </AccessibilitySubSection>
-  );
-}
-
 // ──────────────── Styled Components ────────────────
 
 const Container = styled.View`
@@ -911,7 +572,7 @@ const SectionHeader = styled.View`
   justify-content: space-between;
 `;
 
-const SectionContainer = styled.View`
+const AccessibilitySectionContainer = styled.View`
   flex-direction: column;
   gap: 40px;
 `;
@@ -997,152 +658,6 @@ const CTAButtonText = styled.Text`
   color: ${color.brand40};
 `;
 
-/* Accessibility subsection */
-const AccessibilitySubSection = styled.View`
-  gap: 12px;
-`;
-
-const SubSectionHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const SubSectionTitle = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.gray80};
-`;
-
-const SubSectionDate = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: -0.24px;
-  color: ${color.gray50};
-`;
-
-/* Info rows */
-const InfoRowsContainer = styled.View`
-  gap: 12px;
-`;
-
-const InfoRowContainer = styled.View`
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-`;
-
-const InfoLabel = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: -0.28px;
-  color: ${color.gray50};
-  min-height: 26px;
-  justify-content: center;
-  padding-top: 3px;
-`;
-
-const InfoValueContainer = styled.View`
-  align-items: flex-end;
-  gap: 2px;
-`;
-
-const InfoValue = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 16px;
-  line-height: 26px;
-  letter-spacing: -0.32px;
-  color: ${color.gray90};
-  text-align: right;
-`;
-
-const InfoSubValue = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: -0.28px;
-  color: ${color.brand50};
-`;
-
-/* Photos */
-const PhotoRowContainer = styled.View`
-  flex-direction: row;
-  gap: 4px;
-`;
-
-const PhotoThumbnail = styled(Image)`
-  width: 114px;
-  height: 114px;
-  border-radius: 8px;
-  background-color: #d9d9d9;
-`;
-
-/* Indoor info */
-const IndoorContent = styled.View`
-  gap: 16px;
-`;
-
-const IndoorRow = styled.View`
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 8px;
-`;
-
-const IndoorLabel = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: -0.24px;
-  color: ${color.gray40};
-  width: 48px;
-  padding-top: 4px;
-`;
-
-const IndoorValueContainer = styled.View`
-  flex: 1;
-  gap: 8px;
-`;
-
-const TagWrap = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 4px;
-`;
-
-const Tag = styled.View`
-  background-color: ${color.gray5};
-  border-radius: 6px;
-  padding-horizontal: 6px;
-  padding-vertical: 4px;
-`;
-
-const TagText = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: -0.24px;
-  color: ${color.brand50};
-`;
-
-const IndoorDescription = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 13px;
-  line-height: 20px;
-  color: ${color.gray90};
-`;
-
-const IndoorFeatureText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: -0.28px;
-  color: ${color.gray90};
-`;
-
 /* Toilet reviews */
 const ToiletReviewList = styled.View`
   gap: 20px;
@@ -1157,23 +672,6 @@ const ToiletDivider = styled.View`
 const ThickDivider = styled.View`
   height: 6px;
   background-color: ${color.gray5};
-`;
-
-/* 층간 이동 정보 빈 상태 */
-const FloorMovementEmptyContainer = styled.View`
-  background-color: ${color.gray5};
-  border-radius: 12px;
-  padding: 20px;
-  align-items: center;
-  justify-content: center;
-`;
-
-const FloorMovementEmptyText = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: -0.28px;
-  color: ${color.gray50};
 `;
 
 /* Bottom Padding */

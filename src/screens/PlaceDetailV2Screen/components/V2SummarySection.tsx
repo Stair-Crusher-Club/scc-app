@@ -45,6 +45,11 @@ export default function V2SummarySection({
   const hasScore =
     accessibilityScore !== undefined && accessibilityScore !== null;
 
+  const isProcessing =
+    !hasScore &&
+    !!accessibility?.placeAccessibility &&
+    !accessibility?.buildingAccessibility;
+
   const tagTexts = (() => {
     const pa = accessibility?.placeAccessibility;
     if (!pa) {
@@ -72,9 +77,13 @@ export default function V2SummarySection({
 
   return (
     <Container>
-      <StairLevelBadge hasScore={hasScore}>
-        <StairLevelText hasScore={hasScore}>
-          {hasScore ? `접근레벨 ${accessibilityScore}` : '접근레벨 -'}
+      <StairLevelBadge hasScore={hasScore} isProcessing={isProcessing}>
+        <StairLevelText hasScore={hasScore} isProcessing={isProcessing}>
+          {hasScore
+            ? `접근레벨 ${accessibilityScore}`
+            : isProcessing
+              ? '계산중(건물정보 필요)'
+              : '접근레벨 -'}
         </StairLevelText>
       </StairLevelBadge>
       <NameContainer onLayout={onNameLayout}>
@@ -150,19 +159,29 @@ const Container = styled.View`
   padding-bottom: 20px;
 `;
 
-const StairLevelBadge = styled.View<{hasScore: boolean}>`
-  background-color: ${({hasScore}) => (hasScore ? '#D7F6E1' : color.gray15)};
+const StairLevelBadge = styled.View<{
+  hasScore: boolean;
+  isProcessing: boolean;
+}>`
+  background-color: ${({hasScore, isProcessing}) =>
+    hasScore ? '#D7F6E1' : isProcessing ? '#ffffff' : color.gray15};
   border-radius: 4px;
   padding-horizontal: ${({hasScore}) => (hasScore ? '6px' : '7px')};
   padding-vertical: 4px;
   align-self: flex-start;
+  ${({isProcessing}) =>
+    isProcessing ? `border-width: 1px; border-color: #FFC109;` : ''}
 `;
 
-const StairLevelText = styled.Text<{hasScore: boolean}>`
+const StairLevelText = styled.Text<{
+  hasScore: boolean;
+  isProcessing: boolean;
+}>`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
   letter-spacing: -0.24px;
-  color: ${({hasScore}) => (hasScore ? '#06903B' : color.gray50)};
+  color: ${({hasScore, isProcessing}) =>
+    hasScore ? '#06903B' : isProcessing ? '#FFC109' : color.gray50};
 `;
 
 const NameContainer = styled.View`

@@ -3583,6 +3583,36 @@ export interface PlaceAccessibility {
      */
     'doorDirectionType'?: PlaceDoorDirectionTypeDto;
     /**
+     * 장소 입구 특이사항
+     * @type {Array<string>}
+     * @memberof PlaceAccessibility
+     */
+    'features'?: Array<string>;
+    /**
+     * 출입구 관련 코멘트
+     * @type {string}
+     * @memberof PlaceAccessibility
+     */
+    'entranceComment'?: string;
+    /**
+     * 층간 이동 방법 목록
+     * @type {Array<FloorMovingMethodTypeDto>}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
+    /**
+     * 
+     * @type {ElevatorAccessibilityDto}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingElevatorAccessibility'?: ElevatorAccessibilityDto;
+    /**
+     * 층간 이동 엘리베이터 관련 코멘트
+     * @type {string}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingElevatorComment'?: string;
+    /**
      * 익명으로 등록되었으면 null.
      * @type {string}
      * @memberof PlaceAccessibility
