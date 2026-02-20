@@ -12,12 +12,11 @@ import {RootSiblingParent} from 'react-native-root-siblings';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AppComponentsProvider} from '@/AppComponentsContext';
-import OTAUpdateDialog from '@/OTAUpdateDialog';
-import * as SplashStyle from '@/OTAUpdateDialog.style';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {storage} from '@/atoms/atomForLocal';
 import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
+import SplashOverlay from '@/splash/SplashOverlay';
 import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
@@ -141,25 +140,23 @@ const AppWithMigration = () => {
     };
     migrateAsyncStorageToMMKV();
   }, []);
-  return isMigrated ? (
-    <AppWithProviders />
-  ) : (
-    <SplashStyle.Container>
-      <SplashStyle.CoverImage
-        source={require('./src/assets/img/app_logo.png')}
-      />
-    </SplashStyle.Container>
-  );
+  return isMigrated ? <AppWithProviders /> : null;
 };
 
-export default HotUpdater.wrap({
+const HotUpdatedApp = HotUpdater.wrap({
   source: Config.HOT_UPDATER_URL ?? '',
   onError: error => {
     getAnalytics().logEvent('HotUpdaterError', {
       error: error.message,
     });
   },
-  fallbackComponent: () => {
-    return <OTAUpdateDialog />;
-  },
 })(AppWithMigration);
+
+const AppRoot = () => (
+  <View style={{flex: 1, backgroundColor: color.brand30}}>
+    <HotUpdatedApp />
+    <SplashOverlay />
+  </View>
+);
+
+export default AppRoot;

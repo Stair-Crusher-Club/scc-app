@@ -3,10 +3,9 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useRef, useState} from 'react';
-import {Linking, Platform, StyleSheet} from 'react-native';
+import React, {useRef} from 'react';
+import {Linking, Platform} from 'react-native';
 import Config from 'react-native-config';
-import Animated, {FadeOut} from 'react-native-reanimated';
 import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
@@ -15,7 +14,7 @@ import DevTool from '@/components/DevTool/DevTool';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
-import * as SplashStyle from '@/OTAUpdateDialog.style';
+import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {logDebug} from '@/utils/DebugUtils';
 
 // 전체 화면 공용 로깅 규칙 정의
@@ -46,13 +45,11 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
 };
 
 const MIN_SPLASH_DURATION_MS = 1000;
-const SPLASH_FADE_OUT_DURATION_MS = 300;
 
 // JS 번들 로드 직후 (HotUpdater/MMKV migration 이전) 시점을 기준으로 잡는다
 const JS_READY_TIME = Date.now();
 
 const RootScreen = () => {
-  const [isReady, setIsReady] = useState(false);
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
@@ -66,7 +63,7 @@ const RootScreen = () => {
           const delay = Math.max(150, MIN_SPLASH_DURATION_MS - elapsed);
           setTimeout(() => {
             SplashScreen.hide();
-            setIsReady(true);
+            dismissSplashOverlay();
             if (Platform.OS === 'ios') {
               requestTrackingPermission();
             }
@@ -253,17 +250,6 @@ const RootScreen = () => {
         }}>
         <Navigation />
       </NavigationContainer>
-      {!isReady && (
-        <Animated.View
-          style={StyleSheet.absoluteFill}
-          exiting={FadeOut.duration(SPLASH_FADE_OUT_DURATION_MS)}>
-          <SplashStyle.Container>
-            <SplashStyle.CoverImage
-              source={require('../assets/img/app_logo.png')}
-            />
-          </SplashStyle.Container>
-        </Animated.View>
-      )}
       <DevTool />
     </>
   );
