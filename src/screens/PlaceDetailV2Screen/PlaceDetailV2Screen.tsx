@@ -8,7 +8,6 @@ import {
   Platform,
   ScrollView,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
@@ -116,7 +115,8 @@ export default function PlaceDetailV2Screen({
 
   const [currentTab, setCurrentTab] = useState<TabType>('home');
   const [showRegistrationSheet, setShowRegistrationSheet] = useState(false);
-  const {height: windowHeight} = useWindowDimensions();
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [stickyHeaderHeight, setStickyHeaderHeight] = useState(0);
 
   const openBottomSheet = useCallback(
     (
@@ -511,9 +511,8 @@ export default function PlaceDetailV2Screen({
       isScrollingFromChipRef.current = true;
       const chipName = chips[index];
       const sectionY = sectionLayoutsRef.current[chipName] ?? 0;
-      // SectionsContainer padding-top=20, sticky headers ≈ TabBar(~41) + ChipBar(~50)
-      const stickyHeight = 91;
-      const targetY = tabContentYRef.current + 20 + sectionY - stickyHeight;
+      const stickyHeight = stickyHeaderHeight || 91;
+      const targetY = tabContentYRef.current + sectionY - stickyHeight;
       scrollViewRef.current?.scrollTo({
         y: Math.max(0, targetY),
         animated: true,
@@ -522,7 +521,7 @@ export default function PlaceDetailV2Screen({
         isScrollingFromChipRef.current = false;
       }, 500);
     },
-    [chips],
+    [chips, stickyHeaderHeight],
   );
 
   const handleNameLayout = useCallback((e: LayoutChangeEvent) => {
@@ -538,13 +537,12 @@ export default function PlaceDetailV2Screen({
 
       // Active chip tracking for accessibility tab (skip during programmatic scroll)
       if (showChipBar && chips.length > 0 && !isScrollingFromChipRef.current) {
-        const stickyHeight = 91;
+        const stickyHeight = stickyHeaderHeight || 91;
         const adjustedY = scrollY + stickyHeight;
         let newIndex = 0;
         for (let i = chips.length - 1; i >= 0; i--) {
           const sectionAbsY =
             tabContentYRef.current +
-            20 +
             (sectionLayoutsRef.current[chips[i]] ?? 0);
           if (adjustedY >= sectionAbsY) {
             newIndex = i;
@@ -554,7 +552,7 @@ export default function PlaceDetailV2Screen({
         setActiveChipIndex(prev => (prev !== newIndex ? newIndex : prev));
       }
     },
-    [showChipBar, chips],
+    [showChipBar, chips, stickyHeaderHeight],
   );
 
   if (isLoading || !place || !building) {
@@ -666,6 +664,9 @@ export default function PlaceDetailV2Screen({
             style={{flex: 1}}
             scrollEventThrottle={16}
             onScroll={handleScroll}
+            onLayout={e =>
+              setScrollViewHeight(e.nativeEvent.layout.height)
+            }
             stickyHeaderIndices={[1]}>
             <V2SummarySection
               place={place}
@@ -690,7 +691,10 @@ export default function PlaceDetailV2Screen({
             />
 
             {/* Tab Bar + Chip Bar — combined sticky header at index 1 */}
-            <View>
+            <View
+              onLayout={e => {
+                setStickyHeaderHeight(e.nativeEvent.layout.height);
+              }}>
               <V2TabBar
                 items={TAB_ITEMS}
                 current={currentTab}
@@ -711,7 +715,10 @@ export default function PlaceDetailV2Screen({
                 tabContentYRef.current = e.nativeEvent.layout.y;
               }}
               style={{
-                minHeight: windowHeight,
+                minHeight:
+                  scrollViewHeight > 0
+                    ? scrollViewHeight - (stickyHeaderHeight || 41)
+                    : 0,
                 backgroundColor:
                   currentTab === 'review' ||
                   currentTab === 'restroom' ||
