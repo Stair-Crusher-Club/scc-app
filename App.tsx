@@ -30,8 +30,8 @@ const queryClient = new QueryClient();
 const getBaseURL = () => {
   if (Config.FLAVOR === 'local') {
     return Platform.OS === 'ios'
-      ? 'http://localhost:8083'
-      : 'http://10.0.2.2:8083';
+      ? 'http://localhost:8080'
+      : 'http://10.0.2.2:8080';
   }
   return Config.BASE_URL;
 };

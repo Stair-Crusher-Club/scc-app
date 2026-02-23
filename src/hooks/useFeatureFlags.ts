@@ -17,8 +17,8 @@ export const useIsPlaceListEnabled = (): boolean => {
  * 비활성화: 기존 PlaceDetail 화면 사용
  */
 export const useIsPlaceDetailV2 = (): boolean => {
-  // TODO: 디버깅용 강제 활성화 - 작업 완료 후 원복
-  return true;
+  const featureFlag = useAtomValue(featureFlagAtom);
+  return featureFlag?.isPlaceDetailV2 ?? false;
 };
 
 /**

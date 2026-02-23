@@ -57,10 +57,10 @@ import V2AccessibilityTab, {
 } from './tabs/V2AccessibilityTab';
 import V2ChipBar from './components/V2ChipBar';
 import V2ReviewTab from './tabs/V2ReviewTab';
-import PlaceDetailRestroomTab from './tabs/PlaceDetailRestroomTab';
+import V2RestroomTab from './tabs/V2RestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
 import V2BottomBar from './components/V2BottomBar';
-import PlaceDetailRegistrationSheet from './tabs/PlaceDetailRegistrationSheet';
+import PlaceDetailRegistrationSheet from './components/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
   placeInfo:
@@ -542,8 +542,7 @@ export default function PlaceDetailV2Screen({
         let newIndex = 0;
         for (let i = chips.length - 1; i >= 0; i--) {
           const sectionAbsY =
-            tabContentYRef.current +
-            (sectionLayoutsRef.current[chips[i]] ?? 0);
+            tabContentYRef.current + (sectionLayoutsRef.current[chips[i]] ?? 0);
           if (adjustedY >= sectionAbsY) {
             newIndex = i;
             break;
@@ -614,7 +613,7 @@ export default function PlaceDetailV2Screen({
         );
       case 'restroom':
         return (
-          <PlaceDetailRestroomTab
+          <V2RestroomTab
             toiletReviews={toiletPost ?? []}
             placeId={place.id}
             placeName={place.name}
@@ -664,9 +663,7 @@ export default function PlaceDetailV2Screen({
             style={{flex: 1}}
             scrollEventThrottle={16}
             onScroll={handleScroll}
-            onLayout={e =>
-              setScrollViewHeight(e.nativeEvent.layout.height)
-            }
+            onLayout={e => setScrollViewHeight(e.nativeEvent.layout.height)}
             stickyHeaderIndices={[1]}>
             <V2SummarySection
               place={place}

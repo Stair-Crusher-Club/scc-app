@@ -33,11 +33,10 @@ export interface MainScreenParams {}
 
 export default function MainScreen({navigation}: ScreenProps<'Main'>) {
   const accessToken = useAtomValue(accessTokenAtom);
-  const _featureFlag = useAtomValue(featureFlagAtom);
+  const featureFlag = useAtomValue(featureFlagAtom);
   const checkAuth = useCheckAuth();
 
-  // TODO: 디버깅용 강제 활성화 - 작업 완료 후 원복
-  const isHomeScreenV2 = true;
+  const isHomeScreenV2 = featureFlag?.isHomeScreenV2 ?? false;
 
   useEffect(() => {
     const checkIfLoggedIn = async () => {

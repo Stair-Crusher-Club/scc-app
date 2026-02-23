@@ -22,7 +22,7 @@ interface Props {
   isAccessibilityRegistrable?: boolean;
 }
 
-export default function PlaceDetailRestroomTab({
+export default function V2RestroomTab({
   toiletReviews,
   placeId,
   placeName,
