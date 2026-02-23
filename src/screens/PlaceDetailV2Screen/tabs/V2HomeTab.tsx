@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
-import React, {useMemo} from 'react';
+import React from 'react';
 import {Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -15,7 +15,6 @@ import {
   AccessibilityInfoV2Dto,
   Building,
   Place,
-  PlaceDoorDirectionTypeDto,
   PlaceReviewDto,
   ToiletReviewDto,
 } from '@/generated-sources/openapi';
@@ -25,7 +24,6 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import AccessibilitySummarySection from '../sections/AccessibilitySummarySection';
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
-import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {
   FloorInfoRow,
@@ -37,7 +35,7 @@ import {
   PlaceEntranceSection,
   FloorMovementSection,
 } from '../components/EntranceSection';
-import IndoorInfoSection from '../components/IndoorInfoSection';
+import {getAccessibilitySections} from '../components/PlaceInfo.utils';
 
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;
@@ -69,7 +67,7 @@ export default function V2HomeTab({
   onPressAccessibilityTab: _onPressAccessibilityTab,
   onPressReviewTab,
   onPressPlaceRegister,
-  onPressReviewRegister,
+  onPressReviewRegister: _onPressReviewRegister,
   onPressToiletRegister,
 }: Props) {
   const navigation = useNavigation();
@@ -96,12 +94,15 @@ export default function V2HomeTab({
   const floors = placeAcc?.floors ?? [];
   const isMultiFloor = floors.length > 1;
   const hasV2Fields = placeAcc?.isStandaloneBuilding != null && doorDir != null;
-  const isInsideDoor = doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
-  // "층간 이동 정보"는 여러층일 때만 표시
-  const showFloorMovement = isMultiFloor;
-  // "내부 이용 정보"는 단독건물이거나, 내부문이거나, 여러층일 때 표시 (V2 미적용 데이터는 항상 표시)
-  const showIndoorInfo =
-    !hasV2Fields || isStandalone || isInsideDoor || isMultiFloor;
+
+  // 섹션 순서/가시성을 공유 유틸리티로 결정 (홈탭에서는 '내부 이용 정보' 제외)
+  const sections = getAccessibilitySections({
+    isStandalone,
+    doorDir,
+    isMultiFloor,
+    hasV2Fields,
+    hasBuildingAccessibility,
+  });
 
   // ── 가게정보 helpers ──
   const onCopy = () => {
@@ -140,17 +141,6 @@ export default function V2HomeTab({
   // ── 코멘트 ──
   const placeComments = accessibility?.placeAccessibilityComments ?? [];
   const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
-
-  // ── 도움돼요 최다 리뷰 1건 ──
-  const bestReviews = useMemo(() => {
-    if (!reviews.length) return [];
-    const sorted = [...reviews].sort((a, b) => {
-      const upvoteDiff = (b.totalUpvoteCount ?? 0) - (a.totalUpvoteCount ?? 0);
-      if (upvoteDiff !== 0) return upvoteDiff;
-      return (b.createdAt?.value ?? 0) - (a.createdAt?.value ?? 0);
-    });
-    return [sorted[0]];
-  }, [reviews]);
 
   return (
     <Container>
@@ -228,119 +218,10 @@ export default function V2HomeTab({
             {/* 층 정보 (항상 첫 번째) */}
             <FloorInfoRow accessibility={accessibility} />
 
-            {hasV2Fields ? (
+            {/* 건물 출입구 */}
+            {sections.includes('건물 출입구') && (
               <>
-                {isStandalone ? (
-                  <>
-                    {/* 단독건물: 매장(건물 출입구) — 다중 출입구 순회 */}
-                    {placeAccessibilities.map((pa, index) => (
-                      <PlaceEntranceSection
-                        key={pa.id ?? index}
-                        title={
-                          placeAccessibilities.length > 1
-                            ? `매장(건물 출입구) (${index + 1})`
-                            : '매장(건물 출입구)'
-                        }
-                        placeDate={dayjs(pa.createdAt.value).format(
-                          'YYYY.MM.DD',
-                        )}
-                        placeAccessibility={pa}
-                        accessibility={accessibility}
-                        placeComments={placeComments}
-                        compact
-                      />
-                    ))}
-                    {showFloorMovement && (
-                      <FloorMovementSection
-                        compact
-                        placeAccessibility={placeAcc}
-                      />
-                    )}
-                  </>
-                ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
-                  <>
-                    {/* 비단독 + 외부문 — 다중 매장 출입구 순회 */}
-                    {placeAccessibilities.map((pa, index) => (
-                      <PlaceEntranceSection
-                        key={pa.id ?? index}
-                        title={
-                          placeAccessibilities.length > 1
-                            ? `매장 출입구 (${index + 1})`
-                            : '매장 출입구'
-                        }
-                        placeDate={dayjs(pa.createdAt.value).format(
-                          'YYYY.MM.DD',
-                        )}
-                        placeAccessibility={pa}
-                        accessibility={accessibility}
-                        placeComments={placeComments}
-                        compact
-                      />
-                    ))}
-                    {showFloorMovement && (
-                      <FloorMovementSection
-                        compact
-                        placeAccessibility={placeAcc}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {/* 비단독 + 내부문 (INSIDE_BUILDING) — 다중 건물/매장 출입구 순회 */}
-                    {hasBuildingAccessibility ? (
-                      buildingAccessibilities.map((ba, index) => (
-                        <BuildingEntranceSection
-                          key={ba.id ?? index}
-                          buildingDate={dayjs(
-                            (ba as any).createdAt?.value ?? Date.now(),
-                          ).format('YYYY.MM.DD')}
-                          buildingAccessibility={ba}
-                          accessibility={accessibility}
-                          buildingComments={buildingComments}
-                          title={
-                            buildingAccessibilities.length > 1
-                              ? `건물 출입구 (${index + 1})`
-                              : '건물 출입구'
-                          }
-                          compact
-                        />
-                      ))
-                    ) : (
-                      <BuildingEntranceEmptySection
-                        compact
-                        onRegister={onPressPlaceRegister}
-                      />
-                    )}
-                    {placeAccessibilities.map((pa, index) => (
-                      <PlaceEntranceSection
-                        key={pa.id ?? index}
-                        title={
-                          placeAccessibilities.length > 1
-                            ? `매장 출입구 (${index + 1})`
-                            : '매장 출입구'
-                        }
-                        placeDate={dayjs(pa.createdAt.value).format(
-                          'YYYY.MM.DD',
-                        )}
-                        placeAccessibility={pa}
-                        accessibility={accessibility}
-                        placeComments={placeComments}
-                        compact
-                      />
-                    ))}
-                    {showFloorMovement && (
-                      <FloorMovementSection
-                        compact
-                        placeAccessibility={placeAcc}
-                      />
-                    )}
-                  </>
-                )}
-              </>
-            ) : (
-              <>
-                {/* Fallback: V2 필드 없는 기존 데이터 — 다중 출입구 순회 */}
-                {hasBuildingAccessibility &&
+                {hasBuildingAccessibility ? (
                   buildingAccessibilities.map((ba, index) => (
                     <BuildingEntranceSection
                       key={ba.id ?? index}
@@ -357,23 +238,41 @@ export default function V2HomeTab({
                       }
                       compact
                     />
-                  ))}
-                {placeAccessibilities.map((pa, index) => (
-                  <PlaceEntranceSection
-                    key={pa.id ?? index}
-                    title={
-                      placeAccessibilities.length > 1
+                  ))
+                ) : (
+                  <BuildingEntranceEmptySection
+                    compact
+                    onRegister={onPressPlaceRegister}
+                  />
+                )}
+              </>
+            )}
+
+            {/* 매장 출입구 */}
+            {sections.includes('매장 출입구') &&
+              placeAccessibilities.map((pa, index) => (
+                <PlaceEntranceSection
+                  key={pa.id ?? index}
+                  title={
+                    !hasV2Fields && hasBuildingAccessibility
+                      ? placeAccessibilities.length > 1
+                        ? `매장 출입구 - 주 출입구 (${index + 1})`
+                        : '매장 출입구 - 주 출입구'
+                      : placeAccessibilities.length > 1
                         ? `매장 출입구 (${index + 1})`
                         : '매장 출입구'
-                    }
-                    placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                    placeAccessibility={pa}
-                    accessibility={accessibility}
-                    placeComments={placeComments}
-                    compact
-                  />
-                ))}
-              </>
+                  }
+                  placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                  placeAccessibility={pa}
+                  accessibility={accessibility}
+                  placeComments={placeComments}
+                  compact
+                />
+              ))}
+
+            {/* 층간 이동 정보 */}
+            {sections.includes('층간 이동 정보') && (
+              <FloorMovementSection compact placeAccessibility={placeAcc} />
             )}
           </AccessibilitySectionContainer>
         ) : (
@@ -397,38 +296,19 @@ export default function V2HomeTab({
       {/* ── 4. Thick Divider ── */}
       <ThickDivider />
 
-      {/* ── 5. 내부공간 섹션 (V2: 단독건물/내부문/여러층일 때만 표시) ── */}
-      {showIndoorInfo && (
+      {/* ── 5. 방문 리뷰 섹션 (통계만 표시, 0건이면 숨김) ── */}
+      {reviews.length > 0 && (
         <>
           <Section>
-            <IndoorInfoSection
-              reviews={reviews}
-              title="내부공간"
-              showDate={false}
-              onRegister={onPressReviewRegister}
-            />
-          </Section>
-
-          {/* ── 6. Thick Divider ── */}
-          <ThickDivider />
-        </>
-      )}
-
-      {/* ── 7. 방문 리뷰 섹션 (도움돼요 최다 1건) ── */}
-      <Section>
-        <SectionHeader>
-          <SectionTitle>방문 리뷰</SectionTitle>
-          {reviews.length > 0 && (
-            <MoreButton
-              elementName="v2_home_tab_review_more"
-              onPress={onPressReviewTab}
-              accessibilityLabel="리뷰 탭으로 이동">
-              <MoreText>전체 {reviews.length}건</MoreText>
-            </MoreButton>
-          )}
-        </SectionHeader>
-        {reviews.length > 0 ? (
-          <>
+            <SectionHeader>
+              <SectionTitle>방문 리뷰</SectionTitle>
+              <MoreButton
+                elementName="v2_home_tab_review_more"
+                onPress={onPressReviewTab}
+                accessibilityLabel="리뷰 탭으로 이동">
+                <MoreText>전체 {reviews.length}건</MoreText>
+              </MoreButton>
+            </SectionHeader>
             <PlaceReviewSummaryInfo
               reviews={reviews}
               placeId={place.id}
@@ -436,30 +316,11 @@ export default function V2HomeTab({
               placeLocation={place.location}
               placeAddress={place.address}
             />
-            <PlaceVisitReviewInfo reviews={bestReviews} placeId={place.id} />
-          </>
-        ) : (
-          <EmptyCard>
-            <EmptyCardTitle>
-              {'아직 등록된 방문 리뷰가 없어요🥲'}
-            </EmptyCardTitle>
-            <EmptyCardDescription>
-              {
-                '장소 내부 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'
-              }
-            </EmptyCardDescription>
-            <StrokeCTAButton
-              text="내부 리뷰 작성하기"
-              onPress={onPressReviewRegister}
-              elementName="v2_home_tab_register_review"
-              fullWidth
-            />
-          </EmptyCard>
-        )}
-      </Section>
+          </Section>
 
-      {/* ── 8. Thick Divider ── */}
-      <ThickDivider />
+          <ThickDivider />
+        </>
+      )}
 
       {/* ── 9. 화장실 섹션 ── */}
       <Section>

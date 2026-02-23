@@ -73,13 +73,11 @@ export default function V2ReviewTab({
             {'아직 등록된 방문 리뷰가 없어요🥲'}
           </EmptyStateTitle>
           <EmptyStateDescription>
-            {
-              '장소 내부 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'
-            }
+            {'방문 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'}
           </EmptyStateDescription>
         </EmptyStateTextBlock>
         <StrokeCTAButton
-          text="내부 리뷰 작성하기"
+          text="방문 리뷰 작성하기"
           onPress={handleReviewPress}
           elementName="v2_review_tab_empty_write"
         />

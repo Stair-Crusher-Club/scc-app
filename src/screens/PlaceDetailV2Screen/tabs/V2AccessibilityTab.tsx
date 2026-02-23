@@ -9,7 +9,6 @@ import {
   AccessibilityInfoV2Dto,
   Building,
   Place,
-  PlaceDoorDirectionTypeDto,
   PlaceReviewDto,
   ReportTargetTypeDto,
 } from '@/generated-sources/openapi';
@@ -26,7 +25,10 @@ import {
   FloorMovementSection,
 } from '../components/EntranceSection';
 import IndoorInfoSection from '../components/IndoorInfoSection';
-import {getFloorAccessibility} from '../components/PlaceInfo.utils';
+import {
+  getFloorAccessibility,
+  getAccessibilitySections,
+} from '../components/PlaceInfo.utils';
 
 /** Compute the chip list for the accessibility tab chip bar. */
 export function getAccessibilityChips(
@@ -49,30 +51,13 @@ export function getAccessibilityChips(
   const isMultiFloor = floors.length > 1;
   const hasV2Fields = pa.isStandaloneBuilding != null && doorDir != null;
 
-  const chips: string[] = ['층 정보'];
-
-  if (hasV2Fields) {
-    if (isStandalone) {
-      chips.push('매장(건물 출입구)');
-      if (isMultiFloor) chips.push('층간 이동 정보');
-      chips.push('내부 이용 정보');
-    } else if (doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding) {
-      chips.push('매장 출입구');
-      if (isMultiFloor) chips.push('층간 이동 정보');
-      chips.push('내부 이용 정보');
-    } else {
-      chips.push('건물 출입구');
-      chips.push('매장 출입구');
-      if (isMultiFloor) chips.push('층간 이동 정보');
-      chips.push('내부 이용 정보');
-    }
-  } else {
-    if (hasBuildingAccessibility) chips.push('건물 출입구');
-    chips.push('매장 출입구');
-    chips.push('내부 이용 정보');
-  }
-
-  return chips;
+  return getAccessibilitySections({
+    isStandalone,
+    doorDir,
+    isMultiFloor,
+    hasV2Fields,
+    hasBuildingAccessibility,
+  });
 }
 
 interface Props {
@@ -141,6 +126,15 @@ export default function V2AccessibilityTab({
   const placeComments = accessibility?.placeAccessibilityComments ?? [];
   const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
 
+  // 섹션 순서/가시성을 공유 유틸리티로 결정
+  const sections = getAccessibilitySections({
+    isStandalone,
+    doorDir,
+    isMultiFloor,
+    hasV2Fields,
+    hasBuildingAccessibility,
+  });
+
   // 층 정보 계산
   const floorInfo = getFloorAccessibility(accessibility as any);
   const floorDate = dayjs(primaryPlaceAccessibility.createdAt.value).format(
@@ -183,154 +177,62 @@ export default function V2AccessibilityTab({
           </FloorSectionContainer>
         </View>
 
-        {hasV2Fields ? (
-          <>
-            {isStandalone ? (
-              <>
-                {/* 단독건물: 매장(건물 출입구) — 다중 출입구 순회 */}
-                <View onLayout={sectionLayout('매장(건물 출입구)')}>
-                  {placeAccessibilities.map((pa, index) => (
-                    <PlaceEntranceSection
-                      key={pa.id ?? index}
-                      title={placeEntranceTitle('매장(건물 출입구)', index)}
-                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                      placeAccessibility={pa}
-                      accessibility={accessibility}
-                      placeComments={placeComments}
-                    />
-                  ))}
-                </View>
-                {isMultiFloor && (
-                  <View onLayout={sectionLayout('층간 이동 정보')}>
-                    <FloorMovementSection
-                      placeAccessibility={primaryPlaceAccessibility}
-                    />
-                  </View>
-                )}
-                <View onLayout={sectionLayout('내부 이용 정보')}>
-                  <IndoorInfoSection
-                    reviews={reviews}
-                    onRegister={onRegister}
-                  />
-                </View>
-              </>
-            ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
-              <>
-                {/* 비단독 + 외부문 — 다중 매장 출입구 순회 */}
-                <View onLayout={sectionLayout('매장 출입구')}>
-                  {placeAccessibilities.map((pa, index) => (
-                    <PlaceEntranceSection
-                      key={pa.id ?? index}
-                      title={placeEntranceTitle('매장 출입구', index)}
-                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                      placeAccessibility={pa}
-                      accessibility={accessibility}
-                      placeComments={placeComments}
-                    />
-                  ))}
-                </View>
-                {isMultiFloor && (
-                  <View onLayout={sectionLayout('층간 이동 정보')}>
-                    <FloorMovementSection
-                      placeAccessibility={primaryPlaceAccessibility}
-                    />
-                  </View>
-                )}
-                <View onLayout={sectionLayout('내부 이용 정보')}>
-                  <IndoorInfoSection
-                    reviews={reviews}
-                    onRegister={onRegister}
-                  />
-                </View>
-              </>
-            ) : (
-              <>
-                {/* 비단독 + 내부문 (INSIDE_BUILDING) — 다중 건물/매장 출입구 순회 */}
-                <View onLayout={sectionLayout('건물 출입구')}>
-                  {hasBuildingAccessibility ? (
-                    buildingAccessibilities.map((ba, index) => (
-                      <BuildingEntranceSection
-                        key={ba.id ?? index}
-                        buildingDate={dayjs(
-                          (ba as any).createdAt?.value ?? Date.now(),
-                        ).format('YYYY.MM.DD')}
-                        buildingAccessibility={ba}
-                        accessibility={accessibility}
-                        buildingComments={buildingComments}
-                        title={buildingEntranceTitle(index)}
-                      />
-                    ))
-                  ) : (
-                    <BuildingEntranceEmptySection onRegister={onRegister} />
-                  )}
-                </View>
-                <View onLayout={sectionLayout('매장 출입구')}>
-                  {placeAccessibilities.map((pa, index) => (
-                    <PlaceEntranceSection
-                      key={pa.id ?? index}
-                      title={placeEntranceTitle('매장 출입구', index)}
-                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                      placeAccessibility={pa}
-                      accessibility={accessibility}
-                      placeComments={placeComments}
-                    />
-                  ))}
-                </View>
-                {isMultiFloor && (
-                  <View onLayout={sectionLayout('층간 이동 정보')}>
-                    <FloorMovementSection
-                      placeAccessibility={primaryPlaceAccessibility}
-                    />
-                  </View>
-                )}
-                <View onLayout={sectionLayout('내부 이용 정보')}>
-                  <IndoorInfoSection
-                    reviews={reviews}
-                    onRegister={onRegister}
-                  />
-                </View>
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Fallback: V2 필드 없는 기존 데이터 — 다중 건물 출입구 순회 */}
-            {hasBuildingAccessibility && (
-              <View onLayout={sectionLayout('건물 출입구')}>
-                {buildingAccessibilities.map((ba, index) => (
-                  <BuildingEntranceSection
-                    key={ba.id ?? index}
-                    buildingDate={dayjs(
-                      (ba as any).createdAt?.value ?? Date.now(),
-                    ).format('YYYY.MM.DD')}
-                    buildingAccessibility={ba}
-                    accessibility={accessibility}
-                    buildingComments={buildingComments}
-                    title={buildingEntranceTitle(index)}
-                  />
-                ))}
-              </View>
-            )}
-            <View onLayout={sectionLayout('매장 출입구')}>
-              {placeAccessibilities.map((pa, index) => (
-                <PlaceEntranceSection
-                  key={pa.id ?? index}
-                  title={
-                    hasBuildingAccessibility
-                      ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
-                      : placeEntranceTitle('매장 출입구', index)
-                  }
-                  placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                  placeAccessibility={pa}
+        {/* 건물 출입구 */}
+        {sections.includes('건물 출입구') && (
+          <View onLayout={sectionLayout('건물 출입구')}>
+            {hasBuildingAccessibility ? (
+              buildingAccessibilities.map((ba, index) => (
+                <BuildingEntranceSection
+                  key={ba.id ?? index}
+                  buildingDate={dayjs(
+                    (ba as any).createdAt?.value ?? Date.now(),
+                  ).format('YYYY.MM.DD')}
+                  buildingAccessibility={ba}
                   accessibility={accessibility}
-                  placeComments={placeComments}
+                  buildingComments={buildingComments}
+                  title={buildingEntranceTitle(index)}
                 />
-              ))}
-            </View>
-            <View onLayout={sectionLayout('내부 이용 정보')}>
-              <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
-            </View>
-          </>
+              ))
+            ) : (
+              <BuildingEntranceEmptySection onRegister={onRegister} />
+            )}
+          </View>
+        )}
+
+        {/* 매장 출입구 */}
+        {sections.includes('매장 출입구') && (
+          <View onLayout={sectionLayout('매장 출입구')}>
+            {placeAccessibilities.map((pa, index) => (
+              <PlaceEntranceSection
+                key={pa.id ?? index}
+                title={
+                  !hasV2Fields && hasBuildingAccessibility
+                    ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
+                    : placeEntranceTitle('매장 출입구', index)
+                }
+                placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                placeAccessibility={pa}
+                accessibility={accessibility}
+                placeComments={placeComments}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* 층간 이동 정보 */}
+        {sections.includes('층간 이동 정보') && (
+          <View onLayout={sectionLayout('층간 이동 정보')}>
+            <FloorMovementSection
+              placeAccessibility={primaryPlaceAccessibility}
+            />
+          </View>
+        )}
+
+        {/* 내부 이용 정보 */}
+        {sections.includes('내부 이용 정보') && (
+          <View onLayout={sectionLayout('내부 이용 정보')}>
+            <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
+          </View>
         )}
       </SectionsContainer>
 

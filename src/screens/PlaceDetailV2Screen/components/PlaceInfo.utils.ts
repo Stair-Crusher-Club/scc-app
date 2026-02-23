@@ -1,8 +1,50 @@
 import {
   AccessibilityInfoDto,
+  PlaceDoorDirectionTypeDto,
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
+
+export type AccessibilitySectionType =
+  | '층 정보'
+  | '건물 출입구'
+  | '매장 출입구'
+  | '층간 이동 정보'
+  | '내부 이용 정보';
+
+export function getAccessibilitySections(params: {
+  isStandalone: boolean;
+  doorDir?: PlaceDoorDirectionTypeDto;
+  isMultiFloor: boolean;
+  hasV2Fields: boolean;
+  hasBuildingAccessibility: boolean;
+}): AccessibilitySectionType[] {
+  const {
+    isStandalone,
+    doorDir,
+    isMultiFloor,
+    hasV2Fields,
+    hasBuildingAccessibility,
+  } = params;
+  const sections: AccessibilitySectionType[] = ['층 정보'];
+
+  if (hasV2Fields) {
+    const isInsideDoor =
+      !isStandalone && doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
+    if (isInsideDoor) {
+      sections.push('건물 출입구');
+    }
+    sections.push('매장 출입구');
+    if (isMultiFloor) sections.push('층간 이동 정보');
+    sections.push('내부 이용 정보');
+  } else {
+    if (hasBuildingAccessibility) sections.push('건물 출입구');
+    sections.push('매장 출입구');
+    sections.push('내부 이용 정보');
+  }
+
+  return sections;
+}
 
 export enum FloorAccessibilityType {
   GroundFloor,

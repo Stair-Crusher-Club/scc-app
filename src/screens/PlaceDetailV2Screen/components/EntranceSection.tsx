@@ -274,10 +274,10 @@ export function FloorMovementSection({
               subValue={elevatorStairDescription}
             />
           )}
-          {elevatorComment != null && elevatorComment.length > 0 && (
-            <InfoRow label="코멘트" value={elevatorComment} />
-          )}
         </InfoRowsContainer>
+        {elevatorComment != null && elevatorComment.length > 0 && (
+          <InlineComment>{elevatorComment}</InlineComment>
+        )}
       </SectionContent>
     </Container>
   );
