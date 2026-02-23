@@ -148,6 +148,18 @@ export interface AccessibilityInfoV2Dto {
      * @memberof AccessibilityInfoV2Dto
      */
     'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
+    /**
+     * 이 장소의 모든 매장 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<PlaceAccessibility>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeAccessibilities'?: Array<PlaceAccessibility>;
+    /**
+     * 이 건물의 모든 건물 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<BuildingAccessibility>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'buildingAccessibilities'?: Array<BuildingAccessibility>;
 }
 /**
  * 
@@ -161,6 +173,18 @@ export interface AccessibilityInfoV2DtoAllOf {
      * @memberof AccessibilityInfoV2DtoAllOf
      */
     'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
+    /**
+     * 이 장소의 모든 매장 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<PlaceAccessibility>}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'placeAccessibilities'?: Array<PlaceAccessibility>;
+    /**
+     * 이 건물의 모든 건물 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<BuildingAccessibility>}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'buildingAccessibilities'?: Array<BuildingAccessibility>;
 }
 /**
  * 
@@ -692,6 +716,12 @@ export interface BuildingAccessibility {
      * @memberof BuildingAccessibility
      */
     'totalUpvoteCount': number;
+    /**
+     * 출입구 방향이 기타(ETC)인 경우 출입구 방향에 대한 설명.
+     * @type {string}
+     * @memberof BuildingAccessibility
+     */
+    'doorDirectionEtcComment'?: string;
     /**
      * 
      * @type {EpochMillisTimestamp}

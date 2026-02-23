@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
@@ -29,6 +29,18 @@ export default function V2ReviewTab({
   const checkAuth = useCheckAuth();
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
+
+  // 도움돼요순 → 최신순 정렬
+  const sortedReviews = useMemo(
+    () =>
+      [...reviews].sort((a, b) => {
+        const upvoteDiff =
+          (b.totalUpvoteCount ?? 0) - (a.totalUpvoteCount ?? 0);
+        if (upvoteDiff !== 0) return upvoteDiff;
+        return (b.createdAt?.value ?? 0) - (a.createdAt?.value ?? 0);
+      }),
+    [reviews],
+  );
 
   const handleReviewPress = () => {
     if (Platform.OS === 'web') {
@@ -83,14 +95,14 @@ export default function V2ReviewTab({
       </Section>
       <Content>
         <PlaceReviewSummaryInfo
-          reviews={reviews}
+          reviews={sortedReviews}
           placeId={place.id}
           placeName={place.name}
           placeLocation={place.location}
           placeAddress={place.address}
         />
         <Divider />
-        <PlaceVisitReviewInfo reviews={reviews} placeId={place.id} />
+        <PlaceVisitReviewInfo reviews={sortedReviews} placeId={place.id} />
       </Content>
       <BottomPadding />
       {LocationConfirmModal}

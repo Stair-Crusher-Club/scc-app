@@ -32,10 +32,17 @@ import {getFloorAccessibility} from '../components/PlaceInfo.utils';
 export function getAccessibilityChips(
   accessibility?: AccessibilityInfoV2Dto,
 ): string[] {
-  if (!accessibility?.placeAccessibility) return [];
+  const placeAccessibilities =
+    accessibility?.placeAccessibilities ??
+    (accessibility?.placeAccessibility
+      ? [accessibility.placeAccessibility]
+      : []);
+  if (placeAccessibilities.length === 0) return [];
 
-  const pa = accessibility.placeAccessibility;
-  const hasBuildingAccessibility = !!accessibility.buildingAccessibility;
+  const pa = placeAccessibilities[0];
+  const hasBuildingAccessibility =
+    (accessibility?.buildingAccessibilities ?? []).length > 0 ||
+    !!accessibility?.buildingAccessibility;
   const isStandalone = pa.isStandaloneBuilding === true;
   const doorDir = pa.doorDirectionType;
   const floors = pa.floors ?? [];
@@ -86,8 +93,20 @@ export default function V2AccessibilityTab({
   onRegister,
   onSectionLayout,
 }: Props) {
-  const hasPlaceAccessibility = !!accessibility?.placeAccessibility;
-  const hasBuildingAccessibility = !!accessibility?.buildingAccessibility;
+  // 다중 출입구 배열 지원 (하위 호환: 단일 필드 fallback)
+  const placeAccessibilities =
+    accessibility?.placeAccessibilities ??
+    (accessibility?.placeAccessibility
+      ? [accessibility.placeAccessibility]
+      : []);
+  const buildingAccessibilities =
+    accessibility?.buildingAccessibilities ??
+    (accessibility?.buildingAccessibility
+      ? [accessibility.buildingAccessibility]
+      : []);
+
+  const hasPlaceAccessibility = placeAccessibilities.length > 0;
+  const hasBuildingAccessibility = buildingAccessibilities.length > 0;
 
   if (!hasPlaceAccessibility) {
     return (
@@ -109,35 +128,22 @@ export default function V2AccessibilityTab({
     );
   }
 
-  const placeAccessibility = accessibility!.placeAccessibility!;
-  const buildingAccessibility = accessibility?.buildingAccessibility;
+  const primaryPlaceAccessibility = placeAccessibilities[0];
 
-  // V2 건물유형 분기 필드
-  const isStandalone = placeAccessibility.isStandaloneBuilding === true;
-  const doorDir = placeAccessibility.doorDirectionType;
-  const floors = placeAccessibility.floors ?? [];
+  // V2 건물유형 분기 필드 (첫 번째 PA 기준)
+  const isStandalone = primaryPlaceAccessibility.isStandaloneBuilding === true;
+  const doorDir = primaryPlaceAccessibility.doorDirectionType;
+  const floors = primaryPlaceAccessibility.floors ?? [];
   const isMultiFloor = floors.length > 1;
   const hasV2Fields =
-    placeAccessibility.isStandaloneBuilding != null && doorDir != null;
+    primaryPlaceAccessibility.isStandaloneBuilding != null && doorDir != null;
 
   const placeComments = accessibility?.placeAccessibilityComments ?? [];
   const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
 
   // 층 정보 계산
   const floorInfo = getFloorAccessibility(accessibility as any);
-  const floorDate = dayjs(placeAccessibility.createdAt.value).format(
-    'YYYY.MM.DD',
-  );
-
-  // 건물 출입구 정보
-  const buildingDate = buildingAccessibility
-    ? dayjs(
-        (buildingAccessibility as any).createdAt?.value ?? Date.now(),
-      ).format('YYYY.MM.DD')
-    : '';
-
-  // 매장 출입구 정보
-  const placeDate = dayjs(placeAccessibility.createdAt.value).format(
+  const floorDate = dayjs(primaryPlaceAccessibility.createdAt.value).format(
     'YYYY.MM.DD',
   );
 
@@ -145,6 +151,16 @@ export default function V2AccessibilityTab({
     (name: string) => (e: {nativeEvent: {layout: {y: number}}}) => {
       onSectionLayout?.(name, e.nativeEvent.layout.y);
     };
+
+  /** 매장 출입구 제목 (다중 출입구 시 번호 매김) */
+  const placeEntranceTitle = (baseTitle: string, index: number) =>
+    placeAccessibilities.length > 1 ? `${baseTitle} (${index + 1})` : baseTitle;
+
+  /** 건물 출입구 제목 (다중 출입구 시 번호 매김) */
+  const buildingEntranceTitle = (index: number) =>
+    buildingAccessibilities.length > 1
+      ? `건물 출입구 (${index + 1})`
+      : '건물 출입구';
 
   return (
     <Container>
@@ -171,20 +187,23 @@ export default function V2AccessibilityTab({
           <>
             {isStandalone ? (
               <>
-                {/* 단독건물: 매장(건물 출입구) */}
+                {/* 단독건물: 매장(건물 출입구) — 다중 출입구 순회 */}
                 <View onLayout={sectionLayout('매장(건물 출입구)')}>
-                  <PlaceEntranceSection
-                    title="매장(건물 출입구)"
-                    placeDate={placeDate}
-                    placeAccessibility={placeAccessibility}
-                    accessibility={accessibility}
-                    placeComments={placeComments}
-                  />
+                  {placeAccessibilities.map((pa, index) => (
+                    <PlaceEntranceSection
+                      key={pa.id ?? index}
+                      title={placeEntranceTitle('매장(건물 출입구)', index)}
+                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                      placeAccessibility={pa}
+                      accessibility={accessibility}
+                      placeComments={placeComments}
+                    />
+                  ))}
                 </View>
                 {isMultiFloor && (
                   <View onLayout={sectionLayout('층간 이동 정보')}>
                     <FloorMovementSection
-                      placeAccessibility={placeAccessibility}
+                      placeAccessibility={primaryPlaceAccessibility}
                     />
                   </View>
                 )}
@@ -197,20 +216,23 @@ export default function V2AccessibilityTab({
               </>
             ) : doorDir === PlaceDoorDirectionTypeDto.OutsideBuilding ? (
               <>
-                {/* 비단독 + 외부문 */}
+                {/* 비단독 + 외부문 — 다중 매장 출입구 순회 */}
                 <View onLayout={sectionLayout('매장 출입구')}>
-                  <PlaceEntranceSection
-                    title="매장 출입구"
-                    placeDate={placeDate}
-                    placeAccessibility={placeAccessibility}
-                    accessibility={accessibility}
-                    placeComments={placeComments}
-                  />
+                  {placeAccessibilities.map((pa, index) => (
+                    <PlaceEntranceSection
+                      key={pa.id ?? index}
+                      title={placeEntranceTitle('매장 출입구', index)}
+                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                      placeAccessibility={pa}
+                      accessibility={accessibility}
+                      placeComments={placeComments}
+                    />
+                  ))}
                 </View>
                 {isMultiFloor && (
                   <View onLayout={sectionLayout('층간 이동 정보')}>
                     <FloorMovementSection
-                      placeAccessibility={placeAccessibility}
+                      placeAccessibility={primaryPlaceAccessibility}
                     />
                   </View>
                 )}
@@ -223,32 +245,41 @@ export default function V2AccessibilityTab({
               </>
             ) : (
               <>
-                {/* 비단독 + 내부문 (INSIDE_BUILDING) */}
+                {/* 비단독 + 내부문 (INSIDE_BUILDING) — 다중 건물/매장 출입구 순회 */}
                 <View onLayout={sectionLayout('건물 출입구')}>
-                  {hasBuildingAccessibility && buildingAccessibility ? (
-                    <BuildingEntranceSection
-                      buildingDate={buildingDate}
-                      buildingAccessibility={buildingAccessibility}
-                      accessibility={accessibility}
-                      buildingComments={buildingComments}
-                    />
+                  {hasBuildingAccessibility ? (
+                    buildingAccessibilities.map((ba, index) => (
+                      <BuildingEntranceSection
+                        key={ba.id ?? index}
+                        buildingDate={dayjs(
+                          (ba as any).createdAt?.value ?? Date.now(),
+                        ).format('YYYY.MM.DD')}
+                        buildingAccessibility={ba}
+                        accessibility={accessibility}
+                        buildingComments={buildingComments}
+                        title={buildingEntranceTitle(index)}
+                      />
+                    ))
                   ) : (
                     <BuildingEntranceEmptySection onRegister={onRegister} />
                   )}
                 </View>
                 <View onLayout={sectionLayout('매장 출입구')}>
-                  <PlaceEntranceSection
-                    title="매장 출입구"
-                    placeDate={placeDate}
-                    placeAccessibility={placeAccessibility}
-                    accessibility={accessibility}
-                    placeComments={placeComments}
-                  />
+                  {placeAccessibilities.map((pa, index) => (
+                    <PlaceEntranceSection
+                      key={pa.id ?? index}
+                      title={placeEntranceTitle('매장 출입구', index)}
+                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                      placeAccessibility={pa}
+                      accessibility={accessibility}
+                      placeComments={placeComments}
+                    />
+                  ))}
                 </View>
                 {isMultiFloor && (
                   <View onLayout={sectionLayout('층간 이동 정보')}>
                     <FloorMovementSection
-                      placeAccessibility={placeAccessibility}
+                      placeAccessibility={primaryPlaceAccessibility}
                     />
                   </View>
                 )}
@@ -263,29 +294,38 @@ export default function V2AccessibilityTab({
           </>
         ) : (
           <>
-            {/* Fallback: V2 필드 없는 기존 데이터 */}
-            {hasBuildingAccessibility && buildingAccessibility && (
+            {/* Fallback: V2 필드 없는 기존 데이터 — 다중 건물 출입구 순회 */}
+            {hasBuildingAccessibility && (
               <View onLayout={sectionLayout('건물 출입구')}>
-                <BuildingEntranceSection
-                  buildingDate={buildingDate}
-                  buildingAccessibility={buildingAccessibility}
-                  accessibility={accessibility}
-                  buildingComments={buildingComments}
-                />
+                {buildingAccessibilities.map((ba, index) => (
+                  <BuildingEntranceSection
+                    key={ba.id ?? index}
+                    buildingDate={dayjs(
+                      (ba as any).createdAt?.value ?? Date.now(),
+                    ).format('YYYY.MM.DD')}
+                    buildingAccessibility={ba}
+                    accessibility={accessibility}
+                    buildingComments={buildingComments}
+                    title={buildingEntranceTitle(index)}
+                  />
+                ))}
               </View>
             )}
             <View onLayout={sectionLayout('매장 출입구')}>
-              <PlaceEntranceSection
-                title={
-                  hasBuildingAccessibility
-                    ? '매장 출입구 - 주 출입구'
-                    : '매장 출입구'
-                }
-                placeDate={placeDate}
-                placeAccessibility={placeAccessibility}
-                accessibility={accessibility}
-                placeComments={placeComments}
-              />
+              {placeAccessibilities.map((pa, index) => (
+                <PlaceEntranceSection
+                  key={pa.id ?? index}
+                  title={
+                    hasBuildingAccessibility
+                      ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
+                      : placeEntranceTitle('매장 출입구', index)
+                  }
+                  placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                  placeAccessibility={pa}
+                  accessibility={accessibility}
+                  placeComments={placeComments}
+                />
+              ))}
             </View>
             <View onLayout={sectionLayout('내부 이용 정보')}>
               <IndoorInfoSection reviews={reviews} onRegister={onRegister} />

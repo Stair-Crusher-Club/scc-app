@@ -39,6 +39,7 @@ export function BuildingEntranceSection({
   accessibility,
   buildingComments,
   compact = false,
+  title = '건물 출입구',
 }: {
   buildingDate: string;
   buildingAccessibility: NonNullable<
@@ -47,14 +48,18 @@ export function BuildingEntranceSection({
   accessibility?: AccessibilityInfoV2Dto;
   buildingComments: BuildingAccessibilityComment[];
   compact?: boolean;
+  title?: string;
 }) {
   const Container = compact ? CompactSectionContainer : SectionContainer;
-  const Title = compact ? CompactSectionTitle : SectionTitle;
+  const TitleComponent = compact ? CompactSectionTitle : SectionTitle;
+
+  const doorDirectionEtcComment = (buildingAccessibility as any)
+    .doorDirectionEtcComment as string | undefined;
 
   return (
     <Container>
       <SectionHeader>
-        <Title>건물 출입구</Title>
+        <TitleComponent>{title}</TitleComponent>
         <SectionDate>{buildingDate}</SectionDate>
       </SectionHeader>
 
@@ -71,6 +76,10 @@ export function BuildingEntranceSection({
           <BuildingElevatorInfoRow accessibility={accessibility} />
           <BuildingDoorInfoRow accessibility={accessibility} />
         </InfoRowsContainer>
+        {doorDirectionEtcComment != null &&
+          doorDirectionEtcComment.length > 0 && (
+            <InlineComment>{doorDirectionEtcComment}</InlineComment>
+          )}
         {buildingComments.length > 0 && (
           <CommentBox
             comments={buildingComments}
@@ -127,12 +136,14 @@ export function PlaceEntranceSection({
   compact?: boolean;
 }) {
   const Container = compact ? CompactSectionContainer : SectionContainer;
-  const Title = compact ? CompactSectionTitle : SectionTitle;
+  const TitleComponent = compact ? CompactSectionTitle : SectionTitle;
+
+  const entranceComment = placeAccessibility.entranceComment;
 
   return (
     <Container>
       <SectionHeader>
-        <Title>{title}</Title>
+        <TitleComponent>{title}</TitleComponent>
         <SectionDate>{placeDate}</SectionDate>
       </SectionHeader>
 
@@ -144,6 +155,9 @@ export function PlaceEntranceSection({
           <PlaceDoorInfoRow accessibility={accessibility} />
           <PlaceNoteInfoRow accessibility={accessibility} />
         </InfoRowsContainer>
+        {entranceComment != null && entranceComment.length > 0 && (
+          <InlineComment>{entranceComment}</InlineComment>
+        )}
         {placeComments.length > 0 && (
           <CommentBox
             comments={placeComments}
@@ -313,4 +327,12 @@ const CompactSectionTitle = styled.Text`
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.gray80};
+`;
+
+const InlineComment = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.28px;
+  color: ${color.gray70};
 `;
