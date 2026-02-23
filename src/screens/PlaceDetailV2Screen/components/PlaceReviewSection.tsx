@@ -16,7 +16,7 @@ interface Props {
   onRegister?: () => void;
 }
 
-export default function IndoorInfoSection({
+export default function PlaceReviewSection({
   reviews,
   title = '내부 이용 정보',
   showDate = true,

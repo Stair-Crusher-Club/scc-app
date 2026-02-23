@@ -24,7 +24,7 @@ import {
   PlaceEntranceSection,
   FloorMovementSection,
 } from '../components/EntranceSection';
-import IndoorInfoSection from '../components/IndoorInfoSection';
+import PlaceReviewSection from '../components/PlaceReviewSection';
 import {
   getFloorAccessibility,
   getAccessibilitySections,
@@ -160,80 +160,87 @@ export default function V2AccessibilityTab({
     <Container>
       {/* 섹션들 */}
       <SectionsContainer>
-        {/* 층 정보 (항상 첫 번째) */}
-        <View onLayout={sectionLayout('층 정보')}>
-          <FloorSectionContainer>
-            <FloorSectionHeader>
-              <FloorSectionTitle>층 정보</FloorSectionTitle>
-              <FloorSectionDate>{floorDate}</FloorSectionDate>
-            </FloorSectionHeader>
-            <InfoRowsContainer>
-              <InfoRow
-                label="층 정보"
-                value={floorInfo.title}
-                subValue={floorInfo.description}
-              />
-            </InfoRowsContainer>
-          </FloorSectionContainer>
-        </View>
-
-        {/* 건물 출입구 */}
-        {sections.includes('건물 출입구') && (
-          <View onLayout={sectionLayout('건물 출입구')}>
-            {hasBuildingAccessibility ? (
-              buildingAccessibilities.map((ba, index) => (
-                <BuildingEntranceSection
-                  key={ba.id ?? index}
-                  buildingDate={dayjs(
-                    (ba as any).createdAt?.value ?? Date.now(),
-                  ).format('YYYY.MM.DD')}
-                  buildingAccessibility={ba}
-                  accessibility={accessibility}
-                  buildingComments={buildingComments}
-                  title={buildingEntranceTitle(index)}
-                />
-              ))
-            ) : (
-              <BuildingEntranceEmptySection onRegister={onRegister} />
-            )}
-          </View>
-        )}
-
-        {/* 매장 출입구 */}
-        {sections.includes('매장 출입구') && (
-          <View onLayout={sectionLayout('매장 출입구')}>
-            {placeAccessibilities.map((pa, index) => (
-              <PlaceEntranceSection
-                key={pa.id ?? index}
-                title={
-                  !hasV2Fields && hasBuildingAccessibility
-                    ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
-                    : placeEntranceTitle('매장 출입구', index)
-                }
-                placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                placeAccessibility={pa}
-                accessibility={accessibility}
-                placeComments={placeComments}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* 층간 이동 정보 */}
-        {sections.includes('층간 이동 정보') && (
-          <View onLayout={sectionLayout('층간 이동 정보')}>
-            <FloorMovementSection
-              placeAccessibility={primaryPlaceAccessibility}
-            />
-          </View>
-        )}
-
-        {/* 내부 이용 정보 */}
-        {sections.includes('내부 이용 정보') && (
-          <View onLayout={sectionLayout('내부 이용 정보')}>
-            <IndoorInfoSection reviews={reviews} onRegister={onRegister} />
-          </View>
-        )}
+        {sections.map(section => {
+          switch (section) {
+            case '층 정보':
+              return (
+                <View key={section} onLayout={sectionLayout('층 정보')}>
+                  <FloorSectionContainer>
+                    <FloorSectionHeader>
+                      <FloorSectionTitle>층 정보</FloorSectionTitle>
+                      <FloorSectionDate>{floorDate}</FloorSectionDate>
+                    </FloorSectionHeader>
+                    <InfoRowsContainer>
+                      <InfoRow
+                        label="층 정보"
+                        value={floorInfo.title}
+                        subValue={floorInfo.description}
+                      />
+                    </InfoRowsContainer>
+                  </FloorSectionContainer>
+                </View>
+              );
+            case '건물 출입구':
+              return (
+                <View key={section} onLayout={sectionLayout('건물 출입구')}>
+                  {hasBuildingAccessibility ? (
+                    buildingAccessibilities.map((ba, index) => (
+                      <BuildingEntranceSection
+                        key={ba.id ?? index}
+                        buildingDate={dayjs(
+                          (ba as any).createdAt?.value ?? Date.now(),
+                        ).format('YYYY.MM.DD')}
+                        buildingAccessibility={ba}
+                        accessibility={accessibility}
+                        buildingComments={buildingComments}
+                        title={buildingEntranceTitle(index)}
+                      />
+                    ))
+                  ) : (
+                    <BuildingEntranceEmptySection onRegister={onRegister} />
+                  )}
+                </View>
+              );
+            case '매장 출입구':
+              return (
+                <View key={section} onLayout={sectionLayout('매장 출입구')}>
+                  {placeAccessibilities.map((pa, index) => (
+                    <PlaceEntranceSection
+                      key={pa.id ?? index}
+                      title={
+                        !hasV2Fields && hasBuildingAccessibility
+                          ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
+                          : placeEntranceTitle('매장 출입구', index)
+                      }
+                      placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
+                      placeAccessibility={pa}
+                      accessibility={accessibility}
+                      placeComments={placeComments}
+                    />
+                  ))}
+                </View>
+              );
+            case '층간 이동 정보':
+              return (
+                <View key={section} onLayout={sectionLayout('층간 이동 정보')}>
+                  <FloorMovementSection
+                    placeAccessibility={primaryPlaceAccessibility}
+                  />
+                </View>
+              );
+            case '내부 이용 정보':
+              return (
+                <View key={section} onLayout={sectionLayout('내부 이용 정보')}>
+                  <PlaceReviewSection
+                    reviews={reviews}
+                    onRegister={onRegister}
+                  />
+                </View>
+              );
+            default:
+              return null;
+          }
+        })}
       </SectionsContainer>
 
       <BottomPadding />

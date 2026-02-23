@@ -22,7 +22,6 @@ import useNavigation from '@/navigation/useNavigation';
 
 import ToastUtils from '@/utils/ToastUtils';
 
-import AccessibilitySummarySection from '../sections/AccessibilitySummarySection';
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {
@@ -210,11 +209,6 @@ export default function V2HomeTab({
         </SectionHeader>
         {hasAccessibility ? (
           <AccessibilitySectionContainer>
-            <AccessibilitySummarySection
-              accessibility={accessibility!}
-              showLabel
-            />
-
             {/* 층 정보 (항상 첫 번째) */}
             <FloorInfoRow accessibility={accessibility} />
 
