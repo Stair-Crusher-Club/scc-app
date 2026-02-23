@@ -4,7 +4,6 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {UpvotedPlaceDto} from '@/generated-sources/openapi/api';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
-import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import styled from 'styled-components/native';
 
@@ -18,14 +17,6 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
 
   const targetType = item.accessibilityType!!;
   const targetId = item.accessibilityId!!;
-
-  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
-    initialIsUpvoted: item.isUpvoted,
-    initialTotalCount: item.totalUpvoteCount,
-    targetId,
-    targetType,
-    placeId: item.id!!,
-  });
 
   return (
     <Container>
@@ -43,9 +34,8 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
       </PlaceButton>
 
       <FeedbackButton
-        total={totalUpvoteCount}
-        isUpvoted={isUpvoted}
-        onPressUpvote={toggleUpvote}
+        total={item.totalUpvoteCount}
+        isUpvoted={item.isUpvoted}
         onPressAnalytics={() => {
           navigation.navigate('UpvoteAnalytics', {
             targetType,

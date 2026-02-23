@@ -2,6 +2,7 @@ import React from 'react';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
+import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -42,7 +43,7 @@ export default function V2ConquerorTab({
         <EmptyStateCTAButton
           elementName="v2_conqueror_tab_empty_register"
           onPress={onPressRegister}>
-          <EmptyStateCTAIcon>🚩</EmptyStateCTAIcon>
+          <FlagIcon width={20} height={20} />
           <EmptyStateCTAText>
             정보 등록하고 첫번째 정복자가 되기!
           </EmptyStateCTAText>
@@ -204,12 +205,6 @@ const EmptyStateCTAButton = styled(SccTouchableOpacity)`
   border-radius: 8px;
   padding-vertical: 12px;
   padding-horizontal: 28px;
-`;
-
-const EmptyStateCTAIcon = styled.Text.attrs({
-  style: {includeFontPadding: false, textAlignVertical: 'center'},
-})`
-  font-size: 20px;
 `;
 
 const EmptyStateCTAText = styled.Text.attrs({

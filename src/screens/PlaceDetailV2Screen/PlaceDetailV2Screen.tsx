@@ -741,19 +741,22 @@ export default function PlaceDetailV2Screen({
           </ScrollView>
         </GestureHandlerRootView>
 
-        <V2BottomBar
-          accessibility={accessibilityPost}
-          isUpvoted={isUpvoted}
-          totalUpvoteCount={totalUpvoteCount}
-          onPressUpvote={handleUpvote}
-          onPressRegister={() => setShowRegistrationSheet(true)}
-          onPressWriteReview={handleReviewRegister}
-          onPressSiren={() =>
-            showNegativeFeedbackBottomSheet(
-              ReportTargetTypeDto.PlaceAccessibility,
-            )
-          }
-        />
+        {(!!accessibilityPost?.placeAccessibility ||
+          !!accessibilityPost?.buildingAccessibility) && (
+          <V2BottomBar
+            accessibility={accessibilityPost}
+            isUpvoted={isUpvoted}
+            totalUpvoteCount={totalUpvoteCount}
+            onPressUpvote={handleUpvote}
+            onPressRegister={() => setShowRegistrationSheet(true)}
+            onPressWriteReview={handleReviewRegister}
+            onPressSiren={() =>
+              showNegativeFeedbackBottomSheet(
+                ReportTargetTypeDto.PlaceAccessibility,
+              )
+            }
+          />
+        )}
 
         <RequireBuildingAccessibilityBottomSheet
           isVisible={!isFetching && showRequireBuildingAccessibilityBottomSheet}

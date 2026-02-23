@@ -117,10 +117,11 @@ export default function V2SummarySection({
       )}
       <ActionButtonsRow>
         <RegisterButton
+          isPrimary={!hasAccessibility}
           elementName="place_detail_v2_register_button"
           onPress={onPressRegister}>
-          <FlagIcon width={16} height={16} />
-          <RegisterButtonText>정보등록</RegisterButtonText>
+          <FlagIcon width={16} height={16} color={!hasAccessibility ? color.white : undefined} />
+          <RegisterButtonText isPrimary={!hasAccessibility}>정보등록</RegisterButtonText>
         </RegisterButton>
         <ReviewButton
           elementName="place_detail_v2_write_review_button"
@@ -240,21 +241,21 @@ const ActionButtonsRow = styled.View`
   padding-right: 20px;
 `;
 
-const RegisterButton = styled(SccPressable)`
+const RegisterButton = styled(SccPressable)<{isPrimary?: boolean}>`
   flex: 1;
   height: 44px;
   border-radius: 8px;
-  background-color: ${color.gray15};
+  background-color: ${({isPrimary}) => (isPrimary ? color.brand40 : color.gray15)};
   flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 4px;
 `;
 
-const RegisterButtonText = styled.Text`
+const RegisterButtonText = styled.Text<{isPrimary?: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
-  color: ${color.gray80};
+  color: ${({isPrimary}) => (isPrimary ? color.white : color.gray80)};
 `;
 
 const ReviewButton = styled(SccPressable)`

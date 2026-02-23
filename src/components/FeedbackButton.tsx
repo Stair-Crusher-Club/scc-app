@@ -13,7 +13,7 @@ import SccTouchableOpacity from './SccTouchableOpacity';
 interface FeedbackButtonProps {
   total?: number;
   isUpvoted?: boolean;
-  onPressUpvote: () => void;
+  onPressUpvote?: () => void;
   onPressInfoUpdateRequest?: () => void; // 정보수정 요청 버튼
   onPressAnalytics?: () => void;
 }
@@ -32,7 +32,9 @@ export default function FeedbackButton({
       <LeftSection>
         <UpvoteButton
           elementName="place_detail_upvote_button"
+          disabled={!onPressUpvote}
           onPress={() => {
+            if (!onPressUpvote) return;
             if (Platform.OS === 'web') {
               Toast.show('준비 중입니다 💪', {
                 duration: Toast.durations.SHORT,
@@ -40,7 +42,7 @@ export default function FeedbackButton({
               });
               return;
             }
-            checkAuth(() => onPressUpvote?.());
+            checkAuth(() => onPressUpvote());
           }}>
           {isUpvoted ? <ThumbsUpFillIcon /> : <ThumbsUpIcon />}
           <UpvoteText isUpvoted={isUpvoted}>도움돼요</UpvoteText>
