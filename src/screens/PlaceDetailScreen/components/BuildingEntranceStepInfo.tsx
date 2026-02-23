@@ -11,7 +11,7 @@ import {
   EntranceStepType,
   getBuildingEntranceStepType,
   getStairDescription,
-} from './PlaceInfo.utils';
+} from '../../PlaceDetailV2Screen/components/PlaceInfo.utils';
 
 interface Props {
   accessibility?: AccessibilityInfoDto;

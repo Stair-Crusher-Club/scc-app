@@ -74,7 +74,7 @@ interface PlaceFormV2Values {
   comment: string | undefined;
 
   // Floor movement step data
-  floorMovementMethod: FloorMovingMethodTypeDto;
+  floorMovementMethod: FloorMovingMethodTypeDto[];
   elevatorPhotos: ImageFile[];
   elevatorHasStairs: boolean;
   elevatorStairInfo: StairInfo;
@@ -519,7 +519,9 @@ async function register(
         selectedStandaloneType === 'multipleFloors');
     if (
       hasMultipleFloors &&
-      values.floorMovementMethod === FloorMovingMethodTypeDto.PlaceElevator
+      values.floorMovementMethod?.includes(
+        FloorMovingMethodTypeDto.PlaceElevator,
+      )
     ) {
       const elevatorImageUrls = await ImageFileUtils.uploadImages(
         api,
@@ -560,8 +562,8 @@ async function register(
       entranceDoorTypes: values.doorType,
       features: values.additionalInfo,
       entranceComment: values.comment,
-      // floorMovingMethodType은 단독건물이면서 여러 층인 경우에만 전송
-      floorMovingMethodType: hasMultipleFloors
+      // floorMovingMethodTypes는 단독건물이면서 여러 층인 경우에만 전송
+      floorMovingMethodTypes: hasMultipleFloors
         ? values.floorMovementMethod
         : undefined,
       floorMovingMethodComment: hasMultipleFloors
@@ -579,7 +581,13 @@ async function register(
         queryKey: ['PlaceDetail', placeId, 'Accessibility'],
       });
       queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
+      });
+      queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
       });
 
       // Asynchronously update search cache with full latest data

@@ -6,6 +6,7 @@ import {
   PlaceReviewListItemDto,
   ToiletReviewListItemDto,
 } from '@/generated-sources/openapi/api';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import useNavigation from '@/navigation/useNavigation';
 import styled from 'styled-components/native';
@@ -16,6 +17,7 @@ interface ItemProps {
 
 export default function ReviewUpvoteItem({item}: ItemProps) {
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
 
   const isPlaceReview = 'placeReviewId' in item;
   const targetType = isPlaceReview ? 'PLACE_REVIEW' : 'TOILET_REVIEW';
@@ -34,7 +36,7 @@ export default function ReviewUpvoteItem({item}: ItemProps) {
       <PlaceButton
         elementName="navigate_to_place_detail_button"
         onPress={() =>
-          navigation.navigate('PlaceDetail', {
+          navigation.navigate(pdpScreen, {
             placeInfo: {
               placeId: item.placeId,
             },

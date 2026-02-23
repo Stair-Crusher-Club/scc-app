@@ -4,18 +4,20 @@ import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 
 export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
   return (
     <PlaceRow
       elementName="conquered_place_item"
       logParams={{place_id: p.place.id}}
       key={p.place.id}
       onPress={() =>
-        navigation.navigate('PlaceDetail', {
+        navigation.navigate(pdpScreen, {
           placeInfo: {placeId: p.place.id},
         })
       }>

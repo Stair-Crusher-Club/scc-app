@@ -35,17 +35,20 @@ export function useDeleteAccessibility(
     },
     onMutate: () => setLoading(new Map(loading).set('PlaceDetail', true)),
     onSuccess: (_data, _variables) => {
+      const placeId = accessibilityDto.placeAccessibility?.placeId;
+
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', accessibilityDto.placeAccessibility?.placeId],
+        queryKey: ['PlaceDetail', placeId],
+      });
+
+      // PlaceDetailV2Screen uses 'PlaceDetailV2' as query key prefix
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
       });
 
       // Asynchronously update search cache with full latest data
-      if (accessibilityDto.placeAccessibility?.placeId) {
-        updateSearchCacheForPlaceAsync(
-          api,
-          queryClient,
-          accessibilityDto.placeAccessibility.placeId,
-        );
+      if (placeId) {
+        updateSearchCacheForPlaceAsync(api, queryClient, placeId);
       }
 
       // 정복한 장소 > 내가 정복한 장소 통계

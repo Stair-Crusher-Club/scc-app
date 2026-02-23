@@ -8,6 +8,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import useAppComponents from '@/hooks/useAppComponents';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import ToiletReviewView from '../PlaceReviewFormScreen/views/ToiletReviewView';
 
 export interface ToiletReviewFormScreenParams {
@@ -19,6 +20,7 @@ export default function ToiletReviewFormScreen({
   navigation,
 }: ScreenProps<'ReviewForm/Toilet'>) {
   const {api} = useAppComponents();
+  const pdpScreen = usePlaceDetailScreenName();
 
   const placeId = route.params?.placeId;
   const {data} = useQuery<{
@@ -47,7 +49,7 @@ export default function ToiletReviewFormScreen({
       return;
     }
 
-    navigation.replace('PlaceDetail', {
+    navigation.replace(pdpScreen, {
       placeInfo: {
         placeId: data?.place?.id!,
       },

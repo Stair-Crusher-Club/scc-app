@@ -3,7 +3,7 @@ import SccPressable from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {UpvotedPlaceDto} from '@/generated-sources/openapi/api';
-import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation';
 import styled from 'styled-components/native';
 
@@ -13,24 +13,17 @@ interface ItemProps {
 
 export default function UpvotedPlaceItem({item}: ItemProps) {
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
 
   const targetType = item.accessibilityType!!;
   const targetId = item.accessibilityId!!;
-
-  const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
-    initialIsUpvoted: item.isUpvoted,
-    initialTotalCount: item.totalUpvoteCount,
-    targetId,
-    targetType,
-    placeId: item.id!!,
-  });
 
   return (
     <Container>
       <PlaceButton
         elementName="navigate_to_place_detail_button"
         onPress={() =>
-          navigation.navigate('PlaceDetail', {
+          navigation.navigate(pdpScreen, {
             placeInfo: {
               placeId: item.id!!,
             },
@@ -41,9 +34,8 @@ export default function UpvotedPlaceItem({item}: ItemProps) {
       </PlaceButton>
 
       <FeedbackButton
-        total={totalUpvoteCount}
-        isUpvoted={isUpvoted}
-        onPressUpvote={toggleUpvote}
+        total={item.totalUpvoteCount}
+        isUpvoted={item.isUpvoted}
         onPressAnalytics={() => {
           navigation.navigate('UpvoteAnalytics', {
             targetType,

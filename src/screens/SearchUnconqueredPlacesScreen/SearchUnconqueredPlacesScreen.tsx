@@ -19,8 +19,8 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
-import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 
 export interface SearchUnconqueredPlacesScreenParams {}
@@ -47,7 +47,7 @@ const SearchUnconqueredPlacesScreen = ({
   const [queryTrigger, setQueryTrigger] = useState(0);
   // 재검색 시 사용할 카메라 영역 (재검색 버튼 눌렀을 때의 영역을 저장)
   const [searchRegion, setSearchRegion] = useState<Region | null>(null);
-  const detailVersion = useDetailScreenVersion();
+  const pdpScreen = usePlaceDetailScreenName();
 
   const {data, isLoading} = useQuery({
     queryKey: ['SearchUnconqueredPlaces', queryTrigger],
@@ -101,17 +101,11 @@ const SearchUnconqueredPlacesScreen = ({
 
   const handleItemPress = useCallback(
     (item: PlaceMarkerItem) => {
-      if (detailVersion === 'v2') {
-        navigation.navigate('PlaceDetailV2', {
-          placeInfo: {placeId: item.place.id},
-        });
-        return;
-      }
-      navigation.navigate('PlaceDetail', {
+      navigation.navigate(pdpScreen, {
         placeInfo: {placeId: item.place.id},
       });
     },
-    [detailVersion, navigation],
+    [pdpScreen, navigation],
   );
 
   const toggleViewMode = useCallback(() => {

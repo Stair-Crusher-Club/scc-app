@@ -24,8 +24,8 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {useCheckAuth} from '@/utils/checkAuth';
-import {useDetailScreenVersion} from '@/utils/accessibilityFlags';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 
 import {placeListFilterAtom, placeListFilterModalStateAtom} from './atoms';
@@ -53,7 +53,7 @@ const PlaceListDetailScreen = ({
   const {api} = useAppComponents();
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const detailVersion = useDetailScreenVersion();
+  const pdpScreen = usePlaceDetailScreenName();
   const checkAuth = useCheckAuth();
   const toggleSave = useSavePlaceList();
   const insets = useSafeAreaInsets();
@@ -121,17 +121,11 @@ const PlaceListDetailScreen = ({
 
   const handleItemPress = useCallback(
     (item: PlaceMarkerItem) => {
-      if (detailVersion === 'v2') {
-        navigation.navigate('PlaceDetailV2', {
-          placeInfo: {placeId: item.place.id},
-        });
-        return;
-      }
-      navigation.navigate('PlaceDetail', {
+      navigation.navigate(pdpScreen, {
         placeInfo: {placeId: item.place.id},
       });
     },
-    [detailVersion, navigation],
+    [pdpScreen, navigation],
   );
 
   const toggleViewMode = useCallback(() => {

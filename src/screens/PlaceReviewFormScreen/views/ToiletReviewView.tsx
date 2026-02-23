@@ -157,6 +157,9 @@ async function register({
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.ToiletReview],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.ToiletReview],
+      });
 
       // 내 리뷰 > 내가 작성한 리뷰 리스트
       queryClient.invalidateQueries({

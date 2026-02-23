@@ -83,6 +83,110 @@ export interface AccessibilityInfoDto {
     'totalAccessibilityInfoRequestCount': number;
 }
 /**
+ * 건물 & 점포의 접근성 정보 (v2 - 클로즈 베타). placeUpvoteInfo 추가.
+ * @export
+ * @interface AccessibilityInfoV2Dto
+ */
+export interface AccessibilityInfoV2Dto {
+    /**
+     * 
+     * @type {BuildingAccessibility}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'buildingAccessibility'?: BuildingAccessibility;
+    /**
+     * 정보가 아직 채워지지 않았으면 empty list.
+     * @type {Array<BuildingAccessibilityComment>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'buildingAccessibilityComments': Array<BuildingAccessibilityComment>;
+    /**
+     * 
+     * @type {PlaceAccessibility}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeAccessibility'?: PlaceAccessibility;
+    /**
+     * 정보가 아직 채워지지 않았으면 empty list.
+     * @type {Array<PlaceAccessibilityComment>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeAccessibilityComments': Array<PlaceAccessibilityComment>;
+    /**
+     * \'이 건물의 다른 점포 등록하기\'를 보여줄지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'hasOtherPlacesToRegisterInBuilding': boolean;
+    /**
+     * 내가 즐겨찾기한 장소인지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'isFavoritePlace': boolean;
+    /**
+     * 이 장소를 즐겨찾기한 사람 수.
+     * @type {number}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'totalFavoriteCount': number;
+    /**
+     * 내가 접근성 정보를 요청했는지 여부.
+     * @type {boolean}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'isAccessibilityInfoRequested': boolean;
+    /**
+     * 이 장소에 접근성 정보를 요청한 총 인원 수.
+     * @type {number}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'totalAccessibilityInfoRequestCount': number;
+    /**
+     * 
+     * @type {PlaceUpvoteInfoDto}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
+    /**
+     * 이 장소의 모든 매장 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<PlaceAccessibility>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'placeAccessibilities'?: Array<PlaceAccessibility>;
+    /**
+     * 이 건물의 모든 건물 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<BuildingAccessibility>}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'buildingAccessibilities'?: Array<BuildingAccessibility>;
+}
+/**
+ * 
+ * @export
+ * @interface AccessibilityInfoV2DtoAllOf
+ */
+export interface AccessibilityInfoV2DtoAllOf {
+    /**
+     * 
+     * @type {PlaceUpvoteInfoDto}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'placeUpvoteInfo'?: PlaceUpvoteInfoDto;
+    /**
+     * 이 장소의 모든 매장 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<PlaceAccessibility>}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'placeAccessibilities'?: Array<PlaceAccessibility>;
+    /**
+     * 이 건물의 모든 건물 접근성 등록 정보 (접근 레벨 오름차순)
+     * @type {Array<BuildingAccessibility>}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'buildingAccessibilities'?: Array<BuildingAccessibility>;
+}
+/**
  * 
  * @export
  * @interface AccessibilityRankDto
@@ -577,6 +681,12 @@ export interface BuildingAccessibility {
      */
     'buildingId': string;
     /**
+     * 
+     * @type {BuildingDoorDirectionTypeDto}
+     * @memberof BuildingAccessibility
+     */
+    'doorDirectionType'?: BuildingDoorDirectionTypeDto;
+    /**
      * 익명으로 등록되었으면 null.
      * @type {string}
      * @memberof BuildingAccessibility
@@ -606,6 +716,12 @@ export interface BuildingAccessibility {
      * @memberof BuildingAccessibility
      */
     'totalUpvoteCount': number;
+    /**
+     * 출입구 방향이 기타(ETC)인 경우 출입구 방향에 대한 설명.
+     * @type {string}
+     * @memberof BuildingAccessibility
+     */
+    'doorDirectionEtcComment'?: string;
     /**
      * 
      * @type {EpochMillisTimestamp}
@@ -2602,6 +2718,12 @@ export interface ImageDto {
      * @memberof ImageDto
      */
     'thumbnailUrl'?: string;
+    /**
+     * 사진 출처 정보 (예: \"사진 제공: 홍길동\"). 없으면 null.
+     * @type {string}
+     * @memberof ImageDto
+     */
+    'sourceAttribution'?: string;
 }
 /**
  * 
@@ -3479,6 +3601,48 @@ export interface PlaceAccessibility {
      */
     'entranceDoorTypes'?: Array<EntranceDoorType>;
     /**
+     * 독립 건물 여부 (매장이 건물 전체를 차지하는 경우)
+     * @type {boolean}
+     * @memberof PlaceAccessibility
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof PlaceAccessibility
+     */
+    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
+    /**
+     * 장소 입구 특이사항
+     * @type {Array<string>}
+     * @memberof PlaceAccessibility
+     */
+    'features'?: Array<string>;
+    /**
+     * 출입구 관련 코멘트
+     * @type {string}
+     * @memberof PlaceAccessibility
+     */
+    'entranceComment'?: string;
+    /**
+     * 층간 이동 방법 목록
+     * @type {Array<FloorMovingMethodTypeDto>}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
+    /**
+     * 
+     * @type {ElevatorAccessibilityDto}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingElevatorAccessibility'?: ElevatorAccessibilityDto;
+    /**
+     * 층간 이동 엘리베이터 관련 코멘트
+     * @type {string}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingElevatorComment'?: string;
+    /**
      * 익명으로 등록되었으면 null.
      * @type {string}
      * @memberof PlaceAccessibility
@@ -3996,6 +4160,25 @@ export interface PlaceReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 장소 단위 도움이 돼요 정보
+ * @export
+ * @interface PlaceUpvoteInfoDto
+ */
+export interface PlaceUpvoteInfoDto {
+    /**
+     * 현재 유저가 이 장소에 도움이 돼요를 눌렀는지 여부
+     * @type {boolean}
+     * @memberof PlaceUpvoteInfoDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 이 장소가 받은 총 도움이 돼요 수 (기존 PLACE_ACCESSIBILITY + BUILDING_ACCESSIBILITY 합산 포함)
+     * @type {number}
+     * @memberof PlaceUpvoteInfoDto
+     */
+    'totalUpvoteCount': number;
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -4494,10 +4677,10 @@ export interface RegisterPlaceAccessibilityRequestDtoV2 {
     'entranceComment'?: string;
     /**
      * 
-     * @type {FloorMovingMethodTypeDto}
+     * @type {Array<FloorMovingMethodTypeDto>}
      * @memberof RegisterPlaceAccessibilityRequestDtoV2
      */
-    'floorMovingMethodType'?: FloorMovingMethodTypeDto;
+    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
     /**
      * 
      * @type {string}
@@ -5242,6 +5425,44 @@ export type StairInfo = typeof StairInfo[keyof typeof StairInfo];
 /**
  * 
  * @export
+ * @interface SuggestPlacesRequestDto
+ */
+export interface SuggestPlacesRequestDto {
+    /**
+     * 자동완성 검색어 prefix
+     * @type {string}
+     * @memberof SuggestPlacesRequestDto
+     */
+    'query': string;
+    /**
+     * 
+     * @type {Location}
+     * @memberof SuggestPlacesRequestDto
+     */
+    'currentLocation'?: Location;
+    /**
+     * 현재 위치 기준 검색 반경 (미터)
+     * @type {number}
+     * @memberof SuggestPlacesRequestDto
+     */
+    'distanceMetersLimit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface SuggestPlacesResponseDto
+ */
+export interface SuggestPlacesResponseDto {
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof SuggestPlacesResponseDto
+     */
+    'items': Array<PlaceListItem>;
+}
+/**
+ * 
+ * @export
  * @interface ToiletAccessibilityDetails
  */
 export interface ToiletAccessibilityDetails {
@@ -5637,6 +5858,7 @@ export interface UpdateUserInfoPostRequest {
  */
 
 export const UpvoteTargetTypeDto = {
+    Place: 'PLACE',
     PlaceAccessibility: 'PLACE_ACCESSIBILITY',
     BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
@@ -6592,6 +6814,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+         * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccessibilityV2Post: async (getAccessibilityPostRequest: GetAccessibilityPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getAccessibilityPostRequest' is not null or undefined
+            assertParamExists('getAccessibilityV2Post', 'getAccessibilityPostRequest', getAccessibilityPostRequest)
+            const localVarPath = `/getAccessibilityV2`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getAccessibilityPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8929,6 +9191,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+         * @summary 장소 자동완성 제안을 반환한다.
+         * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        suggestPlacesPost: async (suggestPlacesRequestDto: SuggestPlacesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'suggestPlacesRequestDto' is not null or undefined
+            assertParamExists('suggestPlacesPost', 'suggestPlacesRequestDto', suggestPlacesRequestDto)
+            const localVarPath = `/suggestPlaces`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(suggestPlacesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에서 제거한다.
          * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
@@ -9375,6 +9677,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async getAccessibilityRankPost(body: object, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetAccessibilityRankPost200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAccessibilityRankPost(body, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+         * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccessibilityV2Post(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccessibilityInfoV2Dto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccessibilityV2Post(getAccessibilityPostRequest, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -10027,6 +10340,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+         * @summary 장소 자동완성 제안을 반환한다.
+         * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuggestPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.suggestPlacesPost(suggestPlacesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에서 제거한다.
          * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
@@ -10282,6 +10606,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getAccessibilityRankPost(body: object, options?: any): AxiosPromise<GetAccessibilityRankPost200Response> {
             return localVarFp.getAccessibilityRankPost(body, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+         * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccessibilityV2Post(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: any): AxiosPromise<AccessibilityInfoV2Dto> {
+            return localVarFp.getAccessibilityV2Post(getAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10874,6 +11208,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.signUpPost(signUpPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+         * @summary 장소 자동완성 제안을 반환한다.
+         * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: any): AxiosPromise<SuggestPlacesResponseDto> {
+            return localVarFp.suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에서 제거한다.
          * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
@@ -11158,6 +11502,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getAccessibilityRankPost(body: object, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getAccessibilityRankPost(body, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 건물 & 점포의 접근성 정보를 조회한다. (v2 - 클로즈 베타)
+     * @param {GetAccessibilityPostRequest} getAccessibilityPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getAccessibilityV2Post(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getAccessibilityV2Post(getAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -11866,6 +12222,18 @@ export class DefaultApi extends BaseAPI {
      */
     public signUpPost(signUpPostRequest: SignUpPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).signUpPost(signUpPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 사용자가 입력한 prefix를 기반으로 장소 자동완성 제안을 반환한다. 선택적으로 현재 위치와 거리 제한을 전달하면 근처 장소를 우선 제안한다. 
+     * @summary 장소 자동완성 제안을 반환한다.
+     * @param {SuggestPlacesRequestDto} suggestPlacesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

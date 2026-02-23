@@ -22,6 +22,7 @@ import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import ToastUtils from '@/utils/ToastUtils';
 
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation';
 import UserMobilityLabel from '@/screens/PlaceDetailScreen/components/UserMobilityLabel';
 import {useDeleteReview} from '@/screens/PlaceDetailScreen/hooks/useDeleteReview';
@@ -42,6 +43,7 @@ export default function PlaceReviewItem({
   variant = 'detail',
 }: PlaceReviewItemProps) {
   const navigation = useNavigation();
+  const pdpScreen = usePlaceDetailScreenName();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
@@ -71,7 +73,7 @@ export default function PlaceReviewItem({
 
   const handleLinkPress = () => {
     if (variant === 'history' && isHistoryReview) {
-      navigation.navigate('PlaceDetail', {
+      navigation.navigate(pdpScreen, {
         placeInfo: {
           placeId,
         },
