@@ -1842,23 +1842,48 @@ export interface EupMyeonDong {
  */
 export interface ExperimentAssignmentDto {
     /**
-     * 실험 이름 (e.g. UPVOTE_BUTTON_STYLE)
-     * @type {string}
+     * 
+     * @type {ExperimentDefinitionDto}
      * @memberof ExperimentAssignmentDto
      */
-    'experiment': string;
+    'experiment': ExperimentDefinitionDto;
     /**
-     * 배정된 variant 이름. 규칙: CONTROL (대조군), TREATMENT (단일 실험군), TREATMENT_1/TREATMENT_2/... (복수 실험군) 
+     * 배정된 variant 이름. 규칙: CONTROL (대조군), TREATMENT_1/TREATMENT_2/... (실험군) 
      * @type {string}
      * @memberof ExperimentAssignmentDto
      */
     'variant': string;
+}
+/**
+ * 
+ * @export
+ * @interface ExperimentDefinitionDto
+ */
+export interface ExperimentDefinitionDto {
     /**
-     * 이 실험에서 가능한 모든 variant 목록
-     * @type {Array<string>}
-     * @memberof ExperimentAssignmentDto
+     * 
+     * @type {string}
+     * @memberof ExperimentDefinitionDto
      */
-    'availableVariants': Array<string>;
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExperimentDefinitionDto
+     */
+    'description': string;
+    /**
+     * 
+     * @type {Array<VariantConfigDto>}
+     * @memberof ExperimentDefinitionDto
+     */
+    'variants': Array<VariantConfigDto>;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExperimentDefinitionDto
+     */
+    'winningVariant'?: string | null;
 }
 /**
  * 
@@ -6112,6 +6137,25 @@ export interface ValidateUserProfilePostRequest {
      * @memberof ValidateUserProfilePostRequest
      */
     'email'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface VariantConfigDto
+ */
+export interface VariantConfigDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof VariantConfigDto
+     */
+    'name': string;
+    /**
+     * 상대 비중 (e.g. 50:50, 34:33:33)
+     * @type {number}
+     * @memberof VariantConfigDto
+     */
+    'weight': number;
 }
 /**
  * 외부 지도 서비스의 장소 ID 정보

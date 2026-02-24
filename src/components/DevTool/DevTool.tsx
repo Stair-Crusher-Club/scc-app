@@ -33,7 +33,6 @@ import {
   accessTokenAtom,
   experimentAtom,
   experimentOverrideAtom,
-  experimentVariantsAtom,
   useMe,
 } from '@/atoms/Auth';
 
@@ -54,31 +53,31 @@ export const DevTool: React.FC<DevToolProps> = () => {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isEventLoggingSheetOpen, setIsEventLoggingSheetOpen] = useState(false);
   const [isAPILoggingSheetOpen, setIsAPILoggingSheetOpen] = useState(false);
+  const [isExperimentModalOpen, setIsExperimentModalOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
   const setAPILogs = useSetAtom(apiLogsAtom);
   const [accessToken] = useAtom(accessTokenAtom);
   const {userInfo} = useMe();
   const experiments = useAtomValue(experimentAtom);
-  const experimentVariants = useAtomValue(experimentVariantsAtom);
   const [experimentOverrides, setExperimentOverrides] = useAtom(
     experimentOverrideAtom,
   );
 
-  // 서버에서 내려준 실험 목록 (availableVariants 기반)
-  const knownExperiments = Object.keys(experimentVariants);
+  // 서버에서 내려준 실험 목록 (통합 atom 기반)
+  const knownExperiments = Object.keys(experiments ?? {});
 
   const getEffectiveVariant = (experimentName: string): string => {
     if (experimentOverrides[experimentName]) {
       return experimentOverrides[experimentName];
     }
-    return experiments?.[experimentName] ?? 'CONTROL';
+    return experiments?.[experimentName]?.variant ?? 'CONTROL';
   };
 
   const handleExperimentToggle = (experimentName: string) => {
-    const variants = experimentVariants[experimentName] ?? [
+    const variants = experiments?.[experimentName]?.availableVariants ?? [
       'CONTROL',
-      'TREATMENT',
+      'TREATMENT_1',
     ];
     const currentVariant = getEffectiveVariant(experimentName);
     const currentIndex = variants.indexOf(currentVariant);
@@ -309,10 +308,64 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     </View>
                   </TouchableOpacity>
 
-                  {/* Experiment (A/B Test) Section */}
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>실험 (A/B 테스트)</Text>
-                  </View>
+                  {/* Experiment Management Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={() => {
+                      setIsExperimentModalOpen(true);
+                      setIsBottomSheetOpen(false);
+                    }}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>실험 관리</Text>
+                      <Text style={styles.settingDescription}>
+                        A/B 테스트 variant 확인 및 오버라이드
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>관리하기</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Add more dev tool options here */}
+                </ScrollView>
+              </SafeAreaView>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* Event Logging Bottom Sheet */}
+      <EventLoggingBottomSheet
+        visible={isEventLoggingSheetOpen}
+        onClose={() => setIsEventLoggingSheetOpen(false)}
+      />
+
+      {/* API Logging Bottom Sheet */}
+      <APILoggingBottomSheet
+        visible={isAPILoggingSheetOpen}
+        onClose={() => setIsAPILoggingSheetOpen(false)}
+      />
+
+      {/* Experiment Management Modal */}
+      <Modal
+        visible={isExperimentModalOpen}
+        animationType="none"
+        transparent={true}
+        onRequestClose={() => setIsExperimentModalOpen(false)}>
+        <TouchableWithoutFeedback
+          onPress={() => setIsExperimentModalOpen(false)}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <SafeAreaView style={styles.bottomSheet}>
+                <View style={styles.bottomSheetHeader}>
+                  <Text style={styles.bottomSheetTitle}>실험 (A/B 테스트)</Text>
+                  <TouchableOpacity
+                    onPress={() => setIsExperimentModalOpen(false)}>
+                    <Text style={styles.closeButton}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView style={styles.bottomSheetContent}>
                   {knownExperiments.length === 0 && (
                     <View style={styles.experimentRow}>
                       <Text style={styles.settingDescription}>
@@ -322,7 +375,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
                   )}
                   {knownExperiments.map(experimentName => {
                     const serverVariant =
-                      experiments?.[experimentName] ?? '(없음)';
+                      experiments?.[experimentName]?.variant ?? '(없음)';
                     const effectiveVariant =
                       getEffectiveVariant(experimentName);
                     const hasOverride =
@@ -375,26 +428,12 @@ export const DevTool: React.FC<DevToolProps> = () => {
                       </View>
                     );
                   })}
-
-                  {/* Add more dev tool options here */}
                 </ScrollView>
               </SafeAreaView>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
-      {/* Event Logging Bottom Sheet */}
-      <EventLoggingBottomSheet
-        visible={isEventLoggingSheetOpen}
-        onClose={() => setIsEventLoggingSheetOpen(false)}
-      />
-
-      {/* API Logging Bottom Sheet */}
-      <APILoggingBottomSheet
-        visible={isAPILoggingSheetOpen}
-        onClose={() => setIsAPILoggingSheetOpen(false)}
-      />
     </>
   );
 };

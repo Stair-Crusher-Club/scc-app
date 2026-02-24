@@ -143,7 +143,7 @@ export default function V2SummarySection({
             isUpvoted={isUpvoted}
             elementName="place_detail_v2_upvote_icon_button"
             logParams={{
-              experimentVariant: 'TREATMENT',
+              experimentVariant: 'TREATMENT_1',
             }}
             onPress={onPressUpvote}>
             <ThumbsUpIcon

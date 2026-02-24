@@ -9,10 +9,10 @@ export function useExperimentVariant(experimentName: string): string {
   if (overrides[experimentName]) {
     return overrides[experimentName];
   }
-  return experiments?.[experimentName] ?? 'CONTROL';
+  return experiments?.[experimentName]?.variant ?? 'CONTROL';
 }
 
-/** 도움돼요 버튼 A/B 테스트: TREATMENT이면 아이콘만 버튼 */
+/** 도움돼요 버튼 A/B 테스트: TREATMENT_1이면 아이콘만 버튼 */
 export function useIsUpvoteIconOnly(): boolean {
-  return useExperimentVariant('UPVOTE_BUTTON_STYLE') === 'TREATMENT';
+  return useExperimentVariant('UPVOTE_BUTTON_STYLE') === 'TREATMENT_1';
 }
