@@ -190,7 +190,6 @@ export default function V2HomeTab({
             <RequestButton
               elementName="v2_home_tab_request_info"
               onPress={onRequestInfo}
-              disabled={isAccessibilityInfoRequested}
               isRequested={isAccessibilityInfoRequested}>
               <RequestButtonText isRequested={isAccessibilityInfoRequested}>
                 {isAccessibilityInfoRequested
@@ -491,10 +490,10 @@ const RequestButtonText = styled.Text<{isRequested?: boolean}>`
 
 const AskBannerImage = styled(Image)`
   position: absolute;
-  left: 270px;
+  right: 0px;
   top: 0px;
-  width: 100px;
-  height: 124px;
+  width: 90px;
+  height: 112px;
   resize-mode: contain;
 `;
 
