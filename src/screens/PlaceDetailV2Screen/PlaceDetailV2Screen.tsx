@@ -72,6 +72,7 @@ export interface PlaceDetailV2ScreenParams {
         accessibilityScore?: number;
       };
   event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
+  autoOpenImageViewer?: boolean;
 }
 
 type TabType = 'home' | 'accessibility' | 'review' | 'restroom' | 'conqueror';
@@ -88,7 +89,7 @@ export default function PlaceDetailV2Screen({
   route,
   navigation,
 }: ScreenProps<'PlaceDetailV2'>) {
-  const {event, placeInfo} = route.params;
+  const {event, placeInfo, autoOpenImageViewer} = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
   const isQAMode = useIsQAMode();
@@ -250,6 +251,35 @@ export default function PlaceDetailV2Screen({
       navigation.goBack();
     }
   }, [isPlaceError, navigation]);
+
+  // 카드뷰 이미지 클릭 시 자동으로 이미지 뷰어 열기
+  const hasAutoOpenedImageViewer = useRef(false);
+  useEffect(() => {
+    if (
+      autoOpenImageViewer &&
+      accessibilityPost &&
+      !hasAutoOpenedImageViewer.current
+    ) {
+      hasAutoOpenedImageViewer.current = true;
+      const placeImages = (
+        accessibilityPost.placeAccessibility?.images ?? []
+      ).map(img => ({type: '장소 입구', url: img.imageUrl}));
+      const buildingImages = (
+        accessibilityPost.buildingAccessibility?.entranceImages ?? []
+      ).map(img => ({type: '건물 입구', url: img.imageUrl}));
+      const elevatorImages = (
+        accessibilityPost.buildingAccessibility?.elevatorImages ?? []
+      ).map(img => ({type: '엘리베이터', url: img.imageUrl}));
+      const allImages = [...placeImages, ...buildingImages, ...elevatorImages];
+      if (allImages.length > 0) {
+        navigation.navigate('ImageZoomViewer', {
+          imageUrls: allImages.map(img => img.url),
+          index: 0,
+          types: allImages.map(img => img.type),
+        });
+      }
+    }
+  }, [autoOpenImageViewer, accessibilityPost, navigation]);
 
   // 네비게이션 블러 시 안전장치: 보류/열림 전부 닫기
   useEffect(() => {

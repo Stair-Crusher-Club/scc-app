@@ -23,11 +23,13 @@ interface Props {
   accessibility?: AccessibilityInfoDto;
   placeIndoorReviews?: PlaceReviewDto[];
   toiletReviews?: ToiletReviewDto[];
+  autoOpenImageViewer?: boolean;
 }
 const PlaceDetailCoverImage = ({
   accessibility,
   placeIndoorReviews,
   toiletReviews,
+  autoOpenImageViewer,
 }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -94,6 +96,18 @@ const PlaceDetailCoverImage = ({
       setCurrentIndex(0);
     }
   }, [thumbnailImages]);
+  const hasAutoOpened = useRef(false);
+  useEffect(() => {
+    if (
+      autoOpenImageViewer &&
+      thumbnailImages.length > 0 &&
+      !hasAutoOpened.current
+    ) {
+      hasAutoOpened.current = true;
+      onPressImage(0);
+    }
+  }, [autoOpenImageViewer, thumbnailImages.length]);
+
   let currentIndexForUI =
     currentIndex < thumbnailImages.length ? currentIndex : 0;
 
