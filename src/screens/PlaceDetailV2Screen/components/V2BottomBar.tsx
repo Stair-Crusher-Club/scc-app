@@ -12,7 +12,7 @@ import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
-import {useIsUpvoteIconOnly} from '@/hooks/useExperiment';
+import {useExperimentVariant} from '@/hooks/useExperiment';
 
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;
@@ -34,22 +34,63 @@ export default function V2BottomBar({
   onPressSiren,
 }: Props) {
   const insets = useSafeAreaInsets();
-  const isIconOnly = useIsUpvoteIconOnly();
+  const upvoteVariant = useExperimentVariant('UPVOTE_BUTTON_STYLE');
+  const isIconOnly = upvoteVariant === 'TREATMENT_1';
 
   const hasAccessibility =
     !!accessibility?.placeAccessibility ||
     !!accessibility?.buildingAccessibility;
 
+  if (isIconOnly) {
+    return (
+      <Container bottomInset={insets.bottom}>
+        <ButtonRow>
+          <T1ActionButton
+            elementName="v2_place_detail_bottom_bar_register_button"
+            logParams={{experimentVariant: upvoteVariant}}
+            onPress={onPressRegister}>
+            <FlagIcon width={20} height={20} />
+            <T1ActionButtonText numberOfLines={1}>정보등록</T1ActionButtonText>
+          </T1ActionButton>
+          <T1ActionButton
+            elementName="v2_place_detail_bottom_bar_review_button"
+            logParams={{experimentVariant: upvoteVariant}}
+            onPress={onPressWriteReview}>
+            <PencilIcon width={20} height={20} />
+            <T1ActionButtonText numberOfLines={1}>리뷰작성</T1ActionButtonText>
+          </T1ActionButton>
+          {hasAccessibility && (
+            <T1IconUpvoteButton
+              isUpvoted={isUpvoted}
+              elementName="v2_place_detail_bottom_bar_upvote_icon_button"
+              logParams={{experimentVariant: upvoteVariant}}
+              onPress={onPressUpvote}>
+              <ThumbsUpIcon
+                width={24}
+                height={24}
+                color={isUpvoted ? color.brand40 : color.gray60}
+              />
+            </T1IconUpvoteButton>
+          )}
+          <T1SirenButton
+            elementName="v2_place_detail_bottom_bar_siren_button"
+            logParams={{experimentVariant: upvoteVariant}}
+            onPress={onPressSiren}>
+            <SirenIcon width={24} height={24} />
+          </T1SirenButton>
+        </ButtonRow>
+      </Container>
+    );
+  }
+
   return (
     <Container bottomInset={insets.bottom}>
       <ButtonRow>
-        {!isIconOnly && hasAccessibility && (
+        {hasAccessibility && (
           <UpvoteButton
             isUpvoted={isUpvoted}
             elementName="v2_place_detail_bottom_bar_upvote_button"
-            logParams={{
-              experimentVariant: 'CONTROL',
-            }}
+            logParams={{experimentVariant: upvoteVariant}}
             onPress={onPressUpvote}>
             {isUpvoted ? (
               <CheckColoredIcon width={16} height={16} />
@@ -63,33 +104,21 @@ export default function V2BottomBar({
         )}
         <ActionButton
           elementName="v2_place_detail_bottom_bar_register_button"
+          logParams={{experimentVariant: upvoteVariant}}
           onPress={onPressRegister}>
           <FlagIcon width={16} height={16} />
           <ActionButtonText numberOfLines={1}>정보등록</ActionButtonText>
         </ActionButton>
         <ActionButton
           elementName="v2_place_detail_bottom_bar_review_button"
+          logParams={{experimentVariant: upvoteVariant}}
           onPress={onPressWriteReview}>
           <PencilIcon width={16} height={16} />
           <ActionButtonText numberOfLines={1}>리뷰작성</ActionButtonText>
         </ActionButton>
-        {isIconOnly && hasAccessibility && (
-          <IconUpvoteButton
-            isUpvoted={isUpvoted}
-            elementName="v2_place_detail_bottom_bar_upvote_icon_button"
-            logParams={{
-              experimentVariant: 'TREATMENT_1',
-            }}
-            onPress={onPressUpvote}>
-            <ThumbsUpIcon
-              width={20}
-              height={20}
-              color={isUpvoted ? color.brand40 : color.gray60}
-            />
-          </IconUpvoteButton>
-        )}
         <SirenButton
           elementName="v2_place_detail_bottom_bar_siren_button"
+          logParams={{experimentVariant: upvoteVariant}}
           onPress={onPressSiren}>
           <SirenIcon width={20} height={20} />
         </SirenButton>
@@ -97,6 +126,8 @@ export default function V2BottomBar({
     </Container>
   );
 }
+
+// --- Shared ---
 
 const Container = styled.View<{bottomInset: number}>`
   background-color: ${color.white};
@@ -115,6 +146,8 @@ const ButtonRow = styled.View`
   align-items: center;
   gap: 8px;
 `;
+
+// --- CONTROL styled components ---
 
 const UpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
   flex: 1;
@@ -162,17 +195,6 @@ const ActionButtonText = styled.Text.attrs({
   flex-shrink: 1;
 `;
 
-const IconUpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  align-items: center;
-  justify-content: center;
-  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : color.gray15)};
-  ${({isUpvoted}) =>
-    !isUpvoted ? 'border-width: 1px; border-color: #E3E4E8;' : ''}
-`;
-
 const SirenButton = styled(SccPressable)`
   width: 44px;
   height: 44px;
@@ -180,4 +202,52 @@ const SirenButton = styled(SccPressable)`
   justify-content: center;
   border-radius: 8px;
   background-color: ${color.gray15};
+`;
+
+// --- TREATMENT_1 styled components ---
+
+const T1ActionButton = styled(SccPressable)`
+  flex: 1;
+  height: 44px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #d6ebff;
+`;
+
+const T1ActionButtonText = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})`
+  font-family: ${font.pretendardMedium};
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
+  color: #24262b;
+  flex-shrink: 1;
+`;
+
+const T1IconUpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : 'transparent')};
+  ${({isUpvoted}) =>
+    !isUpvoted ? 'border-width: 1px; border-color: #E3E4E8;' : ''}
+`;
+
+const T1SirenButton = styled(SccPressable)`
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+  border-width: 1px;
+  border-color: #e3e4e8;
 `;
