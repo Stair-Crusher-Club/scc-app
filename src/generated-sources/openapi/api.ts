@@ -3854,12 +3854,6 @@ export interface PlaceListDto {
      */
     'id': string;
     /**
-     * 공유 URL 등에 사용할 수 있는 짧은 ID (8자리 영숫자)
-     * @type {string}
-     * @memberof PlaceListDto
-     */
-    'shortId': string;
-    /**
      * 
      * @type {string}
      * @memberof PlaceListDto

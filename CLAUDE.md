@@ -79,6 +79,7 @@ function ChildComponent() {
 
 ## API Guidelines
 
+- **`src/generated-sources/` 파일은 절대 수동 수정하지 않는다.** scc-api 스펙 변경 -> submodule 업데이트 -> `yarn codegen`으로만 변경.
 - Use generated API types from `src/generated-sources/openapi/` for all API responses and requests
 - Always type API responses and variables explicitly
 - Use React Query (`useQuery`, `useMutation`) for data fetching and mutations
@@ -488,7 +489,7 @@ ws.on('message', d => {
     // Input.dispatchMouseEvent로 실제 클릭
     ws.send(JSON.stringify({id:2,method:'Input.dispatchMouseEvent',params:{type:'mousePressed',x:c.x,y:c.y,button:'left',clickCount:1}}));
   } else if(step===2) {
-    ws.send(JSON.stringify({id:3,method:'Input.dispatchMouseEvent',params:{type:'mouseReleased',x:0,y:0,button:'left',clickCount:1}}));
+    ws.send(JSON.stringify({id:3,method:'Input.dispatchMouseEvent',params:{type:'mouseReleased',x:c.x,y:c.y,button:'left',clickCount:1}}));
   } else { ws.close(); process.exit(0); }
 });
 "

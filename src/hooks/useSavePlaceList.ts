@@ -1,4 +1,3 @@
-import {useRef} from 'react';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 
 import ToastUtils from '@/utils/ToastUtils';
@@ -8,9 +7,8 @@ import useAppComponents from './useAppComponents';
 export function useSavePlaceList() {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
-  const isMutatingRef = useRef(false);
 
-  const {mutate} = useMutation({
+  const {mutate, isPending} = useMutation({
     mutationFn: async ({
       isSaved,
       placeListId,
@@ -42,13 +40,8 @@ export function useSavePlaceList() {
   });
 
   const safeMutate = (args: {isSaved: boolean; placeListId: string}) => {
-    if (isMutatingRef.current) return;
-    isMutatingRef.current = true;
-    mutate(args, {
-      onSettled: () => {
-        isMutatingRef.current = false;
-      },
-    });
+    if (isPending) return;
+    mutate(args);
   };
 
   return safeMutate;
