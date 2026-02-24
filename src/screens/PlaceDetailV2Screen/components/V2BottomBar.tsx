@@ -6,11 +6,13 @@ import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
+import ThumbsUpIcon from '@/assets/icon/ic_thumbsup_colored.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoV2Dto} from '@/generated-sources/openapi';
+import {useIsUpvoteIconOnly} from '@/hooks/useExperiment';
 
 interface Props {
   accessibility?: AccessibilityInfoV2Dto;
@@ -32,6 +34,7 @@ export default function V2BottomBar({
   onPressSiren,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const isIconOnly = useIsUpvoteIconOnly();
 
   const hasAccessibility =
     !!accessibility?.placeAccessibility ||
@@ -40,10 +43,13 @@ export default function V2BottomBar({
   return (
     <Container bottomInset={insets.bottom}>
       <ButtonRow>
-        {hasAccessibility && (
+        {!isIconOnly && hasAccessibility && (
           <UpvoteButton
             isUpvoted={isUpvoted}
             elementName="v2_place_detail_bottom_bar_upvote_button"
+            logParams={{
+              experimentVariant: 'CONTROL',
+            }}
             onPress={onPressUpvote}>
             {isUpvoted ? (
               <CheckColoredIcon width={16} height={16} />
@@ -67,6 +73,21 @@ export default function V2BottomBar({
           <PencilIcon width={16} height={16} />
           <ActionButtonText numberOfLines={1}>리뷰작성</ActionButtonText>
         </ActionButton>
+        {isIconOnly && hasAccessibility && (
+          <IconUpvoteButton
+            isUpvoted={isUpvoted}
+            elementName="v2_place_detail_bottom_bar_upvote_icon_button"
+            logParams={{
+              experimentVariant: 'TREATMENT',
+            }}
+            onPress={onPressUpvote}>
+            <ThumbsUpIcon
+              width={20}
+              height={20}
+              color={isUpvoted ? color.brand40 : color.gray60}
+            />
+          </IconUpvoteButton>
+        )}
         <SirenButton
           elementName="v2_place_detail_bottom_bar_siren_button"
           onPress={onPressSiren}>
@@ -139,6 +160,17 @@ const ActionButtonText = styled.Text.attrs({
   letter-spacing: -0.28px;
   color: #24262b;
   flex-shrink: 1;
+`;
+
+const IconUpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : color.gray15)};
+  ${({isUpvoted}) =>
+    !isUpvoted ? 'border-width: 1px; border-color: #E3E4E8;' : ''}
 `;
 
 const SirenButton = styled(SccPressable)`

@@ -12,6 +12,7 @@ import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
+import {useIsUpvoteIconOnly} from '@/hooks/useExperiment';
 
 interface V2SummarySectionProps {
   place: Place;
@@ -42,6 +43,8 @@ export default function V2SummarySection({
   onPressSiren,
   onNameLayout,
 }: V2SummarySectionProps) {
+  const isIconOnly = useIsUpvoteIconOnly();
+
   const hasScore =
     accessibilityScore !== undefined && accessibilityScore !== null;
 
@@ -135,16 +138,34 @@ export default function V2SummarySection({
           <PencilIcon width={16} height={16} />
           <ReviewButtonText>리뷰작성</ReviewButtonText>
         </ReviewButton>
+        {isIconOnly && hasAccessibility && (
+          <IconUpvoteButton
+            isUpvoted={isUpvoted}
+            elementName="place_detail_v2_upvote_icon_button"
+            logParams={{
+              experimentVariant: 'TREATMENT',
+            }}
+            onPress={onPressUpvote}>
+            <ThumbsUpIcon
+              width={20}
+              height={20}
+              color={isUpvoted ? color.brand40 : color.gray60}
+            />
+          </IconUpvoteButton>
+        )}
         <SirenButton
           elementName="place_detail_v2_siren_button"
           onPress={onPressSiren}>
           <SirenIcon width={20} height={20} />
         </SirenButton>
       </ActionButtonsRow>
-      {hasAccessibility && (
+      {!isIconOnly && hasAccessibility && (
         <UpvoteButton
           isUpvoted={isUpvoted}
           elementName="place_detail_v2_upvote_button"
+          logParams={{
+            experimentVariant: 'CONTROL',
+          }}
           onPress={onPressUpvote}>
           {isUpvoted ? (
             <CheckColoredIcon width={16} height={16} />
@@ -280,6 +301,17 @@ const ReviewButtonText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 14px;
   color: ${color.gray80};
+`;
+
+const IconUpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : color.gray15)};
+  ${({isUpvoted}) =>
+    !isUpvoted ? 'border-width: 1px; border-color: #E3E4E8;' : ''}
 `;
 
 const SirenButton = styled(SccPressable)`

@@ -22,14 +22,19 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
 import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';
 import {APILoggingBottomSheet} from './APILoggingBottomSheet';
-import {useAtom, useSetAtom} from 'jotai';
+import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import {
   loggedEventsAtom,
   apiLogsAtom,
   initializeAPILoggingDevTool,
 } from './devToolEventStore';
 import {initializeEventLoggingDevTool} from '@/logging/Logger';
-import {accessTokenAtom, useMe} from '@/atoms/Auth';
+import {
+  accessTokenAtom,
+  experimentAtom,
+  experimentOverrideAtom,
+  useMe,
+} from '@/atoms/Auth';
 
 interface DevToolProps {}
 
@@ -53,6 +58,37 @@ export const DevTool: React.FC<DevToolProps> = () => {
   const setAPILogs = useSetAtom(apiLogsAtom);
   const [accessToken] = useAtom(accessTokenAtom);
   const {userInfo} = useMe();
+  const experiments = useAtomValue(experimentAtom);
+  const [experimentOverrides, setExperimentOverrides] = useAtom(
+    experimentOverrideAtom,
+  );
+
+  // 실험 목록 (서버 응답에서 가져온 실험 + 알려진 실험 enum)
+  const KNOWN_EXPERIMENTS = ['UPVOTE_BUTTON_STYLE'] as const;
+
+  const getEffectiveVariant = (experimentName: string): string => {
+    if (experimentOverrides[experimentName]) {
+      return experimentOverrides[experimentName];
+    }
+    return experiments?.[experimentName] ?? 'CONTROL';
+  };
+
+  const handleExperimentToggle = (experimentName: string) => {
+    const currentVariant = getEffectiveVariant(experimentName);
+    const newVariant = currentVariant === 'CONTROL' ? 'TREATMENT' : 'CONTROL';
+    setExperimentOverrides(prev => ({
+      ...prev,
+      [experimentName]: newVariant,
+    }));
+  };
+
+  const handleResetExperimentOverride = (experimentName: string) => {
+    setExperimentOverrides(prev => {
+      const next = {...prev};
+      delete next[experimentName];
+      return next;
+    });
+  };
 
   // Initialize event logging and API logging (enabled in dev or sandbox)
   useEffect(() => {
@@ -266,6 +302,66 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     </View>
                   </TouchableOpacity>
 
+                  {/* Experiment (A/B Test) Section */}
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>실험 (A/B 테스트)</Text>
+                  </View>
+                  {KNOWN_EXPERIMENTS.map(experimentName => {
+                    const serverVariant =
+                      experiments?.[experimentName] ?? '(없음)';
+                    const effectiveVariant =
+                      getEffectiveVariant(experimentName);
+                    const hasOverride =
+                      experimentOverrides[experimentName] !== undefined;
+
+                    return (
+                      <View key={experimentName} style={styles.experimentRow}>
+                        <View style={styles.experimentInfo}>
+                          <Text style={styles.settingLabel}>
+                            {experimentName}
+                          </Text>
+                          <Text style={styles.settingDescription}>
+                            서버 배정: {serverVariant}
+                            {hasOverride
+                              ? ` | 오버라이드: ${effectiveVariant} (재시작 시 초기화)`
+                              : ''}
+                          </Text>
+                        </View>
+                        <View style={styles.experimentActions}>
+                          <TouchableOpacity
+                            style={[
+                              styles.experimentToggle,
+                              effectiveVariant === 'TREATMENT' &&
+                                styles.experimentToggleActive,
+                            ]}
+                            onPress={() =>
+                              handleExperimentToggle(experimentName)
+                            }>
+                            <Text
+                              style={[
+                                styles.experimentToggleText,
+                                effectiveVariant === 'TREATMENT' &&
+                                  styles.experimentToggleTextActive,
+                              ]}>
+                              {effectiveVariant}
+                            </Text>
+                          </TouchableOpacity>
+                          {hasOverride && (
+                            <TouchableOpacity
+                              style={styles.experimentReset}
+                              onPress={() =>
+                                handleResetExperimentOverride(experimentName)
+                              }>
+                              <Text style={styles.experimentResetText}>
+                                초기화
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      </View>
+                    );
+                  })}
+
                   {/* Add more dev tool options here */}
                 </ScrollView>
               </SafeAreaView>
@@ -388,6 +484,65 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
+  },
+  sectionHeader: {
+    marginTop: 16,
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#333',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  experimentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  experimentInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  experimentActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  experimentToggle: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 6,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  experimentToggleActive: {
+    backgroundColor: '#4CAF50',
+  },
+  experimentToggleText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#333',
+  },
+  experimentToggleTextActive: {
+    color: 'white',
+  },
+  experimentReset: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: '#ff9800',
+    borderRadius: 6,
+  },
+  experimentResetText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'white',
   },
 });
 

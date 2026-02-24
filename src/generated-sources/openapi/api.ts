@@ -1838,6 +1838,52 @@ export interface EupMyeonDong {
 /**
  * 
  * @export
+ * @interface ExperimentAssignmentDto
+ */
+export interface ExperimentAssignmentDto {
+    /**
+     * 
+     * @type {ExperimentDto}
+     * @memberof ExperimentAssignmentDto
+     */
+    'experiment': ExperimentDto;
+    /**
+     * 
+     * @type {ExperimentVariantDto}
+     * @memberof ExperimentAssignmentDto
+     */
+    'variant': ExperimentVariantDto;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ExperimentDto = {
+    UpvoteButtonStyle: 'UPVOTE_BUTTON_STYLE'
+} as const;
+
+export type ExperimentDto = typeof ExperimentDto[keyof typeof ExperimentDto];
+
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ExperimentVariantDto = {
+    Control: 'CONTROL',
+    Treatment: 'TREATMENT'
+} as const;
+
+export type ExperimentVariantDto = typeof ExperimentVariantDto[keyof typeof ExperimentVariantDto];
+
+
+/**
+ * 
+ * @export
  * @interface ExternalAccessibility
  */
 export interface ExternalAccessibility {
@@ -2506,6 +2552,12 @@ export interface GetUserInfoResponseDto {
      * @memberof GetUserInfoResponseDto
      */
     'isAlbumUploadAllowed'?: boolean;
+    /**
+     * 유저에게 배정된 실험 목록
+     * @type {Array<ExperimentAssignmentDto>}
+     * @memberof GetUserInfoResponseDto
+     */
+    'experiments'?: Array<ExperimentAssignmentDto>;
 }
 /**
  * 
