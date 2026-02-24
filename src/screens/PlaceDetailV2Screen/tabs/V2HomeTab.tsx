@@ -1,7 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
 import React from 'react';
-import {Linking, Platform} from 'react-native';
+import {Image, Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
@@ -190,11 +190,17 @@ export default function V2HomeTab({
             <RequestButton
               elementName="v2_home_tab_request_info"
               onPress={onRequestInfo}
-              disabled={isAccessibilityInfoRequested}>
-              <RequestButtonText>
-                {isAccessibilityInfoRequested ? '정보 요청됨' : '정보 요청하기'}
+              disabled={isAccessibilityInfoRequested}
+              isRequested={isAccessibilityInfoRequested}>
+              <RequestButtonText isRequested={isAccessibilityInfoRequested}>
+                {isAccessibilityInfoRequested
+                  ? '정보 요청 완료!'
+                  : '정보 요청하기'}
               </RequestButtonText>
             </RequestButton>
+            <AskBannerImage
+              source={require('@/assets/img/img_request_info_banner.png')}
+            />
           </AskBannerInner>
         </AskBannerContainer>
       )}
@@ -466,20 +472,30 @@ const AskBannerText = styled.Text`
   color: ${color.black};
 `;
 
-const RequestButton = styled(SccTouchableOpacity)`
-  background-color: ${color.brand40};
+const RequestButton = styled(SccTouchableOpacity)<{isRequested?: boolean}>`
+  background-color: ${({isRequested}) =>
+    isRequested ? color.gray25 : color.brand40};
   border-radius: 100px;
   padding-horizontal: 16px;
   padding-vertical: 6px;
   align-self: flex-start;
 `;
 
-const RequestButtonText = styled.Text`
+const RequestButtonText = styled.Text<{isRequested?: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
   line-height: 16px;
   letter-spacing: -0.24px;
-  color: ${color.white};
+  color: ${({isRequested}) => (isRequested ? '#3A3C45' : color.white)};
+`;
+
+const AskBannerImage = styled(Image)`
+  position: absolute;
+  left: 270px;
+  top: 0px;
+  width: 100px;
+  height: 124px;
+  resize-mode: contain;
 `;
 
 /* Section common */
