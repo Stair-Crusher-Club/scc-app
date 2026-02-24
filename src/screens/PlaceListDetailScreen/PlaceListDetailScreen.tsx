@@ -149,16 +149,17 @@ const PlaceListDetailScreen = ({
     });
   }, [checkAuth, toggleSave, isSaved, placeListId]);
 
+  const shareId = data?.placeList?.shortId ?? placeListId;
   const handleShare = useCallback(async () => {
     try {
-      const url = `https://link.staircrusher.club/7o6ck7?placeListId=${placeListId}`;
+      const url = `https://link.staircrusher.club/7o6ck7?placeListId=${shareId}`;
       await Share.share({
         message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
       });
     } catch {
       // ignore
     }
-  }, [title, placeListId]);
+  }, [title, shareId]);
 
   const listData: ListSection[] = useMemo(
     () => [
