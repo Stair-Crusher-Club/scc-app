@@ -10,7 +10,7 @@ import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
 import ExitIcon from '@/assets/icon/ic_exit.svg';
 import MapIcon from '@/assets/icon/ic_map.svg';
 import MenuIcon from '@/assets/icon/ic_menu.svg';
-import ShareIcon from '@/assets/icon/ic_share.svg';
+import ShareIcon from '@/assets/icon/ic_share_web.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
@@ -57,8 +57,19 @@ const PlaceListDetailScreen = ({
   const checkAuth = useCheckAuth();
   const toggleSave = useSavePlaceList();
   const insets = useSafeAreaInsets();
-  const [filters] = useAtom(placeListFilterAtom);
+  const [filters, setFilters] = useAtom(placeListFilterAtom);
   const [, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
+
+  useEffect(() => {
+    return () => {
+      setFilters({
+        sortOption: null,
+        scoreUnder: null,
+        hasSlope: null,
+        isRegistered: null,
+      });
+    };
+  }, [setFilters]);
 
   const placeListQueryKey = useMemo(
     () => ['PlaceListDetail', placeListId, filters],
@@ -140,13 +151,14 @@ const PlaceListDetailScreen = ({
 
   const handleShare = useCallback(async () => {
     try {
+      const url = `https://link.staircrusher.club/7o6ck7?placeListId=${encodeURIComponent(placeListId)}`;
       await Share.share({
-        message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!`,
+        message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
       });
     } catch {
       // ignore
     }
-  }, [title]);
+  }, [title, placeListId]);
 
   const listData: ListSection[] = useMemo(
     () => [
@@ -168,6 +180,7 @@ const PlaceListDetailScreen = ({
         item={props.item}
         isHeightFlex
         hideActions
+        hideScoreIcon
         onPress={props.onPress}
         listQueryKey={placeListQueryKey}
       />
@@ -198,22 +211,22 @@ const PlaceListDetailScreen = ({
                 $isSaved={isSaved}>
                 {isSaved ? (
                   <BookmarkOnIcon
-                    width={16}
-                    height={16}
+                    width={20}
+                    height={20}
                     color={color.brandColor}
                   />
                 ) : (
-                  <BookmarkIcon width={16} height={16} color={color.white} />
+                  <BookmarkIcon width={20} height={20} color={color.white} />
                 )}
                 <SaveButtonText $isSaved={isSaved}>
-                  리스트 저장하기
+                  {isSaved ? '리스트 저장됨' : '리스트 저장하기'}
                 </SaveButtonText>
               </SaveButtonContainer>
               <ShareButtonContainer
                 elementName="place_list_detail_share_button"
                 activeOpacity={0.8}
                 onPress={handleShare}>
-                <ShareIcon width={20} height={20} color="#24262B" />
+                <ShareIcon width={24} height={24} color="#24262B" />
               </ShareButtonContainer>
             </SaveShareRow>
           </HeaderSection>
@@ -236,6 +249,7 @@ const PlaceListDetailScreen = ({
             item={item.data}
             isHeightFlex
             hideActions
+            hideScoreIcon
             onPress={() => handleItemPress(item.data)}
             listQueryKey={placeListQueryKey}
           />
@@ -319,6 +333,7 @@ const PlaceListDetailScreen = ({
                 elementName="place_list_detail_floating_map"
                 activeOpacity={0.8}
                 onPress={toggleViewMode}
+                style={{bottom: insets.bottom + 24}}
                 $isBlue>
                 <MapIcon width={16} height={16} color={color.white} />
                 <FloatingViewModeText $isBlue>지도보기</FloatingViewModeText>
@@ -430,6 +445,8 @@ const DescriptionContainer = styled.View`
 const DescriptionText = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardRegular};
+  line-height: 22px;
+  letter-spacing: -0.28px;
   color: ${color.gray60};
 `;
 
@@ -443,21 +460,23 @@ const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 40px;
+  height: 44px;
   border-radius: 8px;
   background-color: ${({$isSaved}) => ($isSaved ? '#F2F2F5' : '#0C76F7')};
-  gap: 6px;
+  gap: 4px;
 `;
 
 const SaveButtonText = styled.Text<{$isSaved: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
   color: ${({$isSaved}) => ($isSaved ? '#24262B' : color.white)};
 `;
 
 const ShareButtonContainer = styled(SccTouchableOpacity)`
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   border-width: 1px;
   border-color: #e3e4e8;
@@ -512,7 +531,9 @@ const FloatingViewModeButton = styled(SccTouchableOpacity)<{$isBlue: boolean}>`
 
 const FloatingViewModeText = styled.Text<{$isBlue: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
   color: ${({$isBlue}) => ($isBlue ? color.white : '#24262B')};
 `;
 

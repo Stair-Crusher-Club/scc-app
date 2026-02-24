@@ -62,8 +62,8 @@ export default function FilterBar({
             {sortLabel}
           </ChipText>
           <AngleBracketDownIcon
-            width={14}
-            height={14}
+            width={16}
+            height={16}
             color={
               isSortActive ? color.brandColor : isMap ? '#24262B' : '#16181C'
             }
@@ -130,8 +130,8 @@ const chipBase = `
 
 const IconChip = styled(SccTouchableOpacity)`
   ${chipBase}
-  height: 30px;
-  padding-horizontal: 7px;
+  height: 36px;
+  padding-horizontal: 12px;
   background-color: white;
   border-color: #eaeaef;
 `;
@@ -141,9 +141,10 @@ const DropdownChip = styled(SccTouchableOpacity)<{
   $active: boolean;
 }>`
   ${chipBase}
-  height: ${({$isMap}) => ($isMap ? '30px' : 'auto')};
-  padding-horizontal: ${({$isMap}) => ($isMap ? '13px' : '10px')};
-  padding-vertical: ${({$isMap}) => ($isMap ? '0px' : '6px')};
+  height: 36px;
+  padding-horizontal: 12px;
+  padding-vertical: 8px;
+  min-width: 56px;
   gap: 2px;
   background-color: ${({$active}) => ($active ? '#EBF3FE' : 'white')};
   border-color: ${({$active}) => ($active ? color.brandColor : '#EAEAEF')};
@@ -154,16 +155,21 @@ const PlainChip = styled(SccTouchableOpacity)<{
   $active: boolean;
 }>`
   ${chipBase}
-  height: ${({$isMap}) => ($isMap ? '30px' : 'auto')};
-  padding-horizontal: ${({$isMap}) => ($isMap ? '13px' : '10px')};
-  padding-vertical: ${({$isMap}) => ($isMap ? '0px' : '6px')};
+  height: 36px;
+  padding-horizontal: 12px;
+  padding-vertical: 8px;
+  min-width: 56px;
   background-color: ${({$active}) => ($active ? '#EBF3FE' : 'white')};
   border-color: ${({$active}) => ($active ? color.brandColor : '#EAEAEF')};
 `;
 
 const ChipText = styled.Text<{$isMap: boolean; $active: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.28px;
   color: ${({$active, $isMap}) =>
     $active ? color.brandColor : $isMap ? '#24262b' : '#16181c'};
+  include-font-padding: false;
+  text-align-vertical: center;
 `;
