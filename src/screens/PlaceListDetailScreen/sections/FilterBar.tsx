@@ -62,8 +62,8 @@ export default function FilterBar({
             {sortLabel}
           </ChipText>
           <AngleBracketDownIcon
-            width={14}
-            height={14}
+            width={16}
+            height={16}
             color={
               isSortActive ? color.brandColor : isMap ? '#24262B' : '#16181C'
             }
@@ -166,7 +166,7 @@ const PlainChip = styled(SccTouchableOpacity)<{
 const ChipText = styled.Text<{$isMap: boolean; $active: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: ${({$isMap}) => ($isMap ? '13px' : '14px')};
-  ${({$isMap}) => (!$isMap ? 'line-height: 20px;' : '')}
+  ${({$isMap}) => (!$isMap ? 'line-height: 20px; letter-spacing: -0.28px;' : '')}
   color: ${({$active, $isMap}) =>
     $active ? color.brandColor : $isMap ? '#24262b' : '#16181c'};
 `;

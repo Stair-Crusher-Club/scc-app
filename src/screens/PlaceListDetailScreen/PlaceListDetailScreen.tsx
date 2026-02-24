@@ -210,12 +210,12 @@ const PlaceListDetailScreen = ({
                 $isSaved={isSaved}>
                 {isSaved ? (
                   <BookmarkOnIcon
-                    width={16}
-                    height={16}
+                    width={20}
+                    height={20}
                     color={color.brandColor}
                   />
                 ) : (
-                  <BookmarkIcon width={16} height={16} color={color.white} />
+                  <BookmarkIcon width={20} height={20} color={color.white} />
                 )}
                 <SaveButtonText $isSaved={isSaved}>
                   {isSaved ? '리스트 저장됨' : '리스트 저장하기'}
@@ -443,6 +443,8 @@ const DescriptionContainer = styled.View`
 const DescriptionText = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardRegular};
+  line-height: 22px;
+  letter-spacing: -0.28px;
   color: ${color.gray60};
 `;
 
@@ -459,12 +461,14 @@ const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
   height: 44px;
   border-radius: 8px;
   background-color: ${({$isSaved}) => ($isSaved ? '#F2F2F5' : '#0C76F7')};
-  gap: 6px;
+  gap: 4px;
 `;
 
 const SaveButtonText = styled.Text<{$isSaved: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
   color: ${({$isSaved}) => ($isSaved ? '#24262B' : color.white)};
 `;
 
@@ -525,7 +529,9 @@ const FloatingViewModeButton = styled(SccTouchableOpacity)<{$isBlue: boolean}>`
 
 const FloatingViewModeText = styled.Text<{$isBlue: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
   color: ${({$isBlue}) => ($isBlue ? color.white : '#24262B')};
 `;
 
