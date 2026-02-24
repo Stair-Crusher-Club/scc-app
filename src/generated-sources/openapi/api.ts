@@ -1838,6 +1838,56 @@ export interface EupMyeonDong {
 /**
  * 
  * @export
+ * @interface ExperimentAssignmentDto
+ */
+export interface ExperimentAssignmentDto {
+    /**
+     * 
+     * @type {ExperimentDefinitionDto}
+     * @memberof ExperimentAssignmentDto
+     */
+    'experiment': ExperimentDefinitionDto;
+    /**
+     * 배정된 variant 이름. 규칙: CONTROL (대조군), TREATMENT_1/TREATMENT_2/... (실험군) 
+     * @type {string}
+     * @memberof ExperimentAssignmentDto
+     */
+    'variant': string;
+}
+/**
+ * 
+ * @export
+ * @interface ExperimentDefinitionDto
+ */
+export interface ExperimentDefinitionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ExperimentDefinitionDto
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExperimentDefinitionDto
+     */
+    'description': string;
+    /**
+     * 
+     * @type {Array<VariantConfigDto>}
+     * @memberof ExperimentDefinitionDto
+     */
+    'variants': Array<VariantConfigDto>;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExperimentDefinitionDto
+     */
+    'winningVariant'?: string | null;
+}
+/**
+ * 
+ * @export
  * @interface ExternalAccessibility
  */
 export interface ExternalAccessibility {
@@ -2506,6 +2556,12 @@ export interface GetUserInfoResponseDto {
      * @memberof GetUserInfoResponseDto
      */
     'isAlbumUploadAllowed'?: boolean;
+    /**
+     * 유저에게 배정된 실험 목록
+     * @type {Array<ExperimentAssignmentDto>}
+     * @memberof GetUserInfoResponseDto
+     */
+    'experiments'?: Array<ExperimentAssignmentDto>;
 }
 /**
  * 
@@ -6081,6 +6137,25 @@ export interface ValidateUserProfilePostRequest {
      * @memberof ValidateUserProfilePostRequest
      */
     'email'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface VariantConfigDto
+ */
+export interface VariantConfigDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof VariantConfigDto
+     */
+    'name': string;
+    /**
+     * 상대 비중 (e.g. 50:50, 34:33:33)
+     * @type {number}
+     * @memberof VariantConfigDto
+     */
+    'weight': number;
 }
 /**
  * 외부 지도 서비스의 장소 ID 정보

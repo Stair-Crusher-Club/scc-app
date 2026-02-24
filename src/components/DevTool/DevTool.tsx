@@ -22,14 +22,19 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDevToolConfig} from './useDevTool';
 import {EventLoggingBottomSheet} from './EventLoggingBottomSheet';
 import {APILoggingBottomSheet} from './APILoggingBottomSheet';
-import {useAtom, useSetAtom} from 'jotai';
+import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import {
   loggedEventsAtom,
   apiLogsAtom,
   initializeAPILoggingDevTool,
 } from './devToolEventStore';
 import {initializeEventLoggingDevTool} from '@/logging/Logger';
-import {accessTokenAtom, useMe} from '@/atoms/Auth';
+import {
+  accessTokenAtom,
+  experimentAtom,
+  experimentOverrideAtom,
+  useMe,
+} from '@/atoms/Auth';
 
 interface DevToolProps {}
 
@@ -48,11 +53,48 @@ export const DevTool: React.FC<DevToolProps> = () => {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isEventLoggingSheetOpen, setIsEventLoggingSheetOpen] = useState(false);
   const [isAPILoggingSheetOpen, setIsAPILoggingSheetOpen] = useState(false);
+  const [isExperimentModalOpen, setIsExperimentModalOpen] = useState(false);
   const [config, setConfig] = useDevToolConfig();
   const setLoggedEvents = useSetAtom(loggedEventsAtom);
   const setAPILogs = useSetAtom(apiLogsAtom);
   const [accessToken] = useAtom(accessTokenAtom);
   const {userInfo} = useMe();
+  const experiments = useAtomValue(experimentAtom);
+  const [experimentOverrides, setExperimentOverrides] = useAtom(
+    experimentOverrideAtom,
+  );
+
+  // 서버에서 내려준 실험 목록 (통합 atom 기반)
+  const knownExperiments = Object.keys(experiments ?? {});
+
+  const getEffectiveVariant = (experimentName: string): string => {
+    if (experimentOverrides[experimentName]) {
+      return experimentOverrides[experimentName];
+    }
+    return experiments?.[experimentName]?.variant ?? 'CONTROL';
+  };
+
+  const handleExperimentToggle = (experimentName: string) => {
+    const variants = experiments?.[experimentName]?.availableVariants ?? [
+      'CONTROL',
+      'TREATMENT_1',
+    ];
+    const currentVariant = getEffectiveVariant(experimentName);
+    const currentIndex = variants.indexOf(currentVariant);
+    const newVariant = variants[(currentIndex + 1) % variants.length];
+    setExperimentOverrides(prev => ({
+      ...prev,
+      [experimentName]: newVariant,
+    }));
+  };
+
+  const handleResetExperimentOverride = (experimentName: string) => {
+    setExperimentOverrides(prev => {
+      const next = {...prev};
+      delete next[experimentName];
+      return next;
+    });
+  };
 
   // Initialize event logging and API logging (enabled in dev or sandbox)
   useEffect(() => {
@@ -266,6 +308,24 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     </View>
                   </TouchableOpacity>
 
+                  {/* Experiment Management Button */}
+                  <TouchableOpacity
+                    style={styles.actionRow}
+                    onPress={() => {
+                      setIsExperimentModalOpen(true);
+                      setIsBottomSheetOpen(false);
+                    }}>
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>실험 관리</Text>
+                      <Text style={styles.settingDescription}>
+                        A/B 테스트 variant 확인 및 오버라이드
+                      </Text>
+                    </View>
+                    <View style={styles.actionButton}>
+                      <Text style={styles.actionButtonText}>관리하기</Text>
+                    </View>
+                  </TouchableOpacity>
+
                   {/* Add more dev tool options here */}
                 </ScrollView>
               </SafeAreaView>
@@ -285,6 +345,95 @@ export const DevTool: React.FC<DevToolProps> = () => {
         visible={isAPILoggingSheetOpen}
         onClose={() => setIsAPILoggingSheetOpen(false)}
       />
+
+      {/* Experiment Management Modal */}
+      <Modal
+        visible={isExperimentModalOpen}
+        animationType="none"
+        transparent={true}
+        onRequestClose={() => setIsExperimentModalOpen(false)}>
+        <TouchableWithoutFeedback
+          onPress={() => setIsExperimentModalOpen(false)}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <SafeAreaView style={styles.bottomSheet}>
+                <View style={styles.bottomSheetHeader}>
+                  <Text style={styles.bottomSheetTitle}>실험 (A/B 테스트)</Text>
+                  <TouchableOpacity
+                    onPress={() => setIsExperimentModalOpen(false)}>
+                    <Text style={styles.closeButton}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView style={styles.bottomSheetContent}>
+                  {knownExperiments.length === 0 && (
+                    <View style={styles.experimentRow}>
+                      <Text style={styles.settingDescription}>
+                        실험 없음 (서버에서 배정된 실험이 없습니다)
+                      </Text>
+                    </View>
+                  )}
+                  {knownExperiments.map(experimentName => {
+                    const serverVariant =
+                      experiments?.[experimentName]?.variant ?? '(없음)';
+                    const effectiveVariant =
+                      getEffectiveVariant(experimentName);
+                    const hasOverride =
+                      experimentOverrides[experimentName] !== undefined;
+                    const isNonControl = effectiveVariant !== 'CONTROL';
+
+                    return (
+                      <View key={experimentName} style={styles.experimentRow}>
+                        <View style={styles.experimentInfo}>
+                          <Text style={styles.settingLabel}>
+                            {experimentName}
+                          </Text>
+                          <Text style={styles.settingDescription}>
+                            서버 배정: {serverVariant}
+                            {hasOverride
+                              ? ` | 오버라이드: ${effectiveVariant} (재시작 시 초기화)`
+                              : ''}
+                          </Text>
+                        </View>
+                        <View style={styles.experimentActions}>
+                          <TouchableOpacity
+                            style={[
+                              styles.experimentToggle,
+                              isNonControl && styles.experimentToggleActive,
+                            ]}
+                            onPress={() =>
+                              handleExperimentToggle(experimentName)
+                            }>
+                            <Text
+                              style={[
+                                styles.experimentToggleText,
+                                isNonControl &&
+                                  styles.experimentToggleTextActive,
+                              ]}>
+                              {effectiveVariant}
+                            </Text>
+                          </TouchableOpacity>
+                          {hasOverride && (
+                            <TouchableOpacity
+                              style={styles.experimentReset}
+                              onPress={() =>
+                                handleResetExperimentOverride(experimentName)
+                              }>
+                              <Text style={styles.experimentResetText}>
+                                초기화
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+              </SafeAreaView>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </>
   );
 };
@@ -388,6 +537,65 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
+  },
+  sectionHeader: {
+    marginTop: 16,
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#333',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  experimentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  experimentInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  experimentActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  experimentToggle: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 6,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  experimentToggleActive: {
+    backgroundColor: '#4CAF50',
+  },
+  experimentToggleText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#333',
+  },
+  experimentToggleTextActive: {
+    color: 'white',
+  },
+  experimentReset: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: '#ff9800',
+    borderRadius: 6,
+  },
+  experimentResetText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'white',
   },
 });
 
