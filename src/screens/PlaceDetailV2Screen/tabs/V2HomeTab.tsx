@@ -49,6 +49,7 @@ interface Props {
   onPressAccessibilityTab: () => void;
   onPressReviewTab: () => void;
   onPressPlaceRegister: () => void;
+  onPressBuildingRegister: () => void;
   onPressReviewRegister: () => void;
   onPressToiletRegister: () => void;
 }
@@ -66,6 +67,7 @@ export default function V2HomeTab({
   onPressAccessibilityTab: _onPressAccessibilityTab,
   onPressReviewTab,
   onPressPlaceRegister,
+  onPressBuildingRegister,
   onPressReviewRegister: _onPressReviewRegister,
   onPressToiletRegister,
 }: Props) {
@@ -247,27 +249,21 @@ export default function V2HomeTab({
               </>
             )}
 
-            {/* 매장 출입구 */}
+            {/* 매장 출입구 — 홈탭에서는 접근레벨 가장 낮은 문 1개만 표시 */}
             {sections.includes('매장 출입구') &&
-              placeAccessibilities.map((pa, index) => (
+              placeAccessibilities.length > 0 && (
                 <PlaceEntranceSection
-                  key={pa.id ?? index}
-                  title={
-                    !hasV2Fields && hasBuildingAccessibility
-                      ? placeAccessibilities.length > 1
-                        ? `매장 출입구 - 주 출입구 (${index + 1})`
-                        : '매장 출입구 - 주 출입구'
-                      : placeAccessibilities.length > 1
-                        ? `매장 출입구 (${index + 1})`
-                        : '매장 출입구'
-                  }
-                  placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                  placeAccessibility={pa}
+                  key={placeAccessibilities[0].id ?? 0}
+                  title={'매장 출입구'}
+                  placeDate={dayjs(
+                    placeAccessibilities[0].createdAt.value,
+                  ).format('YYYY.MM.DD')}
+                  placeAccessibility={placeAccessibilities[0]}
                   accessibility={accessibility}
                   placeComments={placeComments}
                   compact
                 />
-              ))}
+              )}
 
             {/* 층간 이동 정보 */}
             {sections.includes('층간 이동 정보') && (
@@ -291,6 +287,23 @@ export default function V2HomeTab({
           </EmptyCard>
         )}
       </Section>
+
+      {/* ── 3.5. 건물정보 등록 카드 (계산중 상태) ── */}
+      {hasAccessibility && !hasBuildingAccessibility && (
+        <BuildingInfoCardContainer>
+          <BuildingInfoCard>
+            <BuildingInfoCardTitle>
+              {'건물정보가 등록되지 않아\n정확한 접근레벨을 계산할 수 없어요.'}
+            </BuildingInfoCardTitle>
+            <StrokeCTAButton
+              text="건물정보 등록"
+              onPress={onPressBuildingRegister}
+              elementName="v2_home_tab_register_building_card"
+              fullWidth
+            />
+          </BuildingInfoCard>
+        </BuildingInfoCardContainer>
+      )}
 
       {/* ── 4. Thick Divider ── */}
       <ThickDivider />
@@ -578,6 +591,28 @@ const ToiletReviewList = styled.View`
 const ToiletDivider = styled.View`
   height: 1px;
   background-color: ${color.gray20};
+`;
+
+/* Building Info Card (Issue 4) */
+const BuildingInfoCardContainer = styled.View`
+  padding: 0px 20px 20px 20px;
+`;
+
+const BuildingInfoCard = styled.View`
+  background-color: ${color.gray5};
+  border-radius: 12px;
+  padding: 20px;
+  gap: 16px;
+  align-items: center;
+`;
+
+const BuildingInfoCardTitle = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.28px;
+  color: ${color.black};
+  text-align: center;
 `;
 
 /* Thick Divider */

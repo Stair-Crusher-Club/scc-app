@@ -27,6 +27,7 @@ interface V2SummarySectionProps {
   onPressWriteReview: () => void;
   onPressSiren: () => void;
   onNameLayout?: (event: LayoutChangeEvent) => void;
+  onActionButtonsLayout?: (event: LayoutChangeEvent) => void;
 }
 
 export default function V2SummarySection({
@@ -42,6 +43,7 @@ export default function V2SummarySection({
   onPressWriteReview,
   onPressSiren,
   onNameLayout,
+  onActionButtonsLayout,
 }: V2SummarySectionProps) {
   const upvoteVariant = useExperimentVariant('UPVOTE_BUTTON_STYLE');
   const isIconOnly = upvoteVariant === 'TREATMENT_1';

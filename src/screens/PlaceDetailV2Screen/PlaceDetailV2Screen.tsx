@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
+  Animated,
   InteractionManager,
   LayoutChangeEvent,
   NativeScrollEvent,
@@ -60,6 +61,7 @@ import V2ReviewTab from './tabs/V2ReviewTab';
 import V2RestroomTab from './tabs/V2RestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
 import V2BottomBar from './components/V2BottomBar';
+import V2CoverImage from './components/V2CoverImage';
 import PlaceDetailRegistrationSheet from './components/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
@@ -525,6 +527,14 @@ export default function PlaceDetailV2Screen({
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
   const nameBottomYRef = useRef<number>(0);
 
+  // Issue 3: Bottom bar visibility (scroll-triggered)
+  const [showBottomBar, setShowBottomBar] = useState(false);
+  const actionButtonsBottomYRef = useRef<number>(0);
+  const bottomBarAnim = useRef(new Animated.Value(0)).current;
+
+  // Issue 5: Current scroll position tracking
+  const currentScrollYRef = useRef(0);
+
   // Chip bar state (accessibility tab)
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeChipIndex, setActiveChipIndex] = useState(0);
@@ -565,11 +575,32 @@ export default function PlaceDetailV2Screen({
     nameBottomYRef.current = y + height;
   }, []);
 
+  // Issue 3: Track action buttons position for bottom bar trigger
+  const handleActionButtonsLayout = useCallback((e: LayoutChangeEvent) => {
+    const {y, height} = e.nativeEvent.layout;
+    actionButtonsBottomYRef.current = y + height;
+  }, []);
+
+  // Issue 3: Animate bottom bar
+  useEffect(() => {
+    Animated.timing(bottomBarAnim, {
+      toValue: showBottomBar ? 1 : 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [showBottomBar, bottomBarAnim]);
+
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const scrollY = e.nativeEvent.contentOffset.y;
+      currentScrollYRef.current = scrollY;
+
       const shouldShow = scrollY > nameBottomYRef.current;
       setShowAppBarTitle(prev => (prev !== shouldShow ? shouldShow : prev));
+
+      // Issue 3: Bottom bar visibility
+      const shouldShowBar = scrollY > actionButtonsBottomYRef.current;
+      setShowBottomBar(prev => (prev !== shouldShowBar ? shouldShowBar : prev));
 
       // Active chip tracking for accessibility tab (skip during programmatic scroll)
       if (showChipBar && chips.length > 0 && !isScrollingFromChipRef.current) {
@@ -589,6 +620,23 @@ export default function PlaceDetailV2Screen({
     },
     [showChipBar, chips, stickyHeaderHeight],
   );
+
+  // Issue 5: Tab change with scroll adjustment
+  const handleTabChange = useCallback((newTab: TabType) => {
+    setCurrentTab(newTab);
+    setActiveChipIndex(0);
+
+    // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
+    // 탭바 상단으로 스크롤 리셋 (chip bar 높이 차이 보정)
+    if (currentScrollYRef.current > nameBottomYRef.current) {
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollTo({
+          y: nameBottomYRef.current,
+          animated: false,
+        });
+      });
+    }
+  }, []);
 
   if (isLoading || !place || !building) {
     return null;
@@ -621,6 +669,7 @@ export default function PlaceDetailV2Screen({
             onPressAccessibilityTab={() => setCurrentTab('accessibility')}
             onPressReviewTab={() => setCurrentTab('review')}
             onPressPlaceRegister={handlePlaceRegister}
+            onPressBuildingRegister={handleBuildingRegister}
             onPressReviewRegister={handleReviewRegister}
             onPressToiletRegister={handleToiletRegister}
           />
@@ -700,7 +749,14 @@ export default function PlaceDetailV2Screen({
             scrollEventThrottle={16}
             onScroll={handleScroll}
             onLayout={e => setScrollViewHeight(e.nativeEvent.layout.height)}
-            stickyHeaderIndices={[1]}>
+            stickyHeaderIndices={[2]}>
+            {/* Issue 1: Image carousel */}
+            <V2CoverImage
+              accessibility={accessibilityPost}
+              reviews={reviewPost ?? []}
+              toiletReviews={toiletPost ?? []}
+            />
+
             <V2SummarySection
               place={place}
               accessibilityScore={data?.accessibilityScore}
@@ -721,6 +777,7 @@ export default function PlaceDetailV2Screen({
                 )
               }
               onNameLayout={handleNameLayout}
+              onActionButtonsLayout={handleActionButtonsLayout}
             />
 
             {/* Tab Bar + Chip Bar — combined sticky header at index 1 */}
@@ -731,7 +788,7 @@ export default function PlaceDetailV2Screen({
               <V2TabBar
                 items={TAB_ITEMS}
                 current={currentTab}
-                onChange={setCurrentTab}
+                onChange={handleTabChange}
               />
               {showChipBar && (
                 <V2ChipBar
@@ -753,11 +810,7 @@ export default function PlaceDetailV2Screen({
                     ? scrollViewHeight - (stickyHeaderHeight || 41)
                     : 0,
                 backgroundColor:
-                  currentTab === 'review' ||
-                  currentTab === 'restroom' ||
-                  currentTab === 'conqueror'
-                    ? color.gray5
-                    : color.white,
+                  currentTab !== 'home' ? color.gray5 : color.white,
               }}>
               {renderTabContent()}
 
@@ -776,19 +829,37 @@ export default function PlaceDetailV2Screen({
 
         {(!!accessibilityPost?.placeAccessibility ||
           !!accessibilityPost?.buildingAccessibility) && (
-          <V2BottomBar
-            accessibility={accessibilityPost}
-            isUpvoted={isUpvoted}
-            totalUpvoteCount={totalUpvoteCount}
-            onPressUpvote={handleUpvote}
-            onPressRegister={() => setShowRegistrationSheet(true)}
-            onPressWriteReview={handleReviewRegister}
-            onPressSiren={() =>
-              showNegativeFeedbackBottomSheet(
-                ReportTargetTypeDto.PlaceAccessibility,
-              )
-            }
-          />
+          <Animated.View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              opacity: bottomBarAnim,
+              transform: [
+                {
+                  translateY: bottomBarAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [100, 0],
+                  }),
+                },
+              ],
+            }}
+            pointerEvents={showBottomBar ? 'auto' : 'none'}>
+            <V2BottomBar
+              accessibility={accessibilityPost}
+              isUpvoted={isUpvoted}
+              totalUpvoteCount={totalUpvoteCount}
+              onPressUpvote={handleUpvote}
+              onPressRegister={() => setShowRegistrationSheet(true)}
+              onPressWriteReview={handleReviewRegister}
+              onPressSiren={() =>
+                showNegativeFeedbackBottomSheet(
+                  ReportTargetTypeDto.PlaceAccessibility,
+                )
+              }
+            />
+          </Animated.View>
         )}
 
         <RequireBuildingAccessibilityBottomSheet

@@ -146,9 +146,11 @@ export default function V2AccessibilityTab({
       onSectionLayout?.(name, e.nativeEvent.layout.y);
     };
 
-  /** 매장 출입구 제목 (다중 출입구 시 번호 매김) */
+  /** 매장 출입구 제목 (다중 출입구 시 번호 매김, 1개면 항상 '매장 출입구') */
   const placeEntranceTitle = (baseTitle: string, index: number) =>
-    placeAccessibilities.length > 1 ? `${baseTitle} (${index + 1})` : baseTitle;
+    placeAccessibilities.length > 1
+      ? `${baseTitle} (${index + 1})`
+      : '매장 출입구';
 
   /** 건물 출입구 제목 (다중 출입구 시 번호 매김) */
   const buildingEntranceTitle = (index: number) =>
@@ -256,6 +258,7 @@ const Container = styled.View`
 
 // Empty state
 const EmptyStateContainer = styled.View`
+  flex: 1;
   background-color: ${color.gray5};
   padding-top: 40px;
   padding-horizontal: 20px;

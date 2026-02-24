@@ -71,7 +71,7 @@ const AppBarContainer = styled.View`
 
 const TitleContainer = styled.View`
   flex: 1;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding-horizontal: 8px;
 `;

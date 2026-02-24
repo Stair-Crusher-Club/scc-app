@@ -80,6 +80,10 @@ export function useToggleFavoritePlace() {
         queryKey: ['PlaceDetail', variables.placeId],
       });
 
+      queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', variables.placeId],
+      });
+
       // Asynchronously update search cache with full latest data
       updateSearchCacheForPlaceAsync(api, queryClient, variables.placeId);
     },
