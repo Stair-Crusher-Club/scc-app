@@ -65,6 +65,7 @@ export interface PlaceDetailScreenParams {
       };
   event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
   autoOpenImageViewer?: boolean;
+  autoOpenImageIndex?: number;
 }
 
 interface SectionConfig {
@@ -76,7 +77,8 @@ interface SectionConfig {
 }
 
 const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
-  const {event, placeInfo, autoOpenImageViewer} = route.params;
+  const {event, placeInfo, autoOpenImageViewer, autoOpenImageIndex} =
+    route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
   const isQAMode = useIsQAMode();
@@ -563,6 +565,7 @@ const PlaceDetailScreen = ({route, navigation}: ScreenProps<'PlaceDetail'>) => {
                 placeIndoorReviews={reviewPost ?? []}
                 toiletReviews={toiletPost ?? []}
                 autoOpenImageViewer={autoOpenImageViewer}
+                autoOpenImageIndex={autoOpenImageIndex}
               />
             </View>
             <PlaceDetailSummarySection

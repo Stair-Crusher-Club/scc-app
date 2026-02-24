@@ -24,12 +24,14 @@ interface Props {
   placeIndoorReviews?: PlaceReviewDto[];
   toiletReviews?: ToiletReviewDto[];
   autoOpenImageViewer?: boolean;
+  autoOpenImageIndex?: number;
 }
 const PlaceDetailCoverImage = ({
   accessibility,
   placeIndoorReviews,
   toiletReviews,
   autoOpenImageViewer,
+  autoOpenImageIndex = 0,
 }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -104,7 +106,7 @@ const PlaceDetailCoverImage = ({
       !hasAutoOpened.current
     ) {
       hasAutoOpened.current = true;
-      onPressImage(0);
+      onPressImage(autoOpenImageIndex);
     }
   }, [autoOpenImageViewer, thumbnailImages.length]);
 

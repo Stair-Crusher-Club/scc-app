@@ -73,6 +73,7 @@ export interface PlaceDetailV2ScreenParams {
       };
   event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
   autoOpenImageViewer?: boolean;
+  autoOpenImageIndex?: number;
 }
 
 type TabType = 'home' | 'accessibility' | 'review' | 'restroom' | 'conqueror';
@@ -89,7 +90,12 @@ export default function PlaceDetailV2Screen({
   route,
   navigation,
 }: ScreenProps<'PlaceDetailV2'>) {
-  const {event, placeInfo, autoOpenImageViewer} = route.params;
+  const {
+    event,
+    placeInfo,
+    autoOpenImageViewer,
+    autoOpenImageIndex = 0,
+  } = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
   const isQAMode = useIsQAMode();
@@ -274,7 +280,7 @@ export default function PlaceDetailV2Screen({
       if (allImages.length > 0) {
         navigation.navigate('ImageZoomViewer', {
           imageUrls: allImages.map(img => img.url),
-          index: 0,
+          index: autoOpenImageIndex,
           types: allImages.map(img => img.type),
         });
       }

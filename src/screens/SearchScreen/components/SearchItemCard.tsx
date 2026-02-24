@@ -108,12 +108,16 @@ function SearchItemCard({
     return prettyFormatMeter(distance);
   })();
 
-  const handleImagePress = useCallback(() => {
-    navigation.navigate(pdpScreen, {
-      placeInfo: {placeId: item.place.id},
-      autoOpenImageViewer: true,
-    });
-  }, [navigation, pdpScreen, item.place.id]);
+  const handleImagePress = useCallback(
+    (index: number) => {
+      navigation.navigate(pdpScreen, {
+        placeInfo: {placeId: item.place.id},
+        autoOpenImageViewer: true,
+        autoOpenImageIndex: index,
+      });
+    },
+    [navigation, pdpScreen, item.place.id],
+  );
 
   const onShare = () => {
     ShareUtils.sharePlace(item.place);
