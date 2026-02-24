@@ -70,8 +70,7 @@ export default function SavedPlaceListsScreen() {
   };
 
   const handleBannerPress = () => {
-    // TODO: 실제 URL 연결
-    Linking.openURL('https://www.staircrusher.club');
+    Linking.openURL('https://forms.staircrusher.club/list-request');
   };
 
   const renderBanner = () => (

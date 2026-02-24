@@ -1,10 +1,8 @@
 import {useAtom} from 'jotai';
 import React, {useState} from 'react';
-import {Dimensions, ScrollView, Text} from 'react-native';
+import {Dimensions, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
-import InfoIcon from '@/assets/icon/ic_info.svg';
-import PositionedModal from '@/components/PositionedModal';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -114,22 +112,7 @@ export default function PlaceListFilterModal() {
         )}
         {(state === 'All' || state === 'scoreUnder') && (
           <FilterItem>
-            <LabelIconArea>
-              <FilterLabel>접근레벨</FilterLabel>
-              <PositionedModal
-                modalContent={
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontFamily: font.pretendardMedium,
-                      color: color.white,
-                    }}>
-                    레벨이 낮을 수록 매장 입구 접근이 쉬워요.
-                  </Text>
-                }>
-                <InfoIcon width={16} height={16} color={color.gray30} />
-              </PositionedModal>
-            </LabelIconArea>
+            <FilterLabel>접근레벨</FilterLabel>
             <ScoreSelector
               score={scoreUnder}
               onChange={(score: ScoreUnder | null) => {
@@ -254,10 +237,4 @@ const Divider = styled.View`
   width: 100%;
   height: 1px;
   background-color: ${() => color.gray20};
-`;
-
-const LabelIconArea = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
 `;

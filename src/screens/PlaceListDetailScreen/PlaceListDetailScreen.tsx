@@ -57,8 +57,19 @@ const PlaceListDetailScreen = ({
   const checkAuth = useCheckAuth();
   const toggleSave = useSavePlaceList();
   const insets = useSafeAreaInsets();
-  const [filters] = useAtom(placeListFilterAtom);
+  const [filters, setFilters] = useAtom(placeListFilterAtom);
   const [, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
+
+  useEffect(() => {
+    return () => {
+      setFilters({
+        sortOption: null,
+        scoreUnder: null,
+        hasSlope: null,
+        isRegistered: null,
+      });
+    };
+  }, [setFilters]);
 
   const placeListQueryKey = useMemo(
     () => ['PlaceListDetail', placeListId, filters],
@@ -140,13 +151,14 @@ const PlaceListDetailScreen = ({
 
   const handleShare = useCallback(async () => {
     try {
+      const url = `https://link.staircrusher.club/7o6ck7?placeListId=${placeListId}`;
       await Share.share({
-        message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!`,
+        message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
       });
     } catch {
       // ignore
     }
-  }, [title]);
+  }, [title, placeListId]);
 
   const listData: ListSection[] = useMemo(
     () => [
@@ -206,14 +218,14 @@ const PlaceListDetailScreen = ({
                   <BookmarkIcon width={16} height={16} color={color.white} />
                 )}
                 <SaveButtonText $isSaved={isSaved}>
-                  리스트 저장하기
+                  {isSaved ? '리스트 저장됨' : '리스트 저장하기'}
                 </SaveButtonText>
               </SaveButtonContainer>
               <ShareButtonContainer
                 elementName="place_list_detail_share_button"
                 activeOpacity={0.8}
                 onPress={handleShare}>
-                <ShareIcon width={20} height={20} color="#24262B" />
+                <ShareIcon width={24} height={24} color="#24262B" />
               </ShareButtonContainer>
             </SaveShareRow>
           </HeaderSection>
@@ -319,6 +331,7 @@ const PlaceListDetailScreen = ({
                 elementName="place_list_detail_floating_map"
                 activeOpacity={0.8}
                 onPress={toggleViewMode}
+                style={{bottom: insets.bottom + 24}}
                 $isBlue>
                 <MapIcon width={16} height={16} color={color.white} />
                 <FloatingViewModeText $isBlue>지도보기</FloatingViewModeText>
@@ -443,7 +456,7 @@ const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 40px;
+  height: 44px;
   border-radius: 8px;
   background-color: ${({$isSaved}) => ($isSaved ? '#F2F2F5' : '#0C76F7')};
   gap: 6px;
@@ -451,13 +464,13 @@ const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
 
 const SaveButtonText = styled.Text<{$isSaved: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: 14px;
+  font-size: 15px;
   color: ${({$isSaved}) => ($isSaved ? '#24262B' : color.white)};
 `;
 
 const ShareButtonContainer = styled(SccTouchableOpacity)`
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   border-width: 1px;
   border-color: #e3e4e8;
