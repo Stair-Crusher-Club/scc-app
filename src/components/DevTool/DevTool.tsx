@@ -33,6 +33,7 @@ import {
   accessTokenAtom,
   experimentAtom,
   experimentOverrideAtom,
+  experimentVariantsAtom,
   useMe,
 } from '@/atoms/Auth';
 
@@ -59,12 +60,13 @@ export const DevTool: React.FC<DevToolProps> = () => {
   const [accessToken] = useAtom(accessTokenAtom);
   const {userInfo} = useMe();
   const experiments = useAtomValue(experimentAtom);
+  const experimentVariants = useAtomValue(experimentVariantsAtom);
   const [experimentOverrides, setExperimentOverrides] = useAtom(
     experimentOverrideAtom,
   );
 
-  // 실험 목록 (서버 응답에서 가져온 실험 + 알려진 실험 enum)
-  const KNOWN_EXPERIMENTS = ['UPVOTE_BUTTON_STYLE'] as const;
+  // 서버에서 내려준 실험 목록 (availableVariants 기반)
+  const knownExperiments = Object.keys(experimentVariants);
 
   const getEffectiveVariant = (experimentName: string): string => {
     if (experimentOverrides[experimentName]) {
@@ -74,8 +76,13 @@ export const DevTool: React.FC<DevToolProps> = () => {
   };
 
   const handleExperimentToggle = (experimentName: string) => {
+    const variants = experimentVariants[experimentName] ?? [
+      'CONTROL',
+      'TREATMENT',
+    ];
     const currentVariant = getEffectiveVariant(experimentName);
-    const newVariant = currentVariant === 'CONTROL' ? 'TREATMENT' : 'CONTROL';
+    const currentIndex = variants.indexOf(currentVariant);
+    const newVariant = variants[(currentIndex + 1) % variants.length];
     setExperimentOverrides(prev => ({
       ...prev,
       [experimentName]: newVariant,
@@ -306,13 +313,21 @@ export const DevTool: React.FC<DevToolProps> = () => {
                   <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>실험 (A/B 테스트)</Text>
                   </View>
-                  {KNOWN_EXPERIMENTS.map(experimentName => {
+                  {knownExperiments.length === 0 && (
+                    <View style={styles.experimentRow}>
+                      <Text style={styles.settingDescription}>
+                        실험 없음 (서버에서 배정된 실험이 없습니다)
+                      </Text>
+                    </View>
+                  )}
+                  {knownExperiments.map(experimentName => {
                     const serverVariant =
                       experiments?.[experimentName] ?? '(없음)';
                     const effectiveVariant =
                       getEffectiveVariant(experimentName);
                     const hasOverride =
                       experimentOverrides[experimentName] !== undefined;
+                    const isNonControl = effectiveVariant !== 'CONTROL';
 
                     return (
                       <View key={experimentName} style={styles.experimentRow}>
@@ -331,8 +346,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
                           <TouchableOpacity
                             style={[
                               styles.experimentToggle,
-                              effectiveVariant === 'TREATMENT' &&
-                                styles.experimentToggleActive,
+                              isNonControl && styles.experimentToggleActive,
                             ]}
                             onPress={() =>
                               handleExperimentToggle(experimentName)
@@ -340,7 +354,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
                             <Text
                               style={[
                                 styles.experimentToggleText,
-                                effectiveVariant === 'TREATMENT' &&
+                                isNonControl &&
                                   styles.experimentToggleTextActive,
                               ]}>
                               {effectiveVariant}

@@ -1842,45 +1842,24 @@ export interface EupMyeonDong {
  */
 export interface ExperimentAssignmentDto {
     /**
-     * 
-     * @type {ExperimentDto}
+     * 실험 이름 (e.g. UPVOTE_BUTTON_STYLE)
+     * @type {string}
      * @memberof ExperimentAssignmentDto
      */
-    'experiment': ExperimentDto;
+    'experiment': string;
     /**
-     * 
-     * @type {ExperimentVariantDto}
+     * 배정된 variant 이름. 규칙: CONTROL (대조군), TREATMENT (단일 실험군), TREATMENT_1/TREATMENT_2/... (복수 실험군) 
+     * @type {string}
      * @memberof ExperimentAssignmentDto
      */
-    'variant': ExperimentVariantDto;
+    'variant': string;
+    /**
+     * 이 실험에서 가능한 모든 variant 목록
+     * @type {Array<string>}
+     * @memberof ExperimentAssignmentDto
+     */
+    'availableVariants': Array<string>;
 }
-/**
- * 
- * @export
- * @enum {string}
- */
-
-export const ExperimentDto = {
-    UpvoteButtonStyle: 'UPVOTE_BUTTON_STYLE'
-} as const;
-
-export type ExperimentDto = typeof ExperimentDto[keyof typeof ExperimentDto];
-
-
-/**
- * 
- * @export
- * @enum {string}
- */
-
-export const ExperimentVariantDto = {
-    Control: 'CONTROL',
-    Treatment: 'TREATMENT'
-} as const;
-
-export type ExperimentVariantDto = typeof ExperimentVariantDto[keyof typeof ExperimentVariantDto];
-
-
 /**
  * 
  * @export

@@ -46,12 +46,16 @@ export const experimentAtom = atom<Record<string, string> | null>(null);
 // DevTool용 로컬 오버라이드 (앱 재시작 시 초기화됨, DB 저장 안 함)
 export const experimentOverrideAtom = atom<Record<string, string>>({});
 
+// 실험별 가능한 variant 목록 (서버에서 내려준 availableVariants)
+export const experimentVariantsAtom = atom<Record<string, string[]>>({});
+
 // useMe hook - centralized userInfo management
 export function useMe() {
   const {api} = useAppComponents();
   const [userInfo, _setUserInfoAtom] = useAtom(userInfoAtom);
   const setFeatureFlag = useSetAtom(featureFlagAtom);
   const setExperiment = useSetAtom(experimentAtom);
+  const setExperimentVariants = useSetAtom(experimentVariantsAtom);
 
   const _syncUserInfo = async (newUserInfo: User) => {
     logDebug('syncUserInfo', newUserInfo);
@@ -95,12 +99,17 @@ export function useMe() {
 
     // 실험 배정 파싱
     const experimentsMap: Record<string, string> = {};
+    const variantsMap: Record<string, string[]> = {};
     data.experiments?.forEach(exp => {
       if (exp.experiment && exp.variant) {
         experimentsMap[exp.experiment] = exp.variant;
       }
+      if (exp.experiment && exp.availableVariants) {
+        variantsMap[exp.experiment] = exp.availableVariants;
+      }
     });
     setExperiment(experimentsMap);
+    setExperimentVariants(variantsMap);
   };
 
   const setUserInfo = async (user: User) => {
