@@ -15,12 +15,14 @@ interface Props {
   images: ImageDto[];
   roundCorners?: boolean;
   isSinglePreview?: boolean;
+  onPressImage?: (index: number, imageUrls: string[]) => void;
 }
 
 export default function ImageList({
   images,
   roundCorners,
   isSinglePreview,
+  onPressImage: onPressImageProp,
 }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
   const initialFocusedIndex = useRef(0); // 이미지 상세 들어갈 때 어떤 이미지를 보여줄지
@@ -28,6 +30,13 @@ export default function ImageList({
 
   function onPressImage(index: number) {
     initialFocusedIndex.current = index;
+    if (onPressImageProp) {
+      onPressImageProp(
+        index,
+        images.map(image => image.imageUrl),
+      );
+      return;
+    }
     navigation.navigate('ImageZoomViewer', {
       imageUrls: images.map(image => image.imageUrl),
       index: index,

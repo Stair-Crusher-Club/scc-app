@@ -1,6 +1,6 @@
 import type {QueryKey} from '@tanstack/react-query';
 import {useAtom, useAtomValue} from 'jotai';
-import React, {memo} from 'react';
+import React, {memo, useCallback} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -15,6 +15,7 @@ import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -55,6 +56,7 @@ function SearchItemCard({
     useAtom(hasBeenRegisteredAccessibilityAtom);
   const toggleFavorite = useToggleFavoritePlace();
   const formVersion = useFormScreenVersion();
+  const pdpScreen = usePlaceDetailScreenName();
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
   const registerStatus: 'UNAVAILABLE' | 'NONE' | 'BOTH' | 'PLACE_ONLY' =
@@ -105,6 +107,19 @@ function SearchItemCard({
     }
     return prettyFormatMeter(distance);
   })();
+
+  const handleImagePress = useCallback(
+    (index: number, imageUrls: string[]) => {
+      navigation.navigate(pdpScreen, {
+        placeInfo: {placeId: item.place.id},
+      });
+      navigation.navigate('ImageZoomViewer', {
+        imageUrls,
+        index,
+      });
+    },
+    [navigation, pdpScreen, item.place.id],
+  );
 
   const onShare = () => {
     ShareUtils.sharePlace(item.place);
@@ -173,6 +188,7 @@ function SearchItemCard({
   return (
     <LogParamsProvider
       params={{
+        displaySectionName: 'search_item_card',
         place_id: item.place.id,
         place_name: item.place.name,
         place_accessibility_score: item.accessibilityInfo?.accessibilityScore,
@@ -324,7 +340,10 @@ function SearchItemCard({
               flexShrink: 2,
               overflow: 'hidden',
             }}>
-            <ImageList images={item.accessibilityInfo?.images ?? []} />
+            <ImageList
+              images={item.accessibilityInfo?.images ?? []}
+              onPressImage={handleImagePress}
+            />
           </View>
         )}
       </Container>
