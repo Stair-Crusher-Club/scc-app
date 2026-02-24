@@ -130,8 +130,8 @@ const chipBase = `
 
 const IconChip = styled(SccTouchableOpacity)`
   ${chipBase}
-  height: 30px;
-  padding-horizontal: 7px;
+  height: 36px;
+  padding-horizontal: 12px;
   background-color: white;
   border-color: #eaeaef;
 `;
@@ -141,10 +141,10 @@ const DropdownChip = styled(SccTouchableOpacity)<{
   $active: boolean;
 }>`
   ${chipBase}
-  height: ${({$isMap}) => ($isMap ? '30px' : '36px')};
-  padding-horizontal: ${({$isMap}) => ($isMap ? '13px' : '12px')};
-  padding-vertical: ${({$isMap}) => ($isMap ? '0px' : '8px')};
-  min-width: ${({$isMap}) => ($isMap ? 'auto' : '56px')};
+  height: 36px;
+  padding-horizontal: 12px;
+  padding-vertical: 8px;
+  min-width: 56px;
   gap: 2px;
   background-color: ${({$active}) => ($active ? '#EBF3FE' : 'white')};
   border-color: ${({$active}) => ($active ? color.brandColor : '#EAEAEF')};
@@ -155,18 +155,21 @@ const PlainChip = styled(SccTouchableOpacity)<{
   $active: boolean;
 }>`
   ${chipBase}
-  height: ${({$isMap}) => ($isMap ? '30px' : '36px')};
-  padding-horizontal: ${({$isMap}) => ($isMap ? '13px' : '12px')};
-  padding-vertical: ${({$isMap}) => ($isMap ? '0px' : '8px')};
-  min-width: ${({$isMap}) => ($isMap ? 'auto' : '56px')};
+  height: 36px;
+  padding-horizontal: 12px;
+  padding-vertical: 8px;
+  min-width: 56px;
   background-color: ${({$active}) => ($active ? '#EBF3FE' : 'white')};
   border-color: ${({$active}) => ($active ? color.brandColor : '#EAEAEF')};
 `;
 
 const ChipText = styled.Text<{$isMap: boolean; $active: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: ${({$isMap}) => ($isMap ? '13px' : '14px')};
-  ${({$isMap}) => (!$isMap ? 'line-height: 20px; letter-spacing: -0.28px;' : '')}
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.28px;
   color: ${({$active, $isMap}) =>
     $active ? color.brandColor : $isMap ? '#24262b' : '#16181c'};
+  include-font-padding: false;
+  text-align-vertical: center;
 `;

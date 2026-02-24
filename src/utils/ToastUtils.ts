@@ -14,9 +14,9 @@ const ToastUtils = {
       animation: true,
       opacity: 1,
       delay: 0,
+      keyboardAvoiding: false,
       containerStyle: {
         width: Math.min(350, screenWidth - 40),
-        minHeight: 56,
         backgroundColor: 'rgba(0, 0, 0, 0.85)',
         borderRadius: 8,
         paddingHorizontal: 20,

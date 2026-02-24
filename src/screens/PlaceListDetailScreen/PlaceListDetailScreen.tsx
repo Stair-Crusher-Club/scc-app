@@ -10,7 +10,7 @@ import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
 import ExitIcon from '@/assets/icon/ic_exit.svg';
 import MapIcon from '@/assets/icon/ic_map.svg';
 import MenuIcon from '@/assets/icon/ic_menu.svg';
-import ShareIcon from '@/assets/icon/ic_share.svg';
+import ShareIcon from '@/assets/icon/ic_share_web.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
@@ -149,16 +149,17 @@ const PlaceListDetailScreen = ({
     });
   }, [checkAuth, toggleSave, isSaved, placeListId]);
 
+  const shareId = data?.placeList?.shortId ?? placeListId;
   const handleShare = useCallback(async () => {
     try {
-      const url = `https://link.staircrusher.club/7o6ck7?placeListId=${placeListId}`;
+      const url = `https://link.staircrusher.club/7o6ck7?placeListId=${shareId}`;
       await Share.share({
         message: `[${title}] 장소 리스트를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
       });
     } catch {
       // ignore
     }
-  }, [title, placeListId]);
+  }, [title, shareId]);
 
   const listData: ListSection[] = useMemo(
     () => [
@@ -180,6 +181,7 @@ const PlaceListDetailScreen = ({
         item={props.item}
         isHeightFlex
         hideActions
+        hideScoreIcon
         onPress={props.onPress}
         listQueryKey={placeListQueryKey}
       />
@@ -248,6 +250,7 @@ const PlaceListDetailScreen = ({
             item={item.data}
             isHeightFlex
             hideActions
+            hideScoreIcon
             onPress={() => handleItemPress(item.data)}
             listQueryKey={placeListQueryKey}
           />

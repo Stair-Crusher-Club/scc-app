@@ -37,6 +37,7 @@ function SearchItemCard({
   isHeightFlex,
   isConquestMode,
   hideActions,
+  hideScoreIcon,
   onPress,
   listQueryKey,
 }: {
@@ -44,6 +45,7 @@ function SearchItemCard({
   isHeightFlex?: boolean;
   isConquestMode?: boolean;
   hideActions?: boolean;
+  hideScoreIcon?: boolean;
   onPress?: () => void;
   listQueryKey?: QueryKey;
 }) {
@@ -192,7 +194,7 @@ function SearchItemCard({
                   hasPlaceAccessibility: item.hasPlaceAccessibility,
                   hasBuildingAccessibility: item.hasBuildingAccessibility,
                 })}
-                isIconVisible
+                isIconVisible={!hideScoreIcon}
               />
             ) : (
               <AccessibilityInfoRequestButton
