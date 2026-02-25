@@ -7,7 +7,10 @@ import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import ReviewOutlineIcon from '@/assets/icon/ic_review_outline.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
-import ThumbsUpIcon from '@/assets/icon/ic_thumbsup_colored.svg';
+import SirenOutlineIcon from '@/assets/icon/ic_siren_outline.svg';
+import ThumbsUpBlueIcon from '@/assets/icon/ic_thumbsup_blue.svg';
+import ThumbsUpOutlineIcon from '@/assets/icon/ic_thumbsup_outline.svg';
+import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -144,22 +147,21 @@ export default function V2SummarySection({
           </T1ReviewButton>
           {hasAccessibility && (
             <T1IconUpvoteButton
-              isUpvoted={isUpvoted}
               elementName="place_detail_v2_upvote_icon_button"
               logParams={{experimentVariant: upvoteVariant}}
               onPress={onPressUpvote}>
-              <ThumbsUpIcon
-                width={24}
-                height={24}
-                color={isUpvoted ? color.brand40 : color.gray60}
-              />
+              {isUpvoted ? (
+                <ThumbsUpBlueIcon width={24} height={24} />
+              ) : (
+                <ThumbsUpOutlineIcon width={24} height={24} />
+              )}
             </T1IconUpvoteButton>
           )}
           <T1SirenButton
             elementName="place_detail_v2_siren_button"
             logParams={{experimentVariant: upvoteVariant}}
             onPress={onPressSiren}>
-            <SirenIcon width={24} height={24} />
+            <SirenOutlineIcon width={24} height={24} />
           </T1SirenButton>
         </T1ActionButtonsRow>
       </Container>
@@ -219,7 +221,7 @@ export default function V2SummarySection({
           {isUpvoted ? (
             <CheckColoredIcon width={16} height={16} />
           ) : (
-            <ThumbsUpIcon width={16} height={16} />
+            <ThumbsUpYellowIcon width={16} height={16} />
           )}
           <UpvoteButtonText isUpvoted={isUpvoted}>
             {isUpvoted ? '도움됐어요' : '도움돼요'}
@@ -431,16 +433,15 @@ const T1ReviewButtonText = styled.Text`
   color: #24262b;
 `;
 
-const T1IconUpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
+const T1IconUpvoteButton = styled(SccPressable)`
   width: 44px;
   height: 44px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : 'transparent')};
-  ${({isUpvoted}) =>
-    !isUpvoted ? 'border-width: 1px; border-color: #E3E4E8;' : ''}
+  border-width: 1px;
+  border-color: #e3e4e8;
 `;
 
 const T1SirenButton = styled(SccPressable)`

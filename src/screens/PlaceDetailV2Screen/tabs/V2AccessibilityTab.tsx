@@ -56,6 +56,7 @@ export function getAccessibilityChips(
     isMultiFloor,
     hasV2Fields,
     hasBuildingAccessibility,
+    showBuildingEntranceForOutsideDoor: true,
   });
 }
 
@@ -128,6 +129,7 @@ export default function V2AccessibilityTab({
     isMultiFloor,
     hasV2Fields,
     hasBuildingAccessibility,
+    showBuildingEntranceForOutsideDoor: true,
   });
 
   // 층 정보 계산
@@ -243,7 +245,6 @@ export default function V2AccessibilityTab({
           }
         })}
       </SectionsContainer>
-
     </Container>
   );
 }
@@ -299,4 +300,3 @@ const FloorSectionDate = styled.Text`
   letter-spacing: -0.24px;
   color: ${color.gray50};
 `;
-

@@ -217,57 +217,67 @@ export default function V2HomeTab({
         </SectionHeader>
         {hasAccessibility ? (
           <AccessibilitySectionContainer>
-            {/* 층 정보 (항상 첫 번째) */}
-            <FloorInfoRow accessibility={accessibility} />
-
-            {/* 건물 출입구 */}
-            {sections.includes('건물 출입구') && (
-              <>
-                {hasBuildingAccessibility ? (
-                  buildingAccessibilities.map((ba, index) => (
-                    <BuildingEntranceSection
-                      key={ba.id ?? index}
-                      buildingDate={dayjs(
-                        (ba as any).createdAt?.value ?? Date.now(),
+            {sections.map(section => {
+              switch (section) {
+                case '층 정보':
+                  return (
+                    <FloorInfoRow key={section} accessibility={accessibility} />
+                  );
+                case '건물 출입구':
+                  return (
+                    <React.Fragment key={section}>
+                      {hasBuildingAccessibility ? (
+                        buildingAccessibilities.map((ba, index) => (
+                          <BuildingEntranceSection
+                            key={ba.id ?? index}
+                            buildingDate={dayjs(
+                              (ba as any).createdAt?.value ?? Date.now(),
+                            ).format('YYYY.MM.DD')}
+                            buildingAccessibility={ba}
+                            buildingComments={buildingComments}
+                            title={
+                              buildingAccessibilities.length > 1
+                                ? `건물 출입구 (${index + 1})`
+                                : '건물 출입구'
+                            }
+                            compact
+                          />
+                        ))
+                      ) : (
+                        <BuildingEntranceEmptySection
+                          compact
+                          onRegister={onPressPlaceRegister}
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                case '매장 출입구':
+                  return placeAccessibilities.length > 0 ? (
+                    <PlaceEntranceSection
+                      key={section}
+                      title={'매장 출입구'}
+                      placeDate={dayjs(
+                        placeAccessibilities[0].createdAt.value,
                       ).format('YYYY.MM.DD')}
-                      buildingAccessibility={ba}
-                      buildingComments={buildingComments}
-                      title={
-                        buildingAccessibilities.length > 1
-                          ? `건물 출입구 (${index + 1})`
-                          : '건물 출입구'
-                      }
+                      placeAccessibility={placeAccessibilities[0]}
+                      placeComments={placeComments}
                       compact
                     />
-                  ))
-                ) : (
-                  <BuildingEntranceEmptySection
-                    compact
-                    onRegister={onPressPlaceRegister}
-                  />
-                )}
-              </>
-            )}
-
-            {/* 매장 출입구 — 홈탭에서는 접근레벨 가장 낮은 문 1개만 표시 */}
-            {sections.includes('매장 출입구') &&
-              placeAccessibilities.length > 0 && (
-                <PlaceEntranceSection
-                  key={placeAccessibilities[0].id ?? 0}
-                  title={'매장 출입구'}
-                  placeDate={dayjs(
-                    placeAccessibilities[0].createdAt.value,
-                  ).format('YYYY.MM.DD')}
-                  placeAccessibility={placeAccessibilities[0]}
-                  placeComments={placeComments}
-                  compact
-                />
-              )}
-
-            {/* 층간 이동 정보 */}
-            {sections.includes('층간 이동 정보') && (
-              <FloorMovementSection compact placeAccessibility={placeAcc} />
-            )}
+                  ) : null;
+                case '층간 이동 정보':
+                  return (
+                    <FloorMovementSection
+                      key={section}
+                      compact
+                      placeAccessibility={placeAcc}
+                    />
+                  );
+                case '내부 이용 정보':
+                  return null; // 홈탭에서는 제외
+                default:
+                  return null;
+              }
+            })}
           </AccessibilitySectionContainer>
         ) : (
           <EmptyStateCard
@@ -357,7 +367,6 @@ export default function V2HomeTab({
           />
         )}
       </Section>
-
     </Container>
   );
 }
@@ -578,4 +587,3 @@ const ThickDivider = styled.View`
   height: 6px;
   background-color: ${color.gray5};
 `;
-

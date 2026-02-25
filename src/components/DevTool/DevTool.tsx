@@ -10,7 +10,6 @@ import {
   Switch,
   ScrollView,
   Modal,
-  SafeAreaView,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Clipboard,
@@ -221,7 +220,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
         <TouchableWithoutFeedback onPress={() => setIsBottomSheetOpen(false)}>
           <View style={styles.modalContainer}>
             <TouchableWithoutFeedback onPress={() => {}}>
-              <SafeAreaView style={styles.bottomSheet}>
+              <View style={styles.bottomSheet}>
                 <View style={styles.bottomSheetHeader}>
                   <Text style={styles.bottomSheetTitle}>개발자 도구 설정</Text>
                   <TouchableOpacity onPress={toggleBottomSheet}>
@@ -229,7 +228,9 @@ export const DevTool: React.FC<DevToolProps> = () => {
                   </TouchableOpacity>
                 </View>
 
-                <ScrollView style={styles.bottomSheetContent}>
+                <ScrollView
+                  style={styles.bottomSheetContent}
+                  contentContainerStyle={{paddingBottom: insets.bottom + 24}}>
                   {/* Search Radius Toggle */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingInfo}>
@@ -328,7 +329,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
 
                   {/* Add more dev tool options here */}
                 </ScrollView>
-              </SafeAreaView>
+              </View>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
@@ -356,7 +357,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
           onPress={() => setIsExperimentModalOpen(false)}>
           <View style={styles.modalContainer}>
             <TouchableWithoutFeedback onPress={() => {}}>
-              <SafeAreaView style={styles.bottomSheet}>
+              <View style={styles.bottomSheet}>
                 <View style={styles.bottomSheetHeader}>
                   <Text style={styles.bottomSheetTitle}>실험 (A/B 테스트)</Text>
                   <TouchableOpacity
@@ -365,7 +366,9 @@ export const DevTool: React.FC<DevToolProps> = () => {
                   </TouchableOpacity>
                 </View>
 
-                <ScrollView style={styles.bottomSheetContent}>
+                <ScrollView
+                  style={styles.bottomSheetContent}
+                  contentContainerStyle={{paddingBottom: insets.bottom + 24}}>
                   {knownExperiments.length === 0 && (
                     <View style={styles.experimentRow}>
                       <Text style={styles.settingDescription}>
@@ -429,7 +432,7 @@ export const DevTool: React.FC<DevToolProps> = () => {
                     );
                   })}
                 </ScrollView>
-              </SafeAreaView>
+              </View>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>

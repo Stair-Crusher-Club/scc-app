@@ -834,40 +834,37 @@ export default function PlaceDetailV2Screen({
           </ScrollView>
         </GestureHandlerRootView>
 
-        {(!!accessibilityPost?.placeAccessibility ||
-          !!accessibilityPost?.buildingAccessibility) && (
-          <Animated.View
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              opacity: bottomBarAnim,
-              transform: [
-                {
-                  translateY: bottomBarAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [100, 0],
-                  }),
-                },
-              ],
-            }}
-            pointerEvents={showBottomBar ? 'auto' : 'none'}>
-            <V2BottomBar
-              accessibility={accessibilityPost}
-              isUpvoted={isUpvoted}
-              totalUpvoteCount={totalUpvoteCount}
-              onPressUpvote={handleUpvote}
-              onPressRegister={() => setShowRegistrationSheet(true)}
-              onPressWriteReview={handleReviewRegister}
-              onPressSiren={() =>
-                showNegativeFeedbackBottomSheet(
-                  ReportTargetTypeDto.PlaceAccessibility,
-                )
-              }
-            />
-          </Animated.View>
-        )}
+        <Animated.View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            opacity: bottomBarAnim,
+            transform: [
+              {
+                translateY: bottomBarAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0],
+                }),
+              },
+            ],
+          }}
+          pointerEvents={showBottomBar ? 'auto' : 'none'}>
+          <V2BottomBar
+            accessibility={accessibilityPost}
+            isUpvoted={isUpvoted}
+            totalUpvoteCount={totalUpvoteCount}
+            onPressUpvote={handleUpvote}
+            onPressRegister={() => setShowRegistrationSheet(true)}
+            onPressWriteReview={handleReviewRegister}
+            onPressSiren={() =>
+              showNegativeFeedbackBottomSheet(
+                ReportTargetTypeDto.PlaceAccessibility,
+              )
+            }
+          />
+        </Animated.View>
 
         <RequireBuildingAccessibilityBottomSheet
           isVisible={!isFetching && showRequireBuildingAccessibilityBottomSheet}

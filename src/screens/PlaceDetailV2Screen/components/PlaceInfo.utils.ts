@@ -18,6 +18,7 @@ export function getAccessibilitySections(params: {
   isMultiFloor: boolean;
   hasV2Fields: boolean;
   hasBuildingAccessibility: boolean;
+  showBuildingEntranceForOutsideDoor?: boolean;
 }): AccessibilitySectionType[] {
   const {
     isStandalone,
@@ -25,17 +26,25 @@ export function getAccessibilitySections(params: {
     isMultiFloor,
     hasV2Fields,
     hasBuildingAccessibility,
+    showBuildingEntranceForOutsideDoor = false,
   } = params;
   const sections: AccessibilitySectionType[] = ['층 정보'];
 
   if (hasV2Fields) {
     const isInsideDoor =
       !isStandalone && doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
+
+    // InsideBuilding: 건물 출입구 → 매장 출입구 순서
     if (isInsideDoor) {
       sections.push('건물 출입구');
     }
     sections.push('매장 출입구');
     if (isMultiFloor) sections.push('층간 이동 정보');
+
+    // OutsideBuilding: 매장 출입구 뒤, 내부 이용 정보 직전 (접근성 탭에서만)
+    if (showBuildingEntranceForOutsideDoor && !isStandalone && !isInsideDoor) {
+      sections.push('건물 출입구');
+    }
     sections.push('내부 이용 정보');
   } else {
     if (hasBuildingAccessibility) sections.push('건물 출입구');

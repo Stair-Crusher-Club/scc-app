@@ -119,4 +119,3 @@ const Divider = styled.View`
   height: 1px;
   background-color: ${color.gray20};
 `;
-
