@@ -33,6 +33,13 @@ import ToastUtils from '@/utils/ToastUtils.ts';
 
 export type SearchResultItem = PlaceListItem | (ToiletDetails & MarkerItem);
 
+function generateRequestId(): string {
+  const now = new Date();
+  const pad = (n: number, len = 2) => String(n).padStart(len, '0');
+  const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds(), 6)}`;
+  return `${timestamp}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export default function useSearchRequest() {
   const {api} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered} =
@@ -140,7 +147,7 @@ export default function useSearchRequest() {
           {signal},
         );
         const result = response?.data.items?.map(mapToToiletDetails) ?? [];
-        const requestId = Math.random().toString(36).slice(2, 10);
+        const requestId = generateRequestId();
         setSearchRequestId(requestId);
         Logger.logElementClick({
           name: 'toilet_search',
@@ -188,7 +195,7 @@ export default function useSearchRequest() {
         {signal},
       );
       const result = response?.data.items || [];
-      const requestId = Math.random().toString(36).slice(2, 10);
+      const requestId = generateRequestId();
       setSearchRequestId(requestId);
       Logger.logElementClick({
         name: 'place_search',
