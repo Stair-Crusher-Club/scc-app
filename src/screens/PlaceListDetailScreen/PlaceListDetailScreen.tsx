@@ -7,7 +7,8 @@ import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
-import ExitIcon from '@/assets/icon/ic_exit.svg';
+import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
+import CloseIcon from '@/assets/icon/close.svg';
 import MapIcon from '@/assets/icon/ic_map.svg';
 import MenuIcon from '@/assets/icon/ic_menu.svg';
 import ShareIcon from '@/assets/icon/ic_share_web.svg';
@@ -210,11 +211,7 @@ const PlaceListDetailScreen = ({
                 onPress={handleToggleSave}
                 $isSaved={isSaved}>
                 {isSaved ? (
-                  <BookmarkOnIcon
-                    width={20}
-                    height={20}
-                    color={color.brandColor}
-                  />
+                  <CheckColoredIcon width={20} height={20} />
                 ) : (
                   <BookmarkIcon width={20} height={20} color={color.white} />
                 )}
@@ -294,7 +291,7 @@ const PlaceListDetailScreen = ({
           elementName="place_list_detail_close"
           activeOpacity={0.8}
           onPress={() => navigation.goBack()}>
-          <ExitIcon width={24} height={24} color={color.black} />
+          <CloseIcon width={24} height={24} color={color.black} />
         </SccTouchableOpacity>
       </HeaderRow>
 
@@ -317,6 +314,9 @@ const PlaceListDetailScreen = ({
               isRefreshVisible={false}
               onRefresh={() => {}}
               onCameraIdle={() => {}}
+              myLocationBottomOffset={
+                items.length > 0 ? MAP_CARD_HEIGHT + 16 : 16
+              }
             />
           </MapAbsoluteContainer>
 
@@ -359,7 +359,7 @@ const PlaceListDetailScreen = ({
                     <BookmarkOnIcon
                       width={24}
                       height={24}
-                      color={color.brandColor}
+                      color={color.brand40}
                     />
                   ) : (
                     <BookmarkIcon width={24} height={24} color="#3F3F45" />
@@ -462,7 +462,8 @@ const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
   justify-content: center;
   height: 44px;
   border-radius: 8px;
-  background-color: ${({$isSaved}) => ($isSaved ? '#F2F2F5' : '#0C76F7')};
+  background-color: ${({$isSaved}) => ($isSaved ? '#D6EBFF' : '#0C76F7')};
+  padding: 12px 28px 12px 24px;
   gap: 4px;
 `;
 
@@ -471,7 +472,7 @@ const SaveButtonText = styled.Text<{$isSaved: boolean}>`
   font-size: 15px;
   line-height: 22px;
   letter-spacing: -0.3px;
-  color: ${({$isSaved}) => ($isSaved ? '#24262B' : color.white)};
+  color: ${({$isSaved}) => ($isSaved ? color.black : color.white)};
 `;
 
 const ShareButtonContainer = styled(SccTouchableOpacity)`
@@ -523,10 +524,10 @@ const FloatingViewModeButton = styled(SccTouchableOpacity)<{$isBlue: boolean}>`
   background-color: ${({$isBlue}) => ($isBlue ? '#0C76F7' : color.white)};
   gap: 4px;
   shadow-color: #000;
-  shadow-offset: 0px 4px;
-  shadow-opacity: 0.15;
-  shadow-radius: 10px;
-  elevation: 20;
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.23;
+  shadow-radius: 2px;
+  elevation: 8;
 `;
 
 const FloatingViewModeText = styled.Text<{$isBlue: boolean}>`
@@ -559,9 +560,9 @@ const FloatingCircleButton = styled(SccTouchableOpacity)`
   align-items: center;
   justify-content: center;
   shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.15;
-  shadow-radius: 4px;
+  shadow-offset: 0px 3px;
+  shadow-opacity: 0.16;
+  shadow-radius: 4.5px;
   elevation: 3;
 `;
 

@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import {Image} from 'react-native';
 import {match} from 'ts-pattern';
 
-import ExitIcon from '@/assets/icon/ic_exit.svg';
+import CloseIcon from '@/assets/icon/close.svg';
 import {
   hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForReviewPhotoAtom,
@@ -78,7 +78,7 @@ export default function PlacePhotoGuideScreen({
         <S.CloseButton
           elementName="place_photo_guide_close_button"
           onPress={navigation.goBack}>
-          <ExitIcon width={24} height={24} color="white" />
+          <CloseIcon width={24} height={24} color="white" />
         </S.CloseButton>
       </S.Header>
       <S.SampleImage>

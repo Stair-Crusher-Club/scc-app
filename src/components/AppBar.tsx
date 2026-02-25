@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {Alert} from 'react-native';
 
-import ExitIcon from '@/assets/icon/ic_exit.svg';
+import CloseIcon from '@/assets/icon/close.svg';
 import {color} from '@/constant/color';
 
 import * as S from './AppBar.style';
@@ -39,7 +39,7 @@ export const CloseAppBar = ({
         <S.CloseButton
           elementName="app_bar_close_button"
           onPress={handleCloseButtonPress}>
-          <ExitIcon width={24} height={24} color={color.black} />
+          <CloseIcon width={24} height={24} color={color.black} />
         </S.CloseButton>
       </S.ContentsContainer>
       {showSeparator && <S.Separator />}
