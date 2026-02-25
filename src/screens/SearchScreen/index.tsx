@@ -22,6 +22,7 @@ import {
   searchModeAtom,
   SearchQuery,
   searchQueryAtom,
+  searchRequestIdAtom,
   SortOption,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
@@ -108,6 +109,8 @@ const SearchScreenContent = ({
   const {data, isLoading, updateQuery, setOnFetchCompleted} =
     useSearchRequest();
 
+  const searchRequestId = useAtomValue(searchRequestIdAtom);
+  const setSearchRequestId = useSetAtom(searchRequestIdAtom);
   const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
   const setDraftKeyword = useSetAtom(draftKeywordAtom);
   const setFilterModalState = useSetAtom(filterModalStateAtom);
@@ -227,6 +230,7 @@ const SearchScreenContent = ({
       setDraftCameraRegion(null);
       setDraftKeyword(null);
       setSearchMode('place');
+      setSearchRequestId(null);
       resetHighlightAnimation();
     });
   }, [navigation]);
@@ -245,6 +249,7 @@ const SearchScreenContent = ({
         search_query: searchQuery,
         view_state: viewState.type,
         search_query_text: searchQuery.text,
+        search_request_id: searchRequestId,
       }}>
       <S.SearchScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <SearchHeader
