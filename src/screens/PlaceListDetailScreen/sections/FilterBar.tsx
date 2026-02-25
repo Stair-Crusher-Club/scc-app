@@ -139,7 +139,9 @@ const FilterTextChip = styled(SccTouchableOpacity)<{$isMap: boolean}>`
 
 const FilterChipText = styled.Text<{$isMap: boolean}>`
   font-family: ${font.pretendardMedium};
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.28px;
   color: ${({$isMap}) => ($isMap ? '#24262b' : '#16181c')};
 `;
 

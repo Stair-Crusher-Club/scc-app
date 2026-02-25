@@ -213,7 +213,7 @@ const PlaceListDetailScreen = ({
                 {isSaved ? (
                   <CheckColoredIcon width={20} height={20} />
                 ) : (
-                  <BookmarkIcon width={20} height={20} color={color.white} />
+                  <BookmarkIcon viewBox="-2 -1 20 20" color={color.white} />
                 )}
                 <SaveButtonText $isSaved={isSaved}>
                   {isSaved ? '리스트 저장됨' : '리스트 저장하기'}
@@ -291,7 +291,7 @@ const PlaceListDetailScreen = ({
           elementName="place_list_detail_close"
           activeOpacity={0.8}
           onPress={() => navigation.goBack()}>
-          <CloseIcon width={24} height={24} color={color.black} />
+          <CloseIcon width={16} height={16} color={color.black} />
         </SccTouchableOpacity>
       </HeaderRow>
 
@@ -314,9 +314,7 @@ const PlaceListDetailScreen = ({
               isRefreshVisible={false}
               onRefresh={() => {}}
               onCameraIdle={() => {}}
-              myLocationBottomOffset={
-                items.length > 0 ? MAP_CARD_HEIGHT + 16 : 16
-              }
+              myLocationBottomOffset={16}
             />
           </MapAbsoluteContainer>
 
@@ -357,19 +355,20 @@ const PlaceListDetailScreen = ({
                   onPress={handleToggleSave}>
                   {isSaved ? (
                     <BookmarkOnIcon
-                      width={24}
-                      height={24}
+                      width={16}
+                      height={20}
+                      viewBox="-2.5 -0.5 20 20"
                       color={color.brand40}
                     />
                   ) : (
-                    <BookmarkIcon width={24} height={24} color="#3F3F45" />
+                    <BookmarkIcon width={16} height={20} viewBox="-2.5 -0.5 20 20" color={color.gray90} />
                   )}
                 </FloatingCircleButton>
                 <FloatingCircleButton
                   elementName="place_list_detail_map_share"
                   activeOpacity={0.8}
                   onPress={handleShare}>
-                  <ShareIcon width={24} height={24} color={color.black} />
+                  <ShareIcon width={20} height={20} color={color.black} />
                 </FloatingCircleButton>
               </MapRightFloatingContainer>
               {/* Fix 2: 동적 bottom으로 카드 위에 배치 */}
@@ -470,9 +469,10 @@ const SaveButtonContainer = styled(SccTouchableOpacity)<{$isSaved: boolean}>`
 const SaveButtonText = styled.Text<{$isSaved: boolean}>`
   font-family: ${font.pretendardMedium};
   font-size: 15px;
-  line-height: 22px;
+  line-height: 20px;
   letter-spacing: -0.3px;
   color: ${({$isSaved}) => ($isSaved ? color.black : color.white)};
+  vertical-align: center;
 `;
 
 const ShareButtonContainer = styled(SccTouchableOpacity)`
@@ -553,8 +553,8 @@ const MapRightFloatingContainer = styled.View`
 `;
 
 const FloatingCircleButton = styled(SccTouchableOpacity)`
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 20px;
   background-color: ${color.white};
   align-items: center;
