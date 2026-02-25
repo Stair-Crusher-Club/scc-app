@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -14,9 +13,9 @@ import {
 } from '@/generated-sources/openapi';
 
 import {
+  EmptyStateCard,
   InfoRow,
   InfoRowsContainer,
-  StrokeCTAButton,
 } from '../components/AccessibilityInfoComponents';
 import {
   BuildingEntranceSection,
@@ -57,6 +56,7 @@ export function getAccessibilityChips(
     isMultiFloor,
     hasV2Fields,
     hasBuildingAccessibility,
+    showBuildingEntranceForOutsideDoor: true,
   });
 }
 
@@ -95,21 +95,17 @@ export default function V2AccessibilityTab({
 
   if (!hasPlaceAccessibility) {
     return (
-      <EmptyStateContainer>
-        <EmptyStateTextBlock>
-          <EmptyStateTitle>
-            {'아직 등록된 접근성 정보가 없어요🥲'}
-          </EmptyStateTitle>
-          <EmptyStateDescription>
-            {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
-          </EmptyStateDescription>
-        </EmptyStateTextBlock>
-        <StrokeCTAButton
-          text="정보 등록하기"
+      <EmptyStateWrapper>
+        <EmptyStateCard
+          title={'아직 등록된 접근성 정보가 없어요🥲'}
+          description={
+            '아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'
+          }
+          buttonText="정보 등록하기"
           onPress={onRegister}
           elementName="v2_accessibility_tab_empty_register"
         />
-      </EmptyStateContainer>
+      </EmptyStateWrapper>
     );
   }
 
@@ -133,6 +129,7 @@ export default function V2AccessibilityTab({
     isMultiFloor,
     hasV2Fields,
     hasBuildingAccessibility,
+    showBuildingEntranceForOutsideDoor: true,
   });
 
   // 층 정보 계산
@@ -146,9 +143,11 @@ export default function V2AccessibilityTab({
       onSectionLayout?.(name, e.nativeEvent.layout.y);
     };
 
-  /** 매장 출입구 제목 (다중 출입구 시 번호 매김) */
+  /** 매장 출입구 제목 (다중 출입구 시 번호 매김, 1개면 항상 '매장 출입구') */
   const placeEntranceTitle = (baseTitle: string, index: number) =>
-    placeAccessibilities.length > 1 ? `${baseTitle} (${index + 1})` : baseTitle;
+    placeAccessibilities.length > 1
+      ? `${baseTitle} (${index + 1})`
+      : '매장 출입구';
 
   /** 건물 출입구 제목 (다중 출입구 시 번호 매김) */
   const buildingEntranceTitle = (index: number) =>
@@ -164,7 +163,9 @@ export default function V2AccessibilityTab({
           switch (section) {
             case '층 정보':
               return (
-                <View key={section} onLayout={sectionLayout('층 정보')}>
+                <SectionsInnerContainer
+                  key={section}
+                  onLayout={sectionLayout('층 정보')}>
                   <FloorSectionContainer>
                     <FloorSectionHeader>
                       <FloorSectionTitle>층 정보</FloorSectionTitle>
@@ -178,11 +179,13 @@ export default function V2AccessibilityTab({
                       />
                     </InfoRowsContainer>
                   </FloorSectionContainer>
-                </View>
+                </SectionsInnerContainer>
               );
             case '건물 출입구':
               return (
-                <View key={section} onLayout={sectionLayout('건물 출입구')}>
+                <SectionsInnerContainer
+                  key={section}
+                  onLayout={sectionLayout('건물 출입구')}>
                   {hasBuildingAccessibility ? (
                     buildingAccessibilities.map((ba, index) => (
                       <BuildingEntranceSection
@@ -191,7 +194,6 @@ export default function V2AccessibilityTab({
                           (ba as any).createdAt?.value ?? Date.now(),
                         ).format('YYYY.MM.DD')}
                         buildingAccessibility={ba}
-                        accessibility={accessibility}
                         buildingComments={buildingComments}
                         title={buildingEntranceTitle(index)}
                       />
@@ -199,51 +201,50 @@ export default function V2AccessibilityTab({
                   ) : (
                     <BuildingEntranceEmptySection onRegister={onRegister} />
                   )}
-                </View>
+                </SectionsInnerContainer>
               );
             case '매장 출입구':
               return (
-                <View key={section} onLayout={sectionLayout('매장 출입구')}>
+                <SectionsInnerContainer
+                  key={section}
+                  onLayout={sectionLayout('매장 출입구')}>
                   {placeAccessibilities.map((pa, index) => (
                     <PlaceEntranceSection
                       key={pa.id ?? index}
-                      title={
-                        !hasV2Fields && hasBuildingAccessibility
-                          ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
-                          : placeEntranceTitle('매장 출입구', index)
-                      }
+                      title={placeEntranceTitle('매장 출입구', index)}
                       placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
                       placeAccessibility={pa}
-                      accessibility={accessibility}
                       placeComments={placeComments}
                     />
                   ))}
-                </View>
+                </SectionsInnerContainer>
               );
             case '층간 이동 정보':
               return (
-                <View key={section} onLayout={sectionLayout('층간 이동 정보')}>
+                <SectionsInnerContainer
+                  key={section}
+                  onLayout={sectionLayout('층간 이동 정보')}>
                   <FloorMovementSection
                     placeAccessibility={primaryPlaceAccessibility}
                   />
-                </View>
+                </SectionsInnerContainer>
               );
             case '내부 이용 정보':
               return (
-                <View key={section} onLayout={sectionLayout('내부 이용 정보')}>
+                <SectionsInnerContainer
+                  key={section}
+                  onLayout={sectionLayout('내부 이용 정보')}>
                   <PlaceReviewSection
                     reviews={reviews}
                     onRegister={onRegister}
                   />
-                </View>
+                </SectionsInnerContainer>
               );
             default:
               return null;
           }
         })}
       </SectionsContainer>
-
-      <BottomPadding />
     </Container>
   );
 }
@@ -255,40 +256,21 @@ const Container = styled.View`
 `;
 
 // Empty state
-const EmptyStateContainer = styled.View`
+const EmptyStateWrapper = styled.View`
+  flex: 1;
   background-color: ${color.gray5};
   padding-top: 40px;
   padding-horizontal: 20px;
   padding-bottom: 20px;
-  gap: 16px;
-`;
-
-const EmptyStateTextBlock = styled.View`
-  gap: 8px;
-  align-items: center;
-`;
-
-const EmptyStateTitle = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.gray80};
-  text-align: center;
-`;
-
-const EmptyStateDescription = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 15px;
-  line-height: 24px;
-  letter-spacing: -0.3px;
-  color: ${color.gray50};
-  text-align: center;
 `;
 
 // 섹션
 const SectionsContainer = styled.View`
   padding: 20px;
+  gap: 40px;
+`;
+
+const SectionsInnerContainer = styled.View`
   gap: 40px;
 `;
 
@@ -317,8 +299,4 @@ const FloorSectionDate = styled.Text`
   line-height: 16px;
   letter-spacing: -0.24px;
   color: ${color.gray50};
-`;
-
-const BottomPadding = styled.View`
-  height: 100px;
 `;

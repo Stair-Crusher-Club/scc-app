@@ -36,7 +36,6 @@ import {getStairDescription} from './PlaceInfo.utils';
 export function BuildingEntranceSection({
   buildingDate,
   buildingAccessibility,
-  accessibility,
   buildingComments,
   compact = false,
   title = '건물 출입구',
@@ -45,7 +44,6 @@ export function BuildingEntranceSection({
   buildingAccessibility: NonNullable<
     AccessibilityInfoV2Dto['buildingAccessibility']
   >;
-  accessibility?: AccessibilityInfoV2Dto;
   buildingComments: BuildingAccessibilityComment[];
   compact?: boolean;
   title?: string;
@@ -71,10 +69,16 @@ export function BuildingEntranceSection({
           ]}
         />
         <InfoRowsContainer>
-          <BuildingDoorDirectionInfoRow accessibility={accessibility} />
-          <BuildingEntranceInfoRows accessibility={accessibility} />
-          <BuildingElevatorInfoRow accessibility={accessibility} />
-          <BuildingDoorInfoRow accessibility={accessibility} />
+          <BuildingDoorDirectionInfoRow
+            buildingAccessibility={buildingAccessibility}
+          />
+          <BuildingEntranceInfoRows
+            buildingAccessibility={buildingAccessibility}
+          />
+          <BuildingElevatorInfoRow
+            buildingAccessibility={buildingAccessibility}
+          />
+          <BuildingDoorInfoRow buildingAccessibility={buildingAccessibility} />
         </InfoRowsContainer>
         {doorDirectionEtcComment != null &&
           doorDirectionEtcComment.length > 0 && (
@@ -124,14 +128,12 @@ export function PlaceEntranceSection({
   title,
   placeDate,
   placeAccessibility,
-  accessibility,
   placeComments,
   compact = false,
 }: {
   title: string;
   placeDate: string;
   placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
-  accessibility?: AccessibilityInfoV2Dto;
   placeComments: PlaceAccessibilityComment[];
   compact?: boolean;
 }) {
@@ -150,10 +152,10 @@ export function PlaceEntranceSection({
       <SectionContent>
         <PhotoRow images={placeAccessibility.images ?? []} />
         <InfoRowsContainer>
-          <PlaceDoorDirectionInfoRow accessibility={accessibility} />
-          <PlaceEntranceInfoRows accessibility={accessibility} />
-          <PlaceDoorInfoRow accessibility={accessibility} />
-          <PlaceNoteInfoRow accessibility={accessibility} />
+          <PlaceDoorDirectionInfoRow placeAccessibility={placeAccessibility} />
+          <PlaceEntranceInfoRows placeAccessibility={placeAccessibility} />
+          <PlaceDoorInfoRow placeAccessibility={placeAccessibility} />
+          <PlaceNoteInfoRow placeAccessibility={placeAccessibility} />
         </InfoRowsContainer>
         {entranceComment != null && entranceComment.length > 0 && (
           <InlineComment>{entranceComment}</InlineComment>

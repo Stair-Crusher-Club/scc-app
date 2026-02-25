@@ -18,6 +18,7 @@ export function getAccessibilitySections(params: {
   isMultiFloor: boolean;
   hasV2Fields: boolean;
   hasBuildingAccessibility: boolean;
+  showBuildingEntranceForOutsideDoor?: boolean;
 }): AccessibilitySectionType[] {
   const {
     isStandalone,
@@ -25,17 +26,25 @@ export function getAccessibilitySections(params: {
     isMultiFloor,
     hasV2Fields,
     hasBuildingAccessibility,
+    showBuildingEntranceForOutsideDoor = false,
   } = params;
   const sections: AccessibilitySectionType[] = ['층 정보'];
 
   if (hasV2Fields) {
     const isInsideDoor =
       !isStandalone && doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
+
+    // InsideBuilding: 건물 출입구 → 매장 출입구 순서
     if (isInsideDoor) {
       sections.push('건물 출입구');
     }
     sections.push('매장 출입구');
     if (isMultiFloor) sections.push('층간 이동 정보');
+
+    // OutsideBuilding: 매장 출입구 뒤, 내부 이용 정보 직전 (접근성 탭에서만)
+    if (showBuildingEntranceForOutsideDoor && !isStandalone && !isInsideDoor) {
+      sections.push('건물 출입구');
+    }
     sections.push('내부 이용 정보');
   } else {
     if (hasBuildingAccessibility) sections.push('건물 출입구');
@@ -156,11 +165,12 @@ export enum EntranceStepType {
   Flat,
   Unknown,
 }
-export function getPlaceEntranceStepType(
-  accessibility: AccessibilityInfoDto,
-): EntranceStepType {
-  const stairInfo = accessibility.placeAccessibility?.stairInfo;
-  const hasSlope = accessibility.placeAccessibility?.hasSlope;
+export function getPlaceEntranceStepType(pa: {
+  stairInfo?: StairInfo;
+  hasSlope?: boolean;
+}): EntranceStepType {
+  const stairInfo = pa.stairInfo;
+  const hasSlope = pa.hasSlope;
 
   if (stairInfo === StairInfo.None) {
     if (hasSlope) {
@@ -177,11 +187,12 @@ export function getPlaceEntranceStepType(
   }
 }
 
-export function getBuildingEntranceStepType(
-  accessibility: AccessibilityInfoDto,
-): EntranceStepType {
-  const stairInfo = accessibility.buildingAccessibility?.entranceStairInfo;
-  const hasSlope = accessibility.buildingAccessibility?.hasSlope;
+export function getBuildingEntranceStepType(ba: {
+  entranceStairInfo?: StairInfo;
+  hasSlope?: boolean;
+}): EntranceStepType {
+  const stairInfo = ba.entranceStairInfo;
+  const hasSlope = ba.hasSlope;
 
   if (stairInfo === StairInfo.None) {
     if (hasSlope) {
@@ -203,11 +214,12 @@ export enum ElevatorType {
   ElevatorNoBarriers,
   NoElevator,
 }
-export function getBuildingElevatorType(
-  accessibility: AccessibilityInfoDto,
-): ElevatorType {
-  const hasElevator = accessibility.buildingAccessibility?.hasElevator;
-  const stairInfo = accessibility.buildingAccessibility?.elevatorStairInfo;
+export function getBuildingElevatorType(ba: {
+  hasElevator?: boolean;
+  elevatorStairInfo?: StairInfo;
+}): ElevatorType {
+  const hasElevator = ba.hasElevator;
+  const stairInfo = ba.elevatorStairInfo;
 
   if (!hasElevator) {
     return ElevatorType.NoElevator;

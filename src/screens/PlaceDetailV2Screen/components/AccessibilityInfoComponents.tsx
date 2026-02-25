@@ -93,17 +93,15 @@ export function CommentBox({
 // ──────────────── Building Info Rows ────────────────
 
 export function BuildingEntranceInfoRows({
-  accessibility,
+  buildingAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  buildingAccessibility: NonNullable<
+    AccessibilityInfoV2Dto['buildingAccessibility']
+  >;
 }) {
-  if (!accessibility) {
-    return null;
-  }
-  const entranceStepType = getBuildingEntranceStepType(accessibility as any);
-  const stairInfo = accessibility.buildingAccessibility?.entranceStairInfo;
-  const stairHeight =
-    accessibility.buildingAccessibility?.entranceStairHeightLevel;
+  const entranceStepType = getBuildingEntranceStepType(buildingAccessibility);
+  const stairInfo = buildingAccessibility.entranceStairInfo;
+  const stairHeight = buildingAccessibility.entranceStairHeightLevel;
   const description = getStairDescription(stairHeight, stairInfo);
 
   let title = '';
@@ -126,17 +124,16 @@ export function BuildingEntranceInfoRows({
 }
 
 export function BuildingElevatorInfoRow({
-  accessibility,
+  buildingAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  buildingAccessibility: NonNullable<
+    AccessibilityInfoV2Dto['buildingAccessibility']
+  >;
 }) {
-  if (!accessibility?.buildingAccessibility) {
-    return null;
-  }
-  const elevatorType = getBuildingElevatorType(accessibility as any);
-  const stairInfo = accessibility.buildingAccessibility.elevatorStairInfo;
-  const stairHeight =
-    accessibility.buildingAccessibility.elevatorStairHeightLevel;
+  if (!buildingAccessibility) return null;
+  const elevatorType = getBuildingElevatorType(buildingAccessibility);
+  const stairInfo = buildingAccessibility.elevatorStairInfo;
+  const stairHeight = buildingAccessibility.elevatorStairHeightLevel;
   const description = getStairDescription(stairHeight, stairInfo);
 
   let title = '';
@@ -158,12 +155,13 @@ export function BuildingElevatorInfoRow({
 }
 
 export function BuildingDoorInfoRow({
-  accessibility,
+  buildingAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  buildingAccessibility: NonNullable<
+    AccessibilityInfoV2Dto['buildingAccessibility']
+  >;
 }) {
-  const doorTypes =
-    accessibility?.buildingAccessibility?.entranceDoorTypes ?? [];
+  const doorTypes = buildingAccessibility.entranceDoorTypes ?? [];
   if (doorTypes.length === 0) {
     return null;
   }
@@ -172,11 +170,13 @@ export function BuildingDoorInfoRow({
 }
 
 export function BuildingDoorDirectionInfoRow({
-  accessibility,
+  buildingAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  buildingAccessibility: NonNullable<
+    AccessibilityInfoV2Dto['buildingAccessibility']
+  >;
 }) {
-  const doorDir = accessibility?.buildingAccessibility?.doorDirectionType;
+  const doorDir = buildingAccessibility.doorDirectionType;
   if (!doorDir) {
     return null;
   }
@@ -198,16 +198,13 @@ export function BuildingDoorDirectionInfoRow({
 // ──────────────── Place Info Rows ────────────────
 
 export function PlaceEntranceInfoRows({
-  accessibility,
+  placeAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
 }) {
-  if (!accessibility) {
-    return null;
-  }
-  const entranceStepType = getPlaceEntranceStepType(accessibility as any);
-  const stairInfo = accessibility.placeAccessibility?.stairInfo;
-  const stairHeight = accessibility.placeAccessibility?.stairHeightLevel;
+  const entranceStepType = getPlaceEntranceStepType(placeAccessibility);
+  const stairInfo = placeAccessibility.stairInfo;
+  const stairHeight = placeAccessibility.stairHeightLevel;
   const description = getStairDescription(stairHeight, stairInfo);
 
   let title = '';
@@ -230,11 +227,11 @@ export function PlaceEntranceInfoRows({
 }
 
 export function PlaceDoorInfoRow({
-  accessibility,
+  placeAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
 }) {
-  const doorTypes = accessibility?.placeAccessibility?.entranceDoorTypes ?? [];
+  const doorTypes = placeAccessibility.entranceDoorTypes ?? [];
   if (doorTypes.length === 0) {
     return null;
   }
@@ -243,11 +240,11 @@ export function PlaceDoorInfoRow({
 }
 
 export function PlaceDoorDirectionInfoRow({
-  accessibility,
+  placeAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
 }) {
-  const doorDir = accessibility?.placeAccessibility?.doorDirectionType;
+  const doorDir = placeAccessibility.doorDirectionType;
   if (!doorDir) {
     return null;
   }
@@ -266,11 +263,11 @@ export function PlaceDoorDirectionInfoRow({
 // ──────────────── PlaceNoteInfoRow (특이사항) ────────────────
 
 export function PlaceNoteInfoRow({
-  accessibility,
+  placeAccessibility,
 }: {
-  accessibility?: AccessibilityInfoV2Dto;
+  placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
 }) {
-  const features = accessibility?.placeAccessibility?.features;
+  const features = placeAccessibility.features;
   if (!features || features.length === 0) {
     return null;
   }
@@ -351,8 +348,10 @@ export function EmptyStateCard({
 }) {
   return (
     <EmptyStateCardContainer>
-      <EmptyStateCardTitle>{title}</EmptyStateCardTitle>
-      <EmptyStateCardDescription>{description}</EmptyStateCardDescription>
+      <EmptyStateCardTextContainer>
+        <EmptyStateCardTitle>{title}</EmptyStateCardTitle>
+        <EmptyStateCardDescription>{description}</EmptyStateCardDescription>
+      </EmptyStateCardTextContainer>
       <StrokeCTAButton
         text={buttonText}
         onPress={onPress}
@@ -381,6 +380,10 @@ const EmptyStateCardTitle = styled.Text`
   letter-spacing: -0.36px;
   color: ${color.gray80};
   text-align: center;
+`;
+
+const EmptyStateCardTextContainer = styled.View`
+  gap: 8px;
 `;
 
 const EmptyStateCardDescription = styled.Text`

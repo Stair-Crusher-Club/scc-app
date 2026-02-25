@@ -57,7 +57,7 @@ export default function V2ChipBar({chips, activeIndex, onChipPress}: Props) {
 const Container = styled.View`
   background-color: ${color.white};
   padding-top: 12px;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 `;
 
 const ChipScrollContainer = styled(ScrollView).attrs({

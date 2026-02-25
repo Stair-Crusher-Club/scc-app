@@ -21,7 +21,11 @@ export default function BuildingElevatorInfo({accessibility}: Props) {
     return <EmptyInfo type="엘리베이터 정보" />;
   }
 
-  const elevatorType = getBuildingElevatorType(accessibility);
+  const ba = accessibility.buildingAccessibility;
+  if (!ba) {
+    return <EmptyInfo type="엘리베이터 정보" />;
+  }
+  const elevatorType = getBuildingElevatorType(ba);
   const messages = getMessages(accessibility);
 
   return (
@@ -56,8 +60,10 @@ export function DetailIcon({elevatorType}: {elevatorType: ElevatorType}) {
 }
 
 function getMessages(accessibility: AccessibilityInfoDto) {
-  const elevatorType = getBuildingElevatorType(accessibility);
-  const stairInfo = accessibility.buildingAccessibility?.elevatorStairInfo;
+  const ba = accessibility.buildingAccessibility;
+  if (!ba) return null;
+  const elevatorType = getBuildingElevatorType(ba);
+  const stairInfo = ba.elevatorStairInfo;
   const stairHeightLevel =
     accessibility.buildingAccessibility?.elevatorStairHeightLevel;
   const description = getStairDescription(stairHeightLevel, stairInfo);

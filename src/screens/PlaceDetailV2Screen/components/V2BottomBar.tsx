@@ -6,7 +6,9 @@ import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
-import ThumbsUpIcon from '@/assets/icon/ic_thumbsup_colored.svg';
+import SirenOutlineIcon from '@/assets/icon/ic_siren_outline.svg';
+import ThumbsUpBlueIcon from '@/assets/icon/ic_thumbsup_blue.svg';
+import ThumbsUpOutlineIcon from '@/assets/icon/ic_thumbsup_outline.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -61,22 +63,21 @@ export default function V2BottomBar({
           </T1ActionButton>
           {hasAccessibility && (
             <T1IconUpvoteButton
-              isUpvoted={isUpvoted}
               elementName="v2_place_detail_bottom_bar_upvote_icon_button"
               logParams={{experimentVariant: upvoteVariant}}
               onPress={onPressUpvote}>
-              <ThumbsUpIcon
-                width={24}
-                height={24}
-                color={isUpvoted ? color.brand40 : color.gray60}
-              />
+              {isUpvoted ? (
+                <ThumbsUpBlueIcon width={24} height={24} />
+              ) : (
+                <ThumbsUpOutlineIcon width={24} height={24} />
+              )}
             </T1IconUpvoteButton>
           )}
           <T1SirenButton
             elementName="v2_place_detail_bottom_bar_siren_button"
             logParams={{experimentVariant: upvoteVariant}}
             onPress={onPressSiren}>
-            <SirenIcon width={24} height={24} />
+            <SirenOutlineIcon width={24} height={24} />
           </T1SirenButton>
         </ButtonRow>
       </Container>
@@ -102,13 +103,22 @@ export default function V2BottomBar({
             </UpvoteText>
           </UpvoteButton>
         )}
-        <ActionButton
+        <RegisterActionButton
+          isPrimary={!hasAccessibility}
           elementName="v2_place_detail_bottom_bar_register_button"
           logParams={{experimentVariant: upvoteVariant}}
           onPress={onPressRegister}>
-          <FlagIcon width={16} height={16} />
-          <ActionButtonText numberOfLines={1}>정보등록</ActionButtonText>
-        </ActionButton>
+          <FlagIcon
+            width={16}
+            height={16}
+            color={!hasAccessibility ? color.white : undefined}
+          />
+          <RegisterActionButtonText
+            isPrimary={!hasAccessibility}
+            numberOfLines={1}>
+            정보등록
+          </RegisterActionButtonText>
+        </RegisterActionButton>
         <ActionButton
           elementName="v2_place_detail_bottom_bar_review_button"
           logParams={{experimentVariant: upvoteVariant}}
@@ -195,6 +205,30 @@ const ActionButtonText = styled.Text.attrs({
   flex-shrink: 1;
 `;
 
+const RegisterActionButton = styled(SccPressable)<{isPrimary?: boolean}>`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 0px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: ${({isPrimary}) =>
+    isPrimary ? color.brand40 : color.gray15};
+`;
+
+const RegisterActionButtonText = styled.Text.attrs({
+  style: {includeFontPadding: false, textAlignVertical: 'center'},
+})<{isPrimary?: boolean}>`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.28px;
+  color: ${({isPrimary}) => (isPrimary ? color.white : '#24262b')};
+  flex-shrink: 1;
+`;
+
 const SirenButton = styled(SccPressable)`
   width: 44px;
   height: 44px;
@@ -229,16 +263,15 @@ const T1ActionButtonText = styled.Text.attrs({
   flex-shrink: 1;
 `;
 
-const T1IconUpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
+const T1IconUpvoteButton = styled(SccPressable)`
   width: 44px;
   height: 44px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : 'transparent')};
-  ${({isUpvoted}) =>
-    !isUpvoted ? 'border-width: 1px; border-color: #E3E4E8;' : ''}
+  border-width: 1px;
+  border-color: #e3e4e8;
 `;
 
 const T1SirenButton = styled(SccPressable)`

@@ -86,7 +86,9 @@ function generateSummary(accessibility: AccessibilityInfoV2Dto): string | null {
   }
 
   // 입구 정보
-  const entranceType = getPlaceEntranceStepType(accessibility);
+  const entranceType = getPlaceEntranceStepType(
+    accessibility.placeAccessibility!,
+  );
   switch (entranceType) {
     case EntranceStepType.Flat:
       parts.push('입구에 계단이나 경사로가 없어 접근이 편리해요.');

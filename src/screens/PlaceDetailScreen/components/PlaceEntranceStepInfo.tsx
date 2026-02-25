@@ -21,7 +21,11 @@ export default function PlaceEntranceStepInfo({accessibility}: Props) {
     return <EmptyInfo type="입구 정보" />;
   }
 
-  const entranceStepType = getPlaceEntranceStepType(accessibility);
+  const pa = accessibility.placeAccessibility;
+  if (!pa) {
+    return <EmptyInfo type="입구 정보" />;
+  }
+  const entranceStepType = getPlaceEntranceStepType(pa);
   const messages = getMessages(accessibility);
 
   return (
@@ -62,9 +66,11 @@ export function DetailIcon({
 }
 
 function getMessages(accessibility: AccessibilityInfoDto) {
-  const entranceStepType = getPlaceEntranceStepType(accessibility);
-  const stairInfo = accessibility.placeAccessibility?.stairInfo;
-  const stairHeightLevel = accessibility.placeAccessibility?.stairHeightLevel;
+  const pa = accessibility.placeAccessibility;
+  if (!pa) return null;
+  const entranceStepType = getPlaceEntranceStepType(pa);
+  const stairInfo = pa.stairInfo;
+  const stairHeightLevel = pa.stairHeightLevel;
   const description = getStairDescription(stairHeightLevel, stairInfo);
 
   switch (entranceStepType) {

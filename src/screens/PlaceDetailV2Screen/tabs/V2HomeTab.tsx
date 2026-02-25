@@ -25,6 +25,7 @@ import ToastUtils from '@/utils/ToastUtils';
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {
+  EmptyStateCard,
   FloorInfoRow,
   StrokeCTAButton,
 } from '../components/AccessibilityInfoComponents';
@@ -49,6 +50,7 @@ interface Props {
   onPressAccessibilityTab: () => void;
   onPressReviewTab: () => void;
   onPressPlaceRegister: () => void;
+  onPressBuildingRegister: () => void;
   onPressReviewRegister: () => void;
   onPressToiletRegister: () => void;
 }
@@ -66,6 +68,7 @@ export default function V2HomeTab({
   onPressAccessibilityTab: _onPressAccessibilityTab,
   onPressReviewTab,
   onPressPlaceRegister,
+  onPressBuildingRegister,
   onPressReviewRegister: _onPressReviewRegister,
   onPressToiletRegister,
 }: Props) {
@@ -214,83 +217,97 @@ export default function V2HomeTab({
         </SectionHeader>
         {hasAccessibility ? (
           <AccessibilitySectionContainer>
-            {/* 층 정보 (항상 첫 번째) */}
-            <FloorInfoRow accessibility={accessibility} />
-
-            {/* 건물 출입구 */}
-            {sections.includes('건물 출입구') && (
-              <>
-                {hasBuildingAccessibility ? (
-                  buildingAccessibilities.map((ba, index) => (
-                    <BuildingEntranceSection
-                      key={ba.id ?? index}
-                      buildingDate={dayjs(
-                        (ba as any).createdAt?.value ?? Date.now(),
+            {sections.map(section => {
+              switch (section) {
+                case '층 정보':
+                  return (
+                    <FloorInfoRow key={section} accessibility={accessibility} />
+                  );
+                case '건물 출입구':
+                  return (
+                    <React.Fragment key={section}>
+                      {hasBuildingAccessibility ? (
+                        buildingAccessibilities.map((ba, index) => (
+                          <BuildingEntranceSection
+                            key={ba.id ?? index}
+                            buildingDate={dayjs(
+                              (ba as any).createdAt?.value ?? Date.now(),
+                            ).format('YYYY.MM.DD')}
+                            buildingAccessibility={ba}
+                            buildingComments={buildingComments}
+                            title={
+                              buildingAccessibilities.length > 1
+                                ? `건물 출입구 (${index + 1})`
+                                : '건물 출입구'
+                            }
+                            compact
+                          />
+                        ))
+                      ) : (
+                        <BuildingEntranceEmptySection
+                          compact
+                          onRegister={onPressPlaceRegister}
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                case '매장 출입구':
+                  return placeAccessibilities.length > 0 ? (
+                    <PlaceEntranceSection
+                      key={section}
+                      title={'매장 출입구'}
+                      placeDate={dayjs(
+                        placeAccessibilities[0].createdAt.value,
                       ).format('YYYY.MM.DD')}
-                      buildingAccessibility={ba}
-                      accessibility={accessibility}
-                      buildingComments={buildingComments}
-                      title={
-                        buildingAccessibilities.length > 1
-                          ? `건물 출입구 (${index + 1})`
-                          : '건물 출입구'
-                      }
+                      placeAccessibility={placeAccessibilities[0]}
+                      placeComments={placeComments}
                       compact
                     />
-                  ))
-                ) : (
-                  <BuildingEntranceEmptySection
-                    compact
-                    onRegister={onPressPlaceRegister}
-                  />
-                )}
-              </>
-            )}
-
-            {/* 매장 출입구 */}
-            {sections.includes('매장 출입구') &&
-              placeAccessibilities.map((pa, index) => (
-                <PlaceEntranceSection
-                  key={pa.id ?? index}
-                  title={
-                    !hasV2Fields && hasBuildingAccessibility
-                      ? placeAccessibilities.length > 1
-                        ? `매장 출입구 - 주 출입구 (${index + 1})`
-                        : '매장 출입구 - 주 출입구'
-                      : placeAccessibilities.length > 1
-                        ? `매장 출입구 (${index + 1})`
-                        : '매장 출입구'
-                  }
-                  placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                  placeAccessibility={pa}
-                  accessibility={accessibility}
-                  placeComments={placeComments}
-                  compact
-                />
-              ))}
-
-            {/* 층간 이동 정보 */}
-            {sections.includes('층간 이동 정보') && (
-              <FloorMovementSection compact placeAccessibility={placeAcc} />
-            )}
+                  ) : null;
+                case '층간 이동 정보':
+                  return (
+                    <FloorMovementSection
+                      key={section}
+                      compact
+                      placeAccessibility={placeAcc}
+                    />
+                  );
+                case '내부 이용 정보':
+                  return null; // 홈탭에서는 제외
+                default:
+                  return null;
+              }
+            })}
           </AccessibilitySectionContainer>
         ) : (
-          <EmptyCard>
-            <EmptyCardTitle>
-              {'아직 등록된 접근성 정보가 없어요🥲'}
-            </EmptyCardTitle>
-            <EmptyCardDescription>
-              {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
-            </EmptyCardDescription>
-            <StrokeCTAButton
-              text="정보 등록하기"
-              onPress={onPressPlaceRegister}
-              elementName="v2_home_tab_register_place"
-              fullWidth
-            />
-          </EmptyCard>
+          <EmptyStateCard
+            title={'아직 등록된 접근성 정보가 없어요🥲'}
+            description={
+              '아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'
+            }
+            buttonText="정보 등록하기"
+            onPress={onPressPlaceRegister}
+            elementName="v2_home_tab_register_place"
+          />
         )}
       </Section>
+
+      {/* ── 3.5. 건물정보 등록 카드 (계산중 상태) ── */}
+      {hasAccessibility && !hasBuildingAccessibility && (
+        <BuildingInfoCardContainer>
+          <BuildingInfoCard>
+            <BuildingInfoCardTitle>
+              {'건물정보가 등록되지 않아\n정확한 접근레벨을 계산할 수 없어요.'}
+            </BuildingInfoCardTitle>
+            <StrokeCTAButton
+              text="건물정보 등록"
+              onPress={onPressBuildingRegister}
+              elementName="v2_home_tab_register_building_card"
+              fullWidth
+            />
+          </BuildingInfoCard>
+        </BuildingInfoCardContainer>
+      )}
 
       {/* ── 4. Thick Divider ── */}
       <ThickDivider />
@@ -339,27 +356,17 @@ export default function V2HomeTab({
             ))}
           </ToiletReviewList>
         ) : (
-          <EmptyCard>
-            <EmptyCardTitle>
-              {'아직 등록된 화장실 정보가 없어요🥲'}
-            </EmptyCardTitle>
-            <EmptyCardDescription>
-              {
-                '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
-              }
-            </EmptyCardDescription>
-            <StrokeCTAButton
-              text="장애인 화장실 정보 등록"
-              onPress={onPressToiletRegister}
-              elementName="v2_home_tab_register_toilet"
-              fullWidth
-            />
-          </EmptyCard>
+          <EmptyStateCard
+            title={'아직 등록된 화장실 정보가 없어요🥲'}
+            description={
+              '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
+            }
+            buttonText="장애인 화장실 정보 등록"
+            onPress={onPressToiletRegister}
+            elementName="v2_home_tab_register_toilet"
+          />
         )}
       </Section>
-
-      {/* ── 10. Bottom Padding ── */}
-      <BottomPadding />
     </Container>
   );
 }
@@ -491,9 +498,9 @@ const RequestButtonText = styled.Text<{isRequested?: boolean}>`
 const AskBannerImage = styled(Image)`
   position: absolute;
   right: 20px;
-  top: 0px;
+  top: 4px;
   width: 90px;
-  height: 112px;
+  height: 116px;
   resize-mode: contain;
 `;
 
@@ -543,33 +550,6 @@ const MoreText = styled.Text`
   color: ${color.brand50};
 `;
 
-/* Empty Card */
-const EmptyCard = styled.View`
-  background-color: ${color.gray5};
-  border-radius: 12px;
-  padding: 20px;
-  gap: 16px;
-  align-items: center;
-`;
-
-const EmptyCardTitle = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.gray80};
-  text-align: center;
-`;
-
-const EmptyCardDescription = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 15px;
-  line-height: 24px;
-  letter-spacing: -0.3px;
-  color: #767884;
-  text-align: center;
-`;
-
 /* Toilet reviews */
 const ToiletReviewList = styled.View`
   gap: 20px;
@@ -580,13 +560,30 @@ const ToiletDivider = styled.View`
   background-color: ${color.gray20};
 `;
 
+/* Building Info Card (Issue 4) */
+const BuildingInfoCardContainer = styled.View`
+  padding: 0px 20px 20px 20px;
+`;
+
+const BuildingInfoCard = styled.View`
+  background-color: ${color.gray5};
+  border-radius: 12px;
+  padding: 20px;
+  gap: 16px;
+  align-items: center;
+`;
+
+const BuildingInfoCardTitle = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.28px;
+  color: ${color.black};
+  text-align: center;
+`;
+
 /* Thick Divider */
 const ThickDivider = styled.View`
   height: 6px;
   background-color: ${color.gray5};
-`;
-
-/* Bottom Padding */
-const BottomPadding = styled.View`
-  height: 100px;
 `;
