@@ -61,7 +61,7 @@ import V2ReviewTab from './tabs/V2ReviewTab';
 import V2RestroomTab from './tabs/V2RestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
 import V2BottomBar from './components/V2BottomBar';
-import V2CoverImage from './components/V2CoverImage';
+import V2ThumbnailRow from './components/V2ThumbnailRow';
 import PlaceDetailRegistrationSheet from './components/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
@@ -529,8 +529,12 @@ export default function PlaceDetailV2Screen({
 
   // Issue 3: Bottom bar visibility (scroll-triggered)
   const [showBottomBar, setShowBottomBar] = useState(false);
+  const actionButtonsTopYRef = useRef<number>(0);
   const actionButtonsBottomYRef = useRef<number>(0);
   const bottomBarAnim = useRef(new Animated.Value(0)).current;
+
+  // Issue 4: Tab bar Y position for scroll preservation
+  const tabBarYRef = useRef<number>(0);
 
   // Issue 5: Current scroll position tracking
   const currentScrollYRef = useRef(0);
@@ -578,17 +582,9 @@ export default function PlaceDetailV2Screen({
   // Issue 3: Track action buttons position for bottom bar trigger
   const handleActionButtonsLayout = useCallback((e: LayoutChangeEvent) => {
     const {y, height} = e.nativeEvent.layout;
+    actionButtonsTopYRef.current = y;
     actionButtonsBottomYRef.current = y + height;
   }, []);
-
-  // Issue 3: Animate bottom bar
-  useEffect(() => {
-    Animated.timing(bottomBarAnim, {
-      toValue: showBottomBar ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }, [showBottomBar, bottomBarAnim]);
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -598,8 +594,15 @@ export default function PlaceDetailV2Screen({
       const shouldShow = scrollY > nameBottomYRef.current;
       setShowAppBarTitle(prev => (prev !== shouldShow ? shouldShow : prev));
 
-      // Issue 3: Bottom bar visibility
-      const shouldShowBar = scrollY > actionButtonsBottomYRef.current;
+      // Bottom bar proportional animation
+      const topY = actionButtonsTopYRef.current;
+      const bottomY = actionButtonsBottomYRef.current;
+      const height = bottomY - topY;
+      if (height > 0) {
+        const hidden = Math.max(0, Math.min(scrollY - topY, height));
+        bottomBarAnim.setValue(hidden / height);
+      }
+      const shouldShowBar = scrollY > topY;
       setShowBottomBar(prev => (prev !== shouldShowBar ? shouldShowBar : prev));
 
       // Active chip tracking for accessibility tab (skip during programmatic scroll)
@@ -628,10 +631,10 @@ export default function PlaceDetailV2Screen({
 
     // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
     // 탭바 상단으로 스크롤 리셋 (chip bar 높이 차이 보정)
-    if (currentScrollYRef.current > nameBottomYRef.current) {
+    if (currentScrollYRef.current > tabBarYRef.current) {
       requestAnimationFrame(() => {
         scrollViewRef.current?.scrollTo({
-          y: nameBottomYRef.current,
+          y: tabBarYRef.current,
           animated: false,
         });
       });
@@ -749,40 +752,41 @@ export default function PlaceDetailV2Screen({
             scrollEventThrottle={16}
             onScroll={handleScroll}
             onLayout={e => setScrollViewHeight(e.nativeEvent.layout.height)}
-            stickyHeaderIndices={[2]}>
-            {/* Issue 1: Image carousel */}
-            <V2CoverImage
-              accessibility={accessibilityPost}
-              reviews={reviewPost ?? []}
-              toiletReviews={toiletPost ?? []}
-            />
-
-            <V2SummarySection
-              place={place}
-              accessibilityScore={data?.accessibilityScore}
-              hasAccessibility={
-                !!accessibilityPost?.placeAccessibility ||
-                !!accessibilityPost?.buildingAccessibility
-              }
-              isUpvoted={isUpvoted}
-              totalUpvoteCount={totalUpvoteCount}
-              onPressUpvote={handleUpvote}
-              accessibility={accessibilityPost}
-              reviewCount={(reviewPost ?? []).length}
-              onPressRegister={() => setShowRegistrationSheet(true)}
-              onPressWriteReview={handleReviewRegister}
-              onPressSiren={() =>
-                showNegativeFeedbackBottomSheet(
-                  ReportTargetTypeDto.PlaceAccessibility,
-                )
-              }
-              onNameLayout={handleNameLayout}
-              onActionButtonsLayout={handleActionButtonsLayout}
-            />
+            stickyHeaderIndices={[1]}>
+            <SummarySectionContainer>
+              <V2SummarySection
+                place={place}
+                accessibilityScore={data?.accessibilityScore}
+                hasAccessibility={
+                  !!accessibilityPost?.placeAccessibility ||
+                  !!accessibilityPost?.buildingAccessibility
+                }
+                isUpvoted={isUpvoted}
+                totalUpvoteCount={totalUpvoteCount}
+                onPressUpvote={handleUpvote}
+                accessibility={accessibilityPost}
+                reviewCount={(reviewPost ?? []).length}
+                onPressRegister={() => setShowRegistrationSheet(true)}
+                onPressWriteReview={handleReviewRegister}
+                onPressSiren={() =>
+                  showNegativeFeedbackBottomSheet(
+                    ReportTargetTypeDto.PlaceAccessibility,
+                  )
+                }
+                onNameLayout={handleNameLayout}
+                onActionButtonsLayout={handleActionButtonsLayout}
+              />
+              <V2ThumbnailRow
+                accessibility={accessibilityPost}
+                reviews={reviewPost ?? []}
+                toiletReviews={toiletPost ?? []}
+              />
+            </SummarySectionContainer>
 
             {/* Tab Bar + Chip Bar — combined sticky header at index 1 */}
             <View
               onLayout={e => {
+                tabBarYRef.current = e.nativeEvent.layout.y;
                 setStickyHeaderHeight(e.nativeEvent.layout.height);
               }}>
               <V2TabBar
@@ -823,6 +827,9 @@ export default function PlaceDetailV2Screen({
                   />
                 </>
               )}
+
+              {/* Bottom padding — 하단 바에 가려지는 영역 보정 */}
+              <BottomPadding />
             </View>
           </ScrollView>
         </GestureHandlerRootView>
@@ -948,4 +955,13 @@ export default function PlaceDetailV2Screen({
 const SectionSeparator = styled.View`
   height: 6px;
   background-color: ${color.gray5};
+`;
+
+const SummarySectionContainer = styled.View`
+  padding-top: 4px;
+  padding-bottom: 20px;
+`;
+
+const BottomPadding = styled.View`
+  height: 100px;
 `;

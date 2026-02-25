@@ -120,7 +120,7 @@ export default function V2SummarySection({
           <PlaceName>{place.name}</PlaceName>
         </NameContainer>
         {tagsRow}
-        <T1ActionButtonsRow>
+        <T1ActionButtonsRow onLayout={onActionButtonsLayout}>
           <T1RegisterButton
             isPrimary={!hasAccessibility}
             elementName="place_detail_v2_register_button"
@@ -181,7 +181,7 @@ export default function V2SummarySection({
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
       {tagsRow}
-      <ActionButtonsRow>
+      <ActionButtonsRow onLayout={onActionButtonsLayout}>
         <RegisterButton
           isPrimary={!hasAccessibility}
           elementName="place_detail_v2_register_button"

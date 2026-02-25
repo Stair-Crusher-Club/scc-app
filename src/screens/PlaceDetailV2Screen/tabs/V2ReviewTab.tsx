@@ -12,7 +12,7 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceVisitReviewInfo from '../../PlaceDetailScreen/components/PlaceVisitReviewInfo';
-import {StrokeCTAButton} from '../components/AccessibilityInfoComponents';
+import {EmptyStateCard} from '../components/AccessibilityInfoComponents';
 
 interface Props {
   reviews: PlaceReviewDto[];
@@ -67,22 +67,18 @@ export default function V2ReviewTab({
 
   if (reviews.length === 0) {
     return (
-      <EmptyStateContainer>
-        <EmptyStateTextBlock>
-          <EmptyStateTitle>
-            {'아직 등록된 방문 리뷰가 없어요🥲'}
-          </EmptyStateTitle>
-          <EmptyStateDescription>
-            {'방문 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'}
-          </EmptyStateDescription>
-        </EmptyStateTextBlock>
-        <StrokeCTAButton
-          text="방문 리뷰 작성하기"
+      <EmptyStateWrapper>
+        <EmptyStateCard
+          title={'아직 등록된 방문 리뷰가 없어요🥲'}
+          description={
+            '방문 리뷰는 공간 이용 여부를\n결정할 수 있는 중요한 정보에요!'
+          }
+          buttonText="방문 리뷰 작성하기"
           onPress={handleReviewPress}
           elementName="v2_review_tab_empty_write"
         />
         {LocationConfirmModal}
-      </EmptyStateContainer>
+      </EmptyStateWrapper>
     );
   }
 
@@ -102,7 +98,6 @@ export default function V2ReviewTab({
         <Divider />
         <PlaceVisitReviewInfo reviews={sortedReviews} placeId={place.id} />
       </Content>
-      <BottomPadding />
       {LocationConfirmModal}
     </Container>
   );
@@ -135,38 +130,8 @@ const Divider = styled.View`
   background-color: ${color.gray20};
 `;
 
-const BottomPadding = styled.View`
-  height: 100px;
-`;
-
-const EmptyStateContainer = styled.View`
+const EmptyStateWrapper = styled.View`
   flex: 1;
   background-color: ${color.gray5};
-  padding-top: 40px;
-  padding-horizontal: 20px;
-  padding-bottom: 20px;
-  gap: 16px;
-`;
-
-const EmptyStateTextBlock = styled.View`
-  gap: 8px;
-  align-items: center;
-`;
-
-const EmptyStateTitle = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.gray80};
-  text-align: center;
-`;
-
-const EmptyStateDescription = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 15px;
-  line-height: 24px;
-  letter-spacing: -0.3px;
-  color: ${color.gray50};
-  text-align: center;
+  padding-top: 20px;
 `;

@@ -25,6 +25,7 @@ import ToastUtils from '@/utils/ToastUtils';
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {
+  EmptyStateCard,
   FloorInfoRow,
   StrokeCTAButton,
 } from '../components/AccessibilityInfoComponents';
@@ -230,7 +231,6 @@ export default function V2HomeTab({
                         (ba as any).createdAt?.value ?? Date.now(),
                       ).format('YYYY.MM.DD')}
                       buildingAccessibility={ba}
-                      accessibility={accessibility}
                       buildingComments={buildingComments}
                       title={
                         buildingAccessibilities.length > 1
@@ -259,7 +259,6 @@ export default function V2HomeTab({
                     placeAccessibilities[0].createdAt.value,
                   ).format('YYYY.MM.DD')}
                   placeAccessibility={placeAccessibilities[0]}
-                  accessibility={accessibility}
                   placeComments={placeComments}
                   compact
                 />
@@ -271,20 +270,15 @@ export default function V2HomeTab({
             )}
           </AccessibilitySectionContainer>
         ) : (
-          <EmptyCard>
-            <EmptyCardTitle>
-              {'아직 등록된 접근성 정보가 없어요🥲'}
-            </EmptyCardTitle>
-            <EmptyCardDescription>
-              {'아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'}
-            </EmptyCardDescription>
-            <StrokeCTAButton
-              text="정보 등록하기"
-              onPress={onPressPlaceRegister}
-              elementName="v2_home_tab_register_place"
-              fullWidth
-            />
-          </EmptyCard>
+          <EmptyStateCard
+            title={'아직 등록된 접근성 정보가 없어요🥲'}
+            description={
+              '아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'
+            }
+            buttonText="정보 등록하기"
+            onPress={onPressPlaceRegister}
+            elementName="v2_home_tab_register_place"
+          />
         )}
       </Section>
 
@@ -352,27 +346,18 @@ export default function V2HomeTab({
             ))}
           </ToiletReviewList>
         ) : (
-          <EmptyCard>
-            <EmptyCardTitle>
-              {'아직 등록된 화장실 정보가 없어요🥲'}
-            </EmptyCardTitle>
-            <EmptyCardDescription>
-              {
-                '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
-              }
-            </EmptyCardDescription>
-            <StrokeCTAButton
-              text="장애인 화장실 정보 등록"
-              onPress={onPressToiletRegister}
-              elementName="v2_home_tab_register_toilet"
-              fullWidth
-            />
-          </EmptyCard>
+          <EmptyStateCard
+            title={'아직 등록된 화장실 정보가 없어요🥲'}
+            description={
+              '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
+            }
+            buttonText="장애인 화장실 정보 등록"
+            onPress={onPressToiletRegister}
+            elementName="v2_home_tab_register_toilet"
+          />
         )}
       </Section>
 
-      {/* ── 10. Bottom Padding ── */}
-      <BottomPadding />
     </Container>
   );
 }
@@ -556,33 +541,6 @@ const MoreText = styled.Text`
   color: ${color.brand50};
 `;
 
-/* Empty Card */
-const EmptyCard = styled.View`
-  background-color: ${color.gray5};
-  border-radius: 12px;
-  padding: 20px;
-  gap: 16px;
-  align-items: center;
-`;
-
-const EmptyCardTitle = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.gray80};
-  text-align: center;
-`;
-
-const EmptyCardDescription = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 15px;
-  line-height: 24px;
-  letter-spacing: -0.3px;
-  color: #767884;
-  text-align: center;
-`;
-
 /* Toilet reviews */
 const ToiletReviewList = styled.View`
   gap: 20px;
@@ -621,7 +579,3 @@ const ThickDivider = styled.View`
   background-color: ${color.gray5};
 `;
 
-/* Bottom Padding */
-const BottomPadding = styled.View`
-  height: 100px;
-`;

@@ -2,13 +2,15 @@ import {useNavigation} from '@react-navigation/core';
 import React from 'react';
 import styled from 'styled-components/native';
 
-import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
-import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
-import BookmarkIconOn from '@/assets/icon/ic_bookmark_on.svg';
-import ShareIcon from '@/assets/icon/ic_share.svg';
+import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
+import BookmarkIcon from '@/assets/icon/ic_v2_bookmark.svg';
+import BookmarkOnIcon from '@/assets/icon/ic_v2_bookmark_on.svg';
+import ShareIcon from '@/assets/icon/ic_v2_share.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+
+const ICON_COLOR = '#16181C';
 
 interface V2AppBarProps {
   isFavorite?: boolean;
@@ -32,7 +34,7 @@ export default function V2AppBar({
       <SccPressable
         elementName="place_detail_v2_back_button"
         onPress={() => navigation.goBack()}>
-        <LeftArrowIcon width={24} height={24} color={color.black} />
+        <BackIcon width={24} height={24} color={ICON_COLOR} />
       </SccPressable>
       <TitleContainer>
         {showTitle && placeName ? (
@@ -45,15 +47,15 @@ export default function V2AppBar({
           logParams={{isFavoritePlace: isFavorite}}
           onPress={onToggleFavorite}>
           {isFavorite ? (
-            <BookmarkIconOn width={24} height={24} color={color.brandColor} />
+            <BookmarkOnIcon width={24} height={24} color={color.brandColor} />
           ) : (
-            <BookmarkIconOff width={24} height={24} color={color.black} />
+            <BookmarkIcon width={24} height={24} color={ICON_COLOR} />
           )}
         </SccPressable>
         <SccPressable
           elementName="place_detail_v2_share_button"
           onPress={onShare}>
-          <ShareIcon width={24} height={24} color={color.black} />
+          <ShareIcon width={24} height={24} color={ICON_COLOR} />
         </SccPressable>
       </RightActions>
     </AppBarContainer>
@@ -77,9 +79,11 @@ const TitleContainer = styled.View`
 `;
 
 const TitleText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  color: ${color.black};
+  font-family: ${font.pretendardMedium};
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.36px;
+  color: #16181c;
 `;
 
 const RightActions = styled.View`

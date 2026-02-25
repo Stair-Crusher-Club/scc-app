@@ -4,14 +4,13 @@ import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {ToiletReviewDto, Location} from '@/generated-sources/openapi';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import useNavigation from '@/navigation/useNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
-import {StrokeCTAButton} from '../components/AccessibilityInfoComponents';
+import {EmptyStateCard} from '../components/AccessibilityInfoComponents';
 
 interface Props {
   toiletReviews: ToiletReviewDto[];
@@ -60,24 +59,18 @@ export default function V2RestroomTab({
 
   if (toiletReviews.length === 0) {
     return (
-      <EmptyStateContainer>
-        <EmptyStateTextBlock>
-          <EmptyStateTitle>
-            {'아직 등록된 화장실 정보가 없어요🥲'}
-          </EmptyStateTitle>
-          <EmptyStateDescription>
-            {
-              '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
-            }
-          </EmptyStateDescription>
-        </EmptyStateTextBlock>
-        <StrokeCTAButton
-          text="장애인 화장실 정보 등록"
+      <EmptyStateWrapper>
+        <EmptyStateCard
+          title={'아직 등록된 화장실 정보가 없어요🥲'}
+          description={
+            '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
+          }
+          buttonText="장애인 화장실 정보 등록"
           onPress={handleToiletReviewPress}
           elementName="place_detail_restroom_tab_empty_register"
         />
         {LocationConfirmModal}
-      </EmptyStateContainer>
+      </EmptyStateWrapper>
     );
   }
 
@@ -96,7 +89,6 @@ export default function V2RestroomTab({
           ))}
         </ItemList>
       </SectionContainer>
-      <BottomPadding />
       {LocationConfirmModal}
     </Container>
   );
@@ -112,36 +104,10 @@ const SectionContainer = styled.View`
   gap: 20px;
 `;
 
-const EmptyStateContainer = styled.View`
+const EmptyStateWrapper = styled.View`
   flex: 1;
   background-color: ${color.gray5};
-  padding-top: 40px;
-  padding-horizontal: 20px;
-  padding-bottom: 20px;
-  gap: 16px;
-`;
-
-const EmptyStateTextBlock = styled.View`
-  gap: 8px;
-  align-items: center;
-`;
-
-const EmptyStateTitle = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.gray80};
-  text-align: center;
-`;
-
-const EmptyStateDescription = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 15px;
-  line-height: 24px;
-  letter-spacing: -0.3px;
-  color: ${color.gray50};
-  text-align: center;
+  padding-top: 20px;
 `;
 
 const ItemList = styled.View`
@@ -154,6 +120,3 @@ const Divider = styled.View`
   background-color: ${color.gray20};
 `;
 
-const BottomPadding = styled.View`
-  height: 100px;
-`;

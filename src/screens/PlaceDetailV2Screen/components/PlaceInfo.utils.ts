@@ -156,11 +156,12 @@ export enum EntranceStepType {
   Flat,
   Unknown,
 }
-export function getPlaceEntranceStepType(
-  accessibility: AccessibilityInfoDto,
-): EntranceStepType {
-  const stairInfo = accessibility.placeAccessibility?.stairInfo;
-  const hasSlope = accessibility.placeAccessibility?.hasSlope;
+export function getPlaceEntranceStepType(pa: {
+  stairInfo?: StairInfo;
+  hasSlope?: boolean;
+}): EntranceStepType {
+  const stairInfo = pa.stairInfo;
+  const hasSlope = pa.hasSlope;
 
   if (stairInfo === StairInfo.None) {
     if (hasSlope) {
@@ -177,11 +178,12 @@ export function getPlaceEntranceStepType(
   }
 }
 
-export function getBuildingEntranceStepType(
-  accessibility: AccessibilityInfoDto,
-): EntranceStepType {
-  const stairInfo = accessibility.buildingAccessibility?.entranceStairInfo;
-  const hasSlope = accessibility.buildingAccessibility?.hasSlope;
+export function getBuildingEntranceStepType(ba: {
+  entranceStairInfo?: StairInfo;
+  hasSlope?: boolean;
+}): EntranceStepType {
+  const stairInfo = ba.entranceStairInfo;
+  const hasSlope = ba.hasSlope;
 
   if (stairInfo === StairInfo.None) {
     if (hasSlope) {
@@ -203,11 +205,12 @@ export enum ElevatorType {
   ElevatorNoBarriers,
   NoElevator,
 }
-export function getBuildingElevatorType(
-  accessibility: AccessibilityInfoDto,
-): ElevatorType {
-  const hasElevator = accessibility.buildingAccessibility?.hasElevator;
-  const stairInfo = accessibility.buildingAccessibility?.elevatorStairInfo;
+export function getBuildingElevatorType(ba: {
+  hasElevator?: boolean;
+  elevatorStairInfo?: StairInfo;
+}): ElevatorType {
+  const hasElevator = ba.hasElevator;
+  const stairInfo = ba.elevatorStairInfo;
 
   if (!hasElevator) {
     return ElevatorType.NoElevator;
