@@ -166,7 +166,7 @@ export default function V2AccessibilityTab({
           switch (section) {
             case '층 정보':
               return (
-                <View key={section} onLayout={sectionLayout('층 정보')}>
+                <SectionsInnerContainer key={section} onLayout={sectionLayout('층 정보')}>
                   <FloorSectionContainer>
                     <FloorSectionHeader>
                       <FloorSectionTitle>층 정보</FloorSectionTitle>
@@ -180,11 +180,11 @@ export default function V2AccessibilityTab({
                       />
                     </InfoRowsContainer>
                   </FloorSectionContainer>
-                </View>
+                </SectionsInnerContainer>
               );
             case '건물 출입구':
               return (
-                <View key={section} onLayout={sectionLayout('건물 출입구')}>
+                <SectionsInnerContainer key={section} onLayout={sectionLayout('건물 출입구')}>
                   {hasBuildingAccessibility ? (
                     buildingAccessibilities.map((ba, index) => (
                       <BuildingEntranceSection
@@ -201,43 +201,39 @@ export default function V2AccessibilityTab({
                   ) : (
                     <BuildingEntranceEmptySection onRegister={onRegister} />
                   )}
-                </View>
+                </SectionsInnerContainer>
               );
             case '매장 출입구':
               return (
-                <View key={section} onLayout={sectionLayout('매장 출입구')}>
+                <SectionsInnerContainer key={section} onLayout={sectionLayout('매장 출입구')}>
                   {placeAccessibilities.map((pa, index) => (
                     <PlaceEntranceSection
                       key={pa.id ?? index}
-                      title={
-                        !hasV2Fields && hasBuildingAccessibility
-                          ? placeEntranceTitle('매장 출입구 - 주 출입구', index)
-                          : placeEntranceTitle('매장 출입구', index)
-                      }
+                      title={placeEntranceTitle('매장 출입구', index)}
                       placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
                       placeAccessibility={pa}
                       accessibility={accessibility}
                       placeComments={placeComments}
                     />
                   ))}
-                </View>
+                </SectionsInnerContainer>
               );
             case '층간 이동 정보':
               return (
-                <View key={section} onLayout={sectionLayout('층간 이동 정보')}>
+                <SectionsInnerContainer key={section} onLayout={sectionLayout('층간 이동 정보')}>
                   <FloorMovementSection
                     placeAccessibility={primaryPlaceAccessibility}
                   />
-                </View>
+                </SectionsInnerContainer>
               );
             case '내부 이용 정보':
               return (
-                <View key={section} onLayout={sectionLayout('내부 이용 정보')}>
+                <SectionsInnerContainer key={section} onLayout={sectionLayout('내부 이용 정보')}>
                   <PlaceReviewSection
                     reviews={reviews}
                     onRegister={onRegister}
                   />
-                </View>
+                </SectionsInnerContainer>
               );
             default:
               return null;
@@ -292,6 +288,10 @@ const EmptyStateDescription = styled.Text`
 // 섹션
 const SectionsContainer = styled.View`
   padding: 20px;
+  gap: 40px;
+`;
+
+const SectionsInnerContainer = styled.View`
   gap: 40px;
 `;
 

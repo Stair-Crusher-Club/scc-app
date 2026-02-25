@@ -96,7 +96,6 @@ export default function V2ConquerorTab({
           )}
         </React.Fragment>
       ))}
-      <BottomPadding />
     </Container>
   );
 }
@@ -104,6 +103,7 @@ export default function V2ConquerorTab({
 // ──────────────── 스타일 ────────────────
 
 const Container = styled.View`
+  flex: 1;
   background-color: ${color.white};
 `;
 

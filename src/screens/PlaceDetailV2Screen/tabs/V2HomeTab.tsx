@@ -504,9 +504,9 @@ const RequestButtonText = styled.Text<{isRequested?: boolean}>`
 const AskBannerImage = styled(Image)`
   position: absolute;
   right: 20px;
-  top: 0px;
+  top: 4px;
   width: 90px;
-  height: 112px;
+  height: 116px;
   resize-mode: contain;
 `;
 
