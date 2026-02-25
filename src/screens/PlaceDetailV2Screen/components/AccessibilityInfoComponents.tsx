@@ -348,8 +348,10 @@ export function EmptyStateCard({
 }) {
   return (
     <EmptyStateCardContainer>
-      <EmptyStateCardTitle>{title}</EmptyStateCardTitle>
-      <EmptyStateCardDescription>{description}</EmptyStateCardDescription>
+      <EmptyStateCardTextContainer>
+        <EmptyStateCardTitle>{title}</EmptyStateCardTitle>
+        <EmptyStateCardDescription>{description}</EmptyStateCardDescription>
+      </EmptyStateCardTextContainer>
       <StrokeCTAButton
         text={buttonText}
         onPress={onPress}
@@ -378,6 +380,10 @@ const EmptyStateCardTitle = styled.Text`
   letter-spacing: -0.36px;
   color: ${color.gray80};
   text-align: center;
+`;
+
+const EmptyStateCardTextContainer = styled.View`
+  gap: 8px;
 `;
 
 const EmptyStateCardDescription = styled.Text`

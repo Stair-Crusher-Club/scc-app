@@ -52,9 +52,9 @@ export default function V2ConquerorTab({
     );
   }
 
-  const crushers: CrusherItem[] = [];
+  const rawCrushers: CrusherItem[] = [];
   if (accessibility?.placeAccessibility?.registeredUserName) {
-    crushers.push({
+    rawCrushers.push({
       name: accessibility.placeAccessibility.registeredUserName,
       source: 'place',
       challengeCrusherGroup: accessibility.placeAccessibility
@@ -64,7 +64,7 @@ export default function V2ConquerorTab({
     });
   }
   if (accessibility?.buildingAccessibility?.registeredUserName) {
-    crushers.push({
+    rawCrushers.push({
       name: accessibility.buildingAccessibility.registeredUserName,
       source: 'building',
       challengeCrusherGroup: accessibility.buildingAccessibility
@@ -73,6 +73,16 @@ export default function V2ConquerorTab({
         : undefined,
     });
   }
+
+  // 동일 정복자 중복 제거 (이름 기준, challengeCrusherGroup은 먼저 나온 것 유지)
+  const seen = new Set<string>();
+  const crushers = rawCrushers.filter(c => {
+    if (seen.has(c.name)) {
+      return false;
+    }
+    seen.add(c.name);
+    return true;
+  });
 
   return (
     <Container>
