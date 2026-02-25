@@ -434,6 +434,15 @@ curl -o /tmp/asset.svg "http://localhost:3845/assets/<hash>.svg"
 - 3x PNG가 필요한 경우: 사용자에게 Figma에서 해당 노드를 3x PNG로 export해서 파일 경로를 알려달라고 요청
 - 절대 1x를 upscale하거나 프로그래밍적으로 이미지를 생성하지 않는다
 
+#### Figma SVG 추출 시 필수 검증 (반복 실수 방지)
+
+Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이터**이므로 그대로 사용하면 안 된다. 반드시 아래 검증을 거쳐야 한다:
+
+1. **방향(orientation) 검증**: Figma `get_screenshot`으로 원본 아이콘의 실제 모습을 확인하고, raw SVG path의 방향이 일치하는지 비교. Figma 내부에서 transform(flip/rotate)이 적용된 경우 raw path에는 반영되지 않으므로 `scale(-1,1)` 등 수동 보정 필요
+2. **fill/stroke 변환**: raw SVG의 `fill="var(--fill-0, #color)"`, `stroke="var(--stroke-0, #color)"` 같은 CSS 변수를 RN에서 사용 가능한 값으로 변환 (`currentColor`, 하드코딩 색상 등)
+3. **viewBox와 실제 렌더 크기**: raw SVG의 viewBox가 inner content 크기이므로, 앱에서 사용할 최종 크기(width/height)와 viewBox를 맞춰야 함. 필요시 `<g transform="translate(x,y)">` 로 20x20 등 표준 viewBox 안에 배치
+4. **Figma screenshot과 비교**: SVG 파일 작성 후 반드시 Figma screenshot과 실제 렌더링을 비교하여 동일한지 확인. **raw path를 그대로 복붙하고 끝내지 말 것**
+
 ### Two-Phase Design Implementation (필수)
 
 디자인 구현은 반드시 **두 단계**를 거쳐야 한다:

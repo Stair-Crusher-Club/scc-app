@@ -145,7 +145,6 @@ const Container = styled.View<{bottomInset: number}>`
   shadow-offset: 0px -4px;
   shadow-opacity: 0.12;
   shadow-radius: 16px;
-  elevation: 8;
   padding-top: 12px;
   padding-bottom: ${({bottomInset}) => 24 + bottomInset}px;
   padding-horizontal: 20px;

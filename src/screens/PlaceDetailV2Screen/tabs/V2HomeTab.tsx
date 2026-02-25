@@ -7,6 +7,7 @@ import styled from 'styled-components/native';
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
 import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
 import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
+import RouteFillIcon from '@/assets/icon/ic_route_fill.svg';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
@@ -27,7 +28,6 @@ import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components
 import {
   EmptyStateCard,
   FloorInfoRow,
-  StrokeCTAButton,
 } from '../components/AccessibilityInfoComponents';
 import {
   BuildingEntranceSection,
@@ -49,6 +49,7 @@ interface Props {
   onRequestInfo: () => void;
   onPressAccessibilityTab: () => void;
   onPressReviewTab: () => void;
+  onPressDirections: () => void;
   onPressPlaceRegister: () => void;
   onPressBuildingRegister: () => void;
   onPressReviewRegister: () => void;
@@ -67,8 +68,9 @@ export default function V2HomeTab({
   onRequestInfo,
   onPressAccessibilityTab: _onPressAccessibilityTab,
   onPressReviewTab,
+  onPressDirections,
   onPressPlaceRegister,
-  onPressBuildingRegister,
+  onPressBuildingRegister: _onPressBuildingRegister,
   onPressReviewRegister: _onPressReviewRegister,
   onPressToiletRegister,
 }: Props) {
@@ -153,10 +155,14 @@ export default function V2HomeTab({
           {/* 주소 */}
           <PlaceInfoRow>
             <StoreAddressIcon width={20} height={20} color={color.gray30} />
-            <AddressText>{place.address}</AddressText>
-            <CopyButton elementName="v2_home_tab_copy_address" onPress={onCopy}>
-              <CopyText>복사</CopyText>
-            </CopyButton>
+            <AddressCopyWrapper>
+              <AddressText>{place.address}</AddressText>
+              <CopyButton
+                elementName="v2_home_tab_copy_address"
+                onPress={onCopy}>
+                <CopyText>복사</CopyText>
+              </CopyButton>
+            </AddressCopyWrapper>
           </PlaceInfoRow>
 
           {/* 영업시간 및 메뉴 */}
@@ -176,6 +182,16 @@ export default function V2HomeTab({
               elementName="v2_home_tab_kakao_review"
               onPress={onOpenKakaoReview}>
               <ExternalLinkText>카카오 리뷰</ExternalLinkText>
+            </ExternalLinkButton>
+          </PlaceInfoRow>
+
+          {/* 길찾기 */}
+          <PlaceInfoRow>
+            <RouteFillIcon width={20} height={20} color={color.gray30} />
+            <ExternalLinkButton
+              elementName="v2_home_tab_directions"
+              onPress={onPressDirections}>
+              <ExternalLinkText>길찾기</ExternalLinkText>
             </ExternalLinkButton>
           </PlaceInfoRow>
         </PlaceInfoContent>
@@ -292,23 +308,6 @@ export default function V2HomeTab({
         )}
       </Section>
 
-      {/* ── 3.5. 건물정보 등록 카드 (계산중 상태) ── */}
-      {hasAccessibility && !hasBuildingAccessibility && (
-        <BuildingInfoCardContainer>
-          <BuildingInfoCard>
-            <BuildingInfoCardTitle>
-              {'건물정보가 등록되지 않아\n정확한 접근레벨을 계산할 수 없어요.'}
-            </BuildingInfoCardTitle>
-            <StrokeCTAButton
-              text="건물정보 등록"
-              onPress={onPressBuildingRegister}
-              elementName="v2_home_tab_register_building_card"
-              fullWidth
-            />
-          </BuildingInfoCard>
-        </BuildingInfoCardContainer>
-      )}
-
       {/* ── 4. Thick Divider ── */}
       <ThickDivider />
 
@@ -422,6 +421,13 @@ const PlaceInfoRow = styled.View`
   flex-direction: row;
   align-items: center;
   gap: 8px;
+`;
+
+const AddressCopyWrapper = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 1;
 `;
 
 const AddressText = styled.Text`
@@ -558,28 +564,6 @@ const ToiletReviewList = styled.View`
 const ToiletDivider = styled.View`
   height: 1px;
   background-color: ${color.gray20};
-`;
-
-/* Building Info Card (Issue 4) */
-const BuildingInfoCardContainer = styled.View`
-  padding: 0px 20px 20px 20px;
-`;
-
-const BuildingInfoCard = styled.View`
-  background-color: ${color.gray5};
-  border-radius: 12px;
-  padding: 20px;
-  gap: 16px;
-  align-items: center;
-`;
-
-const BuildingInfoCardTitle = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: -0.28px;
-  color: ${color.black};
-  text-align: center;
 `;
 
 /* Thick Divider */

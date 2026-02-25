@@ -3,6 +3,7 @@ import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
+import ProfileBuggyIcon from '@/assets/icon/ic_profile_buggy.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -90,7 +91,9 @@ export default function V2ConquerorTab({
         <React.Fragment key={`${crusher.source}-${index}`}>
           {index > 0 && <RowDivider />}
           <CrusherRow>
-            <ProfileIcon />
+            <ProfileIconContainer>
+              <ProfileBuggyIcon width={18} height={20.75} />
+            </ProfileIconContainer>
             <UserName>{crusher.name}</UserName>
           </CrusherRow>
           {crusher.challengeCrusherGroup && (
@@ -125,13 +128,15 @@ const CrusherRow = styled.View`
   gap: 12px;
 `;
 
-const ProfileIcon = styled.View`
+const ProfileIconContainer = styled.View`
   width: 32px;
   height: 32px;
   border-radius: 10px;
   background-color: ${color.gray10};
   border-width: 1px;
   border-color: ${color.gray20};
+  align-items: center;
+  justify-content: center;
 `;
 
 const UserName = styled.Text`
@@ -225,8 +230,4 @@ const EmptyStateCTAText = styled.Text.attrs({
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.brand40};
-`;
-
-const BottomPadding = styled.View`
-  height: 100px;
 `;

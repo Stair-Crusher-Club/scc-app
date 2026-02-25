@@ -361,7 +361,12 @@ const PlaceListDetailScreen = ({
                       color={color.brand40}
                     />
                   ) : (
-                    <BookmarkIcon width={16} height={20} viewBox="-2.5 -0.5 20 20" color={color.gray90} />
+                    <BookmarkIcon
+                      width={16}
+                      height={20}
+                      viewBox="-2.5 -0.5 20 20"
+                      color={color.gray90}
+                    />
                   )}
                 </FloatingCircleButton>
                 <FloatingCircleButton

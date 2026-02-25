@@ -237,7 +237,6 @@ export default function V2SummarySection({
 const Container = styled.View`
   padding-left: 20px;
   padding-top: 4px;
-  padding-bottom: 20px;
 `;
 
 const StairLevelBadge = styled.View<{

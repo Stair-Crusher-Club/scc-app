@@ -259,9 +259,7 @@ const Container = styled.View`
 const EmptyStateWrapper = styled.View`
   flex: 1;
   background-color: ${color.gray5};
-  padding-top: 40px;
-  padding-horizontal: 20px;
-  padding-bottom: 20px;
+  padding-top: 20px;
 `;
 
 // 섹션

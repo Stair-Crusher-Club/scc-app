@@ -671,6 +671,7 @@ export default function PlaceDetailV2Screen({
             }}
             onPressAccessibilityTab={() => setCurrentTab('accessibility')}
             onPressReviewTab={() => setCurrentTab('review')}
+            onPressDirections={() => setShowNavigationBottomSheet(true)}
             onPressPlaceRegister={handlePlaceRegister}
             onPressBuildingRegister={handleBuildingRegister}
             onPressReviewRegister={handleReviewRegister}
@@ -827,10 +828,10 @@ export default function PlaceDetailV2Screen({
                   />
                 </>
               )}
-
-              {/* Bottom padding — 하단 바에 가려지는 영역 보정 */}
-              <BottomPadding />
             </View>
+
+            {/* Bottom padding — 하단 바에 가려지는 영역 보정 (tab content 밖으로 이동하여 배경색 상속 방지) */}
+            <BottomPadding />
           </ScrollView>
         </GestureHandlerRootView>
 
@@ -957,8 +958,10 @@ const SectionSeparator = styled.View`
 const SummarySectionContainer = styled.View`
   padding-top: 4px;
   padding-bottom: 20px;
+  gap: 20px;
 `;
 
 const BottomPadding = styled.View`
-  height: 100px;
+  height: 110px;
+  background-color: transparent;
 `;
