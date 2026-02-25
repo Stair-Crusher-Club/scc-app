@@ -36,7 +36,7 @@ export type SearchResultItem = PlaceListItem | (ToiletDetails & MarkerItem);
 function generateRequestId(): string {
   const now = new Date();
   const pad = (n: number, len = 2) => String(n).padStart(len, '0');
-  const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds(), 6)}`;
+  const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds(), 3)}`;
   return `${timestamp}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
