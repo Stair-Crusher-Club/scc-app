@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
-import ExitIcon from '@/assets/icon/ic_exit.svg';
+import CloseIcon from '@/assets/icon/close.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SearchPlaceSortDto} from '@/generated-sources/openapi';
@@ -26,7 +26,7 @@ const SearchSortOptionSelectorBottomSheet = ({
     <BottomSheet isVisible={isVisible}>
       <Header>
         <Title>정렬 순서</Title>
-        <ExitIcon
+        <CloseIcon
           style={{padding: 4}}
           width={24}
           height={24}

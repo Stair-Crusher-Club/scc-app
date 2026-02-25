@@ -42,6 +42,7 @@ type ItemMapViewProps<T extends MarkerItem> = {
   ItemCard: React.FC<{item: T}>;
   isRefreshVisible: boolean;
   onCameraIdle: (region: Region) => void;
+  myLocationBottomOffset?: number;
 };
 
 const FRefInputComp = <T extends MarkerItem>(
@@ -51,6 +52,7 @@ const FRefInputComp = <T extends MarkerItem>(
     ItemCard,
     isRefreshVisible,
     onCameraIdle,
+    myLocationBottomOffset,
   }: ItemMapViewProps<T>,
   ref: ForwardedRef<ItemMapViewHandle<T>>,
 ) => {
@@ -191,7 +193,12 @@ const FRefInputComp = <T extends MarkerItem>(
         <MyLocationButton
           elementName="map_my_location_button"
           onPress={onMyLocationPress}
-          activeOpacity={0.7}>
+          activeOpacity={0.7}
+          style={
+            myLocationBottomOffset != null
+              ? {marginBottom: myLocationBottomOffset}
+              : undefined
+          }>
           <MyLocationIcon width={24} height={24} />
         </MyLocationButton>
         {items.length > 0 && (

@@ -44,14 +44,14 @@ export default function FilterBar({
           paddingHorizontal: isMap ? 12 : 20,
           gap: 6,
         }}>
-        {isMap && (
-          <IconChip
-            elementName="filter_icon"
-            activeOpacity={0.7}
-            onPress={() => onOpenFilterModal('All')}>
-            <FilterIcon width={16} height={16} color="#24262B" />
-          </IconChip>
-        )}
+        <FilterTextChip
+          elementName="filter_chip"
+          activeOpacity={0.7}
+          $isMap={isMap}
+          onPress={() => onOpenFilterModal('All')}>
+          <FilterIcon width={16} height={16} color="#24262B" />
+          <FilterChipText $isMap={isMap}>필터</FilterChipText>
+        </FilterTextChip>
         <DropdownChip
           elementName="filter_sort"
           activeOpacity={0.7}
@@ -128,12 +128,19 @@ const chipBase = `
   border-width: 1px;
 `;
 
-const IconChip = styled(SccTouchableOpacity)`
+const FilterTextChip = styled(SccTouchableOpacity)<{$isMap: boolean}>`
   ${chipBase}
   height: 36px;
   padding-horizontal: 12px;
+  gap: 2px;
   background-color: white;
   border-color: #eaeaef;
+`;
+
+const FilterChipText = styled.Text<{$isMap: boolean}>`
+  font-family: ${font.pretendardMedium};
+  font-size: 13px;
+  color: ${({$isMap}) => ($isMap ? '#24262b' : '#16181c')};
 `;
 
 const DropdownChip = styled(SccTouchableOpacity)<{
