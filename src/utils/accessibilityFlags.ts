@@ -5,13 +5,13 @@ import {useAtomValue} from 'jotai';
  * QA 모드 여부를 확인합니다.
  * QA 모드에서는 이미 접근성 정보가 등록된 장소에서도 중복 등록 버튼을 노출합니다.
  *
- * userInfo의 MULTIPLE_DOOR_REGISTRATION 플래그를 체크합니다 (hardcoded 유저만 해당).
+ * REGISTER_ACCESSIBILITY_V2 플래그를 체크합니다.
  *
  * @returns QA 모드 활성화 여부
  */
 export const useIsQAMode = (): boolean => {
   const featureFlag = useAtomValue(featureFlagAtom);
-  return featureFlag?.isMultipleDoorRegistration ?? false;
+  return featureFlag?.isRegisterAccessibilityV2 ?? false;
 };
 
 /**

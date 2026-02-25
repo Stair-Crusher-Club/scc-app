@@ -34,7 +34,6 @@ export const featureFlagAtom = atom<{
   isAlbumUploadAllowed: boolean;
   isRegisterAccessibilityV2: boolean;
   isHomeScreenV2: boolean;
-  isMultipleDoorRegistration: boolean;
   isPlaceListEnabled: boolean;
   isPlaceDetailV2: boolean;
 } | null>(null);
@@ -93,8 +92,6 @@ export function useMe() {
       isRegisterAccessibilityV2:
         data.flags?.includes('REGISTER_ACCESSIBILITY_V2') ?? false,
       isHomeScreenV2: data.flags?.includes('HOME_SCREEN_V2') ?? false,
-      isMultipleDoorRegistration:
-        data.flags?.includes('MULTIPLE_DOOR_REGISTRATION') ?? false,
       isPlaceListEnabled: data.flags?.includes('PLACE_LIST_ENABLED') ?? false,
       isPlaceDetailV2: data.flags?.includes('PLACE_DETAIL_V2') ?? false,
     });
