@@ -3,7 +3,6 @@ import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import {useAtomValue, useSetAtom} from 'jotai';
 import {useEffect, useRef} from 'react';
-import {v4 as uuidv4} from 'uuid';
 
 import {useDevTool} from '@/components/DevTool/useDevTool';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
@@ -141,7 +140,7 @@ export default function useSearchRequest() {
           {signal},
         );
         const result = response?.data.items?.map(mapToToiletDetails) ?? [];
-        const requestId = uuidv4();
+        const requestId = Math.random().toString(36).slice(2, 10);
         setSearchRequestId(requestId);
         Logger.logElementClick({
           name: 'toilet_search',
@@ -189,7 +188,7 @@ export default function useSearchRequest() {
         {signal},
       );
       const result = response?.data.items || [];
-      const requestId = uuidv4();
+      const requestId = Math.random().toString(36).slice(2, 10);
       setSearchRequestId(requestId);
       Logger.logElementClick({
         name: 'place_search',
