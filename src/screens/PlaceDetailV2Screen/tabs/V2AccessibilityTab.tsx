@@ -121,9 +121,6 @@ export default function V2AccessibilityTab({
   const hasV2Fields =
     primaryPlaceAccessibility.isStandaloneBuilding != null && doorDir != null;
 
-  const placeComments = accessibility?.placeAccessibilityComments ?? [];
-  const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
-
   // 섹션 순서/가시성을 공유 유틸리티로 결정
   const sections = getAccessibilitySections({
     isStandalone,
@@ -199,7 +196,6 @@ export default function V2AccessibilityTab({
                           (ba as any).createdAt?.value ?? Date.now(),
                         ).format('YYYY.MM.DD')}
                         buildingAccessibility={ba}
-                        buildingComments={buildingComments}
                         title={buildingEntranceTitle(index)}
                       />
                     ))
@@ -221,7 +217,6 @@ export default function V2AccessibilityTab({
                       title={placeEntranceTitle('매장 출입구', index)}
                       placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
                       placeAccessibility={pa}
-                      placeComments={placeComments}
                     />
                   ))}
                 </SectionsInnerContainer>

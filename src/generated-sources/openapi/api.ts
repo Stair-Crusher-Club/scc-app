@@ -3699,6 +3699,12 @@ export interface PlaceAccessibility {
      */
     'floorMovingElevatorComment'?: string;
     /**
+     * 층간 이동 방법 관련 코멘트
+     * @type {string}
+     * @memberof PlaceAccessibility
+     */
+    'floorMovingMethodComment'?: string;
+    /**
      * 익명으로 등록되었으면 null.
      * @type {string}
      * @memberof PlaceAccessibility

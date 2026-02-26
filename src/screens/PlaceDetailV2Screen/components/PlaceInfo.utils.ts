@@ -39,15 +39,14 @@ export function getAccessibilitySections(params: {
     doorDir,
     isMultiFloor,
     hasV2Fields,
-    hasBuildingAccessibility,
+    hasBuildingAccessibility: _hasBuildingAccessibility,
     showBuildingEntranceForOutsideDoor = false,
   } = params;
   const sections: AccessibilitySectionType[] = ['층 정보'];
+  const isInsideDoor =
+    !isStandalone && doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
 
   if (hasV2Fields) {
-    const isInsideDoor =
-      !isStandalone && doorDir === PlaceDoorDirectionTypeDto.InsideBuilding;
-
     // InsideBuilding: 건물 출입구 → 매장 출입구 순서
     if (isInsideDoor) {
       sections.push('건물 출입구');
@@ -63,7 +62,8 @@ export function getAccessibilitySections(params: {
   } else {
     if (isInsideDoor) sections.push('건물 출입구');
     sections.push('매장 출입구');
-    if (showBuildingEntranceForOutsideDoor && !isInsideDoor) sections.push('건물 출입구');
+    if (showBuildingEntranceForOutsideDoor && !isInsideDoor)
+      sections.push('건물 출입구');
     sections.push('내부 이용 정보');
   }
 
@@ -93,6 +93,8 @@ export function getFloorAccessibility(
   const floors = accessibility.placeAccessibility?.floors ?? [];
   const isSingleFloor = floors.length === 1;
   const floorName = floors[0] < 1 ? `지하 ${-floors[0]}층` : `${floors[0]}층`;
+  const isStandaloneBuilding =
+    accessibility.placeAccessibility?.isStandaloneBuilding === true;
 
   // 과거 등록 데이터 : 층수 정보가 없는 경우
   if (floors.length === 0) {
@@ -112,7 +114,7 @@ export function getFloorAccessibility(
   if (isSingleFloor && floors[0] === 1) {
     return {
       type: FloorAccessibilityType.GroundFloor,
-      title: '1층',
+      title: isStandaloneBuilding ? '단독 1층 건물' : '1층',
     };
   }
 
@@ -138,6 +140,10 @@ export function getFloorAccessibility(
         : '계단 외 이동 방법 있음';
     }
 
+    const multiFloorTitle = isStandaloneBuilding
+      ? '단독 건물 여러층'
+      : '1층을 포함한 여러층';
+
     if (
       isStairOnly ||
       (methods.length === 0 &&
@@ -145,13 +151,13 @@ export function getFloorAccessibility(
     ) {
       return {
         type: FloorAccessibilityType.GroundAndMoreFloorsWithStairOnly,
-        title: '1층을 포함한 여러층',
+        title: multiFloorTitle,
         description,
       };
     } else {
       return {
         type: FloorAccessibilityType.GroundAndMoreFloors,
-        title: '1층을 포함한 여러층',
+        title: multiFloorTitle,
         description,
       };
     }

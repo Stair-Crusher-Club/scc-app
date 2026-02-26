@@ -25,6 +25,7 @@ interface Props {
   placeName: string;
   placeLocation?: Location;
   placeAddress: string;
+  hideWriteButton?: boolean;
 }
 
 export default function PlaceReviewSummaryInfo({
@@ -33,6 +34,7 @@ export default function PlaceReviewSummaryInfo({
   placeName,
   placeLocation,
   placeAddress,
+  hideWriteButton,
 }: Props) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
@@ -75,7 +77,8 @@ export default function PlaceReviewSummaryInfo({
     return null;
   }
 
-  const spaciousTypeMax = Math.max(...spaciousTypeCounts.map(s => s.count));
+  const spaciousTypeMax =
+    Math.max(...spaciousTypeCounts.map(s => s.count)) || 1;
 
   return (
     <Container>
@@ -84,12 +87,14 @@ export default function PlaceReviewSummaryInfo({
           <SS.Title>방문 리뷰</SS.Title>
           <ReviewCount>{reviews.length}</ReviewCount>
         </HeaderLeft>
-        <ReviewButton
-          elementName="place_detail_review_write_button"
-          onPress={handleReviewPress}>
-          <PlusIcon color={color.white} />
-          <ReviewButtonText>리뷰 쓰기</ReviewButtonText>
-        </ReviewButton>
+        {!hideWriteButton && (
+          <ReviewButton
+            elementName="place_detail_review_write_button"
+            onPress={handleReviewPress}>
+            <PlusIcon color={color.white} />
+            <ReviewButtonText>리뷰 쓰기</ReviewButtonText>
+          </ReviewButton>
+        )}
       </HeaderRow>
       <SectionColumn style={{marginTop: 16}}>
         <TextBoxThinRow>
@@ -104,31 +109,33 @@ export default function PlaceReviewSummaryInfo({
           ))}
         </TextBoxThinRow>
       </SectionColumn>
-      <SectionColumn style={{marginTop: 32}}>
+      <MobilitySectionColumn>
         <SectionTitle>추천대상</SectionTitle>
-        <TextBoxRow>
-          {mobilityTypeCounts.slice(0, 3).map(item => (
-            <TextBox
-              key={item.label}
-              label={item.label}
-              content={`${item.count}명`}
-              level={item.level}
-              shape="normal"
-            />
-          ))}
-        </TextBoxRow>
-        <TextBoxRow>
-          {mobilityTypeCounts.slice(3, 5).map(item => (
-            <TextBox
-              key={item.label}
-              label={item.label.replace('\n', ' ')}
-              content={`${item.count}명`}
-              level={item.level}
-              shape="flat"
-            />
-          ))}
-        </TextBoxRow>
-      </SectionColumn>
+        <MobilityCardGrid>
+          <TextBoxRow>
+            {mobilityTypeCounts.slice(0, 3).map(item => (
+              <TextBox
+                key={item.label}
+                label={item.label}
+                content={`${item.count}명`}
+                level={item.level}
+                shape="normal"
+              />
+            ))}
+          </TextBoxRow>
+          <TextBoxRow>
+            {mobilityTypeCounts.slice(3, 5).map(item => (
+              <TextBox
+                key={item.label}
+                label={item.label.replace('\n', ' ')}
+                content={`${item.count}명`}
+                level={item.level}
+                shape="flat"
+              />
+            ))}
+          </TextBoxRow>
+        </MobilityCardGrid>
+      </MobilitySectionColumn>
       {LocationConfirmModal}
     </Container>
   );
@@ -181,10 +188,21 @@ const SectionColumn = styled.View`
 `;
 
 const SectionTitle = styled.Text`
-  font-family: ${font.pretendardBold};
+  font-family: ${font.pretendardSemibold};
   font-size: 16px;
-  line-height: 24px;
-  color: ${color.black};
+  line-height: 26px;
+  color: ${color.gray90};
+`;
+
+const MobilitySectionColumn = styled.View`
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+`;
+
+const MobilityCardGrid = styled.View`
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const TextBoxRow = styled.View`
@@ -228,12 +246,15 @@ const SpaciousTextBox: React.FC<{
         ? color.brand5
         : color.gray10;
 
+  const isHighlighted = level === 'high' || level === 'medium';
+
   return (
     <View
       style={{
         backgroundColor: color.gray10,
         borderRadius: 10,
         overflow: 'hidden',
+        height: 40,
       }}>
       <View
         style={{
@@ -243,7 +264,7 @@ const SpaciousTextBox: React.FC<{
           height: '100%',
           width: `${Math.min(Math.max(filledRatio, 0), 1) * 100}%`,
           backgroundColor: background,
-          borderRadius: 10,
+          borderRadius: 7,
         }}
       />
       <View
@@ -256,7 +277,9 @@ const SpaciousTextBox: React.FC<{
           justifyContent: 'space-between',
           gap: 4,
         }}>
-        <TextBoxLabel>{label}</TextBoxLabel>
+        <SpaciousTextBoxLabel isHighlighted={isHighlighted}>
+          {label}
+        </SpaciousTextBoxLabel>
         <TextBoxContent level={level} shape={'thin'}>
           {content}
         </TextBoxContent>
@@ -290,17 +313,19 @@ const TextBoxContainer = styled.View<{
 const RecommendTargetTextBoxLabel = styled.Text`
   font-size: 14px;
   line-height: 20px;
+  letter-spacing: -0.28px;
   font-family: ${font.pretendardRegular};
   color: ${color.gray100};
   text-align: center;
 `;
 
-const TextBoxLabel = styled.Text`
-  font-size: 13px;
-  line-height: 18px;
-  font-family: ${font.pretendardRegular};
+const SpaciousTextBoxLabel = styled.Text<{isHighlighted?: boolean}>`
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.28px;
+  font-family: ${({isHighlighted}) =>
+    isHighlighted ? font.pretendardMedium : font.pretendardRegular};
   color: ${color.gray100};
-  text-align: center;
 `;
 
 const TextBoxContent = styled.Text<{
@@ -309,8 +334,14 @@ const TextBoxContent = styled.Text<{
 }>`
   font-size: 13px;
   line-height: 18px;
-  font-family: ${({shape}) =>
-    shape === 'thin' ? font.pretendardBold : font.pretendardMedium};
+  letter-spacing: -0.26px;
+  font-family: ${({shape, level}) => {
+    const isHighlighted = level === 'high' || level === 'medium';
+    if (shape === 'thin') {
+      return isHighlighted ? font.pretendardBold : font.pretendardMedium;
+    }
+    return isHighlighted ? font.pretendardMedium : font.pretendardRegular;
+  }};
   color: ${({level}) =>
     level === 'high'
       ? color.brand50
@@ -335,7 +366,7 @@ const SPACIOUS_TYPE_LABELS: Record<string, string> = {
   WIDE: '🥰 매우 넓어 이용하기 아주 편리해요',
   ENOUGH: '😀 대부분 구역에서 문제없이 이용할 수 있어요',
   LIMITED: '🙂 일부 구역만 이용할 수 있어요',
-  TIGHT: '🥲 매우 좁아서 내부 이동이 불가능해요 ',
+  TIGHT: '🥲 매우 좁아 내부 이동이 거의 불가능해요',
 };
 
 function assignLevels<T extends {count: number}>(
@@ -377,12 +408,16 @@ function countSpaciousType(
       count[type]++;
     }
   });
-  const sorted = Object.entries(count)
-    .sort((a, b) => b[1] - a[1])
-    .map(([type, cnt]) => ({
-      label: SPACIOUS_TYPE_LABELS[type] || type,
-      count: cnt,
-    }));
+  const SPACIOUS_ORDER = [
+    SpaciousTypeDto.Wide,
+    SpaciousTypeDto.Enough,
+    SpaciousTypeDto.Limited,
+    SpaciousTypeDto.Tight,
+  ];
+  const sorted = SPACIOUS_ORDER.map(type => ({
+    label: SPACIOUS_TYPE_LABELS[type] || type,
+    count: count[type] || 0,
+  }));
   return assignLevels(sorted);
 }
 
@@ -402,11 +437,16 @@ function countMobilityTypes(reviews: PlaceReviewDto[]): {
       }
     });
   });
-  const sorted = Object.entries(count)
-    .sort((a, b) => b[1] - a[1])
-    .map(([type, cnt]) => ({
-      label: MOBILITY_TYPE_LABELS[type] || type,
-      count: cnt,
-    }));
+  const MOBILITY_ORDER = [
+    RecommendedMobilityTypeDto.ManualWheelchair,
+    RecommendedMobilityTypeDto.ElectricWheelchair,
+    RecommendedMobilityTypeDto.Stroller,
+    RecommendedMobilityTypeDto.Elderly,
+    RecommendedMobilityTypeDto.NotSure,
+  ];
+  const sorted = MOBILITY_ORDER.map(type => ({
+    label: MOBILITY_TYPE_LABELS[type] || type,
+    count: count[type] || 0,
+  }));
   return assignLevels(sorted);
 }

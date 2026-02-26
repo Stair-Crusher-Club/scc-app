@@ -5,16 +5,14 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
   AccessibilityInfoV2Dto,
-  BuildingAccessibilityComment,
   PlaceAccessibility,
-  PlaceAccessibilityComment,
   StairInfo,
 } from '@/generated-sources/openapi';
 
 import {
   InfoRow,
   PhotoRow,
-  CommentBox,
+  FieldCommentBox,
   BuildingDoorDirectionInfoRow,
   BuildingEntranceInfoRows,
   BuildingElevatorInfoRow,
@@ -38,7 +36,6 @@ import {
 export function BuildingEntranceSection({
   buildingDate,
   buildingAccessibility,
-  buildingComments,
   compact = false,
   title = '건물 출입구',
 }: {
@@ -46,7 +43,6 @@ export function BuildingEntranceSection({
   buildingAccessibility: NonNullable<
     AccessibilityInfoV2Dto['buildingAccessibility']
   >;
-  buildingComments: BuildingAccessibilityComment[];
   compact?: boolean;
   title?: string;
 }) {
@@ -79,12 +75,6 @@ export function BuildingEntranceSection({
           />
           <BuildingDoorInfoRow buildingAccessibility={buildingAccessibility} />
         </InfoRowsContainer>
-        {buildingComments.length > 0 && (
-          <CommentBox
-            comments={buildingComments}
-            registeredUserName={buildingAccessibility.registeredUserName}
-          />
-        )}
       </SectionContent>
     </Container>
   );
@@ -123,13 +113,11 @@ export function PlaceEntranceSection({
   title,
   placeDate,
   placeAccessibility,
-  placeComments,
   compact = false,
 }: {
   title: string;
   placeDate: string;
   placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
-  placeComments: PlaceAccessibilityComment[];
   compact?: boolean;
 }) {
   const Container = compact ? CompactSectionContainer : SectionContainer;
@@ -153,12 +141,10 @@ export function PlaceEntranceSection({
           <PlaceNoteInfoRow placeAccessibility={placeAccessibility} />
         </InfoRowsContainer>
         {entranceComment != null && entranceComment.length > 0 && (
-          <InlineComment>{entranceComment}</InlineComment>
-        )}
-        {placeComments.length > 0 && (
-          <CommentBox
-            comments={placeComments}
-            registeredUserName={placeAccessibility.registeredUserName}
+          <FieldCommentBox
+            comment={entranceComment}
+            userName={placeAccessibility.registeredUserName}
+            createdAt={placeAccessibility.createdAt}
           />
         )}
       </SectionContent>
@@ -198,6 +184,7 @@ export function FloorMovementSection({
   const elevatorAccessibility =
     placeAccessibility?.floorMovingElevatorAccessibility;
   const elevatorComment = placeAccessibility?.floorMovingElevatorComment;
+  const methodComment = placeAccessibility?.floorMovingMethodComment;
 
   const hasData =
     (methodTypes && methodTypes.length > 0) ||
@@ -262,9 +249,18 @@ export function FloorMovementSection({
             />
           )}
         </InfoRowsContainer>
-        {elevatorComment != null && elevatorComment.length > 0 && (
-          <InlineComment>{elevatorComment}</InlineComment>
-        )}
+        {(() => {
+          const combinedComment = [methodComment, elevatorComment]
+            .filter(c => c != null && c.length > 0)
+            .join('\n\n');
+          return combinedComment.length > 0 ? (
+            <FieldCommentBox
+              comment={combinedComment}
+              userName={placeAccessibility?.registeredUserName}
+              createdAt={placeAccessibility?.createdAt}
+            />
+          ) : null;
+        })()}
       </SectionContent>
     </Container>
   );
@@ -314,12 +310,4 @@ const CompactSectionTitle = styled.Text`
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.gray80};
-`;
-
-const InlineComment = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: -0.28px;
-  color: ${color.gray70};
 `;

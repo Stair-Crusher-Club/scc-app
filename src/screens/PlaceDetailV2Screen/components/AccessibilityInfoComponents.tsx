@@ -12,6 +12,7 @@ import {
   AccessibilityInfoV2Dto,
   BuildingAccessibilityComment,
   BuildingDoorDirectionTypeDto,
+  EpochMillisTimestamp,
   PlaceAccessibilityComment,
   PlaceDoorDirectionTypeDto,
 } from '@/generated-sources/openapi';
@@ -85,6 +86,29 @@ export function CommentBox({
       <CommentMetaRow>
         <CommentUserName>{userName}</CommentUserName>
         <CommentDate>{dateStr}</CommentDate>
+      </CommentMetaRow>
+    </CommentContainer>
+  );
+}
+
+// ──────────────── FieldCommentBox ────────────────
+
+export function FieldCommentBox({
+  comment,
+  userName,
+  createdAt,
+}: {
+  comment: string;
+  userName?: string;
+  createdAt?: EpochMillisTimestamp;
+}) {
+  const dateStr = createdAt ? dayjs(createdAt.value).format('YYYY.MM.DD') : '';
+  return (
+    <CommentContainer>
+      <CommentText>{comment}</CommentText>
+      <CommentMetaRow>
+        <CommentUserName>{userName ?? '익명'}</CommentUserName>
+        {dateStr ? <CommentDate>{dateStr}</CommentDate> : null}
       </CommentMetaRow>
     </CommentContainer>
   );
@@ -181,6 +205,7 @@ export function BuildingDoorDirectionInfoRow({
     return null;
   }
   let title = '';
+  let subValue: string | undefined;
   switch (doorDir) {
     case BuildingDoorDirectionTypeDto.RoadDirection:
       title = '지상/보도 연결 문';
@@ -189,14 +214,11 @@ export function BuildingDoorDirectionInfoRow({
       title = '주차장 방향';
       break;
     case BuildingDoorDirectionTypeDto.Etc:
-      title =
-        buildingAccessibility.doorDirectionEtcComment &&
-        buildingAccessibility.doorDirectionEtcComment.length > 0
-          ? buildingAccessibility.doorDirectionEtcComment
-          : '기타';
+      title = '기타';
+      subValue = buildingAccessibility.doorDirectionEtcComment ?? undefined;
       break;
   }
-  return <InfoRow label="출입구 방향" value={title} />;
+  return <InfoRow label="출입구 방향" value={title} subValue={subValue} />;
 }
 
 // ──────────────── Place Info Rows ────────────────

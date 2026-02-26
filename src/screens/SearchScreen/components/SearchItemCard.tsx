@@ -79,9 +79,11 @@ function SearchItemCard({
     let slopeTag;
     if (item.accessibilityInfo) {
       floorTag = item.accessibilityInfo.floors.length
-        ? `${item.accessibilityInfo.floors[0]}층${
-            item.accessibilityInfo.floors.length > 1 ? '+' : ''
-          }`
+        ? `${
+            item.accessibilityInfo.floors[0] < 1
+              ? `지하 ${-item.accessibilityInfo.floors[0]}층`
+              : `${item.accessibilityInfo.floors[0]}층`
+          }${item.accessibilityInfo.floors.length > 1 ? '+' : ''}`
         : undefined;
       slopeTag = !item.hasPlaceAccessibility
         ? undefined

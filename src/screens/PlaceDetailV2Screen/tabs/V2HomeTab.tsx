@@ -67,7 +67,7 @@ export default function V2HomeTab({
   isAccessibilityRegistrable: _isAccessibilityRegistrable,
   onRequestInfo,
   onPressAccessibilityTab: _onPressAccessibilityTab,
-  onPressReviewTab,
+  onPressReviewTab: _onPressReviewTab,
   onPressDirections,
   onPressPlaceRegister,
   onPressBuildingRegister,
@@ -141,10 +141,6 @@ export default function V2HomeTab({
   };
 
   // ── 접근성 날짜는 각 출입구별로 계산 (렌더링 시 인라인) ──
-
-  // ── 코멘트 ──
-  const placeComments = accessibility?.placeAccessibilityComments ?? [];
-  const buildingComments = accessibility?.buildingAccessibilityComments ?? [];
 
   return (
     <Container>
@@ -250,7 +246,6 @@ export default function V2HomeTab({
                               (ba as any).createdAt?.value ?? Date.now(),
                             ).format('YYYY.MM.DD')}
                             buildingAccessibility={ba}
-                            buildingComments={buildingComments}
                             title={
                               buildingAccessibilities.length > 1
                                 ? `건물 출입구 (${index + 1})`
@@ -276,7 +271,6 @@ export default function V2HomeTab({
                         placeAccessibilities[0].createdAt.value,
                       ).format('YYYY.MM.DD')}
                       placeAccessibility={placeAccessibilities[0]}
-                      placeComments={placeComments}
                       compact
                     />
                   ) : null;
@@ -317,12 +311,6 @@ export default function V2HomeTab({
           <Section>
             <SectionHeader>
               <SectionTitle>방문 리뷰</SectionTitle>
-              <MoreButton
-                elementName="v2_home_tab_review_more"
-                onPress={onPressReviewTab}
-                accessibilityLabel="리뷰 탭으로 이동">
-                <MoreText>전체 {reviews.length}건</MoreText>
-              </MoreButton>
             </SectionHeader>
             <PlaceReviewSummaryInfo
               reviews={reviews}
@@ -330,6 +318,7 @@ export default function V2HomeTab({
               placeName={place.name}
               placeLocation={place.location}
               placeAddress={place.address}
+              hideWriteButton
             />
           </Section>
 
@@ -543,17 +532,6 @@ const ConquerorText = styled.Text`
   letter-spacing: -0.24px;
   color: #767884;
   text-align: right;
-`;
-
-const MoreButton = styled(SccTouchableOpacity)`
-  padding: 4px 0px;
-`;
-
-const MoreText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  letter-spacing: -0.28px;
-  color: ${color.brand50};
 `;
 
 /* Toilet reviews */

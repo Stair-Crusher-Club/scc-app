@@ -30,15 +30,12 @@ export default function V2ReviewTab({
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
 
-  // 도움돼요순 → 최신순 정렬
+  // 최신순 정렬
   const sortedReviews = useMemo(
     () =>
-      [...reviews].sort((a, b) => {
-        const upvoteDiff =
-          (b.totalUpvoteCount ?? 0) - (a.totalUpvoteCount ?? 0);
-        if (upvoteDiff !== 0) return upvoteDiff;
-        return (b.createdAt?.value ?? 0) - (a.createdAt?.value ?? 0);
-      }),
+      [...reviews].sort(
+        (a, b) => (b.createdAt?.value ?? 0) - (a.createdAt?.value ?? 0),
+      ),
     [reviews],
   );
 
@@ -94,6 +91,7 @@ export default function V2ReviewTab({
           placeName={place.name}
           placeLocation={place.location}
           placeAddress={place.address}
+          hideWriteButton
         />
         <Divider />
         <PlaceVisitReviewInfo reviews={sortedReviews} placeId={place.id} />
