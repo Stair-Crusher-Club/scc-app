@@ -710,11 +710,6 @@ export default function PlaceDetailV2Screen({
     }
   };
 
-  const hasConquerorData = !!(
-    accessibilityPost?.placeAccessibility ||
-    accessibilityPost?.buildingAccessibility
-  );
-
   const showFeedbackSection =
     accessibilityPost &&
     (accessibilityPost?.placeAccessibility ||
@@ -804,11 +799,9 @@ export default function PlaceDetailV2Screen({
               }}
               style={{
                 minHeight:
-                  currentTab === 'conqueror' && hasConquerorData
-                    ? 0
-                    : scrollViewHeight > 0
-                      ? scrollViewHeight - (stickyHeaderHeight || 41) - 110
-                      : 0,
+                  scrollViewHeight > 0
+                    ? scrollViewHeight - (stickyHeaderHeight || 41) - 110
+                    : 0,
                 backgroundColor:
                   currentTab !== 'home' ? color.gray5 : color.white,
               }}>
