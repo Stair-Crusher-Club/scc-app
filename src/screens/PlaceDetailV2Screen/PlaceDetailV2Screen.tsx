@@ -796,7 +796,8 @@ export default function PlaceDetailV2Screen({
               )}
             </View>
 
-            {/* Tab Content — minHeight prevents layout jump when switching to short tabs */}
+            {/* Tab Content — minHeight prevents layout jump when switching to short tabs.
+                BottomPadding(110px) is outside this View, so subtract it to prevent over-scroll. */}
             <View
               onLayout={e => {
                 tabContentYRef.current = e.nativeEvent.layout.y;
@@ -806,7 +807,7 @@ export default function PlaceDetailV2Screen({
                   currentTab === 'conqueror' && hasConquerorData
                     ? 0
                     : scrollViewHeight > 0
-                      ? scrollViewHeight - (stickyHeaderHeight || 41)
+                      ? scrollViewHeight - (stickyHeaderHeight || 41) - 110
                       : 0,
                 backgroundColor:
                   currentTab !== 'home' ? color.gray5 : color.white,
