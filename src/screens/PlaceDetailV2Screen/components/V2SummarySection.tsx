@@ -17,6 +17,45 @@ import {font} from '@/constant/font';
 import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
 import {useExperimentVariant} from '@/hooks/useExperiment';
 
+type ScoreStatus = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
+
+const ScoreColorMap: Record<
+  ScoreStatus,
+  {background: string; text: string; border?: string}
+> = {
+  '0': {background: '#E6F4EB', text: '#06903B'},
+  '1': {background: '#F0F9E7', text: '#64C40F'},
+  '2': {background: '#FFF9E6', text: '#FFC109'},
+  '3': {background: '#FFF4E6', text: '#FF9202'},
+  '4': {background: '#FFEEE9', text: '#FF5722'},
+  '5': {background: '#FCE9E9', text: '#E52123'},
+  unknown: {background: '#E7E8E9', text: '#9A9B9F'},
+  progress: {background: '#ffffff', text: '#FFC109', border: '#FFC109'},
+};
+
+function getScoreStatus(
+  score?: number | null,
+  isProcessing?: boolean,
+): ScoreStatus {
+  if (isProcessing) {
+    return 'progress';
+  } else if (score === undefined || score === null) {
+    return 'unknown';
+  } else if (score <= 0) {
+    return '0';
+  } else if (score <= 1) {
+    return '1';
+  } else if (score <= 2) {
+    return '2';
+  } else if (score <= 3) {
+    return '3';
+  } else if (score <= 4) {
+    return '4';
+  } else {
+    return '5';
+  }
+}
+
 interface V2SummarySectionProps {
   place: Place;
   accessibilityScore?: number;
@@ -59,6 +98,8 @@ export default function V2SummarySection({
     !!accessibility?.placeAccessibility &&
     !accessibility?.buildingAccessibility;
 
+  const scoreStatus = getScoreStatus(accessibilityScore, isProcessing);
+
   const tagTexts = (() => {
     const pa = accessibility?.placeAccessibility;
     if (!pa) {
@@ -69,8 +110,13 @@ export default function V2SummarySection({
     let slopeTag;
 
     const floors = pa.floors ?? [];
-    floorTag = floors.length
-      ? `${floors[0]}층${floors.length > 1 ? '+' : ''}`
+    const floorText = floors.length
+      ? floors[0] < 0
+        ? `지하 ${-floors[0]}`
+        : `${floors[0]}`
+      : undefined;
+    floorTag = floorText
+      ? `${floorText}층${floors.length > 1 ? '+' : ''}`
       : undefined;
 
     slopeTag = pa.hasSlope
@@ -110,8 +156,8 @@ export default function V2SummarySection({
   if (isIconOnly) {
     return (
       <Container>
-        <StairLevelBadge hasScore={hasScore} isProcessing={isProcessing}>
-          <StairLevelText hasScore={hasScore} isProcessing={isProcessing}>
+        <StairLevelBadge scoreStatus={scoreStatus}>
+          <StairLevelText scoreStatus={scoreStatus}>
             {hasScore
               ? `접근레벨 ${accessibilityScore}`
               : isProcessing
@@ -170,8 +216,8 @@ export default function V2SummarySection({
 
   return (
     <Container>
-      <StairLevelBadge hasScore={hasScore} isProcessing={isProcessing}>
-        <StairLevelText hasScore={hasScore} isProcessing={isProcessing}>
+      <StairLevelBadge scoreStatus={scoreStatus}>
+        <StairLevelText scoreStatus={scoreStatus}>
           {hasScore
             ? `접근레벨 ${accessibilityScore}`
             : isProcessing
@@ -240,28 +286,27 @@ const Container = styled.View`
 `;
 
 const StairLevelBadge = styled.View<{
-  hasScore: boolean;
-  isProcessing: boolean;
+  scoreStatus: ScoreStatus;
 }>`
-  background-color: ${({hasScore, isProcessing}) =>
-    hasScore ? '#D7F6E1' : isProcessing ? '#ffffff' : color.gray15};
+  background-color: ${({scoreStatus}) => ScoreColorMap[scoreStatus].background};
   border-radius: 4px;
-  padding-horizontal: ${({hasScore}) => (hasScore ? '6px' : '7px')};
+  padding-horizontal: ${({scoreStatus}) =>
+    scoreStatus === 'unknown' || scoreStatus === 'progress' ? '7px' : '6px'};
   padding-vertical: 4px;
   align-self: flex-start;
-  ${({isProcessing}) =>
-    isProcessing ? `border-width: 1px; border-color: #FFC109;` : ''}
+  ${({scoreStatus}) =>
+    ScoreColorMap[scoreStatus].border
+      ? `border-width: 1px; border-color: ${ScoreColorMap[scoreStatus].border};`
+      : ''}
 `;
 
 const StairLevelText = styled.Text<{
-  hasScore: boolean;
-  isProcessing: boolean;
+  scoreStatus: ScoreStatus;
 }>`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
   letter-spacing: -0.24px;
-  color: ${({hasScore, isProcessing}) =>
-    hasScore ? '#06903B' : isProcessing ? '#FFC109' : color.gray50};
+  color: ${({scoreStatus}) => ScoreColorMap[scoreStatus].text};
 `;
 
 const NameContainer = styled.View`

@@ -189,7 +189,11 @@ export function BuildingDoorDirectionInfoRow({
       title = '주차장 방향';
       break;
     case BuildingDoorDirectionTypeDto.Etc:
-      title = '기타';
+      title =
+        buildingAccessibility.doorDirectionEtcComment &&
+        buildingAccessibility.doorDirectionEtcComment.length > 0
+          ? buildingAccessibility.doorDirectionEtcComment
+          : '기타';
       break;
   }
   return <InfoRow label="출입구 방향" value={title} />;
@@ -284,7 +288,10 @@ export function FloorInfoRow({
   if (!accessibility?.placeAccessibility) {
     return null;
   }
-  const floorInfo = getFloorAccessibility(accessibility as any);
+  const floorInfo = getFloorAccessibility(
+    accessibility as any,
+    accessibility.placeAccessibility.doorDirectionType,
+  );
   const floorDate = dayjs(
     accessibility.placeAccessibility.createdAt.value,
   ).format('YYYY.MM.DD');

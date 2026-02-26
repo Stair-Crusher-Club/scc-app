@@ -70,7 +70,7 @@ export default function V2HomeTab({
   onPressReviewTab,
   onPressDirections,
   onPressPlaceRegister,
-  onPressBuildingRegister: _onPressBuildingRegister,
+  onPressBuildingRegister,
   onPressReviewRegister: _onPressReviewRegister,
   onPressToiletRegister,
 }: Props) {
@@ -262,7 +262,7 @@ export default function V2HomeTab({
                       ) : (
                         <BuildingEntranceEmptySection
                           compact
-                          onRegister={onPressPlaceRegister}
+                          onRegister={onPressBuildingRegister}
                         />
                       )}
                     </React.Fragment>

@@ -11,6 +11,7 @@ import ToastUtils from '@/utils/ToastUtils';
 import {useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, Platform, ScrollView, View} from 'react-native';
+import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FORM_TOAST_OPTIONS, formImages} from '../constants';
@@ -83,26 +84,30 @@ export default function InfoStep({
     | 'doorType';
 
   const noticeError = (errorKey: FormErrorKey) => {
+    const toastOptions = {
+      ...FORM_TOAST_OPTIONS,
+      position: Toast.positions.CENTER,
+    };
     switch (errorKey) {
       case 'doorDirection':
-        ToastUtils.show('매장 입구 방향을 선택해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('매장 입구 방향을 선택해주세요.', toastOptions);
         break;
       case 'entrancePhotos':
-        ToastUtils.show('출입구 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('출입구 사진을 등록해주세요.', toastOptions);
         break;
       case 'hasStairs':
       case 'stairInfo':
       case 'entranceStairHeightLevel':
-        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('계단 정보를 입력해주세요.', toastOptions);
         break;
       case 'hasSlope':
-        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('경사로 정보를 입력해주세요.', toastOptions);
         break;
       case 'doorType':
-        ToastUtils.show('출입문 종류를 선택해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('출입문 종류를 선택해주세요.', toastOptions);
         break;
       default:
-        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('필수 정보를 입력해주세요.', toastOptions);
     }
   };
 

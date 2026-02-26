@@ -10,7 +10,7 @@ export const BUILDING_REGISTRATION_CONTENT = {
   'registration-suggest': {
     title: '건물정보도 등록해보세요!',
     description:
-      '1층이 아닌 다른층에 있는 장소네요?\n건물 정보도 등록해보시는거 어때요?',
+      '1층이 아닌 다른 층에 있는 장소에요.\n건물 정보도 등록해 보시면 어때요?',
     imagePath: require('@/assets/img/form/building_suggest_weak.png'),
     confirmButtonText: '지금 등록하기',
     cancelButtonText: '나중에 등록하기',

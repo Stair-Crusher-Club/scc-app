@@ -1,9 +1,23 @@
 import {
   AccessibilityInfoDto,
+  FloorMovingMethodTypeDto,
   PlaceDoorDirectionTypeDto,
   StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
+
+export const FLOOR_MOVING_METHOD_LABELS: Record<
+  FloorMovingMethodTypeDto,
+  string
+> = {
+  [FloorMovingMethodTypeDto.PlaceElevator]: '매장 엘리베이터',
+  [FloorMovingMethodTypeDto.PlaceStairs]: '매장 계단',
+  [FloorMovingMethodTypeDto.PlaceEscalator]: '매장 에스컬레이터',
+  [FloorMovingMethodTypeDto.BuildingElevator]: '건물 엘리베이터',
+  [FloorMovingMethodTypeDto.BuildingStairs]: '건물 계단',
+  [FloorMovingMethodTypeDto.BuildingEscalator]: '건물 에스컬레이터',
+  [FloorMovingMethodTypeDto.Unknown]: '기타',
+};
 
 export type AccessibilitySectionType =
   | '층 정보'
@@ -47,8 +61,9 @@ export function getAccessibilitySections(params: {
     }
     sections.push('내부 이용 정보');
   } else {
-    if (hasBuildingAccessibility) sections.push('건물 출입구');
+    if (isInsideDoor) sections.push('건물 출입구');
     sections.push('매장 출입구');
+    if (showBuildingEntranceForOutsideDoor && !isInsideDoor) sections.push('건물 출입구');
     sections.push('내부 이용 정보');
   }
 
@@ -67,7 +82,10 @@ export enum FloorAccessibilityType {
   Unknown,
 }
 
-export function getFloorAccessibility(accessibility: AccessibilityInfoDto): {
+export function getFloorAccessibility(
+  accessibility: AccessibilityInfoDto,
+  doorDirectionType?: PlaceDoorDirectionTypeDto,
+): {
   type: FloorAccessibilityType;
   title: string;
   description?: string;
@@ -99,20 +117,48 @@ export function getFloorAccessibility(accessibility: AccessibilityInfoDto): {
   }
 
   if (!isSingleFloor) {
-    if (accessibility.placeAccessibility?.isStairOnlyOption) {
+    const methods =
+      accessibility.placeAccessibility?.floorMovingMethodTypes ?? [];
+    const stairOnlyTypes: FloorMovingMethodTypeDto[] = [
+      FloorMovingMethodTypeDto.PlaceStairs,
+      FloorMovingMethodTypeDto.BuildingStairs,
+    ];
+    const isStairOnly =
+      methods.length > 0 && methods.every(m => stairOnlyTypes.includes(m));
+
+    let description: string;
+    if (isStairOnly) {
+      description = '계단으로만 이동 가능';
+    } else if (methods.length > 0) {
+      description = methods.map(m => FLOOR_MOVING_METHOD_LABELS[m]).join(', ');
+    } else {
+      // fallback for V1 data
+      description = accessibility.placeAccessibility?.isStairOnlyOption
+        ? '계단으로만 이동 가능'
+        : '계단 외 이동 방법 있음';
+    }
+
+    if (
+      isStairOnly ||
+      (methods.length === 0 &&
+        accessibility.placeAccessibility?.isStairOnlyOption)
+    ) {
       return {
         type: FloorAccessibilityType.GroundAndMoreFloorsWithStairOnly,
         title: '1층을 포함한 여러층',
-        description: '계단으로만 이동 가능',
+        description,
       };
     } else {
       return {
         type: FloorAccessibilityType.GroundAndMoreFloors,
         title: '1층을 포함한 여러층',
-        description: '계단 외 이동 방법 있음',
+        description,
       };
     }
   }
+
+  const isOutsideBuilding =
+    doorDirectionType === PlaceDoorDirectionTypeDto.OutsideBuilding;
 
   if (isSingleFloor && floors[0] > 1) {
     if (accessibility.buildingAccessibility?.hasElevator) {
@@ -126,9 +172,12 @@ export function getFloorAccessibility(accessibility: AccessibilityInfoDto): {
         type: FloorAccessibilityType.UpperWithoutElevator,
         title: floorName,
         description:
-          accessibility.buildingAccessibility === undefined
+          accessibility.buildingAccessibility === undefined &&
+          !isOutsideBuilding
             ? '엘레베이터 정보가 필요해요'
-            : '계단으로만 이동 가능',
+            : accessibility.buildingAccessibility === undefined
+              ? undefined
+              : '계단으로만 이동 가능',
       };
     }
   }
@@ -145,9 +194,12 @@ export function getFloorAccessibility(accessibility: AccessibilityInfoDto): {
         type: FloorAccessibilityType.UndergroundWithoutElevator,
         title: floorName,
         description:
-          accessibility.buildingAccessibility === undefined
+          accessibility.buildingAccessibility === undefined &&
+          !isOutsideBuilding
             ? '엘레베이터 정보가 필요해요'
-            : '계단으로만 이동 가능',
+            : accessibility.buildingAccessibility === undefined
+              ? undefined
+              : '계단으로만 이동 가능',
       };
     }
   }

@@ -67,6 +67,7 @@ interface Props {
   isAccessibilityRegistrable?: boolean;
   reviews?: PlaceReviewDto[];
   onRegister?: () => void;
+  onBuildingRegister?: () => void;
   showNegativeFeedbackBottomSheet?: (type: ReportTargetTypeDto) => void;
   allowDuplicateRegistration?: boolean;
   onSectionLayout?: (chipName: string, y: number) => void;
@@ -76,6 +77,7 @@ export default function V2AccessibilityTab({
   accessibility,
   reviews = [],
   onRegister,
+  onBuildingRegister,
   onSectionLayout,
 }: Props) {
   // 다중 출입구 배열 지원 (하위 호환: 단일 필드 fallback)
@@ -133,7 +135,10 @@ export default function V2AccessibilityTab({
   });
 
   // 층 정보 계산
-  const floorInfo = getFloorAccessibility(accessibility as any);
+  const floorInfo = getFloorAccessibility(
+    accessibility as any,
+    primaryPlaceAccessibility.doorDirectionType,
+  );
   const floorDate = dayjs(primaryPlaceAccessibility.createdAt.value).format(
     'YYYY.MM.DD',
   );
@@ -199,7 +204,9 @@ export default function V2AccessibilityTab({
                       />
                     ))
                   ) : (
-                    <BuildingEntranceEmptySection onRegister={onRegister} />
+                    <BuildingEntranceEmptySection
+                      onRegister={onBuildingRegister}
+                    />
                   )}
                 </SectionsInnerContainer>
               );

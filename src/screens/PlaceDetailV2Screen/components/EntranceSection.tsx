@@ -6,7 +6,6 @@ import {font} from '@/constant/font';
 import {
   AccessibilityInfoV2Dto,
   BuildingAccessibilityComment,
-  FloorMovingMethodTypeDto,
   PlaceAccessibility,
   PlaceAccessibilityComment,
   StairInfo,
@@ -29,7 +28,10 @@ import {
   FloorMovementEmptyText,
   EmptyStateCard,
 } from './AccessibilityInfoComponents';
-import {getStairDescription} from './PlaceInfo.utils';
+import {
+  getStairDescription,
+  FLOOR_MOVING_METHOD_LABELS,
+} from './PlaceInfo.utils';
 
 // ──────────────── BuildingEntranceSection ────────────────
 
@@ -50,9 +52,6 @@ export function BuildingEntranceSection({
 }) {
   const Container = compact ? CompactSectionContainer : SectionContainer;
   const TitleComponent = compact ? CompactSectionTitle : SectionTitle;
-
-  const doorDirectionEtcComment = (buildingAccessibility as any)
-    .doorDirectionEtcComment as string | undefined;
 
   return (
     <Container>
@@ -80,10 +79,6 @@ export function BuildingEntranceSection({
           />
           <BuildingDoorInfoRow buildingAccessibility={buildingAccessibility} />
         </InfoRowsContainer>
-        {doorDirectionEtcComment != null &&
-          doorDirectionEtcComment.length > 0 && (
-            <InlineComment>{doorDirectionEtcComment}</InlineComment>
-          )}
         {buildingComments.length > 0 && (
           <CommentBox
             comments={buildingComments}
@@ -172,16 +167,6 @@ export function PlaceEntranceSection({
 }
 
 // ──────────────── FloorMovementSection ────────────────
-
-const FLOOR_MOVING_METHOD_LABELS: Record<FloorMovingMethodTypeDto, string> = {
-  [FloorMovingMethodTypeDto.PlaceElevator]: '매장 엘리베이터',
-  [FloorMovingMethodTypeDto.PlaceStairs]: '매장 계단',
-  [FloorMovingMethodTypeDto.PlaceEscalator]: '매장 에스컬레이터',
-  [FloorMovingMethodTypeDto.BuildingElevator]: '건물 엘리베이터',
-  [FloorMovingMethodTypeDto.BuildingStairs]: '건물 계단',
-  [FloorMovingMethodTypeDto.BuildingEscalator]: '건물 에스컬레이터',
-  [FloorMovingMethodTypeDto.Unknown]: '기타',
-};
 
 function getElevatorStairTitle(
   stairInfo?: (typeof StairInfo)[keyof typeof StairInfo],

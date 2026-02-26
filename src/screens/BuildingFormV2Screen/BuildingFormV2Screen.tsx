@@ -38,6 +38,7 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
+import Toast from 'react-native-root-toast';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -361,43 +362,44 @@ export default function BuildingFormV2Screen({
   );
 
   function noticeError(errorKey: keyof FormValues) {
+    const toastOptions = {
+      ...FORM_TOAST_OPTIONS,
+      position: Toast.positions.CENTER,
+    };
     switch (errorKey) {
       case 'entranceDirection':
-        ToastUtils.show('출입구 방향을 선택해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('출입구 방향을 선택해주세요.', toastOptions);
         break;
       case 'doorDirectionEtcComment':
-        ToastUtils.show('출입구 이름을 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('출입구 이름을 입력해주세요.', toastOptions);
         break;
       case 'enterancePhotos':
-        ToastUtils.show('입구 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('입구 사진을 등록해주세요.', toastOptions);
         break;
       case 'stairInfo':
       case 'hasStairs':
       case 'entranceStairHeightLevel':
-        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('계단 정보를 입력해주세요.', toastOptions);
         break;
       case 'hasElevator':
-        ToastUtils.show('엘리베이터 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('엘리베이터 정보를 입력해주세요.', toastOptions);
         break;
       case 'elevatorPhotos':
-        ToastUtils.show('엘리베이터 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('엘리베이터 사진을 등록해주세요.', toastOptions);
         break;
       case 'elevatorHasStairs':
       case 'elevatorStairHeightLevel':
       case 'elevatorStairInfo':
-        ToastUtils.show(
-          '엘리베이터 계단 정보를 입력해주세요.',
-          FORM_TOAST_OPTIONS,
-        );
+        ToastUtils.show('엘리베이터 계단 정보를 입력해주세요.', toastOptions);
         break;
       case 'hasSlope':
-        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('경사로 정보를 입력해주세요.', toastOptions);
         break;
       case 'doorTypes':
-        ToastUtils.show('출입문 종류를 선택해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('출입문 종류를 선택해주세요.', toastOptions);
         break;
       default:
-        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        ToastUtils.show('필수 정보를 입력해주세요.', toastOptions);
     }
   }
 

@@ -21,6 +21,7 @@ import {color} from '@/constant/color';
 import {
   Building,
   Place,
+  PlaceDoorDirectionTypeDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
   UpvoteTargetTypeDto,
@@ -49,7 +50,6 @@ import {visibleAtom} from '../SearchScreen/atoms/quest';
 import QuestCompletionModal from '../SearchScreen/components/QuestCompletionModal';
 import NavigationAppsBottomSheet from '../PlaceDetailScreen/modals/NavigationAppsBottomSheet';
 import PlaceDetailNegativeFeedbackBottomSheet from '../PlaceDetailScreen/modals/PlaceDetailNegativeFeedbackBottomSheet';
-import RegisterCompleteBottomSheet from '../PlaceDetailScreen/modals/RegisterCompleteBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from '../PlaceDetailScreen/modals/RequireBuildingAccessibilityBottomSheet';
 import {PlaceDetailFeedbackSection} from '../PlaceDetailScreen/sections/PlaceDetailFeedbackSection';
 import V2HomeTab from './tabs/V2HomeTab';
@@ -119,7 +119,7 @@ export default function PlaceDetailV2Screen({
 
   const questModalVisible = useAtomValue(visibleAtom);
   const [pendingBottomSheet, setPendingBottomSheet] = useState<
-    null | 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent
+    null | 'requireBuilding' | BuildingRegistrationEvent
   >(null);
 
   const [currentTab, setCurrentTab] = useState<TabType>('home');
@@ -128,13 +128,7 @@ export default function PlaceDetailV2Screen({
   const [stickyHeaderHeight, setStickyHeaderHeight] = useState(0);
 
   const openBottomSheet = useCallback(
-    (
-      which: 'registerComplete' | 'requireBuilding' | BuildingRegistrationEvent,
-    ) => {
-      if (which === 'registerComplete') {
-        setShowRegisterCompleteBottomSheet(true);
-      }
-
+    (which: 'requireBuilding' | BuildingRegistrationEvent) => {
       // QA 모드에서 requireBuilding은 BuildingRegistrationEvent로 대체
       if (which === 'requireBuilding') {
         if (
@@ -158,8 +152,6 @@ export default function PlaceDetailV2Screen({
     showRequireBuildingAccessibilityBottomSheet,
     setShowRequireBuildingAccessibilityBottomSheet,
   ] = useState(false);
-  const [showRegisterCompleteBottomSheet, setShowRegisterCompleteBottomSheet] =
-    useState(false);
   const [
     showBuildingRegistrationBottomSheet,
     setShowBuildingRegistrationBottomSheet,
@@ -293,7 +285,6 @@ export default function PlaceDetailV2Screen({
   useEffect(() => {
     const unsub = navigation.addListener('blur', () => {
       setPendingBottomSheet(null);
-      setShowRegisterCompleteBottomSheet(false);
       setShowRequireBuildingAccessibilityBottomSheet(false);
     });
     return unsub;
@@ -303,25 +294,21 @@ export default function PlaceDetailV2Screen({
     // 등록된 정보 확인 후에 띄워주기
     if (!accessibilityPost) return;
 
+    const isOutsideDoor =
+      accessibilityPost?.placeAccessibility?.doorDirectionType ===
+      PlaceDoorDirectionTypeDto.OutsideBuilding;
+
     // 어떤 바텀시트를 열지 결정
-    let toOpen:
-      | null
-      | 'registerComplete'
-      | 'requireBuilding'
-      | BuildingRegistrationEvent = null;
+    let toOpen: null | 'requireBuilding' | BuildingRegistrationEvent = null;
 
     if (
       event === 'submit-place' ||
       event === 'registration-suggest' ||
       event === 'registration-force'
     ) {
-      if (accessibilityPost.buildingAccessibility) {
-        toOpen = 'registerComplete';
-      } else {
+      if (!accessibilityPost.buildingAccessibility && !isOutsideDoor) {
         toOpen = 'requireBuilding';
       }
-    } else if (event === 'submit-building') {
-      toOpen = 'registerComplete';
     }
     if (!toOpen) return;
 
@@ -348,7 +335,6 @@ export default function PlaceDetailV2Screen({
 
   const closeModals = useCallback(() => {
     setShowRequireBuildingAccessibilityBottomSheet(false);
-    setShowRegisterCompleteBottomSheet(false);
     setShowBuildingRegistrationBottomSheet(false);
     setPendingBottomSheet(null);
     navigation.setParams({event: undefined});
@@ -687,6 +673,7 @@ export default function PlaceDetailV2Screen({
             isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
             reviews={reviewPost ?? []}
             onRegister={handlePlaceRegister}
+            onBuildingRegister={handleBuildingRegister}
             showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
             allowDuplicateRegistration={isQAMode}
             onSectionLayout={handleSectionLayout}
@@ -722,6 +709,11 @@ export default function PlaceDetailV2Screen({
         return null;
     }
   };
+
+  const hasConquerorData = !!(
+    accessibilityPost?.placeAccessibility ||
+    accessibilityPost?.buildingAccessibility
+  );
 
   const showFeedbackSection =
     accessibilityPost &&
@@ -811,9 +803,11 @@ export default function PlaceDetailV2Screen({
               }}
               style={{
                 minHeight:
-                  scrollViewHeight > 0
-                    ? scrollViewHeight - (stickyHeaderHeight || 41)
-                    : 0,
+                  currentTab === 'conqueror' && hasConquerorData
+                    ? 0
+                    : scrollViewHeight > 0
+                      ? scrollViewHeight - (stickyHeaderHeight || 41)
+                      : 0,
                 backgroundColor:
                   currentTab !== 'home' ? color.gray5 : color.white,
               }}>
@@ -873,17 +867,6 @@ export default function PlaceDetailV2Screen({
           onPressConfirmButton={goToBuildingForm}
           onPressCloseButton={closeModals}
         />
-        <RegisterCompleteBottomSheet
-          isVisible={showRegisterCompleteBottomSheet}
-          accessibilityPost={accessibilityPost}
-          event={
-            event === 'submit-place' || event === 'submit-building'
-              ? event
-              : undefined
-          }
-          onPressConfirmButton={closeModals}
-        />
-
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
 
         {/* QA 모드에서만 표시되는 BuildingRegistrationBottomSheet */}
