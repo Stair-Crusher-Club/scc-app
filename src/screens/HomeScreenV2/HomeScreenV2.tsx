@@ -34,10 +34,10 @@ import GeolocationPermissionBottomSheet, {
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
-import CategoryChipSection from './sections/CategoryChipSection';
+import AnnouncementSection from './sections/AnnouncementSection';
 import FooterButtonsSection from './sections/FooterButtonsSection';
 import MainBannerSection from './sections/MainBannerSection';
-import QuickMenuSection from './sections/QuickMenuSection';
+import QuickActionSection from './sections/QuickActionSection';
 import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
@@ -57,7 +57,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   const {syncUserInfo} = useMe();
 
   // Fetch all home screen data in a single API call
-  const {data: homeData, isLoading: isHomeDataLoading} = useQuery({
+  const {data: homeData} = useQuery({
     queryKey: ['HomeScreenData'],
     queryFn: async () => {
       const result = (await api.getHomeScreenData()).data;
@@ -253,29 +253,23 @@ const HomeScreenV2 = ({navigation}: any) => {
                 <CrusherClubLogo />
               </LogoContainer>
               <SearchButtonSection />
-              <CategoryChipSection />
-            </InnerContainer>
-            <WhiteCard>
-              <QuickMenuSection
-                announcements={homeData?.announcements ?? []}
-                isLoading={isHomeDataLoading}
-              />
               <MainBannerSection
                 banners={homeData?.mainBanners ?? []}
                 onPanStateChange={handleBannerPanStateChange}
-                isLoading={isHomeDataLoading}
               />
-              <RecommendedContentSection
-                contents={homeData?.recommendedContents ?? []}
-                isLoading={isHomeDataLoading}
+              <AnnouncementSection
+                announcements={homeData?.announcements ?? []}
               />
-              <StripBannerSection
-                banners={homeData?.stripBanners ?? []}
-                onPanStateChange={handleBannerPanStateChange}
-                isLoading={isHomeDataLoading}
-              />
-            </WhiteCard>
-            <FooterButtonsSection isLoading={isHomeDataLoading} />
+              <QuickActionSection />
+            </InnerContainer>
+            <RecommendedContentSection
+              contents={homeData?.recommendedContents ?? []}
+            />
+            <StripBannerSection
+              banners={homeData?.stripBanners ?? []}
+              onPanStateChange={handleBannerPanStateChange}
+            />
+            <FooterButtonsSection />
           </ScrollView>
           <GeolocationPermissionBottomSheet
             isVisible={geolocationErrorReason !== null}
@@ -314,22 +308,9 @@ const Container = styled.View`
 const LogoContainer = styled.View`
   align-items: center;
   justify-content: center;
-  padding-top: 20px;
-  padding-bottom: 28px;
-  margin-bottom: 4px;
+  padding-vertical: 14px;
 `;
 
-const InnerContainer = styled.View``;
-
-const WhiteCard = styled.View`
-  background-color: ${color.white};
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  shadow-color: #000;
-  shadow-offset: 0px -4px;
-  shadow-opacity: 0.12;
-  shadow-radius: 16px;
-  elevation: 8;
-  margin-top: 25px;
-  padding-bottom: 40px;
+const InnerContainer = styled.View`
+  gap: 12px;
 `;
