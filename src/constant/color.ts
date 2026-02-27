@@ -78,6 +78,16 @@ export const color = {
   // 위험/삭제 관련
   danger: '#dc3545',
   dangerBright: '#ff4444',
+
+  // HomeScreenV2 redesign colors
+  quickActionGreen: '#ecfadf',
+  quickActionBlue: '#e3f0fd',
+  gray80v2: '#24262b',
+  gray50v2: '#767884',
+  gray40v2: '#a0a2ae',
+  gray90v2: '#16181c',
+  gray60v2: '#585a64',
+  gray20v2: '#e3e4e8',
 } as const;
 
 export type Color = keyof typeof color;

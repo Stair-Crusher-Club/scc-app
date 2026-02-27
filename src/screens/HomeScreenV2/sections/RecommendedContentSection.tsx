@@ -2,6 +2,7 @@ import React from 'react';
 import {FlatList, Linking, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import Skeleton from '@/components/Skeleton';
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
@@ -15,17 +16,32 @@ const CARD_WIDTH = 130;
 const CARD_HEIGHT = 160;
 const CARD_GAP = 12;
 const IMAGE_SIZE = 72;
+const CARD_BORDER_RADIUS = 12;
 
 const CardSeparator = () => <View style={{width: CARD_GAP}} />;
 
 interface RecommendedContentSectionProps {
   contents: HomeRecommendedContentDto[];
+  isLoading: boolean;
 }
 
 export default function RecommendedContentSection({
   contents,
+  isLoading,
 }: RecommendedContentSectionProps) {
   if (contents.length === 0) {
+    if (isLoading) {
+      return (
+        <Container>
+          <SectionTitle>이런 키워드는 어때요?</SectionTitle>
+          <SkeletonRow>
+            <Skeleton style={{width: CARD_WIDTH, height: CARD_HEIGHT, borderRadius: CARD_BORDER_RADIUS}} />
+            <Skeleton style={{width: CARD_WIDTH, height: CARD_HEIGHT, borderRadius: CARD_BORDER_RADIUS}} />
+            <Skeleton style={{width: CARD_WIDTH, height: CARD_HEIGHT, borderRadius: CARD_BORDER_RADIUS}} />
+          </SkeletonRow>
+        </Container>
+      );
+    }
     return null;
   }
 
@@ -33,7 +49,7 @@ export default function RecommendedContentSection({
     <LogParamsProvider
       params={{displaySectionName: 'recommended_content_section'}}>
       <Container>
-        <SectionTitle>이런 정보는 어때요?</SectionTitle>
+        <SectionTitle>이런 키워드는 어때요?</SectionTitle>
         <FlatList
           data={contents}
           horizontal
@@ -100,31 +116,30 @@ function ContentCard({content, index}: ContentCardProps) {
 }
 
 const Container = styled.View`
-  padding-top: 40px;
-  padding-bottom: 30px;
+  padding: 20px 0;
+  gap: 16px;
 `;
 
 const SectionTitle = styled.Text`
-  color: ${color.gray90};
+  color: #16181c;
   font-size: 20px;
   font-family: ${font.pretendardSemibold};
   line-height: 28px;
   letter-spacing: -0.4px;
   margin-horizontal: 20px;
-  margin-bottom: 20px;
 `;
 
 const CardContainer = styled.View`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
-  border-radius: 12px;
-  background-color: ${color.white};
+  border-radius: ${CARD_BORDER_RADIUS}px;
+  background-color: #f2f5fa;
   padding: 14px;
   position: relative;
 `;
 
 const TextContainer = styled.View`
-  gap: 2px;
+  gap: 6px;
 `;
 
 const ContentTitle = styled.Text`
@@ -136,7 +151,7 @@ const ContentTitle = styled.Text`
 `;
 
 const ContentDescription = styled.Text`
-  color: ${color.gray50};
+  color: ${color.gray50v2};
   font-size: 12px;
   line-height: 16px;
   font-family: ${font.pretendardRegular};
@@ -150,4 +165,10 @@ const ImageContainer = styled.View`
   width: ${IMAGE_SIZE}px;
   height: ${IMAGE_SIZE}px;
   overflow: hidden;
+`;
+
+const SkeletonRow = styled.View`
+  flex-direction: row;
+  gap: 12px;
+  padding-horizontal: 20px;
 `;
