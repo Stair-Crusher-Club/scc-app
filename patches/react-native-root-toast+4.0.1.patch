@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-root-toast/lib/ToastContainer.js b/node_modules/react-native-root-toast/lib/ToastContainer.js
+index 10d2636..46db3a7 100644
+--- a/node_modules/react-native-root-toast/lib/ToastContainer.js
++++ b/node_modules/react-native-root-toast/lib/ToastContainer.js
+@@ -135,6 +135,7 @@ class ToastContainer extends Component {
+     this.setState({
+       windowWidth: window.width,
+       windowHeight: window.height,
++      keyboardScreenY: window.height,
+     });
+   };
+ 
