@@ -1,15 +1,20 @@
-import React from 'react';
+import {useRoute} from '@react-navigation/native';
+import React, {useRef} from 'react';
 import {FlatList, Platform} from 'react-native';
+import type {ViewToken} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
-import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
+import Logger from '@/logging/Logger';
+import {LogParamsProvider, useLogParams} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
+
+const VIEWABILITY_CONFIG = {itemVisiblePercentThreshold: 50};
 
 export default function SearchListView({
   searchResults,
@@ -26,6 +31,44 @@ export default function SearchListView({
 }) {
   const navigation = useNavigation();
   const pdpScreen = usePlaceDetailScreenName();
+  const route = useRoute();
+  const globalLogParams = useLogParams();
+
+  const loggedItemsRef = useRef(new Set<string>());
+  const routeRef = useRef(route);
+  routeRef.current = route;
+  const globalLogParamsRef = useRef(globalLogParams);
+  globalLogParamsRef.current = globalLogParams;
+
+  // Reset logged items when search results change
+  const prevSearchResultsRef = useRef(searchResults);
+  if (prevSearchResultsRef.current !== searchResults) {
+    prevSearchResultsRef.current = searchResults;
+    loggedItemsRef.current.clear();
+  }
+
+  const onViewableItemsChanged = useRef(
+    ({viewableItems}: {viewableItems: ViewToken[]}) => {
+      viewableItems.forEach(({item}) => {
+        const placeItem = item as PlaceListItem;
+        const key = placeItem.place.id;
+        if (!loggedItemsRef.current.has(key)) {
+          loggedItemsRef.current.add(key);
+          Logger.logElementView({
+            name: 'place_search_item_card',
+            currScreenName: routeRef.current.name,
+            extraParams: {
+              ...globalLogParamsRef.current,
+              search_view_mode: 'list',
+              place_id: placeItem.place.id,
+              place_name: placeItem.place.name,
+            },
+          });
+        }
+      });
+    },
+  ).current;
+
   return (
     <LogParamsProvider params={{search_view_mode: 'list'}}>
       <Container isVisible={isVisible}>
@@ -37,6 +80,8 @@ export default function SearchListView({
           <FlatList
             contentContainerStyle={{paddingBottom: 100}}
             keyboardDismissMode="on-drag"
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={VIEWABILITY_CONFIG}
             renderItem={({item}) => (
               <ItemWrapper key={item.place.id}>
                 <SearchItemCard

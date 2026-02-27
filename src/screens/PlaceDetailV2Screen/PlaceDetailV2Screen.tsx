@@ -34,6 +34,7 @@ import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import Logger from '@/logging/Logger';
 import ShareUtils from '@/utils/ShareUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
@@ -529,6 +530,7 @@ export default function PlaceDetailV2Screen({
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeChipIndex, setActiveChipIndex] = useState(0);
   const sectionLayoutsRef = useRef<Record<string, number>>({});
+  const loggedSectionsRef = useRef(new Set<string>());
   const tabContentYRef = useRef(0);
   const isScrollingFromChipRef = useRef(false);
   const chips = useMemo(
@@ -606,8 +608,28 @@ export default function PlaceDetailV2Screen({
         }
         setActiveChipIndex(prev => (prev !== newIndex ? newIndex : prev));
       }
+
+      // Section viewport detection for element_view
+      const viewportHeight = e.nativeEvent.layoutMeasurement.height;
+      Object.entries(sectionLayoutsRef.current).forEach(
+        ([sectionName, sectionY]) => {
+          const absoluteY = tabContentYRef.current + sectionY;
+          if (
+            !loggedSectionsRef.current.has(sectionName) &&
+            absoluteY < scrollY + viewportHeight &&
+            absoluteY + 200 > scrollY
+          ) {
+            loggedSectionsRef.current.add(sectionName);
+            Logger.logElementView({
+              name: `pdp_v2_section_${sectionName}`,
+              currScreenName: route.name,
+              extraParams: {place_id: placeId},
+            });
+          }
+        },
+      );
     },
-    [showChipBar, chips, stickyHeaderHeight],
+    [showChipBar, chips, stickyHeaderHeight, route.name, placeId],
   );
 
   // Issue 5: Tab change with scroll adjustment

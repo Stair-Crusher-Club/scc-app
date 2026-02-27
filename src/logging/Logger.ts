@@ -82,7 +82,7 @@ const Logger = {
     const eventParams = {
       ...convertKeysToSnakeCase(params.extraParams || {}),
       element_name: params.name,
-      screen_name: params.currScreenName,
+      screen_name: params.currScreenName || 'unknown',
     };
     trackEvent('element_view', eventParams);
     getAnalytics().logEvent('element_view', eventParams);

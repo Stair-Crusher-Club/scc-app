@@ -201,7 +201,7 @@ export default function StripBannerSection({
       <LogParamsProvider params={{displaySectionName: 'strip_banner_section'}}>
         <Container>
           <SingleBannerWrapper>
-            <StripBanner banner={banners[0]} index={0} />
+            <StripBanner banner={banners[0]} index={0} trackView />
           </SingleBannerWrapper>
         </Container>
       </LogParamsProvider>
@@ -219,7 +219,7 @@ export default function StripBannerSection({
                 style={{
                   left: item.slot * ITEM_SLOT_WIDTH + BANNER_HORIZONTAL_PADDING,
                 }}>
-                <StripBanner banner={item.banner} index={item.ringIndex} />
+                <StripBanner banner={item.banner} index={item.ringIndex} trackView={item.slot === renderCenter} />
               </BannerSlot>
             ))}
           </Animated.View>
@@ -239,9 +239,10 @@ export default function StripBannerSection({
 interface StripBannerProps {
   banner: HomeBannerDto;
   index: number;
+  trackView?: boolean;
 }
 
-function StripBanner({banner, index}: StripBannerProps) {
+function StripBanner({banner, index, trackView}: StripBannerProps) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
@@ -262,6 +263,7 @@ function StripBanner({banner, index}: StripBannerProps) {
     <SccPressable
       elementName="home_v2_strip_banner"
       logParams={{banner_key: banner.loggingKey, index}}
+      trackView={trackView}
       onPress={() => checkAuth(openBanner)}>
       <BannerContainer>
         <SccRemoteImage

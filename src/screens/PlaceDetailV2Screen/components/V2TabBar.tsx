@@ -28,6 +28,7 @@ export default function V2TabBar<T>({
             <TabButton
               elementName={`${value}_tab_button`}
               key={String(value)}
+              trackView
               onPress={() => onChange(value)}>
               <TabLabelWrapper active={active}>
                 <TabLabel active={active}>{label}</TabLabel>

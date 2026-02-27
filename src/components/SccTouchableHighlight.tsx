@@ -8,22 +8,29 @@ export interface SccTouchableHighlightProps extends TouchableHighlightProps {
   elementName: string;
   logParams?: Record<string, any>;
   disableLogging?: boolean;
+  trackView?: boolean;
 }
 
 export const SccTouchableHighlight = forwardRef<
   any,
   SccTouchableHighlightProps
->(({elementName, logParams, disableLogging, onPress, ...props}, ref) => {
-  const {createPressHandler} = useSccEventLogging({
-    elementName,
-    logParams,
-    disableLogging,
-  });
+>(
+  (
+    {elementName, logParams, disableLogging, trackView, onPress, ...props},
+    ref,
+  ) => {
+    const {createPressHandler} = useSccEventLogging({
+      elementName,
+      logParams,
+      disableLogging,
+      trackView,
+    });
 
-  const handlePress = createPressHandler(onPress);
+    const handlePress = createPressHandler(onPress);
 
-  return <TouchableHighlight ref={ref} onPress={handlePress} {...props} />;
-});
+    return <TouchableHighlight ref={ref} onPress={handlePress} {...props} />;
+  },
+);
 
 SccTouchableHighlight.displayName = 'SccTouchableHighlight';
 

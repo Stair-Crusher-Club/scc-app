@@ -202,7 +202,7 @@ export default function MainBannerSection({
       <LogParamsProvider params={{displaySectionName: 'main_banner_section'}}>
         <Container>
           <SingleBannerWrapper>
-            <MainBanner banner={banners[0]} index={0} />
+            <MainBanner banner={banners[0]} index={0} trackView />
           </SingleBannerWrapper>
         </Container>
       </LogParamsProvider>
@@ -220,7 +220,7 @@ export default function MainBannerSection({
                 style={{
                   left: item.slot * ITEM_SLOT_WIDTH + BANNER_HORIZONTAL_PADDING,
                 }}>
-                <MainBanner banner={item.banner} index={item.ringIndex} />
+                <MainBanner banner={item.banner} index={item.ringIndex} trackView={item.slot === renderCenter} />
               </BannerSlot>
             ))}
           </Animated.View>
@@ -240,9 +240,10 @@ export default function MainBannerSection({
 interface MainBannerProps {
   banner: HomeBannerDto;
   index: number;
+  trackView?: boolean;
 }
 
-function MainBanner({banner, index}: MainBannerProps) {
+function MainBanner({banner, index, trackView}: MainBannerProps) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 
@@ -263,6 +264,7 @@ function MainBanner({banner, index}: MainBannerProps) {
     <SccPressable
       elementName="home_v2_main_banner"
       logParams={{banner_key: banner.loggingKey, index}}
+      trackView={trackView}
       onPress={() => checkAuth(openBanner)}>
       <BannerContainer>
         <SccRemoteImage

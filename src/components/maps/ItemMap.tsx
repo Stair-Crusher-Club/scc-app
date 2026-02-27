@@ -180,6 +180,25 @@ export default function ItemMap<T extends MarkerItem>({
   }
 
   const route = useRoute();
+
+  const loggedPinsRef = React.useRef(new Set<string>());
+
+  React.useEffect(() => {
+    items.forEach(item => {
+      if (!loggedPinsRef.current.has(item.id)) {
+        loggedPinsRef.current.add(item.id);
+        Logger.logElementView({
+          name: 'search_item_marker',
+          currScreenName: route.name,
+          extraParams: {
+            place_id: item.id,
+            place_name: item.displayName,
+          },
+        });
+      }
+    });
+  }, [items, route.name]);
+
   return (
     <StyledMapView
       initialRegion={nativeRegion}
