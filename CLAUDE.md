@@ -456,6 +456,12 @@ Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이
 
 **Layout만 하고 "완료"라고 하지 말 것.** Precision Phase 없이는 미완성.
 
+**Precision Phase는 코드 수정이 아니라 시각 검증이다.**
+- 코드에 CSS 수치를 적용하는 것은 Precision Phase의 **입력**일 뿐, **완료**가 아니다
+- 반드시 에뮬레이터 빌드 → `adb shell screencap` → Figma `get_screenshot`과 1:1 비교까지 수행해야 한다
+- 비교 결과 차이가 있으면 코드 재수정 → 재빌드 → 재비교 루프를 차이 0이 될 때까지 반복
+- "tsc + lint 통과"는 시각 검증이 아니다. 타입/린트는 최소 조건이고, 완료 조건은 **스크린샷 일치**
+
 ### adb 터치 자동화 워크플로우
 
 에뮬레이터 UI 요소를 탭할 때 **좌표 추측 금지**. 항상 uiautomator dump 먼저:

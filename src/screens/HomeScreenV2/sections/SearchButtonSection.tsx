@@ -24,8 +24,8 @@ export default function SearchButtonSection() {
       <Container>
         <SccPressable elementName="home_v2_search_button" onPress={goToSearch}>
           <SearchButton>
+            <SearchIcon width={24} height={24} color={color.gray40v2} />
             <SearchButtonText>크러셔님, 오늘은 어디로 갈까요?</SearchButtonText>
-            <SearchIcon width={24} height={24} color={color.brand50} />
           </SearchButton>
         </SccPressable>
       </Container>
@@ -35,22 +35,28 @@ export default function SearchButtonSection() {
 
 const Container = styled.View`
   padding-horizontal: 20px;
+  margin-bottom: 16px;
 `;
 
 const SearchButton = styled.View`
   flex-direction: row;
   align-items: center;
+  height: 44px;
   background-color: ${color.white};
-  border-radius: 12px;
-  padding-vertical: 12px;
-  padding-left: 15px;
-  padding-right: 12px;
+  border-radius: 8px;
+  padding-left: 12px;
+  padding-right: 15px;
   gap: 8px;
+  shadow-color: #000;
+  shadow-offset: 0px 0px;
+  shadow-opacity: 0.15;
+  shadow-radius: 4px;
+  elevation: 2;
 `;
 
 const SearchButtonText = styled.Text`
   flex: 1;
-  color: ${color.gray40};
+  color: ${color.gray40v2};
   font-size: 16px;
   line-height: 24px;
   font-family: ${font.pretendardRegular};

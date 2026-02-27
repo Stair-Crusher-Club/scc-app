@@ -9,6 +9,7 @@ import {
 
 import styled from 'styled-components/native';
 
+import Skeleton from '@/components/Skeleton';
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
@@ -33,11 +34,13 @@ const WINDOW_HALF = 10;
 interface StripBannerSectionProps {
   banners: HomeBannerDto[];
   onPanStateChange?: (isPanning: boolean) => void;
+  isLoading: boolean;
 }
 
 export default function StripBannerSection({
   banners,
   onPanStateChange,
+  isLoading,
 }: StripBannerSectionProps) {
   const len = banners.length;
 
@@ -193,6 +196,21 @@ export default function StripBannerSection({
 
   // ── Render ───────────────────────────────────────────────────
   if (len === 0) {
+    if (isLoading) {
+      return (
+        <Container>
+          <SkeletonWrapper>
+            <Skeleton
+              style={{
+                width: BANNER_WIDTH,
+                height: BANNER_HEIGHT,
+                borderRadius: 6,
+              }}
+            />
+          </SkeletonWrapper>
+        </Container>
+      );
+    }
     return null;
   }
 
@@ -280,7 +298,7 @@ function StripBanner({banner, index}: StripBannerProps) {
 // ── Styles ───────────────────────────────────────────────────────
 
 const Container = styled.View`
-  padding-bottom: 16px;
+  padding-bottom: 32px;
 `;
 
 const SingleBannerWrapper = styled.View`
@@ -316,5 +334,9 @@ const Dot = styled.View<{active: boolean}>`
   width: 6px;
   height: 6px;
   border-radius: 100px;
-  background-color: ${({active}) => (active ? color.gray50 : color.gray20)};
+  background-color: ${({active}) => (active ? color.gray50v2 : '#e3e4e8')};
+`;
+
+const SkeletonWrapper = styled.View`
+  padding-horizontal: ${BANNER_HORIZONTAL_PADDING}px;
 `;

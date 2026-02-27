@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
+import Skeleton from '@/components/Skeleton';
+
 import BoostersLogoSvg from '@/assets/icon/boosters_logo.svg';
 import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
 import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
@@ -14,8 +16,27 @@ import useNavigation from '@/navigation/useNavigation';
 const DONATION_URL = 'https://staircrusher.club/donation';
 const CONTENT_REPORT_URL = 'https://forms.staircrusher.club/contents-alarm';
 
-export default function FooterButtonsSection() {
+const FOOTER_ROW_HEIGHT = 48;
+const FOOTER_ROW_RADIUS = 8;
+
+interface FooterButtonsSectionProps {
+  isLoading: boolean;
+}
+
+export default function FooterButtonsSection({
+  isLoading,
+}: FooterButtonsSectionProps) {
   const navigation = useNavigation();
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Skeleton style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}} />
+        <Skeleton style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}} />
+        <Skeleton style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}} />
+      </Container>
+    );
+  }
 
   const goToGuide = () => {
     navigation.navigate('Webview', {
@@ -80,15 +101,15 @@ export default function FooterButtonsSection() {
 
 const Container = styled.View`
   padding-horizontal: 20px;
-  padding-top: 20px;
-  padding-bottom: 40px;
+  padding-vertical: 40px;
   gap: 8px;
+  background-color: ${color.gray15};
 `;
 
 const FooterRow = styled.View<{disabled?: boolean}>`
   background-color: ${color.white};
-  border-radius: 8px;
-  height: 48px;
+  border-radius: ${FOOTER_ROW_RADIUS}px;
+  height: ${FOOTER_ROW_HEIGHT}px;
   padding-horizontal: 14px;
   padding-vertical: 8px;
   flex-direction: row;
@@ -104,7 +125,7 @@ const RowContent = styled.View`
 `;
 
 const FooterText = styled.Text<{disabled?: boolean}>`
-  color: ${({disabled}) => (disabled ? color.gray40 : color.gray60)};
+  color: ${({disabled}) => (disabled ? color.gray40 : color.gray60v2)};
   font-size: 14px;
   font-family: ${font.pretendardMedium};
   line-height: 20px;

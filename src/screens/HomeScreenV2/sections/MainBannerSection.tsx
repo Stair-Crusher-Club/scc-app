@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import styled from 'styled-components/native';
 
+import Skeleton from '@/components/Skeleton';
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
@@ -23,9 +24,10 @@ const SCROLL_ANIMATION_DURATION_MS = 800;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const BANNER_HORIZONTAL_PADDING = 20;
 const BANNER_WIDTH = SCREEN_WIDTH - BANNER_HORIZONTAL_PADDING * 2;
-const BANNER_HEIGHT = 290;
+const BANNER_HEIGHT = 230;
 const BANNER_GAP = 12;
 const ITEM_SLOT_WIDTH = BANNER_WIDTH + BANNER_GAP;
+const BANNER_RADIUS = 12;
 
 // Only render current ± WINDOW_HALF items (total 21).
 // Items are placed at absolute coordinates; when the window shifts,
@@ -35,11 +37,13 @@ const WINDOW_HALF = 10;
 interface MainBannerSectionProps {
   banners: HomeBannerDto[];
   onPanStateChange?: (isPanning: boolean) => void;
+  isLoading: boolean;
 }
 
 export default function MainBannerSection({
   banners,
   onPanStateChange,
+  isLoading,
 }: MainBannerSectionProps) {
   const len = banners.length;
 
@@ -194,6 +198,22 @@ export default function MainBannerSection({
 
   // ── Render ───────────────────────────────────────────────────
   if (len === 0) {
+    if (isLoading) {
+      return (
+        <Container>
+          <SectionTitle>뿌클로드 특집 모음</SectionTitle>
+          <SkeletonWrapper>
+            <Skeleton
+              style={{
+                width: BANNER_WIDTH,
+                height: BANNER_HEIGHT,
+                borderRadius: BANNER_RADIUS,
+              }}
+            />
+          </SkeletonWrapper>
+        </Container>
+      );
+    }
     return null;
   }
 
@@ -201,6 +221,7 @@ export default function MainBannerSection({
     return (
       <LogParamsProvider params={{displaySectionName: 'main_banner_section'}}>
         <Container>
+          <SectionTitle>뿌클로드 특집 모음</SectionTitle>
           <SingleBannerWrapper>
             <MainBanner banner={banners[0]} index={0} />
           </SingleBannerWrapper>
@@ -212,24 +233,27 @@ export default function MainBannerSection({
   return (
     <LogParamsProvider params={{displaySectionName: 'main_banner_section'}}>
       <Container>
-        <BannerTrack {...panResponder.panHandlers}>
-          <Animated.View style={{transform: [{translateX: scrollPosition}]}}>
-            {items.map(item => (
-              <BannerSlot
-                key={item.slot}
-                style={{
-                  left: item.slot * ITEM_SLOT_WIDTH + BANNER_HORIZONTAL_PADDING,
-                }}>
-                <MainBanner banner={item.banner} index={item.ringIndex} />
-              </BannerSlot>
-            ))}
-          </Animated.View>
-        </BannerTrack>
-        <PageIndicator>
-          <PageIndicatorText>
-            {displayIndex + 1} / {len}
-          </PageIndicatorText>
-        </PageIndicator>
+        <SectionTitle>뿌클로드 특집 모음</SectionTitle>
+        <BannerWrapper>
+          <BannerTrack {...panResponder.panHandlers}>
+            <Animated.View style={{transform: [{translateX: scrollPosition}]}}>
+              {items.map(item => (
+                <BannerSlot
+                  key={item.slot}
+                  style={{
+                    left: item.slot * ITEM_SLOT_WIDTH,
+                  }}>
+                  <MainBanner banner={item.banner} index={item.ringIndex} />
+                </BannerSlot>
+              ))}
+            </Animated.View>
+          </BannerTrack>
+          <PageIndicator>
+            <PageIndicatorText>
+              {displayIndex + 1} / {len}
+            </PageIndicatorText>
+          </PageIndicator>
+        </BannerWrapper>
       </Container>
     </LogParamsProvider>
   );
@@ -280,11 +304,22 @@ function MainBanner({banner, index}: MainBannerProps) {
 
 // ── Styles ───────────────────────────────────────────────────────
 
-const Container = styled.View``;
-
-const SingleBannerWrapper = styled.View`
-  padding-horizontal: ${BANNER_HORIZONTAL_PADDING}px;
+const Container = styled.View`
+  padding: 20px;
+  gap: 16px;
 `;
+
+const SectionTitle = styled.Text`
+  color: #16181c;
+  font-size: 20px;
+  font-family: ${font.pretendardSemibold};
+  line-height: 28px;
+  letter-spacing: -0.4px;
+`;
+
+const SkeletonWrapper = styled.View``;
+
+const SingleBannerWrapper = styled.View``;
 
 const BannerTrack = styled.View`
   height: ${BANNER_HEIGHT}px;
@@ -299,14 +334,16 @@ const BannerSlot = styled.View`
 `;
 
 const BannerContainer = styled.View`
-  border-radius: 12px;
+  border-radius: ${BANNER_RADIUS}px;
   overflow: hidden;
 `;
 
+const BannerWrapper = styled.View``;
+
 const PageIndicator = styled.View`
   position: absolute;
-  top: 20px;
-  right: 32px;
+  top: 12px;
+  right: 12px;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 9px;
   padding-horizontal: 8px;
