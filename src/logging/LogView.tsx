@@ -21,7 +21,12 @@ export function LogView({children, elementName, params}: Props) {
   const hasLoggedRef = useRef(false);
 
   useEffect(() => {
-    if (isFocused && !hasLoggedRef.current) {
+    if (!isFocused) {
+      hasLoggedRef.current = false;
+      return;
+    }
+
+    if (!hasLoggedRef.current) {
       Logger.logElementView({
         name: elementName,
         currScreenName: route.name,

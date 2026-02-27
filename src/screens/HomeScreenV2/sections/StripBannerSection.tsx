@@ -242,7 +242,7 @@ interface StripBannerProps {
   trackView?: boolean;
 }
 
-function StripBanner({banner, index, trackView}: StripBannerProps) {
+function StripBanner({banner, index, trackView = false}: StripBannerProps) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 

@@ -243,7 +243,7 @@ interface MainBannerProps {
   trackView?: boolean;
 }
 
-function MainBanner({banner, index, trackView}: MainBannerProps) {
+function MainBanner({banner, index, trackView = false}: MainBannerProps) {
   const navigation = useNavigation();
   const checkAuth = useCheckAuth();
 

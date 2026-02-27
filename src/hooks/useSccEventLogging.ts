@@ -33,10 +33,15 @@ export function useSccEventLogging({
     disableLogging ? undefined : combinedParams,
   );
 
-  // element_view: opt-in + focused screen guard
+  // element_view: opt-in + focused screen guard (blur 시 리셋하여 재방문 시 재발사)
   const hasLoggedRef = useRef(false);
   useEffect(() => {
-    if (!disableLogging && trackView && isFocused && !hasLoggedRef.current) {
+    if (!isFocused) {
+      hasLoggedRef.current = false;
+      return;
+    }
+
+    if (!disableLogging && trackView && !hasLoggedRef.current) {
       Logger.logElementView({
         name: elementName,
         currScreenName: route.name,

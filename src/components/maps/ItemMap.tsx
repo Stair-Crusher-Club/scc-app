@@ -1,4 +1,4 @@
-import {useRoute} from '@react-navigation/native';
+import {useIsFocused, useRoute} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import React from 'react';
 import styled from 'styled-components/native';
@@ -180,10 +180,12 @@ export default function ItemMap<T extends MarkerItem>({
   }
 
   const route = useRoute();
+  const isFocused = useIsFocused();
 
   const loggedPinsRef = React.useRef(new Set<string>());
 
   React.useEffect(() => {
+    if (!isFocused) return;
     items.forEach(item => {
       if (!loggedPinsRef.current.has(item.id)) {
         loggedPinsRef.current.add(item.id);
@@ -197,7 +199,7 @@ export default function ItemMap<T extends MarkerItem>({
         });
       }
     });
-  }, [items, route.name]);
+  }, [items, route.name, isFocused]);
 
   return (
     <StyledMapView

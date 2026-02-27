@@ -609,25 +609,27 @@ export default function PlaceDetailV2Screen({
         setActiveChipIndex(prev => (prev !== newIndex ? newIndex : prev));
       }
 
-      // Section viewport detection for element_view
-      const viewportHeight = e.nativeEvent.layoutMeasurement.height;
-      Object.entries(sectionLayoutsRef.current).forEach(
-        ([sectionName, sectionY]) => {
-          const absoluteY = tabContentYRef.current + sectionY;
-          if (
-            !loggedSectionsRef.current.has(sectionName) &&
-            absoluteY < scrollY + viewportHeight &&
-            absoluteY + 200 > scrollY
-          ) {
-            loggedSectionsRef.current.add(sectionName);
-            Logger.logElementView({
-              name: `pdp_v2_section_${sectionName}`,
-              currScreenName: route.name,
-              extraParams: {place_id: placeId},
-            });
-          }
-        },
-      );
+      // Section viewport detection for element_view (accessibility tab only)
+      if (showChipBar) {
+        const viewportHeight = e.nativeEvent.layoutMeasurement.height;
+        Object.entries(sectionLayoutsRef.current).forEach(
+          ([sectionName, sectionY]) => {
+            const absoluteY = tabContentYRef.current + sectionY;
+            if (
+              !loggedSectionsRef.current.has(sectionName) &&
+              absoluteY < scrollY + viewportHeight &&
+              absoluteY + 200 > scrollY
+            ) {
+              loggedSectionsRef.current.add(sectionName);
+              Logger.logElementView({
+                name: `pdp_v2_section_${sectionName}`,
+                currScreenName: route.name,
+                extraParams: {place_id: placeId},
+              });
+            }
+          },
+        );
+      }
     },
     [showChipBar, chips, stickyHeaderHeight, route.name, placeId],
   );
