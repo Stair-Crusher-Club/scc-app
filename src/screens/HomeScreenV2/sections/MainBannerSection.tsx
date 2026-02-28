@@ -6,6 +6,7 @@ import {
   Linking,
   PanResponder,
 } from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -118,10 +119,16 @@ export default function MainBannerSection({
     scrollPosition.stopAnimation();
   }, [scrollPosition]);
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
+    if (!isFocused) {
+      stopAutoScroll();
+      return;
+    }
     startAutoScroll();
     return () => stopAutoScroll();
-  }, [startAutoScroll, stopAutoScroll]);
+  }, [isFocused, startAutoScroll, stopAutoScroll]);
 
   // ── Manual swipe via PanResponder ────────────────────────────
   const panResponder = useMemo(

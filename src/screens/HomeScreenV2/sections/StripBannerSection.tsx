@@ -6,6 +6,7 @@ import {
   Linking,
   PanResponder,
 } from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 
 import styled from 'styled-components/native';
 
@@ -111,8 +112,14 @@ export default function StripBannerSection({
     scrollPosition.stopAnimation();
   }, [scrollPosition]);
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     if (len <= 1) {
+      return;
+    }
+    if (!isFocused) {
+      stopAutoScroll();
       return;
     }
     // Start with initial delay to avoid simultaneous rolling with main banner
@@ -124,7 +131,7 @@ export default function StripBannerSection({
       clearTimeout(initialTimer);
       stopAutoScroll();
     };
-  }, [len, startAutoScroll, stopAutoScroll]);
+  }, [isFocused, len, startAutoScroll, stopAutoScroll]);
 
   // ── Manual swipe via PanResponder ────────────────────────────
   const panResponder = useMemo(
