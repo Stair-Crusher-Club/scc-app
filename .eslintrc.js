@@ -29,7 +29,7 @@ module.exports = {
         ],
         // 자동 이벤트 로깅을 위한 Touchable 컴포넌트 사용 제한
         'no-restricted-imports': [
-          'warn', // 처음에는 warning으로 시작
+          'warn',
           {
             paths: [
               {
@@ -42,6 +42,12 @@ module.exports = {
                 ],
                 message:
                   'Use Scc* components from @/components instead for automatic event logging',
+              },
+              {
+                name: '@/logging/Logger',
+                importNames: ['logElementView', 'logElementClick'],
+                message:
+                  'Use useLogger() hook from @/logging/useLogger instead. Direct usage is only allowed in logging infrastructure (src/logging/, useSccEventLogging).',
               },
             ],
           },
@@ -73,6 +79,17 @@ module.exports = {
               'Use styled(SccPressable) instead of styled.Pressable for automatic event logging',
           },
         ],
+      },
+    },
+    // Logging infra는 logElementView/logElementClick 직접 사용 허용
+    {
+      files: [
+        'src/logging/*.ts',
+        'src/logging/*.tsx',
+        'src/hooks/useSccEventLogging.ts',
+      ],
+      rules: {
+        'no-restricted-imports': 'off',
       },
     },
   ],

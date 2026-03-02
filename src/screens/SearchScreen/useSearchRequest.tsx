@@ -1,5 +1,4 @@
 import {useKeyboard} from '@react-native-community/hooks';
-import {useRoute} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import {useAtomValue, useSetAtom} from 'jotai';
 import {useEffect, useRef} from 'react';
@@ -13,7 +12,7 @@ import {
   SearchPlaceSortDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import Logger from '@/logging/Logger';
+import {useLogger} from '@/logging/useLogger';
 import {
   SortOption,
   draftCameraRegionAtom,
@@ -50,7 +49,8 @@ export default function useSearchRequest() {
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
   const viewState = useAtomValue(viewStateAtom);
   const setSearchRequestId = useSetAtom(searchRequestIdAtom);
-  const route = useRoute();
+  const setSearchQuery = useSetAtom(searchQueryAtom);
+  const logger = useLogger();
   const devTool = useDevTool();
   const keyboard = useKeyboard();
   const keyboardRef = useRef(keyboard);
@@ -129,6 +129,12 @@ export default function useSearchRequest() {
         devTool.searchRegion.trackCircle(searchLocation, searchRadius);
       }
 
+      setSearchQuery(prev => ({
+        ...prev,
+        location: searchLocation ?? prev.location,
+        radiusMeter: searchRadius ?? prev.radiusMeter,
+      }));
+
       // Call different API based on search mode
       if (searchMode === 'toilet') {
         // 화장실 카테고리 선택 시 API에는 '화장실'로 검색
@@ -149,22 +155,18 @@ export default function useSearchRequest() {
         const result = response?.data.items?.map(mapToToiletDetails) ?? [];
         const requestId = generateRequestId();
         setSearchRequestId(requestId);
-        Logger.logElementClick({
-          name: 'toilet_search',
-          currScreenName: route.name,
-          extraParams: {
-            search_query: text,
-            search_request_id: requestId,
-            search_lat: toiletCurrentLocation?.lat,
-            search_lng: toiletCurrentLocation?.lng,
-            search_region_type: 'circle',
-            search_radius: toiletSearchRadius,
-            result_count: result.length,
-            top_result_ids: result
-              .slice(0, 3)
-              .map(item => item.id)
-              .join(','),
-          },
+        logger.logElementClick('toilet_search', {
+          search_query: text,
+          search_request_id: requestId,
+          search_lat: toiletCurrentLocation?.lat,
+          search_lng: toiletCurrentLocation?.lng,
+          search_region_type: 'circle',
+          search_radius: toiletSearchRadius,
+          result_count: result.length,
+          top_result_ids: result
+            .slice(0, 3)
+            .map(item => item.id)
+            .join(','),
         });
         if (result.length === 0) {
           ToastUtils.show('검색 결과가 없습니다.');
@@ -197,33 +199,27 @@ export default function useSearchRequest() {
       const result = response?.data.items || [];
       const requestId = generateRequestId();
       setSearchRequestId(requestId);
-      Logger.logElementClick({
-        name: 'place_search',
-        currScreenName: route.name,
-        extraParams: {
-          search_query: text,
-          search_request_id: requestId,
-          search_lat: searchLocation?.lat,
-          search_lng: searchLocation?.lng,
-          search_region_type: rectangleRegion ? 'rectangle' : 'circle',
-          search_radius: rectangleRegion ? undefined : searchRadius,
-          search_rect_left_top_lat: rectangleRegion?.leftTopLocation.lat,
-          search_rect_left_top_lng: rectangleRegion?.leftTopLocation.lng,
-          search_rect_right_bottom_lat:
-            rectangleRegion?.rightBottomLocation.lat,
-          search_rect_right_bottom_lng:
-            rectangleRegion?.rightBottomLocation.lng,
-          search_sort: sort,
-          filter_score_under: scoreUnder,
-          filter_has_slope: hasSlope,
-          filter_is_registered: isRegistered,
-          use_camera_region: useCameraRegion,
-          result_count: result.length,
-          top_result_ids: result
-            .slice(0, 3)
-            .map(item => item.place.id)
-            .join(','),
-        },
+      logger.logElementClick('place_search', {
+        search_query: text,
+        search_request_id: requestId,
+        search_lat: searchLocation?.lat,
+        search_lng: searchLocation?.lng,
+        search_region_type: rectangleRegion ? 'rectangle' : 'circle',
+        search_radius: rectangleRegion ? undefined : searchRadius,
+        search_rect_left_top_lat: rectangleRegion?.leftTopLocation.lat,
+        search_rect_left_top_lng: rectangleRegion?.leftTopLocation.lng,
+        search_rect_right_bottom_lat: rectangleRegion?.rightBottomLocation.lat,
+        search_rect_right_bottom_lng: rectangleRegion?.rightBottomLocation.lng,
+        search_sort: sort,
+        filter_score_under: scoreUnder,
+        filter_has_slope: hasSlope,
+        filter_is_registered: isRegistered,
+        use_camera_region: useCameraRegion,
+        result_count: result.length,
+        top_result_ids: result
+          .slice(0, 3)
+          .map(item => item.place.id)
+          .join(','),
       });
       if (result.length === 0) {
         ToastUtils.show('검색 결과가 없습니다.');

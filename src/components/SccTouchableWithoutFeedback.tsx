@@ -12,24 +12,31 @@ export interface SccTouchableWithoutFeedbackProps
   elementName: string;
   logParams?: Record<string, any>;
   disableLogging?: boolean;
+  trackView?: boolean;
 }
 
 export const SccTouchableWithoutFeedback = forwardRef<
   any,
   SccTouchableWithoutFeedbackProps
->(({elementName, logParams, disableLogging, onPress, ...props}, ref) => {
-  const {createPressHandler} = useSccEventLogging({
-    elementName,
-    logParams,
-    disableLogging,
-  });
+>(
+  (
+    {elementName, logParams, disableLogging, trackView, onPress, ...props},
+    ref,
+  ) => {
+    const {createPressHandler} = useSccEventLogging({
+      elementName,
+      logParams,
+      disableLogging,
+      trackView,
+    });
 
-  const handlePress = createPressHandler(onPress);
+    const handlePress = createPressHandler(onPress);
 
-  return (
-    <TouchableWithoutFeedback ref={ref} onPress={handlePress} {...props} />
-  );
-});
+    return (
+      <TouchableWithoutFeedback ref={ref} onPress={handlePress} {...props} />
+    );
+  },
+);
 
 SccTouchableWithoutFeedback.displayName = 'SccTouchableWithoutFeedback';
 

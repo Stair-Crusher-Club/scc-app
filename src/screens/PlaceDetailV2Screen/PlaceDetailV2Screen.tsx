@@ -34,6 +34,7 @@ import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {useLogger} from '@/logging/useLogger';
 import ShareUtils from '@/utils/ShareUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
@@ -147,6 +148,13 @@ export default function PlaceDetailV2Screen({
 
   const placeId =
     'placeId' in placeInfo ? placeInfo.placeId : placeInfo.place.id;
+  const buildingId =
+    'building' in placeInfo ? placeInfo.building.id : undefined;
+
+  const logParams = {place_id: placeId, building_id: buildingId, current_tab: currentTab};
+  const logger = useLogger(logParams);
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   const [
     showRequireBuildingAccessibilityBottomSheet,
@@ -529,6 +537,7 @@ export default function PlaceDetailV2Screen({
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeChipIndex, setActiveChipIndex] = useState(0);
   const sectionLayoutsRef = useRef<Record<string, number>>({});
+  const loggedSectionsRef = useRef(new Set<string>());
   const tabContentYRef = useRef(0);
   const isScrollingFromChipRef = useRef(false);
   const chips = useMemo(
@@ -606,26 +615,51 @@ export default function PlaceDetailV2Screen({
         }
         setActiveChipIndex(prev => (prev !== newIndex ? newIndex : prev));
       }
+
+      // Section viewport detection for element_view (accessibility tab only)
+      if (showChipBar) {
+        const viewportHeight = e.nativeEvent.layoutMeasurement.height;
+        Object.entries(sectionLayoutsRef.current).forEach(
+          ([sectionName, sectionY]) => {
+            const absoluteY = tabContentYRef.current + sectionY;
+            if (
+              !loggedSectionsRef.current.has(sectionName) &&
+              absoluteY < scrollY + viewportHeight &&
+              absoluteY + 200 > scrollY
+            ) {
+              loggedSectionsRef.current.add(sectionName);
+              loggerRef.current.logElementView(`pdp_v2_section_${sectionName}`);
+            }
+          },
+        );
+      }
     },
-    [showChipBar, chips, stickyHeaderHeight],
+    [showChipBar, chips, stickyHeaderHeight, placeId],
   );
 
   // Issue 5: Tab change with scroll adjustment
-  const handleTabChange = useCallback((newTab: TabType) => {
-    setCurrentTab(newTab);
-    setActiveChipIndex(0);
+  const handleTabChange = useCallback(
+    (newTab: TabType) => {
+      setCurrentTab(newTab);
+      setActiveChipIndex(0);
 
-    // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
-    // 탭바 상단으로 스크롤 리셋 (chip bar 높이 차이 보정)
-    if (currentScrollYRef.current > tabBarYRef.current) {
-      requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollTo({
-          y: tabBarYRef.current,
-          animated: false,
-        });
+      loggerRef.current.logElementView(`pdp_v2_${newTab}_tab`, {
+        current_tab: newTab, // setCurrentTab 전이라 localParams의 값은 이전 탭
       });
-    }
-  }, []);
+
+      // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
+      // 탭바 상단으로 스크롤 리셋 (chip bar 높이 차이 보정)
+      if (currentScrollYRef.current > tabBarYRef.current) {
+        requestAnimationFrame(() => {
+          scrollViewRef.current?.scrollTo({
+            y: tabBarYRef.current,
+            animated: false,
+          });
+        });
+      }
+    },
+    [placeId],
+  );
 
   if (isLoading || !place || !building) {
     return null;
@@ -717,7 +751,7 @@ export default function PlaceDetailV2Screen({
     data?.isAccessibilityRegistrable;
 
   return (
-    <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
+    <LogParamsProvider params={logParams}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <GestureHandlerRootView style={{flex: 1}}>
           <V2AppBar

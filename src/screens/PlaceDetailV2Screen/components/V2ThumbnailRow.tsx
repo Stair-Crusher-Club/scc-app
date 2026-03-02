@@ -152,15 +152,6 @@ const ThumbnailImage = styled.Image`
   height: 200px;
 `;
 
-const GradientOverlay = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background-color: rgba(0, 0, 0, 0.15);
-`;
-
 const TypeLabel = styled.View`
   position: absolute;
   top: 8px;

@@ -8,14 +8,19 @@ export interface SccTouchableOpacityProps extends TouchableOpacityProps {
   elementName: string;
   logParams?: Record<string, any>;
   disableLogging?: boolean;
+  trackView?: boolean;
 }
 
 export const SccTouchableOpacity = forwardRef<any, SccTouchableOpacityProps>(
-  ({elementName, logParams, disableLogging, onPress, ...props}, ref) => {
+  (
+    {elementName, logParams, disableLogging, trackView, onPress, ...props},
+    ref,
+  ) => {
     const {createPressHandler} = useSccEventLogging({
       elementName,
       logParams,
       disableLogging,
+      trackView,
     });
 
     const handlePress = createPressHandler(onPress);

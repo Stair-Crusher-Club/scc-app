@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, Easing, Linking} from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
 import AnnouncementCharacter from '@/assets/icon/ic_announcement_character.svg';
@@ -61,9 +62,11 @@ export default function AnnouncementSection({
     setRenderCenter(newCenter);
   }, []);
 
-  // Auto scroll
+  // Auto scroll (only when screen is focused)
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    if (len <= 1) {
+    if (len <= 1 || !isFocused) {
       return;
     }
 
@@ -84,8 +87,11 @@ export default function AnnouncementSection({
       });
     }, ROLLING_INTERVAL_MS);
 
-    return () => clearInterval(timer);
-  }, [len, scrollPosition, updateCenter]);
+    return () => {
+      clearInterval(timer);
+      scrollPosition.stopAnimation();
+    };
+  }, [isFocused, len, scrollPosition, updateCenter]);
 
   if (len === 0) {
     return null;
@@ -100,7 +106,10 @@ export default function AnnouncementSection({
               <AnnouncementSlot
                 key={item.slot}
                 style={{top: item.slot * ITEM_HEIGHT}}>
-                <AnnouncementItem announcement={item.announcement} />
+                <AnnouncementItem
+                  announcement={item.announcement}
+                  trackView={item.slot === renderCenter}
+                />
               </AnnouncementSlot>
             ))}
           </Animated.View>
@@ -115,9 +124,13 @@ export default function AnnouncementSection({
 
 interface AnnouncementItemProps {
   announcement: HomeAnnouncementDto;
+  trackView?: boolean;
 }
 
-function AnnouncementItem({announcement}: AnnouncementItemProps) {
+function AnnouncementItem({
+  announcement,
+  trackView = false,
+}: AnnouncementItemProps) {
   const navigation = useNavigation();
 
   const openAnnouncement = async () => {
@@ -137,6 +150,7 @@ function AnnouncementItem({announcement}: AnnouncementItemProps) {
     <SccPressable
       elementName="home_v2_announcement"
       logParams={{announcement_id: announcement.id}}
+      trackView={trackView}
       onPress={openAnnouncement}>
       <AnnouncementText numberOfLines={1}>{announcement.text}</AnnouncementText>
     </SccPressable>

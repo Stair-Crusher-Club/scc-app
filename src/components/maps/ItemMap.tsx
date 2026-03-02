@@ -1,4 +1,4 @@
-import {useRoute} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import React from 'react';
 import styled from 'styled-components/native';
@@ -9,7 +9,7 @@ import {useDevTool} from '@/components/DevTool/useDevTool';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
-import Logger from '@/logging/Logger';
+import {useLogger} from '@/logging/useLogger';
 import {Platform} from 'react-native';
 import {
   NativeCircleOverlay,
@@ -179,7 +179,26 @@ export default function ItemMap<T extends MarkerItem>({
     }
   }
 
-  const route = useRoute();
+  const isFocused = useIsFocused();
+  const logger = useLogger();
+  const loggerRef = React.useRef(logger);
+  loggerRef.current = logger;
+
+  const loggedPinsRef = React.useRef(new Set<string>());
+
+  React.useEffect(() => {
+    if (!isFocused) return;
+    items.forEach(item => {
+      if (!loggedPinsRef.current.has(item.id)) {
+        loggedPinsRef.current.add(item.id);
+        loggerRef.current.logElementView('search_item_marker', {
+          place_id: item.id,
+          place_name: item.displayName,
+        });
+      }
+    });
+  }, [items, isFocused]);
+
   return (
     <StyledMapView
       initialRegion={nativeRegion}
@@ -194,14 +213,10 @@ export default function ItemMap<T extends MarkerItem>({
           return;
         }
         onMarkerPress?.(item);
-        await Logger.logElementClick({
-          name: 'search_item_marker',
-          currScreenName: route.name,
-          extraParams: {
-            place_id: item.id,
-            place_name: item.displayName,
-            place_score_level: item.markerIcon?.level,
-          },
+        await logger.logElementClick('search_item_marker', {
+          place_id: item.id,
+          place_name: item.displayName,
+          place_score_level: item.markerIcon?.level,
         });
       }}
       ref={mapRef}
@@ -249,18 +264,14 @@ export default function ItemMap<T extends MarkerItem>({
           eventName = 'map_camera_move';
         }
 
-        Logger.logElementClick({
-          name: eventName,
-          currScreenName: route.name,
-          extraParams: {
-            before_center_lat: previousCenterRef.current?.lat,
-            before_center_lng: previousCenterRef.current?.lng,
-            after_center_lat: nativeEvent.centerLat,
-            after_center_lng: nativeEvent.centerLng,
-            before_zoom: previousZoom,
-            after_zoom: currentZoom,
-            visible_range_m: visibleRangeM,
-          },
+        logger.logElementClick(eventName, {
+          before_center_lat: previousCenterRef.current?.lat,
+          before_center_lng: previousCenterRef.current?.lng,
+          after_center_lat: nativeEvent.centerLat,
+          after_center_lng: nativeEvent.centerLng,
+          before_zoom: previousZoom,
+          after_zoom: currentZoom,
+          visible_range_m: visibleRangeM,
         });
 
         previousZoomRef.current = currentZoom;
