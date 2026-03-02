@@ -749,12 +749,7 @@ export default function PlaceDetailV2Screen({
     data?.isAccessibilityRegistrable;
 
   return (
-    <LogParamsProvider
-      params={{
-        place_id: place.id,
-        building_id: building.id,
-        current_tab: currentTab,
-      }}>
+    <LogParamsProvider params={{...logParams, building_id: building.id}}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <GestureHandlerRootView style={{flex: 1}}>
           <V2AppBar
