@@ -106,7 +106,10 @@ export default function AnnouncementSection({
               <AnnouncementSlot
                 key={item.slot}
                 style={{top: item.slot * ITEM_HEIGHT}}>
-                <AnnouncementItem announcement={item.announcement} trackView={item.slot === renderCenter} />
+                <AnnouncementItem
+                  announcement={item.announcement}
+                  trackView={item.slot === renderCenter}
+                />
               </AnnouncementSlot>
             ))}
           </Animated.View>
@@ -124,7 +127,10 @@ interface AnnouncementItemProps {
   trackView?: boolean;
 }
 
-function AnnouncementItem({announcement, trackView = false}: AnnouncementItemProps) {
+function AnnouncementItem({
+  announcement,
+  trackView = false,
+}: AnnouncementItemProps) {
   const navigation = useNavigation();
 
   const openAnnouncement = async () => {

@@ -226,7 +226,11 @@ export default function StripBannerSection({
                 style={{
                   left: item.slot * ITEM_SLOT_WIDTH + BANNER_HORIZONTAL_PADDING,
                 }}>
-                <StripBanner banner={item.banner} index={item.ringIndex} trackView={item.slot === renderCenter} />
+                <StripBanner
+                  banner={item.banner}
+                  index={item.ringIndex}
+                  trackView={item.slot === renderCenter}
+                />
               </BannerSlot>
             ))}
           </Animated.View>

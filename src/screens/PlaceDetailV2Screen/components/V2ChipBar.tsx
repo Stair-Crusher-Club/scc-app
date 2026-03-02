@@ -37,7 +37,6 @@ export default function V2ChipBar({chips, activeIndex, onChipPress}: Props) {
                 key={chip}
                 isActive={isActive}
                 elementName={`v2_accessibility_chip_${idx}`}
-                trackView
                 onPress={() => onChipPress(idx)}
                 onLayout={e => {
                   chipRefs.current[idx] = {

@@ -73,6 +73,8 @@ yarn-error.log
 .env
 .xcode.env.local
 .env.local*
+.env.dev
+scripts/android2.sh
 .vscode/
 
 dist/

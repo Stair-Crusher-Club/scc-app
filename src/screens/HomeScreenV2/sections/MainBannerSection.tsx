@@ -227,7 +227,11 @@ export default function MainBannerSection({
                 style={{
                   left: item.slot * ITEM_SLOT_WIDTH + BANNER_HORIZONTAL_PADDING,
                 }}>
-                <MainBanner banner={item.banner} index={item.ringIndex} trackView={item.slot === renderCenter} />
+                <MainBanner
+                  banner={item.banner}
+                  index={item.ringIndex}
+                  trackView={item.slot === renderCenter}
+                />
               </BannerSlot>
             ))}
           </Animated.View>
