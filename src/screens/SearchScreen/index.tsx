@@ -3,16 +3,11 @@ import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
 
-import {
-  searchHistoriesAtom,
-  savedSearchFilterAtom,
-  hasShownSavedFilterTooltipAtom,
-} from '@/atoms/User';
+import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
-import type {FilterOptions} from '@/screens/SearchScreen/atoms';
 import {
   draftCameraRegionAtom,
   draftKeywordAtom,
@@ -30,7 +25,6 @@ import {
   SearchScreenProvider,
   useSearchScreenContext,
 } from '@/screens/SearchScreen/SearchScreenContext';
-import SavedFilterBalloon from '@/screens/SearchScreen/components/SearchHeader/SavedFilterBalloon';
 import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import SearchMapView, {
@@ -63,15 +57,6 @@ function getItemLocation(item: SearchResultItem) {
 
 function getItemDisplayName(item: SearchResultItem): string {
   return isPlaceListItem(item) ? item.place.name : item.displayName;
-}
-
-function hasMeaningfulFilter(filter: FilterOptions): boolean {
-  return (
-    filter.sortOption !== SortOption.ACCURACY ||
-    filter.scoreUnder !== null ||
-    filter.hasSlope !== null ||
-    filter.isRegistered !== null
-  );
 }
 
 export interface SearchScreenParams {
@@ -117,10 +102,7 @@ const SearchScreenContent = ({
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
-  const savedFilter = useAtomValue(savedSearchFilterAtom);
-  const hasShownTooltip = useAtomValue(hasShownSavedFilterTooltipAtom);
-  const {setIsFromLookup, setSavedFilterAppliedThisSession} =
-    useSearchScreenContext();
+  const {setIsFromLookup} = useSearchScreenContext();
 
   const onQueryUpdate = (
     queryUpdate: Partial<SearchQuery>,
@@ -178,16 +160,8 @@ const SearchScreenContent = ({
     // 1. fromLookup 상태 설정
     setIsFromLookup(!!fromLookup);
 
-    // 2. 저장된 필터 복원 (text가 null인 상태에서 실행 → API 호출 없음)
-    if (savedFilter && hasMeaningfulFilter(savedFilter)) {
-      const filterToApply = fromLookup
-        ? {...savedFilter, isRegistered: true}
-        : savedFilter;
-      setFilter(filterToApply);
-      if (!hasShownTooltip) {
-        setSavedFilterAppliedThisSession(true);
-      }
-    } else if (fromLookup) {
+    // 2. fromLookup이면 isRegistered 필터 적용
+    if (fromLookup) {
       setFilter(prev => ({...prev, isRegistered: true}));
     }
 
@@ -217,7 +191,6 @@ const SearchScreenContent = ({
   useEffect(() => {
     return navigation.addListener('beforeRemove', () => {
       setIsFromLookup(false);
-      setSavedFilterAppliedThisSession(false);
       setFilter({
         sortOption: SortOption.ACCURACY,
         hasSlope: null,
@@ -256,11 +229,6 @@ const SearchScreenContent = ({
           onQueryUpdate={onQueryUpdate}
           autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
         />
-        {!viewState.inputMode && (
-          <View style={{zIndex: 100}}>
-            <SavedFilterBalloon />
-          </View>
-        )}
         <View
           style={{
             width: '100%',

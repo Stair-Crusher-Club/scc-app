@@ -1,10 +1,9 @@
-import {useAtom, useSetAtom} from 'jotai';
+import {useAtom} from 'jotai';
 import React, {useState} from 'react';
 import {Dimensions, ScrollView, Text} from 'react-native';
 import styled from 'styled-components/native';
 
 import InfoIcon from '@/assets/icon/ic_info.svg';
-import {savedSearchFilterAtom} from '@/atoms/User';
 import PositionedModal from '@/components/PositionedModal';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
@@ -16,7 +15,6 @@ import {
   filterAtom,
   filterModalStateAtom,
 } from '@/screens/SearchScreen/atoms';
-import {useSearchScreenContext} from '@/screens/SearchScreen/SearchScreenContext';
 import ChipSelector from '@/screens/SearchScreen/modals/ChipSelector';
 import ScoreSelector from '@/screens/SearchScreen/modals/ScoreSelector.tsx';
 
@@ -26,8 +24,6 @@ const {height} = Dimensions.get('window');
 export default function FilterModal() {
   const [savedFilter, setSavedFilter] = useAtom(filterAtom);
   const [state, setFilterModalState] = useAtom(filterModalStateAtom);
-  const setSavedSearchFilter = useSetAtom(savedSearchFilterAtom);
-  const {isFromLookup} = useSearchScreenContext();
 
   const [draftSortOption, setDraftSortOption] =
     useState<FilterOptions['sortOption']>();
@@ -50,20 +46,7 @@ export default function FilterModal() {
       : draftIsRegistered;
 
   const saveFilter = () => {
-    const currentFilter = {sortOption, hasSlope, scoreUnder, isRegistered};
-    setSavedFilter(currentFilter);
-
-    // MMKV에 저장 (fromLookup이면 isRegistered 제외)
-    if (isFromLookup) {
-      setSavedSearchFilter(prev => ({
-        sortOption,
-        scoreUnder,
-        hasSlope,
-        isRegistered: prev?.isRegistered ?? null,
-      }));
-    } else {
-      setSavedSearchFilter(currentFilter);
-    }
+    setSavedFilter({sortOption, hasSlope, scoreUnder, isRegistered});
     setFilterModalState(null);
   };
   const reset = () => {
@@ -78,15 +61,6 @@ export default function FilterModal() {
       isRegistered: null,
     };
     setSavedFilter(defaults);
-
-    if (isFromLookup) {
-      setSavedSearchFilter(prev => ({
-        ...defaults,
-        isRegistered: prev?.isRegistered ?? null,
-      }));
-    } else {
-      setSavedSearchFilter(defaults);
-    }
   };
 
   return (

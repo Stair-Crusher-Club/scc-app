@@ -3,8 +3,6 @@ import React, {createContext, useContext, useMemo, useState} from 'react';
 interface SearchScreenContextValue {
   isFromLookup: boolean;
   setIsFromLookup: (value: boolean) => void;
-  savedFilterAppliedThisSession: boolean;
-  setSavedFilterAppliedThisSession: (value: boolean) => void;
 }
 
 const SearchScreenContext = createContext<SearchScreenContextValue | null>(
@@ -13,17 +11,13 @@ const SearchScreenContext = createContext<SearchScreenContextValue | null>(
 
 export function SearchScreenProvider({children}: {children: React.ReactNode}) {
   const [isFromLookup, setIsFromLookup] = useState(false);
-  const [savedFilterAppliedThisSession, setSavedFilterAppliedThisSession] =
-    useState(false);
 
   const value = useMemo(
     () => ({
       isFromLookup,
       setIsFromLookup,
-      savedFilterAppliedThisSession,
-      setSavedFilterAppliedThisSession,
     }),
-    [isFromLookup, savedFilterAppliedThisSession],
+    [isFromLookup],
   );
 
   return (
