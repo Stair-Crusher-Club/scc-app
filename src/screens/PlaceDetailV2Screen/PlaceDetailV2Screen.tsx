@@ -117,9 +117,6 @@ export default function PlaceDetailV2Screen({
   );
 
   const isFocused = useIsFocused();
-  const logger = useLogger();
-  const loggerRef = useRef(logger);
-  loggerRef.current = logger;
 
   const questModalVisible = useAtomValue(visibleAtom);
   const [pendingBottomSheet, setPendingBottomSheet] = useState<
@@ -151,6 +148,11 @@ export default function PlaceDetailV2Screen({
 
   const placeId =
     'placeId' in placeInfo ? placeInfo.placeId : placeInfo.place.id;
+
+  const logParams = {place_id: placeId, current_tab: currentTab};
+  const logger = useLogger(logParams);
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   const [
     showRequireBuildingAccessibilityBottomSheet,
@@ -624,10 +626,7 @@ export default function PlaceDetailV2Screen({
               absoluteY + 200 > scrollY
             ) {
               loggedSectionsRef.current.add(sectionName);
-              loggerRef.current.logElementView(
-                `pdp_v2_section_${sectionName}`,
-                {place_id: placeId},
-              );
+              loggerRef.current.logElementView(`pdp_v2_section_${sectionName}`);
             }
           },
         );
@@ -643,7 +642,7 @@ export default function PlaceDetailV2Screen({
       setActiveChipIndex(0);
 
       loggerRef.current.logElementView(`pdp_v2_${newTab}_tab`, {
-        place_id: placeId,
+        current_tab: newTab, // setCurrentTab 전이라 localParams의 값은 이전 탭
       });
 
       // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
@@ -750,7 +749,12 @@ export default function PlaceDetailV2Screen({
     data?.isAccessibilityRegistrable;
 
   return (
-    <LogParamsProvider params={{place_id: place.id, building_id: building.id}}>
+    <LogParamsProvider
+      params={{
+        place_id: place.id,
+        building_id: building.id,
+        current_tab: currentTab,
+      }}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <GestureHandlerRootView style={{flex: 1}}>
           <V2AppBar

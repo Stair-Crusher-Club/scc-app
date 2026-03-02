@@ -77,6 +77,37 @@ function ChildComponent() {
 - 중첩된 Provider에서 자식 params가 부모 params를 override
 - 하위 모든 SccXxx 컴포넌트와 직접 Logger 호출에 적용됨
 
+### useLogger() Hook
+
+`Logger.logElementView`/`logElementClick`은 default export에서 제거됨 (TS 컴파일 에러).
+컴포넌트에서는 반드시 `useLogger()` hook 사용:
+
+```typescript
+import {useLogger} from '@/logging/useLogger';
+
+// 기본 사용
+const logger = useLogger();
+logger.logElementView('event_name', {custom_param: 'value'});
+// → globalLogParams + route.name 자동 주입
+
+// useCallback/useEffect 안에서 사용 시 — loggerRef 패턴
+// useLogger()는 매 렌더마다 새 객체를 반환하므로,
+// deps에 넣으면 매번 재생성 → 자식 리렌더 유발.
+// ref로 감싸서 "항상 최신값이지만 deps를 트리거하지 않는" 안정 참조를 만든다.
+const logger = useLogger();
+const loggerRef = useRef(logger);
+loggerRef.current = logger;  // 매 렌더마다 최신 logger로 갱신
+
+const handleScroll = useCallback(() => {
+  loggerRef.current.logElementView('section', {id: sectionId});
+}, [sectionId]);  // logger가 deps에 없어도 항상 최신값
+```
+
+**규칙:**
+- `Logger.logElementView`/`logElementClick` 직접 호출 금지 (TS 에러 + ESLint warn)
+- `src/logging/*`, `useSccEventLogging.ts`만 예외 (logging infra)
+- `useCallback`/`useEffect` 안에서는 `loggerRef.current` 사용
+
 ## API Guidelines
 
 - **`src/generated-sources/` 파일은 절대 수동 수정하지 않는다.** scc-api 스펙 변경 -> submodule 업데이트 -> `yarn codegen`으로만 변경.
