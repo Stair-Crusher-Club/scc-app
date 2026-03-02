@@ -66,40 +66,42 @@ const convertKeysToSnakeCase = (
   return convertedObj;
 };
 
+/**
+ * Internal — logging infrastructure only (useLogger, LogView, useSccEventLogging).
+ * 컴포넌트에서 직접 호출 금지. useLogger() hook을 사용하세요.
+ */
+export async function logElementView(params: ElementEventParams) {
+  logDebug('logElementView', params, currUserPropertiesForDebugging);
+  const eventParams = {
+    ...convertKeysToSnakeCase(params.extraParams || {}),
+    element_name: params.name,
+    screen_name: params.currScreenName || 'unknown',
+  };
+  trackEvent('element_view', eventParams);
+  getAnalytics().logEvent('element_view', eventParams);
+}
+
+/**
+ * Internal — logging infrastructure only (useLogger, LogView, useSccEventLogging).
+ * 컴포넌트에서 직접 호출 금지. useLogger() hook을 사용하세요.
+ */
+export async function logElementClick(params: ElementEventParams) {
+  logDebug('logElementClick', params, currUserPropertiesForDebugging);
+  const eventParams = {
+    ...convertKeysToSnakeCase(params.extraParams || {}),
+    element_name: params.name,
+    screen_name: params.currScreenName,
+  };
+  trackEvent('element_click', eventParams);
+  getAnalytics().logEvent('element_click', eventParams);
+}
+
 const Logger = {
   async setUserId(userId: string) {
     logDebug('setUserId', userId, currUserPropertiesForDebugging);
     getAnalytics().setUserProperties({userId});
     currUserPropertiesForDebugging.userId = userId;
     logDebug('setUserId finished', userId, currUserPropertiesForDebugging);
-  },
-
-  /**
-   * Please use LogView component, instead of using logElementView directly.
-   */
-  async logElementView(params: ElementEventParams) {
-    logDebug('logElementView', params, currUserPropertiesForDebugging);
-    const eventParams = {
-      ...convertKeysToSnakeCase(params.extraParams || {}),
-      element_name: params.name,
-      screen_name: params.currScreenName || 'unknown',
-    };
-    trackEvent('element_view', eventParams);
-    getAnalytics().logEvent('element_view', eventParams);
-  },
-
-  /**
-   * Please use LogClick component, instead of using logElementClick directly.
-   */
-  async logElementClick(params: ElementEventParams) {
-    logDebug('logElementClick', params, currUserPropertiesForDebugging);
-    const eventParams = {
-      ...convertKeysToSnakeCase(params.extraParams || {}),
-      element_name: params.name,
-      screen_name: params.currScreenName,
-    };
-    trackEvent('element_click', eventParams);
-    getAnalytics().logEvent('element_click', eventParams);
   },
 
   async logScreenView(params: ScreenViewParams) {

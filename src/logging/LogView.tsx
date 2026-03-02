@@ -2,7 +2,7 @@ import {useRoute} from '@react-navigation/native';
 import {useIsFocused} from '@react-navigation/native';
 import {Children, cloneElement, ReactElement, useEffect, useRef} from 'react';
 
-import Logger from '@/logging/Logger';
+import {logElementView} from '@/logging/Logger';
 
 import {useLogParams} from './LogParamsProvider';
 
@@ -27,7 +27,7 @@ export function LogView({children, elementName, params}: Props) {
     }
 
     if (!hasLoggedRef.current) {
-      Logger.logElementView({
+      logElementView({
         name: elementName,
         currScreenName: route.name,
         extraParams: {...globalLogParams, ...params},

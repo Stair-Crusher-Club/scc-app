@@ -3,7 +3,7 @@ import {useRoute} from '@react-navigation/native';
 import {useIsFocused} from '@react-navigation/native';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import {useEventLoggingRegistry} from '@/hooks/useEventLoggingRegistry';
-import Logger from '@/logging/Logger';
+import {logElementClick, logElementView} from '@/logging/Logger';
 
 export interface SccEventLoggingOptions {
   elementName: string;
@@ -42,7 +42,7 @@ export function useSccEventLogging({
     }
 
     if (!disableLogging && trackView && !hasLoggedRef.current) {
-      Logger.logElementView({
+      logElementView({
         name: elementName,
         currScreenName: route.name,
         extraParams: combinedParams,
@@ -58,7 +58,7 @@ export function useSccEventLogging({
     return (event: any) => {
       // element_click 로깅 (disableLogging이 false일 때만)
       if (!disableLogging) {
-        Logger.logElementClick({
+        logElementClick({
           name: elementName,
           currScreenName: route.name,
           extraParams: combinedParams,

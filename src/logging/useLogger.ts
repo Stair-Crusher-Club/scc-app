@@ -1,5 +1,5 @@
 import {useRoute} from '@react-navigation/native';
-import Logger from './Logger';
+import {logElementClick, logElementView} from './Logger';
 import {useLogParams} from './LogParamsProvider';
 
 export function useLogger() {
@@ -8,14 +8,14 @@ export function useLogger() {
 
   return {
     logElementView: (name: string, extraParams?: Record<string, any>) => {
-      Logger.logElementView({
+      logElementView({
         name,
         currScreenName: route.name,
         extraParams: {...globalLogParams, ...extraParams},
       });
     },
     logElementClick: (name: string, extraParams?: Record<string, any>) => {
-      Logger.logElementClick({
+      logElementClick({
         name,
         currScreenName: route.name,
         extraParams: {...globalLogParams, ...extraParams},
