@@ -151,7 +151,11 @@ export default function PlaceDetailV2Screen({
   const buildingId =
     'building' in placeInfo ? placeInfo.building.id : undefined;
 
-  const logParams = {place_id: placeId, building_id: buildingId, current_tab: currentTab};
+  const logParams = {
+    place_id: placeId,
+    building_id: buildingId,
+    current_tab: currentTab,
+  };
   const logger = useLogger(logParams);
   const loggerRef = useRef(logger);
   loggerRef.current = logger;
