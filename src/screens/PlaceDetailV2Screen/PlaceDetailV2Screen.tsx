@@ -148,8 +148,10 @@ export default function PlaceDetailV2Screen({
 
   const placeId =
     'placeId' in placeInfo ? placeInfo.placeId : placeInfo.place.id;
+  const buildingId =
+    'building' in placeInfo ? placeInfo.building.id : undefined;
 
-  const logParams = {place_id: placeId, current_tab: currentTab};
+  const logParams = {place_id: placeId, building_id: buildingId, current_tab: currentTab};
   const logger = useLogger(logParams);
   const loggerRef = useRef(logger);
   loggerRef.current = logger;
@@ -749,7 +751,7 @@ export default function PlaceDetailV2Screen({
     data?.isAccessibilityRegistrable;
 
   return (
-    <LogParamsProvider params={{...logParams, building_id: building.id}}>
+    <LogParamsProvider params={logParams}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <GestureHandlerRootView style={{flex: 1}}>
           <V2AppBar
