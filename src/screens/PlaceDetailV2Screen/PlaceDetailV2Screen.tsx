@@ -34,7 +34,7 @@ import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import Logger from '@/logging/Logger';
+import {useLogger} from '@/logging/useLogger';
 import ShareUtils from '@/utils/ShareUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
@@ -117,6 +117,9 @@ export default function PlaceDetailV2Screen({
   );
 
   const isFocused = useIsFocused();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   const questModalVisible = useAtomValue(visibleAtom);
   const [pendingBottomSheet, setPendingBottomSheet] = useState<
@@ -621,35 +624,41 @@ export default function PlaceDetailV2Screen({
               absoluteY + 200 > scrollY
             ) {
               loggedSectionsRef.current.add(sectionName);
-              Logger.logElementView({
-                name: `pdp_v2_section_${sectionName}`,
-                currScreenName: route.name,
-                extraParams: {place_id: placeId},
-              });
+              loggerRef.current.logElementView(
+                `pdp_v2_section_${sectionName}`,
+                {place_id: placeId},
+              );
             }
           },
         );
       }
     },
-    [showChipBar, chips, stickyHeaderHeight, route.name, placeId],
+    [showChipBar, chips, stickyHeaderHeight, placeId],
   );
 
   // Issue 5: Tab change with scroll adjustment
-  const handleTabChange = useCallback((newTab: TabType) => {
-    setCurrentTab(newTab);
-    setActiveChipIndex(0);
+  const handleTabChange = useCallback(
+    (newTab: TabType) => {
+      setCurrentTab(newTab);
+      setActiveChipIndex(0);
 
-    // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
-    // 탭바 상단으로 스크롤 리셋 (chip bar 높이 차이 보정)
-    if (currentScrollYRef.current > tabBarYRef.current) {
-      requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollTo({
-          y: tabBarYRef.current,
-          animated: false,
-        });
+      loggerRef.current.logElementView(`pdp_v2_${newTab}_tab`, {
+        place_id: placeId,
       });
-    }
-  }, []);
+
+      // 탭바가 sticky된 상태(스크롤이 요약 섹션 하단 이후)이면
+      // 탭바 상단으로 스크롤 리셋 (chip bar 높이 차이 보정)
+      if (currentScrollYRef.current > tabBarYRef.current) {
+        requestAnimationFrame(() => {
+          scrollViewRef.current?.scrollTo({
+            y: tabBarYRef.current,
+            animated: false,
+          });
+        });
+      }
+    },
+    [placeId],
+  );
 
   if (isLoading || !place || !building) {
     return null;

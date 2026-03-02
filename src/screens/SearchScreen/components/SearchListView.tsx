@@ -1,4 +1,3 @@
-import {useRoute} from '@react-navigation/native';
 import React, {useRef} from 'react';
 import {FlatList, Platform} from 'react-native';
 import type {ViewToken} from 'react-native';
@@ -7,8 +6,8 @@ import styled from 'styled-components/native';
 import {color} from '@/constant/color';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
-import Logger from '@/logging/Logger';
-import {LogParamsProvider, useLogParams} from '@/logging/LogParamsProvider';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {useLogger} from '@/logging/useLogger';
 import useNavigation from '@/navigation/useNavigation';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
@@ -31,14 +30,11 @@ export default function SearchListView({
 }) {
   const navigation = useNavigation();
   const pdpScreen = usePlaceDetailScreenName();
-  const route = useRoute();
-  const globalLogParams = useLogParams();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   const loggedItemsRef = useRef(new Set<string>());
-  const routeRef = useRef(route);
-  routeRef.current = route;
-  const globalLogParamsRef = useRef(globalLogParams);
-  globalLogParamsRef.current = globalLogParams;
 
   // Reset logged items when search results change
   const prevSearchResultsRef = useRef(searchResults);
@@ -54,15 +50,10 @@ export default function SearchListView({
         const key = placeItem.place.id;
         if (!loggedItemsRef.current.has(key)) {
           loggedItemsRef.current.add(key);
-          Logger.logElementView({
-            name: 'place_search_item_card',
-            currScreenName: routeRef.current.name,
-            extraParams: {
-              ...globalLogParamsRef.current,
-              search_view_mode: 'list',
-              place_id: placeItem.place.id,
-              place_name: placeItem.place.name,
-            },
+          loggerRef.current.logElementView('place_search_item_card', {
+            search_view_mode: 'list',
+            place_id: placeItem.place.id,
+            place_name: placeItem.place.name,
           });
         }
       });

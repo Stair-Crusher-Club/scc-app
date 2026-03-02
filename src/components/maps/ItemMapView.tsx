@@ -26,6 +26,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation.ts';
+import {useLogger} from '@/logging/useLogger';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 
 // ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
@@ -61,6 +62,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const navigation = useNavigation();
+  const logger = useLogger();
   const pdpScreen = usePlaceDetailScreenName();
   const insets = useSafeAreaInsets();
   const onMyLocationPress = () => {
@@ -133,6 +135,11 @@ const FRefInputComp = <T extends MarkerItem>(
     shouldScrollToIndex: boolean = true,
   ) {
     selectedItemId !== item.id && setSelectedItemId(item.id);
+    logger.logElementView('place_search_item_card', {
+      search_view_mode: 'map',
+      place_id: item.id,
+      displaySectionName: 'search_item_card',
+    });
     const index = items.findIndex(it => it.id === item.id);
     if (shouldScrollToIndex) {
       cardsRef.current?.scrollToIndex({
