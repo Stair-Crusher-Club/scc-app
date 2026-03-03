@@ -21,7 +21,7 @@ import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
 
-import {setupGlobalFeatures} from '@/features/sandboxFeatures';
+import {setupGlobalFeatures} from '@/features/globalFeatures';
 
 import './global.css';
 
