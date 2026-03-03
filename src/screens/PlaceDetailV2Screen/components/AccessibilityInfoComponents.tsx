@@ -15,6 +15,7 @@ import {
   EpochMillisTimestamp,
   PlaceAccessibilityComment,
   PlaceDoorDirectionTypeDto,
+  StairInfo,
 } from '@/generated-sources/openapi';
 
 import {
@@ -162,9 +163,18 @@ export function BuildingElevatorInfoRow({
 
   let title = '';
   switch (elevatorType) {
-    case ElevatorType.ElevatorAfterStair:
-      title = '엘리베이터 있지만,\n가는 길에 계단 있음';
+    case ElevatorType.ElevatorAfterStair: {
+      const hasStairs = stairInfo !== undefined && stairInfo !== StairInfo.None;
+      const hasSlope = buildingAccessibility.elevatorHasSlope === true;
+      if (hasStairs && hasSlope) {
+        title = '엘리베이터 있지만,\n가는 길에 계단과 경사로 있음';
+      } else if (hasSlope) {
+        title = '엘리베이터 있지만,\n가는 길에 경사로 있음';
+      } else {
+        title = '엘리베이터 있지만,\n가는 길에 계단 있음';
+      }
       break;
+    }
     case ElevatorType.ElevatorNoBarriers:
       title = '엘리베이터 있음';
       break;

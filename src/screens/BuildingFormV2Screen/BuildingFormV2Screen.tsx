@@ -75,6 +75,7 @@ interface FormValues {
   elevatorHasStairs: boolean;
   elevatorStairInfo: StairInfo;
   elevatorStairHeightLevel: StairHeightLevel;
+  elevatorHasSlope: boolean;
   elevatorPhotos: ImageFile[];
   comment: string;
 }
@@ -128,6 +129,7 @@ export default function BuildingFormV2Screen({
       form.setValue('elevatorHasStairs', undefined as any);
       form.setValue('elevatorStairInfo', undefined as any);
       form.setValue('elevatorStairHeightLevel', undefined as any);
+      form.setValue('elevatorHasSlope', undefined as any);
     }
   }, [hasElevator, form]);
 
@@ -840,6 +842,25 @@ export default function BuildingFormV2Screen({
                           </View>
                         </S.SubSection>
                       )}
+
+                    <S.SubSection>
+                      <S.Label>
+                        엘리베이터까지 가는 길에 경사로가 있나요?
+                      </S.Label>
+                      <Controller
+                        name="elevatorHasSlope"
+                        render={({field}) => (
+                          <OptionsV2
+                            value={field.value}
+                            options={[
+                              {label: '있어요', value: true},
+                              {label: '없어요', value: false},
+                            ]}
+                            onSelect={field.onChange}
+                          />
+                        )}
+                      />
+                    </S.SubSection>
                   </>
                 )}
               </View>
@@ -924,6 +945,10 @@ async function register(
                 ? values.elevatorStairInfo
                 : StairInfo.None,
               stairHeightLevel: values.elevatorStairHeightLevel,
+              hasSlope:
+                typeof values.elevatorHasSlope === 'boolean'
+                  ? values.elevatorHasSlope
+                  : undefined,
             }
           : undefined,
         comment: values.comment || undefined,

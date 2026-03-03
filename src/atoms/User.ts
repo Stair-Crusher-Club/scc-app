@@ -57,6 +57,27 @@ export const placeFormV2GuideDismissedAtom =
     standaloneMultipleFloors: false,
   });
 
+// PlaceFormV2 Guide 모달 "확인했어요" 상태 (1일간 안 보기 - timestamp)
+export type PlaceFormV2GuideDismissedUntil = {
+  firstFloor: number | null;
+  otherFloor: number | null;
+  multipleFloors: number | null;
+  standaloneSingleFloor: number | null;
+  standaloneMultipleFloors: number | null;
+};
+
+export const placeFormV2GuideDismissedUntilAtom =
+  atomForLocalNonNull<PlaceFormV2GuideDismissedUntil>(
+    'placeFormV2GuideDismissedUntil',
+    {
+      firstFloor: null,
+      otherFloor: null,
+      multipleFloors: null,
+      standaloneSingleFloor: null,
+      standaloneMultipleFloors: null,
+    },
+  );
+
 export const recentlyUsedMobilityToolAtom = atomForLocal<{
   name: UserMobilityToolMapDto;
   timestamp: number;

@@ -27,7 +27,6 @@ import {
   OptionsGroup,
   QuestionSection,
   QuestionText,
-  RequiredMark,
   SectionLabel,
   SectionSeparator,
   SubSection,
@@ -61,42 +60,14 @@ export default function FloorMovementStep({
     }, 100);
   };
 
-  // Watch all required fields
+  // Watch floor movement methods
   const floorMovementMethods: FloorMovingMethodTypeDto[] =
     form.watch('floorMovementMethod') ?? [];
-  const elevatorPhotos = form.watch('elevatorPhotos');
-  const elevatorHasStairs = form.watch('elevatorHasStairs');
-  const elevatorStairInfo = form.watch('elevatorStairInfo');
-  const elevatorStairHeightLevel = form.watch('elevatorStairHeightLevel');
-  const elevatorHasSlope = form.watch('elevatorHasSlope');
 
-  type FormErrorKey =
-    | 'floorMovementMethod'
-    | 'elevatorPhotos'
-    | 'elevatorHasStairs'
-    | 'elevatorStairInfo'
-    | 'elevatorStairHeightLevel'
-    | 'elevatorHasSlope';
+  type FormErrorKey = 'floorMovementMethod';
 
-  const noticeError = (errorKey: FormErrorKey) => {
-    switch (errorKey) {
-      case 'floorMovementMethod':
-        ToastUtils.show('층간 이동 방법을 선택해주세요.', FORM_TOAST_OPTIONS);
-        break;
-      case 'elevatorPhotos':
-        ToastUtils.show('엘리베이터 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
-        break;
-      case 'elevatorHasStairs':
-      case 'elevatorStairInfo':
-      case 'elevatorStairHeightLevel':
-        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
-        break;
-      case 'elevatorHasSlope':
-        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
-        break;
-      default:
-        ToastUtils.show('필수 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
-    }
+  const noticeError = (_errorKey: FormErrorKey) => {
+    ToastUtils.show('층간 이동 방법을 선택해주세요.', FORM_TOAST_OPTIONS);
   };
 
   // 유효성 검사 및 첫 번째 에러 키 반환
@@ -104,38 +75,6 @@ export default function FloorMovementStep({
     // 층간 이동 방법은 필수
     if (!floorMovementMethods || floorMovementMethods.length === 0) {
       return 'floorMovementMethod';
-    }
-
-    // 엘리베이터를 선택한 경우 추가 검증
-    if (floorMovementMethods.includes(FloorMovingMethodTypeDto.PlaceElevator)) {
-      // 엘리베이터 사진은 필수
-      if (!elevatorPhotos || elevatorPhotos.length === 0) {
-        return 'elevatorPhotos';
-      }
-
-      // 계단 여부는 필수 (boolean)
-      if (typeof elevatorHasStairs !== 'boolean') {
-        return 'elevatorHasStairs';
-      }
-
-      // 계단이 있을 경우 계단 정보 필수
-      if (elevatorHasStairs && !elevatorStairInfo) {
-        return 'elevatorStairInfo';
-      }
-
-      // 계단이 1칸일 경우 높이 정보 필수
-      if (
-        elevatorHasStairs &&
-        elevatorStairInfo === StairInfo.One &&
-        !elevatorStairHeightLevel
-      ) {
-        return 'elevatorStairHeightLevel';
-      }
-
-      // 경사로 여부는 필수 (boolean)
-      if (typeof elevatorHasSlope !== 'boolean') {
-        return 'elevatorHasSlope';
-      }
     }
 
     return null;
@@ -195,10 +134,7 @@ export default function FloorMovementStep({
                   <View style={{gap: 2}}>
                     <QuestionSection>
                       <SectionLabel>엘리베이터 정보</SectionLabel>
-                      <QuestionText>
-                        엘리베이터 사진을 찍어주세요{' '}
-                        <RequiredMark>*</RequiredMark>
-                      </QuestionText>
+                      <QuestionText>엘리베이터 사진을 찍어주세요</QuestionText>
                     </QuestionSection>
                     <Hint>최대 3장까지 등록 가능해요</Hint>
                   </View>
@@ -217,9 +153,7 @@ export default function FloorMovementStep({
                 </SubSection>
 
                 <SubSection>
-                  <Label>
-                    입구에 계단이 있나요? <RequiredMark>*</RequiredMark>
-                  </Label>
+                  <Label>엘리베이터까지 가는 길에 계단이 있나요?</Label>
                   <OptionsGroup>
                     <Controller
                       name="elevatorHasStairs"
@@ -259,10 +193,7 @@ export default function FloorMovementStep({
                 {form.watch('elevatorHasStairs') &&
                   form.watch('elevatorStairInfo') === StairInfo.One && (
                     <SubSection key="stair-height">
-                      <Label>
-                        계단 1칸의 높이를 알려주세요{' '}
-                        <RequiredMark>*</RequiredMark>
-                      </Label>
+                      <Label>계단 1칸의 높이를 알려주세요</Label>
                       <MeasureGuide>
                         <Image
                           source={formImages.stair}
@@ -299,9 +230,7 @@ export default function FloorMovementStep({
                   )}
 
                 <SubSection>
-                  <Label>
-                    입구에 경사로가 있나요? <RequiredMark>*</RequiredMark>
-                  </Label>
+                  <Label>엘리베이터까지 가는 길에 경사로가 있나요?</Label>
                   <Controller
                     name="elevatorHasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}

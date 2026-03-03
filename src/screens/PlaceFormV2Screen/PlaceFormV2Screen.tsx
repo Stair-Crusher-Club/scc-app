@@ -1,4 +1,7 @@
-import {placeFormV2GuideDismissedAtom} from '@/atoms/User';
+import {
+  placeFormV2GuideDismissedAtom,
+  placeFormV2GuideDismissedUntilAtom,
+} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
@@ -117,10 +120,10 @@ export default function PlaceFormV2Screen({
     placeFormV2GuideDismissedAtom,
   );
 
-  // 현재 세션에서 본 guide 추적
-  const [viewedGuidesInSession, setViewedGuidesInSession] = useState<
-    Set<string>
-  >(new Set());
+  // Guide 모달 "확인했어요" 상태 (1일간 안 보기 - timestamp)
+  const [guideDismissedUntil, setGuideDismissedUntil] = useAtom(
+    placeFormV2GuideDismissedUntilAtom,
+  );
 
   // 현재 선택에 따른 Guide 모달 키 결정
   const guideKey = (() => {
@@ -160,8 +163,27 @@ export default function PlaceFormV2Screen({
 
     if (isPermanentlyDismissed) return false;
 
-    // 현재 세션에서 이미 본 경우
-    if (viewedGuidesInSession.has(guideKey)) return false;
+    // 1일간 안 보기 체크
+    const dismissedUntilTimestamp = (() => {
+      switch (guideKey) {
+        case 'firstFloor':
+          return guideDismissedUntil.firstFloor;
+        case 'otherFloor':
+          return guideDismissedUntil.otherFloor;
+        case 'multipleFloors':
+          return guideDismissedUntil.multipleFloors;
+        case 'standaloneSingleFloor':
+          return guideDismissedUntil.standaloneSingleFloor;
+        case 'standaloneMultipleFloors':
+          return guideDismissedUntil.standaloneMultipleFloors;
+        default:
+          return null;
+      }
+    })();
+
+    if (dismissedUntilTimestamp && Date.now() < dismissedUntilTimestamp) {
+      return false;
+    }
 
     return true;
   })();
@@ -247,9 +269,6 @@ export default function PlaceFormV2Screen({
   const handleBack = () => {
     // guide 모달이 열려있으면 모달 닫기
     if (isGuideModalVisible) {
-      if (guideKey) {
-        setViewedGuidesInSession(prev => new Set(prev).add(guideKey));
-      }
       setIsGuideModalVisible(false);
       return;
     }
@@ -306,10 +325,11 @@ export default function PlaceFormV2Screen({
     }
   };
 
-  // "확인했어요!" 버튼 핸들러: 현재 세션에서 본 것으로 표시
+  // "확인했어요!" 버튼 핸들러: 1일간 안 보기
   const handleConfirmGuide = () => {
     if (guideKey) {
-      setViewedGuidesInSession(prev => new Set(prev).add(guideKey));
+      const oneDayFromNow = Date.now() + 24 * 60 * 60 * 1000;
+      setGuideDismissedUntil(prev => ({...prev, [guideKey]: oneDayFromNow}));
     }
     // 모달 닫고 info로 이동
     setIsGuideModalVisible(false);
@@ -530,14 +550,20 @@ async function register(
 
       floorMovingElevatorAccessibility = {
         imageUrls: elevatorImageUrls,
-        stairInfo: values.elevatorHasStairs
-          ? values.elevatorStairInfo
-          : StairInfo.None,
+        stairInfo:
+          typeof values.elevatorHasStairs === 'boolean'
+            ? values.elevatorHasStairs
+              ? values.elevatorStairInfo
+              : StairInfo.None
+            : undefined,
         stairHeightLevel:
           values.elevatorHasStairs && values.elevatorStairInfo === StairInfo.One
             ? values.elevatorStairHeightLevel
             : undefined,
-        hasSlope: values.elevatorHasSlope || false,
+        hasSlope:
+          typeof values.elevatorHasSlope === 'boolean'
+            ? values.elevatorHasSlope
+            : undefined,
       };
     }
 

@@ -662,6 +662,12 @@ export interface BuildingAccessibility {
      */
     'elevatorStairHeightLevel'?: StairHeightLevel;
     /**
+     * 엘리베이터까지 가는 경사로 유무
+     * @type {boolean}
+     * @memberof BuildingAccessibility
+     */
+    'elevatorHasSlope'?: boolean;
+    /**
      * 
      * @type {Array<string>}
      * @memberof BuildingAccessibility
