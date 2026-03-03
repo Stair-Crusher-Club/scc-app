@@ -153,7 +153,7 @@ export default function FloorMovementStep({
                 </SubSection>
 
                 <SubSection>
-                  <Label>입구에 계단이 있나요?</Label>
+                  <Label>엘리베이터까지 가는 길에 계단이 있나요?</Label>
                   <OptionsGroup>
                     <Controller
                       name="elevatorHasStairs"
@@ -230,7 +230,7 @@ export default function FloorMovementStep({
                   )}
 
                 <SubSection>
-                  <Label>입구에 경사로가 있나요?</Label>
+                  <Label>엘리베이터까지 가는 길에 경사로가 있나요?</Label>
                   <Controller
                     name="elevatorHasSlope"
                     rules={{validate: v => typeof v === 'boolean'}}
