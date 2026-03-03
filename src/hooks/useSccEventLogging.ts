@@ -2,7 +2,6 @@ import {useEffect, useRef} from 'react';
 import {Keyboard} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {useIsFocused} from '@react-navigation/native';
-import {isFeatureEnabled} from '@/features/sandboxFeatures';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import {useEventLoggingRegistry} from '@/hooks/useEventLoggingRegistry';
 import {logElementClick, logElementView} from '@/logging/Logger';
@@ -58,9 +57,7 @@ export function useSccEventLogging({
     originalOnPress?: ((event: any) => void) | null,
   ) => {
     return (event: any) => {
-      if (isFeatureEnabled('KEYBOARD_AUTO_DISMISS')) {
-        Keyboard.dismiss();
-      }
+      Keyboard.dismiss();
 
       // element_click 로깅 (disableLogging이 false일 때만)
       if (!disableLogging) {
