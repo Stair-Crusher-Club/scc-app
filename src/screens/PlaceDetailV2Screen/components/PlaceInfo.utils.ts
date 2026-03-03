@@ -275,18 +275,20 @@ export enum ElevatorType {
 export function getBuildingElevatorType(ba: {
   hasElevator?: boolean;
   elevatorStairInfo?: StairInfo;
+  elevatorHasSlope?: boolean | null;
 }): ElevatorType {
   const hasElevator = ba.hasElevator;
   const stairInfo = ba.elevatorStairInfo;
+  const hasSlope = ba.elevatorHasSlope;
 
   if (!hasElevator) {
     return ElevatorType.NoElevator;
   }
-  if (stairInfo === StairInfo.None) {
+  // 계단 없고 경사로도 없는 경우 (null은 하위호환 — 경사로 없음으로 취급)
+  if (stairInfo === StairInfo.None && !hasSlope) {
     return ElevatorType.ElevatorNoBarriers;
-  } else {
-    return ElevatorType.ElevatorAfterStair;
   }
+  return ElevatorType.ElevatorAfterStair;
 }
 
 export function getStairDescription(
