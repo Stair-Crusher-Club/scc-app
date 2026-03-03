@@ -21,7 +21,11 @@ import {Configuration, DefaultApi} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
 
+import {setupSandboxFeatures} from '@/features/sandboxFeatures';
+
 import './global.css';
+
+setupSandboxFeatures();
 
 const queryClient = new QueryClient();
 
