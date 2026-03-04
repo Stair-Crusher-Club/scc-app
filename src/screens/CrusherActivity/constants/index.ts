@@ -63,6 +63,14 @@ export const crewInfoAssets: Record<CrusherClubCrewTypeDto, Asset> = {
         empty: require('@/assets/img/crusher_history_quest/empty/pen.png'),
         success: require('@/assets/img/crusher_history_quest/success/pen.png'),
       },
+      SHORT_REVIEW_7: {
+        empty: require('@/assets/img/crusher_history_quest/empty/camera.png'),
+        success: require('@/assets/img/crusher_history_quest/success/camera.png'),
+      },
+      SHORT_REVIEW_8: {
+        empty: require('@/assets/img/crusher_history_quest/empty/pen.png'),
+        success: require('@/assets/img/crusher_history_quest/success/pen.png'),
+      },
       LONG_REVIEW_1: {
         empty: require('@/assets/img/crusher_history_quest/empty/star2.png'),
         success: require('@/assets/img/crusher_history_quest/success/medal_red.png'),
