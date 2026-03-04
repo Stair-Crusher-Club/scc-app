@@ -31,9 +31,15 @@ export default function FooterButtonsSection({
   if (isLoading) {
     return (
       <Container>
-        <Skeleton style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}} />
-        <Skeleton style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}} />
-        <Skeleton style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}} />
+        <Skeleton
+          style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}}
+        />
+        <Skeleton
+          style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}}
+        />
+        <Skeleton
+          style={{height: FOOTER_ROW_HEIGHT, borderRadius: FOOTER_ROW_RADIUS}}
+        />
       </Container>
     );
   }

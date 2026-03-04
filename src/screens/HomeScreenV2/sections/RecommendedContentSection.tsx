@@ -35,9 +35,27 @@ export default function RecommendedContentSection({
         <Container>
           <SectionTitle>이런 키워드는 어때요?</SectionTitle>
           <SkeletonRow>
-            <Skeleton style={{width: CARD_WIDTH, height: CARD_HEIGHT, borderRadius: CARD_BORDER_RADIUS}} />
-            <Skeleton style={{width: CARD_WIDTH, height: CARD_HEIGHT, borderRadius: CARD_BORDER_RADIUS}} />
-            <Skeleton style={{width: CARD_WIDTH, height: CARD_HEIGHT, borderRadius: CARD_BORDER_RADIUS}} />
+            <Skeleton
+              style={{
+                width: CARD_WIDTH,
+                height: CARD_HEIGHT,
+                borderRadius: CARD_BORDER_RADIUS,
+              }}
+            />
+            <Skeleton
+              style={{
+                width: CARD_WIDTH,
+                height: CARD_HEIGHT,
+                borderRadius: CARD_BORDER_RADIUS,
+              }}
+            />
+            <Skeleton
+              style={{
+                width: CARD_WIDTH,
+                height: CARD_HEIGHT,
+                borderRadius: CARD_BORDER_RADIUS,
+              }}
+            />
           </SkeletonRow>
         </Container>
       );
