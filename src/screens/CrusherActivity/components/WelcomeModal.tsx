@@ -31,7 +31,7 @@ const MODAL_CONFIG: Record<
   STARTING_DAY: {
     buttonText: '앞으로 잘해봐요!',
     getTextParts: (nickname: string) => [
-      {text: "'25 가을시즌 크러셔클럽", bold: true},
+      {text: "'26 봄시즌 크러셔클럽", bold: true},
       {text: '에 온 크루\n', bold: false},
       {text: nickname, bold: true},
       {text: '님 환영합니다!', bold: false},
@@ -44,7 +44,7 @@ const MODAL_CONFIG: Record<
   'editor-crew-starting-day': {
     buttonText: '앞으로 잘해봐요!',
     getTextParts: (nickname: string) => [
-      {text: "'25 가을시즌 크러셔클럽", bold: true},
+      {text: "'26 봄시즌 크러셔클럽", bold: true},
       {text: '에 온 크루\n', bold: false},
       {text: nickname, bold: true},
       {text: '님 환영합니다!', bold: false},
@@ -57,7 +57,7 @@ const MODAL_CONFIG: Record<
   conquer_crew_starting_day: {
     buttonText: '앞으로 잘해봐요!',
     getTextParts: (nickname: string) => [
-      {text: "'25 가을시즌 크러셔클럽", bold: true},
+      {text: "'26 봄시즌 크러셔클럽", bold: true},
       {text: '에 온 크루\n', bold: false},
       {text: nickname, bold: true},
       {text: '님 환영합니다!', bold: false},
