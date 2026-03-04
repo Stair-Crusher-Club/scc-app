@@ -86,7 +86,7 @@ export default function ItemMap<T extends MarkerItem>({
     southWestLat: region.southWest.latitude,
     southWestLng: region.southWest.longitude,
   };
-  const nativeMarkerItems = items.map<NativeMarkerItem>(item => {
+  const nativeMarkerItems = items.map<NativeMarkerItem>((item, index) => {
     const isSelected = item.id === selectedItemId;
     return {
       id: item.id,
@@ -105,7 +105,7 @@ export default function ItemMap<T extends MarkerItem>({
         item.hasReview ?? false,
       ),
       iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
-      zIndex: isSelected ? 99 : 0,
+      zIndex: isSelected ? items.length + 1 : items.length - index,
     };
   });
 
