@@ -1,6 +1,6 @@
 import {useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Animated, Easing, Image, Linking} from 'react-native';
+import {Animated, Dimensions, Easing, Image, Linking} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
@@ -15,8 +15,12 @@ import useNavigation from '@/navigation/useNavigation';
 import {searchModeAtom} from '@/screens/SearchScreen/atoms';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CARD_HORIZONTAL_PADDING = 20;
+const CARD_GAP = 12;
+const CARD_WIDTH = (SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 const CARD_HEIGHT = 120;
-const CHARACTER_SIZE = 90;
+const CHARACTER_SIZE = CARD_WIDTH * 0.52; // ~90px on 390pt screen
 
 // Sprite positioning from Figma design
 // 조회하기: w=203.81% h=145.42% left=2.32% top=-15.43%

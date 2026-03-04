@@ -208,7 +208,7 @@ export default function MainBannerSection({
     if (isLoading) {
       return (
         <Container>
-          <SectionTitle>뿌클로드 특집 모음</SectionTitle>
+          <SectionTitle>이런 소식 어때요?</SectionTitle>
           <SkeletonWrapper>
             <Skeleton
               style={{
@@ -228,7 +228,7 @@ export default function MainBannerSection({
     return (
       <LogParamsProvider params={{displaySectionName: 'main_banner_section'}}>
         <Container>
-          <SectionTitle>뿌클로드 특집 모음</SectionTitle>
+          <SectionTitle>이런 소식 어때요?</SectionTitle>
           <SingleBannerWrapper>
             <MainBanner banner={banners[0]} index={0} trackView />
           </SingleBannerWrapper>
@@ -240,7 +240,7 @@ export default function MainBannerSection({
   return (
     <LogParamsProvider params={{displaySectionName: 'main_banner_section'}}>
       <Container>
-        <SectionTitle>뿌클로드 특집 모음</SectionTitle>
+        <SectionTitle>이런 소식 어때요?</SectionTitle>
         <BannerWrapper>
           <BannerTrack {...panResponder.panHandlers}>
             <Animated.View style={{transform: [{translateX: scrollPosition}]}}>

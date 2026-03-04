@@ -15,8 +15,9 @@ import {isAppDeepLink} from '@/utils/deepLinkUtils';
 const CARD_WIDTH = 130;
 const CARD_HEIGHT = 160;
 const CARD_GAP = 12;
-const IMAGE_SIZE = 72;
+const IMAGE_SIZE = Math.round(CARD_WIDTH * 0.55); // ~72px, scales with card
 const CARD_BORDER_RADIUS = 12;
+const CARD_BG_COLOR = '#f2f5fa';
 
 const CardSeparator = () => <View style={{width: CARD_GAP}} />;
 
@@ -124,7 +125,7 @@ function ContentCard({content, index}: ContentCardProps) {
               width: IMAGE_SIZE,
               height: IMAGE_SIZE,
               borderRadius: 0,
-              backgroundColor: color.white,
+              backgroundColor: CARD_BG_COLOR,
             }}
           />
         </ImageContainer>
@@ -151,7 +152,7 @@ const CardContainer = styled.View`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
   border-radius: ${CARD_BORDER_RADIUS}px;
-  background-color: #f2f5fa;
+  background-color: ${CARD_BG_COLOR};
   padding: 14px;
   position: relative;
 `;

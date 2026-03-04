@@ -11,6 +11,8 @@ import {
   Dimensions,
   Image,
   Linking,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   PermissionsAndroid,
   Platform,
   ScrollView,
@@ -213,6 +215,26 @@ const HomeScreenV2 = ({navigation}: any) => {
     setIsScrollEnabled(!isPanning);
   }, []);
 
+  // WhiteCard가 safe area 상단에 닿으면 흰색 오버레이 표시
+  const [showSafeAreaOverlay, setShowSafeAreaOverlay] = useState(false);
+  const whiteCardYRef = useRef(0);
+
+  const handleWhiteCardLayout = useCallback((e: any) => {
+    whiteCardYRef.current = e.nativeEvent.layout.y;
+  }, []);
+
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const scrollY = e.nativeEvent.contentOffset.y;
+      // WhiteCard 상단이 safe area 아래로 들어오는 시점
+      const threshold = whiteCardYRef.current - insets.top;
+      const shouldShow = scrollY >= threshold;
+      setShowSafeAreaOverlay(shouldShow);
+      StatusBar.setBarStyle(shouldShow ? 'dark-content' : 'light-content');
+    },
+    [insets.top],
+  );
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -259,7 +281,9 @@ const HomeScreenV2 = ({navigation}: any) => {
           <ScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
-            scrollEnabled={isScrollEnabled}>
+            scrollEnabled={isScrollEnabled}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}>
             <InnerContainer style={{paddingTop: insets.top}}>
               <LogoContainer>
                 <CrusherClubLogo />
@@ -267,7 +291,7 @@ const HomeScreenV2 = ({navigation}: any) => {
               <SearchButtonSection />
               <CategoryChipSection />
             </InnerContainer>
-            <WhiteCard>
+            <WhiteCard onLayout={handleWhiteCardLayout}>
               <QuickMenuSection
                 announcements={homeData?.announcements ?? []}
                 isLoading={isHomeDataLoading}
@@ -289,6 +313,9 @@ const HomeScreenV2 = ({navigation}: any) => {
             </WhiteCard>
             <FooterButtonsSection isLoading={isHomeDataLoading} />
           </ScrollView>
+          {showSafeAreaOverlay && (
+            <SafeAreaOverlay style={{height: insets.top}} />
+          )}
           <GeolocationPermissionBottomSheet
             isVisible={geolocationErrorReason !== null}
             errorReason={geolocationErrorReason ?? 'permission_denied'}
@@ -337,6 +364,14 @@ const BackgroundImage = styled(Image)`
   left: 0;
   width: ${SCREEN_WIDTH}px;
   height: ${BG_HEIGHT}px;
+`;
+
+const SafeAreaOverlay = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: ${color.white};
 `;
 
 const InnerContainer = styled.View``;
