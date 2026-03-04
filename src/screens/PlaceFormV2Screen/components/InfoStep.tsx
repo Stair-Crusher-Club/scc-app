@@ -11,7 +11,6 @@ import ToastUtils from '@/utils/ToastUtils';
 import {useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, Platform, ScrollView, View} from 'react-native';
-import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FORM_TOAST_OPTIONS, formImages} from '../constants';
@@ -84,10 +83,7 @@ export default function InfoStep({
     | 'doorType';
 
   const noticeError = (errorKey: FormErrorKey) => {
-    const toastOptions = {
-      ...FORM_TOAST_OPTIONS,
-      position: Toast.positions.CENTER,
-    };
+    const toastOptions = FORM_TOAST_OPTIONS;
     switch (errorKey) {
       case 'doorDirection':
         ToastUtils.show('매장 입구 방향을 선택해주세요.', toastOptions);
