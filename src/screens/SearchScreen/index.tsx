@@ -160,11 +160,10 @@ const SearchScreenContent = ({
     // 1. fromLookup 상태 설정
     setIsFromLookup(!!fromLookup);
 
-    // 2. fromLookup이면 isRegistered 필터 + 접근레벨 낮은순 정렬 적용
+    // 2. fromLookup이면 접근레벨 낮은순 정렬 적용
     if (fromLookup) {
       setFilter(prev => ({
         ...prev,
-        isRegistered: true,
         sortOption: SortOption.LOW_SCORE,
       }));
     }
