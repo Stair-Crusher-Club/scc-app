@@ -24,7 +24,7 @@ import useNavigation from '@/navigation/useNavigation';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import LGButton from '@/screens/SearchScreen/components/LGButton';
 import AccessibilityInfoRequestButton, {
-  INFO_REQUEST_ELIGIBLE_CATEGORIES,
+  isInfoRequestEligible,
 } from '@/components/AccessibilityInfoRequestButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import Tooltip from '@/screens/SearchScreen/components/Tooltip';
@@ -203,11 +203,12 @@ function SearchItemCard({
         onPress={onPress}>
         <InfoArea>
           <LabelIconArea>
-            {item.hasPlaceAccessibility ||
-            isConquestMode ||
-            !item.place.address.startsWith('서울') ||
-            !item.place.category ||
-            !INFO_REQUEST_ELIGIBLE_CATEGORIES.includes(item.place.category) ? (
+            {!isInfoRequestEligible({
+              hasPlaceAccessibility: item.hasPlaceAccessibility,
+              address: item.place.address,
+              category: item.place.category,
+              isConquestMode,
+            }) ? (
               <ScoreLabel
                 score={getPlaceAccessibilityScore({
                   score: item.accessibilityInfo?.accessibilityScore,

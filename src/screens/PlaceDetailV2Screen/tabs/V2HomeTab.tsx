@@ -9,7 +9,7 @@ import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
 import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
 import RouteFillIcon from '@/assets/icon/ic_route_fill.svg';
 
-import {INFO_REQUEST_ELIGIBLE_CATEGORIES} from '@/components/AccessibilityInfoRequestButton';
+import {isInfoRequestEligible} from '@/components/AccessibilityInfoRequestButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -195,33 +195,34 @@ export default function V2HomeTab({
       </PlaceInfoSection>
 
       {/* ── 2. AskBanner ── */}
-      {!hasAccessibility &&
-        place.address.startsWith('서울') &&
-        !!place.category &&
-        INFO_REQUEST_ELIGIBLE_CATEGORIES.includes(place.category) && (
-          <AskBannerContainer>
-            <AskBannerInner>
-              <AskBannerText>
-                {
-                  '이곳의 접근성이 궁금하시면\n버튼을 눌러서 접근성 정보를 요청해주세요!'
-                }
-              </AskBannerText>
-              <RequestButton
-                elementName="v2_home_tab_request_info"
-                onPress={onRequestInfo}
-                isRequested={isAccessibilityInfoRequested}>
-                <RequestButtonText isRequested={isAccessibilityInfoRequested}>
-                  {isAccessibilityInfoRequested
-                    ? '정보 요청 완료!'
-                    : '정보 요청하기'}
-                </RequestButtonText>
-              </RequestButton>
-              <AskBannerImage
-                source={require('@/assets/img/img_request_info_banner.png')}
-              />
-            </AskBannerInner>
-          </AskBannerContainer>
-        )}
+      {isInfoRequestEligible({
+        hasPlaceAccessibility: hasAccessibility,
+        address: place.address,
+        category: place.category,
+      }) && (
+        <AskBannerContainer>
+          <AskBannerInner>
+            <AskBannerText>
+              {
+                '이곳의 접근성이 궁금하시면\n버튼을 눌러서 접근성 정보를 요청해주세요!'
+              }
+            </AskBannerText>
+            <RequestButton
+              elementName="v2_home_tab_request_info"
+              onPress={onRequestInfo}
+              isRequested={isAccessibilityInfoRequested}>
+              <RequestButtonText isRequested={isAccessibilityInfoRequested}>
+                {isAccessibilityInfoRequested
+                  ? '정보 요청 완료!'
+                  : '정보 요청하기'}
+              </RequestButtonText>
+            </RequestButton>
+            <AskBannerImage
+              source={require('@/assets/img/img_request_info_banner.png')}
+            />
+          </AskBannerInner>
+        </AskBannerContainer>
+      )}
 
       {/* ── 3. 접근성 섹션 ── */}
       <Section>
