@@ -1559,6 +1559,8 @@ export const CrusherClubQuestCompleteStampTypeDto = {
     ShortReview4: 'SHORT_REVIEW_4',
     ShortReview5: 'SHORT_REVIEW_5',
     ShortReview6: 'SHORT_REVIEW_6',
+    ShortReview7: 'SHORT_REVIEW_7',
+    ShortReview8: 'SHORT_REVIEW_8',
     LongReview1: 'LONG_REVIEW_1',
     LongReview2: 'LONG_REVIEW_2',
     AppUsageReview: 'APP_USAGE_REVIEW',
