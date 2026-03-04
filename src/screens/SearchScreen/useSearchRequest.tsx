@@ -81,6 +81,8 @@ export default function useSearchRequest() {
       let currentLocation;
       if (sortOption === SortOption.DISTANCE) {
         sort = SearchPlaceSortDto.Distance;
+      } else if (sortOption === SortOption.LOW_SCORE) {
+        sort = SearchPlaceSortDto.AccessibilityScore;
       } else {
         sort = SearchPlaceSortDto.Accuracy;
       }
