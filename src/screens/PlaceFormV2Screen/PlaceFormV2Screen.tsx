@@ -352,7 +352,8 @@ export default function PlaceFormV2Screen({
       return true;
     }
 
-    return true;
+    // 첫 step에서는 기본 back 동작 허용 → usePreventRemove가 종료 확인 다이얼로그 표시
+    return false;
   });
 
   const stepConfig: Record<Step, ReactElement> = {

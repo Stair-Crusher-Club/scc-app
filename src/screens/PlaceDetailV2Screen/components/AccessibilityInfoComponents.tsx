@@ -1,13 +1,17 @@
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import React from 'react';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 import PlusStrokeIcon from '@/assets/icon/ic_plus_stroke.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {doorTypeMap} from '@/constant/options';
+import {ScreenParams} from '@/navigation/Navigation.screens';
 import {
   AccessibilityInfoV2Dto,
   BuildingAccessibilityComment,
@@ -53,13 +57,29 @@ export function InfoRow({
 // ──────────────── PhotoRow ────────────────
 
 export function PhotoRow({images}: {images: Array<{imageUrl: string}>}) {
+  const navigation = useNavigation<NativeStackNavigationProp<ScreenParams>>();
+
   if (images.length === 0) {
     return null;
   }
+
+  const onPressImage = (index: number) => {
+    navigation.navigate('ImageZoomViewer', {
+      imageUrls: images.map(img => img.imageUrl),
+      index,
+    });
+  };
+
   return (
     <PhotoRowContainer>
       {images.slice(0, 3).map((img, index) => (
-        <PhotoThumbnail key={index} source={{uri: img.imageUrl}} />
+        <SccPressable
+          key={index}
+          elementName="accessibility_photo"
+          logParams={{image_index: index.toString()}}
+          onPress={() => onPressImage(index)}>
+          <PhotoThumbnail source={{uri: img.imageUrl}} />
+        </SccPressable>
       ))}
     </PhotoRowContainer>
   );
