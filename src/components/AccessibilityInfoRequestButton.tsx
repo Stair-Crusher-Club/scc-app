@@ -8,6 +8,16 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import type {QueryKey} from '@tanstack/react-query';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useCheckAuth} from '@/utils/checkAuth';
+import {PlaceCategoryDto} from '@/generated-sources/openapi';
+
+/** 정보 요청하기 버튼이 노출되는 카테고리 */
+export const INFO_REQUEST_ELIGIBLE_CATEGORIES: PlaceCategoryDto[] = [
+  PlaceCategoryDto.Restaurant,
+  PlaceCategoryDto.Cafe,
+  PlaceCategoryDto.ConvenienceStore,
+  PlaceCategoryDto.Hospital,
+  PlaceCategoryDto.Pharmacy,
+];
 
 let highlightAnimationPlayed = false;
 

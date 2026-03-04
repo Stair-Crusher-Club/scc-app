@@ -14,6 +14,7 @@ import NavigationIcon from '@/assets/icon/ic_navigation.svg';
 import ReviewOutlineIcon from '@/assets/icon/ic_review_outline.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 
+import {INFO_REQUEST_ELIGIBLE_CATEGORIES} from '@/components/AccessibilityInfoRequestButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -166,29 +167,34 @@ const PlaceDetailSummarySection = ({
           </S.Summary>
         </S.Row>
         <S.Separator />
-        <RequestInfoButton
-          elementName="place_detail_accessibility_info_request_button"
-          logParams={{
-            placeId: place.id,
-            isRequested: accessibility?.isAccessibilityInfoRequested,
-          }}
-          activeOpacity={0.6}
-          isRequested={accessibility?.isAccessibilityInfoRequested}
-          onPress={() =>
-            checkAuth(() => {
-              toggleRequest({
-                currentIsRequested: accessibility?.isAccessibilityInfoRequested,
+        {place.address.startsWith('서울') &&
+          !!place.category &&
+          INFO_REQUEST_ELIGIBLE_CATEGORIES.includes(place.category) && (
+            <RequestInfoButton
+              elementName="place_detail_accessibility_info_request_button"
+              logParams={{
                 placeId: place.id,
-              });
-            })
-          }>
-          <RequestInfoButtonText
-            isRequested={accessibility?.isAccessibilityInfoRequested}>
-            {accessibility?.isAccessibilityInfoRequested
-              ? '접근성 정보 요청됨'
-              : '접근성 정보 요청하기'}
-          </RequestInfoButtonText>
-        </RequestInfoButton>
+                isRequested: accessibility?.isAccessibilityInfoRequested,
+              }}
+              activeOpacity={0.6}
+              isRequested={accessibility?.isAccessibilityInfoRequested}
+              onPress={() =>
+                checkAuth(() => {
+                  toggleRequest({
+                    currentIsRequested:
+                      accessibility?.isAccessibilityInfoRequested,
+                    placeId: place.id,
+                  });
+                })
+              }>
+              <RequestInfoButtonText
+                isRequested={accessibility?.isAccessibilityInfoRequested}>
+                {accessibility?.isAccessibilityInfoRequested
+                  ? '접근성 정보 요청됨'
+                  : '접근성 정보 요청하기'}
+              </RequestInfoButtonText>
+            </RequestInfoButton>
+          )}
       </S.Section>
     );
   }
