@@ -199,7 +199,13 @@ export default function QuickMenuSection({
             </SccPressable>
           </CardsRow>
           {isLoading && announcements.length === 0 ? (
-            <Skeleton style={{height: ANNOUNCEMENT_HEIGHT, borderRadius: ANNOUNCEMENT_RADIUS, width: 350}} />
+            <Skeleton
+              style={{
+                height: ANNOUNCEMENT_HEIGHT,
+                borderRadius: ANNOUNCEMENT_RADIUS,
+                width: '100%',
+              }}
+            />
           ) : len > 0 ? (
             <AnnouncementContainer>
               <AnnouncementTextContainer>

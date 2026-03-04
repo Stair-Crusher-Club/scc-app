@@ -8,16 +8,19 @@ import {useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   BackHandler,
+  Dimensions,
+  Image,
   Linking,
   PermissionsAndroid,
   Platform,
   ScrollView,
   StatusBar,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import DeviceInfo from 'react-native-device-info';
 import styled from 'styled-components/native';
 
-import CrusherClubLogo from '@/assets/icon/logo_brand_color.svg';
+import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
@@ -44,8 +47,13 @@ import StripBannerSection from './sections/StripBannerSection';
 
 export interface HomeScreenV2Params {}
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const BG_ASPECT_RATIO = 1170 / 987; // original image aspect ratio
+const BG_HEIGHT = SCREEN_WIDTH / BG_ASPECT_RATIO;
+
 const HomeScreenV2 = ({navigation}: any) => {
   const {api} = useAppComponents();
+  const insets = useSafeAreaInsets();
 
   const accessToken = useAtomValue(accessTokenAtom);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
@@ -185,14 +193,16 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   useFocusEffect(
     useCallback(() => {
-      StatusBar.setBarStyle('dark-content');
+      StatusBar.setBarStyle('light-content');
       if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor(color.gray15);
+        StatusBar.setBackgroundColor('transparent');
+        StatusBar.setTranslucent(true);
       }
       return () => {
         StatusBar.setBarStyle('dark-content');
         if (Platform.OS === 'android') {
           StatusBar.setBackgroundColor(color.gray15);
+          StatusBar.setTranslucent(false);
         }
       };
     }, []),
@@ -241,14 +251,16 @@ const HomeScreenV2 = ({navigation}: any) => {
     <>
       <ScreenLayout
         isHeaderVisible={false}
-        safeAreaEdges={['top']}
-        style={{backgroundColor: color.gray15}}>
+        style={{backgroundColor: color.white}}>
         <Container>
+          <BackgroundImage
+            source={require('@/assets/img/home_screen_bg.png')}
+          />
           <ScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
             scrollEnabled={isScrollEnabled}>
-            <InnerContainer>
+            <InnerContainer style={{paddingTop: insets.top}}>
               <LogoContainer>
                 <CrusherClubLogo />
               </LogoContainer>
@@ -314,9 +326,17 @@ const Container = styled.View`
 const LogoContainer = styled.View`
   align-items: center;
   justify-content: center;
-  padding-top: 20px;
+  padding-top: 32px;
   padding-bottom: 28px;
   margin-bottom: 4px;
+`;
+
+const BackgroundImage = styled(Image)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: ${SCREEN_WIDTH}px;
+  height: ${BG_HEIGHT}px;
 `;
 
 const InnerContainer = styled.View``;
