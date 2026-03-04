@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {View} from 'react-native';
 
 import {MOBILITY_TOOL_OPTIONS} from '@/constant/mobilityTool';
@@ -28,6 +28,7 @@ export default function UserMobilityToolsForm({
   onSubmit,
 }: UserMobilityToolsFormProps) {
   const [isAskBottomSheetVisible, setIsAskBottomSheetVisible] = useState(false);
+  const prevValueRef = useRef<UserMobilityToolDto[]>([]);
 
   return (
     <>
@@ -61,6 +62,7 @@ export default function UserMobilityToolsForm({
                 !isNotUsingMobilityTool(prev) &&
                 isNotUsingMobilityTool(pressed)
               ) {
+                prevValueRef.current = prev;
                 setIsAskBottomSheetVisible(true);
                 onChangeValue([UserMobilityToolDto.None]);
                 return;
@@ -88,6 +90,10 @@ export default function UserMobilityToolsForm({
               : UserMobilityToolDto.None,
           ]);
           onSubmit?.();
+        }}
+        onDismiss={() => {
+          setIsAskBottomSheetVisible(false);
+          onChangeValue(prevValueRef.current);
         }}
       />
     </>

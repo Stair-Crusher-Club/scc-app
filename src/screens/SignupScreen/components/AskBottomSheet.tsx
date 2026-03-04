@@ -10,14 +10,16 @@ import BottomSheet from '@/modals/BottomSheet';
 interface AskBottomSheetProps {
   isVisible: boolean;
   onClose: (isAgree: boolean) => void;
+  onDismiss?: () => void;
 }
 
 export default function AskBottomSheet({
   isVisible,
   onClose,
+  onDismiss,
 }: AskBottomSheetProps) {
   return (
-    <BottomSheet isVisible={isVisible}>
+    <BottomSheet isVisible={isVisible} onPressBackground={onDismiss}>
       <View style={{padding: 20, gap: 24}}>
         <BottomSheetTitle>
           그렇다면,{'\n'}
