@@ -8,6 +8,35 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import type {QueryKey} from '@tanstack/react-query';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useCheckAuth} from '@/utils/checkAuth';
+import {PlaceCategoryDto} from '@/generated-sources/openapi';
+
+/** 정보 요청하기 버튼이 노출되는 카테고리 */
+const INFO_REQUEST_ELIGIBLE_CATEGORIES: PlaceCategoryDto[] = [
+  PlaceCategoryDto.Restaurant,
+  PlaceCategoryDto.Cafe,
+  PlaceCategoryDto.ConvenienceStore,
+  PlaceCategoryDto.Hospital,
+  PlaceCategoryDto.Pharmacy,
+];
+
+/** 정보 요청하기 버튼 노출 조건 */
+export function isInfoRequestEligible(params: {
+  hasPlaceAccessibility: boolean;
+  address: string;
+  category?: PlaceCategoryDto;
+  isConquestMode?: boolean;
+}): boolean {
+  if (params.hasPlaceAccessibility) return false;
+  if (params.isConquestMode) return false;
+  if (!params.address.startsWith('서울')) return false;
+  if (
+    !params.category ||
+    !INFO_REQUEST_ELIGIBLE_CATEGORIES.includes(params.category)
+  ) {
+    return false;
+  }
+  return true;
+}
 
 let highlightAnimationPlayed = false;
 

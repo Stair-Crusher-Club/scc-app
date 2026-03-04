@@ -38,7 +38,6 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
-import Toast from 'react-native-root-toast';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -121,6 +120,7 @@ export default function BuildingFormV2Screen({
   const elevatorHasStairs = form.watch('elevatorHasStairs');
   const elevatorStairInfo = form.watch('elevatorStairInfo');
   const elevatorStairHeightLevel = form.watch('elevatorStairHeightLevel');
+  const elevatorHasSlope = form.watch('elevatorHasSlope');
 
   // Reset elevator related fields when hasElevator changes to false
   useEffect(() => {
@@ -241,6 +241,11 @@ export default function BuildingFormV2Screen({
         !elevatorStairHeightLevel
       ) {
         return 'elevatorStairHeightLevel';
+      }
+
+      // 경사로 여부는 필수 (boolean)
+      if (typeof elevatorHasSlope !== 'boolean') {
+        return 'elevatorHasSlope';
       }
     }
     return null;
@@ -364,10 +369,7 @@ export default function BuildingFormV2Screen({
   );
 
   function noticeError(errorKey: keyof FormValues) {
-    const toastOptions = {
-      ...FORM_TOAST_OPTIONS,
-      position: Toast.positions.CENTER,
-    };
+    const toastOptions = FORM_TOAST_OPTIONS;
     switch (errorKey) {
       case 'entranceDirection':
         ToastUtils.show('출입구 방향을 선택해주세요.', toastOptions);
@@ -396,6 +398,9 @@ export default function BuildingFormV2Screen({
         break;
       case 'hasSlope':
         ToastUtils.show('경사로 정보를 입력해주세요.', toastOptions);
+        break;
+      case 'elevatorHasSlope':
+        ToastUtils.show('엘리베이터 경사로 정보를 입력해주세요.', toastOptions);
         break;
       case 'doorTypes':
         ToastUtils.show('출입문 종류를 선택해주세요.', toastOptions);
@@ -845,7 +850,8 @@ export default function BuildingFormV2Screen({
 
                     <S.SubSection>
                       <S.Label>
-                        엘리베이터까지 가는 길에 경사로가 있나요?
+                        엘리베이터까지 가는 길에 경사로가 있나요?{' '}
+                        <S.RequiredMark>*</S.RequiredMark>
                       </S.Label>
                       <Controller
                         name="elevatorHasSlope"

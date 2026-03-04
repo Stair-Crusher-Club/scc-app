@@ -9,6 +9,7 @@ import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
 import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
 import RouteFillIcon from '@/assets/icon/ic_route_fill.svg';
 
+import {isInfoRequestEligible} from '@/components/AccessibilityInfoRequestButton';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -194,7 +195,11 @@ export default function V2HomeTab({
       </PlaceInfoSection>
 
       {/* ── 2. AskBanner ── */}
-      {!hasAccessibility && (
+      {isInfoRequestEligible({
+        hasPlaceAccessibility: hasAccessibility,
+        address: place.address,
+        category: place.category,
+      }) && (
         <AskBannerContainer>
           <AskBannerInner>
             <AskBannerText>
