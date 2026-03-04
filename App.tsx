@@ -149,6 +149,7 @@ const AppWithMigration = () => {
 
 const HotUpdatedApp = HotUpdater.wrap({
   source: Config.HOT_UPDATER_URL ?? '',
+  fallbackComponent: () => null,
   onError: error => {
     getAnalytics().logEvent('HotUpdaterError', {
       error: error.message,
