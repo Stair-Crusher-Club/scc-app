@@ -16,7 +16,7 @@ export const Options = styled.View({
 export const PressableOption = styled(SccPressable)<{
   selected: boolean;
   disabled: boolean;
-}>(({selected, disabled}) => ({
+}>(({selected}) => ({
   borderRadius: 14,
   borderWidth: 1.2,
   display: 'flex',
@@ -29,16 +29,17 @@ export const PressableOption = styled(SccPressable)<{
   minHeight: 52,
   paddingHorizontal: 12,
   paddingVertical: 14,
-  opacity: disabled ? 0.3 : 1,
   borderColor: selected ? color.blue40 : color.gray20,
   backgroundColor: selected ? color.brand5 : color.white,
 }));
 
-export const OptionText = styled.Text<{selected: boolean}>(({selected}) => ({
-  textAlign: 'center' as const,
-  fontSize: 16,
-  lineHeight: 24,
-  letterSpacing: -0.32,
-  fontFamily: font.pretendardMedium,
-  color: selected ? color.brand50 : color.gray80,
-}));
+export const OptionText = styled.Text<{selected: boolean; disabled?: boolean}>(
+  ({selected, disabled}) => ({
+    textAlign: 'center' as const,
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: -0.32,
+    fontFamily: font.pretendardMedium,
+    color: disabled ? color.gray35 : selected ? color.brand50 : color.gray80,
+  }),
+);

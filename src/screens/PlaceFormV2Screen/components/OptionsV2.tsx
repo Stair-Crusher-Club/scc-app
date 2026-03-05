@@ -40,7 +40,9 @@ export default function OptionsV2({
           selected={option.value === value}
           disabled={option.disabled ?? false}
           onPress={() => onSelect(option.value)}>
-          <S.OptionText selected={option.value === value}>
+          <S.OptionText
+            selected={option.value === value}
+            disabled={option.disabled ?? false}>
             {option.label}
           </S.OptionText>
         </S.PressableOption>
@@ -96,13 +98,27 @@ OptionsV2.Multiple = function MultipleOptions({
             onPress={() => handleSelect(option.value)}>
             {Icon && (
               <Icon
-                color={selected ? color.brandColor : color.black}
-                pointColor="transparent"
+                color={
+                  isDisabled
+                    ? color.gray40
+                    : selected
+                      ? color.brandColor
+                      : color.black
+                }
+                pointColor={
+                  isDisabled
+                    ? color.gray25
+                    : selected
+                      ? color.brand15
+                      : color.brand25
+                }
                 width={28}
                 height={28}
               />
             )}
-            <S.OptionText selected={selected}>{option.label}</S.OptionText>
+            <S.OptionText selected={selected} disabled={isDisabled}>
+              {option.label}
+            </S.OptionText>
           </S.PressableOption>
         );
       })}

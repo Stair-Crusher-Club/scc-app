@@ -21,6 +21,12 @@ export const makeDoorTypeOptions = (currentOptions: EntranceDoorType[]) => {
 
   return [
     {
+      icon: AutomaticDoorIcon,
+      label: doorTypeMap[EntranceDoorType.Automatic],
+      value: EntranceDoorType.Automatic,
+      disabled: isNoDoorSelected,
+    },
+    {
       icon: HingedDoorIcon,
       label: doorTypeMap[EntranceDoorType.Hinged],
       value: EntranceDoorType.Hinged,
@@ -30,12 +36,6 @@ export const makeDoorTypeOptions = (currentOptions: EntranceDoorType[]) => {
       icon: SlidingDoorIcon,
       label: doorTypeMap[EntranceDoorType.Sliding],
       value: EntranceDoorType.Sliding,
-      disabled: isNoDoorSelected,
-    },
-    {
-      icon: AutomaticDoorIcon,
-      label: doorTypeMap[EntranceDoorType.Automatic],
-      value: EntranceDoorType.Automatic,
       disabled: isNoDoorSelected,
     },
     {
