@@ -2,9 +2,8 @@ import {useMe} from '@/atoms/Auth';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
-import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ActivityItem from '../components/ActivityItem';
@@ -58,21 +57,12 @@ export default function CrusherActivitySeasonView({
     [crusherActivity?.quests],
   );
 
-  const [quests, setQuests] = useState(
-    crewType
-      ? questToggleStatus === 'collapse'
-        ? originQuests.slice(0, 6)
-        : originQuests
-      : [],
-  );
-
-  useEffect(() => {
-    if (questToggleStatus === 'expand') {
-      setQuests(originQuests);
-    } else {
-      setQuests(originQuests.slice(0, 6));
-    }
-  }, [questToggleStatus, originQuests]);
+  const quests = useMemo(() => {
+    if (!crewType) return [];
+    return questToggleStatus === 'collapse'
+      ? originQuests.slice(0, 6)
+      : originQuests;
+  }, [crewType, questToggleStatus, originQuests]);
 
   const activityLogs = crusherActivity?.activityLogs ?? [];
 
@@ -88,7 +78,7 @@ export default function CrusherActivitySeasonView({
         title={
           titleFromProps ??
           crusherActivity?.crusherClub.season ??
-          '25’ 가을 시즌'
+          "'25 가을 시즌"
         }>
         <View
           style={{
@@ -183,34 +173,27 @@ export default function CrusherActivitySeasonView({
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
-          <FlashList
-            data={quests}
-            estimatedItemSize={130}
-            keyExtractor={item => item.id}
-            renderItem={({item}) => {
-              if (!crewType) {
-                return null;
-              }
-
-              return (
-                <QuestItem
-                  title={item.title}
-                  completedAt={item.completedAt}
-                  source={
-                    item.completedAt
-                      ? crewInfoAssets[crewType].questMap[
-                          item.completeStampType
-                        ]?.success
-                      : crewInfoAssets[crewType].questMap[
-                          item.completeStampType
-                        ]?.empty
-                  }
-                />
-              );
-            }}
-            numColumns={3}
-            ItemSeparatorComponent={QuestItem.Gap}
-          />
+          <View style={{flexDirection: 'row', flexWrap: 'wrap', rowGap: 16}}>
+            {quests.map(item => (
+              <View key={item.id} style={{width: '33.33%'}}>
+                {crewType && (
+                  <QuestItem
+                    title={item.title}
+                    completedAt={item.completedAt}
+                    source={
+                      item.completedAt
+                        ? crewInfoAssets[crewType].questMap[
+                            item.completeStampType
+                          ]?.success
+                        : crewInfoAssets[crewType].questMap[
+                            item.completeStampType
+                          ]?.empty
+                    }
+                  />
+                )}
+              </View>
+            ))}
+          </View>
 
           <View
             style={{
@@ -245,47 +228,49 @@ export default function CrusherActivitySeasonView({
             paddingHorizontal: 12,
             borderRadius: 12,
           }}>
-          <FlashList
-            data={activityLogs}
-            estimatedItemSize={52}
-            renderItem={({item, index}) => (
-              <ActivityItem
-                activityDoneAt={item.activityDoneAt}
-                title={item.title}
-                visibleLine={
-                  activityLogs.length - 1 !== index && activityLogs.length > 1
-                }
-                isFirst={index === 0}
-                canceledAt={item.canceledAt}
-              />
-            )}
-            ItemSeparatorComponent={ActivityItem.Gap}
-            ListEmptyComponent={
-              <View
+          {activityLogs.length === 0 ? (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 12,
+                paddingVertical: 12,
+              }}>
+              <Image
+                source={require('@/assets/img/img_crusher_history_activities_empty.png')}
                 style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: 12,
-                  paddingVertical: 12,
-                }}>
-                <Image
-                  source={require('@/assets/img/img_crusher_history_activities_empty.png')}
-                  style={{
-                    width: 64,
-                    height: 64,
-                  }}
-                />
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 16,
-                    lineHeight: 24,
-                    fontFamily: font.pretendardRegular,
-                    color: color.gray50,
-                  }}>{`${isPastSeason ? '해당' : '이번'} 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
-              </View>
-            }
-          />
+                  width: 64,
+                  height: 64,
+                }}
+              />
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 16,
+                  lineHeight: 24,
+                  fontFamily: font.pretendardRegular,
+                  color: color.gray50,
+                }}>{`${isPastSeason ? '해당' : '이번'} 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
+            </View>
+          ) : (
+            <View>
+              {activityLogs.map((item, index) => (
+                <React.Fragment key={index}>
+                  <ActivityItem
+                    activityDoneAt={item.activityDoneAt}
+                    title={item.title}
+                    visibleLine={
+                      activityLogs.length - 1 !== index &&
+                      activityLogs.length > 1
+                    }
+                    isFirst={index === 0}
+                    canceledAt={item.canceledAt}
+                  />
+                  {index < activityLogs.length - 1 && <ActivityItem.Gap />}
+                </React.Fragment>
+              ))}
+            </View>
+          )}
         </View>
       </SectionContainer>
     </ScrollView>
