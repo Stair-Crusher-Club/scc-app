@@ -230,45 +230,45 @@ export interface GuideContent {
 
 export const GUIDE_CONTENTS: Record<string, GuideContent> = {
   firstFloor: {
-    title: '건물 1층에 있는 장소를\n등록하는 방법',
+    title: '건물 1층에 있는 장소\n정보 등록하는 방법',
     steps: [
       {number: 1, description: '매장 출입구 방향을 선택해요'},
-      {number: 2, description: '입구사진을 촬영한 후'},
+      {number: 2, description: '입구 사진을 촬영한 후'},
       {number: 3, description: '계단, 경사로 등 접근성 정보를 입력하면'},
       {number: 4, description: '끝!'},
     ],
     additionalInfo:
-      '건물정보까지 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
+      '건물 정보까지 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
     image: formImages.floor.first,
   },
   otherFloor: {
-    title: '1층이 아닌 다른층에 있는 장소\n정보등록하는 법',
+    title: '1층이 아닌 다른 층에 있는 장소\n정보 등록하는 법',
     steps: [
       {number: 1, description: '매장 출입구 방향을 선택해요'},
-      {number: 2, description: '입구사진을 촬영한 후'},
+      {number: 2, description: '입구 사진을 촬영한 후'},
       {number: 3, description: '계단, 경사로 등 접근성 정보를 입력하고'},
       {number: 4, description: '장소의 층까지 이동하는 방법을 등록하면'},
       {number: 5, description: '끝!'},
     ],
     additionalInfo:
-      '건물정보까지 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
+      '건물 정보까지 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
     image: formImages.floor.other,
   },
   multipleFloors: {
-    title: '1층을 포함한 여러층에 있는 장소\n정보등록 하는 법',
+    title: '1층을 포함한 여러 층에 있는 장소\n정보 등록 하는 법',
     steps: [
       {number: 1, description: '매장 출입구 방향을 선택해요'},
-      {number: 2, description: '입구사진을 촬영한 후'},
+      {number: 2, description: '입구 사진을 촬영한 후'},
       {number: 3, description: '계단, 경사로 등 접근성 정보를 입력하고'},
-      {number: 4, description: '층간이동정보를 입력하면'},
+      {number: 4, description: '층간 이동 정보를 입력하면'},
       {number: 5, description: '끝!'},
     ],
     additionalInfo:
-      '건물정보까지 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
+      '건물 정보까지 입력하면,\n더 큰 도움이 된다는 사실 기억해주세요💙',
     image: formImages.floor.multi,
   },
   standaloneSingleFloor: {
-    title: '단독건물인 장소\n정보등록 하는 방법',
+    title: '단독건물인 장소\n정보 등록 하는 방법',
     steps: [
       {number: 1, description: '매장 출입구 방향을 선택해요'},
       {number: 2, description: '계단, 경사로 등 접근성 정보를 입력하면'},
@@ -279,11 +279,11 @@ export const GUIDE_CONTENTS: Record<string, GuideContent> = {
     image: formImages.floor.firstStandalone,
   },
   standaloneMultipleFloors: {
-    title: '단독건물인 장소\n정보등록 하는 방법',
+    title: '단독건물인 장소\n정보 등록 하는 방법',
     steps: [
       {number: 1, description: '건물 전경보다는 매장 출입구를 촬영해주세요'},
       {number: 2, description: '매장 출입문이 전체적으로 나오도록 촬영하고'},
-      {number: 3, description: '계단, 경사로 등 등 접근성 정보를 입력합니다.'},
+      {number: 3, description: '계단, 경사로 등 접근성 정보를 입력합니다'},
       {number: 4, description: '층간 이동 방법도 알려주시면'},
       {number: 5, description: '끝!'},
     ],
