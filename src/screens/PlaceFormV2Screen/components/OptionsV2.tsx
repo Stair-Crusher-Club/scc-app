@@ -116,10 +116,7 @@ OptionsV2.Multiple = function MultipleOptions({
                 height={28}
               />
             )}
-            <S.OptionText
-              selected={selected}
-              disabled={isDisabled}
-              style={Icon ? {width: 55} : undefined}>
+            <S.OptionText selected={selected} disabled={isDisabled}>
               {option.label}
             </S.OptionText>
           </S.PressableOption>

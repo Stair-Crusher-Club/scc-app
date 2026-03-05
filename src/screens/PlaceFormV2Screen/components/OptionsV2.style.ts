@@ -35,6 +35,7 @@ export const PressableOption = styled(SccPressable)<{
 
 export const OptionText = styled.Text<{selected: boolean; disabled?: boolean}>(
   ({selected, disabled}) => ({
+    flex: 1,
     textAlign: 'center' as const,
     fontSize: 16,
     lineHeight: 24,
