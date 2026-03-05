@@ -83,8 +83,20 @@ Options.Multiple = function MultipleOptions({
             onPress={() => handleSelect(option.value)}>
             {Icon && (
               <Icon
-                color={selected ? color.brandColor : color.gray70}
-                pointColor={'transparent'}
+                color={
+                  (option.disabled ?? false) && !selected
+                    ? color.gray40
+                    : selected
+                      ? color.brandColor
+                      : color.black
+                }
+                pointColor={
+                  (option.disabled ?? false) && !selected
+                    ? color.gray25
+                    : selected
+                      ? color.brand15
+                      : color.brand25
+                }
                 width={28}
                 height={28}
               />

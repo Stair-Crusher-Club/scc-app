@@ -96,29 +96,35 @@ OptionsV2.Multiple = function MultipleOptions({
             selected={selected}
             disabled={isDisabled}
             onPress={() => handleSelect(option.value)}>
-            {Icon && (
-              <Icon
-                color={
-                  isDisabled
-                    ? color.gray40
-                    : selected
-                      ? color.brandColor
-                      : color.black
-                }
-                pointColor={
-                  isDisabled
-                    ? color.gray25
-                    : selected
-                      ? color.brand15
-                      : color.brand25
-                }
-                width={28}
-                height={28}
-              />
+            {Icon ? (
+              <S.IconTextRow>
+                <Icon
+                  color={
+                    isDisabled
+                      ? color.gray40
+                      : selected
+                        ? color.brandColor
+                        : color.black
+                  }
+                  pointColor={
+                    isDisabled
+                      ? color.gray25
+                      : selected
+                        ? color.brand15
+                        : color.brand25
+                  }
+                  width={28}
+                  height={28}
+                />
+                <S.OptionText selected={selected} disabled={isDisabled}>
+                  {option.label}
+                </S.OptionText>
+              </S.IconTextRow>
+            ) : (
+              <S.OptionText selected={selected} disabled={isDisabled}>
+                {option.label}
+              </S.OptionText>
             )}
-            <S.OptionText selected={selected} disabled={isDisabled}>
-              {option.label}
-            </S.OptionText>
           </S.PressableOption>
         );
       })}
