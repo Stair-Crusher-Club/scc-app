@@ -17,6 +17,7 @@ import SearchInputText from '@/screens/SearchScreen/components/SearchHeader/Sear
 export default function SearchHeader({
   onQueryUpdate,
   autoFocus,
+  onBack,
 }: {
   autoFocus?: boolean;
   onQueryUpdate: (
@@ -28,6 +29,7 @@ export default function SearchHeader({
       mode?: SearchMode;
     },
   ) => void;
+  onBack: () => boolean;
 }) {
   const [viewState] = useAtom(viewStateAtom);
   const [searchQuery] = useAtom(searchQueryAtom);
@@ -53,6 +55,7 @@ export default function SearchHeader({
           );
         }}
         autoFocus={autoFocus}
+        onBack={onBack}
       />
       {!searchQuery.text ? (
         <View style={{paddingBottom: 8, paddingHorizontal: 12}}>

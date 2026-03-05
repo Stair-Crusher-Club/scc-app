@@ -18,9 +18,11 @@ import {draftKeywordAtom, searchQueryAtom, viewStateAtom} from '../../atoms';
 export default function SearchInputText({
   onTextUpdate,
   autoFocus,
+  onBack,
 }: {
   onTextUpdate: (text: string, isPreviewChange: boolean) => void;
   autoFocus?: boolean;
+  onBack: () => boolean;
 }) {
   const [draftKeyword, setDraftKeyword] = useAtom(draftKeywordAtom);
   const [searchQuery, _] = useAtom(searchQueryAtom);
@@ -88,7 +90,9 @@ export default function SearchInputText({
         <IconButton
           elementName="search_back_button"
           onPress={() => {
-            navigation.goBack();
+            if (!onBack()) {
+              navigation.goBack();
+            }
           }}
           activeOpacity={0.6}>
           <LeftArrowIcon width={16} height={14} color={color.gray100} />
