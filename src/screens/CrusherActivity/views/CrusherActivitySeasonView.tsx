@@ -185,6 +185,7 @@ export default function CrusherActivitySeasonView({
           }}>
           <FlashList
             data={quests}
+            estimatedItemSize={130}
             keyExtractor={item => item.id}
             renderItem={({item}) => {
               if (!crewType) {
@@ -246,6 +247,7 @@ export default function CrusherActivitySeasonView({
           }}>
           <FlashList
             data={activityLogs}
+            estimatedItemSize={52}
             renderItem={({item, index}) => (
               <ActivityItem
                 activityDoneAt={item.activityDoneAt}
