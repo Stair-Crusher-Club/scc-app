@@ -1,6 +1,6 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
-import React, {useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
@@ -211,13 +211,36 @@ const SearchScreenContent = ({
     });
   }, [navigation]);
 
-  useBackHandler(() => {
+  const handleBack = useCallback((): boolean => {
+    // 리스트 뷰 → 지도 뷰로 전환
     if (viewState.type === 'list' && !viewState.inputMode) {
       setViewState(prev => ({...prev, type: 'map', inputMode: false}));
       return true;
     }
+    // Input mode + 검색 결과 있음 → 키보드 닫고 지도 결과 보기
+    if (viewState.inputMode && searchQuery.text) {
+      Keyboard.dismiss();
+      setDraftKeyword(null);
+      setViewState({type: 'map', inputMode: false});
+      return true;
+    }
+    // 지도 뷰 + 검색 결과 있음 → 검색어만 클리어, 지도 뷰 유지
+    if (!viewState.inputMode && searchQuery.text) {
+      setSearchQuery({text: null, location: null, radiusMeter: null});
+      setDraftKeyword(null);
+      return true;
+    }
+    // 초기 상태 → 화면 나가기
     return false;
-  });
+  }, [
+    viewState,
+    searchQuery.text,
+    setViewState,
+    setDraftKeyword,
+    setSearchQuery,
+  ]);
+
+  useBackHandler(handleBack);
 
   return (
     <LogParamsProvider
@@ -231,6 +254,7 @@ const SearchScreenContent = ({
         <SearchHeader
           onQueryUpdate={onQueryUpdate}
           autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
+          onBack={handleBack}
         />
         <View
           style={{
