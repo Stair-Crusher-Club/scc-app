@@ -184,23 +184,23 @@ export const makeFloorMovementOptions = (
       disabled: isUnknownSelected,
     },
     {
-      label: '매장 내부\n계단',
-      value: FloorMovingMethodTypeDto.PlaceStairs,
-      disabled: isUnknownSelected,
-    },
-    {
-      label: '매장 내부\n에스컬레이터',
-      value: FloorMovingMethodTypeDto.PlaceEscalator,
-      disabled: isUnknownSelected,
-    },
-    {
       label: '매장 외부\n엘리베이터',
       value: FloorMovingMethodTypeDto.BuildingElevator,
       disabled: isUnknownSelected,
     },
     {
+      label: '매장 내부\n계단',
+      value: FloorMovingMethodTypeDto.PlaceStairs,
+      disabled: isUnknownSelected,
+    },
+    {
       label: '매장 외부\n계단',
       value: FloorMovingMethodTypeDto.BuildingStairs,
+      disabled: isUnknownSelected,
+    },
+    {
+      label: '매장 내부\n에스컬레이터',
+      value: FloorMovingMethodTypeDto.PlaceEscalator,
       disabled: isUnknownSelected,
     },
     {
