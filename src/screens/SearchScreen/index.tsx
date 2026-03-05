@@ -241,7 +241,7 @@ const SearchScreenContent = ({
     setSearchQuery,
   ]);
 
-  useBackHandler(() => handleBack());
+  useBackHandler(handleBack);
 
   return (
     <LogParamsProvider
