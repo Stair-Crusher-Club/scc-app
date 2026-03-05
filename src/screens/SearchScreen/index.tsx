@@ -224,11 +224,10 @@ const SearchScreenContent = ({
       setViewState({type: 'map', inputMode: false});
       return true;
     }
-    // 지도 뷰 + 검색 결과 있음 → 검색어 클리어, input mode 진입
+    // 지도 뷰 + 검색 결과 있음 → 검색어만 클리어, 지도 뷰 유지
     if (!viewState.inputMode && searchQuery.text) {
       setSearchQuery({text: null, location: null, radiusMeter: null});
       setDraftKeyword(null);
-      setViewState({type: 'map', inputMode: true});
       return true;
     }
     // 초기 상태 → 화면 나가기
