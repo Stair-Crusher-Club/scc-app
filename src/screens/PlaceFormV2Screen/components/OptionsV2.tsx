@@ -1,6 +1,8 @@
 import React from 'react';
 import {SvgProps} from 'react-native-svg';
 
+import {color} from '@/constant/color';
+
 import * as S from './OptionsV2.style';
 
 interface Option {
@@ -82,6 +84,7 @@ OptionsV2.Multiple = function MultipleOptions({
       {options.map((option, i) => {
         const selected = values?.includes(option.value);
         const isDisabled = (option.disabled ?? false) && !selected;
+        const Icon = option.icon;
         return (
           <S.PressableOption
             key={i}
@@ -91,6 +94,14 @@ OptionsV2.Multiple = function MultipleOptions({
             selected={selected}
             disabled={isDisabled}
             onPress={() => handleSelect(option.value)}>
+            {Icon && (
+              <Icon
+                color={selected ? color.brandColor : color.black}
+                pointColor="transparent"
+                width={28}
+                height={28}
+              />
+            )}
             <S.OptionText selected={selected}>{option.label}</S.OptionText>
           </S.PressableOption>
         );

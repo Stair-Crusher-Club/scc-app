@@ -41,6 +41,7 @@ interface FloorMovementStepProps {
   isStandaloneBuilding: boolean;
   onSubmit: () => void;
   onBack: () => void;
+  onGuidePress?: () => void;
 }
 
 export default function FloorMovementStep({
@@ -48,6 +49,7 @@ export default function FloorMovementStep({
   isStandaloneBuilding,
   onSubmit,
   onBack,
+  onGuidePress,
 }: FloorMovementStepProps) {
   const form = useFormContext();
   const isKeyboardVisible = useKeyboardVisible();
@@ -98,6 +100,7 @@ export default function FloorMovementStep({
             target="place"
             name={place.name}
             address={place.address}
+            onGuidePress={onGuidePress}
           />
           <SectionSeparator />
 
@@ -114,7 +117,7 @@ export default function FloorMovementStep({
                 rules={{required: true}}
                 render={({field}) => (
                   <OptionsV2.Multiple
-                    columns={1}
+                    columns={2}
                     values={field.value}
                     options={makeFloorMovementOptions(
                       isStandaloneBuilding,

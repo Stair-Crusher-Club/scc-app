@@ -43,6 +43,7 @@ interface InfoStepProps {
   hasFloorMovementStep: boolean;
   onSubmit: () => void;
   onBack: () => void;
+  onGuidePress?: () => void;
 }
 
 export default function InfoStep({
@@ -51,6 +52,7 @@ export default function InfoStep({
   hasFloorMovementStep,
   onSubmit,
   onBack,
+  onGuidePress,
 }: InfoStepProps) {
   const form = useFormContext();
   const navigation = useNavigation();
@@ -165,6 +167,7 @@ export default function InfoStep({
             target="place"
             name={place.name}
             address={place.address}
+            onGuidePress={onGuidePress}
           />
           <SectionSeparator />
 
@@ -379,7 +382,7 @@ export default function InfoStep({
                 render={({field}) => (
                   <OptionsV2.Multiple
                     values={field.value}
-                    columns={3}
+                    columns={2}
                     options={makeDoorTypeOptions(form.watch('doorType') ?? [])}
                     onSelect={field.onChange}
                   />

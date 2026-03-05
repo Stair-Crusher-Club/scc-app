@@ -325,6 +325,11 @@ export default function PlaceFormV2Screen({
     }
   };
 
+  // "가이드 보기 >" 링크 핸들러: shouldShowGuide 체크 없이 무조건 모달 표시
+  const handleOpenGuide = () => {
+    setIsGuideModalVisible(true);
+  };
+
   // "확인했어요!" 버튼 핸들러: 1일간 안 보기
   const handleConfirmGuide = () => {
     if (guideKey) {
@@ -369,6 +374,7 @@ export default function PlaceFormV2Screen({
         }
         onSubmit={handleInfoSubmit}
         onBack={handleBack}
+        onGuidePress={handleOpenGuide}
       />
     ),
     floorMovement: (
@@ -377,6 +383,7 @@ export default function PlaceFormV2Screen({
         isStandaloneBuilding={selectedOption === 'standalone'}
         onSubmit={handleSubmit}
         onBack={handleBack}
+        onGuidePress={handleOpenGuide}
       />
     ),
   };

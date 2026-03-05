@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 
 import IcBuilding from '@/assets/icon/ic_building.svg';
 import IcPlace from '@/assets/icon/ic_place.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -10,12 +11,14 @@ interface PlaceInfoSectionProps {
   name?: string;
   address?: string;
   target?: 'place' | 'building';
+  onGuidePress?: () => void;
 }
 
 export default function PlaceInfoSection({
   name,
   address,
   target,
+  onGuidePress,
 }: PlaceInfoSectionProps) {
   const Icon = target === 'place' ? IcPlace : IcBuilding;
   const badgeText =
@@ -34,6 +37,13 @@ export default function PlaceInfoSection({
         <Title>{name}</Title>
         <Address>{address}</Address>
       </InfoContainer>
+      {onGuidePress && (
+        <SccPressable
+          elementName="place_info_guide_reopen"
+          onPress={onGuidePress}>
+          <GuideReopenText>{'가이드 보기 >'}</GuideReopenText>
+        </SccPressable>
+      )}
     </Container>
   );
 }
@@ -73,4 +83,10 @@ const Address = styled.Text({
   lineHeight: '22px',
   color: color.gray60,
   fontFamily: font.pretendardRegular,
+});
+
+const GuideReopenText = styled.Text({
+  fontSize: 14,
+  fontFamily: font.pretendardMedium,
+  color: color.brandColor,
 });

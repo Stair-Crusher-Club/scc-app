@@ -63,7 +63,7 @@ export default function RegistrationCompleteScreen({
       <ScreenLayout
         isHeaderVisible={false}
         safeAreaEdges={['top', 'bottom']}
-        style={{backgroundColor: color.gray80}}>
+        style={{backgroundColor: color.gray15}}>
         <Container>
           <Content>
             <BuildingTitle>{content.title}</BuildingTitle>
@@ -76,7 +76,7 @@ export default function RegistrationCompleteScreen({
             <SccButton
               text="닫기"
               textColor="white"
-              buttonColor="blue50"
+              buttonColor="brandColor"
               fontFamily={font.pretendardBold}
               onPress={handleConfirm}
               elementName="registration_complete_confirm"
@@ -134,7 +134,7 @@ const Content = styled.View({
 
 // Building variant styles
 const BuildingTitle = styled.Text({
-  color: color.white,
+  color: color.black,
   fontSize: 28,
   fontFamily: font.pretendardBold,
   textAlign: 'center',
@@ -143,7 +143,7 @@ const BuildingTitle = styled.Text({
 });
 
 const BuildingDescription = styled.Text({
-  color: color.gray25,
+  color: color.gray70,
   fontSize: 16,
   fontFamily: font.pretendardRegular,
   textAlign: 'center',

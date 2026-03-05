@@ -18,7 +18,7 @@ export default function TextAreaV2(props: Props) {
   return (
     <S.TextAreaContainer focused={focused}>
       <S.Input
-        placeholderTextColor={color.gray50}
+        placeholderTextColor={color.gray40}
         multiline
         {...props}
         onFocus={handleFocus}
