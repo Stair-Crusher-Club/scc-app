@@ -87,6 +87,9 @@ const Address = styled.Text({
 
 const GuideReopenText = styled.Text({
   fontSize: 14,
+  lineHeight: '20px',
+  letterSpacing: -0.28,
   fontFamily: font.pretendardMedium,
-  color: color.brandColor,
+  color: color.gray60,
+  textDecorationLine: 'underline',
 });

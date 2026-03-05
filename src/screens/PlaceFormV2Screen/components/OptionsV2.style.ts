@@ -21,23 +21,24 @@ export const PressableOption = styled(SccPressable)<{
   borderWidth: 1.2,
   display: 'flex',
   flexDirection: 'row' as const,
-  gap: 5,
+  gap: 8,
   justifyContent: 'center',
   alignItems: 'center',
   flexGrow: 1,
   width: '40%', // 두 개 이상이면 다음 줄로 내려가도록
-  paddingHorizontal: 14,
-  paddingVertical: 12,
+  minHeight: 52,
+  paddingHorizontal: 12,
+  paddingVertical: 14,
   opacity: disabled ? 0.3 : 1,
   borderColor: selected ? color.blue40 : color.gray20,
   backgroundColor: selected ? color.brand5 : color.white,
 }));
 
 export const OptionText = styled.Text<{selected: boolean}>(({selected}) => ({
-  flex: 1,
   textAlign: 'center' as const,
   fontSize: 16,
   lineHeight: 24,
+  letterSpacing: -0.32,
   fontFamily: font.pretendardMedium,
   color: selected ? color.brand50 : color.gray80,
 }));
