@@ -54,7 +54,20 @@ const MODAL_CONFIG: Record<
       source: require('@/assets/animations/crusher_activity_welcome.lottie'),
     },
   },
-  conquer_crew_starting_day: {
+  conquer_crew_a_starting_day: {
+    buttonText: '앞으로 잘해봐요!',
+    getTextParts: (nickname: string) => [
+      {text: "'26 봄시즌 크러셔클럽", bold: true},
+      {text: '에 온 크루\n', bold: false},
+      {text: nickname, bold: true},
+      {text: '님 환영합니다!', bold: false},
+    ],
+    animation: {
+      type: 'lottie',
+      source: require('@/assets/animations/crusher_activity_welcome.lottie'),
+    },
+  },
+  conquer_crew_b_starting_day: {
     buttonText: '앞으로 잘해봐요!',
     getTextParts: (nickname: string) => [
       {text: "'26 봄시즌 크러셔클럽", bold: true},
