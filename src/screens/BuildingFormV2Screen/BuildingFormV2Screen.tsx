@@ -686,7 +686,7 @@ export default function BuildingFormV2Screen({
                     render={({field}) => (
                       <OptionsV2.Multiple
                         values={field.value}
-                        columns={3}
+                        columns={2}
                         options={makeDoorTypeOptions(
                           form.watch('doorTypes') ?? [],
                         )}
