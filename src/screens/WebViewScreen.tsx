@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
   },
   navigationTitle: {
     flex: 1,
-    fontSize: 20 / PixelRatio.getFontScale(),
-    fontFamily: font.pretendardMedium,
+    fontSize: 20,
+    fontFamily: font.pretendardRegular,
     color: color.black,
   },
 });

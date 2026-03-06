@@ -18,7 +18,7 @@ export const ContentsContainer = styled.View({
 
 export const Title = styled.Text({
   color: color.black,
-  fontSize: 16,
+  fontSize: 20,
   fontFamily: font.pretendardRegular,
 });
 
