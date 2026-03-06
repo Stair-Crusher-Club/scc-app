@@ -236,6 +236,12 @@ export const MainNavigationScreens: {
     options: {headerShown: false},
   },
   {
+    // deep link 하위호환: place-group/:id → PlaceListDetail
+    name: 'PlaceGroupMap',
+    component: PlaceListDetailScreen,
+    options: {headerShown: false},
+  },
+  {
     name: 'SearchUnconqueredPlaces',
     component: SearchUnconqueredPlacesScreen,
     options: {headerShown: false},
@@ -305,6 +311,7 @@ export type ScreenParams = {
   UpvoteAnalytics: UpvoteAnalyticsScreenProps;
   SavedPlaceLists: undefined;
   PlaceListDetail: PlaceListDetailScreenParams;
+  PlaceGroupMap: PlaceListDetailScreenParams;
   CrusherActivity: CrusherActivityScreenParams;
   PastSeasonDetail: PastSeasonDetailScreenParams;
 

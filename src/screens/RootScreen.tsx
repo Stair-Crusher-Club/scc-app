@@ -199,6 +199,9 @@ const RootScreen = () => {
                   },
                 },
               },
+              PlaceGroupMap: {
+                path: 'place-group/:placeListId',
+              },
               CrusherActivity: {
                 path: 'crusher-activity',
               },
