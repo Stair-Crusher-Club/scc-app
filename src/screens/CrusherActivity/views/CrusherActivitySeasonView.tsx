@@ -12,7 +12,7 @@ import ExpandToggleButton, {
 } from '../components/ExpandToggleButton';
 import QuestItem from '../components/QuestItem';
 import SectionContainer from '../components/SectionContainer';
-import {crewInfoAssets} from '../constants';
+import {getCrewAssets} from '../constants';
 
 interface CrusherActivitySeasonViewProps {
   crusherClubId?: string;
@@ -51,6 +51,9 @@ export default function CrusherActivitySeasonView({
     : currentSeasonData?.currentCrusherActivity;
 
   const crewType = crusherActivity?.crusherClub.crewType;
+  const crewAssets = crewType
+    ? getCrewAssets(crewType, crusherActivity?.crusherClub.startDate)
+    : undefined;
 
   const originQuests = useMemo(
     () => crusherActivity?.quests ?? [],
@@ -98,8 +101,8 @@ export default function CrusherActivitySeasonView({
                 color: color.brand50,
                 lineHeight: 16,
               }}>
-              {crewType
-                ? `${crewInfoAssets[crewType].label}크루`
+              {crewAssets
+                ? `${crewAssets.label}크루`
                 : '참여 크러셔 클럽 없음 : 대응 필요'}
             </Text>
             <Text
@@ -114,7 +117,7 @@ export default function CrusherActivitySeasonView({
           </View>
 
           <Image
-            source={crewType ? crewInfoAssets[crewType].source : undefined}
+            source={crewAssets?.source}
             style={{
               width: 66,
               height: 48,
@@ -182,12 +185,8 @@ export default function CrusherActivitySeasonView({
                     completedAt={item.completedAt}
                     source={
                       item.completedAt
-                        ? crewInfoAssets[crewType].questMap[
-                            item.completeStampType
-                          ]?.success
-                        : crewInfoAssets[crewType].questMap[
-                            item.completeStampType
-                          ]?.empty
+                        ? crewAssets?.questMap[item.completeStampType]?.success
+                        : crewAssets?.questMap[item.completeStampType]?.empty
                     }
                   />
                 )}
