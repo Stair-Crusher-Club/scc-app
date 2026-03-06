@@ -14,7 +14,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 
 const DONATION_URL = 'https://staircrusher.club/donation';
-const CONTENT_REPORT_URL = 'https://forms.staircrusher.club/contents-alarm';
+const CONTENT_REPORT_URL = 'https://forms.staircrusher.club/app-feedback';
 
 const FOOTER_ROW_HEIGHT = 48;
 const FOOTER_ROW_RADIUS = 8;
@@ -52,16 +52,16 @@ export default function FooterButtonsSection({
     });
   };
 
-  const goToContentReport = () => {
+  const goToVoiceOfCustomer = () => {
     navigation.navigate('Webview', {
-      fixedTitle: '콘텐츠 제보',
+      fixedTitle: '계단뿌셔클럽 앱 의견 남기기',
       url: CONTENT_REPORT_URL,
     });
   };
 
   const goToDonation = () => {
     navigation.navigate('Webview', {
-      fixedTitle: '후원',
+      fixedTitle: '계단뿌셔클럽 후원하기',
       url: DONATION_URL,
     });
   };
@@ -80,11 +80,11 @@ export default function FooterButtonsSection({
 
         <SccPressable
           elementName="home_v2_footer_report"
-          onPress={goToContentReport}>
+          onPress={goToVoiceOfCustomer}>
           <FooterRow>
             <RowContent>
               <FooterAirplaneIcon width={16} height={16} />
-              <FooterText>콘텐츠 제보</FooterText>
+              <FooterText>의견 남기기</FooterText>
             </RowContent>
           </FooterRow>
         </SccPressable>
