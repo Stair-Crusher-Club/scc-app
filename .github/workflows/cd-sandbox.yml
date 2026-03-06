@@ -69,6 +69,16 @@ jobs:
       - name: Deploy Android OTA
         run: yarn ota-deploy:sandbox -p android -t ${{ env.ANDROID_VERSION }} -f
 
+      - name: Invalidate CloudFront cache
+        run: |
+          eval $(grep -v '^#' subprojects/scc-frontend-build-configurations/sandbox/.env.hot-updater | sed 's/^/export /')
+          AWS_ACCESS_KEY_ID=$HOT_UPDATER_S3_ACCESS_KEY_ID \
+          AWS_SECRET_ACCESS_KEY=$HOT_UPDATER_S3_SECRET_ACCESS_KEY \
+          AWS_DEFAULT_REGION=us-east-1 \
+          aws cloudfront create-invalidation \
+            --distribution-id E2XU65KUMLJRQM \
+            --paths "/api/*"
+
       - name: Notify Slack on Success
         if: success()
         run: |
