@@ -6,16 +6,32 @@ import {font} from '@/constant/font';
 import Logger from '@/logging/Logger';
 import LottieView from 'lottie-react-native';
 import React, {useEffect, useState} from 'react';
-import {Image, Modal, View, useWindowDimensions} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import styled from 'styled-components/native';
 import WelcomeAnimation from './WelcomeAnimation';
 
 interface WelcomeModalProps {
   questTypeOrActivityId: string | null | undefined;
+  recordStatus: 'idle' | 'loading' | 'success';
 }
+
+type AnimationLayer = {
+  type: 'lottie' | 'image';
+  source: ReturnType<typeof require>;
+  scale?: number;
+  offsetX?: number;
+  offsetY?: number;
+};
 
 type ModalAnimationType =
   | {type: 'lottie'; source: ReturnType<typeof require>}
+  | {type: 'layers'; layers: AnimationLayer[]}
   | {type: 'image'; source: ReturnType<typeof require>};
 
 type TextPart = {text: string; bold: boolean};
@@ -50,8 +66,28 @@ const MODAL_CONFIG: Record<
       {text: '님 환영합니다!', bold: false},
     ],
     animation: {
-      type: 'lottie',
-      source: require('@/assets/animations/crusher_activity_welcome.lottie'),
+      type: 'layers',
+      layers: [
+        {
+          type: 'lottie',
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/crusher_activity_2026spring_welcome_confetti.lottie'),
+          scale: 2.4,
+          offsetY: 30,
+        },
+        {
+          type: 'lottie',
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/conquer_a_welcome_character.lottie'),
+          scale: 0.65,
+          offsetX: 24,
+          offsetY: 54,
+        },
+        {
+          type: 'image',
+          source: require('@/assets/img/img_welcome_text.png'),
+          scale: 1.05,
+          offsetY: -82,
+        },
+      ],
     },
   },
   conquer_crew_a_starting_day: {
@@ -63,8 +99,28 @@ const MODAL_CONFIG: Record<
       {text: '님 환영합니다!', bold: false},
     ],
     animation: {
-      type: 'lottie',
-      source: require('@/assets/animations/crusher_activity_welcome.lottie'),
+      type: 'layers',
+      layers: [
+        {
+          type: 'lottie',
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/crusher_activity_2026spring_welcome_confetti.lottie'),
+          scale: 2.4,
+          offsetY: 30,
+        },
+        {
+          type: 'lottie',
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/conquer_a_welcome_character.lottie'),
+          scale: 0.65,
+          offsetX: 24,
+          offsetY: 54,
+        },
+        {
+          type: 'image',
+          source: require('@/assets/img/img_welcome_text.png'),
+          scale: 1.05,
+          offsetY: -82,
+        },
+      ],
     },
   },
   conquer_crew_b_starting_day: {
@@ -76,8 +132,28 @@ const MODAL_CONFIG: Record<
       {text: '님 환영합니다!', bold: false},
     ],
     animation: {
-      type: 'lottie',
-      source: require('@/assets/animations/crusher_activity_welcome.lottie'),
+      type: 'layers',
+      layers: [
+        {
+          type: 'lottie',
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/crusher_activity_2026spring_welcome_confetti.lottie'),
+          scale: 2.4,
+          offsetY: 30,
+        },
+        {
+          type: 'lottie',
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/conquer_a_welcome_character.lottie'),
+          scale: 0.65,
+          offsetX: 24,
+          offsetY: 54,
+        },
+        {
+          type: 'image',
+          source: require('@/assets/img/img_welcome_text.png'),
+          scale: 1.05,
+          offsetY: -82,
+        },
+      ],
     },
   },
   impactSession: {
@@ -110,14 +186,19 @@ const MODAL_CONFIG: Record<
 
 export default function WelcomeModal({
   questTypeOrActivityId,
+  recordStatus,
 }: WelcomeModalProps) {
   const {userInfo} = useMe();
   const {width: viewportWidth} = useWindowDimensions();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(!!questTypeOrActivityId);
-  }, [questTypeOrActivityId]);
+    // 모달은 questTypeOrActivityId가 있고 API 호출이 시작되면 표시
+    setVisible(
+      !!questTypeOrActivityId &&
+        (recordStatus === 'loading' || recordStatus === 'success'),
+    );
+  }, [questTypeOrActivityId, recordStatus]);
 
   const handleClose = () => {
     setVisible(false);
@@ -145,6 +226,61 @@ export default function WelcomeModal({
           }}
           resizeMode="contain"
         />
+      );
+    }
+
+    if (config.animation.type === 'layers') {
+      const baseSize = viewportWidth * 0.7;
+      return (
+        <View style={{width: baseSize, height: baseSize}}>
+          {config.animation.layers.map((layer, index) => {
+            const scale = layer.scale ?? 1;
+            const layerSize = baseSize * scale;
+            const centerLeft =
+              (baseSize - layerSize) / 2 + (layer.offsetX ?? 0);
+            const centerTop = (baseSize - layerSize) / 2 + (layer.offsetY ?? 0);
+
+            if (layer.type === 'image') {
+              return (
+                <Image
+                  key={index}
+                  source={layer.source}
+                  style={{
+                    position: 'absolute',
+                    width: layerSize,
+                    height: layerSize,
+                    left: centerLeft,
+                    top: centerTop,
+                  }}
+                  resizeMode="contain"
+                />
+              );
+            }
+
+            return (
+              <LottieView
+                key={index}
+                onAnimationFailure={error => {
+                  Logger.logError(
+                    new Error(
+                      `Lottie animation error [layer ${index}]: ${error}`,
+                    ),
+                  );
+                }}
+                source={layer.source}
+                autoPlay
+                loop
+                style={{
+                  position: 'absolute',
+                  width: layerSize,
+                  height: layerSize,
+                  left: centerLeft,
+                  top: centerTop,
+                }}
+              />
+            );
+          })}
+        </View>
       );
     }
 
@@ -186,30 +322,38 @@ export default function WelcomeModal({
         elementName="crusher_activity_welcome_modal"
         onPress={handleClose}>
         <Backdrop>
-          <Center>
-            {renderAnimation()}
-            <WelcomeText>
-              {textParts.map((part, index) =>
-                part.bold ? (
-                  <WelcomeTextBold key={index}>{part.text}</WelcomeTextBold>
-                ) : (
-                  <WelcomeTextRegular key={index}>
-                    {part.text}
-                  </WelcomeTextRegular>
-                ),
-              )}
-            </WelcomeText>
-          </Center>
+          {recordStatus === 'loading' ? (
+            <Center>
+              <ActivityIndicator size="large" color={color.white} />
+            </Center>
+          ) : (
+            <>
+              <Center>
+                {renderAnimation()}
+                <WelcomeText>
+                  {textParts.map((part, index) =>
+                    part.bold ? (
+                      <WelcomeTextBold key={index}>{part.text}</WelcomeTextBold>
+                    ) : (
+                      <WelcomeTextRegular key={index}>
+                        {part.text}
+                      </WelcomeTextRegular>
+                    ),
+                  )}
+                </WelcomeText>
+              </Center>
 
-          <ButtonContainer>
-            <SccButton
-              elementName="crusher_activity_welcome_modal_ok"
-              text={config.buttonText}
-              textColor="white"
-              fontFamily={font.pretendardBold}
-              onPress={handleClose}
-            />
-          </ButtonContainer>
+              <ButtonContainer>
+                <SccButton
+                  elementName="crusher_activity_welcome_modal_ok"
+                  text={config.buttonText}
+                  textColor="white"
+                  fontFamily={font.pretendardBold}
+                  onPress={handleClose}
+                />
+              </ButtonContainer>
+            </>
+          )}
         </Backdrop>
       </SccTouchableWithoutFeedback>
     </Modal>

@@ -29,8 +29,12 @@ export default function CrusherActivityScreen({
 
   const [visibleCheckInCompleteModal, setVisibleCheckInCompleteModal] =
     useState(false);
+  const [recordStatus, setRecordStatus] = useState<
+    'idle' | 'loading' | 'success'
+  >('idle');
 
   async function recordCrusherClubActivity(questTypeOrActivityId: string) {
+    setRecordStatus('loading');
     try {
       await api.recordCrusherClubActivityPost({
         questTypeOrActivityId,
@@ -43,7 +47,9 @@ export default function CrusherActivityScreen({
         queryKey: ['CrusherActivityPageData'],
         queryFn: async () => (await api.getCrusherActivityPageDataPost()).data,
       });
+      setRecordStatus('success');
     } catch (error: any) {
+      setRecordStatus('idle');
       Logger.logError(error);
     }
   }
@@ -136,6 +142,7 @@ export default function CrusherActivityScreen({
             ? 'STARTING_DAY'
             : params?.questTypeOrActivityId
         }
+        recordStatus={recordStatus}
       />
       <ClubQuestCheckInCompleteModal
         visible={visibleCheckInCompleteModal}
