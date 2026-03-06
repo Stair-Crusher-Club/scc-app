@@ -1,17 +1,13 @@
-import {featureFlagAtom} from '@/atoms/Auth';
-import {useAtomValue} from 'jotai';
-
 /**
  * QA 모드 여부를 확인합니다.
  * QA 모드에서는 이미 접근성 정보가 등록된 장소에서도 중복 등록 버튼을 노출합니다.
  *
- * REGISTER_ACCESSIBILITY_V2 플래그를 체크합니다.
+ * Feature flag 제거로 항상 true를 반환합니다.
  *
  * @returns QA 모드 활성화 여부
  */
 export const useIsQAMode = (): boolean => {
-  const featureFlag = useAtomValue(featureFlagAtom);
-  return featureFlag?.isRegisterAccessibilityV2 ?? false;
+  return true;
 };
 
 /**
@@ -25,13 +21,9 @@ export const useDetailScreenVersion = (): 'v1' | 'v2' => {
 
 /**
  * 등록 화면 버전을 결정합니다.
- * - REGISTER_ACCESSIBILITY_V2 플래그 활성화: v2
- * - 일반 모드: v1
+ * Feature flag 제거로 항상 v2를 반환합니다.
  * @returns 'v1' 또는 'v2'
  */
 export const useFormScreenVersion = (): 'v1' | 'v2' => {
-  const featureFlag = useAtomValue(featureFlagAtom);
-  const isV2 = featureFlag?.isRegisterAccessibilityV2 ?? false;
-
-  return isV2 ? 'v2' : 'v1';
+  return 'v2';
 };

@@ -40,7 +40,6 @@ import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
 
 import ToastUtils from '@/utils/ToastUtils';
-import {useFormScreenVersion, useIsQAMode} from '@/utils/accessibilityFlags';
 import {useIsFocused} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import {BuildingRegistrationEvent} from './constants';
@@ -101,8 +100,6 @@ export default function PlaceDetailV2Screen({
   } = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
-  const isQAMode = useIsQAMode();
-  const formVersion = useFormScreenVersion();
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
   const toggleFavorite = useToggleFavoritePlace();
@@ -130,10 +127,8 @@ export default function PlaceDetailV2Screen({
 
   const openBottomSheet = useCallback(
     (which: 'requireBuilding' | BuildingRegistrationEvent) => {
-      // QA 모드에서 requireBuilding은 BuildingRegistrationEvent로 대체
       if (which === 'requireBuilding') {
         if (
-          isQAMode &&
           event &&
           (event === 'registration-force' || event === 'registration-suggest')
         ) {
@@ -143,7 +138,7 @@ export default function PlaceDetailV2Screen({
         }
       }
     },
-    [event, isQAMode],
+    [event],
   );
 
   const placeId =
@@ -365,33 +360,18 @@ export default function PlaceDetailV2Screen({
         address: building.address,
         type: 'building',
         onNavigate: () => {
-          if (formVersion === 'v2') {
-            navigation.navigate('BuildingFormV2', {place, building});
-            return;
-          }
-          navigation.navigate('BuildingForm', {place, building});
+          navigation.navigate('BuildingFormV2', {place, building});
         },
       });
     }
-  }, [
-    building,
-    closeModals,
-    formVersion,
-    navigation,
-    navigateWithLocationCheck,
-    place,
-  ]);
+  }, [building, closeModals, navigation, navigateWithLocationCheck, place]);
 
   const handleBuildingRegistrationConfirm = useCallback(() => {
     handleBuildingRegistrationCancel();
     if (place && building) {
-      if (formVersion === 'v2') {
-        navigation.navigate('BuildingFormV2', {place, building});
-        return;
-      }
-      navigation.navigate('BuildingForm', {place, building});
+      navigation.navigate('BuildingFormV2', {place, building});
     }
-  }, [building, formVersion, navigation, place]);
+  }, [building, navigation, place]);
 
   const handleBuildingRegistrationCancel = useCallback(() => {
     setShowBuildingRegistrationBottomSheet(false);
@@ -424,22 +404,11 @@ export default function PlaceDetailV2Screen({
         address: place.address,
         type: 'place',
         onNavigate: () => {
-          if (formVersion === 'v2') {
-            navigation.navigate('PlaceFormV2', {place, building: building!});
-            return;
-          }
-          navigation.navigate('PlaceForm', {place, building: building!});
+          navigation.navigate('PlaceFormV2', {place, building: building!});
         },
       });
     });
-  }, [
-    building,
-    checkAuth,
-    formVersion,
-    navigation,
-    navigateWithLocationCheck,
-    place,
-  ]);
+  }, [building, checkAuth, navigation, navigateWithLocationCheck, place]);
 
   const handleBuildingRegister = useCallback(() => {
     checkAuth(async () => {
@@ -456,22 +425,11 @@ export default function PlaceDetailV2Screen({
         address: building.address,
         type: 'building',
         onNavigate: () => {
-          if (formVersion === 'v2') {
-            navigation.navigate('BuildingFormV2', {place, building});
-            return;
-          }
-          navigation.navigate('BuildingForm', {place, building});
+          navigation.navigate('BuildingFormV2', {place, building});
         },
       });
     });
-  }, [
-    building,
-    checkAuth,
-    formVersion,
-    navigation,
-    navigateWithLocationCheck,
-    place,
-  ]);
+  }, [building, checkAuth, navigation, navigateWithLocationCheck, place]);
 
   const handleReviewRegister = useCallback(() => {
     checkAuth(async () => {
@@ -733,7 +691,7 @@ export default function PlaceDetailV2Screen({
             onAddPlaceComment={handleAddPlaceComment}
             onAddBuildingComment={handleAddBuildingComment}
             showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
-            allowDuplicateRegistration={isQAMode}
+            allowDuplicateRegistration
             onSectionLayout={handleSectionLayout}
           />
         );
@@ -921,9 +879,8 @@ export default function PlaceDetailV2Screen({
         />
         <QuestCompletionModal onMoveToQuestClearPage={onNavigateToOtherPage} />
 
-        {/* QA 모드에서만 표시되는 BuildingRegistrationBottomSheet */}
-        {isQAMode &&
-          event &&
+        {/* BuildingRegistrationBottomSheet */}
+        {event &&
           (event === 'registration-force' ||
             event === 'registration-suggest') && (
             <BuildingRegistrationBottomSheet

@@ -62,10 +62,6 @@ export default function SavedPlaceListsScreen() {
     containerHeight > 0 && estimatedContentHeight > bannerAreaTop;
 
   const handleItemPress = (item: PlaceListDto) => {
-    if (item.type === PlaceListTypeDto.MyPlaces) {
-      navigation.navigate('FavoritePlaces');
-      return;
-    }
     navigation.navigate('PlaceListDetail', {placeListId: item.id});
   };
 

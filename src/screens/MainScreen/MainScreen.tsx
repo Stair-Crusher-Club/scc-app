@@ -2,7 +2,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useAtomValue} from 'jotai';
 import React, {useEffect} from 'react';
 
-import {accessTokenAtom, featureFlagAtom} from '@/atoms/Auth';
+import {accessTokenAtom} from '@/atoms/Auth';
 import {color} from '@/constant/color';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ToastUtils from '@/utils/ToastUtils';
@@ -12,7 +12,6 @@ import ChallengeIcon from '../../assets/icon/ic_challenge.svg';
 import HomeIcon from '../../assets/icon/ic_home.svg';
 import MenuIcon from '../../assets/icon/ic_menu.svg';
 import ChallengeScreen from '../ChallengeScreen';
-import HomeScreen from '../HomeScreen';
 import HomeScreenV2 from '../HomeScreenV2';
 import MenuScreen from '../MenuScreen';
 
@@ -33,10 +32,7 @@ export interface MainScreenParams {}
 
 export default function MainScreen({navigation}: ScreenProps<'Main'>) {
   const accessToken = useAtomValue(accessTokenAtom);
-  const featureFlag = useAtomValue(featureFlagAtom);
   const checkAuth = useCheckAuth();
-
-  const isHomeScreenV2 = featureFlag?.isHomeScreenV2 ?? false;
 
   useEffect(() => {
     const checkIfLoggedIn = async () => {
@@ -57,7 +53,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
       }}>
       <Tab.Screen
         name="Home"
-        component={isHomeScreenV2 ? HomeScreenV2 : HomeScreen}
+        component={HomeScreenV2}
         options={{
           title: '홈',
           headerShown: false,

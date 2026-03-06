@@ -29,13 +29,7 @@ export const isAnonymousUserAtom = atom(get => {
 export const accessTokenAtom = atomForLocal<string>('scc-token');
 
 export const featureFlagAtom = atom<{
-  isMapVisible: boolean;
-  isToiletVisible: boolean;
   isAlbumUploadAllowed: boolean;
-  isRegisterAccessibilityV2: boolean;
-  isHomeScreenV2: boolean;
-  isPlaceListEnabled: boolean;
-  isPlaceDetailV2: boolean;
 } | null>(null);
 
 // Key: 실험 이름 (e.g., 'UPVOTE_BUTTON_STYLE')
@@ -86,14 +80,7 @@ export function useMe() {
     const {data} = await api.getUserInfoGet();
     _setUserInfoAtom(data.user);
     setFeatureFlag({
-      isMapVisible: data.flags?.includes('MAP_VISIBLE') ?? false,
-      isToiletVisible: data.flags?.includes('TOILET_VISIBLE') ?? false,
       isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
-      isRegisterAccessibilityV2:
-        data.flags?.includes('REGISTER_ACCESSIBILITY_V2') ?? false,
-      isHomeScreenV2: data.flags?.includes('HOME_SCREEN_V2') ?? false,
-      isPlaceListEnabled: data.flags?.includes('PLACE_LIST_ENABLED') ?? false,
-      isPlaceDetailV2: data.flags?.includes('PLACE_DETAIL_V2') ?? false,
     });
 
     // 실험 배정 파싱
