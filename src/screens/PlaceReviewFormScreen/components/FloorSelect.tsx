@@ -14,7 +14,7 @@ interface FloorSelectProps {
 }
 export default function FloorSelect({value, onChange}: FloorSelectProps) {
   const [sign, setSign] = useState(value !== undefined ? value > 0 : true);
-  const [floor, setFloor] = useState(value ? String(value) : '1');
+  const [floor, setFloor] = useState(value ? String(Math.abs(value)) : '1');
 
   useEffect(() => {
     if (sign) {
@@ -24,38 +24,18 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
     }
   }, [sign, floor]);
 
+  const numFloor = Number(floor);
+  const isDecreaseDisabled = numFloor <= 1;
+
   function increase() {
-    // 지상층
-    if (sign) {
-      setFloor(String(Number(floor) + 1));
-      return;
-    }
-    // 지하층
-    const newFloor = Number(floor) - 1;
-    // -1층 -> 1층
-    if (newFloor === 0) {
-      setSign(true);
-      setFloor('1');
-    } else {
-      setFloor(String(newFloor));
-    }
+    setFloor(String(numFloor + 1));
   }
 
   function decrease() {
-    // 지하층
-    if (!sign) {
-      setFloor(String(Number(floor) + 1));
+    if (numFloor <= 1) {
       return;
     }
-    // 지상층
-    const newFloor = Number(floor) - 1;
-    // 1층 -> -1층
-    if (newFloor === 0) {
-      setSign(false);
-      setFloor('1');
-    } else {
-      setFloor(String(newFloor));
-    }
+    setFloor(String(numFloor - 1));
   }
 
   return (
@@ -92,6 +72,7 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
           <SccPressable
             elementName="floor_select_decrease_button"
             onPress={decrease}
+            disabled={isDecreaseDisabled}
             style={{
               position: 'absolute',
               zIndex: 1,
@@ -103,6 +84,7 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
               height: 40,
               justifyContent: 'center',
               alignItems: 'center',
+              opacity: isDecreaseDisabled ? 0.3 : 1,
             }}>
             <MinusIcon width={16} color={'#383841'} />
           </SccPressable>
