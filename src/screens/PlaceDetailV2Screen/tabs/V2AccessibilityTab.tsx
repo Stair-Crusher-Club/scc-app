@@ -17,6 +17,7 @@ import {
   InfoRow,
   InfoRowsContainer,
 } from '../components/AccessibilityInfoComponents';
+import AccessibilityCommentSection from '../components/AccessibilityCommentSection';
 import {
   BuildingEntranceSection,
   BuildingEntranceEmptySection,
@@ -68,6 +69,8 @@ interface Props {
   reviews?: PlaceReviewDto[];
   onRegister?: () => void;
   onBuildingRegister?: () => void;
+  onAddPlaceComment?: () => void;
+  onAddBuildingComment?: () => void;
   showNegativeFeedbackBottomSheet?: (type: ReportTargetTypeDto) => void;
   allowDuplicateRegistration?: boolean;
   onSectionLayout?: (chipName: string, y: number) => void;
@@ -78,6 +81,8 @@ export default function V2AccessibilityTab({
   reviews = [],
   onRegister,
   onBuildingRegister,
+  onAddPlaceComment,
+  onAddBuildingComment,
   onSectionLayout,
 }: Props) {
   // 다중 출입구 배열 지원 (하위 호환: 단일 필드 fallback)
@@ -196,8 +201,18 @@ export default function V2AccessibilityTab({
                           (ba as any).createdAt?.value ?? Date.now(),
                         ).format('YYYY.MM.DD')}
                         buildingAccessibility={ba}
-                        title={buildingEntranceTitle(index)}
-                      />
+                        title={buildingEntranceTitle(index)}>
+                        {index === buildingAccessibilities.length - 1 && (
+                          <AccessibilityCommentSection
+                            comments={
+                              accessibility?.buildingAccessibilityComments ?? []
+                            }
+                            buttonText="건물입구 접근성 정보 의견 남기기"
+                            onAddComment={onAddBuildingComment}
+                            elementName="v2_accessibility_building_comment"
+                          />
+                        )}
+                      </BuildingEntranceSection>
                     ))
                   ) : (
                     <BuildingEntranceEmptySection
@@ -216,8 +231,21 @@ export default function V2AccessibilityTab({
                       key={pa.id ?? index}
                       title={placeEntranceTitle('매장 출입구', index)}
                       placeDate={dayjs(pa.createdAt.value).format('YYYY.MM.DD')}
-                      placeAccessibility={pa}
-                    />
+                      placeAccessibility={pa}>
+                      {index === placeAccessibilities.length - 1 && (
+                        <AccessibilityCommentSection
+                          comments={
+                            accessibility?.placeAccessibilityComments ?? []
+                          }
+                          buttonText="매장입구 접근성 정보 의견 남기기"
+                          onAddComment={onAddPlaceComment}
+                          elementName="v2_accessibility_place_comment"
+                          registrationComments={placeAccessibilities
+                            .map(p => p.entranceComment)
+                            .filter((c): c is string => c != null && c.length > 0)}
+                        />
+                      )}
+                    </PlaceEntranceSection>
                   ))}
                 </SectionsInnerContainer>
               );

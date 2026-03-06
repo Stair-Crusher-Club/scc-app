@@ -497,6 +497,24 @@ export default function PlaceDetailV2Screen({
     });
   }, [checkAuth, navigation, navigateWithLocationCheck, place]);
 
+  const handleAddPlaceComment = useCallback(() => {
+    checkAuth(() => {
+      if (!place) return;
+      navigation.navigate('AddComment', {type: 'place', placeId: place.id});
+    });
+  }, [checkAuth, navigation, place]);
+
+  const handleAddBuildingComment = useCallback(() => {
+    checkAuth(() => {
+      if (!place || !building) return;
+      navigation.navigate('AddComment', {
+        type: 'building',
+        placeId: place.id,
+        buildingId: building.id,
+      });
+    });
+  }, [building, checkAuth, navigation, place]);
+
   const handleToiletRegister = useCallback(() => {
     checkAuth(async () => {
       if (Platform.OS === 'web') {
@@ -712,6 +730,8 @@ export default function PlaceDetailV2Screen({
             reviews={reviewPost ?? []}
             onRegister={handlePlaceRegister}
             onBuildingRegister={handleBuildingRegister}
+            onAddPlaceComment={handleAddPlaceComment}
+            onAddBuildingComment={handleAddBuildingComment}
             showNegativeFeedbackBottomSheet={showNegativeFeedbackBottomSheet}
             allowDuplicateRegistration={isQAMode}
             onSectionLayout={handleSectionLayout}

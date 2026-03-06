@@ -38,6 +38,7 @@ export function BuildingEntranceSection({
   buildingAccessibility,
   compact = false,
   title = '건물 출입구',
+  children,
 }: {
   buildingDate: string;
   buildingAccessibility: NonNullable<
@@ -45,6 +46,7 @@ export function BuildingEntranceSection({
   >;
   compact?: boolean;
   title?: string;
+  children?: React.ReactNode;
 }) {
   const Container = compact ? CompactSectionContainer : SectionContainer;
   const TitleComponent = compact ? CompactSectionTitle : SectionTitle;
@@ -76,6 +78,7 @@ export function BuildingEntranceSection({
           <BuildingDoorInfoRow buildingAccessibility={buildingAccessibility} />
         </InfoRowsContainer>
       </SectionContent>
+      {children}
     </Container>
   );
 }
@@ -114,11 +117,13 @@ export function PlaceEntranceSection({
   placeDate,
   placeAccessibility,
   compact = false,
+  children,
 }: {
   title: string;
   placeDate: string;
   placeAccessibility: NonNullable<AccessibilityInfoV2Dto['placeAccessibility']>;
   compact?: boolean;
+  children?: React.ReactNode;
 }) {
   const Container = compact ? CompactSectionContainer : SectionContainer;
   const TitleComponent = compact ? CompactSectionTitle : SectionTitle;
@@ -148,6 +153,7 @@ export function PlaceEntranceSection({
           />
         )}
       </SectionContent>
+      {children}
     </Container>
   );
 }
