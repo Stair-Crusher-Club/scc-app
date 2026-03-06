@@ -57,12 +57,8 @@ export default function PlaceReviewFormScreen({
     const previousRoute =
       currentRouteIndex > 0 ? state.routes[currentRouteIndex - 1] : null;
 
-    // 이전 화면이 PlaceDetail(V1/V2)인 경우에만 goBack 사용
-    if (
-      navigation.canGoBack() &&
-      (previousRoute?.name === 'PlaceDetail' ||
-        previousRoute?.name === 'PlaceDetailV2')
-    ) {
+    // 이전 화면이 PlaceDetailV2인 경우에만 goBack 사용
+    if (navigation.canGoBack() && previousRoute?.name === 'PlaceDetailV2') {
       navigation.goBack();
       return;
     }

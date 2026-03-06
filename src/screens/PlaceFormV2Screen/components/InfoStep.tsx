@@ -177,8 +177,7 @@ export default function InfoStep({
                 <QuestionSection>
                   <SectionLabel>매장 입구 정보</SectionLabel>
                   <QuestionText>
-                    매장 출입구 위치를 알려주세요{' '}
-                    <RequiredMark>*</RequiredMark>
+                    매장 출입구 위치를 알려주세요 <RequiredMark>*</RequiredMark>
                   </QuestionText>
                 </QuestionSection>
                 <Controller

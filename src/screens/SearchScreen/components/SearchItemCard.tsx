@@ -32,7 +32,6 @@ import XSButton from '@/screens/SearchScreen/components/XSButton';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
-import {useFormScreenVersion} from '@/utils/accessibilityFlags';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 function SearchItemCard({
@@ -59,7 +58,6 @@ function SearchItemCard({
   const [hasBeenRegisteredAccessibility, setHasBeenRegisteredAccessibility] =
     useAtom(hasBeenRegisteredAccessibilityAtom);
   const toggleFavorite = useToggleFavoritePlace();
-  const formVersion = useFormScreenVersion();
   const pdpScreen = usePlaceDetailScreenName();
   const {navigateWithLocationCheck, LocationConfirmModal} =
     useNavigateWithLocationCheck();
@@ -153,28 +151,14 @@ function SearchItemCard({
               return;
 
             case 'building':
-              if (formVersion === 'v2') {
-                navigation.navigate('BuildingFormV2', {
-                  place: item.place,
-                  building: item.building,
-                });
-                return;
-              }
-              navigation.navigate('BuildingForm', {
+              navigation.navigate('BuildingFormV2', {
                 place: item.place,
                 building: item.building,
               });
               return;
 
             case 'place':
-              if (formVersion === 'v2') {
-                navigation.navigate('PlaceFormV2', {
-                  place: item.place,
-                  building: item.building,
-                });
-                return;
-              }
-              navigation.navigate('PlaceForm', {
+              navigation.navigate('PlaceFormV2', {
                 place: item.place,
                 building: item.building,
               });

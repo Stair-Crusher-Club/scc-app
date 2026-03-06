@@ -242,7 +242,9 @@ export default function V2AccessibilityTab({
                           elementName="v2_accessibility_place_comment"
                           registrationComments={placeAccessibilities
                             .map(p => p.entranceComment)
-                            .filter((c): c is string => c != null && c.length > 0)}
+                            .filter(
+                              (c): c is string => c != null && c.length > 0,
+                            )}
                         />
                       )}
                     </PlaceEntranceSection>

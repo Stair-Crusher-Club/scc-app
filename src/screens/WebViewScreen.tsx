@@ -41,7 +41,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   const onTapCloseButton = useCallback(() => {
     Alert.alert('정말 페이지를 나가시겠어요?', '', [
       {text: '취소', style: 'cancel'},
-      {text: '나가기', onPress: () => navigation.goBack(), style: 'destructive'},
+      {
+        text: '나가기',
+        onPress: () => navigation.goBack(),
+        style: 'destructive',
+      },
     ]);
   }, [navigation]);
 

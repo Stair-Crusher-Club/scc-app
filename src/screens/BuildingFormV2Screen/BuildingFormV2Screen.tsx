@@ -82,7 +82,7 @@ interface FormValues {
 export default function BuildingFormV2Screen({
   route,
   navigation,
-}: ScreenProps<'BuildingForm'>) {
+}: ScreenProps<'BuildingFormV2'>) {
   const {place, building} = route.params;
   const form = useForm<FormValues>();
   const {api} = useAppComponents();

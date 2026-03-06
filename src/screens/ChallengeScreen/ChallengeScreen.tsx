@@ -4,8 +4,8 @@ import {ScrollView} from 'react-native';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {ListChallengesItemDto} from '@/generated-sources/openapi';
 
-import ChallengeUpcomingBottomSheet from '../HomeScreen/ChallengeUpcomingBottomSheet';
-import ChallengeSection from '../HomeScreen/sections/ChallengeSection';
+import ChallengeUpcomingBottomSheet from './ChallengeUpcomingBottomSheet';
+import ChallengeSection from './sections/ChallengeSection';
 
 export interface ChallengeScreenParams {}
 

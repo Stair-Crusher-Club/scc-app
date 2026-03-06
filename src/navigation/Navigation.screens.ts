@@ -6,9 +6,6 @@ import {
 import AddCommentScreen, {
   AddCommentScreenParams,
 } from '@/screens/AddCommentScreen';
-import BuildingFormScreen, {
-  BuildingFormScreenParams,
-} from '@/screens/BuildingFormScreen';
 import BuildingFormV2Screen, {
   BuildingFormV2ScreenParams,
 } from '@/screens/BuildingFormV2Screen';
@@ -29,7 +26,6 @@ import CrusherActivityScreen, {
 import ExternalAccessibilityDetailScreen, {
   ExternalAccessibilityDetailScreenParams,
 } from '@/screens/ExternalAccessibilityDetailScreen';
-import FavoritePlacesScreen from '@/screens/FavoritePlacesScreen';
 import PlaceListDetailScreen, {
   PlaceListDetailScreenParams,
 } from '@/screens/PlaceListDetailScreen';
@@ -43,21 +39,12 @@ import MainScreen from '@/screens/MainScreen';
 import PastSeasonDetailScreen, {
   PastSeasonDetailScreenParams,
 } from '@/screens/PastSeasonDetail';
-import PlaceDetailScreen, {
-  PlaceDetailScreenParams,
-} from '@/screens/PlaceDetailScreen';
 import PlaceDetailV2Screen, {
   PlaceDetailV2ScreenParams,
 } from '@/screens/PlaceDetailV2Screen';
-import PlaceFormScreen, {
-  PlaceFormScreenParams,
-} from '@/screens/PlaceFormScreen';
 import PlaceFormV2Screen, {
   PlaceFormV2ScreenParams,
 } from '@/screens/PlaceFormV2Screen';
-import PlaceGroupMapScreen, {
-  PlaceGroupMapScreenParams,
-} from '@/screens/PlaceGroupMapScreen';
 import SavedPlaceListsScreen from '@/screens/SavedPlaceListsScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
 import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
@@ -153,11 +140,6 @@ export const MainNavigationScreens: {
   },
   {name: 'Camera', component: CameraScreen},
   {
-    name: 'FavoritePlaces',
-    component: FavoritePlacesScreen,
-    options: {headerShown: true, headerTitle: '저장한 장소'},
-  },
-  {
     name: 'CrusherActivity',
     component: CrusherActivityScreen,
     options: {headerShown: true, headerTitle: '크러셔 활동'},
@@ -166,11 +148,6 @@ export const MainNavigationScreens: {
     name: 'PastSeasonDetail',
     component: PastSeasonDetailScreen,
     options: {headerShown: true, headerTitle: '크러셔 활동'},
-  },
-  {
-    name: 'PlaceForm',
-    component: PlaceFormScreen,
-    options: {headerShown: true, headerTitle: '장소 등록하기'},
   },
   {
     name: 'PlaceFormV2',
@@ -182,16 +159,10 @@ export const MainNavigationScreens: {
       gestureEnabled: false,
     },
   },
-  {name: 'PlaceDetail', component: PlaceDetailScreen},
   {name: 'PlaceDetailV2', component: PlaceDetailV2Screen},
   {
     name: 'ExternalAccessibilityDetail',
     component: ExternalAccessibilityDetailScreen,
-  },
-  {
-    name: 'BuildingForm',
-    component: BuildingFormScreen,
-    options: {headerShown: true, headerTitle: '건물 등록하기'},
   },
   {
     name: 'BuildingFormV2',
@@ -255,11 +226,6 @@ export const MainNavigationScreens: {
     options: {headerShown: false},
   },
   {
-    name: 'PlaceGroupMap',
-    component: PlaceGroupMapScreen,
-    options: {headerShown: false},
-  },
-  {
     name: 'SavedPlaceLists',
     component: SavedPlaceListsScreen,
     options: {headerShown: true, headerTitle: '저장한 장소'},
@@ -315,12 +281,9 @@ export type ScreenParams = {
   Main: undefined;
   Search: SearchScreenParams;
   Camera: CameraScreenParams;
-  PlaceForm: PlaceFormScreenParams;
   PlaceFormV2: PlaceFormV2ScreenParams;
-  PlaceDetail: PlaceDetailScreenParams;
   PlaceDetailV2: PlaceDetailV2ScreenParams;
   ExternalAccessibilityDetail: ExternalAccessibilityDetailScreenParams;
-  BuildingForm: BuildingFormScreenParams;
   BuildingFormV2: BuildingFormV2ScreenParams;
   AddComment: AddCommentScreenParams;
 
@@ -340,7 +303,6 @@ export type ScreenParams = {
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   'Conquerer/Upvote': undefined;
   UpvoteAnalytics: UpvoteAnalyticsScreenProps;
-  FavoritePlaces: undefined;
   SavedPlaceLists: undefined;
   PlaceListDetail: PlaceListDetailScreenParams;
   CrusherActivity: CrusherActivityScreenParams;
@@ -353,7 +315,6 @@ export type ScreenParams = {
   Setting: undefined;
   MapTest: undefined;
   ToiletMap: undefined;
-  PlaceGroupMap: PlaceGroupMapScreenParams;
   SearchUnconqueredPlaces: SearchUnconqueredPlacesScreenParams;
 
   // fullscreen modals
