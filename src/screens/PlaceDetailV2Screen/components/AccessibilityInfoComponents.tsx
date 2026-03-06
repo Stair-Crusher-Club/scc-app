@@ -248,7 +248,7 @@ export function BuildingDoorDirectionInfoRow({
       subValue = buildingAccessibility.doorDirectionEtcComment ?? undefined;
       break;
   }
-  return <InfoRow label="출입구 방향" value={title} subValue={subValue} />;
+  return <InfoRow label="출입구 위치" value={title} subValue={subValue} />;
 }
 
 // ──────────────── Place Info Rows ────────────────
@@ -313,7 +313,7 @@ export function PlaceDoorDirectionInfoRow({
       title = '건물 안';
       break;
   }
-  return <InfoRow label="출입구 방향" value={title} />;
+  return <InfoRow label="출입구 위치" value={title} />;
 }
 
 // ──────────────── PlaceNoteInfoRow (특이사항) ────────────────

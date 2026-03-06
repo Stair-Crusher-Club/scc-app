@@ -172,7 +172,7 @@ export default function BuildingFormV2Screen({
 
   // 유효성 검사 및 첫 번째 에러 키 반환
   const validateAndGetError = (): keyof FormValues | null => {
-    // 출입구 방향은 필수
+    // 출입구 위치는 필수
     if (!entranceDirection) {
       return 'entranceDirection';
     }
@@ -372,7 +372,7 @@ export default function BuildingFormV2Screen({
     const toastOptions = FORM_TOAST_OPTIONS;
     switch (errorKey) {
       case 'entranceDirection':
-        ToastUtils.show('출입구 방향을 선택해주세요.', toastOptions);
+        ToastUtils.show('출입구 위치를 선택해주세요.', toastOptions);
         break;
       case 'doorDirectionEtcComment':
         ToastUtils.show('출입구 이름을 입력해주세요.', toastOptions);

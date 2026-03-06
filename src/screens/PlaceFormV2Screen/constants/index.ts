@@ -232,7 +232,7 @@ export const GUIDE_CONTENTS: Record<string, GuideContent> = {
   firstFloor: {
     title: '건물 1층에 있는 장소\n정보 등록하는 방법',
     steps: [
-      {number: 1, description: '매장 출입구 방향을 선택해요'},
+      {number: 1, description: '매장 출입구 위치를 선택해요'},
       {number: 2, description: '입구 사진을 촬영한 후'},
       {number: 3, description: '계단, 경사로 등 접근성 정보를 입력하면'},
       {number: 4, description: '끝!'},
@@ -244,7 +244,7 @@ export const GUIDE_CONTENTS: Record<string, GuideContent> = {
   otherFloor: {
     title: '1층이 아닌 다른 층에 있는 장소\n정보 등록하는 법',
     steps: [
-      {number: 1, description: '매장 출입구 방향을 선택해요'},
+      {number: 1, description: '매장 출입구 위치를 선택해요'},
       {number: 2, description: '입구 사진을 촬영한 후'},
       {number: 3, description: '계단, 경사로 등 접근성 정보를 입력하고'},
       {number: 4, description: '장소의 층까지 이동하는 방법을 등록하면'},
@@ -257,7 +257,7 @@ export const GUIDE_CONTENTS: Record<string, GuideContent> = {
   multipleFloors: {
     title: '1층을 포함한 여러 층에 있는 장소\n정보 등록 하는 법',
     steps: [
-      {number: 1, description: '매장 출입구 방향을 선택해요'},
+      {number: 1, description: '매장 출입구 위치를 선택해요'},
       {number: 2, description: '입구 사진을 촬영한 후'},
       {number: 3, description: '계단, 경사로 등 접근성 정보를 입력하고'},
       {number: 4, description: '층간 이동 정보를 입력하면'},
@@ -270,7 +270,7 @@ export const GUIDE_CONTENTS: Record<string, GuideContent> = {
   standaloneSingleFloor: {
     title: '단독건물인 장소\n정보 등록 하는 방법',
     steps: [
-      {number: 1, description: '매장 출입구 방향을 선택해요'},
+      {number: 1, description: '매장 출입구를 촬영해요'},
       {number: 2, description: '계단, 경사로 등 접근성 정보를 입력하면'},
       {number: 3, description: '끝!'},
     ],
