@@ -1,11 +1,11 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import React, {useState} from 'react';
-import {Dimensions, Image, Linking, View} from 'react-native';
+import {Dimensions, Image, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
-import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
+import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
@@ -62,11 +62,17 @@ export default function SavedPlaceListsScreen() {
     containerHeight > 0 && estimatedContentHeight > bannerAreaTop;
 
   const handleItemPress = (item: PlaceListDto) => {
+    if (item.type === PlaceListTypeDto.MyPlaces) {
+      navigation.navigate('FavoritePlaces');
+      return;
+    }
     navigation.navigate('PlaceListDetail', {placeListId: item.id});
   };
 
   const handleBannerPress = () => {
-    Linking.openURL('https://forms.staircrusher.club/list-request');
+    navigation.navigate('Webview', {
+      url: 'https://forms.staircrusher.club/list-request',
+    });
   };
 
   const renderBanner = () => (
@@ -119,7 +125,7 @@ export default function SavedPlaceListsScreen() {
                           ? '#67AEFF'
                           : (item.iconColor ?? '#FFC01E')
                       }>
-                      <BookmarkOnIcon
+                      <BookmarkFilledIcon
                         width={20}
                         height={20}
                         color={color.white}

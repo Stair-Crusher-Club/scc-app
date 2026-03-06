@@ -45,6 +45,7 @@ import PlaceDetailV2Screen, {
 import PlaceFormV2Screen, {
   PlaceFormV2ScreenParams,
 } from '@/screens/PlaceFormV2Screen';
+import FavoritePlacesScreen from '@/screens/FavoritePlacesScreen';
 import SavedPlaceListsScreen from '@/screens/SavedPlaceListsScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
 import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
@@ -231,6 +232,11 @@ export const MainNavigationScreens: {
     options: {headerShown: true, headerTitle: '저장한 장소'},
   },
   {
+    name: 'FavoritePlaces',
+    component: FavoritePlacesScreen,
+    options: {headerShown: true, headerTitle: '내가 저장한 장소'},
+  },
+  {
     name: 'PlaceListDetail',
     component: PlaceListDetailScreen,
     options: {headerShown: false},
@@ -310,6 +316,7 @@ export type ScreenParams = {
   'Conquerer/Upvote': undefined;
   UpvoteAnalytics: UpvoteAnalyticsScreenProps;
   SavedPlaceLists: undefined;
+  FavoritePlaces: undefined;
   PlaceListDetail: PlaceListDetailScreenParams;
   PlaceGroupMap: PlaceListDetailScreenParams;
   CrusherActivity: CrusherActivityScreenParams;
