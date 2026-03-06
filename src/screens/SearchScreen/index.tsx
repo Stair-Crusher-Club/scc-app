@@ -212,6 +212,7 @@ const SearchScreenContent = ({
   }, [navigation]);
 
   const handleBack = useCallback((): boolean => {
+    if (!navigation.isFocused()) return false;
     // 리스트 뷰 → 지도 뷰로 전환
     if (viewState.type === 'list' && !viewState.inputMode) {
       setViewState(prev => ({...prev, type: 'map', inputMode: false}));
@@ -233,6 +234,7 @@ const SearchScreenContent = ({
     // 초기 상태 → 화면 나가기
     return false;
   }, [
+    navigation,
     viewState,
     searchQuery.text,
     setViewState,
