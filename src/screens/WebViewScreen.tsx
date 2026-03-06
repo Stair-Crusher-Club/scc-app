@@ -1,7 +1,7 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {SccPressable} from '@/components/SccPressable';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Alert, Linking, PixelRatio, StyleSheet, Text, View} from 'react-native';
+import {Alert, Linking, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
 
