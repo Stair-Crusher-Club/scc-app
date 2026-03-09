@@ -326,6 +326,7 @@ const SpaciousTextBoxLabel = styled.Text<{isHighlighted?: boolean}>`
   font-family: ${({isHighlighted}) =>
     isHighlighted ? font.pretendardMedium : font.pretendardRegular};
   color: ${color.gray100};
+  background-color: transparent;
 `;
 
 const TextBoxContent = styled.Text<{

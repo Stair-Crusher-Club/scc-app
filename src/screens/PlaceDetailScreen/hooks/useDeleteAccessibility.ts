@@ -2,14 +2,31 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useAtom} from 'jotai';
 
 import {loadingState} from '@/components/LoadingView';
-import {AccessibilityInfoDto} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoV2Dto,
+  EpochMillisTimestamp,
+  PlaceAccessibility,
+  BuildingAccessibility,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+function findDeletableItem<
+  T extends {isDeletable: boolean; createdAt: EpochMillisTimestamp},
+>(items: T[] | undefined, fallback: T | undefined): T | undefined {
+  const deletableItems = items?.filter(a => a.isDeletable);
+  if (deletableItems && deletableItems.length > 0) {
+    return deletableItems.sort(
+      (a, b) => b.createdAt.value - a.createdAt.value,
+    )[0];
+  }
+  return fallback?.isDeletable ? fallback : undefined;
+}
+
 export function useDeleteAccessibility(
   type: 'place' | 'building',
-  accessibilityDto: AccessibilityInfoDto,
+  accessibilityDto: AccessibilityInfoV2Dto,
 ) {
   const {api} = useAppComponents();
   const [loading, setLoading] = useAtom(loadingState);
@@ -18,24 +35,34 @@ export function useDeleteAccessibility(
   return useMutation({
     mutationFn: async () => {
       if (type === 'place') {
-        if (!accessibilityDto.placeAccessibility) {
-          throw new Error('placeAccessibility is undefined');
+        const target = findDeletableItem<PlaceAccessibility>(
+          accessibilityDto.placeAccessibilities,
+          accessibilityDto.placeAccessibility,
+        );
+        if (!target) {
+          throw new Error('No deletable placeAccessibility found');
         }
         return await api.deletePlaceAccessibilityPost({
-          placeAccessibilityId: accessibilityDto.placeAccessibility.id,
+          placeAccessibilityId: target.id,
         });
       } else {
-        if (!accessibilityDto.buildingAccessibility) {
-          throw new Error('buildingAccessibility is undefined');
+        const target = findDeletableItem<BuildingAccessibility>(
+          accessibilityDto.buildingAccessibilities,
+          accessibilityDto.buildingAccessibility,
+        );
+        if (!target) {
+          throw new Error('No deletable buildingAccessibility found');
         }
         return await api.deleteBuildingAccessibilityPost({
-          buildingAccessibilityId: accessibilityDto.buildingAccessibility.id,
+          buildingAccessibilityId: target.id,
         });
       }
     },
     onMutate: () => setLoading(new Map(loading).set('PlaceDetail', true)),
     onSuccess: (_data, _variables) => {
-      const placeId = accessibilityDto.placeAccessibility?.placeId;
+      const placeId =
+        accessibilityDto.placeAccessibilities?.[0]?.placeId ??
+        accessibilityDto.placeAccessibility?.placeId;
 
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],

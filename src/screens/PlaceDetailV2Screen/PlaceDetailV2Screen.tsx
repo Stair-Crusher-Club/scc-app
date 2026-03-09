@@ -729,7 +729,9 @@ export default function PlaceDetailV2Screen({
   const showFeedbackSection =
     accessibilityPost &&
     (accessibilityPost?.placeAccessibility ||
-      accessibilityPost?.buildingAccessibility) &&
+      accessibilityPost?.buildingAccessibility ||
+      accessibilityPost?.placeAccessibilities?.some(a => a.isDeletable) ||
+      accessibilityPost?.buildingAccessibilities?.some(a => a.isDeletable)) &&
     data?.isAccessibilityRegistrable;
 
   return (
