@@ -726,9 +726,6 @@ export default function PlaceDetailV2Screen({
     }
   };
 
-  const showFeedbackSection =
-    !!accessibilityPost && !!data?.isAccessibilityRegistrable;
-
   return (
     <LogParamsProvider params={logParams}>
       <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
@@ -821,7 +818,7 @@ export default function PlaceDetailV2Screen({
               {renderTabContent()}
 
               {/* Feedback Section (삭제 기능) - 홈 탭에서만 표시 */}
-              {showFeedbackSection && currentTab === 'home' && (
+              {currentTab === 'home' && (
                 <PlaceDetailFeedbackSection
                   placeId={placeId}
                   accessibility={accessibilityPost}
