@@ -367,17 +367,31 @@ export default function V2HomeTab({
 // ──────────────── Helpers ────────────────
 
 function formatConquerorText(accessibility?: AccessibilityInfoV2Dto): string {
-  const names: string[] = [];
-  if (accessibility?.placeAccessibility?.registeredUserName) {
-    names.push(accessibility.placeAccessibility.registeredUserName);
-  }
-  if (accessibility?.buildingAccessibility?.registeredUserName) {
-    const buildingName = accessibility.buildingAccessibility.registeredUserName;
-    if (!names.includes(buildingName)) {
-      names.push(buildingName);
+  const nameSet = new Set<string>();
+
+  const placeItems = accessibility?.placeAccessibilities?.length
+    ? accessibility.placeAccessibilities
+    : accessibility?.placeAccessibility
+      ? [accessibility.placeAccessibility]
+      : [];
+  for (const pa of placeItems) {
+    if (pa.registeredUserName) {
+      nameSet.add(pa.registeredUserName);
     }
   }
 
+  const buildingItems = accessibility?.buildingAccessibilities?.length
+    ? accessibility.buildingAccessibilities
+    : accessibility?.buildingAccessibility
+      ? [accessibility.buildingAccessibility]
+      : [];
+  for (const ba of buildingItems) {
+    if (ba.registeredUserName) {
+      nameSet.add(ba.registeredUserName);
+    }
+  }
+
+  const names = Array.from(nameSet);
   if (names.length === 0) {
     return '정복자 익명 비밀요원';
   }
