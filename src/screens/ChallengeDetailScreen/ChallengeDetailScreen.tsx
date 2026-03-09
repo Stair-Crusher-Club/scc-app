@@ -36,6 +36,7 @@ import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyAc
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 import LastMonthRankingModal from './components/LastMonthRankingModal';
 import {isDismissedToday} from '@/atoms/challengeModalAtoms';
+import {SortOption} from '@/screens/SearchScreen/atoms';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
@@ -184,7 +185,7 @@ const ChallengeDetailScreen = ({
         {hasJoined === true && challenge?.status !== 'Closed' && (
           <ChallengeDetailStickyActionBar
             visible={visible}
-            onGoConquer={() => navigation.navigate('Search', {initKeyword: ''})}
+            onGoConquer={() => navigation.navigate('Search', {initKeyword: '', initSortOption: SortOption.ACCURACY})}
           />
         )}
         {hasJoined === false && (
