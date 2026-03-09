@@ -727,12 +727,7 @@ export default function PlaceDetailV2Screen({
   };
 
   const showFeedbackSection =
-    accessibilityPost &&
-    (accessibilityPost?.placeAccessibility ||
-      accessibilityPost?.buildingAccessibility ||
-      accessibilityPost?.placeAccessibilities?.some(a => a.isDeletable) ||
-      accessibilityPost?.buildingAccessibilities?.some(a => a.isDeletable)) &&
-    data?.isAccessibilityRegistrable;
+    !!accessibilityPost && !!data?.isAccessibilityRegistrable;
 
   return (
     <LogParamsProvider params={logParams}>
@@ -827,12 +822,10 @@ export default function PlaceDetailV2Screen({
 
               {/* Feedback Section (삭제 기능) - 홈 탭에서만 표시 */}
               {showFeedbackSection && currentTab === 'home' && (
-                <>
-                  <SectionSeparator />
-                  <PlaceDetailFeedbackSection
-                    accessibility={accessibilityPost!}
-                  />
-                </>
+                <PlaceDetailFeedbackSection
+                  placeId={placeId}
+                  accessibility={accessibilityPost}
+                />
               )}
             </View>
 
@@ -943,11 +936,6 @@ export default function PlaceDetailV2Screen({
     </LogParamsProvider>
   );
 }
-
-const SectionSeparator = styled.View`
-  height: 6px;
-  background-color: ${color.gray5};
-`;
 
 const SummarySectionContainer = styled.View`
   padding-top: 4px;

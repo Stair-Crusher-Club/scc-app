@@ -26,18 +26,30 @@ function findDeletableItem<
 
 export function useDeleteAccessibility(
   type: 'place' | 'building',
-  accessibilityDto: AccessibilityInfoV2Dto,
+  placeId: string,
+  accessibilityDto: AccessibilityInfoV2Dto | undefined,
 ) {
   const {api} = useAppComponents();
   const [loading, setLoading] = useAtom(loadingState);
   const queryClient = useQueryClient();
 
-  return useMutation({
+  const isDeletable =
+    type === 'place'
+      ? !!findDeletableItem<PlaceAccessibility>(
+          accessibilityDto?.placeAccessibilities,
+          accessibilityDto?.placeAccessibility,
+        )
+      : !!findDeletableItem<BuildingAccessibility>(
+          accessibilityDto?.buildingAccessibilities,
+          accessibilityDto?.buildingAccessibility,
+        );
+
+  const mutation = useMutation({
     mutationFn: async () => {
       if (type === 'place') {
         const target = findDeletableItem<PlaceAccessibility>(
-          accessibilityDto.placeAccessibilities,
-          accessibilityDto.placeAccessibility,
+          accessibilityDto?.placeAccessibilities,
+          accessibilityDto?.placeAccessibility,
         );
         if (!target) {
           throw new Error('No deletable placeAccessibility found');
@@ -47,8 +59,8 @@ export function useDeleteAccessibility(
         });
       } else {
         const target = findDeletableItem<BuildingAccessibility>(
-          accessibilityDto.buildingAccessibilities,
-          accessibilityDto.buildingAccessibility,
+          accessibilityDto?.buildingAccessibilities,
+          accessibilityDto?.buildingAccessibility,
         );
         if (!target) {
           throw new Error('No deletable buildingAccessibility found');
@@ -60,10 +72,6 @@ export function useDeleteAccessibility(
     },
     onMutate: () => setLoading(new Map(loading).set('PlaceDetail', true)),
     onSuccess: (_data, _variables) => {
-      const placeId =
-        accessibilityDto.placeAccessibilities?.[0]?.placeId ??
-        accessibilityDto.placeAccessibility?.placeId;
-
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetail', placeId],
       });
@@ -74,9 +82,7 @@ export function useDeleteAccessibility(
       });
 
       // Asynchronously update search cache with full latest data
-      if (placeId) {
-        updateSearchCacheForPlaceAsync(api, queryClient, placeId);
-      }
+      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
       // 정복한 장소 > 내가 정복한 장소 통계
       queryClient.invalidateQueries({
@@ -120,4 +126,6 @@ export function useDeleteAccessibility(
       setLoading(new Map(loading).set('PlaceDetail', false));
     },
   });
+
+  return {isDeletable, ...mutation};
 }
