@@ -30,7 +30,9 @@ export default function V2ConquerorTab({
 
   const hasAnyInfo =
     !!accessibility?.placeAccessibility ||
-    !!accessibility?.buildingAccessibility;
+    !!accessibility?.buildingAccessibility ||
+    (accessibility?.placeAccessibilities?.length ?? 0) > 0 ||
+    (accessibility?.buildingAccessibilities?.length ?? 0) > 0;
 
   if (!hasAnyInfo) {
     return (
@@ -54,25 +56,40 @@ export default function V2ConquerorTab({
   }
 
   const rawCrushers: CrusherItem[] = [];
-  if (accessibility?.placeAccessibility?.registeredUserName) {
-    rawCrushers.push({
-      name: accessibility.placeAccessibility.registeredUserName,
-      source: 'place',
-      challengeCrusherGroup: accessibility.placeAccessibility
-        .challengeCrusherGroup
-        ? {icon: accessibility.placeAccessibility.challengeCrusherGroup.icon}
-        : undefined,
-    });
+
+  // 배열(V2)에서 모든 정복자 수집, 없으면 singular fallback
+  const placeItems = accessibility?.placeAccessibilities?.length
+    ? accessibility.placeAccessibilities
+    : accessibility?.placeAccessibility
+      ? [accessibility.placeAccessibility]
+      : [];
+  for (const pa of placeItems) {
+    if (pa.registeredUserName) {
+      rawCrushers.push({
+        name: pa.registeredUserName,
+        source: 'place',
+        challengeCrusherGroup: pa.challengeCrusherGroup
+          ? {icon: pa.challengeCrusherGroup.icon}
+          : undefined,
+      });
+    }
   }
-  if (accessibility?.buildingAccessibility?.registeredUserName) {
-    rawCrushers.push({
-      name: accessibility.buildingAccessibility.registeredUserName,
-      source: 'building',
-      challengeCrusherGroup: accessibility.buildingAccessibility
-        .challengeCrusherGroup
-        ? {icon: accessibility.buildingAccessibility.challengeCrusherGroup.icon}
-        : undefined,
-    });
+
+  const buildingItems = accessibility?.buildingAccessibilities?.length
+    ? accessibility.buildingAccessibilities
+    : accessibility?.buildingAccessibility
+      ? [accessibility.buildingAccessibility]
+      : [];
+  for (const ba of buildingItems) {
+    if (ba.registeredUserName) {
+      rawCrushers.push({
+        name: ba.registeredUserName,
+        source: 'building',
+        challengeCrusherGroup: ba.challengeCrusherGroup
+          ? {icon: ba.challengeCrusherGroup.icon}
+          : undefined,
+      });
+    }
   }
 
   // 동일 정복자 중복 제거 (이름 기준, challengeCrusherGroup은 먼저 나온 것 유지)
