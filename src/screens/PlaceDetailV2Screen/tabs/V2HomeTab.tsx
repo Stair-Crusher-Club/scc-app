@@ -4,6 +4,8 @@ import React from 'react';
 import {Image, Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
+import SccRemoteImage from '@/components/SccRemoteImage';
+
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
 import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
 import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
@@ -108,6 +110,13 @@ export default function V2HomeTab({
     hasV2Fields,
     hasBuildingAccessibility,
   });
+
+  // 접근성 데이터에서 첫 번째 challengeCrusherGroup 추출
+  const challengeCrusherGroup =
+    placeAccessibilities.find(pa => pa.challengeCrusherGroup)
+      ?.challengeCrusherGroup ??
+    buildingAccessibilities.find(ba => ba.challengeCrusherGroup)
+      ?.challengeCrusherGroup;
 
   // ── 가게정보 helpers ──
   const onCopy = () => {
@@ -307,8 +316,22 @@ export default function V2HomeTab({
         )}
       </Section>
 
-      {/* ── 4. Thick Divider ── */}
-      <ThickDivider />
+      {/* ── 4. B2B Label or Thick Divider ── */}
+      {challengeCrusherGroup ? (
+        <B2BLabelBanner>
+          {challengeCrusherGroup.icon && (
+            <SccRemoteImage
+              imageUrl={challengeCrusherGroup.icon.imageUrl}
+              resizeMode="contain"
+              wrapperBackgroundColor={null}
+              fixedHeight={22.4}
+            />
+          )}
+          <B2BBannerText>이 계단뿌셔클럽과 함께했어요.</B2BBannerText>
+        </B2BLabelBanner>
+      ) : (
+        <ThickDivider />
+      )}
 
       {/* ── 5. 방문 리뷰 섹션 (통계만 표시, 0건이면 숨김) ── */}
       {reviews.length > 0 && (
@@ -567,4 +590,23 @@ const ToiletDivider = styled.View`
 const ThickDivider = styled.View`
   height: 6px;
   background-color: ${color.gray5};
+`;
+
+/* B2B Label Banner */
+const B2BLabelBanner = styled.View`
+  background-color: ${color.gray15};
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding-vertical: 8px;
+  padding-horizontal: 10px;
+`;
+
+const B2BBannerText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 14px;
+  line-height: 22.4px;
+  letter-spacing: -0.07px;
+  color: #6a6a73;
 `;

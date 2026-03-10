@@ -216,8 +216,37 @@ export default function PlaceDetailV2Screen({
     isFetching,
   } = useQuery({
     queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
-    queryFn: async ({queryKey}) =>
-      (await api.getAccessibilityV2Post({placeId: queryKey[1]})).data,
+    queryFn: async ({queryKey}) => {
+      const result = (await api.getAccessibilityV2Post({placeId: queryKey[1]}))
+        .data;
+
+      // TODO(dev): 더미 b2b challenge label — 개발 확인 후 제거
+      const dummyChallengeCrusherGroup = {
+        name: '뿌셔클럽 x 테스트기업',
+        icon: {
+          imageUrl:
+            'https://scc-prod-crusher-labels.s3.ap-northeast-2.amazonaws.com/20251001060836_7B46E2642253444E.png',
+        },
+      };
+      if (
+        result.placeAccessibilities &&
+        result.placeAccessibilities.length > 0
+      ) {
+        result.placeAccessibilities[0].challengeCrusherGroup =
+          dummyChallengeCrusherGroup;
+        if (!result.placeAccessibilities[0].registeredUserName) {
+          result.placeAccessibilities[0].registeredUserName = 'B2B 테스트 유저';
+        }
+      } else if (result.placeAccessibility) {
+        result.placeAccessibility.challengeCrusherGroup =
+          dummyChallengeCrusherGroup;
+        if (!result.placeAccessibility.registeredUserName) {
+          result.placeAccessibility.registeredUserName = 'B2B 테스트 유저';
+        }
+      }
+
+      return result;
+    },
   });
   const {data: reviewPost} = useQuery({
     queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
