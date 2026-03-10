@@ -185,7 +185,12 @@ const ChallengeDetailScreen = ({
         {hasJoined === true && challenge?.status !== 'Closed' && (
           <ChallengeDetailStickyActionBar
             visible={visible}
-            onGoConquer={() => navigation.navigate('Search', {initKeyword: '', initSortOption: SortOption.ACCURACY})}
+            onGoConquer={() =>
+              navigation.navigate('Search', {
+                initKeyword: '',
+                initSortOption: SortOption.ACCURACY,
+              })
+            }
           />
         )}
         {hasJoined === false && (
