@@ -4,6 +4,8 @@ import React from 'react';
 import {Image, Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
+import SccRemoteImage from '@/components/SccRemoteImage';
+
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
 import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
 import KakaoReviewIcon from '@/assets/icon/ic_review_kakao.svg';
@@ -318,9 +320,11 @@ export default function V2HomeTab({
       {challengeCrusherGroup ? (
         <B2BLabelBanner>
           {challengeCrusherGroup.icon && (
-            <B2BBannerIcon
-              source={{uri: challengeCrusherGroup.icon.imageUrl}}
+            <SccRemoteImage
+              imageUrl={challengeCrusherGroup.icon.imageUrl}
               resizeMode="contain"
+              wrapperBackgroundColor={null}
+              fixedHeight={22.4}
             />
           )}
           <B2BBannerText>이 계단뿌셔클럽과 함께했어요.</B2BBannerText>
@@ -597,11 +601,6 @@ const B2BLabelBanner = styled.View`
   gap: 2px;
   padding-vertical: 8px;
   padding-horizontal: 10px;
-`;
-
-const B2BBannerIcon = styled(Image)`
-  height: 28px;
-  aspect-ratio: 74 / 28;
 `;
 
 const B2BBannerText = styled.Text`

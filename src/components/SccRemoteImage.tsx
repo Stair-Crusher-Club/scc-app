@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   Image,
+  ImageStyle,
   ViewStyle,
   ImageResizeMode,
   LayoutChangeEvent,
@@ -18,6 +19,8 @@ interface SccRemoteImageProps {
   resizeMode?: ImageResizeMode;
   style?: ViewStyle;
   wrapperBackgroundColor?: string | null;
+  /** height 고정 + 원본 비율로 width 자동 계산 (fit-height 모드) */
+  fixedHeight?: number;
 }
 
 export default function SccRemoteImage({
@@ -26,6 +29,7 @@ export default function SccRemoteImage({
   resizeMode = 'cover',
   style,
   wrapperBackgroundColor,
+  fixedHeight,
 }: SccRemoteImageProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageHeight, setImageHeight] = useState<number | undefined>();
@@ -95,6 +99,26 @@ export default function SccRemoteImage({
     wrapperBackgroundColor === null
       ? 'transparent'
       : (wrapperBackgroundColor ?? color.gray10);
+
+  if (fixedHeight != null) {
+    // fit-height 모드: height 고정, 원본 비율로 width 자동 계산
+    const aspectRatio = originalSize
+      ? originalSize.width / originalSize.height
+      : undefined;
+    return (
+      <Image
+        source={{uri: imageUrl, cache: 'force-cache'}}
+        resizeMode={resizeMode}
+        onLoad={handleImageLoad}
+        onError={() => setImageLoading(false)}
+        style={[
+          {height: fixedHeight, backgroundColor: resolvedBackgroundColor},
+          aspectRatio != null ? {aspectRatio} : undefined,
+          style as ImageStyle,
+        ]}
+      />
+    );
+  }
 
   return (
     <ImageWrapper
