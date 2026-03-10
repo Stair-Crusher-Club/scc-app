@@ -1,6 +1,7 @@
 import React from 'react';
-import {Image} from 'react-native';
 import styled from 'styled-components/native';
+
+import SccRemoteImage from '@/components/SccRemoteImage';
 
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import ProfileBuggyIcon from '@/assets/icon/ic_profile_buggy.svg';
@@ -116,9 +117,11 @@ export default function V2ConquerorTab({
           {crusher.challengeCrusherGroup && (
             <B2BLabelContainer>
               {crusher.challengeCrusherGroup.icon && (
-                <B2BIcon
-                  source={{uri: crusher.challengeCrusherGroup.icon.imageUrl}}
+                <SccRemoteImage
+                  imageUrl={crusher.challengeCrusherGroup.icon.imageUrl}
                   resizeMode="contain"
+                  wrapperBackgroundColor={null}
+                  fixedHeight={17}
                 />
               )}
               <B2BText>이 계단뿌셔클럽과 함께했어요.</B2BText>
@@ -179,11 +182,6 @@ const B2BLabelContainer = styled.View`
   align-items: center;
   justify-content: center;
   gap: 2px;
-`;
-
-const B2BIcon = styled(Image)`
-  height: 20px;
-  width: 20px;
 `;
 
 const B2BText = styled.Text`
