@@ -148,7 +148,7 @@ export default function SearchRecommendPlace({
       hasSlope,
       isRegistered,
       scoreUnder,
-      sortOption: SortOption.ACCURACY,
+      sortOption: SortOption.LOW_SCORE,
     });
     onPressKeyword?.(keyword);
   }
