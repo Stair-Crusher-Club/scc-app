@@ -1,16 +1,13 @@
 import React, {useRef} from 'react';
-import {View, TextInput} from 'react-native';
-import styled from 'styled-components/native';
+import {Text, TextInput, View} from 'react-native';
 
 import UserBirthYearForm, {
   UserBirthYearFormRef,
 } from '@/components/form/UserBirthYearForm';
 import UserEmailForm from '@/components/form/UserEmailForm';
 import UserNicknameForm from '@/components/form/UserNicknameForm';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 
-import {UserFormValue, UserFormState} from './hooks/useUpdateUser';
+import {UserFormState, UserFormValue} from './hooks/useUpdateUser';
 
 interface SignupFirstPageProps {
   formValue: UserFormValue;
@@ -28,18 +25,15 @@ export default function SignupBasicPage({
 
   return (
     <>
-      <View
-        style={{
-          paddingHorizontal: 20,
-          flexDirection: 'column',
-          display: 'flex',
-        }}>
-        <TitleText style={{marginTop: 12}}>크러셔님 환영합니다!</TitleText>
-        <SubTitleText style={{marginTop: 4}}>
+      <View className="px-[20px] flex-col">
+        <Text className="font-pretendard-bold text-[24px] text-gray-100 mt-[12px]">
+          크러셔님 환영합니다!
+        </Text>
+        <Text className="font-pretendard-regular text-[16px] text-gray-70 mt-[4px]">
           서비스 사용에 필요한 정보를 알려주세요.
-        </SubTitleText>
+        </Text>
       </View>
-      <View style={{gap: 36, marginTop: 36}}>
+      <View className="gap-[36px] mt-[36px]">
         <UserNicknameForm
           value={formValue.nickname}
           state={formState.nickname}
@@ -73,15 +67,3 @@ export default function SignupBasicPage({
     </>
   );
 }
-
-const TitleText = styled.Text`
-  font-family: ${font.pretendardBold};
-  font-size: 24px;
-  color: ${color.gray100};
-`;
-
-const SubTitleText = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 16px;
-  color: ${color.gray70};
-`;

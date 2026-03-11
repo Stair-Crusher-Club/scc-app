@@ -1,11 +1,10 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import {Text} from 'react-native';
 
 import FilledCheckIcon from '@/assets/icon/ic_filled_check.svg';
 import FilledCheckOffIcon from '@/assets/icon/ic_filled_check_off.svg';
 import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
+import {cn} from '@/utils/cn';
 
 interface SelectableItemProps {
   isSelected: boolean;
@@ -21,31 +20,20 @@ export default function SelectableItem({
   elementName,
 }: SelectableItemProps) {
   return (
-    <ItemWrapper
+    <SccPressable
       elementName={elementName}
       logParams={{text}}
-      isSelected={isSelected}
-      onPress={onPress}>
+      onPress={onPress}
+      className={cn(
+        'flex-row items-center justify-start gap-[8px] p-[16px_12px] rounded-[20px] border-[1px]',
+        isSelected
+          ? 'bg-brand-5 border-brand-color'
+          : 'bg-white border-gray-20',
+      )}>
       {isSelected ? <FilledCheckIcon /> : <FilledCheckOffIcon />}
-      <ItemText>{text}</ItemText>
-    </ItemWrapper>
+      <Text className="font-pretendard-medium text-[16px] text-gray-100">
+        {text}
+      </Text>
+    </SccPressable>
   );
 }
-
-const ItemText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 16px;
-  color: ${color.gray100};
-`;
-
-const ItemWrapper = styled(SccPressable)<{isSelected: boolean}>`
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  background-color: ${props => (props.isSelected ? color.brand5 : color.white)};
-  padding: 16px 12px;
-  border-radius: 20px;
-  border: 1px solid
-    ${props => (props.isSelected ? color.brandColor : color.gray20)};
-`;

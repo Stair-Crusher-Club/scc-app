@@ -1,10 +1,9 @@
 import {FlashList} from '@shopify/flash-list';
 import React, {useMemo} from 'react';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
+import {cn} from '@/utils/cn';
 
 interface Props {
   value: string;
@@ -32,84 +31,54 @@ export default function BirthYearSelector({value, onChange, onClose}: Props) {
   }, [value]);
 
   const renderItem = ({item}: {item: YearItem}) => (
-    <YearButton
+    <SccTouchableOpacity
       elementName="birth_year_item"
       onPress={() => {
         onChange(item.year.toString());
         onClose();
       }}
-      isSelected={item.isSelected}>
-      <YearText isSelected={item.isSelected}>{item.year}년</YearText>
-    </YearButton>
+      className={cn('p-[16px]', item.isSelected ? 'bg-gray-10' : 'bg-white')}>
+      <Text
+        className={cn(
+          'font-pretendard-medium text-[16px] text-center',
+          item.isSelected ? 'text-blue-50' : 'text-gray-100',
+        )}>
+        {item.year}년
+      </Text>
+    </SccTouchableOpacity>
   );
 
   return (
-    <Container>
-      <Header>
-        <HeaderButton elementName="birth_year_cancel_button" onPress={onClose}>
-          <HeaderButtonText>취소</HeaderButtonText>
-        </HeaderButton>
-        <HeaderTitle>출생연도</HeaderTitle>
-        <HeaderButton elementName="birth_year_done_button" onPress={onClose}>
-          <HeaderButtonText>완료</HeaderButtonText>
-        </HeaderButton>
-      </Header>
-      <ListContainer>
+    <View className="bg-white rounded-t-[16px] h-[400px]">
+      <View className="flex-row justify-between items-center p-[16px] border-b-[1px] border-gray-20">
+        <SccTouchableOpacity
+          elementName="birth_year_cancel_button"
+          onPress={onClose}
+          className="p-[8px]">
+          <Text className="font-pretendard-medium text-[16px] text-blue-50">
+            취소
+          </Text>
+        </SccTouchableOpacity>
+        <Text className="font-pretendard-bold text-[16px] text-gray-100">
+          출생연도
+        </Text>
+        <SccTouchableOpacity
+          elementName="birth_year_done_button"
+          onPress={onClose}
+          className="p-[8px]">
+          <Text className="font-pretendard-medium text-[16px] text-blue-50">
+            완료
+          </Text>
+        </SccTouchableOpacity>
+      </View>
+      <View className="flex-1">
         <FlashList
           data={years}
           renderItem={renderItem}
           estimatedItemSize={50}
           keyExtractor={item => item.year.toString()}
         />
-      </ListContainer>
-    </Container>
+      </View>
+    </View>
   );
 }
-
-const Container = styled.View`
-  background-color: ${color.white};
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  height: 400px;
-`;
-
-const Header = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${color.gray20};
-`;
-
-const HeaderButton = styled(SccTouchableOpacity)`
-  padding: 8px;
-`;
-
-const HeaderButtonText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 16px;
-  color: ${color.blue50};
-`;
-
-const HeaderTitle = styled.Text`
-  font-family: ${font.pretendardBold};
-  font-size: 16px;
-  color: ${color.gray100};
-`;
-
-const ListContainer = styled.View`
-  flex: 1;
-`;
-
-const YearButton = styled(SccTouchableOpacity)<{isSelected: boolean}>`
-  padding: 16px;
-  background-color: ${props => (props.isSelected ? color.gray10 : color.white)};
-`;
-
-const YearText = styled.Text<{isSelected: boolean}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 16px;
-  color: ${props => (props.isSelected ? color.blue50 : color.gray100)};
-  text-align: center;
-`;
