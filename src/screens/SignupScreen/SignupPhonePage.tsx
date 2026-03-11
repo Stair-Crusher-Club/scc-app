@@ -1,12 +1,9 @@
 import React, {useCallback} from 'react';
-import {View} from 'react-native';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 
 import UserPhoneForm from '@/components/form/UserPhoneForm';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 
-import {UserFormValue, UserFormState} from './hooks/useUpdateUser';
+import {UserFormState, UserFormValue} from './hooks/useUpdateUser';
 
 interface SignupPhonePageProps {
   formValue: UserFormValue;
@@ -33,18 +30,15 @@ export default function SignupPhonePage({
 
   return (
     <>
-      <View
-        style={{
-          paddingHorizontal: 20,
-          flexDirection: 'column',
-          display: 'flex',
-        }}>
-        <TitleText style={{marginTop: 12}}>크러셔님 환영합니다!</TitleText>
-        <SubTitleText style={{marginTop: 4}}>
+      <View className="px-[20px] flex-col">
+        <Text className="font-pretendard-bold text-[24px] text-gray-100 mt-[12px]">
+          크러셔님 환영합니다!
+        </Text>
+        <Text className="font-pretendard-regular text-[16px] text-gray-70 mt-[4px]">
           서비스 사용에 필요한 정보를 알려주세요.
-        </SubTitleText>
+        </Text>
       </View>
-      <View style={{marginTop: 36}}>
+      <View className="mt-[36px]">
         <UserPhoneForm
           phoneNumber={formValue.phoneNumber}
           onPhoneNumberChange={handlePhoneNumberChange}
@@ -55,15 +49,3 @@ export default function SignupPhonePage({
     </>
   );
 }
-
-const TitleText = styled.Text`
-  font-family: ${font.pretendardBold};
-  font-size: 24px;
-  color: ${color.gray100};
-`;
-
-const SubTitleText = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 16px;
-  color: ${color.gray70};
-`;

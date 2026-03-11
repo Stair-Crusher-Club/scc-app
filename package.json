@@ -66,6 +66,7 @@
     "@types/lodash": "^4.14.186",
     "airbridge-react-native-sdk": "^4.8.0",
     "axios": "^1.8.2",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "jotai": "^2.12.4",
     "lodash": "^4.17.21",

@@ -5,21 +5,27 @@ import {
 import {login} from '@react-native-seoul/kakao-login';
 import {useAtom} from 'jotai';
 import React, {useState} from 'react';
-import {ImageSourcePropType, Platform, useWindowDimensions} from 'react-native';
+import {
+  Image,
+  ImageSourcePropType,
+  Platform,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
 import AppleLogo from '@/assets/icon/ic_logo_apple.svg';
 import KakaoLogo from '@/assets/icon/ic_logo_kakao.svg';
 import {accessTokenAtom, ANONYMOUS_USER_TEMPLATE, useMe} from '@/atoms/Auth';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import ToastUtils from '@/utils/ToastUtils';
 import {logDebug} from '@/utils/DebugUtils';
-
-import * as S from './LoginScreen.style';
+import ToastUtils from '@/utils/ToastUtils';
 
 interface SlideData {
   heading: string;
@@ -40,31 +46,40 @@ const LoginWith3rdParty = ({
 }: LoginWith3rdPartyProps) => {
   return (
     <>
-      <S.KakaoLogin
+      <SccTouchableOpacity
+        className="flex-row items-center justify-center p-[16px] w-full h-[58px] rounded-[12px] bg-[#FEE500]"
         elementName="login_kakao_button"
         onPress={onKakaoButtonPressed}>
-        <S.LoginButtonIcon>
+        <View className="absolute left-[16px] top-[17px]">
           <KakaoLogo />
-        </S.LoginButtonIcon>
-        <S.LoginWithKakao>카카오톡으로 계속하기</S.LoginWithKakao>
-      </S.KakaoLogin>
+        </View>
+        <Text className="font-pretendard-bold text-[16px] leading-[24px] text-black-a80">
+          카카오톡으로 계속하기
+        </Text>
+      </SccTouchableOpacity>
       {/* 안드로이드 애플로그인 지원 시 appleAuthAndroid.isSupported 체크 필요 */}
       {Platform.OS === 'ios' && (
-        <S.AppleLogin
+        <SccTouchableOpacity
+          className="flex-row items-center justify-center p-[16px] w-full h-[58px] rounded-[12px] border-[1px] border-black bg-white"
           elementName="login_apple_button"
           onPress={onAppleButtonPressed}>
-          <S.LoginButtonIcon>
+          <View className="absolute left-[16px] top-[17px]">
             <AppleLogo />
-          </S.LoginButtonIcon>
-          <S.LoginWithApple>Apple로 계속하기</S.LoginWithApple>
-        </S.AppleLogin>
+          </View>
+          <Text className="font-pretendard-bold text-[16px] leading-[24px]">
+            Apple로 계속하기
+          </Text>
+        </SccTouchableOpacity>
       )}
       {onGuestButtonPressed && (
-        <S.GuestLogin
+        <SccTouchableOpacity
+          className="flex-row items-center justify-center p-[16px] w-full h-[58px] rounded-[12px] bg-white"
           elementName="login_guest_button"
           onPress={onGuestButtonPressed}>
-          <S.LoginAsGuest>비회원 둘러보기</S.LoginAsGuest>
-        </S.GuestLogin>
+          <Text className="leading-[24px] text-[14px] font-pretendard-regular text-gray-90">
+            비회원 둘러보기
+          </Text>
+        </SccTouchableOpacity>
       )}
     </>
   );
@@ -257,11 +272,18 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
 
   function renderSlide({item}: {item: SlideData; index: number}) {
     return (
-      <S.Slide>
-        <S.SlideHeading>{item.heading}</S.SlideHeading>
-        <S.SlideTitle>{item.title}</S.SlideTitle>
-        <S.SlideImage source={item.image} />
-      </S.Slide>
+      <View className="w-full items-center">
+        <Text className="text-[13px] leading-[17px] font-pretendard-bold text-blue-50 text-center mb-[10px]">
+          {item.heading}
+        </Text>
+        <Text className="text-[22px] leading-[31px] font-pretendard-semibold text-black text-center">
+          {item.title}
+        </Text>
+        <Image
+          className="w-full aspect-[375/310] h-[310px]"
+          source={item.image}
+        />
+      </View>
     );
   }
 
@@ -270,8 +292,8 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       isHeaderVisible={false}
       safeAreaEdges={['bottom']}
       style={{backgroundColor: 'white'}}>
-      <S.Container>
-        <S.SlideContainer>
+      <View className="flex-1 justify-end">
+        <View className="mt-[40px] w-full h-[440px]">
           <Carousel
             data={slides}
             width={windowWidth}
@@ -284,24 +306,29 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
             autoPlay={true}
             autoPlayInterval={5000}
           />
-          <S.SlideIndicator>
+          <View className="flex-row gap-[8px] justify-center mt-[10px]">
             {slides.map((_, index) => (
-              <S.SlideIndicatorItem key={index}>
-                <S.SlideIndicatorActive
-                  active={getDotColor(index, activeSlide, slides.length)}
+              <View
+                key={index}
+                className="w-[8px] h-[8px] rounded-[4px] bg-gray-20">
+                <View
+                  className="absolute top-0 left-0 w-[8px] h-[8px] rounded-[4px] bg-blue-50"
+                  style={{
+                    opacity: getDotColor(index, activeSlide, slides.length),
+                  }}
                 />
-              </S.SlideIndicatorItem>
+              </View>
             ))}
-          </S.SlideIndicator>
-        </S.SlideContainer>
-        <S.LoginButtons>
+          </View>
+        </View>
+        <View className="justify-end px-[20px] gap-[10px] mt-[58px]">
           <LoginWith3rdParty
             onKakaoButtonPressed={kakaoLogin}
             onAppleButtonPressed={appleLogin}
             onGuestButtonPressed={guestLogin}
           />
-        </S.LoginButtons>
-      </S.Container>
+        </View>
+      </View>
     </ScreenLayout>
   );
 }

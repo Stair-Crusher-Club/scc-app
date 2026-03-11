@@ -7,7 +7,6 @@ import {ScrollView, View} from 'react-native';
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
-import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -15,8 +14,8 @@ import ProgressViewer from '@/screens/SignupScreen/components/ProgressViewer';
 import ToastUtils from '@/utils/ToastUtils';
 
 import SignupBasicPage from './SignupBasicProfilePage';
-import SignupPhonePage from './SignupPhonePage';
 import SignupMobilityToolPage from './SignupMobilityToolPage';
+import SignupPhonePage from './SignupPhonePage';
 import {useUpdateUser} from './hooks/useUpdateUser';
 
 const TOTAL_STEPS = 3;
@@ -186,20 +185,12 @@ export default function SignupScreen({
       isHeaderVisible
       isKeyboardAvoidingView={true}
       safeAreaEdges={['bottom']}>
-      <View style={{flex: 1, backgroundColor: color.white}}>
-        <View style={{paddingHorizontal: 20}}>
+      <View className="flex-1 bg-white">
+        <View className="px-[20px]">
           <ProgressViewer progress={progress} />
         </View>
-        <ScrollView style={{backgroundColor: color.white}}>
-          {renderPage()}
-        </ScrollView>
-        <View
-          style={{
-            width: '100%',
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            backgroundColor: color.white,
-          }}>
+        <ScrollView className="bg-white">{renderPage()}</ScrollView>
+        <View className="w-full px-[20px] py-[10px] bg-white">
           <SccButton
             onPress={buttonConfig.onPress}
             buttonColor="blue50"

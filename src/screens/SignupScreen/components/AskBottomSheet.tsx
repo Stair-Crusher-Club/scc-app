@@ -1,10 +1,7 @@
 import React from 'react';
-import {View} from 'react-native';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 
 import {SccButton} from '@/components/atoms';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
 
 interface AskBottomSheetProps {
@@ -20,17 +17,12 @@ export default function AskBottomSheet({
 }: AskBottomSheetProps) {
   return (
     <BottomSheet isVisible={isVisible} onPressBackground={onDismiss}>
-      <View style={{padding: 20, gap: 24}}>
-        <BottomSheetTitle>
+      <View className="p-[20px] gap-[24px]">
+        <Text className="font-pretendard-bold text-[20px] text-gray-100">
           그렇다면,{'\n'}
           이동약자의 친구/가족/동료 이신가요?
-        </BottomSheetTitle>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}>
+        </Text>
+        <View className="flex-row justify-between gap-[12px]">
           <SccButton
             text="네"
             buttonColor="white"
@@ -54,9 +46,3 @@ export default function AskBottomSheet({
     </BottomSheet>
   );
 }
-
-const BottomSheetTitle = styled.Text`
-  font-family: ${font.pretendardBold};
-  font-size: 20px;
-  color: ${color.gray100};
-`;
