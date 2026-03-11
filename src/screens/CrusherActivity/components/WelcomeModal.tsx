@@ -142,7 +142,7 @@ const MODAL_CONFIG: Record<
         },
         {
           type: 'lottie',
-          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/conquer_a_welcome_character.lottie'),
+          source: require('@/assets/animations/crusher_activity/starting_day/2026spring/conquer_b_welcome_character.lottie'),
           scale: 0.65,
           offsetX: 24,
           offsetY: 54,

@@ -64,6 +64,7 @@ export interface SearchScreenParams {
   toMap?: boolean;
   searchQuery?: string;
   fromLookup?: boolean;
+  initSortOption?: SortOption;
 }
 
 const SearchScreen = ({route}: ScreenProps<'Search'>) => {
@@ -84,6 +85,7 @@ const SearchScreenContent = ({
     toMap,
     searchQuery: deepLinkSearchQuery,
     fromLookup,
+    initSortOption,
   } = route.params;
   const ref = useRef<SearchMapViewHandle>(null);
   const setFilter = useSetAtom(filterAtom);
@@ -160,11 +162,11 @@ const SearchScreenContent = ({
     // 1. fromLookup 상태 설정
     setIsFromLookup(!!fromLookup);
 
-    // 2. fromLookup이면 접근레벨 낮은순 정렬 적용
-    if (fromLookup) {
+    // 2. initSortOption이 지정되면 해당 정렬 적용
+    if (initSortOption) {
       setFilter(prev => ({
         ...prev,
-        sortOption: SortOption.LOW_SCORE,
+        sortOption: initSortOption,
       }));
     }
 
@@ -195,7 +197,7 @@ const SearchScreenContent = ({
     return navigation.addListener('beforeRemove', () => {
       setIsFromLookup(false);
       setFilter({
-        sortOption: SortOption.ACCURACY,
+        sortOption: SortOption.LOW_SCORE,
         hasSlope: null,
         scoreUnder: null,
         isRegistered: null,

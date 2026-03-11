@@ -32,7 +32,7 @@ export enum ScoreUnder {
 export type FilterType = keyof FilterOptions;
 
 export const filterAtom = atom<FilterOptions>({
-  sortOption: SortOption.ACCURACY,
+  sortOption: SortOption.LOW_SCORE,
   scoreUnder: null,
   hasSlope: null,
   isRegistered: null,

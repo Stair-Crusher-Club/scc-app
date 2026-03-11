@@ -9,6 +9,7 @@ import {DayOfWeek} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 
+import {SortOption} from '@/screens/SearchScreen/atoms';
 import * as S from './WeeklyConquererSection.style';
 
 dayjs.locale(ko);
@@ -42,7 +43,12 @@ export default function WeeklyConquererSection() {
           <S.Title>하루 한 칸</S.Title>
           <S.MoreButton
             elementName="weekly_conquerer_more_button"
-            onPress={() => navigation.navigate('Search', {initKeyword: ''})}>
+            onPress={() =>
+              navigation.navigate('Search', {
+                initKeyword: '',
+                initSortOption: SortOption.ACCURACY,
+              })
+            }>
             <S.More>정복하러 가기</S.More>
             <RightAngleArrowIcon color={color.brandColor} width={20} />
           </S.MoreButton>

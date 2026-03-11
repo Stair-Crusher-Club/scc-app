@@ -55,7 +55,7 @@ export default function FilterModal() {
     setDraftScoreUnder(undefined);
     setDraftIsRegistered(undefined);
     const defaults = {
-      sortOption: SortOption.ACCURACY,
+      sortOption: SortOption.LOW_SCORE,
       hasSlope: null,
       scoreUnder: null,
       isRegistered: null,
