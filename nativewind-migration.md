@@ -66,10 +66,14 @@
 
 - **No Inline Styles:** `style={...}` 객체는 절대 사용하지 않는다. 모든 스타일은 오직 `className` 속성으로만 작성한다.
   - 단, Shadow는 예외적으로 `style` 객체를 사용한다. (Rule 7-4 참고)
+- **Default Properties:** `position: 'relative'` 또는 `display: 'flex'`는 React Native의 기본값이므로, 명시적으로 `relative` 또는 `flex` 클래스를 추가하지 않는다.
 - **Gap over Margin:** 요소 간 간격(Spacing)은 부모 컨테이너에 `gap-[px]` 속성을 부여하여 처리하는 것을 최우선으로 한다. (Margin 사용을 지양)
 - **Precision Pixel Scaling:** 기본적으로 4px 단위(`p-1`, `m-2` 등)를 지향하되, 디자인 시안과 1:1 일치가 중요하므로 **정확한 픽셀 값(`p-[20px]`, `mb-[4px]`) 사용을 권장**한다.
   - 4px 단위로 떨어지지 않는 경우 반드시 하드코딩된 대괄호 구문(`-[13px]`)을 사용한다.
 - **Typography Detail:** `fontSize`와 `lineHeight`는 `className`으로 통합 처리한다. (예: `text-[16px] leading-[24px]`)
+- **Shared Component Caution:** 여러 화면에서 공유되는 컴포넌트(예: `UnderlineInput`, `SccButton` 등)는 화면 단위 마이그레이션 시 수정을 지양한다.
+  - 아직 마이그레이션되지 않은 공용 컴포넌트에 스타일을 전달해야 할 경우, `style` 객체 사용을 허용한다.
+  - 공유 컴포넌트 수정 시 다른 화면에 사이드 이펙트가 발생할 수 있으므로, 모든 화면 마이그레이션이 완료된 후 별도 단계에서 진행한다.
 
 ### 7-2. Design Tokens & Fonts (디자인 토큰)
 
@@ -163,56 +167,55 @@ const Title = styled.Text`
 
 > 상태 범례: `대기` 진행 전 · `진행` 작업 중 · `테썹 배포` CodePush 테스트 배포 완료 · `QA 완료` 실기기 검증 완료 · `실섭 배포` 프로덕션 배포 완료 · `삭제` 해당 파일 제거됨
 
-| 화면 (스크린 컴포넌트)          | 상태 | 비고                       |
-| :------------------------------ | :--: | :------------------------- |
-| **Intro**                       | 대기 | Phase 1                    |
-| **Login**                       | 대기 | Phase 1                    |
-| **Signup**                      | 대기 | Phase 1                    |
-| **Setting**                     | 대기 | Phase 1                    |
-| **Review**                      | 대기 | Phase 1                    |
-| **Review/History**              | 대기 | Phase 1                    |
-| **Review/Upvote**               | 대기 | Phase 1                    |
-| **Conquerer**                   | 대기 | Phase 1                    |
-| **Conquerer/History**           | 대기 | Phase 1                    |
-| **Conquerer/Upvote**            | 대기 | Phase 1                    |
-| **UpvoteAnalytics**             | 대기 | Phase 1                    |
-| **CrusherActivity**             | 대기 | Phase 1                    |
-| **PastSeasonDetail**            | 대기 | Phase 1                    |
-| **AddComment**                  | 대기 | Phase 1                    |
-| **GuideForFirstVisit**          | 대기 | Phase 1 / FullScreen Modal |
-| **FavoritePlaces**              | 대기 | Phase 1                    |
-| **Main**                        | 대기 | Phase 2                    |
-| **Search**                      | 대기 | Phase 2                    |
-| **Camera**                      | 대기 | Phase 2                    |
-| **PlaceFormV2**                 | 대기 | Phase 2                    |
-| **PlaceDetailV2**               | 대기 | Phase 2                    |
-| **ExternalAccessibilityDetail** | 대기 | Phase 2                    |
-| **BuildingFormV2**              | 대기 | Phase 2                    |
-| **ChallengeDetail**             | 대기 | Phase 2                    |
-| **ProfileEditor**               | 대기 | Phase 2                    |
-| **ProfileEditor/Detail**        | 대기 | Phase 2                    |
-| **Conquerer/Monthly**           | 대기 | Phase 2 / Modal            |
-| **PlacePhotoGuide**             | 대기 | Phase 2 / FullScreen Modal |
-| **Webview**                     | 대기 | Phase 2 / FullScreen Modal |
-| **ToiletMap**                   | 대기 | Phase 2                    |
-| **SavedPlaceLists**             | 대기 | Phase 2                    |
-| **PlaceListDetail**             | 대기 | Phase 2                    |
-| **PlaceGroupMap**               | 대기 | Phase 2                    |
-| **SearchUnconqueredPlaces**     | 대기 | Phase 2                    |
-| **ImageZoomViewer**             | 대기 | Phase 2 / FullScreen Modal |
-| **RegistrationComplete**        | 대기 | Phase 2 / FullScreen Modal |
-| **ReviewForm/Place**            | 대기 | Phase 2                    |
-| **ReviewForm/Toilet**           | 대기 | Phase 2                    |
+| 화면 (스크린 컴포넌트)          |   상태    | Phase | 비고                                                                                  |
+| :------------------------------ | :-------: | :---: | :------------------------------------------------------------------------------------ |
+| 1. **Login**                       | 테썹 배포 |   1   |                                                                                       |
+| 2. **Signup**                      | 테썹 배포 |   1   | Signup 하위 컴포넌트 마이그레이션 완료. 공용 폼(UserEmailForm 등) 및 입력 필드는 보류 |
+| 3. **Setting**                     |   대기    |   1   |                                                                                       |
+| 4. **Review**                      |   대기    |   1   |                                                                                       |
+| 5. **Review/History**              |   대기    |   1   |                                                                                       |
+| 6. **Review/Upvote**               |   대기    |   1   |                                                                                       |
+| 7. **Conquerer**                   |   대기    |   1   |                                                                                       |
+| 8. **Conquerer/History**           |   대기    |   1   |                                                                                       |
+| 9. **Conquerer/Upvote**            |   대기    |   1   |                                                                                       |
+| 10. **UpvoteAnalytics**             |   대기    |   1   |                                                                                       |
+| 11. **CrusherActivity**             |   대기    |   1   |                                                                                       |
+| 12. **PastSeasonDetail**            |   대기    |   1   |                                                                                       |
+| 13. **AddComment**                  |   대기    |   1   |                                                                                       |
+| 14. **GuideForFirstVisit**          |   대기    |   1   | FullScreen Modal                                                                      |
+| 15. **FavoritePlaces**              |   대기    |   1   |                                                                                       |
+| 16. **Main**                        |   대기    |   2   |                                                                                       |
+| 17. **Search**                      |   대기    |   2   |                                                                                       |
+| 18. **Camera**                      |   대기    |   2   |                                                                                       |
+| 19. **PlaceFormV2**                 |   대기    |   2   |                                                                                       |
+| 20. **PlaceDetailV2**               |   대기    |   2   |                                                                                       |
+| 21. **ExternalAccessibilityDetail** |   대기    |   2   |                                                                                       |
+| 22. **BuildingFormV2**              |   대기    |   2   |                                                                                       |
+| 23. **ChallengeDetail**             |   대기    |   2   |                                                                                       |
+| 24. **ProfileEditor**               |   대기    |   2   |                                                                                       |
+| 25. **ProfileEditor/Detail**        |   대기    |   2   |                                                                                       |
+| 26. **Conquerer/Monthly**           |   대기    |   2   | Modal                                                                                 |
+| 27. **PlacePhotoGuide**             |   대기    |   2   | FullScreen Modal                                                                      |
+| 28. **Webview**                     |   대기    |   2   | FullScreen Modal                                                                      |
+| 29. **ToiletMap**                   |   대기    |   2   |                                                                                       |
+| 30. **SavedPlaceLists**             |   대기    |   2   |                                                                                       |
+| 31. **PlaceListDetail**             |   대기    |   2   |                                                                                       |
+| 32. **PlaceGroupMap**               |   대기    |   2   |                                                                                       |
+| 33. **SearchUnconqueredPlaces**     |   대기    |   2   |                                                                                       |
+| 34. **ImageZoomViewer**             |   대기    |   2   | FullScreen Modal                                                                      |
+| 35. **RegistrationComplete**        |   대기    |   2   | FullScreen Modal                                                                      |
+| 36. **ReviewForm/Place**            |   대기    |   2   |                                                                                       |
+| 37. **ReviewForm/Toilet**           |   대기    |   2   |                                                                                       |
 
 ---
 
 ## 통계
 
 - **상태 요약**
-  - 실섭 배포: 0개
-  - QA 완료: 0개
-  - 테썹 배포: 0개
+  - 대기: 36개
   - 진행: 0개
-  - 대기: 38개
+  - 테썹 배포: 2개
+  - QA 완료: 0개
+  - 실섭 배포: 0개
   - 삭제: 0개
-- **전체 진척도**: **0%**
+- **전체 진척도**: **5%**
