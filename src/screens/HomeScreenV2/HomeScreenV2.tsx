@@ -347,18 +347,18 @@ const HomeScreenV2 = ({navigation}: any) => {
               }}
             />
           )}
-          {/* 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), zIndex로 표시/숨김 제어 */}
-          {needsTutorial && (
-            <TutorialOverlay
-              visible={tutorialVisible}
-              onClose={() => {
-                setTutorialVisible(false);
-                setHasShownHomeTutorial(true);
-              }}
-            />
-          )}
         </Container>
       </ScreenLayout>
+      {/* 튜토리얼: ScreenLayout 바깥에 렌더하여 탭바까지 덮음 */}
+      {needsTutorial && (
+        <TutorialOverlay
+          visible={tutorialVisible}
+          onClose={() => {
+            setTutorialVisible(false);
+            setHasShownHomeTutorial(true);
+          }}
+        />
+      )}
     </>
   );
 };
