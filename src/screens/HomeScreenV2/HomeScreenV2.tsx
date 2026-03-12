@@ -345,15 +345,23 @@ const HomeScreenV2 = ({navigation}: any) => {
               }}
             />
           )}
-          {/* 튜토리얼 이미지 사전 디코딩: navigate 전에 RN 이미지 캐시에 올림 */}
-          {!hasShownHomeTutorial &&
-            tutorialSlides.map((source, i) => (
+          {/* 튜토리얼 이미지 사전 디코딩: 실제 표시 사이즈로 렌더해야 iOS가 풀 해상도로 디코딩 */}
+          {!hasShownHomeTutorial && (() => {
+            const src = Image.resolveAssetSource(tutorialSlides[0]);
+            const h = SCREEN_WIDTH * (src.height / src.width);
+            return tutorialSlides.map((source, i) => (
               <Image
                 key={i}
                 source={source}
-                style={{width: 1, height: 1, opacity: 0, position: 'absolute'}}
+                style={{
+                  width: SCREEN_WIDTH,
+                  height: h,
+                  position: 'absolute',
+                  top: -9999,
+                }}
               />
-            ))}
+            ));
+          })()}
         </Container>
       </ScreenLayout>
     </>
