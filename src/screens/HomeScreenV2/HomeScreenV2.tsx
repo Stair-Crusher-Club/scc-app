@@ -46,7 +46,6 @@ import QuickMenuSection from './sections/QuickMenuSection';
 import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
-import TutorialOverlay from './components/TutorialOverlay';
 
 export interface HomeScreenV2Params {}
 
@@ -93,6 +92,18 @@ const HomeScreenV2 = ({navigation}: any) => {
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
+
+  // 자연스러운 전환을 위해, 홈화면 진입 후 어느 정도 시간이 지나서 튜토리얼 표시
+  useEffect(() => {
+    if (hasShownHomeTutorial) {
+      return;
+    }
+    setHasShownHomeTutorial(true);
+    const timer = setTimeout(() => {
+      navigation.navigate('Tutorial');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const requestGeolocationPermissionIfNeeded = async () => {
@@ -316,9 +327,6 @@ const HomeScreenV2 = ({navigation}: any) => {
             isVisible={geolocationErrorReason !== null}
             errorReason={geolocationErrorReason ?? 'permission_denied'}
           />
-          {!hasShownHomeTutorial && (
-            <TutorialOverlay onClose={() => setHasShownHomeTutorial(true)} />
-          )}
           {(versionStatus ===
             GetClientVersionStatusResponseDtoStatusEnum.UpgradeNeeded ||
             versionStatus ===
