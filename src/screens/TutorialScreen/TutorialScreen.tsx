@@ -1,7 +1,12 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Dimensions, Image} from 'react-native';
-import Carousel, {ICarouselInstance} from 'react-native-reanimated-carousel';
+import {
+  Dimensions,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -25,7 +30,7 @@ export const tutorialSlides = [
 
 export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
   const insets = useSafeAreaInsets();
-  const carouselRef = useRef<ICarouselInstance>(null);
+  const scrollRef = useRef<ScrollView>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
@@ -40,46 +45,52 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
     return SCREEN_WIDTH * (source.height / source.width);
   }, []);
 
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const page = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+      setActiveSlide(page);
+    },
+    [],
+  );
+
   const handlePrev = useCallback(() => {
-    carouselRef.current?.prev();
-  }, []);
+    scrollRef.current?.scrollTo({
+      x: (activeSlide - 1) * SCREEN_WIDTH,
+      animated: true,
+    });
+  }, [activeSlide]);
 
   const handleNext = useCallback(() => {
-    carouselRef.current?.next();
-  }, []);
+    scrollRef.current?.scrollTo({
+      x: (activeSlide + 1) * SCREEN_WIDTH,
+      animated: true,
+    });
+  }, [activeSlide]);
 
   const handleStart = useCallback(() => {
     setHasShownHomeTutorial(true);
     navigation.goBack();
   }, [navigation, setHasShownHomeTutorial]);
 
-  const renderSlide = useCallback(
-    ({item}: {item: (typeof tutorialSlides)[number]}) => (
-      <SlideContainer>
-        <Image
-          source={item}
-          style={{width: SCREEN_WIDTH, height: scaledHeight}}
-        />
-      </SlideContainer>
-    ),
-    [scaledHeight],
-  );
-
   return (
     <Container>
-      <Carousel
-        ref={carouselRef}
-        data={tutorialSlides}
-        width={SCREEN_WIDTH}
-        height={SCREEN_HEIGHT}
-        windowSize={3}
-        loop={false}
-        renderItem={renderSlide}
-        onProgressChange={(_, i) => setActiveSlide(Math.round(i))}
-        onConfigurePanGesture={gestureChain => {
-          gestureChain.activeOffsetX([-10, 10]);
-        }}
-      />
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        bounces={false}
+        onMomentumScrollEnd={handleScroll}
+        scrollEventThrottle={16}>
+        {tutorialSlides.map((source, index) => (
+          <SlideContainer key={index}>
+            <Image
+              source={source}
+              style={{width: SCREEN_WIDTH, height: scaledHeight}}
+            />
+          </SlideContainer>
+        ))}
+      </ScrollView>
       <BottomBar style={{paddingBottom: insets.bottom + 20}}>
         {isLast ? (
           <StartButton

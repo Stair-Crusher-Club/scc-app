@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Platform} from 'react-native';
 
 export const Container = styled.View({
   flex: 1,
