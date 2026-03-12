@@ -25,7 +25,7 @@ import styled from 'styled-components/native';
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
+import {hasShownHomeTutorialAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
@@ -89,16 +89,23 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   const versionStatusMessage = versionData?.message;
   const versionStatus = versionData?.status;
-  const hasShownGuideForFirstVisit = useAtomValue(
-    hasShownGuideForFirstVisitAtom,
-  );
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
+  const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
+  const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
+
+  // 자연스러운 전환을 위해, 홈화면 진입 후 어느 정도 시간이 지나서 튜토리얼 표시
+  useEffect(() => {
+    if (hasShownHomeTutorial) {
+      return;
+    }
+    setHasShownHomeTutorial(true);
+    const timer = setTimeout(() => {
+      navigation.navigate('Tutorial');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
-    if (!hasShownGuideForFirstVisit) {
-      navigation.navigate('GuideForFirstVisit');
-    }
-
     const requestGeolocationPermissionIfNeeded = async () => {
       try {
         const location = await GeolocationUtils.getCurrentPosition();
@@ -119,7 +126,7 @@ const HomeScreenV2 = ({navigation}: any) => {
       }
     };
     requestGeolocationPermissionIfNeeded();
-  }, [navigation, accessToken, syncUserInfo, hasShownGuideForFirstVisit]);
+  }, [navigation, accessToken, syncUserInfo]);
 
   useEffect(() => {
     syncUserInfo();

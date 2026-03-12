@@ -68,6 +68,7 @@ import SearchUnconqueredPlacesScreen, {
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
+import TutorialScreen from '@/screens/TutorialScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
 } from '@/screens/ToiletReviewFormScreen';
@@ -263,6 +264,15 @@ export const MainNavigationScreens: {
     options: {presentation: 'fullScreenModal', headerShown: false},
   },
   {
+    name: 'Tutorial',
+    component: TutorialScreen,
+    options: {
+      presentation: 'fullScreenModal',
+      headerShown: false,
+      gestureEnabled: false,
+    },
+  },
+  {
     name: 'ReviewForm/Place',
     component: PlaceReviewFormScreen,
     options: {
@@ -337,6 +347,7 @@ export type ScreenParams = {
   Webview: WebViewScreenParams;
   ImageZoomViewer: ImageZoomViewerScreenParams;
   RegistrationComplete: RegistrationCompleteScreenParams;
+  Tutorial: undefined;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =

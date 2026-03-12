@@ -36,6 +36,11 @@ export const hasShownCoachMarkForFirstVisitAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
+export const hasShownHomeTutorialAtom = atomForLocalNonNull<boolean>(
+  'hasShownHomeTutorial',
+  false,
+);
+
 export const hasShownMapIconTooltipForFirstVisitAtom =
   atomForLocalNonNull<boolean>('hasShownMapIconTooltipForFirstVisit', false);
 
