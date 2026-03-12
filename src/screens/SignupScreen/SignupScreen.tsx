@@ -97,7 +97,7 @@ export default function SignupScreen({
       if (route.params.asModal) {
         navigation.goBack();
       } else {
-        navigation.navigate('Main');
+        navigation.navigate('GuideForFirstVisit');
       }
     } catch (e) {
       let msg = '회원가입중 오류가 발생했습니다.';

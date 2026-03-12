@@ -25,7 +25,7 @@ export default function GuideForFirstVisitScreen({
   );
   const onTapConfirmButton = () => {
     setHasShownGuideForFirstVisit(true);
-    navigation.goBack();
+    navigation.reset({index: 0, routes: [{name: 'Main'}]});
   };
 
   return (

@@ -25,7 +25,7 @@ import styled from 'styled-components/native';
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
+import {hasShownHomeTutorialAtom} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
@@ -46,6 +46,7 @@ import QuickMenuSection from './sections/QuickMenuSection';
 import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
+import TutorialOverlay from './components/TutorialOverlay';
 
 export interface HomeScreenV2Params {}
 
@@ -89,16 +90,11 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   const versionStatusMessage = versionData?.message;
   const versionStatus = versionData?.status;
-  const hasShownGuideForFirstVisit = useAtomValue(
-    hasShownGuideForFirstVisitAtom,
-  );
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
+  const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
+  const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
   useEffect(() => {
-    if (!hasShownGuideForFirstVisit) {
-      navigation.navigate('GuideForFirstVisit');
-    }
-
     const requestGeolocationPermissionIfNeeded = async () => {
       try {
         const location = await GeolocationUtils.getCurrentPosition();
@@ -119,7 +115,7 @@ const HomeScreenV2 = ({navigation}: any) => {
       }
     };
     requestGeolocationPermissionIfNeeded();
-  }, [navigation, accessToken, syncUserInfo, hasShownGuideForFirstVisit]);
+  }, [navigation, accessToken, syncUserInfo]);
 
   useEffect(() => {
     syncUserInfo();
@@ -320,6 +316,9 @@ const HomeScreenV2 = ({navigation}: any) => {
             isVisible={geolocationErrorReason !== null}
             errorReason={geolocationErrorReason ?? 'permission_denied'}
           />
+          {!hasShownHomeTutorial && (
+            <TutorialOverlay onClose={() => setHasShownHomeTutorial(true)} />
+          )}
           {(versionStatus ===
             GetClientVersionStatusResponseDtoStatusEnum.UpgradeNeeded ||
             versionStatus ===
