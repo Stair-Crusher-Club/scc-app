@@ -94,6 +94,9 @@ const HomeScreenV2 = ({navigation}: any) => {
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
+  // 프리로드 이미지를 1.5초 동안 유지하기 위해 초기값 캡처 (atom 변경에 영향 안 받음)
+  const [preloading] = useState(() => !hasShownHomeTutorial);
+
   // 자연스러운 전환을 위해, 홈화면 진입 후 어느 정도 시간이 지나서 튜토리얼 표시
   useEffect(() => {
     if (hasShownHomeTutorial) {
@@ -345,8 +348,10 @@ const HomeScreenV2 = ({navigation}: any) => {
               }}
             />
           )}
-          {/* 튜토리얼 이미지 사전 디코딩: 실제 표시 사이즈로 렌더해야 iOS가 풀 해상도로 디코딩 */}
-          {!hasShownHomeTutorial && (() => {
+          {/* 튜토리얼 이미지 사전 디코딩: 풀사이즈로 렌더해야 iOS가 풀 해상도로 디코딩
+              - preloading state로 1.5초 동안 유지 (atom 변경과 무관)
+              - zIndex: -1로 다른 콘텐츠 뒤에 숨김 (top: -9999는 iOS가 스킵할 수 있음) */}
+          {preloading && (() => {
             const src = Image.resolveAssetSource(tutorialSlides[0]);
             const h = SCREEN_WIDTH * (src.height / src.width);
             return tutorialSlides.map((source, i) => (
@@ -357,7 +362,9 @@ const HomeScreenV2 = ({navigation}: any) => {
                   width: SCREEN_WIDTH,
                   height: h,
                   position: 'absolute',
-                  top: -9999,
+                  top: 0,
+                  left: 0,
+                  zIndex: -1,
                 }}
               />
             ));
