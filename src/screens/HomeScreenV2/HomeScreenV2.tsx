@@ -46,7 +46,7 @@ import QuickMenuSection from './sections/QuickMenuSection';
 import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
-import {tutorialSlides} from '@/screens/TutorialScreen';
+import TutorialOverlay from './components/TutorialOverlay';
 
 export interface HomeScreenV2Params {}
 
@@ -94,20 +94,19 @@ const HomeScreenV2 = ({navigation}: any) => {
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
-  // 프리로드 이미지를 1.5초 동안 유지하기 위해 초기값 캡처 (atom 변경에 영향 안 받음)
-  const [preloading] = useState(() => !hasShownHomeTutorial);
+  // 튜토리얼: 이미지를 마운트 시점부터 렌더(디코딩)하고, 1.5초 후 visible로 전환
+  const needsTutorial = !hasShownHomeTutorial;
+  const [tutorialVisible, setTutorialVisible] = useState(false);
 
-  // 자연스러운 전환을 위해, 홈화면 진입 후 어느 정도 시간이 지나서 튜토리얼 표시
   useEffect(() => {
-    if (hasShownHomeTutorial) {
+    if (!needsTutorial) {
       return;
     }
-    setHasShownHomeTutorial(true);
     const timer = setTimeout(() => {
-      navigation.navigate('Tutorial');
+      setTutorialVisible(true);
     }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [needsTutorial]);
 
   useEffect(() => {
     const requestGeolocationPermissionIfNeeded = async () => {
@@ -348,27 +347,16 @@ const HomeScreenV2 = ({navigation}: any) => {
               }}
             />
           )}
-          {/* 튜토리얼 이미지 사전 디코딩: 풀사이즈로 렌더해야 iOS가 풀 해상도로 디코딩
-              - preloading state로 1.5초 동안 유지 (atom 변경과 무관)
-              - zIndex: -1로 다른 콘텐츠 뒤에 숨김 (top: -9999는 iOS가 스킵할 수 있음) */}
-          {preloading && (() => {
-            const src = Image.resolveAssetSource(tutorialSlides[0]);
-            const h = SCREEN_WIDTH * (src.height / src.width);
-            return tutorialSlides.map((source, i) => (
-              <Image
-                key={i}
-                source={source}
-                style={{
-                  width: SCREEN_WIDTH,
-                  height: h,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  zIndex: -1,
-                }}
-              />
-            ));
-          })()}
+          {/* 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), zIndex로 표시/숨김 제어 */}
+          {needsTutorial && (
+            <TutorialOverlay
+              visible={tutorialVisible}
+              onClose={() => {
+                setTutorialVisible(false);
+                setHasShownHomeTutorial(true);
+              }}
+            />
+          )}
         </Container>
       </ScreenLayout>
     </>
