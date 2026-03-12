@@ -94,16 +94,16 @@ const HomeScreenV2 = ({navigation}: any) => {
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
-  // 튜토리얼: 이미지를 마운트 시점부터 렌더(디코딩)하고, 1.5초 후 visible로 전환
+  // 튜토리얼: 이미지를 마운트 시점부터 렌더(프리디코딩)하고, 1.5초 후 스택 screen으로 navigate
   const needsTutorial = !hasShownHomeTutorial;
-  const [tutorialVisible, setTutorialVisible] = useState(false);
 
   useEffect(() => {
     if (!needsTutorial) {
       return;
     }
+    setHasShownHomeTutorial(true);
     const timer = setTimeout(() => {
-      setTutorialVisible(true);
+      navigation.navigate('Tutorial');
     }, 1500);
     return () => clearTimeout(timer);
   }, [needsTutorial]);
@@ -349,16 +349,8 @@ const HomeScreenV2 = ({navigation}: any) => {
           )}
         </Container>
       </ScreenLayout>
-      {/* 튜토리얼: ScreenLayout 바깥에 렌더하여 탭바까지 덮음 */}
-      {needsTutorial && (
-        <TutorialOverlay
-          visible={tutorialVisible}
-          onClose={() => {
-            setTutorialVisible(false);
-            setHasShownHomeTutorial(true);
-          }}
-        />
-      )}
+      {/* 튜토리얼 이미지 프리디코딩: 같은 뷰 계층에서 풀사이즈로 렌더하여 iOS 이미지 캐시에 올림 */}
+      {needsTutorial && <TutorialOverlay />}
     </>
   );
 };
