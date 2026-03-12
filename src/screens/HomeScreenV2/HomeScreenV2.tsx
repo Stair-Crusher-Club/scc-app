@@ -95,10 +95,11 @@ const HomeScreenV2 = ({navigation}: any) => {
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
   // 튜토리얼: 이미지를 마운트 시점부터 렌더(프리디코딩)하고, 1.5초 후 스택 screen으로 navigate
-  const needsTutorial = !hasShownHomeTutorial;
+  // preloading: 초기값 캡처하여 atom 변경과 무관하게 프리디코딩 이미지를 유지
+  const [preloading] = useState(() => !hasShownHomeTutorial);
 
   useEffect(() => {
-    if (!needsTutorial) {
+    if (hasShownHomeTutorial) {
       return;
     }
     setHasShownHomeTutorial(true);
@@ -106,7 +107,7 @@ const HomeScreenV2 = ({navigation}: any) => {
       navigation.navigate('Tutorial');
     }, 1500);
     return () => clearTimeout(timer);
-  }, [needsTutorial]);
+  }, []);
 
   useEffect(() => {
     const requestGeolocationPermissionIfNeeded = async () => {
@@ -350,7 +351,7 @@ const HomeScreenV2 = ({navigation}: any) => {
         </Container>
       </ScreenLayout>
       {/* 튜토리얼 이미지 프리디코딩: 같은 뷰 계층에서 풀사이즈로 렌더하여 iOS 이미지 캐시에 올림 */}
-      {needsTutorial && <TutorialOverlay />}
+      {preloading && <TutorialOverlay />}
     </>
   );
 };
