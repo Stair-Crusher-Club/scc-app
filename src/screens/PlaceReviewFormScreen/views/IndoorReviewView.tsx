@@ -5,12 +5,10 @@ import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {FieldErrors, FormProvider, useForm} from 'react-hook-form';
 import {View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import styled from 'styled-components/native';
 
 import {useMe} from '@/atoms/Auth';
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
-import {color} from '@/constant/color';
 import {
   getMobilityToolDefaultValue,
   UserMobilityToolMapDto,
@@ -36,7 +34,7 @@ import IndoorInfoSection from '../sections/IndoorInfoSection';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import UserTypeSection from '../sections/UserTypeSection';
 import VisitorReviewSection from '../sections/VisitorReviewSection';
-import {SectionSeparator} from '../sections/common.style';
+import SectionSeparator from '../sections/SectionSeparator';
 
 export interface FormValues {
   mobilityTool: UserMobilityToolMapDto;
@@ -178,10 +176,10 @@ export default function IndoorReviewView({
         <KeyboardAwareScrollView
           ref={scrollViewRef}
           stickyHeaderIndices={[0]}
-          contentContainerStyle={{flexGrow: 1}}>
-          <PlaceInfoSectionWrapper>
+          contentContainerClassName="grow">
+          <View className="border-b border-gray-20">
             <PlaceInfoSection name={place?.name} address={place?.address} />
-          </PlaceInfoSectionWrapper>
+          </View>
           <SectionSeparator />
 
           <UserTypeSection nickname={userInfo?.nickname} />
@@ -300,8 +298,3 @@ async function register({
     };
   }
 }
-
-const PlaceInfoSectionWrapper = styled.View({
-  borderBottomWidth: 1,
-  borderBottomColor: color.gray20,
-});

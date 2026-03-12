@@ -2,7 +2,6 @@ import {useQuery} from '@tanstack/react-query';
 import React, {useState} from 'react';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {color} from '@/constant/color';
 import {UserMobilityToolMapDto} from '@/constant/review';
 import {Building, Place} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -98,7 +97,7 @@ export default function PlaceReviewFormScreen({
       <ScreenLayout
         safeAreaEdges={['bottom']}
         isHeaderVisible={true}
-        style={{backgroundColor: color.white}}>
+        className="bg-white">
         {renderView()}
       </ScreenLayout>
     </LogParamsProvider>

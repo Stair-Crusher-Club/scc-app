@@ -3,6 +3,7 @@ import {useAtom, useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
+import {View} from 'react-native';
 
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import {loadingState} from '@/components/LoadingView';
@@ -26,14 +27,12 @@ import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import styled from 'styled-components/native';
 import PlaceReviewFormScreen from '..';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import ToiletSection from '../sections/ToiletSection';
 import UserTypeSection from '../sections/UserTypeSection';
-import {SectionSeparator} from '../sections/common.style';
+import SectionSeparator from '../sections/SectionSeparator';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
-import {color} from '@/constant/color';
 
 interface ToiletReviewViewProps {
   place?: Place;
@@ -106,10 +105,10 @@ export default function ToiletReviewView({
       <SafeAreaWrapper edges={['bottom']}>
         <KeyboardAwareScrollView
           stickyHeaderIndices={[0]}
-          contentContainerStyle={{flexGrow: 1}}>
-          <PlaceInfoSectionWrapper>
+          contentContainerClassName="grow">
+          <View className="border-b border-gray-20">
             <PlaceInfoSection name={place?.name} address={place?.address} />
-          </PlaceInfoSectionWrapper>
+          </View>
           <SectionSeparator />
 
           <UserTypeSection nickname={userInfo?.nickname} />
@@ -191,8 +190,3 @@ async function register({
     return false;
   }
 }
-
-const PlaceInfoSectionWrapper = styled.View({
-  borderBottomWidth: 1,
-  borderBottomColor: color.gray20,
-});

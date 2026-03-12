@@ -5,8 +5,6 @@ import {Text, View} from 'react-native';
 
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
 import PressableChip from '@/components/PressableChip';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {
   MOBILITY_TOOL_LABELS,
   MOBILITY_TOOL_OPTIONS,
@@ -14,7 +12,6 @@ import {
 } from '@/constant/review';
 
 import Question from '../components/Question';
-import * as S from './common.style';
 
 export default function UserTypeSection({nickname}: {nickname?: string}) {
   const {watch, setValue} = useFormContext<{
@@ -34,19 +31,15 @@ export default function UserTypeSection({nickname}: {nickname?: string}) {
   }, [recentlyUsedMobilityTool, setValue]);
 
   return (
-    <S.Container>
-      <S.Title>사용한 이동보조기기 유형</S.Title>
+    <View className="px-5 py-8 gap-6 bg-white">
+      <Text className="font-pretendard-bold text-[20px] leading-[28px]">
+        사용한 이동보조기기 유형
+      </Text>
 
-      <View style={{gap: 12}}>
+      <View className="gap-3">
         <Question required>어떤 이동 수단으로 방문하셨나요?</Question>
         {/* Chip */}
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            alignItems: 'flex-start',
-            gap: 8,
-          }}>
+        <View className="flex-row flex-wrap items-start gap-2">
           <Controller
             name="mobilityTool"
             rules={{required: '이동 수단을 선택해주세요'}}
@@ -68,51 +61,21 @@ export default function UserTypeSection({nickname}: {nickname?: string}) {
         </View>
       </View>
 
-      <View
-        style={{
-          padding: 12,
-          backgroundColor: color.gray10,
-          borderRadius: 4,
-          alignItems: 'center',
-          gap: 8,
-        }}>
-        <Text
-          style={{
-            color: color.gray60,
-            fontSize: 13,
-          }}>
+      <View className="p-3 bg-gray-10 rounded-[4px] items-center gap-2">
+        <Text className="text-gray-60 text-[13px]">
           사용자 유형은 리뷰에서 이렇게 보여요!
         </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 4,
-          }}>
-          <Text
-            style={{
-              fontSize: 13,
-              lineHeight: 18,
-              fontFamily: font.pretendardMedium,
-            }}>
+        <View className="flex-row gap-1">
+          <Text className="font-pretendard-medium text-[13px] leading-[18px]">
             {nickname}
           </Text>
           {isVisibleLabel && (
-            <Text
-              style={{
-                paddingVertical: 2,
-                paddingHorizontal: 4,
-                fontSize: 11,
-                lineHeight: 14,
-                fontFamily: font.pretendardMedium,
-                color: color.gray50,
-                backgroundColor: color.gray20,
-                borderRadius: 3,
-              }}>
+            <Text className="font-pretendard-medium text-[11px] leading-[14px] text-gray-50 bg-gray-20 rounded-[3px] py-0.5 px-1">
               {MOBILITY_TOOL_LABELS[mobilityTool]}
             </Text>
           )}
         </View>
       </View>
-    </S.Container>
+    </View>
   );
 }
