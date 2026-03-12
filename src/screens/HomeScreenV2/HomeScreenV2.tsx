@@ -46,6 +46,7 @@ import QuickMenuSection from './sections/QuickMenuSection';
 import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
+import {tutorialSlides} from '@/screens/TutorialScreen';
 
 export interface HomeScreenV2Params {}
 
@@ -344,6 +345,15 @@ const HomeScreenV2 = ({navigation}: any) => {
               }}
             />
           )}
+          {/* 튜토리얼 이미지 사전 디코딩: navigate 전에 RN 이미지 캐시에 올림 */}
+          {!hasShownHomeTutorial &&
+            tutorialSlides.map((source, i) => (
+              <Image
+                key={i}
+                source={source}
+                style={{width: 1, height: 1, opacity: 0, position: 'absolute'}}
+              />
+            ))}
         </Container>
       </ScreenLayout>
     </>

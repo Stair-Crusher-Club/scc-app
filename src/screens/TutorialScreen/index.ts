@@ -1,1 +1,1 @@
-export {default} from './TutorialScreen';
+export {default, tutorialSlides} from './TutorialScreen';

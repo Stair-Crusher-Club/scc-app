@@ -17,7 +17,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const SLIDE_COUNT = 3;
 
-const slides = [
+export const tutorialSlides = [
   require('@/assets/img/tutorial_1.png'),
   require('@/assets/img/tutorial_2.png'),
   require('@/assets/img/tutorial_3.png'),
@@ -36,7 +36,7 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
   const isLast = activeSlide === SLIDE_COUNT - 1;
 
   const scaledHeight = useMemo(() => {
-    const source = Image.resolveAssetSource(slides[0]);
+    const source = Image.resolveAssetSource(tutorialSlides[0]);
     return SCREEN_WIDTH * (source.height / source.width);
   }, []);
 
@@ -54,7 +54,7 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
   }, [navigation, setHasShownHomeTutorial]);
 
   const renderSlide = useCallback(
-    ({item}: {item: (typeof slides)[number]}) => (
+    ({item}: {item: (typeof tutorialSlides)[number]}) => (
       <SlideContainer>
         <Image
           source={item}
@@ -67,18 +67,12 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
 
   return (
     <Container>
-      {/* Carousel 초기화 전 검은 화면 방지: 첫 이미지를 배경으로 즉시 렌더 */}
-      <FirstSlideBackground>
-        <Image
-          source={slides[0]}
-          style={{width: SCREEN_WIDTH, height: scaledHeight}}
-        />
-      </FirstSlideBackground>
       <Carousel
         ref={carouselRef}
-        data={slides}
+        data={tutorialSlides}
         width={SCREEN_WIDTH}
         height={SCREEN_HEIGHT}
+        windowSize={3}
         loop={false}
         renderItem={renderSlide}
         onProgressChange={(_, i) => setActiveSlide(Math.round(i))}
@@ -107,7 +101,7 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
               </NavButtonInner>
             </SccPressable>
             <DotsContainer>
-              {slides.map((_, index) => (
+              {tutorialSlides.map((_, index) => (
                 <Dot key={index} active={index === activeSlide} />
               ))}
             </DotsContainer>
@@ -132,15 +126,6 @@ const ChevronLeft = styled(ChevronRight)`
 const Container = styled.View`
   flex: 1;
   background-color: ${color.black};
-`;
-
-const FirstSlideBackground = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: ${SCREEN_WIDTH}px;
-  height: ${SCREEN_HEIGHT}px;
-  overflow: hidden;
 `;
 
 const SlideContainer = styled.View`
