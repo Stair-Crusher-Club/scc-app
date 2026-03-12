@@ -7,7 +7,7 @@ import {Platform} from 'react-native';
 export const Container = styled.View({
   flex: 1,
   paddingHorizontal: 20,
-  paddingBottom: Platform.OS === 'android' ? 20 : 0,
+  paddingBottom: 20,
   backgroundColor: color.white,
 });
 

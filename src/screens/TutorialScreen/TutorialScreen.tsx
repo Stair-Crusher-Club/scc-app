@@ -67,6 +67,13 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
 
   return (
     <Container>
+      {/* Carousel 초기화 전 검은 화면 방지: 첫 이미지를 배경으로 즉시 렌더 */}
+      <FirstSlideBackground>
+        <Image
+          source={slides[0]}
+          style={{width: SCREEN_WIDTH, height: scaledHeight}}
+        />
+      </FirstSlideBackground>
       <Carousel
         ref={carouselRef}
         data={slides}
@@ -125,6 +132,15 @@ const ChevronLeft = styled(ChevronRight)`
 const Container = styled.View`
   flex: 1;
   background-color: ${color.black};
+`;
+
+const FirstSlideBackground = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: ${SCREEN_WIDTH}px;
+  height: ${SCREEN_HEIGHT}px;
+  overflow: hidden;
 `;
 
 const SlideContainer = styled.View`
