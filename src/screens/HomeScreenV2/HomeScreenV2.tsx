@@ -105,7 +105,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     const timer = setTimeout(() => {
       setTutorialVisible(true);
       // 탭바 숨기기
-      navigation.getParent()?.setOptions({
+      navigation.setOptions({
         tabBarStyle: {display: 'none' as const},
       });
     }, 1500);
@@ -116,7 +116,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     setTutorialVisible(false);
     setHasShownHomeTutorial(true);
     // 탭바 복원
-    navigation.getParent()?.setOptions({
+    navigation.setOptions({
       tabBarStyle: undefined,
     });
   }, [navigation, setHasShownHomeTutorial]);
