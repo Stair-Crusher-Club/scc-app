@@ -1,9 +1,7 @@
 import {useQueries} from '@tanstack/react-query';
 import React from 'react';
 
-import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
-import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
+import ActivityHistoryLink from '@/components/ActivityHistoryLink';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 import {Text, View} from 'react-native';
@@ -38,59 +36,23 @@ export default function CrusherHistorySection() {
         정복 히스토리
       </Text>
       <View className="h-[1px] bg-gray-20" />
-      <SccPressable
-        className="flex-row justify-between items-center py-5"
+      <ActivityHistoryLink
         elementName="crusher_history_conquered_places_link"
-        onPress={() => navigation.navigate('Conquerer/History')}>
-        <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard-regular text-black">
-            내가 정복한 장소
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="py-1 px-3 rounded-[12px] bg-brand-5 mr-1">
-            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
-              {totalNumberOfPlaces.toLocaleString()}
-            </Text>
-          </View>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </View>
-      </SccPressable>
-      <SccPressable
-        className="flex-row justify-between items-center py-5"
+        onPress={() => navigation.navigate('Conquerer/History')}
+        title="내가 정복한 장소"
+        count={totalNumberOfPlaces}
+      />
+      <ActivityHistoryLink
         elementName="crusher_history_helpful_link"
-        onPress={() => navigation.navigate('Conquerer/Upvote')}>
-        <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard-regular text-black">
-            도움이 돼요
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="py-1 px-3 rounded-[12px] bg-brand-5 mr-1">
-            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
-              {totalNumberOfUpvote.toLocaleString()}
-            </Text>
-          </View>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </View>
-      </SccPressable>
-      <SccPressable
-        className="flex-row justify-between items-center py-5"
-        elementName="crusher_history_views_link">
-        <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard-regular text-gray-50">
-            내 정복 장소 조회수
-          </Text>
-          <View className="py-1 px-[6px] rounded-[10px] bg-gray-10 ml-2">
-            <Text className="text-[12px] leading-[19px] font-pretendard-bold text-gray-50">
-              준비중
-            </Text>
-          </View>
-        </View>
-        <View className="flex-row items-center">
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </View>
-      </SccPressable>
+        onPress={() => navigation.navigate('Conquerer/Upvote')}
+        title="도움이 돼요"
+        count={totalNumberOfUpvote}
+      />
+      <ActivityHistoryLink
+        elementName="crusher_history_views_link"
+        title="내 정복 장소 조회수"
+        isWip={true}
+      />
     </View>
   );
 }

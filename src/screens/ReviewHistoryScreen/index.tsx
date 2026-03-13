@@ -1,7 +1,6 @@
 import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import TabBar from '@/components/TabBar';
-import {color} from '@/constant/color';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';

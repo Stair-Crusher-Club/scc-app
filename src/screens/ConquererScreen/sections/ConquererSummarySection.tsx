@@ -1,10 +1,9 @@
 import {useQuery} from '@tanstack/react-query';
 import React from 'react';
 
-import useAppComponents from '@/hooks/useAppComponents';
 import {useMe} from '@/atoms/Auth';
-
-import {Image, Text, View} from 'react-native';
+import ActivityReportSummary from '@/components/ActivityReportSummary';
+import useAppComponents from '@/hooks/useAppComponents';
 
 export default function ConquererSummarySection() {
   const {api} = useAppComponents();
@@ -15,35 +14,11 @@ export default function ConquererSummarySection() {
   });
 
   return (
-    <View className="h-[228px] bg-white">
-      <View className="w-full h-[166px] bg-blue-50">
-        <Text className="absolute top-8 left-5 text-white text-[20px] leading-[32px] font-pretendard-bold">
-          {`${userInfo?.nickname}님\n정복 리포트`}
-        </Text>
-        <Image
-          className="absolute right-5 top-8 w-[150px] h-[120px]"
-          source={require('@/assets/img/bg_confetti.png')}
-        />
-      </View>
-      <View className="absolute left-5 right-5 bottom-0 flex-row justify-between items-center h-[112px] bg-white rounded-[20px] border-[2px] border-gray-20">
-        <View className="flex-[0.5]">
-          <Text className="font-pretendard-regular text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
-            오늘의 정복
-          </Text>
-          <Text className="font-pretendard-bold text-[24px] leading-[26px] text-black text-center">
-            {data?.todayConqueredCount}개
-          </Text>
-        </View>
-        <View className="w-[1px] h-12 bg-gray-20" />
-        <View className="flex-[0.5]">
-          <Text className="font-pretendard-regular text-[14px] leading-[16px] text-gray-90 mb-[10px] text-center">
-            이번달 정복
-          </Text>
-          <Text className="font-pretendard-bold text-[24px] leading-[26px] text-black text-center">
-            {data?.thisMonthConqueredCount.toLocaleString()}개
-          </Text>
-        </View>
-      </View>
-    </View>
+    <ActivityReportSummary
+      type="conquer"
+      nickname={userInfo?.nickname}
+      todayCount={data?.todayConqueredCount ?? 0}
+      monthCount={data?.thisMonthConqueredCount ?? 0}
+    />
   );
 }

@@ -1,9 +1,7 @@
 import React from 'react';
 import {Text, View} from 'react-native';
 
-import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
-import {SccPressable} from '@/components/SccPressable';
-import {color} from '@/constant/color';
+import ActivityHistoryLink from '@/components/ActivityHistoryLink';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
@@ -27,6 +25,7 @@ export default function HistorySection() {
       },
     ],
   }).map(r => r.data);
+
   const [placeUpvote, toiletUpvote] = useQueries({
     queries: [
       {
@@ -47,7 +46,7 @@ export default function HistorySection() {
     (toiletReview?.totalNumberOfItems ?? 0);
 
   const totalNumberOfUpvote =
-    +(placeUpvote?.totalNumberOfUpvotes ?? 0) +
+    (placeUpvote?.totalNumberOfUpvotes ?? 0) +
     (toiletUpvote?.totalNumberOfUpvotes ?? 0);
 
   return (
@@ -56,42 +55,18 @@ export default function HistorySection() {
         리뷰 히스토리
       </Text>
       <View className="h-[1px] bg-gray-20" />
-      <SccPressable
-        className="flex-row justify-between items-center py-5"
+      <ActivityHistoryLink
         elementName="review_link"
-        onPress={() => navigation.navigate('Review/History')}>
-        <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard-regular text-black">
-            내가 작성한 리뷰
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="py-1 px-3 rounded-[12px] bg-brand-5 mr-1">
-            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
-              {totalNumberOfReviews.toLocaleString()}
-            </Text>
-          </View>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </View>
-      </SccPressable>
-      <SccPressable
-        className="flex-row justify-between items-center py-5"
+        onPress={() => navigation.navigate('Review/History')}
+        title="내가 작성한 리뷰"
+        count={totalNumberOfReviews}
+      />
+      <ActivityHistoryLink
         elementName="review_upvote_link"
-        onPress={() => navigation.navigate('Review/Upvote')}>
-        <View className="flex-row items-center">
-          <Text className="text-[16px] leading-[24px] font-pretendard-regular text-black">
-            도움이 돼요
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <View className="py-1 px-3 rounded-[12px] bg-brand-5 mr-1">
-            <Text className="text-[14px] leading-[22px] font-pretendard-bold text-brand-50">
-              {totalNumberOfUpvote.toLocaleString()}
-            </Text>
-          </View>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </View>
-      </SccPressable>
+        onPress={() => navigation.navigate('Review/Upvote')}
+        title="도움이 돼요"
+        count={totalNumberOfUpvote}
+      />
     </View>
   );
 }

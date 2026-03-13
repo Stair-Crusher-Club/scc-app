@@ -35,7 +35,7 @@ export default function WeeklyConquererSection() {
   return (
     <View className="py-8 px-5 gap-6 bg-white">
       <View>
-        {data?.thisWeekConqueredWeekdays.length === 0 && (
+        {data?.thisWeekConqueredWeekdays?.length === 0 && (
           <Image
             className="w-[170px] h-[30px] mb-1"
             resizeMode="contain"
@@ -43,7 +43,9 @@ export default function WeeklyConquererSection() {
           />
         )}
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-black text-[18px] leading-[29px] font-pretendard-bold">하루 한 칸</Text>
+          <Text className="text-black text-[18px] leading-[29px] font-pretendard-bold">
+            하루 한 칸
+          </Text>
           <SccPressable
             className="flex-row items-center h-6"
             elementName="weekly_conquerer_more_button"
@@ -53,13 +55,17 @@ export default function WeeklyConquererSection() {
                 initSortOption: SortOption.ACCURACY,
               })
             }>
-            <Text className="text-[14px] leading-[22px] text-brand-color font-pretendard-medium">정복하러 가기</Text>
+            <Text className="text-[14px] leading-[22px] text-brand-50 font-pretendard-medium">
+              정복하러 가기
+            </Text>
             <RightAngleArrowIcon color={color.brandColor} width={20} />
           </SccPressable>
         </View>
         <View className="flex-row justify-between gap-1">
           {Array.from({length: 7}).map((_, i) => (
-            <View key={i} className="flex-1 aspect-square justify-center items-center rounded-[16px] bg-gray-10">
+            <View
+              key={i}
+              className="flex-1 aspect-square justify-center items-center rounded-[16px] bg-gray-10">
               <DailyStamp key={i} day={startMonday.add(i, 'day')} />
             </View>
           ))}
@@ -82,7 +88,11 @@ function DailyStamp({day}: {day: Dayjs}) {
   );
 
   if (!success) {
-    return <Text className="text-[16px] leading-[18px] text-gray-70 text-center">{day.format('ddd')}</Text>;
+    return (
+      <Text className="text-[16px] leading-[18px] text-gray-70 text-center">
+        {day.format('ddd')}
+      </Text>
+    );
   }
 
   // 매주 스탬프 위치가 바뀌게 / 하지만 한 주 동안은 고정적으로 찍히도록
