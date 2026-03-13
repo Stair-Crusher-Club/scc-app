@@ -85,9 +85,6 @@ export function useToggleAccessibilityInfoRequest(listQueryKey?: QueryKey) {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', variables.placeId],
-      });
-      queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', variables.placeId],
       });
     },

@@ -77,10 +77,6 @@ export function useToggleFavoritePlace() {
       queryClient.invalidateQueries({queryKey: ['FavoritePlaces']});
 
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', variables.placeId],
-      });
-
-      queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', variables.placeId],
       });
 

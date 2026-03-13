@@ -251,9 +251,6 @@ async function register({
 
       // PlaceDetailScreen 리뷰 데이터 갱신
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.PlaceReview],
-      });
-      queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
       });
 

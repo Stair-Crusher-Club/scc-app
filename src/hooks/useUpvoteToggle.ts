@@ -83,7 +83,7 @@ export function useUpvoteToggle({
         targetType === 'BUILDING_ACCESSIBILITY'
       ) {
         queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, 'Accessibility'],
+          queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
         });
 
         // 정복한 장소 > 도움이 돼요 리스트
@@ -99,7 +99,7 @@ export function useUpvoteToggle({
 
       if (targetType === 'PLACE_REVIEW' || targetType === 'TOILET_REVIEW') {
         queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, targetType],
+          queryKey: ['PlaceDetailV2', placeId, targetType],
         });
 
         // 내 리뷰 > 내가 작성한 리뷰 리스트

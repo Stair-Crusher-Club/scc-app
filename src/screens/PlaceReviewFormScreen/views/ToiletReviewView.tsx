@@ -155,9 +155,6 @@ async function register({
 
       // PlaceDetailScreen 화장실 리뷰 데이터 갱신
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.ToiletReview],
-      });
-      queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.ToiletReview],
       });
 

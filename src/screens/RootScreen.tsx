@@ -172,7 +172,7 @@ const RootScreen = () => {
             screens: {
               ProfileEditor: 'profile',
               Setting: 'setting',
-              PlaceDetail: {
+              PlaceDetailV2: {
                 path: 'place/:placeInfo',
                 parse: {
                   placeInfo: (placeId: string) => {

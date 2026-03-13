@@ -32,12 +32,9 @@ export function useDeleteReview({
         });
       }
     },
-    onMutate: () => setLoading(new Map(loading).set('PlaceDetail', true)),
+    onMutate: () => setLoading(new Map(loading).set('PlaceDetailV2', true)),
     onSuccess: (_data, _variables) => {
       if (type === 'place') {
-        queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.PlaceReview],
-        });
         queryClient.invalidateQueries({
           queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
         });
@@ -71,9 +68,6 @@ export function useDeleteReview({
         });
         ToastUtils.show('장소 리뷰를 삭제했습니다.');
       } else {
-        queryClient.invalidateQueries({
-          queryKey: ['PlaceDetail', placeId, UpvoteTargetTypeDto.ToiletReview],
-        });
         queryClient.invalidateQueries({
           queryKey: [
             'PlaceDetailV2',
@@ -128,7 +122,7 @@ export function useDeleteReview({
       }
     },
     onSettled: () => {
-      setLoading(new Map(loading).set('PlaceDetail', false));
+      setLoading(new Map(loading).set('PlaceDetailV2', false));
     },
   });
 }

@@ -612,13 +612,7 @@ async function register(
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', placeId, 'Accessibility'],
-      });
-      queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', placeId],
       });
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId],

@@ -51,16 +51,10 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
 
     // PlaceDetailScreen 전체 데이터 갱신
     queryClient.invalidateQueries({
-      queryKey: ['PlaceDetail', placeId],
-    });
-    queryClient.invalidateQueries({
       queryKey: ['PlaceDetailV2', placeId],
     });
 
     // PlaceDetailScreen 접근성 정보 갱신 (코멘트 즉시 표시)
-    queryClient.invalidateQueries({
-      queryKey: ['PlaceDetail', placeId, 'Accessibility'],
-    });
     queryClient.invalidateQueries({
       queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
     });

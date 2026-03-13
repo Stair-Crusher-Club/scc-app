@@ -31,7 +31,7 @@ export default function PlaceReviewFormScreen({
     isAccessibilityRegistrable?: boolean;
     accessibilityScore?: number;
   }>({
-    queryKey: ['PlaceDetail', placeId],
+    queryKey: ['PlaceDetailV2', placeId],
     queryFn: async () => {
       const result = await api.getPlaceWithBuildingPost({
         placeId: placeId ?? '',

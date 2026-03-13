@@ -70,13 +70,8 @@ export function useDeleteAccessibility(
         });
       }
     },
-    onMutate: () => setLoading(new Map(loading).set('PlaceDetail', true)),
+    onMutate: () => setLoading(new Map(loading).set('PlaceDetailV2', true)),
     onSuccess: (_data, _variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetail', placeId],
-      });
-
-      // PlaceDetailV2Screen uses 'PlaceDetailV2' as query key prefix
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId],
       });
@@ -123,7 +118,7 @@ export function useDeleteAccessibility(
       }
     },
     onSettled: () => {
-      setLoading(new Map(loading).set('PlaceDetail', false));
+      setLoading(new Map(loading).set('PlaceDetailV2', false));
     },
   });
 
