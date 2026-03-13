@@ -10,6 +10,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import ChevronRight from '@/assets/icon/ic_chevron_right.svg';
+import {SccButton} from '@/components/atoms';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -105,11 +106,15 @@ export default function TutorialOverlay({
           )}
           <BottomBar style={{paddingBottom: insets.bottom + 20}}>
             {isLast ? (
-              <StartButton
+              <SccButton
+                text="시작하기"
                 onPress={onClose}
-                elementName="tutorial_start_button">
-                <StartButtonText>시작하기</StartButtonText>
-              </StartButton>
+                fontSize={18}
+                fontFamily={font.pretendardSemibold}
+                buttonColor="brand40"
+                elementName="tutorial_start_button"
+                style={{borderRadius: 8}}
+              />
             ) : (
               <NavRow>
                 <NavButtonInner style={{opacity: isFirst ? 0 : 1}}>
@@ -216,19 +221,3 @@ const TouchAreaRight = styled(SccPressable)`
   flex: 1;
 `;
 
-const StartButton = styled(SccPressable)`
-  background-color: ${color.brand40};
-  border-radius: 8px;
-  height: 56px;
-  align-items: center;
-  justify-content: center;
-  padding-horizontal: 28px;
-`;
-
-const StartButtonText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.white};
-`;
