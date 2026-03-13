@@ -1,6 +1,6 @@
 import React from 'react';
 
-import * as S from './AchievementsSection.style';
+import {Image, Text, View} from 'react-native';
 
 type AchievementType = 'conquer' | 'review';
 
@@ -12,23 +12,30 @@ export default function AchievementsSection({
   type?: AchievementType;
 }) {
   return (
-    <S.AchievementsSection>
-      <S.Image
+    <View className="w-full pb-[14px]">
+      <Image
+        className="w-full max-h-[108px]"
         source={require('@/assets/img/img_slope.jpg')}
         resizeMode="cover"
       />
-      <S.TextWrapper style={{marginTop: 20}}>
-        <S.Text>지금까지</S.Text>
-      </S.TextWrapper>
-      <S.TextWrapper>
-        <S.Text>총 </S.Text>
-        <S.Total>{totalNumberOfPlaces.toLocaleString()}</S.Total>
-        <S.Text>
+      <View className="flex-row items-center justify-center ml-5 mt-5">
+        <Text className="text-[16px] leading-[26px] font-pretendard-regular text-gray-90">
+          지금까지
+        </Text>
+      </View>
+      <View className="flex-row items-center justify-center ml-5">
+        <Text className="text-[16px] leading-[26px] font-pretendard-regular text-gray-90">
+          총{' '}
+        </Text>
+        <Text className="text-[28px] leading-[42px] font-pretendard-bold text-black align-middle">
+          {totalNumberOfPlaces.toLocaleString()}
+        </Text>
+        <Text className="text-[16px] leading-[26px] font-pretendard-regular text-gray-90">
           {' '}
           개 {type === 'conquer' && '장소 정복'}
           {type === 'review' && '리뷰 작성'}중
-        </S.Text>
-      </S.TextWrapper>
-    </S.AchievementsSection>
+        </Text>
+      </View>
+    </View>
   );
 }

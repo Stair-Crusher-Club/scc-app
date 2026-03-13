@@ -1,8 +1,7 @@
 import React from 'react';
-import * as S from '../../ConquererScreen/sections/CrusherHistorySection.style';
+import {Text, View} from 'react-native';
 
-import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
-import {color} from '@/constant/color';
+import ActivityHistoryLink from '@/components/ActivityHistoryLink';
 import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
@@ -26,6 +25,7 @@ export default function HistorySection() {
       },
     ],
   }).map(r => r.data);
+
   const [placeUpvote, toiletUpvote] = useQueries({
     queries: [
       {
@@ -46,39 +46,27 @@ export default function HistorySection() {
     (toiletReview?.totalNumberOfItems ?? 0);
 
   const totalNumberOfUpvote =
-    +(placeUpvote?.totalNumberOfUpvotes ?? 0) +
+    (placeUpvote?.totalNumberOfUpvotes ?? 0) +
     (toiletUpvote?.totalNumberOfUpvotes ?? 0);
 
   return (
-    <S.CrusherHistorySection>
-      <S.Title>리뷰 히스토리</S.Title>
-      <S.Divier />
-      <S.Link
+    <View className="pt-3 px-5">
+      <Text className="py-5 text-[18px] leading-[29px] font-pretendard-bold text-black">
+        리뷰 히스토리
+      </Text>
+      <View className="h-[1px] bg-gray-20" />
+      <ActivityHistoryLink
         elementName="review_link"
-        onPress={() => navigation.navigate('Review/History')}>
-        <S.LinkName>
-          <S.LinkText>내가 작성한 리뷰</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfReviews.toLocaleString()}</S.Count>
-          </S.CountBadge>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-      <S.Link
+        onPress={() => navigation.navigate('Review/History')}
+        title="내가 작성한 리뷰"
+        count={totalNumberOfReviews}
+      />
+      <ActivityHistoryLink
         elementName="review_upvote_link"
-        onPress={() => navigation.navigate('Review/Upvote')}>
-        <S.LinkName>
-          <S.LinkText>도움이 돼요</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
-          </S.CountBadge>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-    </S.CrusherHistorySection>
+        onPress={() => navigation.navigate('Review/Upvote')}
+        title="도움이 돼요"
+        count={totalNumberOfUpvote}
+      />
+    </View>
   );
 }

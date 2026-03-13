@@ -1,12 +1,10 @@
 import {useQueries} from '@tanstack/react-query';
 import React from 'react';
 
-import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
-import {color} from '@/constant/color';
+import ActivityHistoryLink from '@/components/ActivityHistoryLink';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
-
-import * as S from './CrusherHistorySection.style';
+import {Text, View} from 'react-native';
 
 export default function CrusherHistorySection() {
   const {api} = useAppComponents();
@@ -33,46 +31,28 @@ export default function CrusherHistorySection() {
   const navigation = useNavigation();
 
   return (
-    <S.CrusherHistorySection>
-      <S.Title>정복 히스토리</S.Title>
-      <S.Divier />
-      <S.Link
+    <View className="pt-3 px-5">
+      <Text className="py-5 text-[18px] leading-[29px] font-pretendard-bold text-black">
+        정복 히스토리
+      </Text>
+      <View className="h-[1px] bg-gray-20" />
+      <ActivityHistoryLink
         elementName="crusher_history_conquered_places_link"
-        onPress={() => navigation.navigate('Conquerer/History')}>
-        <S.LinkName>
-          <S.LinkText>내가 정복한 장소</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfPlaces.toLocaleString()}</S.Count>
-          </S.CountBadge>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-      <S.Link
+        onPress={() => navigation.navigate('Conquerer/History')}
+        title="내가 정복한 장소"
+        count={totalNumberOfPlaces}
+      />
+      <ActivityHistoryLink
         elementName="crusher_history_helpful_link"
-        onPress={() => navigation.navigate('Conquerer/Upvote')}>
-        <S.LinkName>
-          <S.LinkText>도움이 돼요</S.LinkText>
-        </S.LinkName>
-        <S.ClickGuide>
-          <S.CountBadge>
-            <S.Count>{totalNumberOfUpvote.toLocaleString()}</S.Count>
-          </S.CountBadge>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-      <S.Link elementName="crusher_history_views_link">
-        <S.LinkName>
-          <S.WIPText>내 정복 장소 조회수</S.WIPText>
-          <S.WIPBadge>
-            <S.WIP>준비중</S.WIP>
-          </S.WIPBadge>
-        </S.LinkName>
-        <S.ClickGuide>
-          <ChevronRightIcon width={20} height={20} color={color.gray30} />
-        </S.ClickGuide>
-      </S.Link>
-    </S.CrusherHistorySection>
+        onPress={() => navigation.navigate('Conquerer/Upvote')}
+        title="도움이 돼요"
+        count={totalNumberOfUpvote}
+      />
+      <ActivityHistoryLink
+        elementName="crusher_history_views_link"
+        title="내 정복 장소 조회수"
+        isWip={true}
+      />
+    </View>
   );
 }

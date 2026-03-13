@@ -89,6 +89,8 @@
   - `font-pretendard-extrabold` (800)
   - `font-gumi-romance` (GumiRomance Font)
 - **Color Naming:** `tailwind.config.js`에 정의된 이름을 사용한다. (`text-gray-90`, `bg-brand-50`, `border-blue-40` 등)
+  - `color.brandColor` 대신 **`brand-50`**을 사용한다. (`text-brand-50`, `bg-brand-50` 등)
+  - `color.brandColor` 토큰은 Tailwind의 **`brand-50`**에 대응한다.
 - **SVG Colors:** SVG 내의 `fill`, `stroke` 등에는 `className`이 작동하지 않으므로, 반드시 `src/constant/color.ts`에서 `color` 객체를 import하여 사용한다.
   - **⚠️ 주의:** `color.gray[90]` 형식으로 접근 (TypeScript 타입 안정성).
   - 예: `<Path fill={color.gray[90]} />`
@@ -112,6 +114,7 @@
 ### 7-4. Native-Specific Constraints (RN 제약 사항)
 
 - **Text Inheritance:** 스타일 상속이 안 되므로 모든 텍스트 스타일은 반드시 `Text` 컴포넌트의 `className`에 직접 작성한다.
+- **ScrollView/FlatList Styling:** `ScrollView`나 `FlatList`와 같은 컴포넌트의 경우, 직접적인 스타일은 `className`을 사용하고, `contentContainerStyle`에 해당하는 스타일은 `contentContainerClassName`을 사용한다.
 - **Unsupported Features:** 아래 기능은 `className`으로 작성하지 않고 별도 처리한다.
   - **Shadow:** `shadow-lg` 대신 `style` 객체의 `boxShadow` 속성으로 처리한다.
     ```tsx
@@ -167,17 +170,17 @@ const Title = styled.Text`
 
 > 상태 범례: `대기` 진행 전 · `진행` 작업 중 · `테썹 배포` CodePush 테스트 배포 완료 · `QA 완료` 실기기 검증 완료 · `실섭 배포` 프로덕션 배포 완료 · `삭제` 해당 파일 제거됨
 
-| 화면 (스크린 컴포넌트)          |   상태    | Phase | 비고                                                                                  |
-| :------------------------------ | :-------: | :---: | :------------------------------------------------------------------------------------ |
-| 1. **Login**                       | 테썹 배포 |   1   |                                                                                       |
-| 2. **Signup**                      | 테썹 배포 |   1   | Signup 하위 컴포넌트 마이그레이션 완료. 공용 폼(UserEmailForm 등) 및 입력 필드는 보류 |
-| 3. **Setting**                     |   대기    |   1   |                                                                                       |
-| 4. **Review**                      |   대기    |   1   |                                                                                       |
-| 5. **Review/History**              |   대기    |   1   |                                                                                       |
-| 6. **Review/Upvote**               |   대기    |   1   |                                                                                       |
-| 7. **Conquerer**                   |   대기    |   1   |                                                                                       |
-| 8. **Conquerer/History**           |   대기    |   1   |                                                                                       |
-| 9. **Conquerer/Upvote**            |   대기    |   1   |                                                                                       |
+| 화면 (스크린 컴포넌트)              |   상태    | Phase | 비고                                                                                  |
+| :---------------------------------- | :-------: | :---: | :------------------------------------------------------------------------------------ |
+| 1. **Login**                        | 테썹 배포 |   1   |                                                                                       |
+| 2. **Signup**                       | 테썹 배포 |   1   | Signup 하위 컴포넌트 마이그레이션 완료. 공용 폼(UserEmailForm 등) 및 입력 필드는 보류 |
+| 3. **Setting**                      |   대기    |   1   |                                                                                       |
+| 4. **Review**                       | 테썹 배포 |   1   | 공통 컴포넌트(`ActivityReportSummary`, `ActivityHistoryLink`) 마이그레이션 완료       |
+| 5. **Review/History**               | 테썹 배포 |   1   | 공통 컴포넌트(`AchievementsSection`) 마이그레이션 완료                                |
+| 6. **Review/Upvote**                | 테썹 배포 |   1   |                                                                                       |
+| 7. **Conquerer**                    | 테썹 배포 |   1   | 공통 컴포넌트(`ActivityReportSummary`, `ActivityHistoryLink`) 마이그레이션 완료       |
+| 8. **Conquerer/History**            | 테썹 배포 |   1   | 공통 컴포넌트(`AchievementsSection`) 마이그레이션 완료                                |
+| 9. **Conquerer/Upvote**             | 테썹 배포 |   1   |                                                                                       |
 | 10. **UpvoteAnalytics**             |   대기    |   1   |                                                                                       |
 | 11. **CrusherActivity**             |   대기    |   1   |                                                                                       |
 | 12. **PastSeasonDetail**            |   대기    |   1   |                                                                                       |
@@ -204,18 +207,19 @@ const Title = styled.Text`
 | 33. **SearchUnconqueredPlaces**     |   대기    |   2   |                                                                                       |
 | 34. **ImageZoomViewer**             |   대기    |   2   | FullScreen Modal                                                                      |
 | 35. **RegistrationComplete**        |   대기    |   2   | FullScreen Modal                                                                      |
-| 36. **ReviewForm/Place**            |   대기    |   2   |                                                                                       |
-| 37. **ReviewForm/Toilet**           |   대기    |   2   |                                                                                       |
+| 36. **ReviewForm/Place**            | 테썹 배포 |   2   |                                                                                       |
+| 37. **ReviewForm/Toilet**           | 테썹 배포 |   2   |                                                                                       |
 
 ---
 
 ## 통계
 
+- **총 화면 수**: **37개**
 - **상태 요약**
-  - 대기: 36개
+  - 대기: 27개
   - 진행: 0개
-  - 테썹 배포: 2개
+  - 테썹 배포: 10개
   - QA 완료: 0개
   - 실섭 배포: 0개
   - 삭제: 0개
-- **전체 진척도**: **5%**
+- **전체 진척도**: **27%** (10/37)

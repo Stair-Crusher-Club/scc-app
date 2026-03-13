@@ -1,10 +1,9 @@
 import {useQuery} from '@tanstack/react-query';
 import React from 'react';
 
-import useAppComponents from '@/hooks/useAppComponents';
 import {useMe} from '@/atoms/Auth';
-
-import * as S from './ConquererSummarySection.style';
+import ActivityReportSummary from '@/components/ActivityReportSummary';
+import useAppComponents from '@/hooks/useAppComponents';
 
 export default function ConquererSummarySection() {
   const {api} = useAppComponents();
@@ -15,24 +14,11 @@ export default function ConquererSummarySection() {
   });
 
   return (
-    <S.ConquererSummarySection>
-      <S.Decotator>
-        <S.Title>{`${userInfo?.nickname}님\n정복 리포트`}</S.Title>
-        <S.DecoImage source={require('@/assets/img/bg_confetti.png')} />
-      </S.Decotator>
-      <S.Dashboard>
-        <S.Item>
-          <S.ItemTitle>오늘의 정복</S.ItemTitle>
-          <S.ItemValue>{data?.todayConqueredCount}개</S.ItemValue>
-        </S.Item>
-        <S.Divider />
-        <S.Item>
-          <S.ItemTitle>이번달 정복</S.ItemTitle>
-          <S.ItemValue>
-            {data?.thisMonthConqueredCount.toLocaleString()}개
-          </S.ItemValue>
-        </S.Item>
-      </S.Dashboard>
-    </S.ConquererSummarySection>
+    <ActivityReportSummary
+      type="conquer"
+      nickname={userInfo?.nickname}
+      todayCount={data?.todayConqueredCount ?? 0}
+      monthCount={data?.thisMonthConqueredCount ?? 0}
+    />
   );
 }

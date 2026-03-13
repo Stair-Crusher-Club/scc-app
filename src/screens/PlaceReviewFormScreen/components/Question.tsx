@@ -1,9 +1,7 @@
 import React, {PropsWithChildren} from 'react';
 import {Text} from 'react-native';
-import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 
 interface QuestionProps extends PropsWithChildren {
   required?: boolean;
@@ -16,16 +14,10 @@ export default function Question({
   multiple = false,
 }: QuestionProps) {
   return (
-    <QuestionText>
+    <Text className="font-pretendard-medium text-[16px] leading-[28px]">
       {required && <Text style={{color: color.red}}>* </Text>}
       {children}
-      {multiple && <Text style={{color: color.gray40}}> (중복선택)</Text>}
-    </QuestionText>
+      {multiple && <Text className="text-gray-40"> (중복선택)</Text>}
+    </Text>
   );
 }
-
-export const QuestionText = styled.Text({
-  fontSize: 16,
-  lineHeight: '28px',
-  fontFamily: font.pretendardMedium,
-});

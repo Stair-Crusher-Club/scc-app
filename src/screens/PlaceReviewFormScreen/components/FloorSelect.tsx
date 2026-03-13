@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {Text, TextInput, View} from 'react-native';
 
-import {SccPressable} from '@/components/SccPressable';
 import MinusIcon from '@/assets/icon/ic_minus.svg';
 import PlusIcon from '@/assets/icon/ic_plus.svg';
 import PressableChip from '@/components/PressableChip';
+import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -39,8 +39,8 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
   }
 
   return (
-    <View style={{flexDirection: 'row', alignItems: 'center', gap: 20}}>
-      <View style={{flexDirection: 'row', gap: 8}}>
+    <View className="flex-row items-center gap-5">
+      <View className="flex-row gap-2">
         <PressableChip
           label="지상"
           active={sign}
@@ -52,23 +52,8 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
           onPress={() => setSign(false)}
         />
       </View>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 6,
-        }}>
-        <View
-          style={{
-            flex: 1,
-            overflow: 'hidden',
-            borderWidth: 1,
-            borderColor: '#DCDEE3',
-            borderRadius: 12,
-            height: 40,
-            maxWidth: 140,
-          }}>
+      <View className="flex-1 flex-row items-center gap-1.5">
+        <View className="flex-1 max-w-[140px] h-12 border border-[#DCDEE3] rounded-xl overflow-hidden">
           <SccPressable
             elementName="floor_select_decrease_button"
             onPress={decrease}
@@ -120,12 +105,7 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
             <PlusIcon width={16} color={'#383841'} />
           </SccPressable>
         </View>
-        <Text
-          style={{
-            fontSize: 15,
-            lineHeight: 22,
-            fontFamily: font.pretendardMedium,
-          }}>
+        <Text className="font-pretendard-medium text-[15px] leading-[22px]">
           층
         </Text>
       </View>

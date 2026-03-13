@@ -6,7 +6,6 @@ import PressableChip from '@/components/PressableChip';
 import {SccButton} from '@/components/atoms';
 import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 
 import Question from '../components/Question';
 import {
@@ -15,7 +14,6 @@ import {
   SEAT_TYPE_OPTIONS,
 } from '../constants';
 import {FormValues} from '../views/IndoorReviewView';
-import * as S from './common.style';
 
 export default function IndoorInfoSection({
   onSave,
@@ -28,21 +26,17 @@ export default function IndoorInfoSection({
   const seatTypes = watch('seatTypes');
 
   return (
-    <S.Container>
-      <S.Title>내부 이용 정보</S.Title>
+    <View className="px-5 py-8 gap-6 bg-white">
+      <Text className="font-pretendard-bold text-[20px] leading-[28px]">
+        내부 이용 정보
+      </Text>
 
-      <View style={{gap: 36}}>
-        <View style={{gap: 12}}>
+      <View className="gap-9">
+        <View className="gap-3">
           <Question required multiple>
             이 매장의 좌석 형태를 모두 알려주세요.
           </Question>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              alignItems: 'flex-start',
-              gap: 8,
-            }}>
+          <View className="flex-row flex-wrap items-start gap-2">
             <Controller
               name="seatTypes"
               rules={{
@@ -72,7 +66,7 @@ export default function IndoorInfoSection({
           </View>
 
           {seatTypes.has('기타') && (
-            <View style={{gap: 8}}>
+            <View className="gap-2">
               <Controller
                 name="seatComment"
                 render={({field}) => (
@@ -82,22 +76,18 @@ export default function IndoorInfoSection({
                       style={{
                         color: color.black,
                         fontSize: 16,
-                        fontFamily: font.pretendardRegular,
                         paddingVertical: 0,
                         textAlignVertical: 'top',
                         minHeight: 160,
                       }}
+                      className="font-pretendard-regular"
                       value={field.value}
                       maxLength={300}
                       placeholder={'다른 유형의 좌석이 있다면 알려주세요!'}
                       placeholderTextColor={color.gray40}
                       onChangeText={field.onChange}
                     />
-                    <Text
-                      style={{
-                        alignSelf: 'flex-end',
-                        color: color.gray50,
-                      }}>
+                    <Text className="self-end text-gray-50">
                       {field.value?.length ?? 0}/300
                     </Text>
                   </>
@@ -107,17 +97,11 @@ export default function IndoorInfoSection({
           )}
         </View>
 
-        <View style={{gap: 12}}>
+        <View className="gap-3">
           <Question required multiple>
             이 매장에서 주문은 어떻게 하나요?
           </Question>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              alignItems: 'flex-start',
-              gap: 8,
-            }}>
+          <View className="flex-row flex-wrap items-start gap-2">
             <Controller
               name="orderMethods"
               rules={{
@@ -147,18 +131,12 @@ export default function IndoorInfoSection({
           </View>
         </View>
 
-        <View style={{gap: 12}}>
+        <View className="gap-3">
           <Question multiple={true}>
             공간에 대한 특이사항이 있다면 알려주세요.
           </Question>
           {/* Chip */}
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              alignItems: 'flex-start',
-              gap: 8,
-            }}>
+          <View className="flex-row flex-wrap items-start gap-2">
             <Controller
               name="features"
               render={({field}) => (
@@ -185,7 +163,7 @@ export default function IndoorInfoSection({
           </View>
         </View>
 
-        <View style={{gap: 10, paddingTop: 10}}>
+        <View className="gap-2.5 pt-2.5">
           <SccButton
             elementName="place_review_form_save_button"
             text="저장하기"
@@ -195,7 +173,6 @@ export default function IndoorInfoSection({
             }}
             isDisabled={!formState.isValid}
             fontSize={18}
-            fontFamily={font.pretendardBold}
             onPress={onSave}
           />
           <SccButton
@@ -208,11 +185,10 @@ export default function IndoorInfoSection({
             }}
             fontSize={18}
             textColor="gray90"
-            fontFamily={font.pretendardMedium}
             onPress={onSaveAndToiletReview}
           />
         </View>
       </View>
-    </S.Container>
+    </View>
   );
 }

@@ -6,7 +6,6 @@ import PressableChip from '@/components/PressableChip';
 import Photos from '@/components/form/Photos';
 import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {
   makeRecommendedMobilityOptions,
   SPACIOUS_OPTIONS,
@@ -14,7 +13,6 @@ import {
 
 import Question from '../components/Question';
 import {FormValues} from '../views/IndoorReviewView';
-import * as S from './common.style';
 
 const MAX_NUMBER_OF_TAKEN_PHOTOS = 3;
 
@@ -28,22 +26,18 @@ export default function VisitorReviewSection({
   const {watch} = useFormContext<FormValues>();
   const recommendedMobilityTypes = watch('recommendedMobilityTypes');
   return (
-    <S.Container>
-      <S.Title>방문 리뷰</S.Title>
+    <View className="px-5 py-8 gap-6 bg-white">
+      <Text className="font-pretendard-bold text-[20px] leading-[28px]">
+        방문 리뷰
+      </Text>
 
-      <View style={{gap: 36}}>
-        <View style={{gap: 12}}>
+      <View className="gap-9">
+        <View className="gap-3">
           <Question required multiple>
             이 장소를 누구에게 추천하고 싶으신가요?
           </Question>
           {/* Chip */}
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              alignItems: 'flex-start',
-              gap: 8,
-            }}>
+          <View className="flex-row flex-wrap items-start gap-2">
             <Controller
               name="recommendedMobilityTypes"
               rules={{
@@ -77,12 +71,12 @@ export default function VisitorReviewSection({
           </View>
         </View>
 
-        <View style={{gap: 12}}>
+        <View className="gap-3">
           <Question required>
             내부 공간, 휠체어나 유아차로 이용하기에 여유로운가요?
           </Question>
           {/* Chip */}
-          <View style={{alignItems: 'flex-start', gap: 8}}>
+          <View className="items-start gap-2">
             <Controller
               name="spaciousType"
               rules={{required: '공간의 여유로움을 선택해주세요'}}
@@ -103,7 +97,7 @@ export default function VisitorReviewSection({
         </View>
 
         <View
-          style={{gap: 12}}
+          className="gap-3"
           onLayout={e => onPhotoSectionLayout?.(e.nativeEvent.layout.y)}>
           <Question>장소 이용 경험을 알려주세요.</Question>
           <Controller
@@ -119,7 +113,7 @@ export default function VisitorReviewSection({
             )}
           />
 
-          <View style={{gap: 8}}>
+          <View className="gap-2">
             <Controller
               name="comment"
               render={({field}) => (
@@ -129,11 +123,11 @@ export default function VisitorReviewSection({
                     style={{
                       color: color.black,
                       fontSize: 16,
-                      fontFamily: font.pretendardRegular,
                       paddingVertical: 0,
                       textAlignVertical: 'top',
                       minHeight: 160,
                     }}
+                    className="font-pretendard-regular"
                     value={field.value}
                     maxLength={300}
                     placeholder={
@@ -142,11 +136,7 @@ export default function VisitorReviewSection({
                     placeholderTextColor={color.gray40}
                     onChangeText={field.onChange}
                   />
-                  <Text
-                    style={{
-                      alignSelf: 'flex-end',
-                      color: color.gray50,
-                    }}>
+                  <Text className="self-end text-gray-50">
                     {field.value?.length ?? 0}/300
                   </Text>
                 </>
@@ -155,6 +145,6 @@ export default function VisitorReviewSection({
           </View>
         </View>
       </View>
-    </S.Container>
+    </View>
   );
 }

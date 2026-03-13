@@ -1,11 +1,10 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 
 import IcBuilding from '@/assets/icon/ic_building.svg';
 import IcPlace from '@/assets/icon/ic_place.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 
 interface PlaceInfoSectionProps {
   name?: string;
@@ -26,70 +25,34 @@ export default function PlaceInfoSection({
   const badgeColor = target === 'place' ? color.orange40 : color.brand50;
 
   return (
-    <Container>
+    <View className="p-5 bg-white items-start gap-2">
       {target && (
-        <Badge>
+        <View className="flex-row items-center gap-1">
           <Icon width={16} height={16} />
-          <BadgeText style={{color: badgeColor}}>{badgeText}</BadgeText>
-        </Badge>
+          <Text
+            className="font-pretendard-bold text-[14px] leading-[20px]"
+            style={{color: badgeColor}}>
+            {badgeText}
+          </Text>
+        </View>
       )}
-      <InfoContainer>
-        <Title>{name}</Title>
-        <Address>{address}</Address>
-      </InfoContainer>
+      <View className="gap-0.5">
+        <Text className="font-pretendard-semibold text-[20px] leading-[28px] text-gray-90">
+          {name}
+        </Text>
+        <Text className="font-pretendard-regular text-[15px] leading-[22px] text-gray-60">
+          {address}
+        </Text>
+      </View>
       {onGuidePress && (
         <SccPressable
           elementName="place_info_guide_reopen"
           onPress={onGuidePress}>
-          <GuideReopenText>{'가이드 보기 >'}</GuideReopenText>
+          <Text className="font-pretendard-medium text-[14px] leading-[20px] text-gray-60 underline">
+            {'가이드 보기 >'}
+          </Text>
         </SccPressable>
       )}
-    </Container>
+    </View>
   );
 }
-
-const Container = styled.View({
-  padding: 20,
-  backgroundColor: color.white,
-  alignItems: 'flex-start',
-  gap: 8,
-});
-
-const Badge = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 4,
-});
-
-const BadgeText = styled.Text({
-  fontSize: 14,
-  lineHeight: '20px',
-  fontFamily: font.pretendardBold,
-});
-
-const InfoContainer = styled.View({
-  gap: 2,
-});
-
-const Title = styled.Text({
-  fontSize: 20,
-  lineHeight: '28px',
-  fontFamily: font.pretendardSemibold,
-  color: color.gray90,
-});
-
-const Address = styled.Text({
-  fontSize: 15,
-  lineHeight: '22px',
-  color: color.gray60,
-  fontFamily: font.pretendardRegular,
-});
-
-const GuideReopenText = styled.Text({
-  fontSize: 14,
-  lineHeight: '20px',
-  letterSpacing: -0.28,
-  fontFamily: font.pretendardMedium,
-  color: color.gray60,
-  textDecorationLine: 'underline',
-});

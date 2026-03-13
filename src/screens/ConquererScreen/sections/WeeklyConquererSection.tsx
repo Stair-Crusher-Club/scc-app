@@ -9,8 +9,9 @@ import {DayOfWeek} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 
+import {SccPressable} from '@/components/SccPressable';
 import {SortOption} from '@/screens/SearchScreen/atoms';
-import * as S from './WeeklyConquererSection.style';
+import {Image, Text, View} from 'react-native';
 
 dayjs.locale(ko);
 
@@ -32,16 +33,21 @@ export default function WeeklyConquererSection() {
       : today.startOf('week').add(1, 'day');
 
   return (
-    <S.WeeklyConquererSection>
-      <S.ThisWeekStatus>
-        {data?.thisWeekConqueredWeekdays.length === 0 && (
-          <S.Tooltip
+    <View className="py-8 px-5 gap-6 bg-white">
+      <View>
+        {data?.thisWeekConqueredWeekdays?.length === 0 && (
+          <Image
+            className="w-[170px] h-[30px] mb-1"
+            resizeMode="contain"
             source={require('@/assets/img/conquer_today_tooltip.png')}
           />
         )}
-        <S.TitleArea>
-          <S.Title>하루 한 칸</S.Title>
-          <S.MoreButton
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-black text-[18px] leading-[29px] font-pretendard-bold">
+            하루 한 칸
+          </Text>
+          <SccPressable
+            className="flex-row items-center h-6"
             elementName="weekly_conquerer_more_button"
             onPress={() =>
               navigation.navigate('Search', {
@@ -49,19 +55,23 @@ export default function WeeklyConquererSection() {
                 initSortOption: SortOption.ACCURACY,
               })
             }>
-            <S.More>정복하러 가기</S.More>
+            <Text className="text-[14px] leading-[22px] text-brand-50 font-pretendard-medium">
+              정복하러 가기
+            </Text>
             <RightAngleArrowIcon color={color.brandColor} width={20} />
-          </S.MoreButton>
-        </S.TitleArea>
-        <S.Stamps>
+          </SccPressable>
+        </View>
+        <View className="flex-row justify-between gap-1">
           {Array.from({length: 7}).map((_, i) => (
-            <S.Stamp key={i}>
+            <View
+              key={i}
+              className="flex-1 aspect-square justify-center items-center rounded-[16px] bg-gray-10">
               <DailyStamp key={i} day={startMonday.add(i, 'day')} />
-            </S.Stamp>
+            </View>
           ))}
-        </S.Stamps>
-      </S.ThisWeekStatus>
-    </S.WeeklyConquererSection>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -78,7 +88,11 @@ function DailyStamp({day}: {day: Dayjs}) {
   );
 
   if (!success) {
-    return <S.Empty>{day.format('ddd')}</S.Empty>;
+    return (
+      <Text className="text-[16px] leading-[18px] text-gray-70 text-center">
+        {day.format('ddd')}
+      </Text>
+    );
   }
 
   // 매주 스탬프 위치가 바뀌게 / 하지만 한 주 동안은 고정적으로 찍히도록
@@ -90,5 +104,5 @@ function DailyStamp({day}: {day: Dayjs}) {
   ];
 
   const stampIndex = day.diff(dayjs('2020-01-01'), 'day') % stamps.length;
-  return <S.StampImage source={stamps[stampIndex]} />;
+  return <Image className="w-10 h-10" source={stamps[stampIndex]} />;
 }
