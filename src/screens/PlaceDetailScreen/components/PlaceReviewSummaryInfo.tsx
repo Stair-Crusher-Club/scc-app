@@ -277,10 +277,15 @@ const SpaciousTextBox: React.FC<{
           justifyContent: 'space-between',
           gap: 4,
         }}>
-        <SpaciousTextBoxLabel isHighlighted={isHighlighted}>
+        <SpaciousTextBoxLabel
+          isHighlighted={isHighlighted}
+          style={{backgroundColor: 'transparent'}}>
           {label}
         </SpaciousTextBoxLabel>
-        <TextBoxContent level={level} shape={'thin'}>
+        <TextBoxContent
+          level={level}
+          shape={'thin'}
+          style={{backgroundColor: 'transparent'}}>
           {content}
         </TextBoxContent>
       </View>
