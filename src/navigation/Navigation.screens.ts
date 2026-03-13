@@ -267,7 +267,6 @@ export const MainNavigationScreens: {
     name: 'Tutorial',
     component: TutorialScreen,
     options: {
-      presentation: 'fullScreenModal',
       headerShown: false,
       gestureEnabled: false,
     },
