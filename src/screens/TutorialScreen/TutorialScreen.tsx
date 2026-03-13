@@ -23,9 +23,9 @@ const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const SLIDE_COUNT = 3;
 
 export const tutorialSlides = [
-  require('@/assets/img/tutorial_1.webp'),
-  require('@/assets/img/tutorial_2.webp'),
-  require('@/assets/img/tutorial_3.webp'),
+  require('@/assets/img/tutorial_1.png'),
+  require('@/assets/img/tutorial_2.png'),
+  require('@/assets/img/tutorial_3.png'),
 ];
 
 export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {

@@ -5,9 +5,9 @@ import styled from 'styled-components/native';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const slides = [
-  require('@/assets/img/tutorial_1.webp'),
-  require('@/assets/img/tutorial_2.webp'),
-  require('@/assets/img/tutorial_3.webp'),
+  require('@/assets/img/tutorial_1.png'),
+  require('@/assets/img/tutorial_2.png'),
+  require('@/assets/img/tutorial_3.png'),
 ];
 
 /**
