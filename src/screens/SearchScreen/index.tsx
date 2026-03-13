@@ -155,7 +155,14 @@ const SearchScreenContent = ({
   };
   const onItemSelect = (item: SearchResultItem) => {
     setViewState({type: 'map', inputMode: false});
+    Keyboard.dismiss();
     ref.current?.moveToItem(getItemId(item));
+    if (searchQuery.text) {
+      setSearchHistories(prev => {
+        const newHistories = prev.filter(h => h !== searchQuery.text);
+        return [searchQuery.text!, ...newHistories].slice(0, 10);
+      });
+    }
   };
 
   useEffect(() => {
