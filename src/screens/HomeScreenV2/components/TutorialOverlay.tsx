@@ -4,6 +4,7 @@ import {
   GestureResponderEvent,
   Image,
   NativeScrollEvent,
+  Pressable,
   NativeSyntheticEvent,
   ScrollView,
 } from 'react-native';
@@ -122,7 +123,9 @@ export default function TutorialOverlay({
       </ScrollView>
       {visible && (
         <>
-          <BottomBar style={{paddingBottom: insets.bottom + 20}}>
+          <BottomBar
+            style={{paddingBottom: insets.bottom + 20}}
+            pointerEvents="box-none">
             {isLast ? (
               <SccButton
                 text="시작하기"
@@ -134,20 +137,26 @@ export default function TutorialOverlay({
                 style={{borderRadius: 8}}
               />
             ) : (
-              <NavRow>
-                <NavButtonInner style={{opacity: isFirst ? 0 : 1}}>
-                  <ChevronLeft width={24} height={24} color={color.white} />
-                  <NavText>이전</NavText>
-                </NavButtonInner>
+              <NavRow pointerEvents="box-none">
+                <Pressable
+                  onPress={isFirst ? undefined : handlePrev}
+                  style={{opacity: isFirst ? 0 : 1}}>
+                  <NavButtonInner>
+                    <ChevronLeft width={24} height={24} color={color.white} />
+                    <NavText>이전</NavText>
+                  </NavButtonInner>
+                </Pressable>
                 <DotsContainer>
                   {slides.map((_, index) => (
                     <Dot key={index} active={index === activeSlide} />
                   ))}
                 </DotsContainer>
-                <NavButtonInner>
-                  <NavText>다음</NavText>
-                  <ChevronRight width={24} height={24} color={color.white} />
-                </NavButtonInner>
+                <Pressable onPress={handleNext}>
+                  <NavButtonInner>
+                    <NavText>다음</NavText>
+                    <ChevronRight width={24} height={24} color={color.white} />
+                  </NavButtonInner>
+                </Pressable>
               </NavRow>
             )}
           </BottomBar>
