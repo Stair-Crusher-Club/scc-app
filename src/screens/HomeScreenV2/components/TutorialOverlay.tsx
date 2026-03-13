@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   Dimensions,
+  GestureResponderEvent,
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -11,7 +12,6 @@ import styled from 'styled-components/native';
 
 import ChevronRight from '@/assets/icon/ic_chevron_right.svg';
 import {SccButton} from '@/components/atoms';
-import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -67,6 +67,36 @@ export default function TutorialOverlay({
     });
   }, [activeSlide]);
 
+  // 탭 위치로 이전/다음 판단 (스와이프는 ScrollView가 처리)
+  const touchStartRef = useRef({x: 0, y: 0});
+  const handleTouchStart = useCallback((e: GestureResponderEvent) => {
+    touchStartRef.current = {
+      x: e.nativeEvent.pageX,
+      y: e.nativeEvent.pageY,
+    };
+  }, []);
+  const handleTouchEnd = useCallback(
+    (e: GestureResponderEvent) => {
+      const dx = Math.abs(e.nativeEvent.pageX - touchStartRef.current.x);
+      const dy = Math.abs(e.nativeEvent.pageY - touchStartRef.current.y);
+      // 스와이프가 아닌 탭인 경우만 처리
+      if (dx > 10 || dy > 10) {
+        return;
+      }
+      const isLeftHalf = e.nativeEvent.pageX < SCREEN_WIDTH / 2;
+      if (isLeftHalf) {
+        if (!isFirst) {
+          handlePrev();
+        }
+      } else {
+        if (!isLast) {
+          handleNext();
+        }
+      }
+    },
+    [isFirst, isLast, handlePrev, handleNext],
+  );
+
   // 항상 이미지를 렌더 (디코딩), visible일 때만 위로 올림
   return (
     <Overlay style={{zIndex: visible ? 9999 : -1}}>
@@ -78,6 +108,8 @@ export default function TutorialOverlay({
         bounces={false}
         scrollEnabled={visible}
         onMomentumScrollEnd={handleScroll}
+        onTouchStart={visible ? handleTouchStart : undefined}
+        onTouchEnd={visible ? handleTouchEnd : undefined}
         scrollEventThrottle={16}>
         {slides.map((source, index) => (
           <SlideContainer key={index}>
@@ -90,20 +122,6 @@ export default function TutorialOverlay({
       </ScrollView>
       {visible && (
         <>
-          {/* 좌측 반: 이전, 우측 반: 다음 터치 영역 */}
-          {!isLast && (
-            <TouchAreaRow>
-              <TouchAreaLeft
-                onPress={isFirst ? undefined : handlePrev}
-                elementName="tutorial_touch_prev"
-                disableLogging={isFirst}
-              />
-              <TouchAreaRight
-                onPress={handleNext}
-                elementName="tutorial_touch_next"
-              />
-            </TouchAreaRow>
-          )}
           <BottomBar style={{paddingBottom: insets.bottom + 20}}>
             {isLast ? (
               <SccButton
@@ -203,21 +221,3 @@ const Dot = styled.View<{active: boolean}>`
   border-radius: 3px;
   background-color: ${({active}) => (active ? color.gray20v2 : color.gray50v2)};
 `;
-
-const TouchAreaRow = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  flex-direction: row;
-`;
-
-const TouchAreaLeft = styled(SccPressable)`
-  flex: 1;
-`;
-
-const TouchAreaRight = styled(SccPressable)`
-  flex: 1;
-`;
-

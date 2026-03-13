@@ -108,7 +108,7 @@ const HomeScreenV2 = ({navigation}: any) => {
       navigation.setOptions({
         tabBarStyle: {display: 'none' as const},
       });
-    }, 1500);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [needsTutorial]);
 

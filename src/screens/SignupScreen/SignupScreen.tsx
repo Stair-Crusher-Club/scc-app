@@ -93,7 +93,6 @@ export default function SignupScreen({
       setAccessToken(accessToken);
       await setUserInfo(user);
 
-      ToastUtils.show('회원가입이 완료되었습니다.');
       if (route.params.asModal) {
         navigation.goBack();
       } else {
