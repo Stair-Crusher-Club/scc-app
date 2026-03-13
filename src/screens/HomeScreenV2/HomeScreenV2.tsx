@@ -94,20 +94,32 @@ const HomeScreenV2 = ({navigation}: any) => {
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
-  // 튜토리얼: 이미지를 마운트 시점부터 렌더(프리디코딩)하고, 1.5초 후 스택 screen으로 navigate
-  // preloading: 초기값 캡처하여 atom 변경과 무관하게 프리디코딩 이미지를 유지
-  const [preloading] = useState(() => !hasShownHomeTutorial);
+  // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
+  const [needsTutorial] = useState(() => !hasShownHomeTutorial);
+  const [tutorialVisible, setTutorialVisible] = useState(false);
 
   useEffect(() => {
-    if (hasShownHomeTutorial) {
+    if (!needsTutorial) {
       return;
     }
-    setHasShownHomeTutorial(true);
     const timer = setTimeout(() => {
-      navigation.navigate('Tutorial');
+      setTutorialVisible(true);
+      // 탭바 숨기기
+      navigation.getParent()?.setOptions({
+        tabBarStyle: {display: 'none' as const},
+      });
     }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [needsTutorial]);
+
+  const handleTutorialClose = useCallback(() => {
+    setTutorialVisible(false);
+    setHasShownHomeTutorial(true);
+    // 탭바 복원
+    navigation.getParent()?.setOptions({
+      tabBarStyle: undefined,
+    });
+  }, [navigation, setHasShownHomeTutorial]);
 
   useEffect(() => {
     const requestGeolocationPermissionIfNeeded = async () => {
@@ -350,8 +362,13 @@ const HomeScreenV2 = ({navigation}: any) => {
           )}
         </Container>
       </ScreenLayout>
-      {/* 튜토리얼 이미지 프리디코딩: 같은 뷰 계층에서 풀사이즈로 렌더하여 iOS 이미지 캐시에 올림 */}
-      {preloading && <TutorialOverlay />}
+      {/* 튜토리얼: 마운트 시점부터 이미지 디코딩, 1.5초 후 zIndex 올려서 표시 */}
+      {needsTutorial && (
+        <TutorialOverlay
+          visible={tutorialVisible}
+          onClose={handleTutorialClose}
+        />
+      )}
     </>
   );
 };
