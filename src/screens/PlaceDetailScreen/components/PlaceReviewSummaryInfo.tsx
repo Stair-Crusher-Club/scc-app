@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Platform, View} from 'react-native';
+import {Platform, Text, View} from 'react-native';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
@@ -276,17 +276,34 @@ const SpaciousTextBox: React.FC<{
           justifyContent: 'space-between',
           gap: 4,
         }}>
-        <SpaciousTextBoxLabel
-          isHighlighted={isHighlighted}
-          style={{backgroundColor: 'transparent'}}>
+        {/* NOTE: styled-components Text에 동적 prop을 쓰면 iOS에서 텍스트 뒤에 회색 배경 아티팩트가 생김. inline style로 우회. */}
+        <Text
+          style={{
+            fontSize: 14,
+            lineHeight: 20,
+            letterSpacing: -0.28,
+            fontFamily: isHighlighted
+              ? font.pretendardMedium
+              : font.pretendardRegular,
+            color: color.gray100,
+            backgroundColor: 'transparent',
+          }}>
           {label}
-        </SpaciousTextBoxLabel>
-        <TextBoxContent
-          level={level}
-          shape={'thin'}
-          style={{backgroundColor: 'transparent'}}>
+        </Text>
+        <Text
+          style={{
+            fontSize: 13,
+            lineHeight: 18,
+            letterSpacing: -0.26,
+            fontFamily: isHighlighted
+              ? font.pretendardBold
+              : font.pretendardMedium,
+            color: isHighlighted ? color.brand50 : color.gray40,
+            textAlign: 'center',
+            backgroundColor: 'transparent',
+          }}>
           {content}
-        </TextBoxContent>
+        </Text>
       </View>
     </View>
   );
@@ -321,16 +338,6 @@ const RecommendTargetTextBoxLabel = styled.Text`
   font-family: ${font.pretendardRegular};
   color: ${color.gray100};
   text-align: center;
-`;
-
-const SpaciousTextBoxLabel = styled.Text<{isHighlighted?: boolean}>`
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: -0.28px;
-  font-family: ${({isHighlighted}) =>
-    isHighlighted ? font.pretendardMedium : font.pretendardRegular};
-  color: ${color.gray100};
-  background-color: transparent;
 `;
 
 const TextBoxContent = styled.Text<{
