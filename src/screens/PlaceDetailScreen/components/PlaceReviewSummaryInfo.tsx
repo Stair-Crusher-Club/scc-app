@@ -244,14 +244,14 @@ const SpaciousTextBox: React.FC<{
       ? color.brand10
       : level === 'medium'
         ? color.brand5
-        : color.gray10;
+        : 'transparent';
 
   const isHighlighted = level === 'high' || level === 'medium';
 
   return (
     <View
       style={{
-        backgroundColor: color.gray10,
+        backgroundColor: 'transparent',
         borderRadius: 10,
         overflow: 'hidden',
         height: 40,
