@@ -34,12 +34,12 @@ export const PressableOption = styled(SccPressable)<{
 }));
 
 // 아이콘+텍스트를 고정 너비로 묶어 센터링 시 아이콘 위치 고정
-// Figma: icon(28) + gap(8) + text(55) = 91px
+// Figma: icon(28) + gap(8) + text(55) + 줄바꿈 방지용 5px = 96px
 export const IconTextRow = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
   gap: 8,
-  width: 91,
+  width: 96,
 });
 
 export const OptionText = styled.Text<{selected: boolean; disabled?: boolean}>(
