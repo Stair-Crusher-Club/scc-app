@@ -1,6 +1,5 @@
 import EmptyViewText from '@/components/empty/EmptyViewText';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {color} from '@/constant/color';
 import useAppComponents from '@/hooks/useAppComponents';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
