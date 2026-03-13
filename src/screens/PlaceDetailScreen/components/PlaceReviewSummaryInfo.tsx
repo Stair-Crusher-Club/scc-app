@@ -253,7 +253,6 @@ const SpaciousTextBox: React.FC<{
       style={{
         backgroundColor: 'transparent',
         borderRadius: 10,
-        overflow: 'hidden',
         height: 40,
       }}>
       <View
