@@ -1,12 +1,11 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import React from 'react';
-import styled from 'styled-components/native';
-
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
 import ConqueredPlaceItem from '@/screens/ConquererHistoryScreen/sections/ConqueredPlaceItem';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import React from 'react';
+import {View} from 'react-native';
 import AchievementsSection from './sections/AchievementsSection';
 
 export default function ConquererHistoryScreen() {
@@ -32,7 +31,7 @@ export default function ConquererHistoryScreen() {
 
   return (
     <ScreenLayout isHeaderVisible={true}>
-      <ListContainer>
+      <View className="flex-1">
         <FlashList
           contentContainerStyle={{
             backgroundColor: 'white',
@@ -53,11 +52,7 @@ export default function ConquererHistoryScreen() {
           }}
           onEndReachedThreshold={0.5}
         />
-      </ListContainer>
+      </View>
     </ScreenLayout>
   );
 }
-
-const ListContainer = styled.View`
-  flex: 1;
-`;
