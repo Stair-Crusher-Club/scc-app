@@ -1,7 +1,6 @@
 import React from 'react';
-import {Image, ScrollView} from 'react-native';
+import {Image, ScrollView, View} from 'react-native';
 
-import Divider from './components/Divider';
 import MenuListSection from './components/MenuListSection';
 import MyProfileSection from './components/MyProfileSection';
 
@@ -9,13 +8,13 @@ export interface MenuScreenParams {}
 
 const MenuScreen = ({}: any) => {
   return (
-    <ScrollView style={{backgroundColor: 'white'}}>
+    <ScrollView className="bg-white">
       <Image
-        source={require('../../assets/img/bg_mypage_header.jpg')}
-        style={{width: '100%', height: 'auto', aspectRatio: '375/200'}}
+        source={require('@/assets/img/bg_mypage_header.jpg')}
+        className="w-full h-[220px]"
       />
       <MyProfileSection />
-      <Divider />
+      <View className="h-[10px] w-full bg-gray-10" />
       <MenuListSection />
     </ScrollView>
   );
