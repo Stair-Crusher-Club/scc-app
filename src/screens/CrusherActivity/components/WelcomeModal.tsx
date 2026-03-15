@@ -10,10 +10,10 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
-import styled from 'styled-components/native';
 import WelcomeAnimation from './WelcomeAnimation';
 
 interface WelcomeModalProps {
@@ -321,29 +321,35 @@ export default function WelcomeModal({
       <SccTouchableWithoutFeedback
         elementName="crusher_activity_welcome_modal"
         onPress={handleClose}>
-        <Backdrop>
+        <View className="flex-1 justify-center bg-blacka-80">
           {recordStatus === 'loading' ? (
-            <Center>
+            <View className="items-center justify-center gap-10">
               <ActivityIndicator size="large" color={color.white} />
-            </Center>
+            </View>
           ) : (
             <>
-              <Center>
+              <View className="items-center justify-center gap-10">
                 {renderAnimation()}
-                <WelcomeText>
+                <Text className="mb-5 text-center text-[20px] leading-[28px] text-white">
                   {textParts.map((part, index) =>
                     part.bold ? (
-                      <WelcomeTextBold key={index}>{part.text}</WelcomeTextBold>
-                    ) : (
-                      <WelcomeTextRegular key={index}>
+                      <Text
+                        key={index}
+                        className="font-pretendard-bold text-[20px] leading-[28px] text-white">
                         {part.text}
-                      </WelcomeTextRegular>
+                      </Text>
+                    ) : (
+                      <Text
+                        key={index}
+                        className="font-pretendard-regular text-[20px] leading-[28px] text-white">
+                        {part.text}
+                      </Text>
                     ),
                   )}
-                </WelcomeText>
-              </Center>
+                </Text>
+              </View>
 
-              <ButtonContainer>
+              <View className="gap-5 p-5">
                 <SccButton
                   elementName="crusher_activity_welcome_modal_ok"
                   text={config.buttonText}
@@ -351,50 +357,11 @@ export default function WelcomeModal({
                   fontFamily={font.pretendardBold}
                   onPress={handleClose}
                 />
-              </ButtonContainer>
+              </View>
             </>
           )}
-        </Backdrop>
+        </View>
       </SccTouchableWithoutFeedback>
     </Modal>
   );
 }
-
-const Backdrop = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0,0,0,0.8)',
-});
-
-const Center = styled.View({
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: 40,
-});
-
-const WelcomeText = styled.Text({
-  marginBottom: 20,
-  textAlign: 'center',
-  color: color.white,
-  fontSize: 20,
-  lineHeight: 28,
-});
-
-const WelcomeTextBold = styled.Text({
-  color: color.white,
-  fontFamily: font.pretendardBold,
-  fontSize: 20,
-  lineHeight: 28,
-});
-
-const WelcomeTextRegular = styled.Text({
-  color: color.white,
-  fontFamily: font.pretendardRegular,
-  fontSize: 20,
-  lineHeight: 28,
-});
-
-const ButtonContainer = styled.View({
-  padding: 20,
-  gap: 20,
-});

@@ -5,8 +5,7 @@ import {font} from '@/constant/font';
 import Logger from '@/logging/Logger';
 import LottieView from 'lottie-react-native';
 import React from 'react';
-import {Modal, View, useWindowDimensions} from 'react-native';
-import styled from 'styled-components/native';
+import {Modal, Text, View, useWindowDimensions} from 'react-native';
 
 interface ClubQuestCheckInCompleteModalProps {
   visible: boolean;
@@ -28,8 +27,8 @@ export default function ClubQuestCheckInCompleteModal({
       <SccTouchableWithoutFeedback
         elementName="club_quest_check_in_complete_modal_backdrop"
         onPress={onClose}>
-        <Backdrop>
-          <Center>
+        <View className="flex-1 justify-center bg-blacka-80">
+          <View className="items-center justify-center pb-3">
             <View
               style={{
                 justifyContent: 'center',
@@ -69,15 +68,18 @@ export default function ClubQuestCheckInCompleteModal({
                 }}
               />
             </View>
-          </Center>
+          </View>
 
-          <TitleText>
-            <TitleTextBold>정복활동 출석체크</TitleTextBold>가 완료되었습니다.
+          <Text className="text-center font-pretendard-regular text-[20px] leading-[28px] text-white">
+            <Text className="font-pretendard-bold text-[20px] leading-[28px] text-white">
+              정복활동 출석체크
+            </Text>
+            가 완료되었습니다.
             {'\n'}
             이제 퀘스트를 뿌시러 가볼까요?
-          </TitleText>
+          </Text>
 
-          <ButtonContainer>
+          <View className="mt-10 gap-5 p-5">
             <SccButton
               style={{height: 58}}
               text="확인"
@@ -86,43 +88,9 @@ export default function ClubQuestCheckInCompleteModal({
               onPress={onClose}
               elementName="club_quest_check_in_complete_confirm_button"
             />
-          </ButtonContainer>
-        </Backdrop>
+          </View>
+        </View>
       </SccTouchableWithoutFeedback>
     </Modal>
   );
 }
-
-const Backdrop = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0,0,0,0.8)',
-});
-
-const Center = styled.View({
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingBottom: 12,
-});
-
-const TitleText = styled.Text({
-  marginBottom: 0,
-  textAlign: 'center',
-  color: color.white,
-  fontFamily: font.pretendardRegular,
-  fontSize: 20,
-  lineHeight: 28, // 140%
-});
-
-const TitleTextBold = styled.Text({
-  color: color.white,
-  fontFamily: font.pretendardBold,
-  fontSize: 20,
-  lineHeight: 28, // 140%
-});
-
-const ButtonContainer = styled.View({
-  marginTop: 40,
-  padding: 20,
-  gap: 20,
-});

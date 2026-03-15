@@ -17,19 +17,10 @@ export default function QuestItem({
   completedAt,
 }: QuestItemProps) {
   return (
-    <View
-      style={{
-        alignItems: 'center',
-        gap: 6,
-      }}>
+    <View className="items-center gap-[6px]">
       <View
-        style={[
-          {
-            width: 84,
-            height: 84,
-            borderRadius: 42,
-            overflow: 'hidden',
-          },
+        className="h-[84px] w-[84px] overflow-hidden rounded-[42px]"
+        style={
           completedAt?.value
             ? {
                 boxShadow: [
@@ -42,37 +33,19 @@ export default function QuestItem({
                   },
                 ],
               }
-            : {},
-        ]}>
+            : undefined
+        }>
         <Image
           source={source}
-          style={{
-            width: 84,
-            height: 84,
-          }}
+          className="h-[84px] w-[84px]"
         />
       </View>
 
-      <View
-        style={{
-          gap: 2,
-          alignItems: 'center',
-        }}>
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: font.pretendardMedium,
-            lineHeight: 20,
-          }}>
+      <View className="items-center gap-[2px]">
+        <Text className="font-pretendard-medium text-[14px] leading-[20px] text-black">
           {title}
         </Text>
-        <Text
-          style={{
-            fontSize: 12,
-            fontFamily: font.pretendardRegular,
-            lineHeight: 16,
-            color: color.gray50,
-          }}>
+        <Text className="font-pretendard-regular text-[12px] leading-[16px] text-gray-50">
           {completedAt?.value
             ? `${formatDateDot(completedAt?.value)} 획득`
             : ''}
@@ -83,7 +56,7 @@ export default function QuestItem({
 }
 
 function QuestItemGap() {
-  return <View style={{height: 16}} />;
+  return <View className="h-4" />;
 }
 
 QuestItem.Gap = QuestItemGap;

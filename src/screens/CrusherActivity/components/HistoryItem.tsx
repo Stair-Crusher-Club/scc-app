@@ -1,17 +1,16 @@
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import type {
   CrusherActivityHistorySummaryTypeDto,
   EpochMillisTimestamp,
 } from '@/generated-sources/openapi';
 import type {ScreenParams} from '@/navigation/Navigation.screens';
+import {cn} from '@/utils/cn';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback} from 'react';
 import {Text, View} from 'react-native';
-import styled from 'styled-components/native';
 import {formatDateRange} from '../utils/date';
 
 interface HistoryItemProps {
@@ -48,19 +47,25 @@ export default function HistoryItem({
   }, [navigation, crusherClubId, title]);
 
   const content = (
-    <Container showBorderTop={!!isFirst && !isCurrentCrew}>
-      <ContentWrapper>
-        <TextWrapper>
-          <Title>
+    <View
+      className={cn(
+        'flex-row items-center gap-3 border-b-[1px] border-gray-20 px-5 py-[15px]',
+        !!isFirst && !isCurrentCrew && 'border-t-[1px]',
+      )}>
+      <View className="flex-1 gap-[6px]">
+        <View className="gap-[6px]">
+          <Text className="font-pretendard-medium text-[18px] leading-[26px] text-gray-90">
             {historyType === 'CONQUER_ACTIVITY_GUEST'
               ? '정복활동 게스트 참여'
               : title}
-          </Title>
-          <DateText>{dateText}</DateText>
-        </TextWrapper>
-      </ContentWrapper>
+          </Text>
+          <Text className="font-pretendard-regular text-[14px] leading-[20px] text-gray-50">
+            {dateText}
+          </Text>
+        </View>
+      </View>
       {isCrewType && <ChevronRightIcon color={color.gray80} />}
-    </Container>
+    </View>
   );
 
   if (isCrewType && crusherClubId) {
@@ -73,41 +78,3 @@ export default function HistoryItem({
 
   return <View>{content}</View>;
 }
-
-const Container = styled(View)<{showBorderTop: boolean}>`
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 20px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${color.gray20};
-  ${({showBorderTop}) =>
-    showBorderTop &&
-    `
-    border-top-width: 1px;
-    border-top-color: ${color.gray20};
-  `}
-`;
-
-const ContentWrapper = styled(View)`
-  flex: 1;
-  gap: 6px;
-`;
-
-const TextWrapper = styled(View)`
-  gap: 6px;
-`;
-
-const Title = styled(Text)`
-  font-size: 18px;
-  font-family: ${font.pretendardMedium};
-  line-height: 26px;
-  color: ${color.gray90};
-`;
-
-const DateText = styled(Text)`
-  font-size: 14px;
-  font-family: ${font.pretendardRegular};
-  line-height: 20px;
-  color: ${color.gray50};
-`;

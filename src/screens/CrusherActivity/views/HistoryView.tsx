@@ -1,5 +1,3 @@
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import type {CrusherActivityHistorySummaryDto} from '@/generated-sources/openapi';
 import React from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
@@ -16,28 +14,12 @@ export default function HistoryView({
 }: HistoryViewProps) {
   if (!crusherActivityHistories || crusherActivityHistories.length === 0) {
     return (
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingTop: 168,
-          gap: 12,
-        }}>
+      <View className="items-center justify-center gap-3 pt-[168px]">
         <Image
           source={require('@/assets/img/img_crusher_history_history_empty.png')}
-          style={{
-            width: 128,
-            height: 60,
-          }}
+          className="h-[60px] w-[128px]"
         />
-        <Text
-          style={{
-            textAlign: 'center',
-            lineHeight: 24,
-            fontSize: 16,
-            fontFamily: font.pretendardRegular,
-            color: color.gray50,
-          }}>
+        <Text className="text-center font-pretendard-regular text-[16px] leading-[24px] text-gray-50">
           준비중입니다.
         </Text>
       </View>

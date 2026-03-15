@@ -1,8 +1,8 @@
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {EpochMillisTimestamp} from '@/generated-sources/openapi';
 import React from 'react';
 import {Text, View} from 'react-native';
+import {cn} from '@/utils/cn';
 import {formatDateKorean} from '../utils/date';
 
 interface ActivityItemProps {
@@ -26,65 +26,42 @@ export default function ActivityItem({
 }: ActivityItemProps) {
   const isCanceled = !!canceledAt;
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        height: ACTIVITY_ITEM_HEIGHT,
-      }}>
-      <View style={{gap: 12, flexDirection: 'row', alignItems: 'flex-start'}}>
-        <View
-          style={{
-            height: 20,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+    <View className="h-[52px] flex-row justify-between">
+      <View className="flex-row items-start gap-3">
+        <View className="h-5 items-center justify-center">
           {visibleLine && (
             <View
+              className="absolute left-1 top-[5px] w-[2px] bg-gray-25"
               style={{
-                position: 'absolute',
-                left: 4,
-                top: DOT_SIZE / 2,
                 bottom: -Math.abs(
                   ACTIVITY_ITEM_HEIGHT + ACTIVITY_ITEM_GAP - DOT_SIZE,
                 ),
-                width: 2,
-                backgroundColor: color.gray25,
               }}
             />
           )}
 
           <View
-            style={{
-              width: DOT_SIZE,
-              height: DOT_SIZE,
-              borderRadius: DOT_SIZE / 2,
-              paddingVertical: 2,
-              backgroundColor: isFirst ? color.brand50 : color.gray50,
-              borderWidth: 2,
-              borderColor: isFirst ? color.brand10 : color.gray20,
-            }}
+            className={cn(
+              'h-[10px] w-[10px] rounded-[5px] border-[2px]',
+              isFirst
+                ? 'border-brand-10 bg-brand-50'
+                : 'border-gray-20 bg-gray-50',
+            )}
           />
         </View>
-        <View style={{gap: 6}}>
+        <View className="gap-[6px]">
           <Text
-            style={{
-              fontSize: 14,
-              fontFamily: font.pretendardRegular,
-              lineHeight: 20,
-              color: isCanceled ? color.gray30 : color.gray50,
-              ...(isCanceled && {textDecorationLine: 'line-through'}),
-            }}>
+            className={cn(
+              'font-pretendard-regular text-[14px] leading-[20px]',
+              isCanceled ? 'text-gray-30 line-through' : 'text-gray-50',
+            )}>
             {formatDateKorean(activityDoneAt?.value)}
           </Text>
           <Text
-            style={{
-              fontSize: 18,
-              fontFamily: font.pretendardMedium,
-              lineHeight: 26,
-              color: isCanceled ? color.gray30 : color.gray90,
-              ...(isCanceled && {textDecorationLine: 'line-through'}),
-            }}>
+            className={cn(
+              'font-pretendard-medium text-[18px] leading-[26px]',
+              isCanceled ? 'text-gray-30 line-through' : 'text-gray-90',
+            )}>
             {title}
           </Text>
         </View>
@@ -94,7 +71,7 @@ export default function ActivityItem({
 }
 
 function ActivityItemGap() {
-  return <View style={{height: ACTIVITY_ITEM_GAP}} />;
+  return <View className="h-[20px]" />;
 }
 
 ActivityItem.Gap = ActivityItemGap;

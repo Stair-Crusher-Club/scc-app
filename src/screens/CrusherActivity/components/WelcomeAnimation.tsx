@@ -1,6 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {Animated, View} from 'react-native';
-import styled from 'styled-components/native';
+import {Animated, Image, View} from 'react-native';
 
 export default function WelcomeAnimation() {
   const crusherAnimValue = useRef(new Animated.Value(0)).current;
@@ -47,50 +46,35 @@ export default function WelcomeAnimation() {
   });
 
   return (
-    <View
-      style={{
-        position: 'relative',
-      }}>
-      <WelcomeStarImage />
+    <View className="relative">
+      <Image
+        source={require('@/assets/img/img_crusher_welcome_star.png')}
+        className="h-[184px] w-[190px]"
+      />
       <Animated.View
         style={{
+          position: 'absolute',
+          bottom: -6,
+          left: -6,
           transform: [{translateY: crusherTranslateY}],
         }}>
-        <WelcomeCrusherImage />
+        <Image
+          source={require('@/assets/img/img_crusher_welcome_crusher.png')}
+          style={{width: 102, height: 95}}
+        />
       </Animated.View>
       <Animated.View
         style={{
+          position: 'absolute',
+          bottom: -6,
+          right: -14,
           transform: [{translateY: editorTranslateY}],
         }}>
-        <WelcomeEditorImage />
+        <Image
+          source={require('@/assets/img/img_crusher_welcome_editor.png')}
+          style={{width: 83, height: 107}}
+        />
       </Animated.View>
     </View>
   );
 }
-
-const WelcomeStarImage = styled.Image.attrs({
-  source: require('@/assets/img/img_crusher_welcome_star.png'),
-})({
-  width: 190,
-  height: 184,
-});
-
-const WelcomeCrusherImage = styled.Image.attrs({
-  source: require('@/assets/img/img_crusher_welcome_crusher.png'),
-})({
-  width: 102,
-  height: 95,
-  position: 'absolute',
-  bottom: -6,
-  left: -6,
-});
-
-const WelcomeEditorImage = styled.Image.attrs({
-  source: require('@/assets/img/img_crusher_welcome_editor.png'),
-})({
-  width: 83,
-  height: 107,
-  position: 'absolute',
-  bottom: -6,
-  right: -14,
-});
