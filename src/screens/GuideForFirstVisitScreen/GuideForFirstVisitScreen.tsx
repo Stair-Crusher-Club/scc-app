@@ -1,5 +1,6 @@
 import {useSetAtom} from 'jotai';
 import React from 'react';
+import {Image, Text, View} from 'react-native';
 
 import {useMe} from '@/atoms/Auth';
 import {hasShownGuideForFirstVisitAtom} from '@/atoms/User';
@@ -8,7 +9,6 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import {font} from '@/constant/font';
-import * as S from './GuideForFirstVisitScreen.style';
 
 export default function GuideForFirstVisitScreen({
   navigation,
@@ -25,19 +25,27 @@ export default function GuideForFirstVisitScreen({
 
   return (
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
-      <S.Container>
-        <S.ContentArea>
-          <S.CoverImage
+      <View className="flex-1 bg-white px-[20px] pb-[20px]">
+        <View className="flex-1 items-center pt-[120px]">
+          <Image
+            className="h-[223px] w-[200px] self-center"
             source={require('@/assets/img/img_guide_complete.png')}
           />
-          <S.TextContainer>
-            <S.TitleLine>
-              <S.NicknameText>{userInfo?.nickname}</S.NicknameText>님
-            </S.TitleLine>
-            <S.TitleLine>앞으로 계단뿌셔클럽과</S.TitleLine>
-            <S.TitleLine>더 많은 장소를 찾아봐요!</S.TitleLine>
-          </S.TextContainer>
-        </S.ContentArea>
+          <View className="mt-[32px] items-center gap-[4px]">
+            <Text className="text-center font-pretendard-semibold text-[22px] leading-[30px] tracking-[-0.44px] text-[#16181c]">
+              <Text className="font-pretendard-semibold text-[22px] leading-[30px] tracking-[-0.44px] text-brand-50">
+                {userInfo?.nickname}
+              </Text>
+              님
+            </Text>
+            <Text className="text-center font-pretendard-semibold text-[22px] leading-[30px] tracking-[-0.44px] text-[#16181c]">
+              앞으로 계단뿌셔클럽과
+            </Text>
+            <Text className="text-center font-pretendard-semibold text-[22px] leading-[30px] tracking-[-0.44px] text-[#16181c]">
+              더 많은 장소를 찾아봐요!
+            </Text>
+          </View>
+        </View>
         <SccButton
           text="좋아요!"
           onPress={onTapConfirmButton}
@@ -47,7 +55,7 @@ export default function GuideForFirstVisitScreen({
           elementName="guide_first_visit_confirm"
           style={{borderRadius: 8}}
         />
-      </S.Container>
+      </View>
     </ScreenLayout>
   );
 }
