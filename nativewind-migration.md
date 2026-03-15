@@ -174,7 +174,7 @@ const Title = styled.Text`
 | :---------------------------------- | :-------: | :---: | :------------------------------------------------------------------------------------ |
 | 1. **Login**                        | 테썹 배포 |   1   |                                                                                       |
 | 2. **Signup**                       | 테썹 배포 |   1   | Signup 하위 컴포넌트 마이그레이션 완료. 공용 폼(UserEmailForm 등) 및 입력 필드는 보류 |
-| 3. **Setting**                      |   대기    |   1   |                                                                                       |
+| 3. **Setting**                      | 테썹 배포 |   1   |                                                                                       |
 | 4. **Review**                       | 테썹 배포 |   1   | 공통 컴포넌트(`ActivityReportSummary`, `ActivityHistoryLink`) 마이그레이션 완료       |
 | 5. **Review/History**               | 테썹 배포 |   1   | 공통 컴포넌트(`AchievementsSection`) 마이그레이션 완료                                |
 | 6. **Review/Upvote**                | 테썹 배포 |   1   |                                                                                       |
@@ -186,38 +186,39 @@ const Title = styled.Text`
 | 12. **PastSeasonDetail**            |   대기    |   1   |                                                                                       |
 | 13. **AddComment**                  |   대기    |   1   |                                                                                       |
 | 14. **GuideForFirstVisit**          |   대기    |   1   | FullScreen Modal                                                                      |
-| 15. **FavoritePlaces**              |   대기    |   1   |                                                                                       |
-| 16. **Main**                        |   대기    |   2   |                                                                                       |
-| 17. **Search**                      |   대기    |   2   |                                                                                       |
-| 18. **Camera**                      |   대기    |   2   |                                                                                       |
-| 19. **PlaceFormV2**                 |   대기    |   2   |                                                                                       |
-| 20. **PlaceDetailV2**               |   대기    |   2   |                                                                                       |
-| 21. **ExternalAccessibilityDetail** |   대기    |   2   |                                                                                       |
-| 22. **BuildingFormV2**              |   대기    |   2   |                                                                                       |
-| 23. **ChallengeDetail**             |   대기    |   2   |                                                                                       |
-| 24. **ProfileEditor**               |   대기    |   2   |                                                                                       |
-| 25. **ProfileEditor/Detail**        |   대기    |   2   |                                                                                       |
-| 26. **Conquerer/Monthly**           |   대기    |   2   | Modal                                                                                 |
-| 27. **PlacePhotoGuide**             |   대기    |   2   | FullScreen Modal                                                                      |
-| 28. **Webview**                     |   대기    |   2   | FullScreen Modal                                                                      |
-| 29. **ToiletMap**                   |   대기    |   2   |                                                                                       |
-| 30. **SavedPlaceLists**             |   대기    |   2   |                                                                                       |
-| 31. **PlaceListDetail**             |   대기    |   2   |                                                                                       |
-| 32. **PlaceGroupMap**               |   대기    |   2   |                                                                                       |
-| 33. **SearchUnconqueredPlaces**     |   대기    |   2   |                                                                                       |
-| 34. **ImageZoomViewer**             |   대기    |   2   | FullScreen Modal                                                                      |
-| 35. **RegistrationComplete**        |   대기    |   2   | FullScreen Modal                                                                      |
-| 36. **ReviewForm/Place**            | 테썹 배포 |   2   |                                                                                       |
-| 37. **ReviewForm/Toilet**           | 테썹 배포 |   2   |                                                                                       |
+| 15. **FavoritePlaces**              | 테썹 배포 |   1   |                                                                                       |
+| 16. **Menu**                        | 테썹 배포 |   1   |                                                                                       |
+| 17. **Main**                        |   대기    |   2   |                                                                                       |
+| 18. **Search**                      |   대기    |   2   |                                                                                       |
+| 19. **Camera**                      |   대기    |   2   |                                                                                       |
+| 20. **PlaceFormV2**                 |   대기    |   2   |                                                                                       |
+| 21. **PlaceDetailV2**               |   대기    |   2   |                                                                                       |
+| 22. **ExternalAccessibilityDetail** |   대기    |   2   |                                                                                       |
+| 23. **BuildingFormV2**              |   대기    |   2   |                                                                                       |
+| 24. **ChallengeDetail**             |   대기    |   2   |                                                                                       |
+| 25. **ProfileEditor**               |   대기    |   2   |                                                                                       |
+| 26. **ProfileEditor/Detail**        |   대기    |   2   |                                                                                       |
+| 27. **Conquerer/Monthly**           |   대기    |   2   | Modal                                                                                 |
+| 28. **PlacePhotoGuide**             |   대기    |   2   | FullScreen Modal                                                                      |
+| 29. **Webview**                     |   대기    |   2   | FullScreen Modal                                                                      |
+| 30. **ToiletMap**                   |   대기    |   2   |                                                                                       |
+| 31. **SavedPlaceLists**             |   대기    |   2   |                                                                                       |
+| 32. **PlaceListDetail**             |   대기    |   2   |                                                                                       |
+| 33. **PlaceGroupMap**               |   대기    |   2   |                                                                                       |
+| 34. **SearchUnconqueredPlaces**     |   대기    |   2   |                                                                                       |
+| 35. **ImageZoomViewer**             |   대기    |   2   | FullScreen Modal                                                                      |
+| 36. **RegistrationComplete**        |   대기    |   2   | FullScreen Modal                                                                      |
+| 37. **ReviewForm/Place**            | 테썹 배포 |   2   |                                                                                       |
+| 38. **ReviewForm/Toilet**           | 테썹 배포 |   2   |                                                                                       |
 
 ---
 
 ## 통계
 
-- **총 화면 수**: **37개**
+- **총 화면 수**: **38개**
 - **상태 요약**
-  - 대기: 27개
-  - 진행: 0개
+  - 대기: 25개
+  - 진행: 1개
   - 테썹 배포: 10개
   - QA 완료: 0개
   - 실섭 배포: 0개
