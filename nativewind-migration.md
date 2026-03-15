@@ -181,9 +181,9 @@ const Title = styled.Text`
 | 7. **Conquerer**                    | 테썹 배포 |   1   | 공통 컴포넌트(`ActivityReportSummary`, `ActivityHistoryLink`) 마이그레이션 완료       |
 | 8. **Conquerer/History**            | 테썹 배포 |   1   | 공통 컴포넌트(`AchievementsSection`) 마이그레이션 완료                                |
 | 9. **Conquerer/Upvote**             | 테썹 배포 |   1   |                                                                                       |
-| 10. **UpvoteAnalytics**             |   대기    |   1   |                                                                                       |
-| 11. **CrusherActivity**             |   대기    |   1   |                                                                                       |
-| 12. **PastSeasonDetail**            |   대기    |   1   |                                                                                       |
+| 10. **UpvoteAnalytics**             | 테썹 배포 |   1   |                                                                                       |
+| 11. **CrusherActivity**             | 테썹 배포 |   1   |                                                                                       |
+| 12. **PastSeasonDetail**            | 테썹 배포 |   1   | `CrusherActivitySeasonView` 재사용                                                    |
 | 13. **AddComment**                  |   대기    |   1   |                                                                                       |
 | 14. **GuideForFirstVisit**          |   대기    |   1   | FullScreen Modal                                                                      |
 | 15. **FavoritePlaces**              | 테썹 배포 |   1   |                                                                                       |
@@ -217,10 +217,10 @@ const Title = styled.Text`
 
 - **총 화면 수**: **38개**
 - **상태 요약**
-  - 대기: 25개
-  - 진행: 1개
-  - 테썹 배포: 10개
+  - 대기: 22개
+  - 진행: 0개
+  - 테썹 배포: 16개
   - QA 완료: 0개
   - 실섭 배포: 0개
   - 삭제: 0개
-- **전체 진척도**: **27%** (10/37)
+- **전체 진척도**: **42%** (16/38)
