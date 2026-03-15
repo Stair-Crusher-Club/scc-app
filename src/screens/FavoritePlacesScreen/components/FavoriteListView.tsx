@@ -1,9 +1,9 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import React from 'react';
-import styled from 'styled-components/native';
+import {View} from 'react-native';
 
-import {color} from '@/constant/color';
+import {cn} from '@/utils/cn';
 import useAppComponents from '@/hooks/useAppComponents';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation';
@@ -40,15 +40,18 @@ export default function FavoriteListView() {
       ) : places.length === 0 ? (
         <FavoriteNoResult />
       ) : (
-        <ListContainer>
+        <View className="flex-1">
           <FlashList
-            contentContainerStyle={{
-              backgroundColor: 'white',
-              paddingBottom: 100,
-            }}
+            className="bg-white"
+            contentContainerClassName="bg-white pb-[100px]"
             data={places}
             renderItem={({item, index}) => (
-              <ItemWrapper key={item.place.id} isFirst={index === 0}>
+              <View
+                key={item.place.id}
+                className={cn(
+                  'border-gray-20 p-5',
+                  index === 0 ? 'border-t-0' : 'border-t-[1px]',
+                )}>
                 <SearchItemCard
                   item={item}
                   isHeightFlex
@@ -60,7 +63,7 @@ export default function FavoriteListView() {
                     });
                   }}
                 />
-              </ItemWrapper>
+              </View>
             )}
             estimatedItemSize={220}
             onEndReached={() => {
@@ -70,18 +73,8 @@ export default function FavoriteListView() {
             }}
             onEndReachedThreshold={0.5}
           />
-        </ListContainer>
+        </View>
       )}
     </>
   );
 }
-
-const ListContainer = styled.View`
-  flex: 1;
-`;
-
-const ItemWrapper = styled.View<{isFirst: boolean}>`
-  padding: 20px;
-  border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
-  border-top-color: ${() => color.gray20};
-`;
