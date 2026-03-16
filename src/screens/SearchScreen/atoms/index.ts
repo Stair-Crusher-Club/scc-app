@@ -12,6 +12,7 @@ export type FilterOptions = {
   scoreUnder: ScoreUnder | null;
   hasSlope: boolean | null;
   isRegistered: boolean | null;
+  hasReview: boolean | null;
 };
 
 export enum SortOption {
@@ -36,6 +37,7 @@ export const filterAtom = atom<FilterOptions>({
   scoreUnder: null,
   hasSlope: null,
   isRegistered: null,
+  hasReview: null,
 });
 
 export const viewStateAtom = atom<{

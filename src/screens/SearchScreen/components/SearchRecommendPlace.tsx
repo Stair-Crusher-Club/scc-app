@@ -37,6 +37,7 @@ const recommendPlaces: RecommendPlaces[] = [
     hasSlope: null,
     isRegistered: true,
     scoreUnder: 1,
+    hasReview: null,
   },
   {
     status: 'stair1_cafe',
@@ -46,6 +47,7 @@ const recommendPlaces: RecommendPlaces[] = [
     hasSlope: null,
     isRegistered: true,
     scoreUnder: 1,
+    hasReview: null,
   },
   {
     status: 'ramp_restaurant',
@@ -55,6 +57,7 @@ const recommendPlaces: RecommendPlaces[] = [
     hasSlope: true,
     isRegistered: true,
     scoreUnder: 1,
+    hasReview: null,
   },
   {
     status: 'ramp_cafe',
@@ -64,6 +67,7 @@ const recommendPlaces: RecommendPlaces[] = [
     hasSlope: true,
     isRegistered: true,
     scoreUnder: 1,
+    hasReview: null,
   },
   {
     status: 'unconquered_restaurant',
@@ -73,6 +77,7 @@ const recommendPlaces: RecommendPlaces[] = [
     hasSlope: null,
     isRegistered: false,
     scoreUnder: null,
+    hasReview: null,
   },
   {
     status: 'unconquered_cafe',
@@ -82,6 +87,7 @@ const recommendPlaces: RecommendPlaces[] = [
     hasSlope: null,
     isRegistered: false,
     scoreUnder: null,
+    hasReview: null,
   },
 ];
 
@@ -142,12 +148,14 @@ export default function SearchRecommendPlace({
     hasSlope,
     isRegistered,
     scoreUnder,
+    hasReview,
     keyword,
   }: Omit<FilterOptions, 'sortOption'> & {keyword: string}) {
     setFilter({
       hasSlope,
       isRegistered,
       scoreUnder,
+      hasReview,
       sortOption: SortOption.LOW_SCORE,
     });
     onPressKeyword?.(keyword);
@@ -174,6 +182,7 @@ export default function SearchRecommendPlace({
               hasSlope,
               isRegistered,
               scoreUnder,
+              hasReview,
               status,
             },
             idx,
@@ -188,6 +197,7 @@ export default function SearchRecommendPlace({
                   scoreUnder,
                   hasSlope,
                   isRegistered,
+                  hasReview,
                   keyword,
                 })
               }>

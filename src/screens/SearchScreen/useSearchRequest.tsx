@@ -41,7 +41,7 @@ function generateRequestId(): string {
 
 export default function useSearchRequest() {
   const {api} = useAppComponents();
-  const {sortOption, scoreUnder, hasSlope, isRegistered} =
+  const {sortOption, scoreUnder, hasSlope, isRegistered, hasReview} =
     useAtomValue(filterAtom);
   const {text, location, radiusMeter, useCameraRegion} =
     useAtomValue(searchQueryAtom);
@@ -194,6 +194,7 @@ export default function useSearchRequest() {
             maxAccessibilityScore: scoreUnder ?? undefined,
             hasSlope: hasSlope ?? undefined,
             isRegistered: isRegistered ?? undefined,
+            hasReview: hasReview ?? undefined,
           },
         },
         {signal},
