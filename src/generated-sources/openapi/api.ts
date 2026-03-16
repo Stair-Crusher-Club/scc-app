@@ -1570,7 +1570,8 @@ export const CrusherClubQuestCompleteStampTypeDto = {
     Conquer2: 'CONQUER_2',
     Conquer3: 'CONQUER_3',
     Conquer4: 'CONQUER_4',
-    DailyLifeQuest: 'DAILY_LIFE_QUEST'
+    DailyLifeQuest: 'DAILY_LIFE_QUEST',
+    SavedPlaceList: 'SAVED_PLACE_LIST'
 } as const;
 
 export type CrusherClubQuestCompleteStampTypeDto = typeof CrusherClubQuestCompleteStampTypeDto[keyof typeof CrusherClubQuestCompleteStampTypeDto];
@@ -1621,7 +1622,8 @@ export const CrusherClubQuestTypeDto = {
     ConquerQuest: 'CONQUER_QUEST',
     WarmingUpConquer: 'WARMING_UP_CONQUER',
     Conquer: 'CONQUER',
-    DailyLifeQuest: 'DAILY_LIFE_QUEST'
+    DailyLifeQuest: 'DAILY_LIFE_QUEST',
+    SavedPlaceList: 'SAVED_PLACE_LIST'
 } as const;
 
 export type CrusherClubQuestTypeDto = typeof CrusherClubQuestTypeDto[keyof typeof CrusherClubQuestTypeDto];
