@@ -87,6 +87,10 @@ const crewInfoAssetsBase: Record<CrusherClubCrewTypeDto, Asset> = {
         empty: require('@/assets/img/crusher_history_quest/empty/flag.png'),
         success: require('@/assets/img/crusher_history_quest/2025autumn/success/quest1.png'),
       },
+      SAVED_PLACE_LIST: {
+        empty: require('@/assets/img/crusher_history_quest/empty/savelist.png'),
+        success: require('@/assets/img/crusher_history_quest/empty/savelist.png'), // TODO: 시즌별 success 이미지 추가
+      },
     },
   },
   CONQUER_CREW: {
