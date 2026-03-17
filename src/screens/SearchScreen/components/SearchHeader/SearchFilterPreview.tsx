@@ -21,6 +21,7 @@ if (Platform.OS !== 'web') {
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
+import {useExperimentVariant} from '@/hooks/useExperiment';
 import {
   FilterOptions,
   SortOption,
@@ -29,12 +30,15 @@ import {
 } from '@/screens/SearchScreen/atoms';
 
 export default function SearchFilterPreview() {
-  const {sortOption, scoreUnder, hasSlope, isRegistered} =
+  const {sortOption, scoreUnder, hasSlope, isRegistered, hasReview} =
     useAtomValue(filterAtom);
   const setFilterModalState = useSetAtom(filterModalStateAtom);
   const isScoreUnderActive = scoreUnder !== null;
   const isHasSlopeActive = hasSlope !== null;
   const isIsCompletedActive = isRegistered !== null;
+  const isHasReviewActive = hasReview !== null;
+  const isHasReviewEnabled =
+    useExperimentVariant('HAS_REVIEW_FILTER') !== 'CONTROL';
   const onFilterPress = (option: keyof FilterOptions | 'All') => {
     Keyboard.dismiss();
     setFilterModalState(option);
@@ -114,6 +118,15 @@ export default function SearchFilterPreview() {
             })()}
           </ChipText>
         </Chip>
+        {isHasReviewEnabled && (
+          <Chip
+            isActive={isHasReviewActive}
+            onPress={() => onFilterPress('hasReview')}>
+            <ChipText isActive={isHasReviewActive}>
+              {hasReview === true ? '리뷰 있는 곳' : '리뷰 유무'}
+            </ChipText>
+          </Chip>
+        )}
       </Container>
     </ScrollView>
   );

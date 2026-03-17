@@ -208,6 +208,7 @@ const SearchScreenContent = ({
         hasSlope: null,
         scoreUnder: null,
         isRegistered: null,
+        hasReview: null,
       });
       setFilterModalState(null);
       setViewState({type: 'map', inputMode: true});

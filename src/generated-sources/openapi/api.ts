@@ -5137,6 +5137,12 @@ export interface SearchPlaceFilterDto {
      * @memberof SearchPlaceFilterDto
      */
     'isRegistered'?: boolean;
+    /**
+     * 리뷰가 있는/없는 장소만 반환한다. null이면 필터링하지 않는다.
+     * @type {boolean}
+     * @memberof SearchPlaceFilterDto
+     */
+    'hasReview'?: boolean;
 }
 /**
  * 

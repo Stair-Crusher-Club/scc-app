@@ -8,6 +8,7 @@ import PositionedModal from '@/components/PositionedModal';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {useExperimentVariant} from '@/hooks/useExperiment';
 import BottomSheet from '@/modals/BottomSheet';
 import {
   FilterOptions,
@@ -33,6 +34,11 @@ export default function FilterModal() {
     useState<FilterOptions['scoreUnder']>();
   const [draftIsRegistered, setDraftIsRegistered] =
     useState<FilterOptions['isRegistered']>();
+  const [draftHasReview, setDraftHasReview] =
+    useState<FilterOptions['hasReview']>();
+
+  const isHasReviewEnabled =
+    useExperimentVariant('HAS_REVIEW_FILTER') !== 'CONTROL';
 
   const sortOption =
     draftSortOption === undefined ? savedFilter.sortOption : draftSortOption;
@@ -44,9 +50,11 @@ export default function FilterModal() {
     draftIsRegistered === undefined
       ? savedFilter.isRegistered
       : draftIsRegistered;
+  const hasReview =
+    draftHasReview === undefined ? savedFilter.hasReview : draftHasReview;
 
   const saveFilter = () => {
-    setSavedFilter({sortOption, hasSlope, scoreUnder, isRegistered});
+    setSavedFilter({sortOption, hasSlope, scoreUnder, isRegistered, hasReview});
     setFilterModalState(null);
   };
   const reset = () => {
@@ -54,11 +62,13 @@ export default function FilterModal() {
     setDraftHasSlope(undefined);
     setDraftScoreUnder(undefined);
     setDraftIsRegistered(undefined);
+    setDraftHasReview(undefined);
     const defaults = {
       sortOption: SortOption.LOW_SCORE,
       hasSlope: null,
       scoreUnder: null,
       isRegistered: null,
+      hasReview: null,
     };
     setSavedFilter(defaults);
   };
@@ -186,6 +196,28 @@ export default function FilterModal() {
               ]}
               onPress={option => {
                 setDraftIsRegistered(option);
+              }}
+            />
+          </FilterItem>
+        )}
+        {isHasReviewEnabled && (state === 'All' || state === 'hasReview') && (
+          <FilterItem>
+            <FilterLabel>리뷰 유무</FilterLabel>
+            <ChipSelector
+              items={[
+                {
+                  label: '전체',
+                  option: null,
+                  isSelected: hasReview === null,
+                },
+                {
+                  label: '리뷰 있는 곳만',
+                  option: true,
+                  isSelected: hasReview === true,
+                },
+              ]}
+              onPress={option => {
+                setDraftHasReview(option);
               }}
             />
           </FilterItem>
