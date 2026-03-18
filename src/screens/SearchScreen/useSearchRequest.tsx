@@ -69,6 +69,7 @@ export default function useSearchRequest() {
         scoreUnder,
         hasSlope,
         isRegistered,
+        hasReview,
         useCameraRegion,
         searchMode,
       },
