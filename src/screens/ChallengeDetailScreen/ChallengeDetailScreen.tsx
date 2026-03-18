@@ -41,13 +41,16 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
+  autoJoinInfo?: {
+    passcode?: string;
+  };
 }
 
 const ChallengeDetailScreen = ({
   route,
   navigation,
 }: ScreenProps<'ChallengeDetail'>) => {
-  const {challengeId} = route.params;
+  const {challengeId, autoJoinInfo} = route.params;
   const checkAuth = useCheckAuth();
 
   const {api} = useAppComponents();
@@ -81,6 +84,31 @@ const ChallengeDetailScreen = ({
   useEffect(() => {
     navigation.setOptions({headerTitle: challenge?.name ?? '계단뿌셔 챌린지'});
   }, [challenge]);
+
+  // 딥링크 autoJoinInfo → 자동 참여 처리
+  const autoJoinHandled = useRef(false);
+  useEffect(() => {
+    if (!autoJoinInfo || autoJoinHandled.current) {
+      return;
+    }
+    if (hasJoined === undefined || !data) {
+      return; // 아직 데이터 로딩 중
+    }
+    if (hasJoined) {
+      return; // 이미 참여한 챌린지
+    }
+    autoJoinHandled.current = true;
+
+    if (isB2B) {
+      setPasscode(autoJoinInfo.passcode);
+      setShowCompanyModal(true);
+    } else {
+      joinChallenge.mutate({
+        challengeId,
+        passcode: autoJoinInfo.passcode,
+      });
+    }
+  }, [autoJoinInfo, hasJoined, data, isB2B, challengeId]);
 
   useEffect(() => {
     // ChallengeWelcomeModal이 표시되어야 하면 LastMonthRankingModal은 표시하지 않음

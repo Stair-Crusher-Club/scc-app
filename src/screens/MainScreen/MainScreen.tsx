@@ -4,6 +4,10 @@ import React, {useEffect} from 'react';
 
 import {accessTokenAtom} from '@/atoms/Auth';
 import {color} from '@/constant/color';
+import {
+  getDeferredDeepLink,
+  setDeferredDeepLink,
+} from '@/deeplink/DeferredDeepLink';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ToastUtils from '@/utils/ToastUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -43,6 +47,16 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
     };
     checkIfLoggedIn();
   }, [accessToken, navigation]);
+
+  // Deferred deep link 소비: Main 마운트 시 pending intent가 있으면 해당 화면으로 navigate
+  useEffect(() => {
+    const intent = getDeferredDeepLink();
+    if (!intent) {
+      return;
+    }
+    setDeferredDeepLink(null);
+    navigation.navigate(intent.screen as any, intent.params as any);
+  }, [navigation]);
 
   return (
     <Tab.Navigator

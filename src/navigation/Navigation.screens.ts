@@ -311,6 +311,7 @@ export type ScreenParams = {
   // 챌린지 탭
   Challenge: undefined;
   ChallengeDetail: ChallengeDetailScreenParams;
+  // Note: challenge-join deep link is handled by resolveDeepLink → ChallengeDetail with autoJoinInfo
 
   // 메뉴 탭
   Menu: undefined;

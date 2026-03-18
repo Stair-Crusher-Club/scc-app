@@ -11,6 +11,8 @@ import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
 
 import DevTool from '@/components/DevTool/DevTool';
+import {setDeferredDeepLink} from '@/deeplink/DeferredDeepLink';
+import {resolveDeepLink} from '@/deeplink/resolveDeepLink';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
@@ -76,6 +78,8 @@ const RootScreen = () => {
           // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
           getInitialURL: async () => {
             // Airbridge 디퍼드 딥링크 확인 (production만)
+            let resolvedUrl: string | null = null;
+
             if (Config.FLAVOR === 'production') {
               const airbridgeUrl = await new Promise<string | null>(resolve => {
                 const timeout = setTimeout(() => resolve(null), 3000);
@@ -86,15 +90,28 @@ const RootScreen = () => {
               });
               if (airbridgeUrl) {
                 logDebug('Airbridge deferred deeplink received', airbridgeUrl);
-                return airbridgeUrl;
+                resolvedUrl = airbridgeUrl;
               }
             }
 
             // 일반 딥링크 처리
-            const url = await Linking.getInitialURL();
-            if (url) {
-              logDebug('Normal deeplink click during app quit state', url);
-              return url;
+            if (!resolvedUrl) {
+              const url = await Linking.getInitialURL();
+              if (url) {
+                logDebug('Normal deeplink click during app quit state', url);
+                resolvedUrl = url;
+              }
+            }
+
+            // Deferred deep link 인터셉트
+            if (resolvedUrl) {
+              const intent = resolveDeepLink(resolvedUrl);
+              if (intent) {
+                logDebug('Deferred deep link intercepted', resolvedUrl);
+                setDeferredDeepLink(intent);
+                return null; // React Navigation에 전달하지 않음 — MainScreen에서 소비
+              }
+              return resolvedUrl;
             }
 
             // 푸시 알림 처리
@@ -125,6 +142,16 @@ const RootScreen = () => {
                   'Normal deeplink click during app background state',
                   url,
                 );
+                // Deferred deep link 인터셉트 — background 상태에서는 이미 로그인된 상태이므로 직접 navigate
+                const intent = resolveDeepLink(url);
+                if (intent) {
+                  logDebug('Deferred deep link intercepted (background)', url);
+                  (navigationRef.current?.navigate as any)(
+                    intent.screen,
+                    intent.params,
+                  );
+                  return;
+                }
                 listener(url);
               },
             );
