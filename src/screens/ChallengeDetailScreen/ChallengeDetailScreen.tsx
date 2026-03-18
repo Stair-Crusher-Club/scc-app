@@ -41,19 +41,24 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
+  /** 딥링크 query param autoJoin=true → 자동 참여 */
+  autoJoin?: string;
+  /** 딥링크 query param passcode=XXX → 자동 참여 시 passcode */
+  passcode?: string;
 }
 
 const ChallengeDetailScreen = ({
   route,
   navigation,
 }: ScreenProps<'ChallengeDetail'>) => {
-  const {challengeId} = route.params;
+  const {challengeId, autoJoin, passcode: initialPasscode} = route.params;
+  const shouldAutoJoin = autoJoin === 'true';
   const checkAuth = useCheckAuth();
 
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
-  const [passcode, setPasscode] = useState<string>();
+  const [passcode, setPasscode] = useState<string | undefined>(initialPasscode);
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
   const [showLastMonthRankingModal, setShowLastMonthRankingModal] =
     useState(false);
@@ -81,6 +86,39 @@ const ChallengeDetailScreen = ({
   useEffect(() => {
     navigation.setOptions({headerTitle: challenge?.name ?? '계단뿌셔 챌린지'});
   }, [challenge]);
+
+  // 딥링크 autoJoin=true → 자동 참여 처리
+  const autoJoinHandled = useRef(false);
+  useEffect(() => {
+    if (!shouldAutoJoin || autoJoinHandled.current) {
+      return;
+    }
+    if (hasJoined === undefined || !data) {
+      return; // 아직 데이터 로딩 중
+    }
+    if (hasJoined) {
+      return; // 이미 참여한 챌린지
+    }
+    checkAuth(() => {
+      autoJoinHandled.current = true;
+      if (isB2B) {
+        setShowCompanyModal(true);
+        return;
+      }
+      joinChallenge.mutate({
+        challengeId,
+        passcode: initialPasscode,
+      });
+    });
+  }, [
+    shouldAutoJoin,
+    hasJoined,
+    data,
+    isB2B,
+    challengeId,
+    checkAuth,
+    initialPasscode,
+  ]);
 
   useEffect(() => {
     // ChallengeWelcomeModal이 표시되어야 하면 LastMonthRankingModal은 표시하지 않음

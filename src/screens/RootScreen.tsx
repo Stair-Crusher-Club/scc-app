@@ -10,12 +10,19 @@ import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
 
+import {getStorageValue} from '@/atoms/atomForLocal';
 import DevTool from '@/components/DevTool/DevTool';
+import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
+import {
+  DEEP_LINK_PREFIXES,
+  linkingScreensConfig,
+} from '@/navigation/linkingConfig';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {logDebug} from '@/utils/DebugUtils';
+import {isAuthDeferred} from '@/utils/deepLinkUtils';
 
 // 전체 화면 공용 로깅 규칙 정의
 const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
@@ -68,14 +75,12 @@ const RootScreen = () => {
           routeNameRef.current = currentScreenName;
         }}
         linking={{
-          prefixes: [
-            'stair-crusher://',
-            'https://scc.airbridge.io/',
-            'https://app.staircrusher.club/',
-          ],
+          prefixes: DEEP_LINK_PREFIXES,
           // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
           getInitialURL: async () => {
             // Airbridge 디퍼드 딥링크 확인 (production만)
+            let resolvedUrl: string | null = null;
+
             if (Config.FLAVOR === 'production') {
               const airbridgeUrl = await new Promise<string | null>(resolve => {
                 const timeout = setTimeout(() => resolve(null), 3000);
@@ -86,15 +91,28 @@ const RootScreen = () => {
               });
               if (airbridgeUrl) {
                 logDebug('Airbridge deferred deeplink received', airbridgeUrl);
-                return airbridgeUrl;
+                resolvedUrl = airbridgeUrl;
               }
             }
 
             // 일반 딥링크 처리
-            const url = await Linking.getInitialURL();
-            if (url) {
-              logDebug('Normal deeplink click during app quit state', url);
-              return url;
+            if (!resolvedUrl) {
+              const url = await Linking.getInitialURL();
+              if (url) {
+                logDebug('Normal deeplink click during app quit state', url);
+                resolvedUrl = url;
+              }
+            }
+
+            // authDeferred=true → URL 저장 후 null 반환 (Main 마운트 후 소비)
+            if (resolvedUrl && isAuthDeferred(resolvedUrl)) {
+              logDebug('Auth-deferred deep link intercepted', resolvedUrl);
+              setDeferredDeepLinkUrl(resolvedUrl);
+              return null;
+            }
+
+            if (resolvedUrl) {
+              return resolvedUrl;
             }
 
             // 푸시 알림 처리
@@ -125,6 +143,17 @@ const RootScreen = () => {
                   'Normal deeplink click during app background state',
                   url,
                 );
+                // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
+                if (
+                  isAuthDeferred(url) &&
+                  !getStorageValue<string>('scc-token')
+                ) {
+                  logDebug('Auth-deferred deep link (background)', url);
+                  setDeferredDeepLinkUrl(url);
+                  (navigationRef.current?.navigate as any)('Login');
+                  return;
+                }
+                // 로그인 상태이거나 authDeferred 아님 → React Navigation에 위임
                 listener(url);
               },
             );
@@ -167,58 +196,7 @@ const RootScreen = () => {
               pushSubscription();
             };
           },
-          config: {
-            initialRouteName: 'Main' as any, // for preventing type error
-            screens: {
-              ProfileEditor: 'profile',
-              Setting: 'setting',
-              PlaceDetailV2: {
-                path: 'place/:placeInfo',
-                parse: {
-                  placeInfo: (placeId: string) => {
-                    return {placeId};
-                  },
-                },
-                stringify: {
-                  placeInfo: (placeInfo: {placeId: string}) => {
-                    return placeInfo.placeId;
-                  },
-                },
-              },
-              ChallengeDetail: {
-                path: 'challenge/:challengeId',
-              },
-              Webview: {
-                path: 'webview',
-              },
-              Search: {
-                path: 'search',
-                parse: {
-                  searchQuery: (searchQuery?: string) => {
-                    return searchQuery || undefined;
-                  },
-                },
-              },
-              PlaceGroupMap: {
-                path: 'place-group/:placeListId',
-              },
-              CrusherActivity: {
-                path: 'crusher-activity',
-              },
-              'Review/Upvote': {
-                path: 'review/upvote',
-              },
-              'Conquerer/Upvote': {
-                path: 'conquerer/upvote',
-              },
-              SearchUnconqueredPlaces: {
-                path: 'search-unconquered-places',
-              },
-              PlaceListDetail: {
-                path: 'place-list/:placeListId',
-              },
-            },
-          },
+          config: linkingScreensConfig,
         }}
         onStateChange={async state => {
           const previousScreenName = routeNameRef.current;
