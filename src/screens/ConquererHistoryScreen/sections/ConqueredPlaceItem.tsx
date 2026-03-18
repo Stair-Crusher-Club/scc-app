@@ -20,7 +20,9 @@ export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
           placeInfo: {placeId: p.place.id},
         })
       }>
-      <Text className="text-[16px] font-pretendard-semibold text-black mb-1">{p.place.name}</Text>
+      <Text className="text-[16px] font-pretendard-semibold text-black mb-1">
+        {p.place.name}
+      </Text>
       <Text className="text-[14px] text-gray-50 mb-1">{p.place.address}</Text>
       <Text className="text-[12px] text-gray-50">
         {dayjs(p.accessibilityInfo?.createdAt?.value).format('YYYY.MM.DD')}

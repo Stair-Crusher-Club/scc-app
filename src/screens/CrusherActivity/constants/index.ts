@@ -89,7 +89,7 @@ const crewInfoAssetsBase: Record<CrusherClubCrewTypeDto, Asset> = {
       },
       SAVED_PLACE_LIST: {
         empty: require('@/assets/img/crusher_history_quest/empty/savelist.png'),
-        success: require('@/assets/img/crusher_history_quest/empty/savelist.png'), // TODO: 시즌별 success 이미지 추가
+        success: require('@/assets/img/crusher_history_quest/empty/savelist.png'),
       },
     },
   },
@@ -139,6 +139,23 @@ const seasonSuccessOverrides: Record<
 > = {
   '2026spring': {
     STARTING_DAY: require('@/assets/img/crusher_history_quest/2026spring/success/starting.png'),
+    SHORT_REVIEW_1: require('@/assets/img/crusher_history_quest/2026spring/success/short_review1.png'),
+    SHORT_REVIEW_2: require('@/assets/img/crusher_history_quest/2026spring/success/short_review2.png'),
+    SHORT_REVIEW_3: require('@/assets/img/crusher_history_quest/2026spring/success/short_review3.png'),
+    SHORT_REVIEW_4: require('@/assets/img/crusher_history_quest/2026spring/success/short_review4.png'),
+    SHORT_REVIEW_5: require('@/assets/img/crusher_history_quest/2026spring/success/short_review5.png'),
+    SHORT_REVIEW_6: require('@/assets/img/crusher_history_quest/2026spring/success/short_review6.png'),
+    SHORT_REVIEW_7: require('@/assets/img/crusher_history_quest/2026spring/success/short_review7.png'),
+    SHORT_REVIEW_8: require('@/assets/img/crusher_history_quest/2026spring/success/short_review8.png'),
+    LONG_REVIEW_1: require('@/assets/img/crusher_history_quest/2026spring/success/long_review1.png'),
+    LONG_REVIEW_2: require('@/assets/img/crusher_history_quest/2026spring/success/long_review2.png'),
+    WARMING_UP_CONQUER: require('@/assets/img/crusher_history_quest/2026spring/success/warming_up_conquer.png'),
+    CONQUER_1: require('@/assets/img/crusher_history_quest/2026spring/success/conquer1.png'),
+    CONQUER_2: require('@/assets/img/crusher_history_quest/2026spring/success/conquer2.png'),
+    CONQUER_3: require('@/assets/img/crusher_history_quest/2026spring/success/conquer3.png'),
+    CONQUER_4: require('@/assets/img/crusher_history_quest/2026spring/success/conquer4.png'),
+    DAILY_LIFE_QUEST: require('@/assets/img/crusher_history_quest/2026spring/success/daily_life_quest.png'),
+    SAVED_PLACE_LIST: require('@/assets/img/crusher_history_quest/2026spring/success/saved_place_list.png'),
   },
 };
 
