@@ -1,8 +1,7 @@
-import {color} from '@/constant/color';
 import {EpochMillisTimestamp} from '@/generated-sources/openapi';
+import {cn} from '@/utils/cn';
 import React from 'react';
 import {Text, View} from 'react-native';
-import {cn} from '@/utils/cn';
 import {formatDateKorean} from '../utils/date';
 
 interface ActivityItemProps {

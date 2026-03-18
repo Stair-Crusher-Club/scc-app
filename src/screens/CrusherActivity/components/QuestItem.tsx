@@ -1,5 +1,3 @@
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {EpochMillisTimestamp} from '@/generated-sources/openapi';
 import React from 'react';
 import {Image, ImageSourcePropType, Text, View} from 'react-native';
@@ -35,10 +33,7 @@ export default function QuestItem({
               }
             : undefined
         }>
-        <Image
-          source={source}
-          className="h-[84px] w-[84px]"
-        />
+        <Image source={source} className="h-[84px] w-[84px]" />
       </View>
 
       <View className="items-center gap-[2px]">

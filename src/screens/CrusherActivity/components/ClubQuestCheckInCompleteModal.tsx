@@ -1,6 +1,5 @@
 import {SccButton} from '@/components/atoms';
 import {SccTouchableWithoutFeedback} from '@/components/SccTouchableWithoutFeedback';
-import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import Logger from '@/logging/Logger';
 import LottieView from 'lottie-react-native';
