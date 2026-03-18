@@ -1,17 +1,9 @@
-import type {ScreenParams} from '@/navigation/Navigation.screens';
+let deferredUrl: string | null = null;
 
-export interface DeepLinkIntent {
-  requiresAuth: boolean;
-  screen: keyof ScreenParams;
-  params: ScreenParams[keyof ScreenParams];
+export function getDeferredDeepLinkUrl(): string | null {
+  return deferredUrl;
 }
 
-let deferredIntent: DeepLinkIntent | null = null;
-
-export function getDeferredDeepLink(): DeepLinkIntent | null {
-  return deferredIntent;
-}
-
-export function setDeferredDeepLink(intent: DeepLinkIntent | null) {
-  deferredIntent = intent;
+export function setDeferredDeepLinkUrl(url: string | null) {
+  deferredUrl = url;
 }

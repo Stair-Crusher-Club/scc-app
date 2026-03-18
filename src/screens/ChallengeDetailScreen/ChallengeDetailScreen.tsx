@@ -41,22 +41,24 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
-  autoJoinInfo?: {
-    passcode?: string;
-  };
+  /** 딥링크 query param autoJoin=true → 자동 참여 */
+  autoJoin?: string;
+  /** 딥링크 query param passcode=XXX → 자동 참여 시 passcode */
+  passcode?: string;
 }
 
 const ChallengeDetailScreen = ({
   route,
   navigation,
 }: ScreenProps<'ChallengeDetail'>) => {
-  const {challengeId, autoJoinInfo} = route.params;
+  const {challengeId, autoJoin, passcode: initialPasscode} = route.params;
+  const shouldAutoJoin = autoJoin === 'true';
   const checkAuth = useCheckAuth();
 
   const {api} = useAppComponents();
   const [showPasscodeBottomSheet, setShowPasscodeBottomSheet] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
-  const [passcode, setPasscode] = useState<string>();
+  const [passcode, setPasscode] = useState<string | undefined>(initialPasscode);
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
   const [showLastMonthRankingModal, setShowLastMonthRankingModal] =
     useState(false);
@@ -85,10 +87,10 @@ const ChallengeDetailScreen = ({
     navigation.setOptions({headerTitle: challenge?.name ?? '계단뿌셔 챌린지'});
   }, [challenge]);
 
-  // 딥링크 autoJoinInfo → 자동 참여 처리
+  // 딥링크 autoJoin=true → 자동 참여 처리
   const autoJoinHandled = useRef(false);
   useEffect(() => {
-    if (!autoJoinInfo || autoJoinHandled.current) {
+    if (!shouldAutoJoin || autoJoinHandled.current) {
       return;
     }
     if (hasJoined === undefined || !data) {
@@ -97,18 +99,26 @@ const ChallengeDetailScreen = ({
     if (hasJoined) {
       return; // 이미 참여한 챌린지
     }
-    autoJoinHandled.current = true;
-
-    if (isB2B) {
-      setPasscode(autoJoinInfo.passcode);
-      setShowCompanyModal(true);
-    } else {
+    checkAuth(() => {
+      autoJoinHandled.current = true;
+      if (isB2B) {
+        setShowCompanyModal(true);
+        return;
+      }
       joinChallenge.mutate({
         challengeId,
-        passcode: autoJoinInfo.passcode,
+        passcode: initialPasscode,
       });
-    }
-  }, [autoJoinInfo, hasJoined, data, isB2B, challengeId]);
+    });
+  }, [
+    shouldAutoJoin,
+    hasJoined,
+    data,
+    isB2B,
+    challengeId,
+    checkAuth,
+    initialPasscode,
+  ]);
 
   useEffect(() => {
     // ChallengeWelcomeModal이 표시되어야 하면 LastMonthRankingModal은 표시하지 않음

@@ -10,14 +10,19 @@ import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
 
+import {getStorageValue} from '@/atoms/atomForLocal';
 import DevTool from '@/components/DevTool/DevTool';
-import {setDeferredDeepLink} from '@/deeplink/DeferredDeepLink';
-import {resolveDeepLink} from '@/deeplink/resolveDeepLink';
+import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
+import {
+  DEEP_LINK_PREFIXES,
+  linkingScreensConfig,
+} from '@/navigation/linkingConfig';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {logDebug} from '@/utils/DebugUtils';
+import {isAuthDeferred} from '@/utils/deepLinkUtils';
 
 // 전체 화면 공용 로깅 규칙 정의
 const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
@@ -70,11 +75,7 @@ const RootScreen = () => {
           routeNameRef.current = currentScreenName;
         }}
         linking={{
-          prefixes: [
-            'stair-crusher://',
-            'https://scc.airbridge.io/',
-            'https://app.staircrusher.club/',
-          ],
+          prefixes: DEEP_LINK_PREFIXES,
           // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
           getInitialURL: async () => {
             // Airbridge 디퍼드 딥링크 확인 (production만)
@@ -103,14 +104,14 @@ const RootScreen = () => {
               }
             }
 
-            // Deferred deep link 인터셉트
+            // authDeferred=true → URL 저장 후 null 반환 (Main 마운트 후 소비)
+            if (resolvedUrl && isAuthDeferred(resolvedUrl)) {
+              logDebug('Auth-deferred deep link intercepted', resolvedUrl);
+              setDeferredDeepLinkUrl(resolvedUrl);
+              return null;
+            }
+
             if (resolvedUrl) {
-              const intent = resolveDeepLink(resolvedUrl);
-              if (intent) {
-                logDebug('Deferred deep link intercepted', resolvedUrl);
-                setDeferredDeepLink(intent);
-                return null; // React Navigation에 전달하지 않음 — MainScreen에서 소비
-              }
               return resolvedUrl;
             }
 
@@ -142,16 +143,17 @@ const RootScreen = () => {
                   'Normal deeplink click during app background state',
                   url,
                 );
-                // Deferred deep link 인터셉트 — background 상태에서는 이미 로그인된 상태이므로 직접 navigate
-                const intent = resolveDeepLink(url);
-                if (intent) {
-                  logDebug('Deferred deep link intercepted (background)', url);
-                  (navigationRef.current?.navigate as any)(
-                    intent.screen,
-                    intent.params,
-                  );
+                // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
+                if (
+                  isAuthDeferred(url) &&
+                  !getStorageValue<string>('accessToken')
+                ) {
+                  logDebug('Auth-deferred deep link (background)', url);
+                  setDeferredDeepLinkUrl(url);
+                  (navigationRef.current?.navigate as any)('Login');
                   return;
                 }
+                // 로그인 상태이거나 authDeferred 아님 → React Navigation에 위임
                 listener(url);
               },
             );
@@ -160,11 +162,6 @@ const RootScreen = () => {
             const pushSubscription = getMessaging().onNotificationOpenedApp(
               async remoteMessage => {
                 // https://github.com/invertase/react-native-firebase/issues/7749#issuecomment-2075084174
-                // 1. background 상태 -> 2. 앱 푸시 A 클릭해서 오픈 -> 3. quit 상태 -> 4. 앱 푸시 B 클릭해서 오픈
-                // 위와 같은 시나리오를 겪을 때, 4번의 getInitialNotification()에서 앱 푸시 A의 remoteMessage를 수신하는 문제가 있다.
-                // 링크된 github issue를 보면 2번 타이밍 때 getInitialNotification() 쪽에 앱 푸시 A에 대한 데이터가 로컬에 저장되는데,
-                // onNotificationOpenedApp() 호출로는 이 데이터가 초기화되지 않아서 4번 타이밍에 앱 푸시 A의 remoteMessage가 쓰이는 것으로 보인다.
-                // 임시 방편으로 2번 타이밍 때 getInitialNotification()를 호출해줘서 강제로 로컬에 저장된 remoteMessage를 초기화해준다.
                 getMessaging().getInitialNotification();
 
                 logDebug('onNotificationOpenedApp', remoteMessage);
@@ -194,58 +191,7 @@ const RootScreen = () => {
               pushSubscription();
             };
           },
-          config: {
-            initialRouteName: 'Main' as any, // for preventing type error
-            screens: {
-              ProfileEditor: 'profile',
-              Setting: 'setting',
-              PlaceDetailV2: {
-                path: 'place/:placeInfo',
-                parse: {
-                  placeInfo: (placeId: string) => {
-                    return {placeId};
-                  },
-                },
-                stringify: {
-                  placeInfo: (placeInfo: {placeId: string}) => {
-                    return placeInfo.placeId;
-                  },
-                },
-              },
-              ChallengeDetail: {
-                path: 'challenge/:challengeId',
-              },
-              Webview: {
-                path: 'webview',
-              },
-              Search: {
-                path: 'search',
-                parse: {
-                  searchQuery: (searchQuery?: string) => {
-                    return searchQuery || undefined;
-                  },
-                },
-              },
-              PlaceGroupMap: {
-                path: 'place-group/:placeListId',
-              },
-              CrusherActivity: {
-                path: 'crusher-activity',
-              },
-              'Review/Upvote': {
-                path: 'review/upvote',
-              },
-              'Conquerer/Upvote': {
-                path: 'conquerer/upvote',
-              },
-              SearchUnconqueredPlaces: {
-                path: 'search-unconquered-places',
-              },
-              PlaceListDetail: {
-                path: 'place-list/:placeListId',
-              },
-            },
-          },
+          config: linkingScreensConfig,
         }}
         onStateChange={async state => {
           const previousScreenName = routeNameRef.current;

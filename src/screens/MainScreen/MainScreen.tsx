@@ -1,15 +1,18 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {getActionFromState, getStateFromPath} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import React, {useEffect} from 'react';
 
 import {accessTokenAtom} from '@/atoms/Auth';
 import {color} from '@/constant/color';
 import {
-  getDeferredDeepLink,
-  setDeferredDeepLink,
+  getDeferredDeepLinkUrl,
+  setDeferredDeepLinkUrl,
 } from '@/deeplink/DeferredDeepLink';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {linkingScreensConfig} from '@/navigation/linkingConfig';
 import ToastUtils from '@/utils/ToastUtils';
+import {stripPrefix} from '@/utils/deepLinkUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 import ChallengeIcon from '../../assets/icon/ic_challenge.svg';
@@ -48,15 +51,29 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
     checkIfLoggedIn();
   }, [accessToken, navigation]);
 
-  // Deferred deep link 소비: Main 마운트 시 pending intent가 있으면 해당 화면으로 navigate
+  // Deferred deep link 소비: 로그인 완료 후 저장된 URL을 파싱해서 navigate
   useEffect(() => {
-    const intent = getDeferredDeepLink();
-    if (!intent) {
+    if (!accessToken) {
       return;
     }
-    setDeferredDeepLink(null);
-    navigation.navigate(intent.screen as any, intent.params as any);
-  }, [navigation]);
+    const url = getDeferredDeepLinkUrl();
+    if (!url) {
+      return;
+    }
+    setDeferredDeepLinkUrl(null);
+    const path = stripPrefix(url);
+    if (!path) {
+      return;
+    }
+    const state = getStateFromPath(path, linkingScreensConfig);
+    if (!state) {
+      return;
+    }
+    const action = getActionFromState(state, linkingScreensConfig);
+    if (action) {
+      navigation.dispatch(action);
+    }
+  }, [accessToken, navigation]);
 
   return (
     <Tab.Navigator
