@@ -1,23 +1,16 @@
 import {useQueryClient} from '@tanstack/react-query';
 import React, {useState} from 'react';
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import {Platform, ScrollView, Text, TextInput, View} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {AccessibilityTypes} from '@/models/AccessibilityTypes';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {cn} from '@/utils/cn';
 import ToastUtils from '@/utils/ToastUtils';
 
 export interface AddCommentScreenParams {
@@ -72,21 +65,27 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
 
   return (
     <LogParamsProvider params={logParams}>
-      <ScreenLayout
-        isHeaderVisible={true}
-        safeAreaEdges={['bottom']}
-        style={styles.container}>
-        <ScrollView>
-          <View style={styles.contentContainer}>
-            <Text style={styles.title}>의견추가</Text>
-            <Text style={styles.description}>
-              더 도움이 될 정보가 있다면 남겨주세요!
-              <Text style={styles.optionalText}>(선택)</Text>
+      <ScreenLayout isHeaderVisible={true} safeAreaEdges={['bottom']}>
+        <ScrollView
+          className="bg-white"
+          contentContainerClassName="px-[20px] pb-[20px]">
+          <View>
+            <Text className="mt-[18px] mb-[20px] font-pretendard-bold text-[24px] leading-[32px] text-black">
+              의견추가
             </Text>
-            <View style={styles.commentContainer}>
+            <Text className="font-pretendard-regular text-[16px] leading-[24px] text-black">
+              더 도움이 될 정보가 있다면 남겨주세요!
+              <Text className="font-pretendard-regular text-[16px] leading-[24px] text-gray-70">
+                (선택)
+              </Text>
+            </Text>
+            <View className="mt-[20px] rounded-[20px] border-[1px] border-brand-50 px-[25px] py-[20px]">
               <TextInput
                 multiline
-                style={styles.commentInput}
+                className={cn(
+                  'p-0 font-pretendard-regular text-[16px] leading-[24px] text-black',
+                  Platform.OS === 'android' && 'min-h-[50px]',
+                )}
                 value={comment}
                 maxLength={100}
                 placeholder={
@@ -96,13 +95,13 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
                 onChangeText={text => setComment(text)}
               />
             </View>
-            <Text style={styles.commentCharactersCount}>
+            <Text className="mt-[10px] mr-[4px] text-right font-pretendard-regular text-[14px] leading-[20px] text-gray-70">
               {comment.length} / 100
             </Text>
           </View>
         </ScrollView>
         <SccButton
-          style={styles.registerButton}
+          style={{marginHorizontal: 20, marginBottom: 20}}
           text="등록하기"
           onPress={() => {
             registerComment.mutate({type, comment, id});
@@ -115,54 +114,3 @@ const AddCommentScreen = ({navigation, route}: ScreenProps<'AddComment'>) => {
 };
 
 export default AddCommentScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: color.white,
-  },
-  contentContainer: {
-    paddingHorizontal: 20,
-  },
-  title: {
-    marginTop: 18,
-    marginBottom: 20,
-    color: color.black,
-    fontFamily: font.pretendardBold,
-    fontSize: 24,
-  },
-  description: {
-    fontSize: 16,
-    fontFamily: font.pretendardRegular,
-    color: color.black,
-  },
-  optionalText: {
-    fontSize: 16,
-    fontFamily: font.pretendardRegular,
-    color: color.gray70,
-  },
-  commentContainer: {
-    borderColor: color.brandColor,
-    borderWidth: 1,
-    borderRadius: 20,
-    marginTop: 20,
-    paddingHorizontal: 25,
-    paddingVertical: 20,
-  },
-  commentInput: {
-    color: 'black',
-    fontSize: 16,
-    fontFamily: font.pretendardRegular,
-    paddingVertical: 0,
-    minHeight: Platform.OS === 'android' ? 50 : undefined,
-  },
-  commentCharactersCount: {
-    marginTop: 10,
-    marginRight: 4,
-    textAlign: 'right',
-    color: color.gray70,
-  },
-  registerButton: {
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-});

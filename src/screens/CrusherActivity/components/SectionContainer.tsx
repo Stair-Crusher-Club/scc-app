@@ -1,4 +1,3 @@
-import {font} from '@/constant/font';
 import React, {PropsWithChildren} from 'react';
 import {Text, View} from 'react-native';
 
@@ -13,19 +12,9 @@ export default function SectionContainer({
   children,
 }: SectionLayoutProps) {
   return (
-    <View style={{gap: 12}}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-        }}>
-        <Text
-          style={{
-            fontSize: 18,
-            fontFamily: font.pretendardBold,
-            lineHeight: 26,
-          }}>
+    <View className="gap-3">
+      <View className="flex-row items-center gap-2">
+        <Text className="font-pretendard-bold text-[18px] leading-[26px] text-black">
           {title}
         </Text>
         {rightComponent}

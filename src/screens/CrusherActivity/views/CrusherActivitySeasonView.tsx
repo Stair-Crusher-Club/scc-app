@@ -1,6 +1,4 @@
 import {useMe} from '@/atoms/Auth';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useQuery} from '@tanstack/react-query';
 import React, {useMemo, useState} from 'react';
@@ -71,57 +69,30 @@ export default function CrusherActivitySeasonView({
 
   return (
     <ScrollView
-      contentContainerStyle={{
-        paddingHorizontal: 20,
-        paddingTop: 30,
-        paddingBottom: insets.bottom + 60,
-        gap: 28,
-      }}>
+      contentContainerClassName="gap-7 px-5 pt-[30px]"
+      contentContainerStyle={{paddingBottom: insets.bottom + 60}}>
       <SectionContainer
         title={
           titleFromProps ??
           crusherActivity?.crusherClub.season ??
           "'25 가을 시즌"
         }>
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: '#F2F2F5',
-            padding: 12,
-            borderRadius: 12,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-          <View style={{gap: 2}}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: font.pretendardBold,
-                color: color.brand50,
-                lineHeight: 16,
-              }}>
+        <View className="flex-row items-center justify-between rounded-[12px] border-[1px] border-gray-15 px-3 py-4">
+          <View className="gap-[2px]">
+            <Text className="font-pretendard-bold text-[12px] leading-[16px] text-brand-50">
               {crewAssets
                 ? `${crewAssets.label}크루`
                 : '참여 크러셔 클럽 없음 : 대응 필요'}
             </Text>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: font.pretendardMedium,
-                color: color.gray90,
-                lineHeight: 26,
-              }}>
+            <Text className="font-pretendard-medium text-[18px] leading-[26px] text-gray-90">
               {userInfo?.nickname}
             </Text>
           </View>
 
           <Image
             source={crewAssets?.source}
-            style={{
-              width: 66,
-              height: 48,
-            }}
+            className="h-12 w-[66px]"
+            resizeMode="contain"
           />
         </View>
       </SectionContainer>
@@ -129,56 +100,22 @@ export default function CrusherActivitySeasonView({
       <SectionContainer
         title="나의 퀘스트"
         rightComponent={
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-              borderRadius: 100,
-              backgroundColor: color.gray10,
-              paddingVertical: 2,
-              paddingHorizontal: 8,
-            }}>
-            <Text
-              style={{
-                fontSize: 16,
-                lineHeight: 24,
-                fontFamily: font.pretendardMedium,
-                color: color.brand50,
-              }}>
+          <View className="flex-row items-center gap-[2px] rounded-[100px] bg-gray-10 px-2 py-[2px]">
+            <Text className="font-pretendard-medium text-[16px] leading-[24px] text-brand-50">
               {originQuests?.filter(q => q.completedAt).length}
             </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                lineHeight: 24,
-                fontFamily: font.pretendardMedium,
-                color: color.gray50,
-              }}>
+            <Text className="font-pretendard-medium text-[16px] leading-[24px] text-gray-50">
               /
             </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                lineHeight: 24,
-                fontFamily: font.pretendardMedium,
-                color: color.gray50,
-              }}>
+            <Text className="font-pretendard-medium text-[16px] leading-[24px] text-gray-50">
               {originQuests?.length}
             </Text>
           </View>
         }>
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: '#F2F2F5',
-            paddingVertical: 16,
-            paddingHorizontal: 12,
-            borderRadius: 12,
-          }}>
-          <View style={{flexDirection: 'row', flexWrap: 'wrap', rowGap: 16}}>
+        <View className="rounded-[12px] border-[1px] border-gray-15 px-3 py-4">
+          <View className="flex-row flex-wrap gap-y-4">
             {quests.map(item => (
-              <View key={item.id} style={{width: '33.33%'}}>
+              <View key={item.id} className="w-1/3">
                 {crewType && (
                   <QuestItem
                     title={item.title}
@@ -194,12 +131,7 @@ export default function CrusherActivitySeasonView({
             ))}
           </View>
 
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 12,
-            }}>
+          <View className="mt-3 items-center justify-center">
             <ExpandToggleButton
               status={questToggleStatus}
               onPress={() => {
@@ -219,37 +151,14 @@ export default function CrusherActivitySeasonView({
       </SectionContainer>
 
       <SectionContainer title="나의 참여">
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: '#F2F2F5',
-            paddingVertical: 24,
-            paddingHorizontal: 12,
-            borderRadius: 12,
-          }}>
+        <View className="rounded-[12px] border-[1px] border-gray-15 px-3 py-6">
           {activityLogs.length === 0 ? (
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 12,
-                paddingVertical: 12,
-              }}>
+            <View className="items-center justify-center gap-3 py-3">
               <Image
                 source={require('@/assets/img/img_crusher_history_activities_empty.png')}
-                style={{
-                  width: 64,
-                  height: 64,
-                }}
+                className="h-16 w-16"
               />
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 16,
-                  lineHeight: 24,
-                  fontFamily: font.pretendardRegular,
-                  color: color.gray50,
-                }}>{`${isPastSeason ? '해당' : '이번'} 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
+              <Text className="text-center font-pretendard-regular text-[16px] leading-[24px] text-gray-50">{`${isPastSeason ? '해당' : '이번'} 시즌 크러셔 클럽\n참석 기록을 확인할 수 있어요`}</Text>
             </View>
           ) : (
             <View>

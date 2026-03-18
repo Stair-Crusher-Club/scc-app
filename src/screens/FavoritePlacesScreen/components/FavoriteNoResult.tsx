@@ -1,28 +1,12 @@
 import React from 'react';
-import styled from 'styled-components/native';
-
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
+import {Text, View} from 'react-native';
 
 export default function FavoriteNoResult() {
   return (
-    <Container>
-      <NoResultText>저장한 장소가 없습니다.</NoResultText>
-    </Container>
+    <View className="grow items-center justify-center gap-4">
+      <Text className="pb-[120px] font-pretendard-medium text-[14px] leading-[20px] text-gray-50">
+        저장한 장소가 없습니다.
+      </Text>
+    </View>
   );
 }
-
-const Container = styled.View`
-  flex-grow: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-`;
-
-const NoResultText = styled.Text`
-  font-size: 14px;
-  font-family: ${() => font.pretendardMedium};
-  padding-bottom: 120px;
-  color: ${() => color.gray50};
-`;

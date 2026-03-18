@@ -1,6 +1,5 @@
 import React from 'react';
-
-import * as S from './GuideItem.style';
+import {Text, View} from 'react-native';
 
 interface GuideItemProps {
   title: string;
@@ -9,9 +8,13 @@ interface GuideItemProps {
 
 export default function GuideItem({title, description}: GuideItemProps) {
   return (
-    <S.GuideItem>
-      <S.Title>{title}</S.Title>
-      <S.Description>{description}</S.Description>
-    </S.GuideItem>
+    <View className="gap-[4px]">
+      <Text className="font-pretendard-semibold text-[18px] leading-[26px] text-black">
+        {title}
+      </Text>
+      <Text className="font-pretendard-regular text-[15px] leading-[24px] text-gray-90">
+        {description}
+      </Text>
+    </View>
   );
 }

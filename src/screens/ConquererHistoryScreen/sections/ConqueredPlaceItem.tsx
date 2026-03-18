@@ -1,10 +1,10 @@
+import {SccPressable} from '@/components/SccPressable';
+import {PlaceListItem} from '@/generated-sources/openapi';
+import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
+import useNavigation from '@/navigation/useNavigation';
 import dayjs from 'dayjs';
 import React from 'react';
-import {SccPressable} from '@/components/SccPressable';
 import {Text} from 'react-native';
-import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
-import {PlaceListItem} from '@/generated-sources/openapi';
-import useNavigation from '@/navigation/useNavigation';
 
 export default function ConqueredPlaceItem({p}: {p: PlaceListItem}) {
   const navigation = useNavigation();

@@ -4,7 +4,6 @@ import {
   GestureResponderEvent,
   Image,
   NativeScrollEvent,
-  Pressable,
   NativeSyntheticEvent,
   ScrollView,
 } from 'react-native';
@@ -12,6 +11,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import ChevronRight from '@/assets/icon/ic_chevron_right.svg';
+import {SccPressable} from '@/components/SccPressable';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -138,25 +138,28 @@ export default function TutorialOverlay({
               />
             ) : (
               <NavRow pointerEvents="box-none">
-                <Pressable
+                <SccPressable
+                  elementName="tutorial_prev_button"
                   onPress={isFirst ? undefined : handlePrev}
                   style={{opacity: isFirst ? 0 : 1}}>
                   <NavButtonInner>
                     <ChevronLeft width={24} height={24} color={color.white} />
                     <NavText>이전</NavText>
                   </NavButtonInner>
-                </Pressable>
+                </SccPressable>
                 <DotsContainer>
                   {slides.map((_, index) => (
                     <Dot key={index} active={index === activeSlide} />
                   ))}
                 </DotsContainer>
-                <Pressable onPress={handleNext}>
+                <SccPressable
+                  elementName="tutorial_next_button"
+                  onPress={handleNext}>
                   <NavButtonInner>
                     <NavText>다음</NavText>
                     <ChevronRight width={24} height={24} color={color.white} />
                   </NavButtonInner>
-                </Pressable>
+                </SccPressable>
               </NavRow>
             )}
           </BottomBar>
