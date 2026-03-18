@@ -9,9 +9,7 @@ export default function FavoritePlacesScreen() {
   return (
     <ScreenLayout isHeaderVisible={true}>
       <View className="border-b-[1px] border-blue-5" />
-      <ScrollView
-        className="bg-white"
-        contentContainerClassName="grow">
+      <ScrollView className="bg-white" contentContainerClassName="grow">
         <FavoriteListView />
       </ScrollView>
     </ScreenLayout>
