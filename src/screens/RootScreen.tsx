@@ -146,7 +146,7 @@ const RootScreen = () => {
                 // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
                 if (
                   isAuthDeferred(url) &&
-                  !getStorageValue<string>('accessToken')
+                  !getStorageValue<string>('scc-token')
                 ) {
                   logDebug('Auth-deferred deep link (background)', url);
                   setDeferredDeepLinkUrl(url);
