@@ -1,4 +1,6 @@
 import React from 'react';
+import {Linking} from 'react-native';
+import {useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 
 import Skeleton from '@/components/Skeleton';
@@ -7,9 +9,12 @@ import BoostersLogoSvg from '@/assets/icon/boosters_logo.svg';
 import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
 import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
 import FooterInfoIcon from '@/assets/icon/ic_footer_info.svg';
+import FooterLongReviewIcon from '@/assets/icon/ic_footer_long_review.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {CrusherClubCrewTypeDto} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 
@@ -27,6 +32,17 @@ export default function FooterButtonsSection({
   isLoading,
 }: FooterButtonsSectionProps) {
   const navigation = useNavigation();
+  const {api} = useAppComponents();
+
+  const {data: crusherActivityData} = useQuery({
+    queryKey: ['CrusherActivityPageData'],
+    queryFn: async () => (await api.getCrusherActivityPageDataPost()).data,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const isEditorCrew =
+    crusherActivityData?.currentCrusherActivity?.crusherClub.crewType ===
+    CrusherClubCrewTypeDto.EditorCrew;
 
   if (isLoading) {
     return (
@@ -66,6 +82,10 @@ export default function FooterButtonsSection({
     });
   };
 
+  const goToLongReview = () => {
+    Linking.openURL('https://forms.gle/UZzVBhjZbPaexerR9');
+  };
+
   return (
     <LogParamsProvider params={{displaySectionName: 'footer_buttons_section'}}>
       <Container>
@@ -100,6 +120,19 @@ export default function FooterButtonsSection({
             <BoostersLogoSvg width={77} height={26} />
           </FooterRow>
         </SccPressable>
+
+        {isEditorCrew && (
+          <SccPressable
+            elementName="home_v2_footer_long_review"
+            onPress={goToLongReview}>
+            <FooterRow>
+              <RowContent>
+                <FooterLongReviewIcon width={16} height={16} />
+                <FooterText>[크루전용] 롱리뷰 작성하기</FooterText>
+              </RowContent>
+            </FooterRow>
+          </SccPressable>
+        )}
       </Container>
     </LogParamsProvider>
   );
