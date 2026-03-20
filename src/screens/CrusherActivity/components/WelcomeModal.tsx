@@ -78,7 +78,7 @@ const MODAL_CONFIG: Record<
           type: 'lottie',
           source: require('@/assets/animations/crusher_activity/starting_day/2026spring/editor_crew_starting_day_welcome_character.lottie'),
           scale: 0.65,
-          offsetX: 24,
+          offsetX: 0,
           offsetY: 54,
         },
         {
