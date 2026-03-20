@@ -5,9 +5,10 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import Logger from '@/logging/Logger';
 import LottieView from 'lottie-react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Image,
   Modal,
   Text,
@@ -184,6 +185,16 @@ const MODAL_CONFIG: Record<
   },
 };
 
+function hasImageLayer(animation: ModalAnimationType): boolean {
+  if (animation.type === 'image') {
+    return true;
+  }
+  if (animation.type === 'layers') {
+    return animation.layers.some(layer => layer.type === 'image');
+  }
+  return false;
+}
+
 export default function WelcomeModal({
   questTypeOrActivityId,
   recordStatus,
@@ -191,6 +202,16 @@ export default function WelcomeModal({
   const {userInfo} = useMe();
   const {width: viewportWidth} = useWindowDimensions();
   const [visible, setVisible] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const config = questTypeOrActivityId
+    ? MODAL_CONFIG[questTypeOrActivityId]
+    : undefined;
+
+  const needsImagePreload = config ? hasImageLayer(config.animation) : false;
+  const allReady =
+    recordStatus === 'success' && (imageReady || !needsImagePreload);
 
   useEffect(() => {
     // 모달은 questTypeOrActivityId가 있고 API 호출이 시작되면 표시
@@ -200,16 +221,37 @@ export default function WelcomeModal({
     );
   }, [questTypeOrActivityId, recordStatus]);
 
+  // Reset imageReady and fadeAnim when modal closes
+  useEffect(() => {
+    if (!visible) {
+      setImageReady(false);
+      fadeAnim.setValue(0);
+    }
+  }, [visible, fadeAnim]);
+
+  // Fade in when all ready
+  useEffect(() => {
+    if (allReady && visible) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [allReady, visible, fadeAnim]);
+
+  const handleImageLoad = useCallback(() => {
+    setImageReady(true);
+  }, []);
+
   const handleClose = () => {
+    if (!allReady) {
+      return;
+    }
     setVisible(false);
   };
 
-  if (!questTypeOrActivityId) {
-    return null;
-  }
-
-  const config = MODAL_CONFIG[questTypeOrActivityId];
-  if (!config) {
+  if (!questTypeOrActivityId || !config) {
     return null;
   }
 
@@ -220,6 +262,7 @@ export default function WelcomeModal({
       return (
         <Image
           source={config.animation.source}
+          onLoad={handleImageLoad}
           style={{
             width: viewportWidth * 0.8,
             height: viewportWidth * 0.8,
@@ -245,6 +288,7 @@ export default function WelcomeModal({
                 <Image
                   key={index}
                   source={layer.source}
+                  onLoad={handleImageLoad}
                   style={{
                     position: 'absolute',
                     width: layerSize,
@@ -322,43 +366,44 @@ export default function WelcomeModal({
         elementName="crusher_activity_welcome_modal"
         onPress={handleClose}>
         <View className="flex-1 justify-center bg-blacka-80">
-          {recordStatus === 'loading' ? (
+          {/* Always mount animation layer (hidden) for image preloading */}
+          <Animated.View style={{opacity: fadeAnim}}>
             <View className="items-center justify-center gap-10">
+              {renderAnimation()}
+              <Text className="mb-5 text-center text-[20px] leading-[28px] text-white">
+                {textParts.map((part, index) =>
+                  part.bold ? (
+                    <Text
+                      key={index}
+                      className="font-pretendard-bold text-[20px] leading-[28px] text-white">
+                      {part.text}
+                    </Text>
+                  ) : (
+                    <Text
+                      key={index}
+                      className="font-pretendard-regular text-[20px] leading-[28px] text-white">
+                      {part.text}
+                    </Text>
+                  ),
+                )}
+              </Text>
+            </View>
+
+            <View className="gap-5 p-5">
+              <SccButton
+                elementName="crusher_activity_welcome_modal_ok"
+                text={config.buttonText}
+                textColor="white"
+                fontFamily={font.pretendardBold}
+                onPress={handleClose}
+              />
+            </View>
+          </Animated.View>
+
+          {!allReady && (
+            <View className="absolute inset-0 items-center justify-center">
               <ActivityIndicator size="large" color={color.white} />
             </View>
-          ) : (
-            <>
-              <View className="items-center justify-center gap-10">
-                {renderAnimation()}
-                <Text className="mb-5 text-center text-[20px] leading-[28px] text-white">
-                  {textParts.map((part, index) =>
-                    part.bold ? (
-                      <Text
-                        key={index}
-                        className="font-pretendard-bold text-[20px] leading-[28px] text-white">
-                        {part.text}
-                      </Text>
-                    ) : (
-                      <Text
-                        key={index}
-                        className="font-pretendard-regular text-[20px] leading-[28px] text-white">
-                        {part.text}
-                      </Text>
-                    ),
-                  )}
-                </Text>
-              </View>
-
-              <View className="gap-5 p-5">
-                <SccButton
-                  elementName="crusher_activity_welcome_modal_ok"
-                  text={config.buttonText}
-                  textColor="white"
-                  fontFamily={font.pretendardBold}
-                  onPress={handleClose}
-                />
-              </View>
-            </>
           )}
         </View>
       </SccTouchableWithoutFeedback>

@@ -62,14 +62,15 @@ export const registerElementAtom = atom(
     // 중복 감지 및 경고
     const item = registry.get(key)!;
     if (item.count >= 2) {
-      console.warn(
-        `[EventLogging] Duplicate element detected!`,
-        `\n  Element Name: ${elementName}`,
-        `\n  Params: ${JSON.stringify(params || {})}`,
-        `\n  Count: ${item.count}`,
-        `\n  Components: [${Array.from(item.components).join(', ')}]`,
-        `\n  Registry Key: ${key}`,
-      );
+      // 너무 많이 찍혀서 주석처리
+      // console.warn(
+      //   `[EventLogging] Duplicate element detected!`,
+      //   `\n  Element Name: ${elementName}`,
+      //   `\n  Params: ${JSON.stringify(params || {})}`,
+      //   `\n  Count: ${item.count}`,
+      //   `\n  Components: [${Array.from(item.components).join(', ')}]`,
+      //   `\n  Registry Key: ${key}`,
+      // );
     }
   },
 );
