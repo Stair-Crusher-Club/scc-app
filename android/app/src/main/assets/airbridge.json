@@ -4,5 +4,5 @@
   "autoStartTrackingEnabled": true,
   "sessionTimeoutInSecond": 300,
   "trackAirbridgeDeeplinkOnlyEnabled": false,
-  "autoDetermineTrackingAuthorizationTimeoutInSecond": 30
+  "autoDetermineTrackingAuthorizationTimeoutInSecond": 0
 }
