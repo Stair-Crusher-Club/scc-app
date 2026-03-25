@@ -21,6 +21,12 @@ After any code changes or implementation work, **ALWAYS** run these validation c
 - Uses custom SccXxx components for event logging
 - Implements global event logging registry for duplicate detection
 
+## OTA 배포 규칙 (MANDATORY)
+
+- **`ota-deploy` 수동 실행 금지.** OTA 배포는 main 푸시 시 자동 실행된다.
+- 배포 절차: 코드 변경 → lint/tsc 통과 → 커밋 → 태그(`v{major}.{minor}-YYYYMMDD-NN`) → main 푸시 (자동 배포)
+- 태그 없이 푸시하지 않는다
+
 ## Component Guidelines
 
 ### SccXxx Components
