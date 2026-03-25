@@ -82,21 +82,11 @@ const RootScreen = () => {
             let resolvedUrl: string | null = null;
 
             if (Config.FLAVOR === 'production') {
-              let resolved = false;
               const airbridgeUrl = await new Promise<string | null>(resolve => {
-                const timeout = setTimeout(() => {
-                  resolved = true;
-                  resolve(null);
-                }, 1000);
+                const timeout = setTimeout(() => resolve(null), 3000);
                 Airbridge.setOnDeeplinkReceived((deeplink: string) => {
                   clearTimeout(timeout);
-                  if (!resolved) {
-                    resolved = true;
-                    resolve(deeplink);
-                  } else {
-                    // 타임아웃 후 늦게 도착한 디퍼드 딥링크 (iOS ATT 대기 등)
-                    setDeferredDeepLinkUrl(deeplink);
-                  }
+                  resolve(deeplink);
                 });
               });
               if (airbridgeUrl) {

@@ -6,7 +6,7 @@ import React, {useEffect} from 'react';
 import {accessTokenAtom} from '@/atoms/Auth';
 import {color} from '@/constant/color';
 import {
-  getDeferredDeepLinkUrl,
+  deferredDeepLinkAtom,
   setDeferredDeepLinkUrl,
 } from '@/deeplink/DeferredDeepLink';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -52,16 +52,13 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
   }, [accessToken, navigation]);
 
   // Deferred deep link 소비: 로그인 완료 후 저장된 URL을 파싱해서 navigate
+  const deferredDeepLink = useAtomValue(deferredDeepLinkAtom);
   useEffect(() => {
-    if (!accessToken) {
-      return;
-    }
-    const url = getDeferredDeepLinkUrl();
-    if (!url) {
+    if (!accessToken || !deferredDeepLink) {
       return;
     }
     setDeferredDeepLinkUrl(null);
-    const path = stripPrefix(url);
+    const path = stripPrefix(deferredDeepLink);
     if (!path) {
       return;
     }
@@ -73,7 +70,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
     if (action) {
       navigation.dispatch(action);
     }
-  }, [accessToken, navigation]);
+  }, [accessToken, deferredDeepLink, navigation]);
 
   return (
     <Tab.Navigator
