@@ -1,15 +1,9 @@
-import {storage} from '@/atoms/atomForLocal';
-
-const STORAGE_KEY = 'deferred-deep-link-url';
+let deferredUrl: string | null = null;
 
 export function getDeferredDeepLinkUrl(): string | null {
-  return storage.getString(STORAGE_KEY) ?? null;
+  return deferredUrl;
 }
 
 export function setDeferredDeepLinkUrl(url: string | null) {
-  if (url) {
-    storage.set(STORAGE_KEY, url);
-  } else {
-    storage.delete(STORAGE_KEY);
-  }
+  deferredUrl = url;
 }
