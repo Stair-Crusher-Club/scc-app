@@ -139,10 +139,10 @@ const RootScreen = () => {
             const linkingSubscription = Linking.addEventListener(
               'url',
               ({url}) => {
-                logDebug(
-                  'Normal deeplink click during app background state',
-                  url,
-                );
+                // 카카오 콜백 URL 무시 (iOS에서 Airbridge trackDeeplink가 처리하면서 딥링크 상태 방해)
+                if (url.startsWith('kakao')) {
+                  return;
+                }
                 // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
                 if (
                   isAuthDeferred(url) &&
