@@ -39,7 +39,7 @@ import GeolocationPermissionBottomSheet, {
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
-import {deferredDeepLinkAtom} from '@/deeplink/DeferredDeepLink';
+import {getDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 
 import CategoryChipSection from './sections/CategoryChipSection';
 import FooterButtonsSection from './sections/FooterButtonsSection';
@@ -98,9 +98,8 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
   // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
-  const deferredDeepLink = useAtomValue(deferredDeepLinkAtom);
   const [needsTutorial] = useState(() => {
-    if (deferredDeepLink) {
+    if (getDeferredDeepLinkUrl()) {
       return false;
     }
     return !hasShownHomeTutorial;
