@@ -82,11 +82,24 @@ const RootScreen = () => {
             let resolvedUrl: string | null = null;
 
             if (Config.FLAVOR === 'production') {
+              let resolved = false;
               const airbridgeUrl = await new Promise<string | null>(resolve => {
-                const timeout = setTimeout(() => resolve(null), 3000);
+                const timeout = setTimeout(() => {
+                  resolved = true;
+                  resolve(null);
+                }, 3000);
                 Airbridge.setOnDeeplinkReceived((deeplink: string) => {
                   clearTimeout(timeout);
-                  resolve(deeplink);
+                  if (deeplink.startsWith('kakao')) {
+                    return;
+                  }
+                  if (!resolved) {
+                    resolved = true;
+                    resolve(deeplink);
+                  } else {
+                    // ATT 응답 후 늦게 도착한 디퍼드 딥링크
+                    setDeferredDeepLinkUrl(deeplink);
+                  }
                 });
               });
               if (airbridgeUrl) {
