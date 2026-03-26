@@ -83,8 +83,8 @@ const SearchMapView = forwardRef<
   }, [data, searchMode]);
   const isSearchQueryEmpty = !searchQuery.text;
 
-  // searchMode가 toilet이면 이미 화장실만 보이고 있으므로 토글 숨김
-  const showToiletLayerToggle = searchMode !== 'toilet';
+  // TODO: 기능 출시 시 `searchMode !== 'toilet'`로 복원
+  const showToiletLayerToggle = false;
 
   const handleOverlayMarkerPress = useCallback(
     (item: MarkerItem) => {
