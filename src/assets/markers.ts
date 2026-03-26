@@ -5,6 +5,8 @@ import MarkerPharOnRaw from '@/assets/icon/ic_marker_phar_on.svg.txt';
 import MarkerRestOnRaw from '@/assets/icon/ic_marker_rest_on.svg.txt';
 import MarkerHosOnRaw from '@/assets/icon/ic_marker_hos_on.svg.txt';
 import MarkerDefaultOnRaw from '@/assets/icon/ic_marker_default_on.svg.txt';
+import MarkerToiletOnRaw from '@/assets/icon/ic_marker_toilet_on.svg.txt';
+import MarkerToiletOffRaw from '@/assets/icon/ic_marker_toilet_off.svg.txt';
 import MarkerCafeOffRaw from '@/assets/icon/ic_marker_cafe_off.svg.txt';
 import MarkerConvOffRaw from '@/assets/icon/ic_marker_conv_off.svg.txt';
 import MarkerPharOffRaw from '@/assets/icon/ic_marker_phar_off.svg.txt';
@@ -45,7 +47,7 @@ export function getMarkerSvg(
         case 'default':
           return MarkerDefaultReviewOnRaw;
         case 'toilet':
-          return MarkerDefaultReviewOnRaw;
+          return MarkerToiletOnRaw;
       }
     } else {
       switch (icon) {
@@ -62,7 +64,7 @@ export function getMarkerSvg(
         case 'default':
           return MarkerDefaultOnRaw;
         case 'toilet':
-          return MarkerDefaultOnRaw;
+          return MarkerToiletOnRaw;
       }
     }
   } else {
@@ -81,7 +83,7 @@ export function getMarkerSvg(
         case 'default':
           return MarkerDefaultReviewOffRaw;
         case 'toilet':
-          return MarkerDefaultReviewOffRaw;
+          return MarkerToiletOnRaw;
       }
     } else {
       switch (icon) {
@@ -98,11 +100,13 @@ export function getMarkerSvg(
         case 'default':
           return MarkerDefaultOffRaw;
         case 'toilet':
-          return MarkerDefaultOffRaw;
+          return MarkerToiletOffRaw;
       }
     }
   }
 }
+
+export const ToiletMarkerColor = '#1976D2';
 
 export const MarkerColors: Record<MarkerLevel, string> = {
   '0': '#06903A',

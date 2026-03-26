@@ -3,7 +3,7 @@ import {useAtomValue} from 'jotai';
 import React from 'react';
 import styled from 'styled-components/native';
 
-import {getMarkerSvg, MarkerColors} from '@/assets/markers';
+import {getMarkerSvg, MarkerColors, ToiletMarkerColor} from '@/assets/markers';
 import {currentLocationAtom} from '@/atoms/Location.ts';
 import {useDevTool} from '@/components/DevTool/useDevTool';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
@@ -113,7 +113,7 @@ export default function ItemMap<T extends MarkerItem>({
           isSelected,
           item.hasReview ?? false,
         ),
-        iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
+        iconColor: ToiletMarkerColor,
         zIndex: isSelected
           ? overlayCount + items.length + 2
           : overlayCount - index,
@@ -139,7 +139,10 @@ export default function ItemMap<T extends MarkerItem>({
         isSelected,
         item.hasReview ?? false,
       ),
-      iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
+      iconColor:
+        item.markerIcon?.icon === 'toilet'
+          ? ToiletMarkerColor
+          : MarkerColors[item.markerIcon?.level ?? 'none'],
       zIndex: isSelected
         ? overlayCount + items.length + 1
         : overlayCount + (items.length - index),

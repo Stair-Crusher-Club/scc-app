@@ -394,7 +394,7 @@ const ToiletLayerToggleButton = styled(SccTouchableOpacity)<{active: boolean}>`
   width: 40px;
   height: 40px;
   align-self: flex-end;
-  background-color: ${({active}) => (active ? '#1D85FF' : color.white)};
+  background-color: ${({active}) => (active ? '#1976D2' : color.white)};
   margin-right: 20px;
   margin-bottom: 8px;
   border-radius: 100px;

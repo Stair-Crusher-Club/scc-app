@@ -83,8 +83,7 @@ const SearchMapView = forwardRef<
   }, [data, searchMode]);
   const isSearchQueryEmpty = !searchQuery.text;
 
-  // TODO: 기능 출시 시 `searchMode !== 'toilet'`로 복원
-  const showToiletLayerToggle = false;
+  const showToiletLayerToggle = searchMode !== 'toilet';
 
   const handleOverlayMarkerPress = useCallback(
     (item: MarkerItem) => {
