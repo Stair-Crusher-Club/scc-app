@@ -13,6 +13,7 @@ type Props<T> = {
   onLayout?: (event: LayoutChangeEvent) => void;
   onCardPress?: (item: T) => void;
   ItemCard: React.FC<{item: T; onPress?: () => void}>;
+  initialScrollIndex?: number;
 };
 
 function ItemMapList<T extends {id: string}>(
@@ -22,6 +23,7 @@ function ItemMapList<T extends {id: string}>(
     onLayout,
     onCardPress,
     ItemCard,
+    initialScrollIndex,
   }: Props<T>,
   ref: Ref<FlatList<T>>,
 ) {
@@ -46,6 +48,7 @@ function ItemMapList<T extends {id: string}>(
           offset: index * ITEM_SIZE,
           index,
         })}
+        initialScrollIndex={initialScrollIndex}
         horizontal
         showsHorizontalScrollIndicator={false}
         snapToAlignment="start"

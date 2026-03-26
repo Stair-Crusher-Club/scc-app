@@ -19,6 +19,7 @@ import {
   searchQueryAtom,
   searchRequestIdAtom,
   SortOption,
+  toiletLayerActiveAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import {
@@ -92,6 +93,7 @@ const SearchScreenContent = ({
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
   const setSearchMode = useSetAtom(searchModeAtom);
   const searchMode = useAtomValue(searchModeAtom);
+  const setToiletLayerActive = useSetAtom(toiletLayerActiveAtom);
 
   const {data, isLoading, updateQuery, setOnFetchCompleted} =
     useSearchRequest();
@@ -217,12 +219,18 @@ const SearchScreenContent = ({
       setDraftKeyword(null);
       setSearchMode('place');
       setSearchRequestId(null);
+      setToiletLayerActive(false);
       resetHighlightAnimation();
     });
   }, [navigation]);
 
   const handleBack = useCallback((): boolean => {
     if (!navigation.isFocused()) return false;
+    // 화장실 카드(overlay)가 보이고 있으면 해제
+    if (ref.current?.hasOverlayFocus?.()) {
+      ref.current.clearOverlayFocus();
+      return true;
+    }
     // 리스트 뷰 → 지도 뷰로 전환
     if (viewState.type === 'list' && !viewState.inputMode) {
       setViewState(prev => ({...prev, type: 'map', inputMode: false}));

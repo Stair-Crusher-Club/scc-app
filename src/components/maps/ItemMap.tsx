@@ -48,7 +48,10 @@ const DefaultRegion: Region = getRegion(SeoulStation);
 
 export default function ItemMap<T extends MarkerItem>({
   items,
+  overlayMarkers,
+  overlaySelectedId,
   onMarkerPress,
+  onOverlayMarkerPress,
   mapRef,
   mapPadding,
   selectedItemId,
@@ -56,7 +59,10 @@ export default function ItemMap<T extends MarkerItem>({
   logoPosition,
 }: {
   items: T[];
+  overlayMarkers?: MarkerItem[];
+  overlaySelectedId?: string | null;
   onMarkerPress?: (item: T) => void;
+  onOverlayMarkerPress?: (item: MarkerItem) => void;
   mapRef: React.RefObject<MapViewHandle | null>;
   mapPadding?: {top: number; right: number; bottom: number; left: number};
   selectedItemId: string | null;
@@ -86,6 +92,35 @@ export default function ItemMap<T extends MarkerItem>({
     southWestLat: region.southWest.latitude,
     southWestLng: region.southWest.longitude,
   };
+  const overlayCount = overlayMarkers?.length ?? 0;
+  // Overlay markers (화장실 레이어) — z-index는 항상 place markers보다 낮음
+  const nativeOverlayMarkers = (overlayMarkers ?? []).map<NativeMarkerItem>(
+    (item, index) => {
+      const isSelected = item.id === overlaySelectedId;
+      return {
+        id: item.id,
+        position: {
+          lat: item.location?.lat ?? 0,
+          lng: item.location?.lng ?? 0,
+        },
+        captionText: item.displayName,
+        captionTextSize: 14,
+        isHideCollidedMarkers: false,
+        isHideCollidedSymbols: true,
+        isHideCollidedCaptions: true,
+        iconResource: getMarkerSvg(
+          item.markerIcon?.icon ?? 'default',
+          isSelected,
+          item.hasReview ?? false,
+        ),
+        iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
+        zIndex: isSelected
+          ? overlayCount + items.length + 2
+          : overlayCount - index,
+      };
+    },
+  );
+
   const nativeMarkerItems = items.map<NativeMarkerItem>((item, index) => {
     const isSelected = item.id === selectedItemId;
     return {
@@ -105,7 +140,9 @@ export default function ItemMap<T extends MarkerItem>({
         item.hasReview ?? false,
       ),
       iconColor: MarkerColors[item.markerIcon?.level ?? 'none'],
-      zIndex: isSelected ? items.length + 1 : items.length - index,
+      zIndex: isSelected
+        ? overlayCount + items.length + 1
+        : overlayCount + (items.length - index),
     };
   });
 
@@ -137,8 +174,12 @@ export default function ItemMap<T extends MarkerItem>({
     }));
   }, [devTool.searchRegion.data]);
 
-  // 모든 마커 합치기
-  const allNativeMarkers = [...nativeMarkerItems, ...nativeCornerMarkers];
+  // 모든 마커 합치기 (overlay → place → debug corner)
+  const allNativeMarkers = [
+    ...nativeOverlayMarkers,
+    ...nativeMarkerItems,
+    ...nativeCornerMarkers,
+  ];
 
   // Create native overlays for DevTool
   const nativeCircleOverlays: NativeCircleOverlay[] = [];
@@ -205,6 +246,19 @@ export default function ItemMap<T extends MarkerItem>({
       onMarkerPress={async x => {
         // 디버그 귀퉁이 마커는 무시
         if (x.nativeEvent.id.startsWith(CORNER_MARKER_PREFIX)) {
+          return;
+        }
+
+        // overlay marker (화장실 레이어) 클릭 분기
+        const overlayItem = overlayMarkers?.find(
+          it => it.id === x.nativeEvent.id,
+        );
+        if (overlayItem) {
+          onOverlayMarkerPress?.(overlayItem);
+          await logger.logElementClick('toilet_layer_marker', {
+            external_accessibility_id: overlayItem.id,
+            place_name: overlayItem.displayName,
+          });
           return;
         }
 
