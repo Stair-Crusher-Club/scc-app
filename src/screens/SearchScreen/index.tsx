@@ -247,6 +247,7 @@ const SearchScreenContent = ({
     if (!viewState.inputMode && searchQuery.text) {
       setSearchQuery({text: null, location: null, radiusMeter: null});
       setDraftKeyword(null);
+      setSearchMode('place');
       return true;
     }
     // 초기 상태 → 화면 나가기
