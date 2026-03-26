@@ -1,5 +1,12 @@
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
-import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components/native';
 
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
@@ -11,9 +18,11 @@ import {
   draftCameraRegionAtom,
   searchModeAtom,
   searchQueryAtom,
+  toiletLayerActiveAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
+import useToiletLayerQuery from '@/screens/SearchScreen/useToiletLayerQuery';
 import ToiletCard from '@/screens/ToiletMapScreen/ToiletCard';
 import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
@@ -21,6 +30,8 @@ import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
 export type SearchMapViewHandle = {
   fitToItems: (_items: MarkerItem[]) => void;
   moveToItem: (targetId: string) => void;
+  clearOverlayFocus: () => void;
+  hasOverlayFocus: () => boolean;
 };
 
 type MapViewItem = (MarkerItem & PlaceListItem) | (ToiletDetails & MarkerItem);
@@ -33,6 +44,15 @@ const SearchMapView = forwardRef<
   }
 >(({data, onRefresh}, ref) => {
   const searchMode = useAtomValue(searchModeAtom);
+  const [toiletLayerActive, setToiletLayerActive] = useAtom(
+    toiletLayerActiveAtom,
+  );
+  const toiletLayerData = useToiletLayerQuery();
+
+  // 화장실 pin 클릭 시 임시 포커스 (history stack에 쌓이지 않음)
+  const [overlayFocusedItem, setOverlayFocusedItem] = useState<
+    (ToiletDetails & MarkerItem) | null
+  >(null);
 
   useImperativeHandle(ref, () => ({
     fitToItems: (_items: MarkerItem[]) => {
@@ -43,6 +63,10 @@ const SearchMapView = forwardRef<
       if (!target) return;
       mapViewRef.current?.moveToItem(target);
     },
+    clearOverlayFocus: () => {
+      setOverlayFocusedItem(null);
+    },
+    hasOverlayFocus: () => overlayFocusedItem != null,
   }));
 
   const mapViewRef = useRef<ItemMapViewHandle<MapViewItem>>(null);
@@ -58,6 +82,32 @@ const SearchMapView = forwardRef<
     return (data as PlaceListItem[])?.map(toPlaceMarkerItem) ?? [];
   }, [data, searchMode]);
   const isSearchQueryEmpty = !searchQuery.text;
+
+  // searchMode가 toilet이면 이미 화장실만 보이고 있으므로 토글 숨김
+  const showToiletLayerToggle = searchMode !== 'toilet';
+
+  const handleOverlayMarkerPress = useCallback(
+    (item: MarkerItem) => {
+      const toiletItem = toiletLayerData.find(t => t.id === item.id);
+      if (toiletItem) {
+        setOverlayFocusedItem(toiletItem);
+      }
+    },
+    [toiletLayerData],
+  );
+
+  const handleOverlayDismiss = useCallback(() => {
+    setOverlayFocusedItem(null);
+  }, []);
+
+  const handleToiletLayerToggle = useCallback(() => {
+    const newActive = !toiletLayerActive;
+    setToiletLayerActive(newActive);
+    if (!newActive) {
+      setOverlayFocusedItem(null);
+    }
+  }, [toiletLayerActive, setToiletLayerActive]);
+
   return (
     <LogParamsProvider params={{search_view_mode: 'map'}}>
       <Wrapper>
@@ -80,6 +130,20 @@ const SearchMapView = forwardRef<
               item: MapViewItem;
             }>
           }
+          // 화장실 레이어 overlay
+          overlayMarkers={
+            showToiletLayerToggle && toiletLayerActive
+              ? toiletLayerData
+              : undefined
+          }
+          overlayFocusedItem={overlayFocusedItem}
+          onOverlayMarkerPress={handleOverlayMarkerPress}
+          onOverlayDismiss={handleOverlayDismiss}
+          OverlayItemCard={ToiletCard as React.FC<{item: MarkerItem}>}
+          // 토글 버튼
+          toiletLayerActive={toiletLayerActive}
+          onToiletLayerToggle={handleToiletLayerToggle}
+          showToiletLayerToggle={showToiletLayerToggle}
         />
       </Wrapper>
     </LogParamsProvider>

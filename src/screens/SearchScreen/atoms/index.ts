@@ -65,3 +65,5 @@ export const draftCameraRegionAtom = atom<Region | null>(null);
 export const draftKeywordAtom = atom<string | null>(null);
 
 export const searchRequestIdAtom = atom<string | null>(null);
+
+export const toiletLayerActiveAtom = atom(false);
