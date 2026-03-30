@@ -106,7 +106,7 @@ export function getMarkerSvg(
   }
 }
 
-export const ToiletMarkerColor = '#1976D2';
+export const ToiletMarkerColor = '#0C76F7';
 
 export const MarkerColors: Record<MarkerLevel, string> = {
   '0': '#06903A',

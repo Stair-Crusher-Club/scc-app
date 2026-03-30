@@ -15,6 +15,7 @@ import styled from 'styled-components/native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
+import {ToiletMarkerColor} from '@/assets/markers';
 import MyLocationIcon from '@/assets/icon/ic_my_location.svg';
 import ToiletLayerIcon from '@/assets/icon/ic_toilet.svg';
 import RedoIcon from '@/assets/icon/ic_redo.svg';
@@ -394,7 +395,7 @@ const ToiletLayerToggleButton = styled(SccTouchableOpacity)<{active: boolean}>`
   width: 40px;
   height: 40px;
   align-self: flex-end;
-  background-color: ${({active}) => (active ? '#1976D2' : color.white)};
+  background-color: ${({active}) => (active ? ToiletMarkerColor : color.white)};
   margin-right: 20px;
   margin-bottom: 8px;
   border-radius: 100px;
