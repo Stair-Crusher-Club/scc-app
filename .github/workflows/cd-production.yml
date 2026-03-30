@@ -82,8 +82,16 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          CURRENT_TAG="${{ github.ref_name }}"
-          PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | grep -v "^${CURRENT_TAG}$" | head -1)
+          # Use tag name if triggered by tag push, otherwise find latest v* tag
+          if [[ "${{ github.ref_name }}" == v* ]]; then
+            DEPLOY_REF="${{ github.ref_name }}"
+          else
+            DEPLOY_REF=$(git tag --sort=-creatordate | grep '^v' | head -1)
+            DEPLOY_REF="${DEPLOY_REF:-main}"
+          fi
+          echo "DEPLOY_REF=$DEPLOY_REF" >> $GITHUB_ENV
+
+          PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | grep -v "^${DEPLOY_REF}$" | head -1)
           if [ -n "$PREV_TAG" ]; then
             CHANGELOG=$(git log --format="• %s" ${PREV_TAG}..HEAD --no-merges | head -20)
             RANGE_TEXT="이전 배포(${PREV_TAG}) 이후 변경사항:"
@@ -102,10 +110,10 @@ jobs:
         if: success()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"✅ 계단정복지도 앱 업데이트 배포 완료\", \"text\":\"앱을 재시작하면 새 버전이 자동으로 적용됩니다.\n\n*배포 버전*\niOS: ${{ env.IOS_VERSION }} / Android: ${{ env.ANDROID_VERSION }}\n태그: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|배포 상세보기>)\n\n${{ env.CHANGELOG }}\"}]}" ${{ secrets.SCC_APP_DEPLOY_NOTICE_SLACK_URL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"✅ 계단정복지도 앱 업데이트 배포 완료\", \"text\":\"앱을 재시작하면 새 버전이 자동으로 적용됩니다.\n\n*배포 버전*\niOS: ${{ env.IOS_VERSION }} / Android: ${{ env.ANDROID_VERSION }}\n배포 ref: ${{ env.DEPLOY_REF }} (<$CURRENT_GITHUB_ACTION_RUN_URL|배포 상세보기>)\n\n${{ env.CHANGELOG }}\"}]}" ${{ secrets.SCC_APP_DEPLOY_NOTICE_SLACK_URL }}
 
       - name: Notify Slack on Failure
         if: failure()
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[PROD] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nTag: ${{ github.ref_name }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[PROD] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\n배포 ref: ${{ env.DEPLOY_REF }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}

@@ -48,3 +48,8 @@ jobs:
           else
             echo "Tag $TAG already exists, skipping."
           fi
+
+      - name: Trigger Production OTA Deployment
+        run: gh workflow run cd-production.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
