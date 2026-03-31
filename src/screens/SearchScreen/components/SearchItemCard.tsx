@@ -122,9 +122,10 @@ function SearchItemCard({
         placeInfo: {placeId: item.place.id},
         autoOpenImageViewer: true,
         autoOpenImageIndex: index,
+        specialAccessibility: item.specialAccessibility,
       });
     },
-    [navigation, pdpScreen, item.place.id],
+    [navigation, pdpScreen, item.place.id, item.specialAccessibility],
   );
 
   const onShare = () => {

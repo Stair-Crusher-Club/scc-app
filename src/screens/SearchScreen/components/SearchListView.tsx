@@ -90,6 +90,7 @@ export default function SearchListView({
                       placeInfo: {
                         placeId: item.place.id,
                       },
+                      specialAccessibility: item.specialAccessibility,
                     });
                   }}
                 />

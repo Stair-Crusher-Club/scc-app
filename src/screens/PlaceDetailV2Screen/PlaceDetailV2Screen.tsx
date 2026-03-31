@@ -660,35 +660,39 @@ export default function PlaceDetailV2Screen({
     return (
       <LogParamsProvider params={logParams}>
         <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
-          <V2AppBar
-            isFavorite={place.isFavorite}
-            onToggleFavorite={() =>
-              checkAuth(() =>
-                toggleFavorite({
-                  currentIsFavorite: place.isFavorite,
-                  placeId: place.id,
-                }),
-              )
-            }
-            onShare={() => ShareUtils.sharePlace(place)}
-            placeName={place.name}
-            showTitle
-          />
-          <WebView
-            style={bbucleWebViewStyles.webview}
-            source={{uri: bbucleRoadUrl}}
-            onShouldStartLoadWithRequest={(request: ShouldStartLoadRequest) => {
-              const reqUrl = request.url;
-              if (
-                reqUrl.startsWith('http://') ||
-                reqUrl.startsWith('https://')
-              ) {
-                return true;
+          <GestureHandlerRootView style={{flex: 1}}>
+            <V2AppBar
+              isFavorite={place.isFavorite}
+              onToggleFavorite={() =>
+                checkAuth(() =>
+                  toggleFavorite({
+                    currentIsFavorite: place.isFavorite,
+                    placeId: place.id,
+                  }),
+                )
               }
-              Linking.openURL(reqUrl).catch(() => {});
-              return false;
-            }}
-          />
+              onShare={() => ShareUtils.sharePlace(place)}
+              placeName={place.name}
+              showTitle
+            />
+            <WebView
+              style={bbucleWebViewStyles.webview}
+              source={{uri: bbucleRoadUrl}}
+              onShouldStartLoadWithRequest={(
+                request: ShouldStartLoadRequest,
+              ) => {
+                const reqUrl = request.url;
+                if (
+                  reqUrl.startsWith('http://') ||
+                  reqUrl.startsWith('https://')
+                ) {
+                  return true;
+                }
+                Linking.openURL(reqUrl).catch(() => {});
+                return false;
+              }}
+            />
+          </GestureHandlerRootView>
         </ScreenLayout>
       </LogParamsProvider>
     );
