@@ -8,12 +8,10 @@ import {
   NativeSyntheticEvent,
   Platform,
   ScrollView,
-  StyleSheet,
   View,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
-import WebView from 'react-native-webview';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location';
@@ -41,8 +39,6 @@ import {useLogger} from '@/logging/useLogger';
 import ShareUtils from '@/utils/ShareUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
-import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
-import BbucleRoadFloatingBar from '../WebViewScreen/components/BbucleRoadFloatingBar';
 
 import ToastUtils from '@/utils/ToastUtils';
 import {useIsFocused} from '@react-navigation/native';
@@ -654,56 +650,19 @@ export default function PlaceDetailV2Screen({
 
   const bbucleRoadUrl =
     data?.specialAccessibility?.bbucleRoadData?.bbucleRoadUrl;
-  const bbucleRoadId = useMemo(() => {
-    if (!bbucleRoadUrl) {
-      return null;
-    }
-    const bbucleMatch = bbucleRoadUrl.match(
-      /con\.staircrusher\.club\/([^/?#]+)/,
-    );
-    return bbucleMatch ? bbucleMatch[1] : null;
-  }, [bbucleRoadUrl]);
 
-  // BbucleRoad WebView branch: show WebView instead of normal PDP.
-  // This reuses handleWebViewShouldStartLoad (shared with WebViewScreen) and
-  // BbucleRoadFloatingBar so that deep-link handling and the floating bar
-  // stay consistent across all BbucleRoad entry points.
-  if (bbucleRoadUrl && place) {
-    return (
-      <LogParamsProvider params={logParams}>
-        <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
-          <GestureHandlerRootView style={{flex: 1}}>
-            <V2AppBar
-              isFavorite={place.isFavorite}
-              onToggleFavorite={() =>
-                checkAuth(() =>
-                  toggleFavorite({
-                    currentIsFavorite: place.isFavorite,
-                    placeId: place.id,
-                  }),
-                )
-              }
-              onShare={() => ShareUtils.sharePlace(place)}
-              placeName={place.name}
-              showTitle
-            />
-            <WebView
-              style={bbucleWebViewStyles.webview}
-              source={{uri: bbucleRoadUrl}}
-              onShouldStartLoadWithRequest={handleWebViewShouldStartLoad}
-              contentInset={bbucleRoadId ? {bottom: 80} : undefined}
-            />
-            {bbucleRoadId && (
-              <BbucleRoadFloatingBar
-                bbucleRoadId={bbucleRoadId}
-                title={place.name}
-              />
-            )}
-          </GestureHandlerRootView>
-        </ScreenLayout>
-      </LogParamsProvider>
-    );
-  }
+  // BbucleRoad: WebViewScreen으로 replace하여 코드 중복 제거.
+  // WebViewScreen이 이미 BbucleRoadFloatingBar, handleWebViewShouldStartLoad 등을 처리.
+  const [didReplaceToBbucleRoad, setDidReplaceToBbucleRoad] = useState(false);
+  useEffect(() => {
+    if (bbucleRoadUrl && place && !didReplaceToBbucleRoad) {
+      setDidReplaceToBbucleRoad(true);
+      navigation.replace('Webview', {
+        url: bbucleRoadUrl,
+        fixedTitle: place.name,
+      });
+    }
+  }, [bbucleRoadUrl, place, navigation, didReplaceToBbucleRoad]);
 
   if (isLoading || !place || !building) {
     return null;
@@ -1005,12 +964,6 @@ export default function PlaceDetailV2Screen({
     </LogParamsProvider>
   );
 }
-
-const bbucleWebViewStyles = StyleSheet.create({
-  webview: {
-    flex: 1,
-  },
-});
 
 const SummarySectionContainer = styled.View`
   padding-top: 4px;

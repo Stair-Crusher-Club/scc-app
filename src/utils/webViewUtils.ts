@@ -15,6 +15,10 @@ export function handleWebViewShouldStartLoad(
   if (reqUrl.startsWith('http://') || reqUrl.startsWith('https://')) {
     return true;
   }
-  Linking.openURL(reqUrl).catch(() => {});
+  try {
+    Linking.openURL(reqUrl).catch(() => {});
+  } catch (_e) {
+    // URL을 열 수 없는 경우 무시
+  }
   return false;
 }
