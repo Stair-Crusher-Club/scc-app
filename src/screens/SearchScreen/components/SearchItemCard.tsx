@@ -182,11 +182,11 @@ function SearchItemCard({
 
   // Bbucle road card variant
   if (bbucleRoadData) {
-    const bbucleRoadTypeText =
+    const isBaseball =
       bbucleRoadData.bbucleRoadType ===
-      BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium
-        ? '야구장'
-        : '공연장';
+      BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium;
+    const bbucleRoadTypeText = isBaseball ? '야구장' : '공연장';
+    const bbucleRoadEmoji = isBaseball ? '⚾️' : '🎤';
 
     return (
       <LogParamsProvider
@@ -202,9 +202,40 @@ function SearchItemCard({
           isHeightFlex
           onPress={onPress}>
           <InfoArea>
-            <BbucleRoadBadge>
-              <BbucleRoadBadgeText>{`뿌클로드 ${bbucleRoadTypeText}`}</BbucleRoadBadgeText>
-            </BbucleRoadBadge>
+            <BbucleRoadLabelIconRow>
+              <BbucleRoadBadge>
+                <BbucleRoadBadgeText>{`뿌클로드 ${bbucleRoadTypeText} ${bbucleRoadEmoji}`}</BbucleRoadBadgeText>
+              </BbucleRoadBadge>
+              <IconArea>
+                <SccTouchableOpacity
+                  elementName="bbucle_card_bookmark"
+                  logParams={{is_favorite: isFavorite}}
+                  style={{paddingLeft: 5, paddingRight: 5, paddingBottom: 5}}
+                  activeOpacity={0.6}
+                  onPress={() => checkAuth(onFavorite)}>
+                  {isFavorite ? (
+                    <BookmarkIconOn
+                      color={color.brandColor}
+                      width={24}
+                      height={24}
+                    />
+                  ) : (
+                    <BookmarkIconOff
+                      color={color.gray70}
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                </SccTouchableOpacity>
+                <SccTouchableOpacity
+                  elementName="bbucle_card_share"
+                  style={{paddingLeft: 5, paddingBottom: 5}}
+                  activeOpacity={0.6}
+                  onPress={() => checkAuth(onShare)}>
+                  <ShareIcon color={color.gray70} width={24} height={24} />
+                </SccTouchableOpacity>
+              </IconArea>
+            </BbucleRoadLabelIconRow>
             <TitleArea>
               <TextWrapper>
                 <TitleText>{item.place.name}</TitleText>
@@ -538,18 +569,26 @@ const LocationDivider = styled.View`
   background-color: ${() => color.gray80};
 `;
 
+const BbucleRoadLabelIconRow = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 4px;
+`;
+
 const BbucleRoadBadge = styled.View`
-  background-color: #6b4eff;
-  border-radius: 4px;
-  padding: 2px 8px;
+  background-color: rgba(162, 255, 32, 0.3);
+  border-radius: 6px;
+  padding: 4px 6px;
   align-self: flex-start;
-  margin-bottom: 6px;
 `;
 
 const BbucleRoadBadgeText = styled.Text`
   font-size: 12px;
-  font-family: ${() => font.pretendardBold};
-  color: ${() => color.white};
+  font-family: ${() => font.pretendardMedium};
+  color: #305306;
+  line-height: 15.6px;
 `;
 
 const BbucleThumbnailContainer = styled.View`
