@@ -182,11 +182,30 @@ function SearchItemCard({
 
   // Bbucle road card variant
   if (bbucleRoadData) {
-    const isBaseball =
-      bbucleRoadData.bbucleRoadType ===
-      BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium;
-    const bbucleRoadTypeText = isBaseball ? '야구장' : '공연장';
-    const bbucleRoadEmoji = isBaseball ? '⚾️' : '🎤';
+    const bbucleRoadTypeText = ((): string => {
+      switch (bbucleRoadData.bbucleRoadType) {
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium:
+          return '야구장';
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.ConcertHall:
+          return '공연장';
+        default: {
+          const _exhaustiveCheck: never = bbucleRoadData.bbucleRoadType;
+          return _exhaustiveCheck;
+        }
+      }
+    })();
+    const bbucleRoadEmoji = ((): string => {
+      switch (bbucleRoadData.bbucleRoadType) {
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium:
+          return '⚾️';
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.ConcertHall:
+          return '🎤';
+        default: {
+          const _exhaustiveCheck: never = bbucleRoadData.bbucleRoadType;
+          return _exhaustiveCheck;
+        }
+      }
+    })();
 
     return (
       <LogParamsProvider
@@ -247,12 +266,14 @@ function SearchItemCard({
               </LocationBox>
             </TitleArea>
           </InfoArea>
-          <BbucleThumbnailContainer>
-            <BbucleThumbnailImage
-              source={{uri: bbucleRoadData.thumbnailImageUrl}}
-              resizeMode="cover"
-            />
-          </BbucleThumbnailContainer>
+          {bbucleRoadData.thumbnailImageUrl ? (
+            <BbucleThumbnailContainer>
+              <BbucleThumbnailImage
+                source={{uri: bbucleRoadData.thumbnailImageUrl}}
+                resizeMode="cover"
+              />
+            </BbucleThumbnailContainer>
+          ) : null}
         </Container>
         {LocationConfirmModal}
       </LogParamsProvider>

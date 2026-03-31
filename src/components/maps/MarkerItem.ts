@@ -22,8 +22,8 @@ export type MarkerIcon =
   | 'hos'
   | 'default'
   | 'toilet'
-  | 'bbucle_baseball'
-  | 'bbucle_concert';
+  | 'bbucle_road_baseball'
+  | 'bbucle_road_concert';
 
 export type MarkerLevel =
   | '0'
@@ -40,10 +40,18 @@ export function toPlaceMarkerItem(
 ): MarkerItem & PlaceListItem {
   const bbucleRoadData = item.specialAccessibility?.bbucleRoadData;
   const bbucleIcon: MarkerIcon | undefined = bbucleRoadData
-    ? bbucleRoadData.bbucleRoadType ===
-      BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium
-      ? 'bbucle_baseball'
-      : 'bbucle_concert'
+    ? (() => {
+        switch (bbucleRoadData.bbucleRoadType) {
+          case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium:
+            return 'bbucle_road_baseball' as const;
+          case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.ConcertHall:
+            return 'bbucle_road_concert' as const;
+          default: {
+            const _exhaustiveCheck: never = bbucleRoadData.bbucleRoadType;
+            return _exhaustiveCheck;
+          }
+        }
+      })()
     : undefined;
 
   return {

@@ -1,7 +1,7 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {SccPressable} from '@/components/SccPressable';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Alert, Linking, StyleSheet, Text, View} from 'react-native';
+import {Alert, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
 
@@ -12,6 +12,7 @@ import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
 import BbucleRoadFloatingBar from './WebViewScreen/components/BbucleRoadFloatingBar';
 
 export interface WebViewScreenParams {
@@ -62,15 +63,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   }, [canGoBack]);
 
   const handleShouldStartLoad = useCallback(
-    (request: ShouldStartLoadRequest) => {
-      const reqUrl = request.url;
-      if (reqUrl.startsWith('http://') || reqUrl.startsWith('https://')) {
-        return true;
-      }
-      // 커스텀 스킴 딥링크 (stair-crusher://, intent:// 등)는 네이티브로 처리
-      Linking.openURL(reqUrl).catch(() => {});
-      return false;
-    },
+    (request: ShouldStartLoadRequest) => handleWebViewShouldStartLoad(request),
     [],
   );
 

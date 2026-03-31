@@ -4,7 +4,6 @@ import {
   Animated,
   InteractionManager,
   LayoutChangeEvent,
-  Linking,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -15,7 +14,6 @@ import {
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
 import WebView from 'react-native-webview';
-import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location';
@@ -43,6 +41,8 @@ import {useLogger} from '@/logging/useLogger';
 import ShareUtils from '@/utils/ShareUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {distanceInMeter} from '@/utils/DistanceUtils';
+import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
+import BbucleRoadFloatingBar from '../WebViewScreen/components/BbucleRoadFloatingBar';
 
 import ToastUtils from '@/utils/ToastUtils';
 import {useIsFocused} from '@react-navigation/native';
@@ -654,8 +654,20 @@ export default function PlaceDetailV2Screen({
 
   const bbucleRoadUrl =
     data?.specialAccessibility?.bbucleRoadData?.bbucleRoadUrl;
+  const bbucleRoadId = useMemo(() => {
+    if (!bbucleRoadUrl) {
+      return null;
+    }
+    const bbucleMatch = bbucleRoadUrl.match(
+      /con\.staircrusher\.club\/([^/?#]+)/,
+    );
+    return bbucleMatch ? bbucleMatch[1] : null;
+  }, [bbucleRoadUrl]);
 
-  // Bbucle road WebView branch: show WebView instead of normal PDP
+  // BbucleRoad WebView branch: show WebView instead of normal PDP.
+  // This reuses handleWebViewShouldStartLoad (shared with WebViewScreen) and
+  // BbucleRoadFloatingBar so that deep-link handling and the floating bar
+  // stay consistent across all BbucleRoad entry points.
   if (bbucleRoadUrl && place) {
     return (
       <LogParamsProvider params={logParams}>
@@ -678,20 +690,15 @@ export default function PlaceDetailV2Screen({
             <WebView
               style={bbucleWebViewStyles.webview}
               source={{uri: bbucleRoadUrl}}
-              onShouldStartLoadWithRequest={(
-                request: ShouldStartLoadRequest,
-              ) => {
-                const reqUrl = request.url;
-                if (
-                  reqUrl.startsWith('http://') ||
-                  reqUrl.startsWith('https://')
-                ) {
-                  return true;
-                }
-                Linking.openURL(reqUrl).catch(() => {});
-                return false;
-              }}
+              onShouldStartLoadWithRequest={handleWebViewShouldStartLoad}
+              contentInset={bbucleRoadId ? {bottom: 80} : undefined}
             />
+            {bbucleRoadId && (
+              <BbucleRoadFloatingBar
+                bbucleRoadId={bbucleRoadId}
+                title={place.name}
+              />
+            )}
           </GestureHandlerRootView>
         </ScreenLayout>
       </LogParamsProvider>
