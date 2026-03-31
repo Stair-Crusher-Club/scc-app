@@ -218,7 +218,7 @@ function SearchItemCard({
         }}>
         <Container
           elementName="place_search_item_card_bbucle"
-          isHeightFlex
+          isHeightFlex={isHeightFlex}
           onPress={onPress}>
           <InfoArea>
             <BbucleRoadLabelIconRow>
