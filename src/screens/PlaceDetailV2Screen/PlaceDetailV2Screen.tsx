@@ -4,14 +4,18 @@ import {
   Animated,
   InteractionManager,
   LayoutChangeEvent,
+  Linking,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
   ScrollView,
+  StyleSheet,
   View,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
+import WebView from 'react-native-webview';
+import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
 import styled from 'styled-components/native';
 
 import {currentLocationAtom} from '@/atoms/Location';
@@ -22,6 +26,7 @@ import {
   Building,
   Place,
   PlaceDoorDirectionTypeDto,
+  PlaceSpecialAccessibilityDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
   UpvoteTargetTypeDto,
@@ -76,6 +81,7 @@ export interface PlaceDetailV2ScreenParams {
   event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
   autoOpenImageViewer?: boolean;
   autoOpenImageIndex?: number;
+  specialAccessibility?: PlaceSpecialAccessibilityDto;
 }
 
 type TabType = 'home' | 'accessibility' | 'review' | 'restroom' | 'conqueror';
@@ -97,6 +103,7 @@ export default function PlaceDetailV2Screen({
     placeInfo,
     autoOpenImageViewer,
     autoOpenImageIndex = 0,
+    specialAccessibility: navSpecialAccessibility,
   } = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
@@ -179,6 +186,9 @@ export default function PlaceDetailV2Screen({
           ? placeInfo.accessibilityScore
           : undefined,
       kakaoPlaceId: undefined as string | undefined,
+      specialAccessibility: navSpecialAccessibility as
+        | PlaceSpecialAccessibilityDto
+        | undefined,
     },
     queryKey: ['PlaceDetailV2', placeId],
     queryFn: async ({queryKey}) => {
@@ -192,6 +202,7 @@ export default function PlaceDetailV2Screen({
         isAccessibilityRegistrable: result.data.isAccessibilityRegistrable,
         accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
         kakaoPlaceId: kakaoVendor?.vendorPlaceId,
+        specialAccessibility: result.data.specialAccessibility,
       };
     },
   });
@@ -641,6 +652,48 @@ export default function PlaceDetailV2Screen({
     [placeId],
   );
 
+  const bbucleRoadUrl =
+    data?.specialAccessibility?.bbucleRoadData?.bbucleRoadUrl;
+
+  // Bbucle road WebView branch: show WebView instead of normal PDP
+  if (bbucleRoadUrl && place) {
+    return (
+      <LogParamsProvider params={logParams}>
+        <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
+          <V2AppBar
+            isFavorite={place.isFavorite}
+            onToggleFavorite={() =>
+              checkAuth(() =>
+                toggleFavorite({
+                  currentIsFavorite: place.isFavorite,
+                  placeId: place.id,
+                }),
+              )
+            }
+            onShare={() => ShareUtils.sharePlace(place)}
+            placeName={place.name}
+            showTitle
+          />
+          <WebView
+            style={bbucleWebViewStyles.webview}
+            source={{uri: bbucleRoadUrl}}
+            onShouldStartLoadWithRequest={(request: ShouldStartLoadRequest) => {
+              const reqUrl = request.url;
+              if (
+                reqUrl.startsWith('http://') ||
+                reqUrl.startsWith('https://')
+              ) {
+                return true;
+              }
+              Linking.openURL(reqUrl).catch(() => {});
+              return false;
+            }}
+          />
+        </ScreenLayout>
+      </LogParamsProvider>
+    );
+  }
+
   if (isLoading || !place || !building) {
     return null;
   }
@@ -941,6 +994,12 @@ export default function PlaceDetailV2Screen({
     </LogParamsProvider>
   );
 }
+
+const bbucleWebViewStyles = StyleSheet.create({
+  webview: {
+    flex: 1,
+  },
+});
 
 const SummarySectionContainer = styled.View`
   padding-top: 4px;

@@ -1,7 +1,7 @@
 import type {QueryKey} from '@tanstack/react-query';
 import {useAtom, useAtomValue} from 'jotai';
 import React, {memo, useCallback} from 'react';
-import {View} from 'react-native';
+import {Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -14,7 +14,11 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
+import {
+  BbucleRoadAccessibilityDtoBbucleRoadTypeEnum,
+  PlaceCategoryDto,
+  PlaceListItem,
+} from '@/generated-sources/openapi';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
@@ -172,6 +176,56 @@ function SearchItemCard({
     item.accessibilityInfo?.reviewCount &&
     item.accessibilityInfo.reviewCount > 0
   );
+
+  const bbucleRoadData = item.specialAccessibility?.bbucleRoadData;
+
+  // Bbucle road card variant
+  if (bbucleRoadData) {
+    const bbucleRoadTypeText =
+      bbucleRoadData.bbucleRoadType ===
+      BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium
+        ? '야구장'
+        : '공연장';
+
+    return (
+      <LogParamsProvider
+        params={{
+          displaySectionName: 'search_item_card',
+          place_id: item.place.id,
+          place_name: item.place.name,
+          is_bbucle_road: true,
+          bbucle_road_type: bbucleRoadData.bbucleRoadType,
+        }}>
+        <Container
+          elementName="place_search_item_card_bbucle"
+          isHeightFlex
+          onPress={onPress}>
+          <InfoArea>
+            <BbucleRoadBadge>
+              <BbucleRoadBadgeText>{`뿌클로드 ${bbucleRoadTypeText}`}</BbucleRoadBadgeText>
+            </BbucleRoadBadge>
+            <TitleArea>
+              <TextWrapper>
+                <TitleText>{item.place.name}</TitleText>
+              </TextWrapper>
+              <LocationBox>
+                <DistanceText>{distanceText}</DistanceText>
+                <LocationDivider />
+                <AddressText>{item.place.address}</AddressText>
+              </LocationBox>
+            </TitleArea>
+          </InfoArea>
+          <BbucleThumbnailContainer>
+            <BbucleThumbnailImage
+              source={{uri: bbucleRoadData.thumbnailImageUrl}}
+              resizeMode="cover"
+            />
+          </BbucleThumbnailContainer>
+        </Container>
+        {LocationConfirmModal}
+      </LogParamsProvider>
+    );
+  }
 
   return (
     <LogParamsProvider
@@ -481,6 +535,33 @@ const LocationDivider = styled.View`
   height: 2px;
   border-radius: 1px;
   background-color: ${() => color.gray80};
+`;
+
+const BbucleRoadBadge = styled.View`
+  background-color: #6b4eff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  align-self: flex-start;
+  margin-bottom: 6px;
+`;
+
+const BbucleRoadBadgeText = styled.Text`
+  font-size: 12px;
+  font-family: ${() => font.pretendardBold};
+  color: ${() => color.white};
+`;
+
+const BbucleThumbnailContainer = styled.View`
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 12px;
+`;
+
+const BbucleThumbnailImage = styled(Image)`
+  width: 100%;
+  height: 100%;
 `;
 
 export default memo(SearchItemCard);

@@ -308,6 +308,39 @@ export interface AuthTokensDto {
     'accessToken': string;
 }
 /**
+ * 뿌클로드 접근성 데이터.
+ * @export
+ * @interface BbucleRoadAccessibilityDto
+ */
+export interface BbucleRoadAccessibilityDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BbucleRoadAccessibilityDto
+     */
+    'bbucleRoadType': BbucleRoadAccessibilityDtoBbucleRoadTypeEnum;
+    /**
+     * 뿌클로드 웹뷰 URL
+     * @type {string}
+     * @memberof BbucleRoadAccessibilityDto
+     */
+    'bbucleRoadUrl': string;
+    /**
+     * 카드뷰/리스트뷰 썸네일 이미지 URL
+     * @type {string}
+     * @memberof BbucleRoadAccessibilityDto
+     */
+    'thumbnailImageUrl': string;
+}
+
+export const BbucleRoadAccessibilityDtoBbucleRoadTypeEnum = {
+    BaseballStadium: 'BASEBALL_STADIUM',
+    ConcertHall: 'CONCERT_HALL'
+} as const;
+
+export type BbucleRoadAccessibilityDtoBbucleRoadTypeEnum = typeof BbucleRoadAccessibilityDtoBbucleRoadTypeEnum[keyof typeof BbucleRoadAccessibilityDtoBbucleRoadTypeEnum];
+
+/**
  * 
  * @export
  * @interface BbucleRoadClickableRegionDto
@@ -4040,6 +4073,12 @@ export interface PlaceListItem {
      * @memberof PlaceListItem
      */
     'isAccessibilityInfoRequested'?: boolean;
+    /**
+     * 
+     * @type {PlaceSpecialAccessibilityDto}
+     * @memberof PlaceListItem
+     */
+    'specialAccessibility'?: PlaceSpecialAccessibilityDto;
 }
 /**
  * 저장 리스트 타입
@@ -4231,6 +4270,32 @@ export interface PlaceReviewListItemDto {
      */
     'createdAt': EpochMillisTimestamp;
 }
+/**
+ * 장소의 특수 접근성 정보. 뿌클로드 등 특수한 방식으로 접근성 정보를 제공하는 장소에 대한 메타데이터.
+ * @export
+ * @interface PlaceSpecialAccessibilityDto
+ */
+export interface PlaceSpecialAccessibilityDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceSpecialAccessibilityDto
+     */
+    'accessibilityType': PlaceSpecialAccessibilityDtoAccessibilityTypeEnum;
+    /**
+     * 
+     * @type {BbucleRoadAccessibilityDto}
+     * @memberof PlaceSpecialAccessibilityDto
+     */
+    'bbucleRoadData'?: BbucleRoadAccessibilityDto;
+}
+
+export const PlaceSpecialAccessibilityDtoAccessibilityTypeEnum = {
+    BbucleRoad: 'BBUCLE_ROAD'
+} as const;
+
+export type PlaceSpecialAccessibilityDtoAccessibilityTypeEnum = typeof PlaceSpecialAccessibilityDtoAccessibilityTypeEnum[keyof typeof PlaceSpecialAccessibilityDtoAccessibilityTypeEnum];
+
 /**
  * 장소 단위 도움이 돼요 정보
  * @export
@@ -5282,6 +5347,12 @@ export interface SearchPlacesByNaturalLanguageResultItemDto {
      * @memberof SearchPlacesByNaturalLanguageResultItemDto
      */
     'isAccessibilityInfoRequested'?: boolean;
+    /**
+     * 
+     * @type {PlaceSpecialAccessibilityDto}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'specialAccessibility'?: PlaceSpecialAccessibilityDto;
 }
 /**
  * 
