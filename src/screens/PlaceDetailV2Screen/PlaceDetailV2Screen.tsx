@@ -22,6 +22,7 @@ import {
   Building,
   Place,
   PlaceDoorDirectionTypeDto,
+  PlaceSpecialAccessibilityDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
   UpvoteTargetTypeDto,
@@ -76,6 +77,7 @@ export interface PlaceDetailV2ScreenParams {
   event?: 'submit-place' | 'submit-building' | BuildingRegistrationEvent;
   autoOpenImageViewer?: boolean;
   autoOpenImageIndex?: number;
+  specialAccessibility?: PlaceSpecialAccessibilityDto;
 }
 
 type TabType = 'home' | 'accessibility' | 'review' | 'restroom' | 'conqueror';
@@ -97,6 +99,7 @@ export default function PlaceDetailV2Screen({
     placeInfo,
     autoOpenImageViewer,
     autoOpenImageIndex = 0,
+    specialAccessibility: navSpecialAccessibility,
   } = route.params;
   const checkAuth = useCheckAuth();
   const {api} = useAppComponents();
@@ -179,6 +182,9 @@ export default function PlaceDetailV2Screen({
           ? placeInfo.accessibilityScore
           : undefined,
       kakaoPlaceId: undefined as string | undefined,
+      specialAccessibility: navSpecialAccessibility as
+        | PlaceSpecialAccessibilityDto
+        | undefined,
     },
     queryKey: ['PlaceDetailV2', placeId],
     queryFn: async ({queryKey}) => {
@@ -192,6 +198,7 @@ export default function PlaceDetailV2Screen({
         isAccessibilityRegistrable: result.data.isAccessibilityRegistrable,
         accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
         kakaoPlaceId: kakaoVendor?.vendorPlaceId,
+        specialAccessibility: result.data.specialAccessibility,
       };
     },
   });
@@ -640,6 +647,22 @@ export default function PlaceDetailV2Screen({
     },
     [placeId],
   );
+
+  const bbucleRoadUrl =
+    data?.specialAccessibility?.bbucleRoadData?.bbucleRoadUrl;
+
+  // BbucleRoad: WebViewScreen으로 replace하여 코드 중복 제거.
+  // WebViewScreen이 이미 BbucleRoadFloatingBar, handleWebViewShouldStartLoad 등을 처리.
+  const [didReplaceToBbucleRoad, setDidReplaceToBbucleRoad] = useState(false);
+  useEffect(() => {
+    if (bbucleRoadUrl && place && !didReplaceToBbucleRoad) {
+      setDidReplaceToBbucleRoad(true);
+      navigation.replace('Webview', {
+        url: bbucleRoadUrl,
+        fixedTitle: place.name,
+      });
+    }
+  }, [bbucleRoadUrl, place, navigation, didReplaceToBbucleRoad]);
 
   if (isLoading || !place || !building) {
     return null;

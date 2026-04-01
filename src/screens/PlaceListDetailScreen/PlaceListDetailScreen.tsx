@@ -135,6 +135,7 @@ const PlaceListDetailScreen = ({
     (item: PlaceMarkerItem) => {
       navigation.navigate(pdpScreen, {
         placeInfo: {placeId: item.place.id},
+        specialAccessibility: item.specialAccessibility,
       });
     },
     [pdpScreen, navigation],

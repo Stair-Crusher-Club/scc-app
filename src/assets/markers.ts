@@ -25,12 +25,28 @@ import MarkerPharReviewOffRaw from '@/assets/icon/ic_marker_phar_review_off.svg.
 import MarkerRestReviewOffRaw from '@/assets/icon/ic_marker_rest_review_off.svg.txt';
 import MarkerHosReviewOffRaw from '@/assets/icon/ic_marker_hos_review_off.svg.txt';
 import MarkerDefaultReviewOffRaw from '@/assets/icon/ic_marker_default_review_off.svg.txt';
+import MarkerBbucleRoadBaseballOnRaw from '@/assets/icon/ic_marker_bbucle_baseball_on.svg.txt';
+import MarkerBbucleRoadBaseballOffRaw from '@/assets/icon/ic_marker_bbucle_baseball_off.svg.txt';
+import MarkerBbucleRoadConcertOnRaw from '@/assets/icon/ic_marker_bbucle_concert_on.svg.txt';
+import MarkerBbucleRoadConcertOffRaw from '@/assets/icon/ic_marker_bbucle_concert_off.svg.txt';
 
 export function getMarkerSvg(
   icon: MarkerIcon,
   isFocused: boolean,
   hasReview: boolean,
 ) {
+  // BbucleRoad markers (no review variant)
+  if (icon === 'bbucle_road_baseball') {
+    return isFocused
+      ? MarkerBbucleRoadBaseballOnRaw
+      : MarkerBbucleRoadBaseballOffRaw;
+  }
+  if (icon === 'bbucle_road_concert') {
+    return isFocused
+      ? MarkerBbucleRoadConcertOnRaw
+      : MarkerBbucleRoadConcertOffRaw;
+  }
+
   if (isFocused) {
     if (hasReview) {
       switch (icon) {

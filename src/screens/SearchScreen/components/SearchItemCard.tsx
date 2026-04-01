@@ -1,7 +1,7 @@
 import type {QueryKey} from '@tanstack/react-query';
 import {useAtom, useAtomValue} from 'jotai';
 import React, {memo, useCallback} from 'react';
-import {View} from 'react-native';
+import {Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIconOff from '@/assets/icon/ic_bookmark.svg';
@@ -14,7 +14,11 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceCategoryDto, PlaceListItem} from '@/generated-sources/openapi';
+import {
+  BbucleRoadAccessibilityDtoBbucleRoadTypeEnum,
+  PlaceCategoryDto,
+  PlaceListItem,
+} from '@/generated-sources/openapi';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
@@ -118,9 +122,10 @@ function SearchItemCard({
         placeInfo: {placeId: item.place.id},
         autoOpenImageViewer: true,
         autoOpenImageIndex: index,
+        specialAccessibility: item.specialAccessibility,
       });
     },
-    [navigation, pdpScreen, item.place.id],
+    [navigation, pdpScreen, item.place.id, item.specialAccessibility],
   );
 
   const onShare = () => {
@@ -172,6 +177,108 @@ function SearchItemCard({
     item.accessibilityInfo?.reviewCount &&
     item.accessibilityInfo.reviewCount > 0
   );
+
+  const bbucleRoadData = item.specialAccessibility?.bbucleRoadData;
+
+  // Bbucle road card variant
+  if (bbucleRoadData) {
+    const bbucleRoadTypeText = ((): string => {
+      switch (bbucleRoadData.bbucleRoadType) {
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium:
+          return '야구장';
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.ConcertHall:
+          return '공연장';
+        default: {
+          const _exhaustiveCheck: never = bbucleRoadData.bbucleRoadType;
+          return _exhaustiveCheck;
+        }
+      }
+    })();
+    const bbucleRoadEmoji = ((): string => {
+      switch (bbucleRoadData.bbucleRoadType) {
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium:
+          return '⚾️';
+        case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.ConcertHall:
+          return '🎤';
+        default: {
+          const _exhaustiveCheck: never = bbucleRoadData.bbucleRoadType;
+          return _exhaustiveCheck;
+        }
+      }
+    })();
+
+    return (
+      <LogParamsProvider
+        params={{
+          displaySectionName: 'search_item_card',
+          place_id: item.place.id,
+          place_name: item.place.name,
+          is_bbucle_road: true,
+          bbucle_road_type: bbucleRoadData.bbucleRoadType,
+        }}>
+        <Container
+          elementName="place_search_item_card_bbucle"
+          isHeightFlex
+          onPress={onPress}>
+          <InfoArea>
+            <BbucleRoadLabelIconRow>
+              <BbucleRoadBadge>
+                <BbucleRoadBadgeText>{`뿌클로드 ${bbucleRoadTypeText} ${bbucleRoadEmoji}`}</BbucleRoadBadgeText>
+              </BbucleRoadBadge>
+              <IconArea>
+                <SccTouchableOpacity
+                  elementName="bbucle_card_bookmark"
+                  logParams={{is_favorite: isFavorite}}
+                  style={{paddingLeft: 5, paddingRight: 5, paddingBottom: 5}}
+                  activeOpacity={0.6}
+                  onPress={() => checkAuth(onFavorite)}>
+                  {isFavorite ? (
+                    <BookmarkIconOn
+                      color={color.brandColor}
+                      width={24}
+                      height={24}
+                    />
+                  ) : (
+                    <BookmarkIconOff
+                      color={color.gray70}
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                </SccTouchableOpacity>
+                <SccTouchableOpacity
+                  elementName="bbucle_card_share"
+                  style={{paddingLeft: 5, paddingBottom: 5}}
+                  activeOpacity={0.6}
+                  onPress={() => checkAuth(onShare)}>
+                  <ShareIcon color={color.gray70} width={24} height={24} />
+                </SccTouchableOpacity>
+              </IconArea>
+            </BbucleRoadLabelIconRow>
+            <TitleArea>
+              <TextWrapper>
+                <TitleText>{item.place.name}</TitleText>
+              </TextWrapper>
+              <LocationBox>
+                <DistanceText>{distanceText}</DistanceText>
+                <LocationDivider />
+                <AddressText>{item.place.address}</AddressText>
+              </LocationBox>
+            </TitleArea>
+          </InfoArea>
+          {bbucleRoadData.thumbnailImageUrl ? (
+            <BbucleThumbnailContainer>
+              <BbucleThumbnailImage
+                source={{uri: bbucleRoadData.thumbnailImageUrl}}
+                resizeMode="cover"
+              />
+            </BbucleThumbnailContainer>
+          ) : null}
+        </Container>
+        {LocationConfirmModal}
+      </LogParamsProvider>
+    );
+  }
 
   return (
     <LogParamsProvider
@@ -481,6 +588,41 @@ const LocationDivider = styled.View`
   height: 2px;
   border-radius: 1px;
   background-color: ${() => color.gray80};
+`;
+
+const BbucleRoadLabelIconRow = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 4px;
+`;
+
+const BbucleRoadBadge = styled.View`
+  background-color: rgba(162, 255, 32, 0.3);
+  border-radius: 6px;
+  padding: 4px 6px;
+  align-self: flex-start;
+`;
+
+const BbucleRoadBadgeText = styled.Text`
+  font-size: 12px;
+  font-family: ${() => font.pretendardMedium};
+  color: #305306;
+  line-height: 15.6px;
+`;
+
+const BbucleThumbnailContainer = styled.View`
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 12px;
+`;
+
+const BbucleThumbnailImage = styled(Image)`
+  width: 100%;
+  height: 100%;
 `;
 
 export default memo(SearchItemCard);

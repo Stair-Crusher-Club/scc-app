@@ -286,6 +286,12 @@ export default function MyNewScreen({
 - Avoid using `any`; use `unknown` or proper types instead
 - Use enums or union types for fixed sets of values
 - Keep imports organized: external libraries first, then internal modules, then styles/assets
+- **Exhaustive switch**: enum/union type 분기는 if-else 대신 switch + `never` default로 컴파일 타임 안전성 확보
+  ```typescript
+  default: { const _exhaustiveCheck: never = value; return _exhaustiveCheck; }
+  ```
+- **고유명사 유지**: 약어화하지 않는다 (e.g. `BbucleRoad`가 고유명사이면 `Bbucle`로 줄이지 않음)
+- **공통 로직 추출**: WebView URL 핸들링 등 여러 화면에서 반복되는 로직은 `utils/`로 추출하여 재사용
 
 ### TypeScript Examples
 

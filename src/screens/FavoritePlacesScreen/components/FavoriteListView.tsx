@@ -60,6 +60,7 @@ export default function FavoriteListView() {
                       placeInfo: {
                         placeId: item.place.id,
                       },
+                      specialAccessibility: item.specialAccessibility,
                     });
                   }}
                 />
