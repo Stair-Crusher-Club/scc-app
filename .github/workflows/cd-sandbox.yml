@@ -79,12 +79,29 @@ jobs:
             --distribution-id E2XU65KUMLJRQM \
             --paths "/api/*"
 
+      - name: Extract bundle IDs
+        if: success()
+        run: |
+          eval $(grep -v '^#' subprojects/scc-frontend-build-configurations/sandbox/.env.hot-updater | sed 's/^/export /')
+          IOS_BUNDLE_ID=$(AWS_ACCESS_KEY_ID=$HOT_UPDATER_S3_ACCESS_KEY_ID \
+            AWS_SECRET_ACCESS_KEY=$HOT_UPDATER_S3_SECRET_ACCESS_KEY \
+            AWS_DEFAULT_REGION=$HOT_UPDATER_S3_REGION \
+            aws s3 cp s3://$HOT_UPDATER_S3_BUCKET_NAME/ios/${{ env.IOS_VERSION }}/update.json - \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['id'])")
+          ANDROID_BUNDLE_ID=$(AWS_ACCESS_KEY_ID=$HOT_UPDATER_S3_ACCESS_KEY_ID \
+            AWS_SECRET_ACCESS_KEY=$HOT_UPDATER_S3_SECRET_ACCESS_KEY \
+            AWS_DEFAULT_REGION=$HOT_UPDATER_S3_REGION \
+            aws s3 cp s3://$HOT_UPDATER_S3_BUCKET_NAME/android/${{ env.ANDROID_VERSION }}/update.json - \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['id'])")
+          echo "IOS_BUNDLE_ID=$IOS_BUNDLE_ID" >> $GITHUB_ENV
+          echo "ANDROID_BUNDLE_ID=$ANDROID_BUNDLE_ID" >> $GITHUB_ENV
+
       - name: Notify Slack on Success
         if: success()
         run: |
           COMMIT_MESSAGE_HEADER=$(git log -1 --pretty=format:"%s")
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[DEV] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nCommit: $COMMIT_MESSAGE_HEADER (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#0000FF\",\"title\":\"[DEV] Scc-App OTA Deployment Successful\", \"text\":\"iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\nBundle: iOS \`${{ env.IOS_BUNDLE_ID }}\`, Android \`${{ env.ANDROID_BUNDLE_ID }}\`\nCommit: $COMMIT_MESSAGE_HEADER (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
 
       - name: Notify Slack on Failure
         if: failure()
