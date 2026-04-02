@@ -257,11 +257,12 @@ export default function useSearchRequest() {
     keyboardRef.current = keyboard;
   }, [keyboard]);
 
+  const hasActiveSearch = !!text;
+  const isTransitioningToMapView =
+    !viewState.inputMode && viewState.type === 'map';
+
   useEffect(() => {
-    // autocomplete로 인해 input 모드에서 검색이 검색이
-    // input 모드에서 지도 뷰로 전환할 때도 카메라 피팅을 해준다.
-    // 단, 데이터가 fetching 중일 때는 fetching 이후 카메라 피팅을 해야 하므로 그냥 넘어간다.
-    if (!viewState.inputMode && viewState.type === 'map' && !isFetching) {
+    if (isTransitioningToMapView && hasActiveSearch && !isFetching) {
       setTimeout(() => {
         onFetchCompleted.current?.(data ?? []);
         onFetchCompleted.current = () => {};

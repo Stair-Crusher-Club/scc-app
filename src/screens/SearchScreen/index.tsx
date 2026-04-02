@@ -138,7 +138,8 @@ const SearchScreenContent = ({
         return [queryUpdate.text, ...newHistories].slice(0, 10);
       });
     }
-    if (shouldAnimate) {
+    const willTriggerSearch = !!queryUpdate.text;
+    if (shouldAnimate && willTriggerSearch) {
       setOnFetchCompleted(result => {
         if (result.length > 0) {
           ref.current?.fitToItems(
