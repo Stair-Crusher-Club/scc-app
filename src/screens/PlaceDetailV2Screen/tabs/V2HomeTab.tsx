@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Image, Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -26,6 +26,7 @@ import useNavigation from '@/navigation/useNavigation';
 
 import ToastUtils from '@/utils/ToastUtils';
 
+import PlaceDetailPlaceReviewItem from '../../PlaceDetailScreen/components/PlaceReviewItem';
 import PlaceReviewSummaryInfo from '../../PlaceDetailScreen/components/PlaceReviewSummaryInfo';
 import PlaceDetailPlaceToiletReviewItem from '../../PlaceDetailScreen/components/PlaceToiletReviewItem';
 import {
@@ -149,6 +150,17 @@ export default function V2HomeTab({
     }
     navigation.navigate('Webview', {url, headerVariant: 'navigation'});
   };
+
+  // 대표 리뷰 선정: 사진 있는 것 우선 → 최신순
+  const representativeReview = useMemo(() => {
+    if (reviews.length === 0) return undefined;
+    return [...reviews].sort((a, b) => {
+      const aHasImages = (a.images?.length ?? 0) > 0 ? 1 : 0;
+      const bHasImages = (b.images?.length ?? 0) > 0 ? 1 : 0;
+      if (bHasImages !== aHasImages) return bHasImages - aHasImages;
+      return (b.createdAt?.value ?? 0) - (a.createdAt?.value ?? 0);
+    })[0];
+  }, [reviews]);
 
   // ── 접근성 날짜는 각 출입구별로 계산 (렌더링 시 인라인) ──
 
@@ -333,21 +345,32 @@ export default function V2HomeTab({
         <ThickDivider />
       )}
 
-      {/* ── 5. 방문 리뷰 섹션 (통계만 표시, 0건이면 숨김) ── */}
+      {/* ── 5. 방문 리뷰 섹션 (통계 + 대표 리뷰 1개, 0건이면 숨김) ── */}
       {reviews.length > 0 && (
         <>
           <Section>
             <SectionHeader>
               <SectionTitle>방문 리뷰</SectionTitle>
             </SectionHeader>
-            <PlaceReviewSummaryInfo
-              reviews={reviews}
-              placeId={place.id}
-              placeName={place.name}
-              placeLocation={place.location}
-              placeAddress={place.address}
-              hideWriteButton
-            />
+            <ReviewContent>
+              <PlaceReviewSummaryInfo
+                reviews={reviews}
+                placeId={place.id}
+                placeName={place.name}
+                placeLocation={place.location}
+                placeAddress={place.address}
+                hideWriteButton
+              />
+              {representativeReview && (
+                <>
+                  <ReviewDivider />
+                  <PlaceDetailPlaceReviewItem
+                    placeId={place.id}
+                    review={representativeReview}
+                  />
+                </>
+              )}
+            </ReviewContent>
           </Section>
 
           <ThickDivider />
@@ -574,6 +597,16 @@ const ConquerorText = styled.Text`
   letter-spacing: -0.24px;
   color: #767884;
   text-align: right;
+`;
+
+/* Review content — matches V2ReviewTab Content gap */
+const ReviewContent = styled.View`
+  gap: 32px;
+`;
+
+const ReviewDivider = styled.View`
+  height: 1px;
+  background-color: ${color.gray20};
 `;
 
 /* Toilet reviews */
