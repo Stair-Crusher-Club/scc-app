@@ -236,15 +236,18 @@ export default function useSearchRequest() {
   const onFetchCompleted = useRef<(result: SearchResultItem[]) => void>(
     () => {},
   );
-  const pendingCallbackRef = useRef<(() => void) | null>(null);
+  const cameraFitDeferredUntilKeyboardDismissRef = useRef<(() => void) | null>(
+    null,
+  );
   const {updateQuery} = useUpdateSearchQuery();
   const setOnFetchCompleted: (
     callback: (result: SearchResultItem[]) => void,
   ) => void = callback => {
+    cameraFitDeferredUntilKeyboardDismissRef.current = null;
     onFetchCompleted.current = (result: SearchResultItem[]) => {
       if (keyboardRef.current.keyboardShown) {
         // 키보드가 올라와 있으면 실행 연기
-        pendingCallbackRef.current = () => callback(result);
+        cameraFitDeferredUntilKeyboardDismissRef.current = () => callback(result);
       } else {
         // 키보드가 내려가 있으면 즉시 실행
         setTimeout(() => callback(result), 100); // 지도 하단의 카드 리스트가 그려지는 것을 기다리기 위해 100ms 기다렸다가 렌더링한다. (100ms는 heuristic)
@@ -272,10 +275,10 @@ export default function useSearchRequest() {
 
   // 키보드가 내려가면 pending callback 실행
   useEffect(() => {
-    if (!keyboard.keyboardShown && pendingCallbackRef.current) {
-      const pendingCallback = pendingCallbackRef.current;
+    if (!keyboard.keyboardShown && cameraFitDeferredUntilKeyboardDismissRef.current) {
+      const pendingCallback = cameraFitDeferredUntilKeyboardDismissRef.current;
       setTimeout(pendingCallback, 100); // 지도 하단의 카드 리스트가 그려지는 것을 기다리기 위해 100ms 기다렸다가 렌더링한다. (100ms는 heuristic)
-      pendingCallbackRef.current = null;
+      cameraFitDeferredUntilKeyboardDismissRef.current = null;
     }
   }, [keyboard.keyboardShown]);
 
