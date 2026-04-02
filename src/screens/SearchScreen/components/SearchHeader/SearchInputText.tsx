@@ -1,7 +1,7 @@
 import {useAtom} from 'jotai';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {debounce} from 'lodash';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -46,15 +46,11 @@ export default function SearchInputText({
   const onClear = () => {
     setDraftKeyword(null);
     setViewState({type: 'map', inputMode: false});
-    onTextUpdate('', false); // 미리보기가 아닌 경우 Input Mode 를 해제
+    onTextUpdate('', false);
   };
-  const isTextExists = searchQuery.text?.length !== 0;
-
-  useEffect(() => {
-    if (searchQuery.text) {
-      setDraftKeyword(null);
-    }
-  }, [searchQuery.text]);
+  const isTextExists = viewState.inputMode
+    ? (draftKeyword?.length ?? 0) !== 0
+    : (searchQuery.text?.length ?? 0) !== 0;
 
   return (
     <Wrapper>
@@ -103,12 +99,17 @@ export default function SearchInputText({
           placeholder={'장소, 주소 검색'}
           placeholderTextColor={color.gray70}
           onChangeText={text => onChange(text)}
-          onFocus={() =>
-            setViewState(prev => {
-              return {...prev, inputMode: true};
-            })
+          onFocus={() => {
+            if (!viewState.inputMode || draftKeyword === null) {
+              setDraftKeyword(searchQuery.text ?? '');
+            }
+            setViewState(prev => ({...prev, inputMode: true}));
+          }}
+          value={
+            viewState.inputMode
+              ? (draftKeyword ?? '')
+              : (searchQuery.text ?? '')
           }
-          value={draftKeyword ?? searchQuery.text ?? ''}
           returnKeyType="search"
           onSubmitEditing={() => {
             onTextUpdate(draftKeyword ?? searchQuery.text ?? '', false);
