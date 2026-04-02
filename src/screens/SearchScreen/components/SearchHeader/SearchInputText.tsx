@@ -44,7 +44,7 @@ export default function SearchInputText({
     debounceSearch(text);
   };
   const onClear = () => {
-    setDraftKeyword(null);
+    setDraftKeyword('');
     setViewState({type: 'map', inputMode: false});
     onTextUpdate('', false);
   };

@@ -304,8 +304,8 @@ describe('SearchInputText - Korean IME race condition', () => {
     const clearButton = getByTestId('search_clear_or_submit_button');
     fireEvent.press(clearButton);
 
-    // onClear 동작 검증: draftKeyword=null, onTextUpdate('', false) 호출
-    expect(store.get(draftKeywordAtom)).toBeNull();
+    // onClear 동작 검증: draftKeyword='', onTextUpdate('', false) 호출
+    expect(store.get(draftKeywordAtom)).toBe('');
     expect(onTextUpdate).toHaveBeenCalledWith('', false);
 
     // onTextUpdate 호출 후 searchQuery.text가 외부에서 ''로 업데이트되는 상황

@@ -3,7 +3,6 @@ import {useAtomValue, useSetAtom} from 'jotai';
 import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 import {
   draftCameraRegionAtom,
-  draftKeywordAtom,
   SearchQuery,
   searchQueryAtom,
 } from '@/screens/SearchScreen/atoms';
@@ -11,7 +10,6 @@ import {
 export function useUpdateSearchQuery() {
   const setSearchQuery = useSetAtom(searchQueryAtom);
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
-  const draftKeyword = useAtomValue(draftKeywordAtom);
 
   const updateQuery = (queryUpdate: Partial<SearchQuery>) => {
     const query: Partial<SearchQuery> = queryUpdate;
@@ -24,15 +22,12 @@ export function useUpdateSearchQuery() {
       query.location = {lat: center.latitude, lng: center.longitude};
       query.radiusMeter = radius;
     }
-    if (draftKeyword !== null && !query.text) {
-      query.text = draftKeyword;
-    }
     setSearchQuery(prev => {
       return {
         location: query.location ?? prev.location,
         radiusMeter: query.radiusMeter ?? prev.radiusMeter,
         text: query.text ?? prev.text,
-        useCameraRegion: query.useCameraRegion === true, // 얘는 명시적으로 true로 set 했을 때만 true로 유지해준다.
+        useCameraRegion: query.useCameraRegion === true,
       };
     });
   };
