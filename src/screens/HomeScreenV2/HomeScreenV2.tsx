@@ -109,9 +109,13 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (!showPopupThisSession) {
       return null;
     }
+    // 튜토리얼이 진행 중이면 팝업을 보여주지 않음
+    if (needsTutorial && !hasShownHomeTutorial) {
+      return null;
+    }
     const popups = homeData?.homePopups ?? [];
     return popups.find(p => !dismissedPopupIds[p.id]) ?? null;
-  }, [homeData?.homePopups, dismissedPopupIds, showPopupThisSession]);
+  }, [homeData?.homePopups, dismissedPopupIds, showPopupThisSession, needsTutorial, hasShownHomeTutorial]);
 
   // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
   // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
