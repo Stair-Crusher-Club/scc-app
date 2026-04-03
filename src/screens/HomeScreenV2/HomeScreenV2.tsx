@@ -100,6 +100,16 @@ const HomeScreenV2 = ({navigation}: any) => {
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
 
+  // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
+  // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
+  const [needsTutorial] = useState(() => {
+    if (getDeferredDeepLinkUrl()) {
+      return false;
+    }
+    return !hasShownHomeTutorial;
+  });
+  const [tutorialVisible, setTutorialVisible] = useState(false);
+
   // 홈 팝업 상태
   const [dismissedPopupIds, setDismissedPopupIds] = useAtom(
     dismissedHomePopupIdsAtom,
@@ -116,16 +126,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     const popups = homeData?.homePopups ?? [];
     return popups.find(p => !dismissedPopupIds[p.id]) ?? null;
   }, [homeData?.homePopups, dismissedPopupIds, showPopupThisSession, needsTutorial, hasShownHomeTutorial]);
-
-  // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
-  // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
-  const [needsTutorial] = useState(() => {
-    if (getDeferredDeepLinkUrl()) {
-      return false;
-    }
-    return !hasShownHomeTutorial;
-  });
-  const [tutorialVisible, setTutorialVisible] = useState(false);
 
   useEffect(() => {
     if (!needsTutorial) {

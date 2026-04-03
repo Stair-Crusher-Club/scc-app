@@ -29,17 +29,29 @@ export default function HomePopupModal({
   const [imageHeight, setImageHeight] = useState<number>(POPUP_WIDTH);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
 
+  // 팝업이 바뀌면 체크박스 상태 초기화
   useEffect(() => {
+    setDoNotShowAgain(false);
+  }, [popup.id]);
+
+  useEffect(() => {
+    let cancelled = false;
     Image.getSize(
       popup.imageUrl,
       (width, height) => {
-        setImageHeight(POPUP_WIDTH * (height / width));
+        if (!cancelled) {
+          setImageHeight(POPUP_WIDTH * (height / width));
+        }
       },
       () => {
-        // fallback: 1:1 aspect ratio
-        setImageHeight(POPUP_WIDTH);
+        if (!cancelled) {
+          setImageHeight(POPUP_WIDTH);
+        }
       },
     );
+    return () => {
+      cancelled = true;
+    };
   }, [popup.imageUrl]);
 
   const handleClose = useCallback(() => {
