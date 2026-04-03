@@ -289,7 +289,8 @@ export const ApiErrorResponseCodeEnum = {
     CHALLENGE_CLOSED: '13',
     INVALID_BIRTH_YEAR: '14',
     B2B_INFO_REQUIRED: '15',
-    PHONE_NUMBER_VERIFICATION_FAILED: '20'
+    PHONE_NUMBER_VERIFICATION_FAILED: '16',
+    CHALLENGE_FULL: '20'
 } as const;
 
 export type ApiErrorResponseCodeEnum = typeof ApiErrorResponseCodeEnum[keyof typeof ApiErrorResponseCodeEnum];
@@ -2359,6 +2360,12 @@ export interface GetHomeScreenDataResponseDto {
      * @memberof GetHomeScreenDataResponseDto
      */
     'recommendedContents': Array<HomeRecommendedContentDto>;
+    /**
+     * 홈 화면 팝업 (활성 상태, displayOrder 오름차순)
+     * @type {Array<HomePopupDto>}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'homePopups': Array<HomePopupDto>;
 }
 /**
  * 
@@ -2712,6 +2719,31 @@ export interface HomeBannerDto {
      * @memberof HomeBannerDto
      */
     'clickPageTitle': string;
+}
+/**
+ * 홈 화면 팝업
+ * @export
+ * @interface HomePopupDto
+ */
+export interface HomePopupDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomePopupDto
+     */
+    'id': string;
+    /**
+     * 팝업 이미지 URL (제목 텍스트도 이미지에 포함)
+     * @type {string}
+     * @memberof HomePopupDto
+     */
+    'imageUrl': string;
+    /**
+     * 노출 순서 (작을수록 높은 우선순위)
+     * @type {number}
+     * @memberof HomePopupDto
+     */
+    'displayOrder': number;
 }
 /**
  * 홈 화면 추천 컨텐츠

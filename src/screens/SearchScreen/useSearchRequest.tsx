@@ -247,7 +247,8 @@ export default function useSearchRequest() {
     onFetchCompleted.current = (result: SearchResultItem[]) => {
       if (keyboardRef.current.keyboardShown) {
         // 키보드가 올라와 있으면 실행 연기
-        cameraFitDeferredUntilKeyboardDismissRef.current = () => callback(result);
+        cameraFitDeferredUntilKeyboardDismissRef.current = () =>
+          callback(result);
       } else {
         // 키보드가 내려가 있으면 즉시 실행
         setTimeout(() => callback(result), 100); // 지도 하단의 카드 리스트가 그려지는 것을 기다리기 위해 100ms 기다렸다가 렌더링한다. (100ms는 heuristic)
@@ -275,7 +276,10 @@ export default function useSearchRequest() {
 
   // 키보드가 내려가면 pending callback 실행
   useEffect(() => {
-    if (!keyboard.keyboardShown && cameraFitDeferredUntilKeyboardDismissRef.current) {
+    if (
+      !keyboard.keyboardShown &&
+      cameraFitDeferredUntilKeyboardDismissRef.current
+    ) {
       const pendingCallback = cameraFitDeferredUntilKeyboardDismissRef.current;
       setTimeout(pendingCallback, 100); // 지도 하단의 카드 리스트가 그려지는 것을 기다리기 위해 100ms 기다렸다가 렌더링한다. (100ms는 heuristic)
       cameraFitDeferredUntilKeyboardDismissRef.current = null;
