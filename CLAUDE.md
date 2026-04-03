@@ -36,6 +36,31 @@ After any code changes or implementation work, **ALWAYS** run these validation c
 - Optional `disableLogging` prop to completely disable event logging
 - Automatic duplicate element detection via global registry
 
+### SccRemoteImage (원격 이미지 필수)
+- **원격 URL 이미지를 표시할 때 `<Image source={{uri: ...}}>` 직접 사용 금지. 반드시 `SccRemoteImage` 사용.**
+- `SccRemoteImage`는 `Image.getSize` + 메모리 캐시 + 비율 자동 계산을 추상화한 컴포넌트
+- width를 지정하면 원본 비율에 맞춰 height를 자동 계산 (별도 `Image.getSize` useEffect 불필요)
+- `fixedHeight` prop으로 height 고정 + width 자동 계산 모드도 지원
+- `wrapperBackgroundColor`로 로딩 중 배경색 제어 (null이면 투명)
+
+```typescript
+import SccRemoteImage from '@/components/SccRemoteImage';
+
+// 기본: width 지정 → height 자동
+<SccRemoteImage
+  imageUrl={imageUrl}
+  style={{width: 300}}
+  resizeMode="cover"
+/>
+
+// height 고정 모드
+<SccRemoteImage
+  imageUrl={imageUrl}
+  fixedHeight={200}
+  resizeMode="cover"
+/>
+```
+
 ### Event Logging
 - `element_view` logged on component mount
 - `element_click` logged on press events
