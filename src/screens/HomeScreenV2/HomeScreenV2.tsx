@@ -4,8 +4,8 @@ import {
 } from '@react-native-firebase/messaging';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useAtomValue, useSetAtom} from 'jotai';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {useAtom, useAtomValue, useSetAtom} from 'jotai';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   BackHandler,
   Dimensions,
@@ -25,7 +25,10 @@ import styled from 'styled-components/native';
 import CrusherClubLogo from '@/assets/icon/logo.svg';
 import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
-import {hasShownHomeTutorialAtom} from '@/atoms/User';
+import {
+  dismissedHomePopupIdsAtom,
+  hasShownHomeTutorialAtom,
+} from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
@@ -48,6 +51,7 @@ import QuickMenuSection from './sections/QuickMenuSection';
 import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
+import HomePopupModal from './components/HomePopupModal';
 import TutorialOverlay from './components/TutorialOverlay';
 
 export interface HomeScreenV2Params {}
@@ -95,6 +99,19 @@ const HomeScreenV2 = ({navigation}: any) => {
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
+
+  // 홈 팝업 상태
+  const [dismissedPopupIds, setDismissedPopupIds] = useAtom(
+    dismissedHomePopupIdsAtom,
+  );
+  const [showPopupThisSession, setShowPopupThisSession] = useState(true);
+  const activePopup = useMemo(() => {
+    if (!showPopupThisSession) {
+      return null;
+    }
+    const popups = homeData?.homePopups ?? [];
+    return popups.find(p => !dismissedPopupIds[p.id]) ?? null;
+  }, [homeData?.homePopups, dismissedPopupIds, showPopupThisSession]);
 
   // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
   // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
@@ -365,6 +382,20 @@ const HomeScreenV2 = ({navigation}: any) => {
               onConfirmButtonPressed={openStore}
               onCloseButtonPressed={() => {
                 setShowAppUpgradeNeeded(false);
+              }}
+            />
+          )}
+          {activePopup && (
+            <HomePopupModal
+              popup={activePopup}
+              visible={true}
+              onClose={() => setShowPopupThisSession(false)}
+              onDismissPermanently={() => {
+                setDismissedPopupIds(prev => ({
+                  ...prev,
+                  [activePopup.id]: true,
+                }));
+                setShowPopupThisSession(false);
               }}
             />
           )}

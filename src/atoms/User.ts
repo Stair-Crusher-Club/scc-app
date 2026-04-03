@@ -83,6 +83,11 @@ export const placeFormV2GuideDismissedUntilAtom =
     },
   );
 
+// 홈 팝업 "다시 보지 않기" 상태 (팝업 ID → dismissed 여부)
+export const dismissedHomePopupIdsAtom = atomForLocalNonNull<
+  Record<string, boolean>
+>('dismissedHomePopupIds', {});
+
 export const recentlyUsedMobilityToolAtom = atomForLocal<{
   name: UserMobilityToolMapDto;
   timestamp: number;
