@@ -134,6 +134,12 @@ const HomeScreenV2 = ({navigation}: any) => {
   ]);
 
   useEffect(() => {
+    if (activePopup) {
+      Image.prefetch(activePopup.imageUrl);
+    }
+  }, [activePopup?.imageUrl]);
+
+  useEffect(() => {
     if (!needsTutorial) {
       return;
     }
@@ -401,6 +407,9 @@ const HomeScreenV2 = ({navigation}: any) => {
               visible={true}
               onClose={() => setShowPopupThisSession(false)}
               onDismissPermanently={() => {
+                if (activePopup.clickUrl) {
+                  Linking.openURL(activePopup.clickUrl).catch(() => {});
+                }
                 setDismissedPopupIds(prev => ({
                   ...prev,
                   [activePopup.id]: true,
