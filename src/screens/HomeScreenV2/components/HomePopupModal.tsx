@@ -1,8 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Dimensions, Image, Modal} from 'react-native';
+import {Dimensions, Modal} from 'react-native';
 import styled from 'styled-components/native';
 
 import CloseIcon from '@/assets/icon/close.svg';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -26,33 +27,12 @@ export default function HomePopupModal({
   onClose,
   onDismissPermanently,
 }: HomePopupModalProps) {
-  const [imageHeight, setImageHeight] = useState<number>(POPUP_WIDTH);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
 
   // 팝업이 바뀌면 체크박스 상태 초기화
   useEffect(() => {
     setDoNotShowAgain(false);
   }, [popup.id]);
-
-  useEffect(() => {
-    let cancelled = false;
-    Image.getSize(
-      popup.imageUrl,
-      (width, height) => {
-        if (!cancelled) {
-          setImageHeight(POPUP_WIDTH * (height / width));
-        }
-      },
-      () => {
-        if (!cancelled) {
-          setImageHeight(POPUP_WIDTH);
-        }
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [popup.imageUrl]);
 
   const handleClose = useCallback(() => {
     if (doNotShowAgain) {
@@ -80,10 +60,11 @@ export default function HomePopupModal({
         />
         <ContentContainer>
           <ImageContainer>
-            <PopupImage
-              source={{uri: popup.imageUrl}}
-              style={{width: POPUP_WIDTH, height: imageHeight}}
+            <SccRemoteImage
+              imageUrl={popup.imageUrl}
+              style={{width: POPUP_WIDTH}}
               resizeMode="cover"
+              wrapperBackgroundColor={null}
             />
             <CloseButton
               elementName="home-popup-close-button"
@@ -135,8 +116,6 @@ const ImageContainer = styled.View`
   border-top-right-radius: ${BORDER_RADIUS}px;
   overflow: hidden;
 `;
-
-const PopupImage = styled(Image)``;
 
 const CloseButton = styled(SccPressable)`
   position: absolute;

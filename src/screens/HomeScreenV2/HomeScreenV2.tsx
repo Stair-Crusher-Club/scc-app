@@ -125,7 +125,13 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
     const popups = homeData?.homePopups ?? [];
     return popups.find(p => !dismissedPopupIds[p.id]) ?? null;
-  }, [homeData?.homePopups, dismissedPopupIds, showPopupThisSession, needsTutorial, hasShownHomeTutorial]);
+  }, [
+    homeData?.homePopups,
+    dismissedPopupIds,
+    showPopupThisSession,
+    needsTutorial,
+    hasShownHomeTutorial,
+  ]);
 
   useEffect(() => {
     if (!needsTutorial) {
