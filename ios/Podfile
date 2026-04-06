@@ -67,6 +67,17 @@ target 'sccReactNative' do
       end
     end
 
+    # Xcode 26의 clang이 fmt의 consteval을 거부하는 문제 우회
+    # https://github.com/facebook/react-native/issues/55601
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |config|
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FMT_USE_CONSTEVAL=0'
+        end
+      end
+    end
+
     # Xcode 14 부터 pod signing team 을 manually 넣어줘야 한다.
     # https://github.com/CocoaPods/CocoaPods/issues/1140://github.com/CocoaPods/CocoaPods/issues/11402
     installer.generated_projects.each do |project|
