@@ -164,10 +164,13 @@ jobs:
     runs-on: macos-26-xlarge
 
     steps:
-      - name: Select Xcode 26.0 and install iOS platform
+      - name: Select Xcode and install iOS platform
         run: |
+          # Xcode 26.0 선택 + toolchain 매칭 + iOS 플랫폼 설치
           sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
+          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
           xcodebuild -downloadPlatform iOS
+          xcodebuild -version
 
       - name: Checkout repository
         uses: actions/checkout@v4
