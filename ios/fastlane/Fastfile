@@ -241,7 +241,10 @@ platform :ios do
       build_number: next_build_number() + 1
     )
     # 3. commit & push
+    # pod install 등으로 변경된 다른 파일이 있으면 rebase가 실패하므로,
+    # 버전 관련 파일만 add하고 나머지 unstaged changes는 stash 처리
     sh("git add ../sccReactNative/Info.plist ../sccReactNativeTests/Info.plist ../sccReactNative.xcodeproj/project.pbxproj")
+    sh("git stash --keep-index || true")
     sh("git commit -m \"Release ios #{version} [skip ci]\"")
     branch = git_current_branch()
     retries = 0
@@ -256,6 +259,7 @@ platform :ios do
       end
       raise
     end
+    sh("git stash pop || true")
   end
 
   desc "Make IPA files for AppStore and Firebase Distribution. After this, you can upload the ipa files to Firebase Distribution and AppStore Connect using `fastlane ios firebase` or `fastlane ios itc`"
