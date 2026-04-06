@@ -21,6 +21,8 @@ interface SccRemoteImageProps {
   wrapperBackgroundColor?: string | null;
   /** height 고정 + 원본 비율로 width 자동 계산 (fit-height 모드) */
   fixedHeight?: number;
+  /** [DEBUG] 타이밍 로그 출력 */
+  debugLog?: boolean;
 }
 
 export default function SccRemoteImage({
@@ -30,6 +32,7 @@ export default function SccRemoteImage({
   style,
   wrapperBackgroundColor,
   fixedHeight,
+  debugLog,
 }: SccRemoteImageProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageHeight, setImageHeight] = useState<number | undefined>();
@@ -44,11 +47,21 @@ export default function SccRemoteImage({
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const {width} = event.nativeEvent.layout;
+    logTiming(`onLayout:width=${width}`);
     setMeasuredWidth(width);
+  };
+
+  // [DEBUG] timing
+  const mountTimeRef = React.useRef(Date.now());
+  const logTiming = (label: string) => {
+    if (!debugLog) return;
+    console.log(`[SccRemoteImage] ${label}: +${Date.now() - mountTimeRef.current}ms`);
   };
 
   // Get original image size only when imageUrl changes
   useEffect(() => {
+    mountTimeRef.current = Date.now();
+    logTiming('useEffect:getSize:start');
     setImageLoading(true);
     setImageHeight(undefined);
     setOriginalSize(undefined);
@@ -56,19 +69,23 @@ export default function SccRemoteImage({
     // 캐시 확인
     const cached = imageSizeCache.get(imageUrl);
     if (cached) {
+      logTiming('useEffect:getSize:cache-hit');
       setOriginalSize(cached);
       return;
     }
 
     // 캐시에 없으면 Image.getSize 호출
+    logTiming('useEffect:getSize:network-start');
     Image.getSize(
       imageUrl,
       (originalWidth, originalHeight) => {
+        logTiming('useEffect:getSize:network-done');
         const size = {width: originalWidth, height: originalHeight};
         imageSizeCache.set(imageUrl, size); // 캐시에 저장
         setOriginalSize(size);
       },
       () => {
+        logTiming('useEffect:getSize:error');
         // Error callback - still set loading to false
         setImageLoading(false);
       },
@@ -77,21 +94,26 @@ export default function SccRemoteImage({
 
   // Calculate height when measured width or original size changes
   useEffect(() => {
+    logTiming(`useEffect:calcHeight measuredWidth=${measuredWidth} originalSize=${!!originalSize}`);
     // measuredWidth가 0일 수도 있으니 === undefined로 체크해야 한다.
     if (measuredWidth === undefined || originalSize === undefined) {
       return;
     }
 
+    logTiming('useEffect:calcHeight:done');
     setImageHeight(calculateHeight(originalSize));
   }, [measuredWidth, originalSize]);
 
   useEffect(() => {
+    logTiming(`useEffect:onReady imageLoading=${imageLoading} imageHeight=${imageHeight}`);
     if (!imageLoading && imageHeight !== undefined) {
+      logTiming('useEffect:onReady:FIRE');
       onReady?.();
     }
   }, [imageLoading, imageHeight, onReady]);
 
   const handleImageLoad = () => {
+    logTiming('onLoad:image-loaded');
     setImageLoading(false);
   };
 

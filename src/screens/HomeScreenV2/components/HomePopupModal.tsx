@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Dimensions, Modal} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -29,6 +29,18 @@ export default function HomePopupModal({
 }: HomePopupModalProps) {
   const [imageReady, setImageReady] = useState(false);
 
+  // [DEBUG] timing
+  const mountTime = useRef(Date.now());
+  useEffect(() => {
+    mountTime.current = Date.now();
+    console.log(`[HomePopupModal] mounted, visible=${visible}`);
+  }, []);
+  useEffect(() => {
+    if (imageReady) {
+      console.log(`[HomePopupModal] imageReady=true after +${Date.now() - mountTime.current}ms`);
+    }
+  }, [imageReady]);
+
   return (
     <Modal
       visible={visible}
@@ -41,48 +53,36 @@ export default function HomePopupModal({
           onPress={onClose}
           disableLogging
         />
-        {imageReady && (
-          <ContentContainer>
-            <ImageContainer>
-              <SccPressable
-                elementName="home-popup-image"
-                onPress={onDismissPermanently}>
-                <SccRemoteImage
-                  imageUrl={popup.imageUrl}
-                  style={{width: POPUP_WIDTH}}
-                  resizeMode="cover"
-                  wrapperBackgroundColor={null}
-                  onReady={() => setImageReady(true)}
-                />
-              </SccPressable>
-              <CloseButton
-                elementName="home-popup-close-button"
-                onPress={onClose}>
-                <CloseIconWrapper>
-                  <CloseIcon width={12} height={12} color={color.white} />
-                </CloseIconWrapper>
-              </CloseButton>
-            </ImageContainer>
-            <BottomContainer>
-              <SccPressable
-                elementName="home-popup-do-not-show-again"
-                onPress={onDismissPermanently}>
-                <DismissText>다시 보지 않기</DismissText>
-              </SccPressable>
-            </BottomContainer>
-          </ContentContainer>
-        )}
-        {!imageReady && (
-          <HiddenImageLoader>
-            <SccRemoteImage
-              imageUrl={popup.imageUrl}
-              style={{width: POPUP_WIDTH}}
-              resizeMode="cover"
-              wrapperBackgroundColor={null}
-              onReady={() => setImageReady(true)}
-            />
-          </HiddenImageLoader>
-        )}
+        <ContentContainer style={{opacity: imageReady ? 1 : 0}}>
+          <ImageContainer>
+            <SccPressable
+              elementName="home-popup-image"
+              onPress={onDismissPermanently}>
+              <SccRemoteImage
+                imageUrl={popup.imageUrl}
+                style={{width: POPUP_WIDTH}}
+                resizeMode="cover"
+                wrapperBackgroundColor={null}
+                onReady={() => setImageReady(true)}
+                debugLog
+              />
+            </SccPressable>
+            <CloseButton
+              elementName="home-popup-close-button"
+              onPress={onClose}>
+              <CloseIconWrapper>
+                <CloseIcon width={12} height={12} color={color.white} />
+              </CloseIconWrapper>
+            </CloseButton>
+          </ImageContainer>
+          <BottomContainer>
+            <SccPressable
+              elementName="home-popup-do-not-show-again"
+              onPress={onDismissPermanently}>
+              <DismissText>다시 보지 않기</DismissText>
+            </SccPressable>
+          </BottomContainer>
+        </ContentContainer>
       </Overlay>
     </Modal>
   );
@@ -145,10 +145,4 @@ const DismissText = styled.Text`
   font-family: ${font.pretendardRegular};
   color: ${color.gray80};
   text-decoration-line: underline;
-`;
-
-const HiddenImageLoader = styled.View`
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
 `;
