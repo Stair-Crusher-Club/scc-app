@@ -2739,6 +2739,12 @@ export interface HomePopupDto {
      */
     'imageUrl': string;
     /**
+     * 클릭 시 이동할 URL (딥링크). 없으면 클릭 시 dismiss만.
+     * @type {string}
+     * @memberof HomePopupDto
+     */
+    'clickUrl'?: string;
+    /**
      * 노출 순서 (작을수록 높은 우선순위)
      * @type {number}
      * @memberof HomePopupDto

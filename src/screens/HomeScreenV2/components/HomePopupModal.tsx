@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Dimensions, Modal} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -27,24 +27,7 @@ export default function HomePopupModal({
   onClose,
   onDismissPermanently,
 }: HomePopupModalProps) {
-  const [doNotShowAgain, setDoNotShowAgain] = useState(false);
-
-  // 팝업이 바뀌면 체크박스 상태 초기화
-  useEffect(() => {
-    setDoNotShowAgain(false);
-  }, [popup.id]);
-
-  const handleClose = useCallback(() => {
-    if (doNotShowAgain) {
-      onDismissPermanently();
-    } else {
-      onClose();
-    }
-  }, [doNotShowAgain, onClose, onDismissPermanently]);
-
-  const toggleDoNotShowAgain = useCallback(() => {
-    setDoNotShowAgain(prev => !prev);
-  }, []);
+  const [imageReady, setImageReady] = useState(false);
 
   return (
     <Modal
@@ -55,36 +38,51 @@ export default function HomePopupModal({
       <Overlay>
         <BackgroundTouchable
           elementName="home-popup-overlay-background"
-          onPress={handleClose}
+          onPress={onClose}
           disableLogging
         />
-        <ContentContainer>
-          <ImageContainer>
+        {imageReady && (
+          <ContentContainer>
+            <ImageContainer>
+              <SccPressable
+                elementName="home-popup-image"
+                onPress={onDismissPermanently}>
+                <SccRemoteImage
+                  imageUrl={popup.imageUrl}
+                  style={{width: POPUP_WIDTH}}
+                  resizeMode="cover"
+                  wrapperBackgroundColor={null}
+                  onReady={() => setImageReady(true)}
+                />
+              </SccPressable>
+              <CloseButton
+                elementName="home-popup-close-button"
+                onPress={onClose}>
+                <CloseIconWrapper>
+                  <CloseIcon width={12} height={12} color={color.white} />
+                </CloseIconWrapper>
+              </CloseButton>
+            </ImageContainer>
+            <BottomContainer>
+              <SccPressable
+                elementName="home-popup-do-not-show-again"
+                onPress={onDismissPermanently}>
+                <DismissText>다시 보지 않기</DismissText>
+              </SccPressable>
+            </BottomContainer>
+          </ContentContainer>
+        )}
+        {!imageReady && (
+          <HiddenImageLoader>
             <SccRemoteImage
               imageUrl={popup.imageUrl}
               style={{width: POPUP_WIDTH}}
               resizeMode="cover"
               wrapperBackgroundColor={null}
+              onReady={() => setImageReady(true)}
             />
-            <CloseButton
-              elementName="home-popup-close-button"
-              onPress={handleClose}>
-              <CloseIconWrapper>
-                <CloseIcon width={12} height={12} color={color.white} />
-              </CloseIconWrapper>
-            </CloseButton>
-          </ImageContainer>
-          <BottomContainer>
-            <CheckboxRow
-              elementName="home-popup-do-not-show-again"
-              onPress={toggleDoNotShowAgain}>
-              <Checkbox isChecked={doNotShowAgain}>
-                {doNotShowAgain && <CheckMark>✓</CheckMark>}
-              </Checkbox>
-              <CheckboxLabel>다시 보지 않기</CheckboxLabel>
-            </CheckboxRow>
-          </BottomContainer>
-        </ContentContainer>
+          </HiddenImageLoader>
+        )}
       </Overlay>
     </Modal>
   );
@@ -142,33 +140,15 @@ const BottomContainer = styled.View`
   padding-vertical: 12px;
 `;
 
-const CheckboxRow = styled(SccPressable)`
-  flex-direction: row;
-  align-items: center;
-`;
-
-const Checkbox = styled.View<{isChecked: boolean}>`
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border-width: 1.5px;
-  border-color: ${({isChecked}) => (isChecked ? color.brand : color.gray40)};
-  background-color: ${({isChecked}) =>
-    isChecked ? color.brand : 'transparent'};
-  justify-content: center;
-  align-items: center;
-  margin-right: 8px;
-`;
-
-const CheckMark = styled.Text`
-  color: ${color.white};
-  font-size: 13px;
-  font-family: ${font.pretendardBold};
-  line-height: 16px;
-`;
-
-const CheckboxLabel = styled.Text`
+const DismissText = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardRegular};
   color: ${color.gray80};
+  text-decoration-line: underline;
+`;
+
+const HiddenImageLoader = styled.View`
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 `;
