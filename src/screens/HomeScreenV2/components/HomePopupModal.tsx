@@ -29,7 +29,7 @@ export default function HomePopupModal({
 }: HomePopupModalProps) {
   const [imageReady, setImageReady] = useState(false);
 
-  // [DEBUG] timing
+  // [DEBUG] 타이밍 측정만 남김
   const mountTime = useRef(Date.now());
   useEffect(() => {
     mountTime.current = Date.now();

@@ -135,7 +135,10 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   useEffect(() => {
     if (activePopup) {
-      Image.prefetch(activePopup.imageUrl);
+      console.log(`[HomeScreenV2] prefetch start: ${activePopup.imageUrl.slice(-30)}`);
+      Image.prefetch(activePopup.imageUrl).then(() => {
+        console.log(`[HomeScreenV2] prefetch done`);
+      });
     }
   }, [activePopup?.imageUrl]);
 
