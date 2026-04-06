@@ -8,8 +8,14 @@ import {SccButton} from '@/components/atoms';
 import TextArea from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityReportReason} from '@/generated-sources/openapi';
+import {
+  AccessibilityReportReason,
+  ClosedSubTypeDto,
+  InaccurateInfoCategoryDto,
+} from '@/generated-sources/openapi';
 import BottomSheet from '@/modals/BottomSheet';
+
+type Step = 'reason' | 'inaccurateCategory' | 'closedSubType' | 'text';
 
 interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
@@ -20,18 +26,53 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
     reason: AccessibilityReportReason,
     text: string,
   ) => void;
+  onPressNavigateToCorrection: (params: {
+    placeId: string;
+    reason: AccessibilityReportReason;
+    inaccurateCategories: InaccurateInfoCategoryDto[];
+  }) => void;
+  onPressSubmitClosed: (params: {
+    placeId: string;
+    closedSubType: ClosedSubTypeDto;
+    detail?: string;
+  }) => void;
 }
+
+const INACCURATE_CATEGORY_LABELS: Record<InaccurateInfoCategoryDto, string> = {
+  [InaccurateInfoCategoryDto.Entrance]: '입구 정보',
+  [InaccurateInfoCategoryDto.Floor]: '층 정보',
+  [InaccurateInfoCategoryDto.DoorType]: '문 유형',
+  [InaccurateInfoCategoryDto.Elevator]: '엘리베이터 정보',
+  [InaccurateInfoCategoryDto.AccessLevel]: '접근레벨',
+  [InaccurateInfoCategoryDto.Photo]: '사진 오류',
+  [InaccurateInfoCategoryDto.Other]: '기타',
+};
+
+const CLOSED_SUB_TYPE_LABELS: Record<ClosedSubTypeDto, string> = {
+  [ClosedSubTypeDto.PermanentlyClosed]: '폐업했어요',
+  [ClosedSubTypeDto.ReplacedByOther]: '다른 가게로 바뀌었어요',
+  [ClosedSubTypeDto.Other]: '기타',
+};
 
 const PlaceDetailNegativeFeedbackBottomSheet = ({
   isVisible,
   placeId,
   onPressCloseButton,
   onPressSubmitButton,
+  onPressNavigateToCorrection,
+  onPressSubmitClosed,
 }: PlaceDetailNegativeFeedbackBottomSheetProps) => {
-  const [step, setStep] = useState<'select' | 'text'>('select');
+  const [step, setStep] = useState<Step>('reason');
   const [selectedReason, setSelectedReason] =
     useState<AccessibilityReportReason | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<
+    InaccurateInfoCategoryDto[]
+  >([]);
+  const [selectedClosedSubType, setSelectedClosedSubType] =
+    useState<ClosedSubTypeDto | null>(null);
   const [text, setText] = useState<string | null>(null);
+  const [closedDetail, setClosedDetail] = useState<string | null>(null);
+
   const reasons: AccessibilityReportReason[] = [
     'INACCURATE_INFO',
     'CLOSED',
@@ -40,24 +81,147 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 
   const onClear = useCallback(() => {
     setSelectedReason(null);
-    setStep('select');
+    setStep('reason');
     setText(null);
+    setSelectedCategories([]);
+    setSelectedClosedSubType(null);
+    setClosedDetail(null);
   }, []);
 
-  return (
-    <BottomSheet
-      isVisible={isVisible}
-      onPressBackground={() => {
+  const handleClose = useCallback(() => {
+    onClear();
+    onPressCloseButton();
+  }, [onClear, onPressCloseButton]);
+
+  const toggleCategory = useCallback((category: InaccurateInfoCategoryDto) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category],
+    );
+  }, []);
+
+  const getTitle = (): string => {
+    switch (step) {
+      case 'reason':
+        return '어떤 문제가 있나요?';
+      case 'inaccurateCategory':
+        return '어떤 정보가 틀렸나요?';
+      case 'closedSubType':
+        return '어떤 상황인가요?';
+      case 'text':
+        return '차단 사유를 알려주세요.';
+      default: {
+        const _exhaustiveCheck: never = step;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
+  const getSubmitButtonText = (): string => {
+    switch (step) {
+      case 'reason':
+        return '다음';
+      case 'inaccurateCategory':
+        return '다음';
+      case 'closedSubType':
+        return '제출하기';
+      case 'text':
+        return '제출하기';
+      default: {
+        const _exhaustiveCheck: never = step;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
+  const isSubmitDisabled = (): boolean => {
+    switch (step) {
+      case 'reason':
+        return selectedReason === null;
+      case 'inaccurateCategory':
+        return selectedCategories.length === 0;
+      case 'closedSubType':
+        return selectedClosedSubType === null;
+      case 'text':
+        return false;
+      default: {
+        const _exhaustiveCheck: never = step;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
+  const handleSubmit = () => {
+    switch (step) {
+      case 'reason': {
+        if (!selectedReason) {
+          return;
+        }
+        switch (selectedReason) {
+          case 'INACCURATE_INFO':
+            setStep('inaccurateCategory');
+            break;
+          case 'CLOSED':
+            setStep('closedSubType');
+            break;
+          case 'BAD_USER':
+            setStep('text');
+            break;
+          default: {
+            const _exhaustiveCheck: never = selectedReason;
+            return _exhaustiveCheck;
+          }
+        }
+        break;
+      }
+      case 'inaccurateCategory': {
         onClear();
-        onPressCloseButton();
-      }}>
+        onPressNavigateToCorrection({
+          placeId,
+          reason: 'INACCURATE_INFO',
+          inaccurateCategories: selectedCategories,
+        });
+        break;
+      }
+      case 'closedSubType': {
+        if (!selectedClosedSubType) {
+          return;
+        }
+        const subType = selectedClosedSubType;
+        const detail =
+          subType === ClosedSubTypeDto.Other
+            ? (closedDetail ?? undefined)
+            : undefined;
+        onClear();
+        onPressSubmitClosed({
+          placeId,
+          closedSubType: subType,
+          detail,
+        });
+        break;
+      }
+      case 'text': {
+        const reason = selectedReason;
+        onClear();
+        if (reason) {
+          onPressSubmitButton(placeId, reason, text ?? '');
+        }
+        break;
+      }
+      default: {
+        const _exhaustiveCheck: never = step;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
+  return (
+    <BottomSheet isVisible={isVisible} onPressBackground={handleClose}>
       <ContentsContainer>
-        <Title>
-          {step === 'select'
-            ? '어떤 문제가 있나요?'
-            : '잘못된 정보를 알려주세요.'}
-        </Title>
-        {step === 'select' && (
+        <Title>{getTitle()}</Title>
+
+        {step === 'reason' && (
           <OptionSelector>
             {reasons.map((reason, index) => {
               const isSelected = reason === selectedReason;
@@ -85,14 +249,74 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
             })}
           </OptionSelector>
         )}
+
+        {step === 'inaccurateCategory' && (
+          <OptionSelector>
+            {(
+              Object.values(
+                InaccurateInfoCategoryDto,
+              ) as InaccurateInfoCategoryDto[]
+            ).map((category, index) => {
+              const isSelected = selectedCategories.includes(category);
+              return (
+                <View key={category}>
+                  {index > 0 && <SpaceBetweenOptions />}
+                  <SccButton
+                    text={INACCURATE_CATEGORY_LABELS[category]}
+                    textColor={isSelected ? 'brandColor' : 'gray70'}
+                    buttonColor="white"
+                    borderColor={isSelected ? 'blue50' : 'gray30'}
+                    onPress={() => {
+                      toggleCategory(category);
+                    }}
+                    elementName="place_feedback_inaccurate_category"
+                    logParams={{category}}
+                  />
+                </View>
+              );
+            })}
+          </OptionSelector>
+        )}
+
+        {step === 'closedSubType' && (
+          <OptionSelector>
+            {(Object.values(ClosedSubTypeDto) as ClosedSubTypeDto[]).map(
+              (subType, index) => {
+                const isSelected = subType === selectedClosedSubType;
+                return (
+                  <View key={subType}>
+                    {index > 0 && <SpaceBetweenOptions />}
+                    <SccButton
+                      text={CLOSED_SUB_TYPE_LABELS[subType]}
+                      textColor={isSelected ? 'brandColor' : 'gray70'}
+                      buttonColor="white"
+                      borderColor={isSelected ? 'blue50' : 'gray30'}
+                      onPress={() => {
+                        setSelectedClosedSubType(subType);
+                      }}
+                      elementName="place_feedback_closed_sub_type"
+                      logParams={{subType}}
+                    />
+                  </View>
+                );
+              },
+            )}
+            {selectedClosedSubType === ClosedSubTypeDto.Other && (
+              <ClosedDetailTextArea
+                placeholder="구체적인 상황을 알려주세요."
+                value={closedDetail ?? ''}
+                onChangeText={setClosedDetail}
+                style={{
+                  minHeight: Platform.OS === 'android' ? 80 : undefined,
+                }}
+              />
+            )}
+          </OptionSelector>
+        )}
+
         {step === 'text' && (
           <TextArea
-            placeholder={`예시)
-- 층정보가 잘못되었어요
-- 매장 입구 정보가 잘못되었어요
-- 장소 사진이 잘못되었어요
-- 건물정보가 잘못되었어요
-`}
+            placeholder={`이 정복자를 차단하고 싶은 이유를 알려주세요.`}
             value={text ?? ''}
             onChangeText={setText}
             style={{
@@ -100,35 +324,24 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
             }}
           />
         )}
+
         <ButtonContainer>
           <CloseButton
             text="닫기"
             textColor="black"
             buttonColor="gray10"
             fontFamily={font.pretendardBold}
-            onPress={() => {
-              onClear();
-              onPressCloseButton();
-            }}
+            onPress={handleClose}
             elementName="place_feedback_close"
           />
           <SpaceBetweenButtons />
           <SubmitButton
-            text={step === 'select' ? '다음' : '제출하기'}
+            text={getSubmitButtonText()}
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
-            isDisabled={selectedReason === null}
-            onPress={() => {
-              if (step === 'select') {
-                setStep('text');
-              } else {
-                onClear();
-                if (selectedReason) {
-                  onPressSubmitButton(placeId, selectedReason, text ?? '');
-                }
-              }
-            }}
+            isDisabled={isSubmitDisabled()}
+            onPress={handleSubmit}
             elementName="place_feedback_submit"
           />
         </ButtonContainer>
@@ -177,4 +390,8 @@ const CloseButton = styled(SccButton)`
 
 const SubmitButton = styled(SccButton)`
   flex: 2;
+`;
+
+const ClosedDetailTextArea = styled(TextArea)`
+  margin-top: 12px;
 `;

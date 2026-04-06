@@ -948,6 +948,31 @@ export default function PlaceDetailV2Screen({
               detail: text,
             });
           }}
+          onPressNavigateToCorrection={params => {
+            setReportTargetType(null);
+            navigation.navigate('ReportCorrectionForm', {
+              placeId: params.placeId,
+              inaccurateCategories: params.inaccurateCategories as string[],
+            });
+          }}
+          onPressSubmitClosed={params => {
+            if (!reportTargetType) {
+              return;
+            }
+
+            const targetType = reportTargetType;
+            setReportTargetType(null);
+
+            reportAccessibilityMutation.mutate({
+              placeId: params.placeId,
+              reason: 'CLOSED',
+              targetType,
+              correction: {
+                closedSubType: params.closedSubType,
+                noteText: params.detail,
+              },
+            });
+          }}
         />
       )}
       {place?.location && (

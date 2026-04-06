@@ -243,6 +243,49 @@ export interface AccessibilityRegistererDto {
     'isClubMember'?: boolean;
 }
 /**
+ * 구조화된 신고 교정 데이터
+ * @export
+ * @interface AccessibilityReportCorrectionDto
+ */
+export interface AccessibilityReportCorrectionDto {
+    /**
+     * 틀린 정보 항목 (복수 선택 가능)
+     * @type {Array<InaccurateInfoCategoryDto>}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'inaccurateCategories'?: Array<InaccurateInfoCategoryDto>;
+    /**
+     * 
+     * @type {ClosedSubTypeDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'closedSubType'?: ClosedSubTypeDto;
+    /**
+     * 
+     * @type {PlaceAccessibilityCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'placeAccessibilityCorrection'?: PlaceAccessibilityCorrectionDto;
+    /**
+     * 
+     * @type {BuildingAccessibilityCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'buildingAccessibilityCorrection'?: BuildingAccessibilityCorrectionDto;
+    /**
+     * 부연 설명
+     * @type {string}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'noteText'?: string;
+    /**
+     * 첨부 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'photoUrls'?: Array<string>;
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -807,6 +850,61 @@ export interface BuildingAccessibilityComment {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 건물 접근성 교정값. 유저가 수정 제안하는 값만 포함.
+ * @export
+ * @interface BuildingAccessibilityCorrectionDto
+ */
+export interface BuildingAccessibilityCorrectionDto {
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'entranceStairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'entranceStairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'hasSlope'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'hasElevator'?: boolean;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'elevatorStairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'elevatorStairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingAccessibilityCorrectionDto
+     */
+    'elevatorHasSlope'?: boolean;
+}
+/**
  * 건물 입구 문의 방향 (도로쪽, 주차장쪽, 기타)
  * @export
  * @enum {string}
@@ -1276,6 +1374,21 @@ export interface CircleSearchRegionDto {
      */
     'distanceMetersLimit': number;
 }
+/**
+ * 폐업/이전 신고 시 세부 유형
+ * @export
+ * @enum {string}
+ */
+
+export const ClosedSubTypeDto = {
+    PermanentlyClosed: 'PERMANENTLY_CLOSED',
+    ReplacedByOther: 'REPLACED_BY_OTHER',
+    Other: 'OTHER'
+} as const;
+
+export type ClosedSubTypeDto = typeof ClosedSubTypeDto[keyof typeof ClosedSubTypeDto];
+
+
 /**
  * 
  * @export
@@ -2897,6 +3010,25 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
 
 
 /**
+ * 틀린 정보 신고 시 구체적으로 어떤 항목이 틀렸는지
+ * @export
+ * @enum {string}
+ */
+
+export const InaccurateInfoCategoryDto = {
+    Entrance: 'ENTRANCE',
+    Floor: 'FLOOR',
+    DoorType: 'DOOR_TYPE',
+    Elevator: 'ELEVATOR',
+    AccessLevel: 'ACCESS_LEVEL',
+    Photo: 'PHOTO',
+    Other: 'OTHER'
+} as const;
+
+export type InaccurateInfoCategoryDto = typeof InaccurateInfoCategoryDto[keyof typeof InaccurateInfoCategoryDto];
+
+
+/**
  * 검수 상태 - PASS: 접근성 정보 승인 - FAIL: 접근성 정보 삭제 필요 - MODIFY: 수정 필요 
  * @export
  * @enum {string}
@@ -3858,6 +3990,55 @@ export interface PlaceAccessibilityComment {
      * @memberof PlaceAccessibilityComment
      */
     'createdAt': EpochMillisTimestamp;
+}
+/**
+ * 장소 접근성 교정값. 유저가 수정 제안하는 값만 포함.
+ * @export
+ * @interface PlaceAccessibilityCorrectionDto
+ */
+export interface PlaceAccessibilityCorrectionDto {
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'hasSlope'?: boolean;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'floors'?: Array<number>;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
+    /**
+     * 
+     * @type {Array<FloorMovingMethodTypeDto>}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
+    /**
+     * 
+     * @type {ElevatorAccessibilityDto}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'elevatorAccessibility'?: ElevatorAccessibilityDto;
 }
 /**
  * 
@@ -5099,11 +5280,67 @@ export interface ReportAccessibilityPostRequest {
      */
     'reason': AccessibilityReportReason;
     /**
-     * 신고 상세 내용
+     * 신고 상세 내용 (legacy)
      * @type {string}
      * @memberof ReportAccessibilityPostRequest
      */
     'detail'?: string;
+    /**
+     * 
+     * @type {AccessibilityReportCorrectionDto}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'correction'?: AccessibilityReportCorrectionDto;
+}
+/**
+ * 
+ * @export
+ * @interface ReportAccessibilityPrefillPostRequest
+ */
+export interface ReportAccessibilityPrefillPostRequest {
+    /**
+     * 대상 장소 ID
+     * @type {string}
+     * @memberof ReportAccessibilityPrefillPostRequest
+     */
+    'placeId': string;
+}
+/**
+ * 신고 교정 폼 prefill 데이터
+ * @export
+ * @interface ReportPrefillResponseDto
+ */
+export interface ReportPrefillResponseDto {
+    /**
+     * 
+     * @type {PlaceAccessibilityCorrectionDto}
+     * @memberof ReportPrefillResponseDto
+     */
+    'placeAccessibility'?: PlaceAccessibilityCorrectionDto;
+    /**
+     * 
+     * @type {BuildingAccessibilityCorrectionDto}
+     * @memberof ReportPrefillResponseDto
+     */
+    'buildingAccessibility'?: BuildingAccessibilityCorrectionDto;
+    /**
+     * 단독건물 여부 (true이면 건물 접근성 폼 불필요)
+     * @type {boolean}
+     * @memberof ReportPrefillResponseDto
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 현재 입구 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof ReportPrefillResponseDto
+     */
+    'entranceImageUrls'?: Array<string>;
+    /**
+     * 현재 엘리베이터 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof ReportPrefillResponseDto
+     */
+    'elevatorImageUrls'?: Array<string>;
 }
 /**
  * 
@@ -9078,6 +9315,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
+         * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reportAccessibilityPrefillPost: async (reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'reportAccessibilityPrefillPostRequest' is not null or undefined
+            assertParamExists('reportAccessibilityPrefillPost', 'reportAccessibilityPrefillPostRequest', reportAccessibilityPrefillPostRequest)
+            const localVarPath = `/reportAccessibility/prefill`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(reportAccessibilityPrefillPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
          * @param {*} [options] Override http request option.
@@ -10459,6 +10736,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
+         * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReportPrefillResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
          * @param {*} [options] Override http request option.
@@ -11332,6 +11620,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
+         * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options?: any): AxiosPromise<ReportPrefillResponseDto> {
+            return localVarFp.reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12332,6 +12630,18 @@ export class DefaultApi extends BaseAPI {
      */
     public reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
+     * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
