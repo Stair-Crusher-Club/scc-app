@@ -3252,6 +3252,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@d11/react-native-fast-image@npm:^8.13.0":
+  version: 8.13.0
+  resolution: "@d11/react-native-fast-image@npm:8.13.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/697d43bade639333aad905cff00c315d8a9e3fb1352cec7c70c5100edaae9f9e05da8ddbcdd032820dcb4d4082ebb6290e59b040d9f0f31a64855b34d2a9e66d
+  languageName: node
+  linkType: hard
+
 "@discoveryjs/json-ext@npm:^0.5.0":
   version: 0.5.7
   resolution: "@discoveryjs/json-ext@npm:0.5.7"
@@ -16952,6 +16962,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.25.7"
     "@babel/preset-typescript": "npm:^7.25.7"
     "@babel/runtime": "npm:^7.25.0"
+    "@d11/react-native-fast-image": "npm:^8.13.0"
     "@hapi/hoek": "npm:^11.0.4"
     "@hot-updater/aws": "npm:^0.12.4"
     "@hot-updater/metro": "npm:^0.12.4"

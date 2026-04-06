@@ -1,27 +1,29 @@
-import React, {useEffect, useState} from 'react';
-import {
-  Image,
-  ImageStyle,
-  ViewStyle,
-  ImageResizeMode,
-  LayoutChangeEvent,
-} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {ViewStyle, LayoutChangeEvent} from 'react-native';
+import FastImage, {ResizeMode, OnLoadEvent} from '@d11/react-native-fast-image';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 
-// 메모리 캐시 (앱 재시작 시 초기화됨)
+// 메모리 캐시: URL → { width, height }
 const imageSizeCache = new Map<string, {width: number; height: number}>();
 
 interface SccRemoteImageProps {
   imageUrl: string;
   onReady?: () => void;
-  resizeMode?: ImageResizeMode;
+  resizeMode?: 'cover' | 'contain' | 'stretch' | 'center';
   style?: ViewStyle;
   wrapperBackgroundColor?: string | null;
-  /** height 고정 + 원본 비율로 width 자동 계산 (fit-height 모드) */
   fixedHeight?: number;
+  priority?: 'low' | 'normal' | 'high';
 }
+
+const RESIZE_MODE_MAP: Record<string, ResizeMode> = {
+  cover: FastImage.resizeMode.cover,
+  contain: FastImage.resizeMode.contain,
+  stretch: FastImage.resizeMode.stretch,
+  center: FastImage.resizeMode.center,
+};
 
 export default function SccRemoteImage({
   imageUrl,
@@ -30,125 +32,136 @@ export default function SccRemoteImage({
   style,
   wrapperBackgroundColor,
   fixedHeight,
+  priority = 'normal',
 }: SccRemoteImageProps) {
-  const [imageLoading, setImageLoading] = useState(true);
-  const [imageHeight, setImageHeight] = useState<number | undefined>();
-  const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
+  const [ready, setReady] = useState(false);
   const [originalSize, setOriginalSize] = useState<
     {width: number; height: number} | undefined
   >();
+  const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
 
-  const calculateHeight = (imageSize: {width: number; height: number}) => {
-    return ((measuredWidth || 0) / imageSize.width) * imageSize.height;
-  };
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
-  const handleLayout = (event: LayoutChangeEvent) => {
-    const {width} = event.nativeEvent.layout;
-    setMeasuredWidth(width);
-  };
 
-  // Get original image size only when imageUrl changes
+  const handleLayout = useCallback((event: LayoutChangeEvent) => {
+    setMeasuredWidth(event.nativeEvent.layout.width);
+  }, []);
+
+  // 캐시에서 사이즈 복원
   useEffect(() => {
-    setImageLoading(true);
-    setImageHeight(undefined);
+
+
+    setReady(false);
     setOriginalSize(undefined);
 
-    // 캐시 확인
     const cached = imageSizeCache.get(imageUrl);
     if (cached) {
-      setOriginalSize(cached);
-      return;
-    }
 
-    // 캐시에 없으면 Image.getSize 호출
-    Image.getSize(
-      imageUrl,
-      (originalWidth, originalHeight) => {
-        const size = {width: originalWidth, height: originalHeight};
-        imageSizeCache.set(imageUrl, size); // 캐시에 저장
-        setOriginalSize(size);
-      },
-      () => {
-        // Error callback - still set loading to false
-        setImageLoading(false);
-      },
-    );
+      setOriginalSize(cached);
+    }
   }, [imageUrl]);
 
-  // Calculate height when measured width or original size changes
+  // onLoad에서 사이즈 확보, ready는 사이즈+레이아웃 준비 후
+  const handleImageLoad = useCallback(
+    (e: OnLoadEvent) => {
+      const {width, height} = e.nativeEvent;
+
+      if (!imageSizeCache.has(imageUrl)) {
+        imageSizeCache.set(imageUrl, {width, height});
+      }
+      setOriginalSize({width, height});
+
+      if (measuredWidth !== undefined) {
+        setReady(true);
+        onReadyRef.current?.();
+      }
+    },
+    [imageUrl, measuredWidth],
+  );
+
+  // onLayout 후 사이즈가 있으면 ready
   useEffect(() => {
-    // measuredWidth가 0일 수도 있으니 === undefined로 체크해야 한다.
-    if (measuredWidth === undefined || originalSize === undefined) {
-      return;
+    if (measuredWidth !== undefined && originalSize && !ready) {
+
+      setReady(true);
+      onReadyRef.current?.();
     }
-
-    setImageHeight(calculateHeight(originalSize));
-  }, [measuredWidth, originalSize]);
-
-  useEffect(() => {
-    if (!imageLoading && imageHeight !== undefined) {
-      onReady?.();
-    }
-  }, [imageLoading, imageHeight, onReady]);
-
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
+  }, [measuredWidth, originalSize, ready]);
 
   const resolvedBackgroundColor =
     wrapperBackgroundColor === null
       ? 'transparent'
       : (wrapperBackgroundColor ?? color.gray10);
 
+  const fastImageSource = {
+    uri: imageUrl,
+    priority:
+      priority === 'high'
+        ? FastImage.priority.high
+        : priority === 'low'
+          ? FastImage.priority.low
+          : FastImage.priority.normal,
+  };
+
+  const aspectRatio = originalSize
+    ? originalSize.width / originalSize.height
+    : undefined;
+
   if (fixedHeight != null) {
-    // fit-height 모드: height 고정, 원본 비율로 width 자동 계산
-    const aspectRatio = originalSize
-      ? originalSize.width / originalSize.height
-      : undefined;
     return (
-      <Image
-        source={{uri: imageUrl, cache: 'force-cache'}}
-        resizeMode={resizeMode}
+      <FastImage
+        source={fastImageSource}
+        resizeMode={RESIZE_MODE_MAP[resizeMode]}
         onLoad={handleImageLoad}
-        onError={() => setImageLoading(false)}
+        onError={() => setReady(true)}
         style={[
           {height: fixedHeight, backgroundColor: resolvedBackgroundColor},
           aspectRatio != null ? {aspectRatio} : undefined,
-          style as ImageStyle,
+          style as any,
         ]}
       />
     );
   }
 
+  const imageHeight =
+    measuredWidth !== undefined && originalSize !== undefined
+      ? (measuredWidth / originalSize.width) * originalSize.height
+      : undefined;
+
   return (
     <ImageWrapper
       style={[
-        measuredWidth !== undefined && imageHeight !== undefined
+        imageHeight !== undefined
           ? {height: imageHeight}
-          : originalSize
-            ? {aspectRatio: originalSize.width / originalSize.height}
+          : aspectRatio != null
+            ? {aspectRatio}
             : undefined,
         {backgroundColor: resolvedBackgroundColor},
         style,
       ]}
       onLayout={handleLayout}>
-      <StyledImage
-        source={{uri: imageUrl, cache: 'force-cache'}}
-        resizeMode={resizeMode}
+      <FastImage
+        source={fastImageSource}
+        resizeMode={RESIZE_MODE_MAP[resizeMode]}
         onLoad={handleImageLoad}
-        onError={() => setImageLoading(false)}
+        onError={() => setReady(true)}
+        style={{width: '100%', height: '100%'}}
       />
     </ImageWrapper>
   );
+}
+
+/**
+ * 이미지를 미리 fetch하여 캐시에 저장.
+ */
+export function prefetchRemoteImage(url: string): void {
+  if (imageSizeCache.has(url)) return;
+  FastImage.preload([{uri: url}]);
 }
 
 const ImageWrapper = styled.View({
   width: '100%',
   justifyContent: 'center',
   alignItems: 'center',
-});
-
-const StyledImage = styled(Image)({
-  width: '100%',
-  height: '100%',
 });

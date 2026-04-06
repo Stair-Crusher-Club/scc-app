@@ -42,6 +42,7 @@
   "dependencies": {
     "@babel/plugin-transform-numeric-separator": "^7.24.1",
     "@babel/preset-env": "^7.28.3",
+    "@d11/react-native-fast-image": "^8.13.0",
     "@hapi/hoek": "^11.0.4",
     "@hot-updater/react-native": "^0.12.4",
     "@invertase/react-native-apple-authentication": "^2.4.1",

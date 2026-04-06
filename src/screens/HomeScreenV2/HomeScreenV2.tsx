@@ -30,6 +30,7 @@ import {
   hasShownHomeTutorialAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -135,7 +136,7 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   useEffect(() => {
     if (activePopup) {
-      Image.prefetch(activePopup.imageUrl);
+      prefetchRemoteImage(activePopup.imageUrl);
     }
   }, [activePopup?.imageUrl]);
 
@@ -406,10 +407,13 @@ const HomeScreenV2 = ({navigation}: any) => {
               popup={activePopup}
               visible={true}
               onClose={() => setShowPopupThisSession(false)}
-              onDismissPermanently={() => {
+              onImageClick={() => {
                 if (activePopup.clickUrl) {
                   Linking.openURL(activePopup.clickUrl).catch(() => {});
                 }
+                setShowPopupThisSession(false);
+              }}
+              onDismissPermanently={() => {
                 setDismissedPopupIds(prev => ({
                   ...prev,
                   [activePopup.id]: true,
