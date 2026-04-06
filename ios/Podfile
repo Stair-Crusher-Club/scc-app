@@ -73,6 +73,7 @@ target 'sccReactNative' do
     # → 헤더 파일을 직접 패치하여 FMT_USE_CONSTEVAL을 0으로 강제
     fmt_base_h = File.join(installer.sandbox.pod_dir('fmt'), 'include', 'fmt', 'base.h')
     if File.exist?(fmt_base_h)
+      FileUtils.chmod("u+w", fmt_base_h)
       text = File.read(fmt_base_h)
       patched = text.gsub(/#  define FMT_USE_CONSTEVAL 1/, '#  define FMT_USE_CONSTEVAL 0')
       File.write(fmt_base_h, patched)
