@@ -15937,13 +15937,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-compressor@npm:^1.12.0":
-  version: 1.12.0
-  resolution: "react-native-compressor@npm:1.12.0"
+"react-native-compressor@npm:^1.16.0":
+  version: 1.16.0
+  resolution: "react-native-compressor@npm:1.16.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/49ce38eeeb2d121253bc761840a04a93ac7fc7bfef77881e82620575cce0817d9d7cd4d6f3df5d29469e45760b107d22f5b2f7ae7116a95ef44c8d83953a6f20
+  checksum: 10c0/a9adac2948df4ef465c82aea8bebf32c4a91bdc0a12d1568dfac3ebf507e97bb47ba6975cc766231bcaeb803918f3d8d136b630e7d8f085823145703644871f6
   languageName: node
   linkType: hard
 
@@ -17036,7 +17036,7 @@ __metadata:
     react-hook-form: "npm:^7.60.0"
     react-native: "npm:0.80.0"
     react-native-codegen: "npm:^0.70.7"
-    react-native-compressor: "npm:^1.12.0"
+    react-native-compressor: "npm:^1.16.0"
     react-native-config: "npm:^1.5.5"
     react-native-device-info: "npm:^14.0.4"
     react-native-draggable-flatlist: "npm:^4.0.3"

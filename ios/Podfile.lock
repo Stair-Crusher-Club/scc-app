@@ -1896,7 +1896,7 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-compressor (1.12.0):
+  - react-native-compressor (1.16.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3572,7 +3572,7 @@ SPEC CHECKSUMS:
   React-logger: dce52a571ba0e0149c3f0fcc6866cbc0c8552c5e
   React-Mapbuffer: f5754c33877eaf36e4c76c613b35615a181c85c5
   React-microtasksnativemodule: 23df6374a3ac422d8c2927839bcaeed61fee3dad
-  react-native-compressor: bd4edc86b8db6f0f0dbfe5f8e7d3dd296b81d56c
+  react-native-compressor: 1b8e1ec07efcaa816dcc359c8e3883401bbf03ab
   react-native-config: 644074ab88db883fcfaa584f03520ec29589d7df
   react-native-geolocation: f01ad4718ad1d015d0c0dd12a6f707354022530e
   react-native-image-editor: 222266592916017e937001a221503108c79fd5f4
