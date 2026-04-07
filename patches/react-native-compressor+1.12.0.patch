@@ -1,0 +1,844 @@
+diff --git a/node_modules/react-native-compressor/android/build.gradle b/node_modules/react-native-compressor/android/build.gradle
+index 96b887a..5071139 100644
+--- a/node_modules/react-native-compressor/android/build.gradle
++++ b/node_modules/react-native-compressor/android/build.gradle
+@@ -115,7 +115,7 @@ dependencies {
+   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+   implementation 'org.mp4parser:isoparser:1.9.56'
+-  implementation 'com.github.kaushik-naik:TAndroidLame:277c2ab4b0'
++  implementation 'com.github.banketree:AndroidLame-kotlin:v0.0.1'
+   implementation 'javazoom:jlayer:1.0.1'
+ }
+ 
+diff --git a/node_modules/react-native-compressor/android/src/main/java/com/reactnativecompressor/Image/ImageCompressor.kt b/node_modules/react-native-compressor/android/src/main/java/com/reactnativecompressor/Image/ImageCompressor.kt
+index c3a47ab..dd31e65 100644
+--- a/node_modules/react-native-compressor/android/src/main/java/com/reactnativecompressor/Image/ImageCompressor.kt
++++ b/node_modules/react-native-compressor/android/src/main/java/com/reactnativecompressor/Image/ImageCompressor.kt
+@@ -133,20 +133,11 @@ object ImageCompressor {
+     }
+ 
+     fun manualCompressImage(imagePath: String?, options: ImageCompressorOptions, reactContext: ReactApplicationContext?): String? {
+-      val image = if (options.input === ImageCompressorOptions.InputType.base64) decodeImage(imagePath) else loadImage(imagePath)
+-      val resizedImage = resize(image, options.maxWidth, options.maxHeight)
+-      val isBase64 = options.returnableOutputType === ImageCompressorOptions.ReturnableOutputType.base64
+-      val uri = Uri.parse(imagePath)
+-      val imagePathNew = uri.path
+-      var scaledBitmap: Bitmap? = correctImageOrientation(resizedImage, imagePathNew)
+-      val imageDataByteArrayOutputStream = compress(scaledBitmap, options.output, options.quality, options.disablePngTransparency)
+-      val compressedImagePath = encodeImage(imageDataByteArrayOutputStream, isBase64, options.output.toString(), imagePath, reactContext)
+-      if (isCompressedSizeLessThanActualFile(imagePath!!, compressedImagePath)) {
+-          return compressedImagePath
+-      } else {
+-          MediaCache.deleteFile(compressedImagePath!!)
+-          return slashifyFilePath(imagePath)
+-      }
++        val image = if (options.input === ImageCompressorOptions.InputType.base64) decodeImage(imagePath) else loadImage(imagePath)
++        val resizedImage = resize(image, options.maxWidth, options.maxHeight)
++        val imageDataByteArrayOutputStream = compress(resizedImage, options.output, options.quality,options.disablePngTransparency)
++        val isBase64 = options.returnableOutputType === ImageCompressorOptions.ReturnableOutputType.base64
++        return encodeImage(imageDataByteArrayOutputStream, isBase64, options.output.toString(),imagePath, reactContext)
+     }
+ 
+   fun isCompressedSizeLessThanActualFile(sourceFileUrl: String,compressedFileUrl: String?): Boolean {
+@@ -258,45 +249,20 @@ object ImageCompressor {
+     }
+ 
+     fun correctImageOrientation(bitmap: Bitmap?, imagePath: String?): Bitmap? {
+-        if (bitmap == null || imagePath == null) return bitmap
+-
+         return try {
+-            val exif = ExifInterface(imagePath)
++            val exif = ExifInterface(imagePath!!)
+             val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+             val matrix = Matrix()
+-
+             when (orientation) {
+-                ExifInterface.ORIENTATION_NORMAL -> return bitmap
+-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> {
+-                    matrix.setScale(-1f, 1f)
+-                }
+-                ExifInterface.ORIENTATION_ROTATE_180 -> {
+-                    matrix.setRotate(180f)
+-                }
+-                ExifInterface.ORIENTATION_FLIP_VERTICAL -> {
+-                    matrix.setScale(1f, -1f)
+-                }
+-                ExifInterface.ORIENTATION_TRANSPOSE -> {
+-                    matrix.setRotate(90f)
+-                    matrix.postScale(-1f, 1f)
+-                }
+-                ExifInterface.ORIENTATION_ROTATE_90 -> {
+-                    matrix.setRotate(90f)
+-                }
+-                ExifInterface.ORIENTATION_TRANSVERSE -> {
+-                    matrix.setRotate(-90f)
+-                    matrix.postScale(-1f, 1f)
+-                }
+-                ExifInterface.ORIENTATION_ROTATE_270 -> {
+-                    matrix.setRotate(-90f)
+-                }
+-                else -> return bitmap
++                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
++                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
++                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
++                else -> return bitmap // No rotation needed
+             }
+-
+-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
++            Bitmap.createBitmap(bitmap!!, 0, 0, bitmap.width, bitmap.height, matrix, true)
+         } catch (e: IOException) {
+             e.printStackTrace()
+-            bitmap
++            bitmap // Return original bitmap if an error occurs
+         }
+     }
+ }
+diff --git a/node_modules/react-native-compressor/ios/Audio/AudioMain.swift b/node_modules/react-native-compressor/ios/Audio/AudioMain.swift
+index b3ac497..2473198 100644
+--- a/node_modules/react-native-compressor/ios/Audio/AudioMain.swift
++++ b/node_modules/react-native-compressor/ios/Audio/AudioMain.swift
+@@ -7,6 +7,10 @@
+ 
+ 
+ import AVFoundation
++
++
++
++let AlAsset_Library_Scheme = "assets-library"
+ class AudioMain{
+     static func compress_audio(_ fileUrl: String, optionMap: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+         do {
+diff --git a/node_modules/react-native-compressor/ios/Image/ImageCompressor.swift b/node_modules/react-native-compressor/ios/Image/ImageCompressor.swift
+index f0d5fa2..6b7cc49 100644
+--- a/node_modules/react-native-compressor/ios/Image/ImageCompressor.swift
++++ b/node_modules/react-native-compressor/ios/Image/ImageCompressor.swift
+@@ -101,25 +101,17 @@ class ImageCompressor {
+         return UIImage()
+     }
+     
+-    static func isCompressedSizeLessThanActualFile(sourceFileUrl: String?, sourceData: Data?, compressedFileUrl: String)-> Bool {
+-        var sourcefileSize: Int = 0
++    static func isCompressedSizeLessThanActualFile(sourceFileUrl: String,compressedFileUrl: String)-> Bool {
++        let sourceVideoURL = URL(string: sourceFileUrl)
++        let sourcefileSize:Double=Utils.getfileSizeInBytes(forURL:sourceVideoURL!)
+         
+-        if let _sourceFileUrl = sourceFileUrl {
+-            let sourceVideoURL = URL(string: _sourceFileUrl)
+-            sourcefileSize = Utils.getfileSizeInBytes(forURL: sourceVideoURL!)
+-        }
++        let compressedVideoURL = URL(string: compressedFileUrl)
++        let compressedfileSize:Double=Utils.getfileSizeInBytes(forURL:compressedVideoURL!)
+         
+-        if let _sourceData = sourceData {
+-            sourcefileSize = _sourceData.count
++        if(compressedfileSize<=sourcefileSize)
++        {
++        return true
+         }
+-        
+-        let compressedFileURL = URL(string: compressedFileUrl)
+-        let compressedfileSize = Utils.getfileSizeInBytes(forURL: compressedFileURL!)
+-        
+-        if compressedfileSize <= sourcefileSize {
+-            return true
+-        }
+-        
+         return false
+     }
+     
+@@ -127,7 +119,7 @@ class ImageCompressor {
+         return data.starts(with: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+     }
+     
+-    static func copyExifInfo(actualImagePath: String, image: UIImage, data: Data) -> Data {
++    static func copyExifInfo(actualImagePath:String, image: UIImage, data: Data) -> Data {
+         let fileURL = URL(string: actualImagePath)!
+         let filePath = fileURL.path
+         
+@@ -164,45 +156,46 @@ class ImageCompressor {
+         return destinationData as Data
+     }
+     
+-    static func writeImage(_ image: UIImage, output: Int, quality: Float, outputExtension: String, isBase64: Bool, disablePngTransparency: Bool, isEnableAutoCompress: Bool, actualImagePath: String?)-> String {
++    static func writeImage(_ image: UIImage, output: Int, quality: Float, outputExtension: String, isBase64: Bool,disablePngTransparency:Bool,isEnableAutoCompress:Bool,actualImagePath:String)-> String{
+         var data: Data
+         var exception: NSException?
+-        
+         switch OutputType(rawValue: output)! {
+         case .jpg:
+             data = image.jpegData(compressionQuality: CGFloat(quality))!
+         case .png:
+-            if disablePngTransparency {
++            if(disablePngTransparency)
++            {
+                 data = image.jpegData(compressionQuality: CGFloat(quality))!
+                 let compressedImage = UIImage(data: data)
+                 data = compressedImage!.pngData()!
+-            } else {
+-                data = image.pngData()!
+             }
+-        }
++            else
++            {
++                data=image.pngData()!
++            }
+            
+-        if let _actualImagePath = actualImagePath {
+-            data = copyExifInfo(actualImagePath: _actualImagePath, image: UIImage(data: data) ?? image, data: data)
+         }
+         
++        data=copyExifInfo(actualImagePath: actualImagePath, image: UIImage(data: data) ?? image, data: data)
++        
++        
+         if isBase64 {
+             return data.base64EncodedString(options: [])
+         } else {
+             let filePath = Utils.generateCacheFilePath(outputExtension)
+-            
+             do {
+                 try data.write(to: URL(fileURLWithPath: filePath), options: .atomic)
+                 let returnablePath = makeValidUri(filePath)
+-                
+-                if isEnableAutoCompress == true {
+-                    if self.isCompressedSizeLessThanActualFile(sourceFileUrl: actualImagePath, sourceData: data, compressedFileUrl: returnablePath) {
++                if(isEnableAutoCompress==true)
++                {
++                    if(self.isCompressedSizeLessThanActualFile(sourceFileUrl: actualImagePath,compressedFileUrl: returnablePath))
++                    {
+                         return returnablePath
+-                    } else {
+-                        MediaCache.deleteFile(atPath: returnablePath)
+-                        
+-                        if let _actualImagePath = actualImagePath {
+-                            return _actualImagePath
+-                        }
++                    }
++                    else
++                    {
++                        MediaCache.deleteFile(atPath:returnablePath)
++                        return actualImagePath
+                     }
+                 }
+                 
+@@ -217,8 +210,8 @@ class ImageCompressor {
+     }
+ 
+     
+-    static func manualCompress(_ image: UIImage, output: Int, quality: Float, outputExtension: String, isBase64: Bool, disablePngTransparency: Bool, actualImagePath: String?) -> String {
+-        return writeImage(image, output: output, quality: quality, outputExtension: outputExtension, isBase64: isBase64, disablePngTransparency: disablePngTransparency, isEnableAutoCompress: false, actualImagePath: actualImagePath)
++    static func manualCompress(_ image: UIImage, output: Int, quality: Float, outputExtension: String, isBase64: Bool,disablePngTransparency:Bool,actualImagePath:String) -> String {
++        return writeImage(image, output: output, quality: quality, outputExtension: outputExtension, isBase64: isBase64, disablePngTransparency: disablePngTransparency,isEnableAutoCompress: false,actualImagePath: actualImagePath)
+     }
+ 
+     
+@@ -287,19 +280,15 @@ class ImageCompressor {
+     }
+ 
+     
+-    static func manualCompressHandler(imagePath: String?, base64: String?, options: ImageCompressorOptions) -> String {
++  static func manualCompressHandler(_ imagePath: String, options: ImageCompressorOptions) -> String {
+         var exception: NSException?
+         var image: UIImage?
+ 
+         switch options.input {
+         case .base64:
+-            if let _base64 = base64 {
+-                image = ImageCompressor.decodeImage(_base64)
+-            }
++            image = ImageCompressor.decodeImage(imagePath)
+         case .uri:
+-            if let _imagePath = imagePath {
+-                image = ImageCompressor.loadImage(_imagePath)
+-            }
++            image = ImageCompressor.loadImage(imagePath)
+         }
+ 
+         if let _image = image {
+@@ -307,7 +296,7 @@ class ImageCompressor {
+             let outputExtension = ImageCompressorOptions.getOutputInString(options.output)
+             let resizedImage = ImageCompressor.manualResize(image!, maxWidth: options.maxWidth, maxHeight: options.maxHeight)
+             let isBase64 = options.returnableOutputType == .rbase64
+-            return ImageCompressor.manualCompress(resizedImage, output: options.output.rawValue, quality: options.quality, outputExtension: outputExtension, isBase64: isBase64,disablePngTransparency: options.disablePngTransparency, actualImagePath: imagePath)
++            return ImageCompressor.manualCompress(resizedImage, output: options.output.rawValue, quality: options.quality, outputExtension: outputExtension, isBase64: isBase64,disablePngTransparency: options.disablePngTransparency,actualImagePath: imagePath)
+         } else {
+             exception = NSException(name: NSExceptionName(rawValue: "unsupported_value"), reason: "Unsupported value type.", userInfo: nil)
+             exception?.raise()
+@@ -317,20 +306,9 @@ class ImageCompressor {
+     }
+ 
+     
+-    static func autoCompressHandler(imagePath: String?, base64: String?, options: ImageCompressorOptions) -> String {
++    static func autoCompressHandler(_ imagePath: String, options: ImageCompressorOptions) -> String {
+         var exception: NSException?
+-        var image: UIImage?
+-        
+-        switch options.input {
+-        case .base64:
+-            if let _base64 = base64 {
+-                image = ImageCompressor.decodeImage(_base64)
+-            }
+-        case .uri:
+-            if let _imagePath = imagePath {
+-                image = ImageCompressor.loadImage(_imagePath)
+-            }
+-        }
++        var image = ImageCompressor.loadImage(imagePath)
+         
+         if var image = image {
+             image = ImageCompressor.scaleAndRotateImage(image)
+@@ -365,13 +343,9 @@ class ImageCompressor {
+             let isBase64 = options.returnableOutputType == .rbase64
+             
+             if let img = UIGraphicsGetImageFromCurrentImageContext() {
+-                return writeImage(img, output: options.output.rawValue, quality: Float(compressionQuality), outputExtension: outputExtension, isBase64: isBase64, disablePngTransparency: options.disablePngTransparency, isEnableAutoCompress: true, actualImagePath: imagePath)
++                return writeImage(img, output: options.output.rawValue, quality: Float(compressionQuality), outputExtension: outputExtension, isBase64: isBase64, disablePngTransparency: options.disablePngTransparency,isEnableAutoCompress: true,actualImagePath: imagePath)
+             }
+-        } else {
+-            exception = NSException(name: NSExceptionName(rawValue: "unsupported_value"), reason: "Unsupported value type.", userInfo: nil)
+-            exception?.raise()
+         }
+-        
+         return ""
+     }
+     
+@@ -392,10 +366,18 @@ class ImageCompressor {
+             var size = CGSize.zero
+             var scale: CGFloat = 1
+             var resizeMode = RCTResizeMode.contain
+-            let assetID = imagePath.replacingOccurrences(of: "ph://", with: "")
+-            let results = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
++            var assetID = ""
++            var results: PHFetchResult<PHAsset>?
++            
++            if imageURL?.scheme?.caseInsensitiveCompare("assets-library") == .orderedSame {
++                assetID = imageURL?.absoluteString ?? ""
++                results = PHAsset.fetchAssets(withALAssetURLs: [imageURL!], options: nil)
++            } else {
++                assetID = imagePath.replacingOccurrences(of: "ph://", with: "")
++                results = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
++            }
+             
+-            guard let asset = results.firstObject else {
++            guard let asset = results?.firstObject else {
+                 return
+             }
+             
+diff --git a/node_modules/react-native-compressor/ios/Image/ImageMain.swift b/node_modules/react-native-compressor/ios/Image/ImageMain.swift
+index 2e6e9fc..ef56062 100644
+--- a/node_modules/react-native-compressor/ios/Image/ImageMain.swift
++++ b/node_modules/react-native-compressor/ios/Image/ImageMain.swift
+@@ -7,29 +7,18 @@
+ 
+ import Foundation
+ class ImageMain {
+-    static func image_compress(_ value: String, optionMap: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
++    static func image_compress(_ imagePath: String, optionMap: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+         do {
+             let options = ImageCompressorOptions.fromDictionary(optionMap as! [String : Any])
+-            
+-            if options.input != InputType.base64 {
+-                ImageCompressor.getAbsoluteImagePath(value, options: options) { absoluteImagePath in
+-                    if options.autoCompress {
+-                        let result = ImageCompressor.autoCompressHandler(imagePath: absoluteImagePath, base64: nil, options: options)
+-                        resolve(result)
+-                    } else {
+-                        let result = ImageCompressor.manualCompressHandler(imagePath: absoluteImagePath, base64: nil, options: options)
+-                        resolve(result)
+-                    }
+-                    MediaCache.removeCompletedImagePath(absoluteImagePath)
+-                }
+-            } else {
++            ImageCompressor.getAbsoluteImagePath(imagePath, options: options) { absoluteImagePath in
+                 if options.autoCompress {
+-                    let result = ImageCompressor.autoCompressHandler(imagePath: nil, base64: value, options: options)
++                    let result = ImageCompressor.autoCompressHandler(absoluteImagePath, options: options)
+                     resolve(result)
+                 } else {
+-                    let result = ImageCompressor.manualCompressHandler(imagePath: nil, base64: value, options: options)
++                    let result = ImageCompressor.manualCompressHandler(absoluteImagePath, options: options)
+                     resolve(result)
+                 }
++                MediaCache.removeCompletedImagePath(absoluteImagePath)
+             }
+         } catch {
+             reject(error.localizedDescription, error.localizedDescription, nil)
+@@ -39,47 +28,23 @@ class ImageMain {
+     static func getImageMetaData(_ filePath: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+         let options = ImageCompressorOptions.fromDictionary([:])
+         ImageCompressor.getAbsoluteImagePath(filePath, options: options) { ImagePath in
+-            guard ImagePath.hasPrefix("file://") else {
+-                reject("INVALID_PATH", "Image path must start with file://", nil)
+-                return
+-            }
+-            
+-            guard let url = URL(string: ImagePath) else {
+-                reject("INVALID_URL", "Failed to create URL from image path", nil)
+-                return
+-            }
+-            
+-            let absoluteImagePath = url.path
+-            let fileURL = url as CFURL
+-            
+-            Utils.getFileSize(absoluteImagePath) { fileSize in
+-                let _extension = (absoluteImagePath as NSString).pathExtension
+-                
+-                // Use CGImageSourceCreateWithURL to avoid loading entire file into memory (prevents OOM crashes for large images)
+-                guard let imageSource = CGImageSourceCreateWithURL(fileURL, nil) else {
+-                    reject("INVALID_IMAGE", "Failed to create image source from URL", nil)
+-                    return
++            if ImagePath.hasPrefix("file://") {
++                let absoluteImagePath = URL(string: ImagePath)!.path
++                Utils.getFileSize(absoluteImagePath) { fileSize in
++                    let _extension = (absoluteImagePath as NSString).pathExtension
++                    let imageData = NSData(contentsOfFile: absoluteImagePath)!
++                    let imageSource = CGImageSourceCreateWithData(imageData, nil)!
++                    let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)!
++                    let exif=imageProperties as NSDictionary
++                    let mutableExif = exif.mutableCopy() as! NSMutableDictionary
++                    if let fileSizeInt = Int(fileSize as! String) {
++                        mutableExif.setValue(fileSizeInt, forKey: "size")
++                        }
++                    mutableExif.setValue(_extension, forKey: "extension")
++                    resolve(mutableExif)
++                } reject: { code, message, error in
++                    reject(code, message, error)
+                 }
+-                
+-                guard let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) else {
+-                    reject("NO_PROPERTIES", "Failed to get image properties", nil)
+-                    return
+-                }
+-                
+-                let exif = imageProperties as NSDictionary
+-                guard let mutableExif = exif.mutableCopy() as? NSMutableDictionary else {
+-                    reject("COPY_ERROR", "Failed to create mutable copy of image properties", nil)
+-                    return
+-                }
+-                
+-                if let fileSizeString = fileSize as? String, let fileSizeInt = Int(fileSizeString) {
+-                    mutableExif.setValue(fileSizeInt, forKey: "size")
+-                }
+-                
+-                mutableExif.setValue(_extension, forKey: "extension")
+-                resolve(mutableExif)
+-            } reject: { code, message, error in
+-                reject(code, message, error)
+             }
+         }
+     }
+diff --git a/node_modules/react-native-compressor/ios/Utils/Utils.swift b/node_modules/react-native-compressor/ios/Utils/Utils.swift
+index a08fa92..841652b 100644
+--- a/node_modules/react-native-compressor/ios/Utils/Utils.swift
++++ b/node_modules/react-native-compressor/ios/Utils/Utils.swift
+@@ -17,7 +17,10 @@ class Utils {
+     }
+     
+     static func makeValidUri(filePath: String) -> String {
+-        return (filePath.starts(with: "file://") ? URL(string: filePath)! : URL(fileURLWithPath: filePath)).absoluteURL.absoluteString
++        let fileWithUrl = URL(fileURLWithPath: filePath)
++        let absoluteUrl = fileWithUrl.deletingLastPathComponent()
++        let fileUrl = "file://\(absoluteUrl.path)/\(fileWithUrl.lastPathComponent)"
++        return fileUrl;
+     }
+     
+     static func getFileSize(from urlString: String, completion: @escaping (NSNumber?, Error?) -> Void) {
+@@ -70,8 +73,6 @@ class Utils {
+                    let fileSize = attrs[.size] as? UInt64 {
+                     let fileSizeString = String(fileSize)
+                     resolve(fileSizeString)
+-                } else {
+-                    reject("FILE_SIZE_ERROR", "Failed to get file size for path: \(filePath)", nil)
+                 }
+             }
+         } catch {
+@@ -106,9 +107,9 @@ class Utils {
+         }
+     }
+     
+-    static func getfileSizeInBytes(forURL url: Any) -> Int {
++    static func getfileSizeInBytes(forURL url: Any) -> Double {
+         var fileURL: URL?
+-        var fileSize: Int = 0
++        var fileSize: Double = 0.0
+         
+         if (url is URL) {
+             let urlWithSlash = Utils.slashifyFilePath(path: (url as? URL)?.absoluteString)
+@@ -120,12 +121,11 @@ class Utils {
+             return fileSize
+         }
+         
+-        var fileSizeValue = 0
+-        
+-        try? fileSizeValue = (fileURL?.resourceValues(forKeys: [URLResourceKey.fileSizeKey]).allValues.first?.value as! Int)
++        var fileSizeValue = 0.0
+         
+-        if fileSizeValue > 0 {
+-            fileSize = fileSizeValue
++        try? fileSizeValue = (fileURL?.resourceValues(forKeys: [URLResourceKey.fileSizeKey]).allValues.first?.value as! Double?)!
++        if fileSizeValue > 0.0 {
++            fileSize = Double(fileSizeValue)
+         }
+         
+         return fileSize
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js b/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js
+index 7707f0f..37cec75 100644
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js
++++ b/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js
+@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", {
+ exports.download = void 0;
+ var _reactNative = require("react-native");
+ var _Main = require("../Main");
+-var _helpers = require("./helpers");
++var _index = require("./index");
+ const CompressEventEmitter = new _reactNative.NativeEventEmitter(_Main.Compressor);
+ const download = async (fileUrl, downloadProgress, progressDivider) => {
+   let subscription;
+   try {
+-    const uuid = (0, _helpers.uuidv4)();
++    const uuid = (0, _index.uuidv4)();
+     if (downloadProgress) {
+       subscription = CompressEventEmitter.addListener('downloadProgress', event => {
+         if (event.uuid === uuid) {
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js.map b/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js.map
+index c562d36..ca14dcf 100644
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js.map
++++ b/node_modules/react-native-compressor/lib/commonjs/utils/Downloader.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_reactNative","require","_Main","_helpers","CompressEventEmitter","NativeEventEmitter","Compressor","download","fileUrl","downloadProgress","progressDivider","subscription","uuid","uuidv4","addListener","event","data","progress","Platform","OS","includes","replace","result","remove","exports"],"sourceRoot":"../../../src","sources":["utils/Downloader.tsx"],"mappings":";;;;;;AAAA,IAAAA,YAAA,GAAAC,OAAA;AAEA,IAAAC,KAAA,GAAAD,OAAA;AAEA,IAAAE,QAAA,GAAAF,OAAA;AADA,MAAMG,oBAAoB,GAAG,IAAIC,+BAAkB,CAACC,gBAAU,CAAC;AAExD,MAAMC,QAAQ,GAAG,MAAAA,CACtBC,OAAe,EACfC,gBAA6C,EAC7CC,eAAwB,KACP;EACjB,IAAIC,YAAqC;EACzC,IAAI;IACF,MAAMC,IAAI,GAAG,IAAAC,eAAM,EAAC,CAAC;IACrB,IAAIJ,gBAAgB,EAAE;MACpBE,YAAY,GAAGP,oBAAoB,CAACU,WAAW,CAC7C,kBAAkB,EACjBC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACH,IAAI,KAAKA,IAAI,EAAE;UACvBH,gBAAgB,CAACM,KAAK,CAACC,IAAI,CAACC,QAAQ,CAAC;QACvC;MACF,CACF,CAAC;IACH;IACA,IAAIC,qBAAQ,CAACC,EAAE,KAAK,SAAS,IAAIX,OAAO,CAACY,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5DZ,OAAO,GAAGA,OAAO,CAACa,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IACA,MAAMC,MAAM,GAAG,MAAMhB,gBAAU,CAACC,QAAQ,CAACC,OAAO,EAAE;MAChDI,IAAI;MACJF;IACF,CAAC,CAAC;IACF,OAAOY,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIX,YAAY,EAAE;MAChBA,YAAY,CAACY,MAAM,CAAC,CAAC;IACvB;EACF;AACF,CAAC;AAACC,OAAA,CAAAjB,QAAA,GAAAA,QAAA"}
+\ No newline at end of file
++{"version":3,"names":["_reactNative","require","_Main","_index","CompressEventEmitter","NativeEventEmitter","Compressor","download","fileUrl","downloadProgress","progressDivider","subscription","uuid","uuidv4","addListener","event","data","progress","Platform","OS","includes","replace","result","remove","exports"],"sourceRoot":"../../../src","sources":["utils/Downloader.tsx"],"mappings":";;;;;;AAAA,IAAAA,YAAA,GAAAC,OAAA;AAEA,IAAAC,KAAA,GAAAD,OAAA;AAEA,IAAAE,MAAA,GAAAF,OAAA;AADA,MAAMG,oBAAoB,GAAG,IAAIC,+BAAkB,CAACC,gBAAU,CAAC;AAExD,MAAMC,QAAQ,GAAG,MAAAA,CACtBC,OAAe,EACfC,gBAA6C,EAC7CC,eAAwB,KACP;EACjB,IAAIC,YAAqC;EACzC,IAAI;IACF,MAAMC,IAAI,GAAG,IAAAC,aAAM,EAAC,CAAC;IACrB,IAAIJ,gBAAgB,EAAE;MACpBE,YAAY,GAAGP,oBAAoB,CAACU,WAAW,CAC7C,kBAAkB,EACjBC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACH,IAAI,KAAKA,IAAI,EAAE;UACvBH,gBAAgB,CAACM,KAAK,CAACC,IAAI,CAACC,QAAQ,CAAC;QACvC;MACF,CACF,CAAC;IACH;IACA,IAAIC,qBAAQ,CAACC,EAAE,KAAK,SAAS,IAAIX,OAAO,CAACY,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5DZ,OAAO,GAAGA,OAAO,CAACa,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IACA,MAAMC,MAAM,GAAG,MAAMhB,gBAAU,CAACC,QAAQ,CAACC,OAAO,EAAE;MAChDI,IAAI;MACJF;IACF,CAAC,CAAC;IACF,OAAOY,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIX,YAAY,EAAE;MAChBA,YAAY,CAACY,MAAM,CAAC,CAAC;IACvB;EACF;AACF,CAAC;AAACC,OAAA,CAAAjB,QAAA,GAAAA,QAAA"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js b/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js
+index 034c4f6..92089b1 100644
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js
++++ b/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js
+@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
+ exports.cancelUpload = exports.backgroundUpload = exports.UploaderHttpMethod = exports.UploadType = void 0;
+ var _reactNative = require("react-native");
+ var _Main = require("../Main");
+-var _helpers = require("./helpers");
++var _index = require("./index");
+ const CompressEventEmitter = new _reactNative.NativeEventEmitter(_Main.Compressor);
+ let UploadType = /*#__PURE__*/function (UploadType) {
+   UploadType[UploadType["BINARY_CONTENT"] = 0] = "BINARY_CONTENT";
+@@ -28,7 +28,7 @@ const cancelUpload = function () {
+ };
+ exports.cancelUpload = cancelUpload;
+ const backgroundUpload = async (url, fileUrl, options, onProgress, abortSignal) => {
+-  const uuid = (0, _helpers.uuidv4)();
++  const uuid = (0, _index.uuidv4)();
+   let subscription;
+   try {
+     if (onProgress) {
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js.map b/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js.map
+index 11d2443..3591de2 100644
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js.map
++++ b/node_modules/react-native-compressor/lib/commonjs/utils/Uploader.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_reactNative","require","_Main","_helpers","CompressEventEmitter","NativeEventEmitter","Compressor","UploadType","exports","UploaderHttpMethod","cancelUpload","uuid","arguments","length","undefined","shouldCancelAll","backgroundUpload","url","fileUrl","options","onProgress","abortSignal","uuidv4","subscription","addListener","event","data","written","total","Platform","OS","includes","replace","getCancellationId","addEventListener","result","upload","method","httpMethod","headers","uploadType","remove","removeEventListener"],"sourceRoot":"../../../src","sources":["utils/Uploader.tsx"],"mappings":";;;;;;AAAA,IAAAA,YAAA,GAAAC,OAAA;AAEA,IAAAC,KAAA,GAAAD,OAAA;AAEA,IAAAE,QAAA,GAAAF,OAAA;AADA,MAAMG,oBAAoB,GAAG,IAAIC,+BAAkB,CAACC,gBAAU,CAAC;AAAC,IAEpDC,UAAU,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;AAAAC,OAAA,CAAAD,UAAA,GAAAA,UAAA;AAAA,IAKVE,kBAAkB,0BAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAA,OAAlBA,kBAAkB;AAAA;AAAAD,OAAA,CAAAC,kBAAA,GAAAA,kBAAA;AA+BvB,MAAMC,YAGJ,GAAG,SAAAA,CAAA,EAAwC;EAAA,IAAvCC,IAAI,GAAAC,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,EAAE;EAAA,IAAEG,eAAe,GAAAH,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,KAAK;EAC7C,OAAON,gBAAU,CAACI,YAAY,CAACC,IAAI,EAAEI,eAAe,CAAC;AACvD,CAAC;AAACP,OAAA,CAAAE,YAAA,GAAAA,YAAA;AAEK,MAAMM,gBAAgB,GAAG,MAAAA,CAC9BC,GAAW,EACXC,OAAe,EACfC,OAAwB,EACxBC,UAAqD,EACrDC,WAAyB,KACR;EACjB,MAAMV,IAAI,GAAG,IAAAW,eAAM,EAAC,CAAC;EACrB,IAAIC,YAAqC;EACzC,IAAI;IACF,IAAIH,UAAU,EAAE;MACdG,YAAY,GAAGnB,oBAAoB,CAACoB,WAAW,CAC7C,gBAAgB,EACfC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACd,IAAI,KAAKA,IAAI,EAAE;UACvBS,UAAU,CAACK,KAAK,CAACC,IAAI,CAACC,OAAO,EAAEF,KAAK,CAACC,IAAI,CAACE,KAAK,CAAC;QAClD;MACF,CACF,CAAC;IACH;IACA,IAAIC,qBAAQ,CAACC,EAAE,KAAK,SAAS,IAAIZ,OAAO,CAACa,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5Db,OAAO,GAAGA,OAAO,CAACc,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IAEA,IAAIb,OAAO,aAAPA,OAAO,eAAPA,OAAO,CAAEc,iBAAiB,EAAE;MAC9Bd,OAAO,aAAPA,OAAO,uBAAPA,OAAO,CAAEc,iBAAiB,CAACtB,IAAI,CAAC;IAClC;IAEAU,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEa,gBAAgB,CAAC,OAAO,EAAE,MAAMxB,YAAY,CAACC,IAAI,CAAC,CAAC;IAEhE,MAAMwB,MAAM,GAAG,MAAM7B,gBAAU,CAAC8B,MAAM,CAAClB,OAAO,EAAE;MAC9CP,IAAI;MACJ0B,MAAM,EAAElB,OAAO,CAACmB,UAAU;MAC1BC,OAAO,EAAEpB,OAAO,CAACoB,OAAO;MACxBC,UAAU,EAAErB,OAAO,CAACqB,UAAU;MAC9B,GAAGrB,OAAO;MACVF;IACF,CAAC,CAAC;IACF,OAAOkB,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIZ,YAAY,EAAE;MAChBA,YAAY,CAACkB,MAAM,CAAC,CAAC;IACvB;IACApB,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEqB,mBAAmB,CAAC,OAAO,EAAE,MAAMhC,YAAY,CAACC,IAAI,CAAC,CAAC;EACrE;AACF,CAAC;AAACH,OAAA,CAAAQ,gBAAA,GAAAA,gBAAA"}
+\ No newline at end of file
++{"version":3,"names":["_reactNative","require","_Main","_index","CompressEventEmitter","NativeEventEmitter","Compressor","UploadType","exports","UploaderHttpMethod","cancelUpload","uuid","arguments","length","undefined","shouldCancelAll","backgroundUpload","url","fileUrl","options","onProgress","abortSignal","uuidv4","subscription","addListener","event","data","written","total","Platform","OS","includes","replace","getCancellationId","addEventListener","result","upload","method","httpMethod","headers","uploadType","remove","removeEventListener"],"sourceRoot":"../../../src","sources":["utils/Uploader.tsx"],"mappings":";;;;;;AAAA,IAAAA,YAAA,GAAAC,OAAA;AAEA,IAAAC,KAAA,GAAAD,OAAA;AAEA,IAAAE,MAAA,GAAAF,OAAA;AADA,MAAMG,oBAAoB,GAAG,IAAIC,+BAAkB,CAACC,gBAAU,CAAC;AAAC,IAEpDC,UAAU,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;AAAAC,OAAA,CAAAD,UAAA,GAAAA,UAAA;AAAA,IAKVE,kBAAkB,0BAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAA,OAAlBA,kBAAkB;AAAA;AAAAD,OAAA,CAAAC,kBAAA,GAAAA,kBAAA;AA+BvB,MAAMC,YAGJ,GAAG,SAAAA,CAAA,EAAwC;EAAA,IAAvCC,IAAI,GAAAC,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,EAAE;EAAA,IAAEG,eAAe,GAAAH,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,KAAK;EAC7C,OAAON,gBAAU,CAACI,YAAY,CAACC,IAAI,EAAEI,eAAe,CAAC;AACvD,CAAC;AAACP,OAAA,CAAAE,YAAA,GAAAA,YAAA;AAEK,MAAMM,gBAAgB,GAAG,MAAAA,CAC9BC,GAAW,EACXC,OAAe,EACfC,OAAwB,EACxBC,UAAqD,EACrDC,WAAyB,KACR;EACjB,MAAMV,IAAI,GAAG,IAAAW,aAAM,EAAC,CAAC;EACrB,IAAIC,YAAqC;EACzC,IAAI;IACF,IAAIH,UAAU,EAAE;MACdG,YAAY,GAAGnB,oBAAoB,CAACoB,WAAW,CAC7C,gBAAgB,EACfC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACd,IAAI,KAAKA,IAAI,EAAE;UACvBS,UAAU,CAACK,KAAK,CAACC,IAAI,CAACC,OAAO,EAAEF,KAAK,CAACC,IAAI,CAACE,KAAK,CAAC;QAClD;MACF,CACF,CAAC;IACH;IACA,IAAIC,qBAAQ,CAACC,EAAE,KAAK,SAAS,IAAIZ,OAAO,CAACa,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5Db,OAAO,GAAGA,OAAO,CAACc,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IAEA,IAAIb,OAAO,aAAPA,OAAO,eAAPA,OAAO,CAAEc,iBAAiB,EAAE;MAC9Bd,OAAO,aAAPA,OAAO,uBAAPA,OAAO,CAAEc,iBAAiB,CAACtB,IAAI,CAAC;IAClC;IAEAU,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEa,gBAAgB,CAAC,OAAO,EAAE,MAAMxB,YAAY,CAACC,IAAI,CAAC,CAAC;IAEhE,MAAMwB,MAAM,GAAG,MAAM7B,gBAAU,CAAC8B,MAAM,CAAClB,OAAO,EAAE;MAC9CP,IAAI;MACJ0B,MAAM,EAAElB,OAAO,CAACmB,UAAU;MAC1BC,OAAO,EAAEpB,OAAO,CAACoB,OAAO;MACxBC,UAAU,EAAErB,OAAO,CAACqB,UAAU;MAC9B,GAAGrB,OAAO;MACVF;IACF,CAAC,CAAC;IACF,OAAOkB,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIZ,YAAY,EAAE;MAChBA,YAAY,CAACkB,MAAM,CAAC,CAAC;IACvB;IACApB,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEqB,mBAAmB,CAAC,OAAO,EAAE,MAAMhC,YAAY,CAACC,IAAI,CAAC,CAAC;EACrE;AACF,CAAC;AAACH,OAAA,CAAAQ,gBAAA,GAAAA,gBAAA"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/helpers.js b/node_modules/react-native-compressor/lib/commonjs/utils/helpers.js
+deleted file mode 100644
+index f3b0b26..0000000
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/helpers.js
++++ /dev/null
+@@ -1,16 +0,0 @@
+-"use strict";
+-
+-Object.defineProperty(exports, "__esModule", {
+-  value: true
+-});
+-exports.uuidv4 = void 0;
+-const uuidv4 = () => {
+-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+-    const r = parseFloat('0.' + Math.random().toString().replace('0.', '') + new Date().getTime()) * 16 | 0,
+-      // eslint-disable-next-line eqeqeq
+-      v = c == 'x' ? r : r & 0x3 | 0x8;
+-    return v.toString(16);
+-  });
+-};
+-exports.uuidv4 = uuidv4;
+-//# sourceMappingURL=helpers.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/helpers.js.map b/node_modules/react-native-compressor/lib/commonjs/utils/helpers.js.map
+deleted file mode 100644
+index 5dca906..0000000
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/helpers.js.map
++++ /dev/null
+@@ -1 +0,0 @@
+-{"version":3,"names":["uuidv4","replace","c","r","parseFloat","Math","random","toString","Date","getTime","v","exports"],"sourceRoot":"../../../src","sources":["utils/helpers.ts"],"mappings":";;;;;;AAAO,MAAMA,MAAM,GAAGA,CAAA,KAAM;EAC1B,OAAO,sCAAsC,CAACC,OAAO,CAAC,OAAO,EAAE,UAAUC,CAAC,EAAE;IAC1E,MAAMC,CAAC,GACFC,UAAU,CACT,IAAI,GACFC,IAAI,CAACC,MAAM,CAAC,CAAC,CAACC,QAAQ,CAAC,CAAC,CAACN,OAAO,CAAC,IAAI,EAAE,EAAE,CAAC,GAC1C,IAAIO,IAAI,CAAC,CAAC,CAACC,OAAO,CAAC,CACvB,CAAC,GACC,EAAE,GACJ,CAAC;MACH;MACAC,CAAC,GAAGR,CAAC,IAAI,GAAG,GAAGC,CAAC,GAAIA,CAAC,GAAG,GAAG,GAAI,GAAG;IACpC,OAAOO,CAAC,CAACH,QAAQ,CAAC,EAAE,CAAC;EACvB,CAAC,CAAC;AACJ,CAAC;AAACI,OAAA,CAAAX,MAAA,GAAAA,MAAA"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/index.js b/node_modules/react-native-compressor/lib/commonjs/utils/index.js
+index 5949c2a..af358a9 100644
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/index.js
++++ b/node_modules/react-native-compressor/lib/commonjs/utils/index.js
+@@ -12,9 +12,10 @@ var _exportNames = {
+   createVideoThumbnail: true,
+   clearCache: true,
+   getDetails: true,
+-  getFileSize: true
++  getFileSize: true,
++  uuidv4: true
+ };
+-exports.getVideoMetaData = exports.getRealPath = exports.getImageMetaData = exports.getFileSize = exports.getDetails = exports.generateFilePath = exports.createVideoThumbnail = exports.clearCache = exports.DEFAULT_COMPRESS_AUDIO_OPTIONS = void 0;
++exports.uuidv4 = exports.getVideoMetaData = exports.getRealPath = exports.getImageMetaData = exports.getFileSize = exports.getDetails = exports.generateFilePath = exports.createVideoThumbnail = exports.clearCache = exports.DEFAULT_COMPRESS_AUDIO_OPTIONS = void 0;
+ var _Main = require("../Main");
+ var _reactNative = require("react-native");
+ var _Downloader = require("./Downloader");
+@@ -41,18 +42,6 @@ Object.keys(_Uploader).forEach(function (key) {
+     }
+   });
+ });
+-var _helpers = require("./helpers");
+-Object.keys(_helpers).forEach(function (key) {
+-  if (key === "default" || key === "__esModule") return;
+-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+-  if (key in exports && exports[key] === _helpers[key]) return;
+-  Object.defineProperty(exports, key, {
+-    enumerable: true,
+-    get: function () {
+-      return _helpers[key];
+-    }
+-  });
+-});
+ /* eslint-disable no-bitwise */
+ 
+ const INCORRECT_INPUT_PATH = 'Incorrect input path. Please provide a valid one';
+@@ -168,4 +157,13 @@ const getFileSize = async filePath => {
+   return _Main.Compressor.getFileSize(filePath);
+ };
+ exports.getFileSize = getFileSize;
++const uuidv4 = () => {
++  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
++    const r = parseFloat('0.' + Math.random().toString().replace('0.', '') + new Date().getTime()) * 16 | 0,
++      // eslint-disable-next-line eqeqeq
++      v = c == 'x' ? r : r & 0x3 | 0x8;
++    return v.toString(16);
++  });
++};
++exports.uuidv4 = uuidv4;
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/commonjs/utils/index.js.map b/node_modules/react-native-compressor/lib/commonjs/utils/index.js.map
+index 1796a10..43069a2 100644
+--- a/node_modules/react-native-compressor/lib/commonjs/utils/index.js.map
++++ b/node_modules/react-native-compressor/lib/commonjs/utils/index.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_Main","require","_reactNative","_Downloader","Object","keys","forEach","key","prototype","hasOwnProperty","call","_exportNames","exports","defineProperty","enumerable","get","_Uploader","_helpers","INCORRECT_INPUT_PATH","DEFAULT_COMPRESS_AUDIO_OPTIONS","quality","generateFilePath","extension","Promise","resolve","reject","Compressor","then","result","catch","error","getRealPath","path","type","arguments","length","undefined","getVideoMetaData","unifyMetaData","exifResult","output","isIos","Platform","OS","ImageWidth","PixelWidth","parseInt","ImageHeight","PixelHeight","ImageLength","Orientation","size","exif","getImageMetaData","createVideoThumbnail","fileUrl","options","clearCache","cacheDir","isValidUrl","url","test","getFullFilename","_path","includes","substring","array","split","isFileNameError","filename","getFilename","fullFilename","slice","join","isRemoteMedia","_path$split","getDetails","mediaFullPath","extesnion","Error","mediaInfo","JSON","parse","mediaInformation","bitrate","getMediaProperties","bit_rate","Number","format","e","getFileSize","filePath"],"sourceRoot":"../../../src","sources":["utils/index.tsx"],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"names":["_Main","require","_reactNative","_Downloader","Object","keys","forEach","key","prototype","hasOwnProperty","call","_exportNames","exports","defineProperty","enumerable","get","_Uploader","INCORRECT_INPUT_PATH","DEFAULT_COMPRESS_AUDIO_OPTIONS","quality","generateFilePath","extension","Promise","resolve","reject","Compressor","then","result","catch","error","getRealPath","path","type","arguments","length","undefined","getVideoMetaData","unifyMetaData","exifResult","output","isIos","Platform","OS","ImageWidth","PixelWidth","parseInt","ImageHeight","PixelHeight","ImageLength","Orientation","size","exif","getImageMetaData","createVideoThumbnail","fileUrl","options","clearCache","cacheDir","isValidUrl","url","test","getFullFilename","_path","includes","substring","array","split","isFileNameError","filename","getFilename","fullFilename","slice","join","isRemoteMedia","_path$split","getDetails","mediaFullPath","extesnion","Error","mediaInfo","JSON","parse","mediaInformation","bitrate","getMediaProperties","bit_rate","Number","format","e","getFileSize","filePath","uuidv4","replace","c","r","parseFloat","Math","random","toString","Date","getTime","v"],"sourceRoot":"../../../src","sources":["utils/index.tsx"],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/module/utils/Downloader.js b/node_modules/react-native-compressor/lib/module/utils/Downloader.js
+index 1b982b0..8ac4a1e 100644
+--- a/node_modules/react-native-compressor/lib/module/utils/Downloader.js
++++ b/node_modules/react-native-compressor/lib/module/utils/Downloader.js
+@@ -1,7 +1,7 @@
+ import { NativeEventEmitter, Platform } from 'react-native';
+ import { Compressor } from '../Main';
+ const CompressEventEmitter = new NativeEventEmitter(Compressor);
+-import { uuidv4 } from './helpers';
++import { uuidv4 } from './index';
+ export const download = async (fileUrl, downloadProgress, progressDivider) => {
+   let subscription;
+   try {
+diff --git a/node_modules/react-native-compressor/lib/module/utils/Downloader.js.map b/node_modules/react-native-compressor/lib/module/utils/Downloader.js.map
+index cef0895..031b1a6 100644
+--- a/node_modules/react-native-compressor/lib/module/utils/Downloader.js.map
++++ b/node_modules/react-native-compressor/lib/module/utils/Downloader.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["NativeEventEmitter","Platform","Compressor","CompressEventEmitter","uuidv4","download","fileUrl","downloadProgress","progressDivider","subscription","uuid","addListener","event","data","progress","OS","includes","replace","result","remove"],"sourceRoot":"../../../src","sources":["utils/Downloader.tsx"],"mappings":"AAAA,SAASA,kBAAkB,EAAEC,QAAQ,QAAQ,cAAc;AAE3D,SAASC,UAAU,QAAQ,SAAS;AACpC,MAAMC,oBAAoB,GAAG,IAAIH,kBAAkB,CAACE,UAAU,CAAC;AAC/D,SAASE,MAAM,QAAQ,WAAW;AAClC,OAAO,MAAMC,QAAQ,GAAG,MAAAA,CACtBC,OAAe,EACfC,gBAA6C,EAC7CC,eAAwB,KACP;EACjB,IAAIC,YAAqC;EACzC,IAAI;IACF,MAAMC,IAAI,GAAGN,MAAM,CAAC,CAAC;IACrB,IAAIG,gBAAgB,EAAE;MACpBE,YAAY,GAAGN,oBAAoB,CAACQ,WAAW,CAC7C,kBAAkB,EACjBC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACF,IAAI,KAAKA,IAAI,EAAE;UACvBH,gBAAgB,CAACK,KAAK,CAACC,IAAI,CAACC,QAAQ,CAAC;QACvC;MACF,CACF,CAAC;IACH;IACA,IAAIb,QAAQ,CAACc,EAAE,KAAK,SAAS,IAAIT,OAAO,CAACU,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5DV,OAAO,GAAGA,OAAO,CAACW,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IACA,MAAMC,MAAM,GAAG,MAAMhB,UAAU,CAACG,QAAQ,CAACC,OAAO,EAAE;MAChDI,IAAI;MACJF;IACF,CAAC,CAAC;IACF,OAAOU,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIT,YAAY,EAAE;MAChBA,YAAY,CAACU,MAAM,CAAC,CAAC;IACvB;EACF;AACF,CAAC"}
+\ No newline at end of file
++{"version":3,"names":["NativeEventEmitter","Platform","Compressor","CompressEventEmitter","uuidv4","download","fileUrl","downloadProgress","progressDivider","subscription","uuid","addListener","event","data","progress","OS","includes","replace","result","remove"],"sourceRoot":"../../../src","sources":["utils/Downloader.tsx"],"mappings":"AAAA,SAASA,kBAAkB,EAAEC,QAAQ,QAAQ,cAAc;AAE3D,SAASC,UAAU,QAAQ,SAAS;AACpC,MAAMC,oBAAoB,GAAG,IAAIH,kBAAkB,CAACE,UAAU,CAAC;AAC/D,SAASE,MAAM,QAAQ,SAAS;AAChC,OAAO,MAAMC,QAAQ,GAAG,MAAAA,CACtBC,OAAe,EACfC,gBAA6C,EAC7CC,eAAwB,KACP;EACjB,IAAIC,YAAqC;EACzC,IAAI;IACF,MAAMC,IAAI,GAAGN,MAAM,CAAC,CAAC;IACrB,IAAIG,gBAAgB,EAAE;MACpBE,YAAY,GAAGN,oBAAoB,CAACQ,WAAW,CAC7C,kBAAkB,EACjBC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACF,IAAI,KAAKA,IAAI,EAAE;UACvBH,gBAAgB,CAACK,KAAK,CAACC,IAAI,CAACC,QAAQ,CAAC;QACvC;MACF,CACF,CAAC;IACH;IACA,IAAIb,QAAQ,CAACc,EAAE,KAAK,SAAS,IAAIT,OAAO,CAACU,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5DV,OAAO,GAAGA,OAAO,CAACW,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IACA,MAAMC,MAAM,GAAG,MAAMhB,UAAU,CAACG,QAAQ,CAACC,OAAO,EAAE;MAChDI,IAAI;MACJF;IACF,CAAC,CAAC;IACF,OAAOU,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIT,YAAY,EAAE;MAChBA,YAAY,CAACU,MAAM,CAAC,CAAC;IACvB;EACF;AACF,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/module/utils/Uploader.js b/node_modules/react-native-compressor/lib/module/utils/Uploader.js
+index 8cd82f5..8cbd92a 100644
+--- a/node_modules/react-native-compressor/lib/module/utils/Uploader.js
++++ b/node_modules/react-native-compressor/lib/module/utils/Uploader.js
+@@ -1,7 +1,7 @@
+ import { NativeEventEmitter, Platform } from 'react-native';
+ import { Compressor } from '../Main';
+ const CompressEventEmitter = new NativeEventEmitter(Compressor);
+-import { uuidv4 } from './helpers';
++import { uuidv4 } from './index';
+ export let UploadType = /*#__PURE__*/function (UploadType) {
+   UploadType[UploadType["BINARY_CONTENT"] = 0] = "BINARY_CONTENT";
+   UploadType[UploadType["MULTIPART"] = 1] = "MULTIPART";
+diff --git a/node_modules/react-native-compressor/lib/module/utils/Uploader.js.map b/node_modules/react-native-compressor/lib/module/utils/Uploader.js.map
+index ed01438..730a860 100644
+--- a/node_modules/react-native-compressor/lib/module/utils/Uploader.js.map
++++ b/node_modules/react-native-compressor/lib/module/utils/Uploader.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["NativeEventEmitter","Platform","Compressor","CompressEventEmitter","uuidv4","UploadType","UploaderHttpMethod","cancelUpload","uuid","arguments","length","undefined","shouldCancelAll","backgroundUpload","url","fileUrl","options","onProgress","abortSignal","subscription","addListener","event","data","written","total","OS","includes","replace","getCancellationId","addEventListener","result","upload","method","httpMethod","headers","uploadType","remove","removeEventListener"],"sourceRoot":"../../../src","sources":["utils/Uploader.tsx"],"mappings":"AAAA,SAASA,kBAAkB,EAAEC,QAAQ,QAAQ,cAAc;AAE3D,SAASC,UAAU,QAAQ,SAAS;AACpC,MAAMC,oBAAoB,GAAG,IAAIH,kBAAkB,CAACE,UAAU,CAAC;AAC/D,SAASE,MAAM,QAAQ,WAAW;AAClC,WAAYC,UAAU,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;AAKtB,WAAYC,kBAAkB,0BAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAA,OAAlBA,kBAAkB;AAAA;AA+B9B,OAAO,MAAMC,YAGJ,GAAG,SAAAA,CAAA,EAAwC;EAAA,IAAvCC,IAAI,GAAAC,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,EAAE;EAAA,IAAEG,eAAe,GAAAH,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,KAAK;EAC7C,OAAOP,UAAU,CAACK,YAAY,CAACC,IAAI,EAAEI,eAAe,CAAC;AACvD,CAAC;AAED,OAAO,MAAMC,gBAAgB,GAAG,MAAAA,CAC9BC,GAAW,EACXC,OAAe,EACfC,OAAwB,EACxBC,UAAqD,EACrDC,WAAyB,KACR;EACjB,MAAMV,IAAI,GAAGJ,MAAM,CAAC,CAAC;EACrB,IAAIe,YAAqC;EACzC,IAAI;IACF,IAAIF,UAAU,EAAE;MACdE,YAAY,GAAGhB,oBAAoB,CAACiB,WAAW,CAC7C,gBAAgB,EACfC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACb,IAAI,KAAKA,IAAI,EAAE;UACvBS,UAAU,CAACI,KAAK,CAACC,IAAI,CAACC,OAAO,EAAEF,KAAK,CAACC,IAAI,CAACE,KAAK,CAAC;QAClD;MACF,CACF,CAAC;IACH;IACA,IAAIvB,QAAQ,CAACwB,EAAE,KAAK,SAAS,IAAIV,OAAO,CAACW,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5DX,OAAO,GAAGA,OAAO,CAACY,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IAEA,IAAIX,OAAO,aAAPA,OAAO,eAAPA,OAAO,CAAEY,iBAAiB,EAAE;MAC9BZ,OAAO,aAAPA,OAAO,uBAAPA,OAAO,CAAEY,iBAAiB,CAACpB,IAAI,CAAC;IAClC;IAEAU,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEW,gBAAgB,CAAC,OAAO,EAAE,MAAMtB,YAAY,CAACC,IAAI,CAAC,CAAC;IAEhE,MAAMsB,MAAM,GAAG,MAAM5B,UAAU,CAAC6B,MAAM,CAAChB,OAAO,EAAE;MAC9CP,IAAI;MACJwB,MAAM,EAAEhB,OAAO,CAACiB,UAAU;MAC1BC,OAAO,EAAElB,OAAO,CAACkB,OAAO;MACxBC,UAAU,EAAEnB,OAAO,CAACmB,UAAU;MAC9B,GAAGnB,OAAO;MACVF;IACF,CAAC,CAAC;IACF,OAAOgB,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIX,YAAY,EAAE;MAChBA,YAAY,CAACiB,MAAM,CAAC,CAAC;IACvB;IACAlB,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEmB,mBAAmB,CAAC,OAAO,EAAE,MAAM9B,YAAY,CAACC,IAAI,CAAC,CAAC;EACrE;AACF,CAAC"}
+\ No newline at end of file
++{"version":3,"names":["NativeEventEmitter","Platform","Compressor","CompressEventEmitter","uuidv4","UploadType","UploaderHttpMethod","cancelUpload","uuid","arguments","length","undefined","shouldCancelAll","backgroundUpload","url","fileUrl","options","onProgress","abortSignal","subscription","addListener","event","data","written","total","OS","includes","replace","getCancellationId","addEventListener","result","upload","method","httpMethod","headers","uploadType","remove","removeEventListener"],"sourceRoot":"../../../src","sources":["utils/Uploader.tsx"],"mappings":"AAAA,SAASA,kBAAkB,EAAEC,QAAQ,QAAQ,cAAc;AAE3D,SAASC,UAAU,QAAQ,SAAS;AACpC,MAAMC,oBAAoB,GAAG,IAAIH,kBAAkB,CAACE,UAAU,CAAC;AAC/D,SAASE,MAAM,QAAQ,SAAS;AAChC,WAAYC,UAAU,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;AAKtB,WAAYC,kBAAkB,0BAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAlBA,kBAAkB;EAAA,OAAlBA,kBAAkB;AAAA;AA+B9B,OAAO,MAAMC,YAGJ,GAAG,SAAAA,CAAA,EAAwC;EAAA,IAAvCC,IAAI,GAAAC,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,EAAE;EAAA,IAAEG,eAAe,GAAAH,SAAA,CAAAC,MAAA,QAAAD,SAAA,QAAAE,SAAA,GAAAF,SAAA,MAAG,KAAK;EAC7C,OAAOP,UAAU,CAACK,YAAY,CAACC,IAAI,EAAEI,eAAe,CAAC;AACvD,CAAC;AAED,OAAO,MAAMC,gBAAgB,GAAG,MAAAA,CAC9BC,GAAW,EACXC,OAAe,EACfC,OAAwB,EACxBC,UAAqD,EACrDC,WAAyB,KACR;EACjB,MAAMV,IAAI,GAAGJ,MAAM,CAAC,CAAC;EACrB,IAAIe,YAAqC;EACzC,IAAI;IACF,IAAIF,UAAU,EAAE;MACdE,YAAY,GAAGhB,oBAAoB,CAACiB,WAAW,CAC7C,gBAAgB,EACfC,KAAU,IAAK;QACd,IAAIA,KAAK,CAACb,IAAI,KAAKA,IAAI,EAAE;UACvBS,UAAU,CAACI,KAAK,CAACC,IAAI,CAACC,OAAO,EAAEF,KAAK,CAACC,IAAI,CAACE,KAAK,CAAC;QAClD;MACF,CACF,CAAC;IACH;IACA,IAAIvB,QAAQ,CAACwB,EAAE,KAAK,SAAS,IAAIV,OAAO,CAACW,QAAQ,CAAC,SAAS,CAAC,EAAE;MAC5DX,OAAO,GAAGA,OAAO,CAACY,OAAO,CAAC,SAAS,EAAE,EAAE,CAAC;IAC1C;IAEA,IAAIX,OAAO,aAAPA,OAAO,eAAPA,OAAO,CAAEY,iBAAiB,EAAE;MAC9BZ,OAAO,aAAPA,OAAO,uBAAPA,OAAO,CAAEY,iBAAiB,CAACpB,IAAI,CAAC;IAClC;IAEAU,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEW,gBAAgB,CAAC,OAAO,EAAE,MAAMtB,YAAY,CAACC,IAAI,CAAC,CAAC;IAEhE,MAAMsB,MAAM,GAAG,MAAM5B,UAAU,CAAC6B,MAAM,CAAChB,OAAO,EAAE;MAC9CP,IAAI;MACJwB,MAAM,EAAEhB,OAAO,CAACiB,UAAU;MAC1BC,OAAO,EAAElB,OAAO,CAACkB,OAAO;MACxBC,UAAU,EAAEnB,OAAO,CAACmB,UAAU;MAC9B,GAAGnB,OAAO;MACVF;IACF,CAAC,CAAC;IACF,OAAOgB,MAAM;EACf,CAAC,SAAS;IACR;IACA,IAAIX,YAAY,EAAE;MAChBA,YAAY,CAACiB,MAAM,CAAC,CAAC;IACvB;IACAlB,WAAW,aAAXA,WAAW,uBAAXA,WAAW,CAAEmB,mBAAmB,CAAC,OAAO,EAAE,MAAM9B,YAAY,CAACC,IAAI,CAAC,CAAC;EACrE;AACF,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/module/utils/helpers.js b/node_modules/react-native-compressor/lib/module/utils/helpers.js
+deleted file mode 100644
+index 8b3e432..0000000
+--- a/node_modules/react-native-compressor/lib/module/utils/helpers.js
++++ /dev/null
+@@ -1,9 +0,0 @@
+-export const uuidv4 = () => {
+-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+-    const r = parseFloat('0.' + Math.random().toString().replace('0.', '') + new Date().getTime()) * 16 | 0,
+-      // eslint-disable-next-line eqeqeq
+-      v = c == 'x' ? r : r & 0x3 | 0x8;
+-    return v.toString(16);
+-  });
+-};
+-//# sourceMappingURL=helpers.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/module/utils/helpers.js.map b/node_modules/react-native-compressor/lib/module/utils/helpers.js.map
+deleted file mode 100644
+index f3545d7..0000000
+--- a/node_modules/react-native-compressor/lib/module/utils/helpers.js.map
++++ /dev/null
+@@ -1 +0,0 @@
+-{"version":3,"names":["uuidv4","replace","c","r","parseFloat","Math","random","toString","Date","getTime","v"],"sourceRoot":"../../../src","sources":["utils/helpers.ts"],"mappings":"AAAA,OAAO,MAAMA,MAAM,GAAGA,CAAA,KAAM;EAC1B,OAAO,sCAAsC,CAACC,OAAO,CAAC,OAAO,EAAE,UAAUC,CAAC,EAAE;IAC1E,MAAMC,CAAC,GACFC,UAAU,CACT,IAAI,GACFC,IAAI,CAACC,MAAM,CAAC,CAAC,CAACC,QAAQ,CAAC,CAAC,CAACN,OAAO,CAAC,IAAI,EAAE,EAAE,CAAC,GAC1C,IAAIO,IAAI,CAAC,CAAC,CAACC,OAAO,CAAC,CACvB,CAAC,GACC,EAAE,GACJ,CAAC;MACH;MACAC,CAAC,GAAGR,CAAC,IAAI,GAAG,GAAGC,CAAC,GAAIA,CAAC,GAAG,GAAG,GAAI,GAAG;IACpC,OAAOO,CAAC,CAACH,QAAQ,CAAC,EAAE,CAAC;EACvB,CAAC,CAAC;AACJ,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/module/utils/index.js b/node_modules/react-native-compressor/lib/module/utils/index.js
+index 3666da1..fcfb230 100644
+--- a/node_modules/react-native-compressor/lib/module/utils/index.js
++++ b/node_modules/react-native-compressor/lib/module/utils/index.js
+@@ -105,7 +105,14 @@ export const getDetails = function (mediaFullPath) {
+ export const getFileSize = async filePath => {
+   return Compressor.getFileSize(filePath);
+ };
++export const uuidv4 = () => {
++  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
++    const r = parseFloat('0.' + Math.random().toString().replace('0.', '') + new Date().getTime()) * 16 | 0,
++      // eslint-disable-next-line eqeqeq
++      v = c == 'x' ? r : r & 0x3 | 0x8;
++    return v.toString(16);
++  });
++};
+ export * from './Downloader';
+ export * from './Uploader';
+-export * from './helpers';
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/module/utils/index.js.map b/node_modules/react-native-compressor/lib/module/utils/index.js.map
+index 6d5f3f7..7c98466 100644
+--- a/node_modules/react-native-compressor/lib/module/utils/index.js.map
++++ b/node_modules/react-native-compressor/lib/module/utils/index.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["Compressor","Platform","INCORRECT_INPUT_PATH","DEFAULT_COMPRESS_AUDIO_OPTIONS","quality","generateFilePath","extension","Promise","resolve","reject","then","result","catch","error","getRealPath","path","type","arguments","length","undefined","getVideoMetaData","unifyMetaData","exifResult","output","isIos","OS","ImageWidth","PixelWidth","parseInt","ImageHeight","PixelHeight","ImageLength","Orientation","size","exif","getImageMetaData","createVideoThumbnail","fileUrl","options","clearCache","cacheDir","isValidUrl","url","test","getFullFilename","_path","includes","substring","array","split","isFileNameError","filename","getFilename","fullFilename","slice","join","isRemoteMedia","_path$split","getDetails","mediaFullPath","extesnion","Error","mediaInfo","JSON","parse","mediaInformation","bitrate","getMediaProperties","bit_rate","Number","format","e","getFileSize","filePath"],"sourceRoot":"../../../src","sources":["utils/index.tsx"],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"names":["Compressor","Platform","INCORRECT_INPUT_PATH","DEFAULT_COMPRESS_AUDIO_OPTIONS","quality","generateFilePath","extension","Promise","resolve","reject","then","result","catch","error","getRealPath","path","type","arguments","length","undefined","getVideoMetaData","unifyMetaData","exifResult","output","isIos","OS","ImageWidth","PixelWidth","parseInt","ImageHeight","PixelHeight","ImageLength","Orientation","size","exif","getImageMetaData","createVideoThumbnail","fileUrl","options","clearCache","cacheDir","isValidUrl","url","test","getFullFilename","_path","includes","substring","array","split","isFileNameError","filename","getFilename","fullFilename","slice","join","isRemoteMedia","_path$split","getDetails","mediaFullPath","extesnion","Error","mediaInfo","JSON","parse","mediaInformation","bitrate","getMediaProperties","bit_rate","Number","format","e","getFileSize","filePath","uuidv4","replace","c","r","parseFloat","Math","random","toString","Date","getTime","v"],"sourceRoot":"../../../src","sources":["utils/index.tsx"],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/typescript/utils/helpers.d.ts b/node_modules/react-native-compressor/lib/typescript/utils/helpers.d.ts
+deleted file mode 100644
+index 88c1b2d..0000000
+--- a/node_modules/react-native-compressor/lib/typescript/utils/helpers.d.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-export declare const uuidv4: () => string;
+-//# sourceMappingURL=helpers.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/typescript/utils/helpers.d.ts.map b/node_modules/react-native-compressor/lib/typescript/utils/helpers.d.ts.map
+deleted file mode 100644
+index d72ba79..0000000
+--- a/node_modules/react-native-compressor/lib/typescript/utils/helpers.d.ts.map
++++ /dev/null
+@@ -1 +0,0 @@
+-{"version":3,"file":"helpers.d.ts","sourceRoot":"","sources":["../../../src/utils/helpers.ts"],"names":[],"mappings":"AAAA,eAAO,MAAM,MAAM,cAclB,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts b/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts
+index 9477d4d..3b8ab92 100644
+--- a/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts
++++ b/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts
+@@ -51,7 +51,7 @@ export declare const createVideoThumbnail: createVideoThumbnailType;
+ export declare const clearCache: clearCacheType;
+ export declare const getDetails: (mediaFullPath: string, extesnion?: 'mp3' | 'mp4') => Promise<any | null>;
+ export declare const getFileSize: (filePath: string) => Promise<string>;
++export declare const uuidv4: () => string;
+ export * from './Downloader';
+ export * from './Uploader';
+-export * from './helpers';
+ //# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts.map b/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts.map
+index f393f20..7029100 100644
+--- a/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts.map
++++ b/node_modules/react-native-compressor/lib/typescript/utils/index.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/utils/index.tsx"],"names":[],"mappings":"AAGA,KAAK,WAAW,GAAG,KAAK,GAAG,QAAQ,GAAG,MAAM,CAAC;AAG7C,KAAK,qBAAqB,GAAG;IAE3B,OAAO,CAAC,EAAE,WAAW,CAAC;IACtB,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB,UAAU,CAAC,EAAE,MAAM,CAAC;IACpB,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB,CAAC;AAEF,MAAM,MAAM,iBAAiB,GAAG;IAC9B,SAAS,EAAE,OAAO,CAAC;IACnB,OAAO,EAAE,MAAM,CAAC;CACjB,CAAC;AAEF,eAAO,MAAM,8BAA8B,EAAE,qBAG5C,CAAC;AAEF,MAAM,MAAM,SAAS,GAAG;IACtB,QAAQ,CAAC,KAAK,EAAE,MAAM,EAAE,OAAO,CAAC,EAAE,qBAAqB,GAAG,OAAO,CAAC,MAAM,CAAC,CAAC;CAC3E,CAAC;AAEF,KAAK,wBAAwB,GAAG,CAC9B,OAAO,EAAE,MAAM,EACf,OAAO,CAAC,EAAE;IACR,OAAO,CAAC,EAAE;QAAE,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,CAAA;KAAE,CAAC;CACrC,KACE,OAAO,CAAC;IACX,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,MAAM,CAAC;IACb,KAAK,EAAE,MAAM,CAAC;IACd,MAAM,EAAE,MAAM,CAAC;CAChB,CAAC,CAAC;AAEH,KAAK,cAAc,GAAG,CAAC,QAAQ,CAAC,EAAE,MAAM,KAAK,OAAO,CAAC,MAAM,CAAC,CAAC;AAE7D,KAAK,oBAAoB,GAAG,CAAC,QAAQ,EAAE,MAAM,KAAK,OAAO,CAAC;IACxD,UAAU,EAAE,MAAM,CAAC;IACnB,WAAW,EAAE,MAAM,CAAC;IACpB,WAAW,EAAE,MAAM,CAAC;IACpB,IAAI,EAAE,MAAM,CAAC;IACb,SAAS,EAAE,MAAM,CAAC;IAClB,IAAI,EAAE;QAAE,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,CAAA;KAAE,CAAC;CACjC,CAAC,CAAC;AAEH,KAAK,oBAAoB,GAAG,CAAC,QAAQ,EAAE,MAAM,KAAK,OAAO,CAAC;IACxD,SAAS,EAAE,MAAM,CAAC;IAClB,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;IACjB,KAAK,EAAE,MAAM,CAAC;IACd,MAAM,EAAE,MAAM,CAAC;CAChB,CAAC,CAAC;AACH,KAAK,eAAe,GAAG,CACrB,IAAI,EAAE,MAAM,EACZ,IAAI,EAAE,OAAO,GAAG,OAAO,KACpB,OAAO,CAAC,MAAM,CAAC,CAAC;AAErB,eAAO,MAAM,gBAAgB,EAAE,GAM9B,CAAC;AAEF,eAAO,MAAM,WAAW,EAAE,eAEzB,CAAC;AAEF,eAAO,MAAM,gBAAgB,EAAE,oBAE9B,CAAC;AAuBF,eAAO,MAAM,gBAAgB,EAAE,oBAG9B,CAAC;AAEF,eAAO,MAAM,oBAAoB,EAAE,wBAKlC,CAAC;AAEF,eAAO,MAAM,UAAU,EAAE,cAExB,CAAC;AA2CF,eAAO,MAAM,UAAU,kBACN,MAAM,cACV,KAAK,GAAG,KAAK,KACvB,QAAQ,GAAG,GAAG,IAAI,CA6BpB,CAAC;AAEF,eAAO,MAAM,WAAW,aAAoB,MAAM,KAAG,QAAQ,MAAM,CAElE,CAAC;AAEF,cAAc,cAAc,CAAC;AAC7B,cAAc,YAAY,CAAC;AAC3B,cAAc,WAAW,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/utils/index.tsx"],"names":[],"mappings":"AAGA,KAAK,WAAW,GAAG,KAAK,GAAG,QAAQ,GAAG,MAAM,CAAC;AAG7C,KAAK,qBAAqB,GAAG;IAE3B,OAAO,CAAC,EAAE,WAAW,CAAC;IACtB,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB,UAAU,CAAC,EAAE,MAAM,CAAC;IACpB,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB,CAAC;AAEF,MAAM,MAAM,iBAAiB,GAAG;IAC9B,SAAS,EAAE,OAAO,CAAC;IACnB,OAAO,EAAE,MAAM,CAAC;CACjB,CAAC;AAEF,eAAO,MAAM,8BAA8B,EAAE,qBAG5C,CAAC;AAEF,MAAM,MAAM,SAAS,GAAG;IACtB,QAAQ,CAAC,KAAK,EAAE,MAAM,EAAE,OAAO,CAAC,EAAE,qBAAqB,GAAG,OAAO,CAAC,MAAM,CAAC,CAAC;CAC3E,CAAC;AAEF,KAAK,wBAAwB,GAAG,CAC9B,OAAO,EAAE,MAAM,EACf,OAAO,CAAC,EAAE;IACR,OAAO,CAAC,EAAE;QAAE,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,CAAA;KAAE,CAAC;CACrC,KACE,OAAO,CAAC;IACX,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,MAAM,CAAC;IACb,KAAK,EAAE,MAAM,CAAC;IACd,MAAM,EAAE,MAAM,CAAC;CAChB,CAAC,CAAC;AAEH,KAAK,cAAc,GAAG,CAAC,QAAQ,CAAC,EAAE,MAAM,KAAK,OAAO,CAAC,MAAM,CAAC,CAAC;AAE7D,KAAK,oBAAoB,GAAG,CAAC,QAAQ,EAAE,MAAM,KAAK,OAAO,CAAC;IACxD,UAAU,EAAE,MAAM,CAAC;IACnB,WAAW,EAAE,MAAM,CAAC;IACpB,WAAW,EAAE,MAAM,CAAC;IACpB,IAAI,EAAE,MAAM,CAAC;IACb,SAAS,EAAE,MAAM,CAAC;IAClB,IAAI,EAAE;QAAE,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,CAAA;KAAE,CAAC;CACjC,CAAC,CAAC;AAEH,KAAK,oBAAoB,GAAG,CAAC,QAAQ,EAAE,MAAM,KAAK,OAAO,CAAC;IACxD,SAAS,EAAE,MAAM,CAAC;IAClB,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;IACjB,KAAK,EAAE,MAAM,CAAC;IACd,MAAM,EAAE,MAAM,CAAC;CAChB,CAAC,CAAC;AACH,KAAK,eAAe,GAAG,CACrB,IAAI,EAAE,MAAM,EACZ,IAAI,EAAE,OAAO,GAAG,OAAO,KACpB,OAAO,CAAC,MAAM,CAAC,CAAC;AAErB,eAAO,MAAM,gBAAgB,EAAE,GAM9B,CAAC;AAEF,eAAO,MAAM,WAAW,EAAE,eAEzB,CAAC;AAEF,eAAO,MAAM,gBAAgB,EAAE,oBAE9B,CAAC;AAuBF,eAAO,MAAM,gBAAgB,EAAE,oBAG9B,CAAC;AAEF,eAAO,MAAM,oBAAoB,EAAE,wBAKlC,CAAC;AAEF,eAAO,MAAM,UAAU,EAAE,cAExB,CAAC;AA2CF,eAAO,MAAM,UAAU,kBACN,MAAM,cACV,KAAK,GAAG,KAAK,KACvB,QAAQ,GAAG,GAAG,IAAI,CA6BpB,CAAC;AAEF,eAAO,MAAM,WAAW,aAAoB,MAAM,KAAG,QAAQ,MAAM,CAElE,CAAC;AAEF,eAAO,MAAM,MAAM,cAclB,CAAC;AACF,cAAc,cAAc,CAAC;AAC7B,cAAc,YAAY,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/react-native-compressor/src/utils/Downloader.tsx b/node_modules/react-native-compressor/src/utils/Downloader.tsx
+index e5384c1..f80b0e7 100644
+--- a/node_modules/react-native-compressor/src/utils/Downloader.tsx
++++ b/node_modules/react-native-compressor/src/utils/Downloader.tsx
+@@ -2,7 +2,7 @@ import { NativeEventEmitter, Platform } from 'react-native';
+ import type { NativeEventSubscription } from 'react-native';
+ import { Compressor } from '../Main';
+ const CompressEventEmitter = new NativeEventEmitter(Compressor);
+-import { uuidv4 } from './helpers';
++import { uuidv4 } from './index';
+ export const download = async (
+   fileUrl: string,
+   downloadProgress?: (progress: number) => void,
+diff --git a/node_modules/react-native-compressor/src/utils/Uploader.tsx b/node_modules/react-native-compressor/src/utils/Uploader.tsx
+index 7f3b7b7..c60cfc5 100644
+--- a/node_modules/react-native-compressor/src/utils/Uploader.tsx
++++ b/node_modules/react-native-compressor/src/utils/Uploader.tsx
+@@ -2,7 +2,7 @@ import { NativeEventEmitter, Platform } from 'react-native';
+ import type { NativeEventSubscription } from 'react-native';
+ import { Compressor } from '../Main';
+ const CompressEventEmitter = new NativeEventEmitter(Compressor);
+-import { uuidv4 } from './helpers';
++import { uuidv4 } from './index';
+ export enum UploadType {
+   BINARY_CONTENT = 0,
+   MULTIPART = 1,
+diff --git a/node_modules/react-native-compressor/src/utils/helpers.ts b/node_modules/react-native-compressor/src/utils/helpers.ts
+deleted file mode 100644
+index ceba9eb..0000000
+--- a/node_modules/react-native-compressor/src/utils/helpers.ts
++++ /dev/null
+@@ -1,15 +0,0 @@
+-export const uuidv4 = () => {
+-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+-    const r =
+-        (parseFloat(
+-          '0.' +
+-            Math.random().toString().replace('0.', '') +
+-            new Date().getTime()
+-        ) *
+-          16) |
+-        0,
+-      // eslint-disable-next-line eqeqeq
+-      v = c == 'x' ? r : (r & 0x3) | 0x8;
+-    return v.toString(16);
+-  });
+-};
+diff --git a/node_modules/react-native-compressor/src/utils/index.tsx b/node_modules/react-native-compressor/src/utils/index.tsx
+index d7025ef..8814158 100644
+--- a/node_modules/react-native-compressor/src/utils/index.tsx
++++ b/node_modules/react-native-compressor/src/utils/index.tsx
+@@ -194,6 +194,20 @@ export const getFileSize = async (filePath: string): Promise<string> => {
+   return Compressor.getFileSize(filePath);
+ };
+ 
++export const uuidv4 = () => {
++  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
++    const r =
++        (parseFloat(
++          '0.' +
++            Math.random().toString().replace('0.', '') +
++            new Date().getTime()
++        ) *
++          16) |
++        0,
++      // eslint-disable-next-line eqeqeq
++      v = c == 'x' ? r : (r & 0x3) | 0x8;
++    return v.toString(16);
++  });
++};
+ export * from './Downloader';
+ export * from './Uploader';
+-export * from './helpers';
