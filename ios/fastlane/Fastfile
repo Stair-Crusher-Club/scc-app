@@ -228,15 +228,15 @@ platform :ios do
 
     # 현재 버전과 비교
     current_version = get_info_plist_value(path: File.expand_path("../sccReactNative/Info.plist"), key: 'CFBundleShortVersionString')
-    if version == current_version
-      UI.message("Version #{version} is the same as current version. Skipping file update and commit.")
-      next
-    end
+    version_changed = version != current_version
 
     # 2. 파일 변경 (Info.plist 업데이트)
-    increment_version_number(
-      version_number: version
-    )
+    if version_changed
+      increment_version_number(
+        version_number: version
+      )
+    end
+    # 빌드 번호는 버전이 같더라도 항상 올림 (App Store Connect 중복 방지)
     increment_build_number(
       build_number: next_build_number() + 1
     )
