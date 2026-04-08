@@ -1,6 +1,12 @@
 import React, {useCallback} from 'react';
 import styled from 'styled-components/native';
 
+import {
+  HAS_ELEVATOR_OPTIONS,
+  STAIR_INFO_OPTIONS,
+  STAIR_HEIGHT_OPTIONS,
+  SLOPE_OPTIONS,
+} from '@/constant/accessibility-options';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -12,29 +18,6 @@ import ImageFile from '@/models/ImageFile';
 
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
 import PhotoEditSlots from './PhotoEditSlots';
-
-const HAS_ELEVATOR_OPTIONS = [
-  {value: true, label: '있음'},
-  {value: false, label: '없음'},
-];
-
-const STAIR_INFO_OPTIONS = [
-  {value: StairInfo.None, label: '없음'},
-  {value: StairInfo.One, label: '1칸'},
-  {value: StairInfo.TwoToFive, label: '2~5칸'},
-  {value: StairInfo.OverSix, label: '6칸 이상'},
-];
-
-const STAIR_HEIGHT_OPTIONS = [
-  {value: StairHeightLevel.HalfThumb, label: '엄지 반마디 이하'},
-  {value: StairHeightLevel.Thumb, label: '엄지 한마디 정도'},
-  {value: StairHeightLevel.OverThumb, label: '엄지 한마디 이상'},
-];
-
-const SLOPE_OPTIONS = [
-  {value: true, label: '있음'},
-  {value: false, label: '없음'},
-];
 
 interface ElevatorCorrectionSectionProps {
   elevatorAccessibility?: ElevatorAccessibilityDto;

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ActivityIndicator, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -136,10 +136,10 @@ export default function ReportCorrectionFormScreen({
     number | undefined
   >(undefined);
 
-  // Photo issue type
-  const [photoIssueType, setPhotoIssueType] = useState<
-    'wrong_place' | 'bad_photo' | 'outdated' | 'swapped' | undefined
-  >(undefined);
+  // Refs for initial state (to detect changes)
+  const initialPlaceCorrectionRef = useRef<PlaceAccessibilityCorrectionDto>({});
+  const initialBuildingCorrectionRef =
+    useRef<BuildingAccessibilityCorrectionDto>({});
 
   useEffect(() => {
     const loadPrefill = async () => {
@@ -149,9 +149,11 @@ export default function ReportCorrectionFormScreen({
         setPrefillData(data);
         if (data.placeAccessibility) {
           setPlaceCorrection(data.placeAccessibility);
+          initialPlaceCorrectionRef.current = data.placeAccessibility;
         }
         if (data.buildingAccessibility) {
           setBuildingCorrection(data.buildingAccessibility);
+          initialBuildingCorrectionRef.current = data.buildingAccessibility;
         }
       } catch {
         ToastUtils.show('정보를 불러오는 데 실패했습니다.');
@@ -163,6 +165,31 @@ export default function ReportCorrectionFormScreen({
     };
     loadPrefill();
   }, [api, placeId, navigation]);
+
+  const hasChanges = useMemo(() => {
+    return (
+      JSON.stringify(placeCorrection) !==
+        JSON.stringify(initialPlaceCorrectionRef.current) ||
+      noteText !== '' ||
+      newEntrancePhotos.length > 0 ||
+      newElevatorPhotos.length > 0 ||
+      deletedEntrancePhotoIndices.length > 0 ||
+      deletedElevatorPhotoIndices.length > 0 ||
+      replacedEntrancePhotos.size > 0 ||
+      replacedElevatorPhotos.size > 0 ||
+      selectedAccessLevel !== undefined
+    );
+  }, [
+    placeCorrection,
+    noteText,
+    newEntrancePhotos,
+    newElevatorPhotos,
+    deletedEntrancePhotoIndices,
+    deletedElevatorPhotoIndices,
+    replacedEntrancePhotos,
+    replacedElevatorPhotos,
+    selectedAccessLevel,
+  ]);
 
   const submitMutation = usePost(
     ['ReportCorrectionForm', 'Submit'],
@@ -401,14 +428,12 @@ export default function ReportCorrectionFormScreen({
             <PhotoCorrectionSection
               entranceImageUrls={entranceImageUrls}
               elevatorImageUrls={elevatorImageUrls}
-              photoIssueType={photoIssueType}
               newEntrancePhotos={newEntrancePhotos}
               newElevatorPhotos={newElevatorPhotos}
               deletedEntrancePhotoIndices={deletedEntrancePhotoIndices}
               deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
               replacedEntrancePhotos={replacedEntrancePhotos}
               replacedElevatorPhotos={replacedElevatorPhotos}
-              onChangePhotoIssueType={setPhotoIssueType}
               onDeleteExistingEntrancePhoto={handleDeleteExistingEntrancePhoto}
               onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
               onReplaceExistingEntrancePhoto={
@@ -453,7 +478,7 @@ export default function ReportCorrectionFormScreen({
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
-            isDisabled={submitMutation.isPending}
+            isDisabled={!hasChanges || submitMutation.isPending}
             onPress={() => submitMutation.mutate(undefined)}
             elementName="report_correction_submit"
           />

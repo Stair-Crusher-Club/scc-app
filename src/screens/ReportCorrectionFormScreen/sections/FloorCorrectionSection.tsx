@@ -88,7 +88,11 @@ export default function FloorCorrectionSection({
 
       {showFloorSelect && (
         <FloorSelectWrapper>
-          <FloorSelect value={detailFloorValue} onChange={handleFloorChange} />
+          <FloorSelect
+            key={selectedPreset}
+            value={detailFloorValue}
+            onChange={handleFloorChange}
+          />
         </FloorSelectWrapper>
       )}
     </Container>

@@ -949,10 +949,13 @@ export default function PlaceDetailV2Screen({
             });
           }}
           onPressNavigateToCorrection={params => {
-            navigation.navigate('ReportCorrectionForm', {
-              placeId: params.placeId,
-              inaccurateCategory: params.inaccurateCategories[0] as string,
-            });
+            setReportTargetType(null);
+            setTimeout(() => {
+              navigation.navigate('ReportCorrectionForm', {
+                placeId: params.placeId,
+                inaccurateCategory: params.inaccurateCategories[0] as string,
+              });
+            }, 300);
           }}
           onPressSubmitClosed={params => {
             if (!reportTargetType) {
