@@ -67,6 +67,19 @@ target 'sccReactNative' do
       end
     end
 
+    # Xcode 26의 clang이 fmt의 consteval을 거부하는 문제 우회
+    # https://github.com/facebook/react-native/issues/55601
+    # fmt 헤더의 #ifdef 체인이 컴파일러 매크로 기반이라 빌드 설정으로 override 불가
+    # → 헤더 파일을 직접 패치하여 FMT_USE_CONSTEVAL을 0으로 강제
+    fmt_base_h = File.join(installer.sandbox.pod_dir('fmt'), 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base_h)
+      FileUtils.chmod("u+w", fmt_base_h)
+      text = File.read(fmt_base_h)
+      patched = text.gsub(/#  define FMT_USE_CONSTEVAL 1/, '#  define FMT_USE_CONSTEVAL 0')
+      File.write(fmt_base_h, patched)
+      puts "Patched fmt/base.h: FMT_USE_CONSTEVAL forced to 0"
+    end
+
     # Xcode 14 부터 pod signing team 을 manually 넣어줘야 한다.
     # https://github.com/CocoaPods/CocoaPods/issues/1140://github.com/CocoaPods/CocoaPods/issues/11402
     installer.generated_projects.each do |project|

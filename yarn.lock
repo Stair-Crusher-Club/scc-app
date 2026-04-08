@@ -3252,6 +3252,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@d11/react-native-fast-image@npm:^8.13.0":
+  version: 8.13.0
+  resolution: "@d11/react-native-fast-image@npm:8.13.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/697d43bade639333aad905cff00c315d8a9e3fb1352cec7c70c5100edaae9f9e05da8ddbcdd032820dcb4d4082ebb6290e59b040d9f0f31a64855b34d2a9e66d
+  languageName: node
+  linkType: hard
+
 "@discoveryjs/json-ext@npm:^0.5.0":
   version: 0.5.7
   resolution: "@discoveryjs/json-ext@npm:0.5.7"
@@ -15927,13 +15937,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-compressor@npm:^1.12.0":
-  version: 1.12.0
-  resolution: "react-native-compressor@npm:1.12.0"
+"react-native-compressor@npm:^1.16.0":
+  version: 1.16.0
+  resolution: "react-native-compressor@npm:1.16.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/49ce38eeeb2d121253bc761840a04a93ac7fc7bfef77881e82620575cce0817d9d7cd4d6f3df5d29469e45760b107d22f5b2f7ae7116a95ef44c8d83953a6f20
+  checksum: 10c0/a9adac2948df4ef465c82aea8bebf32c4a91bdc0a12d1568dfac3ebf507e97bb47ba6975cc766231bcaeb803918f3d8d136b630e7d8f085823145703644871f6
   languageName: node
   linkType: hard
 
@@ -16952,6 +16962,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.25.7"
     "@babel/preset-typescript": "npm:^7.25.7"
     "@babel/runtime": "npm:^7.25.0"
+    "@d11/react-native-fast-image": "npm:^8.13.0"
     "@hapi/hoek": "npm:^11.0.4"
     "@hot-updater/aws": "npm:^0.12.4"
     "@hot-updater/metro": "npm:^0.12.4"
@@ -17025,7 +17036,7 @@ __metadata:
     react-hook-form: "npm:^7.60.0"
     react-native: "npm:0.80.0"
     react-native-codegen: "npm:^0.70.7"
-    react-native-compressor: "npm:^1.12.0"
+    react-native-compressor: "npm:^1.16.0"
     react-native-config: "npm:^1.5.5"
     react-native-device-info: "npm:^14.0.4"
     react-native-draggable-flatlist: "npm:^4.0.3"

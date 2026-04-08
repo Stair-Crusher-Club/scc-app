@@ -161,9 +161,21 @@ jobs:
       always() &&
       ((github.event_name == 'push' && needs.detect-changes.outputs.build_ios == 'true') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.platform == 'ios'))
-    runs-on: macos-15-xlarge
+    runs-on: macos-26-xlarge
 
     steps:
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.4'
+
+      - name: Install iOS platform
+        run: |
+          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
+          xcodebuild -downloadPlatform iOS || true
+          xcodebuild -version
+          swift --version
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
