@@ -12,10 +12,14 @@ import {
   PlaceAccessibilityCorrectionDto,
   BuildingAccessibilityCorrectionDto,
   ReportPrefillResponseDto,
+  StairInfo,
+  StairHeightLevel,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import usePost from '@/hooks/usePost';
+import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import EntranceCorrectionSection from './sections/EntranceCorrectionSection';
@@ -25,17 +29,80 @@ import ElevatorCorrectionSection from './sections/ElevatorCorrectionSection';
 import AccessLevelCorrectionSection from './sections/AccessLevelCorrectionSection';
 import PhotoCorrectionSection from './sections/PhotoCorrectionSection';
 
+/** Access level (0-5) → stairInfo + stairHeightLevel 역매핑 */
+function accessLevelToStairFields(level: number): {
+  stairInfo: StairInfo;
+  stairHeightLevel?: StairHeightLevel;
+} {
+  switch (level) {
+    case 0:
+      return {stairInfo: StairInfo.None};
+    case 1:
+      return {
+        stairInfo: StairInfo.One,
+        stairHeightLevel: StairHeightLevel.HalfThumb,
+      };
+    case 2:
+      return {
+        stairInfo: StairInfo.One,
+        stairHeightLevel: StairHeightLevel.Thumb,
+      };
+    case 3:
+      return {
+        stairInfo: StairInfo.One,
+        stairHeightLevel: StairHeightLevel.OverThumb,
+      };
+    case 4:
+      return {stairInfo: StairInfo.TwoToFive};
+    case 5:
+      return {stairInfo: StairInfo.OverSix};
+    default:
+      return {stairInfo: StairInfo.Undefined};
+  }
+}
+
+/** stairInfo + stairHeightLevel → access level (0-5) 순매핑 */
+function stairFieldsToAccessLevel(
+  stairInfo?: StairInfo,
+  stairHeightLevel?: StairHeightLevel,
+): number | undefined {
+  if (!stairInfo || stairInfo === StairInfo.Undefined) {
+    return undefined;
+  }
+  switch (stairInfo) {
+    case StairInfo.None:
+      return 0;
+    case StairInfo.One:
+      switch (stairHeightLevel) {
+        case StairHeightLevel.HalfThumb:
+          return 1;
+        case StairHeightLevel.Thumb:
+          return 2;
+        case StairHeightLevel.OverThumb:
+          return 3;
+        default:
+          return 1;
+      }
+    case StairInfo.TwoToFive:
+      return 4;
+    case StairInfo.OverSix:
+      return 5;
+    default:
+      return undefined;
+  }
+}
+
 export interface ReportCorrectionFormScreenParams {
   placeId: string;
-  inaccurateCategories: string[];
+  inaccurateCategory: string;
 }
 
 export default function ReportCorrectionFormScreen({
   route,
   navigation,
 }: ScreenProps<'ReportCorrectionForm'>) {
-  const {placeId, inaccurateCategories} = route.params;
-  const categories = inaccurateCategories as InaccurateInfoCategoryDto[];
+  const {placeId, inaccurateCategory} = route.params;
+  const category = inaccurateCategory as InaccurateInfoCategoryDto;
   const {api} = useAppComponents();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +114,32 @@ export default function ReportCorrectionFormScreen({
   const [buildingCorrection, setBuildingCorrection] =
     useState<BuildingAccessibilityCorrectionDto>({});
   const [noteText, setNoteText] = useState('');
+
+  // Photo state
+  const [newEntrancePhotos, setNewEntrancePhotos] = useState<ImageFile[]>([]);
+  const [newElevatorPhotos, setNewElevatorPhotos] = useState<ImageFile[]>([]);
+  const [deletedEntrancePhotoIndices, setDeletedEntrancePhotoIndices] =
+    useState<number[]>([]);
+  const [deletedElevatorPhotoIndices, setDeletedElevatorPhotoIndices] =
+    useState<number[]>([]);
+
+  // Replaced photos
+  const [replacedEntrancePhotos, setReplacedEntrancePhotos] = useState<
+    Map<number, ImageFile>
+  >(new Map());
+  const [replacedElevatorPhotos, setReplacedElevatorPhotos] = useState<
+    Map<number, ImageFile>
+  >(new Map());
+
+  // Access level state
+  const [selectedAccessLevel, setSelectedAccessLevel] = useState<
+    number | undefined
+  >(undefined);
+
+  // Photo issue type
+  const [photoIssueType, setPhotoIssueType] = useState<
+    'wrong_place' | 'bad_photo' | 'outdated' | 'swapped' | undefined
+  >(undefined);
 
   useEffect(() => {
     const loadPrefill = async () => {
@@ -74,14 +167,89 @@ export default function ReportCorrectionFormScreen({
   const submitMutation = usePost(
     ['ReportCorrectionForm', 'Submit'],
     async () => {
+      // 1. Upload new photos and replaced photos
+      const uploadedEntranceUrls =
+        newEntrancePhotos.length > 0
+          ? await ImageFileUtils.uploadImages(api, newEntrancePhotos)
+          : [];
+      const uploadedElevatorUrls =
+        newElevatorPhotos.length > 0
+          ? await ImageFileUtils.uploadImages(api, newElevatorPhotos)
+          : [];
+
+      // Upload replaced entrance photos
+      const replacedEntranceEntries = Array.from(
+        replacedEntrancePhotos.entries(),
+      );
+      const uploadedReplacedEntranceUrls =
+        replacedEntranceEntries.length > 0
+          ? await ImageFileUtils.uploadImages(
+              api,
+              replacedEntranceEntries.map(([_, photo]) => photo),
+            )
+          : [];
+      const replacedEntranceUrlMap = new Map<number, string>();
+      replacedEntranceEntries.forEach(([idx], i) => {
+        replacedEntranceUrlMap.set(idx, uploadedReplacedEntranceUrls[i]);
+      });
+
+      // Upload replaced elevator photos
+      const replacedElevatorEntries = Array.from(
+        replacedElevatorPhotos.entries(),
+      );
+      const uploadedReplacedElevatorUrls =
+        replacedElevatorEntries.length > 0
+          ? await ImageFileUtils.uploadImages(
+              api,
+              replacedElevatorEntries.map(([_, photo]) => photo),
+            )
+          : [];
+      const replacedElevatorUrlMap = new Map<number, string>();
+      replacedElevatorEntries.forEach(([idx], i) => {
+        replacedElevatorUrlMap.set(idx, uploadedReplacedElevatorUrls[i]);
+      });
+
+      // 2. Build final photo URL lists (existing with replacements - deleted + new)
+      const finalEntranceUrls = entranceImageUrls
+        .map((url, idx) => {
+          if (deletedEntrancePhotoIndices.includes(idx)) {
+            return null;
+          }
+          return replacedEntranceUrlMap.get(idx) ?? url;
+        })
+        .filter((url): url is string => url !== null)
+        .concat(uploadedEntranceUrls);
+      const finalElevatorUrls = elevatorImageUrls
+        .map((url, idx) => {
+          if (deletedElevatorPhotoIndices.includes(idx)) {
+            return null;
+          }
+          return replacedElevatorUrlMap.get(idx) ?? url;
+        })
+        .filter((url): url is string => url !== null)
+        .concat(uploadedElevatorUrls);
+      const allPhotoUrls = [...finalEntranceUrls, ...finalElevatorUrls];
+
+      // 3. Apply access level to placeCorrection if selected
+      let finalPlaceCorrection = {...placeCorrection};
+      if (selectedAccessLevel !== undefined) {
+        const stairFields = accessLevelToStairFields(selectedAccessLevel);
+        finalPlaceCorrection = {
+          ...finalPlaceCorrection,
+          stairInfo: stairFields.stairInfo,
+          stairHeightLevel: stairFields.stairHeightLevel,
+        };
+      }
+
       await api.reportAccessibilityPost({
         placeId,
         reason: 'INACCURATE_INFO',
         correction: {
-          inaccurateCategories: categories,
-          placeAccessibilityCorrection: placeCorrection,
+          inaccurateCategories: [category],
+          placeAccessibilityCorrection: finalPlaceCorrection,
           buildingAccessibilityCorrection: buildingCorrection,
           noteText: noteText || undefined,
+          photoUrls: allPhotoUrls.length > 0 ? allPhotoUrls : undefined,
         },
       });
       ToastUtils.show('신고가 접수되었습니다.');
@@ -99,11 +267,37 @@ export default function ReportCorrectionFormScreen({
     [],
   );
 
-  const hasCategory = useCallback(
-    (category: InaccurateInfoCategoryDto): boolean => {
-      return categories.includes(category);
+  const handleDeleteExistingEntrancePhoto = useCallback((index: number) => {
+    setDeletedEntrancePhotoIndices(prev => [...prev, index]);
+    // Also remove from replaced if it was replaced
+    setReplacedEntrancePhotos(prev => {
+      const next = new Map(prev);
+      next.delete(index);
+      return next;
+    });
+  }, []);
+
+  const handleDeleteExistingElevatorPhoto = useCallback((index: number) => {
+    setDeletedElevatorPhotoIndices(prev => [...prev, index]);
+    setReplacedElevatorPhotos(prev => {
+      const next = new Map(prev);
+      next.delete(index);
+      return next;
+    });
+  }, []);
+
+  const handleReplaceExistingEntrancePhoto = useCallback(
+    (index: number, photo: ImageFile) => {
+      setReplacedEntrancePhotos(prev => new Map(prev).set(index, photo));
     },
-    [categories],
+    [],
+  );
+
+  const handleReplaceExistingElevatorPhoto = useCallback(
+    (index: number, photo: ImageFile) => {
+      setReplacedElevatorPhotos(prev => new Map(prev).set(index, photo));
+    },
+    [],
   );
 
   if (isLoading) {
@@ -116,6 +310,123 @@ export default function ReportCorrectionFormScreen({
     );
   }
 
+  const entranceImageUrls = prefillData?.entranceImageUrls ?? [];
+  const elevatorImageUrls = prefillData?.elevatorImageUrls ?? [];
+
+  const renderSection = () => {
+    switch (category) {
+      case InaccurateInfoCategoryDto.Entrance:
+        return (
+          <SectionContainer>
+            <EntranceCorrectionSection
+              stairInfo={placeCorrection.stairInfo}
+              stairHeightLevel={placeCorrection.stairHeightLevel}
+              hasSlope={placeCorrection.hasSlope}
+              existingEntrancePhotoUrls={entranceImageUrls}
+              newEntrancePhotos={newEntrancePhotos}
+              deletedEntrancePhotoIndices={deletedEntrancePhotoIndices}
+              replacedEntrancePhotos={replacedEntrancePhotos}
+              onChangeStairInfo={value => updatePlaceField('stairInfo', value)}
+              onChangeStairHeightLevel={value =>
+                updatePlaceField('stairHeightLevel', value)
+              }
+              onChangeHasSlope={value => updatePlaceField('hasSlope', value)}
+              onDeleteExistingEntrancePhoto={handleDeleteExistingEntrancePhoto}
+              onReplaceExistingEntrancePhoto={
+                handleReplaceExistingEntrancePhoto
+              }
+              onChangeNewEntrancePhotos={setNewEntrancePhotos}
+            />
+          </SectionContainer>
+        );
+      case InaccurateInfoCategoryDto.Floor:
+        return (
+          <SectionContainer>
+            <FloorCorrectionSection
+              floors={placeCorrection.floors}
+              onChangeFloors={value => updatePlaceField('floors', value)}
+            />
+          </SectionContainer>
+        );
+      case InaccurateInfoCategoryDto.DoorType:
+        return (
+          <SectionContainer>
+            <DoorTypeCorrectionSection
+              entranceDoorTypes={placeCorrection.entranceDoorTypes}
+              onChangeDoorTypes={value =>
+                updatePlaceField('entranceDoorTypes', value)
+              }
+            />
+          </SectionContainer>
+        );
+      case InaccurateInfoCategoryDto.Elevator:
+        return (
+          <SectionContainer>
+            <ElevatorCorrectionSection
+              elevatorAccessibility={placeCorrection.elevatorAccessibility}
+              existingElevatorPhotoUrls={elevatorImageUrls}
+              newElevatorPhotos={newElevatorPhotos}
+              deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
+              replacedElevatorPhotos={replacedElevatorPhotos}
+              onChangeElevatorAccessibility={value =>
+                setPlaceCorrection(prev => ({
+                  ...prev,
+                  elevatorAccessibility: value,
+                }))
+              }
+              onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
+              onReplaceExistingElevatorPhoto={
+                handleReplaceExistingElevatorPhoto
+              }
+              onChangeNewElevatorPhotos={setNewElevatorPhotos}
+            />
+          </SectionContainer>
+        );
+      case InaccurateInfoCategoryDto.AccessLevel:
+        return (
+          <SectionContainer>
+            <AccessLevelCorrectionSection
+              currentLevel={stairFieldsToAccessLevel(
+                prefillData?.placeAccessibility?.stairInfo,
+                prefillData?.placeAccessibility?.stairHeightLevel,
+              )}
+              selectedLevel={selectedAccessLevel}
+              onChangeLevel={setSelectedAccessLevel}
+            />
+          </SectionContainer>
+        );
+      case InaccurateInfoCategoryDto.Photo:
+        return (
+          <SectionContainer>
+            <PhotoCorrectionSection
+              entranceImageUrls={entranceImageUrls}
+              elevatorImageUrls={elevatorImageUrls}
+              photoIssueType={photoIssueType}
+              newEntrancePhotos={newEntrancePhotos}
+              newElevatorPhotos={newElevatorPhotos}
+              deletedEntrancePhotoIndices={deletedEntrancePhotoIndices}
+              deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
+              replacedEntrancePhotos={replacedEntrancePhotos}
+              replacedElevatorPhotos={replacedElevatorPhotos}
+              onChangePhotoIssueType={setPhotoIssueType}
+              onDeleteExistingEntrancePhoto={handleDeleteExistingEntrancePhoto}
+              onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
+              onReplaceExistingEntrancePhoto={
+                handleReplaceExistingEntrancePhoto
+              }
+              onReplaceExistingElevatorPhoto={
+                handleReplaceExistingElevatorPhoto
+              }
+              onChangeNewEntrancePhotos={setNewEntrancePhotos}
+              onChangeNewElevatorPhotos={setNewElevatorPhotos}
+            />
+          </SectionContainer>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <ScreenLayout isHeaderVisible={true} isKeyboardAvoidingView={true}>
       <ScrollView
@@ -125,69 +436,7 @@ export default function ReportCorrectionFormScreen({
           선택한 항목에 대한 올바른 정보를 입력해주세요.
         </PageDescription>
 
-        {hasCategory(InaccurateInfoCategoryDto.Entrance) && (
-          <SectionContainer>
-            <EntranceCorrectionSection
-              stairInfo={placeCorrection.stairInfo}
-              stairHeightLevel={placeCorrection.stairHeightLevel}
-              hasSlope={placeCorrection.hasSlope}
-              onChangeStairInfo={value => updatePlaceField('stairInfo', value)}
-              onChangeStairHeightLevel={value =>
-                updatePlaceField('stairHeightLevel', value)
-              }
-              onChangeHasSlope={value => updatePlaceField('hasSlope', value)}
-            />
-          </SectionContainer>
-        )}
-
-        {hasCategory(InaccurateInfoCategoryDto.Floor) && (
-          <SectionContainer>
-            <FloorCorrectionSection
-              floors={placeCorrection.floors}
-              onChangeFloors={value => updatePlaceField('floors', value)}
-            />
-          </SectionContainer>
-        )}
-
-        {hasCategory(InaccurateInfoCategoryDto.DoorType) && (
-          <SectionContainer>
-            <DoorTypeCorrectionSection
-              entranceDoorTypes={placeCorrection.entranceDoorTypes}
-              onChangeDoorTypes={value =>
-                updatePlaceField('entranceDoorTypes', value)
-              }
-            />
-          </SectionContainer>
-        )}
-
-        {hasCategory(InaccurateInfoCategoryDto.Elevator) && (
-          <SectionContainer>
-            <ElevatorCorrectionSection
-              elevatorAccessibility={placeCorrection.elevatorAccessibility}
-              onChangeElevatorAccessibility={value =>
-                setPlaceCorrection(prev => ({
-                  ...prev,
-                  elevatorAccessibility: value,
-                }))
-              }
-            />
-          </SectionContainer>
-        )}
-
-        {hasCategory(InaccurateInfoCategoryDto.AccessLevel) && (
-          <SectionContainer>
-            <AccessLevelCorrectionSection />
-          </SectionContainer>
-        )}
-
-        {hasCategory(InaccurateInfoCategoryDto.Photo) && (
-          <SectionContainer>
-            <PhotoCorrectionSection
-              entranceImageUrls={prefillData?.entranceImageUrls ?? []}
-              elevatorImageUrls={prefillData?.elevatorImageUrls ?? []}
-            />
-          </SectionContainer>
-        )}
+        {renderSection()}
 
         <SectionContainer>
           <SectionTitle>부연 설명 (선택)</SectionTitle>

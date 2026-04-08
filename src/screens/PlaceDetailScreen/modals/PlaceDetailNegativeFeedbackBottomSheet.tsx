@@ -39,7 +39,7 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
 }
 
 const INACCURATE_CATEGORY_LABELS: Record<InaccurateInfoCategoryDto, string> = {
-  [InaccurateInfoCategoryDto.Entrance]: '입구 정보',
+  [InaccurateInfoCategoryDto.Entrance]: '입구 정보(계단, 경사로 등)',
   [InaccurateInfoCategoryDto.Floor]: '층 정보',
   [InaccurateInfoCategoryDto.DoorType]: '문 유형',
   [InaccurateInfoCategoryDto.Elevator]: '엘리베이터 정보',
@@ -65,9 +65,8 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   const [step, setStep] = useState<Step>('reason');
   const [selectedReason, setSelectedReason] =
     useState<AccessibilityReportReason | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<
-    InaccurateInfoCategoryDto[]
-  >([]);
+  const [selectedCategory, setSelectedCategory] =
+    useState<InaccurateInfoCategoryDto | null>(null);
   const [selectedClosedSubType, setSelectedClosedSubType] =
     useState<ClosedSubTypeDto | null>(null);
   const [text, setText] = useState<string | null>(null);
@@ -83,7 +82,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
     setSelectedReason(null);
     setStep('reason');
     setText(null);
-    setSelectedCategories([]);
+    setSelectedCategory(null);
     setSelectedClosedSubType(null);
     setClosedDetail(null);
   }, []);
@@ -92,14 +91,6 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
     onClear();
     onPressCloseButton();
   }, [onClear, onPressCloseButton]);
-
-  const toggleCategory = useCallback((category: InaccurateInfoCategoryDto) => {
-    setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category],
-    );
-  }, []);
 
   const getTitle = (): string => {
     switch (step) {
@@ -125,7 +116,9 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
       case 'inaccurateCategory':
         return '다음';
       case 'closedSubType':
-        return '제출하기';
+        return selectedClosedSubType === ClosedSubTypeDto.ReplacedByOther
+          ? '폐업 처리 및 제출'
+          : '제출하기';
       case 'text':
         return '제출하기';
       default: {
@@ -140,7 +133,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
       case 'reason':
         return selectedReason === null;
       case 'inaccurateCategory':
-        return selectedCategories.length === 0;
+        return selectedCategory === null;
       case 'closedSubType':
         return selectedClosedSubType === null;
       case 'text':
@@ -176,11 +169,13 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
         break;
       }
       case 'inaccurateCategory': {
-        onClear();
+        if (!selectedCategory) {
+          return;
+        }
         onPressNavigateToCorrection({
           placeId,
           reason: 'INACCURATE_INFO',
-          inaccurateCategories: selectedCategories,
+          inaccurateCategories: [selectedCategory],
         });
         break;
       }
@@ -232,7 +227,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                     key={reason}
                     text={match(reason)
                       .with('INACCURATE_INFO', () => '틀린 정보가 있어요')
-                      .with('CLOSED', () => '폐점된 곳이에요')
+                      .with('CLOSED', () => '폐점/이전된 곳이에요')
                       .with('BAD_USER', () => '이 정복자를 차단할래요')
                       .exhaustive()}
                     textColor={isSelected ? 'brandColor' : 'gray70'}
@@ -257,7 +252,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 InaccurateInfoCategoryDto,
               ) as InaccurateInfoCategoryDto[]
             ).map((category, index) => {
-              const isSelected = selectedCategories.includes(category);
+              const isSelected = category === selectedCategory;
               return (
                 <View key={category}>
                   {index > 0 && <SpaceBetweenOptions />}
@@ -267,7 +262,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                     buttonColor="white"
                     borderColor={isSelected ? 'blue50' : 'gray30'}
                     onPress={() => {
-                      toggleCategory(category);
+                      setSelectedCategory(category);
                     }}
                     elementName="place_feedback_inaccurate_category"
                     logParams={{category}}
@@ -300,6 +295,14 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                   </View>
                 );
               },
+            )}
+            {selectedClosedSubType === ClosedSubTypeDto.ReplacedByOther && (
+              <GuideCard>
+                <GuideText>
+                  기존 장소를 폐업 처리하고, 새 가게의 접근성 정보를
+                  등록해주세요!
+                </GuideText>
+              </GuideCard>
             )}
             {selectedClosedSubType === ClosedSubTypeDto.Other && (
               <ClosedDetailTextArea
@@ -394,4 +397,18 @@ const SubmitButton = styled(SccButton)`
 
 const ClosedDetailTextArea = styled(TextArea)`
   margin-top: 12px;
+`;
+
+const GuideCard = styled.View`
+  margin-top: 12px;
+  padding: 14px 16px;
+  background-color: ${color.gray10};
+  border-radius: 8px;
+`;
+
+const GuideText = styled.Text`
+  font-family: ${font.pretendardRegular};
+  font-size: 14px;
+  color: ${color.gray70};
+  line-height: 20px;
 `;

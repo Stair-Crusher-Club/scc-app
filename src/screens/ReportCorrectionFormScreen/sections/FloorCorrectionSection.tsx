@@ -1,17 +1,19 @@
 import React, {useCallback, useState} from 'react';
-import {TextInput} from 'react-native';
 import styled from 'styled-components/native';
 
-import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-interface FloorCorrectionSectionProps {
-  floors?: number[];
-  onChangeFloors: (value: number[]) => void;
-}
+import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
+import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 
-type FloorPreset = '1f' | 'b1' | '2f_plus' | 'custom';
+type FloorPreset = '1f' | 'underground' | '2f_plus';
+
+const FLOOR_PRESET_OPTIONS = [
+  {value: '1f' as FloorPreset, label: '1층'},
+  {value: 'underground' as FloorPreset, label: '지하'},
+  {value: '2f_plus' as FloorPreset, label: '2층 이상'},
+];
 
 function getPresetFromFloors(floors?: number[]): FloorPreset | null {
   if (!floors || floors.length === 0) {
@@ -20,13 +22,18 @@ function getPresetFromFloors(floors?: number[]): FloorPreset | null {
   if (floors.length === 1 && floors[0] === 1) {
     return '1f';
   }
-  if (floors.length === 1 && floors[0] === -1) {
-    return 'b1';
+  if (floors.length === 1 && floors[0] < 0) {
+    return 'underground';
   }
   if (floors.length === 1 && floors[0] >= 2) {
     return '2f_plus';
   }
-  return 'custom';
+  return null;
+}
+
+interface FloorCorrectionSectionProps {
+  floors?: number[];
+  onChangeFloors: (value: number[]) => void;
 }
 
 export default function FloorCorrectionSection({
@@ -36,9 +43,9 @@ export default function FloorCorrectionSection({
   const [selectedPreset, setSelectedPreset] = useState<FloorPreset | null>(
     getPresetFromFloors(floors),
   );
-  const [customFloor, setCustomFloor] = useState(
-    floors && floors.length === 1 && floors[0] >= 2 ? String(floors[0]) : '',
-  );
+
+  const detailFloorValue =
+    floors && floors.length === 1 && floors[0] !== 1 ? floors[0] : undefined;
 
   const handlePresetSelect = useCallback(
     (preset: FloorPreset) => {
@@ -47,82 +54,48 @@ export default function FloorCorrectionSection({
         case '1f':
           onChangeFloors([1]);
           break;
-        case 'b1':
+        case 'underground':
           onChangeFloors([-1]);
           break;
-        case '2f_plus': {
-          const num = parseInt(customFloor, 10);
-          if (!isNaN(num)) {
-            onChangeFloors([num]);
-          } else {
-            setCustomFloor('2');
-            onChangeFloors([2]);
-          }
+        case '2f_plus':
+          onChangeFloors([2]);
           break;
-        }
-        case 'custom':
-          break;
-      }
-    },
-    [customFloor, onChangeFloors],
-  );
-
-  const handleCustomFloorChange = useCallback(
-    (text: string) => {
-      setCustomFloor(text);
-      const num = parseInt(text, 10);
-      if (!isNaN(num)) {
-        onChangeFloors([num]);
       }
     },
     [onChangeFloors],
   );
 
-  const PRESET_OPTIONS: {value: FloorPreset; label: string}[] = [
-    {value: '1f', label: '1층'},
-    {value: 'b1', label: '지하'},
-    {value: '2f_plus', label: '2층 이상'},
-  ];
+  const handleFloorChange = useCallback(
+    (value: number) => {
+      onChangeFloors([value]);
+    },
+    [onChangeFloors],
+  );
+
+  const showFloorSelect =
+    selectedPreset === 'underground' || selectedPreset === '2f_plus';
 
   return (
     <Container>
-      <SectionTitle>층 정보</SectionTitle>
+      <SectionTitle>이 장소는 몇 층에 있나요?</SectionTitle>
 
-      <OptionRow>
-        {PRESET_OPTIONS.map(option => {
-          const isSelected = selectedPreset === option.value;
-          return (
-            <OptionItem key={option.value}>
-              <SccButton
-                text={option.label}
-                textColor={isSelected ? 'brandColor' : 'gray70'}
-                buttonColor="white"
-                borderColor={isSelected ? 'blue50' : 'gray30'}
-                onPress={() => handlePresetSelect(option.value)}
-                elementName="report_correction_floor_preset"
-                logParams={{value: option.value}}
-              />
-            </OptionItem>
-          );
-        })}
-      </OptionRow>
+      <OptionsV2
+        options={FLOOR_PRESET_OPTIONS}
+        value={selectedPreset}
+        columns={3}
+        onSelect={handlePresetSelect}
+      />
 
-      {selectedPreset === '2f_plus' && (
-        <FloorInputContainer>
-          <FloorInput
-            value={customFloor}
-            onChangeText={handleCustomFloorChange}
-            keyboardType="number-pad"
-            placeholder="층수 입력"
-            placeholderTextColor={color.gray40}
-          />
-          <FloorInputSuffix>층</FloorInputSuffix>
-        </FloorInputContainer>
+      {showFloorSelect && (
+        <FloorSelectWrapper>
+          <FloorSelect value={detailFloorValue} onChange={handleFloorChange} />
+        </FloorSelectWrapper>
       )}
     </Container>
   );
 }
 
+// Styled components
 const Container = styled.View``;
 
 const SectionTitle = styled.Text`
@@ -132,38 +105,6 @@ const SectionTitle = styled.Text`
   margin-bottom: 16px;
 `;
 
-const OptionRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-`;
-
-const OptionItem = styled.View`
-  min-width: 70px;
-`;
-
-const FloorInputContainer = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-top: 4px;
-`;
-
-const FloorInput = styled(TextInput)`
-  border-width: 1px;
-  border-color: ${color.gray30};
-  border-radius: 8px;
-  padding-horizontal: 12px;
-  padding-vertical: 8px;
-  font-size: 14px;
-  font-family: ${font.pretendardRegular};
-  color: ${color.black};
-  width: 80px;
-`;
-
-const FloorInputSuffix = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardRegular};
-  color: ${color.gray60};
-  margin-left: 8px;
+const FloorSelectWrapper = styled.View`
+  margin-top: 12px;
 `;

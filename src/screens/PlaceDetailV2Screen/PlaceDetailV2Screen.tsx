@@ -949,10 +949,9 @@ export default function PlaceDetailV2Screen({
             });
           }}
           onPressNavigateToCorrection={params => {
-            setReportTargetType(null);
             navigation.navigate('ReportCorrectionForm', {
               placeId: params.placeId,
-              inaccurateCategories: params.inaccurateCategories as string[],
+              inaccurateCategory: params.inaccurateCategories[0] as string,
             });
           }}
           onPressSubmitClosed={params => {
