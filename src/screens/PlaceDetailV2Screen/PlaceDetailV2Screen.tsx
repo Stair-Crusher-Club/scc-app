@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
+  Alert,
   Animated,
   InteractionManager,
   LayoutChangeEvent,
@@ -14,6 +15,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
+import {featureFlagAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import V2TabBar from './components/V2TabBar';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -108,11 +110,19 @@ export default function PlaceDetailV2Screen({
   const toggleFavorite = useToggleFavoritePlace();
   const toggleRequest = useToggleAccessibilityInfoRequest();
 
+  const featureFlags = useAtomValue(featureFlagAtom);
+  const isCrew = featureFlags?.isCrew ?? false;
+
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetailV2', 'ReportAccessibility'],
     async params => {
       await api.reportAccessibilityPost(params);
-      ToastUtils.show('신고가 접수되었습니다.');
+      const isCrewClosure = isCrew && params.reason === 'CLOSED';
+      ToastUtils.show(
+        isCrewClosure
+          ? '폐업 처리가 완료되었습니다.'
+          : '신고가 접수되었습니다.',
+      );
     },
   );
 
@@ -387,6 +397,20 @@ export default function PlaceDetailV2Screen({
 
   const [reportTargetType, setReportTargetType] =
     useState<ReportTargetTypeDto | null>(null);
+
+  // Issue 1: Step 3(ReportCorrectionForm)에서 뒤로 올 때 bottom sheet를 복원하기 위해
+  // navigate 전 reportTargetType을 ref에 저장하고, focus 이벤트에서 복원한다.
+  const savedReportTargetTypeRef = useRef<ReportTargetTypeDto | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (savedReportTargetTypeRef.current) {
+        setReportTargetType(savedReportTargetTypeRef.current);
+        savedReportTargetTypeRef.current = null;
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const showNegativeFeedbackBottomSheet = (type: ReportTargetTypeDto) => {
     checkAuth(() => {
@@ -949,11 +973,15 @@ export default function PlaceDetailV2Screen({
             });
           }}
           onPressNavigateToCorrection={params => {
+            savedReportTargetTypeRef.current = reportTargetType;
             setReportTargetType(null);
             setTimeout(() => {
               navigation.navigate('ReportCorrectionForm', {
                 placeId: params.placeId,
                 inaccurateCategory: params.inaccurateCategories[0] as string,
+                onSubmitSuccess: () => {
+                  savedReportTargetTypeRef.current = null;
+                },
               });
             }, 300);
           }}
@@ -962,18 +990,37 @@ export default function PlaceDetailV2Screen({
               return;
             }
 
-            const targetType = reportTargetType;
-            setReportTargetType(null);
+            const submitClosed = () => {
+              const targetType = reportTargetType;
+              setReportTargetType(null);
 
-            reportAccessibilityMutation.mutate({
-              placeId: params.placeId,
-              reason: 'CLOSED',
-              targetType,
-              correction: {
-                closedSubType: params.closedSubType,
-                noteText: params.detail,
-              },
-            });
+              reportAccessibilityMutation.mutate({
+                placeId: params.placeId,
+                reason: 'CLOSED',
+                targetType,
+                correction: {
+                  closedSubType: params.closedSubType,
+                  noteText: params.detail,
+                },
+              });
+            };
+
+            if (isCrew) {
+              Alert.alert(
+                '폐업 신고',
+                '크루가 신고하는 경우 즉시 폐업됩니다. 정말 폐업 신고하시겠어요?',
+                [
+                  {text: '취소', style: 'cancel'},
+                  {
+                    text: '폐업 신고',
+                    style: 'destructive',
+                    onPress: submitClosed,
+                  },
+                ],
+              );
+            } else {
+              submitClosed();
+            }
           }}
         />
       )}

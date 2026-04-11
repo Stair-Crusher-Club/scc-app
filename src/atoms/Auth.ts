@@ -30,6 +30,7 @@ export const accessTokenAtom = atomForLocal<string>('scc-token');
 
 export const featureFlagAtom = atom<{
   isAlbumUploadAllowed: boolean;
+  isCrew: boolean;
 } | null>(null);
 
 // Key: 실험 이름 (e.g., 'UPVOTE_BUTTON_STYLE')
@@ -81,6 +82,7 @@ export function useMe() {
     _setUserInfoAtom(data.user);
     setFeatureFlag({
       isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
+      isCrew: data.isCrew ?? false,
     });
 
     // 실험 배정 파싱

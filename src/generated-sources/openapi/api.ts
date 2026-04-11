@@ -2720,6 +2720,12 @@ export interface GetUserInfoResponseDto {
      */
     'isAlbumUploadAllowed'?: boolean;
     /**
+     * 크루 여부 (한 번이라도 크루였으면 true)
+     * @type {boolean}
+     * @memberof GetUserInfoResponseDto
+     */
+    'isCrew'?: boolean;
+    /**
      * 유저에게 배정된 실험 목록
      * @type {Array<ExperimentAssignmentDto>}
      * @memberof GetUserInfoResponseDto
@@ -4039,6 +4045,24 @@ export interface PlaceAccessibilityCorrectionDto {
      * @memberof PlaceAccessibilityCorrectionDto
      */
     'elevatorAccessibility'?: ElevatorAccessibilityDto;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
+    /**
+     * 교정된 입구 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'entranceImageUrls'?: Array<string>;
+    /**
+     * 교정된 엘리베이터 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof PlaceAccessibilityCorrectionDto
+     */
+    'elevatorImageUrls'?: Array<string>;
 }
 /**
  * 

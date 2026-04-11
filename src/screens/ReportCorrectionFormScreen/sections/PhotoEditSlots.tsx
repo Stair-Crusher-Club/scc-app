@@ -55,6 +55,7 @@ export default function PhotoEditSlots({
   const takePhoto = () => {
     navigation.navigate('Camera', {
       takenPhotos: newPhotos,
+      maxPhotos: Math.max(1, maxPhotos - activeExistingPhotos.length),
       onPhotosTaken: onChangeNewPhotos,
       target: 'place',
     });
@@ -63,6 +64,7 @@ export default function PhotoEditSlots({
   const replacePhoto = (originalIndex: number) => {
     navigation.navigate('Camera', {
       takenPhotos: [],
+      maxPhotos: 1,
       onPhotosTaken: (photos: ImageFile[]) => {
         if (photos.length > 0) {
           onReplaceExisting(originalIndex, photos[0]);
@@ -109,14 +111,21 @@ export default function PhotoEditSlots({
             <Slot key={`existing-${item.index}`}>
               <ThumbnailButton
                 elementName="photo_edit_existing_thumbnail"
-                onPress={() =>
-                  replacedPhoto
-                    ? viewNewPhoto(0)
-                    : viewExistingPhoto(
-                        activeExistingPhotos.map(p => p.url),
-                        displayIndex,
-                      )
-                }>
+                onPress={() => {
+                  if (replacedPhoto) {
+                    navigation.navigate('ImageZoomViewer', {
+                      imageUrls: [
+                        ImageFileUtils.filepathFromImageFile(replacedPhoto),
+                      ],
+                      index: 0,
+                    });
+                  } else {
+                    viewExistingPhoto(
+                      activeExistingPhotos.map(p => p.url),
+                      displayIndex,
+                    );
+                  }
+                }}>
                 <ThumbnailWrapper>
                   {replacedPhoto ? (
                     <ThumbnailImage

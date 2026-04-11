@@ -85,7 +85,14 @@ export default function ElevatorCorrectionSection({
             options={STAIR_INFO_OPTIONS}
             value={elevatorAccessibility?.stairInfo}
             columns={2}
-            onSelect={(value: StairInfo) => update({stairInfo: value})}
+            onSelect={(value: StairInfo) =>
+              update({
+                stairInfo: value,
+                ...(value !== StairInfo.One
+                  ? {stairHeightLevel: undefined}
+                  : {}),
+              })
+            }
           />
 
           {elevatorAccessibility?.stairInfo === StairInfo.One && (

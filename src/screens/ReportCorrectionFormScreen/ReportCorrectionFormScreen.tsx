@@ -1,3 +1,4 @@
+import {useQueryClient} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ActivityIndicator, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
@@ -8,10 +9,11 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
+  AccessibilityInfoV2Dto,
   InaccurateInfoCategoryDto,
   PlaceAccessibilityCorrectionDto,
   BuildingAccessibilityCorrectionDto,
-  ReportPrefillResponseDto,
+  ReportTargetTypeDto,
   StairInfo,
   StairHeightLevel,
 } from '@/generated-sources/openapi';
@@ -95,19 +97,21 @@ function stairFieldsToAccessLevel(
 export interface ReportCorrectionFormScreenParams {
   placeId: string;
   inaccurateCategory: string;
+  onSubmitSuccess?: () => void;
 }
 
 export default function ReportCorrectionFormScreen({
   route,
   navigation,
 }: ScreenProps<'ReportCorrectionForm'>) {
-  const {placeId, inaccurateCategory} = route.params;
+  const {placeId, inaccurateCategory, onSubmitSuccess} = route.params;
   const category = inaccurateCategory as InaccurateInfoCategoryDto;
   const {api} = useAppComponents();
+  const queryClient = useQueryClient();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [prefillData, setPrefillData] =
-    useState<ReportPrefillResponseDto | null>(null);
+  const [accessibilityData, setAccessibilityData] =
+    useState<AccessibilityInfoV2Dto | null>(null);
 
   const [placeCorrection, setPlaceCorrection] =
     useState<PlaceAccessibilityCorrectionDto>({});
@@ -142,34 +146,58 @@ export default function ReportCorrectionFormScreen({
     useRef<BuildingAccessibilityCorrectionDto>({});
 
   useEffect(() => {
-    const loadPrefill = async () => {
-      try {
-        const response = await api.reportAccessibilityPrefillPost({placeId});
-        const data = response.data;
-        setPrefillData(data);
-        if (data.placeAccessibility) {
-          setPlaceCorrection(data.placeAccessibility);
-          initialPlaceCorrectionRef.current = data.placeAccessibility;
-        }
-        if (data.buildingAccessibility) {
-          setBuildingCorrection(data.buildingAccessibility);
-          initialBuildingCorrectionRef.current = data.buildingAccessibility;
-        }
-      } catch {
-        ToastUtils.show('정보를 불러오는 데 실패했습니다.');
-        navigation.goBack();
-        return;
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadPrefill();
-  }, [api, placeId, navigation]);
+    // PDP에서 이미 fetch한 접근성 데이터를 캐시에서 읽어 prefill
+    const cached = queryClient.getQueryData<AccessibilityInfoV2Dto>([
+      'PlaceDetailV2',
+      placeId,
+      'Accessibility',
+    ]);
+    if (!cached) {
+      ToastUtils.show('접근성 정보를 불러올 수 없습니다.');
+      navigation.goBack();
+      return;
+    }
+    setAccessibilityData(cached);
+    const pa = cached.placeAccessibility;
+    const ba = cached.buildingAccessibility;
+
+    if (pa) {
+      const paCorrection: PlaceAccessibilityCorrectionDto = {
+        stairInfo: pa.stairInfo,
+        stairHeightLevel: pa.stairHeightLevel,
+        hasSlope: pa.hasSlope,
+        floors: pa.floors,
+        entranceDoorTypes: pa.entranceDoorTypes,
+        floorMovingMethodTypes: pa.floorMovingMethodTypes,
+        elevatorAccessibility: pa.floorMovingElevatorAccessibility,
+        doorDirectionType: pa.doorDirectionType,
+      };
+      setPlaceCorrection(paCorrection);
+      initialPlaceCorrectionRef.current = paCorrection;
+    }
+    if (ba) {
+      const baCorrection: BuildingAccessibilityCorrectionDto = {
+        entranceStairInfo: ba.entranceStairInfo,
+        entranceStairHeightLevel: ba.entranceStairHeightLevel,
+        hasSlope: ba.hasSlope,
+        hasElevator: ba.hasElevator,
+        entranceDoorTypes: ba.entranceDoorTypes,
+        elevatorStairInfo: ba.elevatorStairInfo,
+        elevatorStairHeightLevel: ba.elevatorStairHeightLevel,
+        elevatorHasSlope: ba.elevatorHasSlope,
+      };
+      setBuildingCorrection(baCorrection);
+      initialBuildingCorrectionRef.current = baCorrection;
+    }
+    setIsLoading(false);
+  }, [placeId, queryClient, navigation]);
 
   const hasChanges = useMemo(() => {
     return (
       JSON.stringify(placeCorrection) !==
         JSON.stringify(initialPlaceCorrectionRef.current) ||
+      JSON.stringify(buildingCorrection) !==
+        JSON.stringify(initialBuildingCorrectionRef.current) ||
       noteText !== '' ||
       newEntrancePhotos.length > 0 ||
       newElevatorPhotos.length > 0 ||
@@ -177,10 +205,16 @@ export default function ReportCorrectionFormScreen({
       deletedElevatorPhotoIndices.length > 0 ||
       replacedEntrancePhotos.size > 0 ||
       replacedElevatorPhotos.size > 0 ||
-      selectedAccessLevel !== undefined
+      (selectedAccessLevel !== undefined &&
+        selectedAccessLevel !==
+          stairFieldsToAccessLevel(
+            accessibilityData?.placeAccessibility?.stairInfo,
+            accessibilityData?.placeAccessibility?.stairHeightLevel,
+          ))
     );
   }, [
     placeCorrection,
+    buildingCorrection,
     noteText,
     newEntrancePhotos,
     newElevatorPhotos,
@@ -189,6 +223,41 @@ export default function ReportCorrectionFormScreen({
     replacedEntrancePhotos,
     replacedElevatorPhotos,
     selectedAccessLevel,
+    accessibilityData,
+  ]);
+
+  // 기존에 사진이 있었는데 모두 삭제되면 제출 불가
+  const hasPhotoViolation = useMemo(() => {
+    const existingEntranceUrls =
+      accessibilityData?.placeAccessibility?.imageUrls ?? [];
+    const existingElevatorUrls =
+      accessibilityData?.placeAccessibility?.floorMovingElevatorAccessibility
+        ?.imageUrls ?? [];
+
+    // 최종 입구 사진 수: 삭제 안 된 기존 사진 + 새 사진
+    const finalEntranceCount =
+      existingEntranceUrls.filter(
+        (_, idx) => !deletedEntrancePhotoIndices.includes(idx),
+      ).length + newEntrancePhotos.length;
+
+    // 최종 엘리베이터 사진 수: 삭제 안 된 기존 사진 + 새 사진
+    const finalElevatorCount =
+      existingElevatorUrls.filter(
+        (_, idx) => !deletedElevatorPhotoIndices.includes(idx),
+      ).length + newElevatorPhotos.length;
+
+    const entranceViolation =
+      existingEntranceUrls.length > 0 && finalEntranceCount === 0;
+    const elevatorViolation =
+      existingElevatorUrls.length > 0 && finalElevatorCount === 0;
+
+    return entranceViolation || elevatorViolation;
+  }, [
+    accessibilityData,
+    deletedEntrancePhotoIndices,
+    deletedElevatorPhotoIndices,
+    newEntrancePhotos,
+    newElevatorPhotos,
   ]);
 
   const submitMutation = usePost(
@@ -270,16 +339,29 @@ export default function ReportCorrectionFormScreen({
 
       await api.reportAccessibilityPost({
         placeId,
+        targetType: ReportTargetTypeDto.PlaceAccessibility,
         reason: 'INACCURATE_INFO',
+        detail: noteText || undefined,
         correction: {
           inaccurateCategories: [category],
-          placeAccessibilityCorrection: finalPlaceCorrection,
+          placeAccessibilityCorrection: {
+            ...finalPlaceCorrection,
+            entranceImageUrls:
+              finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
+            elevatorImageUrls:
+              finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+          },
           buildingAccessibilityCorrection: buildingCorrection,
           noteText: noteText || undefined,
           photoUrls: allPhotoUrls.length > 0 ? allPhotoUrls : undefined,
         },
       });
+      // PDP 접근성 데이터를 refetch하도록 캐시 무효화
+      await queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
+      });
       ToastUtils.show('신고가 접수되었습니다.');
+      onSubmitSuccess?.();
       navigation.goBack();
     },
   );
@@ -337,8 +419,11 @@ export default function ReportCorrectionFormScreen({
     );
   }
 
-  const entranceImageUrls = prefillData?.entranceImageUrls ?? [];
-  const elevatorImageUrls = prefillData?.elevatorImageUrls ?? [];
+  const entranceImageUrls =
+    accessibilityData?.placeAccessibility?.imageUrls ?? [];
+  const elevatorImageUrls =
+    accessibilityData?.placeAccessibility?.floorMovingElevatorAccessibility
+      ?.imageUrls ?? [];
 
   const renderSection = () => {
     switch (category) {
@@ -349,15 +434,27 @@ export default function ReportCorrectionFormScreen({
               stairInfo={placeCorrection.stairInfo}
               stairHeightLevel={placeCorrection.stairHeightLevel}
               hasSlope={placeCorrection.hasSlope}
+              doorDirectionType={placeCorrection.doorDirectionType}
+              isStandaloneBuilding={
+                accessibilityData?.placeAccessibility?.isStandaloneBuilding
+              }
               existingEntrancePhotoUrls={entranceImageUrls}
               newEntrancePhotos={newEntrancePhotos}
               deletedEntrancePhotoIndices={deletedEntrancePhotoIndices}
               replacedEntrancePhotos={replacedEntrancePhotos}
-              onChangeStairInfo={value => updatePlaceField('stairInfo', value)}
+              onChangeStairInfo={value => {
+                updatePlaceField('stairInfo', value);
+                if (value !== StairInfo.One) {
+                  updatePlaceField('stairHeightLevel', undefined);
+                }
+              }}
               onChangeStairHeightLevel={value =>
                 updatePlaceField('stairHeightLevel', value)
               }
               onChangeHasSlope={value => updatePlaceField('hasSlope', value)}
+              onChangeDoorDirectionType={value =>
+                updatePlaceField('doorDirectionType', value)
+              }
               onDeleteExistingEntrancePhoto={handleDeleteExistingEntrancePhoto}
               onReplaceExistingEntrancePhoto={
                 handleReplaceExistingEntrancePhoto
@@ -371,7 +468,14 @@ export default function ReportCorrectionFormScreen({
           <SectionContainer>
             <FloorCorrectionSection
               floors={placeCorrection.floors}
+              floorMovingMethodTypes={placeCorrection.floorMovingMethodTypes}
+              isStandaloneBuilding={
+                accessibilityData?.placeAccessibility?.isStandaloneBuilding
+              }
               onChangeFloors={value => updatePlaceField('floors', value)}
+              onChangeFloorMovingMethodTypes={value =>
+                updatePlaceField('floorMovingMethodTypes', value)
+              }
             />
           </SectionContainer>
         );
@@ -395,12 +499,33 @@ export default function ReportCorrectionFormScreen({
               newElevatorPhotos={newElevatorPhotos}
               deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
               replacedElevatorPhotos={replacedElevatorPhotos}
-              onChangeElevatorAccessibility={value =>
+              onChangeElevatorAccessibility={value => {
                 setPlaceCorrection(prev => ({
                   ...prev,
                   elevatorAccessibility: value,
-                }))
-              }
+                }));
+                // PA의 elevatorAccessibility 변경을 BA에도 동기화
+                setBuildingCorrection(prev => {
+                  if (value !== undefined) {
+                    return {
+                      ...prev,
+                      hasElevator: true,
+                      elevatorStairInfo: value.stairInfo,
+                      elevatorStairHeightLevel: value.stairHeightLevel,
+                      elevatorHasSlope: value.hasSlope,
+                    };
+                  } else {
+                    // Remove elevator fields to avoid sending nulls
+                    const {
+                      elevatorStairInfo,
+                      elevatorStairHeightLevel,
+                      elevatorHasSlope,
+                      ...rest
+                    } = prev;
+                    return {...rest, hasElevator: false};
+                  }
+                });
+              }}
               onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
               onReplaceExistingElevatorPhoto={
                 handleReplaceExistingElevatorPhoto
@@ -414,8 +539,8 @@ export default function ReportCorrectionFormScreen({
           <SectionContainer>
             <AccessLevelCorrectionSection
               currentLevel={stairFieldsToAccessLevel(
-                prefillData?.placeAccessibility?.stairInfo,
-                prefillData?.placeAccessibility?.stairHeightLevel,
+                accessibilityData?.placeAccessibility?.stairInfo,
+                accessibilityData?.placeAccessibility?.stairHeightLevel,
               )}
               selectedLevel={selectedAccessLevel}
               onChangeLevel={setSelectedAccessLevel}
@@ -478,7 +603,9 @@ export default function ReportCorrectionFormScreen({
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
-            isDisabled={!hasChanges || submitMutation.isPending}
+            isDisabled={
+              !hasChanges || submitMutation.isPending || hasPhotoViolation
+            }
             onPress={() => submitMutation.mutate(undefined)}
             elementName="report_correction_submit"
           />

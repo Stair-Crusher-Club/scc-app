@@ -40,6 +40,8 @@ export interface CameraScreenParams {
   takenPhotos: ImageFile[];
   onPhotosTaken(photos: ImageFile[]): void;
   target: 'place' | 'review' | 'toilet' | 'building';
+  /** 촬영/선택 가능한 최대 사진 수. 미지정 시 MAX_NUMBER_OF_TAKEN_PHOTOS 사용. */
+  maxPhotos?: number;
 }
 
 export default function CameraScreen({
@@ -159,13 +161,16 @@ export default function CameraScreen({
     }
   }
 
-  const canTakeMore = photoFiles.length < MAX_NUMBER_OF_TAKEN_PHOTOS;
+  const photoLimit = route.params.maxPhotos ?? MAX_NUMBER_OF_TAKEN_PHOTOS;
+  const canTakeMore = photoFiles.length < photoLimit;
 
   async function selectFromAlbum() {
     const options = {
       mediaType: 'photo' as MediaType,
       includeBase64: false,
-      selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      selectionLimit: photoLimit,
     };
 
     const loadingTimer = setTimeout(() => setIsLoadingAlbum(true), 1000);
@@ -249,7 +254,9 @@ export default function CameraScreen({
       )}
       <S.TakenPhotos>
         {photoFiles.length === 0 && (
-          <S.NoPhotosTaken>최대 3장까지 촬영할 수 있어요</S.NoPhotosTaken>
+          <S.NoPhotosTaken>
+            최대 {photoLimit}장까지 촬영할 수 있어요
+          </S.NoPhotosTaken>
         )}
         {photoFiles.length > 0 && (
           <GestureHandlerRootView>

@@ -1,68 +1,105 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {FloorMovingMethodTypeDto} from '@/generated-sources/openapi';
 
+import FloorQuestionUI from '../../PlaceFormV2Screen/components/FloorQuestionUI';
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
-import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
+import {makeFloorMovementOptions} from '../../PlaceFormV2Screen/constants';
+import type {
+  FloorOptionKey,
+  StandaloneBuildingType,
+} from '../../PlaceFormV2Screen/types';
 
-type FloorPreset = '1f' | 'underground' | '2f_plus';
-
-const FLOOR_PRESET_OPTIONS = [
-  {value: '1f' as FloorPreset, label: '1층'},
-  {value: 'underground' as FloorPreset, label: '지하'},
-  {value: '2f_plus' as FloorPreset, label: '2층 이상'},
-];
-
-function getPresetFromFloors(floors?: number[]): FloorPreset | null {
+/**
+ * Infer the floor option from the floors array.
+ * - [1] -> firstFloor
+ * - [n] where n !== 1 -> otherFloor
+ * - [1, ...others] (multiple including 1) -> multipleFloors
+ * - [] or undefined -> null
+ */
+function getFloorOptionFromFloors(
+  floors?: number[],
+  isStandaloneBuilding?: boolean,
+): FloorOptionKey | null {
   if (!floors || floors.length === 0) {
     return null;
   }
+  if (isStandaloneBuilding) {
+    return 'standalone';
+  }
   if (floors.length === 1 && floors[0] === 1) {
-    return '1f';
+    return 'firstFloor';
   }
-  if (floors.length === 1 && floors[0] < 0) {
-    return 'underground';
+  if (floors.length === 1 && floors[0] !== 1) {
+    return 'otherFloor';
   }
-  if (floors.length === 1 && floors[0] >= 2) {
-    return '2f_plus';
+  // Multiple floors including 1
+  if (floors.length > 1 && floors.includes(1)) {
+    return 'multipleFloors';
   }
   return null;
 }
 
+function getDetailFloorValue(floors?: number[]): number | undefined {
+  if (!floors || floors.length !== 1) {
+    return undefined;
+  }
+  if (floors[0] !== 1) {
+    return floors[0];
+  }
+  return undefined;
+}
+
 interface FloorCorrectionSectionProps {
   floors?: number[];
+  floorMovingMethodTypes?: FloorMovingMethodTypeDto[];
+  isStandaloneBuilding?: boolean;
   onChangeFloors: (value: number[]) => void;
+  onChangeFloorMovingMethodTypes: (value: FloorMovingMethodTypeDto[]) => void;
 }
 
 export default function FloorCorrectionSection({
   floors,
+  floorMovingMethodTypes = [],
+  isStandaloneBuilding = false,
   onChangeFloors,
+  onChangeFloorMovingMethodTypes,
 }: FloorCorrectionSectionProps) {
-  const [selectedPreset, setSelectedPreset] = useState<FloorPreset | null>(
-    getPresetFromFloors(floors),
+  const [selectedOption, setSelectedOption] = useState<FloorOptionKey | null>(
+    getFloorOptionFromFloors(floors, isStandaloneBuilding),
   );
+  const [standaloneType, setStandaloneType] =
+    useState<StandaloneBuildingType | null>(null);
 
-  const detailFloorValue =
-    floors && floors.length === 1 && floors[0] !== 1 ? floors[0] : undefined;
+  const detailFloorValue = useMemo(() => getDetailFloorValue(floors), [floors]);
 
-  const handlePresetSelect = useCallback(
-    (preset: FloorPreset) => {
-      setSelectedPreset(preset);
-      switch (preset) {
-        case '1f':
+  const handleOptionSelect = useCallback(
+    (option: FloorOptionKey) => {
+      setSelectedOption(option);
+      switch (option) {
+        case 'firstFloor':
           onChangeFloors([1]);
           break;
-        case 'underground':
-          onChangeFloors([-1]);
+        case 'otherFloor':
+          // Keep existing detail floor if available, otherwise default to 2
+          if (detailFloorValue !== undefined) {
+            onChangeFloors([detailFloorValue]);
+          } else {
+            onChangeFloors([2]);
+          }
           break;
-        case '2f_plus':
-          onChangeFloors([2]);
+        case 'multipleFloors':
+          onChangeFloors([1, 2]);
+          break;
+        case 'standalone':
+          onChangeFloors([1]);
           break;
       }
     },
-    [onChangeFloors],
+    [onChangeFloors, detailFloorValue],
   );
 
   const handleFloorChange = useCallback(
@@ -72,28 +109,47 @@ export default function FloorCorrectionSection({
     [onChangeFloors],
   );
 
-  const showFloorSelect =
-    selectedPreset === 'underground' || selectedPreset === '2f_plus';
+  const handleStandaloneTypeChange = useCallback(
+    (value: StandaloneBuildingType) => {
+      setStandaloneType(value);
+    },
+    [],
+  );
+
+  const showFloorMovement =
+    selectedOption === 'otherFloor' ||
+    selectedOption === 'multipleFloors' ||
+    (selectedOption === 'standalone' && standaloneType === 'multipleFloors');
 
   return (
     <Container>
-      <SectionTitle>이 장소는 몇 층에 있나요?</SectionTitle>
+      <SectionTitle>이 장소는 건물의 1층에 있나요?</SectionTitle>
 
-      <OptionsV2
-        options={FLOOR_PRESET_OPTIONS}
-        value={selectedPreset}
-        columns={3}
-        onSelect={handlePresetSelect}
+      <FloorQuestionUI
+        floorOption={selectedOption}
+        selectedFloor={detailFloorValue}
+        standaloneType={standaloneType}
+        onChangeFloorOption={handleOptionSelect}
+        onChangeSelectedFloor={handleFloorChange}
+        onChangeStandaloneType={handleStandaloneTypeChange}
       />
 
-      {showFloorSelect && (
-        <FloorSelectWrapper>
-          <FloorSelect
-            key={selectedPreset}
-            value={detailFloorValue}
-            onChange={handleFloorChange}
+      {showFloorMovement && (
+        <FloorMovementContainer>
+          <SubSectionTitle>
+            1층에서 다른층으로 이동가능한 방법을 모두 알려주세요
+          </SubSectionTitle>
+
+          <OptionsV2.Multiple
+            columns={2}
+            values={floorMovingMethodTypes}
+            options={makeFloorMovementOptions(
+              isStandaloneBuilding,
+              floorMovingMethodTypes,
+            )}
+            onSelect={onChangeFloorMovingMethodTypes}
           />
-        </FloorSelectWrapper>
+        </FloorMovementContainer>
       )}
     </Container>
   );
@@ -109,6 +165,13 @@ const SectionTitle = styled.Text`
   margin-bottom: 16px;
 `;
 
-const FloorSelectWrapper = styled.View`
-  margin-top: 12px;
+const FloorMovementContainer = styled.View`
+  margin-top: 24px;
+`;
+
+const SubSectionTitle = styled.Text`
+  font-size: 14px;
+  font-family: ${font.pretendardSemibold};
+  color: ${color.black};
+  margin-bottom: 12px;
 `;
