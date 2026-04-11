@@ -5319,56 +5319,6 @@ export interface ReportAccessibilityPostRequest {
 /**
  * 
  * @export
- * @interface ReportAccessibilityPrefillPostRequest
- */
-export interface ReportAccessibilityPrefillPostRequest {
-    /**
-     * 대상 장소 ID
-     * @type {string}
-     * @memberof ReportAccessibilityPrefillPostRequest
-     */
-    'placeId': string;
-}
-/**
- * 신고 교정 폼 prefill 데이터
- * @export
- * @interface ReportPrefillResponseDto
- */
-export interface ReportPrefillResponseDto {
-    /**
-     * 
-     * @type {PlaceAccessibilityCorrectionDto}
-     * @memberof ReportPrefillResponseDto
-     */
-    'placeAccessibility'?: PlaceAccessibilityCorrectionDto;
-    /**
-     * 
-     * @type {BuildingAccessibilityCorrectionDto}
-     * @memberof ReportPrefillResponseDto
-     */
-    'buildingAccessibility'?: BuildingAccessibilityCorrectionDto;
-    /**
-     * 단독건물 여부 (true이면 건물 접근성 폼 불필요)
-     * @type {boolean}
-     * @memberof ReportPrefillResponseDto
-     */
-    'isStandaloneBuilding'?: boolean;
-    /**
-     * 현재 입구 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof ReportPrefillResponseDto
-     */
-    'entranceImageUrls'?: Array<string>;
-    /**
-     * 현재 엘리베이터 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof ReportPrefillResponseDto
-     */
-    'elevatorImageUrls'?: Array<string>;
-}
-/**
- * 
- * @export
  * @enum {string}
  */
 
@@ -9339,46 +9289,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
-         * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        reportAccessibilityPrefillPost: async (reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'reportAccessibilityPrefillPostRequest' is not null or undefined
-            assertParamExists('reportAccessibilityPrefillPost', 'reportAccessibilityPrefillPostRequest', reportAccessibilityPrefillPostRequest)
-            const localVarPath = `/reportAccessibility/prefill`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Identified required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(reportAccessibilityPrefillPostRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
          * @param {*} [options] Override http request option.
@@ -10760,17 +10670,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
-         * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReportPrefillResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
          * @param {*} [options] Override http request option.
@@ -11644,16 +11543,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<void> {
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
-         * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options?: any): AxiosPromise<ReportPrefillResponseDto> {
-            return localVarFp.reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12654,18 +12543,6 @@ export class DefaultApi extends BaseAPI {
      */
     public reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary 신고 교정 폼에 미리 채울 현재 접근성 데이터를 반환한다.
-     * @param {ReportAccessibilityPrefillPostRequest} reportAccessibilityPrefillPostRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest: ReportAccessibilityPrefillPostRequest, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).reportAccessibilityPrefillPost(reportAccessibilityPrefillPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
