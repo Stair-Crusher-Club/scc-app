@@ -111,7 +111,7 @@ export default function PlaceDetailV2Screen({
   const toggleRequest = useToggleAccessibilityInfoRequest();
 
   const featureFlags = useAtomValue(featureFlagAtom);
-  const isCrew = featureFlags?.isCrew ?? false;
+  const isCrew = featureFlags?.hasBeenCrew ?? false;
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetailV2', 'ReportAccessibility'],
@@ -967,6 +967,9 @@ export default function PlaceDetailV2Screen({
 
             reportAccessibilityMutation.mutate({
               placeId: _placeId,
+              placeAccessibilityId: accessibilityPost?.placeAccessibility?.id,
+              buildingAccessibilityId:
+                accessibilityPost?.buildingAccessibility?.id,
               reason,
               targetType,
               detail: text,
@@ -996,6 +999,9 @@ export default function PlaceDetailV2Screen({
 
               reportAccessibilityMutation.mutate({
                 placeId: params.placeId,
+                placeAccessibilityId: accessibilityPost?.placeAccessibility?.id,
+                buildingAccessibilityId:
+                  accessibilityPost?.buildingAccessibility?.id,
                 reason: 'CLOSED',
                 targetType,
                 correction: {

@@ -887,22 +887,22 @@ export interface BuildingAccessibilityCorrectionDto {
     'entranceDoorTypes'?: Array<EntranceDoorType>;
     /**
      * 
-     * @type {StairInfo}
+     * @type {ElevatorAccessibilityDto}
      * @memberof BuildingAccessibilityCorrectionDto
      */
-    'elevatorStairInfo'?: StairInfo;
+    'elevatorAccessibility'?: ElevatorAccessibilityDto;
     /**
-     * 
-     * @type {StairHeightLevel}
+     * 교정된 건물 입구 사진 URL 목록
+     * @type {Array<string>}
      * @memberof BuildingAccessibilityCorrectionDto
      */
-    'elevatorStairHeightLevel'?: StairHeightLevel;
+    'entranceImageUrls'?: Array<string>;
     /**
-     * 
-     * @type {boolean}
+     * 교정된 엘리베이터 사진 URL 목록
+     * @type {Array<string>}
      * @memberof BuildingAccessibilityCorrectionDto
      */
-    'elevatorHasSlope'?: boolean;
+    'elevatorImageUrls'?: Array<string>;
 }
 /**
  * 건물 입구 문의 방향 (도로쪽, 주차장쪽, 기타)
@@ -2720,11 +2720,11 @@ export interface GetUserInfoResponseDto {
      */
     'isAlbumUploadAllowed'?: boolean;
     /**
-     * 크루 여부 (한 번이라도 크루였으면 true)
+     * 한 번이라도 크루였으면 true
      * @type {boolean}
      * @memberof GetUserInfoResponseDto
      */
-    'isCrew'?: boolean;
+    'hasBeenCrew'?: boolean;
     /**
      * 유저에게 배정된 실험 목록
      * @type {Array<ExperimentAssignmentDto>}
@@ -5297,6 +5297,18 @@ export interface ReportAccessibilityPostRequest {
      * @memberof ReportAccessibilityPostRequest
      */
     'id'?: string;
+    /**
+     * 신고 대상 장소 접근성 정보 ID
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'placeAccessibilityId'?: string;
+    /**
+     * 신고 대상 건물 접근성 정보 ID
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'buildingAccessibilityId'?: string;
     /**
      * 
      * @type {AccessibilityReportReason}

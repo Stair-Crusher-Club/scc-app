@@ -45,9 +45,7 @@ export default function HomePopupModal({
         />
         <ContentContainer style={{opacity: imageReady ? 1 : 0}}>
           <ImageContainer>
-            <SccPressable
-              elementName="home-popup-image"
-              onPress={onImageClick}>
+            <SccPressable elementName="home-popup-image" onPress={onImageClick}>
               <SccRemoteImage
                 imageUrl={popup.imageUrl}
                 style={{width: POPUP_WIDTH}}

@@ -7,6 +7,12 @@ export const STAIR_INFO_OPTIONS = [
   {value: StairInfo.OverSix, label: '6칸 이상'},
 ];
 
+export const STAIR_COUNT_OPTIONS = [
+  {value: StairInfo.One, label: '1칸'},
+  {value: StairInfo.TwoToFive, label: '2-5칸'},
+  {value: StairInfo.OverSix, label: '6칸 이상'},
+];
+
 export const STAIR_HEIGHT_OPTIONS = [
   {value: StairHeightLevel.HalfThumb, label: '엄지 반마디 이하'},
   {value: StairHeightLevel.Thumb, label: '엄지 한마디 정도'},

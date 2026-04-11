@@ -43,21 +43,17 @@ export default function SccRemoteImage({
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
 
-
   const handleLayout = useCallback((event: LayoutChangeEvent) => {
     setMeasuredWidth(event.nativeEvent.layout.width);
   }, []);
 
   // 캐시에서 사이즈 복원
   useEffect(() => {
-
-
     setReady(false);
     setOriginalSize(undefined);
 
     const cached = imageSizeCache.get(imageUrl);
     if (cached) {
-
       setOriginalSize(cached);
     }
   }, [imageUrl]);
@@ -83,7 +79,6 @@ export default function SccRemoteImage({
   // onLayout 후 사이즈가 있으면 ready
   useEffect(() => {
     if (measuredWidth !== undefined && originalSize && !ready) {
-
       setReady(true);
       onReadyRef.current?.();
     }

@@ -182,9 +182,13 @@ export default function ReportCorrectionFormScreen({
         hasSlope: ba.hasSlope,
         hasElevator: ba.hasElevator,
         entranceDoorTypes: ba.entranceDoorTypes,
-        elevatorStairInfo: ba.elevatorStairInfo,
-        elevatorStairHeightLevel: ba.elevatorStairHeightLevel,
-        elevatorHasSlope: ba.elevatorHasSlope,
+        elevatorAccessibility: ba.hasElevator
+          ? {
+              stairInfo: ba.elevatorStairInfo,
+              stairHeightLevel: ba.elevatorStairHeightLevel,
+              hasSlope: ba.elevatorHasSlope,
+            }
+          : undefined,
       };
       setBuildingCorrection(baCorrection);
       initialBuildingCorrectionRef.current = baCorrection;
@@ -339,6 +343,8 @@ export default function ReportCorrectionFormScreen({
 
       await api.reportAccessibilityPost({
         placeId,
+        placeAccessibilityId: accessibilityData?.placeAccessibility?.id,
+        buildingAccessibilityId: accessibilityData?.buildingAccessibility?.id,
         targetType: ReportTargetTypeDto.PlaceAccessibility,
         reason: 'INACCURATE_INFO',
         detail: noteText || undefined,
@@ -510,18 +516,14 @@ export default function ReportCorrectionFormScreen({
                     return {
                       ...prev,
                       hasElevator: true,
-                      elevatorStairInfo: value.stairInfo,
-                      elevatorStairHeightLevel: value.stairHeightLevel,
-                      elevatorHasSlope: value.hasSlope,
+                      elevatorAccessibility: {
+                        stairInfo: value.stairInfo,
+                        stairHeightLevel: value.stairHeightLevel,
+                        hasSlope: value.hasSlope,
+                      },
                     };
                   } else {
-                    // Remove elevator fields to avoid sending nulls
-                    const {
-                      elevatorStairInfo,
-                      elevatorStairHeightLevel,
-                      elevatorHasSlope,
-                      ...rest
-                    } = prev;
+                    const {elevatorAccessibility, ...rest} = prev;
                     return {...rest, hasElevator: false};
                   }
                 });

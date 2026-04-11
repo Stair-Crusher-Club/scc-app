@@ -19,6 +19,12 @@ import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {
+  STAIR_COUNT_OPTIONS,
+  STAIR_HEIGHT_OPTIONS,
+  SLOPE_OPTIONS,
+  HAS_ELEVATOR_OPTIONS,
+} from '@/constant/accessibility-options';
+import {
   Building,
   BuildingDoorDirectionTypeDto,
   DefaultApi,
@@ -572,11 +578,7 @@ export default function BuildingFormV2Screen({
                           <OptionsV2
                             value={field.value}
                             columns={3}
-                            options={[
-                              {label: '1칸', value: StairInfo.One},
-                              {label: '2-5칸', value: StairInfo.TwoToFive},
-                              {label: '6칸 이상', value: StairInfo.OverSix},
-                            ]}
+                            options={STAIR_COUNT_OPTIONS}
                             onSelect={field.onChange}
                           />
                         )}
@@ -617,20 +619,7 @@ export default function BuildingFormV2Screen({
                           render={({field}) => (
                             <OptionsV2
                               value={field.value}
-                              options={[
-                                {
-                                  label: '엄지 한마디',
-                                  value: StairHeightLevel.HalfThumb,
-                                },
-                                {
-                                  label: '엄지 손가락',
-                                  value: StairHeightLevel.Thumb,
-                                },
-                                {
-                                  label: '엄지 손가락 이상',
-                                  value: StairHeightLevel.OverThumb,
-                                },
-                              ]}
+                              options={STAIR_HEIGHT_OPTIONS}
                               onSelect={field.onChange}
                             />
                           )}
@@ -650,10 +639,7 @@ export default function BuildingFormV2Screen({
                     render={({field}) => (
                       <OptionsV2
                         value={field.value}
-                        options={[
-                          {label: '있어요', value: true},
-                          {label: '없어요', value: false},
-                        ]}
+                        options={SLOPE_OPTIONS}
                         onSelect={field.onChange}
                       />
                     )}
@@ -731,10 +717,7 @@ export default function BuildingFormV2Screen({
                     render={({field}) => (
                       <OptionsV2
                         value={field.value}
-                        options={[
-                          {label: '있어요', value: true},
-                          {label: '없어요', value: false},
-                        ]}
+                        options={HAS_ELEVATOR_OPTIONS}
                         onSelect={field.onChange}
                       />
                     )}
@@ -793,11 +776,7 @@ export default function BuildingFormV2Screen({
                               <OptionsV2
                                 value={field.value}
                                 columns={3}
-                                options={[
-                                  {label: '1칸', value: StairInfo.One},
-                                  {label: '2-5칸', value: StairInfo.TwoToFive},
-                                  {label: '6칸 이상', value: StairInfo.OverSix},
-                                ]}
+                                options={STAIR_COUNT_OPTIONS}
                                 onSelect={field.onChange}
                               />
                             )}
@@ -826,20 +805,7 @@ export default function BuildingFormV2Screen({
                               render={({field}) => (
                                 <OptionsV2
                                   value={field.value}
-                                  options={[
-                                    {
-                                      label: '엄지 한마디',
-                                      value: StairHeightLevel.HalfThumb,
-                                    },
-                                    {
-                                      label: '엄지 손가락',
-                                      value: StairHeightLevel.Thumb,
-                                    },
-                                    {
-                                      label: '엄지 손가락 이상',
-                                      value: StairHeightLevel.OverThumb,
-                                    },
-                                  ]}
+                                  options={STAIR_HEIGHT_OPTIONS}
                                   onSelect={field.onChange}
                                 />
                               )}
@@ -858,10 +824,7 @@ export default function BuildingFormV2Screen({
                         render={({field}) => (
                           <OptionsV2
                             value={field.value}
-                            options={[
-                              {label: '있어요', value: true},
-                              {label: '없어요', value: false},
-                            ]}
+                            options={SLOPE_OPTIONS}
                             onSelect={field.onChange}
                           />
                         )}
