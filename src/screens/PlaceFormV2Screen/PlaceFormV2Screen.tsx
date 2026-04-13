@@ -40,19 +40,12 @@ import GuideModal from './components/GuideModal';
 import InfoStep from './components/InfoStep';
 import {GUIDE_CONTENTS} from './constants';
 import {getFloorConditions, computeFloors} from './hooks';
+import type {FloorOptionKey, StandaloneBuildingType} from './types';
 
 export interface PlaceFormV2ScreenParams {
   place: Place;
   building: Building;
 }
-
-type FloorOptionKey =
-  | 'firstFloor'
-  | 'otherFloor'
-  | 'multipleFloors'
-  | 'standalone';
-
-type StandaloneBuildingType = 'singleFloor' | 'multipleFloors';
 
 type BuildingDoorDirectionType = 'inside' | 'outside';
 
