@@ -10,7 +10,13 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
   AccessibilityInfoV2Dto,
+  AccessLevelCorrectionDto,
+  DoorTypeCorrectionDto,
+  ElevatorCorrectionDto,
+  EntranceCorrectionDto,
+  FloorCorrectionDto,
   InaccurateInfoCategoryDto,
+  PhotoCorrectionDto,
   PlaceAccessibilityCorrectionDto,
   BuildingAccessibilityCorrectionDto,
   PlaceDoorDirectionTypeDto,
@@ -33,101 +39,119 @@ import ElevatorCorrectionSection from './sections/ElevatorCorrectionSection';
 import AccessLevelCorrectionSection from './sections/AccessLevelCorrectionSection';
 import PhotoCorrectionSection from './sections/PhotoCorrectionSection';
 
-/** 카테고리별로 PA correction 필드 필터링 */
-function filterPACorrectionByCategory(
-  correction: PlaceAccessibilityCorrectionDto,
-  cat: InaccurateInfoCategoryDto,
+/** 카테고리별 전용 DTO 빌드 함수 */
+function buildEntranceCorrection(
+  placeCorrection: PlaceAccessibilityCorrectionDto,
+  buildingCorrection: BuildingAccessibilityCorrectionDto,
+  isStandaloneBuilding: boolean | undefined,
   finalEntranceUrls: string[],
-  finalElevatorUrls: string[],
-): PlaceAccessibilityCorrectionDto | undefined {
-  switch (cat) {
-    case InaccurateInfoCategoryDto.Entrance:
-      return {
-        stairInfo: correction.stairInfo,
-        stairHeightLevel: correction.stairHeightLevel,
-        hasSlope: correction.hasSlope,
-        entranceDoorTypes: correction.entranceDoorTypes,
-        doorDirectionType: correction.doorDirectionType,
-        entranceImageUrls:
-          finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
-      };
-    case InaccurateInfoCategoryDto.Floor:
-      return {
-        floors: correction.floors,
-        floorMovingMethodTypes: correction.floorMovingMethodTypes,
-      };
-    case InaccurateInfoCategoryDto.DoorType:
-      return {
-        entranceDoorTypes: correction.entranceDoorTypes,
-      };
-    case InaccurateInfoCategoryDto.Elevator:
-      return {
-        elevatorAccessibility: correction.elevatorAccessibility,
-        elevatorImageUrls:
-          finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
-      };
-    case InaccurateInfoCategoryDto.AccessLevel:
-      return {
-        stairInfo: correction.stairInfo,
-        stairHeightLevel: correction.stairHeightLevel,
-      };
-    case InaccurateInfoCategoryDto.Photo:
-      return {
-        entranceImageUrls:
-          finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
-        elevatorImageUrls:
-          finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
-      };
-    case InaccurateInfoCategoryDto.Other:
-      return undefined;
-    default: {
-      const _exhaustiveCheck: never = cat;
-      return _exhaustiveCheck;
-    }
-  }
+  needsBaPhotos: boolean,
+  finalBaEntranceUrls: string[],
+): EntranceCorrectionDto {
+  return {
+    stairInfo: placeCorrection.stairInfo,
+    stairHeightLevel: placeCorrection.stairHeightLevel,
+    hasSlope: placeCorrection.hasSlope,
+    entranceDoorTypes: placeCorrection.entranceDoorTypes,
+    doorDirectionType: placeCorrection.doorDirectionType,
+    isStandaloneBuilding: isStandaloneBuilding,
+    entranceImageUrls:
+      finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
+    baEntranceStairInfo: buildingCorrection.entranceStairInfo,
+    baEntranceStairHeightLevel: buildingCorrection.entranceStairHeightLevel,
+    baHasSlope: buildingCorrection.hasSlope,
+    baEntranceDoorTypes: buildingCorrection.entranceDoorTypes,
+    baEntranceImageUrls:
+      needsBaPhotos && finalBaEntranceUrls.length > 0
+        ? finalBaEntranceUrls
+        : undefined,
+  };
 }
 
-/** 카테고리별로 BA correction 필드 필터링 */
-function filterBACorrectionByCategory(
-  correction: BuildingAccessibilityCorrectionDto,
-  cat: InaccurateInfoCategoryDto,
+function buildFloorCorrection(
+  placeCorrection: PlaceAccessibilityCorrectionDto,
+  isStandaloneBuilding: boolean | undefined,
+): FloorCorrectionDto {
+  return {
+    floors: placeCorrection.floors,
+    isStandaloneBuilding: isStandaloneBuilding,
+    floorMovingMethodTypes: placeCorrection.floorMovingMethodTypes,
+  };
+}
+
+function buildElevatorCorrection(
+  placeCorrection: PlaceAccessibilityCorrectionDto,
+  buildingCorrection: BuildingAccessibilityCorrectionDto,
+  finalElevatorUrls: string[],
+  needsBaPhotos: boolean,
+  finalBaElevatorUrls: string[],
+): ElevatorCorrectionDto {
+  const ea = placeCorrection.elevatorAccessibility;
+  return {
+    elevatorAccessibility: ea
+      ? {
+          stairInfo: ea.stairInfo,
+          stairHeightLevel: ea.stairHeightLevel,
+          hasSlope: ea.hasSlope,
+        }
+      : undefined,
+    elevatorImageUrls:
+      finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+    hasElevator: buildingCorrection.hasElevator,
+    baElevatorAccessibility: buildingCorrection.elevatorAccessibility
+      ? {
+          stairInfo: buildingCorrection.elevatorAccessibility.stairInfo,
+          stairHeightLevel:
+            buildingCorrection.elevatorAccessibility.stairHeightLevel,
+          hasSlope: buildingCorrection.elevatorAccessibility.hasSlope,
+        }
+      : undefined,
+    baElevatorImageUrls:
+      needsBaPhotos && finalBaElevatorUrls.length > 0
+        ? finalBaElevatorUrls
+        : undefined,
+  };
+}
+
+function buildDoorTypeCorrection(
+  placeCorrection: PlaceAccessibilityCorrectionDto,
+): DoorTypeCorrectionDto {
+  return {
+    entranceDoorTypes: placeCorrection.entranceDoorTypes,
+  };
+}
+
+function buildAccessLevelCorrection(
+  stairInfo: StairInfo,
+  stairHeightLevel?: StairHeightLevel,
+): AccessLevelCorrectionDto {
+  return {
+    stairInfo,
+    stairHeightLevel,
+  };
+}
+
+function buildPhotoCorrection(
+  finalEntranceUrls: string[],
+  finalElevatorUrls: string[],
+  needsBaPhotos: boolean,
   finalBaEntranceUrls: string[],
   finalBaElevatorUrls: string[],
-): BuildingAccessibilityCorrectionDto | undefined {
-  switch (cat) {
-    case InaccurateInfoCategoryDto.Entrance:
-      return {
-        entranceStairInfo: correction.entranceStairInfo,
-        entranceStairHeightLevel: correction.entranceStairHeightLevel,
-        hasSlope: correction.hasSlope,
-        entranceDoorTypes: correction.entranceDoorTypes,
-        entranceImageUrls:
-          finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
-      };
-    case InaccurateInfoCategoryDto.Elevator:
-      return {
-        hasElevator: correction.hasElevator,
-        elevatorAccessibility: correction.elevatorAccessibility,
-        elevatorImageUrls:
-          finalBaElevatorUrls.length > 0 ? finalBaElevatorUrls : undefined,
-      };
-    case InaccurateInfoCategoryDto.Photo:
-      return {
-        entranceImageUrls:
-          finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
-        elevatorImageUrls:
-          finalBaElevatorUrls.length > 0 ? finalBaElevatorUrls : undefined,
-      };
-    case InaccurateInfoCategoryDto.Floor:
-    case InaccurateInfoCategoryDto.DoorType:
-    case InaccurateInfoCategoryDto.AccessLevel:
-    case InaccurateInfoCategoryDto.Other:
-      return undefined;
-    default: {
-      const _exhaustiveCheck: never = cat;
-      return _exhaustiveCheck;
-    }
-  }
+): PhotoCorrectionDto {
+  return {
+    entranceImageUrls:
+      finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
+    elevatorImageUrls:
+      finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+    baEntranceImageUrls:
+      needsBaPhotos && finalBaEntranceUrls.length > 0
+        ? finalBaEntranceUrls
+        : undefined,
+    baElevatorImageUrls:
+      needsBaPhotos && finalBaElevatorUrls.length > 0
+        ? finalBaElevatorUrls
+        : undefined,
+  };
 }
 
 /** Access level (0-5) → stairInfo + stairHeightLevel 역매핑 */
@@ -547,37 +571,79 @@ export default function ReportCorrectionFormScreen({
             .concat(uploadedBaElevatorUrls)
         : [];
 
-      const allPhotoUrls = [
-        ...finalEntranceUrls,
-        ...finalElevatorUrls,
-        ...finalBaEntranceUrls,
-        ...finalBaElevatorUrls,
-      ];
+      // 3. Build category-specific correction DTO
+      const isStandaloneBuilding =
+        accessibilityData?.placeAccessibility?.isStandaloneBuilding;
 
-      // 3. Apply access level to placeCorrection if selected
-      let finalPlaceCorrection = {...placeCorrection};
-      if (selectedAccessLevel !== undefined) {
-        const stairFields = accessLevelToStairFields(selectedAccessLevel);
-        finalPlaceCorrection = {
-          ...finalPlaceCorrection,
-          stairInfo: stairFields.stairInfo,
-          stairHeightLevel: stairFields.stairHeightLevel,
-        };
+      let entrance: EntranceCorrectionDto | undefined;
+      let floor: FloorCorrectionDto | undefined;
+      let elevator: ElevatorCorrectionDto | undefined;
+      let doorType: DoorTypeCorrectionDto | undefined;
+      let accessLevel: AccessLevelCorrectionDto | undefined;
+      let photo: PhotoCorrectionDto | undefined;
+
+      switch (category) {
+        case InaccurateInfoCategoryDto.Entrance:
+          entrance = buildEntranceCorrection(
+            placeCorrection,
+            buildingCorrection,
+            isStandaloneBuilding,
+            finalEntranceUrls,
+            needsBaPhotos,
+            finalBaEntranceUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.Floor:
+          floor = buildFloorCorrection(placeCorrection, isStandaloneBuilding);
+          break;
+        case InaccurateInfoCategoryDto.Elevator:
+          elevator = buildElevatorCorrection(
+            placeCorrection,
+            buildingCorrection,
+            finalElevatorUrls,
+            needsBaPhotos,
+            finalBaElevatorUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.DoorType:
+          doorType = buildDoorTypeCorrection(placeCorrection);
+          break;
+        case InaccurateInfoCategoryDto.AccessLevel: {
+          let stairFields: {
+            stairInfo: StairInfo;
+            stairHeightLevel?: StairHeightLevel;
+          };
+          if (selectedAccessLevel !== undefined) {
+            stairFields = accessLevelToStairFields(selectedAccessLevel);
+          } else {
+            stairFields = {
+              stairInfo: placeCorrection.stairInfo ?? StairInfo.Undefined,
+              stairHeightLevel: placeCorrection.stairHeightLevel,
+            };
+          }
+          accessLevel = buildAccessLevelCorrection(
+            stairFields.stairInfo,
+            stairFields.stairHeightLevel,
+          );
+          break;
+        }
+        case InaccurateInfoCategoryDto.Photo:
+          photo = buildPhotoCorrection(
+            finalEntranceUrls,
+            finalElevatorUrls,
+            needsBaPhotos,
+            finalBaEntranceUrls,
+            finalBaElevatorUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.Other:
+          // Other: noteText만 전달
+          break;
+        default: {
+          const _exhaustiveCheck: never = category;
+          throw new Error(`Unknown category: ${_exhaustiveCheck}`);
+        }
       }
-
-      // 4. 카테고리별로 관련 필드만 필터링하여 전송
-      const filteredPlaceCorrection = filterPACorrectionByCategory(
-        finalPlaceCorrection,
-        category,
-        finalEntranceUrls,
-        finalElevatorUrls,
-      );
-      const filteredBuildingCorrection = filterBACorrectionByCategory(
-        buildingCorrection,
-        category,
-        finalBaEntranceUrls,
-        finalBaElevatorUrls,
-      );
 
       await api.reportAccessibilityPost({
         placeId,
@@ -587,11 +653,14 @@ export default function ReportCorrectionFormScreen({
         reason: 'INACCURATE_INFO',
         detail: noteText || undefined,
         correction: {
-          inaccurateCategories: [category],
-          placeAccessibilityCorrection: filteredPlaceCorrection,
-          buildingAccessibilityCorrection: filteredBuildingCorrection,
+          type: category,
+          entrance,
+          floor,
+          elevator,
+          doorType,
+          accessLevel,
+          photo,
           noteText: noteText || undefined,
-          photoUrls: allPhotoUrls.length > 0 ? allPhotoUrls : undefined,
         },
       });
       // PDP 접근성 데이터를 refetch하도록 캐시 무효화
