@@ -65,6 +65,9 @@ export default function FloorMovementStep({
   // Watch floor movement methods
   const floorMovementMethods: FloorMovingMethodTypeDto[] =
     form.watch('floorMovementMethod') ?? [];
+  const hasElevatorSelected = floorMovementMethods.includes(
+    FloorMovingMethodTypeDto.PlaceElevator,
+  );
   const elevatorHasStairs = form.watch('elevatorHasStairs');
   const elevatorStairInfo = form.watch('elevatorStairInfo');
 
@@ -141,9 +144,7 @@ export default function FloorMovementStep({
               />
             </SubSection>
 
-            {floorMovementMethods.includes(
-              FloorMovingMethodTypeDto.PlaceElevator,
-            ) && (
+            {hasElevatorSelected && (
               <>
                 <SubSection>
                   <View style={{gap: 2}}>
@@ -155,7 +156,7 @@ export default function FloorMovementStep({
                   </View>
                   <Controller
                     name="elevatorPhotos"
-                    rules={{required: true}}
+                    rules={{required: hasElevatorSelected}}
                     render={({field}) => (
                       <PhotosV2
                         value={field.value ?? []}
@@ -172,7 +173,11 @@ export default function FloorMovementStep({
                   <OptionsGroup>
                     <Controller
                       name="elevatorHasStairs"
-                      rules={{validate: v => typeof v === 'boolean'}}
+                      rules={{
+                        validate: hasElevatorSelected
+                          ? (v: unknown) => typeof v === 'boolean'
+                          : undefined,
+                      }}
                       render={({field}) => (
                         <OptionsV2
                           value={field.value}
@@ -187,7 +192,9 @@ export default function FloorMovementStep({
                     {elevatorHasStairs && (
                       <Controller
                         name="elevatorStairInfo"
-                        rules={{required: true}}
+                        rules={{
+                          required: hasElevatorSelected && elevatorHasStairs,
+                        }}
                         render={({field}) => (
                           <OptionsV2
                             value={field.value}
@@ -217,7 +224,12 @@ export default function FloorMovementStep({
                     <View style={{gap: 16}}>
                       <Controller
                         name="elevatorStairHeightLevel"
-                        rules={{required: true}}
+                        rules={{
+                          required:
+                            hasElevatorSelected &&
+                            elevatorHasStairs &&
+                            elevatorConditions.showStairHeight,
+                        }}
                         render={({field}) => (
                           <OptionsV2
                             value={field.value}
@@ -234,7 +246,11 @@ export default function FloorMovementStep({
                   <Label>엘리베이터까지 가는 길에 경사로가 있나요?</Label>
                   <Controller
                     name="elevatorHasSlope"
-                    rules={{validate: v => typeof v === 'boolean'}}
+                    rules={{
+                      validate: hasElevatorSelected
+                        ? (v: unknown) => typeof v === 'boolean'
+                        : undefined,
+                    }}
                     render={({field}) => (
                       <OptionsV2
                         value={field.value}
