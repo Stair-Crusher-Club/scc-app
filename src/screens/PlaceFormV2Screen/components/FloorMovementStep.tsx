@@ -5,12 +5,11 @@ import {font} from '@/constant/font';
 import {
   FloorMovingMethodTypeDto,
   Place,
-  StairHeightLevel,
   StairInfo,
 } from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import ToastUtils from '@/utils/ToastUtils';
-import {useRef} from 'react';
+import {useMemo, useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, Platform, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
@@ -20,6 +19,7 @@ import {
   formImages,
   makeFloorMovementOptions,
 } from '../constants';
+import {getElevatorConditions, ELEVATOR_OPTIONS} from '../hooks';
 import {
   Hint,
   Label,
@@ -65,6 +65,18 @@ export default function FloorMovementStep({
   // Watch floor movement methods
   const floorMovementMethods: FloorMovingMethodTypeDto[] =
     form.watch('floorMovementMethod') ?? [];
+  const elevatorHasStairs = form.watch('elevatorHasStairs');
+  const elevatorStairInfo = form.watch('elevatorStairInfo');
+
+  // Shared elevator conditions (stairInfo here maps to elevatorStairInfo)
+  const elevatorConditions = useMemo(
+    () =>
+      getElevatorConditions({
+        hasElevator: elevatorHasStairs === true,
+        stairInfo: elevatorStairInfo,
+      }),
+    [elevatorHasStairs, elevatorStairInfo],
+  );
 
   type FormErrorKey = 'floorMovementMethod';
 
@@ -172,7 +184,7 @@ export default function FloorMovementStep({
                         />
                       )}
                     />
-                    {form.watch('elevatorHasStairs') && (
+                    {elevatorHasStairs && (
                       <Controller
                         name="elevatorStairInfo"
                         rules={{required: true}}
@@ -193,44 +205,30 @@ export default function FloorMovementStep({
                   </OptionsGroup>
                 </SubSection>
 
-                {form.watch('elevatorHasStairs') &&
-                  form.watch('elevatorStairInfo') === StairInfo.One && (
-                    <SubSection key="stair-height">
-                      <Label>계단 1칸의 높이를 알려주세요</Label>
-                      <MeasureGuide>
-                        <Image
-                          source={formImages.stair}
-                          style={{width: '100%', height: '100%'}}
-                        />
-                      </MeasureGuide>
-                      <View style={{gap: 16}}>
-                        <Controller
-                          name="elevatorStairHeightLevel"
-                          rules={{required: true}}
-                          render={({field}) => (
-                            <OptionsV2
-                              value={field.value}
-                              options={[
-                                {
-                                  label: '엄지 한마디',
-                                  value: StairHeightLevel.HalfThumb,
-                                },
-                                {
-                                  label: '엄지 손가락',
-                                  value: StairHeightLevel.Thumb,
-                                },
-                                {
-                                  label: '엄지 손가락 이상',
-                                  value: StairHeightLevel.OverThumb,
-                                },
-                              ]}
-                              onSelect={field.onChange}
-                            />
-                          )}
-                        />
-                      </View>
-                    </SubSection>
-                  )}
+                {elevatorHasStairs && elevatorConditions.showStairHeight && (
+                  <SubSection key="stair-height">
+                    <Label>계단 1칸의 높이를 알려주세요</Label>
+                    <MeasureGuide>
+                      <Image
+                        source={formImages.stair}
+                        style={{width: '100%', height: '100%'}}
+                      />
+                    </MeasureGuide>
+                    <View style={{gap: 16}}>
+                      <Controller
+                        name="elevatorStairHeightLevel"
+                        rules={{required: true}}
+                        render={({field}) => (
+                          <OptionsV2
+                            value={field.value}
+                            options={ELEVATOR_OPTIONS.stairHeightOptions}
+                            onSelect={field.onChange}
+                          />
+                        )}
+                      />
+                    </View>
+                  </SubSection>
+                )}
 
                 <SubSection>
                   <Label>엘리베이터까지 가는 길에 경사로가 있나요?</Label>

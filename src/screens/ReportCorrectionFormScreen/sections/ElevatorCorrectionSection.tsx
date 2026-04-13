@@ -1,12 +1,6 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import styled from 'styled-components/native';
 
-import {
-  HAS_ELEVATOR_OPTIONS,
-  STAIR_INFO_OPTIONS,
-  STAIR_HEIGHT_OPTIONS,
-  SLOPE_OPTIONS,
-} from '@/constant/accessibility-options';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -17,6 +11,10 @@ import {
 import ImageFile from '@/models/ImageFile';
 
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
+import {
+  getElevatorConditions,
+  ELEVATOR_OPTIONS,
+} from '../../PlaceFormV2Screen/hooks';
 import PhotoEditSlots from './PhotoEditSlots';
 
 interface ElevatorCorrectionSectionProps {
@@ -46,6 +44,15 @@ export default function ElevatorCorrectionSection({
 }: ElevatorCorrectionSectionProps) {
   const hasElevator = elevatorAccessibility !== undefined;
 
+  const conditions = useMemo(
+    () =>
+      getElevatorConditions({
+        hasElevator,
+        stairInfo: elevatorAccessibility?.stairInfo,
+      }),
+    [hasElevator, elevatorAccessibility?.stairInfo],
+  );
+
   const update = useCallback(
     (partial: Partial<ElevatorAccessibilityDto>) => {
       onChangeElevatorAccessibility({
@@ -72,17 +79,17 @@ export default function ElevatorCorrectionSection({
       <SectionTitle>엘리베이터가 있나요?</SectionTitle>
 
       <OptionsV2
-        options={HAS_ELEVATOR_OPTIONS}
+        options={ELEVATOR_OPTIONS.hasElevatorOptions}
         value={hasElevator}
         columns={2}
         onSelect={handleHasElevatorChange}
       />
 
-      {hasElevator && (
+      {conditions.showElevatorDetails && (
         <>
           <SubLabel>엘리베이터까지 계단</SubLabel>
           <OptionsV2
-            options={STAIR_INFO_OPTIONS}
+            options={ELEVATOR_OPTIONS.stairInfoOptions}
             value={elevatorAccessibility?.stairInfo}
             columns={2}
             onSelect={(value: StairInfo) =>
@@ -95,11 +102,11 @@ export default function ElevatorCorrectionSection({
             }
           />
 
-          {elevatorAccessibility?.stairInfo === StairInfo.One && (
+          {conditions.showStairHeight && (
             <>
               <SubLabel>계단 높이</SubLabel>
               <OptionsV2
-                options={STAIR_HEIGHT_OPTIONS}
+                options={ELEVATOR_OPTIONS.stairHeightOptions}
                 value={elevatorAccessibility?.stairHeightLevel}
                 columns={1}
                 onSelect={(value: StairHeightLevel) =>
@@ -111,7 +118,7 @@ export default function ElevatorCorrectionSection({
 
           <SubLabel>엘리베이터 앞 경사로</SubLabel>
           <OptionsV2
-            options={SLOPE_OPTIONS}
+            options={ELEVATOR_OPTIONS.slopeOptions}
             value={elevatorAccessibility?.hasSlope}
             columns={2}
             onSelect={(value: boolean) => update({hasSlope: value})}

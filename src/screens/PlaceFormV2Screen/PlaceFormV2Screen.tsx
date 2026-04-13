@@ -39,6 +39,7 @@ import FloorStep from './components/FloorStep';
 import GuideModal from './components/GuideModal';
 import InfoStep from './components/InfoStep';
 import {GUIDE_CONTENTS} from './constants';
+import {getFloorConditions, computeFloors} from './hooks';
 
 export interface PlaceFormV2ScreenParams {
   place: Place;
@@ -281,12 +282,12 @@ export default function PlaceFormV2Screen({
   // InfoStep에서 다음 버튼 핸들러
   const handleInfoSubmit = () => {
     // floorMovement 단계가 필요한지 확인
-    const needsFloorMovement =
-      selectedOption === 'multipleFloors' ||
-      (selectedOption === 'standalone' &&
-        selectedStandaloneType === 'multipleFloors');
+    const {showFloorMovement} = getFloorConditions({
+      floorOption: selectedOption,
+      standaloneType: selectedStandaloneType,
+    });
 
-    if (needsFloorMovement) {
+    if (showFloorMovement) {
       const floorMovementIndex = STEPS.indexOf('floorMovement');
       if (floorMovementIndex !== -1) {
         setStepIndex(floorMovementIndex);
@@ -369,9 +370,10 @@ export default function PlaceFormV2Screen({
         place={place}
         isStandaloneBuilding={selectedOption === 'standalone'}
         hasFloorMovementStep={
-          selectedOption === 'multipleFloors' ||
-          (selectedOption === 'standalone' &&
-            selectedStandaloneType === 'multipleFloors')
+          getFloorConditions({
+            floorOption: selectedOption,
+            standaloneType: selectedStandaloneType,
+          }).showFloorMovement
         }
         onSubmit={handleInfoSubmit}
         onBack={handleBack}
@@ -546,10 +548,10 @@ async function register(
 
     // Prepare floor moving elevator accessibility if needed
     let floorMovingElevatorAccessibility;
-    const hasMultipleFloors =
-      selectedOption === 'multipleFloors' ||
-      (selectedOption === 'standalone' &&
-        selectedStandaloneType === 'multipleFloors');
+    const hasMultipleFloors = getFloorConditions({
+      floorOption: selectedOption,
+      standaloneType: selectedStandaloneType,
+    }).showFloorMovement;
     if (
       hasMultipleFloors &&
       values.floorMovementMethod?.includes(
@@ -590,7 +592,11 @@ async function register(
           : doorDirection === 'outside'
             ? PlaceDoorDirectionTypeDto.OutsideBuilding
             : PlaceDoorDirectionTypeDto.InsideBuilding,
-      floors: getFloors(selectedOption, selectedFloor, selectedStandaloneType),
+      floors: computeFloors(
+        selectedOption,
+        selectedFloor,
+        selectedStandaloneType,
+      ),
       imageUrls: uploadedImageUrls,
       stairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
       stairHeightLevel:
@@ -668,25 +674,6 @@ async function register(
     return {
       success: false,
     };
-  }
-}
-
-function getFloors(
-  selectedOption: FloorOptionKey | null,
-  selectedFloor: number | undefined,
-  selectedStandaloneType: StandaloneBuildingType | null,
-): number[] {
-  switch (selectedOption) {
-    case 'firstFloor':
-      return [1];
-    case 'otherFloor':
-      return selectedFloor ? [selectedFloor] : [1];
-    case 'multipleFloors':
-      return [1, 2];
-    case 'standalone':
-      return selectedStandaloneType === 'multipleFloors' ? [1, 2] : [1];
-    default:
-      return [1];
   }
 }
 

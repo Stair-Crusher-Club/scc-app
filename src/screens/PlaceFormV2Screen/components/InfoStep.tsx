@@ -4,20 +4,18 @@ import {SccPressable} from '@/components/SccPressable';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
-import {
-  STAIR_COUNT_OPTIONS,
-  STAIR_HEIGHT_OPTIONS,
-} from '@/constant/accessibility-options';
+import {STAIR_COUNT_OPTIONS} from '@/constant/accessibility-options';
 import {Place, StairInfo} from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import useNavigation from '@/navigation/useNavigation';
 import ToastUtils from '@/utils/ToastUtils';
-import {useRef} from 'react';
+import {useMemo, useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, Platform, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
 import {FORM_TOAST_OPTIONS, formImages} from '../constants';
+import {getEntranceConditions, ENTRANCE_OPTIONS} from '../hooks';
 import {
   DoorDirectionContainer,
   DoorDirectionImageContainer,
@@ -78,6 +76,12 @@ export default function InfoStep({
   const entranceStairHeightLevel = form.watch('entranceStairHeightLevel');
   const hasSlope = form.watch('hasSlope');
   const doorType = form.watch('doorType');
+
+  // Shared entrance conditions
+  const entranceConditions = useMemo(
+    () => getEntranceConditions({stairInfo, isStandaloneBuilding}),
+    [stairInfo, isStandaloneBuilding],
+  );
 
   type FormErrorKey =
     | 'doorDirection'
@@ -176,7 +180,7 @@ export default function InfoStep({
           <SectionSeparator />
 
           <InfoFormContainer>
-            {!isStandaloneBuilding && (
+            {entranceConditions.showDoorDirection && (
               <SubSection>
                 <QuestionSection>
                   <SectionLabel>매장 입구 정보</SectionLabel>
@@ -295,33 +299,32 @@ export default function InfoStep({
               </GuideButton>
             </SubSection>
 
-            {form.watch('hasStairs') &&
-              form.watch('stairInfo') === StairInfo.One && (
-                <SubSection key="stair-height">
-                  <Label>
-                    계단 1칸의 높이를 알려주세요 <RequiredMark>*</RequiredMark>
-                  </Label>
-                  <MeasureGuide>
-                    <Image
-                      source={formImages.stair}
-                      style={{width: '100%', height: '100%'}}
-                    />
-                  </MeasureGuide>
-                  <View style={{gap: 16}}>
-                    <Controller
-                      name="entranceStairHeightLevel"
-                      rules={{required: true}}
-                      render={({field}) => (
-                        <OptionsV2
-                          value={field.value}
-                          options={STAIR_HEIGHT_OPTIONS}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                  </View>
-                </SubSection>
-              )}
+            {hasStairs && entranceConditions.showStairHeight && (
+              <SubSection key="stair-height">
+                <Label>
+                  계단 1칸의 높이를 알려주세요 <RequiredMark>*</RequiredMark>
+                </Label>
+                <MeasureGuide>
+                  <Image
+                    source={formImages.stair}
+                    style={{width: '100%', height: '100%'}}
+                  />
+                </MeasureGuide>
+                <View style={{gap: 16}}>
+                  <Controller
+                    name="entranceStairHeightLevel"
+                    rules={{required: true}}
+                    render={({field}) => (
+                      <OptionsV2
+                        value={field.value}
+                        options={ENTRANCE_OPTIONS.stairHeightOptions}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                </View>
+              </SubSection>
+            )}
 
             <SubSection>
               <Label>

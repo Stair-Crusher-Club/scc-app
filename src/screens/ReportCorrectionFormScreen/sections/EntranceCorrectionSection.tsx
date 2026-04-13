@@ -1,12 +1,7 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
-import {
-  STAIR_INFO_OPTIONS,
-  STAIR_HEIGHT_OPTIONS,
-  SLOPE_OPTIONS,
-} from '@/constant/accessibility-options';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -18,6 +13,10 @@ import ImageFile from '@/models/ImageFile';
 
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
 import {formImages} from '../../PlaceFormV2Screen/constants';
+import {
+  getEntranceConditions,
+  ENTRANCE_OPTIONS,
+} from '../../PlaceFormV2Screen/hooks';
 import PhotoEditSlots from './PhotoEditSlots';
 
 interface EntranceCorrectionSectionProps {
@@ -44,7 +43,7 @@ export default function EntranceCorrectionSection({
   stairHeightLevel,
   hasSlope,
   doorDirectionType,
-  isStandaloneBuilding,
+  isStandaloneBuilding = false,
   existingEntrancePhotoUrls,
   newEntrancePhotos,
   deletedEntrancePhotoIndices,
@@ -57,11 +56,16 @@ export default function EntranceCorrectionSection({
   onReplaceExistingEntrancePhoto,
   onChangeNewEntrancePhotos,
 }: EntranceCorrectionSectionProps) {
+  const conditions = useMemo(
+    () => getEntranceConditions({stairInfo, isStandaloneBuilding}),
+    [stairInfo, isStandaloneBuilding],
+  );
+
   return (
     <Container>
       <SectionTitle>입구 정보(계단, 경사로 등)</SectionTitle>
 
-      {!isStandaloneBuilding && (
+      {conditions.showDoorDirection && (
         <>
           <SubLabel>매장 출입구 위치</SubLabel>
           <DoorDirectionContainer>
@@ -120,17 +124,17 @@ export default function EntranceCorrectionSection({
 
       <SubLabel>계단 수</SubLabel>
       <OptionsV2
-        options={STAIR_INFO_OPTIONS}
+        options={ENTRANCE_OPTIONS.stairInfoOptions}
         value={stairInfo}
         columns={2}
         onSelect={onChangeStairInfo}
       />
 
-      {stairInfo === StairInfo.One && (
+      {conditions.showStairHeight && (
         <>
           <SubLabel>계단 높이</SubLabel>
           <OptionsV2
-            options={STAIR_HEIGHT_OPTIONS}
+            options={ENTRANCE_OPTIONS.stairHeightOptions}
             value={stairHeightLevel}
             columns={1}
             onSelect={onChangeStairHeightLevel}
@@ -140,7 +144,7 @@ export default function EntranceCorrectionSection({
 
       <SubLabel>경사로</SubLabel>
       <OptionsV2
-        options={SLOPE_OPTIONS}
+        options={ENTRANCE_OPTIONS.slopeOptions}
         value={hasSlope}
         columns={2}
         onSelect={onChangeHasSlope}
