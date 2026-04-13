@@ -13,6 +13,7 @@ import {
   InaccurateInfoCategoryDto,
   PlaceAccessibilityCorrectionDto,
   BuildingAccessibilityCorrectionDto,
+  PlaceDoorDirectionTypeDto,
   ReportTargetTypeDto,
   StairInfo,
   StairHeightLevel,
@@ -90,6 +91,8 @@ function filterPACorrectionByCategory(
 function filterBACorrectionByCategory(
   correction: BuildingAccessibilityCorrectionDto,
   cat: InaccurateInfoCategoryDto,
+  finalBaEntranceUrls: string[],
+  finalBaElevatorUrls: string[],
 ): BuildingAccessibilityCorrectionDto | undefined {
   switch (cat) {
     case InaccurateInfoCategoryDto.Entrance:
@@ -98,16 +101,26 @@ function filterBACorrectionByCategory(
         entranceStairHeightLevel: correction.entranceStairHeightLevel,
         hasSlope: correction.hasSlope,
         entranceDoorTypes: correction.entranceDoorTypes,
+        entranceImageUrls:
+          finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
       };
     case InaccurateInfoCategoryDto.Elevator:
       return {
         hasElevator: correction.hasElevator,
         elevatorAccessibility: correction.elevatorAccessibility,
+        elevatorImageUrls:
+          finalBaElevatorUrls.length > 0 ? finalBaElevatorUrls : undefined,
+      };
+    case InaccurateInfoCategoryDto.Photo:
+      return {
+        entranceImageUrls:
+          finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
+        elevatorImageUrls:
+          finalBaElevatorUrls.length > 0 ? finalBaElevatorUrls : undefined,
       };
     case InaccurateInfoCategoryDto.Floor:
     case InaccurateInfoCategoryDto.DoorType:
     case InaccurateInfoCategoryDto.AccessLevel:
-    case InaccurateInfoCategoryDto.Photo:
     case InaccurateInfoCategoryDto.Other:
       return undefined;
     default: {
@@ -221,6 +234,24 @@ export default function ReportCorrectionFormScreen({
     Map<number, ImageFile>
   >(new Map());
 
+  // BA (Building Accessibility) photo state
+  const [newBaEntrancePhotos, setNewBaEntrancePhotos] = useState<ImageFile[]>(
+    [],
+  );
+  const [newBaElevatorPhotos, setNewBaElevatorPhotos] = useState<ImageFile[]>(
+    [],
+  );
+  const [deletedBaEntrancePhotoIndices, setDeletedBaEntrancePhotoIndices] =
+    useState<number[]>([]);
+  const [deletedBaElevatorPhotoIndices, setDeletedBaElevatorPhotoIndices] =
+    useState<number[]>([]);
+  const [replacedBaEntrancePhotos, setReplacedBaEntrancePhotos] = useState<
+    Map<number, ImageFile>
+  >(new Map());
+  const [replacedBaElevatorPhotos, setReplacedBaElevatorPhotos] = useState<
+    Map<number, ImageFile>
+  >(new Map());
+
   // Access level state
   const [selectedAccessLevel, setSelectedAccessLevel] = useState<
     number | undefined
@@ -287,6 +318,15 @@ export default function ReportCorrectionFormScreen({
     setIsLoading(false);
   }, [placeId, queryClient, navigation]);
 
+  // BA photos are needed when place entrance is inside building (not standalone)
+  const needsBaPhotos = useMemo(
+    () =>
+      !accessibilityData?.placeAccessibility?.isStandaloneBuilding &&
+      accessibilityData?.placeAccessibility?.doorDirectionType ===
+        PlaceDoorDirectionTypeDto.InsideBuilding,
+    [accessibilityData],
+  );
+
   const hasChanges = useMemo(() => {
     return (
       JSON.stringify(placeCorrection) !==
@@ -300,6 +340,12 @@ export default function ReportCorrectionFormScreen({
       deletedElevatorPhotoIndices.length > 0 ||
       replacedEntrancePhotos.size > 0 ||
       replacedElevatorPhotos.size > 0 ||
+      newBaEntrancePhotos.length > 0 ||
+      newBaElevatorPhotos.length > 0 ||
+      deletedBaEntrancePhotoIndices.length > 0 ||
+      deletedBaElevatorPhotoIndices.length > 0 ||
+      replacedBaEntrancePhotos.size > 0 ||
+      replacedBaElevatorPhotos.size > 0 ||
       (selectedAccessLevel !== undefined &&
         selectedAccessLevel !==
           stairFieldsToAccessLevel(
@@ -317,6 +363,12 @@ export default function ReportCorrectionFormScreen({
     deletedElevatorPhotoIndices,
     replacedEntrancePhotos,
     replacedElevatorPhotos,
+    newBaEntrancePhotos,
+    newBaElevatorPhotos,
+    deletedBaEntrancePhotoIndices,
+    deletedBaElevatorPhotoIndices,
+    replacedBaEntrancePhotos,
+    replacedBaElevatorPhotos,
     selectedAccessLevel,
     accessibilityData,
   ]);
@@ -367,7 +419,7 @@ export default function ReportCorrectionFormScreen({
   const submitMutation = usePost(
     ['ReportCorrectionForm', 'Submit'],
     async () => {
-      // 1. Upload new photos and replaced photos
+      // 1. Upload new PA photos and replaced PA photos
       const uploadedEntranceUrls =
         newEntrancePhotos.length > 0
           ? await ImageFileUtils.uploadImages(api, newEntrancePhotos)
@@ -377,7 +429,7 @@ export default function ReportCorrectionFormScreen({
           ? await ImageFileUtils.uploadImages(api, newElevatorPhotos)
           : [];
 
-      // Upload replaced entrance photos
+      // Upload replaced PA entrance photos
       const replacedEntranceEntries = Array.from(
         replacedEntrancePhotos.entries(),
       );
@@ -393,7 +445,7 @@ export default function ReportCorrectionFormScreen({
         replacedEntranceUrlMap.set(idx, uploadedReplacedEntranceUrls[i]);
       });
 
-      // Upload replaced elevator photos
+      // Upload replaced PA elevator photos
       const replacedElevatorEntries = Array.from(
         replacedElevatorPhotos.entries(),
       );
@@ -409,7 +461,49 @@ export default function ReportCorrectionFormScreen({
         replacedElevatorUrlMap.set(idx, uploadedReplacedElevatorUrls[i]);
       });
 
-      // 2. Build final photo URL lists (existing with replacements - deleted + new)
+      // 1b. Upload BA photos (only if needsBaPhotos)
+      const uploadedBaEntranceUrls =
+        needsBaPhotos && newBaEntrancePhotos.length > 0
+          ? await ImageFileUtils.uploadImages(api, newBaEntrancePhotos)
+          : [];
+      const uploadedBaElevatorUrls =
+        needsBaPhotos && newBaElevatorPhotos.length > 0
+          ? await ImageFileUtils.uploadImages(api, newBaElevatorPhotos)
+          : [];
+
+      // Upload replaced BA entrance photos
+      const replacedBaEntranceEntries = Array.from(
+        replacedBaEntrancePhotos.entries(),
+      );
+      const uploadedReplacedBaEntranceUrls =
+        needsBaPhotos && replacedBaEntranceEntries.length > 0
+          ? await ImageFileUtils.uploadImages(
+              api,
+              replacedBaEntranceEntries.map(([_, photo]) => photo),
+            )
+          : [];
+      const replacedBaEntranceUrlMap = new Map<number, string>();
+      replacedBaEntranceEntries.forEach(([idx], i) => {
+        replacedBaEntranceUrlMap.set(idx, uploadedReplacedBaEntranceUrls[i]);
+      });
+
+      // Upload replaced BA elevator photos
+      const replacedBaElevatorEntries = Array.from(
+        replacedBaElevatorPhotos.entries(),
+      );
+      const uploadedReplacedBaElevatorUrls =
+        needsBaPhotos && replacedBaElevatorEntries.length > 0
+          ? await ImageFileUtils.uploadImages(
+              api,
+              replacedBaElevatorEntries.map(([_, photo]) => photo),
+            )
+          : [];
+      const replacedBaElevatorUrlMap = new Map<number, string>();
+      replacedBaElevatorEntries.forEach(([idx], i) => {
+        replacedBaElevatorUrlMap.set(idx, uploadedReplacedBaElevatorUrls[i]);
+      });
+
+      // 2. Build final PA photo URL lists (existing with replacements - deleted + new)
       const finalEntranceUrls = entranceImageUrls
         .map((url, idx) => {
           if (deletedEntrancePhotoIndices.includes(idx)) {
@@ -428,7 +522,37 @@ export default function ReportCorrectionFormScreen({
         })
         .filter((url): url is string => url !== null)
         .concat(uploadedElevatorUrls);
-      const allPhotoUrls = [...finalEntranceUrls, ...finalElevatorUrls];
+
+      // 2b. Build final BA photo URL lists
+      const finalBaEntranceUrls = needsBaPhotos
+        ? baEntranceImageUrls
+            .map((url, idx) => {
+              if (deletedBaEntrancePhotoIndices.includes(idx)) {
+                return null;
+              }
+              return replacedBaEntranceUrlMap.get(idx) ?? url;
+            })
+            .filter((url): url is string => url !== null)
+            .concat(uploadedBaEntranceUrls)
+        : [];
+      const finalBaElevatorUrls = needsBaPhotos
+        ? baElevatorImageUrls
+            .map((url, idx) => {
+              if (deletedBaElevatorPhotoIndices.includes(idx)) {
+                return null;
+              }
+              return replacedBaElevatorUrlMap.get(idx) ?? url;
+            })
+            .filter((url): url is string => url !== null)
+            .concat(uploadedBaElevatorUrls)
+        : [];
+
+      const allPhotoUrls = [
+        ...finalEntranceUrls,
+        ...finalElevatorUrls,
+        ...finalBaEntranceUrls,
+        ...finalBaElevatorUrls,
+      ];
 
       // 3. Apply access level to placeCorrection if selected
       let finalPlaceCorrection = {...placeCorrection};
@@ -451,6 +575,8 @@ export default function ReportCorrectionFormScreen({
       const filteredBuildingCorrection = filterBACorrectionByCategory(
         buildingCorrection,
         category,
+        finalBaEntranceUrls,
+        finalBaElevatorUrls,
       );
 
       await api.reportAccessibilityPost({
@@ -560,6 +686,39 @@ export default function ReportCorrectionFormScreen({
     [],
   );
 
+  // BA photo handlers
+  const handleDeleteExistingBaEntrancePhoto = useCallback((index: number) => {
+    setDeletedBaEntrancePhotoIndices(prev => [...prev, index]);
+    setReplacedBaEntrancePhotos(prev => {
+      const next = new Map(prev);
+      next.delete(index);
+      return next;
+    });
+  }, []);
+
+  const handleDeleteExistingBaElevatorPhoto = useCallback((index: number) => {
+    setDeletedBaElevatorPhotoIndices(prev => [...prev, index]);
+    setReplacedBaElevatorPhotos(prev => {
+      const next = new Map(prev);
+      next.delete(index);
+      return next;
+    });
+  }, []);
+
+  const handleReplaceExistingBaEntrancePhoto = useCallback(
+    (index: number, photo: ImageFile) => {
+      setReplacedBaEntrancePhotos(prev => new Map(prev).set(index, photo));
+    },
+    [],
+  );
+
+  const handleReplaceExistingBaElevatorPhoto = useCallback(
+    (index: number, photo: ImageFile) => {
+      setReplacedBaElevatorPhotos(prev => new Map(prev).set(index, photo));
+    },
+    [],
+  );
+
   if (isLoading) {
     return (
       <ScreenLayout isHeaderVisible={true} isKeyboardAvoidingView={true}>
@@ -575,6 +734,16 @@ export default function ReportCorrectionFormScreen({
   const elevatorImageUrls =
     accessibilityData?.placeAccessibility?.floorMovingElevatorAccessibility
       ?.imageUrls ?? [];
+
+  // BA image URLs (from BuildingAccessibility)
+  const baEntranceImageUrls =
+    accessibilityData?.buildingAccessibility?.entranceImages?.map(
+      img => img.imageUrl,
+    ) ?? [];
+  const baElevatorImageUrls =
+    accessibilityData?.buildingAccessibility?.elevatorImages?.map(
+      img => img.imageUrl,
+    ) ?? [];
 
   const renderSection = () => {
     switch (category) {
@@ -593,6 +762,11 @@ export default function ReportCorrectionFormScreen({
               newEntrancePhotos={newEntrancePhotos}
               deletedEntrancePhotoIndices={deletedEntrancePhotoIndices}
               replacedEntrancePhotos={replacedEntrancePhotos}
+              needsBaPhotos={needsBaPhotos}
+              existingBaEntrancePhotoUrls={baEntranceImageUrls}
+              newBaEntrancePhotos={newBaEntrancePhotos}
+              deletedBaEntrancePhotoIndices={deletedBaEntrancePhotoIndices}
+              replacedBaEntrancePhotos={replacedBaEntrancePhotos}
               onChangeStairInfo={value => {
                 updatePlaceField('stairInfo', value);
                 if (value !== StairInfo.One) {
@@ -611,6 +785,13 @@ export default function ReportCorrectionFormScreen({
                 handleReplaceExistingEntrancePhoto
               }
               onChangeNewEntrancePhotos={setNewEntrancePhotos}
+              onDeleteExistingBaEntrancePhoto={
+                handleDeleteExistingBaEntrancePhoto
+              }
+              onReplaceExistingBaEntrancePhoto={
+                handleReplaceExistingBaEntrancePhoto
+              }
+              onChangeNewBaEntrancePhotos={setNewBaEntrancePhotos}
             />
           </SectionContainer>
         );
@@ -651,6 +832,11 @@ export default function ReportCorrectionFormScreen({
               newElevatorPhotos={newElevatorPhotos}
               deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
               replacedElevatorPhotos={replacedElevatorPhotos}
+              needsBaPhotos={needsBaPhotos}
+              existingBaElevatorPhotoUrls={baElevatorImageUrls}
+              newBaElevatorPhotos={newBaElevatorPhotos}
+              deletedBaElevatorPhotoIndices={deletedBaElevatorPhotoIndices}
+              replacedBaElevatorPhotos={replacedBaElevatorPhotos}
               onChangeElevatorAccessibility={value => {
                 setPlaceCorrection(prev => ({
                   ...prev,
@@ -679,6 +865,13 @@ export default function ReportCorrectionFormScreen({
                 handleReplaceExistingElevatorPhoto
               }
               onChangeNewElevatorPhotos={setNewElevatorPhotos}
+              onDeleteExistingBaElevatorPhoto={
+                handleDeleteExistingBaElevatorPhoto
+              }
+              onReplaceExistingBaElevatorPhoto={
+                handleReplaceExistingBaElevatorPhoto
+              }
+              onChangeNewBaElevatorPhotos={setNewBaElevatorPhotos}
             />
           </SectionContainer>
         );
@@ -707,6 +900,15 @@ export default function ReportCorrectionFormScreen({
               deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
               replacedEntrancePhotos={replacedEntrancePhotos}
               replacedElevatorPhotos={replacedElevatorPhotos}
+              needsBaPhotos={needsBaPhotos}
+              baEntranceImageUrls={baEntranceImageUrls}
+              baElevatorImageUrls={baElevatorImageUrls}
+              newBaEntrancePhotos={newBaEntrancePhotos}
+              newBaElevatorPhotos={newBaElevatorPhotos}
+              deletedBaEntrancePhotoIndices={deletedBaEntrancePhotoIndices}
+              deletedBaElevatorPhotoIndices={deletedBaElevatorPhotoIndices}
+              replacedBaEntrancePhotos={replacedBaEntrancePhotos}
+              replacedBaElevatorPhotos={replacedBaElevatorPhotos}
               onDeleteExistingEntrancePhoto={handleDeleteExistingEntrancePhoto}
               onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
               onReplaceExistingEntrancePhoto={
@@ -717,6 +919,20 @@ export default function ReportCorrectionFormScreen({
               }
               onChangeNewEntrancePhotos={setNewEntrancePhotos}
               onChangeNewElevatorPhotos={setNewElevatorPhotos}
+              onDeleteExistingBaEntrancePhoto={
+                handleDeleteExistingBaEntrancePhoto
+              }
+              onDeleteExistingBaElevatorPhoto={
+                handleDeleteExistingBaElevatorPhoto
+              }
+              onReplaceExistingBaEntrancePhoto={
+                handleReplaceExistingBaEntrancePhoto
+              }
+              onReplaceExistingBaElevatorPhoto={
+                handleReplaceExistingBaElevatorPhoto
+              }
+              onChangeNewBaEntrancePhotos={setNewBaEntrancePhotos}
+              onChangeNewBaElevatorPhotos={setNewBaElevatorPhotos}
             />
           </SectionContainer>
         );

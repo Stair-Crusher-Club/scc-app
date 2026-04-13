@@ -29,6 +29,12 @@ interface EntranceCorrectionSectionProps {
   newEntrancePhotos: ImageFile[];
   deletedEntrancePhotoIndices: number[];
   replacedEntrancePhotos: Map<number, ImageFile>;
+  // BA entrance photo props
+  needsBaPhotos: boolean;
+  existingBaEntrancePhotoUrls: string[];
+  newBaEntrancePhotos: ImageFile[];
+  deletedBaEntrancePhotoIndices: number[];
+  replacedBaEntrancePhotos: Map<number, ImageFile>;
   onChangeStairInfo: (value: StairInfo) => void;
   onChangeStairHeightLevel: (value: StairHeightLevel) => void;
   onChangeHasSlope: (value: boolean) => void;
@@ -36,6 +42,9 @@ interface EntranceCorrectionSectionProps {
   onDeleteExistingEntrancePhoto: (index: number) => void;
   onReplaceExistingEntrancePhoto: (index: number, photo: ImageFile) => void;
   onChangeNewEntrancePhotos: (photos: ImageFile[]) => void;
+  onDeleteExistingBaEntrancePhoto: (index: number) => void;
+  onReplaceExistingBaEntrancePhoto: (index: number, photo: ImageFile) => void;
+  onChangeNewBaEntrancePhotos: (photos: ImageFile[]) => void;
 }
 
 export default function EntranceCorrectionSection({
@@ -48,6 +57,11 @@ export default function EntranceCorrectionSection({
   newEntrancePhotos,
   deletedEntrancePhotoIndices,
   replacedEntrancePhotos,
+  needsBaPhotos,
+  existingBaEntrancePhotoUrls,
+  newBaEntrancePhotos,
+  deletedBaEntrancePhotoIndices,
+  replacedBaEntrancePhotos,
   onChangeStairInfo,
   onChangeStairHeightLevel,
   onChangeHasSlope,
@@ -55,6 +69,9 @@ export default function EntranceCorrectionSection({
   onDeleteExistingEntrancePhoto,
   onReplaceExistingEntrancePhoto,
   onChangeNewEntrancePhotos,
+  onDeleteExistingBaEntrancePhoto,
+  onReplaceExistingBaEntrancePhoto,
+  onChangeNewBaEntrancePhotos,
 }: EntranceCorrectionSectionProps) {
   const conditions = useMemo(
     () => getEntranceConditions({stairInfo, isStandaloneBuilding}),
@@ -150,6 +167,7 @@ export default function EntranceCorrectionSection({
         onSelect={onChangeHasSlope}
       />
 
+      <SubLabel>매장 입구 사진</SubLabel>
       <PhotoEditSlots
         existingPhotoUrls={existingEntrancePhotoUrls}
         newPhotos={newEntrancePhotos}
@@ -160,6 +178,22 @@ export default function EntranceCorrectionSection({
         onReplaceExisting={onReplaceExistingEntrancePhoto}
         onChangeNewPhotos={onChangeNewEntrancePhotos}
       />
+
+      {needsBaPhotos && (
+        <>
+          <SubLabel>건물 입구 사진</SubLabel>
+          <PhotoEditSlots
+            existingPhotoUrls={existingBaEntrancePhotoUrls}
+            newPhotos={newBaEntrancePhotos}
+            deletedExistingIndices={deletedBaEntrancePhotoIndices}
+            replacedPhotos={replacedBaEntrancePhotos}
+            maxPhotos={3}
+            onDeleteExisting={onDeleteExistingBaEntrancePhoto}
+            onReplaceExisting={onReplaceExistingBaEntrancePhoto}
+            onChangeNewPhotos={onChangeNewBaEntrancePhotos}
+          />
+        </>
+      )}
     </Container>
   );
 }

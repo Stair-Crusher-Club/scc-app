@@ -23,12 +23,21 @@ interface ElevatorCorrectionSectionProps {
   newElevatorPhotos: ImageFile[];
   deletedElevatorPhotoIndices: number[];
   replacedElevatorPhotos: Map<number, ImageFile>;
+  // BA elevator photo props
+  needsBaPhotos: boolean;
+  existingBaElevatorPhotoUrls: string[];
+  newBaElevatorPhotos: ImageFile[];
+  deletedBaElevatorPhotoIndices: number[];
+  replacedBaElevatorPhotos: Map<number, ImageFile>;
   onChangeElevatorAccessibility: (
     value: ElevatorAccessibilityDto | undefined,
   ) => void;
   onDeleteExistingElevatorPhoto: (index: number) => void;
   onReplaceExistingElevatorPhoto: (index: number, photo: ImageFile) => void;
   onChangeNewElevatorPhotos: (photos: ImageFile[]) => void;
+  onDeleteExistingBaElevatorPhoto: (index: number) => void;
+  onReplaceExistingBaElevatorPhoto: (index: number, photo: ImageFile) => void;
+  onChangeNewBaElevatorPhotos: (photos: ImageFile[]) => void;
 }
 
 export default function ElevatorCorrectionSection({
@@ -37,10 +46,18 @@ export default function ElevatorCorrectionSection({
   newElevatorPhotos,
   deletedElevatorPhotoIndices,
   replacedElevatorPhotos,
+  needsBaPhotos,
+  existingBaElevatorPhotoUrls,
+  newBaElevatorPhotos,
+  deletedBaElevatorPhotoIndices,
+  replacedBaElevatorPhotos,
   onChangeElevatorAccessibility,
   onDeleteExistingElevatorPhoto,
   onReplaceExistingElevatorPhoto,
   onChangeNewElevatorPhotos,
+  onDeleteExistingBaElevatorPhoto,
+  onReplaceExistingBaElevatorPhoto,
+  onChangeNewBaElevatorPhotos,
 }: ElevatorCorrectionSectionProps) {
   const hasElevator = elevatorAccessibility !== undefined;
 
@@ -124,6 +141,7 @@ export default function ElevatorCorrectionSection({
             onSelect={(value: boolean) => update({hasSlope: value})}
           />
 
+          <SubLabel>매장 엘리베이터 사진</SubLabel>
           <PhotoEditSlots
             existingPhotoUrls={existingElevatorPhotoUrls}
             newPhotos={newElevatorPhotos}
@@ -134,6 +152,22 @@ export default function ElevatorCorrectionSection({
             onReplaceExisting={onReplaceExistingElevatorPhoto}
             onChangeNewPhotos={onChangeNewElevatorPhotos}
           />
+
+          {needsBaPhotos && (
+            <>
+              <SubLabel>건물 엘리베이터 사진</SubLabel>
+              <PhotoEditSlots
+                existingPhotoUrls={existingBaElevatorPhotoUrls}
+                newPhotos={newBaElevatorPhotos}
+                deletedExistingIndices={deletedBaElevatorPhotoIndices}
+                replacedPhotos={replacedBaElevatorPhotos}
+                maxPhotos={3}
+                onDeleteExisting={onDeleteExistingBaElevatorPhoto}
+                onReplaceExisting={onReplaceExistingBaElevatorPhoto}
+                onChangeNewPhotos={onChangeNewBaElevatorPhotos}
+              />
+            </>
+          )}
         </>
       )}
     </Container>
