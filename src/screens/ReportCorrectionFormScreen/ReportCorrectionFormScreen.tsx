@@ -231,6 +231,7 @@ export default function ReportCorrectionFormScreen({
   ]);
 
   // 기존에 사진이 있었는데 모두 삭제되면 제출 불가
+  // 단, 엘리베이터를 "없음"으로 교정한 경우 사진이 0장이어도 violation 아님
   const hasPhotoViolation = useMemo(() => {
     const existingEntranceUrls =
       accessibilityData?.placeAccessibility?.imageUrls ?? [];
@@ -252,8 +253,15 @@ export default function ReportCorrectionFormScreen({
 
     const entranceViolation =
       existingEntranceUrls.length > 0 && finalEntranceCount === 0;
+
+    // 엘리베이터를 "없음"으로 교정하면 (elevatorAccessibility === undefined)
+    // 사진이 불필요하므로 violation이 아님
+    const correctedHasElevator =
+      placeCorrection.elevatorAccessibility !== undefined;
     const elevatorViolation =
-      existingElevatorUrls.length > 0 && finalElevatorCount === 0;
+      correctedHasElevator &&
+      existingElevatorUrls.length > 0 &&
+      finalElevatorCount === 0;
 
     return entranceViolation || elevatorViolation;
   }, [
@@ -262,6 +270,7 @@ export default function ReportCorrectionFormScreen({
     deletedElevatorPhotoIndices,
     newEntrancePhotos,
     newElevatorPhotos,
+    placeCorrection.elevatorAccessibility,
   ]);
 
   const submitMutation = usePost(
