@@ -26,6 +26,7 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import EntranceCorrectionSection from './sections/EntranceCorrectionSection';
 import FloorCorrectionSection from './sections/FloorCorrectionSection';
+import type {FloorFormState} from './sections/FloorCorrectionSection';
 import DoorTypeCorrectionSection from './sections/DoorTypeCorrectionSection';
 import ElevatorCorrectionSection from './sections/ElevatorCorrectionSection';
 import AccessLevelCorrectionSection from './sections/AccessLevelCorrectionSection';
@@ -224,6 +225,11 @@ export default function ReportCorrectionFormScreen({
   const [selectedAccessLevel, setSelectedAccessLevel] = useState<
     number | undefined
   >(undefined);
+
+  // Floor form state (for submit validation)
+  const [floorFormState, setFloorFormState] = useState<FloorFormState | null>(
+    null,
+  );
 
   // Refs for initial state (to detect changes)
   const initialPlaceCorrectionRef = useRef<PlaceAccessibilityCorrectionDto>({});
@@ -472,6 +478,45 @@ export default function ReportCorrectionFormScreen({
     },
   );
 
+  const isSubmitDisabled = useMemo(() => {
+    if (!hasChanges || submitMutation.isPending || hasPhotoViolation) {
+      return true;
+    }
+
+    // FLOOR 카테고리: 층간이동 필수인 경우 체크
+    if (category === InaccurateInfoCategoryDto.Floor && floorFormState) {
+      if (
+        floorFormState.conditions.showFloorMovement &&
+        !placeCorrection.floorMovingMethodTypes?.length
+      ) {
+        return true;
+      }
+    }
+
+    // ELEVATOR 카테고리: 엘리베이터 있음인데 세부 정보 미선택
+    if (category === InaccurateInfoCategoryDto.Elevator) {
+      const ea = placeCorrection.elevatorAccessibility;
+      if (ea !== undefined) {
+        if (!ea.stairInfo || ea.stairInfo === StairInfo.Undefined) {
+          return true;
+        }
+        if (ea.hasSlope === undefined || ea.hasSlope === null) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }, [
+    hasChanges,
+    submitMutation.isPending,
+    hasPhotoViolation,
+    category,
+    floorFormState,
+    placeCorrection.floorMovingMethodTypes,
+    placeCorrection.elevatorAccessibility,
+  ]);
+
   const updatePlaceField = useCallback(
     <K extends keyof PlaceAccessibilityCorrectionDto>(
       key: K,
@@ -582,6 +627,7 @@ export default function ReportCorrectionFormScreen({
               onChangeFloorMovingMethodTypes={value =>
                 updatePlaceField('floorMovingMethodTypes', value)
               }
+              onStateChange={setFloorFormState}
             />
           </SectionContainer>
         );
@@ -705,9 +751,7 @@ export default function ReportCorrectionFormScreen({
             textColor="white"
             buttonColor="brandColor"
             fontFamily={font.pretendardBold}
-            isDisabled={
-              !hasChanges || submitMutation.isPending || hasPhotoViolation
-            }
+            isDisabled={isSubmitDisabled}
             onPress={() => submitMutation.mutate(undefined)}
             elementName="report_correction_submit"
           />

@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -18,12 +18,19 @@ import type {
   StandaloneBuildingType,
 } from '../../PlaceFormV2Screen/types';
 
+export interface FloorFormState {
+  floorOption: FloorOptionKey | null;
+  standaloneType: StandaloneBuildingType | null;
+  conditions: {showFloorMovement: boolean; showDetailFloor: boolean};
+}
+
 interface FloorCorrectionSectionProps {
   floors?: number[];
   floorMovingMethodTypes?: FloorMovingMethodTypeDto[];
   isStandaloneBuilding?: boolean;
   onChangeFloors: (value: number[]) => void;
   onChangeFloorMovingMethodTypes: (value: FloorMovingMethodTypeDto[]) => void;
+  onStateChange?: (state: FloorFormState) => void;
 }
 
 export default function FloorCorrectionSection({
@@ -32,6 +39,7 @@ export default function FloorCorrectionSection({
   isStandaloneBuilding = false,
   onChangeFloors,
   onChangeFloorMovingMethodTypes,
+  onStateChange,
 }: FloorCorrectionSectionProps) {
   const {
     floorOption,
@@ -44,6 +52,10 @@ export default function FloorCorrectionSection({
     initialFloors: floors,
     isStandaloneBuilding,
   });
+
+  useEffect(() => {
+    onStateChange?.({floorOption, standaloneType, conditions});
+  }, [floorOption, standaloneType, conditions, onStateChange]);
 
   const detailFloorValue = useMemo(() => getDetailFloorValue(floors), [floors]);
 
