@@ -132,15 +132,17 @@ export default function FloorMovementStep({
       if (!photos || photos.length === 0) {
         return 'elevatorPhotos';
       }
-      if (typeof form.getValues('elevatorHasStairs') !== 'boolean') {
+      const currentElevatorHasStairs = form.getValues('elevatorHasStairs');
+      if (typeof currentElevatorHasStairs !== 'boolean') {
         return 'elevatorHasStairs';
       }
-      if (elevatorHasStairs && !form.getValues('elevatorStairInfo')) {
+      if (currentElevatorHasStairs && !form.getValues('elevatorStairInfo')) {
         return 'elevatorStairInfo';
       }
+      const currentStairInfo = form.getValues('elevatorStairInfo');
       if (
-        elevatorHasStairs &&
-        elevatorConditions.showStairHeight &&
+        currentElevatorHasStairs &&
+        currentStairInfo === StairInfo.One &&
         !form.getValues('elevatorStairHeightLevel')
       ) {
         return 'elevatorStairHeightLevel';

@@ -50,14 +50,12 @@ export default function FloorCorrectionSection({
   const handleOptionSelect = useCallback(
     (option: FloorOptionKey) => {
       setFloorOption(option);
-      const newFloors = computeFloors(
-        option,
-        option === 'otherFloor' ? (detailFloorValue ?? 2) : undefined,
-        null,
-      );
-      onChangeFloors(newFloors);
+      if (option !== 'otherFloor') {
+        onChangeFloors(computeFloors(option, undefined, null));
+      }
+      // otherFloor의 경우 사용자가 층 선택 시 handleFloorChange에서 commit
     },
-    [setFloorOption, onChangeFloors, detailFloorValue],
+    [setFloorOption, onChangeFloors],
   );
 
   const handleFloorChange = useCallback(
