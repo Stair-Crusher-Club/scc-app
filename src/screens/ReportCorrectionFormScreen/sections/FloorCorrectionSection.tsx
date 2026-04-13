@@ -13,7 +13,10 @@ import {
   getDetailFloorValue,
   computeFloors,
 } from '../../PlaceFormV2Screen/hooks';
-import type {FloorOptionKey} from '../../PlaceFormV2Screen/types';
+import type {
+  FloorOptionKey,
+  StandaloneBuildingType,
+} from '../../PlaceFormV2Screen/types';
 
 interface FloorCorrectionSectionProps {
   floors?: number[];
@@ -58,6 +61,14 @@ export default function FloorCorrectionSection({
     [floor, onChangeFloors],
   );
 
+  const handleStandaloneTypeChange = useCallback(
+    (value: StandaloneBuildingType) => {
+      floor.setStandaloneType(value);
+      onChangeFloors(computeFloors('standalone', undefined, value));
+    },
+    [floor, onChangeFloors],
+  );
+
   return (
     <Container>
       <SectionTitle>이 장소는 건물의 1층에 있나요?</SectionTitle>
@@ -68,7 +79,7 @@ export default function FloorCorrectionSection({
         standaloneType={floor.standaloneType}
         onChangeFloorOption={handleOptionSelect}
         onChangeSelectedFloor={handleFloorChange}
-        onChangeStandaloneType={floor.setStandaloneType}
+        onChangeStandaloneType={handleStandaloneTypeChange}
       />
 
       {floor.conditions.showFloorMovement && (

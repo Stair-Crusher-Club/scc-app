@@ -72,7 +72,7 @@ export default function FloorMovementStep({
   const elevatorConditions = useMemo(
     () =>
       getElevatorConditions({
-        hasElevator: elevatorHasStairs === true,
+        hasElevator: true, // elevator section only renders when PlaceElevator is selected
         stairInfo: elevatorStairInfo,
       }),
     [elevatorHasStairs, elevatorStairInfo],
