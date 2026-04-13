@@ -117,7 +117,6 @@ export default function FloorCorrectionSection({
   );
 
   const showFloorMovement =
-    selectedOption === 'otherFloor' ||
     selectedOption === 'multipleFloors' ||
     (selectedOption === 'standalone' && standaloneType === 'multipleFloors');
 
