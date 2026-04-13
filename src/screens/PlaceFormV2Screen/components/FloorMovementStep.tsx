@@ -9,7 +9,7 @@ import {
 } from '@/generated-sources/openapi';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import ToastUtils from '@/utils/ToastUtils';
-import {useMemo, useRef} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 import {Controller, useFormContext} from 'react-hook-form';
 import {Image, Platform, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
@@ -71,6 +71,17 @@ export default function FloorMovementStep({
   const elevatorHasStairs = form.watch('elevatorHasStairs');
   const elevatorStairInfo = form.watch('elevatorStairInfo');
 
+  // 엘리베이터 해제 시 서브필드 초기화
+  useEffect(() => {
+    if (!hasElevatorSelected) {
+      form.setValue('elevatorPhotos', undefined);
+      form.setValue('elevatorHasStairs', undefined);
+      form.setValue('elevatorStairInfo', undefined);
+      form.setValue('elevatorStairHeightLevel', undefined);
+      form.setValue('elevatorHasSlope', undefined);
+    }
+  }, [hasElevatorSelected, form]);
+
   // Shared elevator conditions (stairInfo here maps to elevatorStairInfo)
   const elevatorConditions = useMemo(
     () =>
@@ -81,10 +92,31 @@ export default function FloorMovementStep({
     [elevatorStairInfo],
   );
 
-  type FormErrorKey = 'floorMovementMethod';
+  type FormErrorKey =
+    | 'floorMovementMethod'
+    | 'elevatorPhotos'
+    | 'elevatorHasStairs'
+    | 'elevatorStairInfo'
+    | 'elevatorStairHeightLevel'
+    | 'elevatorHasSlope';
 
-  const noticeError = (_errorKey: FormErrorKey) => {
-    ToastUtils.show('층간 이동 방법을 선택해주세요.', FORM_TOAST_OPTIONS);
+  const noticeError = (errorKey: FormErrorKey) => {
+    switch (errorKey) {
+      case 'floorMovementMethod':
+        ToastUtils.show('층간 이동 방법을 선택해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'elevatorPhotos':
+        ToastUtils.show('엘리베이터 사진을 등록해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'elevatorHasStairs':
+      case 'elevatorStairInfo':
+      case 'elevatorStairHeightLevel':
+        ToastUtils.show('계단 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        break;
+      case 'elevatorHasSlope':
+        ToastUtils.show('경사로 정보를 입력해주세요.', FORM_TOAST_OPTIONS);
+        break;
+    }
   };
 
   // 유효성 검사 및 첫 번째 에러 키 반환
@@ -92,6 +124,30 @@ export default function FloorMovementStep({
     // 층간 이동 방법은 필수
     if (!floorMovementMethods || floorMovementMethods.length === 0) {
       return 'floorMovementMethod';
+    }
+
+    // 엘리베이터 선택 시 서브필드 검증
+    if (hasElevatorSelected) {
+      const photos = form.getValues('elevatorPhotos');
+      if (!photos || photos.length === 0) {
+        return 'elevatorPhotos';
+      }
+      if (typeof form.getValues('elevatorHasStairs') !== 'boolean') {
+        return 'elevatorHasStairs';
+      }
+      if (elevatorHasStairs && !form.getValues('elevatorStairInfo')) {
+        return 'elevatorStairInfo';
+      }
+      if (
+        elevatorHasStairs &&
+        elevatorConditions.showStairHeight &&
+        !form.getValues('elevatorStairHeightLevel')
+      ) {
+        return 'elevatorStairHeightLevel';
+      }
+      if (typeof form.getValues('elevatorHasSlope') !== 'boolean') {
+        return 'elevatorHasSlope';
+      }
     }
 
     return null;

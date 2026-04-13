@@ -180,56 +180,56 @@ export default function InfoStep({
           <SectionSeparator />
 
           <InfoFormContainer>
-            <SubSection>
-              <QuestionSection>
-                <SectionLabel>매장 입구 정보</SectionLabel>
-                <QuestionText>
-                  매장 출입구 위치를 알려주세요 <RequiredMark>*</RequiredMark>
-                </QuestionText>
-              </QuestionSection>
-              <Controller
-                name="doorDirection"
-                rules={{
-                  required: !isStandaloneBuilding,
-                }}
-                render={({field}) => (
-                  <DoorDirectionContainer>
-                    <DoorDirectionOption>
-                      <DoorDirectionImageContainer
-                        disabled={field.value && field.value !== 'outside'}>
-                        <Image
-                          source={formImages.entrance.out}
-                          style={{width: '100%', height: '100%'}}
-                          resizeMode="cover"
+            {!isStandaloneBuilding && (
+              <SubSection>
+                <QuestionSection>
+                  <SectionLabel>매장 입구 정보</SectionLabel>
+                  <QuestionText>
+                    매장 출입구 위치를 알려주세요 <RequiredMark>*</RequiredMark>
+                  </QuestionText>
+                </QuestionSection>
+                <Controller
+                  name="doorDirection"
+                  rules={{required: true}}
+                  render={({field}) => (
+                    <DoorDirectionContainer>
+                      <DoorDirectionOption>
+                        <DoorDirectionImageContainer
+                          disabled={field.value && field.value !== 'outside'}>
+                          <Image
+                            source={formImages.entrance.out}
+                            style={{width: '100%', height: '100%'}}
+                            resizeMode="cover"
+                          />
+                        </DoorDirectionImageContainer>
+                        <OptionsV2
+                          value={field.value}
+                          columns={1}
+                          options={[{label: '건물 밖', value: 'outside'}]}
+                          onSelect={field.onChange}
                         />
-                      </DoorDirectionImageContainer>
-                      <OptionsV2
-                        value={field.value}
-                        columns={1}
-                        options={[{label: '건물 밖', value: 'outside'}]}
-                        onSelect={field.onChange}
-                      />
-                    </DoorDirectionOption>
-                    <DoorDirectionOption>
-                      <DoorDirectionImageContainer
-                        disabled={field.value && field.value !== 'inside'}>
-                        <Image
-                          source={formImages.entrance.in}
-                          style={{width: '100%', height: '100%'}}
-                          resizeMode="cover"
+                      </DoorDirectionOption>
+                      <DoorDirectionOption>
+                        <DoorDirectionImageContainer
+                          disabled={field.value && field.value !== 'inside'}>
+                          <Image
+                            source={formImages.entrance.in}
+                            style={{width: '100%', height: '100%'}}
+                            resizeMode="cover"
+                          />
+                        </DoorDirectionImageContainer>
+                        <OptionsV2
+                          value={field.value}
+                          columns={1}
+                          options={[{label: '건물 안', value: 'inside'}]}
+                          onSelect={field.onChange}
                         />
-                      </DoorDirectionImageContainer>
-                      <OptionsV2
-                        value={field.value}
-                        columns={1}
-                        options={[{label: '건물 안', value: 'inside'}]}
-                        onSelect={field.onChange}
-                      />
-                    </DoorDirectionOption>
-                  </DoorDirectionContainer>
-                )}
-              />
-            </SubSection>
+                      </DoorDirectionOption>
+                    </DoorDirectionContainer>
+                  )}
+                />
+              </SubSection>
+            )}
             <SubSection>
               <View style={{gap: 2}}>
                 <Label>
