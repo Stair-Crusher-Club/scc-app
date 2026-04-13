@@ -33,7 +33,14 @@ export default function FloorCorrectionSection({
   onChangeFloors,
   onChangeFloorMovingMethodTypes,
 }: FloorCorrectionSectionProps) {
-  const floor = useFloorFormLogic({
+  const {
+    floorOption,
+    standaloneType,
+    conditions,
+    setFloorOption,
+    setSelectedFloor,
+    setStandaloneType,
+  } = useFloorFormLogic({
     initialFloors: floors,
     isStandaloneBuilding,
   });
@@ -42,7 +49,7 @@ export default function FloorCorrectionSection({
 
   const handleOptionSelect = useCallback(
     (option: FloorOptionKey) => {
-      floor.setFloorOption(option);
+      setFloorOption(option);
       const newFloors = computeFloors(
         option,
         option === 'otherFloor' ? (detailFloorValue ?? 2) : undefined,
@@ -50,23 +57,23 @@ export default function FloorCorrectionSection({
       );
       onChangeFloors(newFloors);
     },
-    [floor, onChangeFloors, detailFloorValue],
+    [setFloorOption, onChangeFloors, detailFloorValue],
   );
 
   const handleFloorChange = useCallback(
     (value: number) => {
-      floor.setSelectedFloor(value);
+      setSelectedFloor(value);
       onChangeFloors([value]);
     },
-    [floor, onChangeFloors],
+    [setSelectedFloor, onChangeFloors],
   );
 
   const handleStandaloneTypeChange = useCallback(
     (value: StandaloneBuildingType) => {
-      floor.setStandaloneType(value);
+      setStandaloneType(value);
       onChangeFloors(computeFloors('standalone', undefined, value));
     },
-    [floor, onChangeFloors],
+    [setStandaloneType, onChangeFloors],
   );
 
   return (
@@ -74,15 +81,15 @@ export default function FloorCorrectionSection({
       <SectionTitle>이 장소는 건물의 1층에 있나요?</SectionTitle>
 
       <FloorQuestionUI
-        floorOption={floor.floorOption}
+        floorOption={floorOption}
         selectedFloor={detailFloorValue}
-        standaloneType={floor.standaloneType}
+        standaloneType={standaloneType}
         onChangeFloorOption={handleOptionSelect}
         onChangeSelectedFloor={handleFloorChange}
         onChangeStandaloneType={handleStandaloneTypeChange}
       />
 
-      {floor.conditions.showFloorMovement && (
+      {conditions.showFloorMovement && (
         <FloorMovementContainer>
           <SubSectionTitle>
             1층에서 다른층으로 이동가능한 방법을 모두 알려주세요

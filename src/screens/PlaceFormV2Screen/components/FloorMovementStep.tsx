@@ -75,7 +75,7 @@ export default function FloorMovementStep({
         hasElevator: true, // elevator section only renders when PlaceElevator is selected
         stairInfo: elevatorStairInfo,
       }),
-    [elevatorHasStairs, elevatorStairInfo],
+    [elevatorStairInfo],
   );
 
   type FormErrorKey = 'floorMovementMethod';
