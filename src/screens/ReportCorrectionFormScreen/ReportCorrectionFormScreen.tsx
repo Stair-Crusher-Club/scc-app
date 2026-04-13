@@ -31,6 +31,91 @@ import ElevatorCorrectionSection from './sections/ElevatorCorrectionSection';
 import AccessLevelCorrectionSection from './sections/AccessLevelCorrectionSection';
 import PhotoCorrectionSection from './sections/PhotoCorrectionSection';
 
+/** 카테고리별로 PA correction 필드 필터링 */
+function filterPACorrectionByCategory(
+  correction: PlaceAccessibilityCorrectionDto,
+  cat: InaccurateInfoCategoryDto,
+  finalEntranceUrls: string[],
+  finalElevatorUrls: string[],
+): PlaceAccessibilityCorrectionDto | undefined {
+  switch (cat) {
+    case InaccurateInfoCategoryDto.Entrance:
+      return {
+        stairInfo: correction.stairInfo,
+        stairHeightLevel: correction.stairHeightLevel,
+        hasSlope: correction.hasSlope,
+        entranceDoorTypes: correction.entranceDoorTypes,
+        doorDirectionType: correction.doorDirectionType,
+        entranceImageUrls:
+          finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
+      };
+    case InaccurateInfoCategoryDto.Floor:
+      return {
+        floors: correction.floors,
+        floorMovingMethodTypes: correction.floorMovingMethodTypes,
+      };
+    case InaccurateInfoCategoryDto.DoorType:
+      return {
+        entranceDoorTypes: correction.entranceDoorTypes,
+      };
+    case InaccurateInfoCategoryDto.Elevator:
+      return {
+        elevatorAccessibility: correction.elevatorAccessibility,
+        elevatorImageUrls:
+          finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+      };
+    case InaccurateInfoCategoryDto.AccessLevel:
+      return {
+        stairInfo: correction.stairInfo,
+        stairHeightLevel: correction.stairHeightLevel,
+      };
+    case InaccurateInfoCategoryDto.Photo:
+      return {
+        entranceImageUrls:
+          finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
+        elevatorImageUrls:
+          finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+      };
+    case InaccurateInfoCategoryDto.Other:
+      return undefined;
+    default: {
+      const _exhaustiveCheck: never = cat;
+      return _exhaustiveCheck;
+    }
+  }
+}
+
+/** 카테고리별로 BA correction 필드 필터링 */
+function filterBACorrectionByCategory(
+  correction: BuildingAccessibilityCorrectionDto,
+  cat: InaccurateInfoCategoryDto,
+): BuildingAccessibilityCorrectionDto | undefined {
+  switch (cat) {
+    case InaccurateInfoCategoryDto.Entrance:
+      return {
+        entranceStairInfo: correction.entranceStairInfo,
+        entranceStairHeightLevel: correction.entranceStairHeightLevel,
+        hasSlope: correction.hasSlope,
+        entranceDoorTypes: correction.entranceDoorTypes,
+      };
+    case InaccurateInfoCategoryDto.Elevator:
+      return {
+        hasElevator: correction.hasElevator,
+        elevatorAccessibility: correction.elevatorAccessibility,
+      };
+    case InaccurateInfoCategoryDto.Floor:
+    case InaccurateInfoCategoryDto.DoorType:
+    case InaccurateInfoCategoryDto.AccessLevel:
+    case InaccurateInfoCategoryDto.Photo:
+    case InaccurateInfoCategoryDto.Other:
+      return undefined;
+    default: {
+      const _exhaustiveCheck: never = cat;
+      return _exhaustiveCheck;
+    }
+  }
+}
+
 /** Access level (0-5) → stairInfo + stairHeightLevel 역매핑 */
 function accessLevelToStairFields(level: number): {
   stairInfo: StairInfo;
@@ -350,6 +435,18 @@ export default function ReportCorrectionFormScreen({
         };
       }
 
+      // 4. 카테고리별로 관련 필드만 필터링하여 전송
+      const filteredPlaceCorrection = filterPACorrectionByCategory(
+        finalPlaceCorrection,
+        category,
+        finalEntranceUrls,
+        finalElevatorUrls,
+      );
+      const filteredBuildingCorrection = filterBACorrectionByCategory(
+        buildingCorrection,
+        category,
+      );
+
       await api.reportAccessibilityPost({
         placeId,
         placeAccessibilityId: accessibilityData?.placeAccessibility?.id,
@@ -359,14 +456,8 @@ export default function ReportCorrectionFormScreen({
         detail: noteText || undefined,
         correction: {
           inaccurateCategories: [category],
-          placeAccessibilityCorrection: {
-            ...finalPlaceCorrection,
-            entranceImageUrls:
-              finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
-            elevatorImageUrls:
-              finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
-          },
-          buildingAccessibilityCorrection: buildingCorrection,
+          placeAccessibilityCorrection: filteredPlaceCorrection,
+          buildingAccessibilityCorrection: filteredBuildingCorrection,
           noteText: noteText || undefined,
           photoUrls: allPhotoUrls.length > 0 ? allPhotoUrls : undefined,
         },
