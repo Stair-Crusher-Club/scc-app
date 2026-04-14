@@ -1,3 +1,4 @@
+import {StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -155,4 +156,20 @@ export const AlbumButtonText = styled.Text({
   textAlign: 'center',
   position: 'absolute',
   bottom: -19, // 6px margin + fontSize 100%
+});
+
+export const AlbumLoadingOverlay = styled.View({
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 16,
+});
+
+export const AlbumLoadingText = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardRegular,
+  fontSize: 14,
+  textAlign: 'center',
+  lineHeight: 20,
 });

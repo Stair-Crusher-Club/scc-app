@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Dimensions, Platform} from 'react-native';
+import {ActivityIndicator, Dimensions, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -63,6 +63,7 @@ export default function CameraScreen({
   );
   const featureFlag = useAtomValue(featureFlagAtom);
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+  const [isLoadingAlbum, setIsLoadingAlbum] = useState(false);
 
   // 기존 촬영한 이미지 체크
   useEffect(() => {
@@ -167,8 +168,10 @@ export default function CameraScreen({
       selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
+    setIsLoadingAlbum(true);
     try {
       launchImageLibrary(options, (response: ImagePickerResponse) => {
+        setIsLoadingAlbum(false);
         if (response.didCancel || response.errorMessage) {
           const errorMessage = `didCancel ${response.didCancel} / errorCode: ${response.errorCode} / errorMessage: ${response.errorMessage}`;
           Logger.logError(Error(errorMessage));
@@ -181,10 +184,11 @@ export default function CameraScreen({
             width: asset.width || 0,
             height: asset.height || 0,
           }));
-          confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
+          confirm(newImages);
         }
       });
     } catch (error: any) {
+      setIsLoadingAlbum(false);
       Logger.logError(error);
     }
   }
@@ -210,6 +214,16 @@ export default function CameraScreen({
           </S.CameraPreviewContainer>
         ) : (
           <CameraNotAuthorized />
+        )}
+        {isLoadingAlbum && (
+          <S.AlbumLoadingOverlay>
+            <ActivityIndicator size="large" color="white" />
+            <S.AlbumLoadingText>
+              {
+                'iCloud 등 클라우드에 저장된 사진은\n불러오는 데 시간이 걸릴 수 있습니다'
+              }
+            </S.AlbumLoadingText>
+          </S.AlbumLoadingOverlay>
         )}
       </S.CameraContainer>
       {route.params.target !== 'building' && (
