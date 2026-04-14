@@ -164,8 +164,6 @@ export default function CameraScreen({
     const options = {
       mediaType: 'photo' as MediaType,
       includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
       selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
@@ -183,7 +181,6 @@ export default function CameraScreen({
             width: asset.width || 0,
             height: asset.height || 0,
           }));
-          setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
           confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
         }
       });

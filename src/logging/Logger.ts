@@ -125,6 +125,27 @@ const Logger = {
     getAnalytics().logEvent('upload_image', eventParams);
   },
 
+  async logUploadImageFailed(params: {
+    errorType: 'timeout' | 'network' | 'http_error' | 'unknown';
+    httpStatus?: number;
+    imageCount: number;
+    retryCount: number;
+    errorMessage: string;
+  }) {
+    logDebug('logUploadImageFailed', params, currUserPropertiesForDebugging);
+    const eventParams = {
+      error_type: params.errorType,
+      ...(params.httpStatus !== undefined && {
+        http_status: params.httpStatus,
+      }),
+      image_count: params.imageCount,
+      retry_count: params.retryCount,
+      error_message: params.errorMessage,
+    };
+    trackEvent('upload_image_failed', eventParams);
+    getAnalytics().logEvent('upload_image_failed', eventParams);
+  },
+
   async logError(error: Error) {
     logDebug('logError', error, currUserPropertiesForDebugging);
     crashlytics().recordError(error);

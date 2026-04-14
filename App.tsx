@@ -1,10 +1,9 @@
 import {HotUpdater} from '@hot-updater/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAnalytics} from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {Platform, StatusBar, View} from 'react-native';
 import Config from 'react-native-config';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -13,7 +12,6 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AppComponentsProvider} from '@/AppComponentsContext';
 import {accessTokenAtom} from '@/atoms/Auth';
-import {storage} from '@/atoms/atomForLocal';
 import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import SplashOverlay from '@/splash/SplashOverlay';
@@ -118,33 +116,8 @@ const App = () => {
   );
 };
 
-// do migration from AsyncStorage to MMKV
 const AppWithMigration = () => {
-  const [isMigrated, setIsMigrated] = useState(false);
-  useEffect(() => {
-    const migrateAsyncStorageToMMKV = async () => {
-      const allKeys = await AsyncStorage.multiGet([
-        'userInfo',
-        'hasShownGuideForFirstVisit',
-        'hasShownGuideForEnterancePhoto',
-        'scc-token',
-      ]);
-      allKeys.forEach(([key, value]) => {
-        if (value && storage.getString(key) === undefined) {
-          if (key === 'scc-token') {
-            // 토큰은 JSON 화된 문자열이 아닌 그대로 저장되어 있던 값이므로
-            // JSON 에 호환되는 문자열로 저장해야 한다.
-            storage.set(key, `"${value}"`);
-          } else {
-            storage.set(key, value);
-          }
-        }
-      });
-      setIsMigrated(true);
-    };
-    migrateAsyncStorageToMMKV();
-  }, []);
-  return isMigrated ? <AppWithProviders /> : null;
+  return <AppWithProviders />;
 };
 
 const HotUpdatedApp = HotUpdater.wrap({
