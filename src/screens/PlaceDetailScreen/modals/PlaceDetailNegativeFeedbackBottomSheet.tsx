@@ -68,7 +68,7 @@ function getCategoryLabel(
         return '단독건물이 아니에요';
       }
       const floors = snapshot?.floors;
-      if (floors && floors.length > 0) {
+      if (floors && floors.length > 0 && floors.length <= 2) {
         const floorTexts = floors.map(f =>
           f < 0 ? `지하 ${Math.abs(f)}층` : `${f}층`,
         );
