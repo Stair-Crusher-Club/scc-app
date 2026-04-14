@@ -21,6 +21,7 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
   placeId: string;
   hasBuildingAccessibility?: boolean;
+  hasElevatorInfo?: boolean;
   onPressCloseButton: () => void;
   onPressSubmitButton: (
     placeId: string,
@@ -40,14 +41,16 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
 }
 
 const INACCURATE_CATEGORY_LABELS: Record<InaccurateInfoCategoryDto, string> = {
-  [InaccurateInfoCategoryDto.PlaceEntrance]: '장소 입구 정보',
-  [InaccurateInfoCategoryDto.BuildingEntrance]: '건물 입구 정보',
-  [InaccurateInfoCategoryDto.Floor]: '층 정보',
-  [InaccurateInfoCategoryDto.DoorType]: '문 유형',
-  [InaccurateInfoCategoryDto.Elevator]: '엘리베이터 정보',
-  [InaccurateInfoCategoryDto.AccessLevel]: '접근레벨',
-  [InaccurateInfoCategoryDto.Photo]: '사진 오류',
-  [InaccurateInfoCategoryDto.Other]: '기타',
+  [InaccurateInfoCategoryDto.PlaceEntrance]:
+    '계단 / 경사로 / 문 방향이 잘못됐어요',
+  [InaccurateInfoCategoryDto.BuildingEntrance]:
+    '건물 입구 계단 / 경사로가 잘못됐어요',
+  [InaccurateInfoCategoryDto.Floor]: '층 정보가 잘못됐어요',
+  [InaccurateInfoCategoryDto.DoorType]: '출입문 종류가 잘못됐어요',
+  [InaccurateInfoCategoryDto.Elevator]: '엘리베이터 정보가 잘못됐어요',
+  [InaccurateInfoCategoryDto.AccessLevel]: '접근 레벨이 잘못됐어요',
+  [InaccurateInfoCategoryDto.Photo]: '사진이 잘못됐어요',
+  [InaccurateInfoCategoryDto.Other]: '기타 정보가 잘못됐어요',
 };
 
 /** BA가 없으면 BUILDING_ENTRANCE를 숨기고, ENTRANCE 라벨을 원래대로 표시 */
@@ -56,7 +59,8 @@ const INACCURATE_CATEGORY_LABELS_NO_BA: Record<
   string
 > = {
   ...INACCURATE_CATEGORY_LABELS,
-  [InaccurateInfoCategoryDto.PlaceEntrance]: '입구 정보(계단, 경사로 등)',
+  [InaccurateInfoCategoryDto.PlaceEntrance]:
+    '입구 계단 / 경사로 / 문 방향이 잘못됐어요',
 };
 
 const CLOSED_SUB_TYPE_LABELS: Record<ClosedSubTypeDto, string> = {
@@ -69,6 +73,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   isVisible,
   placeId,
   hasBuildingAccessibility = false,
+  hasElevatorInfo = false,
   onPressCloseButton,
   onPressSubmitButton,
   onPressNavigateToCorrection,
@@ -272,11 +277,21 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 InaccurateInfoCategoryDto,
               ) as InaccurateInfoCategoryDto[]
             )
-              .filter(
-                cat =>
-                  hasBuildingAccessibility ||
-                  cat !== InaccurateInfoCategoryDto.BuildingEntrance,
-              )
+              .filter(cat => {
+                if (
+                  cat === InaccurateInfoCategoryDto.BuildingEntrance &&
+                  !hasBuildingAccessibility
+                ) {
+                  return false;
+                }
+                if (
+                  cat === InaccurateInfoCategoryDto.Elevator &&
+                  !hasElevatorInfo
+                ) {
+                  return false;
+                }
+                return true;
+              })
               .map((category, index) => {
                 const labels = hasBuildingAccessibility
                   ? INACCURATE_CATEGORY_LABELS

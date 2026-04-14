@@ -3,7 +3,11 @@ import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {FloorMovingMethodTypeDto} from '@/generated-sources/openapi';
+import {
+  FloorMovingMethodTypeDto,
+  StairInfo,
+  StairHeightLevel,
+} from '@/generated-sources/openapi';
 
 import FloorQuestionUI from '../../PlaceFormV2Screen/components/FloorQuestionUI';
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
@@ -12,6 +16,8 @@ import {
   useFloorFormLogic,
   getDetailFloorValue,
   computeFloors,
+  getElevatorConditions,
+  ELEVATOR_OPTIONS,
 } from '../../PlaceFormV2Screen/hooks';
 import type {
   FloorOptionKey,
@@ -24,12 +30,20 @@ export interface FloorFormState {
   conditions: {showFloorMovement: boolean; showDetailFloor: boolean};
 }
 
+interface ElevatorInfo {
+  stairInfo?: StairInfo;
+  stairHeightLevel?: StairHeightLevel;
+  hasSlope?: boolean;
+}
+
 interface FloorCorrectionSectionProps {
   floors?: number[];
   floorMovingMethodTypes?: FloorMovingMethodTypeDto[];
   isStandaloneBuilding?: boolean;
+  elevatorAccessibility?: ElevatorInfo;
   onChangeFloors: (value: number[]) => void;
   onChangeFloorMovingMethodTypes: (value: FloorMovingMethodTypeDto[]) => void;
+  onChangeElevatorAccessibility: (value: ElevatorInfo | undefined) => void;
   onStateChange?: (state: FloorFormState) => void;
 }
 
@@ -37,8 +51,10 @@ export default function FloorCorrectionSection({
   floors,
   floorMovingMethodTypes = [],
   isStandaloneBuilding = false,
+  elevatorAccessibility,
   onChangeFloors,
   onChangeFloorMovingMethodTypes,
+  onChangeElevatorAccessibility,
   onStateChange,
 }: FloorCorrectionSectionProps) {
   const {
@@ -58,6 +74,28 @@ export default function FloorCorrectionSection({
   }, [floorOption, standaloneType, conditions, onStateChange]);
 
   const detailFloorValue = useMemo(() => getDetailFloorValue(floors), [floors]);
+
+  const hasPlaceElevator = useMemo(
+    () =>
+      floorMovingMethodTypes.includes(FloorMovingMethodTypeDto.PlaceElevator),
+    [floorMovingMethodTypes],
+  );
+
+  const elevatorConditions = useMemo(
+    () =>
+      getElevatorConditions({
+        hasElevator: hasPlaceElevator,
+        stairInfo: elevatorAccessibility?.stairInfo,
+      }),
+    [hasPlaceElevator, elevatorAccessibility?.stairInfo],
+  );
+
+  // PLACE_ELEVATOR가 해제되면 엘리베이터 접근성 정보 초기화
+  useEffect(() => {
+    if (!hasPlaceElevator && elevatorAccessibility !== undefined) {
+      onChangeElevatorAccessibility(undefined);
+    }
+  }, [hasPlaceElevator, elevatorAccessibility, onChangeElevatorAccessibility]);
 
   const handleOptionSelect = useCallback(
     (option: FloorOptionKey) => {
@@ -84,6 +122,16 @@ export default function FloorCorrectionSection({
       onChangeFloors(computeFloors('standalone', undefined, value));
     },
     [setStandaloneType, onChangeFloors],
+  );
+
+  const updateElevatorField = useCallback(
+    (partial: Partial<ElevatorInfo>) => {
+      onChangeElevatorAccessibility({
+        ...elevatorAccessibility,
+        ...partial,
+      });
+    },
+    [elevatorAccessibility, onChangeElevatorAccessibility],
   );
 
   return (
@@ -116,6 +164,51 @@ export default function FloorCorrectionSection({
           />
         </FloorMovementContainer>
       )}
+
+      {hasPlaceElevator && (
+        <ElevatorInfoContainer>
+          <SubSectionTitle>엘리베이터 정보</SubSectionTitle>
+
+          <ElevatorSubLabel>엘리베이터까지 계단</ElevatorSubLabel>
+          <OptionsV2
+            options={ELEVATOR_OPTIONS.stairInfoOptions}
+            value={elevatorAccessibility?.stairInfo}
+            columns={2}
+            onSelect={(value: StairInfo) =>
+              updateElevatorField({
+                stairInfo: value,
+                ...(value !== StairInfo.One
+                  ? {stairHeightLevel: undefined}
+                  : {}),
+              })
+            }
+          />
+
+          {elevatorConditions.showStairHeight && (
+            <>
+              <ElevatorSubLabel>계단 높이</ElevatorSubLabel>
+              <OptionsV2
+                options={ELEVATOR_OPTIONS.stairHeightOptions}
+                value={elevatorAccessibility?.stairHeightLevel}
+                columns={1}
+                onSelect={(value: StairHeightLevel) =>
+                  updateElevatorField({stairHeightLevel: value})
+                }
+              />
+            </>
+          )}
+
+          <ElevatorSubLabel>엘리베이터 앞 경사로</ElevatorSubLabel>
+          <OptionsV2
+            options={ELEVATOR_OPTIONS.slopeOptions}
+            value={elevatorAccessibility?.hasSlope}
+            columns={2}
+            onSelect={(value: boolean) =>
+              updateElevatorField({hasSlope: value})
+            }
+          />
+        </ElevatorInfoContainer>
+      )}
     </Container>
   );
 }
@@ -134,9 +227,21 @@ const FloorMovementContainer = styled.View`
   margin-top: 24px;
 `;
 
+const ElevatorInfoContainer = styled.View`
+  margin-top: 24px;
+`;
+
 const SubSectionTitle = styled.Text`
   font-size: 14px;
   font-family: ${font.pretendardSemibold};
   color: ${color.black};
   margin-bottom: 12px;
+`;
+
+const ElevatorSubLabel = styled.Text`
+  font-size: 14px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.gray60};
+  margin-bottom: 8px;
+  margin-top: 12px;
 `;

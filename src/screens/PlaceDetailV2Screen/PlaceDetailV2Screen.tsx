@@ -955,6 +955,13 @@ export default function PlaceDetailV2Screen({
           isVisible={reportTargetType !== null}
           placeId={place.id}
           hasBuildingAccessibility={!!accessibilityPost?.buildingAccessibility}
+          hasElevatorInfo={
+            !!accessibilityPost?.buildingAccessibility?.hasElevator &&
+            !(
+              accessibilityPost?.placeAccessibility?.floors?.length === 1 &&
+              accessibilityPost?.placeAccessibility?.floors[0] === 1
+            )
+          }
           onPressCloseButton={() => {
             setReportTargetType(null);
           }}

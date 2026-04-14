@@ -107,7 +107,15 @@ function buildFloorCorrection(
   isStandaloneBuilding: boolean | undefined,
   finalElevatorUrls: string[],
 ): FloorCorrectionDto {
-  const ea = placeCorrection.elevatorAccessibility;
+  // elevatorAccessibility는 PLACE_ELEVATOR가 선택된 경우에만 전송한다.
+  // BUILDING_ELEVATOR만 선택된 경우 PA elevator 정보를 보내면
+  // 서버에서 BA elevator 업데이트로 잘못 사용될 수 있다.
+  const hasPlaceElevator = placeCorrection.floorMovingMethodTypes?.includes(
+    FloorMovingMethodTypeDto.PlaceElevator,
+  );
+  const ea = hasPlaceElevator
+    ? placeCorrection.elevatorAccessibility
+    : undefined;
   return {
     floors: placeCorrection.floors,
     isStandaloneBuilding: isStandaloneBuilding,
@@ -725,6 +733,24 @@ export default function ReportCorrectionFormScreen({
       ) {
         return true;
       }
+
+      // PLACE_ELEVATOR가 선택되면 엘리베이터 정보 필수
+      if (
+        placeCorrection.floorMovingMethodTypes?.includes(
+          FloorMovingMethodTypeDto.PlaceElevator,
+        )
+      ) {
+        const ea = placeCorrection.elevatorAccessibility;
+        if (!ea) {
+          return true;
+        }
+        if (!ea.stairInfo || ea.stairInfo === StairInfo.Undefined) {
+          return true;
+        }
+        if (ea.hasSlope === undefined || ea.hasSlope === null) {
+          return true;
+        }
+      }
     }
 
     // BUILDING_ENTRANCE 카테고리: 필수 필드 검증
@@ -965,9 +991,13 @@ export default function ReportCorrectionFormScreen({
               isStandaloneBuilding={
                 accessibilityData?.placeAccessibility?.isStandaloneBuilding
               }
+              elevatorAccessibility={placeCorrection.elevatorAccessibility}
               onChangeFloors={value => updatePlaceField('floors', value)}
               onChangeFloorMovingMethodTypes={value =>
                 updatePlaceField('floorMovingMethodTypes', value)
+              }
+              onChangeElevatorAccessibility={value =>
+                updatePlaceField('elevatorAccessibility', value)
               }
               onStateChange={setFloorFormState}
             />
