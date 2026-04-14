@@ -33,7 +33,7 @@ import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import BuildingEntranceCorrectionSection from './sections/BuildingEntranceCorrectionSection';
-import EntranceCorrectionSection from './sections/EntranceCorrectionSection';
+import PlaceEntranceCorrectionSection from './sections/PlaceEntranceCorrectionSection';
 import FloorCorrectionSection from './sections/FloorCorrectionSection';
 import type {FloorFormState} from './sections/FloorCorrectionSection';
 import DoorTypeCorrectionSection from './sections/DoorTypeCorrectionSection';
@@ -851,7 +851,7 @@ export default function ReportCorrectionFormScreen({
       case InaccurateInfoCategoryDto.Entrance:
         return (
           <SectionContainer>
-            <EntranceCorrectionSection
+            <PlaceEntranceCorrectionSection
               sectionTitle={
                 accessibilityData?.buildingAccessibility
                   ? '장소 입구 정보'

@@ -19,7 +19,7 @@ import {
 } from '../../PlaceFormV2Screen/hooks';
 import PhotoEditSlots from './PhotoEditSlots';
 
-interface EntranceCorrectionSectionProps {
+interface PlaceEntranceCorrectionSectionProps {
   sectionTitle?: string;
   stairInfo?: StairInfo;
   stairHeightLevel?: StairHeightLevel;
@@ -39,8 +39,8 @@ interface EntranceCorrectionSectionProps {
   onChangeNewEntrancePhotos: (photos: ImageFile[]) => void;
 }
 
-export default function EntranceCorrectionSection({
-  sectionTitle = '입구 정보(계단, 경사로 등)',
+export default function PlaceEntranceCorrectionSection({
+  sectionTitle = '장소 입구 정보',
   stairInfo,
   stairHeightLevel,
   hasSlope,
@@ -57,7 +57,7 @@ export default function EntranceCorrectionSection({
   onDeleteExistingEntrancePhoto,
   onReplaceExistingEntrancePhoto,
   onChangeNewEntrancePhotos,
-}: EntranceCorrectionSectionProps) {
+}: PlaceEntranceCorrectionSectionProps) {
   const conditions = useMemo(
     () => getEntranceConditions({stairInfo, isStandaloneBuilding}),
     [stairInfo, isStandaloneBuilding],

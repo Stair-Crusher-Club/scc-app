@@ -104,6 +104,14 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
     onPressCloseButton();
   }, [onClear, onPressCloseButton]);
 
+  const handleBack = useCallback(() => {
+    setStep('reason');
+    setSelectedCategory(null);
+    setSelectedClosedSubType(null);
+    setClosedDetail(null);
+    setText(null);
+  }, []);
+
   const getTitle = (): string => {
     switch (step) {
       case 'reason':
@@ -351,12 +359,14 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 
         <ButtonContainer>
           <CloseButton
-            text="닫기"
+            text={step === 'reason' ? '닫기' : '이전'}
             textColor="black"
             buttonColor="gray10"
             fontFamily={font.pretendardBold}
-            onPress={handleClose}
-            elementName="place_feedback_close"
+            onPress={step === 'reason' ? handleClose : handleBack}
+            elementName={
+              step === 'reason' ? 'place_feedback_close' : 'place_feedback_back'
+            }
           />
           <SpaceBetweenButtons />
           <SubmitButton
