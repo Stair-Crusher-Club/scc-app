@@ -55,6 +55,7 @@ import NavigationAppsBottomSheet from '../PlaceDetailScreen/modals/NavigationApp
 import PlaceDetailNegativeFeedbackBottomSheet from '../PlaceDetailScreen/modals/PlaceDetailNegativeFeedbackBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from '../PlaceDetailScreen/modals/RequireBuildingAccessibilityBottomSheet';
 import {PlaceDetailFeedbackSection} from '../PlaceDetailScreen/sections/PlaceDetailFeedbackSection';
+import {getAccessibilitySections} from './components/PlaceInfo.utils';
 import V2HomeTab from './tabs/V2HomeTab';
 import V2AccessibilityTab, {
   getAccessibilityChips,
@@ -954,13 +955,46 @@ export default function PlaceDetailV2Screen({
         <PlaceDetailNegativeFeedbackBottomSheet
           isVisible={reportTargetType !== null}
           placeId={place.id}
-          hasBuildingAccessibility={!!accessibilityPost?.buildingAccessibility}
+          hasBuildingAccessibility={
+            // PDP 홈탭의 getAccessibilitySections와 동일 로직 재사용
+            (() => {
+              const pa = accessibilityPost?.placeAccessibility;
+              if (!pa) return false;
+              const homeSections = getAccessibilitySections({
+                isStandalone: pa.isStandaloneBuilding === true,
+                doorDir: pa.doorDirectionType ?? undefined,
+                isMultiFloor: (pa.floors?.length ?? 0) > 1,
+                hasV2Fields: pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
+                hasBuildingAccessibility: !!accessibilityPost?.buildingAccessibility,
+              });
+              return homeSections.includes('건물 출입구');
+            })()
+          }
           hasElevatorInfo={
-            !!accessibilityPost?.buildingAccessibility?.hasElevator &&
-            !(
-              accessibilityPost?.placeAccessibility?.floors?.length === 1 &&
-              accessibilityPost?.placeAccessibility?.floors[0] === 1
-            )
+            // PDP 홈탭에 엘리베이터 정보가 보이는 경우에만 노출
+            // PA 엘리베이터: '층간 이동 정보' 섹션에 포함 (여러층)
+            // BA 엘리베이터: '건물 출입구' 섹션의 BuildingElevatorInfoRow (InsideBuilding)
+            (() => {
+              const pa = accessibilityPost?.placeAccessibility;
+              const ba = accessibilityPost?.buildingAccessibility;
+              if (!pa) return false;
+              const homeSections = getAccessibilitySections({
+                isStandalone: pa.isStandaloneBuilding === true,
+                doorDir: pa.doorDirectionType ?? undefined,
+                isMultiFloor: (pa.floors?.length ?? 0) > 1,
+                hasV2Fields: pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
+                hasBuildingAccessibility: !!ba,
+              });
+              // PA 엘리베이터: 층간 이동 정보 섹션이 있고 PA에 엘리베이터 접근성 데이터가 있음
+              const hasPaElevator =
+                homeSections.includes('층간 이동 정보') &&
+                pa.floorMovingElevatorAccessibility != null;
+              // BA 엘리베이터: 건물 출입구 섹션이 있고 BA에 엘리베이터 정보가 있음
+              const hasBaElevator =
+                homeSections.includes('건물 출입구') &&
+                ba?.hasElevator === true;
+              return hasPaElevator || hasBaElevator;
+            })()
           }
           placeAccessibilitySnapshot={
             accessibilityPost?.placeAccessibility
