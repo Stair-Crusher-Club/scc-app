@@ -184,7 +184,8 @@ export function getFloorAccessibility(
           accessibility.buildingAccessibility === undefined &&
           !isOutsideBuilding
             ? '엘레베이터 정보가 필요해요'
-            : accessibility.buildingAccessibility === undefined || isOutsideBuilding
+            : accessibility.buildingAccessibility === undefined ||
+                isOutsideBuilding
               ? undefined
               : '계단으로만 이동 가능',
       };
@@ -208,7 +209,8 @@ export function getFloorAccessibility(
           accessibility.buildingAccessibility === undefined &&
           !isOutsideBuilding
             ? '엘레베이터 정보가 필요해요'
-            : accessibility.buildingAccessibility === undefined || isOutsideBuilding
+            : accessibility.buildingAccessibility === undefined ||
+                isOutsideBuilding
               ? undefined
               : '계단으로만 이동 가능',
       };

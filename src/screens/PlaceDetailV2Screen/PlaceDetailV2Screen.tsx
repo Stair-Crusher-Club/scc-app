@@ -22,6 +22,8 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
   Building,
+  ElevatorCorrectionTargetDto,
+  FloorMovingMethodTypeDto,
   Place,
   PlaceDoorDirectionTypeDto,
   PlaceSpecialAccessibilityDto,
@@ -964,46 +966,55 @@ export default function PlaceDetailV2Screen({
                 isStandalone: pa.isStandaloneBuilding === true,
                 doorDir: pa.doorDirectionType ?? undefined,
                 isMultiFloor: (pa.floors?.length ?? 0) > 1,
-                hasV2Fields: pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
-                hasBuildingAccessibility: !!accessibilityPost?.buildingAccessibility,
+                hasV2Fields:
+                  pa.isStandaloneBuilding != null &&
+                  pa.doorDirectionType != null,
+                hasBuildingAccessibility:
+                  !!accessibilityPost?.buildingAccessibility,
               });
               return homeSections.includes('건물 출입구');
             })()
           }
-          hasElevatorInfo={
-            // PDP 홈탭에 엘리베이터 정보가 보이는 경우에만 노출
-            // PA 엘리베이터: '층간 이동 정보' 섹션에 포함 (여러층)
-            // BA 엘리베이터: '건물 출입구' 섹션의 BuildingElevatorInfoRow (InsideBuilding)
-            (() => {
-              const pa = accessibilityPost?.placeAccessibility;
-              const ba = accessibilityPost?.buildingAccessibility;
-              if (!pa) return false;
-              const homeSections = getAccessibilitySections({
-                isStandalone: pa.isStandaloneBuilding === true,
-                doorDir: pa.doorDirectionType ?? undefined,
-                isMultiFloor: (pa.floors?.length ?? 0) > 1,
-                hasV2Fields: pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
-                hasBuildingAccessibility: !!ba,
-              });
-              // PA 엘리베이터: 층간 이동 정보 섹션이 있고 PA에 엘리베이터 접근성 데이터가 있음
-              const hasPaElevator =
-                homeSections.includes('층간 이동 정보') &&
-                pa.floorMovingElevatorAccessibility != null;
-              // BA 엘리베이터: 건물 출입구 섹션이 있고 BA에 엘리베이터 정보가 있음
-              const hasBaElevator =
-                homeSections.includes('건물 출입구') &&
-                ba?.hasElevator === true;
-              return hasPaElevator || hasBaElevator;
-            })()
-          }
+          elevatorTargets={(() => {
+            const pa = accessibilityPost?.placeAccessibility;
+            const ba = accessibilityPost?.buildingAccessibility;
+            if (!pa) return [];
+            const homeSections = getAccessibilitySections({
+              isStandalone: pa.isStandaloneBuilding === true,
+              doorDir: pa.doorDirectionType ?? undefined,
+              isMultiFloor: (pa.floors?.length ?? 0) > 1,
+              hasV2Fields:
+                pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
+              hasBuildingAccessibility: !!ba,
+            });
+            const targets: ElevatorCorrectionTargetDto[] = [];
+            // BA 엘리베이터: 건물 출입구 섹션이 있고 BA에 엘리베이터가 있으면
+            if (homeSections.includes('건물 출입구') && ba?.hasElevator) {
+              targets.push(ElevatorCorrectionTargetDto.Ba);
+            }
+            // PA 엘리베이터: 층간 이동 정보 섹션이 있고 PA floorMovingMethodTypes에 PlaceElevator가 있으면
+            if (
+              homeSections.includes('층간 이동 정보') &&
+              pa.floorMovingMethodTypes?.includes(
+                FloorMovingMethodTypeDto.PlaceElevator,
+              )
+            ) {
+              targets.push(ElevatorCorrectionTargetDto.Pa);
+            }
+            return targets;
+          })()}
           placeAccessibilitySnapshot={
             accessibilityPost?.placeAccessibility
               ? {
-                  floors: accessibilityPost.placeAccessibility.floors ?? undefined,
+                  floors:
+                    accessibilityPost.placeAccessibility.floors ?? undefined,
                   isStandaloneBuilding:
-                    accessibilityPost.placeAccessibility.isStandaloneBuilding ?? undefined,
+                    accessibilityPost.placeAccessibility.isStandaloneBuilding ??
+                    undefined,
                   entranceDoorTypes:
-                    accessibilityPost.placeAccessibility.entranceDoorTypes ?? undefined,
+                    accessibilityPost.placeAccessibility.entranceDoorTypes ??
+                    undefined,
+                  accessibilityScore: data?.accessibilityScore ?? undefined,
                 }
               : undefined
           }
@@ -1035,6 +1046,7 @@ export default function PlaceDetailV2Screen({
               navigation.navigate('ReportCorrectionForm', {
                 placeId: params.placeId,
                 inaccurateCategory: params.inaccurateCategories[0] as string,
+                elevatorTarget: params.elevatorTarget,
                 onSubmitSuccess: () => {
                   savedReportTargetTypeRef.current = null;
                 },

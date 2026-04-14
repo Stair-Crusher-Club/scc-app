@@ -136,7 +136,25 @@ function buildElevatorCorrection(
   placeCorrection: PlaceAccessibilityCorrectionDto,
   buildingCorrection: BuildingAccessibilityCorrectionDto,
   finalElevatorUrls: string[],
+  target: ElevatorCorrectionTargetDto,
 ): ElevatorCorrectionDto {
+  if (target === ElevatorCorrectionTargetDto.Ba) {
+    const ea = buildingCorrection.elevatorAccessibility;
+    return {
+      target: ElevatorCorrectionTargetDto.Ba,
+      hasElevator: buildingCorrection.hasElevator,
+      elevatorAccessibility: ea
+        ? {
+            stairInfo: ea.stairInfo,
+            stairHeightLevel: ea.stairHeightLevel,
+            hasSlope: ea.hasSlope,
+          }
+        : undefined,
+      elevatorImageUrls:
+        finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+    };
+  }
+  // PA case (existing logic)
   const ea = placeCorrection.elevatorAccessibility;
   return {
     target: ElevatorCorrectionTargetDto.Pa,
@@ -149,7 +167,6 @@ function buildElevatorCorrection(
       : undefined,
     elevatorImageUrls:
       finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
-    hasElevator: buildingCorrection.hasElevator,
   };
 }
 
@@ -260,6 +277,7 @@ function stairFieldsToAccessLevel(
 export interface ReportCorrectionFormScreenParams {
   placeId: string;
   inaccurateCategory: string;
+  elevatorTarget?: ElevatorCorrectionTargetDto;
   onSubmitSuccess?: () => void;
 }
 
@@ -267,7 +285,8 @@ export default function ReportCorrectionFormScreen({
   route,
   navigation,
 }: ScreenProps<'ReportCorrectionForm'>) {
-  const {placeId, inaccurateCategory, onSubmitSuccess} = route.params;
+  const {placeId, inaccurateCategory, elevatorTarget, onSubmitSuccess} =
+    route.params;
   const category = inaccurateCategory as InaccurateInfoCategoryDto;
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
@@ -648,7 +667,10 @@ export default function ReportCorrectionFormScreen({
           elevator = buildElevatorCorrection(
             placeCorrection,
             buildingCorrection,
-            finalElevatorUrls,
+            elevatorTarget === ElevatorCorrectionTargetDto.Ba
+              ? finalBaElevatorUrls
+              : finalElevatorUrls,
+            elevatorTarget ?? ElevatorCorrectionTargetDto.Pa,
           );
           break;
         case InaccurateInfoCategoryDto.DoorType:
@@ -771,7 +793,10 @@ export default function ReportCorrectionFormScreen({
 
     // ELEVATOR 카테고리: 엘리베이터 있음인데 세부 정보 미선택
     if (category === InaccurateInfoCategoryDto.Elevator) {
-      const ea = placeCorrection.elevatorAccessibility;
+      const ea =
+        elevatorTarget === ElevatorCorrectionTargetDto.Ba
+          ? buildingCorrection.elevatorAccessibility
+          : placeCorrection.elevatorAccessibility;
       if (ea !== undefined) {
         if (!ea.stairInfo || ea.stairInfo === StairInfo.Undefined) {
           return true;
@@ -788,11 +813,13 @@ export default function ReportCorrectionFormScreen({
     submitMutation.isPending,
     hasPhotoViolation,
     category,
+    elevatorTarget,
     floorFormState,
     placeCorrection.floorMovingMethodTypes,
     placeCorrection.elevatorAccessibility,
     buildingCorrection.entranceStairInfo,
     buildingCorrection.hasSlope,
+    buildingCorrection.elevatorAccessibility,
   ]);
 
   const updatePlaceField = useCallback(
@@ -1014,48 +1041,73 @@ export default function ReportCorrectionFormScreen({
             />
           </SectionContainer>
         );
-      case InaccurateInfoCategoryDto.Elevator:
+      case InaccurateInfoCategoryDto.Elevator: {
+        const isBaTarget = elevatorTarget === ElevatorCorrectionTargetDto.Ba;
         return (
           <SectionContainer>
             <ElevatorCorrectionSection
-              elevatorAccessibility={placeCorrection.elevatorAccessibility}
-              existingElevatorPhotoUrls={elevatorImageUrls}
-              newElevatorPhotos={newElevatorPhotos}
-              deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
-              replacedElevatorPhotos={replacedElevatorPhotos}
-              needsBaPhotos={needsBaPhotos}
-              existingBaElevatorPhotoUrls={baElevatorImageUrls}
-              newBaElevatorPhotos={newBaElevatorPhotos}
-              deletedBaElevatorPhotoIndices={deletedBaElevatorPhotoIndices}
-              replacedBaElevatorPhotos={replacedBaElevatorPhotos}
-              onChangeElevatorAccessibility={value => {
-                setPlaceCorrection(prev => ({
-                  ...prev,
-                  elevatorAccessibility: value,
-                }));
-                // PA의 elevatorAccessibility 변경을 BA에도 동기화
-                setBuildingCorrection(prev => {
-                  if (value !== undefined) {
-                    return {
-                      ...prev,
-                      hasElevator: true,
-                      elevatorAccessibility: {
-                        stairInfo: value.stairInfo,
-                        stairHeightLevel: value.stairHeightLevel,
-                        hasSlope: value.hasSlope,
-                      },
-                    };
-                  } else {
-                    const {elevatorAccessibility, ...rest} = prev;
-                    return {...rest, hasElevator: false};
-                  }
-                });
-              }}
-              onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
-              onReplaceExistingElevatorPhoto={
-                handleReplaceExistingElevatorPhoto
+              elevatorAccessibility={
+                isBaTarget
+                  ? buildingCorrection.elevatorAccessibility
+                  : placeCorrection.elevatorAccessibility
               }
-              onChangeNewElevatorPhotos={setNewElevatorPhotos}
+              existingElevatorPhotoUrls={
+                isBaTarget ? baElevatorImageUrls : elevatorImageUrls
+              }
+              newElevatorPhotos={
+                isBaTarget ? newBaElevatorPhotos : newElevatorPhotos
+              }
+              deletedElevatorPhotoIndices={
+                isBaTarget
+                  ? deletedBaElevatorPhotoIndices
+                  : deletedElevatorPhotoIndices
+              }
+              replacedElevatorPhotos={
+                isBaTarget ? replacedBaElevatorPhotos : replacedElevatorPhotos
+              }
+              needsBaPhotos={false}
+              existingBaElevatorPhotoUrls={[]}
+              newBaElevatorPhotos={[]}
+              deletedBaElevatorPhotoIndices={[]}
+              replacedBaElevatorPhotos={new Map()}
+              onChangeElevatorAccessibility={value => {
+                if (isBaTarget) {
+                  setBuildingCorrection(prev => {
+                    if (value !== undefined) {
+                      return {
+                        ...prev,
+                        hasElevator: true,
+                        elevatorAccessibility: {
+                          stairInfo: value.stairInfo,
+                          stairHeightLevel: value.stairHeightLevel,
+                          hasSlope: value.hasSlope,
+                        },
+                      };
+                    } else {
+                      const {elevatorAccessibility: _, ...rest} = prev;
+                      return {...rest, hasElevator: false};
+                    }
+                  });
+                } else {
+                  setPlaceCorrection(prev => ({
+                    ...prev,
+                    elevatorAccessibility: value,
+                  }));
+                }
+              }}
+              onDeleteExistingElevatorPhoto={
+                isBaTarget
+                  ? handleDeleteExistingBaElevatorPhoto
+                  : handleDeleteExistingElevatorPhoto
+              }
+              onReplaceExistingElevatorPhoto={
+                isBaTarget
+                  ? handleReplaceExistingBaElevatorPhoto
+                  : handleReplaceExistingElevatorPhoto
+              }
+              onChangeNewElevatorPhotos={
+                isBaTarget ? setNewBaElevatorPhotos : setNewElevatorPhotos
+              }
               onDeleteExistingBaElevatorPhoto={
                 handleDeleteExistingBaElevatorPhoto
               }
@@ -1066,6 +1118,7 @@ export default function ReportCorrectionFormScreen({
             />
           </SectionContainer>
         );
+      }
       case InaccurateInfoCategoryDto.AccessLevel:
         return (
           <SectionContainer>

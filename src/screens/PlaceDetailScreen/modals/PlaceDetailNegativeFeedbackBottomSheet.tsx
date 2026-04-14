@@ -11,6 +11,7 @@ import {font} from '@/constant/font';
 import {
   AccessibilityReportReason,
   ClosedSubTypeDto,
+  ElevatorCorrectionTargetDto,
   EntranceDoorType,
   InaccurateInfoCategoryDto,
 } from '@/generated-sources/openapi';
@@ -24,13 +25,14 @@ interface PlaceAccessibilitySnapshot {
   floors?: number[];
   isStandaloneBuilding?: boolean;
   entranceDoorTypes?: EntranceDoorType[];
+  accessibilityScore?: number;
 }
 
 interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
   placeId: string;
   hasBuildingAccessibility?: boolean;
-  hasElevatorInfo?: boolean;
+  elevatorTargets?: ElevatorCorrectionTargetDto[];
   placeAccessibilitySnapshot?: PlaceAccessibilitySnapshot;
   onPressCloseButton: () => void;
   onPressSubmitButton: (
@@ -42,6 +44,7 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
     placeId: string;
     reason: AccessibilityReportReason;
     inaccurateCategories: InaccurateInfoCategoryDto[];
+    elevatorTarget?: ElevatorCorrectionTargetDto;
   }) => void;
   onPressSubmitClosed: (params: {
     placeId: string;
@@ -72,9 +75,7 @@ function getCategoryLabel(
       }
       const isSingle = floors.length === 1;
       if (isSingle && floors[0] === 1) {
-        return isStandalone
-          ? '단독 1층 건물이 아니에요'
-          : '1층이 아니에요';
+        return isStandalone ? '단독 1층 건물이 아니에요' : '1층이 아니에요';
       }
       if (isSingle) {
         const name = floors[0] < 0 ? `지하 ${-floors[0]}층` : `${floors[0]}층`;
@@ -96,8 +97,13 @@ function getCategoryLabel(
     }
     case InaccurateInfoCategoryDto.Elevator:
       return '엘리베이터 정보가 잘못됐어요';
-    case InaccurateInfoCategoryDto.AccessLevel:
+    case InaccurateInfoCategoryDto.AccessLevel: {
+      const score = snapshot?.accessibilityScore;
+      if (score !== undefined && score !== null) {
+        return `접근레벨 ${Math.floor(score)}이 아니에요`;
+      }
       return '접근 레벨이 잘못됐어요';
+    }
     case InaccurateInfoCategoryDto.Photo:
       return '사진이 잘못됐어요';
     case InaccurateInfoCategoryDto.Other:
@@ -119,7 +125,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   isVisible,
   placeId,
   hasBuildingAccessibility = false,
-  hasElevatorInfo = false,
+  elevatorTargets = [],
   placeAccessibilitySnapshot,
   onPressCloseButton,
   onPressSubmitButton,
@@ -131,6 +137,8 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
     useState<AccessibilityReportReason | null>(null);
   const [selectedCategory, setSelectedCategory] =
     useState<InaccurateInfoCategoryDto | null>(null);
+  const [selectedElevatorTarget, setSelectedElevatorTarget] =
+    useState<ElevatorCorrectionTargetDto | null>(null);
   const [selectedClosedSubType, setSelectedClosedSubType] =
     useState<ClosedSubTypeDto | null>(null);
   const [text, setText] = useState<string | null>(null);
@@ -147,6 +155,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
     setStep('reason');
     setText(null);
     setSelectedCategory(null);
+    setSelectedElevatorTarget(null);
     setSelectedClosedSubType(null);
     setClosedDetail(null);
   }, []);
@@ -159,6 +168,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   const handleBack = useCallback(() => {
     setStep('reason');
     setSelectedCategory(null);
+    setSelectedElevatorTarget(null);
     setSelectedClosedSubType(null);
     setClosedDetail(null);
     setText(null);
@@ -205,6 +215,10 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
       case 'reason':
         return selectedReason === null;
       case 'inaccurateCategory':
+        // Elevator category requires an elevator target to be selected
+        if (selectedCategory === InaccurateInfoCategoryDto.Elevator) {
+          return selectedElevatorTarget === null;
+        }
         return selectedCategory === null;
       case 'closedSubType':
         return selectedClosedSubType === null;
@@ -248,6 +262,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
           placeId,
           reason: 'INACCURATE_INFO',
           inaccurateCategories: [selectedCategory],
+          elevatorTarget: selectedElevatorTarget ?? undefined,
         });
         break;
       }
@@ -319,49 +334,87 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 
         {step === 'inaccurateCategory' && (
           <OptionSelector>
-            {(
-              Object.values(
-                InaccurateInfoCategoryDto,
-              ) as InaccurateInfoCategoryDto[]
-            )
-              .filter(cat => {
+            {(() => {
+              const items: {
+                key: string;
+                label: string;
+                category: InaccurateInfoCategoryDto;
+                elevatorTarget?: ElevatorCorrectionTargetDto;
+              }[] = [];
+
+              // 신고 빈도순으로 정렬 (데이터 기반)
+              const CATEGORY_ORDER: InaccurateInfoCategoryDto[] = [
+                InaccurateInfoCategoryDto.PlaceEntrance,
+                InaccurateInfoCategoryDto.Floor,
+                InaccurateInfoCategoryDto.Photo,
+                InaccurateInfoCategoryDto.DoorType,
+                InaccurateInfoCategoryDto.BuildingEntrance,
+                InaccurateInfoCategoryDto.Elevator,
+                InaccurateInfoCategoryDto.AccessLevel,
+                InaccurateInfoCategoryDto.Other,
+              ];
+              CATEGORY_ORDER.forEach(cat => {
                 if (
                   cat === InaccurateInfoCategoryDto.BuildingEntrance &&
                   !hasBuildingAccessibility
                 ) {
-                  return false;
+                  return;
                 }
-                if (
-                  cat === InaccurateInfoCategoryDto.Elevator &&
-                  !hasElevatorInfo
-                ) {
-                  return false;
+                if (cat === InaccurateInfoCategoryDto.Elevator) {
+                  // Render one button per elevator target
+                  elevatorTargets.forEach(target => {
+                    items.push({
+                      key: `${cat}_${target}`,
+                      label:
+                        target === ElevatorCorrectionTargetDto.Pa
+                          ? '매장 엘리베이터 정보가 잘못됐어요'
+                          : '건물 엘리베이터 정보가 잘못됐어요',
+                      category: cat,
+                      elevatorTarget: target,
+                    });
+                  });
+                  return;
                 }
-                return true;
-              })
-              .map((category, index) => {
-                const isSelected = category === selectedCategory;
+                items.push({
+                  key: cat,
+                  label: getCategoryLabel(
+                    cat,
+                    placeAccessibilitySnapshot,
+                    hasBuildingAccessibility,
+                  ),
+                  category: cat,
+                });
+              });
+
+              return items.map((item, index) => {
+                const isSelected =
+                  item.category === selectedCategory &&
+                  (item.elevatorTarget != null
+                    ? item.elevatorTarget === selectedElevatorTarget
+                    : selectedElevatorTarget === null ||
+                      selectedCategory !== InaccurateInfoCategoryDto.Elevator);
                 return (
-                  <View key={category}>
+                  <View key={item.key}>
                     {index > 0 && <SpaceBetweenOptions />}
                     <SccButton
-                      text={getCategoryLabel(
-                        category,
-                        placeAccessibilitySnapshot,
-                        hasBuildingAccessibility,
-                      )}
+                      text={item.label}
                       textColor={isSelected ? 'brandColor' : 'gray70'}
                       buttonColor="white"
                       borderColor={isSelected ? 'blue50' : 'gray30'}
                       onPress={() => {
-                        setSelectedCategory(category);
+                        setSelectedCategory(item.category);
+                        setSelectedElevatorTarget(item.elevatorTarget ?? null);
                       }}
                       elementName="place_feedback_inaccurate_category"
-                      logParams={{category}}
+                      logParams={{
+                        category: item.category,
+                        elevatorTarget: item.elevatorTarget,
+                      }}
                     />
                   </View>
                 );
-              })}
+              });
+            })()}
           </OptionSelector>
         )}
 
