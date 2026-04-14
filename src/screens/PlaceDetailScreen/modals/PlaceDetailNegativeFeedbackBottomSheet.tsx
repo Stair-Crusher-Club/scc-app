@@ -20,6 +20,7 @@ type Step = 'reason' | 'inaccurateCategory' | 'closedSubType' | 'text';
 interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
   placeId: string;
+  hasBuildingAccessibility?: boolean;
   onPressCloseButton: () => void;
   onPressSubmitButton: (
     placeId: string,
@@ -39,13 +40,23 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
 }
 
 const INACCURATE_CATEGORY_LABELS: Record<InaccurateInfoCategoryDto, string> = {
-  [InaccurateInfoCategoryDto.Entrance]: '입구 정보(계단, 경사로 등)',
+  [InaccurateInfoCategoryDto.Entrance]: '장소 입구 정보',
+  [InaccurateInfoCategoryDto.BuildingEntrance]: '건물 입구 정보',
   [InaccurateInfoCategoryDto.Floor]: '층 정보',
   [InaccurateInfoCategoryDto.DoorType]: '문 유형',
   [InaccurateInfoCategoryDto.Elevator]: '엘리베이터 정보',
   [InaccurateInfoCategoryDto.AccessLevel]: '접근레벨',
   [InaccurateInfoCategoryDto.Photo]: '사진 오류',
   [InaccurateInfoCategoryDto.Other]: '기타',
+};
+
+/** BA가 없으면 BUILDING_ENTRANCE를 숨기고, ENTRANCE 라벨을 원래대로 표시 */
+const INACCURATE_CATEGORY_LABELS_NO_BA: Record<
+  InaccurateInfoCategoryDto,
+  string
+> = {
+  ...INACCURATE_CATEGORY_LABELS,
+  [InaccurateInfoCategoryDto.Entrance]: '입구 정보(계단, 경사로 등)',
 };
 
 const CLOSED_SUB_TYPE_LABELS: Record<ClosedSubTypeDto, string> = {
@@ -57,6 +68,7 @@ const CLOSED_SUB_TYPE_LABELS: Record<ClosedSubTypeDto, string> = {
 const PlaceDetailNegativeFeedbackBottomSheet = ({
   isVisible,
   placeId,
+  hasBuildingAccessibility = false,
   onPressCloseButton,
   onPressSubmitButton,
   onPressNavigateToCorrection,
@@ -251,25 +263,34 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
               Object.values(
                 InaccurateInfoCategoryDto,
               ) as InaccurateInfoCategoryDto[]
-            ).map((category, index) => {
-              const isSelected = category === selectedCategory;
-              return (
-                <View key={category}>
-                  {index > 0 && <SpaceBetweenOptions />}
-                  <SccButton
-                    text={INACCURATE_CATEGORY_LABELS[category]}
-                    textColor={isSelected ? 'brandColor' : 'gray70'}
-                    buttonColor="white"
-                    borderColor={isSelected ? 'blue50' : 'gray30'}
-                    onPress={() => {
-                      setSelectedCategory(category);
-                    }}
-                    elementName="place_feedback_inaccurate_category"
-                    logParams={{category}}
-                  />
-                </View>
-              );
-            })}
+            )
+              .filter(
+                cat =>
+                  hasBuildingAccessibility ||
+                  cat !== InaccurateInfoCategoryDto.BuildingEntrance,
+              )
+              .map((category, index) => {
+                const labels = hasBuildingAccessibility
+                  ? INACCURATE_CATEGORY_LABELS
+                  : INACCURATE_CATEGORY_LABELS_NO_BA;
+                const isSelected = category === selectedCategory;
+                return (
+                  <View key={category}>
+                    {index > 0 && <SpaceBetweenOptions />}
+                    <SccButton
+                      text={labels[category]}
+                      textColor={isSelected ? 'brandColor' : 'gray70'}
+                      buttonColor="white"
+                      borderColor={isSelected ? 'blue50' : 'gray30'}
+                      onPress={() => {
+                        setSelectedCategory(category);
+                      }}
+                      elementName="place_feedback_inaccurate_category"
+                      logParams={{category}}
+                    />
+                  </View>
+                );
+              })}
           </OptionSelector>
         )}
 

@@ -11,6 +11,7 @@ import {font} from '@/constant/font';
 import {
   AccessibilityInfoV2Dto,
   AccessLevelCorrectionDto,
+  BuildingEntranceCorrectionDto,
   DoorTypeCorrectionDto,
   ElevatorCorrectionDto,
   EntranceCorrectionDto,
@@ -31,6 +32,7 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
+import BuildingEntranceCorrectionSection from './sections/BuildingEntranceCorrectionSection';
 import EntranceCorrectionSection from './sections/EntranceCorrectionSection';
 import FloorCorrectionSection from './sections/FloorCorrectionSection';
 import type {FloorFormState} from './sections/FloorCorrectionSection';
@@ -42,11 +44,8 @@ import PhotoCorrectionSection from './sections/PhotoCorrectionSection';
 /** 카테고리별 전용 DTO 빌드 함수 */
 function buildEntranceCorrection(
   placeCorrection: PlaceAccessibilityCorrectionDto,
-  buildingCorrection: BuildingAccessibilityCorrectionDto,
   isStandaloneBuilding: boolean | undefined,
   finalEntranceUrls: string[],
-  needsBaPhotos: boolean,
-  finalBaEntranceUrls: string[],
 ): EntranceCorrectionDto {
   return {
     stairInfo: placeCorrection.stairInfo,
@@ -57,14 +56,20 @@ function buildEntranceCorrection(
     isStandaloneBuilding: isStandaloneBuilding,
     entranceImageUrls:
       finalEntranceUrls.length > 0 ? finalEntranceUrls : undefined,
-    baEntranceStairInfo: buildingCorrection.entranceStairInfo,
-    baEntranceStairHeightLevel: buildingCorrection.entranceStairHeightLevel,
-    baHasSlope: buildingCorrection.hasSlope,
-    baEntranceDoorTypes: buildingCorrection.entranceDoorTypes,
-    baEntranceImageUrls:
-      needsBaPhotos && finalBaEntranceUrls.length > 0
-        ? finalBaEntranceUrls
-        : undefined,
+  };
+}
+
+function buildBuildingEntranceCorrection(
+  buildingCorrection: BuildingAccessibilityCorrectionDto,
+  finalBaEntranceUrls: string[],
+): BuildingEntranceCorrectionDto {
+  return {
+    entranceStairInfo: buildingCorrection.entranceStairInfo,
+    entranceStairHeightLevel: buildingCorrection.entranceStairHeightLevel,
+    hasSlope: buildingCorrection.hasSlope,
+    entranceDoorTypes: buildingCorrection.entranceDoorTypes,
+    entranceImageUrls:
+      finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
   };
 }
 
@@ -576,6 +581,7 @@ export default function ReportCorrectionFormScreen({
         accessibilityData?.placeAccessibility?.isStandaloneBuilding;
 
       let entrance: EntranceCorrectionDto | undefined;
+      let buildingEntrance: BuildingEntranceCorrectionDto | undefined;
       let floor: FloorCorrectionDto | undefined;
       let elevator: ElevatorCorrectionDto | undefined;
       let doorType: DoorTypeCorrectionDto | undefined;
@@ -586,10 +592,13 @@ export default function ReportCorrectionFormScreen({
         case InaccurateInfoCategoryDto.Entrance:
           entrance = buildEntranceCorrection(
             placeCorrection,
-            buildingCorrection,
             isStandaloneBuilding,
             finalEntranceUrls,
-            needsBaPhotos,
+          );
+          break;
+        case InaccurateInfoCategoryDto.BuildingEntrance:
+          buildingEntrance = buildBuildingEntranceCorrection(
+            buildingCorrection,
             finalBaEntranceUrls,
           );
           break;
@@ -655,6 +664,7 @@ export default function ReportCorrectionFormScreen({
         correction: {
           type: category,
           entrance,
+          buildingEntrance,
           floor,
           elevator,
           doorType,
@@ -688,6 +698,25 @@ export default function ReportCorrectionFormScreen({
       }
     }
 
+    // BUILDING_ENTRANCE 카테고리: 필수 필드 검증
+    if (category === InaccurateInfoCategoryDto.BuildingEntrance) {
+      if (
+        !buildingCorrection.entranceStairInfo ||
+        buildingCorrection.entranceStairInfo === StairInfo.Undefined
+      ) {
+        return true;
+      }
+      if (
+        buildingCorrection.hasSlope === undefined ||
+        buildingCorrection.hasSlope === null
+      ) {
+        return true;
+      }
+      if (!buildingCorrection.entranceDoorTypes?.length) {
+        return true;
+      }
+    }
+
     // ELEVATOR 카테고리: 엘리베이터 있음인데 세부 정보 미선택
     if (category === InaccurateInfoCategoryDto.Elevator) {
       const ea = placeCorrection.elevatorAccessibility;
@@ -710,6 +739,9 @@ export default function ReportCorrectionFormScreen({
     floorFormState,
     placeCorrection.floorMovingMethodTypes,
     placeCorrection.elevatorAccessibility,
+    buildingCorrection.entranceStairInfo,
+    buildingCorrection.hasSlope,
+    buildingCorrection.entranceDoorTypes,
   ]);
 
   const updatePlaceField = useCallback(
@@ -820,6 +852,11 @@ export default function ReportCorrectionFormScreen({
         return (
           <SectionContainer>
             <EntranceCorrectionSection
+              sectionTitle={
+                accessibilityData?.buildingAccessibility
+                  ? '장소 입구 정보'
+                  : undefined
+              }
               stairInfo={placeCorrection.stairInfo}
               stairHeightLevel={placeCorrection.stairHeightLevel}
               hasSlope={placeCorrection.hasSlope}
@@ -831,11 +868,6 @@ export default function ReportCorrectionFormScreen({
               newEntrancePhotos={newEntrancePhotos}
               deletedEntrancePhotoIndices={deletedEntrancePhotoIndices}
               replacedEntrancePhotos={replacedEntrancePhotos}
-              needsBaPhotos={needsBaPhotos}
-              existingBaEntrancePhotoUrls={baEntranceImageUrls}
-              newBaEntrancePhotos={newBaEntrancePhotos}
-              deletedBaEntrancePhotoIndices={deletedBaEntrancePhotoIndices}
-              replacedBaEntrancePhotos={replacedBaEntrancePhotos}
               onChangeStairInfo={value => {
                 updatePlaceField('stairInfo', value);
                 if (value !== StairInfo.One) {
@@ -854,6 +886,48 @@ export default function ReportCorrectionFormScreen({
                 handleReplaceExistingEntrancePhoto
               }
               onChangeNewEntrancePhotos={setNewEntrancePhotos}
+            />
+          </SectionContainer>
+        );
+      case InaccurateInfoCategoryDto.BuildingEntrance:
+        return (
+          <SectionContainer>
+            <BuildingEntranceCorrectionSection
+              entranceStairInfo={buildingCorrection.entranceStairInfo}
+              entranceStairHeightLevel={
+                buildingCorrection.entranceStairHeightLevel
+              }
+              hasSlope={buildingCorrection.hasSlope}
+              entranceDoorTypes={buildingCorrection.entranceDoorTypes}
+              existingBaEntrancePhotoUrls={baEntranceImageUrls}
+              newBaEntrancePhotos={newBaEntrancePhotos}
+              deletedBaEntrancePhotoIndices={deletedBaEntrancePhotoIndices}
+              replacedBaEntrancePhotos={replacedBaEntrancePhotos}
+              onChangeEntranceStairInfo={value => {
+                setBuildingCorrection(prev => ({
+                  ...prev,
+                  entranceStairInfo: value,
+                  entranceStairHeightLevel:
+                    value !== StairInfo.One
+                      ? undefined
+                      : prev.entranceStairHeightLevel,
+                }));
+              }}
+              onChangeEntranceStairHeightLevel={value =>
+                setBuildingCorrection(prev => ({
+                  ...prev,
+                  entranceStairHeightLevel: value,
+                }))
+              }
+              onChangeHasSlope={value =>
+                setBuildingCorrection(prev => ({...prev, hasSlope: value}))
+              }
+              onChangeEntranceDoorTypes={value =>
+                setBuildingCorrection(prev => ({
+                  ...prev,
+                  entranceDoorTypes: value,
+                }))
+              }
               onDeleteExistingBaEntrancePhoto={
                 handleDeleteExistingBaEntrancePhoto
               }

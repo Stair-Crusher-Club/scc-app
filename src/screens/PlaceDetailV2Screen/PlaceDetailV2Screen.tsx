@@ -954,6 +954,7 @@ export default function PlaceDetailV2Screen({
         <PlaceDetailNegativeFeedbackBottomSheet
           isVisible={reportTargetType !== null}
           placeId={place.id}
+          hasBuildingAccessibility={!!accessibilityPost?.buildingAccessibility}
           onPressCloseButton={() => {
             setReportTargetType(null);
           }}
