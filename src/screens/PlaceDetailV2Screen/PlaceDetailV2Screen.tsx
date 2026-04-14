@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
@@ -112,6 +112,7 @@ export default function PlaceDetailV2Screen({
     useNavigateWithLocationCheck();
   const toggleFavorite = useToggleFavoritePlace();
   const toggleRequest = useToggleAccessibilityInfoRequest();
+  const queryClient = useQueryClient();
 
   const featureFlags = useAtomValue(featureFlagAtom);
   const isCrew = featureFlags?.hasBeenCrew ?? false;
@@ -123,6 +124,9 @@ export default function PlaceDetailV2Screen({
       const isCrewClosure = isCrew && params.reason === 'CLOSED';
       if (isCrewClosure) {
         ToastUtils.show('폐업 처리가 완료되었습니다.');
+        queryClient.invalidateQueries({queryKey: ['searchPlaces']});
+        queryClient.invalidateQueries({queryKey: ['PlaceDetailV2']});
+        navigation.goBack();
       } else {
         const isAutoResolved = result.data?.isAutoResolved === true;
         ToastUtils.show(

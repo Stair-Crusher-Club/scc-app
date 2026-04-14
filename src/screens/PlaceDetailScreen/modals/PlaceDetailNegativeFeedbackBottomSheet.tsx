@@ -91,6 +91,9 @@ function getCategoryLabel(
       const doorTypes = snapshot?.entranceDoorTypes;
       if (doorTypes && doorTypes.length > 0 && doorTypes.length <= 2) {
         const label = doorTypes.map(d => doorTypeMap[d]).join(', ');
+        if (label === '기타') {
+          return '출입문 유형이 잘못됐어요';
+        }
         return `${label}이 아니에요`;
       }
       return '출입문 종류가 잘못됐어요';
