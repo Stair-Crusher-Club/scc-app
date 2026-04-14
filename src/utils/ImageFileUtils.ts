@@ -5,9 +5,44 @@ import {DefaultApi, ImageUploadPurpose} from '@/generated-sources/openapi';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 
+const UPLOAD_TIMEOUT_MS = 30_000;
+
 interface UploadImageResult {
   url: string;
   size: number;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function classifyError(error: unknown): {
+  errorType: 'timeout' | 'network' | 'http_error' | 'unknown';
+  httpStatus?: number;
+} {
+  if (error instanceof Error && error.name === 'AbortError') {
+    return {errorType: 'timeout'};
+  }
+  if (error instanceof Error && error.message.includes('timed out')) {
+    return {errorType: 'timeout'};
+  }
+  if (error instanceof UploadHttpError) {
+    return {errorType: 'http_error', httpStatus: error.httpStatus};
+  }
+  if (error instanceof TypeError) {
+    // fetch throws TypeError for network failures
+    return {errorType: 'network'};
+  }
+  return {errorType: 'unknown'};
+}
+
+class UploadHttpError extends Error {
+  httpStatus: number;
+  constructor(message: string, httpStatus: number) {
+    super(message);
+    this.name = 'UploadHttpError';
+    this.httpStatus = httpStatus;
+  }
 }
 
 /** presigned URL에 이미지 업로드 (내부 전용) */
@@ -18,26 +53,56 @@ async function uploadToPresignedUrl(
   const url = new URL(presignedUrl);
   const resp = await fetch(imageFileUrl);
   const imageBody = await resp.blob();
-  const result = await fetch(url.href, {
-    method: 'PUT',
-    headers: {
-      'content-type': imageBody.type,
-      'x-amz-acl': 'public-read',
-    },
-    body: imageBody,
-  });
-  if (result.ok) {
-    return {
-      url: url.protocol + '//' + url.host + url.pathname,
-      size: imageBody.size,
-    };
-  } else {
-    const resultString = await result.text();
-    const error = new Error(
-      `Upload image to ${result.url} is failed. cause: ${resultString}`,
-    );
-    Logger.logError(error);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+
+  try {
+    const result = await fetch(url.href, {
+      method: 'PUT',
+      headers: {
+        'content-type': imageBody.type,
+        'x-amz-acl': 'public-read',
+      },
+      body: imageBody,
+
+      signal: controller.signal as any,
+    });
+
+    if (result.ok) {
+      return {
+        url: url.protocol + '//' + url.host + url.pathname,
+        size: imageBody.size,
+      };
+    } else {
+      const resultString = await result.text();
+      throw new UploadHttpError(
+        `Upload image to ${result.url} is failed. cause: ${resultString}`,
+        result.status,
+      );
+    }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(
+        `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
+      );
+    }
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/** 1회 재시도 포함 업로드 */
+async function uploadToPresignedUrlWithRetry(
+  presignedUrl: string,
+  imageFileUrl: string,
+): Promise<UploadImageResult> {
+  try {
+    return await uploadToPresignedUrl(presignedUrl, imageFileUrl);
+  } catch (_firstError) {
+    await delay(1000);
+    return await uploadToPresignedUrl(presignedUrl, imageFileUrl);
   }
 }
 
@@ -88,39 +153,76 @@ const ImageFileUtils = {
       Date.now() - startTimeOfGettingPresignedUrls;
 
     let durationOfUploadImages: Record<string, number> = {};
-    const uploadedUrls = await Promise.all(
-      images.map(async (image, index) => {
-        const url = uploadUrls[index];
-        if (url === undefined) {
-          throw new Error('There are not enough urls.');
-        }
-        const startTimeOfImageUpload = Date.now();
+    try {
+      const uploadedUrls = await Promise.all(
+        images.map(async (image, index) => {
+          const url = uploadUrls[index];
+          if (url === undefined) {
+            throw new Error('There are not enough urls.');
+          }
+          const startTimeOfImageUpload = Date.now();
 
-        const compressed = await ImageCompressor.compress(image.uri, {
-          compressionMethod: 'auto',
-          maxWidth: 2560,
-          maxHeight: 2560,
-          quality: 0.9,
-        });
-        const result = await uploadToPresignedUrl(url, compressed);
+          if (image.width === 0 || image.height === 0) {
+            Logger.logError(
+              new Error(
+                `Image at index ${index} has zero dimension: width=${image.width}, height=${image.height}`,
+              ),
+            );
+          }
 
-        durationOfUploadImages[`duration_millis_of_upload_image_${index}`] =
-          Date.now() - startTimeOfImageUpload;
-        durationOfUploadImages[`size_mb_of_image_${index}`] = floor(
-          result.size / (1024 * 1024),
-          2,
-        );
+          let compressedUri: string;
+          try {
+            compressedUri = await ImageCompressor.compress(image.uri, {
+              compressionMethod: 'auto',
+              maxWidth: 2560,
+              maxHeight: 2560,
+              quality: 0.9,
+            });
+          } catch (compressError) {
+            Logger.logError(
+              compressError instanceof Error
+                ? compressError
+                : new Error(String(compressError)),
+            );
+            compressedUri = image.uri;
+          }
 
-        return result.url;
-      }),
-    );
+          const result = await uploadToPresignedUrlWithRetry(
+            url,
+            compressedUri,
+          );
 
-    await Logger.logUploadImage({
-      ...durationOfUploadImages,
-      duration_millis_of_presigned_urls: durationOfGettingPresignedUrls,
-    });
+          durationOfUploadImages[`duration_millis_of_upload_image_${index}`] =
+            Date.now() - startTimeOfImageUpload;
+          durationOfUploadImages[`size_mb_of_image_${index}`] = floor(
+            result.size / (1024 * 1024),
+            2,
+          );
 
-    return uploadedUrls;
+          return result.url;
+        }),
+      );
+
+      await Logger.logUploadImage({
+        ...durationOfUploadImages,
+        duration_millis_of_presigned_urls: durationOfGettingPresignedUrls,
+      });
+
+      return uploadedUrls;
+    } catch (error) {
+      const {errorType, httpStatus} = classifyError(error);
+      await Logger.logUploadImageFailed({
+        errorType,
+        httpStatus,
+        imageCount: images.length,
+        retryCount: 1,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+      Logger.logError(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      throw error;
+    }
   },
 };
 

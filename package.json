@@ -46,7 +46,6 @@
     "@hapi/hoek": "^11.0.4",
     "@hot-updater/react-native": "^0.12.4",
     "@invertase/react-native-apple-authentication": "^2.4.1",
-    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-native-community/geolocation": "^3.4.0",
     "@react-native-community/hooks": "^100.1.0",

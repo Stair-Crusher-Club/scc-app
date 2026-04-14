@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Dimensions, Platform} from 'react-native';
+import {Dimensions, InteractionManager, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -105,10 +105,12 @@ export default function CameraScreen({
       return;
     }
     // TODO: navigation 에 non-serializable 값을 넘겨주면 안된다. (https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state)
-    if (route.params && route.params.onPhotosTaken) {
-      route.params.onPhotosTaken(_photoFiles);
-    }
     navigation.goBack();
+    InteractionManager.runAfterInteractions(() => {
+      if (route.params && route.params.onPhotosTaken) {
+        route.params.onPhotosTaken(_photoFiles);
+      }
+    });
   }
 
   function onPressX(target: ImageFile) {
@@ -183,7 +185,6 @@ export default function CameraScreen({
             width: asset.width || 0,
             height: asset.height || 0,
           }));
-          setPhotoFiles(newImages); // 카메라로 찍은 사진을 무시하고 앨범에서 선택한 사진만 남긴다.
           confirm(newImages); // 즉시 카메라 스크린을 벗어난다.
         }
       });
