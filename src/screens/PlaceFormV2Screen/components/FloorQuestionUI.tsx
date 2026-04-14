@@ -50,7 +50,11 @@ export default function FloorQuestionUI({
       {floorOption === 'otherFloor' && (
         <AdditionalQuestionArea>
           <SubQuestionText>그럼 몇층에 있는 장소인가요?</SubQuestionText>
-          <FloorSelect value={selectedFloor} onChange={onChangeSelectedFloor} />
+          <FloorSelect
+            value={selectedFloor}
+            onChange={onChangeSelectedFloor}
+            minAbsoluteFloor={2}
+          />
         </AdditionalQuestionArea>
       )}
 

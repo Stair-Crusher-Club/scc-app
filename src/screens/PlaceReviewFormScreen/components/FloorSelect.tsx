@@ -11,10 +11,19 @@ import {font} from '@/constant/font';
 interface FloorSelectProps {
   value?: number;
   onChange: (value: number) => void;
+  /** 절대값 기준 최소 층수 (기본 1). "다른 층이에요"에서 지상 1층 제외 시 2로 설정. */
+  minAbsoluteFloor?: number;
 }
-export default function FloorSelect({value, onChange}: FloorSelectProps) {
+export default function FloorSelect({
+  value,
+  onChange,
+  minAbsoluteFloor = 1,
+}: FloorSelectProps) {
   const [sign, setSign] = useState(value !== undefined ? value > 0 : true);
-  const [floor, setFloor] = useState(value ? String(Math.abs(value)) : '1');
+  const initialFloor = value
+    ? Math.max(Math.abs(value), minAbsoluteFloor)
+    : minAbsoluteFloor;
+  const [floor, setFloor] = useState(String(initialFloor));
 
   useEffect(() => {
     if (sign) {
@@ -24,15 +33,17 @@ export default function FloorSelect({value, onChange}: FloorSelectProps) {
     }
   }, [sign, floor]);
 
+  // 지상이면 minAbsoluteFloor 적용, 지하면 항상 1부터
+  const effectiveMin = sign ? minAbsoluteFloor : 1;
   const numFloor = Number(floor);
-  const isDecreaseDisabled = numFloor <= 1;
+  const isDecreaseDisabled = numFloor <= effectiveMin;
 
   function increase() {
     setFloor(String(numFloor + 1));
   }
 
   function decrease() {
-    if (numFloor <= 1) {
+    if (numFloor <= effectiveMin) {
       return;
     }
     setFloor(String(numFloor - 1));
