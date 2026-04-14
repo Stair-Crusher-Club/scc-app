@@ -68,10 +68,11 @@ function getCategoryLabel(
         return '단독건물이 아니에요';
       }
       const floors = snapshot?.floors;
-      if (floors?.length === 1) {
-        const f = floors[0];
-        const floorText = f < 0 ? `지하 ${Math.abs(f)}층` : `${f}층`;
-        return `${floorText}이 아니에요`;
+      if (floors && floors.length > 0) {
+        const floorTexts = floors.map(f =>
+          f < 0 ? `지하 ${Math.abs(f)}층` : `${f}층`,
+        );
+        return `${floorTexts.join(', ')}이 아니에요`;
       }
       return '층 정보가 잘못됐어요';
     }
