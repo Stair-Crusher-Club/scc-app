@@ -168,9 +168,10 @@ export default function CameraScreen({
       selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
-    setIsLoadingAlbum(true);
+    const loadingTimer = setTimeout(() => setIsLoadingAlbum(true), 1000);
     try {
       launchImageLibrary(options, (response: ImagePickerResponse) => {
+        clearTimeout(loadingTimer);
         setIsLoadingAlbum(false);
         if (response.didCancel || response.errorMessage) {
           const errorMessage = `didCancel ${response.didCancel} / errorCode: ${response.errorCode} / errorMessage: ${response.errorMessage}`;
@@ -188,6 +189,7 @@ export default function CameraScreen({
         }
       });
     } catch (error: any) {
+      clearTimeout(loadingTimer);
       setIsLoadingAlbum(false);
       Logger.logError(error);
     }
