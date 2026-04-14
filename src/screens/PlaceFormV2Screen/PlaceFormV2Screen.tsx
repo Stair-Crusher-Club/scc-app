@@ -18,6 +18,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
+import Logger from '@/logging/Logger';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
@@ -532,8 +533,12 @@ async function register(
   selectedFloor: number | undefined,
   doorDirection?: BuildingDoorDirectionType,
 ) {
+  const startTotal = Date.now();
+  const imageCount =
+    (values.entrancePhotos?.length ?? 0) + (values.elevatorPhotos?.length ?? 0);
   try {
     // Upload images first
+    const startImageUpload = Date.now();
     const uploadedImageUrls = await ImageFileUtils.uploadImages(
       api,
       values.entrancePhotos,
@@ -606,9 +611,22 @@ async function register(
       floorMovingElevatorAccessibility,
     };
 
+    const durationImageUpload = Date.now() - startImageUpload;
+
     try {
       // Call API
+      const startApiCall = Date.now();
       const res = await api.registerPlaceAccessibilityV2Post(requestData);
+      const durationApiCall = Date.now() - startApiCall;
+
+      await Logger.logAccessibilityRegistration({
+        type: 'place',
+        durationMillisImageUpload: durationImageUpload,
+        durationMillisApiCall: durationApiCall,
+        durationMillisTotal: Date.now() - startTotal,
+        imageCount,
+        success: true,
+      });
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({
@@ -632,6 +650,14 @@ async function register(
         ),
       };
     } catch (error: any) {
+      await Logger.logAccessibilityRegistration({
+        type: 'place',
+        durationMillisImageUpload: durationImageUpload,
+        durationMillisApiCall: Date.now() - startTotal - durationImageUpload,
+        durationMillisTotal: Date.now() - startTotal,
+        imageCount,
+        success: false,
+      });
       ToastUtils.showOnApiError(error);
       return {
         success: false,

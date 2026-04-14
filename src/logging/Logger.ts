@@ -146,6 +146,31 @@ const Logger = {
     getAnalytics().logEvent('upload_image_failed', eventParams);
   },
 
+  async logAccessibilityRegistration(params: {
+    type: 'place' | 'building';
+    durationMillisImageUpload: number;
+    durationMillisApiCall: number;
+    durationMillisTotal: number;
+    imageCount: number;
+    success: boolean;
+  }) {
+    logDebug(
+      'logAccessibilityRegistration',
+      params,
+      currUserPropertiesForDebugging,
+    );
+    const eventParams = {
+      registration_type: params.type,
+      duration_millis_image_upload: params.durationMillisImageUpload,
+      duration_millis_api_call: params.durationMillisApiCall,
+      duration_millis_total: params.durationMillisTotal,
+      image_count: params.imageCount,
+      success: params.success ? 1 : 0,
+    };
+    trackEvent('accessibility_registration', eventParams);
+    getAnalytics().logEvent('accessibility_registration', eventParams);
+  },
+
   async logError(error: Error) {
     logDebug('logError', error, currUserPropertiesForDebugging);
     crashlytics().recordError(error);

@@ -917,7 +917,12 @@ async function register(
   buildingId: string,
   values: FormValues,
 ) {
+  const startTotal = Date.now();
+  const imageCount =
+    (values.enterancePhotos?.length ?? 0) +
+    (values.elevatorPhotos?.length ?? 0);
   try {
+    const startImageUpload = Date.now();
     const enteranceImages = await ImageFileUtils.uploadImages(
       api,
       values.enterancePhotos,
@@ -926,8 +931,10 @@ async function register(
       api,
       values.elevatorPhotos,
     );
+    const durationImageUpload = Date.now() - startImageUpload;
 
     try {
+      const startApiCall = Date.now();
       const res = await api.registerBuildingAccessibilityV2Post({
         buildingId,
         doorDirectionType: mapEntranceDirectionToDoorDirectionType(
@@ -960,6 +967,17 @@ async function register(
         comment: values.comment || undefined,
       });
 
+      const durationApiCall = Date.now() - startApiCall;
+
+      await Logger.logAccessibilityRegistration({
+        type: 'building',
+        durationMillisImageUpload: durationImageUpload,
+        durationMillisApiCall: durationApiCall,
+        durationMillisTotal: Date.now() - startTotal,
+        imageCount,
+        success: true,
+      });
+
       // PlaceDetailScreen 접근성 정보 갱신
       queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
@@ -984,6 +1002,14 @@ async function register(
         ),
       };
     } catch (error: any) {
+      await Logger.logAccessibilityRegistration({
+        type: 'building',
+        durationMillisImageUpload: durationImageUpload,
+        durationMillisApiCall: Date.now() - startTotal - durationImageUpload,
+        durationMillisTotal: Date.now() - startTotal,
+        imageCount,
+        success: false,
+      });
       ToastUtils.showOnApiError(error);
       return {
         success: false,

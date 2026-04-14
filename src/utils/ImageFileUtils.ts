@@ -141,6 +141,7 @@ const ImageFileUtils = {
     images: ImageFile[] = [],
     purposeType?: ImageUploadPurpose,
   ) {
+    const startTimeOfTotal = Date.now();
     const startTimeOfGettingPresignedUrls = Date.now();
     const uploadUrls = await api
       .getImageUploadUrlsPost({
@@ -206,6 +207,8 @@ const ImageFileUtils = {
       await Logger.logUploadImage({
         ...durationOfUploadImages,
         duration_millis_of_presigned_urls: durationOfGettingPresignedUrls,
+        duration_millis_total: Date.now() - startTimeOfTotal,
+        image_count: images.length,
       });
 
       return uploadedUrls;
