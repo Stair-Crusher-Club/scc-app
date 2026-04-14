@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
 import React, {useEffect, useState} from 'react';
-import {Dimensions, InteractionManager, Platform} from 'react-native';
+import {Dimensions, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -105,12 +105,10 @@ export default function CameraScreen({
       return;
     }
     // TODO: navigation 에 non-serializable 값을 넘겨주면 안된다. (https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state)
+    if (route.params && route.params.onPhotosTaken) {
+      route.params.onPhotosTaken(_photoFiles);
+    }
     navigation.goBack();
-    InteractionManager.runAfterInteractions(() => {
-      if (route.params && route.params.onPhotosTaken) {
-        route.params.onPhotosTaken(_photoFiles);
-      }
-    });
   }
 
   function onPressX(target: ImageFile) {
