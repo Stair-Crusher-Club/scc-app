@@ -1,14 +1,9 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {makeDoorTypeOptions} from '@/constant/options';
-import {
-  StairInfo,
-  StairHeightLevel,
-  EntranceDoorType,
-} from '@/generated-sources/openapi';
+import {StairInfo, StairHeightLevel} from '@/generated-sources/openapi';
 import ImageFile from '@/models/ImageFile';
 
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
@@ -19,7 +14,6 @@ interface BuildingEntranceCorrectionSectionProps {
   entranceStairInfo?: StairInfo;
   entranceStairHeightLevel?: StairHeightLevel;
   hasSlope?: boolean;
-  entranceDoorTypes?: EntranceDoorType[];
   existingBaEntrancePhotoUrls: string[];
   newBaEntrancePhotos: ImageFile[];
   deletedBaEntrancePhotoIndices: number[];
@@ -27,7 +21,6 @@ interface BuildingEntranceCorrectionSectionProps {
   onChangeEntranceStairInfo: (value: StairInfo) => void;
   onChangeEntranceStairHeightLevel: (value: StairHeightLevel) => void;
   onChangeHasSlope: (value: boolean) => void;
-  onChangeEntranceDoorTypes: (value: EntranceDoorType[]) => void;
   onDeleteExistingBaEntrancePhoto: (index: number) => void;
   onReplaceExistingBaEntrancePhoto: (index: number, photo: ImageFile) => void;
   onChangeNewBaEntrancePhotos: (photos: ImageFile[]) => void;
@@ -37,7 +30,6 @@ export default function BuildingEntranceCorrectionSection({
   entranceStairInfo,
   entranceStairHeightLevel,
   hasSlope,
-  entranceDoorTypes = [],
   existingBaEntrancePhotoUrls,
   newBaEntrancePhotos,
   deletedBaEntrancePhotoIndices,
@@ -45,16 +37,11 @@ export default function BuildingEntranceCorrectionSection({
   onChangeEntranceStairInfo,
   onChangeEntranceStairHeightLevel,
   onChangeHasSlope,
-  onChangeEntranceDoorTypes,
   onDeleteExistingBaEntrancePhoto,
   onReplaceExistingBaEntrancePhoto,
   onChangeNewBaEntrancePhotos,
 }: BuildingEntranceCorrectionSectionProps) {
   const showStairHeight = entranceStairInfo === StairInfo.One;
-  const doorTypeOptions = useMemo(
-    () => makeDoorTypeOptions(entranceDoorTypes),
-    [entranceDoorTypes],
-  );
 
   return (
     <Container>
@@ -86,14 +73,6 @@ export default function BuildingEntranceCorrectionSection({
         value={hasSlope}
         columns={2}
         onSelect={onChangeHasSlope}
-      />
-
-      <SubLabel>출입문 유형 (복수 선택 가능)</SubLabel>
-      <OptionsV2.Multiple
-        options={doorTypeOptions}
-        values={entranceDoorTypes}
-        columns={2}
-        onSelect={onChangeEntranceDoorTypes}
       />
 
       <SubLabel>건물 입구 사진</SubLabel>

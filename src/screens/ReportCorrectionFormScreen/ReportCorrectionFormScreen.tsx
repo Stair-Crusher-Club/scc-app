@@ -82,7 +82,6 @@ function buildEntranceCorrection(
     stairInfo: placeCorrection.stairInfo,
     stairHeightLevel: placeCorrection.stairHeightLevel,
     hasSlope: placeCorrection.hasSlope,
-    entranceDoorTypes: placeCorrection.entranceDoorTypes,
     doorDirectionType: placeCorrection.doorDirectionType,
     isStandaloneBuilding: isStandaloneBuilding,
     entranceImageUrls:
@@ -98,7 +97,6 @@ function buildBuildingEntranceCorrection(
     entranceStairInfo: buildingCorrection.entranceStairInfo,
     entranceStairHeightLevel: buildingCorrection.entranceStairHeightLevel,
     hasSlope: buildingCorrection.hasSlope,
-    entranceDoorTypes: buildingCorrection.entranceDoorTypes,
     entranceImageUrls:
       finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
   };
@@ -107,11 +105,22 @@ function buildBuildingEntranceCorrection(
 function buildFloorCorrection(
   placeCorrection: PlaceAccessibilityCorrectionDto,
   isStandaloneBuilding: boolean | undefined,
+  finalElevatorUrls: string[],
 ): FloorCorrectionDto {
+  const ea = placeCorrection.elevatorAccessibility;
   return {
     floors: placeCorrection.floors,
     isStandaloneBuilding: isStandaloneBuilding,
     floorMovingMethodTypes: placeCorrection.floorMovingMethodTypes,
+    elevatorAccessibility: ea
+      ? {
+          stairInfo: ea.stairInfo,
+          stairHeightLevel: ea.stairHeightLevel,
+          hasSlope: ea.hasSlope,
+          imageUrls:
+            finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
+        }
+      : undefined,
   };
 }
 
@@ -621,7 +630,11 @@ export default function ReportCorrectionFormScreen({
           );
           break;
         case InaccurateInfoCategoryDto.Floor:
-          floor = buildFloorCorrection(placeCorrection, isStandaloneBuilding);
+          floor = buildFloorCorrection(
+            placeCorrection,
+            isStandaloneBuilding,
+            finalElevatorUrls,
+          );
           break;
         case InaccurateInfoCategoryDto.Elevator:
           elevator = buildElevatorCorrection(
@@ -728,9 +741,6 @@ export default function ReportCorrectionFormScreen({
       ) {
         return true;
       }
-      if (!buildingCorrection.entranceDoorTypes?.length) {
-        return true;
-      }
     }
 
     // ELEVATOR 카테고리: 엘리베이터 있음인데 세부 정보 미선택
@@ -757,7 +767,6 @@ export default function ReportCorrectionFormScreen({
     placeCorrection.elevatorAccessibility,
     buildingCorrection.entranceStairInfo,
     buildingCorrection.hasSlope,
-    buildingCorrection.entranceDoorTypes,
   ]);
 
   const updatePlaceField = useCallback(
@@ -914,7 +923,6 @@ export default function ReportCorrectionFormScreen({
                 buildingCorrection.entranceStairHeightLevel
               }
               hasSlope={buildingCorrection.hasSlope}
-              entranceDoorTypes={buildingCorrection.entranceDoorTypes}
               existingBaEntrancePhotoUrls={baEntranceImageUrls}
               newBaEntrancePhotos={newBaEntrancePhotos}
               deletedBaEntrancePhotoIndices={deletedBaEntrancePhotoIndices}
@@ -937,12 +945,6 @@ export default function ReportCorrectionFormScreen({
               }
               onChangeHasSlope={value =>
                 setBuildingCorrection(prev => ({...prev, hasSlope: value}))
-              }
-              onChangeEntranceDoorTypes={value =>
-                setBuildingCorrection(prev => ({
-                  ...prev,
-                  entranceDoorTypes: value,
-                }))
               }
               onDeleteExistingBaEntrancePhoto={
                 handleDeleteExistingBaEntrancePhoto

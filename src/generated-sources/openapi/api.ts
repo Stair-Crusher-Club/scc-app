@@ -908,7 +908,7 @@ export type BuildingDoorDirectionTypeDto = typeof BuildingDoorDirectionTypeDto[k
 
 
 /**
- * 건물 입구 정보 교정 (계단, 경사로, 출입문, 사진)
+ * 건물 입구 정보 교정 (계단, 경사로, 사진). 출입문 유형은 DOOR_TYPE 카테고리에서 별도 교정.
  * @export
  * @interface BuildingEntranceCorrectionDto
  */
@@ -931,12 +931,6 @@ export interface BuildingEntranceCorrectionDto {
      * @memberof BuildingEntranceCorrectionDto
      */
     'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof BuildingEntranceCorrectionDto
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
     /**
      * 건물 입구 사진 URL 목록
      * @type {Array<string>}
@@ -2225,39 +2219,39 @@ export interface FloorCorrectionDto {
     'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
     /**
      * 
-     * @type {FloorCorrectionDtoBuildingElevatorAccessibility}
+     * @type {FloorCorrectionDtoElevatorAccessibility}
      * @memberof FloorCorrectionDto
      */
-    'buildingElevatorAccessibility'?: FloorCorrectionDtoBuildingElevatorAccessibility;
+    'elevatorAccessibility'?: FloorCorrectionDtoElevatorAccessibility;
 }
 /**
- * floorMovingMethodTypes에 건물 내부 엘리베이터가 포함될 때 엘리베이터 입구 정보
+ * 층간이동 방법에 엘리베이터가 포함될 때 엘리베이터 접근성 정보
  * @export
- * @interface FloorCorrectionDtoBuildingElevatorAccessibility
+ * @interface FloorCorrectionDtoElevatorAccessibility
  */
-export interface FloorCorrectionDtoBuildingElevatorAccessibility {
+export interface FloorCorrectionDtoElevatorAccessibility {
     /**
      * 
      * @type {Array<string>}
-     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     * @memberof FloorCorrectionDtoElevatorAccessibility
      */
     'imageUrls'?: Array<string>;
     /**
      * 
      * @type {StairInfo}
-     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     * @memberof FloorCorrectionDtoElevatorAccessibility
      */
     'stairInfo'?: StairInfo;
     /**
      * 
      * @type {StairHeightLevel}
-     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     * @memberof FloorCorrectionDtoElevatorAccessibility
      */
     'stairHeightLevel'?: StairHeightLevel;
     /**
      * 엘리베이터까지 가는 경사로 유무
      * @type {boolean}
-     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     * @memberof FloorCorrectionDtoElevatorAccessibility
      */
     'hasSlope'?: boolean;
 }
@@ -4250,7 +4244,7 @@ export type PlaceDoorDirectionTypeDto = typeof PlaceDoorDirectionTypeDto[keyof t
 
 
 /**
- * 장소(매장) 입구 정보 교정 (계단, 경사로, 문 방향, 출입문, 사진)
+ * 장소(매장) 입구 정보 교정 (계단, 경사로, 문 방향, 사진). 출입문 유형은 DOOR_TYPE 카테고리에서 별도 교정.
  * @export
  * @interface PlaceEntranceCorrectionDto
  */
@@ -4273,12 +4267,6 @@ export interface PlaceEntranceCorrectionDto {
      * @memberof PlaceEntranceCorrectionDto
      */
     'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof PlaceEntranceCorrectionDto
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
     /**
      * 
      * @type {PlaceDoorDirectionTypeDto}
