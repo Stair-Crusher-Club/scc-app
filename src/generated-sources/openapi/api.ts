@@ -5509,6 +5509,19 @@ export interface ReportAccessibilityPostRequest {
 /**
  * 
  * @export
+ * @interface ReportAccessibilityResponseDto
+ */
+export interface ReportAccessibilityResponseDto {
+    /**
+     * 신고가 즉시 자동 반영되었는지 여부
+     * @type {boolean}
+     * @memberof ReportAccessibilityResponseDto
+     */
+    'isAutoResolved': boolean;
+}
+/**
+ * 
+ * @export
  * @enum {string}
  */
 
@@ -10854,7 +10867,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReportAccessibilityResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.reportAccessibilityPost(reportAccessibilityPostRequest, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -11731,7 +11744,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<void> {
+        reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<ReportAccessibilityResponseDto> {
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**

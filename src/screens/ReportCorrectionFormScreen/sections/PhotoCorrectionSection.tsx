@@ -17,7 +17,6 @@ interface PhotoCorrectionSectionProps {
   replacedEntrancePhotos: Map<number, ImageFile>;
   replacedElevatorPhotos: Map<number, ImageFile>;
   // BA photo props
-  needsBaPhotos: boolean;
   baEntranceImageUrls: string[];
   baElevatorImageUrls: string[];
   newBaEntrancePhotos: ImageFile[];
@@ -26,6 +25,10 @@ interface PhotoCorrectionSectionProps {
   deletedBaElevatorPhotoIndices: number[];
   replacedBaEntrancePhotos: Map<number, ImageFile>;
   replacedBaElevatorPhotos: Map<number, ImageFile>;
+  // Visibility conditions (match PDP home tab)
+  showPlaceElevatorPhotos: boolean;
+  showBaEntrancePhotos: boolean;
+  showBaElevatorPhotos: boolean;
   onDeleteExistingEntrancePhoto: (index: number) => void;
   onDeleteExistingElevatorPhoto: (index: number) => void;
   onReplaceExistingEntrancePhoto: (index: number, photo: ImageFile) => void;
@@ -49,7 +52,6 @@ export default function PhotoCorrectionSection({
   deletedElevatorPhotoIndices,
   replacedEntrancePhotos,
   replacedElevatorPhotos,
-  needsBaPhotos,
   baEntranceImageUrls,
   baElevatorImageUrls,
   newBaEntrancePhotos,
@@ -58,6 +60,9 @@ export default function PhotoCorrectionSection({
   deletedBaElevatorPhotoIndices,
   replacedBaEntrancePhotos,
   replacedBaElevatorPhotos,
+  showPlaceElevatorPhotos,
+  showBaEntrancePhotos,
+  showBaElevatorPhotos,
   onDeleteExistingEntrancePhoto,
   onDeleteExistingElevatorPhoto,
   onReplaceExistingEntrancePhoto,
@@ -71,38 +76,25 @@ export default function PhotoCorrectionSection({
   onChangeNewBaEntrancePhotos,
   onChangeNewBaElevatorPhotos,
 }: PhotoCorrectionSectionProps) {
-  const hasEntrancePhotos =
-    entranceImageUrls.length > 0 || newEntrancePhotos.length > 0;
-  const hasElevatorPhotos =
-    elevatorImageUrls.length > 0 || newElevatorPhotos.length > 0;
-  const hasBaEntrancePhotos =
-    needsBaPhotos &&
-    (baEntranceImageUrls.length > 0 || newBaEntrancePhotos.length > 0);
-  const hasBaElevatorPhotos =
-    needsBaPhotos &&
-    (baElevatorImageUrls.length > 0 || newBaElevatorPhotos.length > 0);
-
   return (
     <Container>
       <SectionTitle>사진을 수정해주세요</SectionTitle>
 
-      {(hasEntrancePhotos || entranceImageUrls.length > 0) && (
-        <>
-          <PhotoSectionLabel>매장 입구 사진</PhotoSectionLabel>
-          <PhotoEditSlots
-            existingPhotoUrls={entranceImageUrls}
-            newPhotos={newEntrancePhotos}
-            deletedExistingIndices={deletedEntrancePhotoIndices}
-            replacedPhotos={replacedEntrancePhotos}
-            maxPhotos={3}
-            onDeleteExisting={onDeleteExistingEntrancePhoto}
-            onReplaceExisting={onReplaceExistingEntrancePhoto}
-            onChangeNewPhotos={onChangeNewEntrancePhotos}
-          />
-        </>
-      )}
+      {/* 장소 입구 사진 — PA exists이면 항상 표시 */}
+      <PhotoSectionLabel>장소 입구 사진</PhotoSectionLabel>
+      <PhotoEditSlots
+        existingPhotoUrls={entranceImageUrls}
+        newPhotos={newEntrancePhotos}
+        deletedExistingIndices={deletedEntrancePhotoIndices}
+        replacedPhotos={replacedEntrancePhotos}
+        maxPhotos={3}
+        onDeleteExisting={onDeleteExistingEntrancePhoto}
+        onReplaceExisting={onReplaceExistingEntrancePhoto}
+        onChangeNewPhotos={onChangeNewEntrancePhotos}
+      />
 
-      {(hasElevatorPhotos || elevatorImageUrls.length > 0) && (
+      {/* 매장 엘리베이터 사진 — PA floorMovingMethodTypes에 PLACE_ELEVATOR 포함 시 */}
+      {showPlaceElevatorPhotos && (
         <>
           <PhotoSectionLabel>매장 엘리베이터 사진</PhotoSectionLabel>
           <PhotoEditSlots
@@ -118,8 +110,8 @@ export default function PhotoCorrectionSection({
         </>
       )}
 
-      {(hasBaEntrancePhotos ||
-        (needsBaPhotos && baEntranceImageUrls.length > 0)) && (
+      {/* 건물 입구 사진 — PDP에 '건물 출입구' 섹션이 표시될 때 */}
+      {showBaEntrancePhotos && (
         <>
           <PhotoSectionLabel>건물 입구 사진</PhotoSectionLabel>
           <PhotoEditSlots
@@ -135,8 +127,8 @@ export default function PhotoCorrectionSection({
         </>
       )}
 
-      {(hasBaElevatorPhotos ||
-        (needsBaPhotos && baElevatorImageUrls.length > 0)) && (
+      {/* 건물 엘리베이터 사진 — 건물 출입구 + BA.hasElevator일 때 */}
+      {showBaElevatorPhotos && (
         <>
           <PhotoSectionLabel>건물 엘리베이터 사진</PhotoSectionLabel>
           <PhotoEditSlots

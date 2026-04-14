@@ -119,13 +119,16 @@ export default function PlaceDetailV2Screen({
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetailV2', 'ReportAccessibility'],
     async params => {
-      await api.reportAccessibilityPost(params);
+      const result = await api.reportAccessibilityPost(params);
       const isCrewClosure = isCrew && params.reason === 'CLOSED';
-      ToastUtils.show(
-        isCrewClosure
-          ? '폐업 처리가 완료되었습니다.'
-          : '신고가 접수되었습니다.',
-      );
+      if (isCrewClosure) {
+        ToastUtils.show('폐업 처리가 완료되었습니다.');
+      } else {
+        const isAutoResolved = result.data?.isAutoResolved === true;
+        ToastUtils.show(
+          isAutoResolved ? '신고가 바로 반영되었어요!' : '신고가 접수되었어요.',
+        );
+      }
     },
   );
 

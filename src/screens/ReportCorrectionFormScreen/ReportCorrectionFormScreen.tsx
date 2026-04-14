@@ -63,6 +63,7 @@ interface BuildingAccessibilityCorrectionDto {
   };
 }
 
+import {getAccessibilitySections} from '../PlaceDetailV2Screen/components/PlaceInfo.utils';
 import BuildingEntranceCorrectionSection from './sections/BuildingEntranceCorrectionSection';
 import PlaceEntranceCorrectionSection from './sections/PlaceEntranceCorrectionSection';
 import FloorCorrectionSection from './sections/FloorCorrectionSection';
@@ -410,6 +411,45 @@ export default function ReportCorrectionFormScreen({
     [accessibilityData],
   );
 
+  // Photo section visibility flags (match PDP home tab)
+  const showPlaceElevatorPhotos = useMemo(
+    () =>
+      accessibilityData?.placeAccessibility?.floorMovingMethodTypes?.includes(
+        FloorMovingMethodTypeDto.PlaceElevator,
+      ) ?? false,
+    [accessibilityData],
+  );
+
+  const pdpSections = useMemo(() => {
+    const pa = accessibilityData?.placeAccessibility;
+    if (!pa) {
+      return [];
+    }
+    const floors = pa.floors ?? [];
+    const isMultiFloor =
+      floors.length > 1 || (floors.length === 1 && floors[0] !== 1);
+    return getAccessibilitySections({
+      isStandalone: pa.isStandaloneBuilding === true,
+      doorDir: pa.doorDirectionType,
+      isMultiFloor,
+      hasV2Fields: pa.entranceDoorTypes != null,
+      hasBuildingAccessibility:
+        accessibilityData?.buildingAccessibility != null,
+    });
+  }, [accessibilityData]);
+
+  const showBaEntrancePhotos = useMemo(
+    () => pdpSections.includes('건물 출입구'),
+    [pdpSections],
+  );
+
+  const showBaElevatorPhotos = useMemo(
+    () =>
+      pdpSections.includes('건물 출입구') &&
+      (accessibilityData?.buildingAccessibility?.hasElevator ?? false),
+    [pdpSections, accessibilityData],
+  );
+
   const hasChanges = useMemo(() => {
     return (
       JSON.stringify(placeCorrection) !==
@@ -713,7 +753,7 @@ export default function ReportCorrectionFormScreen({
         }
       }
 
-      await api.reportAccessibilityPost({
+      const result = await api.reportAccessibilityPost({
         placeId,
         placeAccessibilityId: accessibilityData?.placeAccessibility?.id,
         buildingAccessibilityId: accessibilityData?.buildingAccessibility?.id,
@@ -736,7 +776,10 @@ export default function ReportCorrectionFormScreen({
       await queryClient.invalidateQueries({
         queryKey: ['PlaceDetailV2', placeId],
       });
-      ToastUtils.show('신고가 접수되었습니다.');
+      const isAutoResolved = result.data?.isAutoResolved === true;
+      ToastUtils.show(
+        isAutoResolved ? '신고가 바로 반영되었어요!' : '신고가 접수되었어요.',
+      );
       onSubmitSuccess?.();
       navigation.goBack();
     },
@@ -1144,7 +1187,6 @@ export default function ReportCorrectionFormScreen({
               deletedElevatorPhotoIndices={deletedElevatorPhotoIndices}
               replacedEntrancePhotos={replacedEntrancePhotos}
               replacedElevatorPhotos={replacedElevatorPhotos}
-              needsBaPhotos={needsBaPhotos}
               baEntranceImageUrls={baEntranceImageUrls}
               baElevatorImageUrls={baElevatorImageUrls}
               newBaEntrancePhotos={newBaEntrancePhotos}
@@ -1153,6 +1195,9 @@ export default function ReportCorrectionFormScreen({
               deletedBaElevatorPhotoIndices={deletedBaElevatorPhotoIndices}
               replacedBaEntrancePhotos={replacedBaEntrancePhotos}
               replacedBaElevatorPhotos={replacedBaElevatorPhotos}
+              showPlaceElevatorPhotos={showPlaceElevatorPhotos}
+              showBaEntrancePhotos={showBaEntrancePhotos}
+              showBaElevatorPhotos={showBaElevatorPhotos}
               onDeleteExistingEntrancePhoto={handleDeleteExistingEntrancePhoto}
               onDeleteExistingElevatorPhoto={handleDeleteExistingElevatorPhoto}
               onReplaceExistingEntrancePhoto={
