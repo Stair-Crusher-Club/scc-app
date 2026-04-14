@@ -64,25 +64,33 @@ function getCategoryLabel(
     case InaccurateInfoCategoryDto.BuildingEntrance:
       return '건물 입구 계단 / 경사로가 잘못됐어요';
     case InaccurateInfoCategoryDto.Floor: {
-      if (snapshot?.isStandaloneBuilding) {
-        return '단독건물이 아니에요';
-      }
+      // PDP의 getFloorAccessibility title과 일치시킨다
       const floors = snapshot?.floors;
-      if (floors && floors.length > 0 && floors.length <= 2) {
-        const floorTexts = floors.map(f =>
-          f < 0 ? `지하 ${Math.abs(f)}층` : `${f}층`,
-        );
-        return `${floorTexts.join(', ')}이 아니에요`;
+      const isStandalone = snapshot?.isStandaloneBuilding === true;
+      if (!floors || floors.length === 0) {
+        return '층 정보가 잘못됐어요';
       }
-      return '층 정보가 잘못됐어요';
+      const isSingle = floors.length === 1;
+      if (isSingle && floors[0] === 1) {
+        return isStandalone
+          ? '단독 1층 건물이 아니에요'
+          : '1층이 아니에요';
+      }
+      if (isSingle) {
+        const name = floors[0] < 0 ? `지하 ${-floors[0]}층` : `${floors[0]}층`;
+        return `${name}이 아니에요`;
+      }
+      // 여러층
+      return isStandalone
+        ? '단독 건물 여러층이 아니에요'
+        : '1층을 포함한 여러층이 아니에요';
     }
     case InaccurateInfoCategoryDto.DoorType: {
+      // PDP와 동일하게 doorTypeMap join으로 표시
       const doorTypes = snapshot?.entranceDoorTypes;
-      if (doorTypes?.length === 1) {
-        const label = doorTypeMap[doorTypes[0]];
-        if (label) {
-          return `${label}이 아니에요`;
-        }
+      if (doorTypes && doorTypes.length > 0 && doorTypes.length <= 2) {
+        const label = doorTypes.map(d => doorTypeMap[d]).join(', ');
+        return `${label}이 아니에요`;
       }
       return '출입문 종류가 잘못됐어요';
     }
