@@ -40,7 +40,7 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
 }
 
 const INACCURATE_CATEGORY_LABELS: Record<InaccurateInfoCategoryDto, string> = {
-  [InaccurateInfoCategoryDto.Entrance]: '장소 입구 정보',
+  [InaccurateInfoCategoryDto.PlaceEntrance]: '장소 입구 정보',
   [InaccurateInfoCategoryDto.BuildingEntrance]: '건물 입구 정보',
   [InaccurateInfoCategoryDto.Floor]: '층 정보',
   [InaccurateInfoCategoryDto.DoorType]: '문 유형',
@@ -56,7 +56,7 @@ const INACCURATE_CATEGORY_LABELS_NO_BA: Record<
   string
 > = {
   ...INACCURATE_CATEGORY_LABELS,
-  [InaccurateInfoCategoryDto.Entrance]: '입구 정보(계단, 경사로 등)',
+  [InaccurateInfoCategoryDto.PlaceEntrance]: '입구 정보(계단, 경사로 등)',
 };
 
 const CLOSED_SUB_TYPE_LABELS: Record<ClosedSubTypeDto, string> = {

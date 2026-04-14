@@ -275,10 +275,10 @@ export interface AccessibilityReportCorrectionDto {
     'type'?: InaccurateInfoCategoryDto;
     /**
      * 
-     * @type {EntranceCorrectionDto}
+     * @type {PlaceEntranceCorrectionDto}
      * @memberof AccessibilityReportCorrectionDto
      */
-    'entrance'?: EntranceCorrectionDto;
+    'placeEntrance'?: PlaceEntranceCorrectionDto;
     /**
      * 
      * @type {BuildingEntranceCorrectionDto}
@@ -316,167 +316,17 @@ export interface AccessibilityReportCorrectionDto {
      */
     'photo'?: PhotoCorrectionDto;
     /**
-     * 틀린 정보 항목 (복수 선택 가능)
-     * @type {Array<InaccurateInfoCategoryDto>}
-     * @memberof AccessibilityReportCorrectionDto
-     * @deprecated
-     */
-    'inaccurateCategories'?: Array<InaccurateInfoCategoryDto>;
-    /**
      * 
      * @type {ClosedSubTypeDto}
      * @memberof AccessibilityReportCorrectionDto
      */
     'closedSubType'?: ClosedSubTypeDto;
     /**
-     * 
-     * @type {AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection}
-     * @memberof AccessibilityReportCorrectionDto
-     * @deprecated
-     */
-    'placeAccessibilityCorrection'?: AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection;
-    /**
-     * 
-     * @type {AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection}
-     * @memberof AccessibilityReportCorrectionDto
-     * @deprecated
-     */
-    'buildingAccessibilityCorrection'?: AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection;
-    /**
      * 부연 설명
      * @type {string}
      * @memberof AccessibilityReportCorrectionDto
      */
     'noteText'?: string;
-    /**
-     * 첨부 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof AccessibilityReportCorrectionDto
-     * @deprecated
-     */
-    'photoUrls'?: Array<string>;
-}
-/**
- * 
- * @export
- * @interface AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
- */
-export interface AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection {
-    /**
-     * 
-     * @type {StairInfo}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'entranceStairInfo'?: StairInfo;
-    /**
-     * 
-     * @type {StairHeightLevel}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'entranceStairHeightLevel'?: StairHeightLevel;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'hasElevator'?: boolean;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
-    /**
-     * 
-     * @type {ElevatorAccessibilityDto}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'elevatorAccessibility'?: ElevatorAccessibilityDto;
-    /**
-     * 교정된 건물 입구 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'entranceImageUrls'?: Array<string>;
-    /**
-     * 교정된 엘리베이터 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof AccessibilityReportCorrectionDtoBuildingAccessibilityCorrection
-     */
-    'elevatorImageUrls'?: Array<string>;
-}
-/**
- * 
- * @export
- * @interface AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
- */
-export interface AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection {
-    /**
-     * 
-     * @type {StairInfo}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'stairInfo'?: StairInfo;
-    /**
-     * 
-     * @type {StairHeightLevel}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'stairHeightLevel'?: StairHeightLevel;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {Array<number>}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'floors'?: Array<number>;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
-    /**
-     * 
-     * @type {Array<FloorMovingMethodTypeDto>}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
-    /**
-     * 
-     * @type {ElevatorAccessibilityDto}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'elevatorAccessibility'?: ElevatorAccessibilityDto;
-    /**
-     * 
-     * @type {PlaceDoorDirectionTypeDto}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
-    /**
-     * 교정된 입구 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'entranceImageUrls'?: Array<string>;
-    /**
-     * 교정된 엘리베이터 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof AccessibilityReportCorrectionDtoPlaceAccessibilityCorrection
-     */
-    'elevatorImageUrls'?: Array<string>;
 }
 /**
  * 
@@ -1041,61 +891,6 @@ export interface BuildingAccessibilityComment {
      * @memberof BuildingAccessibilityComment
      */
     'createdAt': EpochMillisTimestamp;
-}
-/**
- * 건물 접근성 교정값. 유저가 수정 제안하는 값만 포함.
- * @export
- * @interface BuildingAccessibilityCorrectionDto
- */
-export interface BuildingAccessibilityCorrectionDto {
-    /**
-     * 
-     * @type {StairInfo}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'entranceStairInfo'?: StairInfo;
-    /**
-     * 
-     * @type {StairHeightLevel}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'entranceStairHeightLevel'?: StairHeightLevel;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'hasElevator'?: boolean;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
-    /**
-     * 
-     * @type {ElevatorAccessibilityDto}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'elevatorAccessibility'?: ElevatorAccessibilityDto;
-    /**
-     * 교정된 건물 입구 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'entranceImageUrls'?: Array<string>;
-    /**
-     * 교정된 엘리베이터 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof BuildingAccessibilityCorrectionDto
-     */
-    'elevatorImageUrls'?: Array<string>;
 }
 /**
  * 건물 입구 문의 방향 (도로쪽, 주차장쪽, 기타)
@@ -2187,68 +1982,31 @@ export interface ElevatorAccessibilityDto {
 export interface ElevatorCorrectionDto {
     /**
      * 
-     * @type {ElevatorCorrectionDtoElevatorAccessibility}
+     * @type {ElevatorCorrectionTargetDto}
      * @memberof ElevatorCorrectionDto
      */
-    'elevatorAccessibility'?: ElevatorCorrectionDtoElevatorAccessibility;
+    'target': ElevatorCorrectionTargetDto;
     /**
-     * PA 엘리베이터 사진
-     * @type {Array<string>}
-     * @memberof ElevatorCorrectionDto
-     */
-    'elevatorImageUrls'?: Array<string>;
-    /**
-     * 
+     * 엘리베이터 존재 여부 (BA일 때)
      * @type {boolean}
      * @memberof ElevatorCorrectionDto
      */
     'hasElevator'?: boolean;
     /**
      * 
-     * @type {ElevatorCorrectionDtoBaElevatorAccessibility}
+     * @type {ElevatorCorrectionDtoElevatorAccessibility}
      * @memberof ElevatorCorrectionDto
      */
-    'baElevatorAccessibility'?: ElevatorCorrectionDtoBaElevatorAccessibility;
+    'elevatorAccessibility'?: ElevatorCorrectionDtoElevatorAccessibility;
     /**
-     * BA 엘리베이터 사진
+     * 엘리베이터 사진
      * @type {Array<string>}
      * @memberof ElevatorCorrectionDto
      */
-    'baElevatorImageUrls'?: Array<string>;
+    'elevatorImageUrls'?: Array<string>;
 }
 /**
- * hasElevator=true일 때
- * @export
- * @interface ElevatorCorrectionDtoBaElevatorAccessibility
- */
-export interface ElevatorCorrectionDtoBaElevatorAccessibility {
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof ElevatorCorrectionDtoBaElevatorAccessibility
-     */
-    'imageUrls'?: Array<string>;
-    /**
-     * 
-     * @type {StairInfo}
-     * @memberof ElevatorCorrectionDtoBaElevatorAccessibility
-     */
-    'stairInfo'?: StairInfo;
-    /**
-     * 
-     * @type {StairHeightLevel}
-     * @memberof ElevatorCorrectionDtoBaElevatorAccessibility
-     */
-    'stairHeightLevel'?: StairHeightLevel;
-    /**
-     * 엘리베이터까지 가는 경사로 유무
-     * @type {boolean}
-     * @memberof ElevatorCorrectionDtoBaElevatorAccessibility
-     */
-    'hasSlope'?: boolean;
-}
-/**
- * null이면 엘리베이터 없음
+ * 엘리베이터 접근성 정보
  * @export
  * @interface ElevatorCorrectionDtoElevatorAccessibility
  */
@@ -2279,54 +2037,19 @@ export interface ElevatorCorrectionDtoElevatorAccessibility {
     'hasSlope'?: boolean;
 }
 /**
- * 장소(매장) 입구 정보 교정 (계단, 경사로, 문 방향, 출입문, 사진)
+ * 엘리베이터 교정 대상
  * @export
- * @interface EntranceCorrectionDto
+ * @enum {string}
  */
-export interface EntranceCorrectionDto {
-    /**
-     * 
-     * @type {StairInfo}
-     * @memberof EntranceCorrectionDto
-     */
-    'stairInfo'?: StairInfo;
-    /**
-     * stairInfo가 ONE일 때만
-     * @type {StairHeightLevel}
-     * @memberof EntranceCorrectionDto
-     */
-    'stairHeightLevel'?: StairHeightLevel;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof EntranceCorrectionDto
-     */
-    'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof EntranceCorrectionDto
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
-    /**
-     * 
-     * @type {PlaceDoorDirectionTypeDto}
-     * @memberof EntranceCorrectionDto
-     */
-    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
-    /**
-     * 단독건물 여부 (클라이언트에서 직접 전달)
-     * @type {boolean}
-     * @memberof EntranceCorrectionDto
-     */
-    'isStandaloneBuilding'?: boolean;
-    /**
-     * 장소 입구 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof EntranceCorrectionDto
-     */
-    'entranceImageUrls'?: Array<string>;
-}
+
+export const ElevatorCorrectionTargetDto = {
+    Pa: 'PA',
+    Ba: 'BA'
+} as const;
+
+export type ElevatorCorrectionTargetDto = typeof ElevatorCorrectionTargetDto[keyof typeof ElevatorCorrectionTargetDto];
+
+
 /**
  * 
  * @export
@@ -2500,6 +2223,43 @@ export interface FloorCorrectionDto {
      * @memberof FloorCorrectionDto
      */
     'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
+    /**
+     * 
+     * @type {FloorCorrectionDtoBuildingElevatorAccessibility}
+     * @memberof FloorCorrectionDto
+     */
+    'buildingElevatorAccessibility'?: FloorCorrectionDtoBuildingElevatorAccessibility;
+}
+/**
+ * floorMovingMethodTypes에 건물 내부 엘리베이터가 포함될 때 엘리베이터 입구 정보
+ * @export
+ * @interface FloorCorrectionDtoBuildingElevatorAccessibility
+ */
+export interface FloorCorrectionDtoBuildingElevatorAccessibility {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     */
+    'imageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 엘리베이터까지 가는 경사로 유무
+     * @type {boolean}
+     * @memberof FloorCorrectionDtoBuildingElevatorAccessibility
+     */
+    'hasSlope'?: boolean;
 }
 /**
  * 층간 이동 방법
@@ -3438,7 +3198,7 @@ export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUpl
  */
 
 export const InaccurateInfoCategoryDto = {
-    Entrance: 'ENTRANCE',
+    PlaceEntrance: 'PLACE_ENTRANCE',
     BuildingEntrance: 'BUILDING_ENTRANCE',
     Floor: 'FLOOR',
     DoorType: 'DOOR_TYPE',
@@ -4446,73 +4206,6 @@ export interface PlaceAccessibilityComment {
     'createdAt': EpochMillisTimestamp;
 }
 /**
- * 장소 접근성 교정값. 유저가 수정 제안하는 값만 포함.
- * @export
- * @interface PlaceAccessibilityCorrectionDto
- */
-export interface PlaceAccessibilityCorrectionDto {
-    /**
-     * 
-     * @type {StairInfo}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'stairInfo'?: StairInfo;
-    /**
-     * 
-     * @type {StairHeightLevel}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'stairHeightLevel'?: StairHeightLevel;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'hasSlope'?: boolean;
-    /**
-     * 
-     * @type {Array<number>}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'floors'?: Array<number>;
-    /**
-     * 
-     * @type {Array<EntranceDoorType>}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'entranceDoorTypes'?: Array<EntranceDoorType>;
-    /**
-     * 
-     * @type {Array<FloorMovingMethodTypeDto>}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
-    /**
-     * 
-     * @type {ElevatorAccessibilityDto}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'elevatorAccessibility'?: ElevatorAccessibilityDto;
-    /**
-     * 
-     * @type {PlaceDoorDirectionTypeDto}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
-    /**
-     * 교정된 입구 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'entranceImageUrls'?: Array<string>;
-    /**
-     * 교정된 엘리베이터 사진 URL 목록
-     * @type {Array<string>}
-     * @memberof PlaceAccessibilityCorrectionDto
-     */
-    'elevatorImageUrls'?: Array<string>;
-}
-/**
  * 
  * @export
  * @enum {string}
@@ -4556,6 +4249,55 @@ export const PlaceDoorDirectionTypeDto = {
 export type PlaceDoorDirectionTypeDto = typeof PlaceDoorDirectionTypeDto[keyof typeof PlaceDoorDirectionTypeDto];
 
 
+/**
+ * 장소(매장) 입구 정보 교정 (계단, 경사로, 문 방향, 출입문, 사진)
+ * @export
+ * @interface PlaceEntranceCorrectionDto
+ */
+export interface PlaceEntranceCorrectionDto {
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * stairInfo가 ONE일 때만
+     * @type {StairHeightLevel}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'hasSlope'?: boolean;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
+    /**
+     * 단독건물 여부 (클라이언트에서 직접 전달)
+     * @type {boolean}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 장소 입구 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'entranceImageUrls'?: Array<string>;
+}
 /**
  * 
  * @export

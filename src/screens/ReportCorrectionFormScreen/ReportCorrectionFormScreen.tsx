@@ -14,12 +14,13 @@ import {
   BuildingEntranceCorrectionDto,
   DoorTypeCorrectionDto,
   ElevatorCorrectionDto,
-  EntranceCorrectionDto,
+  ElevatorCorrectionTargetDto,
+  EntranceDoorType,
+  FloorMovingMethodTypeDto,
+  PlaceEntranceCorrectionDto,
   FloorCorrectionDto,
   InaccurateInfoCategoryDto,
   PhotoCorrectionDto,
-  PlaceAccessibilityCorrectionDto,
-  BuildingAccessibilityCorrectionDto,
   PlaceDoorDirectionTypeDto,
   ReportTargetTypeDto,
   StairInfo,
@@ -31,6 +32,36 @@ import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
+
+/** Local form state types (removed from codegen) */
+interface PlaceAccessibilityCorrectionDto {
+  stairInfo?: StairInfo;
+  stairHeightLevel?: StairHeightLevel;
+  hasSlope?: boolean;
+  floors?: number[];
+  entranceDoorTypes?: EntranceDoorType[];
+  floorMovingMethodTypes?: FloorMovingMethodTypeDto[];
+  elevatorAccessibility?: {
+    stairInfo?: StairInfo;
+    stairHeightLevel?: StairHeightLevel;
+    hasSlope?: boolean;
+    imageUrls?: string[];
+  };
+  doorDirectionType?: PlaceDoorDirectionTypeDto;
+}
+
+interface BuildingAccessibilityCorrectionDto {
+  entranceStairInfo?: StairInfo;
+  entranceStairHeightLevel?: StairHeightLevel;
+  hasSlope?: boolean;
+  hasElevator?: boolean;
+  entranceDoorTypes?: EntranceDoorType[];
+  elevatorAccessibility?: {
+    stairInfo?: StairInfo;
+    stairHeightLevel?: StairHeightLevel;
+    hasSlope?: boolean;
+  };
+}
 
 import BuildingEntranceCorrectionSection from './sections/BuildingEntranceCorrectionSection';
 import PlaceEntranceCorrectionSection from './sections/PlaceEntranceCorrectionSection';
@@ -46,7 +77,7 @@ function buildEntranceCorrection(
   placeCorrection: PlaceAccessibilityCorrectionDto,
   isStandaloneBuilding: boolean | undefined,
   finalEntranceUrls: string[],
-): EntranceCorrectionDto {
+): PlaceEntranceCorrectionDto {
   return {
     stairInfo: placeCorrection.stairInfo,
     stairHeightLevel: placeCorrection.stairHeightLevel,
@@ -88,11 +119,10 @@ function buildElevatorCorrection(
   placeCorrection: PlaceAccessibilityCorrectionDto,
   buildingCorrection: BuildingAccessibilityCorrectionDto,
   finalElevatorUrls: string[],
-  needsBaPhotos: boolean,
-  finalBaElevatorUrls: string[],
 ): ElevatorCorrectionDto {
   const ea = placeCorrection.elevatorAccessibility;
   return {
+    target: ElevatorCorrectionTargetDto.Pa,
     elevatorAccessibility: ea
       ? {
           stairInfo: ea.stairInfo,
@@ -103,18 +133,6 @@ function buildElevatorCorrection(
     elevatorImageUrls:
       finalElevatorUrls.length > 0 ? finalElevatorUrls : undefined,
     hasElevator: buildingCorrection.hasElevator,
-    baElevatorAccessibility: buildingCorrection.elevatorAccessibility
-      ? {
-          stairInfo: buildingCorrection.elevatorAccessibility.stairInfo,
-          stairHeightLevel:
-            buildingCorrection.elevatorAccessibility.stairHeightLevel,
-          hasSlope: buildingCorrection.elevatorAccessibility.hasSlope,
-        }
-      : undefined,
-    baElevatorImageUrls:
-      needsBaPhotos && finalBaElevatorUrls.length > 0
-        ? finalBaElevatorUrls
-        : undefined,
   };
 }
 
@@ -580,7 +598,7 @@ export default function ReportCorrectionFormScreen({
       const isStandaloneBuilding =
         accessibilityData?.placeAccessibility?.isStandaloneBuilding;
 
-      let entrance: EntranceCorrectionDto | undefined;
+      let entrance: PlaceEntranceCorrectionDto | undefined;
       let buildingEntrance: BuildingEntranceCorrectionDto | undefined;
       let floor: FloorCorrectionDto | undefined;
       let elevator: ElevatorCorrectionDto | undefined;
@@ -589,7 +607,7 @@ export default function ReportCorrectionFormScreen({
       let photo: PhotoCorrectionDto | undefined;
 
       switch (category) {
-        case InaccurateInfoCategoryDto.Entrance:
+        case InaccurateInfoCategoryDto.PlaceEntrance:
           entrance = buildEntranceCorrection(
             placeCorrection,
             isStandaloneBuilding,
@@ -610,8 +628,6 @@ export default function ReportCorrectionFormScreen({
             placeCorrection,
             buildingCorrection,
             finalElevatorUrls,
-            needsBaPhotos,
-            finalBaElevatorUrls,
           );
           break;
         case InaccurateInfoCategoryDto.DoorType:
@@ -663,7 +679,7 @@ export default function ReportCorrectionFormScreen({
         detail: noteText || undefined,
         correction: {
           type: category,
-          entrance,
+          placeEntrance: entrance,
           buildingEntrance,
           floor,
           elevator,
@@ -848,7 +864,7 @@ export default function ReportCorrectionFormScreen({
 
   const renderSection = () => {
     switch (category) {
-      case InaccurateInfoCategoryDto.Entrance:
+      case InaccurateInfoCategoryDto.PlaceEntrance:
         return (
           <SectionContainer>
             <PlaceEntranceCorrectionSection
