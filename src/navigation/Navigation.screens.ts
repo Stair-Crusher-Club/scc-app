@@ -52,6 +52,9 @@ import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/Place
 import PlaceReviewFormScreen, {
   PlaceReviewFormScreenParams,
 } from '@/screens/PlaceReviewFormScreen';
+import ReportCorrectionFormScreen, {
+  ReportCorrectionFormScreenParams,
+} from '@/screens/ReportCorrectionFormScreen';
 import {ProfileEditorDetailScreen} from '@/screens/ProfileEditorScreen';
 import {ProfileEditorDetailScreenParams} from '@/screens/ProfileEditorScreen/ProfileEditorDetailScreen';
 import ProfileEditorScreen from '@/screens/ProfileEditorScreen/ProfileEditorScreen';
@@ -272,6 +275,16 @@ export const MainNavigationScreens: {
     },
   },
   {
+    name: 'ReportCorrectionForm',
+    component: ReportCorrectionFormScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '정보 수정 신고',
+      variant: 'close',
+      gestureEnabled: false,
+    },
+  },
+  {
     name: 'ReviewForm/Place',
     component: PlaceReviewFormScreen,
     options: {
@@ -330,6 +343,9 @@ export type ScreenParams = {
   PlaceGroupMap: PlaceListDetailScreenParams;
   CrusherActivity: CrusherActivityScreenParams;
   PastSeasonDetail: PastSeasonDetailScreenParams;
+
+  // 신고 교정
+  ReportCorrectionForm: ReportCorrectionFormScreenParams;
 
   // 리뷰
   'ReviewForm/Place': PlaceReviewFormScreenParams;

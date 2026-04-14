@@ -3,16 +3,11 @@ import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {font} from '@/constant/font';
 import {Place} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
-import {Controller, useFormContext} from 'react-hook-form';
+import {useFormContext} from 'react-hook-form';
 import {ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
-import FloorSelect from '../../PlaceReviewFormScreen/components/FloorSelect';
 import PlaceInfoSection from '../../PlaceReviewFormScreen/sections/PlaceInfoSection';
-import {
-  FLOOR_OPTIONS,
-  FORM_TOAST_OPTIONS,
-  STANDALONE_BUILDING_OPTIONS,
-} from '../constants';
+import {FORM_TOAST_OPTIONS} from '../constants';
 import {
   QuestionSection,
   QuestionText,
@@ -20,7 +15,7 @@ import {
   SectionSeparator,
   SubmitButtonWrapper,
 } from '../PlaceFormV2Screen';
-import OptionsV2 from './OptionsV2';
+import FloorQuestionUI from './FloorQuestionUI';
 
 interface FloorStepProps {
   place: Place;
@@ -31,6 +26,7 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
   const form = useFormContext();
 
   const selectedOption = form.watch('floorOption');
+  const selectedFloor = form.watch('selectedFloor');
   const selectedStandaloneType = form.watch('standaloneType');
 
   type FormErrorKey = 'floorOption' | 'standaloneType';
@@ -90,56 +86,21 @@ export default function FloorStep({place, onNext}: FloorStepProps) {
                 </QuestionText>
               </QuestionSection>
 
-              <Controller
-                name="floorOption"
-                render={({field}) => (
-                  <OptionsV2
-                    value={field.value}
-                    columns={1}
-                    options={FLOOR_OPTIONS.map(option => ({
-                      label: option.label,
-                      value: option.key,
-                    }))}
-                    onSelect={field.onChange}
-                  />
-                )}
+              <FloorQuestionUI
+                floorOption={selectedOption}
+                selectedFloor={selectedFloor}
+                standaloneType={selectedStandaloneType}
+                onChangeFloorOption={value =>
+                  form.setValue('floorOption', value)
+                }
+                onChangeSelectedFloor={value =>
+                  form.setValue('selectedFloor', value)
+                }
+                onChangeStandaloneType={value =>
+                  form.setValue('standaloneType', value)
+                }
               />
             </View>
-
-            {selectedOption === 'otherFloor' && (
-              <AdditionalQuestionArea>
-                <QuestionText>그럼 몇층에 있는 장소인가요?</QuestionText>
-                <Controller
-                  name="selectedFloor"
-                  render={({field}) => (
-                    <FloorSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-              </AdditionalQuestionArea>
-            )}
-
-            {selectedOption === 'standalone' && (
-              <AdditionalQuestionArea>
-                <QuestionText>어떤 유형의 단독건물인가요?</QuestionText>
-                <Controller
-                  name="standaloneType"
-                  render={({field}) => (
-                    <OptionsV2
-                      value={field.value}
-                      columns={2}
-                      options={STANDALONE_BUILDING_OPTIONS.map(option => ({
-                        label: option.label,
-                        value: option.key,
-                      }))}
-                      onSelect={field.onChange}
-                    />
-                  )}
-                />
-              </AdditionalQuestionArea>
-            )}
           </Container>
         </SafeAreaWrapper>
       </ScrollView>
@@ -166,10 +127,6 @@ const Container = styled.View`
   padding-horizontal: 20px;
   padding-bottom: 40px;
   gap: 40px;
-`;
-
-const AdditionalQuestionArea = styled.View`
-  gap: 20px;
 `;
 
 const ButtonContainer = styled.View`

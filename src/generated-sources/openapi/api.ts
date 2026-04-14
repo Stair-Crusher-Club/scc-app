@@ -22,6 +22,25 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from './base';
 
 /**
+ * 접근 레벨 교정
+ * @export
+ * @interface AccessLevelCorrectionDto
+ */
+export interface AccessLevelCorrectionDto {
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof AccessLevelCorrectionDto
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof AccessLevelCorrectionDto
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+}
+/**
  * 
  * @export
  * @interface AccessibilityInfoDto
@@ -241,6 +260,73 @@ export interface AccessibilityRegistererDto {
      * @memberof AccessibilityRegistererDto
      */
     'isClubMember'?: boolean;
+}
+/**
+ * 구조화된 신고 교정 데이터
+ * @export
+ * @interface AccessibilityReportCorrectionDto
+ */
+export interface AccessibilityReportCorrectionDto {
+    /**
+     * 신고 카테고리 (단일 값). 아래 카테고리별 DTO 중 해당하는 것만 non-null.
+     * @type {InaccurateInfoCategoryDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'type'?: InaccurateInfoCategoryDto;
+    /**
+     * 
+     * @type {PlaceEntranceCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'placeEntrance'?: PlaceEntranceCorrectionDto;
+    /**
+     * 
+     * @type {BuildingEntranceCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'buildingEntrance'?: BuildingEntranceCorrectionDto;
+    /**
+     * 
+     * @type {FloorCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'floor'?: FloorCorrectionDto;
+    /**
+     * 
+     * @type {ElevatorCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'elevator'?: ElevatorCorrectionDto;
+    /**
+     * 
+     * @type {DoorTypeCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'doorType'?: DoorTypeCorrectionDto;
+    /**
+     * 
+     * @type {AccessLevelCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'accessLevel'?: AccessLevelCorrectionDto;
+    /**
+     * 
+     * @type {PhotoCorrectionDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'photo'?: PhotoCorrectionDto;
+    /**
+     * 
+     * @type {ClosedSubTypeDto}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'closedSubType'?: ClosedSubTypeDto;
+    /**
+     * 부연 설명
+     * @type {string}
+     * @memberof AccessibilityReportCorrectionDto
+     */
+    'noteText'?: string;
 }
 /**
  * 
@@ -822,6 +908,37 @@ export type BuildingDoorDirectionTypeDto = typeof BuildingDoorDirectionTypeDto[k
 
 
 /**
+ * 건물 입구 정보 교정 (계단, 경사로, 사진). 출입문 유형은 DOOR_TYPE 카테고리에서 별도 교정.
+ * @export
+ * @interface BuildingEntranceCorrectionDto
+ */
+export interface BuildingEntranceCorrectionDto {
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof BuildingEntranceCorrectionDto
+     */
+    'entranceStairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof BuildingEntranceCorrectionDto
+     */
+    'entranceStairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BuildingEntranceCorrectionDto
+     */
+    'hasSlope'?: boolean;
+    /**
+     * 건물 입구 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof BuildingEntranceCorrectionDto
+     */
+    'entranceImageUrls'?: Array<string>;
+}
+/**
  * 
  * @export
  * @interface CancelBuildingAccessibilityUpvoteRequestDto
@@ -1276,6 +1393,21 @@ export interface CircleSearchRegionDto {
      */
     'distanceMetersLimit': number;
 }
+/**
+ * 폐업/이전 신고 시 세부 유형
+ * @export
+ * @enum {string}
+ */
+
+export const ClosedSubTypeDto = {
+    PermanentlyClosed: 'PERMANENTLY_CLOSED',
+    ReplacedByOther: 'REPLACED_BY_OTHER',
+    Other: 'OTHER'
+} as const;
+
+export type ClosedSubTypeDto = typeof ClosedSubTypeDto[keyof typeof ClosedSubTypeDto];
+
+
 /**
  * 
  * @export
@@ -1793,6 +1925,19 @@ export interface DeleteToiletReviewPostRequest {
     'toiletReviewId': string;
 }
 /**
+ * 출입문 종류 교정
+ * @export
+ * @interface DoorTypeCorrectionDto
+ */
+export interface DoorTypeCorrectionDto {
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof DoorTypeCorrectionDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
+}
+/**
  * 엘리베이터 접근성 정보
  * @export
  * @interface ElevatorAccessibilityDto
@@ -1823,6 +1968,82 @@ export interface ElevatorAccessibilityDto {
      */
     'hasSlope'?: boolean;
 }
+/**
+ * 엘리베이터 정보 교정
+ * @export
+ * @interface ElevatorCorrectionDto
+ */
+export interface ElevatorCorrectionDto {
+    /**
+     * 
+     * @type {ElevatorCorrectionTargetDto}
+     * @memberof ElevatorCorrectionDto
+     */
+    'target': ElevatorCorrectionTargetDto;
+    /**
+     * 엘리베이터 존재 여부 (BA일 때)
+     * @type {boolean}
+     * @memberof ElevatorCorrectionDto
+     */
+    'hasElevator'?: boolean;
+    /**
+     * 
+     * @type {ElevatorCorrectionDtoElevatorAccessibility}
+     * @memberof ElevatorCorrectionDto
+     */
+    'elevatorAccessibility'?: ElevatorCorrectionDtoElevatorAccessibility;
+    /**
+     * 엘리베이터 사진
+     * @type {Array<string>}
+     * @memberof ElevatorCorrectionDto
+     */
+    'elevatorImageUrls'?: Array<string>;
+}
+/**
+ * 엘리베이터 접근성 정보
+ * @export
+ * @interface ElevatorCorrectionDtoElevatorAccessibility
+ */
+export interface ElevatorCorrectionDtoElevatorAccessibility {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ElevatorCorrectionDtoElevatorAccessibility
+     */
+    'imageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof ElevatorCorrectionDtoElevatorAccessibility
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof ElevatorCorrectionDtoElevatorAccessibility
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 엘리베이터까지 가는 경사로 유무
+     * @type {boolean}
+     * @memberof ElevatorCorrectionDtoElevatorAccessibility
+     */
+    'hasSlope'?: boolean;
+}
+/**
+ * 엘리베이터 교정 대상
+ * @export
+ * @enum {string}
+ */
+
+export const ElevatorCorrectionTargetDto = {
+    Pa: 'PA',
+    Ba: 'BA'
+} as const;
+
+export type ElevatorCorrectionTargetDto = typeof ElevatorCorrectionTargetDto[keyof typeof ElevatorCorrectionTargetDto];
+
+
 /**
  * 
  * @export
@@ -1971,6 +2192,68 @@ export interface ExternalAccessibility {
      * @memberof ExternalAccessibility
      */
     'toilet_details'?: ToiletAccessibilityDetails;
+}
+/**
+ * 층 정보 교정
+ * @export
+ * @interface FloorCorrectionDto
+ */
+export interface FloorCorrectionDto {
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof FloorCorrectionDto
+     */
+    'floors'?: Array<number>;
+    /**
+     * 단독건물 여부
+     * @type {boolean}
+     * @memberof FloorCorrectionDto
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 여러층일 때 층간이동 방법
+     * @type {Array<FloorMovingMethodTypeDto>}
+     * @memberof FloorCorrectionDto
+     */
+    'floorMovingMethodTypes'?: Array<FloorMovingMethodTypeDto>;
+    /**
+     * 
+     * @type {FloorCorrectionDtoElevatorAccessibility}
+     * @memberof FloorCorrectionDto
+     */
+    'elevatorAccessibility'?: FloorCorrectionDtoElevatorAccessibility;
+}
+/**
+ * 층간이동 방법에 엘리베이터가 포함될 때 엘리베이터 접근성 정보
+ * @export
+ * @interface FloorCorrectionDtoElevatorAccessibility
+ */
+export interface FloorCorrectionDtoElevatorAccessibility {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FloorCorrectionDtoElevatorAccessibility
+     */
+    'imageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof FloorCorrectionDtoElevatorAccessibility
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * 
+     * @type {StairHeightLevel}
+     * @memberof FloorCorrectionDtoElevatorAccessibility
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 엘리베이터까지 가는 경사로 유무
+     * @type {boolean}
+     * @memberof FloorCorrectionDtoElevatorAccessibility
+     */
+    'hasSlope'?: boolean;
 }
 /**
  * 층간 이동 방법
@@ -2607,6 +2890,12 @@ export interface GetUserInfoResponseDto {
      */
     'isAlbumUploadAllowed'?: boolean;
     /**
+     * 한 번이라도 크루였으면 true
+     * @type {boolean}
+     * @memberof GetUserInfoResponseDto
+     */
+    'hasBeenCrew'?: boolean;
+    /**
      * 유저에게 배정된 실험 목록
      * @type {Array<ExperimentAssignmentDto>}
      * @memberof GetUserInfoResponseDto
@@ -2894,6 +3183,26 @@ export const ImageUploadPurpose = {
 } as const;
 
 export type ImageUploadPurpose = typeof ImageUploadPurpose[keyof typeof ImageUploadPurpose];
+
+
+/**
+ * 틀린 정보 신고 시 구체적으로 어떤 항목이 틀렸는지
+ * @export
+ * @enum {string}
+ */
+
+export const InaccurateInfoCategoryDto = {
+    PlaceEntrance: 'PLACE_ENTRANCE',
+    BuildingEntrance: 'BUILDING_ENTRANCE',
+    Floor: 'FLOOR',
+    DoorType: 'DOOR_TYPE',
+    Elevator: 'ELEVATOR',
+    AccessLevel: 'ACCESS_LEVEL',
+    Photo: 'PHOTO',
+    Other: 'OTHER'
+} as const;
+
+export type InaccurateInfoCategoryDto = typeof InaccurateInfoCategoryDto[keyof typeof InaccurateInfoCategoryDto];
 
 
 /**
@@ -3621,6 +3930,37 @@ export interface ModificationRequestDto {
     'entranceDoorTypes'?: Array<EntranceDoorType>;
 }
 /**
+ * 사진 교정
+ * @export
+ * @interface PhotoCorrectionDto
+ */
+export interface PhotoCorrectionDto {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PhotoCorrectionDto
+     */
+    'entranceImageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PhotoCorrectionDto
+     */
+    'elevatorImageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PhotoCorrectionDto
+     */
+    'baEntranceImageUrls'?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PhotoCorrectionDto
+     */
+    'baElevatorImageUrls'?: Array<string>;
+}
+/**
  * 점포 정보.
  * @export
  * @interface Place
@@ -3903,6 +4243,49 @@ export const PlaceDoorDirectionTypeDto = {
 export type PlaceDoorDirectionTypeDto = typeof PlaceDoorDirectionTypeDto[keyof typeof PlaceDoorDirectionTypeDto];
 
 
+/**
+ * 장소(매장) 입구 정보 교정 (계단, 경사로, 문 방향, 사진). 출입문 유형은 DOOR_TYPE 카테고리에서 별도 교정.
+ * @export
+ * @interface PlaceEntranceCorrectionDto
+ */
+export interface PlaceEntranceCorrectionDto {
+    /**
+     * 
+     * @type {StairInfo}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'stairInfo'?: StairInfo;
+    /**
+     * stairInfo가 ONE일 때만
+     * @type {StairHeightLevel}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'stairHeightLevel'?: StairHeightLevel;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'hasSlope'?: boolean;
+    /**
+     * 
+     * @type {PlaceDoorDirectionTypeDto}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'doorDirectionType'?: PlaceDoorDirectionTypeDto;
+    /**
+     * 단독건물 여부 (클라이언트에서 직접 전달)
+     * @type {boolean}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'isStandaloneBuilding'?: boolean;
+    /**
+     * 장소 입구 사진 URL 목록
+     * @type {Array<string>}
+     * @memberof PlaceEntranceCorrectionDto
+     */
+    'entranceImageUrls'?: Array<string>;
+}
 /**
  * 
  * @export
@@ -5093,17 +5476,48 @@ export interface ReportAccessibilityPostRequest {
      */
     'id'?: string;
     /**
+     * 신고 대상 장소 접근성 정보 ID
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'placeAccessibilityId'?: string;
+    /**
+     * 신고 대상 건물 접근성 정보 ID
+     * @type {string}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'buildingAccessibilityId'?: string;
+    /**
      * 
      * @type {AccessibilityReportReason}
      * @memberof ReportAccessibilityPostRequest
      */
     'reason': AccessibilityReportReason;
     /**
-     * 신고 상세 내용
+     * 신고 상세 내용 (legacy)
      * @type {string}
      * @memberof ReportAccessibilityPostRequest
      */
     'detail'?: string;
+    /**
+     * 
+     * @type {AccessibilityReportCorrectionDto}
+     * @memberof ReportAccessibilityPostRequest
+     */
+    'correction'?: AccessibilityReportCorrectionDto;
+}
+/**
+ * 
+ * @export
+ * @interface ReportAccessibilityResponseDto
+ */
+export interface ReportAccessibilityResponseDto {
+    /**
+     * 신고가 즉시 자동 반영되었는지 여부
+     * @type {boolean}
+     * @memberof ReportAccessibilityResponseDto
+     */
+    'isAutoResolved': boolean;
 }
 /**
  * 
@@ -10453,7 +10867,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReportAccessibilityResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.reportAccessibilityPost(reportAccessibilityPostRequest, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -11330,7 +11744,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<void> {
+        reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<ReportAccessibilityResponseDto> {
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**

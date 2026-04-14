@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
+  Alert,
   Animated,
   InteractionManager,
   LayoutChangeEvent,
@@ -14,12 +15,15 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
+import {featureFlagAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import V2TabBar from './components/V2TabBar';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
   Building,
+  ElevatorCorrectionTargetDto,
+  FloorMovingMethodTypeDto,
   Place,
   PlaceDoorDirectionTypeDto,
   PlaceSpecialAccessibilityDto,
@@ -53,6 +57,7 @@ import NavigationAppsBottomSheet from '../PlaceDetailScreen/modals/NavigationApp
 import PlaceDetailNegativeFeedbackBottomSheet from '../PlaceDetailScreen/modals/PlaceDetailNegativeFeedbackBottomSheet';
 import RequireBuildingAccessibilityBottomSheet from '../PlaceDetailScreen/modals/RequireBuildingAccessibilityBottomSheet';
 import {PlaceDetailFeedbackSection} from '../PlaceDetailScreen/sections/PlaceDetailFeedbackSection';
+import {getAccessibilitySections} from './components/PlaceInfo.utils';
 import V2HomeTab from './tabs/V2HomeTab';
 import V2AccessibilityTab, {
   getAccessibilityChips,
@@ -108,11 +113,22 @@ export default function PlaceDetailV2Screen({
   const toggleFavorite = useToggleFavoritePlace();
   const toggleRequest = useToggleAccessibilityInfoRequest();
 
+  const featureFlags = useAtomValue(featureFlagAtom);
+  const isCrew = featureFlags?.hasBeenCrew ?? false;
+
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetailV2', 'ReportAccessibility'],
     async params => {
-      await api.reportAccessibilityPost(params);
-      ToastUtils.show('신고가 접수되었습니다.');
+      const result = await api.reportAccessibilityPost(params);
+      const isCrewClosure = isCrew && params.reason === 'CLOSED';
+      if (isCrewClosure) {
+        ToastUtils.show('폐업 처리가 완료되었습니다.');
+      } else {
+        const isAutoResolved = result.data?.isAutoResolved === true;
+        ToastUtils.show(
+          isAutoResolved ? '신고가 바로 반영되었어요!' : '신고가 접수되었어요.',
+        );
+      }
     },
   );
 
@@ -387,6 +403,20 @@ export default function PlaceDetailV2Screen({
 
   const [reportTargetType, setReportTargetType] =
     useState<ReportTargetTypeDto | null>(null);
+
+  // Issue 1: Step 3(ReportCorrectionForm)에서 뒤로 올 때 bottom sheet를 복원하기 위해
+  // navigate 전 reportTargetType을 ref에 저장하고, focus 이벤트에서 복원한다.
+  const savedReportTargetTypeRef = useRef<ReportTargetTypeDto | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (savedReportTargetTypeRef.current) {
+        setReportTargetType(savedReportTargetTypeRef.current);
+        savedReportTargetTypeRef.current = null;
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const showNegativeFeedbackBottomSheet = (type: ReportTargetTypeDto) => {
     checkAuth(() => {
@@ -930,6 +960,67 @@ export default function PlaceDetailV2Screen({
         <PlaceDetailNegativeFeedbackBottomSheet
           isVisible={reportTargetType !== null}
           placeId={place.id}
+          hasBuildingAccessibility={
+            // PDP 홈탭의 getAccessibilitySections와 동일 로직 재사용
+            (() => {
+              const pa = accessibilityPost?.placeAccessibility;
+              if (!pa) return false;
+              const homeSections = getAccessibilitySections({
+                isStandalone: pa.isStandaloneBuilding === true,
+                doorDir: pa.doorDirectionType ?? undefined,
+                isMultiFloor: (pa.floors?.length ?? 0) > 1,
+                hasV2Fields:
+                  pa.isStandaloneBuilding != null &&
+                  pa.doorDirectionType != null,
+                hasBuildingAccessibility:
+                  !!accessibilityPost?.buildingAccessibility,
+              });
+              return homeSections.includes('건물 출입구');
+            })()
+          }
+          elevatorTargets={(() => {
+            const pa = accessibilityPost?.placeAccessibility;
+            const ba = accessibilityPost?.buildingAccessibility;
+            if (!pa) return [];
+            const homeSections = getAccessibilitySections({
+              isStandalone: pa.isStandaloneBuilding === true,
+              doorDir: pa.doorDirectionType ?? undefined,
+              isMultiFloor: (pa.floors?.length ?? 0) > 1,
+              hasV2Fields:
+                pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
+              hasBuildingAccessibility: !!ba,
+            });
+            const targets: ElevatorCorrectionTargetDto[] = [];
+            // BA 엘리베이터: 건물 출입구 섹션이 있고 BA에 엘리베이터가 있으면
+            if (homeSections.includes('건물 출입구') && ba?.hasElevator) {
+              targets.push(ElevatorCorrectionTargetDto.Ba);
+            }
+            // PA 엘리베이터: 층간 이동 정보 섹션이 있고 PA floorMovingMethodTypes에 PlaceElevator가 있으면
+            if (
+              homeSections.includes('층간 이동 정보') &&
+              pa.floorMovingMethodTypes?.includes(
+                FloorMovingMethodTypeDto.PlaceElevator,
+              )
+            ) {
+              targets.push(ElevatorCorrectionTargetDto.Pa);
+            }
+            return targets;
+          })()}
+          placeAccessibilitySnapshot={
+            accessibilityPost?.placeAccessibility
+              ? {
+                  floors:
+                    accessibilityPost.placeAccessibility.floors ?? undefined,
+                  isStandaloneBuilding:
+                    accessibilityPost.placeAccessibility.isStandaloneBuilding ??
+                    undefined,
+                  entranceDoorTypes:
+                    accessibilityPost.placeAccessibility.entranceDoorTypes ??
+                    undefined,
+                  accessibilityScore: data?.accessibilityScore ?? undefined,
+                }
+              : undefined
+          }
           onPressCloseButton={() => {
             setReportTargetType(null);
           }}
@@ -943,10 +1034,67 @@ export default function PlaceDetailV2Screen({
 
             reportAccessibilityMutation.mutate({
               placeId: _placeId,
+              placeAccessibilityId: accessibilityPost?.placeAccessibility?.id,
+              buildingAccessibilityId:
+                accessibilityPost?.buildingAccessibility?.id,
               reason,
               targetType,
               detail: text,
             });
+          }}
+          onPressNavigateToCorrection={params => {
+            savedReportTargetTypeRef.current = reportTargetType;
+            setReportTargetType(null);
+            setTimeout(() => {
+              navigation.navigate('ReportCorrectionForm', {
+                placeId: params.placeId,
+                inaccurateCategory: params.inaccurateCategories[0] as string,
+                elevatorTarget: params.elevatorTarget,
+                onSubmitSuccess: () => {
+                  savedReportTargetTypeRef.current = null;
+                },
+              });
+            }, 300);
+          }}
+          onPressSubmitClosed={params => {
+            if (!reportTargetType) {
+              return;
+            }
+
+            const submitClosed = () => {
+              const targetType = reportTargetType;
+              setReportTargetType(null);
+
+              reportAccessibilityMutation.mutate({
+                placeId: params.placeId,
+                placeAccessibilityId: accessibilityPost?.placeAccessibility?.id,
+                buildingAccessibilityId:
+                  accessibilityPost?.buildingAccessibility?.id,
+                reason: 'CLOSED',
+                targetType,
+                correction: {
+                  closedSubType: params.closedSubType,
+                  noteText: params.detail,
+                },
+              });
+            };
+
+            if (isCrew) {
+              Alert.alert(
+                '폐업 신고',
+                '크루가 신고하는 경우 즉시 폐업됩니다. 정말 폐업 신고하시겠어요?',
+                [
+                  {text: '취소', style: 'cancel'},
+                  {
+                    text: '폐업 신고',
+                    style: 'destructive',
+                    onPress: submitClosed,
+                  },
+                ],
+              );
+            } else {
+              submitClosed();
+            }
           }}
         />
       )}
