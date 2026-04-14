@@ -11,17 +11,27 @@ import {font} from '@/constant/font';
 import {
   AccessibilityReportReason,
   ClosedSubTypeDto,
+  EntranceDoorType,
   InaccurateInfoCategoryDto,
 } from '@/generated-sources/openapi';
+import {doorTypeMap} from '@/constant/options';
 import BottomSheet from '@/modals/BottomSheet';
 
 type Step = 'reason' | 'inaccurateCategory' | 'closedSubType' | 'text';
+
+/** PA/BA 데이터에서 동적 라벨 생성에 필요한 최소 정보 */
+interface PlaceAccessibilitySnapshot {
+  floors?: number[];
+  isStandaloneBuilding?: boolean;
+  entranceDoorTypes?: EntranceDoorType[];
+}
 
 interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
   placeId: string;
   hasBuildingAccessibility?: boolean;
   hasElevatorInfo?: boolean;
+  placeAccessibilitySnapshot?: PlaceAccessibilitySnapshot;
   onPressCloseButton: () => void;
   onPressSubmitButton: (
     placeId: string,
@@ -40,28 +50,55 @@ interface PlaceDetailNegativeFeedbackBottomSheetProps {
   }) => void;
 }
 
-const INACCURATE_CATEGORY_LABELS: Record<InaccurateInfoCategoryDto, string> = {
-  [InaccurateInfoCategoryDto.PlaceEntrance]:
-    '계단 / 경사로 / 문 방향이 잘못됐어요',
-  [InaccurateInfoCategoryDto.BuildingEntrance]:
-    '건물 입구 계단 / 경사로가 잘못됐어요',
-  [InaccurateInfoCategoryDto.Floor]: '층 정보가 잘못됐어요',
-  [InaccurateInfoCategoryDto.DoorType]: '출입문 종류가 잘못됐어요',
-  [InaccurateInfoCategoryDto.Elevator]: '엘리베이터 정보가 잘못됐어요',
-  [InaccurateInfoCategoryDto.AccessLevel]: '접근 레벨이 잘못됐어요',
-  [InaccurateInfoCategoryDto.Photo]: '사진이 잘못됐어요',
-  [InaccurateInfoCategoryDto.Other]: '기타 정보가 잘못됐어요',
-};
-
-/** BA가 없으면 BUILDING_ENTRANCE를 숨기고, ENTRANCE 라벨을 원래대로 표시 */
-const INACCURATE_CATEGORY_LABELS_NO_BA: Record<
-  InaccurateInfoCategoryDto,
-  string
-> = {
-  ...INACCURATE_CATEGORY_LABELS,
-  [InaccurateInfoCategoryDto.PlaceEntrance]:
-    '입구 계단 / 경사로 / 문 방향이 잘못됐어요',
-};
+/** 실제 데이터 기반으로 동적 카테고리 라벨을 생성한다. 질문이 적은 카테고리는 실제 값을 보여준다. */
+function getCategoryLabel(
+  category: InaccurateInfoCategoryDto,
+  snapshot?: PlaceAccessibilitySnapshot,
+  hasBa?: boolean,
+): string {
+  switch (category) {
+    case InaccurateInfoCategoryDto.PlaceEntrance:
+      return hasBa
+        ? '계단 / 경사로 / 문 방향이 잘못됐어요'
+        : '입구 계단 / 경사로 / 문 방향이 잘못됐어요';
+    case InaccurateInfoCategoryDto.BuildingEntrance:
+      return '건물 입구 계단 / 경사로가 잘못됐어요';
+    case InaccurateInfoCategoryDto.Floor: {
+      if (snapshot?.isStandaloneBuilding) {
+        return '단독건물이 아니에요';
+      }
+      const floors = snapshot?.floors;
+      if (floors?.length === 1) {
+        const f = floors[0];
+        const floorText = f < 0 ? `지하 ${Math.abs(f)}층` : `${f}층`;
+        return `${floorText}이 아니에요`;
+      }
+      return '층 정보가 잘못됐어요';
+    }
+    case InaccurateInfoCategoryDto.DoorType: {
+      const doorTypes = snapshot?.entranceDoorTypes;
+      if (doorTypes?.length === 1) {
+        const label = doorTypeMap[doorTypes[0]];
+        if (label) {
+          return `${label}이 아니에요`;
+        }
+      }
+      return '출입문 종류가 잘못됐어요';
+    }
+    case InaccurateInfoCategoryDto.Elevator:
+      return '엘리베이터 정보가 잘못됐어요';
+    case InaccurateInfoCategoryDto.AccessLevel:
+      return '접근 레벨이 잘못됐어요';
+    case InaccurateInfoCategoryDto.Photo:
+      return '사진이 잘못됐어요';
+    case InaccurateInfoCategoryDto.Other:
+      return '기타 정보가 잘못됐어요';
+    default: {
+      const _exhaustiveCheck: never = category;
+      return _exhaustiveCheck;
+    }
+  }
+}
 
 const CLOSED_SUB_TYPE_LABELS: Record<ClosedSubTypeDto, string> = {
   [ClosedSubTypeDto.PermanentlyClosed]: '폐업했어요',
@@ -74,6 +111,7 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   placeId,
   hasBuildingAccessibility = false,
   hasElevatorInfo = false,
+  placeAccessibilitySnapshot,
   onPressCloseButton,
   onPressSubmitButton,
   onPressNavigateToCorrection,
@@ -293,15 +331,16 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 return true;
               })
               .map((category, index) => {
-                const labels = hasBuildingAccessibility
-                  ? INACCURATE_CATEGORY_LABELS
-                  : INACCURATE_CATEGORY_LABELS_NO_BA;
                 const isSelected = category === selectedCategory;
                 return (
                   <View key={category}>
                     {index > 0 && <SpaceBetweenOptions />}
                     <SccButton
-                      text={labels[category]}
+                      text={getCategoryLabel(
+                        category,
+                        placeAccessibilitySnapshot,
+                        hasBuildingAccessibility,
+                      )}
                       textColor={isSelected ? 'brandColor' : 'gray70'}
                       buttonColor="white"
                       borderColor={isSelected ? 'blue50' : 'gray30'}

@@ -962,6 +962,17 @@ export default function PlaceDetailV2Screen({
               accessibilityPost?.placeAccessibility?.floors[0] === 1
             )
           }
+          placeAccessibilitySnapshot={
+            accessibilityPost?.placeAccessibility
+              ? {
+                  floors: accessibilityPost.placeAccessibility.floors ?? undefined,
+                  isStandaloneBuilding:
+                    accessibilityPost.placeAccessibility.isStandaloneBuilding ?? undefined,
+                  entranceDoorTypes:
+                    accessibilityPost.placeAccessibility.entranceDoorTypes ?? undefined,
+                }
+              : undefined
+          }
           onPressCloseButton={() => {
             setReportTargetType(null);
           }}
