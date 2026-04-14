@@ -167,7 +167,10 @@ export function getFloorAccessibility(
     doorDirectionType === PlaceDoorDirectionTypeDto.OutsideBuilding;
 
   if (isSingleFloor && floors[0] > 1) {
-    if (accessibility.buildingAccessibility?.hasElevator) {
+    // 건물 밖에 문이 있으면 건물 엘리베이터는 접근에 무관하므로 BA를 참고하지 않는다.
+    const canUseBuildingElevator =
+      !isOutsideBuilding && accessibility.buildingAccessibility?.hasElevator;
+    if (canUseBuildingElevator) {
       return {
         type: FloorAccessibilityType.UpperWithElevator,
         title: floorName,
@@ -181,7 +184,7 @@ export function getFloorAccessibility(
           accessibility.buildingAccessibility === undefined &&
           !isOutsideBuilding
             ? '엘레베이터 정보가 필요해요'
-            : accessibility.buildingAccessibility === undefined
+            : accessibility.buildingAccessibility === undefined || isOutsideBuilding
               ? undefined
               : '계단으로만 이동 가능',
       };
@@ -189,7 +192,9 @@ export function getFloorAccessibility(
   }
 
   if (isSingleFloor && floors[0] < 1) {
-    if (accessibility.buildingAccessibility?.hasElevator) {
+    const canUseBuildingElevator =
+      !isOutsideBuilding && accessibility.buildingAccessibility?.hasElevator;
+    if (canUseBuildingElevator) {
       return {
         type: FloorAccessibilityType.UndergroundWithElevator,
         title: floorName,
@@ -203,7 +208,7 @@ export function getFloorAccessibility(
           accessibility.buildingAccessibility === undefined &&
           !isOutsideBuilding
             ? '엘레베이터 정보가 필요해요'
-            : accessibility.buildingAccessibility === undefined
+            : accessibility.buildingAccessibility === undefined || isOutsideBuilding
               ? undefined
               : '계단으로만 이동 가능',
       };
