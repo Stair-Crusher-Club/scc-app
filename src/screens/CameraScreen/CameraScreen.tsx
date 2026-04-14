@@ -164,8 +164,6 @@ export default function CameraScreen({
     const options = {
       mediaType: 'photo' as MediaType,
       includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
       selectionLimit: MAX_NUMBER_OF_TAKEN_PHOTOS,
     };
 
