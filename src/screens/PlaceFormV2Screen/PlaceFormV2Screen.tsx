@@ -535,12 +535,19 @@ async function register(
   const startTotal = Date.now();
   const imageCount =
     (values.entrancePhotos?.length ?? 0) + (values.elevatorPhotos?.length ?? 0);
-  const upload =
-    uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
+  const upload: UploadImagesFn =
+    uploadImagesFn ??
+    ((a, images, purposeType) =>
+      ImageFileUtils.uploadImages(a, images, purposeType));
   try {
     // Upload images first
     const startImageUpload = Date.now();
-    const uploadedImageUrls = await upload(api, values.entrancePhotos);
+    const uploadedImageUrls = await upload(
+      api,
+      values.entrancePhotos,
+      undefined,
+      '입구 사진',
+    );
 
     // Prepare floor moving elevator accessibility if needed
     let floorMovingElevatorAccessibility;
@@ -554,7 +561,12 @@ async function register(
         FloorMovingMethodTypeDto.PlaceElevator,
       )
     ) {
-      const elevatorImageUrls = await upload(api, values.elevatorPhotos || []);
+      const elevatorImageUrls = await upload(
+        api,
+        values.elevatorPhotos || [],
+        undefined,
+        '엘리베이터 사진',
+      );
 
       floorMovingElevatorAccessibility = {
         imageUrls: elevatorImageUrls,

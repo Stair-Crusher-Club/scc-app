@@ -546,11 +546,16 @@ export default function ReportCorrectionFormScreen({
       // 1. Upload new PA photos and replaced PA photos
       const uploadedEntranceUrls =
         newEntrancePhotos.length > 0
-          ? await uploadImages(api, newEntrancePhotos)
+          ? await uploadImages(api, newEntrancePhotos, undefined, '입구 사진')
           : [];
       const uploadedElevatorUrls =
         newElevatorPhotos.length > 0
-          ? await uploadImages(api, newElevatorPhotos)
+          ? await uploadImages(
+              api,
+              newElevatorPhotos,
+              undefined,
+              '엘리베이터 사진',
+            )
           : [];
 
       // Upload replaced PA entrance photos
@@ -562,6 +567,8 @@ export default function ReportCorrectionFormScreen({
           ? await uploadImages(
               api,
               replacedEntranceEntries.map(([_, photo]) => photo),
+              undefined,
+              '입구 사진',
             )
           : [];
       const replacedEntranceUrlMap = new Map<number, string>();
@@ -578,6 +585,8 @@ export default function ReportCorrectionFormScreen({
           ? await uploadImages(
               api,
               replacedElevatorEntries.map(([_, photo]) => photo),
+              undefined,
+              '엘리베이터 사진',
             )
           : [];
       const replacedElevatorUrlMap = new Map<number, string>();
@@ -588,11 +597,21 @@ export default function ReportCorrectionFormScreen({
       // 1b. Upload BA photos (only if needsBaPhotos)
       const uploadedBaEntranceUrls =
         needsBaPhotos && newBaEntrancePhotos.length > 0
-          ? await uploadImages(api, newBaEntrancePhotos)
+          ? await uploadImages(
+              api,
+              newBaEntrancePhotos,
+              undefined,
+              '건물 입구 사진',
+            )
           : [];
       const uploadedBaElevatorUrls =
         needsBaPhotos && newBaElevatorPhotos.length > 0
-          ? await uploadImages(api, newBaElevatorPhotos)
+          ? await uploadImages(
+              api,
+              newBaElevatorPhotos,
+              undefined,
+              '건물 엘리베이터 사진',
+            )
           : [];
 
       // Upload replaced BA entrance photos
@@ -604,6 +623,8 @@ export default function ReportCorrectionFormScreen({
           ? await uploadImages(
               api,
               replacedBaEntranceEntries.map(([_, photo]) => photo),
+              undefined,
+              '건물 입구 사진',
             )
           : [];
       const replacedBaEntranceUrlMap = new Map<number, string>();
@@ -620,6 +641,8 @@ export default function ReportCorrectionFormScreen({
           ? await uploadImages(
               api,
               replacedBaElevatorEntries.map(([_, photo]) => photo),
+              undefined,
+              '건물 엘리베이터 사진',
             )
           : [];
       const replacedBaElevatorUrlMap = new Map<number, string>();

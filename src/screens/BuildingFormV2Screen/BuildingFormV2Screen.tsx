@@ -889,11 +889,23 @@ async function register(
     (values.enterancePhotos?.length ?? 0) +
     (values.elevatorPhotos?.length ?? 0);
   try {
-    const upload =
-      uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
+    const upload: UploadImagesFn =
+      uploadImagesFn ??
+      ((a, images, purposeType) =>
+        ImageFileUtils.uploadImages(a, images, purposeType));
     const startImageUpload = Date.now();
-    const enteranceImages = await upload(api, values.enterancePhotos);
-    const elevatorImages = await upload(api, values.elevatorPhotos);
+    const enteranceImages = await upload(
+      api,
+      values.enterancePhotos,
+      undefined,
+      '입구 사진',
+    );
+    const elevatorImages = await upload(
+      api,
+      values.elevatorPhotos,
+      undefined,
+      '엘리베이터 사진',
+    );
     const durationImageUpload = Date.now() - startImageUpload;
 
     try {

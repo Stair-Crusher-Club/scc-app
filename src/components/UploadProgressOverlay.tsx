@@ -12,6 +12,7 @@ export interface UploadProgressOverlayProps {
   totalImages: number;
   progress: number; // 0-1
   imageSizeMb: number;
+  label?: string; // e.g. '입구 사진', '엘리베이터 사진'
 }
 
 export function UploadProgressOverlay({
@@ -21,6 +22,7 @@ export function UploadProgressOverlay({
   totalImages,
   progress,
   imageSizeMb,
+  label,
 }: UploadProgressOverlayProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const width = Dimensions.get('window').width;
@@ -64,12 +66,13 @@ export function UploadProgressOverlay({
 
   const isIndeterminate = stage === 'compressing' || stage === 'registering';
 
+  const photoLabel = label ?? '사진';
   const titleText = (() => {
     switch (stage) {
       case 'compressing':
-        return `사진 압축 중 (${currentIndex + 1}/${totalImages})`;
+        return `${photoLabel} 압축 중 (${currentIndex + 1}/${totalImages})`;
       case 'uploading':
-        return `사진 업로드 중 (${currentIndex + 1}/${totalImages})`;
+        return `${photoLabel} 업로드 중 (${currentIndex + 1}/${totalImages})`;
       case 'registering':
         return '정보 등록 중...';
       default: {

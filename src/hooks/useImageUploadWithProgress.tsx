@@ -12,6 +12,7 @@ export type UploadImagesFn = (
   api: DefaultApi,
   images: ImageFile[],
   purposeType?: ImageUploadPurpose,
+  label?: string,
 ) => Promise<string[]>;
 
 export function useImageUploadWithProgress() {
@@ -22,6 +23,7 @@ export function useImageUploadWithProgress() {
       api: DefaultApi,
       images: ImageFile[],
       purposeType?: ImageUploadPurpose,
+      label?: string,
     ) => {
       try {
         return await ImageFileUtils.uploadImages(
@@ -36,6 +38,7 @@ export function useImageUploadWithProgress() {
               totalImages: p.totalImages,
               progress: p.totalBytes > 0 ? p.bytesUploaded / p.totalBytes : 0,
               imageSizeMb: p.imageSizeMb,
+              label,
             });
           },
         );
