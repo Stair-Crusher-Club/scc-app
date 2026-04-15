@@ -2,8 +2,11 @@ import {
   placeFormV2GuideDismissedAtom,
   placeFormV2GuideDismissedUntilAtom,
 } from '@/atoms/User';
-import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {
+  UploadProgressOverlay,
+  UploadProgressOverlayProps,
+} from '@/components/UploadProgressOverlay';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -23,7 +26,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import ImageFileUtils from '@/utils/ImageFileUtils';
+import ImageFileUtils, {UploadProgress} from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
@@ -90,7 +93,8 @@ export default function PlaceFormV2Screen({
   const queryClient = useQueryClient();
   const pushItems = useSetAtom(pushItemsAtom);
 
-  const [loading, setLoading] = useAtom(loadingState);
+  const [uploadProgress, setUploadProgress] =
+    useState<UploadProgressOverlayProps | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
 
   // 뒤로가기 confirm
@@ -207,7 +211,6 @@ export default function PlaceFormV2Screen({
   const handleSubmit = async () => {
     const values = form.getValues();
 
-    setLoading(new Map(loading).set('PlaceForm', true));
     const registered = await register(
       api,
       queryClient,
@@ -217,8 +220,21 @@ export default function PlaceFormV2Screen({
       selectedStandaloneType,
       selectedFloor,
       doorDirection,
+      (progress: UploadProgress) => {
+        setUploadProgress({
+          visible: true,
+          stage: progress.stage,
+          currentIndex: progress.currentIndex,
+          totalImages: progress.totalImages,
+          progress:
+            progress.totalBytes > 0
+              ? progress.bytesUploaded / progress.totalBytes
+              : 0,
+          imageSizeMb: progress.imageSizeMb,
+        });
+      },
     );
-    setLoading(new Map(loading).set('PlaceForm', false));
+    setUploadProgress(null);
 
     if (!registered.success) {
       return;
@@ -403,6 +419,7 @@ export default function PlaceFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
+        {uploadProgress && <UploadProgressOverlay {...uploadProgress} />}
       </FormProvider>
     </LogParamsProvider>
   );
@@ -527,6 +544,7 @@ async function register(
   selectedStandaloneType: StandaloneBuildingType | null,
   selectedFloor: number | undefined,
   doorDirection?: BuildingDoorDirectionType,
+  onProgress?: (progress: UploadProgress) => void,
 ) {
   const startTotal = Date.now();
   const imageCount =
@@ -537,6 +555,8 @@ async function register(
     const uploadedImageUrls = await ImageFileUtils.uploadImages(
       api,
       values.entrancePhotos,
+      undefined,
+      onProgress,
     );
 
     // Prepare floor moving elevator accessibility if needed
@@ -554,6 +574,8 @@ async function register(
       const elevatorImageUrls = await ImageFileUtils.uploadImages(
         api,
         values.elevatorPhotos || [],
+        undefined,
+        onProgress,
       );
 
       floorMovingElevatorAccessibility = {
@@ -574,6 +596,16 @@ async function register(
             : undefined,
       };
     }
+
+    // Registering stage
+    onProgress?.({
+      stage: 'registering',
+      currentIndex: 0,
+      totalImages: imageCount,
+      bytesUploaded: 0,
+      totalBytes: 0,
+      imageSizeMb: 0,
+    });
 
     // Build API request
     const requestData: RegisterPlaceAccessibilityRequestDtoV2 = {
