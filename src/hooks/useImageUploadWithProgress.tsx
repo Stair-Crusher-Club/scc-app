@@ -1,9 +1,6 @@
-import React, {useCallback, useState} from 'react';
+import {useCallback, useState} from 'react';
 
-import {
-  UploadProgressOverlay,
-  UploadProgressOverlayProps,
-} from '@/components/UploadProgressOverlay';
+import {UploadProgressOverlayProps} from '@/components/UploadProgressOverlay';
 import {DefaultApi, ImageUploadPurpose} from '@/generated-sources/openapi';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils, {UploadProgress} from '@/utils/ImageFileUtils';
@@ -15,8 +12,18 @@ export type UploadImagesFn = (
   label?: string,
 ) => Promise<string[]>;
 
+const HIDDEN_PROPS: UploadProgressOverlayProps = {
+  visible: false,
+  stage: 'uploading',
+  currentIndex: 0,
+  totalImages: 0,
+  progress: 0,
+  imageSizeMb: 0,
+};
+
 export function useImageUploadWithProgress() {
-  const [props, setProps] = useState<UploadProgressOverlayProps | null>(null);
+  const [overlayProps, setOverlayProps] =
+    useState<UploadProgressOverlayProps>(HIDDEN_PROPS);
 
   const uploadImages: UploadImagesFn = useCallback(
     async (
@@ -31,7 +38,7 @@ export function useImageUploadWithProgress() {
           images,
           purposeType,
           (p: UploadProgress) => {
-            setProps({
+            setOverlayProps({
               visible: true,
               stage: p.stage,
               currentIndex: p.currentIndex,
@@ -43,16 +50,11 @@ export function useImageUploadWithProgress() {
           },
         );
       } finally {
-        setProps(null);
+        setOverlayProps(HIDDEN_PROPS);
       }
     },
     [],
   );
 
-  const UploadOverlay = useCallback(
-    () => (props ? <UploadProgressOverlay {...props} /> : null),
-    [props],
-  );
-
-  return {uploadImages, UploadOverlay};
+  return {uploadImages, uploadProgress: overlayProps};
 }

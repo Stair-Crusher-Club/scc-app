@@ -27,6 +27,7 @@ import {
   StairHeightLevel,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import {useImageUploadWithProgress} from '@/hooks/useImageUploadWithProgress';
 import usePost from '@/hooks/usePost';
 import ImageFile from '@/models/ImageFile';
@@ -291,7 +292,7 @@ export default function ReportCorrectionFormScreen({
   const category = inaccurateCategory as InaccurateInfoCategoryDto;
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
-  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
+  const {uploadImages, uploadProgress} = useImageUploadWithProgress();
 
   const [isLoading, setIsLoading] = useState(true);
   const [accessibilityData, setAccessibilityData] =
@@ -1286,7 +1287,7 @@ export default function ReportCorrectionFormScreen({
           />
         </SubmitButtonContainer>
       </ScrollView>
-      <UploadOverlay />
+      <UploadProgressOverlay {...uploadProgress} />
     </ScreenLayout>
   );
 }

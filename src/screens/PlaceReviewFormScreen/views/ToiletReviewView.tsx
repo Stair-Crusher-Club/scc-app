@@ -18,6 +18,7 @@ import {
   ToiletLocationTypeDto,
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
+import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import useAppComponents from '@/hooks/useAppComponents';
 import {
   useImageUploadWithProgress,
@@ -59,7 +60,7 @@ export default function ToiletReviewView({
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
   const {userInfo} = useMe();
-  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
+  const {uploadImages, uploadProgress} = useImageUploadWithProgress();
   const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
 
   const form = useForm<FormValues>({
@@ -117,7 +118,7 @@ export default function ToiletReviewView({
 
           <ToiletSection onSave={form.handleSubmit(onValid)} />
         </KeyboardAwareScrollView>
-        <UploadOverlay />
+        <UploadProgressOverlay {...uploadProgress} />
       </SafeAreaWrapper>
     </FormProvider>
   );

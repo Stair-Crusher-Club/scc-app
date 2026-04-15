@@ -13,6 +13,7 @@ import {
 
 import {SccPressable} from '@/components/SccPressable';
 import TabBar from '@/components/TabBar';
+import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import {
   useImageUploadWithProgress,
   UploadImagesFn,
@@ -98,7 +99,7 @@ export default function BuildingFormV2Screen({
   const pushItems = useSetAtom(pushItemsAtom);
   const queryClient = useQueryClient();
 
-  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
+  const {uploadImages, uploadProgress} = useImageUploadWithProgress();
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
   const isKeyboardVisible = useKeyboardVisible();
 
@@ -855,7 +856,7 @@ export default function BuildingFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
-        <UploadOverlay />
+        <UploadProgressOverlay {...uploadProgress} />
       </FormProvider>
     </LogParamsProvider>
   );

@@ -3,6 +3,7 @@ import {
   placeFormV2GuideDismissedUntilAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import {
   useImageUploadWithProgress,
   UploadImagesFn,
@@ -93,7 +94,7 @@ export default function PlaceFormV2Screen({
   const queryClient = useQueryClient();
   const pushItems = useSetAtom(pushItemsAtom);
 
-  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
+  const {uploadImages, uploadProgress} = useImageUploadWithProgress();
   const [stepIndex, setStepIndex] = useState(0);
 
   // 뒤로가기 confirm
@@ -405,7 +406,7 @@ export default function PlaceFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
-        <UploadOverlay />
+        <UploadProgressOverlay {...uploadProgress} />
       </FormProvider>
     </LogParamsProvider>
   );
