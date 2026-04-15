@@ -4,9 +4,9 @@ import {
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {
-  UploadProgressOverlay,
-  UploadProgressOverlayProps,
-} from '@/components/UploadProgressOverlay';
+  useImageUploadWithProgress,
+  UploadImagesFn,
+} from '@/hooks/useImageUploadWithProgress';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -26,7 +26,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import ImageFileUtils, {UploadProgress} from '@/utils/ImageFileUtils';
+import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
@@ -93,8 +93,7 @@ export default function PlaceFormV2Screen({
   const queryClient = useQueryClient();
   const pushItems = useSetAtom(pushItemsAtom);
 
-  const [uploadProgress, setUploadProgress] =
-    useState<UploadProgressOverlayProps | null>(null);
+  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
   const [stepIndex, setStepIndex] = useState(0);
 
   // 뒤로가기 confirm
@@ -220,21 +219,8 @@ export default function PlaceFormV2Screen({
       selectedStandaloneType,
       selectedFloor,
       doorDirection,
-      (progress: UploadProgress) => {
-        setUploadProgress({
-          visible: true,
-          stage: progress.stage,
-          currentIndex: progress.currentIndex,
-          totalImages: progress.totalImages,
-          progress:
-            progress.totalBytes > 0
-              ? progress.bytesUploaded / progress.totalBytes
-              : 0,
-          imageSizeMb: progress.imageSizeMb,
-        });
-      },
+      uploadImages,
     );
-    setUploadProgress(null);
 
     if (!registered.success) {
       return;
@@ -419,7 +405,7 @@ export default function PlaceFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
-        {uploadProgress && <UploadProgressOverlay {...uploadProgress} />}
+        <UploadOverlay />
       </FormProvider>
     </LogParamsProvider>
   );
@@ -544,20 +530,17 @@ async function register(
   selectedStandaloneType: StandaloneBuildingType | null,
   selectedFloor: number | undefined,
   doorDirection?: BuildingDoorDirectionType,
-  onProgress?: (progress: UploadProgress) => void,
+  uploadImagesFn?: UploadImagesFn,
 ) {
   const startTotal = Date.now();
   const imageCount =
     (values.entrancePhotos?.length ?? 0) + (values.elevatorPhotos?.length ?? 0);
+  const upload =
+    uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
   try {
     // Upload images first
     const startImageUpload = Date.now();
-    const uploadedImageUrls = await ImageFileUtils.uploadImages(
-      api,
-      values.entrancePhotos,
-      undefined,
-      onProgress,
-    );
+    const uploadedImageUrls = await upload(api, values.entrancePhotos);
 
     // Prepare floor moving elevator accessibility if needed
     let floorMovingElevatorAccessibility;
@@ -571,12 +554,7 @@ async function register(
         FloorMovingMethodTypeDto.PlaceElevator,
       )
     ) {
-      const elevatorImageUrls = await ImageFileUtils.uploadImages(
-        api,
-        values.elevatorPhotos || [],
-        undefined,
-        onProgress,
-      );
+      const elevatorImageUrls = await upload(api, values.elevatorPhotos || []);
 
       floorMovingElevatorAccessibility = {
         imageUrls: elevatorImageUrls,
@@ -596,16 +574,6 @@ async function register(
             : undefined,
       };
     }
-
-    // Registering stage
-    onProgress?.({
-      stage: 'registering',
-      currentIndex: 0,
-      totalImages: imageCount,
-      bytesUploaded: 0,
-      totalBytes: 0,
-      imageSizeMb: 0,
-    });
 
     // Build API request
     const requestData: RegisterPlaceAccessibilityRequestDtoV2 = {

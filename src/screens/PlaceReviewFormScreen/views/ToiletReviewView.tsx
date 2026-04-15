@@ -1,12 +1,11 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
-import {useAtom, useSetAtom} from 'jotai';
+import {useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useMemo} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {View} from 'react-native';
 
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
-import {loadingState} from '@/components/LoadingView';
 import {
   getMobilityToolDefaultValue,
   UserMobilityToolMapDto,
@@ -20,6 +19,10 @@ import {
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {
+  useImageUploadWithProgress,
+  UploadImagesFn,
+} from '@/hooks/useImageUploadWithProgress';
 import {useMe} from '@/atoms/Auth';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
@@ -27,7 +30,6 @@ import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import PlaceReviewFormScreen from '..';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import ToiletSection from '../sections/ToiletSection';
 import UserTypeSection from '../sections/UserTypeSection';
@@ -57,7 +59,7 @@ export default function ToiletReviewView({
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
   const {userInfo} = useMe();
-  const [loading, setLoading] = useAtom(loadingState);
+  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
   const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
 
   const form = useForm<FormValues>({
@@ -77,7 +79,6 @@ export default function ToiletReviewView({
   const registerPlace = useMemo(
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
-        setLoading(new Map(loading).set(PlaceReviewFormScreen.name, true));
         setRecentlyUsedMobilityTool({
           name: values.mobilityTool,
           timestamp: Date.now(),
@@ -87,8 +88,8 @@ export default function ToiletReviewView({
           queryClient,
           placeId: place?.id!,
           values,
+          uploadImagesFn: uploadImages,
         });
-        setLoading(new Map(loading).set(PlaceReviewFormScreen.name, false));
 
         if (!registered) {
           return;
@@ -97,7 +98,7 @@ export default function ToiletReviewView({
         ToastUtils.show('화장실 리뷰를 등록했어요.');
         afterSuccess();
       }, 1000),
-    [api, place, loading, setLoading, setRecentlyUsedMobilityTool],
+    [api, place, uploadImages, setRecentlyUsedMobilityTool],
   );
 
   return (
@@ -116,6 +117,7 @@ export default function ToiletReviewView({
 
           <ToiletSection onSave={form.handleSubmit(onValid)} />
         </KeyboardAwareScrollView>
+        <UploadOverlay />
       </SafeAreaWrapper>
     </FormProvider>
   );
@@ -126,18 +128,18 @@ async function register({
   queryClient,
   placeId,
   values,
+  uploadImagesFn,
 }: {
   api: DefaultApi;
   queryClient: QueryClient;
   placeId: string;
   values: FormValues;
+  uploadImagesFn?: UploadImagesFn;
 }) {
+  const upload =
+    uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
   try {
-    const images = await ImageFileUtils.uploadImages(
-      api,
-      values.toiletPhotos,
-      'TOILET_REVIEW',
-    );
+    const images = await upload(api, values.toiletPhotos, 'TOILET_REVIEW');
     try {
       const isNoneOrEtc =
         values.toiletLocationType === 'NONE' ||

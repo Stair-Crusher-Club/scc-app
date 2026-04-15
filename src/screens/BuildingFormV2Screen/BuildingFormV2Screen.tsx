@@ -14,9 +14,9 @@ import {
 import {SccPressable} from '@/components/SccPressable';
 import TabBar from '@/components/TabBar';
 import {
-  UploadProgressOverlay,
-  UploadProgressOverlayProps,
-} from '@/components/UploadProgressOverlay';
+  useImageUploadWithProgress,
+  UploadImagesFn,
+} from '@/hooks/useImageUploadWithProgress';
 import {SccButton} from '@/components/atoms';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
@@ -44,7 +44,7 @@ import Logger from '@/logging/Logger';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import ImageFileUtils, {UploadProgress} from '@/utils/ImageFileUtils';
+import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -98,8 +98,7 @@ export default function BuildingFormV2Screen({
   const pushItems = useSetAtom(pushItemsAtom);
   const queryClient = useQueryClient();
 
-  const [uploadProgress, setUploadProgress] =
-    useState<UploadProgressOverlayProps | null>(null);
+  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
   const isKeyboardVisible = useKeyboardVisible();
 
@@ -353,21 +352,8 @@ export default function BuildingFormV2Screen({
           place.id,
           building.id,
           values,
-          (progress: UploadProgress) => {
-            setUploadProgress({
-              visible: true,
-              stage: progress.stage,
-              currentIndex: progress.currentIndex,
-              totalImages: progress.totalImages,
-              progress:
-                progress.totalBytes > 0
-                  ? progress.bytesUploaded / progress.totalBytes
-                  : 0,
-              imageSizeMb: progress.imageSizeMb,
-            });
-          },
+          uploadImages,
         );
-        setUploadProgress(null);
 
         // 장소 정보 등록에 실패, 이후 과정을 진행하지 않음
         if (!registered.success) {
@@ -387,7 +373,7 @@ export default function BuildingFormV2Screen({
           },
         });
       }, 1000),
-    [api, place, building, navigation],
+    [api, place, building, navigation, uploadImages],
   );
 
   function noticeError(errorKey: keyof FormValues) {
@@ -869,7 +855,7 @@ export default function BuildingFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
-        {uploadProgress && <UploadProgressOverlay {...uploadProgress} />}
+        <UploadOverlay />
       </FormProvider>
     </LogParamsProvider>
   );
@@ -896,39 +882,21 @@ async function register(
   placeId: string,
   buildingId: string,
   values: FormValues,
-  onProgress?: (progress: UploadProgress) => void,
+  uploadImagesFn?: UploadImagesFn,
 ) {
   const startTotal = Date.now();
   const imageCount =
     (values.enterancePhotos?.length ?? 0) +
     (values.elevatorPhotos?.length ?? 0);
   try {
+    const upload =
+      uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
     const startImageUpload = Date.now();
-    const enteranceImages = await ImageFileUtils.uploadImages(
-      api,
-      values.enterancePhotos,
-      undefined,
-      onProgress,
-    );
-    const elevatorImages = await ImageFileUtils.uploadImages(
-      api,
-      values.elevatorPhotos,
-      undefined,
-      onProgress,
-    );
+    const enteranceImages = await upload(api, values.enterancePhotos);
+    const elevatorImages = await upload(api, values.elevatorPhotos);
     const durationImageUpload = Date.now() - startImageUpload;
 
     try {
-      // Registering stage
-      onProgress?.({
-        stage: 'registering',
-        currentIndex: 0,
-        totalImages: imageCount,
-        bytesUploaded: 0,
-        totalBytes: 0,
-        imageSizeMb: 0,
-      });
-
       const startApiCall = Date.now();
       const res = await api.registerBuildingAccessibilityV2Post({
         buildingId,
