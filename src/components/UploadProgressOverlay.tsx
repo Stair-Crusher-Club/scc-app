@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 import {Animated, BackHandler, Dimensions} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -64,23 +64,11 @@ export function UploadProgressOverlay({
     return () => handler.remove();
   }, [visible]);
 
-  const isIndeterminate = stage === 'compressing' || stage === 'registering';
-
   const photoLabel = label ?? '사진';
-  const titleText = (() => {
-    switch (stage) {
-      case 'compressing':
-        return `${photoLabel} 압축 중 (${currentIndex + 1}/${totalImages})`;
-      case 'uploading':
-        return `${photoLabel} 업로드 중 (${currentIndex + 1}/${totalImages})`;
-      case 'registering':
-        return '정보 등록 중...';
-      default: {
-        const _exhaustiveCheck: never = stage;
-        return _exhaustiveCheck;
-      }
-    }
-  })();
+  const isRegistering = stage === 'registering';
+  const titleText = isRegistering
+    ? '정보 등록 중...'
+    : `${photoLabel} 업로드 중 (${currentIndex + 1}/${totalImages})`;
 
   const progressPercent = Math.round(progress * 100);
 
@@ -90,58 +78,17 @@ export function UploadProgressOverlay({
       pointerEvents={visible ? 'auto' : 'none'}>
       <Card>
         <TitleText>{titleText}</TitleText>
-        {stage === 'uploading' && (
-          <SizeText>{imageSizeMb.toFixed(2)} MB</SizeText>
-        )}
+        <SizeText>
+          {isRegistering
+            ? ' '
+            : `${imageSizeMb > 0 ? imageSizeMb.toFixed(2) : '--'} MB`}
+        </SizeText>
         <ProgressBarContainer>
-          {isIndeterminate ? (
-            <IndeterminateBar />
-          ) : (
-            <ProgressBarFill style={{width: `${progressPercent}%`}} />
-          )}
+          <ProgressBarFill style={{width: `${progressPercent}%`}} />
         </ProgressBarContainer>
-        {stage === 'uploading' && <PercentText>{progressPercent}%</PercentText>}
+        <PercentText>{isRegistering ? ' ' : `${progressPercent}%`}</PercentText>
       </Card>
     </Overlay>
-  );
-}
-
-// Indeterminate animated bar
-function IndeterminateBar() {
-  const translateX = useRef(new Animated.Value(-100)).current;
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(translateX, {
-          toValue: 200,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateX, {
-          toValue: -100,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [translateX]);
-
-  return (
-    <Animated.View
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: '40%',
-        backgroundColor: color.lightOrange,
-        borderRadius: 3,
-        transform: [{translateX}],
-      }}
-    />
   );
 }
 
