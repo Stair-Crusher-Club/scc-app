@@ -171,13 +171,14 @@ const ImageFileUtils = {
             );
           }
 
+          const startCompress = Date.now();
           let compressedUri: string;
           try {
             compressedUri = await ImageCompressor.compress(image.uri, {
               compressionMethod: 'auto',
               maxWidth: 2560,
               maxHeight: 2560,
-              quality: 0.9,
+              quality: 0.7,
             });
           } catch (compressError) {
             Logger.logError(
@@ -187,14 +188,21 @@ const ImageFileUtils = {
             );
             compressedUri = image.uri;
           }
+          const durationCompress = Date.now() - startCompress;
 
+          const startUpload = Date.now();
           const result = await uploadToPresignedUrlWithRetry(
             url,
             compressedUri,
           );
+          const durationUpload = Date.now() - startUpload;
 
           durationOfUploadImages[`duration_millis_of_upload_image_${index}`] =
             Date.now() - startTimeOfImageUpload;
+          durationOfUploadImages[`duration_millis_of_compress_${index}`] =
+            durationCompress;
+          durationOfUploadImages[`duration_millis_of_s3_upload_${index}`] =
+            durationUpload;
           durationOfUploadImages[`size_mb_of_image_${index}`] = floor(
             result.size / (1024 * 1024),
             2,
