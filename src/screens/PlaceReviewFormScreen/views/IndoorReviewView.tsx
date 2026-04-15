@@ -1,5 +1,5 @@
 import {QueryClient, useQueryClient} from '@tanstack/react-query';
-import {useAtom, useSetAtom} from 'jotai';
+import {useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {FieldErrors, FormProvider, useForm} from 'react-hook-form';
@@ -8,7 +8,6 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import {useMe} from '@/atoms/Auth';
 import {recentlyUsedMobilityToolAtom} from '@/atoms/User';
-import {loadingState} from '@/components/LoadingView';
 import {
   getMobilityToolDefaultValue,
   UserMobilityToolMapDto,
@@ -21,6 +20,10 @@ import {
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {
+  useImageUploadWithProgress,
+  UploadImagesFn,
+} from '@/hooks/useImageUploadWithProgress';
 import ImageFile from '@/models/ImageFile';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
@@ -29,7 +32,6 @@ import ToastUtils from '@/utils/ToastUtils';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import PhotoConfirmBottomSheet from '@/modals/PhotoConfirmBottomSheet';
 import {pushItemsAtom} from '@/screens/SearchScreen/atoms/quest';
-import PlaceReviewFormScreen from '..';
 import IndoorInfoSection from '../sections/IndoorInfoSection';
 import PlaceInfoSection from '../sections/PlaceInfoSection';
 import UserTypeSection from '../sections/UserTypeSection';
@@ -64,7 +66,7 @@ export default function IndoorReviewView({
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
   const {userInfo} = useMe();
-  const [loading, setLoading] = useAtom(loadingState);
+  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
   const form = useForm<FormValues>({
     defaultValues: {
       mobilityTool: getMobilityToolDefaultValue(userInfo?.mobilityTools),
@@ -143,7 +145,6 @@ export default function IndoorReviewView({
   const registerPlace = useMemo(
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
-        setLoading(new Map(loading).set(PlaceReviewFormScreen.name, true));
         setRecentlyUsedMobilityTool({
           name: values.mobilityTool,
           timestamp: Date.now(),
@@ -153,8 +154,8 @@ export default function IndoorReviewView({
           queryClient,
           placeId: place?.id!,
           values,
+          uploadImagesFn: uploadImages,
         });
-        setLoading(new Map(loading).set(PlaceReviewFormScreen.name, false));
 
         if (!registered.success) {
           return;
@@ -167,7 +168,7 @@ export default function IndoorReviewView({
         ToastUtils.show('리뷰를 등록했어요.');
         afterSuccess();
       }, 1000),
-    [api, place, loading, setLoading, setRecentlyUsedMobilityTool],
+    [api, place, uploadImages, setRecentlyUsedMobilityTool],
   );
 
   return (
@@ -210,6 +211,7 @@ export default function IndoorReviewView({
           onConfirm={handlePhotoModalConfirm}
           onCancel={handlePhotoModalCancel}
         />
+        <UploadOverlay />
       </SafeAreaWrapper>
     </FormProvider>
   );
@@ -220,18 +222,18 @@ async function register({
   queryClient,
   placeId,
   values,
+  uploadImagesFn,
 }: {
   api: DefaultApi;
   queryClient: QueryClient;
   placeId: string;
   values: FormValues;
+  uploadImagesFn?: UploadImagesFn;
 }) {
+  const upload =
+    uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
   try {
-    const images = await ImageFileUtils.uploadImages(
-      api,
-      values.indoorPhotos,
-      'PLACE_REVIEW',
-    );
+    const images = await upload(api, values.indoorPhotos, 'PLACE_REVIEW');
     try {
       const res = await api.registerPlaceReviewPost({
         placeId,

@@ -7,6 +7,15 @@ import ImageFile from '@/models/ImageFile';
 
 const UPLOAD_TIMEOUT_MS = 30_000;
 
+export interface UploadProgress {
+  stage: 'compressing' | 'uploading' | 'registering';
+  currentIndex: number;
+  totalImages: number;
+  bytesUploaded: number;
+  totalBytes: number;
+  imageSizeMb: number;
+}
+
 interface UploadImageResult {
   url: string;
   size: number;
@@ -45,64 +54,70 @@ class UploadHttpError extends Error {
   }
 }
 
-/** presigned URL에 이미지 업로드 (내부 전용) */
+/** presigned URL에 이미지 업로드 (내부 전용) — XMLHttpRequest 사용으로 progress 지원 */
 async function uploadToPresignedUrl(
   presignedUrl: string,
   imageFileUrl: string,
+  onProgress?: (loaded: number, total: number) => void,
 ): Promise<UploadImageResult> {
   const url = new URL(presignedUrl);
   const resp = await fetch(imageFileUrl);
   const imageBody = await resp.blob();
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+  return new Promise<UploadImageResult>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.timeout = UPLOAD_TIMEOUT_MS;
 
-  try {
-    const result = await fetch(url.href, {
-      method: 'PUT',
-      headers: {
-        'content-type': imageBody.type,
-        'x-amz-acl': 'public-read',
-      },
-      body: imageBody,
+    xhr.upload.onprogress = (e: ProgressEvent) => {
+      if (e.lengthComputable) {
+        onProgress?.(e.loaded, e.total);
+      }
+    };
 
-      signal: controller.signal as any,
-    });
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve({
+          url: url.protocol + '//' + url.host + url.pathname,
+          size: imageBody.size,
+        });
+      } else {
+        reject(
+          new UploadHttpError(
+            `Upload image to ${url.href} is failed. cause: ${xhr.responseText}`,
+            xhr.status,
+          ),
+        );
+      }
+    };
 
-    if (result.ok) {
-      return {
-        url: url.protocol + '//' + url.host + url.pathname,
-        size: imageBody.size,
-      };
-    } else {
-      const resultString = await result.text();
-      throw new UploadHttpError(
-        `Upload image to ${result.url} is failed. cause: ${resultString}`,
-        result.status,
+    xhr.ontimeout = () => {
+      reject(
+        new Error(`Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`),
       );
-    }
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(
-        `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
-      );
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
-  }
+    };
+
+    xhr.onerror = () => {
+      reject(new TypeError('Network request failed'));
+    };
+
+    xhr.open('PUT', url.href);
+    xhr.setRequestHeader('content-type', imageBody.type);
+    xhr.setRequestHeader('x-amz-acl', 'public-read');
+    xhr.send(imageBody);
+  });
 }
 
 /** 1회 재시도 포함 업로드 */
 async function uploadToPresignedUrlWithRetry(
   presignedUrl: string,
   imageFileUrl: string,
+  onProgress?: (loaded: number, total: number) => void,
 ): Promise<UploadImageResult> {
   try {
-    return await uploadToPresignedUrl(presignedUrl, imageFileUrl);
+    return await uploadToPresignedUrl(presignedUrl, imageFileUrl, onProgress);
   } catch (_firstError) {
     await delay(1000);
-    return await uploadToPresignedUrl(presignedUrl, imageFileUrl);
+    return await uploadToPresignedUrl(presignedUrl, imageFileUrl, onProgress);
   }
 }
 
@@ -140,6 +155,7 @@ const ImageFileUtils = {
     api: DefaultApi,
     images: ImageFile[] = [],
     purposeType?: ImageUploadPurpose,
+    onProgress?: (progress: UploadProgress) => void,
   ) {
     const startTimeOfTotal = Date.now();
     const startTimeOfGettingPresignedUrls = Date.now();
@@ -155,62 +171,85 @@ const ImageFileUtils = {
 
     let durationOfUploadImages: Record<string, number> = {};
     try {
-      const uploadedUrls = await Promise.all(
-        images.map(async (image, index) => {
-          const url = uploadUrls[index];
-          if (url === undefined) {
-            throw new Error('There are not enough urls.');
-          }
-          const startTimeOfImageUpload = Date.now();
+      const uploadedUrls: string[] = [];
 
-          if (image.width === 0 || image.height === 0) {
-            Logger.logError(
-              new Error(
-                `Image at index ${index} has zero dimension: width=${image.width}, height=${image.height}`,
-              ),
-            );
-          }
+      for (let index = 0; index < images.length; index++) {
+        const image = images[index];
+        const url = uploadUrls[index];
+        if (url === undefined) {
+          throw new Error('There are not enough urls.');
+        }
+        const startTimeOfImageUpload = Date.now();
 
-          const startCompress = Date.now();
-          let compressedUri: string;
-          try {
-            compressedUri = await ImageCompressor.compress(image.uri, {
-              compressionMethod: 'auto',
-              maxWidth: 2560,
-              maxHeight: 2560,
-              quality: 0.7,
+        if (image.width === 0 || image.height === 0) {
+          Logger.logError(
+            new Error(
+              `Image at index ${index} has zero dimension: width=${image.width}, height=${image.height}`,
+            ),
+          );
+        }
+
+        // Compressing stage
+        onProgress?.({
+          stage: 'compressing',
+          currentIndex: index,
+          totalImages: images.length,
+          bytesUploaded: 0,
+          totalBytes: 0,
+          imageSizeMb: 0,
+        });
+
+        const startCompress = Date.now();
+        let compressedUri: string;
+        try {
+          compressedUri = await ImageCompressor.compress(image.uri, {
+            compressionMethod: 'auto',
+            maxWidth: 2560,
+            maxHeight: 2560,
+            quality: 0.7,
+          });
+        } catch (compressError) {
+          Logger.logError(
+            compressError instanceof Error
+              ? compressError
+              : new Error(String(compressError)),
+          );
+          compressedUri = image.uri;
+        }
+        const durationCompress = Date.now() - startCompress;
+
+        // Uploading stage
+        const startUpload = Date.now();
+        const result = await uploadToPresignedUrlWithRetry(
+          url,
+          compressedUri,
+          (loaded, total) => {
+            const imageSizeMb = floor(total / (1024 * 1024), 2);
+            onProgress?.({
+              stage: 'uploading',
+              currentIndex: index,
+              totalImages: images.length,
+              bytesUploaded: loaded,
+              totalBytes: total,
+              imageSizeMb,
             });
-          } catch (compressError) {
-            Logger.logError(
-              compressError instanceof Error
-                ? compressError
-                : new Error(String(compressError)),
-            );
-            compressedUri = image.uri;
-          }
-          const durationCompress = Date.now() - startCompress;
+          },
+        );
+        const durationUpload = Date.now() - startUpload;
 
-          const startUpload = Date.now();
-          const result = await uploadToPresignedUrlWithRetry(
-            url,
-            compressedUri,
-          );
-          const durationUpload = Date.now() - startUpload;
+        durationOfUploadImages[`duration_millis_of_upload_image_${index}`] =
+          Date.now() - startTimeOfImageUpload;
+        durationOfUploadImages[`duration_millis_of_compress_${index}`] =
+          durationCompress;
+        durationOfUploadImages[`duration_millis_of_s3_upload_${index}`] =
+          durationUpload;
+        durationOfUploadImages[`size_mb_of_image_${index}`] = floor(
+          result.size / (1024 * 1024),
+          2,
+        );
 
-          durationOfUploadImages[`duration_millis_of_upload_image_${index}`] =
-            Date.now() - startTimeOfImageUpload;
-          durationOfUploadImages[`duration_millis_of_compress_${index}`] =
-            durationCompress;
-          durationOfUploadImages[`duration_millis_of_s3_upload_${index}`] =
-            durationUpload;
-          durationOfUploadImages[`size_mb_of_image_${index}`] = floor(
-            result.size / (1024 * 1024),
-            2,
-          );
-
-          return result.url;
-        }),
-      );
+        uploadedUrls.push(result.url);
+      }
 
       await Logger.logUploadImage({
         ...durationOfUploadImages,

@@ -1,5 +1,5 @@
 import {useQueryClient} from '@tanstack/react-query';
-import {useAtom, useSetAtom} from 'jotai';
+import {useSetAtom} from 'jotai';
 import {throttle} from 'lodash';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Controller, FormProvider, useForm} from 'react-hook-form';
@@ -11,9 +11,12 @@ import {
   View,
 } from 'react-native';
 
-import {loadingState} from '@/components/LoadingView';
 import {SccPressable} from '@/components/SccPressable';
 import TabBar from '@/components/TabBar';
+import {
+  useImageUploadWithProgress,
+  UploadImagesFn,
+} from '@/hooks/useImageUploadWithProgress';
 import {SccButton} from '@/components/atoms';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import {font} from '@/constant/font';
@@ -95,7 +98,7 @@ export default function BuildingFormV2Screen({
   const pushItems = useSetAtom(pushItemsAtom);
   const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useAtom(loadingState);
+  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
   const isKeyboardVisible = useKeyboardVisible();
 
@@ -343,15 +346,14 @@ export default function BuildingFormV2Screen({
   const registerBuilding = useMemo(
     () =>
       throttle(async (values: FormValues) => {
-        setLoading(new Map(loading).set('BuildingForm', true));
         const registered = await register(
           api,
           queryClient,
           place.id,
           building.id,
           values,
+          uploadImages,
         );
-        setLoading(new Map(loading).set('BuildingForm', false));
 
         // 장소 정보 등록에 실패, 이후 과정을 진행하지 않음
         if (!registered.success) {
@@ -371,7 +373,7 @@ export default function BuildingFormV2Screen({
           },
         });
       }, 1000),
-    [api, place, building, navigation, loading, setLoading],
+    [api, place, building, navigation, uploadImages],
   );
 
   function noticeError(errorKey: keyof FormValues) {
@@ -853,6 +855,7 @@ export default function BuildingFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
+        <UploadOverlay />
       </FormProvider>
     </LogParamsProvider>
   );
@@ -879,20 +882,29 @@ async function register(
   placeId: string,
   buildingId: string,
   values: FormValues,
+  uploadImagesFn?: UploadImagesFn,
 ) {
   const startTotal = Date.now();
   const imageCount =
     (values.enterancePhotos?.length ?? 0) +
     (values.elevatorPhotos?.length ?? 0);
   try {
+    const upload: UploadImagesFn =
+      uploadImagesFn ??
+      ((a, images, purposeType) =>
+        ImageFileUtils.uploadImages(a, images, purposeType));
     const startImageUpload = Date.now();
-    const enteranceImages = await ImageFileUtils.uploadImages(
+    const enteranceImages = await upload(
       api,
       values.enterancePhotos,
+      undefined,
+      '입구 사진',
     );
-    const elevatorImages = await ImageFileUtils.uploadImages(
+    const elevatorImages = await upload(
       api,
       values.elevatorPhotos,
+      undefined,
+      '엘리베이터 사진',
     );
     const durationImageUpload = Date.now() - startImageUpload;
 

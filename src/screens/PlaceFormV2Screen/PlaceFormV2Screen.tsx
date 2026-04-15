@@ -2,8 +2,11 @@ import {
   placeFormV2GuideDismissedAtom,
   placeFormV2GuideDismissedUntilAtom,
 } from '@/atoms/User';
-import {loadingState} from '@/components/LoadingView';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {
+  useImageUploadWithProgress,
+  UploadImagesFn,
+} from '@/hooks/useImageUploadWithProgress';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -90,7 +93,7 @@ export default function PlaceFormV2Screen({
   const queryClient = useQueryClient();
   const pushItems = useSetAtom(pushItemsAtom);
 
-  const [loading, setLoading] = useAtom(loadingState);
+  const {uploadImages, UploadOverlay} = useImageUploadWithProgress();
   const [stepIndex, setStepIndex] = useState(0);
 
   // 뒤로가기 confirm
@@ -207,7 +210,6 @@ export default function PlaceFormV2Screen({
   const handleSubmit = async () => {
     const values = form.getValues();
 
-    setLoading(new Map(loading).set('PlaceForm', true));
     const registered = await register(
       api,
       queryClient,
@@ -217,8 +219,8 @@ export default function PlaceFormV2Screen({
       selectedStandaloneType,
       selectedFloor,
       doorDirection,
+      uploadImages,
     );
-    setLoading(new Map(loading).set('PlaceForm', false));
 
     if (!registered.success) {
       return;
@@ -403,6 +405,7 @@ export default function PlaceFormV2Screen({
           onConfirm={formExitConfirm.onConfirm}
           onCancel={formExitConfirm.onCancel}
         />
+        <UploadOverlay />
       </FormProvider>
     </LogParamsProvider>
   );
@@ -527,16 +530,23 @@ async function register(
   selectedStandaloneType: StandaloneBuildingType | null,
   selectedFloor: number | undefined,
   doorDirection?: BuildingDoorDirectionType,
+  uploadImagesFn?: UploadImagesFn,
 ) {
   const startTotal = Date.now();
   const imageCount =
     (values.entrancePhotos?.length ?? 0) + (values.elevatorPhotos?.length ?? 0);
+  const upload: UploadImagesFn =
+    uploadImagesFn ??
+    ((a, images, purposeType) =>
+      ImageFileUtils.uploadImages(a, images, purposeType));
   try {
     // Upload images first
     const startImageUpload = Date.now();
-    const uploadedImageUrls = await ImageFileUtils.uploadImages(
+    const uploadedImageUrls = await upload(
       api,
       values.entrancePhotos,
+      undefined,
+      '입구 사진',
     );
 
     // Prepare floor moving elevator accessibility if needed
@@ -551,9 +561,11 @@ async function register(
         FloorMovingMethodTypeDto.PlaceElevator,
       )
     ) {
-      const elevatorImageUrls = await ImageFileUtils.uploadImages(
+      const elevatorImageUrls = await upload(
         api,
         values.elevatorPhotos || [],
+        undefined,
+        '엘리베이터 사진',
       );
 
       floorMovingElevatorAccessibility = {
