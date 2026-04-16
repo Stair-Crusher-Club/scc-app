@@ -247,6 +247,7 @@ const InfoArea = styled.View`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 `;
 
 const LabelIconArea = styled.View`
@@ -263,6 +264,7 @@ const TitleArea = styled.View`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
   gap: 4px;
   margin-bottom: 8px;
 `;
@@ -287,6 +289,7 @@ const Container = styled(SccPressable)<{isHeightFlex?: boolean}>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
   height: ${({isHeightFlex}) => (isHeightFlex ? 'auto' : '232px')};
   justify-content: space-between;
 `;
