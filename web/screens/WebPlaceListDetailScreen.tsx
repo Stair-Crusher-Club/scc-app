@@ -283,7 +283,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
                 {isSaved ? '✓ 리스트 저장됨' : '☆ 리스트 저장하기'}
               </SaveButton>
               <ShareButton onClick={handleShare} title="링크 복사">
-                <ShareSvg width={16} height={16} />
+                <ShareSvg viewBox="-2 -2 28 28" />
               </ShareButton>
             </ActionRow>
           </ListHeader>
@@ -363,7 +363,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
           {isSaved ? '✓ 리스트 저장됨' : '☆ 리스트 저장하기'}
         </MobileSaveButton>
         <MobileShareButton onClick={handleShare}>
-          <ShareSvg width={14} height={14} />
+          <ShareSvg viewBox="-2 -2 28 28" />
         </MobileShareButton>
       </MobileActionRow>
 
@@ -520,11 +520,12 @@ const ShareButton = styled.button`
   justify-content: center;
   flex-shrink: 0;
   padding: 0;
-  overflow: visible;
   transition: background-color 0.2s ease;
 
   & svg {
     display: block;
+    width: 20px;
+    height: 20px;
   }
 
   &:hover {
@@ -639,10 +640,11 @@ const MobileShareButton = styled.button`
   justify-content: center;
   flex-shrink: 0;
   padding: 0;
-  overflow: visible;
 
   & svg {
     display: block;
+    width: 18px;
+    height: 18px;
   }
 `;
 
