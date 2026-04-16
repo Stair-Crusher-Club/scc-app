@@ -113,7 +113,7 @@ export default function NaverMapView({
         markerOffset.y,
       );
       const newCenter = projection.fromOffsetToCoord(newCenterOffset);
-      mapInstanceRef.current.panTo(newCenter);
+      mapInstanceRef.current.panTo(newCenter, {duration: 500, easing: 'easeOutCubic'});
     },
     [getLeftPanelsOverlapPx, offsetToContainerX],
   );
