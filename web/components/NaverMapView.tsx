@@ -225,7 +225,7 @@ export default function NaverMapView({
     selectedMarkerId = null;
 
     // 새 마커들 생성
-    const newMarkers: MarkerData[] = searchResults.map(item => {
+    const newMarkers: MarkerData[] = searchResults.map((item, index) => {
       const position = new window.naver.maps.LatLng(
         item.place.location?.lat || 0,
         item.place.location?.lng || 0,
