@@ -442,6 +442,7 @@ const Container = styled.div`
 
 const LeftPanel = styled.div`
   width: 20%;
+  max-width: 380px;
   height: 100vh;
   background-color: #ffffff;
   border-right: 1px solid #e0e0e0;
@@ -539,6 +540,7 @@ const PlaceListContainer = styled.div`
 
 const RightPanel = styled.div`
   width: 20%;
+  max-width: 380px;
   height: 100vh;
   background-color: #ffffff;
   border-left: 1px solid #e0e0e0;
@@ -560,8 +562,8 @@ const PdpInner = styled.div`
 
 const MapBackground = styled.div`
   position: absolute;
-  left: 20%;
-  width: 80%;
+  left: 0;
+  width: 100%;
   height: 100vh;
   background-color: #f5f5f5;
   display: flex;

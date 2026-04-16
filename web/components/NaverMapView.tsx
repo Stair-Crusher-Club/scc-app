@@ -46,16 +46,16 @@ export default function NaverMapView({
   // 기본 위치 (강남역)
   const defaultCenter = {lat: 37.4979, lng: 127.0276};
 
-  // PDP 패널이 지도 왼쪽을 가리는 폭 (컨테이너 픽셀)
-  // 레이아웃: LeftPanel(20%) | PDP(20%) | MapBackground(absolute, left:20%, width:80%)
-  // PDP는 flex row에서 LeftPanel 옆에 위치 → 지도 컨테이너의 왼쪽 20% viewport를 덮음
-  const getPdpOverlapPx = useCallback(() => {
-    const hasPdp =
-      typeof window !== 'undefined' &&
+  // 왼쪽 패널들이 지도를 가리는 총 폭 (컨테이너 픽셀)
+  // 레이아웃: LeftPanel(20%,max380) | PDP(20%,max380) | MapBackground(absolute, left:0, width:100%)
+  // 지도는 전체 뷰포트를 차지하고, 패널들이 z-index로 위에 올라옴
+  const getLeftPanelsOverlapPx = useCallback(() => {
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
+    const panelWidth = Math.min(vw * 0.2, 380);
+    const hasPdp = typeof window !== 'undefined' &&
       window.location.pathname.includes('/place/');
-    if (!hasPdp) return 0;
-    // PDP = 20% of viewport, 지도는 left:20%부터 시작하므로 PDP가 지도 왼쪽을 덮음
-    return window.innerWidth * 0.2;
+    // LeftPanel은 항상, PDP는 URL에 /place/ 있을 때
+    return hasPdp ? panelWidth * 2 : panelWidth;
   }, []);
 
   // 월드 오프셋 → 컨테이너 픽셀 X 변환
@@ -76,16 +76,16 @@ export default function NaverMapView({
       const bounds = mapInstanceRef.current.getBounds();
       if (!bounds.hasLatLng(position)) return false;
 
-      const pdpOverlap = getPdpOverlapPx();
-      if (pdpOverlap === 0) return true;
+      const leftOverlap = getLeftPanelsOverlapPx();
+      if (leftOverlap === 0) return true;
 
-      // PDP가 지도 왼쪽을 덮으므로, 마커가 pdpOverlap 이상이어야 보임
+      // PDP가 지도 왼쪽을 덮으므로, 마커가 leftOverlap 이상이어야 보임
       const projection = mapInstanceRef.current.getProjection();
       const markerOffset = projection.fromCoordToOffset(position);
       const containerX = offsetToContainerX(markerOffset.x);
-      return containerX > pdpOverlap;
+      return containerX > leftOverlap;
     },
-    [getPdpOverlapPx, offsetToContainerX],
+    [getLeftPanelsOverlapPx, offsetToContainerX],
   );
 
   // 지도 이동: 마커를 PDP에 가려지지 않는 보이는 영역의 중앙에 배치
@@ -95,11 +95,11 @@ export default function NaverMapView({
 
       const projection = mapInstanceRef.current.getProjection();
       const mapWidth = mapRef.current.offsetWidth;
-      const pdpOverlap = getPdpOverlapPx();
+      const leftOverlap = getLeftPanelsOverlapPx();
 
-      // 보이는 영역: container pdpOverlap ~ mapWidth
+      // 보이는 영역: container leftOverlap ~ mapWidth
       // 보이는 영역의 중앙 X
-      const visibleCenterX = (pdpOverlap + mapWidth) / 2;
+      const visibleCenterX = (leftOverlap + mapWidth) / 2;
 
       const markerOffset = projection.fromCoordToOffset(position);
       const containerX = offsetToContainerX(markerOffset.x);
@@ -115,7 +115,7 @@ export default function NaverMapView({
       const newCenter = projection.fromOffsetToCoord(newCenterOffset);
       mapInstanceRef.current.panTo(newCenter);
     },
-    [getPdpOverlapPx, offsetToContainerX],
+    [getLeftPanelsOverlapPx, offsetToContainerX],
   );
 
   // Naver Map 초기화
