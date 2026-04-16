@@ -4,6 +4,7 @@ import {useWindowDimensions} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 
+import Toast from 'react-native-root-toast';
 import {PlaceListItem, PlaceListDto} from '@/generated-sources/openapi';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import PlaceDetailV2Screen from '@/screens/PlaceDetailV2Screen';
@@ -213,28 +214,19 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
     });
   }, [checkAuth]);
 
-  const handleShare = useCallback(() => {
+  const handleShare = useCallback(async () => {
     const url = `${window.location.origin}/place-list/${encodeURIComponent(placeListId)}`;
-    if (navigator.clipboard) {
-      navigator.clipboard
-        .writeText(url)
-        .then(() => alert('링크가 복사되었습니다.'))
-        .catch(() => alert('링크 복사에 실패했습니다.'));
-    } else {
-      // Fallback for browsers without Clipboard API
-      const textarea = document.createElement('textarea');
-      textarea.value = url;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        alert('링크가 복사되었습니다.');
-      } catch {
-        alert('링크 복사에 실패했습니다.');
-      }
-      document.body.removeChild(textarea);
+    try {
+      await navigator.clipboard.writeText(url);
+      Toast.show('링크가 복사되었습니다.', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
+    } catch {
+      Toast.show('링크 복사에 실패했습니다.', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+      });
     }
   }, [placeListId]);
 
@@ -291,7 +283,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
                 {isSaved ? '✓ 리스트 저장됨' : '☆ 리스트 저장하기'}
               </SaveButton>
               <ShareButton onClick={handleShare} title="링크 복사">
-                <ShareSvg width={20} height={20} />
+                <ShareSvg width={16} height={16} />
               </ShareButton>
             </ActionRow>
           </ListHeader>
@@ -379,7 +371,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
           {isSaved ? '✓ 저장됨' : '☆ 저장'}
         </MobileSaveButton>
         <MobileShareButton onClick={handleShare}>
-          <ShareSvg width={18} height={18} />
+          <ShareSvg width={14} height={14} />
         </MobileShareButton>
       </MobileActionRow>
 
@@ -525,11 +517,17 @@ const ShareButton = styled.button`
   border-radius: 8px;
   background-color: #ffffff;
   cursor: pointer;
-  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  overflow: visible;
   transition: background-color 0.2s ease;
+
+  & svg {
+    display: block;
+  }
 
   &:hover {
     background-color: #f5f5f5;
@@ -664,10 +662,16 @@ const MobileShareButton = styled.button`
   border-radius: 8px;
   background-color: #ffffff;
   cursor: pointer;
-  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  overflow: visible;
+
+  & svg {
+    display: block;
+  }
 `;
 
 const MobilePlaceList = styled.div`
