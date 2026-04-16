@@ -46,16 +46,26 @@ export default function NaverMapView({
   // 기본 위치 (강남역)
   const defaultCenter = {lat: 37.4979, lng: 127.0276};
 
-  // 오른쪽 패널(PDP)이 지도를 가리고 있는지 확인
-  const getRightPanelPixelWidth = useCallback(() => {
-    const hasRightPanel =
+  // PDP 패널이 지도 왼쪽을 가리는 폭 (컨테이너 픽셀)
+  // 레이아웃: LeftPanel(20%) | PDP(20%) | MapBackground(absolute, left:20%, width:80%)
+  // PDP는 flex row에서 LeftPanel 옆에 위치 → 지도 컨테이너의 왼쪽 20% viewport를 덮음
+  const getPdpOverlapPx = useCallback(() => {
+    const hasPdp =
       typeof window !== 'undefined' &&
       window.location.pathname.includes('/place/');
-    if (!hasRightPanel || !mapRef.current) return 0;
-    // RightPanel = 20% of viewport, map div covers 80% of viewport
-    const viewportWidth = window.innerWidth;
-    const rightPanelWidth = viewportWidth * 0.2;
-    return rightPanelWidth;
+    if (!hasPdp) return 0;
+    // PDP = 20% of viewport, 지도는 left:20%부터 시작하므로 PDP가 지도 왼쪽을 덮음
+    return window.innerWidth * 0.2;
+  }, []);
+
+  // 월드 오프셋 → 컨테이너 픽셀 X 변환
+  const offsetToContainerX = useCallback((offsetX: number) => {
+    if (!mapInstanceRef.current || !mapRef.current) return 0;
+    const projection = mapInstanceRef.current.getProjection();
+    const centerOffset = projection.fromCoordToOffset(
+      mapInstanceRef.current.getCenter(),
+    );
+    return offsetX - centerOffset.x + mapRef.current.offsetWidth / 2;
   }, []);
 
   // 마커가 패널에 가려지지 않고 실제로 보이는지 확인
@@ -66,45 +76,46 @@ export default function NaverMapView({
       const bounds = mapInstanceRef.current.getBounds();
       if (!bounds.hasLatLng(position)) return false;
 
-      // 패널에 가려지는지 추가 확인
-      const rightPanelPx = getRightPanelPixelWidth();
-      if (rightPanelPx === 0) return true;
+      const pdpOverlap = getPdpOverlapPx();
+      if (pdpOverlap === 0) return true;
 
-      // fromCoordToOffset = 컨테이너 기준 픽셀 좌표
+      // PDP가 지도 왼쪽을 덮으므로, 마커가 pdpOverlap 이상이어야 보임
       const projection = mapInstanceRef.current.getProjection();
-      const markerPixel = projection.fromCoordToOffset(position);
-      const mapWidth = mapRef.current.offsetWidth;
-      // 가려지지 않는 영역: 0 ~ (mapWidth - rightPanelPx)
-      return markerPixel.x < mapWidth - rightPanelPx;
+      const markerOffset = projection.fromCoordToOffset(position);
+      const containerX = offsetToContainerX(markerOffset.x);
+      return containerX > pdpOverlap;
     },
-    [getRightPanelPixelWidth],
+    [getPdpOverlapPx, offsetToContainerX],
   );
 
-  // 지도 이동: 마커를 패널에 가려지지 않는 영역의 중앙에 배치
+  // 지도 이동: 마커를 PDP에 가려지지 않는 보이는 영역의 중앙에 배치
   const panToCenter = useCallback(
     (position: any) => {
       if (!mapInstanceRef.current || !mapRef.current) return;
 
       const projection = mapInstanceRef.current.getProjection();
       const mapWidth = mapRef.current.offsetWidth;
-      const mapHeight = mapRef.current.offsetHeight;
-      const rightPanelPx = getRightPanelPixelWidth();
+      const pdpOverlap = getPdpOverlapPx();
 
-      // 마커의 컨테이너 픽셀 좌표
-      const markerPixel = projection.fromCoordToOffset(position);
-      // 보이는 영역의 중앙
-      const visibleCenterX = (mapWidth - rightPanelPx) / 2;
-      const visibleCenterY = mapHeight / 2;
+      // 보이는 영역: container pdpOverlap ~ mapWidth
+      // 보이는 영역의 중앙 X
+      const visibleCenterX = (pdpOverlap + mapWidth) / 2;
 
-      // 새 지도 중심: 현재 중심을 마커가 보이는 중앙에 오도록 이동
-      const newCenterPixel = new window.naver.maps.Point(
-        mapWidth / 2 + (markerPixel.x - visibleCenterX),
-        mapHeight / 2 + (markerPixel.y - visibleCenterY),
+      const markerOffset = projection.fromCoordToOffset(position);
+      const containerX = offsetToContainerX(markerOffset.x);
+      const shiftX = containerX - visibleCenterX;
+
+      const centerOffset = projection.fromCoordToOffset(
+        mapInstanceRef.current.getCenter(),
       );
-      const newCenter = projection.fromOffsetToCoord(newCenterPixel);
+      const newCenterOffset = new window.naver.maps.Point(
+        centerOffset.x + shiftX,
+        markerOffset.y,
+      );
+      const newCenter = projection.fromOffsetToCoord(newCenterOffset);
       mapInstanceRef.current.panTo(newCenter);
     },
-    [getRightPanelPixelWidth],
+    [getPdpOverlapPx, offsetToContainerX],
   );
 
   // Naver Map 초기화
