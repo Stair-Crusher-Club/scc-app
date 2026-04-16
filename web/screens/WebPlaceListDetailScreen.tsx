@@ -208,10 +208,14 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
   const checkAuth = useCheckAuth();
 
   const handleSave = useCallback(() => {
-    checkAuth(() => {
-      // This callback is only called if auth passes (app only).
-      // On web, checkAuth always shows app install prompt instead.
-    });
+    checkAuth(
+      () => {
+        // This callback is only called if auth passes (app only).
+        // On web, checkAuth always shows app install prompt instead.
+      },
+      undefined,
+      '앱에서 마음에 드는 장소를 저장해보세요',
+    );
   }, [checkAuth]);
 
   const handleShare = useCallback(async () => {

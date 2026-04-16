@@ -38,19 +38,23 @@ export default function V2ReviewTab({
   );
 
   const handleReviewPress = () => {
-    checkAuth(async () => {
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Place', {
-            placeId: place.id,
-          });
-        },
-      });
-    });
+    checkAuth(
+      async () => {
+        await navigateWithLocationCheck({
+          targetLocation: place.location,
+          placeName: place.name,
+          address: place.address,
+          type: 'place',
+          onNavigate: () => {
+            navigation.navigate('ReviewForm/Place', {
+              placeId: place.id,
+            });
+          },
+        });
+      },
+      undefined,
+      '앱에서 방문 리뷰를 작성해보세요',
+    );
   };
 
   if (reviews.length === 0) {

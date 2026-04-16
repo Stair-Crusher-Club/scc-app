@@ -33,19 +33,23 @@ export default function V2RestroomTab({
     useNavigateWithLocationCheck();
 
   const handleToiletReviewPress = () => {
-    checkAuth(async () => {
-      await navigateWithLocationCheck({
-        targetLocation: placeLocation,
-        placeName: placeName,
-        address: placeAddress,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Toilet', {
-            placeId,
-          });
-        },
-      });
-    });
+    checkAuth(
+      async () => {
+        await navigateWithLocationCheck({
+          targetLocation: placeLocation,
+          placeName: placeName,
+          address: placeAddress,
+          type: 'place',
+          onNavigate: () => {
+            navigation.navigate('ReviewForm/Toilet', {
+              placeId,
+            });
+          },
+        });
+      },
+      undefined,
+      '앱에서 화장실 정보를 등록해보세요',
+    );
   };
 
   if (toiletReviews.length === 0) {

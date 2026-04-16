@@ -138,7 +138,13 @@ function SearchItemCard({
                   paddingBottom: 5,
                 }}
                 activeOpacity={0.6}
-                onPress={() => checkAuth(onFavorite)}>
+                onPress={() =>
+                  checkAuth(
+                    onFavorite,
+                    undefined,
+                    '앱에서 마음에 드는 장소를 저장해보세요',
+                  )
+                }>
                 {isFavorite ? (
                   <BookmarkOnIcon
                     width={24}
