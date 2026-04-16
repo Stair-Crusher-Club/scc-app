@@ -27,6 +27,17 @@ After any code changes or implementation work, **ALWAYS** run these validation c
 - 배포 절차: 코드 변경 → lint/tsc 통과 → 커밋 → 태그(`v{major}.{minor}-YYYYMMDD-NN`) → main 푸시 (자동 배포)
 - 태그 없이 푸시하지 않는다
 
+## 웹 배포 규칙
+
+- **웹 배포는 로컬에서 수동 실행한다.** (CI 워크플로우 없음)
+- 배포 절차:
+  1. `git checkout main && git reset --hard origin/main` (최신 main 기준)
+  2. `ENVFILE=.env.local yarn web:build` (production 빌드 → `web-dist/`)
+  3. `aws-vault exec swann-scc -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
+- 인프라: S3 버킷 `staircrusher-club-web` + CloudFront `E3RDKBHB12EC6A`
+- CloudFront 전파에 최대 15분 소요
+- OG 페이지 생성(`generate-og-pages.js`) 타임아웃은 배포에 영향 없음 (pre-rendering 실패해도 SPA 동작)
+
 ## Component Guidelines
 
 ### SccXxx Components
