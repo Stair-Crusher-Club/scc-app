@@ -12,6 +12,7 @@ import NaverMapView from '../components/NaverMapView';
 import {api, apiConfig} from '../config/api';
 import {WebStackParamList} from '../navigation/WebNavigation';
 import LogoSvg from '../assets/icons/logo.svg';
+import ShareSvg from '../../src/assets/icon/ic_v2_share.svg';
 
 const DESKTOP_BREAKPOINT = 900;
 
@@ -290,7 +291,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
                 {isSaved ? '✓ 리스트 저장됨' : '☆ 리스트 저장하기'}
               </SaveButton>
               <ShareButton onClick={handleShare} title="링크 복사">
-                📤
+                <ShareSvg width={20} height={20} />
               </ShareButton>
             </ActionRow>
           </ListHeader>
@@ -377,7 +378,9 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
         <MobileSaveButton onClick={handleSave} $isSaved={isSaved}>
           {isSaved ? '✓ 저장됨' : '☆ 저장'}
         </MobileSaveButton>
-        <MobileShareButton onClick={handleShare}>📤</MobileShareButton>
+        <MobileShareButton onClick={handleShare}>
+          <ShareSvg width={18} height={18} />
+        </MobileShareButton>
       </MobileActionRow>
 
       {viewMode === 'list' ? (
