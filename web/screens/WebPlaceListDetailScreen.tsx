@@ -330,16 +330,11 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
   }
 
   // ===================== MOBILE LAYOUT =====================
-  // Place detail overlay (full-width)
+  // Place detail (full-width) — V2AppBar의 ← 뒤로가기가 handleClosePdp 호출
   if (isPlaceSelected) {
     return (
       <MobileContainer>
-        <MobileHeader>
-          <MobileBackButton onClick={handleClosePdp}>← 목록</MobileBackButton>
-          <MobileHeaderTitle>{title}</MobileHeaderTitle>
-          <div style={{width: 60}} />
-        </MobileHeader>
-        <MobilePdpContainer>
+        <MobilePdpInner>
           <PlaceDetailV2Screen
             route={{
               key: 'PlaceDetailV2',
@@ -348,7 +343,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
             }}
             navigation={pdpNavigation as any}
           />
-        </MobilePdpContainer>
+        </MobilePdpInner>
       </MobileContainer>
     );
   }
@@ -357,9 +352,6 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
     <MobileContainer>
       <MobileHeader>
         <MobileHeaderTitle>{title}</MobileHeaderTitle>
-        <MobileToggleButton onClick={toggleViewMode}>
-          {viewMode === 'list' ? '🗺️ 지도' : '📋 목록'}
-        </MobileToggleButton>
       </MobileHeader>
 
       {description && (
@@ -368,7 +360,7 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
 
       <MobileActionRow>
         <MobileSaveButton onClick={handleSave} $isSaved={isSaved}>
-          {isSaved ? '✓ 저장됨' : '☆ 저장'}
+          {isSaved ? '✓ 리스트 저장됨' : '☆ 리스트 저장하기'}
         </MobileSaveButton>
         <MobileShareButton onClick={handleShare}>
           <ShareSvg width={14} height={14} />
@@ -386,6 +378,9 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
               />
             </PlaceItemWrapper>
           ))}
+          <FloatingToggleButton onClick={toggleViewMode}>
+            🗺️ 지도보기
+          </FloatingToggleButton>
         </MobilePlaceList>
       ) : (
         <MobileMapContainer>
@@ -395,6 +390,9 @@ export default function WebPlaceListDetailScreen({route, navigation}: Props) {
             onPlaceClick={handlePlaceClick}
             selectedPlaceId={selectedPlaceId}
           />
+          <FloatingToggleButton onClick={toggleViewMode}>
+            📋 목록보기
+          </FloatingToggleButton>
         </MobileMapContainer>
       )}
     </MobileContainer>
@@ -602,32 +600,6 @@ const MobileHeaderTitle = styled.div`
   white-space: nowrap;
 `;
 
-const MobileBackButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: #0c76f7;
-  cursor: pointer;
-  padding: 4px 8px;
-  min-width: 60px;
-  text-align: left;
-`;
-
-const MobileToggleButton = styled.button`
-  background: none;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  color: #333;
-  min-width: 60px;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
 const MobileDescription = styled.div`
   padding: 12px 16px 0;
   font-size: 14px;
@@ -677,14 +649,38 @@ const MobileShareButton = styled.button`
 const MobilePlaceList = styled.div`
   flex: 1;
   overflow-y: auto;
+  position: relative;
 `;
 
 const MobileMapContainer = styled.div`
   flex: 1;
+  position: relative;
 `;
 
-const MobilePdpContainer = styled.div`
+const MobilePdpInner = styled.div`
   flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+const FloatingToggleButton = styled.button`
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 27px;
+  border: none;
+  background-color: #0c76f7;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.23);
+  z-index: 20;
+
+  &:hover {
+    background-color: #0a63d1;
+  }
 `;
