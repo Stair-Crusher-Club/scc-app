@@ -56,6 +56,10 @@ module.exports = {
       ),
       '@shopify/flash-list': path.resolve(__dirname, 'web/mocks/flash-list.js'),
       'lottie-react-native': false,
+      '@d11/react-native-fast-image': path.resolve(
+        __dirname,
+        'web/mocks/react-native-fast-image.js',
+      ),
       'react-native-compressor': false,
       'react-native-svg': 'react-native-svg/lib/commonjs/ReactNativeSVG.web.js',
       'react-native-root-toast': path.resolve(

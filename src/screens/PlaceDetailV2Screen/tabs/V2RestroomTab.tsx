@@ -1,6 +1,4 @@
 import React from 'react';
-import {Platform} from 'react-native';
-import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -35,26 +33,23 @@ export default function V2RestroomTab({
     useNavigateWithLocationCheck();
 
   const handleToiletReviewPress = () => {
-    if (Platform.OS === 'web') {
-      Toast.show('준비 중입니다 💪', {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-      });
-      return;
-    }
-    checkAuth(async () => {
-      await navigateWithLocationCheck({
-        targetLocation: placeLocation,
-        placeName: placeName,
-        address: placeAddress,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Toilet', {
-            placeId,
-          });
-        },
-      });
-    });
+    checkAuth(
+      async () => {
+        await navigateWithLocationCheck({
+          targetLocation: placeLocation,
+          placeName: placeName,
+          address: placeAddress,
+          type: 'place',
+          onNavigate: () => {
+            navigation.navigate('ReviewForm/Toilet', {
+              placeId,
+            });
+          },
+        });
+      },
+      undefined,
+      '앱에서 화장실 정보를 등록해보세요',
+    );
   };
 
   if (toiletReviews.length === 0) {

@@ -15,6 +15,9 @@ import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageLi
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
+import BookmarkIcon from '@/assets/icon/ic_v2_bookmark.svg';
+import BookmarkOnIcon from '@/assets/icon/ic_v2_bookmark_on.svg';
+import ShareIcon from '@/assets/icon/ic_v2_share.svg';
 import ShareUtils from '@/utils/ShareUtils';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -135,11 +138,22 @@ function SearchItemCard({
                   paddingBottom: 5,
                 }}
                 activeOpacity={0.6}
-                onPress={() => checkAuth(onFavorite)}>
-                <WebIconText
-                  style={{color: isFavorite ? color.brandColor : color.gray70}}>
-                  {isFavorite ? '★' : '☆'}
-                </WebIconText>
+                onPress={() =>
+                  checkAuth(
+                    onFavorite,
+                    undefined,
+                    '앱에서 마음에 드는 장소를 저장해보세요',
+                  )
+                }>
+                {isFavorite ? (
+                  <BookmarkOnIcon
+                    width={24}
+                    height={24}
+                    color={color.brandColor}
+                  />
+                ) : (
+                  <BookmarkIcon width={24} height={24} color={color.gray70} />
+                )}
               </SccTouchableOpacity>
               <SccTouchableOpacity
                 elementName="place_search_item_card_share_button"
@@ -148,8 +162,8 @@ function SearchItemCard({
                   paddingBottom: 5,
                 }}
                 activeOpacity={0.6}
-                onPress={() => checkAuth(onShare)}>
-                <WebIconText style={{color: color.gray70}}>📤</WebIconText>
+                onPress={onShare}>
+                <ShareIcon width={24} height={24} color={color.gray70} />
               </SccTouchableOpacity>
             </IconArea>
           </LabelIconArea>
@@ -239,6 +253,7 @@ const InfoArea = styled.View`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 `;
 
 const LabelIconArea = styled.View`
@@ -255,6 +270,7 @@ const TitleArea = styled.View`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
   gap: 4px;
   margin-bottom: 8px;
 `;
@@ -279,6 +295,7 @@ const Container = styled(SccPressable)<{isHeightFlex?: boolean}>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
   height: ${({isHeightFlex}) => (isHeightFlex ? 'auto' : '232px')};
   justify-content: space-between;
 `;
@@ -329,14 +346,6 @@ const LocationDivider = styled.View`
   height: 2px;
   border-radius: 1px;
   background-color: ${() => color.gray80};
-`;
-
-const WebIconText = styled.Text`
-  font-size: 20px;
-  line-height: 24px;
-  text-align: center;
-  width: 24px;
-  height: 24px;
 `;
 
 export default memo(SearchItemCard);

@@ -18,6 +18,7 @@ interface V2AppBarProps {
   onShare: () => void;
   placeName?: string;
   showTitle?: boolean;
+  onBack?: () => void;
 }
 
 export default function V2AppBar({
@@ -26,6 +27,7 @@ export default function V2AppBar({
   onShare,
   placeName,
   showTitle = false,
+  onBack,
 }: V2AppBarProps) {
   const navigation = useNavigation();
 
@@ -33,7 +35,7 @@ export default function V2AppBar({
     <AppBarContainer>
       <SccPressable
         elementName="place_detail_v2_back_button"
-        onPress={() => navigation.goBack()}>
+        onPress={onBack ?? (() => navigation.goBack())}>
         <BackIcon width={24} height={24} color={ICON_COLOR} />
       </SccPressable>
       <TitleContainer>

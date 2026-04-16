@@ -7,12 +7,10 @@ import {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   ScrollView,
   View,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {featureFlagAtom} from '@/atoms/Auth';
@@ -268,14 +266,11 @@ export default function PlaceDetailV2Screen({
   });
 
   const handleUpvote = useCallback(() => {
-    if (Platform.OS === 'web') {
-      Toast.show('준비 중입니다 💪', {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-      });
-      return;
-    }
-    checkAuth(() => toggleUpvote());
+    checkAuth(
+      () => toggleUpvote(),
+      undefined,
+      '앱에서 유용한 정보에 도움돼요를 눌러보세요',
+    );
   }, [checkAuth, toggleUpvote]);
 
   // API 에러 시 토스트 + goBack
@@ -423,119 +418,119 @@ export default function PlaceDetailV2Screen({
   }, [navigation]);
 
   const showNegativeFeedbackBottomSheet = (type: ReportTargetTypeDto) => {
-    checkAuth(() => {
-      setReportTargetType(type);
-    });
+    checkAuth(
+      () => {
+        setReportTargetType(type);
+      },
+      undefined,
+      '신고 기능은 앱에서 이용할 수 있어요',
+    );
   };
 
   // 정보 등록 핸들러들
   const handlePlaceRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
+    checkAuth(
+      async () => {
+        if (!place) return;
+        await navigateWithLocationCheck({
+          targetLocation: place.location,
+          placeName: place.name,
+          address: place.address,
+          type: 'place',
+          onNavigate: () => {
+            navigation.navigate('PlaceFormV2', {place, building: building!});
+          },
         });
-        return;
-      }
-      if (!place) return;
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('PlaceFormV2', {place, building: building!});
-        },
-      });
-    });
+      },
+      undefined,
+      '앱에서 접근성 정보를 등록해보세요',
+    );
   }, [building, checkAuth, navigation, navigateWithLocationCheck, place]);
 
   const handleBuildingRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
+    checkAuth(
+      async () => {
+        if (!place || !building) return;
+        await navigateWithLocationCheck({
+          targetLocation: building.location,
+          address: building.address,
+          type: 'building',
+          onNavigate: () => {
+            navigation.navigate('BuildingFormV2', {place, building});
+          },
         });
-        return;
-      }
-      if (!place || !building) return;
-      await navigateWithLocationCheck({
-        targetLocation: building.location,
-        address: building.address,
-        type: 'building',
-        onNavigate: () => {
-          navigation.navigate('BuildingFormV2', {place, building});
-        },
-      });
-    });
+      },
+      undefined,
+      '앱에서 접근성 정보를 등록해보세요',
+    );
   }, [building, checkAuth, navigation, navigateWithLocationCheck, place]);
 
   const handleReviewRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
+    checkAuth(
+      async () => {
+        if (!place) return;
+        await navigateWithLocationCheck({
+          targetLocation: place.location,
+          placeName: place.name,
+          address: place.address,
+          type: 'place',
+          onNavigate: () => {
+            navigation.navigate('ReviewForm/Place', {
+              placeId: place.id,
+            });
+          },
         });
-        return;
-      }
-      if (!place) return;
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Place', {
-            placeId: place.id,
-          });
-        },
-      });
-    });
+      },
+      undefined,
+      '앱에서 방문 리뷰를 작성해보세요',
+    );
   }, [checkAuth, navigation, navigateWithLocationCheck, place]);
 
   const handleAddPlaceComment = useCallback(() => {
-    checkAuth(() => {
-      if (!place) return;
-      navigation.navigate('AddComment', {type: 'place', placeId: place.id});
-    });
+    checkAuth(
+      () => {
+        if (!place) return;
+        navigation.navigate('AddComment', {type: 'place', placeId: place.id});
+      },
+      undefined,
+      '앱에서 코멘트를 남겨보세요',
+    );
   }, [checkAuth, navigation, place]);
 
   const handleAddBuildingComment = useCallback(() => {
-    checkAuth(() => {
-      if (!place || !building) return;
-      navigation.navigate('AddComment', {
-        type: 'building',
-        placeId: place.id,
-        buildingId: building.id,
-      });
-    });
+    checkAuth(
+      () => {
+        if (!place || !building) return;
+        navigation.navigate('AddComment', {
+          type: 'building',
+          placeId: place.id,
+          buildingId: building.id,
+        });
+      },
+      undefined,
+      '앱에서 코멘트를 남겨보세요',
+    );
   }, [building, checkAuth, navigation, place]);
 
   const handleToiletRegister = useCallback(() => {
-    checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
+    checkAuth(
+      async () => {
+        if (!place) return;
+        await navigateWithLocationCheck({
+          targetLocation: place.location,
+          placeName: place.name,
+          address: place.address,
+          type: 'place',
+          onNavigate: () => {
+            navigation.navigate('ReviewForm/Toilet', {
+              placeId: place.id,
+            });
+          },
         });
-        return;
-      }
-      if (!place) return;
-      await navigateWithLocationCheck({
-        targetLocation: place.location,
-        placeName: place.name,
-        address: place.address,
-        type: 'place',
-        onNavigate: () => {
-          navigation.navigate('ReviewForm/Toilet', {
-            placeId: place.id,
-          });
-        },
-      });
-    });
+      },
+      undefined,
+      '앱에서 화장실 정보를 등록해보세요',
+    );
   }, [checkAuth, navigation, navigateWithLocationCheck, place]);
 
   // Scroll-dependent AppBar title
@@ -718,13 +713,17 @@ export default function PlaceDetailV2Screen({
             }
             isAccessibilityRegistrable={data?.isAccessibilityRegistrable}
             onRequestInfo={() => {
-              checkAuth(() => {
-                toggleRequest({
-                  currentIsRequested:
-                    accessibilityPost?.isAccessibilityInfoRequested,
-                  placeId: place.id,
-                });
-              });
+              checkAuth(
+                () => {
+                  toggleRequest({
+                    currentIsRequested:
+                      accessibilityPost?.isAccessibilityInfoRequested,
+                    placeId: place.id,
+                  });
+                },
+                undefined,
+                '앱에서 접근성 정보를 요청해보세요',
+              );
             }}
             onPressAccessibilityTab={() => setCurrentTab('accessibility')}
             onPressReviewTab={() => setCurrentTab('review')}
@@ -798,16 +797,20 @@ export default function PlaceDetailV2Screen({
           <V2AppBar
             isFavorite={place.isFavorite}
             onToggleFavorite={() =>
-              checkAuth(() =>
-                toggleFavorite({
-                  currentIsFavorite: place.isFavorite,
-                  placeId: place.id,
-                }),
+              checkAuth(
+                () =>
+                  toggleFavorite({
+                    currentIsFavorite: place.isFavorite,
+                    placeId: place.id,
+                  }),
+                undefined,
+                '앱에서 마음에 드는 장소를 저장해보세요',
               )
             }
             onShare={() => ShareUtils.sharePlace(place)}
             placeName={place.name}
             showTitle={showAppBarTitle}
+            onBack={() => navigation.goBack()}
           />
           <ScrollView
             ref={scrollViewRef}

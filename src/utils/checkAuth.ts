@@ -8,7 +8,11 @@ export function useCheckAuth() {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
 
-  const checkAuth = async (onAuth: () => void, onFailed?: () => void) => {
+  const checkAuth = async (
+    onAuth: () => void,
+    onFailed?: () => void,
+    _message?: string,
+  ) => {
     // 비회원이라면 로그인 페이지를 열고
     if (isAnonymousUser) {
       onFailed?.();

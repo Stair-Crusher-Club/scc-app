@@ -1,25 +1,41 @@
-import {Place} from '@/generated-sources/openapi';
+import type {Place} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
+
+async function copyToClipboard(url: string) {
+  try {
+    await navigator.clipboard.writeText(url);
+    ToastUtils.show('링크가 복사되었습니다.');
+  } catch {
+    ToastUtils.show('링크 복사에 실패했습니다.');
+  }
+}
+
+function buildPlaceShareUrl(placeId: string): string {
+  const origin = window.location.origin;
+  const path = window.location.pathname;
+
+  // /place-list/:placeListId 경로에서 공유 시
+  const placeListMatch = path.match(/^\/place-list\/([^/]+)/);
+  if (placeListMatch) {
+    return `${origin}/place-list/${placeListMatch[1]}/place/${encodeURIComponent(placeId)}`;
+  }
+
+  // /search/:query 경로에서 공유 시
+  const searchMatch = path.match(/^\/search\/([^/]+)/);
+  if (searchMatch) {
+    return `${origin}/search/${searchMatch[1]}/place/${encodeURIComponent(placeId)}`;
+  }
+
+  // 기타: 현재 URL
+  return window.location.href;
+}
 
 const ShareUtils = {
   async sharePlace(place: Place) {
-    const url = `https://link.staircrusher.club/c8yi3t?placeId=${place.id}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          text: `[${place.name}]의 접근성 정보를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
-        });
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          ToastUtils.show('공유에 실패했습니다.');
-        }
-      }
-    } else {
-      // Fallback for web browsers that don't support navigator.share
-      await navigator.clipboard.writeText(url);
-      ToastUtils.show('링크가 클립보드에 복사되었습니다.');
-    }
+    await copyToClipboard(buildPlaceShareUrl(place.id));
+  },
+  async shareBbucleRoad(_bbucleRoadId: string, _title?: string) {
+    await copyToClipboard(window.location.href);
   },
 };
 

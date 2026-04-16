@@ -5,7 +5,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 
 import {PlaceListItem} from '@/generated-sources/openapi';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
-import PlaceDetailScreen from '@/screens/PlaceDetailScreen/PlaceDetailScreen';
+import PlaceDetailV2Screen from '@/screens/PlaceDetailV2Screen';
 import {api, apiConfig} from '../config/api';
 import {WebStackParamList} from '../navigation/WebNavigation';
 import NaverMapView from '../components/NaverMapView';
@@ -324,10 +324,10 @@ export default function WebSearchScreen({
       {isPlaceSelected && (
         <RightPanel>
           {placeId ? (
-            <PlaceDetailScreen
+            <PlaceDetailV2Screen
               route={{
-                key: 'PlaceDetail',
-                name: 'PlaceDetail',
+                key: 'PlaceDetailV2',
+                name: 'PlaceDetailV2' as any,
                 params: {
                   placeInfo: {
                     placeId: placeId,
@@ -337,10 +337,10 @@ export default function WebSearchScreen({
               navigation={navigation as any}
             />
           ) : selectedPlace ? (
-            <PlaceDetailScreen
+            <PlaceDetailV2Screen
               route={{
-                key: 'PlaceDetail',
-                name: 'PlaceDetail',
+                key: 'PlaceDetailV2',
+                name: 'PlaceDetailV2' as any,
                 params: {
                   placeInfo: {
                     place: selectedPlace.place,
@@ -348,7 +348,7 @@ export default function WebSearchScreen({
                   },
                 },
               }}
-              navigation={{} as any}
+              navigation={navigation as any}
             />
           ) : null}
         </RightPanel>
