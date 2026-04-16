@@ -23,6 +23,7 @@ interface MarkerData {
   marker: any;
   infoWindow: any;
   originalContent: string;
+  defaultZIndex: number;
 }
 
 // 현재 선택된 마커 추적을 위한 ref
@@ -258,11 +259,12 @@ export default function NaverMapView({
         markerSvg = markerSvg.replace(/fill="#9A9B9F"/g, `fill="${levelColor}"`);
       }
 
+      const defaultZIndex = 100 + (searchResults.length - index);
       const marker = new window.naver.maps.Marker({
         position,
         map: mapInstanceRef.current,
         title: item.place.name,
-        zIndex: 100, // 기본 zIndex 설정
+        zIndex: defaultZIndex, // 리스트 앞 장소일수록 높은 zIndex
         icon: {
           content: `<div style="
             position: relative;
@@ -366,7 +368,7 @@ export default function NaverMapView({
               anchor: new window.naver.maps.Point(16, 34),
             });
             // 이전 마커의 zIndex를 기본값으로 복원
-            prevMarkerData.marker.setZIndex(100);
+            prevMarkerData.marker.setZIndex(prevMarkerData.defaultZIndex);
           }
         }
 
@@ -433,6 +435,7 @@ export default function NaverMapView({
         marker,
         infoWindow,
         originalContent,
+        defaultZIndex,
       };
     });
 
@@ -480,7 +483,7 @@ export default function NaverMapView({
             anchor: new window.naver.maps.Point(16, 34),
           });
           // 이전 마커의 zIndex를 기본값으로 복원
-          prevMarkerData.marker.setZIndex(100);
+          prevMarkerData.marker.setZIndex(prevMarkerData.defaultZIndex);
         }
       }
 

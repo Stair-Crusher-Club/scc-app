@@ -1,6 +1,23 @@
-const APP_DOWNLOAD_URL = 'https://link.staircrusher.club/epnb5p';
+const APP_DOWNLOAD_BASE_URL = 'https://link.staircrusher.club/epnb5p';
 const APP_ICON_URL = new URL('../../web/assets/app-icon.png', import.meta.url)
   .href;
+
+function getDeepLinkPath(): string | null {
+  const path = window.location.pathname;
+  // /place-list/:placeListId(/place/:placeId) → place-list/:placeListId
+  const placeListMatch = path.match(/^\/place-list\/([^/]+)/);
+  if (placeListMatch) return `place-list/${placeListMatch[1]}`;
+  // /search/:query → search?searchQuery=:query
+  const searchMatch = path.match(/^\/search\/([^/]+)/);
+  if (searchMatch) return `search?searchQuery=${searchMatch[1]}`;
+  return null;
+}
+
+function buildAppDownloadUrl(): string {
+  const deepLinkPath = getDeepLinkPath();
+  if (!deepLinkPath) return APP_DOWNLOAD_BASE_URL;
+  return `${APP_DOWNLOAD_BASE_URL}?deeplink_path=${encodeURIComponent(deepLinkPath)}`;
+}
 
 function showAppInstallPrompt(message?: string) {
   if (document.getElementById('app-install-overlay')) return;
@@ -102,7 +119,7 @@ function showAppInstallPrompt(message?: string) {
     installBtn.style.backgroundColor = '#0C76F7';
   };
   installBtn.onclick = () => {
-    window.open(APP_DOWNLOAD_URL, '_blank');
+    window.open(buildAppDownloadUrl(), '_blank');
     overlay.remove();
   };
 
