@@ -45,6 +45,20 @@ export default function DesktopApp() {
                       placeId: (placeId: string) => placeId,
                     },
                   },
+                  PlaceListDetail: {
+                    path: 'place-list/:placeListId',
+                    exact: true,
+                    parse: {
+                      placeListId: (placeListId: string) => placeListId,
+                    },
+                  },
+                  PlaceListDetailPlace: {
+                    path: 'place-list/:placeListId/place/:placeId',
+                    parse: {
+                      placeListId: (placeListId: string) => placeListId,
+                      placeId: (placeId: string) => placeId,
+                    },
+                  },
                   ImageZoomViewer: 'images',
                   BbucleRoadList: {
                     path: 'bbucle-road',

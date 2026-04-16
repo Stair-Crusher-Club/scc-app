@@ -46,47 +46,66 @@ export default function NaverMapView({
   // 기본 위치 (강남역)
   const defaultCenter = {lat: 37.4979, lng: 127.0276};
 
-  // 마커가 현재 뷰포트에 보이는지 확인하는 함수
-  const isMarkerVisible = useCallback((position: any) => {
-    if (!mapInstanceRef.current) return false;
-
-    const bounds = mapInstanceRef.current.getBounds();
-    return bounds.hasLatLng(position);
+  // 오른쪽 패널(PDP)이 지도를 가리고 있는지 확인
+  const getRightPanelPixelWidth = useCallback(() => {
+    const hasRightPanel =
+      typeof window !== 'undefined' &&
+      window.location.pathname.includes('/place/');
+    if (!hasRightPanel || !mapRef.current) return 0;
+    // RightPanel = 20% of viewport, map div covers 80% of viewport
+    const viewportWidth = window.innerWidth;
+    const rightPanelWidth = viewportWidth * 0.2;
+    return rightPanelWidth;
   }, []);
 
-  // 지도 실제 중앙으로 이동하는 함수 (오른쪽 패널 고려)
-  const panToCenter = useCallback((position: any) => {
-    if (!mapInstanceRef.current) return;
+  // 마커가 패널에 가려지지 않고 실제로 보이는지 확인
+  const isMarkerVisible = useCallback(
+    (position: any) => {
+      if (!mapInstanceRef.current || !mapRef.current) return false;
 
-    // 현재 지도 크기 가져오기
-    const mapDiv = mapRef.current;
-    if (!mapDiv) return;
+      const bounds = mapInstanceRef.current.getBounds();
+      if (!bounds.hasLatLng(position)) return false;
 
-    const mapWidth = mapDiv.offsetWidth;
-    const mapHeight = mapDiv.offsetHeight;
+      // 패널에 가려지는지 추가 확인
+      const rightPanelPx = getRightPanelPixelWidth();
+      if (rightPanelPx === 0) return true;
 
-    // 오른쪽에 PlaceDetail 패널이 있는지 확인 (URL에 placeId가 있으면 패널이 열려있음)
-    const hasRightPanel = typeof window !== 'undefined' && window.location.pathname.includes('/place/');
+      // fromCoordToOffset = 컨테이너 기준 픽셀 좌표
+      const projection = mapInstanceRef.current.getProjection();
+      const markerPixel = projection.fromCoordToOffset(position);
+      const mapWidth = mapRef.current.offsetWidth;
+      // 가려지지 않는 영역: 0 ~ (mapWidth - rightPanelPx)
+      return markerPixel.x < mapWidth - rightPanelPx;
+    },
+    [getRightPanelPixelWidth],
+  );
 
-    // 오프셋 계산: 패널들을 고려한 실제 지도 중앙 계산
-    let offsetX = 0; // 오프셋 없음 - 지도 자체 중앙으로 이동
+  // 지도 이동: 마커를 패널에 가려지지 않는 영역의 중앙에 배치
+  const panToCenter = useCallback(
+    (position: any) => {
+      if (!mapInstanceRef.current || !mapRef.current) return;
 
-    // 현재 지도 중심에서 오프셋만큼 이동한 위치 계산
-    const currentCenter = mapInstanceRef.current.getCenter();
-    const projection = mapInstanceRef.current.getProjection();
+      const projection = mapInstanceRef.current.getProjection();
+      const mapWidth = mapRef.current.offsetWidth;
+      const mapHeight = mapRef.current.offsetHeight;
+      const rightPanelPx = getRightPanelPixelWidth();
 
-    // 지도 좌표를 픽셀로 변환
-    const point = projection.fromCoordToOffset(position);
+      // 마커의 컨테이너 픽셀 좌표
+      const markerPixel = projection.fromCoordToOffset(position);
+      // 보이는 영역의 중앙
+      const visibleCenterX = (mapWidth - rightPanelPx) / 2;
+      const visibleCenterY = mapHeight / 2;
 
-    // 오프셋 적용
-    const offsetPoint = new window.naver.maps.Point(point.x + offsetX, point.y);
-
-    // 픽셀을 다시 지도 좌표로 변환
-    const offsetPosition = projection.fromOffsetToCoord(offsetPoint);
-
-    // 계산된 위치로 이동
-    mapInstanceRef.current.panTo(offsetPosition);
-  }, []);
+      // 새 지도 중심: 현재 중심을 마커가 보이는 중앙에 오도록 이동
+      const newCenterPixel = new window.naver.maps.Point(
+        mapWidth / 2 + (markerPixel.x - visibleCenterX),
+        mapHeight / 2 + (markerPixel.y - visibleCenterY),
+      );
+      const newCenter = projection.fromOffsetToCoord(newCenterPixel);
+      mapInstanceRef.current.panTo(newCenter);
+    },
+    [getRightPanelPixelWidth],
+  );
 
   // Naver Map 초기화
   useEffect(() => {

@@ -7,12 +7,10 @@ import {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   ScrollView,
   View,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import Toast from 'react-native-root-toast';
 import styled from 'styled-components/native';
 
 import {featureFlagAtom} from '@/atoms/Auth';
@@ -268,13 +266,6 @@ export default function PlaceDetailV2Screen({
   });
 
   const handleUpvote = useCallback(() => {
-    if (Platform.OS === 'web') {
-      Toast.show('준비 중입니다 💪', {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-      });
-      return;
-    }
     checkAuth(() => toggleUpvote());
   }, [checkAuth, toggleUpvote]);
 
@@ -431,13 +422,6 @@ export default function PlaceDetailV2Screen({
   // 정보 등록 핸들러들
   const handlePlaceRegister = useCallback(() => {
     checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
       if (!place) return;
       await navigateWithLocationCheck({
         targetLocation: place.location,
@@ -453,13 +437,6 @@ export default function PlaceDetailV2Screen({
 
   const handleBuildingRegister = useCallback(() => {
     checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
       if (!place || !building) return;
       await navigateWithLocationCheck({
         targetLocation: building.location,
@@ -474,13 +451,6 @@ export default function PlaceDetailV2Screen({
 
   const handleReviewRegister = useCallback(() => {
     checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
       if (!place) return;
       await navigateWithLocationCheck({
         targetLocation: place.location,
@@ -516,13 +486,6 @@ export default function PlaceDetailV2Screen({
 
   const handleToiletRegister = useCallback(() => {
     checkAuth(async () => {
-      if (Platform.OS === 'web') {
-        Toast.show('준비 중입니다 💪', {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
-        });
-        return;
-      }
       if (!place) return;
       await navigateWithLocationCheck({
         targetLocation: place.location,
@@ -808,6 +771,7 @@ export default function PlaceDetailV2Screen({
             onShare={() => ShareUtils.sharePlace(place)}
             placeName={place.name}
             showTitle={showAppBarTitle}
+            onBack={() => navigation.goBack()}
           />
           <ScrollView
             ref={scrollViewRef}
