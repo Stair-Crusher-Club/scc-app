@@ -33,10 +33,14 @@ After any code changes or implementation work, **ALWAYS** run these validation c
 - 배포 절차:
   1. `git checkout main && git reset --hard origin/main` (최신 main 기준)
   2. `ENVFILE=.env.local yarn web:build` (production 빌드 → `web-dist/`)
-  3. `aws-vault exec swann-scc -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
+  3. **빌드 후 반드시 로컬에서 동작 확인** — `yarn web` 으로 dev server 띄우고 Playwright 또는 브라우저로 주요 페이지 접속 테스트. 콘솔 에러 없는지 확인.
+  4. `aws-vault exec swann-scc -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
+- **배포 전 테스트 필수 (MANDATORY)**: 테스트 없이 배포하지 않는다. 최소한 데스크톱/모바일 각각 1개 페이지씩 접속하여 렌더링 + 콘솔 에러 확인.
 - 인프라: S3 버킷 `staircrusher-club-web` + CloudFront `E3RDKBHB12EC6A`
+- 프로덕션 URL: `https://d2casvwkfuypye.cloudfront.net`
 - CloudFront 전파에 최대 15분 소요
 - OG 페이지 생성(`generate-og-pages.js`) 타임아웃은 배포에 영향 없음 (pre-rendering 실패해도 SPA 동작)
+- **지도 관련 기능은 port 3000에서 테스트해야 함** (네이버 지도 API 키가 localhost:3000에 바인딩)
 
 ## Component Guidelines
 
