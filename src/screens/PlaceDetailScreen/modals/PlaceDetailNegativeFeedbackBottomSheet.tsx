@@ -314,19 +314,13 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
               return (
                 <View key={reason}>
                   {index > 0 && <SpaceBetweenOptions />}
-                  <SccButton
-                    key={reason}
+                  <FeedbackOptionButton
                     text={match(reason)
                       .with('INACCURATE_INFO', () => '틀린 정보가 있어요')
                       .with('CLOSED', () => '폐점/이전된 곳이에요')
                       .with('BAD_USER', () => '이 정복자를 차단할래요')
                       .exhaustive()}
-                    textColor={isSelected ? 'brand50' : 'gray80v2'}
-                    buttonColor={isSelected ? 'brand5' : 'white'}
-                    borderColor={isSelected ? 'brand40' : 'gray20v2'}
-                    fontFamily={font.pretendardMedium}
-                    fontSize={16}
-                    style={{borderRadius: 14}}
+                    isSelected={isSelected}
                     onPress={() => {
                       setSelectedReason(reason);
                     }}
@@ -403,14 +397,9 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 return (
                   <View key={item.key}>
                     {index > 0 && <SpaceBetweenOptions />}
-                    <SccButton
+                    <FeedbackOptionButton
                       text={item.label}
-                      textColor={isSelected ? 'brand50' : 'gray80v2'}
-                      buttonColor={isSelected ? 'brand5' : 'white'}
-                      borderColor={isSelected ? 'brand40' : 'gray20v2'}
-                      fontFamily={font.pretendardMedium}
-                      fontSize={16}
-                      style={{borderRadius: 14}}
+                      isSelected={isSelected}
                       onPress={() => {
                         setSelectedCategory(item.category);
                         setSelectedElevatorTarget(item.elevatorTarget ?? null);
@@ -436,14 +425,9 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 return (
                   <View key={subType}>
                     {index > 0 && <SpaceBetweenOptions />}
-                    <SccButton
+                    <FeedbackOptionButton
                       text={CLOSED_SUB_TYPE_LABELS[subType]}
-                      textColor={isSelected ? 'brand50' : 'gray80v2'}
-                      buttonColor={isSelected ? 'brand5' : 'white'}
-                      borderColor={isSelected ? 'brand40' : 'gray20v2'}
-                      fontFamily={font.pretendardMedium}
-                      fontSize={16}
-                      style={{borderRadius: 14}}
+                      isSelected={isSelected}
                       onPress={() => {
                         setSelectedClosedSubType(subType);
                       }}
@@ -508,6 +492,38 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
 };
 
 export default PlaceDetailNegativeFeedbackBottomSheet;
+
+/** Step 1/2에서 공통으로 쓰이는 선택 옵션 버튼. Figma 신고하기 633-7837 토큰. */
+interface FeedbackOptionButtonProps {
+  text: string;
+  isSelected: boolean;
+  onPress: () => void;
+  elementName: string;
+  logParams?: Record<string, unknown>;
+}
+
+function FeedbackOptionButton({
+  text,
+  isSelected,
+  onPress,
+  elementName,
+  logParams,
+}: FeedbackOptionButtonProps) {
+  return (
+    <SccButton
+      text={text}
+      textColor={isSelected ? 'brand50' : 'gray80v2'}
+      buttonColor={isSelected ? 'brand5' : 'white'}
+      borderColor={isSelected ? 'brand40' : 'gray20v2'}
+      fontFamily={font.pretendardMedium}
+      fontSize={16}
+      style={{borderRadius: 14}}
+      onPress={onPress}
+      elementName={elementName}
+      logParams={logParams}
+    />
+  );
+}
 
 const ContentsContainer = styled.View`
   flex-direction: column;
