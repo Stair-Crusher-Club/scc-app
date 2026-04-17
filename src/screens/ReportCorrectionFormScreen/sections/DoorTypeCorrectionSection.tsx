@@ -1,12 +1,10 @@
 import React from 'react';
-import styled from 'styled-components/native';
 
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {makeDoorTypeOptions} from '@/constant/options';
 import {EntranceDoorType} from '@/generated-sources/openapi';
 
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
+import {FormGroup, SectionRoot, SubLabel} from './shared';
 
 interface DoorTypeCorrectionSectionProps {
   entranceDoorTypes?: EntranceDoorType[];
@@ -20,25 +18,16 @@ export default function DoorTypeCorrectionSection({
   const options = makeDoorTypeOptions(entranceDoorTypes);
 
   return (
-    <Container>
-      <SectionTitle>입구 문이 어떤 유형인가요? (복수 선택 가능)</SectionTitle>
-
-      <OptionsV2.Multiple
-        options={options}
-        values={entranceDoorTypes}
-        columns={2}
-        onSelect={onChangeDoorTypes}
-      />
-    </Container>
+    <SectionRoot>
+      <FormGroup>
+        <SubLabel>출입문은 어떤 종류인가요?</SubLabel>
+        <OptionsV2.Multiple
+          options={options}
+          values={entranceDoorTypes}
+          columns={2}
+          onSelect={onChangeDoorTypes}
+        />
+      </FormGroup>
+    </SectionRoot>
   );
 }
-
-// Styled components
-const Container = styled.View``;
-
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 16px;
-`;

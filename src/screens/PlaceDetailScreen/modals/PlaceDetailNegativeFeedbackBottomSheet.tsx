@@ -4,7 +4,11 @@ import styled from 'styled-components/native';
 
 import {match} from 'ts-pattern';
 
-import {SccButton} from '@/components/atoms';
+import {
+  SccButton,
+  SccPrimaryButton,
+  SccSecondaryButton,
+} from '@/components/atoms';
 import TextArea from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -91,9 +95,6 @@ function getCategoryLabel(
       const doorTypes = snapshot?.entranceDoorTypes;
       if (doorTypes && doorTypes.length > 0 && doorTypes.length <= 2) {
         const label = doorTypes.map(d => doorTypeMap[d]).join(', ');
-        if (label === '기타') {
-          return '출입문 유형이 잘못됐어요';
-        }
         return `${label}이 아니에요`;
       }
       return '출입문 종류가 잘못됐어요';
@@ -320,9 +321,12 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                       .with('CLOSED', () => '폐점/이전된 곳이에요')
                       .with('BAD_USER', () => '이 정복자를 차단할래요')
                       .exhaustive()}
-                    textColor={isSelected ? 'brandColor' : 'gray70'}
-                    buttonColor="white"
-                    borderColor={isSelected ? 'blue50' : 'gray30'}
+                    textColor={isSelected ? 'brand50' : 'gray80v2'}
+                    buttonColor={isSelected ? 'brand5' : 'white'}
+                    borderColor={isSelected ? 'brand40' : 'gray20v2'}
+                    fontFamily={font.pretendardMedium}
+                    fontSize={16}
+                    style={{borderRadius: 14}}
                     onPress={() => {
                       setSelectedReason(reason);
                     }}
@@ -401,9 +405,12 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                     {index > 0 && <SpaceBetweenOptions />}
                     <SccButton
                       text={item.label}
-                      textColor={isSelected ? 'brandColor' : 'gray70'}
-                      buttonColor="white"
-                      borderColor={isSelected ? 'blue50' : 'gray30'}
+                      textColor={isSelected ? 'brand50' : 'gray80v2'}
+                      buttonColor={isSelected ? 'brand5' : 'white'}
+                      borderColor={isSelected ? 'brand40' : 'gray20v2'}
+                      fontFamily={font.pretendardMedium}
+                      fontSize={16}
+                      style={{borderRadius: 14}}
                       onPress={() => {
                         setSelectedCategory(item.category);
                         setSelectedElevatorTarget(item.elevatorTarget ?? null);
@@ -431,9 +438,12 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                     {index > 0 && <SpaceBetweenOptions />}
                     <SccButton
                       text={CLOSED_SUB_TYPE_LABELS[subType]}
-                      textColor={isSelected ? 'brandColor' : 'gray70'}
-                      buttonColor="white"
-                      borderColor={isSelected ? 'blue50' : 'gray30'}
+                      textColor={isSelected ? 'brand50' : 'gray80v2'}
+                      buttonColor={isSelected ? 'brand5' : 'white'}
+                      borderColor={isSelected ? 'brand40' : 'gray20v2'}
+                      fontFamily={font.pretendardMedium}
+                      fontSize={16}
+                      style={{borderRadius: 14}}
                       onPress={() => {
                         setSelectedClosedSubType(subType);
                       }}
@@ -479,9 +489,6 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
         <ButtonContainer>
           <CloseButton
             text={step === 'reason' ? '닫기' : '이전'}
-            textColor="black"
-            buttonColor="gray10"
-            fontFamily={font.pretendardBold}
             onPress={step === 'reason' ? handleClose : handleBack}
             elementName={
               step === 'reason' ? 'place_feedback_close' : 'place_feedback_back'
@@ -490,9 +497,6 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
           <SpaceBetweenButtons />
           <SubmitButton
             text={getSubmitButtonText()}
-            textColor="white"
-            buttonColor="brandColor"
-            fontFamily={font.pretendardBold}
             isDisabled={isSubmitDisabled()}
             onPress={handleSubmit}
             elementName="place_feedback_submit"
@@ -537,11 +541,11 @@ const SpaceBetweenButtons = styled.View`
   width: 10px;
 `;
 
-const CloseButton = styled(SccButton)`
+const CloseButton = styled(SccSecondaryButton)`
   flex: 1;
 `;
 
-const SubmitButton = styled(SccButton)`
+const SubmitButton = styled(SccPrimaryButton)`
   flex: 2;
 `;
 

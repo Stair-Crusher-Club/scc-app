@@ -11,7 +11,7 @@ export const doorTypeMap = {
   [EntranceDoorType.Sliding]: '미닫이문',
   [EntranceDoorType.Automatic]: '자동문',
   [EntranceDoorType.Revolving]: '회전문',
-  [EntranceDoorType.Etc]: '기타',
+  [EntranceDoorType.Etc]: '기타 문',
   [EntranceDoorType.None]: '문 없음',
 } as const;
 

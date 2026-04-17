@@ -1,8 +1,5 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
-import styled from 'styled-components/native';
 
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {
   FloorMovingMethodTypeDto,
   StairInfo,
@@ -23,6 +20,7 @@ import type {
   FloorOptionKey,
   StandaloneBuildingType,
 } from '../../PlaceFormV2Screen/types';
+import {FormGroup, GuideLink, SectionRoot, SubLabel} from './shared';
 
 export interface FloorFormState {
   floorOption: FloorOptionKey | null;
@@ -97,6 +95,17 @@ export default function FloorCorrectionSection({
     }
   }, [hasPlaceElevator, elevatorAccessibility, onChangeElevatorAccessibility]);
 
+  // 층간이동 질문이 더 이상 필요 없어지면 선택값도 초기화 (연쇄로 엘리베이터 정보도 초기화됨)
+  useEffect(() => {
+    if (!conditions.showFloorMovement && floorMovingMethodTypes.length > 0) {
+      onChangeFloorMovingMethodTypes([]);
+    }
+  }, [
+    conditions.showFloorMovement,
+    floorMovingMethodTypes,
+    onChangeFloorMovingMethodTypes,
+  ]);
+
   const handleOptionSelect = useCallback(
     (option: FloorOptionKey) => {
       setFloorOption(option);
@@ -135,24 +144,24 @@ export default function FloorCorrectionSection({
   );
 
   return (
-    <Container>
-      <SectionTitle>이 장소는 건물의 1층에 있나요?</SectionTitle>
-
-      <FloorQuestionUI
-        floorOption={floorOption}
-        selectedFloor={detailFloorValue}
-        standaloneType={standaloneType}
-        onChangeFloorOption={handleOptionSelect}
-        onChangeSelectedFloor={handleFloorChange}
-        onChangeStandaloneType={handleStandaloneTypeChange}
-      />
+    <SectionRoot>
+      <FormGroup>
+        <SubLabel>이 장소는 건물의 1층에 있나요?</SubLabel>
+        <FloorQuestionUI
+          floorOption={floorOption}
+          selectedFloor={detailFloorValue}
+          standaloneType={standaloneType}
+          onChangeFloorOption={handleOptionSelect}
+          onChangeSelectedFloor={handleFloorChange}
+          onChangeStandaloneType={handleStandaloneTypeChange}
+        />
+      </FormGroup>
 
       {conditions.showFloorMovement && (
-        <FloorMovementContainer>
-          <SubSectionTitle>
-            1층에서 다른층으로 이동가능한 방법을 모두 알려주세요
-          </SubSectionTitle>
-
+        <FormGroup>
+          <SubLabel>
+            1층에서 다른층으로 이동 가능한 방법을 확인해주세요
+          </SubLabel>
           <OptionsV2.Multiple
             columns={2}
             values={floorMovingMethodTypes}
@@ -162,31 +171,35 @@ export default function FloorCorrectionSection({
             )}
             onSelect={onChangeFloorMovingMethodTypes}
           />
-        </FloorMovementContainer>
+        </FormGroup>
       )}
 
       {hasPlaceElevator && (
-        <ElevatorInfoContainer>
-          <SubSectionTitle>엘리베이터 정보</SubSectionTitle>
-
-          <ElevatorSubLabel>엘리베이터까지 계단</ElevatorSubLabel>
-          <OptionsV2
-            options={ELEVATOR_OPTIONS.stairInfoOptions}
-            value={elevatorAccessibility?.stairInfo}
-            columns={2}
-            onSelect={(value: StairInfo) =>
-              updateElevatorField({
-                stairInfo: value,
-                ...(value !== StairInfo.One
-                  ? {stairHeightLevel: undefined}
-                  : {}),
-              })
-            }
-          />
+        <>
+          <FormGroup>
+            <SubLabel>엘리베이터까지 계단을 확인해주세요</SubLabel>
+            <OptionsV2
+              options={ELEVATOR_OPTIONS.stairInfoOptions}
+              value={elevatorAccessibility?.stairInfo}
+              columns={2}
+              onSelect={(value: StairInfo) =>
+                updateElevatorField({
+                  stairInfo: value,
+                  ...(value !== StairInfo.One
+                    ? {stairHeightLevel: undefined}
+                    : {}),
+                })
+              }
+            />
+            <GuideLink
+              type="stair"
+              elementName="report_correction_floor_elevator_stair_guide"
+            />
+          </FormGroup>
 
           {elevatorConditions.showStairHeight && (
-            <>
-              <ElevatorSubLabel>계단 높이</ElevatorSubLabel>
+            <FormGroup>
+              <SubLabel>계단 높이를 확인해주세요</SubLabel>
               <OptionsV2
                 options={ELEVATOR_OPTIONS.stairHeightOptions}
                 value={elevatorAccessibility?.stairHeightLevel}
@@ -195,53 +208,26 @@ export default function FloorCorrectionSection({
                   updateElevatorField({stairHeightLevel: value})
                 }
               />
-            </>
+            </FormGroup>
           )}
 
-          <ElevatorSubLabel>엘리베이터 앞 경사로</ElevatorSubLabel>
-          <OptionsV2
-            options={ELEVATOR_OPTIONS.slopeOptions}
-            value={elevatorAccessibility?.hasSlope}
-            columns={2}
-            onSelect={(value: boolean) =>
-              updateElevatorField({hasSlope: value})
-            }
-          />
-        </ElevatorInfoContainer>
+          <FormGroup>
+            <SubLabel>엘리베이터 앞 경사로를 확인해주세요</SubLabel>
+            <OptionsV2
+              options={ELEVATOR_OPTIONS.slopeOptions}
+              value={elevatorAccessibility?.hasSlope}
+              columns={2}
+              onSelect={(value: boolean) =>
+                updateElevatorField({hasSlope: value})
+              }
+            />
+            <GuideLink
+              type="slope"
+              elementName="report_correction_floor_elevator_slope_guide"
+            />
+          </FormGroup>
+        </>
       )}
-    </Container>
+    </SectionRoot>
   );
 }
-
-// Styled components
-const Container = styled.View``;
-
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 16px;
-`;
-
-const FloorMovementContainer = styled.View`
-  margin-top: 24px;
-`;
-
-const ElevatorInfoContainer = styled.View`
-  margin-top: 24px;
-`;
-
-const SubSectionTitle = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.black};
-  margin-bottom: 12px;
-`;
-
-const ElevatorSubLabel = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray60};
-  margin-bottom: 8px;
-  margin-top: 12px;
-`;

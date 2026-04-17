@@ -1,8 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import styled from 'styled-components/native';
 
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {
   ElevatorAccessibilityDto,
   StairInfo,
@@ -16,6 +13,7 @@ import {
   ELEVATOR_OPTIONS,
 } from '../../PlaceFormV2Screen/hooks';
 import PhotoEditSlots from './PhotoEditSlots';
+import {FormGroup, GuideLink, SectionRoot, SubLabel} from './shared';
 
 interface ElevatorCorrectionSectionProps {
   elevatorAccessibility?: ElevatorAccessibilityDto;
@@ -92,36 +90,43 @@ export default function ElevatorCorrectionSection({
   );
 
   return (
-    <Container>
-      <SectionTitle>엘리베이터가 있나요?</SectionTitle>
-
-      <OptionsV2
-        options={ELEVATOR_OPTIONS.hasElevatorOptions}
-        value={hasElevator}
-        columns={2}
-        onSelect={handleHasElevatorChange}
-      />
+    <SectionRoot>
+      <FormGroup>
+        <SubLabel>엘리베이터가 있는지 확인해주세요</SubLabel>
+        <OptionsV2
+          options={ELEVATOR_OPTIONS.hasElevatorOptions}
+          value={hasElevator}
+          columns={2}
+          onSelect={handleHasElevatorChange}
+        />
+      </FormGroup>
 
       {conditions.showElevatorDetails && (
         <>
-          <SubLabel>엘리베이터까지 계단</SubLabel>
-          <OptionsV2
-            options={ELEVATOR_OPTIONS.stairInfoOptions}
-            value={elevatorAccessibility?.stairInfo}
-            columns={2}
-            onSelect={(value: StairInfo) =>
-              update({
-                stairInfo: value,
-                ...(value !== StairInfo.One
-                  ? {stairHeightLevel: undefined}
-                  : {}),
-              })
-            }
-          />
+          <FormGroup>
+            <SubLabel>엘리베이터까지 계단을 확인해주세요</SubLabel>
+            <OptionsV2
+              options={ELEVATOR_OPTIONS.stairInfoOptions}
+              value={elevatorAccessibility?.stairInfo}
+              columns={2}
+              onSelect={(value: StairInfo) =>
+                update({
+                  stairInfo: value,
+                  ...(value !== StairInfo.One
+                    ? {stairHeightLevel: undefined}
+                    : {}),
+                })
+              }
+            />
+            <GuideLink
+              type="stair"
+              elementName="report_correction_elevator_stair_guide"
+            />
+          </FormGroup>
 
           {conditions.showStairHeight && (
-            <>
-              <SubLabel>계단 높이</SubLabel>
+            <FormGroup>
+              <SubLabel>계단 높이를 확인해주세요</SubLabel>
               <OptionsV2
                 options={ELEVATOR_OPTIONS.stairHeightOptions}
                 value={elevatorAccessibility?.stairHeightLevel}
@@ -130,19 +135,26 @@ export default function ElevatorCorrectionSection({
                   update({stairHeightLevel: value})
                 }
               />
-            </>
+            </FormGroup>
           )}
 
-          <SubLabel>엘리베이터 앞 경사로</SubLabel>
-          <OptionsV2
-            options={ELEVATOR_OPTIONS.slopeOptions}
-            value={elevatorAccessibility?.hasSlope}
-            columns={2}
-            onSelect={(value: boolean) => update({hasSlope: value})}
-          />
+          <FormGroup>
+            <SubLabel>엘리베이터 앞 경사로를 확인해주세요</SubLabel>
+            <OptionsV2
+              options={ELEVATOR_OPTIONS.slopeOptions}
+              value={elevatorAccessibility?.hasSlope}
+              columns={2}
+              onSelect={(value: boolean) => update({hasSlope: value})}
+            />
+            <GuideLink
+              type="slope"
+              elementName="report_correction_elevator_slope_guide"
+            />
+          </FormGroup>
 
-          <SubLabel>매장 엘리베이터 사진</SubLabel>
           <PhotoEditSlots
+            title="매장 엘리베이터 사진을 확인해주세요"
+            description="최대 3장까지 등록 가능해요"
             existingPhotoUrls={existingElevatorPhotoUrls}
             newPhotos={newElevatorPhotos}
             deletedExistingIndices={deletedElevatorPhotoIndices}
@@ -154,40 +166,21 @@ export default function ElevatorCorrectionSection({
           />
 
           {needsBaPhotos && (
-            <>
-              <SubLabel>건물 엘리베이터 사진</SubLabel>
-              <PhotoEditSlots
-                existingPhotoUrls={existingBaElevatorPhotoUrls}
-                newPhotos={newBaElevatorPhotos}
-                deletedExistingIndices={deletedBaElevatorPhotoIndices}
-                replacedPhotos={replacedBaElevatorPhotos}
-                maxPhotos={3}
-                onDeleteExisting={onDeleteExistingBaElevatorPhoto}
-                onReplaceExisting={onReplaceExistingBaElevatorPhoto}
-                onChangeNewPhotos={onChangeNewBaElevatorPhotos}
-              />
-            </>
+            <PhotoEditSlots
+              title="건물 엘리베이터 사진을 확인해주세요"
+              description="최대 3장까지 등록 가능해요"
+              existingPhotoUrls={existingBaElevatorPhotoUrls}
+              newPhotos={newBaElevatorPhotos}
+              deletedExistingIndices={deletedBaElevatorPhotoIndices}
+              replacedPhotos={replacedBaElevatorPhotos}
+              maxPhotos={3}
+              onDeleteExisting={onDeleteExistingBaElevatorPhoto}
+              onReplaceExisting={onReplaceExistingBaElevatorPhoto}
+              onChangeNewPhotos={onChangeNewBaElevatorPhotos}
+            />
           )}
         </>
       )}
-    </Container>
+    </SectionRoot>
   );
 }
-
-// Styled components
-const Container = styled.View``;
-
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 16px;
-`;
-
-const SubLabel = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray60};
-  margin-bottom: 8px;
-  margin-top: 12px;
-`;
