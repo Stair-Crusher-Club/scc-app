@@ -104,3 +104,5 @@ web-dist/
 !.yarn/versions
 
 .serena/
+
+.playwright-mcp/
