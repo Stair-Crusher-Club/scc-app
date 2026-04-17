@@ -6,7 +6,10 @@ import {currentLocationAtom} from '@/atoms/Location';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceListItem} from '@/generated-sources/openapi';
+import {
+  BbucleRoadAccessibilityDtoBbucleRoadTypeEnum,
+  PlaceListItem,
+} from '@/generated-sources/openapi';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
@@ -32,9 +35,28 @@ export default function SearchItemSummary({
     return prettyFormatMeter(distance);
   })();
 
+  const bbucleRoadData = item.specialAccessibility?.bbucleRoadData;
+  const bbucleRoadBadgeText = ((): string | undefined => {
+    if (!bbucleRoadData) return undefined;
+    switch (bbucleRoadData.bbucleRoadType) {
+      case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.BaseballStadium:
+        return '뿌클로드 야구장 ⚾️';
+      case BbucleRoadAccessibilityDtoBbucleRoadTypeEnum.ConcertHall:
+        return '뿌클로드 공연장 🎤';
+      default: {
+        const _exhaustiveCheck: never = bbucleRoadData.bbucleRoadType;
+        return _exhaustiveCheck;
+      }
+    }
+  })();
+
   return (
     <Container elementName="search_item_summary" onPress={onPress}>
-      {item.accessibilityInfo?.accessibilityScore === undefined ? (
+      {bbucleRoadBadgeText ? (
+        <BbucleRoadBadge>
+          <BbucleRoadBadgeText>{bbucleRoadBadgeText}</BbucleRoadBadgeText>
+        </BbucleRoadBadge>
+      ) : item.accessibilityInfo?.accessibilityScore === undefined ? (
         <NoInfoText>
           {item.hasPlaceAccessibility
             ? '건물 입구정보가 필요해요!'
@@ -66,6 +88,20 @@ const NoInfoText = styled.Text`
   font-size: 12px;
   font-family: ${() => font.pretendardRegular};
   color: ${() => color.gray50};
+`;
+
+const BbucleRoadBadge = styled.View`
+  background-color: rgba(162, 255, 32, 0.3);
+  border-radius: 6px;
+  padding: 4px 6px;
+  align-self: flex-start;
+`;
+
+const BbucleRoadBadgeText = styled.Text`
+  font-size: 12px;
+  font-family: ${() => font.pretendardMedium};
+  color: #305306;
+  line-height: 15.6px;
 `;
 
 const Container = styled(SccPressable)`
