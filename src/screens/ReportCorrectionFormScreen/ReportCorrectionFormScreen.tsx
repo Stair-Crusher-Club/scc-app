@@ -3,11 +3,11 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ActivityIndicator, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
-import {SccButton} from '@/components/atoms';
-import TextArea from '@/components/form/TextArea';
+import {SccPrimaryButton} from '@/components/atoms';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import TextAreaV2 from '@/screens/PlaceFormV2Screen/components/TextAreaV2';
 import {
   AccessibilityInfoV2Dto,
   AccessLevelCorrectionDto,
@@ -998,11 +998,6 @@ export default function ReportCorrectionFormScreen({
         return (
           <SectionContainer>
             <PlaceEntranceCorrectionSection
-              sectionTitle={
-                accessibilityData?.buildingAccessibility
-                  ? '장소 입구 정보'
-                  : undefined
-              }
               stairInfo={placeCorrection.stairInfo}
               stairHeightLevel={placeCorrection.stairHeightLevel}
               hasSlope={placeCorrection.hasSlope}
@@ -1257,35 +1252,35 @@ export default function ReportCorrectionFormScreen({
 
   return (
     <ScreenLayout isHeaderVisible={true} isKeyboardAvoidingView={true}>
-      <ScrollView
-        contentContainerStyle={{paddingHorizontal: 24, paddingBottom: 40}}>
-        <PageTitle>올바른 정보를 알려주세요</PageTitle>
-        <PageDescription>
-          선택한 항목에 대한 올바른 정보를 입력해주세요.
-        </PageDescription>
+      <ScrollView contentContainerStyle={{paddingBottom: 40}}>
+        <PageHeader>
+          <PageTitle>올바른 정보로 수정해주세요.</PageTitle>
+          <PageDescription>
+            잘못되었거나 수정이 필요한 정보를 알려주세요.
+          </PageDescription>
+        </PageHeader>
 
-        {renderSection()}
+        <FormBody>
+          {renderSection()}
 
-        <SectionContainer>
-          <SectionTitle>부연 설명 (선택)</SectionTitle>
-          <TextArea
-            placeholder="추가로 설명할 내용이 있다면 입력해주세요."
-            value={noteText}
-            onChangeText={setNoteText}
-          />
-        </SectionContainer>
+          <NoteSectionContainer>
+            <NoteLabel>부연 설명</NoteLabel>
+            <TextAreaV2
+              placeholder="추가로 설명할 내용이 있다면 알려주세요"
+              value={noteText}
+              onChangeText={setNoteText}
+            />
+          </NoteSectionContainer>
 
-        <SubmitButtonContainer>
-          <SccButton
-            text="제출하기"
-            textColor="white"
-            buttonColor="brandColor"
-            fontFamily={font.pretendardBold}
-            isDisabled={isSubmitDisabled}
-            onPress={() => submitMutation.mutate(undefined)}
-            elementName="report_correction_submit"
-          />
-        </SubmitButtonContainer>
+          <SubmitButtonContainer>
+            <SccPrimaryButton
+              text="제출하기"
+              isDisabled={isSubmitDisabled}
+              onPress={() => submitMutation.mutate(undefined)}
+              elementName="report_correction_submit"
+            />
+          </SubmitButtonContainer>
+        </FormBody>
       </ScrollView>
       <UploadProgressOverlay {...uploadProgress} />
     </ScreenLayout>
@@ -1298,32 +1293,45 @@ const LoadingContainer = styled.View`
   align-items: center;
 `;
 
+const PageHeader = styled.View`
+  background-color: ${color.gray10};
+  gap: 8px;
+  padding: 24px 20px;
+`;
+
 const PageTitle = styled.Text`
-  font-size: 22px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-top: 24px;
-  margin-bottom: 8px;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+  font-family: ${font.pretendardSemibold};
+  color: ${color.gray90v2};
 `;
 
 const PageDescription = styled.Text`
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
   font-family: ${font.pretendardRegular};
-  color: ${color.gray50};
-  margin-bottom: 24px;
+  color: ${color.gray60v2};
 `;
 
-const SectionContainer = styled.View`
-  margin-bottom: 28px;
+const FormBody = styled.View`
+  padding: 30px 20px;
+  gap: 48px;
 `;
 
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 12px;
+const SectionContainer = styled.View``;
+
+const NoteSectionContainer = styled.View`
+  gap: 16px;
 `;
 
-const SubmitButtonContainer = styled.View`
-  margin-top: 12px;
+const NoteLabel = styled.Text`
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.36px;
+  font-family: ${font.pretendardSemibold};
+  color: ${color.gray80v2};
 `;
+
+const SubmitButtonContainer = styled.View``;

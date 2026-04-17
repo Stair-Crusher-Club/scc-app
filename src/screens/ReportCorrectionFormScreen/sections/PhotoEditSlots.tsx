@@ -11,6 +11,10 @@ import useNavigation from '@/navigation/useNavigation';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 
 interface PhotoEditSlotsProps {
+  /** 섹션 타이틀 (존댓말, 예: "매장 입구 사진을 확인해주세요") */
+  title?: string;
+  /** 타이틀 아래 보조 설명 (예: "최대 3장까지 등록 가능해요") */
+  description?: string;
   /** 기존 원격 사진 URL */
   existingPhotoUrls: string[];
   /** 교체된 기존 사진 (원본 인덱스 -> 새 사진) */
@@ -34,6 +38,8 @@ interface PhotoEditSlotsProps {
  * - 최대 maxPhotos장
  */
 export default function PhotoEditSlots({
+  title,
+  description,
   existingPhotoUrls,
   replacedPhotos,
   newPhotos,
@@ -102,7 +108,14 @@ export default function PhotoEditSlots({
 
   return (
     <Container>
-      <Header>사진도 바뀌었나요? (선택)</Header>
+      {title !== undefined && (
+        <HeaderGroup>
+          <Title>{title}</Title>
+          {description !== undefined && (
+            <DescriptionText>{description}</DescriptionText>
+          )}
+        </HeaderGroup>
+      )}
       <SlotsRow>
         {/* 기존 사진 (교체된 사진 포함) */}
         {activeExistingPhotos.map((item, displayIndex) => {
@@ -210,14 +223,27 @@ export default function PhotoEditSlots({
 
 // Styled components
 const Container = styled.View`
-  margin-top: 8px;
+  gap: 16px;
 `;
 
-const Header = styled.Text`
+const HeaderGroup = styled.View`
+  gap: 2px;
+`;
+
+const Title = styled.Text`
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.36px;
+  font-family: ${font.pretendardSemibold};
+  color: ${color.gray80v2};
+`;
+
+const DescriptionText = styled.Text`
   font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray60};
-  margin-bottom: 8px;
+  line-height: 20px;
+  letter-spacing: -0.28px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray45};
 `;
 
 const SlotsRow = styled.View`

@@ -1,14 +1,12 @@
 import React from 'react';
-import styled from 'styled-components/native';
 
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {StairInfo, StairHeightLevel} from '@/generated-sources/openapi';
 import ImageFile from '@/models/ImageFile';
 
 import OptionsV2 from '../../PlaceFormV2Screen/components/OptionsV2';
 import {ENTRANCE_OPTIONS} from '../../PlaceFormV2Screen/hooks';
 import PhotoEditSlots from './PhotoEditSlots';
+import {FormGroup, GuideLink, SectionRoot, SubLabel} from './shared';
 
 interface BuildingEntranceCorrectionSectionProps {
   entranceStairInfo?: StairInfo;
@@ -44,39 +42,50 @@ export default function BuildingEntranceCorrectionSection({
   const showStairHeight = entranceStairInfo === StairInfo.One;
 
   return (
-    <Container>
-      <SectionTitle>건물 입구 정보</SectionTitle>
-
-      <SubLabel>계단 수</SubLabel>
-      <OptionsV2
-        options={ENTRANCE_OPTIONS.stairInfoOptions}
-        value={entranceStairInfo}
-        columns={2}
-        onSelect={onChangeEntranceStairInfo}
-      />
+    <SectionRoot>
+      <FormGroup>
+        <SubLabel>계단 수를 확인해주세요</SubLabel>
+        <OptionsV2
+          options={ENTRANCE_OPTIONS.stairInfoOptions}
+          value={entranceStairInfo}
+          columns={2}
+          onSelect={onChangeEntranceStairInfo}
+        />
+        <GuideLink
+          type="stair"
+          elementName="report_correction_building_entrance_stair_guide"
+        />
+      </FormGroup>
 
       {showStairHeight && (
-        <>
-          <SubLabel>계단 높이</SubLabel>
+        <FormGroup>
+          <SubLabel>계단 높이를 확인해주세요</SubLabel>
           <OptionsV2
             options={ENTRANCE_OPTIONS.stairHeightOptions}
             value={entranceStairHeightLevel}
             columns={1}
             onSelect={onChangeEntranceStairHeightLevel}
           />
-        </>
+        </FormGroup>
       )}
 
-      <SubLabel>경사로</SubLabel>
-      <OptionsV2
-        options={ENTRANCE_OPTIONS.slopeOptions}
-        value={hasSlope}
-        columns={2}
-        onSelect={onChangeHasSlope}
-      />
+      <FormGroup>
+        <SubLabel>경사로 유무를 확인해주세요</SubLabel>
+        <OptionsV2
+          options={ENTRANCE_OPTIONS.slopeOptions}
+          value={hasSlope}
+          columns={2}
+          onSelect={onChangeHasSlope}
+        />
+        <GuideLink
+          type="slope"
+          elementName="report_correction_building_entrance_slope_guide"
+        />
+      </FormGroup>
 
-      <SubLabel>건물 입구 사진</SubLabel>
       <PhotoEditSlots
+        title="건물 입구 사진을 확인해주세요"
+        description="최대 3장까지 등록 가능해요"
         existingPhotoUrls={existingBaEntrancePhotoUrls}
         newPhotos={newBaEntrancePhotos}
         deletedExistingIndices={deletedBaEntrancePhotoIndices}
@@ -86,24 +95,6 @@ export default function BuildingEntranceCorrectionSection({
         onReplaceExisting={onReplaceExistingBaEntrancePhoto}
         onChangeNewPhotos={onChangeNewBaEntrancePhotos}
       />
-    </Container>
+    </SectionRoot>
   );
 }
-
-// Styled components
-const Container = styled.View``;
-
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 16px;
-`;
-
-const SubLabel = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray60};
-  margin-bottom: 8px;
-  margin-top: 12px;
-`;

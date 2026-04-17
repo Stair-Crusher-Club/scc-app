@@ -1,11 +1,9 @@
 import React from 'react';
-import styled from 'styled-components/native';
 
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import ImageFile from '@/models/ImageFile';
 
 import PhotoEditSlots from './PhotoEditSlots';
+import {SectionRoot} from './shared';
 
 interface PhotoCorrectionSectionProps {
   entranceImageUrls: string[];
@@ -77,12 +75,11 @@ export default function PhotoCorrectionSection({
   onChangeNewBaElevatorPhotos,
 }: PhotoCorrectionSectionProps) {
   return (
-    <Container>
-      <SectionTitle>사진을 수정해주세요</SectionTitle>
-
+    <SectionRoot>
       {/* 장소 입구 사진 — PA exists이면 항상 표시 */}
-      <PhotoSectionLabel>장소 입구 사진</PhotoSectionLabel>
       <PhotoEditSlots
+        title="장소 입구 사진을 확인해주세요"
+        description="최대 3장까지 등록 가능해요"
         existingPhotoUrls={entranceImageUrls}
         newPhotos={newEntrancePhotos}
         deletedExistingIndices={deletedEntrancePhotoIndices}
@@ -95,72 +92,51 @@ export default function PhotoCorrectionSection({
 
       {/* 매장 엘리베이터 사진 — PA floorMovingMethodTypes에 PLACE_ELEVATOR 포함 시 */}
       {showPlaceElevatorPhotos && (
-        <>
-          <PhotoSectionLabel>매장 엘리베이터 사진</PhotoSectionLabel>
-          <PhotoEditSlots
-            existingPhotoUrls={elevatorImageUrls}
-            newPhotos={newElevatorPhotos}
-            deletedExistingIndices={deletedElevatorPhotoIndices}
-            replacedPhotos={replacedElevatorPhotos}
-            maxPhotos={3}
-            onDeleteExisting={onDeleteExistingElevatorPhoto}
-            onReplaceExisting={onReplaceExistingElevatorPhoto}
-            onChangeNewPhotos={onChangeNewElevatorPhotos}
-          />
-        </>
+        <PhotoEditSlots
+          title="매장 엘리베이터 사진을 확인해주세요"
+          description="최대 3장까지 등록 가능해요"
+          existingPhotoUrls={elevatorImageUrls}
+          newPhotos={newElevatorPhotos}
+          deletedExistingIndices={deletedElevatorPhotoIndices}
+          replacedPhotos={replacedElevatorPhotos}
+          maxPhotos={3}
+          onDeleteExisting={onDeleteExistingElevatorPhoto}
+          onReplaceExisting={onReplaceExistingElevatorPhoto}
+          onChangeNewPhotos={onChangeNewElevatorPhotos}
+        />
       )}
 
       {/* 건물 입구 사진 — PDP에 '건물 출입구' 섹션이 표시될 때 */}
       {showBaEntrancePhotos && (
-        <>
-          <PhotoSectionLabel>건물 입구 사진</PhotoSectionLabel>
-          <PhotoEditSlots
-            existingPhotoUrls={baEntranceImageUrls}
-            newPhotos={newBaEntrancePhotos}
-            deletedExistingIndices={deletedBaEntrancePhotoIndices}
-            replacedPhotos={replacedBaEntrancePhotos}
-            maxPhotos={3}
-            onDeleteExisting={onDeleteExistingBaEntrancePhoto}
-            onReplaceExisting={onReplaceExistingBaEntrancePhoto}
-            onChangeNewPhotos={onChangeNewBaEntrancePhotos}
-          />
-        </>
+        <PhotoEditSlots
+          title="건물 입구 사진을 확인해주세요"
+          description="최대 3장까지 등록 가능해요"
+          existingPhotoUrls={baEntranceImageUrls}
+          newPhotos={newBaEntrancePhotos}
+          deletedExistingIndices={deletedBaEntrancePhotoIndices}
+          replacedPhotos={replacedBaEntrancePhotos}
+          maxPhotos={3}
+          onDeleteExisting={onDeleteExistingBaEntrancePhoto}
+          onReplaceExisting={onReplaceExistingBaEntrancePhoto}
+          onChangeNewPhotos={onChangeNewBaEntrancePhotos}
+        />
       )}
 
       {/* 건물 엘리베이터 사진 — 건물 출입구 + BA.hasElevator일 때 */}
       {showBaElevatorPhotos && (
-        <>
-          <PhotoSectionLabel>건물 엘리베이터 사진</PhotoSectionLabel>
-          <PhotoEditSlots
-            existingPhotoUrls={baElevatorImageUrls}
-            newPhotos={newBaElevatorPhotos}
-            deletedExistingIndices={deletedBaElevatorPhotoIndices}
-            replacedPhotos={replacedBaElevatorPhotos}
-            maxPhotos={3}
-            onDeleteExisting={onDeleteExistingBaElevatorPhoto}
-            onReplaceExisting={onReplaceExistingBaElevatorPhoto}
-            onChangeNewPhotos={onChangeNewBaElevatorPhotos}
-          />
-        </>
+        <PhotoEditSlots
+          title="건물 엘리베이터 사진을 확인해주세요"
+          description="최대 3장까지 등록 가능해요"
+          existingPhotoUrls={baElevatorImageUrls}
+          newPhotos={newBaElevatorPhotos}
+          deletedExistingIndices={deletedBaElevatorPhotoIndices}
+          replacedPhotos={replacedBaElevatorPhotos}
+          maxPhotos={3}
+          onDeleteExisting={onDeleteExistingBaElevatorPhoto}
+          onReplaceExisting={onReplaceExistingBaElevatorPhoto}
+          onChangeNewPhotos={onChangeNewBaElevatorPhotos}
+        />
       )}
-    </Container>
+    </SectionRoot>
   );
 }
-
-// Styled components
-const Container = styled.View``;
-
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 16px;
-`;
-
-const PhotoSectionLabel = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardBold};
-  color: ${color.gray70};
-  margin-top: 16px;
-  margin-bottom: 8px;
-`;

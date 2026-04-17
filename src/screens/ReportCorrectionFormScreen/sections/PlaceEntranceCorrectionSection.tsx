@@ -3,7 +3,6 @@ import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {
   StairInfo,
   StairHeightLevel,
@@ -18,9 +17,9 @@ import {
   ENTRANCE_OPTIONS,
 } from '../../PlaceFormV2Screen/hooks';
 import PhotoEditSlots from './PhotoEditSlots';
+import {FormGroup, GuideLink, SectionRoot, SubLabel} from './shared';
 
 interface PlaceEntranceCorrectionSectionProps {
-  sectionTitle?: string;
   stairInfo?: StairInfo;
   stairHeightLevel?: StairHeightLevel;
   hasSlope?: boolean;
@@ -40,7 +39,6 @@ interface PlaceEntranceCorrectionSectionProps {
 }
 
 export default function PlaceEntranceCorrectionSection({
-  sectionTitle = '장소 입구 정보',
   stairInfo,
   stairHeightLevel,
   hasSlope,
@@ -64,12 +62,10 @@ export default function PlaceEntranceCorrectionSection({
   );
 
   return (
-    <Container>
-      <SectionTitle>{sectionTitle}</SectionTitle>
-
+    <SectionRoot>
       {conditions.showDoorDirection && (
-        <>
-          <SubLabel>매장 출입구 위치</SubLabel>
+        <FormGroup>
+          <SubLabel>매장 출입구 위치를 확인해주세요</SubLabel>
           <DoorDirectionContainer>
             <DoorDirectionOption>
               <DoorDirectionImageContainer
@@ -121,39 +117,52 @@ export default function PlaceEntranceCorrectionSection({
               />
             </DoorDirectionOption>
           </DoorDirectionContainer>
-        </>
+        </FormGroup>
       )}
 
-      <SubLabel>계단 수</SubLabel>
-      <OptionsV2
-        options={ENTRANCE_OPTIONS.stairInfoOptions}
-        value={stairInfo}
-        columns={2}
-        onSelect={onChangeStairInfo}
-      />
+      <FormGroup>
+        <SubLabel>계단 수를 확인해주세요</SubLabel>
+        <OptionsV2
+          options={ENTRANCE_OPTIONS.stairInfoOptions}
+          value={stairInfo}
+          columns={2}
+          onSelect={onChangeStairInfo}
+        />
+        <GuideLink
+          type="stair"
+          elementName="report_correction_place_entrance_stair_guide"
+        />
+      </FormGroup>
 
       {conditions.showStairHeight && (
-        <>
-          <SubLabel>계단 높이</SubLabel>
+        <FormGroup>
+          <SubLabel>계단 높이를 확인해주세요</SubLabel>
           <OptionsV2
             options={ENTRANCE_OPTIONS.stairHeightOptions}
             value={stairHeightLevel}
             columns={1}
             onSelect={onChangeStairHeightLevel}
           />
-        </>
+        </FormGroup>
       )}
 
-      <SubLabel>경사로</SubLabel>
-      <OptionsV2
-        options={ENTRANCE_OPTIONS.slopeOptions}
-        value={hasSlope}
-        columns={2}
-        onSelect={onChangeHasSlope}
-      />
+      <FormGroup>
+        <SubLabel>경사로 유무를 확인해주세요</SubLabel>
+        <OptionsV2
+          options={ENTRANCE_OPTIONS.slopeOptions}
+          value={hasSlope}
+          columns={2}
+          onSelect={onChangeHasSlope}
+        />
+        <GuideLink
+          type="slope"
+          elementName="report_correction_place_entrance_slope_guide"
+        />
+      </FormGroup>
 
-      <SubLabel>매장 입구 사진</SubLabel>
       <PhotoEditSlots
+        title="매장 입구 사진을 확인해주세요"
+        description="최대 3장까지 등록 가능해요"
         existingPhotoUrls={existingEntrancePhotoUrls}
         newPhotos={newEntrancePhotos}
         deletedExistingIndices={deletedEntrancePhotoIndices}
@@ -163,27 +172,9 @@ export default function PlaceEntranceCorrectionSection({
         onReplaceExisting={onReplaceExistingEntrancePhoto}
         onChangeNewPhotos={onChangeNewEntrancePhotos}
       />
-    </Container>
+    </SectionRoot>
   );
 }
-
-// Styled components
-const Container = styled.View``;
-
-const SectionTitle = styled.Text`
-  font-size: 16px;
-  font-family: ${font.pretendardBold};
-  color: ${color.black};
-  margin-bottom: 16px;
-`;
-
-const SubLabel = styled.Text`
-  font-size: 14px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray60};
-  margin-bottom: 8px;
-  margin-top: 12px;
-`;
 
 const DoorDirectionContainer = styled.View`
   flex-direction: row;
