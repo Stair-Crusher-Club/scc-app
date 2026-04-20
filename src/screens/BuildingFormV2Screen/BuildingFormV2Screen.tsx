@@ -40,12 +40,12 @@ import {
 import useAppComponents from '@/hooks/useAppComponents';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
+import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -344,19 +344,43 @@ export default function BuildingFormV2Screen({
     registerBuilding(values);
   }
 
+  const submitMutation = usePost(
+    ['BuildingFormV2', 'Submit'],
+    async ({
+      values,
+      uploaded,
+    }: {
+      values: FormValues;
+      uploaded: UploadedPhotos;
+    }) =>
+      submitRegistration(
+        api,
+        queryClient,
+        place.id,
+        building.id,
+        values,
+        uploaded,
+      ),
+  );
+
   const registerBuilding = useMemo(
     () =>
       throttle(async (values: FormValues) => {
-        const registered = await register(
-          api,
-          queryClient,
-          place.id,
-          building.id,
-          values,
-          uploadImages,
-        );
+        if (submitMutation.isPending) {
+          return;
+        }
 
-        // 장소 정보 등록에 실패, 이후 과정을 진행하지 않음
+        let uploaded: UploadedPhotos;
+        try {
+          uploaded = await uploadAllPhotos(api, values, uploadImages);
+        } catch (e) {
+          Logger.logError(e as Error);
+          ToastUtils.show('사진 업로드를 실패했습니다.');
+          return;
+        }
+
+        const registered = await submitMutation.mutateAsync({values, uploaded});
+
         if (!registered.success) {
           return;
         }
@@ -365,7 +389,6 @@ export default function BuildingFormV2Screen({
           pushItems(registered.data);
         }
 
-        // 등록 완료 화면으로 이동
         navigation.navigate('RegistrationComplete', {
           target: 'building',
           placeInfo: {
@@ -374,7 +397,16 @@ export default function BuildingFormV2Screen({
           },
         });
       }, 1000),
-    [api, place, building, navigation, uploadImages],
+    [
+      api,
+      place,
+      building,
+      navigation,
+      uploadImages,
+      submitMutation,
+      queryClient,
+      pushItems,
+    ],
   );
 
   function noticeError(errorKey: keyof FormValues) {
@@ -877,125 +909,129 @@ function mapEntranceDirectionToDoorDirectionType(
   }
 }
 
-async function register(
+interface UploadedPhotos {
+  enteranceImages: string[];
+  elevatorImages: string[];
+  durationMillisImageUpload: number;
+}
+
+async function uploadAllPhotos(
+  api: DefaultApi,
+  values: FormValues,
+  uploadImages: UploadImagesFn,
+): Promise<UploadedPhotos> {
+  const startImageUpload = Date.now();
+  const enteranceImages = await uploadImages(
+    api,
+    values.enterancePhotos,
+    undefined,
+    '입구 사진',
+  );
+  const elevatorImages = await uploadImages(
+    api,
+    values.elevatorPhotos,
+    undefined,
+    '엘리베이터 사진',
+  );
+  return {
+    enteranceImages,
+    elevatorImages,
+    durationMillisImageUpload: Date.now() - startImageUpload,
+  };
+}
+
+async function submitRegistration(
   api: DefaultApi,
   queryClient: ReturnType<typeof useQueryClient>,
   placeId: string,
   buildingId: string,
   values: FormValues,
-  uploadImagesFn?: UploadImagesFn,
+  uploaded: UploadedPhotos,
 ) {
   const startTotal = Date.now();
   const imageCount =
     (values.enterancePhotos?.length ?? 0) +
     (values.elevatorPhotos?.length ?? 0);
+  const {enteranceImages, elevatorImages, durationMillisImageUpload} = uploaded;
+
   try {
-    const upload: UploadImagesFn =
-      uploadImagesFn ??
-      ((a, images, purposeType) =>
-        ImageFileUtils.uploadImages(a, images, purposeType));
-    const startImageUpload = Date.now();
-    const enteranceImages = await upload(
-      api,
-      values.enterancePhotos,
-      undefined,
-      '입구 사진',
-    );
-    const elevatorImages = await upload(
-      api,
-      values.elevatorPhotos,
-      undefined,
-      '엘리베이터 사진',
-    );
-    const durationImageUpload = Date.now() - startImageUpload;
-
-    try {
-      const startApiCall = Date.now();
-      const res = await api.registerBuildingAccessibilityV2Post({
-        buildingId,
-        doorDirectionType: mapEntranceDirectionToDoorDirectionType(
-          values.entranceDirection,
-        ),
-        doorDirectionEtcComment:
-          values.entranceDirection === 'etc' &&
-          values.doorDirectionEtcComment?.trim()
-            ? values.doorDirectionEtcComment.trim()
-            : undefined,
-        entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
-        entranceStairHeightLevel: values.entranceStairHeightLevel,
-        entranceDoorTypes: values.doorTypes,
-        hasSlope: values.hasSlope || false,
-        entranceImageUrls: enteranceImages,
-        hasElevator: values.hasElevator || false,
-        elevatorAccessibility: values.hasElevator
-          ? {
-              imageUrls: elevatorImages,
-              stairInfo: values.elevatorHasStairs
-                ? values.elevatorStairInfo
-                : StairInfo.None,
-              stairHeightLevel: values.elevatorStairHeightLevel,
-              hasSlope:
-                typeof values.elevatorHasSlope === 'boolean'
-                  ? values.elevatorHasSlope
-                  : undefined,
-            }
+    const startApiCall = Date.now();
+    const res = await api.registerBuildingAccessibilityV2Post({
+      buildingId,
+      doorDirectionType: mapEntranceDirectionToDoorDirectionType(
+        values.entranceDirection,
+      ),
+      doorDirectionEtcComment:
+        values.entranceDirection === 'etc' &&
+        values.doorDirectionEtcComment?.trim()
+          ? values.doorDirectionEtcComment.trim()
           : undefined,
-        comment: values.comment || undefined,
-      });
+      entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
+      entranceStairHeightLevel: values.entranceStairHeightLevel,
+      entranceDoorTypes: values.doorTypes,
+      hasSlope: values.hasSlope || false,
+      entranceImageUrls: enteranceImages,
+      hasElevator: values.hasElevator || false,
+      elevatorAccessibility: values.hasElevator
+        ? {
+            imageUrls: elevatorImages,
+            stairInfo: values.elevatorHasStairs
+              ? values.elevatorStairInfo
+              : StairInfo.None,
+            stairHeightLevel: values.elevatorStairHeightLevel,
+            hasSlope:
+              typeof values.elevatorHasSlope === 'boolean'
+                ? values.elevatorHasSlope
+                : undefined,
+          }
+        : undefined,
+      comment: values.comment || undefined,
+    });
 
-      const durationApiCall = Date.now() - startApiCall;
+    const durationApiCall = Date.now() - startApiCall;
 
-      await Logger.logAccessibilityRegistration({
-        type: 'building',
-        durationMillisImageUpload: durationImageUpload,
-        durationMillisApiCall: durationApiCall,
-        durationMillisTotal: Date.now() - startTotal,
-        imageCount,
-        success: true,
-      });
+    await Logger.logAccessibilityRegistration({
+      type: 'building',
+      durationMillisImageUpload,
+      durationMillisApiCall: durationApiCall,
+      durationMillisTotal:
+        durationMillisImageUpload + (Date.now() - startTotal),
+      imageCount,
+      success: true,
+    });
 
-      // PlaceDetailScreen 접근성 정보 갱신
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
-      });
+    queryClient.invalidateQueries({
+      queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['PlaceDetailV2', placeId],
+    });
 
-      // PlaceDetailScreen 전체 데이터 갱신
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetailV2', placeId],
-      });
+    updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
-      // Asynchronously update search cache with full latest data
-      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
-
-      return {
-        success: true,
-        data: res.data.contributedChallengeInfos?.flatMap(info =>
-          info.completedQuestsByContribution.map(quest => ({
-            challengeId: info.challenge.id,
-            type: quest.completeStampType,
-            title: quest.title,
-          })),
-        ),
-      };
-    } catch (error: any) {
-      await Logger.logAccessibilityRegistration({
-        type: 'building',
-        durationMillisImageUpload: durationImageUpload,
-        durationMillisApiCall: Date.now() - startTotal - durationImageUpload,
-        durationMillisTotal: Date.now() - startTotal,
-        imageCount,
-        success: false,
-      });
-      ToastUtils.showOnApiError(error);
-      return {
-        success: false,
-      };
-    }
-  } catch (error: any) {
-    Logger.logError(error);
-    ToastUtils.show('사진 업로드를 실패했습니다.');
     return {
+      success: true as const,
+      data: res.data.contributedChallengeInfos?.flatMap(info =>
+        info.completedQuestsByContribution.map(quest => ({
+          challengeId: info.challenge.id,
+          type: quest.completeStampType,
+          title: quest.title,
+        })),
+      ),
+    };
+  } catch (error: any) {
+    await Logger.logAccessibilityRegistration({
+      type: 'building',
+      durationMillisImageUpload,
+      durationMillisApiCall: Date.now() - startTotal,
+      durationMillisTotal:
+        durationMillisImageUpload + (Date.now() - startTotal),
+      imageCount,
       success: false,
+    });
+    ToastUtils.showOnApiError(error);
+    return {
+      success: false as const,
     };
   }
 }

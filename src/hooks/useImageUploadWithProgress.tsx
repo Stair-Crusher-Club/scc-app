@@ -50,7 +50,7 @@ export function useImageUploadWithProgress() {
           },
         );
       } finally {
-        setOverlayProps(HIDDEN_PROPS);
+        setOverlayProps(prev => ({...prev, visible: false}));
       }
     },
     [],

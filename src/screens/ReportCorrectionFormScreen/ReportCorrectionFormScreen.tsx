@@ -541,10 +541,142 @@ export default function ReportCorrectionFormScreen({
     placeCorrection.elevatorAccessibility,
   ]);
 
+  interface SubmitPayload {
+    finalEntranceUrls: string[];
+    finalElevatorUrls: string[];
+    finalBaEntranceUrls: string[];
+    finalBaElevatorUrls: string[];
+  }
+
   const submitMutation = usePost(
     ['ReportCorrectionForm', 'Submit'],
-    async () => {
-      // 1. Upload new PA photos and replaced PA photos
+    async ({
+      finalEntranceUrls,
+      finalElevatorUrls,
+      finalBaEntranceUrls,
+      finalBaElevatorUrls,
+    }: SubmitPayload) => {
+      // Build category-specific correction DTO
+      const isStandaloneBuilding =
+        accessibilityData?.placeAccessibility?.isStandaloneBuilding;
+
+      let entrance: PlaceEntranceCorrectionDto | undefined;
+      let buildingEntrance: BuildingEntranceCorrectionDto | undefined;
+      let floor: FloorCorrectionDto | undefined;
+      let elevator: ElevatorCorrectionDto | undefined;
+      let doorType: DoorTypeCorrectionDto | undefined;
+      let accessLevel: AccessLevelCorrectionDto | undefined;
+      let photo: PhotoCorrectionDto | undefined;
+
+      switch (category) {
+        case InaccurateInfoCategoryDto.PlaceEntrance:
+          entrance = buildEntranceCorrection(
+            placeCorrection,
+            isStandaloneBuilding,
+            finalEntranceUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.BuildingEntrance:
+          buildingEntrance = buildBuildingEntranceCorrection(
+            buildingCorrection,
+            finalBaEntranceUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.Floor:
+          floor = buildFloorCorrection(
+            placeCorrection,
+            isStandaloneBuilding,
+            finalElevatorUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.Elevator:
+          elevator = buildElevatorCorrection(
+            placeCorrection,
+            buildingCorrection,
+            elevatorTarget === ElevatorCorrectionTargetDto.Ba
+              ? finalBaElevatorUrls
+              : finalElevatorUrls,
+            elevatorTarget ?? ElevatorCorrectionTargetDto.Pa,
+          );
+          break;
+        case InaccurateInfoCategoryDto.DoorType:
+          doorType = buildDoorTypeCorrection(placeCorrection);
+          break;
+        case InaccurateInfoCategoryDto.AccessLevel: {
+          let stairFields: {
+            stairInfo: StairInfo;
+            stairHeightLevel?: StairHeightLevel;
+          };
+          if (selectedAccessLevel !== undefined) {
+            stairFields = accessLevelToStairFields(selectedAccessLevel);
+          } else {
+            stairFields = {
+              stairInfo: placeCorrection.stairInfo ?? StairInfo.Undefined,
+              stairHeightLevel: placeCorrection.stairHeightLevel,
+            };
+          }
+          accessLevel = buildAccessLevelCorrection(
+            stairFields.stairInfo,
+            stairFields.stairHeightLevel,
+          );
+          break;
+        }
+        case InaccurateInfoCategoryDto.Photo:
+          photo = buildPhotoCorrection(
+            finalEntranceUrls,
+            finalElevatorUrls,
+            needsBaPhotos,
+            finalBaEntranceUrls,
+            finalBaElevatorUrls,
+          );
+          break;
+        case InaccurateInfoCategoryDto.Other:
+          // Other: noteText만 전달
+          break;
+        default: {
+          const _exhaustiveCheck: never = category;
+          throw new Error(`Unknown category: ${_exhaustiveCheck}`);
+        }
+      }
+
+      const result = await api.reportAccessibilityPost({
+        placeId,
+        placeAccessibilityId: accessibilityData?.placeAccessibility?.id,
+        buildingAccessibilityId: accessibilityData?.buildingAccessibility?.id,
+        targetType: ReportTargetTypeDto.PlaceAccessibility,
+        reason: 'INACCURATE_INFO',
+        detail: noteText || undefined,
+        correction: {
+          type: category,
+          placeEntrance: entrance,
+          buildingEntrance,
+          floor,
+          elevator,
+          doorType,
+          accessLevel,
+          photo,
+          noteText: noteText || undefined,
+        },
+      });
+      // PDP 접근성 데이터를 refetch하도록 캐시 무효화
+      await queryClient.invalidateQueries({
+        queryKey: ['PlaceDetailV2', placeId],
+      });
+      const isAutoResolved = result.data?.isAutoResolved === true;
+      ToastUtils.show(
+        isAutoResolved ? '신고가 바로 반영되었어요!' : '신고가 접수되었어요.',
+      );
+      onSubmitSuccess?.();
+      navigation.goBack();
+    },
+  );
+
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleSubmitPress = async () => {
+    setIsUploading(true);
+    try {
+      // 1. Upload new PA photos
       const uploadedEntranceUrls =
         newEntrancePhotos.length > 0
           ? await uploadImages(api, newEntrancePhotos, undefined, '입구 사진')
@@ -695,123 +827,26 @@ export default function ReportCorrectionFormScreen({
             .concat(uploadedBaElevatorUrls)
         : [];
 
-      // 3. Build category-specific correction DTO
-      const isStandaloneBuilding =
-        accessibilityData?.placeAccessibility?.isStandaloneBuilding;
-
-      let entrance: PlaceEntranceCorrectionDto | undefined;
-      let buildingEntrance: BuildingEntranceCorrectionDto | undefined;
-      let floor: FloorCorrectionDto | undefined;
-      let elevator: ElevatorCorrectionDto | undefined;
-      let doorType: DoorTypeCorrectionDto | undefined;
-      let accessLevel: AccessLevelCorrectionDto | undefined;
-      let photo: PhotoCorrectionDto | undefined;
-
-      switch (category) {
-        case InaccurateInfoCategoryDto.PlaceEntrance:
-          entrance = buildEntranceCorrection(
-            placeCorrection,
-            isStandaloneBuilding,
-            finalEntranceUrls,
-          );
-          break;
-        case InaccurateInfoCategoryDto.BuildingEntrance:
-          buildingEntrance = buildBuildingEntranceCorrection(
-            buildingCorrection,
-            finalBaEntranceUrls,
-          );
-          break;
-        case InaccurateInfoCategoryDto.Floor:
-          floor = buildFloorCorrection(
-            placeCorrection,
-            isStandaloneBuilding,
-            finalElevatorUrls,
-          );
-          break;
-        case InaccurateInfoCategoryDto.Elevator:
-          elevator = buildElevatorCorrection(
-            placeCorrection,
-            buildingCorrection,
-            elevatorTarget === ElevatorCorrectionTargetDto.Ba
-              ? finalBaElevatorUrls
-              : finalElevatorUrls,
-            elevatorTarget ?? ElevatorCorrectionTargetDto.Pa,
-          );
-          break;
-        case InaccurateInfoCategoryDto.DoorType:
-          doorType = buildDoorTypeCorrection(placeCorrection);
-          break;
-        case InaccurateInfoCategoryDto.AccessLevel: {
-          let stairFields: {
-            stairInfo: StairInfo;
-            stairHeightLevel?: StairHeightLevel;
-          };
-          if (selectedAccessLevel !== undefined) {
-            stairFields = accessLevelToStairFields(selectedAccessLevel);
-          } else {
-            stairFields = {
-              stairInfo: placeCorrection.stairInfo ?? StairInfo.Undefined,
-              stairHeightLevel: placeCorrection.stairHeightLevel,
-            };
-          }
-          accessLevel = buildAccessLevelCorrection(
-            stairFields.stairInfo,
-            stairFields.stairHeightLevel,
-          );
-          break;
-        }
-        case InaccurateInfoCategoryDto.Photo:
-          photo = buildPhotoCorrection(
-            finalEntranceUrls,
-            finalElevatorUrls,
-            needsBaPhotos,
-            finalBaEntranceUrls,
-            finalBaElevatorUrls,
-          );
-          break;
-        case InaccurateInfoCategoryDto.Other:
-          // Other: noteText만 전달
-          break;
-        default: {
-          const _exhaustiveCheck: never = category;
-          throw new Error(`Unknown category: ${_exhaustiveCheck}`);
-        }
-      }
-
-      const result = await api.reportAccessibilityPost({
-        placeId,
-        placeAccessibilityId: accessibilityData?.placeAccessibility?.id,
-        buildingAccessibilityId: accessibilityData?.buildingAccessibility?.id,
-        targetType: ReportTargetTypeDto.PlaceAccessibility,
-        reason: 'INACCURATE_INFO',
-        detail: noteText || undefined,
-        correction: {
-          type: category,
-          placeEntrance: entrance,
-          buildingEntrance,
-          floor,
-          elevator,
-          doorType,
-          accessLevel,
-          photo,
-          noteText: noteText || undefined,
-        },
+      submitMutation.mutate({
+        finalEntranceUrls,
+        finalElevatorUrls,
+        finalBaEntranceUrls,
+        finalBaElevatorUrls,
       });
-      // PDP 접근성 데이터를 refetch하도록 캐시 무효화
-      await queryClient.invalidateQueries({
-        queryKey: ['PlaceDetailV2', placeId],
-      });
-      const isAutoResolved = result.data?.isAutoResolved === true;
-      ToastUtils.show(
-        isAutoResolved ? '신고가 바로 반영되었어요!' : '신고가 접수되었어요.',
-      );
-      onSubmitSuccess?.();
-      navigation.goBack();
-    },
-  );
+    } catch (e) {
+      ToastUtils.show('사진 업로드를 실패했습니다.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const isSubmitDisabled = useMemo(() => {
-    if (!hasChanges || submitMutation.isPending || hasPhotoViolation) {
+    if (
+      !hasChanges ||
+      submitMutation.isPending ||
+      isUploading ||
+      hasPhotoViolation
+    ) {
       return true;
     }
 
@@ -879,6 +914,7 @@ export default function ReportCorrectionFormScreen({
   }, [
     hasChanges,
     submitMutation.isPending,
+    isUploading,
     hasPhotoViolation,
     category,
     elevatorTarget,
@@ -1276,7 +1312,7 @@ export default function ReportCorrectionFormScreen({
             <SccPrimaryButton
               text="제출하기"
               isDisabled={isSubmitDisabled}
-              onPress={() => submitMutation.mutate(undefined)}
+              onPress={handleSubmitPress}
               elementName="report_correction_submit"
             />
           </SubmitButtonContainer>

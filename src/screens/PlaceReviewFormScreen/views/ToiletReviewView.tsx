@@ -24,9 +24,9 @@ import {
   useImageUploadWithProgress,
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
+import usePost from '@/hooks/usePost';
 import {useMe} from '@/atoms/Auth';
 import ImageFile from '@/models/ImageFile';
-import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -77,20 +77,44 @@ export default function ToiletReviewView({
     registerPlace(values, gotoPlaceDetail);
   }
 
+  const submitMutation = usePost(
+    ['PlaceReview', 'Toilet', 'Submit'],
+    async ({
+      values,
+      uploaded,
+    }: {
+      values: FormValues;
+      uploaded: {images: string[]};
+    }) =>
+      submitRegistration({
+        api,
+        queryClient,
+        placeId: place?.id!,
+        values,
+        uploaded,
+      }),
+  );
+
   const registerPlace = useMemo(
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
+        if (submitMutation.isPending) {
+          return;
+        }
         setRecentlyUsedMobilityTool({
           name: values.mobilityTool,
           timestamp: Date.now(),
         });
-        const registered = await register({
-          api,
-          queryClient,
-          placeId: place?.id!,
-          values,
-          uploadImagesFn: uploadImages,
-        });
+
+        let uploaded: {images: string[]};
+        try {
+          uploaded = await uploadAllPhotos({api, values, uploadImages});
+        } catch {
+          ToastUtils.show('사진 업로드를 실패했습니다.');
+          return;
+        }
+
+        const registered = await submitMutation.mutateAsync({values, uploaded});
 
         if (!registered) {
           return;
@@ -99,7 +123,14 @@ export default function ToiletReviewView({
         ToastUtils.show('화장실 리뷰를 등록했어요.');
         afterSuccess();
       }, 1000),
-    [api, place, uploadImages, setRecentlyUsedMobilityTool],
+    [
+      api,
+      place,
+      uploadImages,
+      setRecentlyUsedMobilityTool,
+      submitMutation,
+      queryClient,
+    ],
   );
 
   return (
@@ -124,72 +155,67 @@ export default function ToiletReviewView({
   );
 }
 
-async function register({
+async function uploadAllPhotos({
+  api,
+  values,
+  uploadImages,
+}: {
+  api: DefaultApi;
+  values: FormValues;
+  uploadImages: UploadImagesFn;
+}): Promise<{images: string[]}> {
+  const images = await uploadImages(api, values.toiletPhotos, 'TOILET_REVIEW');
+  return {images};
+}
+
+async function submitRegistration({
   api,
   queryClient,
   placeId,
   values,
-  uploadImagesFn,
+  uploaded,
 }: {
   api: DefaultApi;
   queryClient: QueryClient;
   placeId: string;
   values: FormValues;
-  uploadImagesFn?: UploadImagesFn;
+  uploaded: {images: string[]};
 }) {
-  const upload =
-    uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
   try {
-    const images = await upload(api, values.toiletPhotos, 'TOILET_REVIEW');
-    try {
-      const isNoneOrEtc =
-        values.toiletLocationType === 'NONE' ||
-        values.toiletLocationType === 'ETC';
-      await api.registerToiletReviewPost({
-        placeId,
-        mobilityTool: values.mobilityTool,
-        toiletLocationType: values.toiletLocationType,
-        entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
-        comment: values.comment,
-        imageUrls: images,
-        floor: isNoneOrEtc ? undefined : values.floor,
-      } as unknown as RegisterToiletReviewRequestDto); // FIXME: update api yaml
+    const isNoneOrEtc =
+      values.toiletLocationType === 'NONE' ||
+      values.toiletLocationType === 'ETC';
+    await api.registerToiletReviewPost({
+      placeId,
+      mobilityTool: values.mobilityTool,
+      toiletLocationType: values.toiletLocationType,
+      entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
+      comment: values.comment,
+      imageUrls: uploaded.images,
+      floor: isNoneOrEtc ? undefined : values.floor,
+    } as unknown as RegisterToiletReviewRequestDto); // FIXME: update api yaml
 
-      // PlaceDetailScreen 화장실 리뷰 데이터 갱신
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.ToiletReview],
-      });
+    queryClient.invalidateQueries({
+      queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.ToiletReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['MyReviews', UpvoteTargetTypeDto.ToiletReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.ToiletReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.ToiletReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.ToiletReview],
+    });
 
-      // 내 리뷰 > 내가 작성한 리뷰 리스트
-      queryClient.invalidateQueries({
-        queryKey: ['MyReviews', UpvoteTargetTypeDto.ToiletReview],
-      });
+    updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
-      // 내 리뷰 > 도움이 돼요 리스트
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.ToiletReview],
-      });
-
-      // 내 리뷰 > 내가 작성한 리뷰 통계
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.ToiletReview],
-      });
-
-      // 내 리뷰 > 도움이 돼요 통계
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.ToiletReview],
-      });
-
-      // Asynchronously update search cache with full latest data
-      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
-
-      return true;
-    } catch (error: any) {
-      ToastUtils.showOnApiError(error);
-      return false;
-    }
-  } catch (e) {
-    ToastUtils.show('사진 업로드를 실패했습니다.');
+    return true;
+  } catch (error: any) {
+    ToastUtils.showOnApiError(error);
     return false;
   }
 }

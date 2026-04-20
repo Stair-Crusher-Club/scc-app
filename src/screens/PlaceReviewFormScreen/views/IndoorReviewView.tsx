@@ -25,8 +25,8 @@ import {
   useImageUploadWithProgress,
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
+import usePost from '@/hooks/usePost';
 import ImageFile from '@/models/ImageFile';
-import ImageFileUtils from '@/utils/ImageFileUtils';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -143,20 +143,44 @@ export default function IndoorReviewView({
     pendingSubmitRef.current = null;
   }
 
+  const submitMutation = usePost(
+    ['PlaceReview', 'Indoor', 'Submit'],
+    async ({
+      values,
+      uploaded,
+    }: {
+      values: FormValues;
+      uploaded: {images: string[]};
+    }) =>
+      submitRegistration({
+        api,
+        queryClient,
+        placeId: place?.id!,
+        values,
+        uploaded,
+      }),
+  );
+
   const registerPlace = useMemo(
     () =>
       throttle(async (values: FormValues, afterSuccess: () => void) => {
+        if (submitMutation.isPending) {
+          return;
+        }
         setRecentlyUsedMobilityTool({
           name: values.mobilityTool,
           timestamp: Date.now(),
         });
-        const registered = await register({
-          api,
-          queryClient,
-          placeId: place?.id!,
-          values,
-          uploadImagesFn: uploadImages,
-        });
+
+        let uploaded: {images: string[]};
+        try {
+          uploaded = await uploadAllPhotos({api, values, uploadImages});
+        } catch {
+          ToastUtils.show('사진 업로드를 실패했습니다.');
+          return;
+        }
+
+        const registered = await submitMutation.mutateAsync({values, uploaded});
 
         if (!registered.success) {
           return;
@@ -169,7 +193,15 @@ export default function IndoorReviewView({
         ToastUtils.show('리뷰를 등록했어요.');
         afterSuccess();
       }, 1000),
-    [api, place, uploadImages, setRecentlyUsedMobilityTool],
+    [
+      api,
+      place,
+      uploadImages,
+      setRecentlyUsedMobilityTool,
+      submitMutation,
+      queryClient,
+      pushItems,
+    ],
   );
 
   return (
@@ -218,86 +250,79 @@ export default function IndoorReviewView({
   );
 }
 
-async function register({
+async function uploadAllPhotos({
+  api,
+  values,
+  uploadImages,
+}: {
+  api: DefaultApi;
+  values: FormValues;
+  uploadImages: UploadImagesFn;
+}): Promise<{images: string[]}> {
+  const images = await uploadImages(api, values.indoorPhotos, 'PLACE_REVIEW');
+  return {images};
+}
+
+async function submitRegistration({
   api,
   queryClient,
   placeId,
   values,
-  uploadImagesFn,
+  uploaded,
 }: {
   api: DefaultApi;
   queryClient: QueryClient;
   placeId: string;
   values: FormValues;
-  uploadImagesFn?: UploadImagesFn;
+  uploaded: {images: string[]};
 }) {
-  const upload =
-    uploadImagesFn ?? ImageFileUtils.uploadImages.bind(ImageFileUtils);
   try {
-    const images = await upload(api, values.indoorPhotos, 'PLACE_REVIEW');
-    try {
-      const res = await api.registerPlaceReviewPost({
-        placeId,
-        mobilityTool: values.mobilityTool,
-        recommendedMobilityTypes: [...values.recommendedMobilityTypes],
-        spaciousType: values.spaciousType!,
-        comment: values.comment,
-        seatTypes: values.seatComment
-          ? [...values.seatTypes, values.seatComment]
-          : [...values.seatTypes],
-        orderMethods: [...values.orderMethods],
-        features: [...values.features],
-        imageUrls: images,
-      });
+    const res = await api.registerPlaceReviewPost({
+      placeId,
+      mobilityTool: values.mobilityTool,
+      recommendedMobilityTypes: [...values.recommendedMobilityTypes],
+      spaciousType: values.spaciousType!,
+      comment: values.comment,
+      seatTypes: values.seatComment
+        ? [...values.seatTypes, values.seatComment]
+        : [...values.seatTypes],
+      orderMethods: [...values.orderMethods],
+      features: [...values.features],
+      imageUrls: uploaded.images,
+    });
 
-      // PlaceDetailScreen 리뷰 데이터 갱신
-      queryClient.invalidateQueries({
-        queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
-      });
+    queryClient.invalidateQueries({
+      queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['MyReviews', UpvoteTargetTypeDto.PlaceReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.PlaceReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.PlaceReview],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.PlaceReview],
+    });
 
-      // 내 리뷰 > 내가 작성한 리뷰 리스트
-      queryClient.invalidateQueries({
-        queryKey: ['MyReviews', UpvoteTargetTypeDto.PlaceReview],
-      });
+    updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
-      // 내 리뷰 > 도움이 돼요 리스트
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewsUpvoted', UpvoteTargetTypeDto.PlaceReview],
-      });
-
-      // 내 리뷰 > 내가 작성한 리뷰 통계
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewHistory', 'Review', UpvoteTargetTypeDto.PlaceReview],
-      });
-
-      // 내 리뷰 > 도움이 돼요 통계
-      queryClient.invalidateQueries({
-        queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.PlaceReview],
-      });
-
-      // Asynchronously update search cache with full latest data
-      updateSearchCacheForPlaceAsync(api, queryClient, placeId);
-
-      return {
-        success: true,
-        data: res.data.contributedChallengeInfos?.flatMap(info =>
-          info.completedQuestsByContribution.map(quest => ({
-            challengeId: info.challenge.id,
-            type: quest.completeStampType,
-            title: quest.title,
-          })),
-        ),
-      };
-    } catch (error: any) {
-      ToastUtils.showOnApiError(error);
-      return {
-        success: false,
-      };
-    }
-  } catch (e) {
-    ToastUtils.show('사진 업로드를 실패했습니다.');
     return {
-      success: false,
+      success: true as const,
+      data: res.data.contributedChallengeInfos?.flatMap(info =>
+        info.completedQuestsByContribution.map(quest => ({
+          challengeId: info.challenge.id,
+          type: quest.completeStampType,
+          title: quest.title,
+        })),
+      ),
+    };
+  } catch (error: any) {
+    ToastUtils.showOnApiError(error);
+    return {
+      success: false as const,
     };
   }
 }

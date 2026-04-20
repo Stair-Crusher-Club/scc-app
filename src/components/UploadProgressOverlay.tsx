@@ -1,5 +1,4 @@
-import {useCallback, useEffect, useRef} from 'react';
-import {Animated, BackHandler, Dimensions} from 'react-native';
+import {Modal} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -24,46 +23,6 @@ export function UploadProgressOverlay({
   imageSizeMb,
   label,
 }: UploadProgressOverlayProps) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const width = Dimensions.get('window').width;
-  const height = Dimensions.get('window').height;
-
-  const fadeIn = useCallback(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 150,
-      useNativeDriver: false,
-    }).start();
-  }, [fadeAnim]);
-
-  const fadeOut = useCallback(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 150,
-      useNativeDriver: false,
-    }).start();
-  }, [fadeAnim]);
-
-  useEffect(() => {
-    if (visible) {
-      fadeIn();
-    } else {
-      fadeOut();
-    }
-  }, [visible, fadeIn, fadeOut]);
-
-  // Block hardware back button while visible
-  useEffect(() => {
-    if (!visible) {
-      return;
-    }
-    const handler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => true,
-    );
-    return () => handler.remove();
-  }, [visible]);
-
   const photoLabel = label ?? '사진';
   const isRegistering = stage === 'registering';
   const titleText = isRegistering
@@ -73,33 +32,36 @@ export function UploadProgressOverlay({
   const progressPercent = Math.round(progress * 100);
 
   return (
-    <Overlay
-      style={{opacity: fadeAnim, width, height}}
-      pointerEvents={visible ? 'auto' : 'none'}>
-      <Card>
-        <TitleText>{titleText}</TitleText>
-        <SizeText>
-          {isRegistering
-            ? ' '
-            : stage === 'compressing'
-              ? '압축 중'
-              : `${imageSizeMb.toFixed(2)} MB`}
-        </SizeText>
-        <ProgressBarContainer>
-          <ProgressBarFill style={{width: `${progressPercent}%`}} />
-        </ProgressBarContainer>
-        <PercentText>{isRegistering ? ' ' : `${progressPercent}%`}</PercentText>
-      </Card>
-    </Overlay>
+    <Modal
+      transparent
+      visible={visible}
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={() => {}}>
+      <Overlay>
+        <Card>
+          <TitleText>{titleText}</TitleText>
+          <SizeText>
+            {isRegistering
+              ? ' '
+              : stage === 'compressing'
+                ? '압축 중'
+                : `${imageSizeMb.toFixed(2)} MB`}
+          </SizeText>
+          <ProgressBarContainer>
+            <ProgressBarFill style={{width: `${progressPercent}%`}} />
+          </ProgressBarContainer>
+          <PercentText>
+            {isRegistering ? ' ' : `${progressPercent}%`}
+          </PercentText>
+        </Card>
+      </Overlay>
+    </Modal>
   );
 }
 
-const Overlay = styled(Animated.View)`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+const Overlay = styled.View`
+  flex: 1;
   background-color: ${color.blacka50};
   align-items: center;
   justify-content: center;

@@ -406,6 +406,9 @@ export default function PlaceDetailV2Screen({
   // Issue 1: Step 3(ReportCorrectionForm)에서 뒤로 올 때 bottom sheet를 복원하기 위해
   // navigate 전 reportTargetType을 ref에 저장하고, focus 이벤트에서 복원한다.
   const savedReportTargetTypeRef = useRef<ReportTargetTypeDto | null>(null);
+  // 신고 submit 성공 후 재오픈 시 내부 state(step, 선택값)를 초기화하기 위해
+  // key를 증가시켜 강제 remount 시킨다. (back-cancel 복원 플로우에는 영향 없음)
+  const [negativeFeedbackKey, setNegativeFeedbackKey] = useState(0);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -965,6 +968,7 @@ export default function PlaceDetailV2Screen({
 
       {place?.id && (
         <PlaceDetailNegativeFeedbackBottomSheet
+          key={negativeFeedbackKey}
           isVisible={reportTargetType !== null}
           placeId={place.id}
           hasBuildingAccessibility={
@@ -1059,6 +1063,7 @@ export default function PlaceDetailV2Screen({
                 elevatorTarget: params.elevatorTarget,
                 onSubmitSuccess: () => {
                   savedReportTargetTypeRef.current = null;
+                  setNegativeFeedbackKey(k => k + 1);
                 },
               });
             }, 300);
