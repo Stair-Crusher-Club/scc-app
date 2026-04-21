@@ -48,46 +48,34 @@ export default function RegistrationCompleteScreen({
     });
   }, [navigation]);
 
-  const handleConfirm = () => {
-    // 2단계로 처리해서 파란 플래시 없이 스택도 깔끔하게 만든다.
-    // 1) 모달이 덮고 있는 동안 조용히 스택을 정리 — PDP가 RegistrationComplete
-    //    바로 아래에 오도록 바꾼다. 사용자는 모달에 가려져 못 봄.
-    // 2) 다음 프레임에 모달만 pop — native-stack의 모달 dismiss 애니메이션이
-    //    이미 마운트된 PDP를 그대로 드러내므로 투명 배경 플래시가 없다.
-    navigation.dispatch(state => {
-      const existingPdpIndex = state.routes.findIndex(
-        r => r.name === pdpScreen,
-      );
-      const regCompleteRoute = state.routes[state.routes.length - 1];
-
-      const baseRoutes =
-        existingPdpIndex >= 0
-          ? state.routes.slice(0, existingPdpIndex)
-          : state.routes.slice(0, -2); // PDP 없으면 FormScreen 제거
-      const pdpRoute =
-        existingPdpIndex >= 0
-          ? {
-              ...state.routes[existingPdpIndex],
-              params: {
-                ...state.routes[existingPdpIndex].params,
-                placeInfo,
-                event,
-              },
-            }
-          : {name: pdpScreen, params: {placeInfo, event}};
-
-      const newRoutes = [...baseRoutes, pdpRoute, regCompleteRoute];
+  // 모달이 덮고 있는 동안 PDP가 스택에 없으면 조용히 주입한다.
+  // 닫기 시 popTo가 Form + RegComplete를 한 번에 pop하며 이미 마운트된
+  // PDP를 드러내므로 중간 프레임이 생기지 않는다. (Search → FormV2 직행
+  // 플로우에서도 스택이 [..., Search, PDP]로 깔끔하게 정리된다.)
+  useEffect(() => {
+    const state = navigation.getState();
+    const hasPdp = state.routes.some(r => r.name === pdpScreen);
+    if (hasPdp) {
+      return;
+    }
+    navigation.dispatch(s => {
+      const newRoutes = [
+        ...s.routes.slice(0, -2),
+        {name: pdpScreen, params: {placeInfo, event}},
+        s.routes[s.routes.length - 2], // Form
+        s.routes[s.routes.length - 1], // RegistrationComplete
+      ];
       return CommonActions.reset({
-        ...state,
+        ...s,
         index: newRoutes.length - 1,
         routes: newRoutes,
       });
     });
-    // 다음 프레임에 pop: 1)의 state가 native-stack에 반영된 뒤 모달이 닫혀야
-    // PDP가 바로 뒤에 보인다.
-    requestAnimationFrame(() => {
-      navigation.pop();
-    });
+  }, []);
+
+  const handleConfirm = () => {
+    // PDP가 스택에 있도록 useEffect에서 보장해두었으므로 단일 popTo로 충분.
+    navigation.popTo(pdpScreen, {placeInfo, event});
   };
 
   if (target === 'building') {
