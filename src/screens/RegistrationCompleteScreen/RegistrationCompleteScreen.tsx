@@ -48,14 +48,10 @@ export default function RegistrationCompleteScreen({
   }, [navigation]);
 
   const handleConfirm = () => {
-    // FormScreen과 CompleteScreen 스택에서 제거
-    navigation.pop();
-    navigation.pop();
-    // PlaceDetail로 이동
-    navigation.navigate(pdpScreen, {
-      placeInfo,
-      event,
-    });
+    // 단일 액션으로 RegistrationComplete + FormScreen을 pop하고 PDP를 재노출한다.
+    // pop() + pop() + navigate()로 분리하면 모달 dismiss 중 FormScreen이 먼저 unmount되어
+    // 네비게이터 배경이 투명하게 노출되는 중간 프레임이 생긴다.
+    navigation.popTo(pdpScreen, {placeInfo, event});
   };
 
   if (target === 'building') {
