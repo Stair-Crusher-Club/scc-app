@@ -69,7 +69,7 @@ function getCategoryLabel(
         ? '계단 / 경사로 / 문 방향이 잘못됐어요'
         : '입구 계단 / 경사로 / 문 방향이 잘못됐어요';
     case InaccurateInfoCategoryDto.BuildingEntrance:
-      return '건물 입구 계단 / 경사로 / 문 종류가 잘못됐어요';
+      return '건물 입구 계단 / 경사로 / 문이 잘못됐어요';
     case InaccurateInfoCategoryDto.Floor: {
       // PDP의 getFloorAccessibility title과 일치시킨다
       const floors = snapshot?.floors;
