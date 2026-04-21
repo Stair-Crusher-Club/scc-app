@@ -908,7 +908,7 @@ export type BuildingDoorDirectionTypeDto = typeof BuildingDoorDirectionTypeDto[k
 
 
 /**
- * 건물 입구 정보 교정 (계단, 경사로, 사진). 출입문 유형은 DOOR_TYPE 카테고리에서 별도 교정.
+ * 건물 입구 정보 교정 (계단, 경사로, 문 종류, 사진).
  * @export
  * @interface BuildingEntranceCorrectionDto
  */
@@ -931,6 +931,12 @@ export interface BuildingEntranceCorrectionDto {
      * @memberof BuildingEntranceCorrectionDto
      */
     'hasSlope'?: boolean;
+    /**
+     * 
+     * @type {Array<EntranceDoorType>}
+     * @memberof BuildingEntranceCorrectionDto
+     */
+    'entranceDoorTypes'?: Array<EntranceDoorType>;
     /**
      * 건물 입구 사진 URL 목록
      * @type {Array<string>}

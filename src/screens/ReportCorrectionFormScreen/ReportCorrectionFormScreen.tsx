@@ -99,6 +99,7 @@ function buildBuildingEntranceCorrection(
     entranceStairInfo: buildingCorrection.entranceStairInfo,
     entranceStairHeightLevel: buildingCorrection.entranceStairHeightLevel,
     hasSlope: buildingCorrection.hasSlope,
+    entranceDoorTypes: buildingCorrection.entranceDoorTypes,
     entranceImageUrls:
       finalBaEntranceUrls.length > 0 ? finalBaEntranceUrls : undefined,
   };
@@ -1075,6 +1076,7 @@ export default function ReportCorrectionFormScreen({
                 buildingCorrection.entranceStairHeightLevel
               }
               hasSlope={buildingCorrection.hasSlope}
+              entranceDoorTypes={buildingCorrection.entranceDoorTypes}
               existingBaEntrancePhotoUrls={baEntranceImageUrls}
               newBaEntrancePhotos={newBaEntrancePhotos}
               deletedBaEntrancePhotoIndices={deletedBaEntrancePhotoIndices}
@@ -1097,6 +1099,12 @@ export default function ReportCorrectionFormScreen({
               }
               onChangeHasSlope={value =>
                 setBuildingCorrection(prev => ({...prev, hasSlope: value}))
+              }
+              onChangeEntranceDoorTypes={value =>
+                setBuildingCorrection(prev => ({
+                  ...prev,
+                  entranceDoorTypes: value,
+                }))
               }
               onDeleteExistingBaEntrancePhoto={
                 handleDeleteExistingBaEntrancePhoto
