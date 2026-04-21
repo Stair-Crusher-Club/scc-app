@@ -49,36 +49,44 @@ export default function RegistrationCompleteScreen({
   }, [navigation]);
 
   const handleConfirm = () => {
-    // 단일 dispatch로 RegistrationComplete + FormScreen을 pop하고 PDP를 최상단에 둔다.
-    // - pop()/navigate() 여러 번 호출 시 모달 dismiss 중 FormScreen이 먼저 unmount되어
-    //   네비게이터 배경이 투명하게 노출되는 중간 프레임이 생긴다.
-    // - popTo 하나만 쓰면 PDP가 스택에 없을 때(Search → FormV2 직행 플로우) FormScreen이
-    //   스택에 남아 PDP에서 뒤로가기 시 FormScreen이 뜬다.
+    // 2단계로 처리해서 파란 플래시 없이 스택도 깔끔하게 만든다.
+    // 1) 모달이 덮고 있는 동안 조용히 스택을 정리 — PDP가 RegistrationComplete
+    //    바로 아래에 오도록 바꾼다. 사용자는 모달에 가려져 못 봄.
+    // 2) 다음 프레임에 모달만 pop — native-stack의 모달 dismiss 애니메이션이
+    //    이미 마운트된 PDP를 그대로 드러내므로 투명 배경 플래시가 없다.
     navigation.dispatch(state => {
-      // 상위 두 스크린(RegistrationComplete, FormScreen) 제거
-      const remaining = state.routes.slice(0, -2);
-      const existingPdpIndex = remaining.findIndex(r => r.name === pdpScreen);
+      const existingPdpIndex = state.routes.findIndex(
+        r => r.name === pdpScreen,
+      );
+      const regCompleteRoute = state.routes[state.routes.length - 1];
 
-      const newRoutes =
+      const baseRoutes =
         existingPdpIndex >= 0
-          ? [
-              ...remaining.slice(0, existingPdpIndex),
-              {
-                ...remaining[existingPdpIndex],
-                params: {
-                  ...remaining[existingPdpIndex].params,
-                  placeInfo,
-                  event,
-                },
+          ? state.routes.slice(0, existingPdpIndex)
+          : state.routes.slice(0, -2); // PDP 없으면 FormScreen 제거
+      const pdpRoute =
+        existingPdpIndex >= 0
+          ? {
+              ...state.routes[existingPdpIndex],
+              params: {
+                ...state.routes[existingPdpIndex].params,
+                placeInfo,
+                event,
               },
-            ]
-          : [...remaining, {name: pdpScreen, params: {placeInfo, event}}];
+            }
+          : {name: pdpScreen, params: {placeInfo, event}};
 
+      const newRoutes = [...baseRoutes, pdpRoute, regCompleteRoute];
       return CommonActions.reset({
         ...state,
         index: newRoutes.length - 1,
         routes: newRoutes,
       });
+    });
+    // 다음 프레임에 pop: 1)의 state가 native-stack에 반영된 뒤 모달이 닫혀야
+    // PDP가 바로 뒤에 보인다.
+    requestAnimationFrame(() => {
+      navigation.pop();
     });
   };
 
