@@ -257,6 +257,14 @@ export default function FormScreen() {
 
 ## Navigation Structure
 
+### 전환 중 flash/flicker 문제는 배경색이 아니라 타이밍을 고친다 (MANDATORY)
+
+네비게이션 전환 사이에 **중간 프레임(다른 색 화면이 잠깐 보임)** 이 생기는 문제를 발견했을 때, "루트 View나 Navigator의 `contentStyle` 배경색을 바꾸자"는 defensive fix를 제안하지 말 것.
+
+- **이유**: 중간 프레임이 노출된다는 사실 자체가 버그다. 파란색이 흰색으로 바뀌어도 "중간에 이상한 화면이 보인다"는 UX는 동일하다. 배경색 수정은 증상만 가리고 원인(비원자적 네비게이션 dispatch)을 남긴다.
+- **올바른 접근**: 여러 액션이 연속 dispatch되고 있는가부터 본다. 해결책은 **단일 액션으로 합치기** — 예: `pop() + pop() + navigate()` → `navigation.popTo(name, params)` (v7 native-stack 지원), 또는 `CommonActions.reset` / `StackActions.pop(n)` + params merge.
+- **예외**: splash → navigator 전환처럼 원래 다른 색이 보이는 게 자연스러운 컨텍스트는 배경색 유지.
+
 ### Adding New Screens
 
 1. **Create screen directory structure:**
