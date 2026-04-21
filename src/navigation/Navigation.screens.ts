@@ -264,7 +264,9 @@ export const MainNavigationScreens: {
   {
     name: 'RegistrationComplete',
     component: RegistrationCompleteScreen,
-    options: {presentation: 'fullScreenModal', headerShown: false},
+    // 기본 push/pop slide 애니메이션으로 통일 (fullScreenModal 사용 시 닫을 때
+    // 모달 vertical dismiss → pop 애니메이션이 겹쳐 파란 배경이 노출됨).
+    options: {headerShown: false, gestureEnabled: false},
   },
   {
     name: 'Tutorial',

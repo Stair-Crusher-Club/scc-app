@@ -48,23 +48,36 @@ export default function RegistrationCompleteScreen({
     });
   }, [navigation]);
 
-  // 모달이 덮고 있는 동안 PDP가 스택에 없으면 조용히 주입한다.
-  // 닫기 시 popTo가 Form + RegComplete를 한 번에 pop하며 이미 마운트된
-  // PDP를 드러내므로 중간 프레임이 생기지 않는다. (Search → FormV2 직행
-  // 플로우에서도 스택이 [..., Search, PDP]로 깔끔하게 정리된다.)
+  // 이 화면이 올라와 있는 동안 스택을 [..., PDP, RegistrationComplete]로 맞춘다.
+  // - FormScreen을 이 시점에 제거하면 닫기 시 네이티브 스택이 "pop" 하나만
+  //   수행하면 되므로 중간 프레임 / 2중 애니메이션이 생기지 않는다.
+  // - 과거에 popTo로 Form + RegComplete를 한 번에 pop하면 iOS에서 RegComplete
+  //   slide 뒤에 Form이 또 한 번 밀리는 2중 애니메이션이 발생했던 문제를 해결.
   useEffect(() => {
-    const state = navigation.getState();
-    const hasPdp = state.routes.some(r => r.name === pdpScreen);
-    if (hasPdp) {
-      return;
-    }
     navigation.dispatch(s => {
-      const newRoutes = [
-        ...s.routes.slice(0, -2),
-        {name: pdpScreen, params: {placeInfo, event}},
-        s.routes[s.routes.length - 2], // Form
-        s.routes[s.routes.length - 1], // RegistrationComplete
-      ];
+      const regCompleteRoute = s.routes[s.routes.length - 1];
+      const existingPdpIndex = s.routes.findIndex(r => r.name === pdpScreen);
+
+      const newRoutes =
+        existingPdpIndex >= 0
+          ? [
+              ...s.routes.slice(0, existingPdpIndex),
+              {
+                ...s.routes[existingPdpIndex],
+                params: {
+                  ...s.routes[existingPdpIndex].params,
+                  placeInfo,
+                  event,
+                },
+              },
+              regCompleteRoute,
+            ]
+          : [
+              ...s.routes.slice(0, -2),
+              {name: pdpScreen, params: {placeInfo, event}},
+              regCompleteRoute,
+            ];
+
       return CommonActions.reset({
         ...s,
         index: newRoutes.length - 1,
@@ -74,8 +87,9 @@ export default function RegistrationCompleteScreen({
   }, []);
 
   const handleConfirm = () => {
-    // PDP가 스택에 있도록 useEffect에서 보장해두었으므로 단일 popTo로 충분.
-    navigation.popTo(pdpScreen, {placeInfo, event});
+    // 스택이 [..., PDP, RegistrationComplete]이므로 단순 pop으로 충분.
+    // 모달 dismiss 애니메이션이 바로 아래 PDP를 드러낸다.
+    navigation.pop();
   };
 
   if (target === 'building') {
