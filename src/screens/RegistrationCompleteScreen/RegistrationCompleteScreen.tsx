@@ -1,3 +1,4 @@
+import {CommonActions} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 
@@ -48,10 +49,37 @@ export default function RegistrationCompleteScreen({
   }, [navigation]);
 
   const handleConfirm = () => {
-    // 단일 액션으로 RegistrationComplete + FormScreen을 pop하고 PDP를 재노출한다.
-    // pop() + pop() + navigate()로 분리하면 모달 dismiss 중 FormScreen이 먼저 unmount되어
-    // 네비게이터 배경이 투명하게 노출되는 중간 프레임이 생긴다.
-    navigation.popTo(pdpScreen, {placeInfo, event});
+    // 단일 dispatch로 RegistrationComplete + FormScreen을 pop하고 PDP를 최상단에 둔다.
+    // - pop()/navigate() 여러 번 호출 시 모달 dismiss 중 FormScreen이 먼저 unmount되어
+    //   네비게이터 배경이 투명하게 노출되는 중간 프레임이 생긴다.
+    // - popTo 하나만 쓰면 PDP가 스택에 없을 때(Search → FormV2 직행 플로우) FormScreen이
+    //   스택에 남아 PDP에서 뒤로가기 시 FormScreen이 뜬다.
+    navigation.dispatch(state => {
+      // 상위 두 스크린(RegistrationComplete, FormScreen) 제거
+      const remaining = state.routes.slice(0, -2);
+      const existingPdpIndex = remaining.findIndex(r => r.name === pdpScreen);
+
+      const newRoutes =
+        existingPdpIndex >= 0
+          ? [
+              ...remaining.slice(0, existingPdpIndex),
+              {
+                ...remaining[existingPdpIndex],
+                params: {
+                  ...remaining[existingPdpIndex].params,
+                  placeInfo,
+                  event,
+                },
+              },
+            ]
+          : [...remaining, {name: pdpScreen, params: {placeInfo, event}}];
+
+      return CommonActions.reset({
+        ...state,
+        index: newRoutes.length - 1,
+        routes: newRoutes,
+      });
+    });
   };
 
   if (target === 'building') {
