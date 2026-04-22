@@ -567,8 +567,21 @@ export default function PlaceDetailV2Screen({
 
   // 신고하기 step 2 옵션 필터링용 플래그 — PDP 홈탭에 실제로 렌더되는 정보에 1:1 대응.
   const negativeFeedbackFlags = useMemo(() => {
-    const pa = accessibilityPost?.placeAccessibility;
-    const ba = accessibilityPost?.buildingAccessibility;
+    // V2HomeTab과 동일한 fallback 패턴: 다중 배열 우선, 단일 legacy 필드 fallback.
+    const placeAccessibilities =
+      accessibilityPost?.placeAccessibilities ??
+      (accessibilityPost?.placeAccessibility
+        ? [accessibilityPost.placeAccessibility]
+        : []);
+    const buildingAccessibilities =
+      accessibilityPost?.buildingAccessibilities ??
+      (accessibilityPost?.buildingAccessibility
+        ? [accessibilityPost.buildingAccessibility]
+        : []);
+
+    // V2HomeTab: PlaceEntranceSection/FloorMovementSection은 placeAccessibilities[0] 기준.
+    const pa = placeAccessibilities[0];
+    const hasAnyBa = buildingAccessibilities.length > 0;
     if (!pa) {
       return {
         hasPlaceAccessibility: false,
@@ -576,26 +589,37 @@ export default function PlaceDetailV2Screen({
         hasPhoto: false,
         hasDoorType: false,
         elevatorTargets: [] as ElevatorCorrectionTargetDto[],
+        placeAccessibilitySnapshot: undefined,
       };
     }
 
+    // 참고: hasBuildingAccessibility 인자는 getAccessibilitySections 내부에서 현재 사용되지 않음.
+    // 홈탭의 '건물 출입구' 섹션 포함 여부는 doorDir === InsideBuilding 등 구조적 조건으로만 결정된다.
+    // 시그니처 상 required이므로 값을 그대로 전달한다.
     const homeSections = getAccessibilitySections({
       isStandalone: pa.isStandaloneBuilding === true,
       doorDir: pa.doorDirectionType ?? undefined,
       isMultiFloor: (pa.floors?.length ?? 0) > 1,
       hasV2Fields:
         pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
-      hasBuildingAccessibility: !!ba,
+      hasBuildingAccessibility: hasAnyBa,
     });
 
     // 건물 출입구 섹션이 PDP에 노출되고 + BA 실데이터가 있을 때만 (EmptySection일 땐 false)
     const hasBuildingAccessibility =
-      homeSections.includes('건물 출입구') && !!ba;
+      homeSections.includes('건물 출입구') && hasAnyBa;
 
-    // PDP 홈탭의 PhotoRow 3곳 중 하나라도 실제로 렌더되는가
+    // PDP 홈탭의 PhotoRow 3곳 중 하나라도 실제로 렌더되는가.
+    // V2HomeTab의 BuildingEntranceSection은 모든 BA를 렌더하므로 사진 수도 전체 합산.
     const placePhotoCount = pa.images?.length ?? 0;
     const buildingPhotoCount = hasBuildingAccessibility
-      ? (ba?.entranceImages?.length ?? 0) + (ba?.elevatorImages?.length ?? 0)
+      ? buildingAccessibilities.reduce(
+          (sum, ba) =>
+            sum +
+            (ba.entranceImages?.length ?? 0) +
+            (ba.elevatorImages?.length ?? 0),
+          0,
+        )
       : 0;
     const floorMovingPhotoCount = homeSections.includes('층간 이동 정보')
       ? (pa.floorMovingElevatorAccessibility?.imageUrls?.length ?? 0)
@@ -607,7 +631,11 @@ export default function PlaceDetailV2Screen({
     const hasDoorType = (pa.entranceDoorTypes?.length ?? 0) > 0;
 
     const elevatorTargets: ElevatorCorrectionTargetDto[] = [];
-    if (hasBuildingAccessibility && ba?.hasElevator) {
+    // V2HomeTab이 모든 BA를 렌더하므로 어떤 BA든 엘리베이터가 있으면 옵션 노출.
+    if (
+      hasBuildingAccessibility &&
+      buildingAccessibilities.some(ba => ba.hasElevator)
+    ) {
       elevatorTargets.push(ElevatorCorrectionTargetDto.Ba);
     }
     if (
@@ -625,8 +653,14 @@ export default function PlaceDetailV2Screen({
       hasPhoto,
       hasDoorType,
       elevatorTargets,
+      placeAccessibilitySnapshot: {
+        floors: pa.floors ?? undefined,
+        isStandaloneBuilding: pa.isStandaloneBuilding ?? undefined,
+        entranceDoorTypes: pa.entranceDoorTypes ?? undefined,
+        accessibilityScore: data?.accessibilityScore ?? undefined,
+      },
     };
-  }, [accessibilityPost]);
+  }, [accessibilityPost, data?.accessibilityScore]);
 
   const handleSectionLayout = useCallback((chipName: string, y: number) => {
     sectionLayoutsRef.current[chipName] = y;
@@ -1042,19 +1076,7 @@ export default function PlaceDetailV2Screen({
           hasDoorType={negativeFeedbackFlags.hasDoorType}
           elevatorTargets={negativeFeedbackFlags.elevatorTargets}
           placeAccessibilitySnapshot={
-            accessibilityPost?.placeAccessibility
-              ? {
-                  floors:
-                    accessibilityPost.placeAccessibility.floors ?? undefined,
-                  isStandaloneBuilding:
-                    accessibilityPost.placeAccessibility.isStandaloneBuilding ??
-                    undefined,
-                  entranceDoorTypes:
-                    accessibilityPost.placeAccessibility.entranceDoorTypes ??
-                    undefined,
-                  accessibilityScore: data?.accessibilityScore ?? undefined,
-                }
-              : undefined
+            negativeFeedbackFlags.placeAccessibilitySnapshot
           }
           onPressCloseButton={() => {
             setReportTargetType(null);
