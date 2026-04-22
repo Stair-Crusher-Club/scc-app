@@ -565,6 +565,69 @@ export default function PlaceDetailV2Screen({
   );
   const showChipBar = currentTab === 'accessibility' && chips.length > 0;
 
+  // 신고하기 step 2 옵션 필터링용 플래그 — PDP 홈탭에 실제로 렌더되는 정보에 1:1 대응.
+  const negativeFeedbackFlags = useMemo(() => {
+    const pa = accessibilityPost?.placeAccessibility;
+    const ba = accessibilityPost?.buildingAccessibility;
+    if (!pa) {
+      return {
+        hasPlaceAccessibility: false,
+        hasBuildingAccessibility: false,
+        hasPhoto: false,
+        hasDoorType: false,
+        elevatorTargets: [] as ElevatorCorrectionTargetDto[],
+      };
+    }
+
+    const homeSections = getAccessibilitySections({
+      isStandalone: pa.isStandaloneBuilding === true,
+      doorDir: pa.doorDirectionType ?? undefined,
+      isMultiFloor: (pa.floors?.length ?? 0) > 1,
+      hasV2Fields:
+        pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
+      hasBuildingAccessibility: !!ba,
+    });
+
+    // 건물 출입구 섹션이 PDP에 노출되고 + BA 실데이터가 있을 때만 (EmptySection일 땐 false)
+    const hasBuildingAccessibility =
+      homeSections.includes('건물 출입구') && !!ba;
+
+    // PDP 홈탭의 PhotoRow 3곳 중 하나라도 실제로 렌더되는가
+    const placePhotoCount = pa.images?.length ?? 0;
+    const buildingPhotoCount = hasBuildingAccessibility
+      ? (ba?.entranceImages?.length ?? 0) + (ba?.elevatorImages?.length ?? 0)
+      : 0;
+    const floorMovingPhotoCount = homeSections.includes('층간 이동 정보')
+      ? (pa.floorMovingElevatorAccessibility?.imageUrls?.length ?? 0)
+      : 0;
+    const hasPhoto =
+      placePhotoCount + buildingPhotoCount + floorMovingPhotoCount > 0;
+
+    // 출입문 종류는 PA만 검사. BA 출입문 종류 신고는 건물 입구 신고 플로우에 포함.
+    const hasDoorType = (pa.entranceDoorTypes?.length ?? 0) > 0;
+
+    const elevatorTargets: ElevatorCorrectionTargetDto[] = [];
+    if (hasBuildingAccessibility && ba?.hasElevator) {
+      elevatorTargets.push(ElevatorCorrectionTargetDto.Ba);
+    }
+    if (
+      homeSections.includes('층간 이동 정보') &&
+      pa.floorMovingMethodTypes?.includes(
+        FloorMovingMethodTypeDto.PlaceElevator,
+      )
+    ) {
+      elevatorTargets.push(ElevatorCorrectionTargetDto.Pa);
+    }
+
+    return {
+      hasPlaceAccessibility: true,
+      hasBuildingAccessibility,
+      hasPhoto,
+      hasDoorType,
+      elevatorTargets,
+    };
+  }, [accessibilityPost]);
+
   const handleSectionLayout = useCallback((chipName: string, y: number) => {
     sectionLayoutsRef.current[chipName] = y;
   }, []);
@@ -971,52 +1034,13 @@ export default function PlaceDetailV2Screen({
           key={negativeFeedbackKey}
           isVisible={reportTargetType !== null}
           placeId={place.id}
+          hasPlaceAccessibility={negativeFeedbackFlags.hasPlaceAccessibility}
           hasBuildingAccessibility={
-            // PDP 홈탭의 getAccessibilitySections와 동일 로직 재사용
-            (() => {
-              const pa = accessibilityPost?.placeAccessibility;
-              if (!pa) return false;
-              const homeSections = getAccessibilitySections({
-                isStandalone: pa.isStandaloneBuilding === true,
-                doorDir: pa.doorDirectionType ?? undefined,
-                isMultiFloor: (pa.floors?.length ?? 0) > 1,
-                hasV2Fields:
-                  pa.isStandaloneBuilding != null &&
-                  pa.doorDirectionType != null,
-                hasBuildingAccessibility:
-                  !!accessibilityPost?.buildingAccessibility,
-              });
-              return homeSections.includes('건물 출입구');
-            })()
+            negativeFeedbackFlags.hasBuildingAccessibility
           }
-          elevatorTargets={(() => {
-            const pa = accessibilityPost?.placeAccessibility;
-            const ba = accessibilityPost?.buildingAccessibility;
-            if (!pa) return [];
-            const homeSections = getAccessibilitySections({
-              isStandalone: pa.isStandaloneBuilding === true,
-              doorDir: pa.doorDirectionType ?? undefined,
-              isMultiFloor: (pa.floors?.length ?? 0) > 1,
-              hasV2Fields:
-                pa.isStandaloneBuilding != null && pa.doorDirectionType != null,
-              hasBuildingAccessibility: !!ba,
-            });
-            const targets: ElevatorCorrectionTargetDto[] = [];
-            // BA 엘리베이터: 건물 출입구 섹션이 있고 BA에 엘리베이터가 있으면
-            if (homeSections.includes('건물 출입구') && ba?.hasElevator) {
-              targets.push(ElevatorCorrectionTargetDto.Ba);
-            }
-            // PA 엘리베이터: 층간 이동 정보 섹션이 있고 PA floorMovingMethodTypes에 PlaceElevator가 있으면
-            if (
-              homeSections.includes('층간 이동 정보') &&
-              pa.floorMovingMethodTypes?.includes(
-                FloorMovingMethodTypeDto.PlaceElevator,
-              )
-            ) {
-              targets.push(ElevatorCorrectionTargetDto.Pa);
-            }
-            return targets;
-          })()}
+          hasPhoto={negativeFeedbackFlags.hasPhoto}
+          hasDoorType={negativeFeedbackFlags.hasDoorType}
+          elevatorTargets={negativeFeedbackFlags.elevatorTargets}
           placeAccessibilitySnapshot={
             accessibilityPost?.placeAccessibility
               ? {
