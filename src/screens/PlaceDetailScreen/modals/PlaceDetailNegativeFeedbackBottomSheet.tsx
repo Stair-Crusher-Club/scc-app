@@ -35,7 +35,14 @@ interface PlaceAccessibilitySnapshot {
 interface PlaceDetailNegativeFeedbackBottomSheetProps {
   isVisible: boolean;
   placeId: string;
+  /** BA 실데이터 존재 여부. true이면 PDP에 BuildingEntranceSection이 렌더된 상태. 기본값 false — 미전달 시 옵션 숨김. */
   hasBuildingAccessibility?: boolean;
+  /** PA 실데이터 존재 여부. 매장 출입구 카테고리 노출 여부와 라벨 결정에 사용. 기본값 false — 미전달 시 옵션 숨김. */
+  hasPlaceAccessibility?: boolean;
+  /** PDP 홈탭의 PhotoRow들(매장/건물/층간이동) 중 하나라도 렌더되는지. 기본값 false — 미전달 시 옵션 숨김. */
+  hasPhoto?: boolean;
+  /** PA.entranceDoorTypes가 하나라도 있는지. BA 출입문 종류는 건물 입구 신고에 포함되므로 제외. 기본값 false — 미전달 시 옵션 숨김. */
+  hasDoorType?: boolean;
   elevatorTargets?: ElevatorCorrectionTargetDto[];
   placeAccessibilitySnapshot?: PlaceAccessibilitySnapshot;
   onPressCloseButton: () => void;
@@ -129,6 +136,9 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
   isVisible,
   placeId,
   hasBuildingAccessibility = false,
+  hasPlaceAccessibility = false,
+  hasPhoto = false,
+  hasDoorType = false,
   elevatorTargets = [],
   placeAccessibilitySnapshot,
   onPressCloseButton,
@@ -355,6 +365,22 @@ const PlaceDetailNegativeFeedbackBottomSheet = ({
                 InaccurateInfoCategoryDto.Other,
               ];
               CATEGORY_ORDER.forEach(cat => {
+                // PDP 홈탭 노출 조건과 1:1 대응하여 실제로 렌더되는 정보만 신고 옵션으로 제공.
+                if (
+                  cat === InaccurateInfoCategoryDto.PlaceEntrance &&
+                  !hasPlaceAccessibility
+                ) {
+                  return;
+                }
+                if (cat === InaccurateInfoCategoryDto.Photo && !hasPhoto) {
+                  return;
+                }
+                if (
+                  cat === InaccurateInfoCategoryDto.DoorType &&
+                  !hasDoorType
+                ) {
+                  return;
+                }
                 if (
                   cat === InaccurateInfoCategoryDto.BuildingEntrance &&
                   !hasBuildingAccessibility
