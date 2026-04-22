@@ -14,9 +14,9 @@ export const STAIR_COUNT_OPTIONS = [
 ];
 
 export const STAIR_HEIGHT_OPTIONS = [
-  {value: StairHeightLevel.HalfThumb, label: '엄지 반마디 이하'},
-  {value: StairHeightLevel.Thumb, label: '엄지 한마디 정도'},
-  {value: StairHeightLevel.OverThumb, label: '엄지 한마디 이상'},
+  {value: StairHeightLevel.HalfThumb, label: '엄지 한마디 높이'},
+  {value: StairHeightLevel.Thumb, label: '엄지 손가락 높이'},
+  {value: StairHeightLevel.OverThumb, label: '엄지 손가락 이상 높이'},
 ];
 
 export const SLOPE_OPTIONS = [
