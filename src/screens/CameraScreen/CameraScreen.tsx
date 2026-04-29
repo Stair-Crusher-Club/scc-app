@@ -171,6 +171,9 @@ export default function CameraScreen({
       maxHeight: 2000,
       maxWidth: 2000,
       selectionLimit: photoLimit,
+      // iOS에서 HEIC/HEIF를 JPEG로 변환해서 내려받는다.
+      // iOS 26에서 HEIC 일부가 후속 압축/업로드 단계에서 실패하는 사례 회피.
+      assetRepresentationMode: 'compatible' as const,
     };
 
     const loadingTimer = setTimeout(() => setIsLoadingAlbum(true), 1000);
@@ -359,6 +362,8 @@ async function cropToRect(taken: PhotoFile) {
     {
       offset: {x: offset.x, y: offset.y},
       size: {width: size, height: size},
+      // iOS 26에서 HEIC 입력이 후속 단계에서 실패하는 케이스가 있어 JPEG로 강제.
+      format: 'jpeg',
     },
   );
   return {cropped, size};

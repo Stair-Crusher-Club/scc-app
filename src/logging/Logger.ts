@@ -131,6 +131,8 @@ const Logger = {
     imageCount: number;
     retryCount: number;
     errorMessage: string;
+    imageMime?: string;
+    imageSizeMb?: number;
   }) {
     logDebug('logUploadImageFailed', params, currUserPropertiesForDebugging);
     const eventParams = {
@@ -141,6 +143,10 @@ const Logger = {
       image_count: params.imageCount,
       retry_count: params.retryCount,
       error_message: params.errorMessage,
+      ...(params.imageMime !== undefined && {image_mime: params.imageMime}),
+      ...(params.imageSizeMb !== undefined && {
+        image_size_mb: params.imageSizeMb,
+      }),
     };
     trackEvent('upload_image_failed', eventParams);
     getAnalytics().logEvent('upload_image_failed', eventParams);
