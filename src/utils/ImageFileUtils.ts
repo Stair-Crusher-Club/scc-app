@@ -45,8 +45,28 @@ function classifyError(error: unknown): {
   return {errorType: 'unknown'};
 }
 
+interface ImageDebugInfo {
+  imageMime?: string;
+  imageSizeMb?: number;
+}
+
+function attachDebugInfo<E extends Error>(error: E, info: ImageDebugInfo): E {
+  Object.assign(error, info);
+  return error;
+}
+
+function extractDebugInfo(error: unknown): ImageDebugInfo {
+  if (error && typeof error === 'object') {
+    const e = error as ImageDebugInfo;
+    return {imageMime: e.imageMime, imageSizeMb: e.imageSizeMb};
+  }
+  return {};
+}
+
 class UploadHttpError extends Error {
   httpStatus: number;
+  imageMime?: string;
+  imageSizeMb?: number;
   constructor(message: string, httpStatus: number) {
     super(message);
     this.name = 'UploadHttpError';
@@ -74,6 +94,11 @@ async function uploadToPresignedUrl(
       }
     };
 
+    const debugInfo: ImageDebugInfo = {
+      imageMime: imageBody.type,
+      imageSizeMb: floor(imageBody.size / (1024 * 1024), 3),
+    };
+
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve({
@@ -82,9 +107,12 @@ async function uploadToPresignedUrl(
         });
       } else {
         reject(
-          new UploadHttpError(
-            `Upload image to ${url.href} is failed. cause: ${xhr.responseText}`,
-            xhr.status,
+          attachDebugInfo(
+            new UploadHttpError(
+              `Upload image to ${url.href} is failed. cause: ${xhr.responseText}`,
+              xhr.status,
+            ),
+            debugInfo,
           ),
         );
       }
@@ -92,12 +120,19 @@ async function uploadToPresignedUrl(
 
     xhr.ontimeout = () => {
       reject(
-        new Error(`Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`),
+        attachDebugInfo(
+          new Error(
+            `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
+          ),
+          debugInfo,
+        ),
       );
     };
 
     xhr.onerror = () => {
-      reject(new TypeError('Network request failed'));
+      reject(
+        attachDebugInfo(new TypeError('Network request failed'), debugInfo),
+      );
     };
 
     xhr.open('PUT', url.href);
@@ -207,6 +242,8 @@ const ImageFileUtils = {
             maxWidth: 2560,
             maxHeight: 2560,
             quality: 0.7,
+            // HEIC 입력이라도 JPEG로 출력 강제. iOS 26 호환성.
+            output: 'jpg',
           });
         } catch (compressError) {
           Logger.logError(
@@ -261,12 +298,15 @@ const ImageFileUtils = {
       return uploadedUrls;
     } catch (error) {
       const {errorType, httpStatus} = classifyError(error);
+      const {imageMime, imageSizeMb} = extractDebugInfo(error);
       await Logger.logUploadImageFailed({
         errorType,
         httpStatus,
         imageCount: images.length,
         retryCount: 1,
         errorMessage: error instanceof Error ? error.message : String(error),
+        imageMime,
+        imageSizeMb,
       });
       Logger.logError(
         error instanceof Error ? error : new Error(String(error)),
