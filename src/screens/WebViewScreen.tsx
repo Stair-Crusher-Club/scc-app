@@ -39,7 +39,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     return match ? match[1] : null;
   }, [currentUrl]);
 
-  const shouldShowFloatingBar = sccContentId !== null;
+  // SCC 콘텐츠 도메인이면 ID 추출 실패해도 floating bar는 노출 (id 없으면 도움이돼요만 숨김)
+  const shouldShowFloatingBar =
+    currentUrl.startsWith('https://con.staircrusher.club') ||
+    currentUrl.startsWith('https://staircrusherclub.notion.site');
 
   const onTapCloseButton = useCallback(() => {
     Alert.alert('정말 페이지를 나가시겠어요?', '', [
