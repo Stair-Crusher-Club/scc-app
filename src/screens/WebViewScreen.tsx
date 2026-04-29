@@ -31,15 +31,15 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     fixedTitle || undefined,
   );
 
-  // 뿌클로드 ID 추출 (con.staircrusher.club 경로에서만)
+  // 뿌클로드(con.staircrusher.club) / 계뿌클 Notion 양쪽에서 콘텐츠 ID 추출
   const sccContentId = useMemo(() => {
-    const match = currentUrl.match(/con\.staircrusher\.club\/([^/?#]+)/);
+    const match = currentUrl.match(
+      /(?:con\.staircrusher\.club|staircrusherclub\.notion\.site)\/([^/?#]+)/,
+    );
     return match ? match[1] : null;
   }, [currentUrl]);
 
-  const shouldShowFloatingBar =
-    sccContentId !== null ||
-    currentUrl.startsWith('https://staircrusherclub.notion.site');
+  const shouldShowFloatingBar = sccContentId !== null;
 
   const onTapCloseButton = useCallback(() => {
     Alert.alert('정말 페이지를 나가시겠어요?', '', [
