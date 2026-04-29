@@ -39,10 +39,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     return match ? match[1] : null;
   }, [currentUrl]);
 
-  // SCC 콘텐츠 도메인이면 ID 추출 실패해도 floating bar는 노출 (id 없으면 도움이돼요만 숨김)
+  // SCC 콘텐츠 도메인이면 ID 추출 실패해도 floating bar는 노출 (id 없으면 도움이돼요만 숨김).
+  // scheme(http/https)나 selector 차이에 robust하도록 host 매칭으로 판정.
   const shouldShowFloatingBar =
-    currentUrl.startsWith('https://con.staircrusher.club') ||
-    currentUrl.startsWith('https://staircrusherclub.notion.site');
+    /\bcon\.staircrusher\.club\b/.test(currentUrl) ||
+    /\bstaircrusherclub\.notion\.site\b/.test(currentUrl);
 
   const onTapCloseButton = useCallback(() => {
     Alert.alert('정말 페이지를 나가시겠어요?', '', [
@@ -114,7 +115,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
-          setCurrentUrl(navState.url);
+          // navState.url이 빈 문자열로 들어오는 순간이 있어 currentUrl이 덮어써지지 않도록 가드
+          if (navState.url) {
+            setCurrentUrl(navState.url);
+          }
         }}
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />
