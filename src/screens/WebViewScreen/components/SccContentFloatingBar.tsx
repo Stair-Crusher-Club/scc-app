@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Linking, View} from 'react-native';
+import {Linking, Share, View} from 'react-native';
 import {useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -20,29 +20,31 @@ import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {useCheckAuth} from '@/utils/checkAuth';
 
-interface BbucleRoadFloatingBarProps {
-  bbucleRoadId: string;
+interface SccContentFloatingBarProps {
+  url: string;
+  sccContentId: string | null;
   title?: string;
 }
 
-export default function BbucleRoadFloatingBar({
-  bbucleRoadId,
+export default function SccContentFloatingBar({
+  url,
+  sccContentId,
   title,
-}: BbucleRoadFloatingBarProps) {
+}: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
   const {userInfo} = useMe();
 
-  // Upvote 상태 조회
+  // Upvote 상태 조회 (sccContentId가 있을 때만)
   const {data: upvoteDetails} = useQuery({
-    queryKey: ['BbucleRoadUpvoteDetails', bbucleRoadId],
+    queryKey: ['SccContentUpvoteDetails', sccContentId],
     queryFn: async () => {
       return await api.getUpvoteDetailsPost({
         targetType: UpvoteTargetTypeDto.BbucleRoad,
-        id: bbucleRoadId,
+        id: sccContentId!,
       });
     },
-    enabled: !!bbucleRoadId,
+    enabled: !!sccContentId,
   });
 
   const upvotedUsers = upvoteDetails?.data?.upvotedUsers ?? [];
@@ -54,20 +56,28 @@ export default function BbucleRoadFloatingBar({
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted: hasUpvoted,
     initialTotalCount: totalCount,
-    targetId: bbucleRoadId,
+    targetId: sccContentId ?? undefined,
     targetType: UpvoteTargetTypeDto.BbucleRoad,
-    placeId: '', // 뿌클로드는 장소 ID가 없음
+    placeId: '',
   });
   const checkAuth = useCheckAuth();
 
   // 공유하기
   const handleShare = useCallback(async () => {
     try {
-      await ShareUtils.shareBbucleRoad(bbucleRoadId, title);
+      if (sccContentId) {
+        await ShareUtils.shareBbucleRoad(sccContentId, title);
+      } else {
+        await Share.share({
+          message: title
+            ? `[${title}]를 계단뿌셔클럽에서 확인해보세요!\n${url}`
+            : url,
+        });
+      }
     } catch (_error) {
       // Share 취소는 에러로 처리하지 않음
     }
-  }, [bbucleRoadId, title]);
+  }, [sccContentId, url, title]);
 
   // 정보 더 받아보기 (Tally 링크)
   const handleMoreInfo = useCallback(async () => {
@@ -82,24 +92,26 @@ export default function BbucleRoadFloatingBar({
   return (
     <Container style={{paddingBottom: insets.bottom}}>
       <ContentRow>
-        {/* 도움이 돼요 버튼 */}
-        <UpvoteButton
-          onPress={() => {
-            checkAuth(toggleUpvote, () =>
-              ToastUtils.show('로그인이 필요합니다'),
-            );
-          }}
-          elementName="bbucleroad-upvote"
-          logParams={{bbucleRoadId}}>
-          {isUpvoted ? (
-            <ThumbsUpFillIcon width={20} height={20} />
-          ) : (
-            <ThumbsUpIcon width={20} height={20} />
-          )}
-          {totalUpvoteCount !== undefined && totalUpvoteCount > 0 ? (
-            <UpvoteCount isActive={isUpvoted}>{totalUpvoteCount}</UpvoteCount>
-          ) : null}
-        </UpvoteButton>
+        {/* 도움이 돼요 버튼 (sccContentId 있을 때만) */}
+        {sccContentId !== null && (
+          <UpvoteButton
+            onPress={() => {
+              checkAuth(toggleUpvote, () =>
+                ToastUtils.show('로그인이 필요합니다'),
+              );
+            }}
+            elementName="scc-content-upvote"
+            logParams={{sccContentId}}>
+            {isUpvoted ? (
+              <ThumbsUpFillIcon width={20} height={20} />
+            ) : (
+              <ThumbsUpIcon width={20} height={20} />
+            )}
+            {totalUpvoteCount !== undefined && totalUpvoteCount > 0 ? (
+              <UpvoteCount isActive={isUpvoted}>{totalUpvoteCount}</UpvoteCount>
+            ) : null}
+          </UpvoteButton>
+        )}
 
         <Spacer />
 
@@ -117,8 +129,8 @@ export default function BbucleRoadFloatingBar({
           fontWeight={'500'}
           height={40}
           onPress={handleShare}
-          elementName="bbucleroad-share"
-          logParams={{bbucleRoadId}}
+          elementName="scc-content-share"
+          logParams={{sccContentId, url}}
         />
 
         {/* 정보 더 받아보기 버튼 */}
@@ -131,8 +143,8 @@ export default function BbucleRoadFloatingBar({
           fontWeight={'500'}
           height={40}
           onPress={handleMoreInfo}
-          elementName="bbucleroad-more-info"
-          logParams={{bbucleRoadId}}
+          elementName="scc-content-more-info"
+          logParams={{sccContentId, url}}
         />
       </ContentRow>
     </Container>
