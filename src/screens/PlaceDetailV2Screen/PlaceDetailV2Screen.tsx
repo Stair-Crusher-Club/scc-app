@@ -781,7 +781,7 @@ export default function PlaceDetailV2Screen({
     data?.specialAccessibility?.bbucleRoadData?.bbucleRoadUrl;
 
   // BbucleRoad: WebViewScreen으로 replace하여 코드 중복 제거.
-  // WebViewScreen이 이미 BbucleRoadFloatingBar, handleWebViewShouldStartLoad 등을 처리.
+  // WebViewScreen이 이미 SccContentFloatingBar, handleWebViewShouldStartLoad 등을 처리.
   const [didReplaceToBbucleRoad, setDidReplaceToBbucleRoad] = useState(false);
   useEffect(() => {
     if (bbucleRoadUrl && place && !didReplaceToBbucleRoad) {

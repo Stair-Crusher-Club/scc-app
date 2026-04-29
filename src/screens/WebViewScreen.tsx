@@ -13,7 +13,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
-import BbucleRoadFloatingBar from './WebViewScreen/components/BbucleRoadFloatingBar';
+import SccContentFloatingBar from './WebViewScreen/components/SccContentFloatingBar';
 
 export interface WebViewScreenParams {
   headerVariant?: 'appbar' | 'navigation';
@@ -31,13 +31,18 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     fixedTitle || undefined,
   );
 
-  // URL에서 뿌클로드 ID 추출 (모든 route)
-  const bbucleRoadId = useMemo(() => {
-    const match = currentUrl.match(/con\.staircrusher\.club\/([^/?#]+)/);
+  // 뿌클로드(con.staircrusher.club) / 계뿌클 Notion 양쪽에서 콘텐츠 ID 추출
+  const sccContentId = useMemo(() => {
+    const match = currentUrl.match(
+      /(?:con\.staircrusher\.club|staircrusherclub\.notion\.site)\/([^/?#]+)/,
+    );
     return match ? match[1] : null;
   }, [currentUrl]);
 
-  const shouldShowFloatingBar = bbucleRoadId !== null;
+  // SCC 콘텐츠 도메인이면 ID 추출 실패해도 floating bar는 노출 (id 없으면 도움이돼요만 숨김)
+  const shouldShowFloatingBar =
+    currentUrl.startsWith('https://con.staircrusher.club') ||
+    currentUrl.startsWith('https://staircrusherclub.notion.site');
 
   const onTapCloseButton = useCallback(() => {
     Alert.alert('정말 페이지를 나가시겠어요?', '', [
@@ -113,8 +118,12 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         }}
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />
-      {shouldShowFloatingBar && bbucleRoadId && (
-        <BbucleRoadFloatingBar bbucleRoadId={bbucleRoadId} title={title} />
+      {shouldShowFloatingBar && (
+        <SccContentFloatingBar
+          url={currentUrl}
+          sccContentId={sccContentId}
+          title={title}
+        />
       )}
     </SafeAreaWrapper>
   );
