@@ -63,13 +63,32 @@ jobs:
             echo "Using Android version from version.properties: $ANDROID_VERSION"
           fi
 
+      - name: Verify branch version matches files
+        id: verify_branch_version
+        run: |
+          SHOULD_DEPLOY=true
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == release-* ]]; then
+            BRANCH_VERSION=$(echo "${{ github.ref_name }}" | sed -n 's/^release-\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p')
+            if [[ -z "$BRANCH_VERSION" ]]; then
+              echo "::warning::브랜치명 '${{ github.ref_name }}'에서 버전을 추출하지 못했습니다. OTA 배포를 스킵합니다."
+              SHOULD_DEPLOY=false
+            elif [[ "${{ env.IOS_VERSION }}" != "$BRANCH_VERSION" || "${{ env.ANDROID_VERSION }}" != "$BRANCH_VERSION" ]]; then
+              echo "::warning::브랜치명이 의미하는 버전($BRANCH_VERSION)과 파일의 버전(iOS=${{ env.IOS_VERSION }}, Android=${{ env.ANDROID_VERSION }})이 다릅니다. Native build에서 버전이 bump되기 전에는 OTA 배포를 스킵합니다."
+              SHOULD_DEPLOY=false
+            fi
+          fi
+          echo "should_deploy=$SHOULD_DEPLOY" >> $GITHUB_OUTPUT
+
       - name: Deploy iOS OTA
+        if: steps.verify_branch_version.outputs.should_deploy == 'true'
         run: yarn ota-deploy:sandbox -p ios -t ${{ env.IOS_VERSION }} -f
 
       - name: Deploy Android OTA
+        if: steps.verify_branch_version.outputs.should_deploy == 'true'
         run: yarn ota-deploy:sandbox -p android -t ${{ env.ANDROID_VERSION }} -f
 
       - name: Invalidate CloudFront cache
+        if: steps.verify_branch_version.outputs.should_deploy == 'true'
         run: |
           eval $(grep -v '^#' subprojects/scc-frontend-build-configurations/sandbox/.env.hot-updater | sed 's/^/export /')
           AWS_ACCESS_KEY_ID=$HOT_UPDATER_S3_ACCESS_KEY_ID \
@@ -80,7 +99,7 @@ jobs:
             --paths "/api/*"
 
       - name: Extract bundle IDs
-        if: success()
+        if: success() && steps.verify_branch_version.outputs.should_deploy == 'true'
         run: |
           eval $(grep -v '^#' subprojects/scc-frontend-build-configurations/sandbox/.env.hot-updater | sed 's/^/export /')
           IOS_BUNDLE_ID=$(AWS_ACCESS_KEY_ID=$HOT_UPDATER_S3_ACCESS_KEY_ID \
@@ -97,7 +116,7 @@ jobs:
           echo "ANDROID_BUNDLE_ID=$ANDROID_BUNDLE_ID" >> $GITHUB_ENV
 
       - name: Notify Slack on Success
-        if: success()
+        if: success() && steps.verify_branch_version.outputs.should_deploy == 'true'
         run: |
           COMMIT_MESSAGE_HEADER=$(git log -1 --pretty=format:"%s")
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
