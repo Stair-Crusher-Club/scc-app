@@ -1,6 +1,6 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtomValue} from 'jotai';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Dimensions, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
@@ -9,10 +9,12 @@ import {
   MediaType,
 } from 'react-native-image-picker';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
+import {VolumeManager} from 'react-native-volume-manager';
 
 import AlbumIcon from '@/assets/icon/ic_album.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
+import ClockIcon from '@/assets/icon/ic_clock.svg';
 import FlashIcon from '@/assets/icon/ic_flash.svg';
 import {featureFlagAtom} from '@/atoms/Auth';
 import {
@@ -44,6 +46,8 @@ export interface CameraScreenParams {
   maxPhotos?: number;
 }
 
+type TimerSeconds = 0 | 3 | 5 | 10;
+
 export default function CameraScreen({
   route,
   navigation,
@@ -54,6 +58,11 @@ export default function CameraScreen({
   const {camera, hasPermission, device, setDevice} = useCamera();
   const [photoFiles, setPhotoFiles] = useState<ImageFile[]>([]);
   const [flash, setFlash] = useState<'on' | 'off'>('off');
+  const [timerSeconds, setTimerSeconds] = useState<TimerSeconds>(0);
+  const [countdownDisplay, setCountdownDisplay] = useState<number | null>(null);
+  const countdownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const hasShownGuideForEnterancePhoto = useAtomValue(
     hasShownGuideForEntrancePhotoAtom,
   );
@@ -122,6 +131,29 @@ export default function CameraScreen({
     setFlash(f => (f === 'on' ? 'off' : 'on'));
   }
 
+  function cycleTimer() {
+    setTimerSeconds(s => {
+      switch (s) {
+        case 0:
+          return 3;
+        case 3:
+          return 5;
+        case 5:
+          return 10;
+        case 10:
+          return 0;
+      }
+    });
+  }
+
+  function cancelCountdown() {
+    if (countdownTimeoutRef.current) {
+      clearTimeout(countdownTimeoutRef.current);
+      countdownTimeoutRef.current = null;
+    }
+    setCountdownDisplay(null);
+  }
+
   function openPreview(index: number) {
     initialFocusedIndex.current = index;
     navigation.navigate('ImageZoomViewer', {
@@ -163,6 +195,85 @@ export default function CameraScreen({
 
   const photoLimit = route.params.maxPhotos ?? MAX_NUMBER_OF_TAKEN_PHOTOS;
   const canTakeMore = photoFiles.length < photoLimit;
+
+  function startCountdown(remaining: number) {
+    if (remaining <= 0) {
+      setCountdownDisplay(null);
+      countdownTimeoutRef.current = null;
+      takePhoto();
+      return;
+    }
+    setCountdownDisplay(remaining);
+    countdownTimeoutRef.current = setTimeout(() => {
+      startCountdown(remaining - 1);
+    }, 1000);
+  }
+
+  const handleCapturePress = useCallback(() => {
+    if (!canTakeMore || isTakingPhoto) {
+      return;
+    }
+    if (countdownDisplay !== null) {
+      cancelCountdown();
+      return;
+    }
+    if (timerSeconds === 0) {
+      takePhoto();
+    } else {
+      startCountdown(timerSeconds);
+    }
+  }, [canTakeMore, isTakingPhoto, countdownDisplay, timerSeconds]);
+
+  const handleCapturePressRef = useRef(handleCapturePress);
+  handleCapturePressRef.current = handleCapturePress;
+
+  useEffect(() => {
+    return () => {
+      if (countdownTimeoutRef.current) {
+        clearTimeout(countdownTimeoutRef.current);
+        countdownTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    let initialVolume = 0.5;
+    let isRestoring = false;
+    let isMounted = true;
+
+    VolumeManager.showNativeVolumeUI({enabled: false});
+    VolumeManager.getVolume()
+      .then(result => {
+        if (!isMounted) {
+          return;
+        }
+        initialVolume = result.volume;
+      })
+      .catch(() => {
+        // ignore
+      });
+
+    const subscription = VolumeManager.addVolumeListener(() => {
+      if (!isMounted) {
+        return;
+      }
+      if (isRestoring) {
+        isRestoring = false;
+        return;
+      }
+      handleCapturePressRef.current();
+      isRestoring = true;
+      VolumeManager.setVolume(initialVolume, {showUI: false}).catch(() => {
+        isRestoring = false;
+      });
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.remove();
+      VolumeManager.showNativeVolumeUI({enabled: true});
+    };
+  }, []);
 
   async function selectFromAlbum() {
     const options = {
@@ -221,6 +332,11 @@ export default function CameraScreen({
           <S.CameraPreviewContainer>
             <CameraPreview ref={camera} device={device} />
             <CameraDeviceSelect device={device} onDeviceSelect={setDevice} />
+            {countdownDisplay !== null && (
+              <S.CountdownOverlay pointerEvents="none">
+                <S.CountdownText>{countdownDisplay}</S.CountdownText>
+              </S.CountdownOverlay>
+            )}
           </S.CameraPreviewContainer>
         ) : (
           <CameraNotAuthorized />
@@ -259,6 +375,8 @@ export default function CameraScreen({
         {photoFiles.length === 0 && (
           <S.NoPhotosTaken>
             최대 {photoLimit}장까지 촬영할 수 있어요
+            {'\n'}
+            음량 조절 버튼으로도 촬영이 가능해요
           </S.NoPhotosTaken>
         )}
         {photoFiles.length > 0 && (
@@ -311,7 +429,7 @@ export default function CameraScreen({
         <S.CaptureButton
           elementName="camera_capture_button"
           disabled={!canTakeMore || isTakingPhoto}
-          onPress={takePhoto}>
+          onPress={handleCapturePress}>
           <S.CaptureInnerDeco />
         </S.CaptureButton>
         {device?.hasFlash && (
@@ -321,6 +439,20 @@ export default function CameraScreen({
             <FlashIcon style={{opacity: flash === 'on' ? 1 : 0.3}} />
           </S.FlashButton>
         )}
+        <S.TimerButton
+          elementName="camera_timer_button"
+          logParams={{timerSeconds}}
+          onPress={cycleTimer}>
+          <ClockIcon
+            width={24}
+            height={24}
+            color="white"
+            style={{opacity: timerSeconds === 0 ? 0.3 : 1}}
+          />
+          <S.TimerButtonText>
+            {timerSeconds === 0 ? '타이머' : `${timerSeconds}초`}
+          </S.TimerButtonText>
+        </S.TimerButton>
       </S.ActionsWrapper>
     </ScreenLayout>
   );
