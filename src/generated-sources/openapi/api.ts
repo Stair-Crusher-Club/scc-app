@@ -6752,6 +6752,12 @@ export interface UserTutorialProgressDto {
      */
     'missions': Array<UserTutorialMissionDto>;
     /**
+     * 현재 사용자가 다음으로 완료해야 하는 미션. 미션 선언 순서대로 첫 번째 미완료 미션을 가리킨다. 모든 미션이 완료되었거나 익명 사용자처럼 진행 상태를 알 수 없는 경우 null. 
+     * @type {TutorialMissionTypeDto}
+     * @memberof UserTutorialProgressDto
+     */
+    'currentMissionType': TutorialMissionTypeDto | null;
+    /**
      * 히든 미션용 tally form URL. 서버는 사용자 식별을 위해 hidden field를 query param으로 주입한 URL을 반환한다 (예: `userId=...`). 앱은 받은 URL을 그대로 webview 또는 외부 브라우저로 연다. 익명 사용자에게는 식별 query param이 포함되지 않은 base URL이 반환될 수 있다. 
      * @type {string}
      * @memberof UserTutorialProgressDto
