@@ -1,4 +1,3 @@
-import {useQueryClient} from '@tanstack/react-query';
 import React, {useCallback, useState} from 'react';
 import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
@@ -10,10 +9,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceCategoryDto} from '@/generated-sources/openapi';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
-import {
-  USER_TUTORIAL_PROGRESS_QUERY_KEY,
-  useRegisterUserInterestedRegionsAndThemes,
-} from '@/hooks/useUserTutorialProgress';
+import {useRegisterUserInterestedRegionsAndThemes} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -32,7 +28,6 @@ export default function InterestedRegionAndThemesFormScreen({
   navigation,
 }: ScreenProps<'InterestedRegionAndThemes'>) {
   const fromTutorial = route.params?.fromTutorial ?? false;
-  const queryClient = useQueryClient();
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
 
   const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
@@ -41,10 +36,13 @@ export default function InterestedRegionAndThemesFormScreen({
 
   const isFormDirty = selectedRegionIds.length > 0 || selectedThemes.length > 0;
 
-  // 폼 작성 중 뒤로 가기 시 확인 (변경 사항이 있을 때만)
-  const formExitConfirm = useFormExitConfirm(action => {
-    navigation.dispatch(action);
-  });
+  // 폼 작성 중 뒤로 가기 시 확인 (변경 사항이 있을 때만 modal trigger)
+  const formExitConfirm = useFormExitConfirm(
+    action => {
+      navigation.dispatch(action);
+    },
+    {enabled: isFormDirty},
+  );
 
   const toggleRegion = useCallback((id: string) => {
     setSelectedRegionIds(prev =>
@@ -63,6 +61,8 @@ export default function InterestedRegionAndThemesFormScreen({
       ToastUtils.show('관심지역 또는 관심테마를 최소 1개 이상 선택해주세요.');
       return;
     }
+    // useRegisterUserInterestedRegionsAndThemes의 onSuccess가 이미 progress query를
+    // invalidate하므로 여기서 중복으로 invalidate하지 않는다.
     registerMutation.mutate(
       {
         interestedRegionIds: selectedRegionIds,
@@ -70,9 +70,6 @@ export default function InterestedRegionAndThemesFormScreen({
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
-          });
           if (fromTutorial) {
             // 외출템 수집 팝업을 띄우고 닫을 때 goBack
             setShowCollected(true);
@@ -87,7 +84,6 @@ export default function InterestedRegionAndThemesFormScreen({
     selectedRegionIds,
     selectedThemes,
     registerMutation,
-    queryClient,
     fromTutorial,
     navigation,
   ]);
@@ -161,14 +157,16 @@ export default function InterestedRegionAndThemesFormScreen({
               style={{borderRadius: 12}}
             />
           </BottomBar>
-          {/* useFormExitConfirm은 dirty 상태에 관계없이 trigger되므로 dirty일 때만 modal 노출 */}
-          {isFormDirty && (
-            <FormExitConfirmBottomSheet
-              isVisible={formExitConfirm.isVisible}
-              onConfirm={formExitConfirm.onConfirm}
-              onCancel={formExitConfirm.onCancel}
-            />
-          )}
+          {/*
+           * dirty 조건은 useFormExitConfirm의 enabled로 처리하므로 BottomSheet는
+           * 항상 마운트. (조건부 렌더링하면 enabled=true가 된 직후 첫 back 시 modal이
+           * 마운트 전이라 사용자가 stuck 될 수 있다.)
+           */}
+          <FormExitConfirmBottomSheet
+            isVisible={formExitConfirm.isVisible}
+            onConfirm={formExitConfirm.onConfirm}
+            onCancel={formExitConfirm.onCancel}
+          />
           {showCollected && (
             <MissionItemCollectedBottomSheet
               isVisible={true}

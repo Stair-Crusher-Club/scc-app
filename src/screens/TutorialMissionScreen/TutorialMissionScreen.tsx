@@ -29,6 +29,7 @@ import BottomSheetButtonGroup, {
 } from '@/modals/BottomSheet/BottomSheetButtonGroup';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useCheckAuth} from '@/utils/checkAuth';
+import ToastUtils from '@/utils/ToastUtils';
 
 import HiddenMissionCollectedBottomSheet from './components/HiddenMissionCollectedBottomSheet';
 import MissionCard from './components/MissionCard';
@@ -176,7 +177,7 @@ export default function TutorialMissionScreen({
       try {
         await Linking.openURL(url);
       } catch {
-        // ignore
+        ToastUtils.show('링크를 열 수 없습니다. 잠시 후 다시 시도해주세요.');
       }
     });
   }, [allMainCompleted, isHiddenCompleted, checkAuth, progress]);

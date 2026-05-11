@@ -1,6 +1,6 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import styled from 'styled-components/native';
 
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
@@ -43,15 +43,29 @@ export default function PublicPlaceListsScreen({
   const fromTutorial = route.params?.fromTutorial ?? false;
   const {api} = useAppComponents();
   const checkAuth = useCheckAuth();
-  const toggleSave = useSavePlaceList();
   const [showCollected, setShowCollected] = useState(false);
   // 저장 액션이 한 번이라도 발생했는지 추적 (form dirty 판단용)
   const hasSavedAnyRef = useRef(false);
 
-  // form dirty 시 뒤로 가기 확인
-  const formExitConfirm = useFormExitConfirm(action => {
-    navigation.dispatch(action);
+  // 튜토리얼 컨텍스트에서 새로 저장이 성공하면 외출템 수집 팝업을 즉시 set.
+  // useEffect로 placeLists 변화를 watch하는 방식은 save → back 빠른 입력 시 unmount
+  // 전에 placeLists가 반영되지 않으면 누락되므로, mutation 완료 직후 동기적으로 트리거.
+  const toggleSave = useSavePlaceList({
+    onSuccess: variables => {
+      if (fromTutorial && !variables.isSaved) {
+        // !isSaved → 방금 새로 저장됨
+        setShowCollected(true);
+      }
+    },
   });
+
+  // form dirty 시(저장 액션이 한 번 이상 발생했을 때만) 뒤로 가기 확인 modal trigger
+  const formExitConfirm = useFormExitConfirm(
+    action => {
+      navigation.dispatch(action);
+    },
+    {enabled: hasSavedAnyRef.current},
+  );
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
     useInfiniteQuery({
@@ -69,33 +83,16 @@ export default function PublicPlaceListsScreen({
 
   const placeLists = data?.pages.flatMap(page => page.items ?? []) ?? [];
 
-  // 튜토리얼 컨텍스트에서 새로 저장한 항목이 생기면 외출템 수집 팝업 노출
-  const isPendingShowCollected = useRef(false);
-  useEffect(() => {
-    if (
-      fromTutorial &&
-      hasSavedAnyRef.current &&
-      isPendingShowCollected.current
-    ) {
-      // mutation 결과가 invalidate에 의해 placeLists에 반영된 직후 트리거
-      setShowCollected(true);
-      isPendingShowCollected.current = false;
-    }
-  }, [placeLists, fromTutorial]);
-
   const handleToggleSave = useCallback(
     (item: PlaceListDto) => {
       checkAuth(() => {
         if (!item.isSaved) {
           hasSavedAnyRef.current = true;
-          if (fromTutorial) {
-            isPendingShowCollected.current = true;
-          }
         }
         toggleSave({isSaved: item.isSaved, placeListId: item.id});
       });
     },
-    [checkAuth, fromTutorial, toggleSave],
+    [checkAuth, toggleSave],
   );
 
   const handleItemPress = useCallback(
@@ -193,13 +190,16 @@ export default function PublicPlaceListsScreen({
               onEndReachedThreshold={0.5}
             />
           )}
-          {hasSavedAnyRef.current && (
-            <FormExitConfirmBottomSheet
-              isVisible={formExitConfirm.isVisible}
-              onConfirm={formExitConfirm.onConfirm}
-              onCancel={formExitConfirm.onCancel}
-            />
-          )}
+          {/*
+           * dirty 조건은 useFormExitConfirm의 enabled로 처리하므로 BottomSheet는
+           * 항상 마운트. (조건부 렌더링하면 enabled=true가 된 직후 첫 back 시 modal이
+           * 마운트 전이라 사용자가 stuck 될 수 있다.)
+           */}
+          <FormExitConfirmBottomSheet
+            isVisible={formExitConfirm.isVisible}
+            onConfirm={formExitConfirm.onConfirm}
+            onCancel={formExitConfirm.onCancel}
+          />
           {showCollected && (
             <MissionItemCollectedBottomSheet
               isVisible={true}
