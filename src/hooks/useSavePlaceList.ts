@@ -3,6 +3,7 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
+import {USER_TUTORIAL_PROGRESS_QUERY_KEY} from './useUserTutorialProgress';
 
 export function useSavePlaceList() {
   const {api} = useAppComponents();
@@ -32,6 +33,10 @@ export function useSavePlaceList() {
       queryClient.invalidateQueries({queryKey: ['SavedPlaceLists']});
       queryClient.invalidateQueries({
         queryKey: ['PlaceListDetail', variables.placeListId],
+      });
+      // 윌리의 외출 NUX 튜토리얼: 저장리스트 저장 미션 진행 상태 무효화
+      queryClient.invalidateQueries({
+        queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
       });
     },
     onError: error => {

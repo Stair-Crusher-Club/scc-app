@@ -5457,6 +5457,25 @@ export interface RegisterToiletReviewRequestDto {
     'comment'?: string;
 }
 /**
+ * 사용자의 관심지역과 관심테마를 등록한다.
+ * @export
+ * @interface RegisterUserInterestedRegionsAndThemesRequestDto
+ */
+export interface RegisterUserInterestedRegionsAndThemesRequestDto {
+    /**
+     * 관심지역 ID 목록.
+     * @type {Array<string>}
+     * @memberof RegisterUserInterestedRegionsAndThemesRequestDto
+     */
+    'interestedRegionIds': Array<string>;
+    /**
+     * 관심 테마 목록. PlaceCategoryDto enum을 재사용한다.
+     * @type {Array<PlaceCategoryDto>}
+     * @memberof RegisterUserInterestedRegionsAndThemesRequestDto
+     */
+    'interestedThemes': Array<PlaceCategoryDto>;
+}
+/**
  * 
  * @export
  * @interface ReportAccessibilityPostRequest
@@ -6333,6 +6352,23 @@ export interface ToiletReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 윌리의 외출 NUX 튜토리얼 미션 종류.
+ * @export
+ * @enum {string}
+ */
+
+export const TutorialMissionTypeDto = {
+    RegisterInterestedRegionsAndThemes: 'REGISTER_INTERESTED_REGIONS_AND_THEMES',
+    SavePlaceList: 'SAVE_PLACE_LIST',
+    UpvoteAccessibility: 'UPVOTE_ACCESSIBILITY',
+    WritePlaceReview: 'WRITE_PLACE_REVIEW',
+    CollectHiddenItem: 'COLLECT_HIDDEN_ITEM'
+} as const;
+
+export type TutorialMissionTypeDto = typeof TutorialMissionTypeDto[keyof typeof TutorialMissionTypeDto];
+
+
+/**
  * 
  * @export
  * @interface UnsavePlaceListRequestDto
@@ -6652,6 +6688,50 @@ export type UserMobilityToolDto = typeof UserMobilityToolDto[keyof typeof UserMo
 
 
 /**
+ * 윌리의 외출 NUX 튜토리얼 개별 미션의 진행 상태.
+ * @export
+ * @interface UserTutorialMissionDto
+ */
+export interface UserTutorialMissionDto {
+    /**
+     * 
+     * @type {TutorialMissionTypeDto}
+     * @memberof UserTutorialMissionDto
+     */
+    'missionType': TutorialMissionTypeDto;
+    /**
+     * 미션 완료 여부
+     * @type {boolean}
+     * @memberof UserTutorialMissionDto
+     */
+    'isCompleted': boolean;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof UserTutorialMissionDto
+     */
+    'completedAt'?: EpochMillisTimestamp;
+}
+/**
+ * 윌리의 외출 NUX 튜토리얼 미션 진행 상태. missions 배열은 TutorialMissionTypeDto 선언 순서대로 5개 (4 main + 1 hidden) 포함된다. 
+ * @export
+ * @interface UserTutorialProgressDto
+ */
+export interface UserTutorialProgressDto {
+    /**
+     * TutorialMissionTypeDto 선언 순서대로 5개 (4 main + 1 hidden) 미션의 진행 상태
+     * @type {Array<UserTutorialMissionDto>}
+     * @memberof UserTutorialProgressDto
+     */
+    'missions': Array<UserTutorialMissionDto>;
+    /**
+     * 히든 미션용 tally form URL (서버 application.yaml에서 주입)
+     * @type {string}
+     * @memberof UserTutorialProgressDto
+     */
+    'hiddenMissionTallyFormUrl': string;
+}
+/**
  * 
  * @export
  * @interface ValidateUserProfilePost200Response
@@ -6900,6 +6980,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(checkInToClubQuestRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeUserTutorialHiddenMission: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/completeUserTutorialHiddenMission`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8212,6 +8326,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 로그인 사용자는 본인의 저장된 미션 진행 상태를 반환받는다. 익명 사용자도 호출 가능하며, 이 경우 모든 미션이 미완료 상태로 반환된다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 진행 상태를 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserTutorialProgress: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/getUserTutorialProgress`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
@@ -9457,6 +9605,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 윌리의 외출 NUX 튜토리얼의 첫 번째 메인 미션. 기존 값이 있더라도 전체 목록으로 덮어쓴다. 
+         * @summary 사용자의 관심지역과 관심테마를 등록한다.
+         * @param {RegisterUserInterestedRegionsAndThemesRequestDto} registerUserInterestedRegionsAndThemesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerUserInterestedRegionsAndThemes: async (registerUserInterestedRegionsAndThemesRequestDto: RegisterUserInterestedRegionsAndThemesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'registerUserInterestedRegionsAndThemesRequestDto' is not null or undefined
+            assertParamExists('registerUserInterestedRegionsAndThemes', 'registerUserInterestedRegionsAndThemesRequestDto', registerUserInterestedRegionsAndThemesRequestDto)
+            const localVarPath = `/registerUserInterestedRegionsAndThemes`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(registerUserInterestedRegionsAndThemesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
          * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
@@ -10153,6 +10341,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async completeUserTutorialHiddenMission(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialHiddenMission(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
@@ -10521,6 +10719,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 로그인 사용자는 본인의 저장된 미션 진행 상태를 반환받는다. 익명 사용자도 호출 가능하며, 이 경우 모든 미션이 미완료 상태로 반환된다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 진행 상태를 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserTutorialProgress(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserTutorialProgress(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
@@ -10867,6 +11075,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 윌리의 외출 NUX 튜토리얼의 첫 번째 메인 미션. 기존 값이 있더라도 전체 목록으로 덮어쓴다. 
+         * @summary 사용자의 관심지역과 관심테마를 등록한다.
+         * @param {RegisterUserInterestedRegionsAndThemesRequestDto} registerUserInterestedRegionsAndThemesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async registerUserInterestedRegionsAndThemes(registerUserInterestedRegionsAndThemesRequestDto: RegisterUserInterestedRegionsAndThemesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerUserInterestedRegionsAndThemes(registerUserInterestedRegionsAndThemesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
          * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
@@ -11093,6 +11312,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: any): AxiosPromise<CheckInToClubQuestResponseDto> {
             return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeUserTutorialHiddenMission(options?: any): AxiosPromise<UserTutorialProgressDto> {
+            return localVarFp.completeUserTutorialHiddenMission(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -11429,6 +11657,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getUserInfoGet(options).then((request) => request(axios, basePath));
         },
         /**
+         * 로그인 사용자는 본인의 저장된 미션 진행 상태를 반환받는다. 익명 사용자도 호출 가능하며, 이 경우 모든 미션이 미완료 상태로 반환된다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 진행 상태를 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserTutorialProgress(options?: any): AxiosPromise<UserTutorialProgressDto> {
+            return localVarFp.getUserTutorialProgress(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
          * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
@@ -11744,6 +11981,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.registerToiletReviewPost(registerToiletReviewRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * 윌리의 외출 NUX 튜토리얼의 첫 번째 메인 미션. 기존 값이 있더라도 전체 목록으로 덮어쓴다. 
+         * @summary 사용자의 관심지역과 관심테마를 등록한다.
+         * @param {RegisterUserInterestedRegionsAndThemesRequestDto} registerUserInterestedRegionsAndThemesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerUserInterestedRegionsAndThemes(registerUserInterestedRegionsAndThemesRequestDto: RegisterUserInterestedRegionsAndThemesRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.registerUserInterestedRegionsAndThemes(registerUserInterestedRegionsAndThemesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 등록된 접근성 정보, 장소 리뷰, 화장실 정보 등이 올바르지 않은 경우 신고한다.
          * @param {ReportAccessibilityPostRequest} reportAccessibilityPostRequest 
@@ -11961,6 +12208,17 @@ export class DefaultApi extends BaseAPI {
      */
     public checkInToClubQuestPost(checkInToClubQuestRequestDto: CheckInToClubQuestRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+     * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public completeUserTutorialHiddenMission(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).completeUserTutorialHiddenMission(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12366,6 +12624,17 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 로그인 사용자는 본인의 저장된 미션 진행 상태를 반환받는다. 익명 사용자도 호출 가능하며, 이 경우 모든 미션이 미완료 상태로 반환된다. 
+     * @summary 윌리의 외출 NUX 튜토리얼 미션 진행 상태를 조회한다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getUserTutorialProgress(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUserTutorialProgress(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 건물에 대해 \'이 정보가 도움이 돼요\'를 준다.
      * @param {GiveBuildingAccessibilityUpvoteRequestDto} giveBuildingAccessibilityUpvoteRequestDto 
@@ -12740,6 +13009,18 @@ export class DefaultApi extends BaseAPI {
      */
     public registerToiletReviewPost(registerToiletReviewRequestDto: RegisterToiletReviewRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).registerToiletReviewPost(registerToiletReviewRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 윌리의 외출 NUX 튜토리얼의 첫 번째 메인 미션. 기존 값이 있더라도 전체 목록으로 덮어쓴다. 
+     * @summary 사용자의 관심지역과 관심테마를 등록한다.
+     * @param {RegisterUserInterestedRegionsAndThemesRequestDto} registerUserInterestedRegionsAndThemesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public registerUserInterestedRegionsAndThemes(registerUserInterestedRegionsAndThemesRequestDto: RegisterUserInterestedRegionsAndThemesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).registerUserInterestedRegionsAndThemes(registerUserInterestedRegionsAndThemesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

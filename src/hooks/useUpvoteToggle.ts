@@ -5,6 +5,7 @@ import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
+import {USER_TUTORIAL_PROGRESS_QUERY_KEY} from './useUserTutorialProgress';
 
 interface UseUpvoteToggleParams {
   initialIsUpvoted: boolean;
@@ -96,6 +97,11 @@ export function useUpvoteToggle({
           queryKey: ['UpvotedForNumberOfItems'],
         });
       }
+
+      // 윌리의 외출 NUX 튜토리얼: 도움이 돼요 미션 진행 상태 무효화
+      queryClient.invalidateQueries({
+        queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
+      });
 
       if (targetType === 'PLACE_REVIEW' || targetType === 'TOILET_REVIEW') {
         queryClient.invalidateQueries({

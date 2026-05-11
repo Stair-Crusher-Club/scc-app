@@ -72,6 +72,15 @@ import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import TutorialScreen from '@/screens/TutorialScreen';
+import TutorialMissionScreen, {
+  TutorialMissionScreenParams,
+} from '@/screens/TutorialMissionScreen';
+import InterestedRegionAndThemesFormScreen, {
+  InterestedRegionAndThemesFormScreenParams,
+} from '@/screens/InterestedRegionAndThemesFormScreen';
+import PublicPlaceListsScreen, {
+  PublicPlaceListsScreenParams,
+} from '@/screens/PublicPlaceListsScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
 } from '@/screens/ToiletReviewFormScreen';
@@ -277,6 +286,30 @@ export const MainNavigationScreens: {
     },
   },
   {
+    name: 'TutorialMission',
+    component: TutorialMissionScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '튜토리얼',
+    },
+  },
+  {
+    name: 'InterestedRegionAndThemes',
+    component: InterestedRegionAndThemesFormScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '관심지역, 관심테마',
+    },
+  },
+  {
+    name: 'PublicPlaceLists',
+    component: PublicPlaceListsScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '공개 저장 리스트',
+    },
+  },
+  {
     name: 'ReportCorrectionForm',
     component: ReportCorrectionFormScreen,
     options: {
@@ -365,6 +398,9 @@ export type ScreenParams = {
   ImageZoomViewer: ImageZoomViewerScreenParams;
   RegistrationComplete: RegistrationCompleteScreenParams;
   Tutorial: undefined;
+  TutorialMission: TutorialMissionScreenParams;
+  InterestedRegionAndThemes: InterestedRegionAndThemesFormScreenParams;
+  PublicPlaceLists: PublicPlaceListsScreenParams;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =
