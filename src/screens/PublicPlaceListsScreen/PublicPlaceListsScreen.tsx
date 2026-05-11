@@ -1,6 +1,6 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import styled from 'styled-components/native';
 
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
@@ -44,8 +44,10 @@ export default function PublicPlaceListsScreen({
   const {api} = useAppComponents();
   const checkAuth = useCheckAuth();
   const [showCollected, setShowCollected] = useState(false);
-  // 저장 액션이 한 번이라도 발생했는지 추적 (form dirty 판단용)
-  const hasSavedAnyRef = useRef(false);
+  // 저장 액션이 한 번이라도 발생했는지 추적 (form dirty 판단용).
+  // useState로 관리해야 useFormExitConfirm의 enabled에 변경이 전파된다 (ref는 re-render
+  // 를 트리거 안 함 → enabled가 영원히 초기값으로 고정됨).
+  const [hasSavedAny, setHasSavedAny] = useState(false);
 
   // 튜토리얼 컨텍스트에서 새로 저장이 성공하면 외출템 수집 팝업을 즉시 set.
   // useEffect로 placeLists 변화를 watch하는 방식은 save → back 빠른 입력 시 unmount
@@ -64,7 +66,7 @@ export default function PublicPlaceListsScreen({
     action => {
       navigation.dispatch(action);
     },
-    {enabled: hasSavedAnyRef.current},
+    {enabled: hasSavedAny},
   );
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
@@ -87,7 +89,7 @@ export default function PublicPlaceListsScreen({
     (item: PlaceListDto) => {
       checkAuth(() => {
         if (!item.isSaved) {
-          hasSavedAnyRef.current = true;
+          setHasSavedAny(true);
         }
         toggleSave({isSaved: item.isSaved, placeListId: item.id});
       });
