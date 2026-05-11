@@ -7,7 +7,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceCategoryDto} from '@/generated-sources/openapi';
+import {UserInterestedThemeDto} from '@/generated-sources/openapi';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useRegisterUserInterestedRegionsAndThemes} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -31,7 +31,9 @@ export default function InterestedRegionAndThemesFormScreen({
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
 
   const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
-  const [selectedThemes, setSelectedThemes] = useState<PlaceCategoryDto[]>([]);
+  const [selectedThemes, setSelectedThemes] = useState<
+    UserInterestedThemeDto[]
+  >([]);
   const [showCollected, setShowCollected] = useState(false);
 
   const isFormDirty = selectedRegionIds.length > 0 || selectedThemes.length > 0;
@@ -50,7 +52,7 @@ export default function InterestedRegionAndThemesFormScreen({
     );
   }, []);
 
-  const toggleTheme = useCallback((theme: PlaceCategoryDto) => {
+  const toggleTheme = useCallback((theme: UserInterestedThemeDto) => {
     setSelectedThemes(prev =>
       prev.includes(theme) ? prev.filter(p => p !== theme) : [...prev, theme],
     );

@@ -73,7 +73,7 @@ export const TUTORIAL_MISSION_META: Record<
     collectPopupDescription:
       '리뷰를 남길 때 쓸 카메라를 모았어요!\n마지막 히든 미션도 도전해주세요!',
   },
-  COLLECT_HIDDEN_ITEM: {
+  HIDDEN_APP_SURVEY: {
     order: 0,
     itemImage: require('@/assets/img/tutorial/item_hat.png'),
     subtitle: '계뿌클 ',

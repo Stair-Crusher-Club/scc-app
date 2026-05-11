@@ -5469,11 +5469,11 @@ export interface RegisterUserInterestedRegionsAndThemesRequestDto {
      */
     'interestedRegionIds': Array<string>;
     /**
-     * 관심 테마 목록. PlaceCategoryDto enum을 재사용한다.
-     * @type {Array<PlaceCategoryDto>}
+     * 관심 테마 목록.
+     * @type {Array<UserInterestedThemeDto>}
      * @memberof RegisterUserInterestedRegionsAndThemesRequestDto
      */
-    'interestedThemes': Array<PlaceCategoryDto>;
+    'interestedThemes': Array<UserInterestedThemeDto>;
 }
 /**
  * 
@@ -6352,7 +6352,7 @@ export interface ToiletReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 종류. COLLECT_HIDDEN_ITEM이 히든 미션이며, 나머지 4개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 5개를 모두 포함한다. 
+ * 윌리의 외출 NUX 튜토리얼 미션 종류. HIDDEN_APP_SURVEY가 히든 미션(앱 사용 후기 설문)이며, 나머지 4개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 5개를 모두 포함한다. 
  * @export
  * @enum {string}
  */
@@ -6362,7 +6362,7 @@ export const TutorialMissionTypeDto = {
     SavePlaceList: 'SAVE_PLACE_LIST',
     UpvoteAccessibility: 'UPVOTE_ACCESSIBILITY',
     WritePlaceReview: 'WRITE_PLACE_REVIEW',
-    CollectHiddenItem: 'COLLECT_HIDDEN_ITEM'
+    HiddenAppSurvey: 'HIDDEN_APP_SURVEY'
 } as const;
 
 export type TutorialMissionTypeDto = typeof TutorialMissionTypeDto[keyof typeof TutorialMissionTypeDto];
@@ -6667,6 +6667,26 @@ export interface User {
     'isNewsLetterSubscriptionAgreed': boolean;
 }
 /**
+ * 사용자의 관심 테마. 윌리의 외출 NUX 튜토리얼 첫 번째 메인 미션에서 선택한다. Figma 1427-8980 화면 기준 8개 항목. 
+ * @export
+ * @enum {string}
+ */
+
+export const UserInterestedThemeDto = {
+    WheelchairReview: 'WHEELCHAIR_REVIEW',
+    MediaHotspot: 'MEDIA_HOTSPOT',
+    FoodCafeTour: 'FOOD_CAFE_TOUR',
+    EmotionalView: 'EMOTIONAL_VIEW',
+    Sports: 'SPORTS',
+    Culture: 'CULTURE',
+    Travel: 'TRAVEL',
+    Nature: 'NATURE'
+} as const;
+
+export type UserInterestedThemeDto = typeof UserInterestedThemeDto[keyof typeof UserInterestedThemeDto];
+
+
+/**
  * 
  * @export
  * @enum {string}
@@ -6700,12 +6720,6 @@ export interface UserTutorialMissionDto {
      */
     'missionType': TutorialMissionTypeDto;
     /**
-     * 미션 완료 여부
-     * @type {boolean}
-     * @memberof UserTutorialMissionDto
-     */
-    'isCompleted': boolean;
-    /**
      * 
      * @type {UserTutorialMissionDtoCompletedAt}
      * @memberof UserTutorialMissionDto
@@ -6713,7 +6727,7 @@ export interface UserTutorialMissionDto {
     'completedAt': UserTutorialMissionDtoCompletedAt | null;
 }
 /**
- * 미션 완료 시각. 미완료 미션은 null. isCompleted가 true이면 항상 non-null.
+ * 미션 완료 시각. 미완료 미션은 null. 클라이언트는 completedAt != null 여부로 미션 완료 상태를 판단한다.
  * @export
  * @interface UserTutorialMissionDtoCompletedAt
  */
@@ -6738,7 +6752,7 @@ export interface UserTutorialProgressDto {
      */
     'missions': Array<UserTutorialMissionDto>;
     /**
-     * 히든 미션용 tally form URL (서버 application.yaml에서 주입)
+     * 히든 미션용 tally form URL. 서버는 사용자 식별을 위해 hidden field를 query param으로 주입한 URL을 반환한다 (예: `userId=...`). 앱은 받은 URL을 그대로 webview 또는 외부 브라우저로 연다. 익명 사용자에게는 식별 query param이 포함되지 않은 base URL이 반환될 수 있다. 
      * @type {string}
      * @memberof UserTutorialProgressDto
      */
@@ -7000,7 +7014,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
          * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -10354,7 +10368,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
          * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -11327,7 +11341,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
          * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -12224,7 +12238,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 
+     * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
      * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

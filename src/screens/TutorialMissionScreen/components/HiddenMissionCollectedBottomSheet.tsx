@@ -18,7 +18,7 @@ export default function HiddenMissionCollectedBottomSheet({
   isVisible,
   onClose,
 }: HiddenMissionCollectedBottomSheetProps) {
-  const meta = TUTORIAL_MISSION_META.COLLECT_HIDDEN_ITEM;
+  const meta = TUTORIAL_MISSION_META.HIDDEN_APP_SURVEY;
   return (
     <BottomSheet isVisible={isVisible} onPressBackground={onClose}>
       <ContentsContainer>

@@ -1,4 +1,5 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {AxiosError} from 'axios';
 import {useAtomValue} from 'jotai';
 
 import {isAnonymousUserAtom} from '@/atoms/Auth';
@@ -58,6 +59,11 @@ export function useCompleteUserTutorialHiddenMission() {
       queryClient.setQueryData(USER_TUTORIAL_PROGRESS_QUERY_KEY, data);
     },
     onError: error => {
+      // 400은 호출처(TutorialMissionScreen)에서 "tally 제출 미확인" 안내 토스트로 처리한다.
+      // 여기서 추가 토스트를 띄우면 중복 노출되므로 400은 무시.
+      if (error instanceof AxiosError && error.response?.status === 400) {
+        return;
+      }
       ToastUtils.showOnApiError(error);
     },
   });

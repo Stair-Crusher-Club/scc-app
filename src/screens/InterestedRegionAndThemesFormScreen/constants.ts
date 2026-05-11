@@ -1,4 +1,4 @@
-import {PlaceCategoryDto} from '@/generated-sources/openapi';
+import {UserInterestedThemeDto} from '@/generated-sources/openapi';
 
 /**
  * 관심 지역 옵션. 1차 구현에서는 앱 하드코딩.
@@ -39,30 +39,21 @@ export const REGION_OPTIONS: RegionOption[] = [
 ];
 
 /**
- * 관심 테마 옵션. PlaceCategoryDto enum을 한국어 라벨로 매핑.
+ * 관심 테마 옵션. UserInterestedThemeDto enum을 한국어 라벨(이모지 포함)로 매핑.
+ * Figma 1427-8980 화면 기준 8개 항목.
  */
 export interface ThemeOption {
-  value: PlaceCategoryDto;
+  value: UserInterestedThemeDto;
   label: string;
 }
 
 export const THEME_OPTIONS: ThemeOption[] = [
-  {value: PlaceCategoryDto.Restaurant, label: '음식점'},
-  {value: PlaceCategoryDto.Cafe, label: '카페'},
-  {value: PlaceCategoryDto.ConvenienceStore, label: '편의점'},
-  {value: PlaceCategoryDto.Market, label: '마트'},
-  {value: PlaceCategoryDto.Hospital, label: '병원'},
-  {value: PlaceCategoryDto.Pharmacy, label: '약국'},
-  {value: PlaceCategoryDto.CulturalFacilities, label: '문화시설'},
-  {value: PlaceCategoryDto.Attraction, label: '관광지'},
-  {value: PlaceCategoryDto.Accomodation, label: '숙박'},
-  {value: PlaceCategoryDto.PublicOffice, label: '공공기관'},
-  {value: PlaceCategoryDto.Bank, label: '은행'},
-  {value: PlaceCategoryDto.SubwayStation, label: '지하철역'},
-  {value: PlaceCategoryDto.ParkingLot, label: '주차장'},
-  {value: PlaceCategoryDto.School, label: '학교'},
-  {value: PlaceCategoryDto.Academy, label: '학원'},
-  {value: PlaceCategoryDto.Kindergarten, label: '유치원'},
-  {value: PlaceCategoryDto.GasStation, label: '주유소'},
-  {value: PlaceCategoryDto.Agency, label: '기관'},
+  {value: UserInterestedThemeDto.WheelchairReview, label: '🦽 휠체어 찐후기'},
+  {value: UserInterestedThemeDto.MediaHotspot, label: '🔥 방송·SNS 핫플'},
+  {value: UserInterestedThemeDto.FoodCafeTour, label: '🍕 맛집·카페 투어'},
+  {value: UserInterestedThemeDto.EmotionalView, label: '💼 감성·뷰 맛집'},
+  {value: UserInterestedThemeDto.Sports, label: '⚾ 야구장·스포츠'},
+  {value: UserInterestedThemeDto.Culture, label: '🎭 공연·전시·영화'},
+  {value: UserInterestedThemeDto.Travel, label: '✈️ 훌쩍 떠나는 여행'},
+  {value: UserInterestedThemeDto.Nature, label: '🌳 자연·공원 힐링'},
 ];
