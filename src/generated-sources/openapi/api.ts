@@ -6352,7 +6352,7 @@ export interface ToiletReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 종류.
+ * 윌리의 외출 NUX 튜토리얼 미션 종류. COLLECT_HIDDEN_ITEM이 히든 미션이며, 나머지 4개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 5개를 모두 포함한다. 
  * @export
  * @enum {string}
  */
@@ -6707,10 +6707,23 @@ export interface UserTutorialMissionDto {
     'isCompleted': boolean;
     /**
      * 
-     * @type {EpochMillisTimestamp}
+     * @type {UserTutorialMissionDtoCompletedAt}
      * @memberof UserTutorialMissionDto
      */
-    'completedAt'?: EpochMillisTimestamp;
+    'completedAt': UserTutorialMissionDtoCompletedAt | null;
+}
+/**
+ * 미션 완료 시각. 미완료 미션은 null. isCompleted가 true이면 항상 non-null.
+ * @export
+ * @interface UserTutorialMissionDtoCompletedAt
+ */
+export interface UserTutorialMissionDtoCompletedAt {
+    /**
+     * 
+     * @type {number}
+     * @memberof UserTutorialMissionDtoCompletedAt
+     */
+    'value': number;
 }
 /**
  * 윌리의 외출 NUX 튜토리얼 미션 진행 상태. missions 배열은 TutorialMissionTypeDto 선언 순서대로 5개 (4 main + 1 hidden) 포함된다. 
