@@ -1,6 +1,7 @@
 import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import styled from 'styled-components/native';
 
+import {useMe} from '@/atoms/Auth';
 import {useInterestedRegionsAndThemesCache} from '@/atoms/InterestedRegionsAndThemes';
 import {SccButton} from '@/components/atoms';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
@@ -8,9 +9,16 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {UserInterestedThemeDto} from '@/generated-sources/openapi';
+import {
+  TutorialMissionTypeDto,
+  UserInterestedThemeDto,
+} from '@/generated-sources/openapi';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
-import {useRegisterUserInterestedRegionsAndThemes} from '@/hooks/useUserTutorialProgress';
+import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
+import {
+  useRegisterUserInterestedRegionsAndThemes,
+  useUserTutorialProgress,
+} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -66,6 +74,8 @@ export default function InterestedRegionAndThemesFormScreen({
   );
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
+  const {data: tutorialProgress} = useUserTutorialProgress();
+  const {userInfo} = useMe();
 
   const [selectedRegionIds, setSelectedRegionIds] =
     useState<string[]>(initialRegionIds);
@@ -74,6 +84,27 @@ export default function InterestedRegionAndThemesFormScreen({
   const [isRegionSheetOpen, setIsRegionSheetOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
   const [showCollected, setShowCollected] = useState(false);
+
+  // 튜토리얼: 미션 완료 오버레이 노출 제어.
+  // REGISTER 미션이 미완료 → 완료로 전환된 경우에만 1회 노출한다.
+  // (이미 완료된 미션을 재제출하는 프로필 수정 컨텍스트에서는 노출하지 않음.)
+  const isRegisterMissionCompleted = useMemo(
+    () =>
+      tutorialProgress?.missions?.some(
+        m =>
+          m.missionType ===
+            TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes &&
+          m.completedAt != null,
+      ) ?? false,
+    [tutorialProgress],
+  );
+  useMissionCompletionWatcher({
+    enabled: fromTutorial,
+    isMissionCompleted: isRegisterMissionCompleted,
+    onJustCompleted: useCallback(() => {
+      setShowCollected(true);
+    }, []),
+  });
 
   const showRegion = mode === 'both' || mode === 'region';
   const showTheme = mode === 'both' || mode === 'theme';
@@ -138,13 +169,12 @@ export default function InterestedRegionAndThemesFormScreen({
             interestedRegionIds: finalRegionIds,
             interestedThemes: finalThemes,
           });
-          if (fromTutorial) {
-            // 미션 완료 오버레이 노출 후 confirm 시 goBack
-            setShowCollected(true);
-          } else {
+          if (!fromTutorial) {
             ToastUtils.show('저장되었습니다.');
             navigation.goBack();
           }
+          // fromTutorial=true인 경우, useMissionCompletionWatcher가
+          // 서버 progress 변화를 감지하여 오버레이를 띄운다.
         },
       },
     );
@@ -291,9 +321,9 @@ export default function InterestedRegionAndThemesFormScreen({
             <MissionCompletedOverlay
               isVisible={true}
               itemImage={require('@/assets/img/tutorial/item_smartphone.png')}
-              description={
-                '계단뿌셔클럽 앱이 설치된 스마트폰 획득!\n장소 찾기가 쉬워졌어요!'
-              }
+              description={`계단뿌셔클럽 앱이 설치된 스마트폰 획득!\n${
+                userInfo?.nickname ?? '크러셔'
+              }님 덕분에 장소 찾기가 쉬워졌어요!`}
               confirmElementName="tutorial_mission_1_completed_confirm"
               onClose={handleCollectedClose}
             />

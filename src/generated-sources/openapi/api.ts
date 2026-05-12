@@ -3558,6 +3558,19 @@ export interface ListPlacesInBuildingPostRequest {
     'buildingId': string;
 }
 /**
+ * 공개 저장 리스트 목록 응답
+ * @export
+ * @interface ListPublicPlaceListsResponseDto
+ */
+export interface ListPublicPlaceListsResponseDto {
+    /**
+     * 
+     * @type {Array<PublicPlaceListDto>}
+     * @memberof ListPublicPlaceListsResponseDto
+     */
+    'placeLists': Array<PublicPlaceListDto>;
+}
+/**
  * 
  * @export
  * @interface ListRegisteredPlaceReviewsResponseDto
@@ -4374,6 +4387,21 @@ export type PlaceGroupType = typeof PlaceGroupType[keyof typeof PlaceGroupType];
 
 
 /**
+ * 저장 리스트 접근 제어. Google Drive 파일 공유 모델을 모방한다. - PRIVATE: 본인만 접근 가능 (예: 개인 저장 장소) - PUBLIC: 모든 사용자에게 공개 - LINK_ONLY: 튜토리얼 메인 미션을 모두 완료한 사용자에게만 노출 
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceListAccessControlDto = {
+    Private: 'PRIVATE',
+    Public: 'PUBLIC',
+    LinkOnly: 'LINK_ONLY'
+} as const;
+
+export type PlaceListAccessControlDto = typeof PlaceListAccessControlDto[keyof typeof PlaceListAccessControlDto];
+
+
+/**
  * 저장 리스트 정보
  * @export
  * @interface PlaceListDto
@@ -4427,6 +4455,12 @@ export interface PlaceListDto {
      * @memberof PlaceListDto
      */
     'isSaved': boolean;
+    /**
+     * 
+     * @type {PlaceListAccessControlDto}
+     * @memberof PlaceListDto
+     */
+    'accessControl': PlaceListAccessControlDto;
     /**
      * 
      * @type {EpochMillisTimestamp}
@@ -4741,6 +4775,49 @@ export interface PlaceUpvoteInfoDto {
      * @memberof PlaceUpvoteInfoDto
      */
     'totalUpvoteCount': number;
+}
+/**
+ * 공개 저장 리스트 목록 항목
+ * @export
+ * @interface PublicPlaceListDto
+ */
+export interface PublicPlaceListDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PublicPlaceListDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PublicPlaceListDto
+     */
+    'name': string;
+    /**
+     * 리스트에 포함된 장소 수
+     * @type {number}
+     * @memberof PublicPlaceListDto
+     */
+    'placeCount': number;
+    /**
+     * 아이콘 배경색 (hex, e.g. \"#FFC01E\"). null이면 기본색 사용.
+     * @type {string}
+     * @memberof PublicPlaceListDto
+     */
+    'iconColor'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PublicPlaceListDto
+     */
+    'thumbnailUrl'?: string | null;
+    /**
+     * 
+     * @type {PlaceListAccessControlDto}
+     * @memberof PublicPlaceListDto
+     */
+    'accessControl': PlaceListAccessControlDto;
 }
 /**
  * 
@@ -8755,6 +8832,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Google Drive 파일 공유 모델과 유사한 접근 제어를 따른다. - `PUBLIC` 리스트는 모든 사용자(익명 포함)에게 노출된다. - `LINK_ONLY` 리스트는 NUX 튜토리얼의 모든 메인 미션을 완료한 식별 사용자에게만 노출된다. - `PRIVATE` 리스트는 노출되지 않는다. 
+         * @summary 공개된 PlaceList 목록을 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPublicPlaceLists: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/listPublicPlaceLists`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 내가 작성한 내부 공간 리뷰를 페이징 해서 가져온다.
          * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
@@ -10863,6 +10974,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * Google Drive 파일 공유 모델과 유사한 접근 제어를 따른다. - `PUBLIC` 리스트는 모든 사용자(익명 포함)에게 노출된다. - `LINK_ONLY` 리스트는 NUX 튜토리얼의 모든 메인 미션을 완료한 식별 사용자에게만 노출된다. - `PRIVATE` 리스트는 노출되지 않는다. 
+         * @summary 공개된 PlaceList 목록을 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listPublicPlaceLists(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListPublicPlaceListsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listPublicPlaceLists(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 내가 작성한 내부 공간 리뷰를 페이징 해서 가져온다.
          * @param {ListRegisteredReviewsRequestDto} listRegisteredReviewsRequestDto 
@@ -11789,6 +11910,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listPlacesInBuildingPost(listPlacesInBuildingPostRequest: ListPlacesInBuildingPostRequest, options?: any): AxiosPromise<ListPlacesInBuildingPost200Response> {
             return localVarFp.listPlacesInBuildingPost(listPlacesInBuildingPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Google Drive 파일 공유 모델과 유사한 접근 제어를 따른다. - `PUBLIC` 리스트는 모든 사용자(익명 포함)에게 노출된다. - `LINK_ONLY` 리스트는 NUX 튜토리얼의 모든 메인 미션을 완료한 식별 사용자에게만 노출된다. - `PRIVATE` 리스트는 노출되지 않는다. 
+         * @summary 공개된 PlaceList 목록을 조회한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPublicPlaceLists(options?: any): AxiosPromise<ListPublicPlaceListsResponseDto> {
+            return localVarFp.listPublicPlaceLists(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12775,6 +12905,17 @@ export class DefaultApi extends BaseAPI {
      */
     public listPlacesInBuildingPost(listPlacesInBuildingPostRequest: ListPlacesInBuildingPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listPlacesInBuildingPost(listPlacesInBuildingPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Google Drive 파일 공유 모델과 유사한 접근 제어를 따른다. - `PUBLIC` 리스트는 모든 사용자(익명 포함)에게 노출된다. - `LINK_ONLY` 리스트는 NUX 튜토리얼의 모든 메인 미션을 완료한 식별 사용자에게만 노출된다. - `PRIVATE` 리스트는 노출되지 않는다. 
+     * @summary 공개된 PlaceList 목록을 조회한다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listPublicPlaceLists(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listPublicPlaceLists(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

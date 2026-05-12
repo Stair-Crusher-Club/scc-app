@@ -1,5 +1,11 @@
 import React from 'react';
 import {Image, Modal, View} from 'react-native';
+import Svg, {
+  Defs,
+  LinearGradient as SvgLinearGradient,
+  Stop,
+  Text as SvgText,
+} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -22,8 +28,8 @@ interface HiddenMissionCollectedBottomSheetProps {
  *  - 부제 "이제,\n새로운 곳으로 떠나봐요!" — Pretendard Medium 20/28, white, ls -0.4
  *  - "확인" 버튼 140x56, brand40, 8px radius, Pretendard SemiBold 18/26 white
  *
- * (RN은 background-clip: text 그라디언트를 직접 지원하지 않으므로 단색 white로 폴백,
- *  그림자로 강조한다. 추후 SVG text + 마스크로 그라디언트 적용 가능.)
+ * 그라디언트는 react-native-svg의 SvgText + LinearGradient fill을 사용한다
+ * (RN은 background-clip: text 그라디언트를 직접 지원하지 않음).
  */
 export default function HiddenMissionCollectedBottomSheet({
   isVisible,
@@ -37,7 +43,7 @@ export default function HiddenMissionCollectedBottomSheet({
       onRequestClose={onClose}>
       <DimRoot>
         <ContentsWrapper>
-          <Title>히든템 수집 완료!</Title>
+          <GradientTitle />
           <ImageWrapper>
             <Image
               source={require('@/assets/img/tutorial/hidden_collected_willy.png')}
@@ -63,6 +69,38 @@ export default function HiddenMissionCollectedBottomSheet({
   );
 }
 
+/**
+ * "히든템 수집 완료!" 그라디언트 텍스트. Figma 1648:40810 그라디언트:
+ *   linear-gradient(111.51deg, #67C4FF 3.72%, #D5F42E 136.44%)
+ */
+function GradientTitle() {
+  return (
+    <Svg width={340} height={64} style={{marginBottom: 20}}>
+      <Defs>
+        <SvgLinearGradient
+          id="hiddenMissionGradient"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="0.3">
+          <Stop offset="0" stopColor="#67C4FF" />
+          <Stop offset="1" stopColor="#D5F42E" />
+        </SvgLinearGradient>
+      </Defs>
+      <SvgText
+        x="170"
+        y="48"
+        textAnchor="middle"
+        fontFamily={font.pretendardExtraBold}
+        fontSize="44"
+        fontWeight="800"
+        fill="url(#hiddenMissionGradient)">
+        히든템 수집 완료!
+      </SvgText>
+    </Svg>
+  );
+}
+
 const DimRoot = styled.View`
   flex: 1;
   background-color: rgba(0, 0, 0, 0.6);
@@ -74,19 +112,6 @@ const DimRoot = styled.View`
 const ContentsWrapper = styled.View`
   align-items: center;
   width: 100%;
-`;
-
-const Title = styled.Text`
-  font-family: ${font.pretendardExtraBold};
-  font-size: 44px;
-  line-height: 56px;
-  letter-spacing: -0.88px;
-  color: #d5f42e;
-  text-align: center;
-  text-shadow-color: rgba(0, 0, 0, 0.25);
-  text-shadow-radius: 7px;
-  text-shadow-offset: 0px 0px;
-  margin-bottom: 20px;
 `;
 
 const ImageWrapper = styled.View`
