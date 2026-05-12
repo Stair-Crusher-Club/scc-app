@@ -6,6 +6,8 @@ import type {FormField} from '@/types/b2bForm';
 import {getInputType, formatPlaceholder} from '@/types/b2bForm';
 import Input from '@/screens/ChallengeDetailScreen/components/ChallengeDetailCompanyModal/Input';
 import FormFieldOptionSelector from '@/components/molecules/FormFieldOptionSelector';
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
 
 interface FormFieldRendererProps {
   field: FormField;
@@ -33,10 +35,18 @@ export default function FormFieldRenderer({
 
   const inputType = getInputType(field);
 
+  const labelNode = (
+    <LabelWrapper>
+      <LabelText>{field.displayName}</LabelText>
+      {field.isRequired && <RequiredMark>{' *'}</RequiredMark>}
+    </LabelWrapper>
+  );
+
   // Text input (주관식)
   if (inputType === 'text') {
     return (
       <FieldContainer>
+        {labelNode}
         <Input
           value={value}
           onChangeText={onChange}
@@ -51,6 +61,7 @@ export default function FormFieldRenderer({
   // Select input (객관식)
   return (
     <FieldContainer>
+      {labelNode}
       <Input
         value={value}
         placeholder={formatPlaceholder(field.displayName)}
@@ -73,4 +84,23 @@ export default function FormFieldRenderer({
   );
 }
 
-const FieldContainer = styled.View``;
+const FieldContainer = styled.View`
+  gap: 8px;
+`;
+
+const LabelWrapper = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const LabelText = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 13px;
+  color: ${color.black};
+`;
+
+const RequiredMark = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 13px;
+  color: ${color.red};
+`;

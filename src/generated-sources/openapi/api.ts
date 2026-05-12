@@ -1038,6 +1038,12 @@ export interface ChallengeB2bFormAvailableFieldDto {
      * @memberof ChallengeB2bFormAvailableFieldDto
      */
     'options'?: Array<string> | null;
+    /**
+     * 필수 입력 여부 (true면 빈 값으로 제출 시 검증 실패)
+     * @type {boolean}
+     * @memberof ChallengeB2bFormAvailableFieldDto
+     */
+    'isRequired': boolean;
 }
 /**
  * 
