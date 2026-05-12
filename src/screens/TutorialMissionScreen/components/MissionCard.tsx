@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
@@ -15,11 +15,24 @@ interface MissionCardProps {
   meta: MissionMeta;
   isCompleted: boolean;
   isDimmed: boolean;
-  /** dim 시 노출할 텍스트 (e.g. "외출템1을 먼저 모아주세요!") */
+  /** dim 시 노출할 텍스트 (e.g. "외출템 1을 모으면, 외출템 2미션이 열려요!") */
   dimText?: string;
   onStart: () => void;
 }
 
+/**
+ * 미션 카드 (358 x 128).
+ * Figma 디자인:
+ *  - bg white, border #e1eac2 1px, radius 16, padding 16, flex-row gap 12
+ *  - item box: 90x96, bg #f4f4f4, radius 12
+ *  - subtitle: Pretendard Medium 15/22 ls -0.3 color #0e64d3 (brand50) + bold suffix
+ *  - title: Pretendard SemiBold 18/26 ls -0.36 color #16181c (gray90v2)
+ *  - button: padding 12/5, radius 41
+ *    - 미션 시작 (활성): bg #0c76f7 (brand40) 텍스트 white
+ *    - 미션 완료 (회색): bg #a0a2ae (gray40v2) 텍스트 white
+ *  - 완료 상태: item 위에 0.8 opacity dim + 큰 체크 아이콘 + 버튼 "미션 완료"
+ *  - 잠김 상태: 카드 전체에 0.5 white overlay + 가운데 "🔒\n외출템 N을 모으면, 외출템 N+1미션이 열려요!" 텍스트
+ */
 export default function MissionCard({
   missionType,
   meta,
@@ -40,10 +53,12 @@ export default function MissionCard({
       </ItemBox>
 
       <CardBody>
-        <Subtitle>
-          {meta.subtitle}
-          <SubtitleBold>{meta.subtitleBoldSuffix}</SubtitleBold>
-        </Subtitle>
+        <SubtitleRow>
+          <Subtitle>
+            {meta.subtitle}
+            <SubtitleBold>{meta.subtitleBoldSuffix}</SubtitleBold>
+          </Subtitle>
+        </SubtitleRow>
         <Title>{meta.title}</Title>
         <StartButton
           elementName="tutorial_mission_start_button"
@@ -59,7 +74,10 @@ export default function MissionCard({
 
       {isDimmed && (
         <DimOverlay>
-          <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
+          <View style={{alignItems: 'center'}}>
+            <DimLockIcon>🔒</DimLockIcon>
+            <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
+          </View>
         </DimOverlay>
       )}
     </CardContainer>
@@ -75,7 +93,6 @@ const CardContainer = styled.View`
   align-items: center;
   gap: 12px;
   padding: 16px;
-  margin-bottom: 8px;
   overflow: hidden;
 `;
 
@@ -107,7 +124,11 @@ const ItemDim = styled.View`
 
 const CardBody = styled.View`
   flex: 1;
-  gap: 8px;
+  gap: 2px;
+`;
+
+const SubtitleRow = styled.View`
+  margin-bottom: 2px;
 `;
 
 const Subtitle = styled.Text`
@@ -115,7 +136,7 @@ const Subtitle = styled.Text`
   font-size: 15px;
   line-height: 22px;
   letter-spacing: -0.3px;
-  color: #0e64d3;
+  color: ${color.brand50};
 `;
 
 const SubtitleBold = styled.Text`
@@ -123,7 +144,7 @@ const SubtitleBold = styled.Text`
   font-size: 15px;
   line-height: 22px;
   letter-spacing: -0.3px;
-  color: #0e64d3;
+  color: ${color.brand50};
 `;
 
 const Title = styled.Text`
@@ -131,11 +152,11 @@ const Title = styled.Text`
   font-size: 18px;
   line-height: 26px;
   letter-spacing: -0.36px;
-  color: #16181c;
+  color: ${color.gray90v2};
 `;
 
 const StartButton = styled(SccPressable)<{completed: boolean}>`
-  margin-top: 6px;
+  margin-top: 12px;
   align-self: flex-start;
   background-color: ${({completed}) =>
     completed ? color.gray40v2 : color.brand40};
@@ -162,10 +183,19 @@ const DimOverlay = styled.View`
   justify-content: center;
 `;
 
+const DimLockIcon = styled.Text`
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.36px;
+  color: ${color.black};
+  text-align: center;
+`;
+
 const DimText = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 18px;
   line-height: 26px;
   letter-spacing: -0.36px;
   color: ${color.black};
+  text-align: center;
 `;

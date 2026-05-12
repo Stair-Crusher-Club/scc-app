@@ -6352,7 +6352,7 @@ export interface ToiletReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 종류. HIDDEN_APP_SURVEY가 히든 미션(앱 사용 후기 설문)이며, 나머지 4개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 5개를 모두 포함한다. 
+ * 윌리의 외출 NUX 튜토리얼 미션 종류. HIDDEN_APP_SURVEY가 히든 미션(앱 사용 후기 설문)이며, 나머지 3개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 4개를 모두 포함한다. 
  * @export
  * @enum {string}
  */
@@ -6361,7 +6361,6 @@ export const TutorialMissionTypeDto = {
     RegisterInterestedRegionsAndThemes: 'REGISTER_INTERESTED_REGIONS_AND_THEMES',
     SavePlaceList: 'SAVE_PLACE_LIST',
     UpvoteAccessibility: 'UPVOTE_ACCESSIBILITY',
-    WritePlaceReview: 'WRITE_PLACE_REVIEW',
     HiddenAppSurvey: 'HIDDEN_APP_SURVEY'
 } as const;
 
@@ -6740,13 +6739,13 @@ export interface UserTutorialMissionDtoCompletedAt {
     'value': number;
 }
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 진행 상태. missions 배열은 TutorialMissionTypeDto 선언 순서대로 5개 (4 main + 1 hidden) 포함된다. 
+ * 윌리의 외출 NUX 튜토리얼 미션 진행 상태. missions 배열은 TutorialMissionTypeDto 선언 순서대로 4개 (3 main + 1 hidden) 포함된다. 
  * @export
  * @interface UserTutorialProgressDto
  */
 export interface UserTutorialProgressDto {
     /**
-     * TutorialMissionTypeDto 선언 순서대로 5개 (4 main + 1 hidden) 미션의 진행 상태
+     * TutorialMissionTypeDto 선언 순서대로 4개 (3 main + 1 hidden) 미션의 진행 상태
      * @type {Array<UserTutorialMissionDto>}
      * @memberof UserTutorialProgressDto
      */

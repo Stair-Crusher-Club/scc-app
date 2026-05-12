@@ -31,7 +31,6 @@ import ToastUtils from '@/utils/ToastUtils';
 import HiddenMissionCollectedBottomSheet from './components/HiddenMissionCollectedBottomSheet';
 import MissionCard from './components/MissionCard';
 import MissionHero from './components/MissionHero';
-import MissionItemCollectedBottomSheet from './components/MissionItemCollectedBottomSheet';
 import {MAIN_MISSION_TYPES, TUTORIAL_MISSION_META} from './constants';
 
 /**
@@ -55,9 +54,6 @@ export default function TutorialMissionScreen({
   const {data: progress, refetch} = useUserTutorialProgress();
   const completeHiddenMission = useCompleteUserTutorialHiddenMission();
   const [showHiddenCollected, setShowHiddenCollected] = useState(false);
-  // 새로 완료된 main 미션의 외출템 수집 팝업을 위한 type
-  const [newlyCompletedMissionType, setNewlyCompletedMissionType] =
-    useState<TutorialMissionTypeDto | null>(null);
 
   // 화면 포커스 시 progress 재조회 (다른 화면에서 작업하고 돌아왔을 때 미션 상태 반영)
   useFocusEffect(
@@ -73,7 +69,7 @@ export default function TutorialMissionScreen({
     return map;
   }, [progress]);
 
-  // 외출템 N개 수집 단계 (0..4)
+  // 외출템 N개 수집 단계 (0..3)
   const collectedMainCount = useMemo(() => {
     return MAIN_MISSION_TYPES.filter(type =>
       isMissionCompleted(missionByType.get(type)),
@@ -84,32 +80,6 @@ export default function TutorialMissionScreen({
   const isHiddenCompleted = isMissionCompleted(
     missionByType.get(TutorialMissionTypeDto.HiddenAppSurvey),
   );
-
-  // progress diff 감지: 이전에 미완료였다가 새로 완료된 main 미션이 있으면 팝업 노출
-  const prevCompletedRef = useRef<Set<TutorialMissionTypeDto> | null>(null);
-  useEffect(() => {
-    if (!progress) {
-      return;
-    }
-    const currentCompleted = new Set<TutorialMissionTypeDto>();
-    progress.missions.forEach(m => {
-      if (isMissionCompleted(m)) {
-        currentCompleted.add(m.missionType);
-      }
-    });
-
-    if (prevCompletedRef.current !== null) {
-      const prev = prevCompletedRef.current;
-      // 메인 미션 중 새로 완료된 것을 첫 번째 발견 시점에 노출
-      for (const type of MAIN_MISSION_TYPES) {
-        if (currentCompleted.has(type) && !prev.has(type)) {
-          setNewlyCompletedMissionType(type);
-          break;
-        }
-      }
-    }
-    prevCompletedRef.current = currentCompleted;
-  }, [progress]);
 
   /**
    * 히든 미션 완료 시도 (서버가 tally API 직접 검증).
@@ -226,6 +196,19 @@ export default function TutorialMissionScreen({
     });
   }, [checkAuth, tryCompleteHiddenMission]);
 
+  /**
+   * 히든 맛집 리스트 CTA 클릭 — 모든 메인 미션 완료 후 활성화.
+   * 공개 저장리스트 화면으로 이동 (히든 리스트 노출 위함).
+   */
+  const handleHiddenListPress = useCallback(() => {
+    if (!allMainCompleted) {
+      return;
+    }
+    checkAuth(() => {
+      navigation.navigate('PublicPlaceLists', {fromTutorial: true});
+    });
+  }, [allMainCompleted, checkAuth, navigation]);
+
   // main 미션이 모두 완료되었지만 hidden은 미완료인 경우 CTA를 항상 노출
   // (AppState 감지를 못 잡았을 때 사용자가 명시적으로 retry할 수 있도록)
   const showHiddenCompleteCta = allMainCompleted && !isHiddenCompleted;
@@ -242,41 +225,46 @@ export default function TutorialMissionScreen({
               hiddenActive={allMainCompleted}
               hiddenCompleted={isHiddenCompleted}
               onHiddenPress={handleHiddenMissionPress}
+              onHiddenListPress={handleHiddenListPress}
               imageWidth={SCREEN_WIDTH}
             />
 
             {/* 미션 카드 영역 */}
             <ContentArea>
               <SectionTitle>
-                {`4개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
+                {`3개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
               </SectionTitle>
 
-              {MAIN_MISSION_TYPES.map((missionType, index) => {
-                const mission = missionByType.get(missionType);
-                const meta = TUTORIAL_MISSION_META[missionType];
-                const isCompleted = isMissionCompleted(mission);
-                // 이전 미션이 모두 완료되었을 때만 활성
-                const previousMissions = MAIN_MISSION_TYPES.slice(0, index);
-                const isPreviousCompleted = previousMissions.every(prev =>
-                  isMissionCompleted(missionByType.get(prev)),
-                );
-                const isDimmed = !isPreviousCompleted && !isCompleted;
-                return (
-                  <MissionCard
-                    key={missionType}
-                    missionType={missionType}
-                    meta={meta}
-                    isCompleted={isCompleted}
-                    isDimmed={isDimmed}
-                    dimText={
-                      index > 0
-                        ? `외출템${index}을 먼저 모아주세요!`
-                        : undefined
-                    }
-                    onStart={() => handleStartMission(missionType)}
-                  />
-                );
-              })}
+              <CardsWrapper>
+                {MAIN_MISSION_TYPES.map((missionType, index) => {
+                  const mission = missionByType.get(missionType);
+                  const meta = TUTORIAL_MISSION_META[missionType];
+                  const isCompleted = isMissionCompleted(mission);
+                  // 이전 미션이 모두 완료되었을 때만 활성
+                  const previousMissions = MAIN_MISSION_TYPES.slice(0, index);
+                  const isPreviousCompleted = previousMissions.every(prev =>
+                    isMissionCompleted(missionByType.get(prev)),
+                  );
+                  const isDimmed = !isPreviousCompleted && !isCompleted;
+                  return (
+                    <MissionCard
+                      key={missionType}
+                      missionType={missionType}
+                      meta={meta}
+                      isCompleted={isCompleted}
+                      isDimmed={isDimmed}
+                      dimText={
+                        index > 0
+                          ? `외출템 ${index}을 모으면, 외출템 ${
+                              index + 1
+                            }미션이 열려요!`
+                          : undefined
+                      }
+                      onStart={() => handleStartMission(missionType)}
+                    />
+                  );
+                })}
+              </CardsWrapper>
 
               {showHiddenCompleteCta && (
                 <HiddenCompleteCtaWrapper>
@@ -297,14 +285,6 @@ export default function TutorialMissionScreen({
               <View style={{height: 40}} />
             </ContentArea>
           </ScrollView>
-
-          {newlyCompletedMissionType !== null && (
-            <MissionItemCollectedBottomSheet
-              isVisible={true}
-              missionType={newlyCompletedMissionType}
-              onClose={() => setNewlyCompletedMissionType(null)}
-            />
-          )}
 
           {showHiddenCollected && (
             <HiddenMissionCollectedBottomSheet
@@ -335,7 +315,11 @@ const SectionTitle = styled.Text`
   letter-spacing: -0.4px;
   color: ${color.black};
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+`;
+
+const CardsWrapper = styled.View`
+  gap: 8px;
 `;
 
 const HiddenCompleteCtaWrapper = styled.View`

@@ -1,5 +1,12 @@
 import React from 'react';
-import {View} from 'react-native';
+import {Image} from 'react-native';
+import Svg, {
+  Defs,
+  LinearGradient as SvgLinearGradient,
+  Polygon,
+  Rect,
+  Stop,
+} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -7,14 +14,16 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
 interface MissionHeroProps {
-  /** 외출템 수집 단계 (0..4). 4면 모든 main 미션 완료 상태 */
+  /** 외출템 수집 단계 (0..3). 3이면 모든 main 미션 완료 상태 */
   stage: number;
   /** 모든 메인 미션 완료 시 히든 hot zone 활성화 여부 */
   hiddenActive: boolean;
   /** 히든 미션 완료 여부. 완료 시 hot zone CTA 비활성 */
   hiddenCompleted: boolean;
-  /** 히든 hot zone (모자/CTA) 클릭 핸들러 */
+  /** 히든 hot zone (모자) 클릭 핸들러 */
   onHiddenPress: () => void;
+  /** "계뿌클 히든 맛집 리스트 보기!" CTA 버튼 클릭 핸들러 */
+  onHiddenListPress: () => void;
   /** 이미지 폭 (보통 screen width) */
   imageWidth: number;
 }
@@ -22,59 +31,324 @@ interface MissionHeroProps {
 /**
  * 윌리의 외출 NUX 튜토리얼 미션 화면 상단 hero.
  *
- * Figma 디자인은 통짜 5단계 이미지 + 하단 "히든 맛집 리스트 받기" 버튼 형태이지만,
- * 1차 구현에서는 디자이너의 3x PNG export 없이도 동작하도록 단순화한 layout 사용.
- * - 배경: 푸른 하늘 → 풀밭 그라데이션
- * - 중앙: "윌리의 외출을 함께해주세요!" 타이틀
- * - 진행 텍스트: 수집한 외출템 개수 / 4
- * - 하단 CTA: 모든 미션 완료 시 활성화되는 히든 맛집 리스트 받기 버튼
+ * Figma 디자인 (390x575 영역):
+ *  - 배경: 하늘 #c0dbf8 → #6daff9 그라데이션 + 잔디밭 윌리 일러스트 (hero_base.png)
+ *  - 가운데: HeroTitle 텍스트 vector (hero_title_empty.png / hero_title_full.png)
+ *  - 부제: "미션을 성공해서 윌리의 외출템을 모아보세요!\n전부 모으면 계뿌클 히든 맛집 리스트도 공개됩니다"
+ *  - 말풍선: 진행 상태별 다른 텍스트
+ *  - mission_item layer: 외출템 4개가 단계별로 그려진 합성 PNG
+ *    - mission_items_stage0..3.png — main 미션 0/1/2/3개 완료 시
+ *    - mission_items_hidden.png — 모든 main + 모자 click! 표시
+ *  - CTA Button: 계뿌클 히든 맛집 리스트 보기!
  *
- * 향후 디자이너 export 받으면 hero_stage_0..4.png를 통째로 교체할 수 있도록
- * `imageWidth`만큼 폭을 차지하는 컨테이너 구조 유지.
+ * 외출템 hot zone (히든 미션)은 모자 영역의 absolute 좌표에 SccPressable 오버레이.
  */
+
+// Figma 기준 디자인 사이즈
+const DESIGN_WIDTH = 390;
+const DESIGN_HEIGHT = 575;
+
+// 잔디밭 윌리 일러스트가 차지하는 영역 (Figma: y=94..669, 575 height)
+// hero_base.png는 잔디 전체를 담은 일러스트
+const HERO_BASE = {
+  // Figma에서 잔디밭 노드는 화면 전체를 덮음 (390x575)
+  width: DESIGN_WIDTH,
+  height: DESIGN_HEIGHT,
+};
+
+// HeroTitle vector text 위치/크기 (Figma 정밀값)
+// empty: 1648:36352 (265.08 x 97.35) at y=146 (Frame y=146)
+// full ("함께해주세요!"): 1561:16790 (236.75 x 96.48) at y=146
+// 둘 다 Frame 1618873117 (305 x ~163)에 들어가며, vector 자체는 Frame의 위쪽에 위치.
+const HERO_TITLE = {
+  topInFrame: 146,
+  emptyWidth: 265.08,
+  emptyHeight: 97.35,
+  fullWidth: 236.75,
+  fullHeight: 96.48,
+};
+
+// 말풍선 위치 (Figma 정밀값)
+// empty: bubble at x=141 y=335.5, 193.84 x 38, polygon tail at x=242.5 y=388
+// item 2: x=129, y=335.5, 221 x 38
+// item 3: x=116, y=336, 238 x 38
+// item-clear: x=159, y=335.5, 149 x 38
+// reward_activate: x=143, y=318.79, 184.99 x 38
+const BUBBLE_TAIL_TOP_OFFSET = 38;
+
+// mission_item frame (Figma: x=24, y=371.29, 314.69 x 161)
+const MISSION_ITEM_FRAME = {
+  left: 24,
+  top: 371.29,
+  width: 314.69,
+  height: 161,
+};
+
+// item_hidden (모자) hot zone 좌표 within mission_item frame
+const HAT_HOT_ZONE = {
+  left: 120.14, // 144.14 - 24
+  top: 9.34, // 380.63 - 371.29
+  width: 92.06,
+  height: 57.79,
+};
+
+// CTA Button (Figma: x=40, y=581, 310 x 48)
+const CTA_BUTTON = {
+  left: 40,
+  top: 581,
+  width: 310,
+  height: 48,
+};
+
+interface BubbleSpec {
+  text: string;
+  /** Figma 기준 bubble container x (rounded-rectangle left edge) */
+  left: number;
+  /** bubble top y (Figma 절대 좌표) */
+  top: number;
+  /** bubble width (rounded-rectangle) */
+  width: number;
+}
+
+function getBubble(
+  stage: number,
+  hiddenActive: boolean,
+  hiddenCompleted: boolean,
+): BubbleSpec {
+  if (hiddenCompleted) {
+    return {
+      text: '외출 준비 완료!',
+      left: 130,
+      top: 335.5,
+      width: 220,
+    };
+  }
+  if (hiddenActive) {
+    // reward_activate
+    return {
+      text: '숨겨진 외출템도 모아볼까?',
+      left: 143,
+      top: 318.79,
+      width: 184.99,
+    };
+  }
+  switch (stage) {
+    case 0:
+      return {
+        text: '나? 윌리!! 외출템이 필요해!',
+        left: 141,
+        top: 335.5,
+        width: 193.84,
+      };
+    case 1:
+      return {
+        text: '계단 정보가 있는 지도가 필요해!',
+        left: 129,
+        top: 335.5,
+        width: 221,
+      };
+    case 2:
+      return {
+        text: '상세정보는 어떻게 확인하는거지?!',
+        left: 116,
+        top: 336,
+        width: 238,
+      };
+    default:
+      // 메인 3개 완료 + 히든 미완료/완료가 아닌 fallback (사용되지 않음)
+      return {
+        text: '외출템을 다 모았어!!',
+        left: 159,
+        top: 335.5,
+        width: 149.07,
+      };
+  }
+}
+
+function getMissionItemsAsset(stage: number, hiddenActive: boolean): number {
+  if (hiddenActive) {
+    return require('@/assets/img/tutorial/mission_items_hidden.png');
+  }
+  switch (stage) {
+    case 0:
+      return require('@/assets/img/tutorial/mission_items_stage0.png');
+    case 1:
+      return require('@/assets/img/tutorial/mission_items_stage1.png');
+    case 2:
+      return require('@/assets/img/tutorial/mission_items_stage2.png');
+    default:
+      return require('@/assets/img/tutorial/mission_items_stage3.png');
+  }
+}
+
 export default function MissionHero({
   stage,
   hiddenActive,
   hiddenCompleted,
   onHiddenPress,
+  onHiddenListPress,
   imageWidth,
 }: MissionHeroProps) {
-  const heroHeight = Math.round((imageWidth * 575) / 390);
+  // Figma 비례를 유지하며 화면 폭에 맞춰 스케일
+  const scale = imageWidth / DESIGN_WIDTH;
+  const heroHeight = DESIGN_HEIGHT * scale;
+  const px = (val: number) => val * scale;
+
+  const isInitial = stage === 0 && !hiddenActive && !hiddenCompleted;
+  const heroTitleSource = isInitial
+    ? require('@/assets/img/tutorial/hero_title_empty.png')
+    : require('@/assets/img/tutorial/hero_title_full.png');
+  const heroTitleWidth = isInitial
+    ? HERO_TITLE.emptyWidth
+    : HERO_TITLE.fullWidth;
+  const heroTitleHeight = isInitial
+    ? HERO_TITLE.emptyHeight
+    : HERO_TITLE.fullHeight;
+
+  const bubble = getBubble(stage, hiddenActive, hiddenCompleted);
+  const missionItemsAsset = getMissionItemsAsset(stage, hiddenActive);
+
+  // CTA 버튼: 모든 main 완료 시 활성
+  const ctaActivated = hiddenActive;
 
   return (
     <HeroContainer style={{width: imageWidth, height: heroHeight}}>
-      <SkyBackground />
-      <GrassBackground />
+      {/* 하늘 그라데이션 (Figma: 33% 위치까지 #c0dbf8, 이후 #6daff9) */}
+      <Svg
+        width={imageWidth}
+        height={heroHeight}
+        style={{position: 'absolute', top: 0, left: 0}}>
+        <Defs>
+          <SvgLinearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0.33" stopColor="#C0DBF8" stopOpacity="1" />
+            <Stop offset="1" stopColor="#6DAFF9" stopOpacity="1" />
+          </SvgLinearGradient>
+        </Defs>
+        <Rect
+          x="0"
+          y="0"
+          width={imageWidth}
+          height={heroHeight}
+          fill="url(#skyGrad)"
+        />
+      </Svg>
 
-      <HeroInner>
-        <HeroTitle>{'윌리의 외출을\n함께해주세요!'}</HeroTitle>
-        <HeroSubtitle>
-          {`미션을 성공해서 윌리의 외출템을 모아보세요!\n전부 모으면 계뿌클 히든 맛집 리스트도 공개됩니다`}
-        </HeroSubtitle>
+      {/* 잔디밭 + 윌리 base 일러스트 */}
+      <Image
+        source={require('@/assets/img/tutorial/hero_base.png')}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: px(HERO_BASE.width),
+          height: px(HERO_BASE.height),
+        }}
+        resizeMode="cover"
+      />
 
-        <BubbleContainer>
-          <BubbleText>나? 윌리!! 외출템이 필요해!</BubbleText>
-        </BubbleContainer>
+      {/* HeroTitle vector */}
+      <Image
+        source={heroTitleSource}
+        style={{
+          position: 'absolute',
+          top: px(HERO_TITLE.topInFrame),
+          left: (imageWidth - px(heroTitleWidth)) / 2,
+          width: px(heroTitleWidth),
+          height: px(heroTitleHeight),
+        }}
+        resizeMode="contain"
+      />
 
-        <ProgressIndicator>
-          <ProgressLabel>외출템 수집</ProgressLabel>
-          <ProgressValue>{stage}/4</ProgressValue>
-        </ProgressIndicator>
+      {/* HeroSubtitle */}
+      <HeroSubtitle
+        style={{
+          position: 'absolute',
+          top: px(HERO_TITLE.topInFrame + heroTitleHeight + 12),
+          left: 0,
+          right: 0,
+          fontSize: px(16),
+          lineHeight: px(27),
+        }}>
+        {`미션을 성공해서 윌리의 외출템을 모아보세요!\n전부 모으면 계뿌클 히든 맛집 리스트도 공개됩니다`}
+      </HeroSubtitle>
 
-        <View style={{flex: 1}} />
+      {/* 말풍선 */}
+      <BubbleRect
+        style={{
+          position: 'absolute',
+          top: px(bubble.top),
+          left: px(bubble.left),
+          width: px(bubble.width),
+          height: px(38),
+          borderRadius: px(52),
+          paddingHorizontal: px(14),
+          paddingVertical: px(6),
+        }}>
+        <BubbleText style={{fontSize: px(18), lineHeight: px(27)}}>
+          {bubble.text}
+        </BubbleText>
+      </BubbleRect>
+      {/* 말풍선 tail (좌하단) */}
+      <Svg
+        width={px(19.5)}
+        height={px(14.5)}
+        style={{
+          position: 'absolute',
+          left: px(bubble.left + 23),
+          top: px(bubble.top + BUBBLE_TAIL_TOP_OFFSET),
+        }}>
+        <Polygon points={`0,0 ${px(19.5)},0 0,${px(14.5)}`} fill="#F1F1F1" />
+      </Svg>
 
-        <HiddenCtaButton
-          elementName="tutorial_mission_hidden_cta"
+      {/* mission_item layer (외출템 합성 PNG) */}
+      <Image
+        source={missionItemsAsset}
+        style={{
+          position: 'absolute',
+          left: px(MISSION_ITEM_FRAME.left),
+          top: px(MISSION_ITEM_FRAME.top),
+          width: px(MISSION_ITEM_FRAME.width),
+          height: px(MISSION_ITEM_FRAME.height),
+        }}
+        resizeMode="contain"
+      />
+
+      {/* 모자 hot zone (히든 미션 시작 트리거) */}
+      {hiddenActive && !hiddenCompleted && (
+        <HatHotZone
+          elementName="tutorial_mission_hat_hot_zone"
           onPress={onHiddenPress}
-          disabled={!hiddenActive || hiddenCompleted}
-          activated={hiddenActive && !hiddenCompleted}>
-          <HiddenCtaText activated={hiddenActive && !hiddenCompleted}>
-            {hiddenCompleted
-              ? '히든 맛집 리스트 받기 완료!'
-              : '계뿌클 히든 맛집 리스트 받기!'}
-          </HiddenCtaText>
-        </HiddenCtaButton>
-      </HeroInner>
+          style={{
+            position: 'absolute',
+            left: px(MISSION_ITEM_FRAME.left + HAT_HOT_ZONE.left),
+            top: px(MISSION_ITEM_FRAME.top + HAT_HOT_ZONE.top),
+            width: px(HAT_HOT_ZONE.width),
+            height: px(HAT_HOT_ZONE.height),
+          }}
+        />
+      )}
+
+      {/* "계뿌클 히든 맛집 리스트 보기!" CTA */}
+      <HiddenListCtaButton
+        elementName="tutorial_mission_hidden_list_cta"
+        onPress={ctaActivated ? onHiddenListPress : undefined}
+        disabled={!ctaActivated}
+        style={{
+          position: 'absolute',
+          left: px(CTA_BUTTON.left),
+          top: px(CTA_BUTTON.top),
+          width: px(CTA_BUTTON.width),
+          height: px(CTA_BUTTON.height),
+          borderRadius: px(8),
+          borderWidth: 1.5,
+        }}
+        activated={ctaActivated}>
+        <HiddenListCtaText
+          style={{fontSize: px(18), lineHeight: px(26)}}
+          activated={ctaActivated}>
+          계뿌클 히든 맛집 리스트 보기!
+        </HiddenListCtaText>
+      </HiddenListCtaButton>
     </HeroContainer>
   );
 }
@@ -84,106 +358,42 @@ const HeroContainer = styled.View`
   overflow: hidden;
 `;
 
-const SkyBackground = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #c0dbf8;
-`;
-
-const GrassBackground = styled.View`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background-color: #8bc04a;
-`;
-
-const HeroInner = styled.View`
-  flex: 1;
-  align-items: center;
-  padding: 56px 24px 24px;
-`;
-
-const HeroTitle = styled.Text`
-  font-family: ${font.gumiRomance};
-  font-size: 36px;
-  line-height: 44px;
-  letter-spacing: -0.72px;
-  color: ${color.white};
-  text-align: center;
-  text-shadow: 0 0 4px #0d5ab2;
-`;
-
 const HeroSubtitle = styled.Text`
-  margin-top: 12px;
   font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.white};
   text-align: center;
+  text-shadow-color: #0d5ab2;
+  text-shadow-radius: 4px;
+  text-shadow-offset: 0px 0px;
 `;
 
-const BubbleContainer = styled.View`
-  margin-top: 16px;
+const BubbleRect = styled.View`
   background-color: ${color.white};
-  border-radius: 20px;
-  padding: 6px 14px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
 const BubbleText = styled.Text`
   font-family: ${font.pretendardSemibold};
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: -0.28px;
+  letter-spacing: -0.36px;
   color: ${color.black};
+  text-align: center;
 `;
 
-const ProgressIndicator = styled.View`
-  margin-top: 24px;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  background-color: ${color.blacka30};
-  padding: 8px 16px;
-  border-radius: 20px;
-`;
+const HatHotZone = styled(SccPressable)``;
 
-const ProgressLabel = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 13px;
-  line-height: 18px;
-  color: ${color.white};
-`;
-
-const ProgressValue = styled.Text`
-  font-family: ${font.pretendardBold};
-  font-size: 16px;
-  line-height: 22px;
-  color: ${color.white};
-`;
-
-const HiddenCtaButton = styled(SccPressable)<{activated: boolean}>`
-  margin-top: 16px;
-  width: 310px;
-  height: 48px;
+const HiddenListCtaButton = styled(SccPressable)<{activated: boolean}>`
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border-width: 1.5px;
   border-color: ${color.white};
   background-color: ${({activated}) =>
-    activated ? color.brand40 : color.gray40};
+    activated ? color.brand40 : color.gray40v2};
 `;
 
-const HiddenCtaText = styled.Text<{activated: boolean}>`
+const HiddenListCtaText = styled.Text<{activated: boolean}>`
   font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
   letter-spacing: -0.36px;
-  color: ${({activated}) => (activated ? color.white : '#E3E4E8')};
+  color: ${({activated}) => (activated ? color.white : color.gray20v2)};
 `;
