@@ -1,8 +1,9 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {AxiosError} from 'axios';
 import {useAtomValue} from 'jotai';
+import {useEffect} from 'react';
 
-import {isAnonymousUserAtom} from '@/atoms/Auth';
+import {accessTokenAtom, isAnonymousUserAtom} from '@/atoms/Auth';
 import {
   RegisterUserInterestedRegionsAndThemesRequestDto,
   UserTutorialProgressDto,
@@ -16,6 +17,15 @@ export const USER_TUTORIAL_PROGRESS_QUERY_KEY = ['UserTutorialProgress'];
 export function useUserTutorialProgress() {
   const {api} = useAppComponents();
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
+  const accessToken = useAtomValue(accessTokenAtom);
+  const queryClient = useQueryClient();
+
+  // 로그인 / 로그아웃 시 cache invalidate.
+  // accessToken atom이 바뀌면 (로그인 / 로그아웃) tutorial progress도 무효화하여
+  // 새 사용자의 진행 상태가 다시 fetch되도록 한다.
+  useEffect(() => {
+    queryClient.invalidateQueries({queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY});
+  }, [accessToken, queryClient]);
 
   return useQuery<UserTutorialProgressDto>({
     queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,

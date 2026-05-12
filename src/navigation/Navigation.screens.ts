@@ -298,7 +298,7 @@ export const MainNavigationScreens: {
     component: InterestedRegionAndThemesFormScreen,
     options: {
       headerShown: true,
-      headerTitle: '관심지역, 관심테마',
+      headerTitle: '',
     },
   },
   {
@@ -306,7 +306,8 @@ export const MainNavigationScreens: {
     component: PublicPlaceListsScreen,
     options: {
       headerShown: true,
-      headerTitle: '공개 저장 리스트',
+      headerTitle: '저장리스트 모음',
+      variant: 'close',
     },
   },
   {

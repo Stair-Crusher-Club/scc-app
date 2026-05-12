@@ -1,10 +1,9 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useLayoutEffect} from 'react';
 import styled from 'styled-components/native';
 
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
-import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
@@ -12,29 +11,30 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceListDto, PlaceListTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
-import {useSavePlaceList} from '@/hooks/useSavePlaceList';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
-import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
-import {useCheckAuth} from '@/utils/checkAuth';
 
-import MissionItemCollectedBottomSheet from './components/MissionItemCollectedBottomSheet';
-
-const ESTIMATED_ITEM_HEIGHT = 80;
+const ESTIMATED_ITEM_HEIGHT = 72;
 
 export interface PublicPlaceListsScreenParams {
-  /** 튜토리얼 미션 컨텍스트로 진입한 경우 true. 저장 성공 시 외출템 수집 팝업을 노출. */
+  /**
+   * 튜토리얼 미션 컨텍스트로 진입한 경우 true.
+   * (현재 디자인에서는 별도 동작 없음. 추후 미션 완료 트래킹 등에 사용 가능.)
+   */
   fromTutorial?: boolean;
 }
 
 /**
- * 공개 저장 리스트 목록을 조회 및 저장(좋아요)할 수 있는 화면.
- * 미션 2 ("관심있는 저장리스트 저장하기")의 수행 화면.
+ * 저장리스트 모음 화면. 공개된 저장 리스트 목록을 조회한다.
  *
- * 현재 scc-api에는 "공개 리스트 목록" 전용 endpoint가 없으므로 listSavedPlaceLists를
- * 재사용. (서버가 MY_PLACES와 NORMAL 타입 리스트를 함께 반환)
+ * 디자인: Figma 1427:9091 (save list_list)
+ * - 화면 헤더: "저장리스트 모음"
+ * - 우측 상단 X 버튼 (variant: 'close')
+ * - row 클릭 → 해당 저장리스트 상세 화면 (MyPlaces 타입은 FavoritePlaces로)
+ *
+ * 데이터 소스: listSavedPlaceLists. 서버가 MY_PLACES + NORMAL 리스트를 반환.
+ * 히든 리스트 필터링은 서버에서 처리한다 (앱은 응답 그대로 노출).
  */
 export default function PublicPlaceListsScreen({
   route,
@@ -42,32 +42,14 @@ export default function PublicPlaceListsScreen({
 }: ScreenProps<'PublicPlaceLists'>) {
   const fromTutorial = route.params?.fromTutorial ?? false;
   const {api} = useAppComponents();
-  const checkAuth = useCheckAuth();
-  const [showCollected, setShowCollected] = useState(false);
-  // 저장 액션이 한 번이라도 발생했는지 추적 (form dirty 판단용).
-  // useState로 관리해야 useFormExitConfirm의 enabled에 변경이 전파된다 (ref는 re-render
-  // 를 트리거 안 함 → enabled가 영원히 초기값으로 고정됨).
-  const [hasSavedAny, setHasSavedAny] = useState(false);
 
-  // 튜토리얼 컨텍스트에서 새로 저장이 성공하면 외출템 수집 팝업을 즉시 set.
-  // useEffect로 placeLists 변화를 watch하는 방식은 save → back 빠른 입력 시 unmount
-  // 전에 placeLists가 반영되지 않으면 누락되므로, mutation 완료 직후 동기적으로 트리거.
-  const toggleSave = useSavePlaceList({
-    onSuccess: variables => {
-      if (fromTutorial && !variables.isSaved) {
-        // !isSaved → 방금 새로 저장됨
-        setShowCollected(true);
-      }
-    },
-  });
-
-  // form dirty 시(저장 액션이 한 번 이상 발생했을 때만) 뒤로 가기 확인 modal trigger
-  const formExitConfirm = useFormExitConfirm(
-    action => {
-      navigation.dispatch(action);
-    },
-    {enabled: hasSavedAny},
-  );
+  // 튜토리얼 컨텍스트(Figma 1648-38721)에서는 헤더 타이틀 없이 뒤로가기/닫기만 노출.
+  // 일반/프로필 컨텍스트(Figma 1648-39054)에서는 "저장리스트 모음" 타이틀 노출.
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: fromTutorial ? '' : '저장리스트 모음',
+    });
+  }, [fromTutorial, navigation]);
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
     useInfiniteQuery({
@@ -85,18 +67,6 @@ export default function PublicPlaceListsScreen({
 
   const placeLists = data?.pages.flatMap(page => page.items ?? []) ?? [];
 
-  const handleToggleSave = useCallback(
-    (item: PlaceListDto) => {
-      checkAuth(() => {
-        if (!item.isSaved) {
-          setHasSavedAny(true);
-        }
-        toggleSave({isSaved: item.isSaved, placeListId: item.id});
-      });
-    },
-    [checkAuth, toggleSave],
-  );
-
   const handleItemPress = useCallback(
     (item: PlaceListDto) => {
       if (item.type === PlaceListTypeDto.MyPlaces) {
@@ -107,11 +77,6 @@ export default function PublicPlaceListsScreen({
     },
     [navigation],
   );
-
-  const handleCollectedClose = useCallback(() => {
-    setShowCollected(false);
-    navigation.goBack();
-  }, [navigation]);
 
   return (
     <ScreenLayout isHeaderVisible={true}>
@@ -151,35 +116,7 @@ export default function PublicPlaceListsScreen({
                         <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
                       </ItemContent>
                     </IconTextGroup>
-                    {item.type === PlaceListTypeDto.Normal ? (
-                      <SaveButton
-                        elementName="public_place_list_save_button"
-                        logParams={{
-                          placeListId: item.id,
-                          isSaved: item.isSaved,
-                        }}
-                        onPress={() => handleToggleSave(item)}>
-                        {item.isSaved ? (
-                          <BookmarkFilledIcon
-                            width={24}
-                            height={24}
-                            color={color.brand40}
-                          />
-                        ) : (
-                          <BookmarkIcon
-                            width={24}
-                            height={24}
-                            color={color.gray50}
-                          />
-                        )}
-                      </SaveButton>
-                    ) : (
-                      <ChevronRightIcon
-                        width={20}
-                        height={20}
-                        color="#B4B4C0"
-                      />
-                    )}
+                    <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
                   </ItemWrapper>
                 </SccPressable>
               )}
@@ -190,22 +127,6 @@ export default function PublicPlaceListsScreen({
                 }
               }}
               onEndReachedThreshold={0.5}
-            />
-          )}
-          {/*
-           * dirty 조건은 useFormExitConfirm의 enabled로 처리하므로 BottomSheet는
-           * 항상 마운트. (조건부 렌더링하면 enabled=true가 된 직후 첫 back 시 modal이
-           * 마운트 전이라 사용자가 stuck 될 수 있다.)
-           */}
-          <FormExitConfirmBottomSheet
-            isVisible={formExitConfirm.isVisible}
-            onConfirm={formExitConfirm.onConfirm}
-            onCancel={formExitConfirm.onCancel}
-          />
-          {showCollected && (
-            <MissionItemCollectedBottomSheet
-              isVisible={true}
-              onClose={handleCollectedClose}
             />
           )}
         </Container>
@@ -240,15 +161,16 @@ const ItemWrapper = styled.View<{isFirst: boolean}>`
   padding-left: 20px;
   padding-right: 16px;
   padding-vertical: 20px;
+  gap: 8px;
+  background-color: ${color.white};
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
   border-top-color: #f2f2f5;
-  gap: 8px;
 `;
 
 const IconTextGroup = styled.View`
   flex: 1;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 `;
 
@@ -280,8 +202,4 @@ const ItemPlaceCount = styled.Text`
   color: #a0a2ae;
   line-height: 18px;
   letter-spacing: -0.26px;
-`;
-
-const SaveButton = styled(SccPressable)`
-  padding: 4px;
 `;
