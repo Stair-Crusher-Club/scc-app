@@ -28,7 +28,7 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useCheckAuth} from '@/utils/checkAuth';
 import ToastUtils from '@/utils/ToastUtils';
 
-import HiddenMissionCollectedBottomSheet from './components/HiddenMissionCollectedBottomSheet';
+import HiddenMissionCollectedPopup from './components/HiddenMissionCollectedPopup';
 import MissionCard from './components/MissionCard';
 import MissionHero from './components/MissionHero';
 import {MAIN_MISSION_TYPES, TUTORIAL_MISSION_META} from './constants';
@@ -149,9 +149,7 @@ export default function TutorialMissionScreen({
           return;
         }
         if (meta.navigateTo === 'InterestedRegionAndThemes') {
-          navigation.navigate('InterestedRegionAndThemes', {
-            fromTutorial: true,
-          });
+          navigation.navigate('InterestedRegionAndThemes', {});
         } else if (meta.navigateTo === 'PublicPlaceLists') {
           navigation.navigate('PublicPlaceLists', {fromTutorial: true});
         } else if (meta.navigateTo === 'Main') {
@@ -289,7 +287,7 @@ export default function TutorialMissionScreen({
           </ScrollView>
 
           {showHiddenCollected && (
-            <HiddenMissionCollectedBottomSheet
+            <HiddenMissionCollectedPopup
               isVisible={true}
               onClose={() => setShowHiddenCollected(false)}
             />

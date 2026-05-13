@@ -1,16 +1,12 @@
 import React from 'react';
 import {Image, Modal, View} from 'react-native';
-import Svg, {
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Stop,
-  Text as SvgText,
-} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+
+import CollectedGradientTitle from './CollectedGradientTitle';
 
 interface MissionCompletedOverlayProps {
   isVisible: boolean;
@@ -26,16 +22,10 @@ interface MissionCompletedOverlayProps {
 }
 
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 완료 시 노출되는 전체 화면 오버레이.
+ * 윌리의 외출 NUX 튜토리얼 미션 완료 시 노출되는 전체 화면 팝업.
  *
- * Figma 1648:38667 디자인 기준:
- * - 검정 dim 배경 (0.7 opacity).
- * - 중앙에 "미션 완료" 그라데이션 텍스트 (extrabold 44px).
- * - 외출템 PNG (200px height 영역).
- * - 흰 텍스트 설명 (bold 20px).
- * - 파란색 "확인" 버튼.
- *
- * `MissionCompletedOverlay`는 미션 타입에 종속되지 않는 공용 컴포넌트.
+ * Figma 1648:38667 (mission1), 1648:39265 (mission2), 1648:40400 (mission4) 디자인 기준.
+ * MissionCompletedOverlay는 미션 타입에 종속되지 않는 공용 컴포넌트로,
  * 미션별 메타데이터(이미지/텍스트)는 호출 측에서 props로 주입한다.
  */
 export default function MissionCompletedOverlay({
@@ -55,7 +45,7 @@ export default function MissionCompletedOverlay({
       onRequestClose={onClose}>
       <Dim>
         <Contents>
-          <GradientTitle />
+          <CollectedGradientTitle text="미션 완료" width={280} />
           <ItemImageWrapper>
             <Image
               source={itemImage}
@@ -81,38 +71,6 @@ export default function MissionCompletedOverlay({
         </Contents>
       </Dim>
     </Modal>
-  );
-}
-
-/**
- * "미션 완료" 그라데이션 텍스트. RN에서 텍스트에 직접 LinearGradient를 적용하기 어려우므로
- * react-native-svg의 SvgText 위에 LinearGradient fill을 그린다.
- */
-function GradientTitle() {
-  return (
-    <Svg width={280} height={64}>
-      <Defs>
-        <SvgLinearGradient
-          id="missionCompletedGradient"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0.3">
-          <Stop offset="0" stopColor="#67C4FF" />
-          <Stop offset="1" stopColor="#D5F42E" />
-        </SvgLinearGradient>
-      </Defs>
-      <SvgText
-        x="140"
-        y="48"
-        textAnchor="middle"
-        fontFamily={font.pretendardExtraBold}
-        fontSize="44"
-        fontWeight="800"
-        fill="url(#missionCompletedGradient)">
-        미션 완료
-      </SvgText>
-    </Svg>
   );
 }
 

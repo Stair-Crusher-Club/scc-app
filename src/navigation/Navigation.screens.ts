@@ -75,6 +75,12 @@ import TutorialScreen from '@/screens/TutorialScreen';
 import TutorialMissionScreen, {
   TutorialMissionScreenParams,
 } from '@/screens/TutorialMissionScreen';
+import EditInterestedRegionScreen, {
+  EditInterestedRegionScreenParams,
+} from '@/screens/EditInterestedRegionScreen';
+import EditInterestedThemesScreen, {
+  EditInterestedThemesScreenParams,
+} from '@/screens/EditInterestedThemesScreen';
 import InterestedRegionAndThemesFormScreen, {
   InterestedRegionAndThemesFormScreenParams,
 } from '@/screens/InterestedRegionAndThemesFormScreen';
@@ -299,6 +305,23 @@ export const MainNavigationScreens: {
     options: {
       headerShown: true,
       headerTitle: '',
+      variant: 'close',
+    },
+  },
+  {
+    name: 'EditInterestedRegion',
+    component: EditInterestedRegionScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '',
+    },
+  },
+  {
+    name: 'EditInterestedThemes',
+    component: EditInterestedThemesScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '',
     },
   },
   {
@@ -401,6 +424,8 @@ export type ScreenParams = {
   Tutorial: undefined;
   TutorialMission: TutorialMissionScreenParams;
   InterestedRegionAndThemes: InterestedRegionAndThemesFormScreenParams;
+  EditInterestedRegion: EditInterestedRegionScreenParams;
+  EditInterestedThemes: EditInterestedThemesScreenParams;
   PublicPlaceLists: PublicPlaceListsScreenParams;
 };
 

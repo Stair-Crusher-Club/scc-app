@@ -288,20 +288,11 @@ export default function PlaceDetailV2Screen({
   const isOnUpvoteMission =
     tutorialProgress?.currentMissionType ===
     TutorialMissionTypeDto.UpvoteAccessibility;
-  const isUpvoteMissionCompleted = useMemo(
-    () =>
-      tutorialProgress?.missions?.some(
-        m =>
-          m.missionType === TutorialMissionTypeDto.UpvoteAccessibility &&
-          m.completedAt != null,
-      ) ?? false,
-    [tutorialProgress],
-  );
   const [showUpvoteMissionCompleted, setShowUpvoteMissionCompleted] =
     useState(false);
   useMissionCompletionWatcher({
     enabled: isOnUpvoteMission,
-    isMissionCompleted: isUpvoteMissionCompleted,
+    missionType: TutorialMissionTypeDto.UpvoteAccessibility,
     onJustCompleted: useCallback(() => {
       setShowUpvoteMissionCompleted(true);
     }, []),

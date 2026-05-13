@@ -9,15 +9,14 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {MOBILITY_TOOL_LABELS} from '@/constant/mobilityTool';
 import {useMe} from '@/atoms/Auth';
-import {useInterestedRegionsAndThemesCache} from '@/atoms/InterestedRegionsAndThemes';
 import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
 import useNavigation from '@/navigation/useNavigation';
 import {THEME_LABEL_BY_VALUE} from '@/screens/InterestedRegionAndThemesFormScreen';
 
 export default function ProfileEditorScreen() {
   const {userInfo} = useMe();
-  const {interestedRegionIds, interestedThemes} =
-    useInterestedRegionsAndThemesCache();
+  const interestedRegionIds = userInfo?.interestedRegionIds ?? [];
+  const interestedThemes = userInfo?.interestedThemes ?? [];
   const regionLabelMap = useInterestedRegionGroupLabelMap();
   const navigation = useNavigation();
 
@@ -96,13 +95,7 @@ export default function ProfileEditorScreen() {
           </FieldArea>
           <FieldArea
             elementName="profile_editor_interested_region_field"
-            onPress={() =>
-              navigation.navigate('InterestedRegionAndThemes', {
-                mode: 'region',
-                initialRegionIds: interestedRegionIds,
-                initialThemes: interestedThemes,
-              })
-            }>
+            onPress={() => navigation.navigate('EditInterestedRegion', {})}>
             <FieldLabel>관심 지역</FieldLabel>
             <FieldValueWrapper>
               {regionSummary !== null ? (
@@ -117,13 +110,7 @@ export default function ProfileEditorScreen() {
           </FieldArea>
           <FieldArea
             elementName="profile_editor_interested_theme_field"
-            onPress={() =>
-              navigation.navigate('InterestedRegionAndThemes', {
-                mode: 'theme',
-                initialRegionIds: interestedRegionIds,
-                initialThemes: interestedThemes,
-              })
-            }>
+            onPress={() => navigation.navigate('EditInterestedThemes', {})}>
             <FieldLabel>관심 주제</FieldLabel>
             <FieldValueWrapper>
               {themeSummary !== null ? (

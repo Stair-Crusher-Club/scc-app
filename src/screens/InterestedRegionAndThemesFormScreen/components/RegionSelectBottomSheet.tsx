@@ -25,10 +25,10 @@ interface RegionSelectBottomSheetProps {
  * Figma 1629:29602 디자인 기준:
  * - 좌측: 시도 리스트 (서울, 경기, 인천, ...). 선택된 시도는 흰 배경, 비선택은 gray15.
  * - 우측: 선택된 시도의 시군구 그룹 (다중 선택). 항목을 탭하면 toggle.
- * - 우측 컬럼에는 그룹이 정의되지 않은 시도일 경우 "준비중" 안내를 노출.
  * - 하단 "확인" 버튼: 선택된 그룹이 1개 이상일 때만 파란색 활성.
  *
  * 시도/시군구 그룹 데이터는 `useListInterestedRegions` 훅을 통해 서버에서 동적으로 조회한다.
+ * 서버는 UI에 노출할 시도만 내려주며, 모든 시도는 최소 1개 이상의 그룹을 가진다.
  */
 export default function RegionSelectBottomSheet({
   isVisible,
@@ -120,24 +120,20 @@ export default function RegionSelectBottomSheet({
                 <GroupColumn
                   showsVerticalScrollIndicator={false}
                   persistentScrollbar={false}>
-                  {!activeProvince || activeProvince.groups.length === 0 ? (
-                    <EmptyGroupNotice>준비 중입니다.</EmptyGroupNotice>
-                  ) : (
-                    activeProvince.groups.map(group => {
-                      const isSelected = selectedGroupIds.includes(group.id);
-                      return (
-                        <GroupItem
-                          key={group.id}
-                          elementName="interested_region_group_item"
-                          logParams={{group_id: group.id}}
-                          onPress={() => toggleGroup(group.id)}>
-                          <GroupLabel selected={isSelected}>
-                            {group.label}
-                          </GroupLabel>
-                        </GroupItem>
-                      );
-                    })
-                  )}
+                  {activeProvince?.groups.map(group => {
+                    const isSelected = selectedGroupIds.includes(group.id);
+                    return (
+                      <GroupItem
+                        key={group.id}
+                        elementName="interested_region_group_item"
+                        logParams={{group_id: group.id}}
+                        onPress={() => toggleGroup(group.id)}>
+                        <GroupLabel selected={isSelected}>
+                          {group.label}
+                        </GroupLabel>
+                      </GroupItem>
+                    );
+                  })}
                 </GroupColumn>
               </>
             )}
@@ -251,15 +247,6 @@ const GroupLabel = styled.Text<{selected: boolean}>`
   line-height: 26px;
   letter-spacing: -0.36px;
   color: ${({selected}) => (selected ? color.brand40 : color.gray90v2)};
-`;
-
-const EmptyGroupNotice = styled.Text`
-  padding: 16px;
-  font-family: ${font.pretendardRegular};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.gray50v2};
 `;
 
 const BottomBar = styled.View`

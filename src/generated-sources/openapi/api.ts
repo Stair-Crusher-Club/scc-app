@@ -4858,12 +4858,6 @@ export interface PublicPlaceListDto {
      */
     'name': string;
     /**
-     * 리스트에 포함된 장소 수
-     * @type {number}
-     * @memberof PublicPlaceListDto
-     */
-    'placeCount': number;
-    /**
      * 아이콘 배경색 (hex, e.g. \"#FFC01E\"). null이면 기본색 사용.
      * @type {string}
      * @memberof PublicPlaceListDto
@@ -6804,6 +6798,18 @@ export interface User {
      * @memberof User
      */
     'isNewsLetterSubscriptionAgreed': boolean;
+    /**
+     * 사용자가 등록한 관심 지역 ID 목록. 윌리의 외출 NUX 튜토리얼의 RegisterUserInterestedRegionsAndThemes 미션에서 설정한다. 한 번도 설정한 적 없으면 빈 배열. 
+     * @type {Array<string>}
+     * @memberof User
+     */
+    'interestedRegionIds': Array<string>;
+    /**
+     * 사용자가 등록한 관심 테마 목록. 윌리의 외출 NUX 튜토리얼의 RegisterUserInterestedRegionsAndThemes 미션에서 설정한다. 한 번도 설정한 적 없으면 빈 배열. 
+     * @type {Array<UserInterestedThemeDto>}
+     * @memberof User
+     */
+    'interestedThemes': Array<UserInterestedThemeDto>;
 }
 /**
  * 사용자의 관심 테마. 윌리의 외출 NUX 튜토리얼 첫 번째 메인 미션에서 선택한다. Figma 1427-8980 화면 기준 8개 항목. 

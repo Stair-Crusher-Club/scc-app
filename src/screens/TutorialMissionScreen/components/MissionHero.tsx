@@ -170,6 +170,12 @@ function getBubble(
   }
 }
 
+/**
+ * TODO: hero 이미지를 서버에서 통짜로 내려주도록 변경.
+ *   현재는 stage / hiddenActive 조합으로 5종을 앱 번들에 하드코딩한다.
+ *   서버에서 UserTutorialProgressDto.heroImageUrl 같은 필드로 단일 URL을 받으면
+ *   디자인 변경 시 앱 배포 없이 교체 가능 — 별도 follow-up 작업으로 분리.
+ */
 function getMissionItemsAsset(stage: number, hiddenActive: boolean): number {
   if (hiddenActive) {
     return require('@/assets/img/tutorial/mission_items_hidden.png');

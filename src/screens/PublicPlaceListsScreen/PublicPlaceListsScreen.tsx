@@ -1,6 +1,6 @@
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import styled from 'styled-components/native';
 
 import {useMe} from '@/atoms/Auth';
@@ -18,7 +18,6 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
-import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
@@ -29,26 +28,11 @@ const PUBLIC_PLACE_LISTS_QUERY_KEY = ['PublicPlaceLists'];
 export interface PublicPlaceListsScreenParams {
   /**
    * 튜토리얼 미션 컨텍스트로 진입한 경우 true.
-   * 헤더 타이틀이 숨겨지고, SAVE_PLACE_LIST 미션 완료 시 오버레이가 노출된다.
+   * SAVE_PLACE_LIST 미션 완료 시 오버레이가 노출된다.
    */
   fromTutorial?: boolean;
 }
 
-/**
- * 저장리스트 모음 화면. 공개된 저장 리스트 목록을 조회한다.
- *
- * 디자인: Figma 1427:9091 (save list_list)
- * - 화면 헤더: "저장리스트 모음" (튜토리얼에서는 빈 타이틀)
- * - 우측 상단 X 버튼 (variant: 'close')
- * - row 클릭 → 해당 저장리스트 상세 화면
- *
- * 데이터 소스: listPublicPlaceLists. 서버가 PUBLIC + (조건부) LINK_ONLY 리스트를 반환.
- * - 비인증/일반 사용자: PUBLIC만
- * - 튜토리얼 main 미션 모두 완료자: PUBLIC + LINK_ONLY (LINK_ONLY 우선 정렬)
- *
- * 미션 완료 오버레이는 SAVE_PLACE_LIST 미션이 미완료 → 완료로 전환된 시점에만 노출된다.
- * 즉, 사용자가 이 화면에서 리스트를 저장한 결과로 미션이 완료된 경우에만 노출된다.
- */
 export default function PublicPlaceListsScreen({
   route,
   navigation,
@@ -56,14 +40,6 @@ export default function PublicPlaceListsScreen({
   const fromTutorial = route.params?.fromTutorial ?? false;
   const {api} = useAppComponents();
   const {userInfo} = useMe();
-
-  // 튜토리얼 컨텍스트(Figma 1648-38721)에서는 헤더 타이틀 없이 뒤로가기/닫기만 노출.
-  // 일반/프로필 컨텍스트(Figma 1648-39054)에서는 "저장리스트 모음" 타이틀 노출.
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: fromTutorial ? '' : '저장리스트 모음',
-    });
-  }, [fromTutorial, navigation]);
 
   const {data, isLoading} = useQuery({
     queryKey: PUBLIC_PLACE_LISTS_QUERY_KEY,
@@ -83,20 +59,9 @@ export default function PublicPlaceListsScreen({
   // SAVE_PLACE_LIST 미션이 미완료 → 완료로 전환되었고, 사용자가 이 화면 컨텍스트로
   // 진입한 경우에만 오버레이를 1회 노출한다.
   const [showMissionCompleted, setShowMissionCompleted] = useState(false);
-  const {data: tutorialProgress} = useUserTutorialProgress();
-  const isSavePlaceListMissionCompleted = useMemo(
-    () =>
-      tutorialProgress?.missions?.some(
-        m =>
-          m.missionType === TutorialMissionTypeDto.SavePlaceList &&
-          m.completedAt != null,
-      ) ?? false,
-    [tutorialProgress],
-  );
-
   useMissionCompletionWatcher({
     enabled: fromTutorial,
-    isMissionCompleted: isSavePlaceListMissionCompleted,
+    missionType: TutorialMissionTypeDto.SavePlaceList,
     onJustCompleted: useCallback(() => {
       setShowMissionCompleted(true);
     }, []),
@@ -142,7 +107,6 @@ export default function PublicPlaceListsScreen({
                       </IconCircle>
                       <ItemContent>
                         <ItemName numberOfLines={1}>{item.name}</ItemName>
-                        <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
                       </ItemContent>
                     </IconTextGroup>
                     <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
@@ -240,12 +204,4 @@ const ItemName = styled.Text`
   color: #16181c;
   line-height: 24px;
   letter-spacing: -0.32px;
-`;
-
-const ItemPlaceCount = styled.Text`
-  font-size: 13px;
-  font-family: ${font.pretendardRegular};
-  color: #a0a2ae;
-  line-height: 18px;
-  letter-spacing: -0.26px;
 `;

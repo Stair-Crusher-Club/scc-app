@@ -1,13 +1,8 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 
-import {
-  TutorialMissionTypeDto,
-  UserTutorialProgressDto,
-} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
-import {USER_TUTORIAL_PROGRESS_QUERY_KEY} from './useUserTutorialProgress';
 
 interface UseSavePlaceListOptions {
   /**
@@ -47,22 +42,6 @@ export function useSavePlaceList(options?: UseSavePlaceListOptions) {
       queryClient.invalidateQueries({
         queryKey: ['PlaceListDetail', variables.placeListId],
       });
-      // 윌리의 외출 NUX 튜토리얼: SavePlaceList 미션이 아직 완료되지 않은
-      // 경우에만 진행 상태를 무효화한다. 미션은 한 번 완료되면 다시 미완료로
-      // 돌아가지 않으므로 이미 완료된 상태면 refetch는 불필요.
-      const progress = queryClient.getQueryData<UserTutorialProgressDto>(
-        USER_TUTORIAL_PROGRESS_QUERY_KEY,
-      );
-      const savePlaceListMissionCompleted = progress?.missions?.some(
-        m =>
-          m.missionType === TutorialMissionTypeDto.SavePlaceList &&
-          m.completedAt != null,
-      );
-      if (!savePlaceListMissionCompleted) {
-        queryClient.invalidateQueries({
-          queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
-        });
-      }
 
       options?.onSuccess?.(variables);
     },

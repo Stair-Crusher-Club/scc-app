@@ -1,12 +1,10 @@
-import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import styled from 'styled-components/native';
 
 import {useMe} from '@/atoms/Auth';
-import {useInterestedRegionsAndThemesCache} from '@/atoms/InterestedRegionsAndThemes';
 import {SccButton} from '@/components/atoms';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -16,124 +14,59 @@ import {
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
 import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
-import {
-  useRegisterUserInterestedRegionsAndThemes,
-  useUserTutorialProgress,
-} from '@/hooks/useUserTutorialProgress';
+import {useRegisterUserInterestedRegionsAndThemes} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ToastUtils from '@/utils/ToastUtils';
 
+import InterestedFormField from './components/InterestedFormFields';
 import RegionSelectBottomSheet from './components/RegionSelectBottomSheet';
 import ThemeSelectBottomSheet from './components/ThemeSelectBottomSheet';
+import {TUTORIAL_MISSION_1_DESCRIPTION} from './constants';
 import {
-  THEME_LABEL_BY_VALUE,
-  TUTORIAL_MISSION_1_DESCRIPTION,
-} from './constants';
+  arraysEqualAsSets,
+  formatRegionSummary,
+  formatThemeSummary,
+} from './utils';
+
+export interface InterestedRegionAndThemesFormScreenParams {}
 
 /**
- * 화면 모드.
- * - 'both': 관심 지역 + 관심 주제 둘 다 입력 (튜토리얼 미션 1 진입).
- * - 'region': 관심 지역만 입력 (프로필 수정 진입).
- * - 'theme': 관심 주제만 입력 (프로필 수정 진입).
+ * 튜토리얼 미션 1: 관심 지역 + 관심 주제 둘 다 입력하는 화면.
+ *
+ * 프로필에서 단독 변경하는 경우는 EditInterestedRegionScreen / EditInterestedThemesScreen을
+ * 사용한다. 이 화면은 튜토리얼 진입 전용.
  */
-export type InterestedRegionAndThemesFormMode = 'both' | 'region' | 'theme';
-
-export interface InterestedRegionAndThemesFormScreenParams {
-  /** 튜토리얼 미션 컨텍스트로 진입한 경우 true. 성공 시 미션 완료 오버레이를 노출. */
-  fromTutorial?: boolean;
-  /** 화면 모드. 기본값 'both'. */
-  mode?: InterestedRegionAndThemesFormMode;
-  /** 프로필 수정 진입 시 기존에 저장된 값으로 폼을 초기화하기 위한 prop. */
-  initialRegionIds?: string[];
-  initialThemes?: UserInterestedThemeDto[];
-}
-
 export default function InterestedRegionAndThemesFormScreen({
-  route,
   navigation,
 }: ScreenProps<'InterestedRegionAndThemes'>) {
-  const fromTutorial = route.params?.fromTutorial ?? false;
-  const mode: InterestedRegionAndThemesFormMode = route.params?.mode ?? 'both';
-
-  // 프로필 수정에서 진입한 경우, navigation param에 명시적 초기값이 없으면 로컬 캐시를 사용.
-  // 튜토리얼에서는 항상 빈 값으로 시작.
-  const cache = useInterestedRegionsAndThemesCache();
-  const initialRegionIds = useMemo(
-    () =>
-      route.params?.initialRegionIds ??
-      (fromTutorial ? [] : cache.interestedRegionIds),
-    [route.params?.initialRegionIds, fromTutorial, cache.interestedRegionIds],
-  );
-  const initialThemes = useMemo(
-    () =>
-      route.params?.initialThemes ??
-      (fromTutorial ? [] : cache.interestedThemes),
-    [route.params?.initialThemes, fromTutorial, cache.interestedThemes],
-  );
-
-  const registerMutation = useRegisterUserInterestedRegionsAndThemes();
-  const {data: tutorialProgress} = useUserTutorialProgress();
   const {userInfo} = useMe();
 
-  const [selectedRegionIds, setSelectedRegionIds] =
-    useState<string[]>(initialRegionIds);
-  const [selectedThemes, setSelectedThemes] =
-    useState<UserInterestedThemeDto[]>(initialThemes);
+  const registerMutation = useRegisterUserInterestedRegionsAndThemes();
+
+  // 튜토리얼은 항상 빈 값으로 시작 (사용자가 이번 미션에서 처음 입력하는 컨텍스트).
+  const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
+  const [selectedThemes, setSelectedThemes] = useState<
+    UserInterestedThemeDto[]
+  >([]);
   const [isRegionSheetOpen, setIsRegionSheetOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
   const [showCollected, setShowCollected] = useState(false);
 
   // 튜토리얼: 미션 완료 오버레이 노출 제어.
   // REGISTER 미션이 미완료 → 완료로 전환된 경우에만 1회 노출한다.
-  // (이미 완료된 미션을 재제출하는 프로필 수정 컨텍스트에서는 노출하지 않음.)
-  const isRegisterMissionCompleted = useMemo(
-    () =>
-      tutorialProgress?.missions?.some(
-        m =>
-          m.missionType ===
-            TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes &&
-          m.completedAt != null,
-      ) ?? false,
-    [tutorialProgress],
-  );
   useMissionCompletionWatcher({
-    enabled: fromTutorial,
-    isMissionCompleted: isRegisterMissionCompleted,
+    enabled: true,
+    missionType: TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
     onJustCompleted: useCallback(() => {
       setShowCollected(true);
     }, []),
   });
 
-  const showRegion = mode === 'both' || mode === 'region';
-  const showTheme = mode === 'both' || mode === 'theme';
-
-  // 튜토리얼 컨텍스트는 X 닫기 버튼 (Figma 1648-38721),
-  // 프로필 수정 컨텍스트는 < 뒤로 가기 버튼 (Figma 1648-38731/38746)
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: '',
-      ...(fromTutorial && {variant: 'close'}),
-    } as Parameters<typeof navigation.setOptions>[0]);
-  }, [fromTutorial, navigation]);
-
-  const isFormDirty = useMemo(() => {
-    if (showRegion && !arraysEqualAsSets(selectedRegionIds, initialRegionIds)) {
-      return true;
-    }
-    if (showTheme && !arraysEqualAsSets(selectedThemes, initialThemes)) {
-      return true;
-    }
-    return false;
-  }, [
-    showRegion,
-    showTheme,
-    selectedRegionIds,
-    initialRegionIds,
-    selectedThemes,
-    initialThemes,
-  ]);
+  const isFormDirty =
+    !arraysEqualAsSets(selectedRegionIds, []) ||
+    !arraysEqualAsSets(selectedThemes, []);
 
   // 폼 작성 중 뒤로 가기 시 확인 (변경 사항이 있을 때만 modal trigger)
   const formExitConfirm = useFormExitConfirm(
@@ -144,52 +77,21 @@ export default function InterestedRegionAndThemesFormScreen({
   );
 
   const handleSubmit = useCallback(() => {
-    if (showRegion && selectedRegionIds.length === 0) {
+    if (selectedRegionIds.length === 0) {
       ToastUtils.show('관심 지역을 1개 이상 선택해주세요.');
       return;
     }
-    if (showTheme && selectedThemes.length === 0) {
+    if (selectedThemes.length === 0) {
       ToastUtils.show('관심 주제를 1개 이상 선택해주세요.');
       return;
     }
-    // useRegisterUserInterestedRegionsAndThemes의 onSuccess가 이미 progress query를
-    // invalidate하므로 여기서 중복으로 invalidate하지 않는다.
-    // 단일 필드 모드(region/theme)에서는 다른 필드는 기존 값을 그대로 전송한다.
-    const finalRegionIds = showRegion ? selectedRegionIds : initialRegionIds;
-    const finalThemes = showTheme ? selectedThemes : initialThemes;
-    registerMutation.mutate(
-      {
-        interestedRegionIds: finalRegionIds,
-        interestedThemes: finalThemes,
-      },
-      {
-        onSuccess: () => {
-          // 로컬 캐시 업데이트 — 프로필 수정 화면 등에서 표시.
-          cache.setCache({
-            interestedRegionIds: finalRegionIds,
-            interestedThemes: finalThemes,
-          });
-          if (!fromTutorial) {
-            ToastUtils.show('저장되었습니다.');
-            navigation.goBack();
-          }
-          // fromTutorial=true인 경우, useMissionCompletionWatcher가
-          // 서버 progress 변화를 감지하여 오버레이를 띄운다.
-        },
-      },
-    );
-  }, [
-    showRegion,
-    showTheme,
-    selectedRegionIds,
-    selectedThemes,
-    initialRegionIds,
-    initialThemes,
-    registerMutation,
-    fromTutorial,
-    navigation,
-    cache,
-  ]);
+    registerMutation.mutate({
+      interestedRegionIds: selectedRegionIds,
+      interestedThemes: selectedThemes,
+    });
+    // fromTutorial 컨텍스트이므로, useMissionCompletionWatcher가 서버 progress
+    // 변화를 감지하여 오버레이를 띄운다. (성공 토스트는 노출하지 않음)
+  }, [selectedRegionIds, selectedThemes, registerMutation]);
 
   const handleCollectedClose = useCallback(() => {
     setShowCollected(false);
@@ -209,39 +111,11 @@ export default function InterestedRegionAndThemesFormScreen({
     [],
   );
 
-  // 화면 본문 타이틀
-  const screenTitle = useMemo(() => {
-    if (fromTutorial) {
-      return '딱 맞는 정보를 추천할게요!';
-    }
-    if (mode === 'theme') {
-      return '관심 주제를 선택해주세요';
-    }
-    return '관심 지역을 선택해주세요';
-  }, [fromTutorial, mode]);
-
   const regionLabelMap = useInterestedRegionGroupLabelMap();
   const regionSummary = formatRegionSummary(selectedRegionIds, regionLabelMap);
   const themeSummary = formatThemeSummary(selectedThemes);
 
-  const canSubmit = useMemo(() => {
-    if (showRegion && selectedRegionIds.length === 0) {
-      return false;
-    }
-    if (showTheme && selectedThemes.length === 0) {
-      return false;
-    }
-    return true;
-  }, [showRegion, showTheme, selectedRegionIds, selectedThemes]);
-
-  // 튜토리얼 컨텍스트에서는 region placeholder가 "여기를 클릭해서, ..."로 더 친절함.
-  const regionPlaceholder = fromTutorial
-    ? '여기를 클릭해서, 관심 지역을 알려주세요'
-    : '관심 있는 지역을 알려주세요';
-  const themePlaceholder = '관심 있는 주제를 알려주세요';
-
-  // 버튼 텍스트: 튜토리얼 / theme 단독 → "완료", region 단독 → "확인" (Figma 1648-38731)
-  const submitButtonText = mode === 'region' && !fromTutorial ? '확인' : '완료';
+  const canSubmit = selectedRegionIds.length > 0 && selectedThemes.length > 0;
 
   return (
     <ScreenLayout isHeaderVisible={true}>
@@ -250,41 +124,29 @@ export default function InterestedRegionAndThemesFormScreen({
         <Container>
           <Content>
             <TitleSection>
-              <ScreenTitle>{screenTitle}</ScreenTitle>
-              {fromTutorial && (
-                <Subtitle>{TUTORIAL_MISSION_1_DESCRIPTION}</Subtitle>
-              )}
+              <ScreenTitle>딱 맞는 정보를 추천할게요!</ScreenTitle>
+              <Subtitle>{TUTORIAL_MISSION_1_DESCRIPTION}</Subtitle>
             </TitleSection>
             <FieldSection>
-              {showRegion && (
-                <Field>
-                  <FieldLabel>관심 지역</FieldLabel>
-                  <InputRow
-                    elementName="interested_region_input"
-                    onPress={() => setIsRegionSheetOpen(true)}>
-                    <InputText filled={regionSummary !== null}>
-                      {regionSummary ?? regionPlaceholder}
-                    </InputText>
-                  </InputRow>
-                </Field>
-              )}
-              {showTheme && (
-                <Field>
-                  <FieldLabel>관심 주제</FieldLabel>
-                  <InputRow
-                    elementName="interested_theme_input"
-                    onPress={() => setIsThemeSheetOpen(true)}>
-                    <InputText filled={themeSummary !== null}>
-                      {themeSummary ?? themePlaceholder}
-                    </InputText>
-                  </InputRow>
-                </Field>
-              )}
+              <InterestedFormField
+                label="관심 지역"
+                summary={regionSummary}
+                placeholder="여기를 클릭해서, 관심 지역을 알려주세요"
+                elementName="interested_region_input"
+                onPress={() => setIsRegionSheetOpen(true)}
+              />
+              <InterestedFormField
+                label="관심 주제"
+                summary={themeSummary}
+                placeholder="관심 있는 주제를 알려주세요"
+                elementName="interested_theme_input"
+                onPress={() => setIsThemeSheetOpen(true)}
+              />
             </FieldSection>
           </Content>
           <BottomBar>
             <SccButton
-              text={submitButtonText}
+              text="완료"
               elementName="interested_region_themes_save_button"
               onPress={handleSubmit}
               buttonColor="brand40"
@@ -335,33 +197,6 @@ export default function InterestedRegionAndThemesFormScreen({
   );
 }
 
-function formatRegionSummary(
-  selectedRegionIds: string[],
-  labelMap: Record<string, string>,
-): string | null {
-  if (selectedRegionIds.length === 0) {
-    return null;
-  }
-  return selectedRegionIds.map(id => labelMap[id] ?? id).join(', ');
-}
-
-function formatThemeSummary(
-  selectedThemes: UserInterestedThemeDto[],
-): string | null {
-  if (selectedThemes.length === 0) {
-    return null;
-  }
-  return selectedThemes.map(theme => THEME_LABEL_BY_VALUE[theme]).join(', ');
-}
-
-function arraysEqualAsSets<T>(a: readonly T[], b: readonly T[]): boolean {
-  if (a.length !== b.length) {
-    return false;
-  }
-  const setB = new Set(b);
-  return a.every(item => setB.has(item));
-}
-
 const Container = styled.View`
   flex: 1;
   background-color: ${color.white};
@@ -394,36 +229,6 @@ const Subtitle = styled.Text`
 
 const FieldSection = styled.View`
   gap: 36px;
-`;
-
-const Field = styled.View`
-  gap: 8px;
-`;
-
-const FieldLabel = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 13px;
-  line-height: 18px;
-  letter-spacing: -0.26px;
-  color: ${color.gray80v2};
-`;
-
-const InputRow = styled(SccPressable)`
-  width: 100%;
-  height: 34px;
-  padding-bottom: 8px;
-  border-bottom-width: 1.5px;
-  border-bottom-color: ${color.gray20};
-  justify-content: center;
-`;
-
-const InputText = styled.Text<{filled: boolean}>`
-  font-family: ${({filled}) =>
-    filled ? font.pretendardMedium : font.pretendardRegular};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${({filled}) => (filled ? color.gray90v2 : color.gray40)};
 `;
 
 const BottomBar = styled.View`
