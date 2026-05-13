@@ -553,6 +553,11 @@ Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이
 - 비교 결과 차이가 있으면 코드 재수정 → 재빌드 → 재비교 루프를 차이 0이 될 때까지 반복
 - "tsc + lint 통과"는 시각 검증이 아니다. 타입/린트는 최소 조건이고, 완료 조건은 **스크린샷 일치**
 
+**상태별 변형(variant) 누락 금지** (PR #159 NUX 튜토리얼 리뷰에서 도출):
+- 화면이 사용자 진행/상태에 따라 5가지 variant로 분기되면 (예: `tutorial_empty`, `tutorial_item 2`, `tutorial_item 3`, `tutorial_item-claer`, `tutorial_reward_activate`), **각 variant마다 별도 Figma 노드를 찾아 screenshot 비교**해야 한다. 하나 variant만 확인하고 "디자인 반영 완료"라고 하면 reviewer가 "figma랑 완전히 다른데?" 라고 지적한다.
+- Figma metadata에서 같은 prefix(예: `tutorial_*`)를 가진 frame을 모두 조회한 뒤 **하나씩 빠짐없이 검증**한다.
+- 미션 완료 팝업 같은 작은 컴포넌트도 미션 타입별로 별도 노드 (예: `1648-38667` 관심지역, `1648-39265` 저장리스트, `1648-40635` 히든) — 각각 확인.
+
 ### adb 터치 자동화 워크플로우
 
 에뮬레이터 UI 요소를 탭할 때 **좌표 추측 금지**. 항상 uiautomator dump 먼저:
