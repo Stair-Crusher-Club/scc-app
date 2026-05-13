@@ -232,7 +232,9 @@ export default function TutorialMissionScreen({
             {/* 미션 카드 영역 */}
             <ContentArea>
               <SectionTitle>
-                {`3개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
+                {`${
+                  allMainCompleted ? 4 : MAIN_MISSION_TYPES.length
+                }개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
               </SectionTitle>
 
               <CardsWrapper>

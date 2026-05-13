@@ -20,6 +20,7 @@ export interface FormField {
   name: ChallengeB2bFormAvailableFieldNameTypeDto | null;
   displayName: string;
   options: string[] | null;
+  isRequired: boolean;
 }
 
 /**
@@ -39,6 +40,7 @@ export function toFormField(dto: ChallengeB2bFormAvailableFieldDto): FormField {
     name: dto.name ?? null,
     displayName: dto.displayName,
     options: dto.options ?? null,
+    isRequired: dto.isRequired ?? true,
   };
 }
 
@@ -171,7 +173,9 @@ export function validateForm(
   formState: FormState,
   fields: FormField[],
 ): {isValid: boolean; errorMessage?: string} {
-  const emptyFields = fields.filter(field => !formState[field.key]?.trim());
+  const emptyFields = fields
+    .filter(field => field.isRequired)
+    .filter(field => !formState[field.key]?.trim());
 
   if (emptyFields.length > 0) {
     const displayName = emptyFields[0].displayName;

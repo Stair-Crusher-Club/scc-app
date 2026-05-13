@@ -83,7 +83,7 @@ const Overlay = styled.View`
 const ContentArea = styled.View`
   flex: 1;
   justify-content: center;
-  padding-horizontal: 24px;
+  padding-horizontal: 16px;
 `;
 
 /* Bubble과 캐릭터를 함께 묶는 relative 컨테이너.
@@ -110,13 +110,12 @@ const BubbleText = styled.Text`
 
 const CharacterWrapper = styled.View`
   position: absolute;
-  width: 160px;
-  height: 160px;
-  /* Bubble center align 기준으로 우측 하단에 겹쳐 배치
-     (Figma: bubble bottom=516, character top=464 -> -52px overlap;
-     character right ~ screen edge 16px) */
-  right: -8px;
-  bottom: -80px;
+  /* Figma: 윌리 휠체어 일러스트는 박스 우측 안쪽 ~80px과 overlap, 박스보다 약간 우측으로 뻗음.
+     PNG는 2752x1536 비율(약 1.79:1) → width 200 시 height ~ 112 */
+  width: 200px;
+  height: 130px;
+  right: -30px;
+  bottom: -85px;
 `;
 
 const CharacterImage = styled(Image)`

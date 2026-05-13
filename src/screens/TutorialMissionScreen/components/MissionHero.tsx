@@ -44,14 +44,16 @@ interface MissionHeroProps {
  * 외출템 hot zone (히든 미션)은 모자 영역의 absolute 좌표에 SccPressable 오버레이.
  */
 
-// Figma 기준 디자인 사이즈
+// Figma 기준 디자인 사이즈.
+// Figma 절대좌표에서 잔디밭 frame은 y=94, height=575 (App bar 아래).
+// MissionHero 컴포넌트는 ScreenLayout 헤더 아래에서 y=0부터 시작하므로,
+// Figma 절대좌표값에서 94를 빼서 컴포넌트 내 좌표로 사용한다.
 const DESIGN_WIDTH = 390;
-const DESIGN_HEIGHT = 575;
+const FIGMA_HERO_TOP = 94; // App bar 높이 = hero 시작점 offset
+const DESIGN_HEIGHT = 575; // 잔디 frame 높이 (Figma 원본)
 
 // 잔디밭 윌리 일러스트가 차지하는 영역 (Figma: y=94..669, 575 height)
-// hero_base.png는 잔디 전체를 담은 일러스트
 const HERO_BASE = {
-  // Figma에서 잔디밭 노드는 화면 전체를 덮음 (390x575)
   width: DESIGN_WIDTH,
   height: DESIGN_HEIGHT,
 };
@@ -115,6 +117,9 @@ function getBubble(
   hiddenActive: boolean,
   hiddenCompleted: boolean,
 ): BubbleSpec {
+  // 말풍선 width는 Pretendard SemiBold 18px로 텍스트 잘림 방지를 위해
+  // Figma 원본 width (Kyobo 손글씨체 기준)보다 약 25% 늘려 사용한다.
+  // 위치(left)는 가운데 정렬 유지를 위해 늘어난 만큼 절반씩 좌측으로 이동.
   if (hiddenCompleted) {
     return {
       text: '외출 준비 완료!',
@@ -127,40 +132,40 @@ function getBubble(
     // reward_activate
     return {
       text: '숨겨진 외출템도 모아볼까?',
-      left: 143,
+      left: 125,
       top: 318.79,
-      width: 184.99,
+      width: 220,
     };
   }
   switch (stage) {
     case 0:
       return {
         text: '나? 윌리!! 외출템이 필요해!',
-        left: 141,
+        left: 115,
         top: 335.5,
-        width: 193.84,
+        width: 245,
       };
     case 1:
       return {
         text: '계단 정보가 있는 지도가 필요해!',
-        left: 129,
+        left: 105,
         top: 335.5,
-        width: 221,
+        width: 270,
       };
     case 2:
       return {
         text: '상세정보는 어떻게 확인하는거지?!',
-        left: 116,
+        left: 95,
         top: 336,
-        width: 238,
+        width: 280,
       };
     default:
       // 메인 3개 완료 + 히든 미완료/완료가 아닌 fallback (사용되지 않음)
       return {
         text: '외출템을 다 모았어!!',
-        left: 159,
+        left: 145,
         top: 335.5,
-        width: 149.07,
+        width: 180,
       };
   }
 }
@@ -193,6 +198,9 @@ export default function MissionHero({
   const scale = imageWidth / DESIGN_WIDTH;
   const heroHeight = DESIGN_HEIGHT * scale;
   const px = (val: number) => val * scale;
+  // Figma 절대 y좌표 → hero 컴포넌트 내부 y좌표 변환 (App bar offset 94 제거)
+  const py = (figmaAbsoluteY: number) =>
+    (figmaAbsoluteY - FIGMA_HERO_TOP) * scale;
 
   const isInitial = stage === 0 && !hiddenActive && !hiddenCompleted;
   const heroTitleSource = isInitial
@@ -251,7 +259,7 @@ export default function MissionHero({
         source={heroTitleSource}
         style={{
           position: 'absolute',
-          top: px(HERO_TITLE.topInFrame),
+          top: py(HERO_TITLE.topInFrame),
           left: (imageWidth - px(heroTitleWidth)) / 2,
           width: px(heroTitleWidth),
           height: px(heroTitleHeight),
@@ -263,7 +271,7 @@ export default function MissionHero({
       <HeroSubtitle
         style={{
           position: 'absolute',
-          top: px(HERO_TITLE.topInFrame + heroTitleHeight + 12),
+          top: py(HERO_TITLE.topInFrame + heroTitleHeight + 12),
           left: 0,
           right: 0,
           fontSize: px(16),
@@ -276,7 +284,7 @@ export default function MissionHero({
       <BubbleRect
         style={{
           position: 'absolute',
-          top: px(bubble.top),
+          top: py(bubble.top),
           left: px(bubble.left),
           width: px(bubble.width),
           height: px(38),
@@ -295,7 +303,7 @@ export default function MissionHero({
         style={{
           position: 'absolute',
           left: px(bubble.left + 23),
-          top: px(bubble.top + BUBBLE_TAIL_TOP_OFFSET),
+          top: py(bubble.top + BUBBLE_TAIL_TOP_OFFSET),
         }}>
         <Polygon points={`0,0 ${px(19.5)},0 0,${px(14.5)}`} fill="#F1F1F1" />
       </Svg>
@@ -306,7 +314,7 @@ export default function MissionHero({
         style={{
           position: 'absolute',
           left: px(MISSION_ITEM_FRAME.left),
-          top: px(MISSION_ITEM_FRAME.top),
+          top: py(MISSION_ITEM_FRAME.top),
           width: px(MISSION_ITEM_FRAME.width),
           height: px(MISSION_ITEM_FRAME.height),
         }}
@@ -321,7 +329,7 @@ export default function MissionHero({
           style={{
             position: 'absolute',
             left: px(MISSION_ITEM_FRAME.left + HAT_HOT_ZONE.left),
-            top: px(MISSION_ITEM_FRAME.top + HAT_HOT_ZONE.top),
+            top: py(MISSION_ITEM_FRAME.top + HAT_HOT_ZONE.top),
             width: px(HAT_HOT_ZONE.width),
             height: px(HAT_HOT_ZONE.height),
           }}
@@ -336,7 +344,7 @@ export default function MissionHero({
         style={{
           position: 'absolute',
           left: px(CTA_BUTTON.left),
-          top: px(CTA_BUTTON.top),
+          top: py(CTA_BUTTON.top),
           width: px(CTA_BUTTON.width),
           height: px(CTA_BUTTON.height),
           borderRadius: px(8),
