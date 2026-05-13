@@ -1,14 +1,15 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {ActivityIndicator} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {useListInterestedRegions} from '@/hooks/useListInterestedRegions';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import BottomSheet from '@/modals/BottomSheet/BottomSheet';
-
-import {REGION_PROVINCES} from '../constants';
+import ToastUtils from '@/utils/ToastUtils';
 
 interface RegionSelectBottomSheetProps {
   isVisible: boolean;
@@ -26,6 +27,8 @@ interface RegionSelectBottomSheetProps {
  * - 우측: 선택된 시도의 시군구 그룹 (다중 선택). 항목을 탭하면 toggle.
  * - 우측 컬럼에는 그룹이 정의되지 않은 시도일 경우 "준비중" 안내를 노출.
  * - 하단 "확인" 버튼: 선택된 그룹이 1개 이상일 때만 파란색 활성.
+ *
+ * 시도/시군구 그룹 데이터는 `useListInterestedRegions` 훅을 통해 서버에서 동적으로 조회한다.
  */
 export default function RegionSelectBottomSheet({
   isVisible,
@@ -33,26 +36,33 @@ export default function RegionSelectBottomSheet({
   onConfirm,
   onClose,
 }: RegionSelectBottomSheetProps) {
-  const [activeProvinceId, setActiveProvinceId] = useState<string>(
-    REGION_PROVINCES[0].id,
-  );
+  const {data: sidos, isLoading, error} = useListInterestedRegions();
+  const provinces = useMemo(() => sidos ?? [], [sidos]);
+
+  const [activeProvinceId, setActiveProvinceId] = useState<string | null>(null);
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>(
     initialSelectedGroupIds,
   );
 
-  // 시트가 열릴 때마다 초기값 동기화
-  React.useEffect(() => {
+  // 시트가 열릴 때마다 초기값 동기화. 첫 시도 id로 activeProvince를 초기화.
+  useEffect(() => {
     if (isVisible) {
       setSelectedGroupIds(initialSelectedGroupIds);
-      setActiveProvinceId(REGION_PROVINCES[0].id);
+      setActiveProvinceId(provinces[0]?.id ?? null);
     }
-  }, [isVisible, initialSelectedGroupIds]);
+  }, [isVisible, initialSelectedGroupIds, provinces]);
+
+  // 서버 조회 실패 시 토스트 안내. (시트는 빈 상태로 노출되며 사용자는 닫고 다시 열 수 있음)
+  useEffect(() => {
+    if (isVisible && error) {
+      ToastUtils.showOnApiError(error);
+    }
+  }, [isVisible, error]);
 
   const activeProvince = useMemo(
     () =>
-      REGION_PROVINCES.find(p => p.id === activeProvinceId) ??
-      REGION_PROVINCES[0],
-    [activeProvinceId],
+      provinces.find(p => p.id === activeProvinceId) ?? provinces[0] ?? null,
+    [provinces, activeProvinceId],
   );
 
   const toggleGroup = useCallback((groupId: string) => {
@@ -82,47 +92,55 @@ export default function RegionSelectBottomSheet({
             <Description>설정한 지역에 맞는 정보를 추천해드려요!</Description>
           </TitleArea>
           <TwoColumnContainer>
-            <ProvinceColumn
-              showsVerticalScrollIndicator={false}
-              persistentScrollbar={false}>
-              {REGION_PROVINCES.map(province => {
-                const isActive = province.id === activeProvinceId;
-                return (
-                  <ProvinceItem
-                    key={province.id}
-                    elementName="interested_region_province_item"
-                    logParams={{province_id: province.id}}
-                    onPress={() => setActiveProvinceId(province.id)}
-                    active={isActive}>
-                    <ProvinceLabel active={isActive}>
-                      {province.label}
-                    </ProvinceLabel>
-                  </ProvinceItem>
-                );
-              })}
-            </ProvinceColumn>
-            <GroupColumn
-              showsVerticalScrollIndicator={false}
-              persistentScrollbar={false}>
-              {activeProvince.groups.length === 0 ? (
-                <EmptyGroupNotice>준비 중입니다.</EmptyGroupNotice>
-              ) : (
-                activeProvince.groups.map(group => {
-                  const isSelected = selectedGroupIds.includes(group.id);
-                  return (
-                    <GroupItem
-                      key={group.id}
-                      elementName="interested_region_group_item"
-                      logParams={{group_id: group.id}}
-                      onPress={() => toggleGroup(group.id)}>
-                      <GroupLabel selected={isSelected}>
-                        {group.label}
-                      </GroupLabel>
-                    </GroupItem>
-                  );
-                })
-              )}
-            </GroupColumn>
+            {isLoading && provinces.length === 0 ? (
+              <LoadingContainer>
+                <ActivityIndicator size="large" color={color.brand40} />
+              </LoadingContainer>
+            ) : (
+              <>
+                <ProvinceColumn
+                  showsVerticalScrollIndicator={false}
+                  persistentScrollbar={false}>
+                  {provinces.map(province => {
+                    const isActive = province.id === activeProvinceId;
+                    return (
+                      <ProvinceItem
+                        key={province.id}
+                        elementName="interested_region_province_item"
+                        logParams={{province_id: province.id}}
+                        onPress={() => setActiveProvinceId(province.id)}
+                        active={isActive}>
+                        <ProvinceLabel active={isActive}>
+                          {province.label}
+                        </ProvinceLabel>
+                      </ProvinceItem>
+                    );
+                  })}
+                </ProvinceColumn>
+                <GroupColumn
+                  showsVerticalScrollIndicator={false}
+                  persistentScrollbar={false}>
+                  {!activeProvince || activeProvince.groups.length === 0 ? (
+                    <EmptyGroupNotice>준비 중입니다.</EmptyGroupNotice>
+                  ) : (
+                    activeProvince.groups.map(group => {
+                      const isSelected = selectedGroupIds.includes(group.id);
+                      return (
+                        <GroupItem
+                          key={group.id}
+                          elementName="interested_region_group_item"
+                          logParams={{group_id: group.id}}
+                          onPress={() => toggleGroup(group.id)}>
+                          <GroupLabel selected={isSelected}>
+                            {group.label}
+                          </GroupLabel>
+                        </GroupItem>
+                      );
+                    })
+                  )}
+                </GroupColumn>
+              </>
+            )}
           </TwoColumnContainer>
         </ContentsContainer>
         <BottomBar>
@@ -190,6 +208,12 @@ const TwoColumnContainer = styled.View`
   flex-direction: row;
   border-top-width: 1px;
   border-top-color: ${color.gray15v2};
+`;
+
+const LoadingContainer = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ProvinceColumn = styled.ScrollView`

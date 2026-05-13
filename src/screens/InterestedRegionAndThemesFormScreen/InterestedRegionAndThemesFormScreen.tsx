@@ -14,6 +14,7 @@ import {
   UserInterestedThemeDto,
 } from '@/generated-sources/openapi';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
+import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
 import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
 import {
   useRegisterUserInterestedRegionsAndThemes,
@@ -27,7 +28,6 @@ import ToastUtils from '@/utils/ToastUtils';
 import RegionSelectBottomSheet from './components/RegionSelectBottomSheet';
 import ThemeSelectBottomSheet from './components/ThemeSelectBottomSheet';
 import {
-  REGION_GROUPS_BY_ID,
   THEME_LABEL_BY_VALUE,
   TUTORIAL_MISSION_1_DESCRIPTION,
 } from './constants';
@@ -220,7 +220,8 @@ export default function InterestedRegionAndThemesFormScreen({
     return '관심 지역을 선택해주세요';
   }, [fromTutorial, mode]);
 
-  const regionSummary = formatRegionSummary(selectedRegionIds);
+  const regionLabelMap = useInterestedRegionGroupLabelMap();
+  const regionSummary = formatRegionSummary(selectedRegionIds, regionLabelMap);
   const themeSummary = formatThemeSummary(selectedThemes);
 
   const canSubmit = useMemo(() => {
@@ -334,13 +335,14 @@ export default function InterestedRegionAndThemesFormScreen({
   );
 }
 
-function formatRegionSummary(selectedRegionIds: string[]): string | null {
+function formatRegionSummary(
+  selectedRegionIds: string[],
+  labelMap: Record<string, string>,
+): string | null {
   if (selectedRegionIds.length === 0) {
     return null;
   }
-  return selectedRegionIds
-    .map(id => REGION_GROUPS_BY_ID[id]?.label ?? id)
-    .join(', ');
+  return selectedRegionIds.map(id => labelMap[id] ?? id).join(', ');
 }
 
 function formatThemeSummary(

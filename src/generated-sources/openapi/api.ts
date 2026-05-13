@@ -3227,6 +3227,50 @@ export type InspectionStatusDto = typeof InspectionStatusDto[keyof typeof Inspec
 
 
 /**
+ * 시군구 그룹. 사용자는 이 단위로 다중 선택한다. id는 RegisterUserInterestedRegionsAndThemesRequestDto.interestedRegionIds 에 그대로 전송한다. 
+ * @export
+ * @interface InterestedRegionGroupDto
+ */
+export interface InterestedRegionGroupDto {
+    /**
+     * 그룹 식별 키. e.g. \'seoul_gangnam_seocho\'.
+     * @type {string}
+     * @memberof InterestedRegionGroupDto
+     */
+    'id': string;
+    /**
+     * 그룹 라벨. e.g. \'강남/서초\'.
+     * @type {string}
+     * @memberof InterestedRegionGroupDto
+     */
+    'label': string;
+}
+/**
+ * 시도 단위 항목. 좌측 컬럼에서 선택한다.
+ * @export
+ * @interface InterestedRegionSidoDto
+ */
+export interface InterestedRegionSidoDto {
+    /**
+     * 시도 식별 키. e.g. \'seoul\'.
+     * @type {string}
+     * @memberof InterestedRegionSidoDto
+     */
+    'id': string;
+    /**
+     * 시도 라벨. e.g. \'서울\'.
+     * @type {string}
+     * @memberof InterestedRegionSidoDto
+     */
+    'label': string;
+    /**
+     * 해당 시도에 속한 시군구 그룹 목록. 우측 컬럼에 표시된다. 비어있으면 클라이언트에서 \"준비 중\" 등의 안내를 표시한다. 
+     * @type {Array<InterestedRegionGroupDto>}
+     * @memberof InterestedRegionSidoDto
+     */
+    'groups': Array<InterestedRegionGroupDto>;
+}
+/**
  * B2B 챌린지 참여 시 회사 정보를 입력 받는 DTO.
  * @export
  * @interface JoinChallengeRequestCompanyJoinInfoDto
@@ -3486,6 +3530,19 @@ export interface ListConqueredPlacesResponseDto {
      * @memberof ListConqueredPlacesResponseDto
      */
     'items': Array<PlaceListItem>;
+}
+/**
+ * 관심 지역 등록 시 사용할 시도/시군구 그룹 목록.
+ * @export
+ * @interface ListInterestedRegionsResponseDto
+ */
+export interface ListInterestedRegionsResponseDto {
+    /**
+     * 시도 목록. 좌측 컬럼에 표시되는 순서대로 정렬되어 있다.
+     * @type {Array<InterestedRegionSidoDto>}
+     * @memberof ListInterestedRegionsResponseDto
+     */
+    'sidos': Array<InterestedRegionSidoDto>;
 }
 /**
  * 
@@ -8711,6 +8768,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 윌리의 외출 NUX 튜토리얼 첫 번째 메인 미션의 관심 지역 선택 화면(Figma 1648-41115)에서 사용한다. 시도 단위로 그룹핑된 시군구 그룹 목록을 반환한다. 앱이 정적으로 들고 있지 않고 서버에서 받아오게 하여, 지역 목록을 서버에서 자유롭게 확장할 수 있도록 한다. 
+         * @summary 관심 지역 등록 시 사용할 시도/시군구 그룹 목록을 가져온다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listInterestedRegions: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/listInterestedRegions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 즐겨찾기한 장소 목록을 조회한다.
          * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
@@ -10940,6 +11031,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 윌리의 외출 NUX 튜토리얼 첫 번째 메인 미션의 관심 지역 선택 화면(Figma 1648-41115)에서 사용한다. 시도 단위로 그룹핑된 시군구 그룹 목록을 반환한다. 앱이 정적으로 들고 있지 않고 서버에서 받아오게 하여, 지역 목록을 서버에서 자유롭게 확장할 수 있도록 한다. 
+         * @summary 관심 지역 등록 시 사용할 시도/시군구 그룹 목록을 가져온다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listInterestedRegions(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListInterestedRegionsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listInterestedRegions(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 즐겨찾기한 장소 목록을 조회한다.
          * @param {ListPlaceFavoritesRequestDto} listPlaceFavoritesRequestDto 
@@ -11879,6 +11980,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listConqueredPlacesPost(listConqueredPlacesRequestDto: ListConqueredPlacesRequestDto, options?: any): AxiosPromise<ListConqueredPlacesResponseDto> {
             return localVarFp.listConqueredPlacesPost(listConqueredPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 윌리의 외출 NUX 튜토리얼 첫 번째 메인 미션의 관심 지역 선택 화면(Figma 1648-41115)에서 사용한다. 시도 단위로 그룹핑된 시군구 그룹 목록을 반환한다. 앱이 정적으로 들고 있지 않고 서버에서 받아오게 하여, 지역 목록을 서버에서 자유롭게 확장할 수 있도록 한다. 
+         * @summary 관심 지역 등록 시 사용할 시도/시군구 그룹 목록을 가져온다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listInterestedRegions(options?: any): AxiosPromise<ListInterestedRegionsResponseDto> {
+            return localVarFp.listInterestedRegions(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12868,6 +12978,17 @@ export class DefaultApi extends BaseAPI {
      */
     public listConqueredPlacesPost(listConqueredPlacesRequestDto: ListConqueredPlacesRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listConqueredPlacesPost(listConqueredPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 윌리의 외출 NUX 튜토리얼 첫 번째 메인 미션의 관심 지역 선택 화면(Figma 1648-41115)에서 사용한다. 시도 단위로 그룹핑된 시군구 그룹 목록을 반환한다. 앱이 정적으로 들고 있지 않고 서버에서 받아오게 하여, 지역 목록을 서버에서 자유롭게 확장할 수 있도록 한다. 
+     * @summary 관심 지역 등록 시 사용할 시도/시군구 그룹 목록을 가져온다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listInterestedRegions(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listInterestedRegions(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

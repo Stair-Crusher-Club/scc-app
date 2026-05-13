@@ -10,24 +10,21 @@ import {font} from '@/constant/font';
 import {MOBILITY_TOOL_LABELS} from '@/constant/mobilityTool';
 import {useMe} from '@/atoms/Auth';
 import {useInterestedRegionsAndThemesCache} from '@/atoms/InterestedRegionsAndThemes';
+import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
 import useNavigation from '@/navigation/useNavigation';
-import {
-  REGION_GROUPS_BY_ID,
-  THEME_LABEL_BY_VALUE,
-} from '@/screens/InterestedRegionAndThemesFormScreen';
+import {THEME_LABEL_BY_VALUE} from '@/screens/InterestedRegionAndThemesFormScreen';
 
 export default function ProfileEditorScreen() {
   const {userInfo} = useMe();
   const {interestedRegionIds, interestedThemes} =
     useInterestedRegionsAndThemesCache();
+  const regionLabelMap = useInterestedRegionGroupLabelMap();
   const navigation = useNavigation();
 
   const regionSummary =
     interestedRegionIds.length === 0
       ? null
-      : interestedRegionIds
-          .map(id => REGION_GROUPS_BY_ID[id]?.label ?? id)
-          .join(', ');
+      : interestedRegionIds.map(id => regionLabelMap[id] ?? id).join(', ');
   const themeSummary =
     interestedThemes.length === 0
       ? null
