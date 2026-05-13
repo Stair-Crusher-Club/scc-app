@@ -154,6 +154,28 @@ const handleScroll = useCallback(() => {
 - `src/logging/*`, `useSccEventLogging.ts`만 예외 (logging infra)
 - `useCallback`/`useEffect` 안에서는 `loggerRef.current` 사용
 
+## Hook 설계 원칙
+
+### 도메인 hook은 도메인만 책임 (cross-cutting 금지) — MANDATORY
+`useSavePlaceList`, `useUpvoteAccessibility` 같은 **도메인 mutation hook**은 자신의 도메인 작업만 책임진다. 튜토리얼 진행, 이벤트 로깅 같은 **cross-cutting concern**을 hook 내부에서 처리하지 마라 — hook이 도메인 외 컨텍스트를 알게 되어 책임이 흐려지고 재사용성이 떨어진다.
+
+- 잘못된 예: `useSavePlaceList`가 `queryClient.invalidateQueries(USER_TUTORIAL_PROGRESS_QUERY_KEY)` 호출 (튜토리얼을 안다)
+- 올바른 예: `useSavePlaceList`는 mutation만. 튜토리얼 progress refetch는 호출하는 화면이 `useMissionCompletionWatcher` 같은 별도 watcher hook으로 처리.
+
+**판단 기준**: hook 이름이 도메인 액션이라면 (`useSavePlaceList`, `useRegisterX`), 그 도메인 외의 행위를 추가하지 마라.
+
+(PR #159 리뷰에서 도출)
+
+### Hook input 추상화 — 외부 계산값을 주입받지 마라
+Hook이 필요한 정보를 외부에서 미리 계산하여 주입받게 만들지 말고, hook이 자체적으로 계산하도록 추상화한다. 호출처는 **의도**만 전달한다.
+
+- 잘못된 예: `useMissionCompletionWatcher({isCompleted: progress?.missions[X]?.completedAt != null, onJustCompleted})` — 호출처가 progress 구조를 알아야 함
+- 올바른 예: `useMissionCompletionWatcher({missionType: 'SAVE_PLACE_LIST', onJustCompleted})` — hook 내부에서 `useUserTutorialProgress()`로 자체 계산
+
+**효과**: 호출처가 더 간결, 동일 계산 로직이 hook 안에 캡슐화되어 일관성 보장.
+
+(PR #159 리뷰에서 도출)
+
 ## API Guidelines
 
 - **`src/generated-sources/` 파일은 절대 수동 수정하지 않는다.** scc-api 스펙 변경 -> submodule 업데이트 -> `yarn codegen`으로만 변경.
