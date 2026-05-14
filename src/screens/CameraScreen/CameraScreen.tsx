@@ -58,6 +58,8 @@ export default function CameraScreen({
   const {camera, hasPermission, device, setDevice} = useCamera();
   const [photoFiles, setPhotoFiles] = useState<ImageFile[]>([]);
   const [flash, setFlash] = useState<'on' | 'off'>('off');
+  const flashRef = useRef(flash);
+  flashRef.current = flash;
   const [timerSeconds, setTimerSeconds] = useState<TimerSeconds>(0);
   const [countdownDisplay, setCountdownDisplay] = useState<number | null>(null);
   const countdownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -172,7 +174,7 @@ export default function CameraScreen({
         throw new Error('Camera ref is null!');
       }
       const taken = await camera.current.takePhoto({
-        flash,
+        flash: flashRef.current,
       });
 
       if (taken) {
@@ -237,35 +239,23 @@ export default function CameraScreen({
   }, []);
 
   useEffect(() => {
-    let initialVolume = 0.5;
-    let isRestoring = false;
+    let lastTriggerTime = 0;
     let isMounted = true;
 
     VolumeManager.showNativeVolumeUI({enabled: false});
-    VolumeManager.getVolume()
-      .then(result => {
-        if (!isMounted) {
-          return;
-        }
-        initialVolume = result.volume;
-      })
-      .catch(() => {
-        // ignore
-      });
 
     const subscription = VolumeManager.addVolumeListener(() => {
       if (!isMounted) {
         return;
       }
-      if (isRestoring) {
-        isRestoring = false;
+      // 볼륨 변화 자체를 촬영 트리거로 본다. 볼륨 원복은 시도해도
+      // 기기/플랫폼에 따라 안정적이지 않아 코드만 복잡해지므로 생략.
+      const now = Date.now();
+      if (now - lastTriggerTime < 500) {
         return;
       }
+      lastTriggerTime = now;
       handleCapturePressRef.current();
-      isRestoring = true;
-      VolumeManager.setVolume(initialVolume, {showUI: false}).catch(() => {
-        isRestoring = false;
-      });
     });
 
     return () => {
@@ -436,7 +426,11 @@ export default function CameraScreen({
           <S.FlashButton
             elementName="camera_flash_button"
             onPress={toggleFlash}>
-            <FlashIcon style={{opacity: flash === 'on' ? 1 : 0.3}} />
+            <FlashIcon
+              width={24}
+              height={24}
+              style={{opacity: flash === 'on' ? 1 : 0.3}}
+            />
           </S.FlashButton>
         )}
         <S.TimerButton
