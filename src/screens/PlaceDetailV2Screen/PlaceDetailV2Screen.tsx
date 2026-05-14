@@ -1202,7 +1202,7 @@ export default function PlaceDetailV2Screen({
         <MissionCompletedOverlay
           isVisible={true}
           variant="outing-items"
-          itemImage={require('@/assets/img/tutorial/mission_outing_items_collected.png')}
+          itemImage={require('@/assets/img/tutorial/mission_complete_img_outing_items.png')}
           description={
             '윌리의 외출템을 모두 모았어요!\n이제 계뿌클 히든 맛집 리스트를 확인할 수 있어요'
           }

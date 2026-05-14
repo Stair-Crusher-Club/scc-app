@@ -430,7 +430,7 @@ const PlaceListDetailScreen = ({
       {showSaveMissionCompleted && (
         <MissionCompletedOverlay
           isVisible={true}
-          itemImage={require('@/assets/img/tutorial/item_map.png')}
+          itemImage={require('@/assets/img/tutorial/mission_complete_img_map.png')}
           description={`접근성 지도 획득!\n${
             userInfo?.nickname ?? '크러셔'
           }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요!`}

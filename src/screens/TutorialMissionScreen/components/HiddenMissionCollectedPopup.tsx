@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, Modal} from 'react-native';
+import {Dimensions, Image, Modal} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -10,6 +10,10 @@ interface HiddenMissionCollectedPopupProps {
   isVisible: boolean;
   onClose: () => void;
 }
+
+// Figma 1648:40812 popup img frame: 390x200 (frame 폭). 화면 폭 비례.
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const POPUP_IMG_HEIGHT = SCREEN_WIDTH * (200 / 390);
 
 export default function HiddenMissionCollectedPopup({
   isVisible,
@@ -28,13 +32,11 @@ export default function HiddenMissionCollectedPopup({
             source={require('@/assets/img/tutorial/hidden_collected_title.png')}
             resizeMode="contain"
           />
-          <ImageWrapper>
-            <Image
-              source={require('@/assets/img/tutorial/hidden_collected_willy.png')}
-              style={{width: 320, height: 200}}
-              resizeMode="contain"
-            />
-          </ImageWrapper>
+          <Image
+            source={require('@/assets/img/tutorial/mission_complete_img_hidden.png')}
+            style={{width: SCREEN_WIDTH, height: POPUP_IMG_HEIGHT}}
+            resizeMode="contain"
+          />
           <DescriptionWrapper>
             <Description>{'이제,\n새로운 곳으로 떠나봐요!'}</Description>
             <ConfirmButton
@@ -54,7 +56,6 @@ const DimRoot = styled.View`
   background-color: rgba(0, 0, 0, 0.6);
   align-items: center;
   justify-content: center;
-  padding: 0 24px;
 `;
 
 const ContentsWrapper = styled.View`
@@ -66,13 +67,6 @@ const ContentsWrapper = styled.View`
 const TitleImage = styled.Image`
   width: 322px;
   height: 56px;
-`;
-
-const ImageWrapper = styled.View`
-  width: 100%;
-  height: 200px;
-  align-items: center;
-  justify-content: center;
 `;
 
 const DescriptionWrapper = styled.View`
