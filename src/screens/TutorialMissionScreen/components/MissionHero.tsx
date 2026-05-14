@@ -97,6 +97,7 @@ function getBubble(
       width: 220,
     };
   }
+  // stage===3은 호출처에서 hiddenActive===true를 보장하므로 아래 분기로 흡수된다.
   if (hiddenActive) {
     return {
       text: '숨겨진 외출템도 모아볼까?',
@@ -121,18 +122,12 @@ function getBubble(
         width: 270,
       };
     case 2:
+    default:
       return {
         text: '상세정보는 어떻게 확인하는거지?!',
         left: 95,
         top: 336,
         width: 280,
-      };
-    default:
-      return {
-        text: '외출템을 다 모았어!!',
-        left: 145,
-        top: 335.5,
-        width: 180,
       };
   }
 }
