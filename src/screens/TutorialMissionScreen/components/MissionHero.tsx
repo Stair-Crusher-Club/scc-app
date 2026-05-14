@@ -60,6 +60,13 @@ const HAT_HOT_ZONE = {
   height: 57.79,
 };
 
+// click! 텍스트는 hat_frame 내부 (HAT_HOT_ZONE 기준 상대좌표).
+// Figma absolute: 173.97, 392.73 → relative: (173.97-144.14, 392.73-380.62) = (29.83, 12.11)
+const HAT_CLICK_TEXT = {
+  left: 29.83,
+  top: 12.11,
+};
+
 const CTA_BUTTON = {
   left: 40,
   top: 581,
@@ -266,8 +273,30 @@ export default function MissionHero({
             top: py(MISSION_ITEM_FRAME.top + HAT_HOT_ZONE.top),
             width: px(HAT_HOT_ZONE.width),
             height: px(HAT_HOT_ZONE.height),
-          }}
-        />
+          }}>
+          <Image
+            source={require('@/assets/img/tutorial/hat_frame.png')}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: px(HAT_HOT_ZONE.width),
+              height: px(HAT_HOT_ZONE.height),
+              transform: [{rotate: '-6.14deg'}],
+            }}
+            resizeMode="contain"
+          />
+          <HatClickText
+            style={{
+              position: 'absolute',
+              left: px(HAT_CLICK_TEXT.left),
+              top: px(HAT_CLICK_TEXT.top),
+              fontSize: px(16),
+              lineHeight: px(24),
+            }}>
+            click!
+          </HatClickText>
+        </HatHotZone>
       )}
 
       <HiddenListCtaButton
@@ -324,6 +353,13 @@ const BubbleText = styled.Text`
 `;
 
 const HatHotZone = styled(SccPressable)``;
+
+const HatClickText = styled.Text`
+  font-family: ${font.pretendardSemibold};
+  letter-spacing: -0.32px;
+  color: ${color.white};
+  text-align: center;
+`;
 
 const HiddenListCtaButton = styled(SccPressable)<{activated: boolean}>`
   align-items: center;
