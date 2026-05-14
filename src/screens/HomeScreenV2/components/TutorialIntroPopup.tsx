@@ -1,6 +1,6 @@
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import React, {useCallback} from 'react';
-import {Image, Modal} from 'react-native';
+import {Dimensions, Image, Modal} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -14,15 +14,25 @@ interface TutorialIntroPopupProps {
   onClose: () => void;
 }
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('screen').height;
+// Figma frame 390×844 기준 popup contents bounding box + 위치.
+const DESIGN_FRAME_WIDTH = 390;
+const DESIGN_FRAME_HEIGHT = 844;
+const POPUP_DESIGN_WIDTH = 350;
+const POPUP_DESIGN_HEIGHT = 200;
+const POPUP_DESIGN_TOP = 370;
+const POPUP_WIDTH = SCREEN_WIDTH * (POPUP_DESIGN_WIDTH / DESIGN_FRAME_WIDTH);
+const POPUP_HEIGHT = POPUP_WIDTH * (POPUP_DESIGN_HEIGHT / POPUP_DESIGN_WIDTH);
+const POPUP_TOP = SCREEN_HEIGHT * (POPUP_DESIGN_TOP / DESIGN_FRAME_HEIGHT);
+
 /**
  * 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업.
  * 첫 가입자 / 기가입자 홈 첫 진입 시 1회 노출.
  *
- * 디자인: Figma 1427:7141
- * - dim 오버레이
- * - 흰색 말풍선 박스: "윌리가 새로운 장소로 쉽게 이동을 시작할 수 있게 아이템을 함께 모아주세요!"
- * - 윌리 캐릭터 일러스트 (160x160 영역, 우측 하단)
- * - 하단 버튼: 닫기 / 시작하기 → TutorialMissionScreen으로 이동
+ * 디자인: Figma node 1648:38448 (NUX_intro)
+ * popup contents(말풍선+텍스트+윌리)는 통이미지(intro_popup_content.png)로 박는다.
+ * 텍스트가 Kyobo Handwriting 2019 손글씨체라 폰트 번들 없이 1:1 재현 불가하기 때문.
  */
 export default function TutorialIntroPopup({
   isVisible,
@@ -41,24 +51,22 @@ export default function TutorialIntroPopup({
       visible={isVisible}
       transparent
       animationType="fade"
+      statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={onClose}>
       <Overlay>
-        <ContentArea>
-          <BubbleAndCharacter>
-            <Bubble>
-              <BubbleText>
-                {`윌리가 새로운 장소로 쉽게 이동을 시작할 수 있게\n아이템을 함께 모아주세요!`}
-              </BubbleText>
-            </Bubble>
-            <CharacterWrapper>
-              <CharacterImage
-                source={require('@/assets/img/tutorial/willy_wheelchair_intro.png')}
-                resizeMode="contain"
-              />
-            </CharacterWrapper>
-          </BubbleAndCharacter>
-        </ContentArea>
-        <ButtonRow style={{paddingBottom: Math.max(insets.bottom, 20)}}>
+        <PopupImage
+          source={require('@/assets/img/tutorial/intro_popup_content.png')}
+          style={{
+            width: POPUP_WIDTH,
+            height: POPUP_HEIGHT,
+            position: 'absolute',
+            top: POPUP_TOP,
+            alignSelf: 'center',
+          }}
+          resizeMode="contain"
+        />
+        <ButtonRow style={{paddingBottom: insets.bottom + 15}}>
           <CloseButton
             elementName="tutorial_intro_popup_close"
             onPress={onClose}>
@@ -77,51 +85,11 @@ export default function TutorialIntroPopup({
 
 const Overlay = styled.View`
   flex: 1;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: flex-end;
 `;
 
-const ContentArea = styled.View`
-  flex: 1;
-  justify-content: center;
-  padding-horizontal: 16px;
-`;
-
-/* Bubble과 캐릭터를 함께 묶는 relative 컨테이너.
-   캐릭터는 absolute로 Bubble 우측 하단에 겹치게 배치된다. */
-const BubbleAndCharacter = styled.View`
-  position: relative;
-`;
-
-const Bubble = styled.View`
-  background-color: ${color.white};
-  border-radius: 4px;
-  padding: 18px 16px 20px;
-  align-self: flex-start;
-  max-width: 100%;
-`;
-
-const BubbleText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 18px;
-  line-height: 27px;
-  letter-spacing: -0.36px;
-  color: ${color.black};
-`;
-
-const CharacterWrapper = styled.View`
-  position: absolute;
-  /* Figma: 윌리 휠체어 일러스트는 박스 우측 안쪽 ~80px과 overlap, 박스보다 약간 우측으로 뻗음.
-     PNG는 2752x1536 비율(약 1.79:1) → width 200 시 height ~ 112 */
-  width: 200px;
-  height: 130px;
-  right: -30px;
-  bottom: -85px;
-`;
-
-const CharacterImage = styled(Image)`
-  width: 100%;
-  height: 100%;
-`;
+const PopupImage = styled(Image)``;
 
 const ButtonRow = styled.View`
   flex-direction: row;

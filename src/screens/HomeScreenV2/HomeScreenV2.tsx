@@ -123,7 +123,7 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   // 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업: 가입자 + 미노출 1회만
   // __DEV__: Figma 시각 검증용 강제 활성화 (사용 후 false로 되돌릴 것)
-  const __DEV_FORCE_INTRO_POPUP__: boolean = true;
+  const __DEV_FORCE_INTRO_POPUP__: boolean = false;
   const [tutorialIntroPopupVisible, setTutorialIntroPopupVisible] =
     useState(false);
   useEffect(() => {

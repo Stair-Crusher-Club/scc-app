@@ -190,7 +190,6 @@ export default function TutorialMissionScreen({
         <BgContainer>
           <ScrollView showsVerticalScrollIndicator={false}>
             <MissionHero
-              stage={collectedMainCount}
               hiddenActive={allMainCompleted}
               hiddenCompleted={isHiddenCompleted}
               onHiddenPress={handleHiddenMissionPress}

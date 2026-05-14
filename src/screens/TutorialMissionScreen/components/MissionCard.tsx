@@ -1,5 +1,6 @@
+import {BlurView} from '@react-native-community/blur';
 import React from 'react';
-import {Image, View} from 'react-native';
+import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
@@ -30,7 +31,11 @@ export default function MissionCard({
   return (
     <CardContainer>
       <ItemBox>
-        <ItemImage source={meta.itemImage} resizeMode="contain" />
+        <ItemImage
+          source={meta.itemImage}
+          resizeMode="contain"
+          style={{width: meta.itemImageWidth, height: meta.itemImageHeight}}
+        />
         {isCompleted && (
           <ItemDim>
             <CheckColoredIcon width={48} height={48} />
@@ -39,19 +44,19 @@ export default function MissionCard({
       </ItemBox>
 
       <CardBody>
-        <SubtitleRow>
+        <SubtitleBlock>
           <Subtitle>
             {meta.subtitle}
             <SubtitleBold>{meta.subtitleBoldSuffix}</SubtitleBold>
           </Subtitle>
-        </SubtitleRow>
-        <Title>{meta.title}</Title>
+          <Title>{meta.title}</Title>
+        </SubtitleBlock>
         <StartButton
           elementName="tutorial_mission_start_button"
           logParams={{mission_type: missionType}}
           onPress={isCompleted || isDimmed ? undefined : onStart}
           disabled={isCompleted || isDimmed}
-          completed={isCompleted}>
+          inactive={isCompleted || isDimmed}>
           <StartButtonText>
             {isCompleted ? '미션 완료' : '미션 시작'}
           </StartButtonText>
@@ -59,11 +64,14 @@ export default function MissionCard({
       </CardBody>
 
       {isDimmed && (
-        <DimOverlay>
-          <View style={{alignItems: 'center'}}>
-            <DimLockIcon>🔒</DimLockIcon>
-            <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
-          </View>
+        <DimOverlay
+          blurType="light"
+          blurAmount={6}
+          reducedTransparencyFallbackColor="rgba(255,255,255,0.92)">
+          <DimText>
+            {`🔒 `}
+            {dimText ?? '이전 미션을 먼저 완료해주세요!'}
+          </DimText>
         </DimOverlay>
       )}
     </CardContainer>
@@ -92,10 +100,7 @@ const ItemBox = styled.View`
   overflow: hidden;
 `;
 
-const ItemImage = styled(Image)`
-  width: 70px;
-  height: 70px;
-`;
+const ItemImage = styled(Image)``;
 
 const ItemDim = styled.View`
   position: absolute;
@@ -110,11 +115,15 @@ const ItemDim = styled.View`
 
 const CardBody = styled.View`
   flex: 1;
-  gap: 2px;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
 `;
 
-const SubtitleRow = styled.View`
-  margin-bottom: 2px;
+const SubtitleBlock = styled.View`
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
 `;
 
 const Subtitle = styled.Text`
@@ -141,11 +150,9 @@ const Title = styled.Text`
   color: ${color.gray90v2};
 `;
 
-const StartButton = styled(SccPressable)<{completed: boolean}>`
-  margin-top: 12px;
+const StartButton = styled(SccPressable)<{inactive: boolean}>`
   align-self: flex-start;
-  background-color: ${({completed}) =>
-    completed ? color.gray40v2 : color.brand40};
+  background-color: ${({inactive}) => (inactive ? '#a0a2ae' : color.brand40)};
   border-radius: 41px;
   padding: 5px 12px;
 `;
@@ -158,24 +165,16 @@ const StartButtonText = styled.Text`
   color: ${color.white};
 `;
 
-const DimOverlay = styled.View`
+// Figma quest_card_dim: backdrop-blur 5.5px + bg rgba(255,255,255,0.5).
+const DimOverlay = styled(BlurView)`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.82);
   align-items: center;
   justify-content: center;
-`;
-
-const DimLockIcon = styled.Text`
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: ${color.black};
-  text-align: center;
-  margin-bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
 `;
 
 const DimText = styled.Text`

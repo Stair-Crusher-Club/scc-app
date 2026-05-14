@@ -47,6 +47,7 @@
     "@hot-updater/react-native": "^0.12.4",
     "@invertase/react-native-apple-authentication": "^2.4.1",
     "@react-native-clipboard/clipboard": "^1.16.3",
+    "@react-native-community/blur": "^4.4.1",
     "@react-native-community/geolocation": "^3.4.0",
     "@react-native-community/hooks": "^100.1.0",
     "@react-native-community/image-editor": "^4.3.0",
