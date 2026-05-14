@@ -6908,6 +6908,12 @@ export interface UserTutorialProgressDto {
      * @memberof UserTutorialProgressDto
      */
     'hiddenMissionTallyFormUrl': string;
+    /**
+     * 미션 화면 상단 hero 이미지 URL. 사용자 진행 상태에 따라 다른 URL이 내려온다. 스테이지 0~3 (main 미션 0~3개 완료) + hidden 활성화 상태 (모든 main 완료 + hidden 미완료 또는 완료). 앱은 하드코딩하지 않고 서버가 내려주는 URL을 그대로 표시한다. 
+     * @type {string}
+     * @memberof UserTutorialProgressDto
+     */
+    'heroImageUrl': string;
 }
 /**
  * 

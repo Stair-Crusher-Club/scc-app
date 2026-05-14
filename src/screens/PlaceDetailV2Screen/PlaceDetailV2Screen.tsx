@@ -13,7 +13,7 @@ import {
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 
-import {featureFlagAtom, useMe} from '@/atoms/Auth';
+import {featureFlagAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import V2TabBar from './components/V2TabBar';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
@@ -32,7 +32,6 @@ import {
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
 import useNavigateWithLocationCheck from '@/hooks/useNavigateWithLocationCheck';
 import usePost from '@/hooks/usePost';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
@@ -118,7 +117,6 @@ export default function PlaceDetailV2Screen({
 
   const featureFlags = useAtomValue(featureFlagAtom);
   const isCrew = featureFlags?.hasBeenCrew ?? false;
-  const {userInfo} = useMe();
 
   const reportAccessibilityMutation = usePost<ReportAccessibilityPostRequest>(
     ['PlaceDetailV2', 'ReportAccessibility'],
@@ -260,6 +258,23 @@ export default function PlaceDetailV2Screen({
       (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
 
+  // UPVOTE_ACCESSIBILITY 미션이 현재 진행 중인 미션일 때만 upvote 액션이 미션 완료
+  // 트리거가 된다. 마운트 시점에 캡처해두지 않으면 mutation 후 invalidate되면서
+  // currentMissionType이 사라져 overlay가 안 뜬다.
+  // 또한 "도움이 돼요"는 다른 화면에서도 일어나므로 currentMissionType으로 필터링.
+  const {data: tutorialProgress} = useUserTutorialProgress();
+  const wasOnUpvoteMissionRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (
+      tutorialProgress?.currentMissionType ===
+      TutorialMissionTypeDto.UpvoteAccessibility
+    ) {
+      wasOnUpvoteMissionRef.current = true;
+    }
+  }, [tutorialProgress?.currentMissionType]);
+  const [showUpvoteMissionCompleted, setShowUpvoteMissionCompleted] =
+    useState(false);
+
   // Upvote state lifted from V2SummarySection & V2BottomBar so both stay in sync
   const placeUpvoteInfo = accessibilityPost?.placeUpvoteInfo;
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
@@ -268,6 +283,13 @@ export default function PlaceDetailV2Screen({
     targetId: placeId,
     targetType: 'PLACE',
     placeId: placeId,
+    onSuccess: ({wasUpvoted}) => {
+      // upvote → cancel이 아니라 upvote 액션일 때만 미션 완료로 간주.
+      if (!wasUpvoted && wasOnUpvoteMissionRef.current) {
+        wasOnUpvoteMissionRef.current = false;
+        setShowUpvoteMissionCompleted(true);
+      }
+    },
   });
 
   const handleUpvote = useCallback(() => {
@@ -278,25 +300,6 @@ export default function PlaceDetailV2Screen({
     );
   }, [checkAuth, toggleUpvote]);
 
-  // 윌리의 외출 NUX 튜토리얼: UPVOTE_ACCESSIBILITY 미션 완료 오버레이 노출 제어.
-  // 사용자가 현재 진행 중인 미션이 UPVOTE_ACCESSIBILITY인 경우(=REGISTER, SAVE는
-  // 완료했지만 UPVOTE는 미완료)에 한해 미션 완료를 감지하여 오버레이를 1회 노출한다.
-  // - "도움이 돼요"는 지도 화면에서도 일어나므로, 무관한 사용자에게 오버레이가
-  //   뜨지 않도록 currentMissionType으로 1차 필터링.
-  // - 화면 마운트 시 미션이 이미 완료 상태였다면 노출하지 않음 (Watcher가 전환만 감지).
-  const {data: tutorialProgress} = useUserTutorialProgress();
-  const isOnUpvoteMission =
-    tutorialProgress?.currentMissionType ===
-    TutorialMissionTypeDto.UpvoteAccessibility;
-  const [showUpvoteMissionCompleted, setShowUpvoteMissionCompleted] =
-    useState(false);
-  useMissionCompletionWatcher({
-    enabled: isOnUpvoteMission,
-    missionType: TutorialMissionTypeDto.UpvoteAccessibility,
-    onJustCompleted: useCallback(() => {
-      setShowUpvoteMissionCompleted(true);
-    }, []),
-  });
   const handleUpvoteMissionCompletedClose = useCallback(() => {
     setShowUpvoteMissionCompleted(false);
   }, []);
@@ -1198,10 +1201,11 @@ export default function PlaceDetailV2Screen({
       {showUpvoteMissionCompleted && (
         <MissionCompletedOverlay
           isVisible={true}
+          variant="outing-items"
           itemImage={require('@/assets/img/tutorial/item_magnifier.png')}
-          description={`돋보기 획득!\n${
-            userInfo?.nickname ?? '크러셔'
-          }님 덕분에 상세 정보를 더 잘 확인할 수 있게 됐어요!`}
+          description={
+            '윌리의 외출템을 모두 모았어요!\n이제 계뿌클 히든 맛집 리스트를 확인할 수 있어요'
+          }
           confirmElementName="tutorial_mission_3_completed_confirm"
           onClose={handleUpvoteMissionCompletedClose}
         />

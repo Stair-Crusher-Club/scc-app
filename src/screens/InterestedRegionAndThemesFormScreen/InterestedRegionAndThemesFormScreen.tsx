@@ -7,13 +7,9 @@ import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  TutorialMissionTypeDto,
-  UserInterestedThemeDto,
-} from '@/generated-sources/openapi';
+import {UserInterestedThemeDto} from '@/generated-sources/openapi';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
-import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
 import {useRegisterUserInterestedRegionsAndThemes} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
@@ -45,7 +41,6 @@ export default function InterestedRegionAndThemesFormScreen({
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
 
-  // 튜토리얼은 항상 빈 값으로 시작 (사용자가 이번 미션에서 처음 입력하는 컨텍스트).
   const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
   const [selectedThemes, setSelectedThemes] = useState<
     UserInterestedThemeDto[]
@@ -54,21 +49,10 @@ export default function InterestedRegionAndThemesFormScreen({
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
   const [showCollected, setShowCollected] = useState(false);
 
-  // 튜토리얼: 미션 완료 오버레이 노출 제어.
-  // REGISTER 미션이 미완료 → 완료로 전환된 경우에만 1회 노출한다.
-  useMissionCompletionWatcher({
-    enabled: true,
-    missionType: TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
-    onJustCompleted: useCallback(() => {
-      setShowCollected(true);
-    }, []),
-  });
-
   const isFormDirty =
     !arraysEqualAsSets(selectedRegionIds, []) ||
     !arraysEqualAsSets(selectedThemes, []);
 
-  // 폼 작성 중 뒤로 가기 시 확인 (변경 사항이 있을 때만 modal trigger)
   const formExitConfirm = useFormExitConfirm(
     action => {
       navigation.dispatch(action);
@@ -85,12 +69,17 @@ export default function InterestedRegionAndThemesFormScreen({
       ToastUtils.show('관심 주제를 1개 이상 선택해주세요.');
       return;
     }
-    registerMutation.mutate({
-      interestedRegionIds: selectedRegionIds,
-      interestedThemes: selectedThemes,
-    });
-    // fromTutorial 컨텍스트이므로, useMissionCompletionWatcher가 서버 progress
-    // 변화를 감지하여 오버레이를 띄운다. (성공 토스트는 노출하지 않음)
+    registerMutation.mutate(
+      {
+        interestedRegionIds: selectedRegionIds,
+        interestedThemes: selectedThemes,
+      },
+      {
+        onSuccess: () => {
+          setShowCollected(true);
+        },
+      },
+    );
   }, [selectedRegionIds, selectedThemes, registerMutation]);
 
   const handleCollectedClose = useCallback(() => {

@@ -2,7 +2,6 @@ import React from 'react';
 import {Image, Modal} from 'react-native';
 import styled from 'styled-components/native';
 
-import CollectedGradientTitle from '@/components/MissionCompletedOverlay/CollectedGradientTitle';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -12,16 +11,6 @@ interface HiddenMissionCollectedPopupProps {
   onClose: () => void;
 }
 
-/**
- * 히든 미션 (앱 사용 후기) 완료 시 노출되는 풀스크린 dim 팝업.
- *
- * Figma 1648:40635 디자인 기준:
- *  - 풀스크린 dim (rgba(0,0,0,0.6))
- *  - 제목 "히든템 수집 완료!" — 그라디언트 (#67C4FF → #D5F42E)
- *  - 잔디밭 윌리 이미지 (모자 컬러 포함)
- *  - 부제 "이제,\n새로운 곳으로 떠나봐요!"
- *  - "확인" 버튼 brand40
- */
 export default function HiddenMissionCollectedPopup({
   isVisible,
   onClose,
@@ -35,7 +24,7 @@ export default function HiddenMissionCollectedPopup({
       onRequestClose={onClose}>
       <DimRoot>
         <ContentsWrapper>
-          <CollectedGradientTitle text="히든템 수집 완료!" width={340} />
+          <Title>히든템 수집 완료!</Title>
           <ImageWrapper>
             <Image
               source={require('@/assets/img/tutorial/hidden_collected_willy.png')}
@@ -69,6 +58,18 @@ const ContentsWrapper = styled.View`
   align-items: center;
   width: 100%;
   gap: 20px;
+`;
+
+const Title = styled.Text`
+  font-family: ${font.pretendardExtraBold};
+  font-size: 44px;
+  line-height: 56px;
+  letter-spacing: -0.88px;
+  color: #67c4ff;
+  text-align: center;
+  text-shadow-color: rgba(0, 0, 0, 0.25);
+  text-shadow-radius: 7px;
+  text-shadow-offset: 0px 0px;
 `;
 
 const ImageWrapper = styled.View`

@@ -6,36 +6,29 @@ import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
-import CollectedGradientTitle from './CollectedGradientTitle';
+export type MissionCompletedOverlayVariant = 'mission' | 'outing-items';
 
 interface MissionCompletedOverlayProps {
   isVisible: boolean;
-  /** 미션 외출템 이미지 (require'd PNG). */
   itemImage: number;
-  /** 강조 메시지 본문 (e.g. "계단뿌셔클럽 앱이 설치된 스마트폰 획득!\n###님 덕분에 장소 찾기가 쉬워졌어요!") */
   description: string;
-  /** "확인" 버튼 elementName (logging). */
   confirmElementName: string;
-  /** 추가 로그 파라미터 (mission_type 등). */
   confirmLogParams?: Record<string, unknown>;
+  variant?: MissionCompletedOverlayVariant;
   onClose: () => void;
 }
 
-/**
- * 윌리의 외출 NUX 튜토리얼 미션 완료 시 노출되는 전체 화면 팝업.
- *
- * Figma 1648:38667 (mission1), 1648:39265 (mission2), 1648:40400 (mission4) 디자인 기준.
- * MissionCompletedOverlay는 미션 타입에 종속되지 않는 공용 컴포넌트로,
- * 미션별 메타데이터(이미지/텍스트)는 호출 측에서 props로 주입한다.
- */
 export default function MissionCompletedOverlay({
   isVisible,
   itemImage,
   description,
   confirmElementName,
   confirmLogParams,
+  variant = 'mission',
   onClose,
 }: MissionCompletedOverlayProps) {
+  const titleText =
+    variant === 'outing-items' ? '외출템 수집 완료!' : '미션 완료';
   return (
     <Modal
       visible={isVisible}
@@ -45,11 +38,11 @@ export default function MissionCompletedOverlay({
       onRequestClose={onClose}>
       <Dim>
         <Contents>
-          <CollectedGradientTitle text="미션 완료" width={280} />
+          <Title>{titleText}</Title>
           <ItemImageWrapper>
             <Image
               source={itemImage}
-              style={{width: 160, height: 200}}
+              style={{width: 200, height: 200}}
               resizeMode="contain"
             />
           </ItemImageWrapper>
@@ -85,6 +78,18 @@ const Dim = styled.View`
 const Contents = styled.View`
   align-items: center;
   gap: 20px;
+`;
+
+const Title = styled.Text`
+  font-family: ${font.pretendardExtraBold};
+  font-size: 44px;
+  line-height: 56px;
+  letter-spacing: -0.88px;
+  color: #67c4ff;
+  text-align: center;
+  text-shadow-color: rgba(0, 0, 0, 0.25);
+  text-shadow-radius: 7px;
+  text-shadow-offset: 0px 0px;
 `;
 
 const ItemImageWrapper = styled.View`

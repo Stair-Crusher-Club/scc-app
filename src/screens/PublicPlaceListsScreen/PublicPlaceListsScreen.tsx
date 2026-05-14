@@ -1,12 +1,10 @@
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import styled from 'styled-components/native';
 
-import {useMe} from '@/atoms/Auth';
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
-import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -14,10 +12,8 @@ import {font} from '@/constant/font';
 import {
   PlaceListAccessControlDto,
   PublicPlaceListDto,
-  TutorialMissionTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useMissionCompletionWatcher} from '@/hooks/useMissionCompletionWatcher';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
@@ -28,18 +24,16 @@ const PUBLIC_PLACE_LISTS_QUERY_KEY = ['PublicPlaceLists'];
 export interface PublicPlaceListsScreenParams {
   /**
    * 튜토리얼 미션 컨텍스트로 진입한 경우 true.
-   * SAVE_PLACE_LIST 미션 완료 시 오버레이가 노출된다.
+   * 자식 PlaceListDetailScreen에서 SAVE_PLACE_LIST 미션 완료 시 overlay를 띄우는
+   * 데에는 이 값이 직접 필요하지 않으나, 진입 트래킹 등에 활용된다.
    */
   fromTutorial?: boolean;
 }
 
 export default function PublicPlaceListsScreen({
-  route,
   navigation,
 }: ScreenProps<'PublicPlaceLists'>) {
-  const fromTutorial = route.params?.fromTutorial ?? false;
   const {api} = useAppComponents();
-  const {userInfo} = useMe();
 
   const {data, isLoading} = useQuery({
     queryKey: PUBLIC_PLACE_LISTS_QUERY_KEY,
@@ -54,24 +48,6 @@ export default function PublicPlaceListsScreen({
     },
     [navigation],
   );
-
-  // 미션 완료 오버레이 노출 제어.
-  // SAVE_PLACE_LIST 미션이 미완료 → 완료로 전환되었고, 사용자가 이 화면 컨텍스트로
-  // 진입한 경우에만 오버레이를 1회 노출한다.
-  const [showMissionCompleted, setShowMissionCompleted] = useState(false);
-  useMissionCompletionWatcher({
-    enabled: fromTutorial,
-    missionType: TutorialMissionTypeDto.SavePlaceList,
-    onJustCompleted: useCallback(() => {
-      setShowMissionCompleted(true);
-    }, []),
-  });
-
-  const handleMissionCompletedClose = useCallback(() => {
-    setShowMissionCompleted(false);
-    // 미션 화면으로 복귀하여 진행 상태 확인 유도.
-    navigation.goBack();
-  }, [navigation]);
 
   return (
     <ScreenLayout isHeaderVisible={true}>
@@ -116,17 +92,6 @@ export default function PublicPlaceListsScreen({
               estimatedItemSize={ESTIMATED_ITEM_HEIGHT}
             />
           )}
-          {showMissionCompleted && (
-            <MissionCompletedOverlay
-              isVisible={true}
-              itemImage={require('@/assets/img/tutorial/item_map.png')}
-              description={`접근성 지도 획득!\n${
-                userInfo?.nickname ?? '크러셔'
-              }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요!`}
-              confirmElementName="tutorial_mission_2_completed_confirm"
-              onClose={handleMissionCompletedClose}
-            />
-          )}
         </Container>
       </LogParamsProvider>
     </ScreenLayout>
@@ -135,7 +100,7 @@ export default function PublicPlaceListsScreen({
 
 /**
  * 저장 리스트 row 아이콘 배경색.
- * - LINK_ONLY (히든 리스트): 검정 (#16181C). Figma 1427:9091 첫 번째 row 차별화.
+ * - LINK_ONLY (히든 리스트): 검정 (#16181C).
  * - PUBLIC: 서버가 내려준 iconColor, 없으면 기본색 (#FFC01E).
  */
 function resolveIconColor(item: PublicPlaceListDto): string {

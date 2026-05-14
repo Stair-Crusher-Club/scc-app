@@ -33,10 +33,6 @@ import MissionCard from './components/MissionCard';
 import MissionHero from './components/MissionHero';
 import {MAIN_MISSION_TYPES, TUTORIAL_MISSION_META} from './constants';
 
-/**
- * 미션 완료 여부 판단 helper.
- * 서버 스펙: completedAt이 null이 아니면 완료된 미션.
- */
 function isMissionCompleted(
   mission: UserTutorialMissionDto | undefined,
 ): boolean {
@@ -55,21 +51,18 @@ export default function TutorialMissionScreen({
   const completeHiddenMission = useCompleteUserTutorialHiddenMission();
   const [showHiddenCollected, setShowHiddenCollected] = useState(false);
 
-  // 화면 포커스 시 progress 재조회 (다른 화면에서 작업하고 돌아왔을 때 미션 상태 반영)
   useFocusEffect(
     useCallback(() => {
       refetch();
     }, [refetch]),
   );
 
-  // 진행 상태 lookup
   const missionByType = useMemo(() => {
     const map = new Map<TutorialMissionTypeDto, UserTutorialMissionDto>();
     progress?.missions.forEach(m => map.set(m.missionType, m));
     return map;
   }, [progress]);
 
-  // 외출템 N개 수집 단계 (0..3)
   const collectedMainCount = useMemo(() => {
     return MAIN_MISSION_TYPES.filter(type =>
       isMissionCompleted(missionByType.get(type)),
@@ -81,12 +74,6 @@ export default function TutorialMissionScreen({
     missionByType.get(TutorialMissionTypeDto.HiddenAppSurvey),
   );
 
-  /**
-   * 히든 미션 완료 시도 (서버가 tally API 직접 검증).
-   * - 400 응답: tally 제출이 아직 확인되지 않음 → retry 안내 toast
-   * - 성공: 히든템 수집 BottomSheet 노출
-   * - 기타 에러: 기본 toast (useCompleteUserTutorialHiddenMission의 onError)
-   */
   const tryCompleteHiddenMission = useCallback(() => {
     if (!allMainCompleted || isHiddenCompleted) {
       return;
@@ -104,7 +91,6 @@ export default function TutorialMissionScreen({
             'Tally Form 제출이 확인되지 않았어요.\n잠시 후 다시 시도하거나 Form을 다시 제출해주세요.',
           );
         }
-        // 그 외 에러는 useCompleteUserTutorialHiddenMission.onError가 토스트 표시
       },
     });
   }, [allMainCompleted, isHiddenCompleted, completeHiddenMission]);
@@ -137,15 +123,11 @@ export default function TutorialMissionScreen({
     };
   }, [allMainCompleted, isHiddenCompleted, tryCompleteHiddenMission]);
 
-  /**
-   * 미션 카드 "미션 시작" 버튼 클릭 핸들러
-   */
   const handleStartMission = useCallback(
     (missionType: TutorialMissionTypeDto) => {
       const meta = TUTORIAL_MISSION_META[missionType];
       checkAuth(() => {
         if (meta.navigateTo === 'TallyForm') {
-          // 히든 미션은 별도 hot zone에서 처리 (미션 카드 시작 버튼 없음)
           return;
         }
         if (meta.navigateTo === 'InterestedRegionAndThemes') {
@@ -153,7 +135,6 @@ export default function TutorialMissionScreen({
         } else if (meta.navigateTo === 'PublicPlaceLists') {
           navigation.navigate('PublicPlaceLists', {fromTutorial: true});
         } else if (meta.navigateTo === 'Main') {
-          // 지도/장소 상세 화면으로 이동 (탭 home으로)
           navigation.navigate('Main');
         }
       });
@@ -161,9 +142,6 @@ export default function TutorialMissionScreen({
     [checkAuth, navigation],
   );
 
-  /**
-   * 히든 미션 hot zone 클릭 핸들러: tally form 오픈
-   */
   const handleHiddenMissionPress = useCallback(() => {
     if (!allMainCompleted) {
       return;
@@ -184,20 +162,12 @@ export default function TutorialMissionScreen({
     });
   }, [allMainCompleted, isHiddenCompleted, checkAuth, progress]);
 
-  /**
-   * 히든 미션 완료 fallback 버튼 (AppState background→active 못 잡았을 때 retry).
-   * tryCompleteHiddenMission과 동일하게 서버 검증을 시도한다.
-   */
   const handleHiddenMissionComplete = useCallback(() => {
     checkAuth(() => {
       tryCompleteHiddenMission();
     });
   }, [checkAuth, tryCompleteHiddenMission]);
 
-  /**
-   * 히든 맛집 리스트 CTA 클릭 — 모든 메인 미션 완료 후 활성화.
-   * 공개 저장리스트 화면으로 이동 (히든 리스트 노출 위함).
-   */
   const handleHiddenListPress = useCallback(() => {
     if (!allMainCompleted) {
       return;
@@ -207,9 +177,11 @@ export default function TutorialMissionScreen({
     });
   }, [allMainCompleted, checkAuth, navigation]);
 
-  // main 미션이 모두 완료되었지만 hidden은 미완료인 경우 CTA를 항상 노출
-  // (AppState 감지를 못 잡았을 때 사용자가 명시적으로 retry할 수 있도록)
   const showHiddenCompleteCta = allMainCompleted && !isHiddenCompleted;
+
+  if (!progress) {
+    return <ScreenLayout isHeaderVisible={true} />;
+  }
 
   return (
     <ScreenLayout isHeaderVisible={true}>
@@ -217,7 +189,6 @@ export default function TutorialMissionScreen({
         params={{displaySectionName: 'tutorial_mission_screen'}}>
         <BgContainer>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* 상단 hero (윌리 + 외출템 진행 시각화 + 히든 hot zone) */}
             <MissionHero
               stage={collectedMainCount}
               hiddenActive={allMainCompleted}
@@ -225,9 +196,9 @@ export default function TutorialMissionScreen({
               onHiddenPress={handleHiddenMissionPress}
               onHiddenListPress={handleHiddenListPress}
               imageWidth={SCREEN_WIDTH}
+              heroImageUrl={progress.heroImageUrl}
             />
 
-            {/* 미션 카드 영역 */}
             <ContentArea>
               <SectionTitle>
                 {`${
@@ -240,7 +211,6 @@ export default function TutorialMissionScreen({
                   const mission = missionByType.get(missionType);
                   const meta = TUTORIAL_MISSION_META[missionType];
                   const isCompleted = isMissionCompleted(mission);
-                  // 이전 미션이 모두 완료되었을 때만 활성
                   const previousMissions = MAIN_MISSION_TYPES.slice(0, index);
                   const isPreviousCompleted = previousMissions.every(prev =>
                     isMissionCompleted(missionByType.get(prev)),

@@ -5,6 +5,7 @@ import {FlatList, ListRenderItemInfo, Share} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import {useMe} from '@/atoms/Auth';
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
 import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
@@ -12,15 +13,21 @@ import CloseIcon from '@/assets/icon/close.svg';
 import MapIcon from '@/assets/icon/ic_map.svg';
 import MenuIcon from '@/assets/icon/ic_menu.svg';
 import ShareIcon from '@/assets/icon/ic_share_web.svg';
+import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {PlaceListItem, SearchPlaceSortDto} from '@/generated-sources/openapi';
+import {
+  PlaceListItem,
+  SearchPlaceSortDto,
+  TutorialMissionTypeDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useSavePlaceList} from '@/hooks/useSavePlaceList';
+import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
@@ -52,14 +59,40 @@ const PlaceListDetailScreen = ({
 }: ScreenProps<'PlaceListDetail'>) => {
   const {placeListId} = route.params;
   const {api} = useAppComponents();
+  const {userInfo} = useMe();
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const pdpScreen = usePlaceDetailScreenName();
   const checkAuth = useCheckAuth();
-  const toggleSave = useSavePlaceList();
   const insets = useSafeAreaInsets();
   const [filters, setFilters] = useAtom(placeListFilterAtom);
   const [, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
+
+  // SAVE_PLACE_LIST 미션이 현재 진행 중인 미션일 때만 저장 액션이 미션 완료 트리거가 된다.
+  // 마운트 시점에 캡처해두지 않으면 mutation 성공 후 progress가 invalidate되면서
+  // currentMissionType이 다음 미션(UPVOTE_ACCESSIBILITY)으로 바뀌어 overlay가 안 뜬다.
+  const {data: tutorialProgress} = useUserTutorialProgress();
+  const wasOnSavePlaceListMissionRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (
+      tutorialProgress?.currentMissionType ===
+      TutorialMissionTypeDto.SavePlaceList
+    ) {
+      wasOnSavePlaceListMissionRef.current = true;
+    }
+  }, [tutorialProgress?.currentMissionType]);
+  const [showSaveMissionCompleted, setShowSaveMissionCompleted] =
+    useState(false);
+
+  const toggleSave = useSavePlaceList({
+    onSuccess: ({isSaved: prevIsSaved}) => {
+      // 저장 → unsave가 아니라 저장 액션일 때만 미션 완료로 간주.
+      if (!prevIsSaved && wasOnSavePlaceListMissionRef.current) {
+        wasOnSavePlaceListMissionRef.current = false;
+        setShowSaveMissionCompleted(true);
+      }
+    },
+  });
 
   useEffect(() => {
     return () => {
@@ -394,6 +427,20 @@ const PlaceListDetailScreen = ({
         </ContentContainer>
       )}
       <PlaceListFilterModal />
+      {showSaveMissionCompleted && (
+        <MissionCompletedOverlay
+          isVisible={true}
+          itemImage={require('@/assets/img/tutorial/item_map.png')}
+          description={`접근성 지도 획득!\n${
+            userInfo?.nickname ?? '크러셔'
+          }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요!`}
+          confirmElementName="tutorial_mission_2_completed_confirm"
+          onClose={() => {
+            setShowSaveMissionCompleted(false);
+            navigation.goBack();
+          }}
+        />
+      )}
     </Layout>
   );
 };
