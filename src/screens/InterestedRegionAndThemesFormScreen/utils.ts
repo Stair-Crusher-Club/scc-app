@@ -1,30 +1,28 @@
 import {UserInterestedThemeDto} from '@/generated-sources/openapi';
 
+import {SelectedChip} from './components/InterestedFormFields';
 import {THEME_LABEL_BY_VALUE} from './constants';
 
 /**
- * 선택된 시군구 group id 목록을 라벨 join으로 변환. 빈 배열이면 null.
+ * 선택된 시군구 group id 목록을 chip 데이터로 변환.
  */
-export function formatRegionSummary(
+export function regionsToChips(
   selectedRegionIds: readonly string[],
   labelMap: Record<string, string>,
-): string | null {
-  if (selectedRegionIds.length === 0) {
-    return null;
-  }
-  return selectedRegionIds.map(id => labelMap[id] ?? id).join(', ');
+): SelectedChip[] {
+  return selectedRegionIds.map(id => ({id, label: labelMap[id] ?? id}));
 }
 
 /**
- * 선택된 관심 테마 목록을 라벨 join으로 변환. 빈 배열이면 null.
+ * 선택된 관심 테마 목록을 chip 데이터로 변환.
  */
-export function formatThemeSummary(
+export function themesToChips(
   selectedThemes: readonly UserInterestedThemeDto[],
-): string | null {
-  if (selectedThemes.length === 0) {
-    return null;
-  }
-  return selectedThemes.map(theme => THEME_LABEL_BY_VALUE[theme]).join(', ');
+): SelectedChip[] {
+  return selectedThemes.map(theme => ({
+    id: theme,
+    label: THEME_LABEL_BY_VALUE[theme],
+  }));
 }
 
 /**

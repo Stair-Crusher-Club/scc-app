@@ -16,7 +16,7 @@ import RegionSelectBottomSheet from '@/screens/InterestedRegionAndThemesFormScre
 import InterestedFormField from '@/screens/InterestedRegionAndThemesFormScreen/components/InterestedFormFields';
 import {
   arraysEqualAsSets,
-  formatRegionSummary,
+  regionsToChips,
 } from '@/screens/InterestedRegionAndThemesFormScreen/utils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -38,17 +38,21 @@ export default function EditInterestedRegionScreen({
   const [selectedRegionIds, setSelectedRegionIds] =
     useState<string[]>(initialRegionIds);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
   const regionLabelMap = useInterestedRegionGroupLabelMap();
-  const regionSummary = formatRegionSummary(selectedRegionIds, regionLabelMap);
+  const regionChips = regionsToChips(selectedRegionIds, regionLabelMap);
+  const handleRemoveRegion = useCallback((id: string) => {
+    setSelectedRegionIds(prev => prev.filter(rid => rid !== id));
+  }, []);
 
   const isFormDirty = !arraysEqualAsSets(selectedRegionIds, initialRegionIds);
   const formExitConfirm = useFormExitConfirm(
     action => {
       navigation.dispatch(action);
     },
-    {enabled: isFormDirty},
+    {enabled: isFormDirty && !hasSubmitted},
   );
 
   const handleSubmit = useCallback(() => {
@@ -63,6 +67,7 @@ export default function EditInterestedRegionScreen({
       },
       {
         onSuccess: () => {
+          setHasSubmitted(true);
           ToastUtils.show('저장되었습니다.');
           navigation.goBack();
         },
@@ -78,7 +83,7 @@ export default function EditInterestedRegionScreen({
   const canSubmit = selectedRegionIds.length > 0;
 
   return (
-    <ScreenLayout isHeaderVisible={true}>
+    <ScreenLayout isHeaderVisible={true} safeAreaEdges={['bottom']}>
       <LogParamsProvider
         params={{displaySectionName: 'edit_interested_region'}}>
         <Container>
@@ -88,10 +93,11 @@ export default function EditInterestedRegionScreen({
             </TitleSection>
             <InterestedFormField
               label="관심 지역"
-              summary={regionSummary}
+              selectedChips={regionChips}
               placeholder="관심 있는 지역을 알려주세요"
               elementName="interested_region_input"
               onPress={() => setIsSheetOpen(true)}
+              onRemoveChip={handleRemoveRegion}
             />
           </Content>
           <BottomBar>

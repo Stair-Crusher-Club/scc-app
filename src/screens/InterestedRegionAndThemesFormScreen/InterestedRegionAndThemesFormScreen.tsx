@@ -7,10 +7,16 @@ import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {UserInterestedThemeDto} from '@/generated-sources/openapi';
+import {
+  TutorialMissionTypeDto,
+  UserInterestedThemeDto,
+} from '@/generated-sources/openapi';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
-import {useRegisterUserInterestedRegionsAndThemes} from '@/hooks/useUserTutorialProgress';
+import {
+  useRegisterUserInterestedRegionsAndThemes,
+  useUserTutorialProgress,
+} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -20,11 +26,7 @@ import InterestedFormField from './components/InterestedFormFields';
 import RegionSelectBottomSheet from './components/RegionSelectBottomSheet';
 import ThemeSelectBottomSheet from './components/ThemeSelectBottomSheet';
 import {TUTORIAL_MISSION_1_DESCRIPTION} from './constants';
-import {
-  arraysEqualAsSets,
-  formatRegionSummary,
-  formatThemeSummary,
-} from './utils';
+import {arraysEqualAsSets, regionsToChips, themesToChips} from './utils';
 
 export interface InterestedRegionAndThemesFormScreenParams {}
 
@@ -40,6 +42,13 @@ export default function InterestedRegionAndThemesFormScreen({
   const {userInfo} = useMe();
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
+  const {data: progress} = useUserTutorialProgress();
+  const wasMissionAlreadyCompleted =
+    progress?.missions.find(
+      m =>
+        m.missionType ===
+        TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
+    )?.completedAt != null;
 
   const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
   const [selectedThemes, setSelectedThemes] = useState<
@@ -48,6 +57,8 @@ export default function InterestedRegionAndThemesFormScreen({
   const [isRegionSheetOpen, setIsRegionSheetOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
   const [showCollected, setShowCollected] = useState(false);
+  // mutation 성공 후엔 form exit confirm 우회 (이미 저장됐으므로 dirty 의미 없음).
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const isFormDirty =
     !arraysEqualAsSets(selectedRegionIds, []) ||
@@ -57,7 +68,7 @@ export default function InterestedRegionAndThemesFormScreen({
     action => {
       navigation.dispatch(action);
     },
-    {enabled: isFormDirty},
+    {enabled: isFormDirty && !hasSubmitted},
   );
 
   const handleSubmit = useCallback(() => {
@@ -76,11 +87,23 @@ export default function InterestedRegionAndThemesFormScreen({
       },
       {
         onSuccess: () => {
-          setShowCollected(true);
+          setHasSubmitted(true);
+          // 미션이 이전에 완료된 적 없는 경우에만 외출템 수집 팝업을 노출 (최초 1회).
+          if (!wasMissionAlreadyCompleted) {
+            setShowCollected(true);
+          } else {
+            navigation.goBack();
+          }
         },
       },
     );
-  }, [selectedRegionIds, selectedThemes, registerMutation]);
+  }, [
+    selectedRegionIds,
+    selectedThemes,
+    registerMutation,
+    wasMissionAlreadyCompleted,
+    navigation,
+  ]);
 
   const handleCollectedClose = useCallback(() => {
     setShowCollected(false);
@@ -101,13 +124,20 @@ export default function InterestedRegionAndThemesFormScreen({
   );
 
   const regionLabelMap = useInterestedRegionGroupLabelMap();
-  const regionSummary = formatRegionSummary(selectedRegionIds, regionLabelMap);
-  const themeSummary = formatThemeSummary(selectedThemes);
+  const regionChips = regionsToChips(selectedRegionIds, regionLabelMap);
+  const themeChips = themesToChips(selectedThemes);
+
+  const handleRemoveRegion = useCallback((id: string) => {
+    setSelectedRegionIds(prev => prev.filter(rid => rid !== id));
+  }, []);
+  const handleRemoveTheme = useCallback((id: string) => {
+    setSelectedThemes(prev => prev.filter(t => (t as string) !== id));
+  }, []);
 
   const canSubmit = selectedRegionIds.length > 0 && selectedThemes.length > 0;
 
   return (
-    <ScreenLayout isHeaderVisible={true}>
+    <ScreenLayout isHeaderVisible={true} safeAreaEdges={['bottom']}>
       <LogParamsProvider
         params={{displaySectionName: 'interested_region_and_themes_form'}}>
         <Container>
@@ -119,17 +149,19 @@ export default function InterestedRegionAndThemesFormScreen({
             <FieldSection>
               <InterestedFormField
                 label="관심 지역"
-                summary={regionSummary}
+                selectedChips={regionChips}
                 placeholder="여기를 클릭해서, 관심 지역을 알려주세요"
                 elementName="interested_region_input"
                 onPress={() => setIsRegionSheetOpen(true)}
+                onRemoveChip={handleRemoveRegion}
               />
               <InterestedFormField
                 label="관심 주제"
-                summary={themeSummary}
+                selectedChips={themeChips}
                 placeholder="관심 있는 주제를 알려주세요"
                 elementName="interested_theme_input"
                 onPress={() => setIsThemeSheetOpen(true)}
+                onRemoveChip={handleRemoveTheme}
               />
             </FieldSection>
           </Content>
@@ -172,7 +204,7 @@ export default function InterestedRegionAndThemesFormScreen({
           {showCollected && (
             <MissionCompletedOverlay
               isVisible={true}
-              itemImage={require('@/assets/img/tutorial/item_smartphone.png')}
+              itemImage={require('@/assets/img/tutorial/mission_complete_img_smartphone.png')}
               description={`계단뿌셔클럽 앱이 설치된 스마트폰 획득!\n${
                 userInfo?.nickname ?? '크러셔'
               }님 덕분에 장소 찾기가 쉬워졌어요!`}

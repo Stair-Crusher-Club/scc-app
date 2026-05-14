@@ -16,7 +16,7 @@ import ThemeSelectBottomSheet from '@/screens/InterestedRegionAndThemesFormScree
 import InterestedFormField from '@/screens/InterestedRegionAndThemesFormScreen/components/InterestedFormFields';
 import {
   arraysEqualAsSets,
-  formatThemeSummary,
+  themesToChips,
 } from '@/screens/InterestedRegionAndThemesFormScreen/utils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -38,16 +38,20 @@ export default function EditInterestedThemesScreen({
   const [selectedThemes, setSelectedThemes] =
     useState<UserInterestedThemeDto[]>(initialThemes);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
-  const themeSummary = formatThemeSummary(selectedThemes);
+  const themeChips = themesToChips(selectedThemes);
+  const handleRemoveTheme = useCallback((id: string) => {
+    setSelectedThemes(prev => prev.filter(t => (t as string) !== id));
+  }, []);
 
   const isFormDirty = !arraysEqualAsSets(selectedThemes, initialThemes);
   const formExitConfirm = useFormExitConfirm(
     action => {
       navigation.dispatch(action);
     },
-    {enabled: isFormDirty},
+    {enabled: isFormDirty && !hasSubmitted},
   );
 
   const handleSubmit = useCallback(() => {
@@ -62,6 +66,7 @@ export default function EditInterestedThemesScreen({
       },
       {
         onSuccess: () => {
+          setHasSubmitted(true);
           ToastUtils.show('저장되었습니다.');
           navigation.goBack();
         },
@@ -80,7 +85,7 @@ export default function EditInterestedThemesScreen({
   const canSubmit = selectedThemes.length > 0;
 
   return (
-    <ScreenLayout isHeaderVisible={true}>
+    <ScreenLayout isHeaderVisible={true} safeAreaEdges={['bottom']}>
       <LogParamsProvider
         params={{displaySectionName: 'edit_interested_themes'}}>
         <Container>
@@ -90,10 +95,11 @@ export default function EditInterestedThemesScreen({
             </TitleSection>
             <InterestedFormField
               label="관심 주제"
-              summary={themeSummary}
+              selectedChips={themeChips}
               placeholder="관심 있는 주제를 알려주세요"
               elementName="interested_theme_input"
               onPress={() => setIsSheetOpen(true)}
+              onRemoveChip={handleRemoveTheme}
             />
           </Content>
           <BottomBar>
