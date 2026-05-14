@@ -106,10 +106,10 @@ export const ActionsWrapper = styled.View({
 });
 
 export const CaptureButton = styled(SccPressable)(props => ({
-  width: 78,
-  height: 78,
+  width: 72,
+  height: 72,
   backgroundColor: 'transparent',
-  borderRadius: 39,
+  borderRadius: 36,
   borderColor: 'white',
   borderStyle: 'solid',
   borderWidth: 4,
@@ -119,28 +119,38 @@ export const CaptureButton = styled(SccPressable)(props => ({
 }));
 
 export const CaptureInnerDeco = styled.View({
-  width: 66,
-  height: 66,
-  borderRadius: 33,
+  width: 60,
+  height: 60,
+  borderRadius: 30,
   backgroundColor: 'white',
 });
 
 export const FlashButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
-  right: 88,
+  right: 80,
   width: 48,
   height: 48,
   backgroundColor: color.blacka40,
   borderRadius: 24,
-  justifyContent: 'center',
   alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+});
+
+export const FlashButtonText = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardRegular,
+  fontSize: 13,
+  textAlign: 'center',
+  position: 'absolute',
+  bottom: -19, // 6px margin + fontSize 100%
 });
 
 export const TimerButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
-  right: 32,
+  right: 24,
   width: 48,
   height: 48,
   backgroundColor: color.blacka40,
@@ -162,7 +172,7 @@ export const TimerButtonText = styled.Text({
 export const AlbumButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
-  left: 32,
+  left: 24,
   width: 48,
   height: 48,
   backgroundColor: color.blacka40,

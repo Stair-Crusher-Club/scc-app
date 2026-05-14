@@ -427,10 +427,11 @@ export default function CameraScreen({
             elementName="camera_flash_button"
             onPress={toggleFlash}>
             <FlashIcon
-              width={24}
-              height={24}
+              width={28}
+              height={28}
               style={{opacity: flash === 'on' ? 1 : 0.3}}
             />
+            <S.FlashButtonText>플래시</S.FlashButtonText>
           </S.FlashButton>
         )}
         <S.TimerButton
