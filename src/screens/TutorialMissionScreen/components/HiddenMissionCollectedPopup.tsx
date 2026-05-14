@@ -24,7 +24,10 @@ export default function HiddenMissionCollectedPopup({
       onRequestClose={onClose}>
       <DimRoot>
         <ContentsWrapper>
-          <Title>히든템 수집 완료!</Title>
+          <TitleImage
+            source={require('@/assets/img/tutorial/hidden_collected_title.png')}
+            resizeMode="contain"
+          />
           <ImageWrapper>
             <Image
               source={require('@/assets/img/tutorial/hidden_collected_willy.png')}
@@ -60,16 +63,9 @@ const ContentsWrapper = styled.View`
   gap: 20px;
 `;
 
-const Title = styled.Text`
-  font-family: ${font.pretendardExtraBold};
-  font-size: 44px;
-  line-height: 56px;
-  letter-spacing: -0.88px;
-  color: #67c4ff;
-  text-align: center;
-  text-shadow-color: rgba(0, 0, 0, 0.25);
-  text-shadow-radius: 7px;
-  text-shadow-offset: 0px 0px;
+const TitleImage = styled.Image`
+  width: 322px;
+  height: 56px;
 `;
 
 const ImageWrapper = styled.View`

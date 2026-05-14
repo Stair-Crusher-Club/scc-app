@@ -18,6 +18,11 @@ interface MissionCompletedOverlayProps {
   onClose: () => void;
 }
 
+const TITLE_IMAGE_BY_VARIANT: Record<MissionCompletedOverlayVariant, number> = {
+  mission: require('@/assets/img/tutorial/mission_complete_title.png'),
+  'outing-items': require('@/assets/img/tutorial/outing_items_collected_title.png'),
+};
+
 export default function MissionCompletedOverlay({
   isVisible,
   itemImage,
@@ -27,8 +32,6 @@ export default function MissionCompletedOverlay({
   variant = 'mission',
   onClose,
 }: MissionCompletedOverlayProps) {
-  const titleText =
-    variant === 'outing-items' ? '외출템 수집 완료!' : '미션 완료';
   return (
     <Modal
       visible={isVisible}
@@ -38,7 +41,10 @@ export default function MissionCompletedOverlay({
       onRequestClose={onClose}>
       <Dim>
         <Contents>
-          <Title>{titleText}</Title>
+          <TitleImage
+            source={TITLE_IMAGE_BY_VARIANT[variant]}
+            resizeMode="contain"
+          />
           <ItemImageWrapper>
             <Image
               source={itemImage}
@@ -80,16 +86,9 @@ const Contents = styled.View`
   gap: 20px;
 `;
 
-const Title = styled.Text`
-  font-family: ${font.pretendardExtraBold};
-  font-size: 44px;
-  line-height: 56px;
-  letter-spacing: -0.88px;
-  color: #67c4ff;
-  text-align: center;
-  text-shadow-color: rgba(0, 0, 0, 0.25);
-  text-shadow-radius: 7px;
-  text-shadow-offset: 0px 0px;
+const TitleImage = styled.Image`
+  width: 322px;
+  height: 56px;
 `;
 
 const ItemImageWrapper = styled.View`
