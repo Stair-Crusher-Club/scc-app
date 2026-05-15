@@ -556,6 +556,19 @@ Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이
 3. **viewBox와 실제 렌더 크기**: raw SVG의 viewBox가 inner content 크기이므로, 앱에서 사용할 최종 크기(width/height)와 viewBox를 맞춰야 함. 필요시 `<g transform="translate(x,y)">` 로 20x20 등 표준 viewBox 안에 배치
 4. **Figma screenshot과 비교**: SVG 파일 작성 후 반드시 Figma screenshot과 실제 렌더링을 비교하여 동일한지 확인. **raw path를 그대로 복붙하고 끝내지 말 것**
 
+### Figma 구현 반복 실수 방지 (MANDATORY)
+
+**1. BlurView/Overlay 위치 속성은 스크린샷으로 반드시 눈으로 확인**
+- `align-items: center; justify-content: center` 코드가 있어도 Android BlurView는 flex를 제대로 전달하지 않는다
+- 수정 패턴: BlurView 안에 `<View style={{flex:1, alignItems:'center', justifyContent:'center'}}>` 래퍼 추가
+- **코드에 속성이 있다고 렌더 결과를 가정하지 말 것. 반드시 스크린샷으로 실제 위치 확인.**
+
+**2. 이미지 렌더 크기는 반드시 PNG 픽셀 크기로 역산, Figma 측정으로 확정**
+- 코드에 있는 기존 width/height 값을 그대로 믿지 않는다
+- 측정 절차: (1) `get_design_context`로 해당 item 노드의 mask-size / wrapper size 정확히 확인 (2) 앱 PNG 파일 pixel dimension 확인 (`sips -g pixelWidth -g pixelHeight`) (3) @3x 기준으로 dp 역산 (pixel/3 = dp)
+- 예: PNG 270×288px → @3x → 90×96dp — 이게 렌더링 크기여야 함
+- **"대략 맞겠지"로 수치를 넘기지 말 것. Figma 노드 직접 측정이 유일한 기준.**
+
 ### Two-Phase Design Implementation (필수)
 
 디자인 구현은 반드시 **두 단계**를 거쳐야 한다:

@@ -1,6 +1,6 @@
 import {BlurView} from '@react-native-community/blur';
 import React from 'react';
-import {Image} from 'react-native';
+import {Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
@@ -68,10 +68,10 @@ export default function MissionCard({
           blurType="light"
           blurAmount={6}
           reducedTransparencyFallbackColor="rgba(255,255,255,0.92)">
-          <DimText>
-            {`🔒 `}
-            {dimText ?? '이전 미션을 먼저 완료해주세요!'}
-          </DimText>
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <DimText>{`🔒\n${dimText ?? '이전 미션을 먼저 완료해주세요!'}`}</DimText>
+          </View>
         </DimOverlay>
       )}
     </CardContainer>
