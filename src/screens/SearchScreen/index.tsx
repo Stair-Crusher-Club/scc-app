@@ -1,12 +1,13 @@
 import {useBackHandler} from '@react-native-community/hooks';
+import {RouteProp, useIsFocused, useRoute} from '@react-navigation/native';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
-import {ScreenProps} from '@/navigation/Navigation.screens';
+import {ScreenParams} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
 import {
   draftCameraRegionAtom,
@@ -68,7 +69,16 @@ export interface SearchScreenParams {
   initSortOption?: SortOption;
 }
 
-const SearchScreen = ({route}: ScreenProps<'Search'>) => {
+const SearchScreen = () => {
+  const route = useRoute<RouteProp<ScreenParams, 'Search'>>();
+  // 탭 떠날 때 SearchScreen을 완전히 unmount해서 mount/effect/state/지도 뷰까지
+  // 모두 초기화한다. (Tab 영속화로 인한 stale 카메라/state 문제 회피)
+  // Stack child push (PlaceDetail 등)에도 unmount되지만 route.params에 따라
+  // 재진입 시 동일한 검색을 다시 트리거하므로 UX 회귀는 작다.
+  const isFocused = useIsFocused();
+  if (!isFocused) {
+    return null;
+  }
   return (
     <SearchScreenProvider>
       <SearchScreenContent route={route} />
@@ -79,15 +89,16 @@ const SearchScreen = ({route}: ScreenProps<'Search'>) => {
 const SearchScreenContent = ({
   route,
 }: {
-  route: ScreenProps<'Search'>['route'];
+  route: RouteProp<ScreenParams, 'Search'>;
 }) => {
+  // Tab 화면은 navigate 없이 mount될 수 있어 route.params가 undefined일 수 있다.
   const {
     initKeyword,
     toMap,
     searchQuery: deepLinkSearchQuery,
     fromLookup,
     initSortOption,
-  } = route.params;
+  } = route.params ?? {};
   const ref = useRef<SearchMapViewHandle>(null);
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
@@ -168,43 +179,28 @@ const SearchScreenContent = ({
     }
   };
 
+  // SearchScreen은 wrapper에서 useIsFocused로 conditional render되어
+  // 탭 떠나면 항상 unmount되고 다시 들어오면 fresh mount된다.
+  // 따라서 mount 시점에 route.params 기반 init 1회 실행만 하면 된다.
+  // Unmount 시에는 atom들도 default로 리셋.
   useEffect(() => {
-    // 1. fromLookup 상태 설정
     setIsFromLookup(!!fromLookup);
-
-    // 2. initSortOption이 지정되면 해당 정렬 적용
     if (initSortOption) {
-      setFilter(prev => ({
-        ...prev,
-        sortOption: initSortOption,
-      }));
+      setFilter(prev => ({...prev, sortOption: initSortOption}));
     }
-
-    // 3. initKeyword로 검색 트리거 (필터가 이미 설정된 상태)
-    if (initKeyword) {
-      onQueryUpdate({text: initKeyword}, {shouldAnimate: true});
-    }
-  }, []);
-
-  useEffect(() => {
     if (toMap) {
       setViewState({type: 'map', inputMode: false});
     }
-  }, [toMap]);
-
-  useEffect(() => {
     if (deepLinkSearchQuery) {
       setViewState({type: 'map', inputMode: false});
       onQueryUpdate(
         {text: deepLinkSearchQuery},
         {shouldAnimate: true, shouldRecordHistory: true},
       );
+    } else if (initKeyword) {
+      onQueryUpdate({text: initKeyword}, {shouldAnimate: true});
     }
-  }, [deepLinkSearchQuery]);
-
-  // 화면 나갈 때 상태 돌려놓기
-  useEffect(() => {
-    return navigation.addListener('beforeRemove', () => {
+    return () => {
       setIsFromLookup(false);
       setFilter({
         sortOption: SortOption.LOW_SCORE,
@@ -214,7 +210,7 @@ const SearchScreenContent = ({
         hasReview: null,
       });
       setFilterModalState(null);
-      setViewState({type: 'map', inputMode: true});
+      setViewState({type: 'map', inputMode: false});
       setSearchQuery({text: null, location: null, radiusMeter: null});
       setDraftCameraRegion(null);
       setDraftKeyword(null);
@@ -222,8 +218,8 @@ const SearchScreenContent = ({
       setSearchRequestId(null);
       setToiletLayerActive(false);
       resetHighlightAnimation();
-    });
-  }, [navigation]);
+    };
+  }, []);
 
   const handleBack = useCallback((): boolean => {
     if (!navigation.isFocused()) return false;
@@ -244,11 +240,26 @@ const SearchScreenContent = ({
       setViewState({type: 'map', inputMode: false});
       return true;
     }
-    // 지도 뷰 + 검색 결과 있음 → 검색어만 클리어, 지도 뷰 유지
+    // 지도 뷰 + 검색 결과 있음 → SearchInputText의 X 버튼(onClear)과 동일한 효과로 처리
     if (!viewState.inputMode && searchQuery.text) {
-      setSearchQuery({text: null, location: null, radiusMeter: null});
-      setDraftKeyword(null);
-      setSearchMode('place');
+      setDraftKeyword('');
+      setViewState({type: 'map', inputMode: false});
+      onQueryUpdate(
+        {text: ''},
+        {
+          shouldRecordHistory: true,
+          shouldRemainInInputMode: false,
+          shouldAnimate: true,
+          mode: 'place',
+        },
+      );
+      navigation.setParams({
+        initKeyword: undefined,
+        toMap: undefined,
+        searchQuery: undefined,
+        fromLookup: undefined,
+        initSortOption: undefined,
+      });
       return true;
     }
     // 초기 상태 → 화면 나가기
@@ -264,6 +275,25 @@ const SearchScreenContent = ({
 
   useBackHandler(handleBack);
 
+  // Empty view (검색 전 + 입력 모드 아님)일 때만 하단 navbar 노출.
+  // 검색 결과/리스트뷰/입력 모드에서는 navbar를 숨긴다.
+  //
+  // navbar 토글 시 map view height가 변하면 카메라 fit 애니메이션이 어긋나 보이는 문제가
+  // 있으므로, 노출 시에도 position:absolute로 띄워서 map view를 항상 풀스크린으로 유지한다.
+  // (즉 map은 항상 풀스크린이고, navbar는 빈 view일 때만 하단에 오버레이로 떠 있는 형태)
+  // Search 화면이 focus 잃으면 다른 탭의 own options가 적용되므로 이 override는 영향 없음.
+  const isEmptyView =
+    !searchQuery.text && !viewState.inputMode && viewState.type === 'map';
+  useLayoutEffect(() => {
+    // navigation prop은 Stack 기준 타입이지만 실제로는 Tab 안에서 동작하므로
+    // tabBarStyle 옵션을 받기 위해 캐스팅한다.
+    (navigation as unknown as {setOptions: (o: object) => void}).setOptions({
+      tabBarStyle: isEmptyView
+        ? {position: 'absolute', left: 0, right: 0, bottom: 0}
+        : {display: 'none'},
+    });
+  }, [navigation, isEmptyView]);
+
   return (
     <LogParamsProvider
       params={{
@@ -275,7 +305,9 @@ const SearchScreenContent = ({
       <S.SearchScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
         <SearchHeader
           onQueryUpdate={onQueryUpdate}
-          autoFocus={!initKeyword && !toMap && !deepLinkSearchQuery}
+          // 검색 바 클릭(toMap=false)으로 진입한 경우에만 input에 autoFocus.
+          // 지도 탭 직접 진입(route.params undefined)일 때는 map mode 유지.
+          autoFocus={toMap === false && !initKeyword && !deepLinkSearchQuery}
           onBack={handleBack}
         />
         <View

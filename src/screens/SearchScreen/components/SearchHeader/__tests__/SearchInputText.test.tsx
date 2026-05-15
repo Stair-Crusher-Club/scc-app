@@ -34,7 +34,7 @@ jest.mock('@/assets/icon/ic_search.svg', () => {
 
 // Mock navigation
 jest.mock('@/navigation/useNavigation.ts', () => () => ({
-  goBack: jest.fn(),
+  navigate: jest.fn(),
 }));
 
 // Mock SccTouchableOpacity — elementName을 testID로 매핑하여 버튼 식별 가능

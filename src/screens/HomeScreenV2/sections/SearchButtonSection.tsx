@@ -31,7 +31,7 @@ export default function SearchButtonSection() {
         <SearchBar>
           <LeftSection>
             <SccPressable elementName="home_v2_map_button" onPress={goToMap}>
-              <MapIcon width={24} height={24} />
+              <MapIcon width={24} height={24} color={color.gray80v2} />
             </SccPressable>
             <TextPressable
               elementName="home_v2_search_button"

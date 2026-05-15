@@ -36,7 +36,6 @@ import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyAc
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 import LastMonthRankingModal from './components/LastMonthRankingModal';
 import {isDismissedToday} from '@/atoms/challengeModalAtoms';
-import {SortOption} from '@/screens/SearchScreen/atoms';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
@@ -224,10 +223,15 @@ const ChallengeDetailScreen = ({
           <ChallengeDetailStickyActionBar
             visible={visible}
             onGoConquer={() =>
-              navigation.navigate('Search', {
-                initKeyword: '',
-                initSortOption: SortOption.ACCURACY,
-              })
+              // Search는 Main tab 내부에 있어 nested navigate 필요.
+              // initSortOption은 지정하지 않음 → 다른 검색 진입과 동일하게
+              // filterAtom default(LOW_SCORE = 접근레벨낮은순) 적용.
+              navigation.navigate('Main', {
+                screen: 'Search',
+                params: {
+                  initKeyword: '',
+                },
+              } as never)
             }
           />
         )}

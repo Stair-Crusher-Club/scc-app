@@ -17,10 +17,12 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 import ChallengeIcon from '../../assets/icon/ic_challenge.svg';
 import HomeIcon from '../../assets/icon/ic_home.svg';
+import MapIcon from '../../assets/icon/ic_map_detailed.svg';
 import MenuIcon from '../../assets/icon/ic_menu.svg';
 import ChallengeScreen from '../ChallengeScreen';
 import HomeScreenV2 from '../HomeScreenV2';
 import MenuScreen from '../MenuScreen';
+import SearchScreen from '../SearchScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +30,7 @@ const Tab = createBottomTabNavigator();
 const HomeTabIcon = (props: {color: string}) => (
   <HomeIcon color={props.color} />
 );
+const MapTabIcon = (props: {color: string}) => <MapIcon color={props.color} />;
 const ChallengeTabIcon = (props: {color: string}) => (
   <ChallengeIcon color={props.color} />
 );
@@ -89,6 +92,15 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
           title: '홈',
           headerShown: false,
           tabBarIcon: HomeTabIcon,
+        }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{
+          title: '지도',
+          headerShown: false,
+          tabBarIcon: MapTabIcon,
         }}
       />
       <Tab.Screen

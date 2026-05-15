@@ -64,7 +64,7 @@ import RegistrationCompleteScreen, {
 import ReviewHistoryScreen from '@/screens/ReviewHistoryScreen';
 import ReviewScreen from '@/screens/ReviewScreen';
 import ReviewUpVoteScreen from '@/screens/ReviewUpVoteScreen';
-import SearchScreen, {SearchScreenParams} from '@/screens/SearchScreen';
+import {SearchScreenParams} from '@/screens/SearchScreen';
 import SearchUnconqueredPlacesScreen, {
   SearchUnconqueredPlacesScreenParams,
 } from '@/screens/SearchUnconqueredPlacesScreen';
@@ -92,11 +92,6 @@ export const MainNavigationScreens: {
 }[] = [
   {name: 'Intro', component: IntroScreen},
   {name: 'Main', component: MainScreen},
-  {
-    name: 'Search',
-    component: SearchScreen,
-    options: {headerShown: false},
-  },
   {name: 'Login', component: LoginScreen},
   {
     name: 'Signup',
