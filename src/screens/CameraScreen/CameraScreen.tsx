@@ -365,8 +365,6 @@ export default function CameraScreen({
         {photoFiles.length === 0 && (
           <S.NoPhotosTaken>
             최대 {photoLimit}장까지 촬영할 수 있어요
-            {'\n'}
-            음량 조절 버튼으로도 촬영이 가능해요
           </S.NoPhotosTaken>
         )}
         {photoFiles.length > 0 && (
