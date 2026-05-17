@@ -72,8 +72,12 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
   // PlaceDetailV2Screen 와 동일하게 layout y 좌표를 ref 로 측정.
   const nameBottomYRef = useRef(220); // figma 기준 place name 하단 추정값 (status bar + app bar + name 영역 ≈ 220)
-  // 도움돼요 버튼 실제 화면 좌표. onLayout 은 직접 parent 기준이라 nested layout 이 있으면 어긋난다.
-  // 대신 `measureInWindow` 로 화면(window) 절대 좌표를 측정해서 spotlight hole 을 정확히 fit 시킨다.
+  // Root 의 window-y 시작점. measureInWindow 결과(window-absolute) 를 Root 좌표로
+  // 변환하기 위해 빼준다. Stack.Navigator 등이 Root 위에 system inset 을 두면
+  // measureInWindow 와 dim rect 의 좌표계가 어긋난다.
+  const rootRef = useRef<View>(null);
+  const rootOffsetRef = useRef({x: 0, y: 0});
+  // 도움돼요 버튼 ref. measureInWindow 로 window-absolute 좌표를 받아 spotlight hole 을 정확히 fit.
   const upvoteButtonRef = useRef<View>(null);
   const [upvoteHolePosition, setUpvoteHolePosition] = useState<{
     x: number;
@@ -125,6 +129,8 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
   // UPVOTE_DIM 진입 시 도움돼요 버튼의 화면 절대 좌표를 측정한다.
   // 한 번 측정해도 layout 직후엔 0 이 나올 수 있어 짧은 retry 를 한다.
+  // measureInWindow 결과는 window-absolute 이므로 Root 의 window 시작점(rootOffsetRef) 을
+  // 빼서 Root 좌표계로 변환한다. 그래야 absolute positioning 한 dim rect 와 정확히 align 된다.
   useEffect(() => {
     if (phase !== 'UPVOTE_DIM') {
       return;
@@ -139,7 +145,14 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           return;
         }
         if (width > 0 && height > 0) {
-          setUpvoteHolePosition({x, y, width, height});
+          const rootX = rootOffsetRef.current.x;
+          const rootY = rootOffsetRef.current.y;
+          setUpvoteHolePosition({
+            x: x - rootX,
+            y: y - rootY,
+            width,
+            height,
+          });
         } else if (attempt < 6) {
           setTimeout(() => tryMeasure(attempt + 1), 50);
         }
@@ -152,6 +165,13 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
       clearTimeout(timer);
     };
   }, [phase]);
+
+  // Root 의 window-y 시작점을 측정. 마운트 후 layout 이 stable 해진 다음 측정한다.
+  const handleRootLayout = useCallback(() => {
+    rootRef.current?.measureInWindow((x, y) => {
+      rootOffsetRef.current = {x, y};
+    });
+  }, []);
 
   const handlePressUpvote = useCallback(() => {
     if (phaseRef.current === 'COMPLETED' || completeMission.isPending) {
@@ -171,7 +191,10 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
   const description = `돋보기 획득!\n꼼꼼하고 다정하게 정보를\n살펴봐주셔서 고마워요!`;
 
   return (
-    <Root>
+    <View
+      ref={rootRef}
+      onLayout={handleRootLayout}
+      style={{flex: 1, backgroundColor: color.white}}>
       <LogParamsProvider
         params={{displaySectionName: 'tutorial_mission_3_upvote'}}>
         <SafeTop style={{height: insets.top}} />
@@ -267,7 +290,7 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           onClose={handleClosePopup}
         />
       </LogParamsProvider>
-    </Root>
+    </View>
   );
 }
 
@@ -343,7 +366,6 @@ function SpotlightOverlay({
   holeWidth,
   holeHeight,
 }: SpotlightOverlayProps) {
-  const SCREEN_HEIGHT = Dimensions.get('window').height;
   const hX = holeX - HOLE_PADDING;
   const hY = holeY - HOLE_PADDING;
   const hW = holeWidth + HOLE_PADDING * 2;
@@ -381,18 +403,13 @@ function SpotlightOverlay({
           height: hH,
         }}
       />
-      {/* tooltip */}
-      <TooltipContainer style={{bottom: SCREEN_HEIGHT - hY + 24}}>
+      {/* tooltip — hole 바로 위에 표시. top 기준으로 anchor (Root 높이가 window 와 달라도 안전) */}
+      <TooltipContainer style={{top: hY - 32}}>
         <TooltipText>[도움돼요]버튼을 눌러보세요!</TooltipText>
       </TooltipContainer>
     </View>
   );
 }
-
-const Root = styled.View`
-  flex: 1;
-  background-color: ${color.white};
-`;
 
 const SafeTop = styled.View`
   background-color: ${color.white};
