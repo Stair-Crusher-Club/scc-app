@@ -1,12 +1,12 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
   Dimensions,
   Image,
-  LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
+  View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
@@ -26,10 +26,11 @@ import V2AppBar from '@/screens/PlaceDetailV2Screen/components/V2AppBar';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-// figma 1648:42184 의 body 컨테이너 비율 (390 × 1289). placeholder 자산이 정식 export 로 교체될 때까지
-// 비율을 figma 기준으로 강제하여 스크롤 가능한 높이를 확보한다.
+// figma 1648:41636 (390 × 1857) 에서 app bar(94) + floating bar(80) 영역을 잘라낸 본문 — 390 × 1683.
+// 실제 자산(tutorial_mission_3_pdp_body.png)도 동일한 1170 × 5049 (3x) 로 export 되어 있어
+// 이 비율을 그대로 사용하면 image 가 native ratio 대로 렌더 (resize crop 없음).
 const PDP_BODY_FIGMA_WIDTH = 390;
-const PDP_BODY_FIGMA_HEIGHT = 1289;
+const PDP_BODY_FIGMA_HEIGHT = 1683;
 const PDP_BODY_RENDER_HEIGHT =
   (SCREEN_WIDTH * PDP_BODY_FIGMA_HEIGHT) / PDP_BODY_FIGMA_WIDTH;
 
@@ -67,7 +68,9 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
   // PlaceDetailV2Screen 와 동일하게 layout y 좌표를 ref 로 측정.
   const nameBottomYRef = useRef(220); // figma 기준 place name 하단 추정값 (status bar + app bar + name 영역 ≈ 220)
-  const bottomBarLayoutRef = useRef({top: 0, bottom: 0});
+  // 도움돼요 버튼 실제 화면 좌표. onLayout 은 직접 parent 기준이라 nested layout 이 있으면 어긋난다.
+  // 대신 `measureInWindow` 로 화면(window) 절대 좌표를 측정해서 spotlight hole 을 정확히 fit 시킨다.
+  const upvoteButtonRef = useRef<View>(null);
   const [upvoteHolePosition, setUpvoteHolePosition] = useState<{
     x: number;
     y: number;
@@ -116,15 +119,35 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     [setPhase],
   );
 
-  const handleUpvoteButtonLayout = useCallback((e: LayoutChangeEvent) => {
-    const {x, y, width, height} = e.nativeEvent.layout;
-    setUpvoteHolePosition({x, y, width, height});
-  }, []);
-
-  const handleBottomBarLayout = useCallback((e: LayoutChangeEvent) => {
-    const {y, height} = e.nativeEvent.layout;
-    bottomBarLayoutRef.current = {top: y, bottom: y + height};
-  }, []);
+  // UPVOTE_DIM 진입 시 도움돼요 버튼의 화면 절대 좌표를 측정한다.
+  // 한 번 측정해도 layout 직후엔 0 이 나올 수 있어 짧은 retry 를 한다.
+  useEffect(() => {
+    if (phase !== 'UPVOTE_DIM') {
+      return;
+    }
+    let cancelled = false;
+    const tryMeasure = (attempt: number) => {
+      if (cancelled) {
+        return;
+      }
+      upvoteButtonRef.current?.measureInWindow((x, y, width, height) => {
+        if (cancelled) {
+          return;
+        }
+        if (width > 0 && height > 0) {
+          setUpvoteHolePosition({x, y, width, height});
+        } else if (attempt < 6) {
+          setTimeout(() => tryMeasure(attempt + 1), 50);
+        }
+      });
+    };
+    // bottom bar slide-in 애니메이션(300ms 미만) 이후 측정.
+    const timer = setTimeout(() => tryMeasure(0), 100);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [phase]);
 
   const handlePressUpvote = useCallback(() => {
     if (phaseRef.current === 'COMPLETED' || completeMission.isPending) {
@@ -181,7 +204,6 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
         {/* Sticky bottom bar — V2BottomBar 의 control variant 시각 복제. experiment 영향 배제. */}
         <Animated.View
-          onLayout={handleBottomBarLayout}
           style={{
             position: 'absolute',
             left: 0,
@@ -199,8 +221,8 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           }}>
           <Mission3BottomBar
             bottomInset={insets.bottom}
+            upvoteRef={upvoteButtonRef}
             onPressUpvote={handlePressUpvote}
-            onUpvoteLayout={handleUpvoteButtonLayout}
           />
         </Animated.View>
 
@@ -215,11 +237,12 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           </InitialDimOverlay>
         )}
 
-        {/* State 3: 도움돼요 spotlight + tooltip. 4개 dim rect 로 hole 구성. */}
+        {/* State 3: 도움돼요 spotlight + tooltip. 4개 dim rect 로 hole 구성.
+            holePadding 으로 버튼 주위에 약간의 여유를 주어 디자인 의도(figma 1648:42314) 와 동일하게 fit. */}
         {phase === 'UPVOTE_DIM' && upvoteHolePosition && (
           <SpotlightOverlay
             holeX={upvoteHolePosition.x}
-            holeY={bottomBarLayoutRef.current.top + upvoteHolePosition.y}
+            holeY={upvoteHolePosition.y}
             holeWidth={upvoteHolePosition.width}
             holeHeight={upvoteHolePosition.height}
           />
@@ -240,8 +263,8 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
 interface Mission3BottomBarProps {
   bottomInset: number;
+  upvoteRef: React.Ref<View>;
   onPressUpvote: () => void;
-  onUpvoteLayout: (e: LayoutChangeEvent) => void;
 }
 
 /**
@@ -250,16 +273,20 @@ interface Mission3BottomBarProps {
  */
 function Mission3BottomBar({
   bottomInset,
+  upvoteRef,
   onPressUpvote,
-  onUpvoteLayout,
 }: Mission3BottomBarProps) {
   return (
     <BarContainer bottomInset={bottomInset}>
       <BarRow>
         <UpvoteButton
-          onLayout={onUpvoteLayout}
+          ref={upvoteRef}
           elementName="tutorial_mission_3_upvote_button"
-          onPress={onPressUpvote}>
+          onPress={onPressUpvote}
+          android_ripple={{color: 'rgba(255,255,255,0.35)'}}
+          style={({pressed}: {pressed: boolean}) =>
+            pressed ? {opacity: 0.85} : null
+          }>
           <ThumbsUpYellowIcon width={16} height={16} />
           <UpvoteText numberOfLines={1}>도움돼요</UpvoteText>
         </UpvoteButton>
@@ -292,10 +319,16 @@ interface SpotlightOverlayProps {
   holeHeight: number;
 }
 
+// 버튼 모서리(border-radius 8) 와 sharp rect hole 의 미세한 mismatch 를 가리고 디자인 의도대로
+// 약간의 여유를 주기 위해 dim 외곽에 padding 을 추가한다.
+const HOLE_PADDING = 4;
+
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
  * 4개의 dim rect (위/아래/왼쪽/오른쪽) 로 hole 을 구성한다.
- * tooltip 은 hole 위쪽에 표시한다.
+ * 좌표는 window-absolute (measureInWindow 결과) 이며 SpotlightOverlay 가
+ * full-screen Root 안에서 absolute positioning 되므로 그대로 사용한다.
+ * pointerEvents="box-none" 으로 hole 영역의 터치는 아래(도움돼요 버튼)로 전달된다.
  */
 function SpotlightOverlay({
   holeX,
@@ -304,14 +337,18 @@ function SpotlightOverlay({
   holeHeight,
 }: SpotlightOverlayProps) {
   const SCREEN_HEIGHT = Dimensions.get('window').height;
+  const hX = holeX - HOLE_PADDING;
+  const hY = holeY - HOLE_PADDING;
+  const hW = holeWidth + HOLE_PADDING * 2;
+  const hH = holeHeight + HOLE_PADDING * 2;
   return (
     <>
       {/* top rect */}
-      <DimRect style={{top: 0, left: 0, right: 0, height: holeY}} />
+      <DimRect style={{top: 0, left: 0, right: 0, height: hY}} />
       {/* bottom rect */}
       <DimRect
         style={{
-          top: holeY + holeHeight,
+          top: hY + hH,
           left: 0,
           right: 0,
           bottom: 0,
@@ -320,23 +357,23 @@ function SpotlightOverlay({
       {/* left rect */}
       <DimRect
         style={{
-          top: holeY,
+          top: hY,
           left: 0,
-          width: holeX,
-          height: holeHeight,
+          width: hX,
+          height: hH,
         }}
       />
       {/* right rect */}
       <DimRect
         style={{
-          top: holeY,
-          left: holeX + holeWidth,
+          top: hY,
+          left: hX + hW,
           right: 0,
-          height: holeHeight,
+          height: hH,
         }}
       />
       {/* tooltip */}
-      <TooltipContainer style={{bottom: SCREEN_HEIGHT - holeY + 24}}>
+      <TooltipContainer style={{bottom: SCREEN_HEIGHT - hY + 24}}>
         <TooltipText>[도움돼요]버튼을 눌러보세요!</TooltipText>
       </TooltipContainer>
     </>
