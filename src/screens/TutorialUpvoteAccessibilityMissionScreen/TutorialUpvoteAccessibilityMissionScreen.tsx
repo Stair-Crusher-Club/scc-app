@@ -280,7 +280,6 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
               }}
               resizeMode="contain"
             />
-            <View style={{height: 8}} />
             <GuideText>
               <GuideHighlight>스크롤</GuideHighlight>하면 더 많은 정보를{'\n'}
               확인할 수 있어요
@@ -367,15 +366,67 @@ interface SpotlightOverlayProps {
   holeHeight: number;
 }
 
+interface TooltipBlockProps {
+  holeX: number;
+  holeY: number;
+  holeWidth: number;
+}
+
+/**
+ * "[도움돼요]버튼을 눌러보세요!" 텍스트 + 굽어진 화살표 를 한 컴포넌트로 묶음.
+ * 컴포넌트는 button top-left (holeX, holeY) 를 anchor 로 absolute 배치하고,
+ * 내부에서 figma 1648-42182 의 정확한 offset 대로 텍스트/화살표 위치를 잡는다:
+ *   - 텍스트: button left + 98dp, button top - 40dp (= figma 1648:42315)
+ *   - 화살표: button left + 82dp, button top - 2dp (= figma 1648:42181 displayed bbox)
+ */
+function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        left: holeX,
+        top: holeY,
+        width: 0,
+        height: 0,
+      }}>
+      {/* 텍스트 — 컴포넌트 anchor 기준 (98, -40). single line, paddingLeft 없음. */}
+      <View
+        style={{
+          position: 'absolute',
+          left: 98,
+          top: -40,
+        }}>
+        <TooltipText>
+          <TooltipHighlight>[도움돼요]</TooltipHighlight>버튼을 눌러보세요!
+        </TooltipText>
+      </View>
+      {/* 화살표 — 컴포넌트 anchor 기준 (62, -26). 18 dp 높이라 button top 아래로 16 dp 들어감
+          (figma 의도: 화살촉이 버튼 상단 근처에 닿음). */}
+      <Image
+        source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
+        style={{
+          position: 'absolute',
+          left: 62,
+          top: -26,
+          width: TOOLTIP_ARROW_WIDTH,
+          height: TOOLTIP_ARROW_HEIGHT,
+        }}
+        resizeMode="contain"
+      />
+    </View>
+  );
+}
+
 // 버튼 모서리(border-radius 8) 와 hole 의 디자인 의도(figma 1648:42314)에 맞춰 외곽 padding 을 추가한다.
 const HOLE_PADDING = 4;
 // figma 1648:42181 export PNG (transforms baked) — 96×54 px @3x = 32×18 dp.
 const TOOLTIP_ARROW_WIDTH = 32;
 const TOOLTIP_ARROW_HEIGHT = 18;
-// figma 1648:42182 frame 기준 button(13)→arrow(95) 가로 offset 82dp, button→tooltip(111) 98dp.
-const FIGMA_ARROW_X_OFFSET = 82;
-const FIGMA_TOOLTIP_X_OFFSET = 98;
-const FIGMA_TOOLTIP_Y_OFFSET = -40;
+// TooltipBlock 이 hole top 위로 얼마나 떠있는지 (px). 화살표 끝이 hole 윗변과 거의 닿게.
+const TOOLTIP_BLOCK_GAP_ABOVE_HOLE = 2;
+// 컴포넌트 내부에서 화살표를 텍스트로부터 얼마나 들여쓸지 (왼쪽 들여쓰기).
+const TOOLTIP_ARROW_INDENT = 16;
 
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
@@ -428,32 +479,9 @@ function SpotlightOverlay({
           mask="url(#spotlightHole)"
         />
       </Svg>
-      {/* tooltip text — figma 1648:42315 위치 (button left + 98dp, button top - 40dp).
-          left-aligned (not centered) so arrow 옆에서 시작. */}
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          left: holeX + FIGMA_TOOLTIP_X_OFFSET,
-          top: holeY + FIGMA_TOOLTIP_Y_OFFSET,
-        }}>
-        <TooltipText>
-          <TooltipHighlight>[도움돼요]</TooltipHighlight>버튼을 눌러보세요!
-        </TooltipText>
-      </View>
-      {/* tooltip 옆 curved arrow (figma 1648:42181). text → button 방향으로 굽어진 화살표.
-          PNG export 라 회전·반전 transform 이 이미 baked in. */}
-      <Image
-        source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
-        style={{
-          position: 'absolute',
-          left: holeX + FIGMA_ARROW_X_OFFSET,
-          top: holeY - 2,
-          width: TOOLTIP_ARROW_WIDTH,
-          height: TOOLTIP_ARROW_HEIGHT,
-        }}
-        resizeMode="contain"
-      />
+      {/* tooltip block — 텍스트 + 화살표를 한 컴포넌트로 묶고 spotlight hole 위에 absolute
+          으로 고정 픽셀만큼 띄워서 배치. 컴포넌트 내부에서 텍스트/화살표 위치를 조정. */}
+      <TooltipBlock holeX={holeX} holeY={holeY} holeWidth={holeWidth} />
     </View>
   );
 }
