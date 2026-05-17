@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Svg, {Defs, LinearGradient, Mask, Rect, Stop} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import DashedArrowUpIcon from '@/assets/icon/ic_dashed_arrow_up.svg';
@@ -17,6 +18,7 @@ import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
+import TooltipArrowIcon from '@/assets/icon/ic_tooltip_arrow.svg';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -38,6 +40,15 @@ const PDP_BODY_TOP_RENDER_HEIGHT =
   (SCREEN_WIDTH * PDP_BODY_TOP_HEIGHT) / PDP_BODY_TOP_WIDTH;
 const PDP_BODY_BOTTOM_RENDER_HEIGHT =
   (SCREEN_WIDTH * PDP_BODY_BOTTOM_HEIGHT) / PDP_BODY_TOP_WIDTH;
+
+// figma 1648:41636 에서 "매장 출입구" 섹션은 body 시작점 기준 y=526dp (1648:41652 위치, app bar 빼고).
+// V2AppBar(50dp) 가 viewport 상단을 덮으므로 그만큼 덜 스크롤해서 섹션 header 가 viewport 에 보이게 한다.
+const V2_APP_BAR_HEIGHT = 50;
+const SCROLL_TARGET_Y = (526 * SCREEN_WIDTH) / 390 - V2_APP_BAR_HEIGHT;
+
+// figma 1648:42314 spotlight subtract rect 의 border-radius 12px 매칭 (실제 도움돼요 버튼의
+// border-radius 는 8 이지만 figma punch rect 는 외곽 padding 포함이므로 약간 더 크게).
+const SPOTLIGHT_BORDER_RADIUS = 12;
 
 const PLACE_NAME = '윌리가 너무 가고 싶어하는 카페';
 
@@ -107,9 +118,10 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
       return;
     }
     setPhase('AUTO_SCROLLING');
-    // 사용자의 스크롤 제스처 직후 자동으로 하단까지 이동.
+    // 매장 출입구 섹션이 viewport 최상단에 오는 위치(SCROLL_TARGET_Y)까지 부드럽게 자동 스크롤.
+    // 화면 폭이 달라도 figma 비례를 그대로 따라가므로 매번 같은 위치에 도달한다.
     setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({animated: true});
+      scrollViewRef.current?.scrollTo({y: SCROLL_TARGET_Y, animated: true});
     }, 50);
   }, [setPhase]);
 
@@ -118,10 +130,9 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
       if (phaseRef.current !== 'AUTO_SCROLLING') {
         return;
       }
-      const {contentOffset, contentSize, layoutMeasurement} = e.nativeEvent;
-      const atBottom =
-        contentOffset.y + layoutMeasurement.height >= contentSize.height - 8;
-      if (atBottom) {
+      const {contentOffset} = e.nativeEvent;
+      // 목표 위치(SCROLL_TARGET_Y) 근처에 도달했으면 UPVOTE_DIM 으로 전환.
+      if (Math.abs(contentOffset.y - SCROLL_TARGET_Y) < 4) {
         setPhase('UPVOTE_DIM');
       }
     },
@@ -260,10 +271,38 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           />
         </Animated.View>
 
-        {/* State 1: 초기 dim + 스크롤 가이드. figma 1648:41633. */}
+        {/* State 1: 초기 dim + 스크롤 가이드. figma 1648:41633 (텍스트), 1821:18739 (backdrop). */}
         {phase === 'INITIAL_DIM' && (
           <InitialDimOverlay pointerEvents="none" style={{top: insets.top}}>
-            <DashedArrowUpIcon width={29} height={113} color="#ffffff" />
+            {/* 화살표 뒤 흰색 그라데이션 backdrop. arrow 와 동일 컨테이너에서 absolute 로 겹쳐 둠. */}
+            <ArrowStack>
+              <Svg
+                width={72}
+                height={240}
+                style={{position: 'absolute', top: -64}}>
+                <Defs>
+                  <LinearGradient
+                    id="arrowBackdrop"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1">
+                    <Stop offset="0" stopColor="#ffffff" stopOpacity={0.8} />
+                    <Stop offset="0.85" stopColor="#ffffff" stopOpacity={0} />
+                  </LinearGradient>
+                </Defs>
+                <Rect
+                  x={0}
+                  y={0}
+                  width={72}
+                  height={240}
+                  rx={36}
+                  ry={36}
+                  fill="url(#arrowBackdrop)"
+                />
+              </Svg>
+              <DashedArrowUpIcon width={29} height={113} color="#ffffff" />
+            </ArrowStack>
             <GuideText>
               <GuideHighlight>스크롤</GuideHighlight>하면 더 많은 정보를{'\n'}
               확인할 수 있어요
@@ -350,9 +389,11 @@ interface SpotlightOverlayProps {
   holeHeight: number;
 }
 
-// 버튼 모서리(border-radius 8) 와 sharp rect hole 의 미세한 mismatch 를 가리고 디자인 의도대로
-// 약간의 여유를 주기 위해 dim 외곽에 padding 을 추가한다.
+// 버튼 모서리(border-radius 8) 와 hole 의 디자인 의도(figma 1648:42314)에 맞춰 외곽 padding 을 추가한다.
 const HOLE_PADDING = 4;
+// figma 1648:42181 — tooltip 옆 curved arrow size (25.5 × 27.7).
+const TOOLTIP_ARROW_WIDTH = 25.5;
+const TOOLTIP_ARROW_HEIGHT = 27.7;
 
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
@@ -371,45 +412,57 @@ function SpotlightOverlay({
   const hY = holeY - HOLE_PADDING;
   const hW = holeWidth + HOLE_PADDING * 2;
   const hH = holeHeight + HOLE_PADDING * 2;
-  // 단일 View 로 묶는다. fragment 로 4개 dim rect + tooltip 을 반환하면 Fabric 의
-  // mount index 가 부모의 conditional rendering 과 충돌해 addViewAt 가 실패한다.
+  const {width: winW, height: winH} = Dimensions.get('window');
+  // SVG mask 로 dim rect 에 rounded rect hole 을 punch out. 4-rect 방식과 달리 hole 모서리에
+  // border-radius 적용 가능.
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      {/* top rect */}
-      <DimRect style={{top: 0, left: 0, right: 0, height: hY}} />
-      {/* bottom rect */}
-      <DimRect
-        style={{
-          top: hY + hH,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-      />
-      {/* left rect */}
-      <DimRect
-        style={{
-          top: hY,
-          left: 0,
-          width: hX,
-          height: hH,
-        }}
-      />
-      {/* right rect */}
-      <DimRect
-        style={{
-          top: hY,
-          left: hX + hW,
-          right: 0,
-          height: hH,
-        }}
-      />
+      <Svg
+        width={winW}
+        height={winH}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none">
+        <Defs>
+          <Mask id="spotlightHole" x="0" y="0" width={winW} height={winH}>
+            {/* white = visible (dim 적용), black = invisible (hole) */}
+            <Rect x={0} y={0} width={winW} height={winH} fill="white" />
+            <Rect
+              x={hX}
+              y={hY}
+              width={hW}
+              height={hH}
+              rx={SPOTLIGHT_BORDER_RADIUS}
+              ry={SPOTLIGHT_BORDER_RADIUS}
+              fill="black"
+            />
+          </Mask>
+        </Defs>
+        <Rect
+          x={0}
+          y={0}
+          width={winW}
+          height={winH}
+          fill="rgba(0,0,0,0.7)"
+          mask="url(#spotlightHole)"
+        />
+      </Svg>
       {/* tooltip — hole 바로 위에 표시. top 기준으로 anchor (Root 높이가 window 와 달라도 안전) */}
       <TooltipContainer style={{top: hY - 32}}>
         <TooltipText>
           <TooltipHighlight>[도움돼요]</TooltipHighlight>버튼을 눌러보세요!
         </TooltipText>
       </TooltipContainer>
+      {/* tooltip 옆 curved arrow (figma 1648:42181). text 와 button 사이를 가리킴. */}
+      <TooltipArrowIcon
+        width={TOOLTIP_ARROW_WIDTH}
+        height={TOOLTIP_ARROW_HEIGHT}
+        color="#ffffff"
+        style={{
+          position: 'absolute',
+          left: hX + hW * 0.55,
+          top: hY - TOOLTIP_ARROW_HEIGHT - 2,
+        }}
+      />
     </View>
   );
 }
@@ -452,9 +505,12 @@ const GuideHighlight = styled.Text`
   color: #c3f708;
 `;
 
-const DimRect = styled.View`
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.7);
+// 화살표 + backdrop 을 겹쳐 두기 위한 stack 컨테이너.
+const ArrowStack = styled.View`
+  width: 72px;
+  height: 113px;
+  align-items: center;
+  justify-content: center;
 `;
 
 const TooltipContainer = styled.View`
