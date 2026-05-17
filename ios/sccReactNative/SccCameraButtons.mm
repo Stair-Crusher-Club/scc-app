@@ -86,9 +86,9 @@ RCT_EXPORT_METHOD(detach:(RCTPromiseResolveBlock)resolve
   UIView *host = [self keyWindowRootView];
   if (host == nil) {
     // Window not ready yet (rare). Retry on next run loop.
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      typeof(self) strongSelf = weakSelf;
+      __typeof(self) strongSelf = weakSelf;
       if (strongSelf == nil || !strongSelf.attached) {
         return;
       }
@@ -99,12 +99,12 @@ RCT_EXPORT_METHOD(detach:(RCTPromiseResolveBlock)resolve
     return;
   }
 
-  __weak typeof(self) weakSelf = self;
-  AVCaptureEventInteraction *interaction = [[AVCaptureEventInteraction alloc] initWithHandler:^(AVCaptureEvent * _Nonnull event) {
+  __weak __typeof(self) weakSelf = self;
+  AVCaptureEventInteraction *interaction = [[AVCaptureEventInteraction alloc] initWithEventHandler:^(AVCaptureEvent * _Nonnull event) {
     if (event.phase != AVCaptureEventPhaseBegan) {
       return;
     }
-    typeof(self) strongSelf = weakSelf;
+    __typeof(self) strongSelf = weakSelf;
     if (strongSelf == nil || !strongSelf.attached || !strongSelf.hasListeners) {
       return;
     }
