@@ -1,6 +1,7 @@
 package club.staircrusher.camerabuttons
 
 import android.view.KeyEvent
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -16,13 +17,15 @@ class SccCameraButtonsModule(
     override fun getName(): String = NAME
 
     @ReactMethod
-    fun attach() {
+    fun attach(promise: Promise) {
         attached = true
+        promise.resolve(true)
     }
 
     @ReactMethod
-    fun detach() {
+    fun detach(promise: Promise) {
         attached = false
+        promise.resolve(true)
     }
 
     // RN built-in EventEmitter API. JS side calls these to add/remove listener counts.
