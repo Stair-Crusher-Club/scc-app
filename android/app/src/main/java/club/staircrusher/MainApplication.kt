@@ -16,6 +16,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.uimanager.ReactShadowNode
 import com.facebook.react.uimanager.ViewManager
 import co.ab180.airbridge.reactnative.AirbridgeReactNative
+import club.staircrusher.camerabuttons.SccCameraButtonsPackage
 import com.hotupdater.HotUpdater
 import java.io.File
 
@@ -25,6 +26,7 @@ class MainApplication : Application(), ReactApplication {
         object : DefaultReactNativeHost(this) {
             override fun getPackages(): List<ReactPackage> =
                 PackageList(this).packages.apply {
+                    add(SccCameraButtonsPackage())
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     add(object : ReactPackage, ViewManagerOnDemandReactPackage {
                         override fun getViewManagerNames(reactContext: ReactApplicationContext) =

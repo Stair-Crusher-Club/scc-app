@@ -2,7 +2,9 @@ package club.staircrusher;
 
 import android.content.Intent
 import android.os.Bundle;
+import android.view.KeyEvent
 import co.ab180.airbridge.reactnative.AirbridgeReactNative
+import club.staircrusher.camerabuttons.SccCameraButtonsModule
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -38,5 +40,16 @@ class MainActivity : ReactActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            val module = reactInstanceManager.currentReactContext
+                ?.getNativeModule(SccCameraButtonsModule::class.java)
+            if (module?.handleKeyEvent(event) == true) {
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 }

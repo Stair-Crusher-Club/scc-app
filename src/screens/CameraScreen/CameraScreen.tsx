@@ -9,7 +9,6 @@ import {
   MediaType,
 } from 'react-native-image-picker';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
-import {VolumeManager} from 'react-native-volume-manager';
 
 import AlbumIcon from '@/assets/icon/ic_album.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
@@ -28,6 +27,7 @@ import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {SccCameraButtons} from '@/native-modules/SccCameraButtons';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -242,16 +242,18 @@ export default function CameraScreen({
     let lastTriggerTime = 0;
     let isMounted = true;
 
-    VolumeManager.showNativeVolumeUI({enabled: false});
+    SccCameraButtons.attach().catch(() => {
+      // ignore — fallback path may not be available
+    });
 
-    const subscription = VolumeManager.addVolumeListener(() => {
+    const subscription = SccCameraButtons.addCapturePressListener(() => {
       if (!isMounted) {
         return;
       }
-      // 볼륨 변화 자체를 촬영 트리거로 본다. 볼륨 원복은 시도해도
-      // 기기/플랫폼에 따라 안정적이지 않아 코드만 복잡해지므로 생략.
+      // 빠른 연타 방어용 짧은 쿨다운. 네이티브 단에서 이미 정상화된
+      // discrete press 이벤트지만 안전 마진으로 둔다.
       const now = Date.now();
-      if (now - lastTriggerTime < 500) {
+      if (now - lastTriggerTime < 300) {
         return;
       }
       lastTriggerTime = now;
@@ -261,7 +263,7 @@ export default function CameraScreen({
     return () => {
       isMounted = false;
       subscription.remove();
-      VolumeManager.showNativeVolumeUI({enabled: true});
+      SccCameraButtons.detach().catch(() => {});
     };
   }, []);
 
@@ -365,6 +367,8 @@ export default function CameraScreen({
         {photoFiles.length === 0 && (
           <S.NoPhotosTaken>
             최대 {photoLimit}장까지 촬영할 수 있어요
+            {'\n'}
+            음량 조절 버튼으로도 촬영이 가능해요
           </S.NoPhotosTaken>
         )}
         {photoFiles.length > 0 && (
