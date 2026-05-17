@@ -18,7 +18,6 @@ import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
-import TooltipArrowIcon from '@/assets/icon/ic_tooltip_arrow.svg';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -113,31 +112,24 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     [bottomBarAnim],
   );
 
-  const handleScrollBeginDrag = useCallback(() => {
+  // INITIAL_DIM 에서 사용자 터치(swipe / tap) 가 감지되면 한 번만 auto-scroll 발동.
+  // ScrollView 자체는 scrollEnabled=false 라 유저는 자유롭게 스크롤 못 한다.
+  const handleScrollTrigger = useCallback(() => {
     if (phaseRef.current !== 'INITIAL_DIM') {
       return;
     }
     setPhase('AUTO_SCROLLING');
-    // 매장 출입구 섹션이 viewport 최상단에 오는 위치(SCROLL_TARGET_Y)까지 부드럽게 자동 스크롤.
-    // 화면 폭이 달라도 figma 비례를 그대로 따라가므로 매번 같은 위치에 도달한다.
     setTimeout(() => {
       scrollViewRef.current?.scrollTo({y: SCROLL_TARGET_Y, animated: true});
     }, 50);
   }, [setPhase]);
 
-  const handleMomentumScrollEnd = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (phaseRef.current !== 'AUTO_SCROLLING') {
-        return;
-      }
-      const {contentOffset} = e.nativeEvent;
-      // 목표 위치(SCROLL_TARGET_Y) 근처에 도달했으면 UPVOTE_DIM 으로 전환.
-      if (Math.abs(contentOffset.y - SCROLL_TARGET_Y) < 4) {
-        setPhase('UPVOTE_DIM');
-      }
-    },
-    [setPhase],
-  );
+  const handleMomentumScrollEnd = useCallback(() => {
+    if (phaseRef.current !== 'AUTO_SCROLLING') {
+      return;
+    }
+    setPhase('UPVOTE_DIM');
+  }, [setPhase]);
 
   // UPVOTE_DIM 진입 시 도움돼요 버튼의 화면 절대 좌표를 측정한다.
   // 한 번 측정해도 layout 직후엔 0 이 나올 수 있어 짧은 retry 를 한다.
@@ -213,9 +205,9 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
         <ScrollView
           ref={scrollViewRef}
           onScroll={handleScroll}
-          onScrollBeginDrag={handleScrollBeginDrag}
           onMomentumScrollEnd={handleMomentumScrollEnd}
           scrollEventThrottle={16}
+          scrollEnabled={false}
           showsVerticalScrollIndicator={false}>
           <Image
             source={require('@/assets/img/tutorial/tutorial_mission_3_pdp_body_top.png')}
@@ -271,9 +263,13 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           />
         </Animated.View>
 
-        {/* State 1: 초기 dim + 스크롤 가이드. figma 1648:41633 (텍스트), 1821:18739 (backdrop). */}
+        {/* State 1: 초기 dim + 스크롤 가이드. figma 1648:41633 (텍스트), 1821:18739 (backdrop).
+            화면 터치(아무 위치) 1번이면 auto-scroll trigger 되고 그 다음부터는 스크롤 차단. */}
         {phase === 'INITIAL_DIM' && (
-          <InitialDimOverlay pointerEvents="none" style={{top: insets.top}}>
+          <InitialDimOverlay
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={handleScrollTrigger}
+            style={{top: insets.top}}>
             {/* 화살표 뒤 흰색 그라데이션 backdrop. arrow 와 동일 컨테이너에서 absolute 로 겹쳐 둠. */}
             <ArrowStack>
               <Svg
@@ -391,9 +387,13 @@ interface SpotlightOverlayProps {
 
 // 버튼 모서리(border-radius 8) 와 hole 의 디자인 의도(figma 1648:42314)에 맞춰 외곽 padding 을 추가한다.
 const HOLE_PADDING = 4;
-// figma 1648:42181 — tooltip 옆 curved arrow size (25.5 × 27.7).
-const TOOLTIP_ARROW_WIDTH = 25.5;
-const TOOLTIP_ARROW_HEIGHT = 27.7;
+// figma 1648:42181 export PNG (transforms baked) — 96×54 px @3x = 32×18 dp.
+const TOOLTIP_ARROW_WIDTH = 32;
+const TOOLTIP_ARROW_HEIGHT = 18;
+// figma 1648:42182 frame 기준 button(13)→arrow(95) 가로 offset 82dp, button→tooltip(111) 98dp.
+const FIGMA_ARROW_X_OFFSET = 82;
+const FIGMA_TOOLTIP_X_OFFSET = 98;
+const FIGMA_TOOLTIP_Y_OFFSET = -40;
 
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
@@ -446,22 +446,31 @@ function SpotlightOverlay({
           mask="url(#spotlightHole)"
         />
       </Svg>
-      {/* tooltip — hole 바로 위에 표시. top 기준으로 anchor (Root 높이가 window 와 달라도 안전) */}
-      <TooltipContainer style={{top: hY - 32}}>
+      {/* tooltip text — figma 1648:42315 위치 (button left + 98dp, button top - 40dp).
+          left-aligned (not centered) so arrow 옆에서 시작. */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          left: holeX + FIGMA_TOOLTIP_X_OFFSET,
+          top: holeY + FIGMA_TOOLTIP_Y_OFFSET,
+        }}>
         <TooltipText>
           <TooltipHighlight>[도움돼요]</TooltipHighlight>버튼을 눌러보세요!
         </TooltipText>
-      </TooltipContainer>
-      {/* tooltip 옆 curved arrow (figma 1648:42181). text 와 button 사이를 가리킴. */}
-      <TooltipArrowIcon
-        width={TOOLTIP_ARROW_WIDTH}
-        height={TOOLTIP_ARROW_HEIGHT}
-        color="#ffffff"
+      </View>
+      {/* tooltip 옆 curved arrow (figma 1648:42181). text → button 방향으로 굽어진 화살표.
+          PNG export 라 회전·반전 transform 이 이미 baked in. */}
+      <Image
+        source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
         style={{
           position: 'absolute',
-          left: hX + hW * 0.55,
-          top: hY - TOOLTIP_ARROW_HEIGHT - 2,
+          left: holeX + FIGMA_ARROW_X_OFFSET,
+          top: holeY - 2,
+          width: TOOLTIP_ARROW_WIDTH,
+          height: TOOLTIP_ARROW_HEIGHT,
         }}
+        resizeMode="contain"
       />
     </View>
   );
@@ -511,13 +520,6 @@ const ArrowStack = styled.View`
   height: 113px;
   align-items: center;
   justify-content: center;
-`;
-
-const TooltipContainer = styled.View`
-  position: absolute;
-  left: 0;
-  right: 0;
-  align-items: center;
 `;
 
 // figma 1648:42315 — Pretendard SemiBold 20/28, letter-spacing -0.4. 부분 강조는 nested span.
