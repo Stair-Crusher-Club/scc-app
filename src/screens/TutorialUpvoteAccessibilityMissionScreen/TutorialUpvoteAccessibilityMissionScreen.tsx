@@ -6,6 +6,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
+  StyleSheet,
   View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -27,12 +28,15 @@ import V2AppBar from '@/screens/PlaceDetailV2Screen/components/V2AppBar';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 // figma 1648:41636 (390 × 1857) 에서 app bar(94) + floating bar(80) 영역을 잘라낸 본문 — 390 × 1683.
-// 실제 자산(tutorial_mission_3_pdp_body.png)도 동일한 1170 × 5049 (3x) 로 export 되어 있어
-// 이 비율을 그대로 사용하면 image 가 native ratio 대로 렌더 (resize crop 없음).
-const PDP_BODY_FIGMA_WIDTH = 390;
-const PDP_BODY_FIGMA_HEIGHT = 1683;
-const PDP_BODY_RENDER_HEIGHT =
-  (SCREEN_WIDTH * PDP_BODY_FIGMA_HEIGHT) / PDP_BODY_FIGMA_WIDTH;
+// 자산은 Android 비트맵 디코딩 한계(약 5MP 이상에서 "Problem decoding into existing bitmap")를
+// 회피하기 위해 세로로 반쪽씩 분할: top 1170×2524, bottom 1170×2525.
+const PDP_BODY_TOP_WIDTH = 1170;
+const PDP_BODY_TOP_HEIGHT = 2524;
+const PDP_BODY_BOTTOM_HEIGHT = 2525;
+const PDP_BODY_TOP_RENDER_HEIGHT =
+  (SCREEN_WIDTH * PDP_BODY_TOP_HEIGHT) / PDP_BODY_TOP_WIDTH;
+const PDP_BODY_BOTTOM_RENDER_HEIGHT =
+  (SCREEN_WIDTH * PDP_BODY_BOTTOM_HEIGHT) / PDP_BODY_TOP_WIDTH;
 
 const PLACE_NAME = '윌리가 너무 가고 싶어하는 카페';
 
@@ -179,14 +183,20 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}>
           <Image
-            // TODO: figma 1648:42184 의 body 전체를 3x PNG 로 export 한 자산으로 교체.
-            // 현재는 build 가 통과되도록 mission_complete_img_map.png 를 복사해둔 placeholder.
-            source={require('@/assets/img/tutorial/tutorial_mission_3_pdp_body.png')}
+            source={require('@/assets/img/tutorial/tutorial_mission_3_pdp_body_top.png')}
             style={{
               width: SCREEN_WIDTH,
-              height: PDP_BODY_RENDER_HEIGHT,
+              height: PDP_BODY_TOP_RENDER_HEIGHT,
             }}
-            resizeMode="cover"
+            resizeMode="stretch"
+          />
+          <Image
+            source={require('@/assets/img/tutorial/tutorial_mission_3_pdp_body_bottom.png')}
+            style={{
+              width: SCREEN_WIDTH,
+              height: PDP_BODY_BOTTOM_RENDER_HEIGHT,
+            }}
+            resizeMode="stretch"
           />
         </ScrollView>
 
@@ -283,10 +293,7 @@ function Mission3BottomBar({
           ref={upvoteRef}
           elementName="tutorial_mission_3_upvote_button"
           onPress={onPressUpvote}
-          android_ripple={{color: 'rgba(255,255,255,0.35)'}}
-          style={({pressed}: {pressed: boolean}) =>
-            pressed ? {opacity: 0.85} : null
-          }>
+          android_ripple={{color: 'rgba(255,255,255,0.35)'}}>
           <ThumbsUpYellowIcon width={16} height={16} />
           <UpvoteText numberOfLines={1}>도움돼요</UpvoteText>
         </UpvoteButton>
@@ -341,8 +348,10 @@ function SpotlightOverlay({
   const hY = holeY - HOLE_PADDING;
   const hW = holeWidth + HOLE_PADDING * 2;
   const hH = holeHeight + HOLE_PADDING * 2;
+  // 단일 View 로 묶는다. fragment 로 4개 dim rect + tooltip 을 반환하면 Fabric 의
+  // mount index 가 부모의 conditional rendering 과 충돌해 addViewAt 가 실패한다.
   return (
-    <>
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
       {/* top rect */}
       <DimRect style={{top: 0, left: 0, right: 0, height: hY}} />
       {/* bottom rect */}
@@ -376,7 +385,7 @@ function SpotlightOverlay({
       <TooltipContainer style={{bottom: SCREEN_HEIGHT - hY + 24}}>
         <TooltipText>[도움돼요]버튼을 눌러보세요!</TooltipText>
       </TooltipContainer>
-    </>
+    </View>
   );
 }
 
