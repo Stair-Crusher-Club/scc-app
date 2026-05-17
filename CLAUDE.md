@@ -542,10 +542,32 @@ curl -o /tmp/asset.png "http://localhost:3845/assets/<hash>.png"
 curl -o /tmp/asset.svg "http://localhost:3845/assets/<hash>.svg"
 ```
 
-**합성된 프레임 (배너 등) 3x PNG export**: Figma MCP는 1x만 지원하므로 **사용자에게 직접 export 요청**
-- `get_screenshot`은 1x 해상도만 반환 (scale 파라미터 미지원)
-- 3x PNG가 필요한 경우: 사용자에게 Figma에서 해당 노드를 3x PNG로 export해서 파일 경로를 알려달라고 요청
-- 절대 1x를 upscale하거나 프로그래밍적으로 이미지를 생성하지 않는다
+**합성된 프레임 (배너 등) 3x PNG export — Figma REST API로 AI가 직접 export한다 (MANDATORY)**
+
+- `get_screenshot` (MCP) 은 1x 해상도만 반환 → MCP는 시각 검증용으로만 쓴다
+- 3x PNG 가 필요할 때 **사용자에게 export 를 요청하지 않는다**. Figma REST API 의 `/v1/images` 엔드포인트를 직접 호출하여 받는다.
+- **인증**: `~/.claude/CLAUDE.md` 의 `Figma Personal Access Token` 사용 (`X-Figma-Token: figd_...` 헤더)
+- **File key**: Figma URL 의 `/design/<file_key>/...` 세그먼트에서 추출 (SCC 프로젝트는 보통 `cpDrl9uG7RMjT5TvTGme3K`, `zcZnkEDGZZiCyA4mlJDAf0` 등)
+- **Node id**: Figma URL 쿼리 `?node-id=1648-42184` → API 에는 `1648:42184` 형식으로 (콜론). 콤마로 여러 개 동시 요청 가능
+
+표준 절차:
+
+```bash
+# 1) 이미지 export URL 받기 (S3 signed URL, 단명)
+curl -s "https://api.figma.com/v1/images/<FILE_KEY>?ids=<NODE_ID_1>,<NODE_ID_2>&scale=3&format=png" \
+  -H "X-Figma-Token: <PERSONAL_ACCESS_TOKEN>"
+# → {"err":null,"images":{"1648:42184":"https://figma-alpha-api.s3...","1648:42320":"https://..."}}
+
+# 2) S3 URL에서 PNG 다운로드
+curl -sS -o src/assets/img/<dir>/<asset>.png "<S3_URL_FROM_STEP_1>"
+
+# 3) 크기 검증 (3x 기준 figma 노드 width/height × 3 과 일치해야 함)
+sips -g pixelWidth -g pixelHeight src/assets/img/<dir>/<asset>.png
+```
+
+- **frame 안 일부만 export 가 필요할 때 (header/floating bar 제거 등)**: 노드를 통째로 받은 뒤 `python3 -c "from PIL import Image; Image.open('src.png').crop((x1,y1,x2,y2)).save('dst.png')"` 로 crop. `get_metadata` 결과의 y 좌표 × 3 으로 잘라낼 픽셀 범위 결정. **새 이미지를 합성/생성하는 게 아니라 figma export 의 부분 슬라이스이므로 허용된다.**
+- 절대 1x를 upscale 하거나 프로그래밍으로 이미지를 합성하지 않는다 (`Pillow` 로 새 도형 그리기 등 금지)
+- 사용자에게 "이 자산은 직접 export해주세요" 라고 요청하지 않는다 — AI 가 위 절차로 직접 처리
 
 #### Figma SVG 추출 시 필수 검증 (반복 실수 방지)
 
@@ -568,6 +590,20 @@ Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이
 - 측정 절차: (1) `get_design_context`로 해당 item 노드의 mask-size / wrapper size 정확히 확인 (2) 앱 PNG 파일 pixel dimension 확인 (`sips -g pixelWidth -g pixelHeight`) (3) @3x 기준으로 dp 역산 (pixel/3 = dp)
 - 예: PNG 270×288px → @3x → 90×96dp — 이게 렌더링 크기여야 함
 - **"대략 맞겠지"로 수치를 넘기지 말 것. Figma 노드 직접 측정이 유일한 기준.**
+
+**3. 텍스트 노드는 inner span 구조 + 부가 속성 + 콘텐츠 끝까지 본다**
+- Figma 한 텍스트가 내부에 weight/color가 다른 `<span>`을 섞는 경우가 흔하다 (예: 첫 줄 Bold + 나머지 Medium). props로 `description: string` 한 덩어리 받아 단일 font로 처리하면 figma와 어긋난다. design context의 nested span 구조를 그대로 nested `<Text>`로 옮긴다.
+  ```typescript
+  // RN에서 한 텍스트 안에 weight 섞기:
+  <Description>
+    <DescriptionTitle>{firstLine}</DescriptionTitle>
+    {bodyText}
+  </Description>
+  // 부모 Text의 lineHeight/letterSpacing은 그대로 상속됨, weight만 자식이 override
+  ```
+- `text-shadow`, `width` 제한, `letter-spacing` 같은 부가 속성은 fontSize/lineHeight를 옮기는 동안 자주 누락된다. 텍스트 노드의 모든 CSS 속성을 빠짐없이 확인한다. RN의 `textShadow*` prop은 `.attrs({style:{...}})` 패턴으로 적용.
+- 콘텐츠 문자열은 **이모지/마침표 포함 끝까지 옮긴다.** "됐어요 👍" 같은 마지막 이모지를 흘려 보내고 "됐어요!"로 적는 실수가 반복된다.
+- Precision Phase에서 catch될 항목이지만, 스크린샷 비교 전 텍스트 노드 inspection 단계에서 미리 막는다. (Mission 2 완료 팝업 figma 1648:39361 검증에서 도출)
 
 ### Two-Phase Design Implementation (필수)
 
