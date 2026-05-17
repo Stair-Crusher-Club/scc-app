@@ -71,7 +71,8 @@ export const TUTORIAL_MISSION_META: Record<
     subtitle: '상세정보를 확인할 수 있는 ',
     subtitleBoldSuffix: '돋보기',
     title: '상세정보에 [도움이 돼요] 누르기',
-    navigateTo: 'Main',
+    // 가짜 PDP 화면으로 진입해 학습용 인터랙션 수행 후 미션 완료 API 호출.
+    navigateTo: 'TutorialUpvoteAccessibilityMission',
     collectPopupTitle: '외출템 3을 모았어요!',
     collectPopupDescription:
       '상세정보를 확인할 수 있는 돋보기를 모았어요!\n다음 미션도 도전해주세요.',

@@ -7205,6 +7205,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeUserTutorialUpvoteAccessibilityMission: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/completeUserTutorialUpvoteAccessibilityMission`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
@@ -10603,6 +10637,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async completeUserTutorialUpvoteAccessibilityMission(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialUpvoteAccessibilityMission(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
@@ -11595,6 +11639,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.completeUserTutorialHiddenMission(options).then((request) => request(axios, basePath));
         },
         /**
+         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeUserTutorialUpvoteAccessibilityMission(options?: any): AxiosPromise<UserTutorialProgressDto> {
+            return localVarFp.completeUserTutorialUpvoteAccessibilityMission(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 비회원 계정을 생성한다.
          * @param {*} [options] Override http request option.
@@ -12509,6 +12562,17 @@ export class DefaultApi extends BaseAPI {
      */
     public completeUserTutorialHiddenMission(options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).completeUserTutorialHiddenMission(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
+     * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public completeUserTutorialUpvoteAccessibilityMission(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).completeUserTutorialUpvoteAccessibilityMission(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

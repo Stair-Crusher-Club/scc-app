@@ -134,6 +134,8 @@ export default function TutorialMissionScreen({
           navigation.navigate('InterestedRegionAndThemes', {});
         } else if (meta.navigateTo === 'PublicPlaceLists') {
           navigation.navigate('PublicPlaceLists', {fromTutorial: true});
+        } else if (meta.navigateTo === 'TutorialUpvoteAccessibilityMission') {
+          navigation.navigate('TutorialUpvoteAccessibilityMission');
         } else if (meta.navigateTo === 'Main') {
           navigation.navigate('Main');
         }

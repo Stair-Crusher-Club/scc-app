@@ -78,3 +78,24 @@ export function useCompleteUserTutorialHiddenMission() {
     },
   });
 }
+
+/**
+ * 튜토리얼 미션 3(UPVOTE_ACCESSIBILITY) 완료 mutation.
+ * 가짜 PDP 화면에서 도움돼요를 눌렀을 때 /giveUpvote 대신 호출한다.
+ */
+export function useCompleteUserTutorialUpvoteAccessibilityMission() {
+  const {api} = useAppComponents();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return (await api.completeUserTutorialUpvoteAccessibilityMission()).data;
+    },
+    onSuccess: (data: UserTutorialProgressDto) => {
+      queryClient.setQueryData(USER_TUTORIAL_PROGRESS_QUERY_KEY, data);
+    },
+    onError: error => {
+      ToastUtils.showOnApiError(error);
+    },
+  });
+}

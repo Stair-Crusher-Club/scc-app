@@ -63,5 +63,8 @@ export const linkingScreensConfig = {
     PublicPlaceLists: {
       path: 'public-place-lists',
     },
+    TutorialUpvoteAccessibilityMission: {
+      path: 'tutorial-mission-upvote-accessibility',
+    },
   },
 };

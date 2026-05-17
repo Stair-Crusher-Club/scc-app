@@ -75,6 +75,7 @@ import TutorialScreen from '@/screens/TutorialScreen';
 import TutorialMissionScreen, {
   TutorialMissionScreenParams,
 } from '@/screens/TutorialMissionScreen';
+import TutorialUpvoteAccessibilityMissionScreen from '@/screens/TutorialUpvoteAccessibilityMissionScreen';
 import EditInterestedRegionScreen, {
   EditInterestedRegionScreenParams,
 } from '@/screens/EditInterestedRegionScreen';
@@ -334,6 +335,14 @@ export const MainNavigationScreens: {
     },
   },
   {
+    name: 'TutorialUpvoteAccessibilityMission',
+    component: TutorialUpvoteAccessibilityMissionScreen,
+    options: {
+      // 화면 내부에서 V2AppBar 를 직접 sticky 로 렌더하므로 native header 는 숨긴다.
+      headerShown: false,
+    },
+  },
+  {
     name: 'ReportCorrectionForm',
     component: ReportCorrectionFormScreen,
     options: {
@@ -427,6 +436,7 @@ export type ScreenParams = {
   EditInterestedRegion: EditInterestedRegionScreenParams;
   EditInterestedThemes: EditInterestedThemesScreenParams;
   PublicPlaceLists: PublicPlaceListsScreenParams;
+  TutorialUpvoteAccessibilityMission: undefined;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =
