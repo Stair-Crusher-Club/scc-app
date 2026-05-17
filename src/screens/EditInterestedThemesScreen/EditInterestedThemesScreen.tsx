@@ -42,9 +42,6 @@ export default function EditInterestedThemesScreen({
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
   const themeChips = themesToChips(selectedThemes);
-  const handleRemoveTheme = useCallback((id: string) => {
-    setSelectedThemes(prev => prev.filter(t => (t as string) !== id));
-  }, []);
 
   const isFormDirty = !arraysEqualAsSets(selectedThemes, initialThemes);
   const formExitConfirm = useFormExitConfirm(
@@ -99,7 +96,6 @@ export default function EditInterestedThemesScreen({
               placeholder="관심 있는 주제를 알려주세요"
               elementName="interested_theme_input"
               onPress={() => setIsSheetOpen(true)}
-              onRemoveChip={handleRemoveTheme}
             />
           </Content>
           <BottomBar>

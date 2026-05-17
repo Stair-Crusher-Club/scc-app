@@ -127,13 +127,6 @@ export default function InterestedRegionAndThemesFormScreen({
   const regionChips = regionsToChips(selectedRegionIds, regionLabelMap);
   const themeChips = themesToChips(selectedThemes);
 
-  const handleRemoveRegion = useCallback((id: string) => {
-    setSelectedRegionIds(prev => prev.filter(rid => rid !== id));
-  }, []);
-  const handleRemoveTheme = useCallback((id: string) => {
-    setSelectedThemes(prev => prev.filter(t => (t as string) !== id));
-  }, []);
-
   const canSubmit = selectedRegionIds.length > 0 && selectedThemes.length > 0;
 
   return (
@@ -153,7 +146,6 @@ export default function InterestedRegionAndThemesFormScreen({
                 placeholder="여기를 클릭해서, 관심 지역을 알려주세요"
                 elementName="interested_region_input"
                 onPress={() => setIsRegionSheetOpen(true)}
-                onRemoveChip={handleRemoveRegion}
               />
               <InterestedFormField
                 label="관심 주제"
@@ -161,7 +153,6 @@ export default function InterestedRegionAndThemesFormScreen({
                 placeholder="관심 있는 주제를 알려주세요"
                 elementName="interested_theme_input"
                 onPress={() => setIsThemeSheetOpen(true)}
-                onRemoveChip={handleRemoveTheme}
               />
             </FieldSection>
           </Content>

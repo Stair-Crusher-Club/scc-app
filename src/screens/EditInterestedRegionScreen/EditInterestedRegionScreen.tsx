@@ -43,9 +43,6 @@ export default function EditInterestedRegionScreen({
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
   const regionLabelMap = useInterestedRegionGroupLabelMap();
   const regionChips = regionsToChips(selectedRegionIds, regionLabelMap);
-  const handleRemoveRegion = useCallback((id: string) => {
-    setSelectedRegionIds(prev => prev.filter(rid => rid !== id));
-  }, []);
 
   const isFormDirty = !arraysEqualAsSets(selectedRegionIds, initialRegionIds);
   const formExitConfirm = useFormExitConfirm(
@@ -97,7 +94,6 @@ export default function EditInterestedRegionScreen({
               placeholder="관심 있는 지역을 알려주세요"
               elementName="interested_region_input"
               onPress={() => setIsSheetOpen(true)}
-              onRemoveChip={handleRemoveRegion}
             />
           </Content>
           <BottomBar>

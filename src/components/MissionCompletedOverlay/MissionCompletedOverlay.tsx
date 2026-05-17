@@ -1,5 +1,6 @@
+import {BlurView} from '@react-native-community/blur';
 import React from 'react';
-import {Dimensions, Image, Modal, View} from 'react-native';
+import {Dimensions, Image, Modal, StyleSheet, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -50,7 +51,13 @@ export default function MissionCompletedOverlay({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}>
-      <Dim>
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="dark"
+        blurAmount={10}
+        reducedTransparencyFallbackColor={color.blacka70}
+      />
+      <DimContent>
         <Contents>
           <TitleImage
             source={TITLE_IMAGE_BY_VARIANT[variant]}
@@ -61,7 +68,7 @@ export default function MissionCompletedOverlay({
             style={{width: POPUP_IMG_WIDTH, height: POPUP_IMG_HEIGHT}}
             resizeMode="contain"
           />
-          <Description>{description}</Description>
+          <FormattedDescription description={description} />
           <View style={{height: 8}} />
           <SccButton
             text="확인"
@@ -77,14 +84,13 @@ export default function MissionCompletedOverlay({
             style={{borderRadius: 8}}
           />
         </Contents>
-      </Dim>
+      </DimContent>
     </Modal>
   );
 }
 
-const Dim = styled.View`
+const DimContent = styled.View`
   flex: 1;
-  background-color: ${color.blacka70};
   align-items: center;
   justify-content: center;
 `;
@@ -99,11 +105,42 @@ const TitleImage = styled.Image`
   height: 56px;
 `;
 
-const Description = styled.Text`
-  font-family: ${font.pretendardBold};
+/**
+ * Figma 1648:39361 기준: 첫 줄(획득 문구)은 Bold, 그 다음 줄들은 Medium.
+ * 한 `<Text>` 안에 nested Text로 두 weight를 섞어 동일 lineHeight/letterSpacing 유지.
+ */
+function FormattedDescription({description}: {description: string}) {
+  const newlineIdx = description.indexOf('\n');
+  const titleLine =
+    newlineIdx === -1 ? description : description.slice(0, newlineIdx);
+  const bodyLine = newlineIdx === -1 ? '' : description.slice(newlineIdx);
+  return (
+    <Description>
+      <DescriptionTitle>{titleLine}</DescriptionTitle>
+      {bodyLine}
+    </Description>
+  );
+}
+
+// Figma 1648:39361: 본문 라인은 Medium 20/28, 폭 311, white, text-shadow 0 0 4 rgba(0,0,0,0.25).
+const Description = styled.Text.attrs({
+  style: {
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: {width: 0, height: 0},
+    textShadowRadius: 4,
+  },
+})`
+  width: 311px;
+  font-family: ${font.pretendardMedium};
   font-size: 20px;
   line-height: 28px;
   letter-spacing: -0.4px;
   text-align: center;
+  color: ${color.white};
+`;
+
+// 첫 줄(획득 메시지)만 Bold weight로 강조.
+const DescriptionTitle = styled.Text`
+  font-family: ${font.pretendardBold};
   color: ${color.white};
 `;
