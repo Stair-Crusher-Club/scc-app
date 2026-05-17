@@ -12,6 +12,7 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import DashedArrowUpIcon from '@/assets/icon/ic_dashed_arrow_up.svg';
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
@@ -259,10 +260,10 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           />
         </Animated.View>
 
-        {/* State 1: 초기 dim + 스크롤 가이드. */}
+        {/* State 1: 초기 dim + 스크롤 가이드. figma 1648:41633. */}
         {phase === 'INITIAL_DIM' && (
           <InitialDimOverlay pointerEvents="none" style={{top: insets.top}}>
-            <ArrowUp>↑</ArrowUp>
+            <DashedArrowUpIcon width={29} height={113} color="#ffffff" />
             <GuideText>
               <GuideHighlight>스크롤</GuideHighlight>하면 더 많은 정보를{'\n'}
               확인할 수 있어요
@@ -405,7 +406,9 @@ function SpotlightOverlay({
       />
       {/* tooltip — hole 바로 위에 표시. top 기준으로 anchor (Root 높이가 window 와 달라도 안전) */}
       <TooltipContainer style={{top: hY - 32}}>
-        <TooltipText>[도움돼요]버튼을 눌러보세요!</TooltipText>
+        <TooltipText>
+          <TooltipHighlight>[도움돼요]</TooltipHighlight>버튼을 눌러보세요!
+        </TooltipText>
       </TooltipContainer>
     </View>
   );
@@ -422,39 +425,36 @@ const HeaderOverlay = styled.View`
   background-color: ${color.white};
 `;
 
+// figma 1648:41632 — dim rgba(0,0,0,0.7).
 const InitialDimOverlay = styled.View`
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.55);
+  background-color: rgba(0, 0, 0, 0.7);
   align-items: center;
   justify-content: center;
   gap: 16px;
 `;
 
-const ArrowUp = styled.Text`
-  font-size: 64px;
-  color: ${color.white};
-`;
-
+// figma 1648:41633 — Pretendard SemiBold 20/28, letter-spacing -0.4, white, center.
 const GuideText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
+  font-family: ${font.pretendardSemibold};
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
   text-align: center;
   color: ${color.white};
 `;
 
+// figma — 강조 색 #c3f708 (yellow-green).
 const GuideHighlight = styled.Text`
-  color: #ffe247;
-  font-family: ${font.pretendardBold};
+  color: #c3f708;
 `;
 
 const DimRect = styled.View`
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.55);
+  background-color: rgba(0, 0, 0, 0.7);
 `;
 
 const TooltipContainer = styled.View`
@@ -464,12 +464,17 @@ const TooltipContainer = styled.View`
   align-items: center;
 `;
 
+// figma 1648:42315 — Pretendard SemiBold 20/28, letter-spacing -0.4. 부분 강조는 nested span.
 const TooltipText = styled.Text`
   font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
-  color: #ffe247;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+  color: ${color.white};
+`;
+
+const TooltipHighlight = styled.Text`
+  color: #c3f708;
 `;
 
 const BarContainer = styled.View<{bottomInset: number}>`
