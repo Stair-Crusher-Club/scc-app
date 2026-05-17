@@ -657,7 +657,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 158;
+				CURRENT_PROJECT_VERSION = 160;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -695,7 +695,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
+				CURRENT_PROJECT_VERSION = 160;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = ZYCW4V3VNY;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -809,7 +809,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 158;
+				CURRENT_PROJECT_VERSION = 160;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -944,7 +944,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
+				CURRENT_PROJECT_VERSION = 160;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = ZYCW4V3VNY;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
