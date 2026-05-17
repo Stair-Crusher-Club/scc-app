@@ -10,10 +10,9 @@ import {
   View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Defs, LinearGradient, Mask, Rect, Stop} from 'react-native-svg';
+import Svg, {Defs, Mask, Rect} from 'react-native-svg';
 import styled from 'styled-components/native';
 
-import DashedArrowUpIcon from '@/assets/icon/ic_dashed_arrow_up.svg';
 import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
@@ -44,6 +43,8 @@ const PDP_BODY_BOTTOM_RENDER_HEIGHT =
 // V2AppBar(50dp) 가 viewport 상단을 덮으므로 그만큼 덜 스크롤해서 섹션 header 가 viewport 에 보이게 한다.
 const V2_APP_BAR_HEIGHT = 50;
 const SCROLL_TARGET_Y = (526 * SCREEN_WIDTH) / 390 - V2_APP_BAR_HEIGHT;
+// figma 1648:41483 frame 은 390 wide. 화면 폭이 다르더라도 디자인 비율을 그대로 유지.
+const INITIAL_DIM_SCALE = SCREEN_WIDTH / 390;
 
 // figma 1648:42314 spotlight subtract rect 의 border-radius 12px 매칭 (실제 도움돼요 버튼의
 // border-radius 는 8 이지만 figma punch rect 는 외곽 padding 포함이므로 약간 더 크게).
@@ -263,42 +264,23 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           />
         </Animated.View>
 
-        {/* State 1: 초기 dim + 스크롤 가이드. figma 1648:41633 (텍스트), 1821:18739 (backdrop).
-            화면 터치(아무 위치) 1번이면 auto-scroll trigger 되고 그 다음부터는 스크롤 차단. */}
+        {/* State 1: 초기 dim + 스크롤 가이드. backdrop + arrow 는 figma 1648:41631 의 통짜
+            export PNG (tutorial_mission_3_scroll_guide_arrow). 텍스트는 figma 1648:41633.
+            화면 터치 1번 → auto-scroll trigger + 이후 스크롤 차단. */}
         {phase === 'INITIAL_DIM' && (
           <InitialDimOverlay
             onStartShouldSetResponder={() => true}
             onResponderRelease={handleScrollTrigger}
             style={{top: insets.top}}>
-            {/* 화살표 뒤 흰색 그라데이션 backdrop. arrow 와 동일 컨테이너에서 absolute 로 겹쳐 둠. */}
-            <ArrowStack>
-              <Svg
-                width={72}
-                height={240}
-                style={{position: 'absolute', top: -64}}>
-                <Defs>
-                  <LinearGradient
-                    id="arrowBackdrop"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1">
-                    <Stop offset="0" stopColor="#ffffff" stopOpacity={0.8} />
-                    <Stop offset="0.85" stopColor="#ffffff" stopOpacity={0} />
-                  </LinearGradient>
-                </Defs>
-                <Rect
-                  x={0}
-                  y={0}
-                  width={72}
-                  height={240}
-                  rx={36}
-                  ry={36}
-                  fill="url(#arrowBackdrop)"
-                />
-              </Svg>
-              <DashedArrowUpIcon width={29} height={113} color="#ffffff" />
-            </ArrowStack>
+            <Image
+              source={require('@/assets/img/tutorial/tutorial_mission_3_scroll_guide_arrow.png')}
+              style={{
+                width: 72 * INITIAL_DIM_SCALE,
+                height: 240 * INITIAL_DIM_SCALE,
+              }}
+              resizeMode="contain"
+            />
+            <View style={{height: 8}} />
             <GuideText>
               <GuideHighlight>스크롤</GuideHighlight>하면 더 많은 정보를{'\n'}
               확인할 수 있어요
@@ -487,7 +469,7 @@ const HeaderOverlay = styled.View`
   background-color: ${color.white};
 `;
 
-// figma 1648:41632 — dim rgba(0,0,0,0.7).
+// figma 1648:41632 — dim rgba(0,0,0,0.7). backdrop+arrow PNG + 가이드 텍스트를 flex 로 중앙 배치.
 const InitialDimOverlay = styled.View`
   position: absolute;
   left: 0;
@@ -496,7 +478,6 @@ const InitialDimOverlay = styled.View`
   background-color: rgba(0, 0, 0, 0.7);
   align-items: center;
   justify-content: center;
-  gap: 16px;
 `;
 
 // figma 1648:41633 — Pretendard SemiBold 20/28, letter-spacing -0.4, white, center.
@@ -512,14 +493,6 @@ const GuideText = styled.Text`
 // figma — 강조 색 #c3f708 (yellow-green).
 const GuideHighlight = styled.Text`
   color: #c3f708;
-`;
-
-// 화살표 + backdrop 을 겹쳐 두기 위한 stack 컨테이너.
-const ArrowStack = styled.View`
-  width: 72px;
-  height: 113px;
-  align-items: center;
-  justify-content: center;
 `;
 
 // figma 1648:42315 — Pretendard SemiBold 20/28, letter-spacing -0.4. 부분 강조는 nested span.
