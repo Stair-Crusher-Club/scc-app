@@ -2,12 +2,12 @@ package club.staircrusher;
 
 import android.content.Intent
 import android.os.Bundle;
+import android.util.Log
 import android.view.KeyEvent
 import co.ab180.airbridge.reactnative.AirbridgeReactNative
 import club.staircrusher.camerabuttons.SccCameraButtonsModule
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
-import com.facebook.react.ReactApplication
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 import org.devio.rn.splashscreen.SplashScreen;
@@ -45,16 +45,14 @@ class MainActivity : ReactActivity() {
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            // bridgeless 모드에서 ReactContext.getNativeModule 이 legacy package 모듈을 못 찾는
+            // 케이스가 있어, 모듈이 자신을 static 슬롯에 등록하고 그 슬롯을 거쳐 호출한다.
             try {
-                // 우리 앱은 bridgeless(new architecture)라 reactInstanceManager 직접 접근은
-                // throw를 일으킨다. application.reactHost.currentReactContext 경유로 안전하게 조회.
-                val reactContext = (application as? ReactApplication)?.reactHost?.currentReactContext
-                val module = reactContext?.getNativeModule(SccCameraButtonsModule::class.java)
-                if (module?.handleKeyEvent(event) == true) {
+                if (SccCameraButtonsModule.dispatchKeyEventToActiveInstance(event)) {
                     return true
                 }
             } catch (e: Throwable) {
-                // 어떤 이유로든 module lookup이 실패하면 시스템 기본 동작으로 넘긴다.
+                Log.e("SccCameraButtons", "dispatchKeyEvent failed", e)
             }
         }
         return super.dispatchKeyEvent(event)
