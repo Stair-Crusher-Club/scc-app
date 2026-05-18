@@ -1,3 +1,4 @@
+import {useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
@@ -17,6 +18,7 @@ import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
 import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
+import {featureFlagAtom} from '@/atoms/Auth';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -69,7 +71,16 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
   navigation,
 }: ScreenProps<'TutorialUpvoteAccessibilityMission'>) {
   const insets = useSafeAreaInsets();
+  const featureFlags = useAtomValue(featureFlagAtom);
   const completeMission = useCompleteUserTutorialUpvoteAccessibilityMission();
+
+  // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
+  // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
+  useEffect(() => {
+    if (featureFlags && !featureFlags.enabledFlags.has('USER_TUTORIAL')) {
+      navigation.goBack();
+    }
+  }, [featureFlags, navigation]);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const phaseRef = useRef<Phase>('INITIAL_DIM');

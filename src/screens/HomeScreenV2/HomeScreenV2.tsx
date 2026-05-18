@@ -23,7 +23,12 @@ import DeviceInfo from 'react-native-device-info';
 import styled from 'styled-components/native';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
+import {
+  accessTokenAtom,
+  featureFlagAtom,
+  isAnonymousUserAtom,
+  useMe,
+} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {
   dismissedHomePopupIdsAtom,
@@ -100,6 +105,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   const versionStatusMessage = versionData?.message;
   const versionStatus = versionData?.status;
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
+  const featureFlags = useAtomValue(featureFlagAtom);
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
   const [hasShownTutorialIntroPopup, setHasShownTutorialIntroPopup] = useAtom(
@@ -134,6 +140,11 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (isAnonymousUser) {
       return;
     }
+    // USER_TUTORIAL feature flag 미대상 사용자에게는 외출 유도 팝업을 띄우지 않는다.
+    // dev/sandbox 는 서버에서 자동 활성, prod 는 사내 화이트리스트만 활성.
+    if (!featureFlags?.enabledFlags.has('USER_TUTORIAL')) {
+      return;
+    }
     if (hasShownTutorialIntroPopup) {
       return;
     }
@@ -153,6 +164,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   }, [
     __DEV_FORCE_INTRO_POPUP__,
     isAnonymousUser,
+    featureFlags,
     hasShownTutorialIntroPopup,
     needsPlaceSearchTutorial,
     setHasShownTutorialIntroPopup,

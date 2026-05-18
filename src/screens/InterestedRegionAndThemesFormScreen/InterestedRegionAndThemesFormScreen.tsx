@@ -1,7 +1,8 @@
-import React, {useCallback, useState} from 'react';
+import {useAtomValue} from 'jotai';
+import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 
-import {useMe} from '@/atoms/Auth';
+import {featureFlagAtom, useMe} from '@/atoms/Auth';
 import {SccButton} from '@/components/atoms';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -40,6 +41,15 @@ export default function InterestedRegionAndThemesFormScreen({
   navigation,
 }: ScreenProps<'InterestedRegionAndThemes'>) {
   const {userInfo} = useMe();
+  const featureFlags = useAtomValue(featureFlagAtom);
+
+  // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
+  // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
+  useEffect(() => {
+    if (featureFlags && !featureFlags.enabledFlags.has('USER_TUTORIAL')) {
+      navigation.goBack();
+    }
+  }, [featureFlags, navigation]);
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
   const {data: progress} = useUserTutorialProgress();
