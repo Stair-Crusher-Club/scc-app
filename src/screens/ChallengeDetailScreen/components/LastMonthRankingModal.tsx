@@ -63,7 +63,7 @@ export default function LastMonthRankingModal({
             onPress={handleClose}
             elementName="last_month_ranking_modal_close"
             logParams={{challengeId}}>
-            <IcX />
+            <IcX color={color.black} />
           </CloseButton>
         </ImageContainer>
         <CheckboxContainer>

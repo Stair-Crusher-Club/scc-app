@@ -154,6 +154,28 @@ const handleScroll = useCallback(() => {
 - `src/logging/*`, `useSccEventLogging.ts`만 예외 (logging infra)
 - `useCallback`/`useEffect` 안에서는 `loggerRef.current` 사용
 
+## Hook 설계 원칙
+
+### 도메인 hook은 도메인만 책임 (cross-cutting 금지) — MANDATORY
+`useSavePlaceList`, `useUpvoteAccessibility` 같은 **도메인 mutation hook**은 자신의 도메인 작업만 책임진다. 튜토리얼 진행, 이벤트 로깅 같은 **cross-cutting concern**을 hook 내부에서 처리하지 마라 — hook이 도메인 외 컨텍스트를 알게 되어 책임이 흐려지고 재사용성이 떨어진다.
+
+- 잘못된 예: `useSavePlaceList`가 `queryClient.invalidateQueries(USER_TUTORIAL_PROGRESS_QUERY_KEY)` 호출 (튜토리얼을 안다)
+- 올바른 예: `useSavePlaceList`는 mutation만. 튜토리얼 progress refetch는 호출하는 화면이 `useMissionCompletionWatcher` 같은 별도 watcher hook으로 처리.
+
+**판단 기준**: hook 이름이 도메인 액션이라면 (`useSavePlaceList`, `useRegisterX`), 그 도메인 외의 행위를 추가하지 마라.
+
+(PR #159 리뷰에서 도출)
+
+### Hook input 추상화 — 외부 계산값을 주입받지 마라
+Hook이 필요한 정보를 외부에서 미리 계산하여 주입받게 만들지 말고, hook이 자체적으로 계산하도록 추상화한다. 호출처는 **의도**만 전달한다.
+
+- 잘못된 예: `useMissionCompletionWatcher({isCompleted: progress?.missions[X]?.completedAt != null, onJustCompleted})` — 호출처가 progress 구조를 알아야 함
+- 올바른 예: `useMissionCompletionWatcher({missionType: 'SAVE_PLACE_LIST', onJustCompleted})` — hook 내부에서 `useUserTutorialProgress()`로 자체 계산
+
+**효과**: 호출처가 더 간결, 동일 계산 로직이 hook 안에 캡슐화되어 일관성 보장.
+
+(PR #159 리뷰에서 도출)
+
 ## API Guidelines
 
 - **`src/generated-sources/` 파일은 절대 수동 수정하지 않는다.** scc-api 스펙 변경 -> submodule 업데이트 -> `yarn codegen`으로만 변경.
@@ -520,10 +542,32 @@ curl -o /tmp/asset.png "http://localhost:3845/assets/<hash>.png"
 curl -o /tmp/asset.svg "http://localhost:3845/assets/<hash>.svg"
 ```
 
-**합성된 프레임 (배너 등) 3x PNG export**: Figma MCP는 1x만 지원하므로 **사용자에게 직접 export 요청**
-- `get_screenshot`은 1x 해상도만 반환 (scale 파라미터 미지원)
-- 3x PNG가 필요한 경우: 사용자에게 Figma에서 해당 노드를 3x PNG로 export해서 파일 경로를 알려달라고 요청
-- 절대 1x를 upscale하거나 프로그래밍적으로 이미지를 생성하지 않는다
+**합성된 프레임 (배너 등) 3x PNG export — Figma REST API로 AI가 직접 export한다 (MANDATORY)**
+
+- `get_screenshot` (MCP) 은 1x 해상도만 반환 → MCP는 시각 검증용으로만 쓴다
+- 3x PNG 가 필요할 때 **사용자에게 export 를 요청하지 않는다**. Figma REST API 의 `/v1/images` 엔드포인트를 직접 호출하여 받는다.
+- **인증**: `~/.claude/CLAUDE.md` 의 `Figma Personal Access Token` 사용 (`X-Figma-Token: figd_...` 헤더)
+- **File key**: Figma URL 의 `/design/<file_key>/...` 세그먼트에서 추출 (SCC 프로젝트는 보통 `cpDrl9uG7RMjT5TvTGme3K`, `zcZnkEDGZZiCyA4mlJDAf0` 등)
+- **Node id**: Figma URL 쿼리 `?node-id=1648-42184` → API 에는 `1648:42184` 형식으로 (콜론). 콤마로 여러 개 동시 요청 가능
+
+표준 절차:
+
+```bash
+# 1) 이미지 export URL 받기 (S3 signed URL, 단명)
+curl -s "https://api.figma.com/v1/images/<FILE_KEY>?ids=<NODE_ID_1>,<NODE_ID_2>&scale=3&format=png" \
+  -H "X-Figma-Token: <PERSONAL_ACCESS_TOKEN>"
+# → {"err":null,"images":{"1648:42184":"https://figma-alpha-api.s3...","1648:42320":"https://..."}}
+
+# 2) S3 URL에서 PNG 다운로드
+curl -sS -o src/assets/img/<dir>/<asset>.png "<S3_URL_FROM_STEP_1>"
+
+# 3) 크기 검증 (3x 기준 figma 노드 width/height × 3 과 일치해야 함)
+sips -g pixelWidth -g pixelHeight src/assets/img/<dir>/<asset>.png
+```
+
+- **frame 안 일부만 export 가 필요할 때 (header/floating bar 제거 등)**: 노드를 통째로 받은 뒤 `python3 -c "from PIL import Image; Image.open('src.png').crop((x1,y1,x2,y2)).save('dst.png')"` 로 crop. `get_metadata` 결과의 y 좌표 × 3 으로 잘라낼 픽셀 범위 결정. **새 이미지를 합성/생성하는 게 아니라 figma export 의 부분 슬라이스이므로 허용된다.**
+- 절대 1x를 upscale 하거나 프로그래밍으로 이미지를 합성하지 않는다 (`Pillow` 로 새 도형 그리기 등 금지)
+- 사용자에게 "이 자산은 직접 export해주세요" 라고 요청하지 않는다 — AI 가 위 절차로 직접 처리
 
 #### Figma SVG 추출 시 필수 검증 (반복 실수 방지)
 
@@ -533,6 +577,33 @@ Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이
 2. **fill/stroke 변환**: raw SVG의 `fill="var(--fill-0, #color)"`, `stroke="var(--stroke-0, #color)"` 같은 CSS 변수를 RN에서 사용 가능한 값으로 변환 (`currentColor`, 하드코딩 색상 등)
 3. **viewBox와 실제 렌더 크기**: raw SVG의 viewBox가 inner content 크기이므로, 앱에서 사용할 최종 크기(width/height)와 viewBox를 맞춰야 함. 필요시 `<g transform="translate(x,y)">` 로 20x20 등 표준 viewBox 안에 배치
 4. **Figma screenshot과 비교**: SVG 파일 작성 후 반드시 Figma screenshot과 실제 렌더링을 비교하여 동일한지 확인. **raw path를 그대로 복붙하고 끝내지 말 것**
+
+### Figma 구현 반복 실수 방지 (MANDATORY)
+
+**1. BlurView/Overlay 위치 속성은 스크린샷으로 반드시 눈으로 확인**
+- `align-items: center; justify-content: center` 코드가 있어도 Android BlurView는 flex를 제대로 전달하지 않는다
+- 수정 패턴: BlurView 안에 `<View style={{flex:1, alignItems:'center', justifyContent:'center'}}>` 래퍼 추가
+- **코드에 속성이 있다고 렌더 결과를 가정하지 말 것. 반드시 스크린샷으로 실제 위치 확인.**
+
+**2. 이미지 렌더 크기는 반드시 PNG 픽셀 크기로 역산, Figma 측정으로 확정**
+- 코드에 있는 기존 width/height 값을 그대로 믿지 않는다
+- 측정 절차: (1) `get_design_context`로 해당 item 노드의 mask-size / wrapper size 정확히 확인 (2) 앱 PNG 파일 pixel dimension 확인 (`sips -g pixelWidth -g pixelHeight`) (3) @3x 기준으로 dp 역산 (pixel/3 = dp)
+- 예: PNG 270×288px → @3x → 90×96dp — 이게 렌더링 크기여야 함
+- **"대략 맞겠지"로 수치를 넘기지 말 것. Figma 노드 직접 측정이 유일한 기준.**
+
+**3. 텍스트 노드는 inner span 구조 + 부가 속성 + 콘텐츠 끝까지 본다**
+- Figma 한 텍스트가 내부에 weight/color가 다른 `<span>`을 섞는 경우가 흔하다 (예: 첫 줄 Bold + 나머지 Medium). props로 `description: string` 한 덩어리 받아 단일 font로 처리하면 figma와 어긋난다. design context의 nested span 구조를 그대로 nested `<Text>`로 옮긴다.
+  ```typescript
+  // RN에서 한 텍스트 안에 weight 섞기:
+  <Description>
+    <DescriptionTitle>{firstLine}</DescriptionTitle>
+    {bodyText}
+  </Description>
+  // 부모 Text의 lineHeight/letterSpacing은 그대로 상속됨, weight만 자식이 override
+  ```
+- `text-shadow`, `width` 제한, `letter-spacing` 같은 부가 속성은 fontSize/lineHeight를 옮기는 동안 자주 누락된다. 텍스트 노드의 모든 CSS 속성을 빠짐없이 확인한다. RN의 `textShadow*` prop은 `.attrs({style:{...}})` 패턴으로 적용.
+- 콘텐츠 문자열은 **이모지/마침표 포함 끝까지 옮긴다.** "됐어요 👍" 같은 마지막 이모지를 흘려 보내고 "됐어요!"로 적는 실수가 반복된다.
+- Precision Phase에서 catch될 항목이지만, 스크린샷 비교 전 텍스트 노드 inspection 단계에서 미리 막는다. (Mission 2 완료 팝업 figma 1648:39361 검증에서 도출)
 
 ### Two-Phase Design Implementation (필수)
 
@@ -552,6 +623,11 @@ Figma MCP localhost URL에서 받은 SVG는 **inner path만 추출한 raw 데이
 - 반드시 에뮬레이터 빌드 → `adb shell screencap` → Figma `get_screenshot`과 1:1 비교까지 수행해야 한다
 - 비교 결과 차이가 있으면 코드 재수정 → 재빌드 → 재비교 루프를 차이 0이 될 때까지 반복
 - "tsc + lint 통과"는 시각 검증이 아니다. 타입/린트는 최소 조건이고, 완료 조건은 **스크린샷 일치**
+
+**상태별 변형(variant) 누락 금지** (PR #159 NUX 튜토리얼 리뷰에서 도출):
+- 화면이 사용자 진행/상태에 따라 5가지 variant로 분기되면 (예: `tutorial_empty`, `tutorial_item 2`, `tutorial_item 3`, `tutorial_item-claer`, `tutorial_reward_activate`), **각 variant마다 별도 Figma 노드를 찾아 screenshot 비교**해야 한다. 하나 variant만 확인하고 "디자인 반영 완료"라고 하면 reviewer가 "figma랑 완전히 다른데?" 라고 지적한다.
+- Figma metadata에서 같은 prefix(예: `tutorial_*`)를 가진 frame을 모두 조회한 뒤 **하나씩 빠짐없이 검증**한다.
+- 미션 완료 팝업 같은 작은 컴포넌트도 미션 타입별로 별도 노드 (예: `1648-38667` 관심지역, `1648-39265` 저장리스트, `1648-40635` 히든) — 각각 확인.
 
 ### adb 터치 자동화 워크플로우
 

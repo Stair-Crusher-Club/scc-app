@@ -19,10 +19,17 @@ export interface WebViewScreenParams {
   headerVariant?: 'appbar' | 'navigation';
   fixedTitle?: string;
   url: string;
+  // close 버튼 누를 때 "정말 나가시겠어요?" confirm Alert 표시 여부. 기본 true.
+  confirmOnClose?: boolean;
 }
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
-  const {fixedTitle, url, headerVariant = 'navigation'} = route.params;
+  const {
+    fixedTitle,
+    url,
+    headerVariant = 'navigation',
+    confirmOnClose = true,
+  } = route.params;
   const webViewRef = useRef<WebView>(null);
   const [canGoBack, setCanGoBack] = useState(false);
   const [currentUrl, setCurrentUrl] = useState(url);
@@ -45,6 +52,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     currentUrl.startsWith('https://staircrusherclub.notion.site');
 
   const onTapCloseButton = useCallback(() => {
+    if (!confirmOnClose) {
+      navigation.goBack();
+      return;
+    }
     Alert.alert('정말 페이지를 나가시겠어요?', '', [
       {text: '취소', style: 'cancel'},
       {
@@ -53,7 +64,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         style: 'destructive',
       },
     ]);
-  }, [navigation]);
+  }, [navigation, confirmOnClose]);
 
   const handleMessage = useCallback((message: WebViewMessageEvent) => {
     setTitle(message.nativeEvent.data);

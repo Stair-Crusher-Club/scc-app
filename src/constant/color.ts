@@ -88,6 +88,10 @@ export const color = {
   gray90v2: '#16181c',
   gray60v2: '#585a64',
   gray20v2: '#e3e4e8',
+  gray70v2: '#3a3c45',
+  gray30v2: '#c3c5cc',
+  gray15v2: '#f2f2f5',
+  gray10v2: '#f7f8fa',
 } as const;
 
 export type Color = keyof typeof color;

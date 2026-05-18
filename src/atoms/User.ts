@@ -41,6 +41,15 @@ export const hasShownHomeTutorialAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
+// 윌리의 외출 NUX 튜토리얼: 외출 유도 전면 팝업 1회 노출 여부 (가입 유저만 대상)
+export const hasShownTutorialIntroPopupAtom = atomForLocalNonNull<boolean>(
+  'hasShownTutorialIntroPopup',
+  false,
+);
+
+export const hasShownOutingItemsCollectedPopupAtom =
+  atomForLocalNonNull<boolean>('hasShownOutingItemsCollectedPopupV2', false);
+
 export const hasShownMapIconTooltipForFirstVisitAtom =
   atomForLocalNonNull<boolean>('hasShownMapIconTooltipForFirstVisit', false);
 

@@ -5,6 +5,7 @@ import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
+import {USER_TUTORIAL_PROGRESS_QUERY_KEY} from './useUserTutorialProgress';
 
 interface UseUpvoteToggleParams {
   initialIsUpvoted: boolean;
@@ -12,6 +13,11 @@ interface UseUpvoteToggleParams {
   targetId: string | undefined;
   targetType: UpvoteTargetTypeDto;
   placeId: string;
+  /**
+   * mutation 성공 시 호출되는 부가 콜백. wasUpvoted = 호출 직전 isUpvoted 값.
+   * (false → true 전환 시 wasUpvoted=false)
+   */
+  onSuccess?: (variables: {wasUpvoted: boolean}) => void;
 }
 
 interface UseUpvoteToggleReturn {
@@ -26,6 +32,7 @@ export function useUpvoteToggle({
   targetId,
   targetType,
   placeId,
+  onSuccess,
 }: UseUpvoteToggleParams): UseUpvoteToggleReturn {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
@@ -68,7 +75,7 @@ export function useUpvoteToggle({
       setIsUpvoted(!wasUpvoted);
       setTotalUpvoteCount(prev => Math.max(0, prev + (wasUpvoted ? -1 : 1)));
     },
-    onSuccess: () => {
+    onSuccess: (_data, wasUpvoted) => {
       if (isUpvoted) {
         ToastUtils.show('소중한 의견 감사해요 👍');
       }
@@ -97,6 +104,11 @@ export function useUpvoteToggle({
         });
       }
 
+      // 윌리의 외출 NUX 튜토리얼: 도움이 돼요 미션 진행 상태 무효화
+      queryClient.invalidateQueries({
+        queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
+      });
+
       if (targetType === 'PLACE_REVIEW' || targetType === 'TOILET_REVIEW') {
         queryClient.invalidateQueries({
           queryKey: ['PlaceDetailV2', placeId, targetType],
@@ -117,6 +129,8 @@ export function useUpvoteToggle({
           queryKey: ['ReviewHistory', 'Upvote', targetType],
         });
       }
+
+      onSuccess?.({wasUpvoted});
     },
     onError: (error, wasUpvoted) => {
       setIsUpvoted(wasUpvoted);

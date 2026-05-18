@@ -4824,6 +4824,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/blur@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "@react-native-community/blur@npm:4.4.1"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/f8f3b2e0dc630d93219c5db822a5d283754beedf31b8e481c17bca6f8b2a29d0e24cad4c5013f692f120a3336490dc5b1b3990a68c714c3308151adf92686ad7
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-clean@npm:18.0.0":
   version: 18.0.0
   resolution: "@react-native-community/cli-clean@npm:18.0.0"
@@ -16954,6 +16964,7 @@ __metadata:
     "@openapitools/openapi-generator-cli": "npm:^2.5.2"
     "@playwright/test": "npm:^1.55.0"
     "@react-native-clipboard/clipboard": "npm:^1.16.3"
+    "@react-native-community/blur": "npm:^4.4.1"
     "@react-native-community/cli": "npm:^18.0.0"
     "@react-native-community/geolocation": "npm:^3.4.0"
     "@react-native-community/hooks": "npm:^100.1.0"

@@ -72,6 +72,22 @@ import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
 import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import TutorialScreen from '@/screens/TutorialScreen';
+import TutorialMissionScreen, {
+  TutorialMissionScreenParams,
+} from '@/screens/TutorialMissionScreen';
+import TutorialUpvoteAccessibilityMissionScreen from '@/screens/TutorialUpvoteAccessibilityMissionScreen';
+import EditInterestedRegionScreen, {
+  EditInterestedRegionScreenParams,
+} from '@/screens/EditInterestedRegionScreen';
+import EditInterestedThemesScreen, {
+  EditInterestedThemesScreenParams,
+} from '@/screens/EditInterestedThemesScreen';
+import InterestedRegionAndThemesFormScreen, {
+  InterestedRegionAndThemesFormScreenParams,
+} from '@/screens/InterestedRegionAndThemesFormScreen';
+import PublicPlaceListsScreen, {
+  PublicPlaceListsScreenParams,
+} from '@/screens/PublicPlaceListsScreen';
 import ToiletReviewFormScreen, {
   ToiletReviewFormScreenParams,
 } from '@/screens/ToiletReviewFormScreen';
@@ -272,6 +288,56 @@ export const MainNavigationScreens: {
     },
   },
   {
+    name: 'TutorialMission',
+    component: TutorialMissionScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '튜토리얼',
+    },
+  },
+  {
+    name: 'InterestedRegionAndThemes',
+    component: InterestedRegionAndThemesFormScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '',
+      variant: 'close',
+    },
+  },
+  {
+    name: 'EditInterestedRegion',
+    component: EditInterestedRegionScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '',
+    },
+  },
+  {
+    name: 'EditInterestedThemes',
+    component: EditInterestedThemesScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '',
+    },
+  },
+  {
+    name: 'PublicPlaceLists',
+    component: PublicPlaceListsScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '저장리스트 모음',
+      variant: 'close',
+    },
+  },
+  {
+    name: 'TutorialUpvoteAccessibilityMission',
+    component: TutorialUpvoteAccessibilityMissionScreen,
+    options: {
+      // 화면 내부에서 V2AppBar 를 직접 sticky 로 렌더하므로 native header 는 숨긴다.
+      headerShown: false,
+    },
+  },
+  {
     name: 'ReportCorrectionForm',
     component: ReportCorrectionFormScreen,
     options: {
@@ -360,6 +426,12 @@ export type ScreenParams = {
   ImageZoomViewer: ImageZoomViewerScreenParams;
   RegistrationComplete: RegistrationCompleteScreenParams;
   Tutorial: undefined;
+  TutorialMission: TutorialMissionScreenParams;
+  InterestedRegionAndThemes: InterestedRegionAndThemesFormScreenParams;
+  EditInterestedRegion: EditInterestedRegionScreenParams;
+  EditInterestedThemes: EditInterestedThemesScreenParams;
+  PublicPlaceLists: PublicPlaceListsScreenParams;
+  TutorialUpvoteAccessibilityMission: undefined;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =

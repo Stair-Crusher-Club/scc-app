@@ -9,11 +9,26 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {MOBILITY_TOOL_LABELS} from '@/constant/mobilityTool';
 import {useMe} from '@/atoms/Auth';
+import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
 import useNavigation from '@/navigation/useNavigation';
+import {THEME_LABEL_BY_VALUE} from '@/screens/InterestedRegionAndThemesFormScreen';
 
 export default function ProfileEditorScreen() {
   const {userInfo} = useMe();
+  const interestedRegionIds = userInfo?.interestedRegionIds ?? [];
+  const interestedThemes = userInfo?.interestedThemes ?? [];
+  const regionLabelMap = useInterestedRegionGroupLabelMap();
   const navigation = useNavigation();
+
+  const regionSummary =
+    interestedRegionIds.length === 0
+      ? null
+      : interestedRegionIds.map(id => regionLabelMap[id] ?? id).join(', ');
+  const themeSummary =
+    interestedThemes.length === 0
+      ? null
+      : interestedThemes.map(theme => THEME_LABEL_BY_VALUE[theme]).join(', ');
+
   return (
     <ScreenLayout isHeaderVisible>
       <ScrollView style={{backgroundColor: color.white}}>
@@ -78,6 +93,36 @@ export default function ProfileEditorScreen() {
               <GotoIcon />
             </FieldValueWrapper>
           </FieldArea>
+          <FieldArea
+            elementName="profile_editor_interested_region_field"
+            onPress={() => navigation.navigate('EditInterestedRegion', {})}>
+            <FieldLabel>관심 지역</FieldLabel>
+            <FieldValueWrapper>
+              {regionSummary !== null ? (
+                <FieldValue numberOfLines={1}>{regionSummary}</FieldValue>
+              ) : (
+                <FieldPlaceholder numberOfLines={1}>
+                  관심 있는 지역을 알려주세요
+                </FieldPlaceholder>
+              )}
+              <GotoIcon />
+            </FieldValueWrapper>
+          </FieldArea>
+          <FieldArea
+            elementName="profile_editor_interested_theme_field"
+            onPress={() => navigation.navigate('EditInterestedThemes', {})}>
+            <FieldLabel>관심 주제</FieldLabel>
+            <FieldValueWrapper>
+              {themeSummary !== null ? (
+                <FieldValue numberOfLines={1}>{themeSummary}</FieldValue>
+              ) : (
+                <FieldPlaceholder numberOfLines={1}>
+                  관심 있는 주제를 알려주세요
+                </FieldPlaceholder>
+              )}
+              <GotoIcon />
+            </FieldValueWrapper>
+          </FieldArea>
         </View>
       </ScrollView>
     </ScreenLayout>
@@ -109,4 +154,15 @@ const FieldValue = styled.Text`
   font-size: 16px;
   font-family: ${font.pretendardMedium};
   color: ${color.black};
+`;
+
+/**
+ * 관심 지역/주제가 선택되지 않은 상태의 placeholder 텍스트.
+ * Figma 1648:40972 기준으로 brand 색(#0E64D3)으로 노출.
+ */
+const FieldPlaceholder = styled.Text`
+  flex-shrink: 1;
+  font-size: 16px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.brand50};
 `;

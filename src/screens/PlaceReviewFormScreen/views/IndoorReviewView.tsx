@@ -26,6 +26,7 @@ import {
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
 import usePost from '@/hooks/usePost';
+import {USER_TUTORIAL_PROGRESS_QUERY_KEY} from '@/hooks/useUserTutorialProgress';
 import ImageFile from '@/models/ImageFile';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
@@ -305,6 +306,10 @@ async function submitRegistration({
     });
     queryClient.invalidateQueries({
       queryKey: ['ReviewHistory', 'Upvote', UpvoteTargetTypeDto.PlaceReview],
+    });
+    // 윌리의 외출 NUX 튜토리얼: 리뷰 작성 미션 진행 상태 무효화
+    queryClient.invalidateQueries({
+      queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
     });
 
     updateSearchCacheForPlaceAsync(api, queryClient, placeId);

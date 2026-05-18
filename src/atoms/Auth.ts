@@ -14,6 +14,8 @@ export const ANONYMOUS_USER_TEMPLATE: User = {
   nickname: '비회원',
   mobilityTools: [],
   isNewsLetterSubscriptionAgreed: false,
+  interestedRegionIds: [],
+  interestedThemes: [],
 };
 
 export const isAnonymousUserAtom = atom(get => {
@@ -31,6 +33,8 @@ export const accessTokenAtom = atomForLocal<string>('scc-token');
 export const featureFlagAtom = atom<{
   isAlbumUploadAllowed: boolean;
   hasBeenCrew: boolean;
+  // 서버 FeatureFlag enum 의 enabled list. dev/sandbox 는 자동 전부 활성.
+  enabledFlags: Set<string>;
 } | null>(null);
 
 // Key: 실험 이름 (e.g., 'UPVOTE_BUTTON_STYLE')
@@ -83,6 +87,7 @@ export function useMe() {
     setFeatureFlag({
       isAlbumUploadAllowed: data.isAlbumUploadAllowed ?? false,
       hasBeenCrew: data.hasBeenCrew ?? false,
+      enabledFlags: new Set(data.flags ?? []),
     });
 
     // 실험 배정 파싱

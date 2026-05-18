@@ -23,11 +23,17 @@ import DeviceInfo from 'react-native-device-info';
 import styled from 'styled-components/native';
 
 import CrusherClubLogo from '@/assets/icon/logo.svg';
-import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
+import {
+  accessTokenAtom,
+  featureFlagAtom,
+  isAnonymousUserAtom,
+  useMe,
+} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import {
   dismissedHomePopupIdsAtom,
   hasShownHomeTutorialAtom,
+  hasShownTutorialIntroPopupAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {prefetchRemoteImage} from '@/components/SccRemoteImage';
@@ -53,6 +59,7 @@ import RecommendedContentSection from './sections/RecommendedContentSection';
 import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
 import HomePopupModal from './components/HomePopupModal';
+import TutorialIntroPopup from './components/TutorialIntroPopup';
 import TutorialOverlay from './components/TutorialOverlay';
 
 export interface HomeScreenV2Params {}
@@ -98,18 +105,70 @@ const HomeScreenV2 = ({navigation}: any) => {
   const versionStatusMessage = versionData?.message;
   const versionStatus = versionData?.status;
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
+  const featureFlags = useAtomValue(featureFlagAtom);
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
+  const [hasShownTutorialIntroPopup, setHasShownTutorialIntroPopup] = useAtom(
+    hasShownTutorialIntroPopupAtom,
+  );
 
-  // 튜토리얼: 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
+  // 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
+  // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도)
   // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
-  const [needsTutorial] = useState(() => {
+  const [needsPlaceSearchTutorial] = useState(() => {
     if (getDeferredDeepLinkUrl()) {
+      return false;
+    }
+    if (!isAnonymousUser) {
       return false;
     }
     return !hasShownHomeTutorial;
   });
-  const [tutorialVisible, setTutorialVisible] = useState(false);
+  const [placeSearchTutorialVisible, setPlaceSearchTutorialVisible] =
+    useState(false);
+
+  // 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업: 가입자 + 미노출 1회만
+  // __DEV__: Figma 시각 검증용 강제 활성화 (사용 후 false로 되돌릴 것)
+  const __DEV_FORCE_INTRO_POPUP__: boolean = false;
+  const [tutorialIntroPopupVisible, setTutorialIntroPopupVisible] =
+    useState(false);
+  useEffect(() => {
+    if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
+      const timer = setTimeout(() => setTutorialIntroPopupVisible(true), 500);
+      return () => clearTimeout(timer);
+    }
+    if (isAnonymousUser) {
+      return;
+    }
+    // USER_TUTORIAL feature flag 미대상 사용자에게는 외출 유도 팝업을 띄우지 않는다.
+    // dev/sandbox 는 서버에서 자동 활성, prod 는 사내 화이트리스트만 활성.
+    if (!featureFlags?.enabledFlags.has('USER_TUTORIAL')) {
+      return;
+    }
+    if (hasShownTutorialIntroPopup) {
+      return;
+    }
+    if (getDeferredDeepLinkUrl()) {
+      return;
+    }
+    // 다른 모달/튜토리얼이 진행 중이면 보여주지 않음
+    if (needsPlaceSearchTutorial) {
+      return;
+    }
+    // 첫 진입 후 잠시 뒤에 노출 (홈 데이터 로딩 후)
+    const timer = setTimeout(() => {
+      setTutorialIntroPopupVisible(true);
+      setHasShownTutorialIntroPopup(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [
+    __DEV_FORCE_INTRO_POPUP__,
+    isAnonymousUser,
+    featureFlags,
+    hasShownTutorialIntroPopup,
+    needsPlaceSearchTutorial,
+    setHasShownTutorialIntroPopup,
+  ]);
 
   // 홈 팝업 상태
   const [dismissedPopupIds, setDismissedPopupIds] = useAtom(
@@ -120,8 +179,8 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (!showPopupThisSession) {
       return null;
     }
-    // 튜토리얼이 진행 중이면 팝업을 보여주지 않음
-    if (needsTutorial && !hasShownHomeTutorial) {
+    // 장소 검색 튜토리얼이 진행 중이면 팝업을 보여주지 않음
+    if (needsPlaceSearchTutorial && !hasShownHomeTutorial) {
       return null;
     }
     const popups = homeData?.homePopups ?? [];
@@ -130,7 +189,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     homeData?.homePopups,
     dismissedPopupIds,
     showPopupThisSession,
-    needsTutorial,
+    needsPlaceSearchTutorial,
     hasShownHomeTutorial,
   ]);
 
@@ -141,21 +200,21 @@ const HomeScreenV2 = ({navigation}: any) => {
   }, [activePopup?.imageUrl]);
 
   useEffect(() => {
-    if (!needsTutorial) {
+    if (!needsPlaceSearchTutorial) {
       return;
     }
     const timer = setTimeout(() => {
-      setTutorialVisible(true);
+      setPlaceSearchTutorialVisible(true);
       // 탭바 숨기기
       navigation.setOptions({
         tabBarStyle: {display: 'none' as const},
       });
     }, 3000);
     return () => clearTimeout(timer);
-  }, [needsTutorial]);
+  }, [needsPlaceSearchTutorial]);
 
-  const handleTutorialClose = useCallback(() => {
-    setTutorialVisible(false);
+  const handlePlaceSearchTutorialClose = useCallback(() => {
+    setPlaceSearchTutorialVisible(false);
     setHasShownHomeTutorial(true);
     // 탭바 복원
     navigation.setOptions({
@@ -424,13 +483,18 @@ const HomeScreenV2 = ({navigation}: any) => {
           )}
         </Container>
       </ScreenLayout>
-      {/* 튜토리얼: 마운트 시점부터 이미지 디코딩, 1.5초 후 zIndex 올려서 표시 */}
-      {needsTutorial && (
+      {/* 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 디코딩, 1.5초 후 zIndex 올려서 표시 */}
+      {needsPlaceSearchTutorial && (
         <TutorialOverlay
-          visible={tutorialVisible}
-          onClose={handleTutorialClose}
+          visible={placeSearchTutorialVisible}
+          onClose={handlePlaceSearchTutorialClose}
         />
       )}
+      {/* 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업 (가입자 1회) */}
+      <TutorialIntroPopup
+        isVisible={tutorialIntroPopupVisible}
+        onClose={() => setTutorialIntroPopupVisible(false)}
+      />
     </>
   );
 };

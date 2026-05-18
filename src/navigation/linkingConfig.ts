@@ -54,5 +54,17 @@ export const linkingScreensConfig = {
     PlaceListDetail: {
       path: 'place-list/:placeListId',
     },
+    TutorialMission: {
+      path: 'tutorial-mission',
+    },
+    InterestedRegionAndThemes: {
+      path: 'interested-region-and-themes',
+    },
+    PublicPlaceLists: {
+      path: 'public-place-lists',
+    },
+    TutorialUpvoteAccessibilityMission: {
+      path: 'tutorial-mission-upvote-accessibility',
+    },
   },
 };

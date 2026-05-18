@@ -69,6 +69,10 @@ export const Navigation = () => {
       initialRouteName="Intro"
       screenOptions={() => ({
         headerShown: false,
+        // native-stack screen 컨테이너 기본값이 투명이라, 화면 전환 중/후에
+        // GestureHandlerRootView 등 상위 트리의 배경색이 leak된다. 모든 화면을
+        // 흰 배경으로 강제해 leak 차단. (특정 화면이 투명 필요시 override)
+        contentStyle: {backgroundColor: color.white},
         // eslint-disable-next-line react/no-unstable-nested-components
         header: ({options, navigation}) => {
           const customOptions = options as CustomNavigationOptions;

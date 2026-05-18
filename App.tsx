@@ -106,7 +106,7 @@ const App = () => {
     };
   }, [accessToken]);
   return (
-    <GestureHandlerRootView style={{flex: 1, backgroundColor: color.brand30}}>
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: color.white}}>
       <RootSiblingParent>
         <StatusBar barStyle={'dark-content'} backgroundColor={color.white} />
         <RootScreen />

@@ -8,7 +8,7 @@ export function useCheckAuth() {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
 
-  const checkAuth = async (
+  const checkAuth = (
     onAuth: () => void,
     onFailed?: () => void,
     _message?: string,
