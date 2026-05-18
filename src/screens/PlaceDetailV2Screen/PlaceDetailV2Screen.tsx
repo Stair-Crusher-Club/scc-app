@@ -16,7 +16,6 @@ import styled from 'styled-components/native';
 import {featureFlagAtom} from '@/atoms/Auth';
 import {currentLocationAtom} from '@/atoms/Location';
 import V2TabBar from './components/V2TabBar';
-import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
@@ -28,7 +27,6 @@ import {
   PlaceSpecialAccessibilityDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
-  TutorialMissionTypeDto,
   UpvoteTargetTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -37,7 +35,6 @@ import usePost from '@/hooks/usePost';
 import {useToggleAccessibilityInfoRequest} from '@/hooks/useToggleAccessibilityInfoRequest';
 import {useToggleFavoritePlace} from '@/hooks/useToggleFavoritePlace';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
-import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useLogger} from '@/logging/useLogger';
@@ -258,23 +255,6 @@ export default function PlaceDetailV2Screen({
       (await api.listToiletReviewsPost({placeId: queryKey[1]})).data,
   });
 
-  // UPVOTE_ACCESSIBILITY 미션이 현재 진행 중인 미션일 때만 upvote 액션이 미션 완료
-  // 트리거가 된다. 마운트 시점에 캡처해두지 않으면 mutation 후 invalidate되면서
-  // currentMissionType이 사라져 overlay가 안 뜬다.
-  // 또한 "도움이 돼요"는 다른 화면에서도 일어나므로 currentMissionType으로 필터링.
-  const {data: tutorialProgress} = useUserTutorialProgress();
-  const wasOnUpvoteMissionRef = useRef<boolean>(false);
-  useEffect(() => {
-    if (
-      tutorialProgress?.currentMissionType ===
-      TutorialMissionTypeDto.UpvoteAccessibility
-    ) {
-      wasOnUpvoteMissionRef.current = true;
-    }
-  }, [tutorialProgress?.currentMissionType]);
-  const [showUpvoteMissionCompleted, setShowUpvoteMissionCompleted] =
-    useState(false);
-
   // Upvote state lifted from V2SummarySection & V2BottomBar so both stay in sync
   const placeUpvoteInfo = accessibilityPost?.placeUpvoteInfo;
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
@@ -283,13 +263,6 @@ export default function PlaceDetailV2Screen({
     targetId: placeId,
     targetType: 'PLACE',
     placeId: placeId,
-    onSuccess: ({wasUpvoted}) => {
-      // upvote → cancel이 아니라 upvote 액션일 때만 미션 완료로 간주.
-      if (!wasUpvoted && wasOnUpvoteMissionRef.current) {
-        wasOnUpvoteMissionRef.current = false;
-        setShowUpvoteMissionCompleted(true);
-      }
-    },
   });
 
   const handleUpvote = useCallback(() => {
@@ -299,10 +272,6 @@ export default function PlaceDetailV2Screen({
       '앱에서 유용한 정보에 도움돼요를 눌러보세요',
     );
   }, [checkAuth, toggleUpvote]);
-
-  const handleUpvoteMissionCompletedClose = useCallback(() => {
-    setShowUpvoteMissionCompleted(false);
-  }, []);
 
   // API 에러 시 토스트 + goBack
   useEffect(() => {
@@ -1198,18 +1167,6 @@ export default function PlaceDetailV2Screen({
         />
       )}
       {LocationConfirmModal}
-      {showUpvoteMissionCompleted && (
-        <MissionCompletedOverlay
-          isVisible={true}
-          variant="outing-items"
-          itemImage={require('@/assets/img/tutorial/mission_complete_img_outing_items.png')}
-          description={
-            '윌리의 외출템을 모두 모았어요!\n이제 계뿌클 히든 맛집 리스트를 확인할 수 있어요'
-          }
-          confirmElementName="tutorial_mission_3_completed_confirm"
-          onClose={handleUpvoteMissionCompletedClose}
-        />
-      )}
     </LogParamsProvider>
   );
 }

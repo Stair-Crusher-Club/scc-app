@@ -3,7 +3,7 @@ import React from 'react';
 import {Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
-import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
+import CheckBoldBlueIcon from '@/assets/icon/ic_check_bold_blue.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -38,7 +38,7 @@ export default function MissionCard({
         />
         {isCompleted && (
           <ItemDim>
-            <CheckColoredIcon width={48} height={48} />
+            <CheckBoldBlueIcon width={32.5} height={24.5} />
           </ItemDim>
         )}
       </ItemBox>

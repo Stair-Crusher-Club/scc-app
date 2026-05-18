@@ -423,11 +423,6 @@ const HOLE_PADDING = 4;
 // figma 1648:42181 export PNG (transforms baked) — 96×54 px @3x = 32×18 dp.
 const TOOLTIP_ARROW_WIDTH = 32;
 const TOOLTIP_ARROW_HEIGHT = 18;
-// TooltipBlock 이 hole top 위로 얼마나 떠있는지 (px). 화살표 끝이 hole 윗변과 거의 닿게.
-const TOOLTIP_BLOCK_GAP_ABOVE_HOLE = 2;
-// 컴포넌트 내부에서 화살표를 텍스트로부터 얼마나 들여쓸지 (왼쪽 들여쓰기).
-const TOOLTIP_ARROW_INDENT = 16;
-
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
  * 4개의 dim rect (위/아래/왼쪽/오른쪽) 로 hole 을 구성한다.

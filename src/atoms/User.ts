@@ -47,6 +47,9 @@ export const hasShownTutorialIntroPopupAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
+export const hasShownOutingItemsCollectedPopupAtom =
+  atomForLocalNonNull<boolean>('hasShownOutingItemsCollectedPopupV2', false);
+
 export const hasShownMapIconTooltipForFirstVisitAtom =
   atomForLocalNonNull<boolean>('hasShownMapIconTooltipForFirstVisit', false);
 

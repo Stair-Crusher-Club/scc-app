@@ -1,18 +1,13 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {AxiosError} from 'axios';
+import {useAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-  AppState,
-  AppStateStatus,
-  Dimensions,
-  Linking,
-  ScrollView,
-  View,
-} from 'react-native';
+import {Dimensions, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import {hasShownOutingItemsCollectedPopupAtom} from '@/atoms/User';
+import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -50,6 +45,12 @@ export default function TutorialMissionScreen({
   const {data: progress, refetch} = useUserTutorialProgress();
   const completeHiddenMission = useCompleteUserTutorialHiddenMission();
   const [showHiddenCollected, setShowHiddenCollected] = useState(false);
+  const [
+    hasShownOutingItemsCollectedPopup,
+    setHasShownOutingItemsCollectedPopup,
+  ] = useAtom(hasShownOutingItemsCollectedPopupAtom);
+  const [showOutingItemsCollected, setShowOutingItemsCollected] =
+    useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -95,33 +96,29 @@ export default function TutorialMissionScreen({
     });
   }, [allMainCompleted, isHiddenCompleted, completeHiddenMission]);
 
-  // tally form 진입 후 background → active 복귀 시 자동으로 hidden 완료 API 호출.
-  // 서버가 tally API로 직접 검증하므로 사용자 confirm 단계 없이 바로 시도한다.
-  const wasBackgroundedAfterTallyRef = useRef(false);
+  // tally form Webview 진입 후 화면 복귀 시 hidden 완료 API 자동 호출.
+  // 서버가 tally API로 직접 검증 (idempotent + 미제출 시 400 silent) 하므로 안전하게 시도.
+  const wasTallyOpenedRef = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (!wasTallyOpenedRef.current) {
+        return;
+      }
+      wasTallyOpenedRef.current = false;
+      tryCompleteHiddenMission();
+    }, [tryCompleteHiddenMission]),
+  );
+
+  // 모든 메인 미션 완료 시 "외출템 수집 완료!" 팝업 1회 노출
   useEffect(() => {
-    const subscription = AppState.addEventListener(
-      'change',
-      (nextState: AppStateStatus) => {
-        if (nextState === 'background' || nextState === 'inactive') {
-          if (allMainCompleted && !isHiddenCompleted) {
-            wasBackgroundedAfterTallyRef.current = true;
-          }
-        } else if (nextState === 'active') {
-          if (
-            wasBackgroundedAfterTallyRef.current &&
-            allMainCompleted &&
-            !isHiddenCompleted
-          ) {
-            wasBackgroundedAfterTallyRef.current = false;
-            tryCompleteHiddenMission();
-          }
-        }
-      },
-    );
-    return () => {
-      subscription.remove();
-    };
-  }, [allMainCompleted, isHiddenCompleted, tryCompleteHiddenMission]);
+    if (!allMainCompleted) {
+      return;
+    }
+    if (hasShownOutingItemsCollectedPopup) {
+      return;
+    }
+    setShowOutingItemsCollected(true);
+  }, [allMainCompleted, hasShownOutingItemsCollectedPopup]);
 
   const handleStartMission = useCallback(
     (missionType: TutorialMissionTypeDto) => {
@@ -151,24 +148,20 @@ export default function TutorialMissionScreen({
     if (isHiddenCompleted) {
       return;
     }
-    checkAuth(async () => {
+    checkAuth(() => {
       const url = progress?.hiddenMissionTallyFormUrl;
       if (!url) {
         return;
       }
-      try {
-        await Linking.openURL(url);
-      } catch {
-        ToastUtils.show('링크를 열 수 없습니다. 잠시 후 다시 시도해주세요.');
-      }
+      wasTallyOpenedRef.current = true;
+      navigation.navigate('Webview', {
+        url,
+        fixedTitle: '히든 맛집 리스트',
+        headerVariant: 'appbar',
+        confirmOnClose: false,
+      });
     });
-  }, [allMainCompleted, isHiddenCompleted, checkAuth, progress]);
-
-  const handleHiddenMissionComplete = useCallback(() => {
-    checkAuth(() => {
-      tryCompleteHiddenMission();
-    });
-  }, [checkAuth, tryCompleteHiddenMission]);
+  }, [allMainCompleted, isHiddenCompleted, checkAuth, progress, navigation]);
 
   const handleHiddenListPress = useCallback(() => {
     if (!allMainCompleted) {
@@ -178,8 +171,6 @@ export default function TutorialMissionScreen({
       navigation.navigate('PublicPlaceLists', {fromTutorial: true});
     });
   }, [allMainCompleted, checkAuth, navigation]);
-
-  const showHiddenCompleteCta = allMainCompleted && !isHiddenCompleted;
 
   if (!progress) {
     return <ScreenLayout isHeaderVisible={true} />;
@@ -228,7 +219,7 @@ export default function TutorialMissionScreen({
                         index > 0
                           ? `외출템 ${index}을 모으면, 외출템 ${
                               index + 1
-                            }미션이 열려요!`
+                            } 미션이 열려요!`
                           : undefined
                       }
                       onStart={() => handleStartMission(missionType)}
@@ -237,26 +228,25 @@ export default function TutorialMissionScreen({
                 })}
               </CardsWrapper>
 
-              {showHiddenCompleteCta && (
-                <HiddenCompleteCtaWrapper>
-                  <CompleteCtaText>
-                    Tally Form 제출이 끝났다면 아래 버튼을 눌러주세요.
-                  </CompleteCtaText>
-                  <CompleteCtaButton
-                    elementName="tutorial_mission_hidden_complete_button"
-                    onPress={handleHiddenMissionComplete}
-                    disabled={completeHiddenMission.isPending}>
-                    <CompleteCtaButtonText>
-                      히든 미션 완료하기
-                    </CompleteCtaButtonText>
-                  </CompleteCtaButton>
-                </HiddenCompleteCtaWrapper>
-              )}
-
               <View style={{height: 40}} />
             </ContentArea>
           </ScrollView>
 
+          {showOutingItemsCollected && (
+            <MissionCompletedOverlay
+              isVisible={true}
+              variant="outing-items"
+              itemImage={require('@/assets/img/tutorial/mission_complete_img_outing_items.png')}
+              description={
+                '윌리의 외출템을 모두 모았어요!\n이제 계뿌클 히든 맛집 리스트를\n확인할 수 있어요'
+              }
+              confirmElementName="tutorial_outing_items_collected_confirm"
+              onClose={() => {
+                setShowOutingItemsCollected(false);
+                setHasShownOutingItemsCollectedPopup(true);
+              }}
+            />
+          )}
           {showHiddenCollected && (
             <HiddenMissionCollectedPopup
               isVisible={true}
@@ -291,33 +281,4 @@ const SectionTitle = styled.Text`
 
 const CardsWrapper = styled.View`
   gap: 8px;
-`;
-
-const HiddenCompleteCtaWrapper = styled.View`
-  margin-top: 16px;
-  align-items: center;
-  gap: 8px;
-`;
-
-const CompleteCtaText = styled.Text`
-  font-family: ${font.pretendardRegular};
-  font-size: 13px;
-  line-height: 18px;
-  letter-spacing: -0.26px;
-  color: ${color.gray70};
-  text-align: center;
-`;
-
-const CompleteCtaButton = styled(SccPressable)`
-  background-color: ${color.brand40};
-  padding: 12px 28px;
-  border-radius: 8px;
-`;
-
-const CompleteCtaButtonText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.32px;
-  color: ${color.white};
 `;

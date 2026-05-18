@@ -1,5 +1,6 @@
+import {BlurView} from '@react-native-community/blur';
 import React from 'react';
-import {Dimensions, Image, Modal} from 'react-native';
+import {Dimensions, Image, Modal, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -26,6 +27,12 @@ export default function HiddenMissionCollectedPopup({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}>
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="dark"
+        blurAmount={10}
+        reducedTransparencyFallbackColor={color.blacka70}
+      />
       <DimRoot>
         <ContentsWrapper>
           <TitleImage
@@ -53,7 +60,6 @@ export default function HiddenMissionCollectedPopup({
 
 const DimRoot = styled.View`
   flex: 1;
-  background-color: rgba(0, 0, 0, 0.6);
   align-items: center;
   justify-content: center;
 `;

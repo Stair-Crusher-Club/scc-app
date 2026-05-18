@@ -1,6 +1,6 @@
 import {BlurView} from '@react-native-community/blur';
 import React from 'react';
-import {Dimensions, Image, Modal, StyleSheet, View} from 'react-native';
+import {Dimensions, Image, Modal, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -69,7 +69,6 @@ export default function MissionCompletedOverlay({
             resizeMode="contain"
           />
           <FormattedDescription description={description} />
-          <View style={{height: 8}} />
           <SccButton
             text="확인"
             elementName={confirmElementName}
