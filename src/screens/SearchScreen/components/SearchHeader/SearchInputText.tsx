@@ -26,8 +26,8 @@ export default function SearchInputText({
 }) {
   const [draftKeyword, setDraftKeyword] = useAtom(draftKeywordAtom);
   const [searchQuery, _] = useAtom(searchQueryAtom);
-  const navigation = useNavigation();
   const [viewState, setViewState] = useAtom(viewStateAtom);
+  const navigation = useNavigation();
   const debounceSearch = useCallback(
     debounce(
       (keyword: string) => {
@@ -47,6 +47,15 @@ export default function SearchInputText({
     setDraftKeyword('');
     setViewState({type: 'map', inputMode: false});
     onTextUpdate('', false);
+    // route.params도 클리어해서 탭 unmount/remount 후 useEffect init이
+    // 이전 keyword로 재검색 트리거하지 않게 한다.
+    navigation.setParams({
+      initKeyword: undefined,
+      toMap: undefined,
+      searchQuery: undefined,
+      fromLookup: undefined,
+      initSortOption: undefined,
+    });
   };
   const isTextExists = viewState.inputMode
     ? (draftKeyword?.length ?? 0) !== 0
@@ -59,9 +68,7 @@ export default function SearchInputText({
           elementName="search_map_list_toggle_button"
           activeOpacity={0.8}
           onPress={() => {
-            if (viewState.inputMode) {
-              navigation.goBack();
-            } else if (viewState.type === 'map') {
+            if (viewState.type === 'map') {
               setViewState({type: 'list', inputMode: false});
             } else {
               setViewState({type: 'map', inputMode: false});
@@ -93,7 +100,6 @@ export default function SearchInputText({
           activeOpacity={0.6}>
           <LeftArrowIcon width={16} height={14} color={color.gray100} />
         </IconButton>
-
         <Input
           style={{marginLeft: 8, marginRight: 12}}
           placeholder={'장소, 주소 검색'}

@@ -16257,6 +16257,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-volume-manager@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "react-native-volume-manager@npm:2.0.8"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/e4ea8d6c1ec1601f1910742c1111f1658740fdfff201455bd043730543071832d37e690ad2b2b1d3d30836243aa8e9418e561f2ca6a3b3210ce382b079b201d0
+  languageName: node
+  linkType: hard
+
 "react-native-web@npm:^0.21.1":
   version: 0.21.1
   resolution: "react-native-web@npm:0.21.1"
@@ -17040,6 +17050,7 @@ __metadata:
     react-native-tracking-transparency: "npm:^0.1.2"
     react-native-url-polyfill: "npm:^2.0.0"
     react-native-vision-camera: "npm:^4.7.0"
+    react-native-volume-manager: "npm:^2.0.8"
     react-native-web: "npm:^0.21.1"
     react-native-webview: "npm:^13.15.0"
     react-native-worklets: "npm:^0.7.2"

@@ -10,7 +10,6 @@ import useAppComponents from '@/hooks/useAppComponents';
 import useNavigation from '@/navigation/useNavigation';
 
 import {SccPressable} from '@/components/SccPressable';
-import {SortOption} from '@/screens/SearchScreen/atoms';
 import {Image, Text, View} from 'react-native';
 
 dayjs.locale(ko);
@@ -50,10 +49,15 @@ export default function WeeklyConquererSection() {
             className="flex-row items-center h-6"
             elementName="weekly_conquerer_more_button"
             onPress={() =>
-              navigation.navigate('Search', {
-                initKeyword: '',
-                initSortOption: SortOption.ACCURACY,
-              })
+              // Search는 Main tab 내부에 있어 nested navigate 필요.
+              // initSortOption은 지정하지 않음 → 다른 검색 진입과 동일하게
+              // filterAtom default(LOW_SCORE = 접근레벨낮은순) 적용.
+              navigation.navigate('Main', {
+                screen: 'Search',
+                params: {
+                  initKeyword: '',
+                },
+              } as never)
             }>
             <Text className="text-[14px] leading-[22px] text-brand-50 font-pretendard-medium">
               정복하러 가기

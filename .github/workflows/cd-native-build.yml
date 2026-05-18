@@ -121,14 +121,14 @@ jobs:
           working-directory: android
 
       - name: Configure git for push
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'release-'))
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
 
       - name: Ensure version matches branch
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'release-'))
         run: |
           VERSION=$(echo "${{ github.ref_name }}" | sed -E 's/^release-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
           cd android
@@ -235,14 +235,14 @@ jobs:
           pod install
 
       - name: Configure git for push
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'release-'))
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
 
       - name: Ensure version matches branch
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'release-'))
         run: |
           VERSION=$(echo "${{ github.ref_name }}" | sed -E 's/^release-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
           cd ios

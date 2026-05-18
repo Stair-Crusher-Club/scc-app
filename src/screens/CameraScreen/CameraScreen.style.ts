@@ -78,6 +78,7 @@ export const NoPhotosTaken = styled.Text({
   fontFamily: font.pretendardRegular,
   fontSize: 16,
   textAlign: 'center',
+  lineHeight: 22,
 });
 
 export const TakenPhotoItem = styled(SccPressable)({});
@@ -105,10 +106,10 @@ export const ActionsWrapper = styled.View({
 });
 
 export const CaptureButton = styled(SccPressable)(props => ({
-  width: 78,
-  height: 78,
+  width: 72,
+  height: 72,
   backgroundColor: 'transparent',
-  borderRadius: 39,
+  borderRadius: 36,
   borderColor: 'white',
   borderStyle: 'solid',
   borderWidth: 4,
@@ -118,32 +119,64 @@ export const CaptureButton = styled(SccPressable)(props => ({
 }));
 
 export const CaptureInnerDeco = styled.View({
-  width: 66,
-  height: 66,
-  borderRadius: 33,
+  width: 60,
+  height: 60,
+  borderRadius: 30,
   backgroundColor: 'white',
 });
 
 export const FlashButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
-  right: 32,
-  width: 56,
-  height: 56,
+  right: 80,
+  width: 48,
+  height: 48,
   backgroundColor: color.blacka40,
-  borderRadius: 28,
-  justifyContent: 'center',
+  borderRadius: 24,
   alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+});
+
+export const FlashButtonText = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardRegular,
+  fontSize: 13,
+  textAlign: 'center',
+  position: 'absolute',
+  bottom: -19, // 6px margin + fontSize 100%
+});
+
+export const TimerButton = styled(SccPressable)({
+  position: 'absolute',
+  bottom: 12,
+  right: 24,
+  width: 48,
+  height: 48,
+  backgroundColor: color.blacka40,
+  borderRadius: 24,
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+});
+
+export const TimerButtonText = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardRegular,
+  fontSize: 13,
+  textAlign: 'center',
+  position: 'absolute',
+  bottom: -19, // 6px margin + fontSize 100%
 });
 
 export const AlbumButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
-  left: 32,
-  width: 56,
-  height: 56,
+  left: 24,
+  width: 48,
+  height: 48,
   backgroundColor: color.blacka40,
-  borderRadius: 28,
+  borderRadius: 24,
   alignItems: 'center',
   justifyContent: 'center',
   flexDirection: 'column',
@@ -156,6 +189,20 @@ export const AlbumButtonText = styled.Text({
   textAlign: 'center',
   position: 'absolute',
   bottom: -19, // 6px margin + fontSize 100%
+});
+
+export const CountdownOverlay = styled.View({
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+export const CountdownText = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardBold,
+  fontSize: 96,
+  textAlign: 'center',
 });
 
 export const AlbumLoadingOverlay = styled.View({

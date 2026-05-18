@@ -40,10 +40,12 @@ export const filterAtom = atom<FilterOptions>({
   hasReview: null,
 });
 
+// 기본 상태: Map 탭 진입 시의 empty view (input focus 없음).
+// 검색 바를 눌러 진입할 때는 TextInput onFocus가 inputMode=true로 전환한다.
 export const viewStateAtom = atom<{
   type: 'map' | 'list';
   inputMode: boolean;
-}>({type: 'map', inputMode: true});
+}>({type: 'map', inputMode: false});
 
 export const filterModalStateAtom = atom<FilterType | 'All' | null>(null);
 
