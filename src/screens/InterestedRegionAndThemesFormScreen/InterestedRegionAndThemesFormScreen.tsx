@@ -120,10 +120,14 @@ export default function InterestedRegionAndThemesFormScreen({
   ]);
 
   const handleCollectedClose = useCallback(() => {
-    // 팝업의 "확인" 은 닫기만 한다. 화면 이탈은 사용자가 직접 뒤로가기 버튼을 누를 때
-    // 발생하며, 그때 dirty check 를 우회한다 (이미 저장됨).
+    // 이 화면은 튜토리얼 미션 1 전용 (일반 flow 에서 진입하지 않는다). 미션 완료 팝업
+    // "확인" 시 화면을 닫아 TutorialMissionScreen 으로 돌아가는 것이 자연스러운 UX.
+    // navigation 책임은 호출 사이트에 두고 MissionCompletedOverlay 는 닫기 신호만 보낸다
+    // (다른 호출 사이트들 — 일반 저장리스트 / PDP — 에서는 goBack 하지 않도록).
     setShowCollected(false);
-  }, []);
+    formExitConfirm.bypass();
+    navigation.goBack();
+  }, [formExitConfirm, navigation]);
 
   const handleRegionConfirm = useCallback((nextSelectedIds: string[]) => {
     setSelectedRegionIds(nextSelectedIds);
