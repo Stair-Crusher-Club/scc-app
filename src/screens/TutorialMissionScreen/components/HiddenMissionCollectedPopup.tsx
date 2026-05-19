@@ -1,6 +1,7 @@
+import {useBackHandler} from '@react-native-community/hooks';
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Dimensions, Image, Modal, StyleSheet} from 'react-native';
+import {Dimensions, Image, Modal, StyleSheet, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -20,6 +21,16 @@ export default function HiddenMissionCollectedPopup({
   isVisible,
   onClose,
 }: HiddenMissionCollectedPopupProps) {
+  // Modal 이 열려있을 때 Android hardware back 키가 호출 사이트의 navigation back 으로
+  // propagate 되지 않도록 차단한다 (QA round3). MissionCompletedOverlay 와 동일 패턴.
+  useBackHandler(() => {
+    if (isVisible) {
+      onClose();
+      return true;
+    }
+    return false;
+  });
+
   return (
     <Modal
       visible={isVisible}
@@ -27,11 +38,23 @@ export default function HiddenMissionCollectedPopup({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}>
+      {/*
+       * Figma 1648:40812 backdrop = "검정 ~60% 반투명 dim + blur" 조합. BlurView 의 Android
+       * 구현이 dark 색을 적용하지 못해 흰색 반투명으로 보이는 케이스가 있어 (QA round3),
+       * blur 위에 명시적으로 검정 반투명 View 를 stack 하여 dark dim 을 보장한다.
+       */}
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType="dark"
         blurAmount={10}
         reducedTransparencyFallbackColor={color.blacka70}
+      />
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {backgroundColor: 'rgba(0, 0, 0, 0.6)'},
+        ]}
+        pointerEvents="none"
       />
       <DimRoot>
         <ContentsWrapper>

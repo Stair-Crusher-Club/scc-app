@@ -1,6 +1,7 @@
+import {useBackHandler} from '@react-native-community/hooks';
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Dimensions, Image, Modal, StyleSheet} from 'react-native';
+import {Dimensions, Image, Modal, StyleSheet, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -44,6 +45,18 @@ export default function MissionCompletedOverlay({
   variant = 'mission',
   onClose,
 }: MissionCompletedOverlayProps) {
+  // Modal 이 열려있을 때 Android hardware back 키가 호출 사이트 화면의 navigation back 으로
+  // 까지 propagate 되어 사용자가 의도치 않게 화면 밖으로 튕겨나가는 케이스가 보고됨 (QA round3).
+  // useBackHandler 를 visible 일 때 true 반환으로 등록해, Modal 내부에서 hardware back 을
+  // 잡아 onClose 만 호출하고 react-navigation 까지 전파되지 않도록 한다.
+  useBackHandler(() => {
+    if (isVisible) {
+      onClose();
+      return true;
+    }
+    return false;
+  });
+
   return (
     <Modal
       visible={isVisible}
@@ -51,11 +64,26 @@ export default function MissionCompletedOverlay({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}>
+      {/*
+       * Figma 1648:38667 / 1648:39265 / 1648:40812 등 미션 완료 팝업의 backdrop 은
+       * "검정 ~60% 반투명 dim + blur" 조합이다. `@sbaiahmed1/react-native-blur` 의 Android
+       * 구현은 `setBlurType("dark")` → setBackgroundColor/setOverlayColor 로 색을 입히지만,
+       * Modal 위에서 blur 캡처가 늦거나 prop 적용 순서 이슈로 실제로는 dim 색이 안 입혀져
+       * 흰색 반투명으로 보이는 케이스가 있다 (QA round3 보고). BlurView 는 blur 효과만
+       * 담당하고, 위에 별도 검정 반투명 View 를 stack 해서 dark dim 을 명시적으로 보장한다.
+       */}
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType="dark"
         blurAmount={10}
         reducedTransparencyFallbackColor={color.blacka70}
+      />
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {backgroundColor: 'rgba(0, 0, 0, 0.6)'},
+        ]}
+        pointerEvents="none"
       />
       <DimContent>
         <Contents>

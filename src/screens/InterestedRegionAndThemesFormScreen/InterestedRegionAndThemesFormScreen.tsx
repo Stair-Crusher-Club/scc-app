@@ -1,5 +1,5 @@
 import {useAtomValue} from 'jotai';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import styled from 'styled-components/native';
 
 import {featureFlagAtom, useMe} from '@/atoms/Auth';
@@ -60,19 +60,56 @@ export default function InterestedRegionAndThemesFormScreen({
         TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
     )?.completedAt != null;
 
-  const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
+  // 사용자가 이미 관심 지역/주제를 등록해뒀다면 (예: 다른 경로로 한 번 등록 후 튜토리얼
+  // 미션을 다시 진입한 경우) 그 값으로 form 을 prefill 한다 (QA round3). 빈 상태로 떠서
+  // 사용자가 "내가 등록한 게 없어졌나?" 하고 헷갈리는 케이스 방지.
+  // userInfo 는 비동기로 로드될 수 있어 (atomForLocal + getUserInfoGet 갱신) 첫 렌더에
+  // null 이라도 이후 채워질 수 있으므로 useEffect 로 한 번만 prefill 한다.
+  // EditInterestedRegionScreen 과 동일한 데이터 소스 (`userInfo.interestedRegionIds` / `interestedThemes`).
+  const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>(
+    userInfo?.interestedRegionIds ?? [],
+  );
   const [selectedThemes, setSelectedThemes] = useState<
     UserInterestedThemeDto[]
-  >([]);
+  >(userInfo?.interestedThemes ?? []);
   const [isRegionSheetOpen, setIsRegionSheetOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
   const [showCollected, setShowCollected] = useState(false);
   // mutation 성공 후엔 form exit confirm 우회 (이미 저장됐으므로 dirty 의미 없음).
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
+  // dirty 판단의 기준 초기값. userInfo 가 늦게 로드되어 prefill 이 useEffect 로 적용되더라도
+  // 그 시점의 값을 기억해두고 dirty 판단을 일관되게 한다. 사용자가 직접 수정하기 전까지는
+  // dirty=false 가 유지되어 form exit confirm 이 잘못 뜨지 않는다.
+  const initialRegionIdsRef = useRef<string[]>(
+    userInfo?.interestedRegionIds ?? [],
+  );
+  const initialThemesRef = useRef<UserInterestedThemeDto[]>(
+    userInfo?.interestedThemes ?? [],
+  );
+  // userInfo 가 늦게 로드되는 케이스: 첫 렌더에 비어있다가 sync 후 채워지면 한 번만 prefill.
+  const hasPrefilledRef = useRef<boolean>(
+    (userInfo?.interestedRegionIds?.length ?? 0) > 0 ||
+      (userInfo?.interestedThemes?.length ?? 0) > 0,
+  );
+  useEffect(() => {
+    if (hasPrefilledRef.current) return;
+    if (!userInfo) return;
+    const regionIds = userInfo.interestedRegionIds ?? [];
+    const themes = userInfo.interestedThemes ?? [];
+    if (regionIds.length === 0 && themes.length === 0) return;
+    hasPrefilledRef.current = true;
+    initialRegionIdsRef.current = regionIds;
+    initialThemesRef.current = themes;
+    setSelectedRegionIds(regionIds);
+    setSelectedThemes(themes);
+  }, [userInfo]);
+
+  // dirty 판단 기준은 "초기값 (prefill 된 값 포함) 대비 변경 여부". 빈 배열 대비가 아니라
+  // 사용자 기존 값 대비여야 prefill 된 상태에서 form 을 열기만 해도 dirty 라고 잘못 판단하지 않는다.
   const isFormDirty =
-    !arraysEqualAsSets(selectedRegionIds, []) ||
-    !arraysEqualAsSets(selectedThemes, []);
+    !arraysEqualAsSets(selectedRegionIds, initialRegionIdsRef.current) ||
+    !arraysEqualAsSets(selectedThemes, initialThemesRef.current);
 
   const formExitConfirm = useFormExitConfirm(
     action => {

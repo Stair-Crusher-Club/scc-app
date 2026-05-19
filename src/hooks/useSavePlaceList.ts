@@ -11,6 +11,11 @@ interface UseSavePlaceListOptions {
    * 케이스를 피하고 싶을 때 사용한다.
    */
   onSuccess?: (variables: {isSaved: boolean; placeListId: string}) => void;
+  /**
+   * mutation 실패 시 호출되는 부가 콜백. 컴포넌트 단의 optimistic state 해제 등에 사용.
+   * hook 내부의 cache revert + toast 표시 직후 호출된다.
+   */
+  onError?: () => void;
 }
 
 /**
@@ -95,6 +100,8 @@ export function useSavePlaceList(options?: UseSavePlaceListOptions) {
         queryClient.setQueryData(queryKey, data);
       });
       ToastUtils.showOnApiError(error);
+
+      options?.onError?.();
     },
   });
 

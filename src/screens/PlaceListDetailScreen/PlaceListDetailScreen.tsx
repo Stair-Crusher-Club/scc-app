@@ -84,8 +84,21 @@ const PlaceListDetailScreen = ({
   const [showSaveMissionCompleted, setShowSaveMissionCompleted] =
     useState(false);
 
+  // 서버 응답까지 버튼 상태가 안 바뀐다는 QA 이슈 (round3). useSavePlaceList 의 onMutate
+  // optimistic update 가 React Query cache 를 즉시 toggle 하지만, 큰 리스트의 경우
+  // useQuery 의 placeholderData / structuralSharing 등 내부 동작과 맞물려 화면 반영이
+  // 지연되는 케이스가 있다. 컴포넌트 단에서도 별도 optimistic state 를 두고 mutate 호출
+  // 즉시 toggle 하여, query cache 동작과 무관하게 다음 렌더에서 바로 반영되도록 한다.
+  // mutation 완료 후 (성공 / 실패 모두) null 로 리셋해 query data 가 다시 source of truth 가 된다.
+  const [optimisticIsSaved, setOptimisticIsSaved] = useState<boolean | null>(
+    null,
+  );
+
   const toggleSave = useSavePlaceList({
     onSuccess: ({isSaved: prevIsSaved}) => {
+      // 서버가 받은 결과를 반영했으므로 optimistic override 는 해제.
+      setOptimisticIsSaved(null);
+
       // 저장 → unsave가 아니라 저장 액션일 때만 미션 완료로 간주.
       // 이미 완료된 미션이면 노출 X. 같은 진입 안에서 두 번 띄우지도 않는다.
       if (prevIsSaved) {
@@ -99,6 +112,10 @@ const PlaceListDetailScreen = ({
       }
       hasShownSaveMissionCompletedRef.current = true;
       setShowSaveMissionCompleted(true);
+    },
+    onError: () => {
+      // 실패 시 optimistic override 를 풀어 서버 값으로 되돌린다.
+      setOptimisticIsSaved(null);
     },
   });
 
@@ -170,7 +187,12 @@ const PlaceListDetailScreen = ({
 
   const title = data?.placeList?.name ?? '장소 리스트';
   const description = data?.placeList?.description;
-  const isSaved = data?.placeList?.isSaved ?? false;
+  // optimistic override 가 set 되어 있으면 그 값을 우선. mutation 완료 시점에 null 로
+  // 리셋되어 서버 응답이 반영된 query data 가 다시 진실의 원천이 된다.
+  const isSaved =
+    optimisticIsSaved !== null
+      ? optimisticIsSaved
+      : (data?.placeList?.isSaved ?? false);
 
   const handleItemPress = useCallback(
     (item: PlaceMarkerItem) => {
@@ -188,6 +210,10 @@ const PlaceListDetailScreen = ({
 
   const handleToggleSave = useCallback(() => {
     checkAuth(() => {
+      // optimistic 즉시 반영: mutate 호출 직후 다음 렌더에서 버튼 상태가 바뀌도록.
+      // 큰 리스트의 경우 서버 응답까지 1~2초 걸려 "안 눌렸나?" 헷갈리는 QA 이슈 (round3)
+      // 해결. mutation 완료 시 onSuccess/onError 에서 null 로 리셋.
+      setOptimisticIsSaved(!isSaved);
       toggleSave({isSaved, placeListId});
     });
   }, [checkAuth, toggleSave, isSaved, placeListId]);
