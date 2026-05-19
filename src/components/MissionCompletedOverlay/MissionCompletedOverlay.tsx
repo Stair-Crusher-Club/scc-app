@@ -1,5 +1,6 @@
+import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Dimensions, Image, Modal, StyleSheet, View} from 'react-native';
+import {Dimensions, Image, Modal, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -50,9 +51,11 @@ export default function MissionCompletedOverlay({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}>
-      {/* BlurView native module unlinked 대응: dim fallback. */}
-      <View
-        style={[StyleSheet.absoluteFill, {backgroundColor: color.blacka70}]}
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="dark"
+        blurAmount={10}
+        reducedTransparencyFallbackColor={color.blacka70}
       />
       <DimContent>
         <Contents>

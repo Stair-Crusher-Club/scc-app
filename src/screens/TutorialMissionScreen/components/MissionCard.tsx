@@ -1,5 +1,6 @@
+import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Image} from 'react-native';
+import {Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import CheckBoldBlueIcon from '@/assets/icon/ic_check_bold_blue.svg';
@@ -63,8 +64,14 @@ export default function MissionCard({
       </CardBody>
 
       {isDimmed && (
-        <DimOverlay>
-          <DimText>{`🔒\n${dimText ?? '이전 미션을 먼저 완료해주세요!'}`}</DimText>
+        <DimOverlay
+          blurType="light"
+          blurAmount={6}
+          reducedTransparencyFallbackColor="rgba(255,255,255,0.92)">
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <DimText>{`🔒\n${dimText ?? '이전 미션을 먼저 완료해주세요!'}`}</DimText>
+          </View>
         </DimOverlay>
       )}
     </CardContainer>
@@ -158,18 +165,14 @@ const StartButtonText = styled.Text`
   color: ${color.white};
 `;
 
-// BlurView native module unlinked 대응: dim fallback.
-// 원래는 backdrop-blur 5.5px + rgba(255,255,255,0.5)였으나
-// blur 없이 흰색 dim만으로 읽힘성 확보 (opacity 0.85).
-const DimOverlay = styled.View`
+// Figma quest_card_dim: backdrop-blur 5.5px + bg rgba(255,255,255,0.5).
+const DimOverlay = styled(BlurView)`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.5);
 `;
 
 const DimText = styled.Text`
