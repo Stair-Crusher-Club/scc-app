@@ -38,9 +38,13 @@ import {
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
-import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
+import {
+  GetClientVersionStatusResponseDtoStatusEnum,
+  TutorialMissionTypeDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
+import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import Logger from '@/logging/Logger';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet, {
@@ -132,6 +136,26 @@ const HomeScreenV2 = ({navigation}: any) => {
   const __DEV_FORCE_INTRO_POPUP__: boolean = false;
   const [tutorialIntroPopupVisible, setTutorialIntroPopupVisible] =
     useState(false);
+
+  // 서버 progress 로 메인 미션 완료 여부 확인. 앱 삭제/재설치로 AsyncStorage
+  // 기반 atom 이 리셋되어도 서버 진행 상태로 "이미 완료자" 인지 판단해 팝업 재노출을 막는다.
+  const {data: tutorialProgress} = useUserTutorialProgress();
+  const allMainTutorialMissionsCompleted = useMemo(() => {
+    if (!tutorialProgress) {
+      return undefined;
+    }
+    const mainTypes: TutorialMissionTypeDto[] = [
+      TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
+      TutorialMissionTypeDto.SavePlaceList,
+      TutorialMissionTypeDto.UpvoteAccessibility,
+    ];
+    return mainTypes.every(
+      type =>
+        tutorialProgress.missions.find(m => m.missionType === type)
+          ?.completedAt != null,
+    );
+  }, [tutorialProgress]);
+
   useEffect(() => {
     if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
       const timer = setTimeout(() => setTutorialIntroPopupVisible(true), 500);
@@ -155,6 +179,17 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (needsPlaceSearchTutorial) {
       return;
     }
+    // 서버 progress 가 아직 로딩 중이면 (undefined) 팝업 노출을 보류한다.
+    // 로딩 완료 후 메인 미션을 이미 모두 완료한 사용자에게는 팝업을 띄우지 않고,
+    // atom 도 true 로 설정해 일관성을 유지한다 (앱 삭제/재설치 후 AsyncStorage
+    // 리셋 시 다시 노출되지 않도록).
+    if (allMainTutorialMissionsCompleted === undefined) {
+      return;
+    }
+    if (allMainTutorialMissionsCompleted) {
+      setHasShownTutorialIntroPopup(true);
+      return;
+    }
     // 첫 진입 후 잠시 뒤에 노출 (홈 데이터 로딩 후)
     const timer = setTimeout(() => {
       setTutorialIntroPopupVisible(true);
@@ -167,6 +202,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     featureFlags,
     hasShownTutorialIntroPopup,
     needsPlaceSearchTutorial,
+    allMainTutorialMissionsCompleted,
     setHasShownTutorialIntroPopup,
   ]);
 

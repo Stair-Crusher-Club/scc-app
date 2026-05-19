@@ -64,12 +64,21 @@ export default function EditInterestedThemesScreen({
       {
         onSuccess: () => {
           setHasSubmitted(true);
+          // formExitConfirm.bypass(): setHasSubmitted은 비동기라 같은 tick의
+          // goBack 디스패치에는 반영되지 않으므로 ref 기반으로 즉시 우회한다.
+          formExitConfirm.bypass();
           ToastUtils.show('저장되었습니다.');
           navigation.goBack();
         },
       },
     );
-  }, [selectedThemes, interestedRegionIds, registerMutation, navigation]);
+  }, [
+    selectedThemes,
+    interestedRegionIds,
+    registerMutation,
+    formExitConfirm,
+    navigation,
+  ]);
 
   const handleSheetConfirm = useCallback(
     (nextSelectedThemes: UserInterestedThemeDto[]) => {

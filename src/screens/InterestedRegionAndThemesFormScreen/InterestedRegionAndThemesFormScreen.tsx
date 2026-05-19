@@ -102,6 +102,9 @@ export default function InterestedRegionAndThemesFormScreen({
           if (!wasMissionAlreadyCompleted) {
             setShowCollected(true);
           } else {
+            // formExitConfirm.bypass(): setHasSubmitted은 비동기라 같은 tick의
+            // goBack 디스패치에는 반영되지 않으므로 ref 기반으로 즉시 우회한다.
+            formExitConfirm.bypass();
             navigation.goBack();
           }
         },
@@ -112,13 +115,16 @@ export default function InterestedRegionAndThemesFormScreen({
     selectedThemes,
     registerMutation,
     wasMissionAlreadyCompleted,
+    formExitConfirm,
     navigation,
   ]);
 
   const handleCollectedClose = useCallback(() => {
     setShowCollected(false);
+    // 수집 팝업을 닫고 화면을 떠나기 직전 dirty check를 우회한다 (이미 저장됨).
+    formExitConfirm.bypass();
     navigation.goBack();
-  }, [navigation]);
+  }, [formExitConfirm, navigation]);
 
   const handleRegionConfirm = useCallback((nextSelectedIds: string[]) => {
     setSelectedRegionIds(nextSelectedIds);
