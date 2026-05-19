@@ -42,9 +42,11 @@ const PDP_BODY_BOTTOM_RENDER_HEIGHT =
   (SCREEN_WIDTH * PDP_BODY_BOTTOM_HEIGHT) / PDP_BODY_TOP_WIDTH;
 
 // figma 1648:41636 에서 "매장 출입구" 섹션은 body 시작점 기준 y=526dp (1648:41652 위치, app bar 빼고).
-// V2AppBar(50dp) 가 viewport 상단을 덮으므로 그만큼 덜 스크롤해서 섹션 header 가 viewport 에 보이게 한다.
 const V2_APP_BAR_HEIGHT = 50;
-const SCROLL_TARGET_Y = (526 * SCREEN_WIDTH) / 390 - V2_APP_BAR_HEIGHT;
+// ScrollView contentContainer 상단에 V2_APP_BAR_HEIGHT 만큼 padding 을 주어 (absolute 로
+// 띄워진 V2AppBar 가 body 이미지 최상단을 덮지 않게) — 따라서 섹션이 viewport 상단(=appbar 바로 아래)
+// 에 보이려면 scrollY = body offset (paddingTop 은 자연스럽게 보정됨).
+const SCROLL_TARGET_Y = (526 * SCREEN_WIDTH) / 390;
 // figma 1648:41483 frame 은 390 wide. 화면 폭이 다르더라도 디자인 비율을 그대로 유지.
 const INITIAL_DIM_SCALE = SCREEN_WIDTH / 390;
 
@@ -226,7 +228,8 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
           onMomentumScrollEnd={handleMomentumScrollEnd}
           scrollEventThrottle={16}
           scrollEnabled={false}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{paddingTop: V2_APP_BAR_HEIGHT}}>
           <Image
             source={require('@/assets/img/tutorial/tutorial_mission_3_pdp_body_top.png')}
             style={{
@@ -442,10 +445,16 @@ const TOOLTIP_ARROW_WIDTH = 32;
 const TOOLTIP_ARROW_HEIGHT = 18;
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
- * 4개의 dim rect (위/아래/왼쪽/오른쪽) 로 hole 을 구성한다.
+ * SVG mask 로 dim rect 에 rounded rect hole 을 punch out (4-rect 방식과 달리 hole 모서리에
+ * border-radius 적용 가능).
  * 좌표는 window-absolute (measureInWindow 결과) 이며 SpotlightOverlay 가
  * full-screen Root 안에서 absolute positioning 되므로 그대로 사용한다.
- * pointerEvents="box-none" 으로 hole 영역의 터치는 아래(도움돼요 버튼)로 전달된다.
+ *
+ * pointerEvents="none" 으로 overlay 전체가 터치를 가로채지 않게 한다 — hole 영역의
+ * 도움돼요 버튼 탭이 정상 동작해야 한다. react-native-svg Svg 컴포넌트는 일부 Android 버전에서
+ * `pointerEvents="none"` 만 prop 으로 줘서는 native view 가 여전히 터치를 잡는 케이스가
+ * 있으므로, 부모 View 를 `pointerEvents="none"` 으로 잠가서 자식까지 전파시키는 것이 안전하다.
+ * (overlay 의 모든 자식 — dim svg, tooltip text/arrow — 은 시각 전용이라 터치 받을 일이 없음.)
  */
 function SpotlightOverlay({
   holeX,
@@ -458,10 +467,8 @@ function SpotlightOverlay({
   const hW = holeWidth + HOLE_PADDING * 2;
   const hH = holeHeight + HOLE_PADDING * 2;
   const {width: winW, height: winH} = Dimensions.get('window');
-  // SVG mask 로 dim rect 에 rounded rect hole 을 punch out. 4-rect 방식과 달리 hole 모서리에
-  // border-radius 적용 가능.
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <Svg
         width={winW}
         height={winH}
