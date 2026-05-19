@@ -51,8 +51,14 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     currentUrl.startsWith('https://con.staircrusher.club') ||
     currentUrl.startsWith('https://staircrusherclub.notion.site');
 
+  // Tally form (NUX 히든 미션) 은 confirm 강제 skip — 어떤 caller 가 호출하든
+  // confirm 안 뜨도록. (form 제출 후 webview 자동 close 가 어려워 사용자가 직접 닫는
+  // 시나리오라 매번 confirm 띄우면 UX 가 더 나쁨.)
+  const isTallyForm = url.startsWith('https://tally.so/');
+  const effectiveConfirmOnClose = isTallyForm ? false : confirmOnClose;
+
   const onTapCloseButton = useCallback(() => {
-    if (!confirmOnClose) {
+    if (!effectiveConfirmOnClose) {
       navigation.goBack();
       return;
     }
@@ -64,7 +70,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         style: 'destructive',
       },
     ]);
-  }, [navigation, confirmOnClose]);
+  }, [navigation, effectiveConfirmOnClose]);
 
   const handleMessage = useCallback((message: WebViewMessageEvent) => {
     setTitle(message.nativeEvent.data);
