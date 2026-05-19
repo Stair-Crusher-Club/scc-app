@@ -2643,6 +2643,35 @@ PODS:
     - React-perflogger (= 0.80.0)
     - React-utils (= 0.80.0)
     - SocketRocket
+  - ReactNativeBlur (4.6.2):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - RNAppleAuthentication (2.4.1):
     - React-Core
   - RNCClipboard (1.16.3):
@@ -3205,6 +3234,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "ReactNativeBlur (from `../node_modules/@sbaiahmed1/react-native-blur`)"
   - "RNAppleAuthentication (from `../node_modules/@invertase/react-native-apple-authentication`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
@@ -3434,6 +3464,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  ReactNativeBlur:
+    :path: "../node_modules/@sbaiahmed1/react-native-blur"
   RNAppleAuthentication:
     :path: "../node_modules/@invertase/react-native-apple-authentication"
   RNCClipboard:
@@ -3581,6 +3613,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 3267432b637c9b38e86961b287f784ee1b08dde0
   ReactCodegen: fabeb58fe0fbcdf795a8d3cd8b2d460ad8dbf435
   ReactCommon: b028d09a66e60ebd83ca59d8cc9a1216360db147
+  ReactNativeBlur: aaa976529423af2ae64c7eeceaf8391829827304
   RNAppleAuthentication: c3dddf5918126c9aae85dc2e2ce9fb87835e9e04
   RNCClipboard: b228d492733d66e0126e18ce66c6d2f90bacc7e5
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047

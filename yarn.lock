@@ -4824,16 +4824,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/blur@npm:^4.4.1":
-  version: 4.4.1
-  resolution: "@react-native-community/blur@npm:4.4.1"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 10c0/f8f3b2e0dc630d93219c5db822a5d283754beedf31b8e481c17bca6f8b2a29d0e24cad4c5013f692f120a3336490dc5b1b3990a68c714c3308151adf92686ad7
-  languageName: node
-  linkType: hard
-
 "@react-native-community/cli-clean@npm:18.0.0":
   version: 18.0.0
   resolution: "@react-native-community/cli-clean@npm:18.0.0"
@@ -5501,6 +5491,16 @@ __metadata:
     react-native-safe-area-context: ">= 4.0.0"
     react-native-screens: ">= 4.0.0"
   checksum: 10c0/116d7d9e731d97e1c016098cce5330a904bc0e371ecf5a97704bf98c0d947dd22a8ebbb8592c1220647e9c80277cf9ae09c81a4553f738753aa3f17af5ae5dd0
+  languageName: node
+  linkType: hard
+
+"@sbaiahmed1/react-native-blur@npm:^4.6.2":
+  version: 4.6.2
+  resolution: "@sbaiahmed1/react-native-blur@npm:4.6.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/e749fdf0d034cce8612c28745542cbbe8d717e9d09205ed344fc90c024eba7aea9be85af7842dfdc55f91d1a8211791451ec01e46c39cfea29e1d8ee9e93d7d8
   languageName: node
   linkType: hard
 
@@ -16954,7 +16954,6 @@ __metadata:
     "@openapitools/openapi-generator-cli": "npm:^2.5.2"
     "@playwright/test": "npm:^1.55.0"
     "@react-native-clipboard/clipboard": "npm:^1.16.3"
-    "@react-native-community/blur": "npm:^4.4.1"
     "@react-native-community/cli": "npm:^18.0.0"
     "@react-native-community/geolocation": "npm:^3.4.0"
     "@react-native-community/hooks": "npm:^100.1.0"
@@ -16974,6 +16973,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:^7.3.21"
     "@react-navigation/routers": "npm:^7.5.1"
     "@react-navigation/stack": "npm:^7.4.8"
+    "@sbaiahmed1/react-native-blur": "npm:^4.6.2"
     "@shopify/flash-list": "npm:^2.0.0-rc.11"
     "@svgr/webpack": "npm:^8.1.0"
     "@tanstack/react-query": "npm:^5.81.5"
