@@ -245,7 +245,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - Mute (0.6.1)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -2141,9 +2140,6 @@ PODS:
     - React-Core
   - react-native-tracking-transparency (0.1.2):
     - React
-  - react-native-volume-manager (2.0.8):
-    - Mute
-    - React-Core
   - react-native-webview (13.15.0):
     - boost
     - DoubleConversion
@@ -3177,7 +3173,6 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-tracking-transparency (from `../node_modules/react-native-tracking-transparency`)
-  - react-native-volume-manager (from `../node_modules/react-native-volume-manager`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -3254,7 +3249,6 @@ SPEC REPOS:
     - libdav1d
     - libwebp
     - lottie-ios
-    - Mute
     - nanopb
     - NMapsGeometry
     - NMapsMap
@@ -3376,8 +3370,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-splash-screen"
   react-native-tracking-transparency:
     :path: "../node_modules/react-native-tracking-transparency"
-  react-native-volume-manager:
-    :path: "../node_modules/react-native-volume-manager"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-NativeModulesApple:
@@ -3510,7 +3502,6 @@ SPEC CHECKSUMS:
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
   lottie-react-native: 29078ab5b3fd60b35793d708afaa9b0b01d97be4
-  Mute: 20135a96076f140cc82bfc8b810e2d6150d8ec7e
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NMapsGeometry: 4e02554fa9880ef02ed96b075dc84355d6352479
   NMapsMap: 09552eb050059e13b4c8fc294055760713cfdad8
@@ -3558,7 +3549,6 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 3bae4f8474c13ab141c40ed6c5c33f6177778d71
   react-native-splash-screen: 95994222cc95c236bd3cdc59fe45ed5f27969594
   react-native-tracking-transparency: 15eb319f2b982070eb9831582af27d87badfa624
-  react-native-volume-manager: cdd3c3857158c1df7b9fbea071a9946395cee06c
   react-native-webview: 9a8ea59197aa76145b8ce72aa3eea69f1e89dd38
   React-NativeModulesApple: e16d5c133019987285f001fbf1461a861e40426f
   React-oscompat: 7c0a341cc31e350da71ddf2e46de0a845d1d1626

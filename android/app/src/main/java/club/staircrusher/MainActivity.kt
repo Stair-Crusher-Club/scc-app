@@ -2,7 +2,10 @@ package club.staircrusher;
 
 import android.content.Intent
 import android.os.Bundle;
+import android.util.Log
+import android.view.KeyEvent
 import co.ab180.airbridge.reactnative.AirbridgeReactNative
+import club.staircrusher.camerabuttons.SccCameraButtonsModule
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -38,5 +41,20 @@ class MainActivity : ReactActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            // bridgeless 모드에서 ReactContext.getNativeModule 이 legacy package 모듈을 못 찾는
+            // 케이스가 있어, 모듈이 자신을 static 슬롯에 등록하고 그 슬롯을 거쳐 호출한다.
+            try {
+                if (SccCameraButtonsModule.dispatchKeyEventToActiveInstance(event)) {
+                    return true
+                }
+            } catch (e: Throwable) {
+                Log.e("SccCameraButtons", "dispatchKeyEvent failed", e)
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 }
