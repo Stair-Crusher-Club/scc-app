@@ -120,11 +120,10 @@ export default function InterestedRegionAndThemesFormScreen({
   ]);
 
   const handleCollectedClose = useCallback(() => {
+    // 팝업의 "확인" 은 닫기만 한다. 화면 이탈은 사용자가 직접 뒤로가기 버튼을 누를 때
+    // 발생하며, 그때 dirty check 를 우회한다 (이미 저장됨).
     setShowCollected(false);
-    // 수집 팝업을 닫고 화면을 떠나기 직전 dirty check를 우회한다 (이미 저장됨).
-    formExitConfirm.bypass();
-    navigation.goBack();
-  }, [formExitConfirm, navigation]);
+  }, []);
 
   const handleRegionConfirm = useCallback((nextSelectedIds: string[]) => {
     setSelectedRegionIds(nextSelectedIds);
