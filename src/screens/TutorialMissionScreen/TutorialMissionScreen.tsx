@@ -119,16 +119,21 @@ export default function TutorialMissionScreen({
     }, [tryCompleteHiddenMission]),
   );
 
-  // 모든 메인 미션 완료 시 "외출템 수집 완료!" 팝업 1회 노출
-  useEffect(() => {
-    if (!allMainCompleted) {
-      return;
-    }
-    if (hasShownOutingItemsCollectedPopup) {
-      return;
-    }
-    setShowOutingItemsCollected(true);
-  }, [allMainCompleted, hasShownOutingItemsCollectedPopup]);
+  // 모든 메인 미션 완료 시 "외출템 수집 완료!" 팝업 1회 노출.
+  // useFocusEffect 로 감싸서 TutorialMissionScreen 이 focus 됐을 때만 trigger.
+  // (미션 3 화면 같은 자식 스크린이 push 된 상태에서는 trigger 되지 않도록 — 자식
+  // 화면 위에 외출템 팝업이 뜨는 걸 막는다.)
+  useFocusEffect(
+    useCallback(() => {
+      if (!allMainCompleted) {
+        return;
+      }
+      if (hasShownOutingItemsCollectedPopup) {
+        return;
+      }
+      setShowOutingItemsCollected(true);
+    }, [allMainCompleted, hasShownOutingItemsCollectedPopup]),
+  );
 
   const handleStartMission = useCallback(
     (missionType: TutorialMissionTypeDto) => {

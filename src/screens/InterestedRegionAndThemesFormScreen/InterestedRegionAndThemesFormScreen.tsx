@@ -60,10 +60,15 @@ export default function InterestedRegionAndThemesFormScreen({
         TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
     )?.completedAt != null;
 
-  const [selectedRegionIds, setSelectedRegionIds] = useState<string[]>([]);
-  const [selectedThemes, setSelectedThemes] = useState<
-    UserInterestedThemeDto[]
-  >([]);
+  // 기존에 등록한 관심 지역/주제가 있으면 그 값으로 prefill.
+  // userInfo 가 아직 fetch 전이면 빈 배열 (EditInterestedRegionScreen 과 동일 패턴).
+  const initialRegionIds = userInfo?.interestedRegionIds ?? [];
+  const initialThemes = userInfo?.interestedThemes ?? [];
+
+  const [selectedRegionIds, setSelectedRegionIds] =
+    useState<string[]>(initialRegionIds);
+  const [selectedThemes, setSelectedThemes] =
+    useState<UserInterestedThemeDto[]>(initialThemes);
   const [isRegionSheetOpen, setIsRegionSheetOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
   const [showCollected, setShowCollected] = useState(false);
@@ -71,8 +76,8 @@ export default function InterestedRegionAndThemesFormScreen({
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const isFormDirty =
-    !arraysEqualAsSets(selectedRegionIds, []) ||
-    !arraysEqualAsSets(selectedThemes, []);
+    !arraysEqualAsSets(selectedRegionIds, initialRegionIds) ||
+    !arraysEqualAsSets(selectedThemes, initialThemes);
 
   const formExitConfirm = useFormExitConfirm(
     action => {
