@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
+import { useLogger } from '@/logging/useLogger';
 import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
@@ -24,6 +24,9 @@ export default function OverviewSection({
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   const { titleLine1, titleLine2, mapImageUrl, mobileMapImageUrl } = overviewSection;
 
@@ -69,10 +72,9 @@ export default function OverviewSection({
   // 이미지 노출 로깅
   useEffect(() => {
     if (!isEditMode && displayMapImageUrl) {
-      Logger.logElementView({
-        name: 'bbucle-road-overview-map-image',
-        currScreenName: 'BbucleRoad',
-        extraParams: { imageUrl: displayMapImageUrl, isDesktop },
+      loggerRef.current.logElementView('bbucle-road-overview-map-image', {
+        imageUrl: displayMapImageUrl,
+        isDesktop,
       });
     }
   }, [displayMapImageUrl, isEditMode, isDesktop]);

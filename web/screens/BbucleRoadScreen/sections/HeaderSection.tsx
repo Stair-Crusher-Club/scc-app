@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
@@ -6,7 +6,7 @@ import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import CharacterWheelyIcon from '@/assets/icon/character_wheely.svg';
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
+import { useLogger } from '@/logging/useLogger';
 import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import { useEditMode } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
@@ -48,6 +48,9 @@ export default function HeaderSection({
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   // edit mode에서는 editContext.data에서 읽어야 실시간 반영됨
   const currentHeaderBackgroundImageUrl = isEditMode
@@ -122,20 +125,18 @@ export default function HeaderSection({
   // 이미지 노출 로깅
   useEffect(() => {
     if (!isEditMode && displayBackgroundImageUrl) {
-      Logger.logElementView({
-        name: 'bbucle-road-header-background-image',
-        currScreenName: 'BbucleRoad',
-        extraParams: { imageUrl: displayBackgroundImageUrl, isDesktop },
+      loggerRef.current.logElementView('bbucle-road-header-background-image', {
+        imageUrl: displayBackgroundImageUrl,
+        isDesktop,
       });
     }
   }, [displayBackgroundImageUrl, isEditMode, isDesktop]);
 
   useEffect(() => {
     if (!isEditMode && displayTitleImageUrl) {
-      Logger.logElementView({
-        name: 'bbucle-road-header-title-image',
-        currScreenName: 'BbucleRoad',
-        extraParams: { imageUrl: displayTitleImageUrl, isDesktop },
+      loggerRef.current.logElementView('bbucle-road-header-title-image', {
+        imageUrl: displayTitleImageUrl,
+        isDesktop,
       });
     }
   }, [displayTitleImageUrl, isEditMode, isDesktop]);

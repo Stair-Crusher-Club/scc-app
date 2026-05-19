@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import styled from 'styled-components/native';
 import type {
@@ -10,7 +10,7 @@ import type { ExtendedRouteDto } from '../config/bbucleRoadData';
 
 import SccPressable from '@/components/SccPressable';
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
+import { useLogger } from '@/logging/useLogger';
 import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import IcSubway from '@/assets/icon/ic_subway.svg';
@@ -48,6 +48,9 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
   const editContext = useEditMode();
   const isEditMode = editContext?.isEditMode ?? false;
   const { isDesktop } = useResponsive();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
@@ -60,18 +63,14 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
   // 설명 이미지 노출 로깅
   useEffect(() => {
     if (!isEditMode && selectedRoute?.descriptionImageUrl) {
-      Logger.logElementView({
-        name: 'bbucle-road-route-description-image',
-        currScreenName: 'BbucleRoad',
-        extraParams: {
-          imageUrl: selectedRoute.descriptionImageUrl,
-          routeIndex: selectedRouteIndex,
-          tabLabel: selectedRoute.tabLabel,
-          isDesktop,
-        },
+      loggerRef.current.logElementView('bbucle-road-route-description-image', {
+        imageUrl: selectedRoute.descriptionImageUrl,
+        routeIndex: selectedRouteIndex,
+        tabLabel: selectedRoute.tabLabel,
+        isDesktop,
       });
     }
-  }, [selectedRoute?.descriptionImageUrl, selectedRouteIndex, isEditMode, isDesktop]);
+  }, [selectedRoute?.descriptionImageUrl, selectedRouteIndex, selectedRoute?.tabLabel, isEditMode, isDesktop]);
 
   // Edit mode handlers
   const updateRouteSection = useCallback(

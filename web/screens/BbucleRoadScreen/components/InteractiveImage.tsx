@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, Image, Text, Pressable, LayoutChangeEvent, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import Svg, { Polygon, Line } from 'react-native-svg';
@@ -6,8 +6,7 @@ import type { BbucleRoadPolygonPointDto } from '@/generated-sources/openapi';
 import type { ExtendedInteractiveImageDto, ExtendedClickableRegionDto } from '../config/bbucleRoadData';
 
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
-import { useLogParams } from '@/logging/LogParamsProvider';
+import { useLogger } from '@/logging/useLogger';
 import { useEditMode, type RegionSectionType } from '../context/EditModeContext';
 import { useResponsive } from '../context/ResponsiveContext';
 import ImageUploader from './ImageUploader';
@@ -35,7 +34,9 @@ export default function InteractiveImage({
   const isEditMode = editContext?.isEditMode ?? false;
   const editingRegion = editContext?.editingRegion ?? null;
   const { isDesktop } = useResponsive();
-  const globalLogParams = useLogParams();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
 
   // 데스크탑이 아니면 모바일 이미지 우선 사용
   const displayImageUrl = isDesktop
@@ -122,21 +123,16 @@ export default function InteractiveImage({
         const relativeX = offsetX / containerWidth;
         const relativeY = offsetY / displayHeight;
 
-        Logger.logElementClick({
-          name: 'bbucle-road-interactive-image-non-region-click',
-          currScreenName: 'BbucleRoad',
-          extraParams: {
-            ...globalLogParams,
-            imageUrl: interactiveImage.url,
-            sectionType,
-            routeIndex,
-            clickX: relativeX,
-            clickY: relativeY,
-          },
+        loggerRef.current.logElementClick('bbucle-road-interactive-image-non-region-click', {
+          imageUrl: interactiveImage.url,
+          sectionType,
+          routeIndex,
+          clickX: relativeX,
+          clickY: relativeY,
         });
       }
     },
-    [isEditMode, isEditingThisImage, editContext, containerWidth, displayHeight, interactiveImage.url, sectionType, routeIndex, globalLogParams],
+    [isEditMode, isEditingThisImage, editContext, containerWidth, displayHeight, interactiveImage.url, sectionType, routeIndex],
   );
 
   // Region 클릭 핸들러
@@ -160,21 +156,16 @@ export default function InteractiveImage({
         }
       } else {
         // View mode: 로깅 후 모달 열기
-        Logger.logElementClick({
-          name: 'bbucle-road-interactive-image-region',
-          currScreenName: 'BbucleRoad',
-          extraParams: {
-            ...globalLogParams,
-            imageUrl: interactiveImage.url,
-            regionId: region.id,
-            sectionType,
-            routeIndex,
-          },
+        loggerRef.current.logElementClick('bbucle-road-interactive-image-region', {
+          imageUrl: interactiveImage.url,
+          regionId: region.id,
+          sectionType,
+          routeIndex,
         });
         setSelectedRegion(region);
       }
     },
-    [isEditMode, editContext, routeIndex, sectionType, interactiveImage.url, globalLogParams],
+    [isEditMode, editContext, routeIndex, sectionType, interactiveImage.url],
   );
 
   const handleCloseModal = useCallback(() => {

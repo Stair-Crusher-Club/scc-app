@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Image } from 'react-native';
 import styled from 'styled-components/native';
 
 import SccPressable from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 import { color } from '@/constant/color';
-import Logger from '@/logging/Logger';
-import { LogParamsProvider, useLogParams } from '@/logging/LogParamsProvider';
+import { useLogger } from '@/logging/useLogger';
+import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import IcOutWhite from '@/assets/icon/ic_out_white.svg';
 import ImageUploader from '../components/ImageUploader';
 import { useEditMode } from '../context/EditModeContext';
@@ -60,19 +60,22 @@ function PlaceCard({
   isDesktop: boolean;
   isEditMode: boolean;
 }) {
-  const globalLogParams = useLogParams();
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
   const imageUrlsToRender = [...place.imageUrls, null, null, null].slice(0, 3)
   const levelColors = getAccessLevelColors(place.accessLevel);
 
   const handleImageClick = useCallback((imageUrl: string, imageIndex: number) => {
     if (!isEditMode) {
-      Logger.logElementClick({
-        name: 'bbucle-road-place-image',
-        currScreenName: 'BbucleRoad',
-        extraParams: { ...globalLogParams, placeId: place.id, placeName: place.name, imageUrl, imageIndex },
+      loggerRef.current.logElementClick('bbucle-road-place-image', {
+        placeId: place.id,
+        placeName: place.name,
+        imageUrl,
+        imageIndex,
       });
     }
-  }, [place.id, place.name, isEditMode, globalLogParams]);
+  }, [place.id, place.name, isEditMode]);
 
   return (
     <CardContainer isDesktop={isDesktop}>
