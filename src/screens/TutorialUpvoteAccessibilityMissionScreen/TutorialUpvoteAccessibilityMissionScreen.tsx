@@ -89,6 +89,9 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     phaseRef.current = next;
     setPhaseState(next);
   }, []);
+  // 팝업 가시성을 phase 와 분리해 관리한다. 사용자가 "확인" 을 누르면 팝업만 사라지고
+  // phase 는 COMPLETED 로 유지 (재 mutation / spotlight 재노출 방지). history back 은 안 한다.
+  const [isCompletedPopupVisible, setIsCompletedPopupVisible] = useState(false);
 
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
   const bottomBarAnim = useRef(new Animated.Value(0)).current;
@@ -196,13 +199,16 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     completeMission.mutate(undefined, {
       onSuccess: () => {
         setPhase('COMPLETED');
+        setIsCompletedPopupVisible(true);
       },
     });
   }, [completeMission, setPhase]);
 
+  // 팝업 "확인" 은 닫기 동작만 한다. history back 으로 자동 튕기는 어색한 UX 방지.
+  // phase 는 COMPLETED 로 유지되어 spotlight/팝업이 사라진 PDP 시뮬레이션이 남는다.
   const handleClosePopup = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+    setIsCompletedPopupVisible(false);
+  }, []);
 
   const description = `돋보기 획득!\n꼼꼼하고 다정하게 정보를\n살펴봐주셔서 고마워요!`;
 
@@ -311,7 +317,7 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
         {/* State 4: 미션 완료 팝업. */}
         <MissionCompletedOverlay
-          isVisible={phase === 'COMPLETED'}
+          isVisible={isCompletedPopupVisible}
           itemImage={require('@/assets/img/tutorial/mission_complete_img_magnifier.png')}
           description={description}
           confirmElementName="tutorial_mission_3_completed_confirm"

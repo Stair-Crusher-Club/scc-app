@@ -68,29 +68,37 @@ const PlaceListDetailScreen = ({
   const [filters, setFilters] = useAtom(placeListFilterAtom);
   const [, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
 
-  // SAVE_PLACE_LIST 미션이 현재 진행 중인 미션일 때만 저장 액션이 미션 완료 트리거가 된다.
-  // 마운트 시점에 캡처해두지 않으면 mutation 성공 후 progress가 invalidate되면서
-  // currentMissionType이 다음 미션(UPVOTE_ACCESSIBILITY)으로 바뀌어 overlay가 안 뜬다.
+  // SAVE_PLACE_LIST 미션이 "아직 미완료" 상태일 때만 저장 액션이 미션 완료 트리거가 된다.
+  // 기존엔 currentMissionType 으로 판단했는데, 미션 완료 후에도 useSavePlaceList 가
+  // USER_TUTORIAL_PROGRESS 캐시를 invalidate 하지 않아서 currentMissionType 이 SavePlaceList
+  // 로 stuck 되는 상황이 있었음 → 사용자가 같은 화면에서 저장 해제 → 다시 저장 시 완료 팝업이
+  // 또 떴다. mission.completedAt 으로 판단하면 서버가 한 번 set 한 시점부터 영원히 true 이므로
+  // 재노출이 원천 차단된다.
   const {data: tutorialProgress} = useUserTutorialProgress();
-  const wasOnSavePlaceListMissionRef = useRef<boolean>(false);
-  useEffect(() => {
-    if (
-      tutorialProgress?.currentMissionType ===
-      TutorialMissionTypeDto.SavePlaceList
-    ) {
-      wasOnSavePlaceListMissionRef.current = true;
-    }
-  }, [tutorialProgress?.currentMissionType]);
+  const isSavePlaceListMissionCompleted =
+    tutorialProgress?.missions.find(
+      m => m.missionType === TutorialMissionTypeDto.SavePlaceList,
+    )?.completedAt != null;
+  // 현재 세션에서 이미 한 번 팝업을 보여줬으면 같은 진입 동안 다시 띄우지 않는다.
+  const hasShownSaveMissionCompletedRef = useRef<boolean>(false);
   const [showSaveMissionCompleted, setShowSaveMissionCompleted] =
     useState(false);
 
   const toggleSave = useSavePlaceList({
     onSuccess: ({isSaved: prevIsSaved}) => {
       // 저장 → unsave가 아니라 저장 액션일 때만 미션 완료로 간주.
-      if (!prevIsSaved && wasOnSavePlaceListMissionRef.current) {
-        wasOnSavePlaceListMissionRef.current = false;
-        setShowSaveMissionCompleted(true);
+      // 이미 완료된 미션이면 노출 X. 같은 진입 안에서 두 번 띄우지도 않는다.
+      if (prevIsSaved) {
+        return;
       }
+      if (isSavePlaceListMissionCompleted) {
+        return;
+      }
+      if (hasShownSaveMissionCompletedRef.current) {
+        return;
+      }
+      hasShownSaveMissionCompletedRef.current = true;
+      setShowSaveMissionCompleted(true);
     },
   });
 
@@ -436,8 +444,9 @@ const PlaceListDetailScreen = ({
           }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요 👍`}
           confirmElementName="tutorial_mission_2_completed_confirm"
           onClose={() => {
+            // 팝업 닫기만 한다. 일반 저장리스트 화면에서 진입한 사용자가 history back
+            // 으로 튕겨나가는 어색한 UX 방지. 뒤로가기는 사용자가 직접 누르도록.
             setShowSaveMissionCompleted(false);
-            navigation.goBack();
           }}
         />
       )}
