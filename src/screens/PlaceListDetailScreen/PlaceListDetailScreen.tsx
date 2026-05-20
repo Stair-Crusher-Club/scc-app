@@ -472,10 +472,10 @@ const PlaceListDetailScreen = ({
           confirmElementName="tutorial_mission_2_completed_confirm"
           onClose={() => {
             // 미션 완료 팝업 노출 자체가 fromTutorial=true 진입에서만 발생한다.
-            // 닫기 시 TutorialMissionScreen 으로 popTo (native-stack v7 navigate 는
-            // stack 에 있는 화면으로 이동하면서 위 routes 를 pop 한다).
+            // 닫기 시 TutorialMissionScreen 으로 popTo (native-stack v7 popTo 는
+            // stack 에 있는 라우트까지 pop).
             setShowSaveMissionCompleted(false);
-            navigation.navigate('TutorialMission', {});
+            navigation.popTo('TutorialMission', {});
           }}
         />
       )}

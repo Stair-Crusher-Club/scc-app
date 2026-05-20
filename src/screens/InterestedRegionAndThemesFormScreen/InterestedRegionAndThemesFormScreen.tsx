@@ -119,7 +119,7 @@ export default function InterestedRegionAndThemesFormScreen({
                   setShowCollected(true);
                 } else {
                   formExitConfirm.bypass();
-                  navigation.navigate('TutorialMission', {});
+                  navigation.popTo('TutorialMission', {});
                 }
               },
             },
@@ -139,10 +139,10 @@ export default function InterestedRegionAndThemesFormScreen({
 
   const handleCollectedClose = useCallback(() => {
     // 이 화면은 튜토리얼 미션 1 전용. 미션 완료 팝업 "확인" 시 TutorialMissionScreen
-    // 으로 popTo (native-stack v7 navigate 는 stack 에 있는 화면으로 이동하면서 위 routes 를 pop).
+    // 으로 popTo (native-stack v7 popTo 는 stack 에 있는 라우트까지 pop).
     setShowCollected(false);
     formExitConfirm.bypass();
-    navigation.navigate('TutorialMission', {});
+    navigation.popTo('TutorialMission', {});
   }, [formExitConfirm, navigation]);
 
   const handleRegionConfirm = useCallback((nextSelectedIds: string[]) => {
