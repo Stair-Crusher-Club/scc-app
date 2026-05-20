@@ -1,6 +1,6 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Image, View} from 'react-native';
+import {Image, Platform, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import CheckBoldBlueIcon from '@/assets/icon/ic_check_bold_blue.svg';
@@ -64,9 +64,11 @@ export default function MissionCard({
       </CardBody>
 
       {isDimmed && (
+        // iOS 의 BlurView 강도는 0-100, Android 는 0-32 라 같은 숫자가 다른 강도로 보인다.
+        // iOS 에서 'light' + 6 이 2중 blur 처럼 과하게 보이는 QA 이슈가 있어 iOS 만 'xlight' + 4 로 약화.
         <DimOverlay
-          blurType="light"
-          blurAmount={6}
+          blurType={Platform.OS === 'ios' ? 'xlight' : 'light'}
+          blurAmount={Platform.OS === 'ios' ? 4 : 6}
           reducedTransparencyFallbackColor="rgba(255,255,255,0.92)">
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>

@@ -1,6 +1,6 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Dimensions, Image, Modal, StyleSheet} from 'react-native';
+import {Dimensions, Image, Modal, Platform, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -51,11 +51,15 @@ export default function MissionCompletedOverlay({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}>
+      {/* iOS 는 blurAmount 0-100 범위라 10 이 figma 의도보다 약함. iOS 만 25 로 보정 +
+          fallback 색도 어둡게 해서 흰 텍스트 가독성 확보. Android 는 figma 와 일치하므로 유지. */}
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType="dark"
-        blurAmount={10}
-        reducedTransparencyFallbackColor={color.blacka70}
+        blurAmount={Platform.OS === 'ios' ? 25 : 10}
+        reducedTransparencyFallbackColor={
+          Platform.OS === 'ios' ? 'rgba(0,0,0,0.8)' : color.blacka70
+        }
       />
       <DimContent>
         <Contents>

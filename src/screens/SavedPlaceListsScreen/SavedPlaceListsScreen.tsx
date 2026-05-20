@@ -1,6 +1,7 @@
+import {useFocusEffect} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {Dimensions, Image, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
@@ -37,6 +38,7 @@ export default function SavedPlaceListsScreen() {
     isFetchingNextPage,
     isLoading,
     isError,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ['SavedPlaceLists'],
     queryFn: async ({pageParam}) =>
@@ -51,6 +53,14 @@ export default function SavedPlaceListsScreen() {
     },
     initialPageParam: undefined as string | undefined,
   });
+
+  // PlaceListDetail 에서 save/unsave 직후 useSavePlaceList 는 invalidate 하지 않으므로
+  // (cross-cutting concern 회피), 이 화면이 focus 될 때마다 자체적으로 refetch 한다.
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   const placeLists = data?.pages.flatMap(page => page.items ?? []) ?? [];
 

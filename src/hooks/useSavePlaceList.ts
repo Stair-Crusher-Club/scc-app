@@ -6,17 +6,19 @@ import useAppComponents from './useAppComponents';
 
 interface UseSavePlaceListOptions {
   /**
-   * mutation 성공 시 호출되는 부가 콜백. hook 내부의 cache invalidation 직후 동기적으로
-   * 호출되므로, useEffect로 query cache 변화를 watch하다가 빠른 unmount로 누락되는
-   * 케이스를 피하고 싶을 때 사용한다.
+   * mutation 성공 시 호출되는 부가 콜백. 빠른 unmount로 useEffect 가 query cache
+   * 변화를 놓치는 케이스를 피하고 싶을 때 사용한다.
    */
   onSuccess?: (variables: {isSaved: boolean; placeListId: string}) => void;
 }
 
 /**
  * onMutate에서 즉시 toggle 할 대상 query key prefix.
- * 저장리스트가 크면 서버 응답 + invalidate 후 refetch 까지 수초 걸려서 "안 눌렸나?" 라고
+ * 저장리스트가 크면 PlaceListDetail 재조회까지 수초 걸려서 "안 눌렸나?" 라고
  * 헷갈리는 QA 이슈가 있었음. 캐시의 isSaved 만 우선 뒤집고 onError 시 revert.
+ *
+ * 도메인 hook은 도메인만 책임진다 (CLAUDE.md `Hook 설계 원칙`):
+ * 따라서 SavedPlaceLists 등 다른 도메인 query 의 invalidate 는 호출처가 책임진다.
  */
 const PLACE_LIST_DETAIL_QUERY_KEY_PREFIX = 'PlaceListDetail';
 
@@ -81,12 +83,9 @@ export function useSavePlaceList(options?: UseSavePlaceListOptions) {
       } else {
         ToastUtils.show('리스트 저장을 해제했습니다.');
       }
-
-      queryClient.invalidateQueries({queryKey: ['SavedPlaceLists']});
-      queryClient.invalidateQueries({
-        queryKey: [PLACE_LIST_DETAIL_QUERY_KEY_PREFIX, variables.placeListId],
-      });
-
+      // PlaceListDetail invalidate 없음 — onMutate 의 setQueryData 가 isSaved 만 토글했고
+      // 서버 응답이 204 (no body) 라 재조회로 갱신될 다른 필드가 없다.
+      // SavedPlaceLists invalidate 도 없음 — 호출처 (SavedPlaceListsScreen 의 useFocusEffect) 가 책임.
       options?.onSuccess?.(variables);
     },
     onError: (error, _variables, context) => {

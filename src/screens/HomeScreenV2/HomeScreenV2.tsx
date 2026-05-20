@@ -116,9 +116,9 @@ const HomeScreenV2 = ({navigation}: any) => {
     hasShownTutorialIntroPopupAtom,
   );
 
-  // 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 렌더(디코딩), 1.5초 후 zIndex 올려서 표시
-  // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도)
-  // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출)
+  // 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 렌더(디코딩), 3초 후 표시 자격 부여.
+  // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도).
+  // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출).
   const [needsPlaceSearchTutorial] = useState(() => {
     if (getDeferredDeepLinkUrl()) {
       return false;
@@ -128,14 +128,13 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
     return !hasShownHomeTutorial;
   });
-  const [placeSearchTutorialVisible, setPlaceSearchTutorialVisible] =
+  const [placeSearchTutorialReady, setPlaceSearchTutorialReady] =
     useState(false);
 
-  // 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업: 가입자 + 미노출 1회만
+  // 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업: 가입자 + 미노출 1회만 (1초 딜레이).
   // __DEV__: Figma 시각 검증용 강제 활성화 (사용 후 false로 되돌릴 것)
   const __DEV_FORCE_INTRO_POPUP__: boolean = false;
-  const [tutorialIntroPopupVisible, setTutorialIntroPopupVisible] =
-    useState(false);
+  const [tutorialIntroPopupReady, setTutorialIntroPopupReady] = useState(false);
 
   // 서버 progress 로 메인 미션 완료 여부 확인. 앱 삭제/재설치로 AsyncStorage
   // 기반 atom 이 리셋되어도 서버 진행 상태로 "이미 완료자" 인지 판단해 팝업 재노출을 막는다.
@@ -156,78 +155,40 @@ const HomeScreenV2 = ({navigation}: any) => {
     );
   }, [tutorialProgress]);
 
+  // 메인 미션 모두 완료자 = NUX 인트로 팝업 노출 대상이 아니므로 atom 을 미리 마킹.
+  // (앱 삭제/재설치 후 AsyncStorage 리셋 시 다시 노출되지 않도록.)
   useEffect(() => {
-    if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
-      const timer = setTimeout(() => setTutorialIntroPopupVisible(true), 500);
-      return () => clearTimeout(timer);
-    }
-    if (isAnonymousUser) {
-      return;
-    }
-    // USER_TUTORIAL feature flag 미대상 사용자에게는 외출 유도 팝업을 띄우지 않는다.
-    // dev/sandbox 는 서버에서 자동 활성, prod 는 사내 화이트리스트만 활성.
-    if (!featureFlags?.enabledFlags.has('USER_TUTORIAL')) {
-      return;
-    }
-    if (hasShownTutorialIntroPopup) {
-      return;
-    }
-    if (getDeferredDeepLinkUrl()) {
-      return;
-    }
-    // 다른 모달/튜토리얼이 진행 중이면 보여주지 않음
-    if (needsPlaceSearchTutorial) {
-      return;
-    }
-    // 서버 progress 가 아직 로딩 중이면 (undefined) 팝업 노출을 보류한다.
-    // 로딩 완료 후 메인 미션을 이미 모두 완료한 사용자에게는 팝업을 띄우지 않고,
-    // atom 도 true 로 설정해 일관성을 유지한다 (앱 삭제/재설치 후 AsyncStorage
-    // 리셋 시 다시 노출되지 않도록).
-    if (allMainTutorialMissionsCompleted === undefined) {
-      return;
-    }
-    if (allMainTutorialMissionsCompleted) {
+    if (
+      allMainTutorialMissionsCompleted === true &&
+      !hasShownTutorialIntroPopup
+    ) {
       setHasShownTutorialIntroPopup(true);
-      return;
     }
-    // 첫 진입 후 잠시 뒤에 노출 (홈 데이터 로딩 후)
-    const timer = setTimeout(() => {
-      setTutorialIntroPopupVisible(true);
-      setHasShownTutorialIntroPopup(true);
-    }, 1000);
-    return () => clearTimeout(timer);
   }, [
-    __DEV_FORCE_INTRO_POPUP__,
-    isAnonymousUser,
-    featureFlags,
-    hasShownTutorialIntroPopup,
-    needsPlaceSearchTutorial,
     allMainTutorialMissionsCompleted,
+    hasShownTutorialIntroPopup,
     setHasShownTutorialIntroPopup,
   ]);
 
-  // 홈 팝업 상태
+  // 1초 후 TutorialIntroPopup 노출 자격 부여 (홈 데이터 로딩 후).
+  // 자격 부여만 — 실제 노출 여부는 orchestrator 가 직렬화 + 다른 조건과 함께 판단.
+  useEffect(() => {
+    if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
+      const timer = setTimeout(() => setTutorialIntroPopupReady(true), 500);
+      return () => clearTimeout(timer);
+    }
+    const timer = setTimeout(() => setTutorialIntroPopupReady(true), 1000);
+    return () => clearTimeout(timer);
+  }, [__DEV_FORCE_INTRO_POPUP__]);
+
+  // 홈 팝업 상태 (어드민에서 등록한 전면 팝업).
   const [dismissedPopupIds, setDismissedPopupIds] = useAtom(
     dismissedHomePopupIdsAtom,
   );
-  const [showPopupThisSession, setShowPopupThisSession] = useState(true);
   const activePopup = useMemo(() => {
-    if (!showPopupThisSession) {
-      return null;
-    }
-    // 장소 검색 튜토리얼이 진행 중이면 팝업을 보여주지 않음
-    if (needsPlaceSearchTutorial && !hasShownHomeTutorial) {
-      return null;
-    }
     const popups = homeData?.homePopups ?? [];
     return popups.find(p => !dismissedPopupIds[p.id]) ?? null;
-  }, [
-    homeData?.homePopups,
-    dismissedPopupIds,
-    showPopupThisSession,
-    needsPlaceSearchTutorial,
-    hasShownHomeTutorial,
-  ]);
+  }, [homeData?.homePopups, dismissedPopupIds]);
 
   useEffect(() => {
     if (activePopup) {
@@ -235,28 +196,119 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
   }, [activePopup?.imageUrl]);
 
+  // 3초 후 TutorialOverlay 노출 자격 부여 + 탭바 숨김.
   useEffect(() => {
     if (!needsPlaceSearchTutorial) {
       return;
     }
     const timer = setTimeout(() => {
-      setPlaceSearchTutorialVisible(true);
+      setPlaceSearchTutorialReady(true);
       // 탭바 숨기기
       navigation.setOptions({
         tabBarStyle: {display: 'none' as const},
       });
     }, 3000);
     return () => clearTimeout(timer);
-  }, [needsPlaceSearchTutorial]);
+  }, [needsPlaceSearchTutorial, navigation]);
 
   const handlePlaceSearchTutorialClose = useCallback(() => {
-    setPlaceSearchTutorialVisible(false);
     setHasShownHomeTutorial(true);
     // 탭바 복원
     navigation.setOptions({
       tabBarStyle: undefined,
     });
   }, [navigation, setHasShownHomeTutorial]);
+
+  // === 홈 화면 오버레이 직렬화 (orchestrator) ===
+  // 한 번에 하나의 오버레이만 노출. closedOverlayIds 는 현재 세션에서 닫힘 추적.
+  // 각 오버레이의 isEligible 안에 atom 영구 dismiss 등 모든 노출 조건을 인라인.
+  // A 가 isEligible=false 면 find 는 자동으로 B 로 넘어간다 — "A 를 거쳐야 B" 종속 없음.
+  // 새 오버레이 추가 시 overlays 배열에 {id, isEligible, render} 한 항목 추가하면 끝.
+  const [closedOverlayIds, setClosedOverlayIds] = useState<Set<string>>(
+    new Set(),
+  );
+
+  type HomeOverlay = {
+    id: string;
+    isEligible: boolean;
+    render: (onClose: () => void) => React.ReactNode;
+  };
+
+  const overlays: HomeOverlay[] = [
+    {
+      id: 'place-search-tutorial',
+      isEligible:
+        needsPlaceSearchTutorial &&
+        placeSearchTutorialReady &&
+        !hasShownHomeTutorial,
+      render: onClose => (
+        <TutorialOverlay
+          visible={true}
+          onClose={() => {
+            handlePlaceSearchTutorialClose();
+            onClose();
+          }}
+        />
+      ),
+    },
+    {
+      id: 'tutorial-intro',
+      isEligible:
+        (__DEV__ && __DEV_FORCE_INTRO_POPUP__ && tutorialIntroPopupReady) ||
+        (!isAnonymousUser &&
+          !!featureFlags?.enabledFlags.has('USER_TUTORIAL') &&
+          !hasShownTutorialIntroPopup &&
+          !getDeferredDeepLinkUrl() &&
+          allMainTutorialMissionsCompleted === false &&
+          tutorialIntroPopupReady),
+      render: onClose => (
+        <TutorialIntroPopup
+          isVisible={true}
+          onClose={() => {
+            setHasShownTutorialIntroPopup(true);
+            onClose();
+          }}
+        />
+      ),
+    },
+    {
+      id: 'admin-home-popup',
+      isEligible: activePopup != null,
+      render: onClose => (
+        <HomePopupModal
+          popup={activePopup!}
+          visible={true}
+          onClose={onClose}
+          onImageClick={() => {
+            if (activePopup!.clickUrl) {
+              Linking.openURL(activePopup!.clickUrl).catch(() => {});
+            }
+            onClose();
+          }}
+          onDismissPermanently={() => {
+            setDismissedPopupIds(prev => ({
+              ...prev,
+              [activePopup!.id]: true,
+            }));
+            onClose();
+          }}
+        />
+      ),
+    },
+  ];
+
+  const activeOverlay = overlays.find(
+    o => o.isEligible && !closedOverlayIds.has(o.id),
+  );
+
+  const handleActiveOverlayClose = useCallback(() => {
+    if (!activeOverlay) return;
+    setClosedOverlayIds(prev => {
+      const next = new Set(prev);
+      next.add(activeOverlay.id);
+      return next;
+    });
+  }, [activeOverlay]);
 
   useEffect(() => {
     const requestGeolocationPermissionIfNeeded = async () => {
@@ -497,40 +549,13 @@ const HomeScreenV2 = ({navigation}: any) => {
               }}
             />
           )}
-          {activePopup && (
-            <HomePopupModal
-              popup={activePopup}
-              visible={true}
-              onClose={() => setShowPopupThisSession(false)}
-              onImageClick={() => {
-                if (activePopup.clickUrl) {
-                  Linking.openURL(activePopup.clickUrl).catch(() => {});
-                }
-                setShowPopupThisSession(false);
-              }}
-              onDismissPermanently={() => {
-                setDismissedPopupIds(prev => ({
-                  ...prev,
-                  [activePopup.id]: true,
-                }));
-                setShowPopupThisSession(false);
-              }}
-            />
-          )}
         </Container>
       </ScreenLayout>
-      {/* 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 디코딩, 1.5초 후 zIndex 올려서 표시 */}
-      {needsPlaceSearchTutorial && (
-        <TutorialOverlay
-          visible={placeSearchTutorialVisible}
-          onClose={handlePlaceSearchTutorialClose}
-        />
-      )}
-      {/* 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업 (가입자 1회) */}
-      <TutorialIntroPopup
-        isVisible={tutorialIntroPopupVisible}
-        onClose={() => setTutorialIntroPopupVisible(false)}
-      />
+      {/*
+        오버레이는 한 번에 하나만 노출. orchestrator 가 우선순위 순으로 첫 번째 isEligible
+        오버레이를 렌더. 닫히면 다음 후보로 자동 진행.
+      */}
+      {activeOverlay?.render(handleActiveOverlayClose)}
     </>
   );
 };
