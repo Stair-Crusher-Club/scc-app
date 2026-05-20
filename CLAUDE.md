@@ -94,6 +94,7 @@ val module = reactContext?.getNativeModule(MyModule::class.java)
 - CloudFront 전파에 최대 15분 소요
 - OG 페이지 생성(`generate-og-pages.js`) 타임아웃은 배포에 영향 없음 (pre-rendering 실패해도 SPA 동작)
 - **지도 관련 기능은 port 3000에서 테스트해야 함** (네이버 지도 API 키가 localhost:3000에 바인딩)
+- **배포 후 검증 시 캐시 문제는 하드 리프레시로 해결.** 배포 후 production URL에서 변경 사항이 안 보일 때(번들이 분명 새로 올라갔는데도 옛 동작이 보일 때) 99%는 브라우저 캐시 문제다. `Cmd+Shift+R` (Mac) / `Ctrl+Shift+R` (Win/Linux) 으로 하드 리프레시하면 즉시 해결. CloudFront invalidation은 이미 deploy 스크립트가 처리하므로 추가로 기다릴 필요 없음. Playwright로 검증할 때는 query string cache buster(`?cb=...`)만으로는 부족 — `browser_close` 후 새 컨텍스트로 재진입하거나 `bypass cache` 옵션 필요. 사용자가 "안 보인다"고 보고할 때도 먼저 하드 리프레시를 안내한다.
 
 ## Component Guidelines
 
