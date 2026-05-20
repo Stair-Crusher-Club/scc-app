@@ -1,3 +1,4 @@
+import {useFocusEffect} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback} from 'react';
@@ -35,10 +36,18 @@ export default function PublicPlaceListsScreen({
 }: ScreenProps<'PublicPlaceLists'>) {
   const {api} = useAppComponents();
 
-  const {data, isLoading} = useQuery({
+  const {data, isLoading, refetch} = useQuery({
     queryKey: PUBLIC_PLACE_LISTS_QUERY_KEY,
     queryFn: async () => (await api.listPublicPlaceLists()).data,
   });
+
+  // 튜토리얼 메인 미션 완료 직후 reward 히든 리스트가 응답에 prepend 되는데,
+  // 캐시된 이전 응답이 살아있으면 신규 리스트가 노출되지 않는다. 화면 focus 마다 refetch.
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   const placeLists = data?.placeLists ?? [];
 
