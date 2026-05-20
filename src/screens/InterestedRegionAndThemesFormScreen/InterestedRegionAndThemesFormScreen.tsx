@@ -119,7 +119,9 @@ export default function InterestedRegionAndThemesFormScreen({
                   setShowCollected(true);
                 } else {
                   formExitConfirm.bypass();
-                  navigation.popTo('TutorialMission', {});
+                  navigation.popTo('TutorialMission', {
+                    scrollResetToken: Date.now(),
+                  });
                 }
               },
             },
@@ -142,7 +144,7 @@ export default function InterestedRegionAndThemesFormScreen({
     // 으로 popTo (native-stack v7 popTo 는 stack 에 있는 라우트까지 pop).
     setShowCollected(false);
     formExitConfirm.bypass();
-    navigation.popTo('TutorialMission', {});
+    navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
   }, [formExitConfirm, navigation]);
 
   const handleRegionConfirm = useCallback((nextSelectedIds: string[]) => {

@@ -475,7 +475,9 @@ const PlaceListDetailScreen = ({
             // 닫기 시 TutorialMissionScreen 으로 popTo (native-stack v7 popTo 는
             // stack 에 있는 라우트까지 pop).
             setShowSaveMissionCompleted(false);
-            navigation.popTo('TutorialMission', {});
+            navigation.popTo('TutorialMission', {
+              scrollResetToken: Date.now(),
+            });
           }}
         />
       )}

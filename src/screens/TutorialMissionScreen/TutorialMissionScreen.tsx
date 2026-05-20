@@ -37,15 +37,34 @@ function isMissionCompleted(
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export interface TutorialMissionScreenParams {}
+export interface TutorialMissionScreenParams {
+  /**
+   * 미션 완료 후 popTo 로 돌아왔을 때 ScrollView 를 instant top 으로 reset 하기 위한 token.
+   * 매번 새 값(Date.now() 등)을 전달하면 useEffect dep 변화로 scroll reset.
+   * 일반 back 으로 돌아온 경우엔 이 값이 변하지 않으므로 스크롤 유지된다.
+   */
+  scrollResetToken?: number;
+}
 
 export default function TutorialMissionScreen({
   navigation,
+  route,
 }: ScreenProps<'TutorialMission'>) {
   const checkAuth = useCheckAuth();
   const featureFlags = useAtomValue(featureFlagAtom);
   const {data: progress, refetch} = useUserTutorialProgress();
   const completeMission = useCompleteUserTutorialMission();
+  const scrollRef = useRef<ScrollView>(null);
+
+  // 미션 완료 후 popTo 로 돌아왔을 때 instant scroll top.
+  // 일반 back 으로 돌아온 경우엔 token 이 변하지 않으므로 스크롤이 유지된다.
+  const scrollResetToken = route.params?.scrollResetToken;
+  useEffect(() => {
+    if (scrollResetToken == null) {
+      return;
+    }
+    scrollRef.current?.scrollTo({y: 0, animated: false});
+  }, [scrollResetToken]);
 
   // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
   // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
@@ -153,6 +172,7 @@ export default function TutorialMissionScreen({
           // 미션 완료 mutation 을 명시 호출한다 (일반 PublicPlaceLists 진입은 X).
           navigation.navigate('TutorialMissionSavePlaceList', {
             fromTutorial: true,
+            scrollResetToken: Date.now(),
           });
         } else if (meta.navigateTo === 'TutorialUpvoteAccessibilityMission') {
           navigation.navigate('TutorialUpvoteAccessibilityMission');
@@ -191,7 +211,10 @@ export default function TutorialMissionScreen({
       return;
     }
     checkAuth(() => {
-      navigation.navigate('PublicPlaceLists', {fromTutorial: true});
+      navigation.navigate('PublicPlaceLists', {
+        fromTutorial: true,
+        scrollResetToken: Date.now(),
+      });
     });
   }, [allMainCompleted, checkAuth, navigation]);
 
@@ -204,7 +227,7 @@ export default function TutorialMissionScreen({
       <LogParamsProvider
         params={{displaySectionName: 'tutorial_mission_screen'}}>
         <BgContainer>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
             <MissionHero
               hiddenActive={allMainCompleted}
               hiddenCompleted={isHiddenCompleted}

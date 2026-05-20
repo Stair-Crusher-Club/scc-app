@@ -214,7 +214,7 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
   // (미션 3 은 메인 미션 중 마지막이므로 사용자가 자연스럽게 튜토리얼 홈으로 복귀.)
   const handleClosePopup = useCallback(() => {
     setIsCompletedPopupVisible(false);
-    navigation.popTo('TutorialMission', {});
+    navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
   }, [navigation]);
 
   const description = `돋보기 획득!\n꼼꼼하고 다정하게 정보를\n살펴봐주셔서 고마워요!`;
