@@ -198,7 +198,7 @@ export default function TutorialMissionScreen({
       wasTallyOpenedRef.current = true;
       navigation.navigate('Webview', {
         url,
-        fixedTitle: '히든 맛집 리스트',
+        fixedTitle: '숨겨진 외출템 모아보기',
         headerVariant: 'appbar',
         confirmOnClose: false,
       });

@@ -68,7 +68,7 @@ export default function MissionCard({
         // iOS 에서 'light' + 6 이 2중 blur 처럼 과하게 보이는 QA 이슈가 있어 iOS 만 'xlight' + 4 로 약화.
         <DimOverlay
           blurType={Platform.OS === 'ios' ? 'xlight' : 'light'}
-          blurAmount={Platform.OS === 'ios' ? 4 : 6}
+          blurAmount={Platform.OS === 'ios' ? 35 : 6}
           reducedTransparencyFallbackColor="rgba(255,255,255,0.92)">
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>

@@ -32,10 +32,8 @@ export default function HiddenMissionCollectedPopup({
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType="dark"
-        blurAmount={Platform.OS === 'ios' ? 25 : 10}
-        reducedTransparencyFallbackColor={
-          Platform.OS === 'ios' ? 'rgba(0,0,0,0.8)' : color.blacka70
-        }
+        blurAmount={Platform.OS === 'ios' ? 35 : 6}
+        overlayColor="rgba(0,0,0,0.6)"
       />
       <DimRoot>
         <ContentsWrapper>

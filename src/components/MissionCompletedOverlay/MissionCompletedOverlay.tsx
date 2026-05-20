@@ -56,10 +56,8 @@ export default function MissionCompletedOverlay({
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType="dark"
-        blurAmount={Platform.OS === 'ios' ? 25 : 10}
-        reducedTransparencyFallbackColor={
-          Platform.OS === 'ios' ? 'rgba(0,0,0,0.8)' : color.blacka70
-        }
+        blurAmount={Platform.OS === 'ios' ? 35 : 6}
+        overlayColor="rgba(0,0,0,0.6)"
       />
       <DimContent>
         <Contents>
@@ -133,7 +131,7 @@ const Description = styled.Text.attrs({
     textShadowRadius: 4,
   },
 })`
-  width: 311px;
+  max-width: 90%;
   font-family: ${font.pretendardMedium};
   font-size: 20px;
   line-height: 28px;
