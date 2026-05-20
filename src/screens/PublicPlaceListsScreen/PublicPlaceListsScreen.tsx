@@ -1,7 +1,7 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {FlashList} from '@shopify/flash-list';
 import {useQuery} from '@tanstack/react-query';
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback} from 'react';
 import styled from 'styled-components/native';
 
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
@@ -29,12 +29,6 @@ export interface PublicPlaceListsScreenParams {
    * 데에는 이 값이 직접 필요하지 않으나, 진입 트래킹 등에 활용된다.
    */
   fromTutorial?: boolean;
-  /**
-   * 튜토리얼 미션 완료 직후 진입한 경우, FlashList 를 instant top 으로 reset 하기 위한 token.
-   * focus 마다 일어나는 refetch 가 히든 리스트를 top 에 prepend 하지만 스크롤은 그대로라
-   * 새 항목이 안 보이는 문제를 해결.
-   */
-  scrollResetToken?: number;
 }
 
 export default function PublicPlaceListsScreen({
@@ -56,23 +50,13 @@ export default function PublicPlaceListsScreen({
 
   // 튜토리얼 메인 미션 완료 직후 reward 히든 리스트가 응답에 prepend 되는데,
   // 캐시된 이전 응답이 살아있으면 신규 리스트가 노출되지 않는다. 화면 focus 마다 refetch.
+  // 추가로, 미션 3 완료 시점에 호출자가 캐시 자체를 removeQueries 해 다음 진입이
+  // empty → loading → fresh 흐름이 되도록 보장한다.
   useFocusEffect(
     useCallback(() => {
       refetch();
     }, [refetch]),
   );
-
-  // 튜토리얼 진입 시 instant scroll top. focus 마다 refetch 하지만 스크롤이 이전 위치라
-  // 새로 prepend 된 히든 리스트가 가려지는 문제 방지. token 이 변할 때만 reset 하므로
-  // 사용자가 직접 스크롤 후 자식 화면 갔다 돌아온 케이스에서는 위치 유지된다.
-  const listRef = useRef<FlashList<PublicPlaceListDto>>(null);
-  const scrollResetToken = route.params?.scrollResetToken;
-  useEffect(() => {
-    if (scrollResetToken == null) {
-      return;
-    }
-    listRef.current?.scrollToOffset({offset: 0, animated: false});
-  }, [scrollResetToken]);
 
   const placeLists = data?.placeLists ?? [];
 
@@ -98,7 +82,6 @@ export default function PublicPlaceListsScreen({
             </NoResultContainer>
           ) : (
             <FlashList
-              ref={listRef}
               data={placeLists}
               keyExtractor={item => item.id}
               renderItem={({item, index}) => (

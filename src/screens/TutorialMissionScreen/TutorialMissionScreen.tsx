@@ -172,7 +172,6 @@ export default function TutorialMissionScreen({
           // 미션 완료 mutation 을 명시 호출한다 (일반 PublicPlaceLists 진입은 X).
           navigation.navigate('TutorialMissionSavePlaceList', {
             fromTutorial: true,
-            scrollResetToken: Date.now(),
           });
         } else if (meta.navigateTo === 'TutorialUpvoteAccessibilityMission') {
           navigation.navigate('TutorialUpvoteAccessibilityMission');
@@ -211,10 +210,7 @@ export default function TutorialMissionScreen({
       return;
     }
     checkAuth(() => {
-      navigation.navigate('PublicPlaceLists', {
-        fromTutorial: true,
-        scrollResetToken: Date.now(),
-      });
+      navigation.navigate('PublicPlaceLists', {fromTutorial: true});
     });
   }, [allMainCompleted, checkAuth, navigation]);
 

@@ -1,3 +1,4 @@
+import {useQueryClient} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
@@ -76,6 +77,7 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
   const insets = useSafeAreaInsets();
   const featureFlags = useAtomValue(featureFlagAtom);
   const completeMission = useCompleteUserTutorialMission();
+  const queryClient = useQueryClient();
 
   // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
   // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
@@ -203,12 +205,17 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
       {missionType: TutorialMissionTypeDto.UpvoteAccessibility},
       {
         onSuccess: () => {
+          // 메인 미션 마지막(미션 3) 완료 = 서버가 reward 히든 리스트를
+          // PublicPlaceLists 응답에 prepend 하기 시작. 캐시에 stale 응답이 남아
+          // 있으면 다음 진입 시 새 항목이 안 보일 수 있으므로 캐시 자체를 제거.
+          // 다음 진입에서는 data === undefined → loading → fresh 응답 흐름.
+          queryClient.removeQueries({queryKey: ['PublicPlaceLists']});
           setPhase('COMPLETED');
           setIsCompletedPopupVisible(true);
         },
       },
     );
-  }, [completeMission, setPhase]);
+  }, [completeMission, queryClient, setPhase]);
 
   // 팝업 "확인" → 팝업 닫음 + TutorialMissionScreen 으로 popTo.
   // (미션 3 은 메인 미션 중 마지막이므로 사용자가 자연스럽게 튜토리얼 홈으로 복귀.)
