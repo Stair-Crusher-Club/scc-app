@@ -69,6 +69,7 @@ const ToiletMapScreen = ({navigation}: ScreenProps<'ToiletMap'>) => {
         <SccTouchableOpacity
           elementName="toilet_map_back_button"
           activeOpacity={0.8}
+          hitSlop={10}
           onPress={() => {
             navigation.goBack();
           }}>
@@ -89,6 +90,7 @@ const ToiletMapScreen = ({navigation}: ScreenProps<'ToiletMap'>) => {
           />
           <SccTouchableOpacity
             elementName="toilet_map_clear_search_button"
+            hitSlop={10}
             onPress={() => {
               setDraftText('');
               setText('');

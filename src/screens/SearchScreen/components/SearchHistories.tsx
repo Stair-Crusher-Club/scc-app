@@ -106,6 +106,8 @@ const ItemText = styled.Text`
   color: ${() => color.black};
 `;
 
-const RemoveButton = styled(SccTouchableOpacity)`
+const RemoveButton = styled(SccTouchableOpacity).attrs({
+  hitSlop: 12,
+})`
   padding: 4px;
 `;

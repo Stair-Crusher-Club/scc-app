@@ -97,6 +97,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         <View style={styles.navigationContainer}>
           <SccPressable
             elementName="webview_back_button"
+            hitSlop={10}
             onPress={() => {
               if (canGoBack && webViewRef.current) {
                 webViewRef.current.goBack();
@@ -111,6 +112,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           </Text>
           <SccPressable
             elementName="webview_close_button"
+            hitSlop={14}
             onPress={onTapCloseButton}>
             <CloseIcon width={16} height={16} color={color.black} />
           </SccPressable>

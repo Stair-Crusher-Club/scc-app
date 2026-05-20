@@ -35,6 +35,7 @@ export default function V2AppBar({
     <AppBarContainer>
       <SccPressable
         elementName="place_detail_v2_back_button"
+        hitSlop={10}
         onPress={onBack ?? (() => navigation.goBack())}>
         <BackIcon width={24} height={24} color={ICON_COLOR} />
       </SccPressable>

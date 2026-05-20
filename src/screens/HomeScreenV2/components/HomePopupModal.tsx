@@ -57,6 +57,7 @@ export default function HomePopupModal({
             </SccPressable>
             <CloseButton
               elementName="home-popup-close-button"
+              hitSlop={8}
               onPress={onClose}>
               <CloseIconWrapper>
                 <CloseIcon width={12} height={12} color={color.white} />

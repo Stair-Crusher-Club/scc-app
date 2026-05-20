@@ -332,6 +332,7 @@ const PlaceListDetailScreen = ({
         <SccTouchableOpacity
           elementName="place_list_detail_close"
           activeOpacity={0.8}
+          hitSlop={14}
           onPress={() => navigation.goBack()}>
           <CloseIcon width={16} height={16} color={color.black} />
         </SccTouchableOpacity>

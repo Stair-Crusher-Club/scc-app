@@ -43,6 +43,7 @@ export const NavigationHeader = ({
         <S.ContentsContainer>
           <SccPressable
             elementName="navigation_back_button"
+            hitSlop={15}
             onPress={handleBack}>
             <LeftArrowIcon width={16} height={14} color={color.black} />
           </SccPressable>
@@ -54,6 +55,7 @@ export const NavigationHeader = ({
           <SccPressable
             elementName="close_button"
             logParams={{screen_name: title}}
+            hitSlop={8}
             onPress={handleBack}>
             <CloseIcon width={28} height={28} color={color.black} />
           </SccPressable>

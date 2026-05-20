@@ -68,7 +68,7 @@ export const ThumbnailImage = styled.Image({
   flex: 1,
 });
 
-export const DeleteButton = styled(SccPressable)({
+export const DeleteButton = styled(SccPressable).attrs({hitSlop: 10})({
   position: 'absolute',
   top: -4,
   right: -4,

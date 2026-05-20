@@ -130,6 +130,7 @@ const SearchUnconqueredPlacesScreen = ({
         <SccTouchableOpacity
           elementName="search_unconquered_places_back_button"
           activeOpacity={0.8}
+          hitSlop={10}
           onPress={() => navigation.goBack()}>
           <LeftArrowIcon width={24} height={24} color={color.black} />
         </SccTouchableOpacity>
