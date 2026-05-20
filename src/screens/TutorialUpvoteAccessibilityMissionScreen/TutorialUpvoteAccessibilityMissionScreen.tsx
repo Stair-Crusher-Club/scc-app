@@ -91,8 +91,8 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     phaseRef.current = next;
     setPhaseState(next);
   }, []);
-  // 팝업 가시성을 phase 와 분리해 관리한다. 사용자가 "확인" 을 누르면 팝업만 사라지고
-  // phase 는 COMPLETED 로 유지 (재 mutation / spotlight 재노출 방지). history back 은 안 한다.
+  // 팝업 가시성을 phase 와 분리해 관리한다. "확인" 을 누르면 팝업 닫음 + 튜토리얼 메인 화면 (TutorialMissionScreen)
+  // 으로 복귀 (navigation.goBack). phase 는 COMPLETED 로 유지되어 재 mutation 방지.
   const [isCompletedPopupVisible, setIsCompletedPopupVisible] = useState(false);
 
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
@@ -206,11 +206,12 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     });
   }, [completeMission, setPhase]);
 
-  // 팝업 "확인" 은 닫기 동작만 한다. history back 으로 자동 튕기는 어색한 UX 방지.
-  // phase 는 COMPLETED 로 유지되어 spotlight/팝업이 사라진 PDP 시뮬레이션이 남는다.
+  // 팝업 "확인" → 팝업 닫음 + TutorialMissionScreen 으로 history back.
+  // (미션 3 은 메인 미션 중 마지막이므로 사용자가 자연스럽게 튜토리얼 홈으로 복귀.)
   const handleClosePopup = useCallback(() => {
     setIsCompletedPopupVisible(false);
-  }, []);
+    navigation.goBack();
+  }, [navigation]);
 
   const description = `돋보기 획득!\n꼼꼼하고 다정하게 정보를\n살펴봐주셔서 고마워요!`;
 
