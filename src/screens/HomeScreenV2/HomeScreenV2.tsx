@@ -221,26 +221,68 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   // === 홈 화면 오버레이 직렬화 (orchestrator) ===
   // 한 번에 하나의 오버레이만 노출. closedOverlayIds 는 현재 세션에서 닫힘 추적.
-  // 각 오버레이의 isEligible 안에 atom 영구 dismiss 등 모든 노출 조건을 인라인.
-  // A 가 isEligible=false 면 find 는 자동으로 B 로 넘어간다 — "A 를 거쳐야 B" 종속 없음.
-  // 새 오버레이 추가 시 overlays 배열에 {id, isEligible, render} 한 항목 추가하면 끝.
+  //
+  // 각 오버레이는 세 가지 status 중 하나:
+  //  - 'eligible': 지금 노출할 수 있음 (모든 조건 만족)
+  //  - 'pending': 곧 eligible 될 가능성 있음 (timing/API 로딩 대기). 후순위 차단.
+  //  - 'ineligible': 노출 대상 아님 (atom 영구 dismiss / 결격 사유)
+  //
+  // activeOverlay 결정: 우선순위 순으로 순회하다가
+  //  - closed 된 건 skip
+  //  - pending 만나면 stop (후순위 차단 — 더 우선순위 높은 게 곧 뜰 예정)
+  //  - eligible 만나면 그 오버레이를 노출
+  //  - ineligible 은 skip 후 다음 후보로
+  //
+  // pending 이 없었으면 admin-home-popup 이 먼저 떴다가 3초 후 place-search-tutorial 이
+  // 뜨면서 깜빡이는 UX 가 됨. pending 으로 차단해서 결정적인 순서 보장.
   const [closedOverlayIds, setClosedOverlayIds] = useState<Set<string>>(
     new Set(),
   );
 
+  type HomeOverlayStatus = 'eligible' | 'pending' | 'ineligible';
+
   type HomeOverlay = {
     id: string;
-    isEligible: boolean;
+    status: HomeOverlayStatus;
     render: (onClose: () => void) => React.ReactNode;
   };
+
+  const placeSearchTutorialStatus: HomeOverlayStatus = (() => {
+    if (!needsPlaceSearchTutorial) return 'ineligible';
+    if (hasShownHomeTutorial) return 'ineligible';
+    if (!placeSearchTutorialReady) return 'pending';
+    return 'eligible';
+  })();
+
+  const tutorialIntroStatus: HomeOverlayStatus = (() => {
+    if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
+      return tutorialIntroPopupReady ? 'eligible' : 'pending';
+    }
+    if (isAnonymousUser) return 'ineligible';
+    if (
+      featureFlags !== null &&
+      !featureFlags.enabledFlags.has('USER_TUTORIAL')
+    )
+      return 'ineligible';
+    if (hasShownTutorialIntroPopup) return 'ineligible';
+    if (getDeferredDeepLinkUrl()) return 'ineligible';
+    if (allMainTutorialMissionsCompleted === true) return 'ineligible';
+    // 결격 사유 없음 — 로딩/대기 중이면 pending, 다 끝났으면 eligible.
+    if (featureFlags === null) return 'pending';
+    if (allMainTutorialMissionsCompleted === undefined) return 'pending';
+    if (!tutorialIntroPopupReady) return 'pending';
+    return 'eligible';
+  })();
+
+  const adminHomePopupStatus: HomeOverlayStatus = (() => {
+    if (homeData === undefined) return 'pending'; // API 응답 대기 중
+    return activePopup != null ? 'eligible' : 'ineligible';
+  })();
 
   const overlays: HomeOverlay[] = [
     {
       id: 'place-search-tutorial',
-      isEligible:
-        needsPlaceSearchTutorial &&
-        placeSearchTutorialReady &&
-        !hasShownHomeTutorial,
+      status: placeSearchTutorialStatus,
       render: onClose => (
         <TutorialOverlay
           visible={true}
@@ -253,14 +295,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     },
     {
       id: 'tutorial-intro',
-      isEligible:
-        (__DEV__ && __DEV_FORCE_INTRO_POPUP__ && tutorialIntroPopupReady) ||
-        (!isAnonymousUser &&
-          !!featureFlags?.enabledFlags.has('USER_TUTORIAL') &&
-          !hasShownTutorialIntroPopup &&
-          !getDeferredDeepLinkUrl() &&
-          allMainTutorialMissionsCompleted === false &&
-          tutorialIntroPopupReady),
+      status: tutorialIntroStatus,
       render: onClose => (
         <TutorialIntroPopup
           isVisible={true}
@@ -273,7 +308,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     },
     {
       id: 'admin-home-popup',
-      isEligible: activePopup != null,
+      status: adminHomePopupStatus,
       render: onClose => (
         <HomePopupModal
           popup={activePopup!}
@@ -297,9 +332,15 @@ const HomeScreenV2 = ({navigation}: any) => {
     },
   ];
 
-  const activeOverlay = overlays.find(
-    o => o.isEligible && !closedOverlayIds.has(o.id),
-  );
+  const activeOverlay = (() => {
+    for (const o of overlays) {
+      if (closedOverlayIds.has(o.id)) continue;
+      if (o.status === 'pending') return undefined; // 후순위 차단
+      if (o.status === 'eligible') return o;
+      // ineligible 은 skip
+    }
+    return undefined;
+  })();
 
   const handleActiveOverlayClose = useCallback(() => {
     if (!activeOverlay) return;
