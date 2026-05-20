@@ -27,7 +27,10 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useSavePlaceList} from '@/hooks/useSavePlaceList';
-import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
+import {
+  useCompleteUserTutorialMission,
+  useUserTutorialProgress,
+} from '@/hooks/useUserTutorialProgress';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
@@ -42,6 +45,13 @@ import PlaceListFilterModal from './sections/PlaceListFilterModal';
 
 export interface PlaceListDetailScreenParams {
   placeListId: string;
+  /**
+   * 튜토리얼 미션 2 (SAVE_PLACE_LIST) 진입 컨텍스트.
+   * true 일 때만 저장 직후 useCompleteUserTutorialMission 으로 미션을 완료하고
+   * 미션 완료 팝업을 띄운 뒤 TutorialMissionScreen 으로 popTo 한다.
+   * 일반 진입 (홈에서 PublicPlaceLists 직접 진입 등) 에서는 미션이 완료되지 않는다.
+   */
+  fromTutorial?: boolean;
 }
 
 type PlaceMarkerItem = MarkerItem & PlaceListItem;
@@ -57,7 +67,7 @@ const PlaceListDetailScreen = ({
   route,
   navigation,
 }: ScreenProps<'PlaceListDetail'>) => {
-  const {placeListId} = route.params;
+  const {placeListId, fromTutorial = false} = route.params;
   const {api} = useAppComponents();
   const {userInfo} = useMe();
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
@@ -84,13 +94,20 @@ const PlaceListDetailScreen = ({
   const [showSaveMissionCompleted, setShowSaveMissionCompleted] =
     useState(false);
 
+  const completeMission = useCompleteUserTutorialMission();
+
   const toggleSave = useSavePlaceList({
-    onSuccess: ({isSaved: prevIsSaved}) => {
-      // 저장 → unsave가 아니라 저장 액션일 때만 미션 완료로 간주.
-      // 이미 완료된 미션이면 노출 X. 같은 진입 안에서 두 번 띄우지도 않는다.
+    onSuccess: ({isSaved: prevIsSaved, placeListId: savedPlaceListId}) => {
+      // 저장 → unsave 가 아니라 저장 액션일 때만 미션 완료 후보.
       if (prevIsSaved) {
         return;
       }
+      // 튜토리얼 화면 (TutorialMissionSavePlaceList) 을 거쳐 들어온 경우에만
+      // 미션 완료를 트리거. 일반 진입에서는 X.
+      if (!fromTutorial) {
+        return;
+      }
+      // 이미 완료된 미션이면 재발생 X. 같은 진입 안에서 두 번 띄우지도 않는다.
       if (isSavePlaceListMissionCompleted) {
         return;
       }
@@ -98,7 +115,17 @@ const PlaceListDetailScreen = ({
         return;
       }
       hasShownSaveMissionCompletedRef.current = true;
-      setShowSaveMissionCompleted(true);
+      completeMission.mutate(
+        {
+          missionType: TutorialMissionTypeDto.SavePlaceList,
+          savePlaceListContext: {placeListId: savedPlaceListId},
+        },
+        {
+          onSettled: () => {
+            setShowSaveMissionCompleted(true);
+          },
+        },
+      );
     },
   });
 
@@ -444,9 +471,11 @@ const PlaceListDetailScreen = ({
           }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요 👍`}
           confirmElementName="tutorial_mission_2_completed_confirm"
           onClose={() => {
-            // 팝업 닫기만 한다. 일반 저장리스트 화면에서 진입한 사용자가 history back
-            // 으로 튕겨나가는 어색한 UX 방지. 뒤로가기는 사용자가 직접 누르도록.
+            // 미션 완료 팝업 노출 자체가 fromTutorial=true 진입에서만 발생한다.
+            // 닫기 시 TutorialMissionScreen 으로 popTo (native-stack v7 navigate 는
+            // stack 에 있는 화면으로 이동하면서 위 routes 를 pop 한다).
             setShowSaveMissionCompleted(false);
+            navigation.navigate('TutorialMission', {});
           }}
         />
       )}

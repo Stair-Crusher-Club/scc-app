@@ -16,7 +16,7 @@ import {
   UserTutorialMissionDto,
 } from '@/generated-sources/openapi';
 import {
-  useCompleteUserTutorialHiddenMission,
+  useCompleteUserTutorialMission,
   useUserTutorialProgress,
 } from '@/hooks/useUserTutorialProgress';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -45,7 +45,7 @@ export default function TutorialMissionScreen({
   const checkAuth = useCheckAuth();
   const featureFlags = useAtomValue(featureFlagAtom);
   const {data: progress, refetch} = useUserTutorialProgress();
-  const completeHiddenMission = useCompleteUserTutorialHiddenMission();
+  const completeMission = useCompleteUserTutorialMission();
 
   // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
   // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
@@ -89,22 +89,25 @@ export default function TutorialMissionScreen({
     if (!allMainCompleted || isHiddenCompleted) {
       return;
     }
-    if (completeHiddenMission.isPending) {
+    if (completeMission.isPending) {
       return;
     }
-    completeHiddenMission.mutate(undefined, {
-      onSuccess: () => {
-        setShowHiddenCollected(true);
+    completeMission.mutate(
+      {missionType: TutorialMissionTypeDto.HiddenAppSurvey},
+      {
+        onSuccess: () => {
+          setShowHiddenCollected(true);
+        },
+        onError: error => {
+          if (error instanceof AxiosError && error.response?.status === 400) {
+            ToastUtils.show(
+              'Tally Form 제출이 확인되지 않았어요.\n잠시 후 다시 시도하거나 Form을 다시 제출해주세요.',
+            );
+          }
+        },
       },
-      onError: error => {
-        if (error instanceof AxiosError && error.response?.status === 400) {
-          ToastUtils.show(
-            'Tally Form 제출이 확인되지 않았어요.\n잠시 후 다시 시도하거나 Form을 다시 제출해주세요.',
-          );
-        }
-      },
-    });
-  }, [allMainCompleted, isHiddenCompleted, completeHiddenMission]);
+    );
+  }, [allMainCompleted, isHiddenCompleted, completeMission]);
 
   // tally form Webview 진입 후 화면 복귀 시 hidden 완료 API 자동 호출.
   // 서버가 tally API로 직접 검증 (idempotent + 미제출 시 400 silent) 하므로 안전하게 시도.
@@ -145,7 +148,12 @@ export default function TutorialMissionScreen({
         if (meta.navigateTo === 'InterestedRegionAndThemes') {
           navigation.navigate('InterestedRegionAndThemes', {});
         } else if (meta.navigateTo === 'PublicPlaceLists') {
-          navigation.navigate('PublicPlaceLists', {fromTutorial: true});
+          // 튜토리얼 미션 2 (SAVE_PLACE_LIST) 진입은 전용 라우트로. 라우트 이름이
+          // 컨텍스트를 명시 — 자식 PlaceListDetail 이 fromTutorial 을 인식해서
+          // 미션 완료 mutation 을 명시 호출한다 (일반 PublicPlaceLists 진입은 X).
+          navigation.navigate('TutorialMissionSavePlaceList', {
+            fromTutorial: true,
+          });
         } else if (meta.navigateTo === 'TutorialUpvoteAccessibilityMission') {
           navigation.navigate('TutorialUpvoteAccessibilityMission');
         } else if (meta.navigateTo === 'Main') {

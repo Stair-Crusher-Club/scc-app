@@ -32,9 +32,16 @@ export interface PublicPlaceListsScreenParams {
 }
 
 export default function PublicPlaceListsScreen({
+  route,
   navigation,
-}: ScreenProps<'PublicPlaceLists'>) {
+}: ScreenProps<'PublicPlaceLists' | 'TutorialMissionSavePlaceList'>) {
   const {api} = useAppComponents();
+
+  // 동일 컴포넌트가 두 라우트로 등록되어 있다 (PublicPlaceLists / TutorialMissionSavePlaceList).
+  // 라우트 이름 자체로 진입 컨텍스트를 식별하므로 props.fromTutorial 보다 우선한다.
+  const fromTutorial =
+    route.name === 'TutorialMissionSavePlaceList' ||
+    route.params?.fromTutorial === true;
 
   const {data, isLoading, refetch} = useQuery({
     queryKey: PUBLIC_PLACE_LISTS_QUERY_KEY,
@@ -53,9 +60,12 @@ export default function PublicPlaceListsScreen({
 
   const handleItemPress = useCallback(
     (item: PublicPlaceListDto) => {
-      navigation.navigate('PlaceListDetail', {placeListId: item.id});
+      navigation.navigate('PlaceListDetail', {
+        placeListId: item.id,
+        fromTutorial,
+      });
     },
-    [navigation],
+    [navigation, fromTutorial],
   );
 
   return (

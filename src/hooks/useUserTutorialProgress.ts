@@ -5,7 +5,9 @@ import {useEffect} from 'react';
 
 import {accessTokenAtom, isAnonymousUserAtom} from '@/atoms/Auth';
 import {
+  CompleteUserTutorialMissionRequestDto,
   RegisterUserInterestedRegionsAndThemesRequestDto,
+  TutorialMissionTypeDto,
   UserTutorialProgressDto,
 } from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
@@ -38,7 +40,6 @@ export function useUserTutorialProgress() {
 
 export function useRegisterUserInterestedRegionsAndThemes() {
   const {api} = useAppComponents();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (
@@ -46,55 +47,46 @@ export function useRegisterUserInterestedRegionsAndThemes() {
     ) => {
       return (await api.registerUserInterestedRegionsAndThemes(params)).data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: USER_TUTORIAL_PROGRESS_QUERY_KEY,
-      });
-    },
     onError: error => {
-      ToastUtils.showOnApiError(error);
-    },
-  });
-}
-
-export function useCompleteUserTutorialHiddenMission() {
-  const {api} = useAppComponents();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      return (await api.completeUserTutorialHiddenMission()).data;
-    },
-    onSuccess: (data: UserTutorialProgressDto) => {
-      queryClient.setQueryData(USER_TUTORIAL_PROGRESS_QUERY_KEY, data);
-    },
-    onError: error => {
-      // 400은 호출처(TutorialMissionScreen)에서 "tally 제출 미확인" 안내 토스트로 처리한다.
-      // 여기서 추가 토스트를 띄우면 중복 노출되므로 400은 무시.
-      if (error instanceof AxiosError && error.response?.status === 400) {
-        return;
-      }
       ToastUtils.showOnApiError(error);
     },
   });
 }
 
 /**
- * 튜토리얼 미션 3(UPVOTE_ACCESSIBILITY) 완료 mutation.
- * 가짜 PDP 화면에서 도움돼요를 눌렀을 때 /giveUpvote 대신 호출한다.
+ * 윌리의 외출 NUX 튜토리얼 미션 완료 통합 mutation hook.
+ *
+ * 튜토리얼 화면을 거쳐 들어온 케이스에서만 호출한다. 실제 데이터 등록/저장 API
+ * (registerUserInterestedRegionsAndThemes, savePlaceList, giveAccessibilityUpvote)
+ * 는 더 이상 미션을 자동 완료하지 않으므로, 진입 컨텍스트가 튜토리얼인 경우만 이 hook 으로
+ * 명시 호출하면 미션이 완료된다.
+ *
+ * missionType 별 입력:
+ *  - REGISTER_INTERESTED_REGIONS_AND_THEMES / UPVOTE_ACCESSIBILITY: 추가 입력 없음
+ *  - SAVE_PLACE_LIST: { placeListId } 가 savePlaceListContext 로 필수
+ *  - HIDDEN_APP_SURVEY: 추가 입력 없음 — 서버가 tally 제출 기록을 검증, 미제출 시 400
  */
-export function useCompleteUserTutorialUpvoteAccessibilityMission() {
+export function useCompleteUserTutorialMission() {
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      return (await api.completeUserTutorialUpvoteAccessibilityMission()).data;
+    mutationFn: async (request: CompleteUserTutorialMissionRequestDto) => {
+      return (await api.completeUserTutorialMission(request)).data;
     },
     onSuccess: (data: UserTutorialProgressDto) => {
       queryClient.setQueryData(USER_TUTORIAL_PROGRESS_QUERY_KEY, data);
     },
-    onError: error => {
+    onError: (error, variables) => {
+      // hidden mission 400 은 호출처(TutorialMissionScreen) 가 "tally 제출 미확인"
+      // 안내 토스트로 처리하므로 여기서 중복 노출하지 않는다.
+      if (
+        variables.missionType === TutorialMissionTypeDto.HiddenAppSurvey &&
+        error instanceof AxiosError &&
+        error.response?.status === 400
+      ) {
+        return;
+      }
       ToastUtils.showOnApiError(error);
     },
   });

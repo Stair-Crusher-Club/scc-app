@@ -23,7 +23,8 @@ import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/Missio
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {useCompleteUserTutorialUpvoteAccessibilityMission} from '@/hooks/useUserTutorialProgress';
+import {useCompleteUserTutorialMission} from '@/hooks/useUserTutorialProgress';
+import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import V2AppBar from '@/screens/PlaceDetailV2Screen/components/V2AppBar';
@@ -74,7 +75,7 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 }: ScreenProps<'TutorialUpvoteAccessibilityMission'>) {
   const insets = useSafeAreaInsets();
   const featureFlags = useAtomValue(featureFlagAtom);
-  const completeMission = useCompleteUserTutorialUpvoteAccessibilityMission();
+  const completeMission = useCompleteUserTutorialMission();
 
   // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
   // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
@@ -198,19 +199,22 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
     if (phaseRef.current === 'COMPLETED' || completeMission.isPending) {
       return;
     }
-    completeMission.mutate(undefined, {
-      onSuccess: () => {
-        setPhase('COMPLETED');
-        setIsCompletedPopupVisible(true);
+    completeMission.mutate(
+      {missionType: TutorialMissionTypeDto.UpvoteAccessibility},
+      {
+        onSuccess: () => {
+          setPhase('COMPLETED');
+          setIsCompletedPopupVisible(true);
+        },
       },
-    });
+    );
   }, [completeMission, setPhase]);
 
-  // 팝업 "확인" → 팝업 닫음 + TutorialMissionScreen 으로 history back.
+  // 팝업 "확인" → 팝업 닫음 + TutorialMissionScreen 으로 popTo.
   // (미션 3 은 메인 미션 중 마지막이므로 사용자가 자연스럽게 튜토리얼 홈으로 복귀.)
   const handleClosePopup = useCallback(() => {
     setIsCompletedPopupVisible(false);
-    navigation.goBack();
+    navigation.navigate('TutorialMission', {});
   }, [navigation]);
 
   const description = `돋보기 획득!\n꼼꼼하고 다정하게 정보를\n살펴봐주셔서 고마워요!`;

@@ -15,6 +15,7 @@ import {
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
 import {useInterestedRegionGroupLabelMap} from '@/hooks/useListInterestedRegions';
 import {
+  useCompleteUserTutorialMission,
   useRegisterUserInterestedRegionsAndThemes,
   useUserTutorialProgress,
 } from '@/hooks/useUserTutorialProgress';
@@ -52,6 +53,7 @@ export default function InterestedRegionAndThemesFormScreen({
   }, [featureFlags, navigation]);
 
   const registerMutation = useRegisterUserInterestedRegionsAndThemes();
+  const completeMission = useCompleteUserTutorialMission();
   const {data: progress} = useUserTutorialProgress();
   const wasMissionAlreadyCompleted =
     progress?.missions.find(
@@ -103,15 +105,25 @@ export default function InterestedRegionAndThemesFormScreen({
       {
         onSuccess: () => {
           setHasSubmitted(true);
-          // 미션이 이전에 완료된 적 없는 경우에만 외출템 수집 팝업을 노출 (최초 1회).
-          if (!wasMissionAlreadyCompleted) {
-            setShowCollected(true);
-          } else {
-            // formExitConfirm.bypass(): setHasSubmitted은 비동기라 같은 tick의
-            // goBack 디스패치에는 반영되지 않으므로 ref 기반으로 즉시 우회한다.
-            formExitConfirm.bypass();
-            navigation.goBack();
-          }
+          // 이 화면은 튜토리얼 미션 1 전용 진입 (라우트 자체가 분리되어 있음).
+          // 등록 직후 미션 완료를 명시 호출한다 — 서버는 register API 에서 자동
+          // 미션 완료를 더 이상 수행하지 않으므로 이 호출이 없으면 미션이 미완료로 남는다.
+          completeMission.mutate(
+            {
+              missionType:
+                TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
+            },
+            {
+              onSettled: () => {
+                if (!wasMissionAlreadyCompleted) {
+                  setShowCollected(true);
+                } else {
+                  formExitConfirm.bypass();
+                  navigation.navigate('TutorialMission', {});
+                }
+              },
+            },
+          );
         },
       },
     );
@@ -119,19 +131,18 @@ export default function InterestedRegionAndThemesFormScreen({
     selectedRegionIds,
     selectedThemes,
     registerMutation,
+    completeMission,
     wasMissionAlreadyCompleted,
     formExitConfirm,
     navigation,
   ]);
 
   const handleCollectedClose = useCallback(() => {
-    // 이 화면은 튜토리얼 미션 1 전용 (일반 flow 에서 진입하지 않는다). 미션 완료 팝업
-    // "확인" 시 화면을 닫아 TutorialMissionScreen 으로 돌아가는 것이 자연스러운 UX.
-    // navigation 책임은 호출 사이트에 두고 MissionCompletedOverlay 는 닫기 신호만 보낸다
-    // (다른 호출 사이트들 — 일반 저장리스트 / PDP — 에서는 goBack 하지 않도록).
+    // 이 화면은 튜토리얼 미션 1 전용. 미션 완료 팝업 "확인" 시 TutorialMissionScreen
+    // 으로 popTo (native-stack v7 navigate 는 stack 에 있는 화면으로 이동하면서 위 routes 를 pop).
     setShowCollected(false);
     formExitConfirm.bypass();
-    navigation.goBack();
+    navigation.navigate('TutorialMission', {});
   }, [formExitConfirm, navigation]);
 
   const handleRegionConfirm = useCallback((nextSelectedIds: string[]) => {

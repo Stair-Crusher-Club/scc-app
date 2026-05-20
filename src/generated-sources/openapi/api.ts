@@ -1470,6 +1470,38 @@ export interface CompactAccessibilityInfoDto {
     'createdAt'?: EpochMillisTimestamp;
 }
 /**
+ * 튜토리얼 미션 완료 요청. missionType 에 따라 미션별 추가 컨텍스트 필드가 필요할 수도 있다. 새 미션 종류가 추가될 때 이 DTO 에 optional context 필드만 추가하면 되도록 설계. 
+ * @export
+ * @interface CompleteUserTutorialMissionRequestDto
+ */
+export interface CompleteUserTutorialMissionRequestDto {
+    /**
+     * 
+     * @type {TutorialMissionTypeDto}
+     * @memberof CompleteUserTutorialMissionRequestDto
+     */
+    'missionType': TutorialMissionTypeDto;
+    /**
+     * 
+     * @type {CompleteUserTutorialSavePlaceListMissionContextDto}
+     * @memberof CompleteUserTutorialMissionRequestDto
+     */
+    'savePlaceListContext'?: CompleteUserTutorialSavePlaceListMissionContextDto;
+}
+/**
+ * SAVE_PLACE_LIST 미션 완료를 위한 추가 컨텍스트.
+ * @export
+ * @interface CompleteUserTutorialSavePlaceListMissionContextDto
+ */
+export interface CompleteUserTutorialSavePlaceListMissionContextDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CompleteUserTutorialSavePlaceListMissionContextDto
+     */
+    'placeListId': string;
+}
+/**
  * 
  * @export
  * @interface ContributedChallengeInfoDto
@@ -1627,7 +1659,7 @@ export interface CrusherActivityHistorySummaryDto {
      */
     'historyType': CrusherActivityHistorySummaryTypeDto;
     /**
-     * 
+     * CrusherClub 객체 ID. historyType이 `CREW`일 때만 존재한다.
      * @type {string}
      * @memberof CrusherActivityHistorySummaryDto
      */
@@ -7171,13 +7203,16 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+         * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeUserTutorialHiddenMission: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/completeUserTutorialHiddenMission`;
+        completeUserTutorialMission: async (completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'completeUserTutorialMissionRequestDto' is not null or undefined
+            assertParamExists('completeUserTutorialMission', 'completeUserTutorialMissionRequestDto', completeUserTutorialMissionRequestDto)
+            const localVarPath = `/completeUserTutorialMission`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7195,43 +7230,12 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        completeUserTutorialUpvoteAccessibilityMission: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/completeUserTutorialUpvoteAccessibilityMission`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Identified required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(completeUserTutorialMissionRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -10627,23 +10631,14 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+         * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeUserTutorialHiddenMission(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialHiddenMission(options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async completeUserTutorialUpvoteAccessibilityMission(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialUpvoteAccessibilityMission(options);
+        async completeUserTutorialMission(completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialMission(completeUserTutorialMissionRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11630,22 +11625,14 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+         * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeUserTutorialHiddenMission(options?: any): AxiosPromise<UserTutorialProgressDto> {
-            return localVarFp.completeUserTutorialHiddenMission(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        completeUserTutorialUpvoteAccessibilityMission(options?: any): AxiosPromise<UserTutorialProgressDto> {
-            return localVarFp.completeUserTutorialUpvoteAccessibilityMission(options).then((request) => request(axios, basePath));
+        completeUserTutorialMission(completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options?: any): AxiosPromise<UserTutorialProgressDto> {
+            return localVarFp.completeUserTutorialMission(completeUserTutorialMissionRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12554,25 +12541,15 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-     * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+     * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+     * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+     * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public completeUserTutorialHiddenMission(options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).completeUserTutorialHiddenMission(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-     * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public completeUserTutorialUpvoteAccessibilityMission(options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).completeUserTutorialUpvoteAccessibilityMission(options).then((request) => request(this.axios, this.basePath));
+    public completeUserTutorialMission(completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).completeUserTutorialMission(completeUserTutorialMissionRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

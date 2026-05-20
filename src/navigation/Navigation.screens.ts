@@ -330,6 +330,19 @@ export const MainNavigationScreens: {
     },
   },
   {
+    // 튜토리얼 미션 2 (SAVE_PLACE_LIST) 전용 라우트. PublicPlaceListsScreen 컴포넌트를
+    // 그대로 재사용하지만 fromTutorial=true 컨텍스트가 라우트 이름으로 명시되어 일반
+    // 진입 (홈에서 PublicPlaceLists 직접 진입) 과 분리된다. 진입 컨텍스트가 분명하니
+    // 자식 PlaceListDetail 에서도 fromTutorial chain 으로 미션 완료 트리거 여부를 판단한다.
+    name: 'TutorialMissionSavePlaceList',
+    component: PublicPlaceListsScreen,
+    options: {
+      headerShown: true,
+      headerTitle: '저장리스트 모음',
+      variant: 'close',
+    },
+  },
+  {
     name: 'TutorialUpvoteAccessibilityMission',
     component: TutorialUpvoteAccessibilityMissionScreen,
     options: {
@@ -431,6 +444,7 @@ export type ScreenParams = {
   EditInterestedRegion: EditInterestedRegionScreenParams;
   EditInterestedThemes: EditInterestedThemesScreenParams;
   PublicPlaceLists: PublicPlaceListsScreenParams;
+  TutorialMissionSavePlaceList: PublicPlaceListsScreenParams;
   TutorialUpvoteAccessibilityMission: undefined;
 };
 
