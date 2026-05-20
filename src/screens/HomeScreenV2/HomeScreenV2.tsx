@@ -2,7 +2,7 @@ import {
   AuthorizationStatus,
   getMessaging,
 } from '@react-native-firebase/messaging';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -238,6 +238,10 @@ const HomeScreenV2 = ({navigation}: any) => {
   const [closedOverlayIds, setClosedOverlayIds] = useState<Set<string>>(
     new Set(),
   );
+
+  // overlay 렌더 gate. 팝업이 navigation 을 트리거해서 closed → next overlay 가 activeOverlay 로
+  // 바뀌어도 화면이 blur 된 상태에서는 Modal mount 자체를 막아 다른 페이지에 누수되지 않게.
+  const isFocused = useIsFocused();
 
   type HomeOverlayStatus = 'eligible' | 'pending' | 'ineligible';
 
@@ -595,8 +599,14 @@ const HomeScreenV2 = ({navigation}: any) => {
       {/*
         오버레이는 한 번에 하나만 노출. orchestrator 가 우선순위 순으로 첫 번째 isEligible
         오버레이를 렌더. 닫히면 다음 후보로 자동 진행.
+
+        isFocused gate: 팝업이 페이지 이동을 트리거한 경우(예: TutorialIntroPopup 의 '시작하기'),
+        onClose → closedOverlayIds 가 advance 되어 다음 overlay 가 activeOverlay 로 바뀌는데,
+        같은 tick 에 navigation.navigate 도 일어남. react-navigation 7 의 useIsFocused 는
+        useSyncExternalStore + 동기 isFocused() 라 같은 render 에 false 가 들어와 다음 overlay 의
+        Modal mount 자체를 막는다. (race-free)
       */}
-      {activeOverlay?.render(handleActiveOverlayClose)}
+      {isFocused && activeOverlay?.render(handleActiveOverlayClose)}
     </>
   );
 };
