@@ -88,12 +88,7 @@ export default function LastMonthRankingModal({
   );
 
   return isReady ? (
-    <Modal
-      visible={visible}
-      statusBarTranslucent
-      navigationBarTranslucent
-      transparent
-      {...props}>
+    <Modal visible={visible} statusBarTranslucent transparent {...props}>
       {content}
     </Modal>
   ) : (

@@ -217,7 +217,6 @@ export const DevTool: React.FC<DevToolProps> = () => {
         animationType="none"
         transparent={true}
         statusBarTranslucent
-        navigationBarTranslucent
         onRequestClose={() => setIsBottomSheetOpen(false)}>
         <TouchableWithoutFeedback onPress={() => setIsBottomSheetOpen(false)}>
           <View style={styles.modalContainer}>
@@ -355,7 +354,6 @@ export const DevTool: React.FC<DevToolProps> = () => {
         animationType="none"
         transparent={true}
         statusBarTranslucent
-        navigationBarTranslucent
         onRequestClose={() => setIsExperimentModalOpen(false)}>
         <TouchableWithoutFeedback
           onPress={() => setIsExperimentModalOpen(false)}>

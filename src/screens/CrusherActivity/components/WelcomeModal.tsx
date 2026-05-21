@@ -362,7 +362,6 @@ export default function WelcomeModal({
       visible={visible}
       transparent
       statusBarTranslucent
-      navigationBarTranslucent
       animationType="fade">
       <SccTouchableWithoutFeedback
         elementName="crusher_activity_welcome_modal"

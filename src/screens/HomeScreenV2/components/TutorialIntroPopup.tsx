@@ -1,7 +1,7 @@
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import React, {useCallback} from 'react';
 import {Dimensions, Image, Modal} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -39,6 +39,7 @@ export default function TutorialIntroPopup({
   onClose,
 }: TutorialIntroPopupProps) {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
+  const insets = useSafeAreaInsets();
 
   const handleStart = useCallback(() => {
     onClose();
@@ -51,11 +52,8 @@ export default function TutorialIntroPopup({
       transparent
       animationType="fade"
       statusBarTranslucent
-      navigationBarTranslucent
       onRequestClose={onClose}>
       <Overlay>
-        {/* PopupImage 는 디자인 좌표 (figma frame 비율) 기준 absolute. layout flow 밖이라
-            SafeAreaView 영향 받지 않는다. */}
         <PopupImage
           source={require('@/assets/img/tutorial/intro_popup_content.png')}
           style={{
@@ -67,22 +65,18 @@ export default function TutorialIntroPopup({
           }}
           resizeMode="contain"
         />
-        {/* dim 은 Overlay 가 fullscreen 으로 담당하고, 버튼은 SafeAreaView 안에서
-            자연스럽게 home indicator/nav bar 위로 올라온다. */}
-        <SafeBottom edges={['bottom']}>
-          <ButtonRow>
-            <CloseButton
-              elementName="tutorial_intro_popup_close"
-              onPress={onClose}>
-              <CloseButtonText>닫기</CloseButtonText>
-            </CloseButton>
-            <StartButton
-              elementName="tutorial_intro_popup_start"
-              onPress={handleStart}>
-              <StartButtonText>시작하기</StartButtonText>
-            </StartButton>
-          </ButtonRow>
-        </SafeBottom>
+        <ButtonRow style={{paddingBottom: insets.bottom + 15}}>
+          <CloseButton
+            elementName="tutorial_intro_popup_close"
+            onPress={onClose}>
+            <CloseButtonText>닫기</CloseButtonText>
+          </CloseButton>
+          <StartButton
+            elementName="tutorial_intro_popup_start"
+            onPress={handleStart}>
+            <StartButtonText>시작하기</StartButtonText>
+          </StartButton>
+        </ButtonRow>
       </Overlay>
     </Modal>
   );
@@ -94,14 +88,12 @@ const Overlay = styled.View`
   justify-content: flex-end;
 `;
 
-const SafeBottom = styled(SafeAreaView)``;
-
 const PopupImage = styled(Image)``;
 
 const ButtonRow = styled.View`
   flex-direction: row;
   gap: 8px;
-  padding: 16px 20px 15px;
+  padding: 16px 20px 0;
 `;
 
 const CloseButton = styled(SccPressable)`

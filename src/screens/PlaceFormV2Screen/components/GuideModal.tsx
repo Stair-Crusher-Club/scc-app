@@ -36,7 +36,6 @@ export default function GuideModal({
       animationType="slide"
       transparent={false}
       statusBarTranslucent
-      navigationBarTranslucent
       onRequestClose={onRequestClose}>
       <SafeAreaWrapper
         edges={['top', 'bottom']}

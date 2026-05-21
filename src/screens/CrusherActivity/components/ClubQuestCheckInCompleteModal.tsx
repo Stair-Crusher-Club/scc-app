@@ -23,7 +23,6 @@ export default function ClubQuestCheckInCompleteModal({
       visible={visible}
       transparent
       statusBarTranslucent
-      navigationBarTranslucent
       animationType="fade">
       <SccTouchableWithoutFeedback
         elementName="club_quest_check_in_complete_modal_backdrop"

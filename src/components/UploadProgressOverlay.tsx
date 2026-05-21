@@ -38,7 +38,6 @@ export function UploadProgressOverlay({
       visible={visible}
       animationType="fade"
       statusBarTranslucent
-      navigationBarTranslucent
       onRequestClose={() => {}}>
       <Overlay>
         {/* dim 은 Overlay 가 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —

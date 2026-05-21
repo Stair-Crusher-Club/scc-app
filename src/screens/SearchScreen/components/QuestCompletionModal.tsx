@@ -62,7 +62,6 @@ export default function QuestCompletionModal({
       visible={visible}
       transparent
       statusBarTranslucent
-      navigationBarTranslucent
       animationType="fade">
       <SccTouchableWithoutFeedback
         elementName="quest_completion_modal_backdrop"

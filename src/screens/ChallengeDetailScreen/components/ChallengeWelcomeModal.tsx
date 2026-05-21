@@ -17,12 +17,7 @@ export default function ChallengeWelcomeModal({
   }, [_visible]);
 
   return (
-    <Modal
-      visible={visible}
-      statusBarTranslucent
-      navigationBarTranslucent
-      transparent
-      {...props}>
+    <Modal visible={visible} statusBarTranslucent transparent {...props}>
       <Backdrop>
         {/* dim 은 Backdrop 이 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —
             home indicator/nav bar 와 겹치지 않게. */}

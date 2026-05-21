@@ -99,9 +99,9 @@ export default function TutorialOverlay({
     [isFirst, isLast, handlePrev, handleNext],
   );
 
-  // Modal 로 변환: statusBarTranslucent + navigationBarTranslucent 로 dim 이 status/nav bar 까지 덮고,
-  // useSafeAreaInsets 가 Modal context 안에서 nav bar height 를 정확히 반영해 BottomBar 가 nav bar 위로
-  // 올라온다. (이전: HomeScreenV2 안 absolute view 라 부모 SafeArea 안에서만 absolute, Android nav bar
+  // Modal 로 변환: statusBarTranslucent 로 dim 이 status bar 까지 덮음. BottomBar 는
+  // useSafeAreaInsets().bottom + 20 padding 으로 home indicator / nav bar 위로 올라온다.
+  // (이전: HomeScreenV2 안 absolute view 라 부모 SafeArea 안에서만 absolute, Android nav bar
   // 영역에서 버튼이 겹치는 문제.)
   return (
     <Modal
@@ -109,7 +109,6 @@ export default function TutorialOverlay({
       transparent
       animationType="fade"
       statusBarTranslucent
-      navigationBarTranslucent
       onRequestClose={onClose}>
       <Backdrop>
         <ScrollView
