@@ -1,7 +1,7 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
 import {Dimensions, Image, Modal, Platform, StyleSheet} from 'react-native';
-import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -53,48 +53,42 @@ export default function MissionCompletedOverlay({
       statusBarTranslucent
       navigationBarTranslucent
       onRequestClose={onClose}>
-      {/* iOS Modal 은 별도 UIWindow 라 App.tsx 의 SafeAreaProvider context 가 끊긴다.
-          react-native-safe-area-context 공식 권장 패턴대로 Modal 안에 SafeAreaProvider 를
-          새로 wrap 해서 내부 SafeAreaView 가 올바른 insets 를 받게 한다. */}
-      <SafeAreaProvider>
-        {/* iOS 는 blurAmount 0-100 범위라 10 이 figma 의도보다 약함. iOS 만 35 로 보정 +
-            overlay 색도 어둡게 해서 흰 텍스트 가독성 확보. Android 는 figma 와 일치하므로 유지.
-            dim 은 absoluteFill 로 status bar / nav bar 까지 전체 덮음. */}
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="dark"
-          blurAmount={Platform.OS === 'ios' ? 35 : 6}
-          overlayColor="rgba(0,0,0,0.6)"
-        />
-        {/* 콘텐츠는 SafeAreaView 안에서 center 정렬 — home indicator / nav bar 위로. */}
-        <DimContent edges={['top', 'bottom']}>
-          <Contents>
-            <TitleImage
-              source={TITLE_IMAGE_BY_VARIANT[variant]}
-              resizeMode="contain"
-            />
-            <Image
-              source={itemImage}
-              style={{width: POPUP_IMG_WIDTH, height: POPUP_IMG_HEIGHT}}
-              resizeMode="contain"
-            />
-            <FormattedDescription description={description} />
-            <SccButton
-              text="확인"
-              elementName={confirmElementName}
-              logParams={confirmLogParams}
-              onPress={onClose}
-              buttonColor="brand40"
-              textColor="white"
-              fontFamily={font.pretendardSemibold}
-              fontSize={18}
-              width={140}
-              height={56}
-              style={{borderRadius: 8}}
-            />
-          </Contents>
-        </DimContent>
-      </SafeAreaProvider>
+      {/* iOS 는 blurAmount 0-100 범위라 10 이 figma 의도보다 약함. iOS 만 25 로 보정 +
+          fallback 색도 어둡게 해서 흰 텍스트 가독성 확보. Android 는 figma 와 일치하므로 유지. */}
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="dark"
+        blurAmount={Platform.OS === 'ios' ? 35 : 6}
+        overlayColor="rgba(0,0,0,0.6)"
+      />
+      {/* dim 은 absoluteFill 로 전체 덮고, 콘텐츠는 SafeAreaView 안에서 center 정렬. */}
+      <DimContent edges={['top', 'bottom']}>
+        <Contents>
+          <TitleImage
+            source={TITLE_IMAGE_BY_VARIANT[variant]}
+            resizeMode="contain"
+          />
+          <Image
+            source={itemImage}
+            style={{width: POPUP_IMG_WIDTH, height: POPUP_IMG_HEIGHT}}
+            resizeMode="contain"
+          />
+          <FormattedDescription description={description} />
+          <SccButton
+            text="확인"
+            elementName={confirmElementName}
+            logParams={confirmLogParams}
+            onPress={onClose}
+            buttonColor="brand40"
+            textColor="white"
+            fontFamily={font.pretendardSemibold}
+            fontSize={18}
+            width={140}
+            height={56}
+            style={{borderRadius: 8}}
+          />
+        </Contents>
+      </DimContent>
     </Modal>
   );
 }
