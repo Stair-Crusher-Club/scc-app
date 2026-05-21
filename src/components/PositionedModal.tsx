@@ -50,6 +50,7 @@ const PositionedModal = ({
         transparent
         animationType="fade"
         statusBarTranslucent={true}
+        navigationBarTranslucent={true}
         onRequestClose={handleClose}>
         <SccTouchableWithoutFeedback
           elementName="positioned_modal_overlay"

@@ -78,7 +78,7 @@ const ChallengeDetailCompanyModal = ({
   }, [formState, fields]);
 
   return (
-    <Modal visible={isVisible} statusBarTranslucent>
+    <Modal visible={isVisible} statusBarTranslucent navigationBarTranslucent>
       <ScreenLayout
         isHeaderVisible={false}
         safeAreaEdges={['top', 'bottom']}

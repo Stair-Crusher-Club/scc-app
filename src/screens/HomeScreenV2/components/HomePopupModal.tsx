@@ -37,7 +37,8 @@ export default function HomePopupModal({
       visible={visible}
       transparent
       animationType="fade"
-      statusBarTranslucent>
+      statusBarTranslucent
+      navigationBarTranslucent>
       <Overlay>
         <BackgroundTouchable
           elementName="home-popup-overlay-background"

@@ -65,6 +65,7 @@ export default function BottomSheet({
       transparent
       animationType="fade"
       statusBarTranslucent={true}
+      navigationBarTranslucent={true}
       onRequestClose={() => {
         onPressBackground?.();
       }}>
