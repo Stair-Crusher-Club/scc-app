@@ -3,6 +3,7 @@ import {
   Dimensions,
   GestureResponderEvent,
   Image,
+  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
@@ -98,74 +99,80 @@ export default function TutorialOverlay({
     [isFirst, isLast, handlePrev, handleNext],
   );
 
-  // 항상 이미지를 렌더 (디코딩), visible일 때만 위로 올림
+  // Modal 로 변환: statusBarTranslucent + navigationBarTranslucent 로 dim 이 status/nav bar 까지 덮고,
+  // useSafeAreaInsets 가 Modal context 안에서 nav bar height 를 정확히 반영해 BottomBar 가 nav bar 위로
+  // 올라온다. (이전: HomeScreenV2 안 absolute view 라 부모 SafeArea 안에서만 absolute, Android nav bar
+  // 영역에서 버튼이 겹치는 문제.)
   return (
-    <Overlay style={{zIndex: visible ? 9999 : -1}}>
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        bounces={false}
-        scrollEnabled={visible}
-        onMomentumScrollEnd={handleScroll}
-        onTouchStart={visible ? handleTouchStart : undefined}
-        onTouchEnd={visible ? handleTouchEnd : undefined}
-        scrollEventThrottle={16}>
-        {slides.map((source, index) => (
-          <SlideContainer key={index}>
-            <Image
-              source={source}
-              style={{width: SCREEN_WIDTH, height: scaledHeight}}
-            />
-          </SlideContainer>
-        ))}
-      </ScrollView>
-      {visible && (
-        <>
-          <BottomBar
-            style={{paddingBottom: insets.bottom + 20}}
-            pointerEvents="box-none">
-            {isLast ? (
-              <SccButton
-                text="시작하기"
-                onPress={onClose}
-                fontSize={18}
-                fontFamily={font.pretendardSemibold}
-                buttonColor="brand40"
-                elementName="tutorial_start_button"
-                style={{borderRadius: 8}}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      navigationBarTranslucent
+      onRequestClose={onClose}>
+      <Backdrop>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          bounces={false}
+          onMomentumScrollEnd={handleScroll}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          scrollEventThrottle={16}>
+          {slides.map((source, index) => (
+            <SlideContainer key={index}>
+              <Image
+                source={source}
+                style={{width: SCREEN_WIDTH, height: scaledHeight}}
               />
-            ) : (
-              <NavRow pointerEvents="box-none">
-                <SccPressable
-                  elementName="tutorial_prev_button"
-                  onPress={isFirst ? undefined : handlePrev}
-                  style={{opacity: isFirst ? 0 : 1}}>
-                  <NavButtonInner>
-                    <ChevronLeft width={24} height={24} color={color.white} />
-                    <NavText>이전</NavText>
-                  </NavButtonInner>
-                </SccPressable>
-                <DotsContainer>
-                  {slides.map((_, index) => (
-                    <Dot key={index} active={index === activeSlide} />
-                  ))}
-                </DotsContainer>
-                <SccPressable
-                  elementName="tutorial_next_button"
-                  onPress={handleNext}>
-                  <NavButtonInner>
-                    <NavText>다음</NavText>
-                    <ChevronRight width={24} height={24} color={color.white} />
-                  </NavButtonInner>
-                </SccPressable>
-              </NavRow>
-            )}
-          </BottomBar>
-        </>
-      )}
-    </Overlay>
+            </SlideContainer>
+          ))}
+        </ScrollView>
+        <BottomBar
+          style={{paddingBottom: insets.bottom + 20}}
+          pointerEvents="box-none">
+          {isLast ? (
+            <SccButton
+              text="시작하기"
+              onPress={onClose}
+              fontSize={18}
+              fontFamily={font.pretendardSemibold}
+              buttonColor="brand40"
+              elementName="tutorial_start_button"
+              style={{borderRadius: 8}}
+            />
+          ) : (
+            <NavRow pointerEvents="box-none">
+              <SccPressable
+                elementName="tutorial_prev_button"
+                onPress={isFirst ? undefined : handlePrev}
+                style={{opacity: isFirst ? 0 : 1}}>
+                <NavButtonInner>
+                  <ChevronLeft width={24} height={24} color={color.white} />
+                  <NavText>이전</NavText>
+                </NavButtonInner>
+              </SccPressable>
+              <DotsContainer>
+                {slides.map((_, index) => (
+                  <Dot key={index} active={index === activeSlide} />
+                ))}
+              </DotsContainer>
+              <SccPressable
+                elementName="tutorial_next_button"
+                onPress={handleNext}>
+                <NavButtonInner>
+                  <NavText>다음</NavText>
+                  <ChevronRight width={24} height={24} color={color.white} />
+                </NavButtonInner>
+              </SccPressable>
+            </NavRow>
+          )}
+        </BottomBar>
+      </Backdrop>
+    </Modal>
   );
 }
 
@@ -173,12 +180,8 @@ const ChevronLeft = styled(ChevronRight)`
   transform: rotate(180deg);
 `;
 
-const Overlay = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: ${SCREEN_WIDTH}px;
-  height: ${SCREEN_HEIGHT}px;
+const Backdrop = styled.View`
+  flex: 1;
   background-color: ${color.black};
 `;
 
