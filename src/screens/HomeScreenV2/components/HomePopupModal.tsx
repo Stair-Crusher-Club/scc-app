@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Dimensions, Modal} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import CloseIcon from '@/assets/icon/close.svg';
@@ -43,34 +44,39 @@ export default function HomePopupModal({
           onPress={onClose}
           disableLogging
         />
-        <ContentContainer style={{opacity: imageReady ? 1 : 0}}>
-          <ImageContainer>
-            <SccPressable elementName="home-popup-image" onPress={onImageClick}>
-              <SccRemoteImage
-                imageUrl={popup.imageUrl}
-                style={{width: POPUP_WIDTH}}
-                resizeMode="contain"
-                wrapperBackgroundColor={null}
-                onReady={() => setImageReady(true)}
-                priority="high"
-              />
-            </SccPressable>
-            <CloseButton
-              elementName="home-popup-close-button"
-              onPress={onClose}>
-              <CloseIconWrapper>
-                <CloseIcon width={12} height={12} color={color.white} />
-              </CloseIconWrapper>
-            </CloseButton>
-          </ImageContainer>
-          <BottomContainer>
-            <SccPressable
-              elementName="home-popup-do-not-show-again"
-              onPress={onDismissPermanently}>
-              <DismissText>다시 보지 않기</DismissText>
-            </SccPressable>
-          </BottomContainer>
-        </ContentContainer>
+        {/* 콘텐츠는 SafeAreaView 안에서 center — dim/touch 는 Overlay 가 fullscreen 으로 담당. */}
+        <SafeCenter edges={['top', 'bottom']}>
+          <ContentContainer style={{opacity: imageReady ? 1 : 0}}>
+            <ImageContainer>
+              <SccPressable
+                elementName="home-popup-image"
+                onPress={onImageClick}>
+                <SccRemoteImage
+                  imageUrl={popup.imageUrl}
+                  style={{width: POPUP_WIDTH}}
+                  resizeMode="contain"
+                  wrapperBackgroundColor={null}
+                  onReady={() => setImageReady(true)}
+                  priority="high"
+                />
+              </SccPressable>
+              <CloseButton
+                elementName="home-popup-close-button"
+                onPress={onClose}>
+                <CloseIconWrapper>
+                  <CloseIcon width={12} height={12} color={color.white} />
+                </CloseIconWrapper>
+              </CloseButton>
+            </ImageContainer>
+            <BottomContainer>
+              <SccPressable
+                elementName="home-popup-do-not-show-again"
+                onPress={onDismissPermanently}>
+                <DismissText>다시 보지 않기</DismissText>
+              </SccPressable>
+            </BottomContainer>
+          </ContentContainer>
+        </SafeCenter>
       </Overlay>
     </Modal>
   );
@@ -80,9 +86,13 @@ export default function HomePopupModal({
 
 const Overlay = styled.View`
   flex: 1;
+  background-color: ${color.blacka50};
+`;
+
+const SafeCenter = styled(SafeAreaView)`
+  flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: ${color.blacka50};
 `;
 
 const BackgroundTouchable = styled(SccPressable)`

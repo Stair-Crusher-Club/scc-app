@@ -1,6 +1,7 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
 import {Dimensions, Image, Modal, Platform, StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -59,7 +60,8 @@ export default function MissionCompletedOverlay({
         blurAmount={Platform.OS === 'ios' ? 35 : 6}
         overlayColor="rgba(0,0,0,0.6)"
       />
-      <DimContent>
+      {/* dim 은 absoluteFill 로 전체 덮고, 콘텐츠는 SafeAreaView 안에서 center 정렬. */}
+      <DimContent edges={['top', 'bottom']}>
         <Contents>
           <TitleImage
             source={TITLE_IMAGE_BY_VARIANT[variant]}
@@ -90,7 +92,7 @@ export default function MissionCompletedOverlay({
   );
 }
 
-const DimContent = styled.View`
+const DimContent = styled(SafeAreaView)`
   flex: 1;
   align-items: center;
   justify-content: center;
