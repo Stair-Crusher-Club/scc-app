@@ -1,6 +1,13 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Dimensions, Image, Modal, Platform, StyleSheet} from 'react-native';
+import {
+  Dimensions,
+  Image,
+  Modal,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -57,14 +64,22 @@ export default function MissionCompletedOverlay({
           react-native-safe-area-context 공식 권장 패턴대로 Modal 안에 SafeAreaProvider 를
           새로 wrap 해서 내부 SafeAreaView 가 올바른 insets 를 받게 한다. */}
       <SafeAreaProvider>
-        {/* iOS 는 blurAmount 0-100 범위라 10 이 figma 의도보다 약함. iOS 만 35 로 보정 +
-            overlay 색도 어둡게 해서 흰 텍스트 가독성 확보. Android 는 figma 와 일치하므로 유지.
-            dim 은 absoluteFill 로 status bar / nav bar 까지 전체 덮음. */}
+        {/* BlurView 는 blur 효과 전용 (overlayColor 떼고 옅게). Android 에서
+            @sbaiahmed1/react-native-blur 의 overlayColor 가 navigationBarTranslucent
+            로 확장된 Modal viewport 의 nav bar 영역까지 안 그려지는 케이스가 있어서
+            dim 은 별도 View 로 명시 — RN 의 StyleSheet.absoluteFill 은 Modal window
+            의 실제 layout bounds 를 그대로 사용한다. */}
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType="dark"
           blurAmount={Platform.OS === 'ios' ? 35 : 6}
-          overlayColor="rgba(0,0,0,0.6)"
+        />
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {backgroundColor: 'rgba(0,0,0,0.6)'},
+          ]}
+          pointerEvents="none"
         />
         {/* 콘텐츠는 SafeAreaView 안에서 center 정렬 — home indicator / nav bar 위로. */}
         <DimContent edges={['top', 'bottom']}>
