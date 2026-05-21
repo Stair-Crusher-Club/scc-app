@@ -27,6 +27,7 @@ export default function HiddenMissionCollectedPopup({
       transparent={true}
       animationType="fade"
       statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={onClose}>
       {/* iOS 는 blurAmount 0-100 범위라 10 이 figma 의도보다 약함. iOS 만 25 로 보정 +
           fallback 색도 어둡게 해서 흰 텍스트 가독성 확보. Android 는 figma 와 일치하므로 유지. */}
