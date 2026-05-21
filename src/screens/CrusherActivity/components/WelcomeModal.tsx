@@ -15,6 +15,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import WelcomeAnimation from './WelcomeAnimation';
 
 interface WelcomeModalProps {
@@ -361,50 +362,57 @@ export default function WelcomeModal({
       visible={visible}
       transparent
       statusBarTranslucent
+      navigationBarTranslucent
       animationType="fade">
       <SccTouchableWithoutFeedback
         elementName="crusher_activity_welcome_modal"
         onPress={handleClose}>
-        <View className="flex-1 justify-center bg-blacka-80">
-          {/* Always mount animation layer (hidden) for image preloading */}
-          <Animated.View style={{opacity: fadeAnim}}>
-            <View className="items-center justify-center gap-10">
-              {renderAnimation()}
-              <Text className="mb-5 text-center text-[20px] leading-[28px] text-white">
-                {textParts.map((part, index) =>
-                  part.bold ? (
-                    <Text
-                      key={index}
-                      className="font-pretendard-bold text-[20px] leading-[28px] text-white">
-                      {part.text}
-                    </Text>
-                  ) : (
-                    <Text
-                      key={index}
-                      className="font-pretendard-regular text-[20px] leading-[28px] text-white">
-                      {part.text}
-                    </Text>
-                  ),
-                )}
-              </Text>
-            </View>
+        {/* dim 은 outer View 가 full-screen 으로 담당, 콘텐츠는 SafeAreaView 안에서 center 정렬 —
+            home indicator/nav bar 와 겹치지 않게. */}
+        <View className="flex-1 bg-blacka-80">
+          <SafeAreaView
+            edges={['top', 'bottom']}
+            style={{flex: 1, justifyContent: 'center'}}>
+            {/* Always mount animation layer (hidden) for image preloading */}
+            <Animated.View style={{opacity: fadeAnim}}>
+              <View className="items-center justify-center gap-10">
+                {renderAnimation()}
+                <Text className="mb-5 text-center text-[20px] leading-[28px] text-white">
+                  {textParts.map((part, index) =>
+                    part.bold ? (
+                      <Text
+                        key={index}
+                        className="font-pretendard-bold text-[20px] leading-[28px] text-white">
+                        {part.text}
+                      </Text>
+                    ) : (
+                      <Text
+                        key={index}
+                        className="font-pretendard-regular text-[20px] leading-[28px] text-white">
+                        {part.text}
+                      </Text>
+                    ),
+                  )}
+                </Text>
+              </View>
 
-            <View className="gap-5 p-5">
-              <SccButton
-                elementName="crusher_activity_welcome_modal_ok"
-                text={config.buttonText}
-                textColor="white"
-                fontFamily={font.pretendardBold}
-                onPress={handleClose}
-              />
-            </View>
-          </Animated.View>
+              <View className="gap-5 p-5">
+                <SccButton
+                  elementName="crusher_activity_welcome_modal_ok"
+                  text={config.buttonText}
+                  textColor="white"
+                  fontFamily={font.pretendardBold}
+                  onPress={handleClose}
+                />
+              </View>
+            </Animated.View>
 
-          {!allReady && (
-            <View className="absolute inset-0 items-center justify-center">
-              <ActivityIndicator size="large" color={color.white} />
-            </View>
-          )}
+            {!allReady && (
+              <View className="absolute inset-0 items-center justify-center">
+                <ActivityIndicator size="large" color={color.white} />
+              </View>
+            )}
+          </SafeAreaView>
         </View>
       </SccTouchableWithoutFeedback>
     </Modal>

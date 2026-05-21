@@ -7,6 +7,7 @@ import useNavigation from '@/navigation/useNavigation';
 import {useAtomValue, useSetAtom} from 'jotai';
 import React, {useEffect} from 'react';
 import {Modal} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {
   closeAllAtom,
@@ -61,37 +62,42 @@ export default function QuestCompletionModal({
       visible={visible}
       transparent
       statusBarTranslucent
+      navigationBarTranslucent
       animationType="fade">
       <SccTouchableWithoutFeedback
         elementName="quest_completion_modal_backdrop"
         onPress={handleBackdropPress}>
+        {/* dim 은 Backdrop 이 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —
+            home indicator/nav bar 와 겹치지 않게. */}
         <Backdrop>
-          <Center>
-            <CompletionImage />
-            <QuestClearStamp type={current.type} />
-          </Center>
+          <SafeContent edges={['top', 'bottom']}>
+            <Center>
+              <CompletionImage />
+              <QuestClearStamp type={current.type} />
+            </Center>
 
-          <TitleText>
-            {`${current.title} 퀘스트를 클리어했어요!\n크러셔님의 참여가 쉬운 이동을 만듭니다.`}
-          </TitleText>
+            <TitleText>
+              {`${current.title} 퀘스트를 클리어했어요!\n크러셔님의 참여가 쉬운 이동을 만듭니다.`}
+            </TitleText>
 
-          <ButtonContainer>
-            <SccButton
-              text={isLast ? '클리어 스탬프 확인하기' : '다음'}
-              textColor="white"
-              fontFamily={font.pretendardBold}
-              onPress={handlePrimary}
-              elementName="quest_completion_primary_action"
-            />
+            <ButtonContainer>
+              <SccButton
+                text={isLast ? '클리어 스탬프 확인하기' : '다음'}
+                textColor="white"
+                fontFamily={font.pretendardBold}
+                onPress={handlePrimary}
+                elementName="quest_completion_primary_action"
+              />
 
-            {isLast && (
-              <SccTouchableOpacity
-                elementName="quest_completion_continue_conquering_button"
-                onPress={closeAll}>
-                <CloseModalText>계속 정복하기</CloseModalText>
-              </SccTouchableOpacity>
-            )}
-          </ButtonContainer>
+              {isLast && (
+                <SccTouchableOpacity
+                  elementName="quest_completion_continue_conquering_button"
+                  onPress={closeAll}>
+                  <CloseModalText>계속 정복하기</CloseModalText>
+                </SccTouchableOpacity>
+              )}
+            </ButtonContainer>
+          </SafeContent>
         </Backdrop>
       </SccTouchableWithoutFeedback>
     </Modal>
@@ -100,8 +106,12 @@ export default function QuestCompletionModal({
 
 const Backdrop = styled.View({
   flex: 1,
-  justifyContent: 'center',
   backgroundColor: 'rgba(0,0,0,0.8)',
+});
+
+const SafeContent = styled(SafeAreaView)({
+  flex: 1,
+  justifyContent: 'center',
 });
 
 const Center = styled.View({

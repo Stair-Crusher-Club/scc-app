@@ -3,7 +3,7 @@ import React from 'react';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {Image, Modal, Platform, ScrollView} from 'react-native';
+import {Image, Modal, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
@@ -35,9 +35,11 @@ export default function GuideModal({
       visible={visible}
       animationType="slide"
       transparent={false}
+      statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={onRequestClose}>
       <SafeAreaWrapper
-        edges={Platform.OS === 'ios' ? ['top', 'bottom'] : []}
+        edges={['top', 'bottom']}
         style={[{flex: 1, backgroundColor: color.white}]}>
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
           <ContentContainer>

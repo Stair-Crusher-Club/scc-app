@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {Modal, ModalProps, Animated} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import IcX from '@/assets/icon/ic_x_black.svg';
@@ -52,38 +53,47 @@ export default function LastMonthRankingModal({
 
   const content = (
     <AnimatedBackdrop style={{opacity: fadeAnim}}>
-      <Container>
-        <ImageContainer>
-          <SccRemoteImage
-            imageUrl={imageUrl}
-            onReady={handleImageReady}
-            resizeMode="cover"
-          />
-          <CloseButton
-            onPress={handleClose}
-            elementName="last_month_ranking_modal_close"
-            logParams={{challengeId}}>
-            <IcX color={color.black} />
-          </CloseButton>
-        </ImageContainer>
-        <CheckboxContainer>
-          <SccPressable
-            onPress={() => {
-              setDismissedToday(challengeId);
-              setVisible(false);
-              onClose();
-            }}
-            elementName="last_month_ranking_modal_dont_show_today"
-            logParams={{challengeId}}>
-            <DismissTodayLabel>오늘 하루동안 보지 않기</DismissTodayLabel>
-          </SccPressable>
-        </CheckboxContainer>
-      </Container>
+      {/* dim 은 AnimatedBackdrop 이 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —
+          home indicator/nav bar 와 겹치지 않게. */}
+      <SafeContent edges={['top', 'bottom']}>
+        <Container>
+          <ImageContainer>
+            <SccRemoteImage
+              imageUrl={imageUrl}
+              onReady={handleImageReady}
+              resizeMode="cover"
+            />
+            <CloseButton
+              onPress={handleClose}
+              elementName="last_month_ranking_modal_close"
+              logParams={{challengeId}}>
+              <IcX color={color.black} />
+            </CloseButton>
+          </ImageContainer>
+          <CheckboxContainer>
+            <SccPressable
+              onPress={() => {
+                setDismissedToday(challengeId);
+                setVisible(false);
+                onClose();
+              }}
+              elementName="last_month_ranking_modal_dont_show_today"
+              logParams={{challengeId}}>
+              <DismissTodayLabel>오늘 하루동안 보지 않기</DismissTodayLabel>
+            </SccPressable>
+          </CheckboxContainer>
+        </Container>
+      </SafeContent>
     </AnimatedBackdrop>
   );
 
   return isReady ? (
-    <Modal visible={visible} statusBarTranslucent transparent {...props}>
+    <Modal
+      visible={visible}
+      statusBarTranslucent
+      navigationBarTranslucent
+      transparent
+      {...props}>
       {content}
     </Modal>
   ) : (
@@ -93,8 +103,12 @@ export default function LastMonthRankingModal({
 
 const AnimatedBackdrop = styled(Animated.View)({
   flex: 1,
-  justifyContent: 'center',
   backgroundColor: 'rgba(0,0,0,0.7)',
+});
+
+const SafeContent = styled(SafeAreaView)({
+  flex: 1,
+  justifyContent: 'center',
   padding: 20,
 });
 

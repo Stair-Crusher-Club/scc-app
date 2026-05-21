@@ -3,6 +3,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import React, {useEffect, useState} from 'react';
 import {Image, Modal, ModalProps, View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 export default function ChallengeWelcomeModal({
@@ -16,33 +17,42 @@ export default function ChallengeWelcomeModal({
   }, [_visible]);
 
   return (
-    <Modal visible={visible} statusBarTranslucent transparent {...props}>
+    <Modal
+      visible={visible}
+      statusBarTranslucent
+      navigationBarTranslucent
+      transparent
+      {...props}>
       <Backdrop>
-        <Container>
-          <ImageWrapper>
-            <Image
-              source={require('@/assets/img/img_challenge_welcome.png')}
-              style={{
-                width: 200,
-                height: 176,
-              }}
-            />
-          </ImageWrapper>
-          <View>
-            <Title>챌린지 참여를 환영합니다!</Title>
-            <Description>우리 함께 계단 정복을 시작해볼까요?</Description>
-          </View>
-          <ButtonContainer>
-            <ConfirmButton
-              text="확인"
-              textColor="white"
-              buttonColor="brandColor"
-              fontFamily={font.pretendardBold}
-              onPress={() => setVisible(false)}
-              elementName="challenge_welcome_confirm"
-            />
-          </ButtonContainer>
-        </Container>
+        {/* dim 은 Backdrop 이 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —
+            home indicator/nav bar 와 겹치지 않게. */}
+        <SafeContent edges={['top', 'bottom']}>
+          <Container>
+            <ImageWrapper>
+              <Image
+                source={require('@/assets/img/img_challenge_welcome.png')}
+                style={{
+                  width: 200,
+                  height: 176,
+                }}
+              />
+            </ImageWrapper>
+            <View>
+              <Title>챌린지 참여를 환영합니다!</Title>
+              <Description>우리 함께 계단 정복을 시작해볼까요?</Description>
+            </View>
+            <ButtonContainer>
+              <ConfirmButton
+                text="확인"
+                textColor="white"
+                buttonColor="brandColor"
+                fontFamily={font.pretendardBold}
+                onPress={() => setVisible(false)}
+                elementName="challenge_welcome_confirm"
+              />
+            </ButtonContainer>
+          </Container>
+        </SafeContent>
       </Backdrop>
     </Modal>
   );
@@ -50,8 +60,12 @@ export default function ChallengeWelcomeModal({
 
 const Backdrop = styled.View({
   flex: 1,
-  justifyContent: 'center',
   backgroundColor: 'rgba(0,0,0,0.5)',
+});
+
+const SafeContent = styled(SafeAreaView)({
+  flex: 1,
+  justifyContent: 'center',
   padding: 20,
 });
 

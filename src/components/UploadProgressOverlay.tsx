@@ -1,4 +1,5 @@
 import {Modal} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -37,24 +38,29 @@ export function UploadProgressOverlay({
       visible={visible}
       animationType="fade"
       statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={() => {}}>
       <Overlay>
-        <Card>
-          <TitleText>{titleText}</TitleText>
-          <SizeText>
-            {isRegistering
-              ? ' '
-              : stage === 'compressing'
-                ? '압축 중'
-                : `${imageSizeMb.toFixed(2)} MB`}
-          </SizeText>
-          <ProgressBarContainer>
-            <ProgressBarFill style={{width: `${progressPercent}%`}} />
-          </ProgressBarContainer>
-          <PercentText>
-            {isRegistering ? ' ' : `${progressPercent}%`}
-          </PercentText>
-        </Card>
+        {/* dim 은 Overlay 가 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —
+            home indicator/nav bar 와 겹치지 않게. */}
+        <SafeContent edges={['top', 'bottom']}>
+          <Card>
+            <TitleText>{titleText}</TitleText>
+            <SizeText>
+              {isRegistering
+                ? ' '
+                : stage === 'compressing'
+                  ? '압축 중'
+                  : `${imageSizeMb.toFixed(2)} MB`}
+            </SizeText>
+            <ProgressBarContainer>
+              <ProgressBarFill style={{width: `${progressPercent}%`}} />
+            </ProgressBarContainer>
+            <PercentText>
+              {isRegistering ? ' ' : `${progressPercent}%`}
+            </PercentText>
+          </Card>
+        </SafeContent>
       </Overlay>
     </Modal>
   );
@@ -63,6 +69,10 @@ export function UploadProgressOverlay({
 const Overlay = styled.View`
   flex: 1;
   background-color: ${color.blacka50};
+`;
+
+const SafeContent = styled(SafeAreaView)`
+  flex: 1;
   align-items: center;
   justify-content: center;
 `;
