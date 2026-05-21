@@ -51,6 +51,7 @@ const TakenPhotoItem = ({
       <SccPressable
         style={{position: 'absolute', top: -6, right: -6}}
         elementName="taken_photo_delete_button"
+        hitSlop={10}
         onPress={() => {
           if (onPressX) {
             onPressX(photo);

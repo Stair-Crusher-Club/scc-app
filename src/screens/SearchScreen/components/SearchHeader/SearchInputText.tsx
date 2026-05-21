@@ -191,7 +191,9 @@ const Container = styled.View`
   padding-vertical: 0;
 `;
 
-const IconButton = styled(SccTouchableOpacity)`
+const IconButton = styled(SccTouchableOpacity).attrs({
+  hitSlop: 10,
+})`
   width: 24px;
   height: 24px;
   justify-content: center;

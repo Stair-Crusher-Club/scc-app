@@ -10,6 +10,7 @@ import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
 import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
 import FooterInfoIcon from '@/assets/icon/ic_footer_info.svg';
 import FooterLongReviewIcon from '@/assets/icon/ic_footer_long_review.svg';
+import {useMe} from '@/atoms/Auth';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -33,6 +34,7 @@ export default function FooterButtonsSection({
 }: FooterButtonsSectionProps) {
   const navigation = useNavigation();
   const {api} = useAppComponents();
+  const {userInfo} = useMe();
 
   const {data: crusherActivityData} = useQuery({
     queryKey: ['CrusherActivityPageData'],
@@ -69,9 +71,12 @@ export default function FooterButtonsSection({
   };
 
   const goToVoiceOfCustomer = () => {
+    const url = userInfo?.id
+      ? `${CONTENT_REPORT_URL}?userId=${encodeURIComponent(userInfo.id)}`
+      : CONTENT_REPORT_URL;
     navigation.navigate('Webview', {
       fixedTitle: '계단뿌셔클럽 앱 의견 남기기',
-      url: CONTENT_REPORT_URL,
+      url,
     });
   };
 

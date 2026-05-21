@@ -265,6 +265,7 @@ function AppBar() {
     <AppBarContainer>
       <SccPressable
         elementName="external_accessibility_back_button"
+        hitSlop={2}
         onPress={() => navigation.goBack()}>
         <BackButton>
           <LeftArrowIcon width={24} height={24} color={color.black} />

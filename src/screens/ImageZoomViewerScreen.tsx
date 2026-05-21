@@ -48,6 +48,7 @@ const ImageZoomViewerScreen = ({route}: ScreenProps<'ImageZoomViewer'>) => {
           left: 20,
           zIndex: 999,
         }}
+        hitSlop={10}
         onPress={() => navigation.goBack()}>
         <LeftArrowIcon width={24} height={24} color={color.white} />
       </SccPressable>

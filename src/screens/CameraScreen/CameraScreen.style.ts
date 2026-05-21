@@ -90,7 +90,7 @@ export const Thumbnail = styled.Image({
   height: 56,
   overflow: 'hidden',
 });
-export const CloseButton = styled(SccPressable)({
+export const CloseButton = styled(SccPressable).attrs({hitSlop: 10})({
   position: 'absolute',
   top: -4,
   right: -4,

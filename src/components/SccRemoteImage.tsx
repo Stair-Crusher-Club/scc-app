@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ViewStyle, LayoutChangeEvent} from 'react-native';
+import {Image, ViewStyle, LayoutChangeEvent} from 'react-native';
 import FastImage, {ResizeMode, OnLoadEvent} from '@d11/react-native-fast-image';
 import styled from 'styled-components/native';
 
@@ -47,26 +47,58 @@ export default function SccRemoteImage({
     setMeasuredWidth(event.nativeEvent.layout.width);
   }, []);
 
-  // 캐시에서 사이즈 복원
+  // 캐시에서 사이즈 복원 + Image.getSize 폴백.
+  // 일부 환경(특히 react-native-web)에서 FastImage `onLoad` 의
+  // `e.nativeEvent.{width, height}` 가 undefined 로 들어와 사이즈 계산이
+  // 실패하는 케이스가 있어, `Image.getSize` 로 사이즈를 확정 확보한다.
   useEffect(() => {
     setReady(false);
-    setOriginalSize(undefined);
 
     const cached = imageSizeCache.get(imageUrl);
     if (cached) {
       setOriginalSize(cached);
+      return;
     }
+
+    setOriginalSize(undefined);
+    if (!imageUrl) return;
+
+    let cancelled = false;
+    Image.getSize(
+      imageUrl,
+      (width, height) => {
+        if (cancelled || !width || !height) return;
+        imageSizeCache.set(imageUrl, {width, height});
+        setOriginalSize({width, height});
+      },
+      () => {
+        // 무시 - onError 에서 ready 처리
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
   }, [imageUrl]);
 
   // onLoad에서 사이즈 확보, ready는 사이즈+레이아웃 준비 후
   const handleImageLoad = useCallback(
     (e: OnLoadEvent) => {
-      const {width, height} = e.nativeEvent;
+      const ne = e?.nativeEvent as
+        | {
+            width?: number;
+            height?: number;
+            source?: {width?: number; height?: number};
+          }
+        | undefined;
+      const width = ne?.width ?? ne?.source?.width;
+      const height = ne?.height ?? ne?.source?.height;
 
-      if (!imageSizeCache.has(imageUrl)) {
-        imageSizeCache.set(imageUrl, {width, height});
+      if (width && height) {
+        if (!imageSizeCache.has(imageUrl)) {
+          imageSizeCache.set(imageUrl, {width, height});
+        }
+        setOriginalSize({width, height});
       }
-      setOriginalSize({width, height});
 
       if (measuredWidth !== undefined) {
         setReady(true);

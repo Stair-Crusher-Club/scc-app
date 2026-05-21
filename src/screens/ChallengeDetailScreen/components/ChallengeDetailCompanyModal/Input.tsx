@@ -115,6 +115,7 @@ const Input = forwardRef<TextInput, Props>(
               {isClearable && value && (
                 <SccTouchableOpacity
                   elementName="company_modal_input_clear"
+                  hitSlop={12}
                   onPress={handleClear}>
                   <ClearIcon width={20} height={20} />
                 </SccTouchableOpacity>

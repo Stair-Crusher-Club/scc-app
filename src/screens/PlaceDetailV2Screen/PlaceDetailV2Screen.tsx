@@ -24,6 +24,7 @@ import {
   FloorMovingMethodTypeDto,
   Place,
   PlaceDoorDirectionTypeDto,
+  PlaceListItem,
   PlaceSpecialAccessibilityDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
@@ -124,6 +125,12 @@ export default function PlaceDetailV2Screen({
         ToastUtils.show('폐업 처리가 완료되었습니다.');
         queryClient.invalidateQueries({queryKey: ['searchPlaces']});
         queryClient.invalidateQueries({queryKey: ['PlaceDetailV2']});
+        // '정복 안 된 곳만 보기' 목록 캐시에서 폐업된 장소를 즉시 제거
+        // (invalidate 대신 setQueriesData로 직접 필터 — 재요청 없이 UX 즉시 반영)
+        queryClient.setQueriesData<PlaceListItem[]>(
+          {queryKey: ['SearchUnconqueredPlaces']},
+          old => old?.filter(item => item.place.id !== params.placeId),
+        );
         navigation.goBack();
       } else {
         const isAutoResolved = result.data?.isAutoResolved === true;

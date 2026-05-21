@@ -103,6 +103,7 @@ export default function ScrollNavigation({
         }}>
         <SccTouchableOpacity
           elementName="sticky_scroll_navigation_back_button"
+          hitSlop={8}
           onPress={() => navigation.goBack()}
           style={{padding: 2}}>
           <BackIcon color={color.black} />

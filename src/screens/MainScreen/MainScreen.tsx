@@ -9,6 +9,7 @@ import {
   getDeferredDeepLinkUrl,
   setDeferredDeepLinkUrl,
 } from '@/deeplink/DeferredDeepLink';
+import {useLogger} from '@/logging/useLogger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {linkingScreensConfig} from '@/navigation/linkingConfig';
 import ToastUtils from '@/utils/ToastUtils';
@@ -43,6 +44,7 @@ export interface MainScreenParams {}
 export default function MainScreen({navigation}: ScreenProps<'Main'>) {
   const accessToken = useAtomValue(accessTokenAtom);
   const checkAuth = useCheckAuth();
+  const logger = useLogger();
 
   useEffect(() => {
     const checkIfLoggedIn = async () => {
@@ -88,6 +90,11 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
       <Tab.Screen
         name="Home"
         component={HomeScreenV2}
+        listeners={{
+          tabPress: () => {
+            logger.logElementClick('main_tab_home');
+          },
+        }}
         options={{
           title: '홈',
           headerShown: false,
@@ -97,6 +104,11 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
       <Tab.Screen
         name="Search"
         component={SearchScreen}
+        listeners={{
+          tabPress: () => {
+            logger.logElementClick('main_tab_search');
+          },
+        }}
         options={{
           title: '지도',
           headerShown: false,
@@ -106,6 +118,11 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
       <Tab.Screen
         name="Challenge"
         component={ChallengeScreen}
+        listeners={{
+          tabPress: () => {
+            logger.logElementClick('main_tab_challenge');
+          },
+        }}
         options={{
           title: '챌린지',
           headerShown: false,
@@ -117,6 +134,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         component={MenuScreen}
         listeners={{
           tabPress: e => {
+            logger.logElementClick('main_tab_menu');
             checkAuth(
               () => {},
               () => e.preventDefault(),
