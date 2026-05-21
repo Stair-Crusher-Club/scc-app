@@ -16,7 +16,6 @@ import {
   PermissionsAndroid,
   Platform,
   ScrollView,
-  StatusBar,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import DeviceInfo from 'react-native-device-info';
@@ -450,23 +449,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     }, []),
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      StatusBar.setBarStyle('light-content');
-      if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor('transparent');
-        StatusBar.setTranslucent(true);
-      }
-      return () => {
-        StatusBar.setBarStyle('dark-content');
-        if (Platform.OS === 'android') {
-          StatusBar.setBackgroundColor(color.gray15);
-          StatusBar.setTranslucent(false);
-        }
-      };
-    }, []),
-  );
-
   const [isScrollEnabled, setIsScrollEnabled] = useState(true);
   const handleBannerPanStateChange = useCallback((isPanning: boolean) => {
     setIsScrollEnabled(!isPanning);
@@ -487,7 +469,6 @@ const HomeScreenV2 = ({navigation}: any) => {
       const threshold = whiteCardYRef.current - insets.top;
       const shouldShow = scrollY >= threshold;
       setShowSafeAreaOverlay(shouldShow);
-      StatusBar.setBarStyle(shouldShow ? 'dark-content' : 'light-content');
     },
     [insets.top],
   );
