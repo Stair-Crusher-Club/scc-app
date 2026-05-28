@@ -1,5 +1,5 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Platform, StyleSheet, View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -107,41 +107,64 @@ export default function MissionCard({
         </CompletedOverlay>
       )}
 
-      {isDimmed && (
-        // 잠금 overlay: figma quest_card_dim (1993:14903) — fill rgba(0,0,0,0.7)
-        // + BACKGROUND_BLUR radius 11.
-        //
-        // Android: `@sbaiahmed1/react-native-blur` 의 BlurView 는 nearest
-        //   react-native-screens Screen ancestor 를 capture root 로 잡고 그 안의
-        //   모든 픽셀을 캡처해 blur 한다 (참고: ReactNativeBlurView.kt
-        //   findNearestScreenAncestor). BlurView 의 sibling 은 같이 캡처되어
-        //   blur 결과에 섞이므로 lock 콘텐츠를 BlurView 의 child 로 넣어야 sharp
-        //   하게 렌더된다. blurType="light" + wrapper 의 rgba(0,0,0,0.7) bg 조합으로
-        //   적당한 dim 이 나옴.
-        // iOS: 네이티브 UIVisualEffectView. blurType="light" 면 흰색 tint 가 강해
-        //   wrapper 의 검정 bg 를 덮어 카드가 흰색으로 떠 보인다 → "dark" 로 분기.
-        //   dark tint 가 검정 계열이라 wrapper bg 와 합쳐져 figma 의 어두운 dim 을
-        //   살린다.
-        //
-        // (참고: MissionCompletedOverlay 는 Modal 안에 있어 Screen ancestor 가 없고
-        // decor view 가 capture root → modal sibling 은 capture 영향 없음. 같은
-        // 라이브러리지만 그쪽은 BlurView sibling 으로 텍스트를 둬도 문제 없다.)
-        <LockedOverlay>
-          <BlurView
-            style={[
-              StyleSheet.absoluteFillObject,
-              {alignItems: 'center', justifyContent: 'center'},
-            ]}
-            blurType={Platform.OS === 'ios' ? 'dark' : 'light'}
-            blurAmount={Platform.OS === 'ios' ? 30 : 6}>
-            <LockIcon
-              source={require('@/assets/img/tutorial/mission_locked_lock.png')}
-            />
-            <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
-          </BlurView>
-        </LockedOverlay>
-      )}
+      {isDimmed && <LockedOverlayBlock dimText={dimText} />}
     </CardContainer>
+  );
+}
+
+/**
+ * 잠금 overlay: figma quest_card_dim (1993:14903) — fill rgba(0,0,0,0.7) +
+ * BACKGROUND_BLUR radius 11.
+ *
+ * Android: `@sbaiahmed1/react-native-blur` 의 BlurView 는 nearest
+ *   react-native-screens Screen ancestor 를 capture root 로 잡고 그 안의 모든
+ *   픽셀을 캡처해 blur 한다 (참고: ReactNativeBlurView.kt
+ *   findNearestScreenAncestor). BlurView 의 sibling 은 같이 캡처되어 blur 결과에
+ *   섞이므로 lock 콘텐츠를 BlurView 의 child 로 넣어야 sharp 하게 렌더된다.
+ *   blurType="light" + wrapper 의 rgba(0,0,0,0.7) bg 조합으로 적당한 dim 이 나옴.
+ *
+ * iOS: 네이티브 UIVisualEffectView. blurType="light" 면 흰색 tint 가 강해 wrapper
+ *   의 검정 bg 를 덮어 카드가 흰색으로 떠 보인다 → "dark" 로 분기 (wrapper bg 는
+ *   iOS 에서 생략 — dark tint 자체로 충분).
+ *
+ *   추가로 iOS BlurView 는 첫 마운트 시 native instance(`AdvancedBlurView`) 의
+ *   `hostingController` 가 frame=0,0 시점에 `setupHostingController()` 로 setup
+ *   되어 새까만 상태로 stuck 되는 버그가 있다 (참고: AdvancedBlurView.swift
+ *   updateView → setupHostingController. layoutSubviews 는 bounds 가 valid 일
+ *   때만 setup 하는 가드가 있는데, prop 변경 경로 updateView 는 가드 없이 즉시
+ *   setup 호출). blurType prop 을 변경하면 updateView 가 hostingController 의
+ *   rootView 를 새 SwiftUIView 로 mount 해 valid frame 위에서 UIBlurEffect 가
+ *   다시 activated 되므로 정상화된다. 이를 우회로 활용: mount 직후 light → dark
+ *   로 한 번 토글해 강제로 rebuild 한다.
+ *
+ * (참고: MissionCompletedOverlay 는 Modal 안에 있어 Screen ancestor 가 없고
+ * decor view 가 capture root → modal sibling 은 capture 영향 없음. 같은
+ * 라이브러리지만 그쪽은 BlurView sibling 으로 텍스트를 둬도 문제 없다.)
+ */
+function LockedOverlayBlock({dimText}: {dimText?: string}) {
+  const [iosBlurType, setIosBlurType] = useState<'light' | 'dark'>('light');
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    const id = requestAnimationFrame(() => setIosBlurType('dark'));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  const blurType: 'light' | 'dark' =
+    Platform.OS === 'ios' ? iosBlurType : 'light';
+  return (
+    <LockedOverlay>
+      <BlurView
+        style={[
+          StyleSheet.absoluteFillObject,
+          {alignItems: 'center', justifyContent: 'center'},
+        ]}
+        blurType={blurType}
+        blurAmount={Platform.OS === 'ios' ? 30 : 6}>
+        <LockIcon
+          source={require('@/assets/img/tutorial/mission_locked_lock.png')}
+        />
+        <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
+      </BlurView>
+    </LockedOverlay>
   );
 }
 
@@ -334,7 +357,9 @@ const LockedOverlay = styled.View`
   border-radius: 8px;
   border-width: 1.5px;
   border-color: #bcc69b;
-  ${Platform.OS === 'android' ? 'background-color: rgba(0, 0, 0, 0.7);' : 'background-color: rgba(0, 0, 0, 0.6);'}
+  ${Platform.OS === 'android'
+    ? 'background-color: rgba(0, 0, 0, 0.7);'
+    : 'background-color: rgba(0, 0, 0, 0.6);'}
   overflow: hidden;
 `;
 
