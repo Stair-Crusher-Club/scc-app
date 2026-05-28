@@ -1,9 +1,11 @@
 import Geolocation from '@react-native-community/geolocation';
+import {BottomTabBarHeightContext} from '@react-navigation/bottom-tabs';
 import {useSetAtom} from 'jotai';
 import React, {
   ForwardedRef,
   forwardRef,
   useCallback,
+  useContext,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -90,6 +92,11 @@ const FRefInputComp = <T extends MarkerItem>(
   const logger = useLogger();
   const pdpScreen = usePlaceDetailScreenName();
   const insets = useSafeAreaInsets();
+  // 현재 노출된 하단 탭바 높이만큼 mapPadding / floating UI 컨테이너 paddingBottom 에
+  // reserve 해 현위치 버튼·네이버 로고·카메라 fit 영역이 탭바에 가리지 않게 한다.
+  // 탭바가 숨김(`tabBarStyle: display:none`) 이거나 Bottom Tab 컨텍스트 밖이면
+  // context 값이 0이 되어 추가 padding 없음.
+  const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
   const onMyLocationPress = () => {
     mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
@@ -233,7 +240,7 @@ const FRefInputComp = <T extends MarkerItem>(
         mapPadding={{
           top: 100, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
           right: 30,
-          bottom: insets.bottom + CARD_LIST_HEIGHT + 30,
+          bottom: insets.bottom + CARD_LIST_HEIGHT + 30 + tabBarHeight,
           left: 30,
         }}
         logoPosition="leftBottom"
@@ -255,7 +262,7 @@ const FRefInputComp = <T extends MarkerItem>(
           flexGrow: 1,
           alignSelf: 'stretch',
           justifyContent: 'flex-end',
-          paddingBottom: insets.bottom,
+          paddingBottom: insets.bottom + tabBarHeight,
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (

@@ -1,5 +1,9 @@
 import {useBackHandler} from '@react-native-community/hooks';
-import {RouteProp, useIsFocused, useRoute} from '@react-navigation/native';
+import {
+  RouteProp,
+  useNavigationState,
+  useRoute,
+} from '@react-navigation/native';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
@@ -71,12 +75,16 @@ export interface SearchScreenParams {
 
 const SearchScreen = () => {
   const route = useRoute<RouteProp<ScreenParams, 'Search'>>();
-  // 탭 떠날 때 SearchScreen을 완전히 unmount해서 mount/effect/state/지도 뷰까지
-  // 모두 초기화한다. (Tab 영속화로 인한 stale 카메라/state 문제 회피)
-  // Stack child push (PlaceDetail 등)에도 unmount되지만 route.params에 따라
-  // 재진입 시 동일한 검색을 다시 트리거하므로 UX 회귀는 작다.
-  const isFocused = useIsFocused();
-  if (!isFocused) {
+  // 메인 탭 의미론:
+  //   - 다른 메인 탭(홈/챌린지/메뉴)으로 이동 → Content unmount (atom 전부 reset)
+  //   - 지도 탭 위로 child stack(PDP 등) push   → mount 유지
+  // useNavigationState 는 closest navigator(= Bottom Tab) 의 state 만 반환하므로
+  // 부모 Stack 의 변화(PDP push/pop)에는 영향받지 않는다. selector 가 boolean 만
+  // 반환해 active tab 변경 시에만 re-render 한다.
+  const isSearchTabActive = useNavigationState(
+    state => state.routes[state.index]?.name === 'Search',
+  );
+  if (!isSearchTabActive) {
     return null;
   }
   return (
@@ -179,10 +187,11 @@ const SearchScreenContent = ({
     }
   };
 
-  // SearchScreen은 wrapper에서 useIsFocused로 conditional render되어
-  // 탭 떠나면 항상 unmount되고 다시 들어오면 fresh mount된다.
-  // 따라서 mount 시점에 route.params 기반 init 1회 실행만 하면 된다.
-  // Unmount 시에는 atom들도 default로 리셋.
+  // SearchScreenContent 의 생명주기는 wrapper 의 activeMainTab 분기가 결정한다:
+  //   - mount   : 사용자가 지도 탭에 진입한 시점. route.params 기반으로 초기 검색 트리거.
+  //   - unmount : 다른 메인 탭으로 이동한 시점. 전역 atom 들을 default 로 reset.
+  // 이 두 동작을 하나의 effect 의 setup/cleanup 쌍으로 묶어 mount 와 reset 의
+  // 단일 진실 원천을 만든다.
   useEffect(() => {
     setIsFromLookup(!!fromLookup);
     if (initSortOption) {
@@ -201,7 +210,6 @@ const SearchScreenContent = ({
       onQueryUpdate({text: initKeyword}, {shouldAnimate: true});
     }
     return () => {
-      setIsFromLookup(false);
       setFilter({
         sortOption: SortOption.LOW_SCORE,
         hasSlope: null,

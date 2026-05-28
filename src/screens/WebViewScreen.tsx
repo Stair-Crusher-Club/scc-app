@@ -7,11 +7,13 @@ import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes
 
 import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
 import CloseIcon from '@/assets/icon/close.svg';
+import {useMe} from '@/atoms/Auth';
 import {CloseAppBar} from '@/components/AppBar';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {resolveTemplatedExternalUrl} from '@/utils/externalUrlTemplating';
 import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
 import SccContentFloatingBar from './WebViewScreen/components/SccContentFloatingBar';
 
@@ -31,8 +33,13 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     confirmOnClose = true,
   } = route.params;
   const webViewRef = useRef<WebView>(null);
+  const {userInfo} = useMe();
+  const resolvedInitialUrl = useMemo(
+    () => resolveTemplatedExternalUrl(url, {userId: userInfo?.id}),
+    [url, userInfo?.id],
+  );
   const [canGoBack, setCanGoBack] = useState(false);
-  const [currentUrl, setCurrentUrl] = useState(url);
+  const [currentUrl, setCurrentUrl] = useState(resolvedInitialUrl);
 
   const [title, setTitle] = useState<string | undefined>(
     fixedTitle || undefined,
@@ -79,8 +86,12 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   }, [canGoBack]);
 
   const handleShouldStartLoad = useCallback(
-    (request: ShouldStartLoadRequest) => handleWebViewShouldStartLoad(request),
-    [],
+    (request: ShouldStartLoadRequest) =>
+      handleWebViewShouldStartLoad(request, {
+        userId: userInfo?.id,
+        webViewRef,
+      }),
+    [userInfo?.id],
   );
 
   useBackHandler(handleBackPress);
@@ -121,7 +132,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       <WebView
         ref={webViewRef}
         style={styles.webview}
-        source={{uri: url}}
+        source={{uri: resolvedInitialUrl}}
         injectedJavaScript="window.postMessage(document.title)"
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={handleShouldStartLoad}

@@ -10,7 +10,6 @@ import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
 import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
 import FooterInfoIcon from '@/assets/icon/ic_footer_info.svg';
 import FooterLongReviewIcon from '@/assets/icon/ic_footer_long_review.svg';
-import {useMe} from '@/atoms/Auth';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -20,7 +19,9 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 
 const DONATION_URL = 'https://staircrusher.club/donation';
-const CONTENT_REPORT_URL = 'https://forms.staircrusher.club/app-feedback';
+// `{userId}` 는 WebViewScreen 진입 시 실제 userId 로 자동 치환된다 (externalUrlTemplating).
+const CONTENT_REPORT_URL =
+  'https://forms.staircrusher.club/app-feedback?userId={userId}';
 
 const FOOTER_ROW_HEIGHT = 48;
 const FOOTER_ROW_RADIUS = 8;
@@ -34,7 +35,6 @@ export default function FooterButtonsSection({
 }: FooterButtonsSectionProps) {
   const navigation = useNavigation();
   const {api} = useAppComponents();
-  const {userInfo} = useMe();
 
   const {data: crusherActivityData} = useQuery({
     queryKey: ['CrusherActivityPageData'],
@@ -71,12 +71,9 @@ export default function FooterButtonsSection({
   };
 
   const goToVoiceOfCustomer = () => {
-    const url = userInfo?.id
-      ? `${CONTENT_REPORT_URL}?userId=${encodeURIComponent(userInfo.id)}`
-      : CONTENT_REPORT_URL;
     navigation.navigate('Webview', {
       fixedTitle: '계단뿌셔클럽 앱 의견 남기기',
-      url,
+      url: CONTENT_REPORT_URL,
     });
   };
 
