@@ -1,18 +1,21 @@
 import React from 'react';
 import {Linking} from 'react-native';
 import {useQuery} from '@tanstack/react-query';
+import {useAtomValue} from 'jotai';
 import styled from 'styled-components/native';
 
 import Skeleton from '@/components/Skeleton';
 
 import BoostersLogoSvg from '@/assets/icon/boosters_logo.svg';
 import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
+import FooterCompassIcon from '@/assets/icon/ic_footer_compass.svg';
 import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
 import FooterInfoIcon from '@/assets/icon/ic_footer_info.svg';
 import FooterLongReviewIcon from '@/assets/icon/ic_footer_long_review.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {featureFlagAtom} from '@/atoms/Auth';
 import {CrusherClubCrewTypeDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -35,6 +38,7 @@ export default function FooterButtonsSection({
 }: FooterButtonsSectionProps) {
   const navigation = useNavigation();
   const {api} = useAppComponents();
+  const featureFlags = useAtomValue(featureFlagAtom);
 
   const {data: crusherActivityData} = useQuery({
     queryKey: ['CrusherActivityPageData'],
@@ -45,6 +49,10 @@ export default function FooterButtonsSection({
   const isEditorCrew =
     crusherActivityData?.currentCrusherActivity?.crusherClub.crewType ===
     CrusherClubCrewTypeDto.EditorCrew;
+  // USER_TUTORIAL flag 가 켜진 사용자에게만 튜토리얼 진입 버튼을 노출.
+  // featureFlags === null (아직 로딩 중) 이면 버튼 노출 보류.
+  const isTutorialEnabled =
+    featureFlags?.enabledFlags.has('USER_TUTORIAL') ?? false;
 
   if (isLoading) {
     return (
@@ -61,6 +69,10 @@ export default function FooterButtonsSection({
       </Container>
     );
   }
+
+  const goToTutorial = () => {
+    navigation.navigate('TutorialMission', {});
+  };
 
   const goToGuide = () => {
     navigation.navigate('Webview', {
@@ -91,6 +103,19 @@ export default function FooterButtonsSection({
   return (
     <LogParamsProvider params={{displaySectionName: 'footer_buttons_section'}}>
       <Container>
+        {isTutorialEnabled && (
+          <SccPressable
+            elementName="home_v2_footer_tutorial"
+            onPress={goToTutorial}>
+            <FooterRow>
+              <RowContent>
+                <FooterCompassIcon width={16} height={16} />
+                <FooterText>튜토리얼</FooterText>
+              </RowContent>
+            </FooterRow>
+          </SccPressable>
+        )}
+
         <SccPressable elementName="home_v2_footer_guide" onPress={goToGuide}>
           <FooterRow>
             <RowContent>
