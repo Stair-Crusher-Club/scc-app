@@ -35,14 +35,14 @@ interface MissionHeroProps {
 const DESIGN_WIDTH = 390;
 const DESIGN_HEIGHT = 512;
 
-// 윌리 모자 위 hot zone (히든 미션 트리거). figma visual 안 mission_item > item_hidden
-// 좌표(이미지의 모자 자리)를 hero-local 로 변환. variant 별 frame 마다 미세하게 다르지만,
-// 모든 stage 에 공통으로 잘 떨어지는 중심 좌표 + 충분히 큰 영역으로 단순화.
+// 윌리 모자 위 hot zone (히든 미션 트리거). figma visual 안 item_hidden 노드의
+// hero-local 좌표. stage3b (visual 2003:16476) item_hidden = abs(32644,-724,92.06,57.78)
+// → hero-local (146, 277, 92, 58). all_complete (visual 2004:15144) 도 거의 동일.
 const HAT_HOT_ZONE = {
-  left: 144,
-  top: 220,
+  left: 146,
+  top: 277,
   width: 92,
-  height: 70,
+  height: 58,
 };
 
 // figma `mission_item` group 의 외출템 좌표 → hero-local 변환값. 모든 variant frame
