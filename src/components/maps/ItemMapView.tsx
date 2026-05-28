@@ -1,5 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
 import {BottomTabBarHeightContext} from '@react-navigation/bottom-tabs';
+import {useIsFocused} from '@react-navigation/native';
 import {useSetAtom} from 'jotai';
 import React, {
   ForwardedRef,
@@ -29,10 +30,12 @@ import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {useIsForeground} from '@/hooks/useIsForeground';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation.ts';
 import {useLogger} from '@/logging/useLogger';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
+import HeatTelemetry from '@/utils/HeatTelemetry';
 
 // ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
 const CARD_LIST_HEIGHT = 270;
@@ -97,6 +100,9 @@ const FRefInputComp = <T extends MarkerItem>(
   // 탭바가 숨김(`tabBarStyle: display:none`) 이거나 Bottom Tab 컨텍스트 밖이면
   // context 값이 0이 되어 추가 padding 없음.
   const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
+  const isFocused = useIsFocused();
+  const isForeground = useIsForeground();
+  const isActive = isFocused && isForeground;
   const onMyLocationPress = () => {
     mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
@@ -118,7 +124,17 @@ const FRefInputComp = <T extends MarkerItem>(
     const timer = setTimeout(() => {
       mapRef.current?.setPositionMode('direction');
     }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
+  // 화면이 포커스 + 앱이 foreground 인 동안에만 GPS watch.
+  // - useIsFocused: navigation stack 의 다른 화면으로 push 되면 GPS 해제
+  // - useIsForeground: 앱이 백그라운드로 가면 GPS 해제 (isFocused 만으로는 안 됨)
+  // 2시간 활동 발열 원인 1순위: enableHighAccuracy GPS가 navigation stack에
+  // 깔린 모든 map 화면에서 동시에 돌고 있던 누수.
+  useEffect(() => {
+    if (!isActive) return;
+    HeatTelemetry.start('gps_watch');
     const watchId = Geolocation.watchPosition(
       position => {
         setCurrentLocation({
@@ -132,13 +148,18 @@ const FRefInputComp = <T extends MarkerItem>(
       {
         enableHighAccuracy: true,
         maximumAge: 60000,
-        interval: 3000,
+        interval: 5000,
       },
     );
     return () => {
-      clearTimeout(timer);
       Geolocation.clearWatch(watchId);
+      HeatTelemetry.stop('gps_watch');
     };
+  }, [isActive, setCurrentLocation]);
+
+  useEffect(() => {
+    HeatTelemetry.start('map_native_view');
+    return () => HeatTelemetry.stop('map_native_view');
   }, []);
 
   useImperativeHandle(ref, () => ({

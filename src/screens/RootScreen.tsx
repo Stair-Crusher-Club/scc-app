@@ -23,6 +23,7 @@ import {
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {logDebug} from '@/utils/DebugUtils';
 import {isAuthDeferred} from '@/utils/deepLinkUtils';
+import HeatTelemetry from '@/utils/HeatTelemetry';
 
 // 전체 화면 공용 로깅 규칙 정의
 const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
@@ -66,6 +67,7 @@ const RootScreen = () => {
           if (Platform.OS === 'ios') {
             requestTrackingPermission();
           }
+          HeatTelemetry.beginSession().catch(() => {});
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
           logDebug(`App starts at ${currentScreenName}`);

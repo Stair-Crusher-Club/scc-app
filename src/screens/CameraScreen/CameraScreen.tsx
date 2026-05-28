@@ -28,6 +28,7 @@ import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {SccCameraButtons} from '@/native-modules/SccCameraButtons';
+import HeatTelemetry from '@/utils/HeatTelemetry';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -236,6 +237,11 @@ export default function CameraScreen({
         countdownTimeoutRef.current = null;
       }
     };
+  }, []);
+
+  useEffect(() => {
+    HeatTelemetry.start('camera_active');
+    return () => HeatTelemetry.stop('camera_active');
   }, []);
 
   useEffect(() => {
