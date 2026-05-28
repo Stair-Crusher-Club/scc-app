@@ -77,8 +77,8 @@ const VARIANT_SPECS: Record<BubbleVariant, VariantSpec> = {
   },
 };
 
-const FLOAT_AMPLITUDE = 5;
-const FLOAT_DURATION_MS = 1500;
+const FLOAT_AMPLITUDE = 10;
+const FLOAT_DURATION_MS = 800;
 
 interface SpeechBubbleProps {
   variant: BubbleVariant;

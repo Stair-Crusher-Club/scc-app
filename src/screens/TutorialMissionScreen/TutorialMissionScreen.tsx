@@ -6,11 +6,17 @@ import {
   Animated,
   Dimensions,
   Easing,
-  findNodeHandle,
   ScrollView,
+  StyleSheet,
   View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Svg, {
+  Defs,
+  LinearGradient as SvgLinearGradient,
+  Rect,
+  Stop,
+} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import {featureFlagAtom} from '@/atoms/Auth';
@@ -98,12 +104,6 @@ export default function TutorialMissionScreen({
   const completeMission = useCompleteUserTutorialMission();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
-  // 각 MAIN_MISSION_TYPES[i] 카드 View ref. measureLayout(scrollRef)로 ScrollView-기준
-  // y 를 계산하여 hero 외출템 hot zone 클릭 시 해당 카드로 부드러운 스크롤 이동에 사용.
-  // (박원 2026-05-27 시안)
-  const missionCardRefs = useRef<Array<View | null>>(
-    new Array(MAIN_MISSION_TYPES.length).fill(null),
-  );
 
   // 미션 완료 후 popTo 로 돌아왔을 때 instant scroll top.
   // 일반 back 으로 돌아온 경우엔 token 이 변하지 않으므로 스크롤이 유지된다.
@@ -254,27 +254,31 @@ export default function TutorialMissionScreen({
     });
   }, [allMainCompleted, isHiddenCompleted, checkAuth, progress, navigation]);
 
-  // hero 외출템 hot zone 탭 시 해당 미션 카드로 부드럽게 스크롤.
-  // measureLayout 으로 ScrollView 기준 y 를 계산한 뒤 약간 여유(-16)를 두고 이동.
-  const handleMissionItemPress = useCallback((index: 0 | 1 | 2) => {
-    const cardView = missionCardRefs.current[index];
-    const scrollHandle = findNodeHandle(scrollRef.current);
-    if (!cardView || !scrollHandle) {
-      return;
-    }
-    cardView.measureLayout(
-      scrollHandle,
-      (_x, y) => {
-        scrollRef.current?.scrollTo({
-          y: Math.max(0, y - 16),
-          animated: true,
-        });
-      },
-      () => {
-        // measurement 실패 시 무시 — 다음 탭에서 재시도 가능.
-      },
-    );
-  }, []);
+  // hero 의 외출템(?) hot zone 탭 핸들러.
+  // - 이미 완료된 외출템: 무반응 (PNG 가 컬러여서 ? 표시가 없음, 클릭 의미 없음).
+  // - 잠긴 외출템(이전 미션 미완료): 무반응. 아직 못 깨는 미션이라 시작 페이지로 보내면 X.
+  // - 현재 진행 가능 미션 (= 다음에 깰 미션 = 첫 미완료 + 이전 모두 완료): 미션 카드의
+  //   "미션 시작" 버튼을 누른 것과 동일하게 미션 시작 페이지로 이동.
+  const handleMissionItemPress = useCallback(
+    (index: 0 | 1 | 2) => {
+      const missionType = MAIN_MISSION_TYPES[index];
+      if (!missionType) {
+        return;
+      }
+      const mission = missionByType.get(missionType);
+      if (isMissionCompleted(mission)) {
+        return;
+      }
+      const allPreviousCompleted = MAIN_MISSION_TYPES.slice(0, index).every(
+        prev => isMissionCompleted(missionByType.get(prev)),
+      );
+      if (!allPreviousCompleted) {
+        return;
+      }
+      handleStartMission(missionType);
+    },
+    [missionByType, handleStartMission],
+  );
 
   // 박원 2026-05-27 시안. hero PNG 자체는 정지하고 hero 위에 overlay 한 말풍선만
   // 둥실 애니메이션을 적용한다. variant 별 텍스트/위치는 SpeechBubble 이 처리.
@@ -370,26 +374,21 @@ export default function TutorialMissionScreen({
                   );
                   const isDimmed = !isPreviousCompleted && !isCompleted;
                   return (
-                    <View
+                    <MissionCard
                       key={missionType}
-                      ref={ref => {
-                        missionCardRefs.current[index] = ref;
-                      }}>
-                      <MissionCard
-                        missionType={missionType}
-                        meta={meta}
-                        isCompleted={isCompleted}
-                        isDimmed={isDimmed}
-                        dimText={
-                          index > 0
-                            ? `외출템 ${index}을 모으면, 외출템 ${
-                                index + 1
-                              } 미션이 열려요!`
-                            : undefined
-                        }
-                        onStart={() => handleStartMission(missionType)}
-                      />
-                    </View>
+                      missionType={missionType}
+                      meta={meta}
+                      isCompleted={isCompleted}
+                      isDimmed={isDimmed}
+                      dimText={
+                        index > 0
+                          ? `외출템 ${index}을 모으면, 외출템 ${
+                              index + 1
+                            } 미션이 열려요!`
+                          : undefined
+                      }
+                      onStart={() => handleStartMission(missionType)}
+                    />
                   );
                 })}
               </CardsWrapper>
@@ -416,11 +415,38 @@ export default function TutorialMissionScreen({
                   <TooltipArrow />
                 </Animated.View>
               )}
-              <HiddenCtaButton
-                elementName="tutorial_mission_hidden_list_sticky_cta"
-                onPress={handleHiddenListPress}>
-                <HiddenCtaText>계뿌클 히든 맛집 리스트 보기!</HiddenCtaText>
-              </HiddenCtaButton>
+              <HiddenCtaShadow>
+                <HiddenCtaButton
+                  elementName="tutorial_mission_hidden_list_sticky_cta"
+                  onPress={handleHiddenListPress}>
+                  <Svg
+                    style={StyleSheet.absoluteFillObject}
+                    preserveAspectRatio="none"
+                    viewBox="0 0 1 1">
+                    <Defs>
+                      <SvgLinearGradient
+                        id="hiddenCtaGrad"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1">
+                        {/*
+                         * 박원 figma 2004:15337 그라데이션 178.23deg, stop 11.113%
+                         * #0C76F7 → 194.62% #074591. SVG stop offset 은 0~1 범위라
+                         * figma 의 visible portion(11.113%~100%) 만 잘라 사용한다.
+                         * 100% 색은 두 stop 사이 선형 보간으로 계산:
+                         *   t=(100-11.113)/(194.62-11.113)=0.4843
+                         *   rgb(12,118,247)→rgb(7,69,145) 보간 ≈ rgb(10,94,198)=#0A5EC6
+                         */}
+                        <Stop offset="0.111" stopColor="#0C76F7" />
+                        <Stop offset="1" stopColor="#0A5EC6" />
+                      </SvgLinearGradient>
+                    </Defs>
+                    <Rect width="1" height="1" fill="url(#hiddenCtaGrad)" />
+                  </Svg>
+                  <HiddenCtaText>계뿌클 히든 맛집 리스트 보기!</HiddenCtaText>
+                </HiddenCtaButton>
+              </HiddenCtaShadow>
             </StickyHiddenCtaWrapper>
           )}
 
@@ -484,14 +510,32 @@ const StickyHiddenCtaWrapper = styled.View`
   align-items: center;
 `;
 
-// Figma 2004:14517 wrapper: 358x56, brand40, 8px radius.
+// Figma 2004:15337: 358x56, 그라데이션(#0C76F7→#074591), 흰색 1.5px border,
+// box-shadow 2px 4px 4px rgba(0,0,0,0.25). RN 의 shadow 는 overflow:hidden 와
+// 같이 쓰면 잘리므로 wrapper(Shadow) + inner(border + overflow + svg) 두 단으로
+// 분리.
+const HiddenCtaShadow = styled.View`
+  width: 100%;
+  border-radius: 8px;
+  /* iOS */
+  shadow-color: #000;
+  shadow-offset: 2px 4px;
+  shadow-opacity: 0.25;
+  shadow-radius: 4px;
+  /* Android */
+  elevation: 6;
+`;
+
 const HiddenCtaButton = styled(SccPressable)`
   width: 100%;
   height: 56px;
   border-radius: 8px;
-  background-color: ${color.brand40};
+  border-width: 1.5px;
+  border-color: ${color.white};
+  background-color: #0c76f7;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 `;
 
 const HiddenCtaText = styled.Text`
