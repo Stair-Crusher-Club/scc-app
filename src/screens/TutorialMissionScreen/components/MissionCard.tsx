@@ -109,22 +109,31 @@ export default function MissionCard({
 
       {isDimmed && (
         // 잠금 overlay: figma quest_card_dim (1993:14903).
-        // BlurView 를 wrapper 자식 View 와 같은 부모에 두면 Android 에서 자식
-        // (lock 아이콘, 텍스트) 까지 살짝 blur 처리되는 현상이 보이므로, 자식 콘텐츠
-        // 를 별도 absolute layer 로 띄우고 elevation 으로 BlurView 위에 명시적으로
-        // 올린다. background-color + border 는 LockedOverlay 가 담당.
+        // Android BlurView 는 nearest react-native-screens Screen ancestor 를
+        // capture root 로 잡고 그 안의 모든 픽셀을 캡처해서 blur 한다 (참고:
+        // node_modules/@sbaiahmed1/react-native-blur ReactNativeBlurView.kt
+        // findNearestScreenAncestor). BlurView 와 lock 콘텐츠를 sibling 으로 두면
+        // Screen 안에서 같이 캡처되어 lock 아이콘/텍스트도 blur 결과에 섞여 뿌옇게
+        // 보인다. lock 콘텐츠를 BlurView 의 child 로 두면 blur 가 background 로
+        // 그려진 위에 child 가 sharp 하게 그려진다.
+        // border/border-radius/background-color 는 styled(BlurView) 에서 안 먹기
+        // 때문에 wrapper View 가 담당하고, BlurView 는 absoluteFill 로 안쪽을 채운다.
+        // (참고: MissionCompletedOverlay 는 Modal 안에 있어서 Screen ancestor 가
+        // 없고 decor view 가 capture root → modal sibling 은 캡처되지 않아 영향
+        // 없음.)
         <LockedOverlay>
           <BlurView
-            style={StyleSheet.absoluteFillObject}
+            style={[
+              StyleSheet.absoluteFillObject,
+              {alignItems: 'center', justifyContent: 'center'},
+            ]}
             blurType="light"
-            blurAmount={Platform.OS === 'ios' ? 25 : 6}
-          />
-          <LockContent>
+            blurAmount={Platform.OS === 'ios' ? 25 : 6}>
             <LockIcon
               source={require('@/assets/img/tutorial/mission_locked_lock.png')}
             />
             <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
-          </LockContent>
+          </BlurView>
         </LockedOverlay>
       )}
     </CardContainer>
@@ -304,8 +313,8 @@ const CompletedLinkText = styled.Text`
 `;
 
 // figma 1993:14903 quest_card_dim 잠금 overlay wrapper:
-// bg rgba(0,0,0,0.7) + 1.5px #BCC69B border + rounded 8 + overflow:hidden 으로
-// 자식 BlurView 가 모서리를 따라 잘리도록.
+// border-radius/border/background-color 담당. Android 에서 styled(BlurView) 는
+// 이 속성들을 무시하므로 wrapper 는 일반 View 로 두고 안쪽에 BlurView 를 child 로 넣는다.
 const LockedOverlay = styled.View`
   position: absolute;
   top: 0;
@@ -317,16 +326,6 @@ const LockedOverlay = styled.View`
   border-color: #bcc69b;
   background-color: rgba(0, 0, 0, 0.7);
   overflow: hidden;
-  align-items: center;
-  justify-content: center;
-`;
-
-// BlurView 위에 자식이 sharp 하게 그려지도록 별도 layer 분리. Android elevation
-// 으로 BlurView 보다 위, iOS 는 sibling order 만으로 충분 (BlurView 가 형제 위로
-// 먼저 그려지고 LockContent 가 나중 = 위에).
-const LockContent = styled.View`
-  align-items: center;
-  elevation: 4;
 `;
 
 const LockIcon = styled(Image)`
