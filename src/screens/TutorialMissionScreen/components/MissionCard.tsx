@@ -220,15 +220,12 @@ const Title = styled.Text`
   color: #16181c;
 `;
 
-// figma 1990:14481: 72×72, bg #F4F4F4, rounded 12, overflow-clip.
+// 박원 figma 의 item (1990:14481/1993:15084/2003:15670) 노드를 통째로 PNG export
+// 했기 때문에, 박스(#F4F4F4) + rounded 12 + 안의 외출템 아이콘이 모두 baked. 우리
+// ItemBox 는 단순 size wrapper. background/border-radius 중복 그리기 X.
 const ItemBox = styled.View`
   width: 72px;
   height: 72px;
-  border-radius: 12px;
-  background-color: #f4f4f4;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
 `;
 
 const ItemImage = styled(Image)``;

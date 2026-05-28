@@ -38,8 +38,8 @@ export const TUTORIAL_MISSION_META: Record<
   REGISTER_INTERESTED_REGIONS_AND_THEMES: {
     order: 1,
     itemImage: require('@/assets/img/tutorial/item_smartphone.png'),
-    itemImageWidth: 90,
-    itemImageHeight: 96,
+    itemImageWidth: 72,
+    itemImageHeight: 72,
     subtitle: '계뿌클 앱이 설치된 ',
     subtitleBoldSuffix: '스마트폰',
     title: '관심 지역, 관심 주제 등록하기',
@@ -52,8 +52,8 @@ export const TUTORIAL_MISSION_META: Record<
   SAVE_PLACE_LIST: {
     order: 2,
     itemImage: require('@/assets/img/tutorial/item_map.png'),
-    itemImageWidth: 90,
-    itemImageHeight: 96,
+    itemImageWidth: 72,
+    itemImageHeight: 72,
     subtitle: '접근성 좋은 장소가 표시된 ',
     subtitleBoldSuffix: '지도',
     title: '관심있는 저장리스트 저장하기',
@@ -66,8 +66,8 @@ export const TUTORIAL_MISSION_META: Record<
   UPVOTE_ACCESSIBILITY: {
     order: 3,
     itemImage: require('@/assets/img/tutorial/item_magnifier.png'),
-    itemImageWidth: 90,
-    itemImageHeight: 96,
+    itemImageWidth: 72,
+    itemImageHeight: 72,
     subtitle: '상세정보를 확인할 수 있는 ',
     subtitleBoldSuffix: '돋보기',
     title: '상세정보에 [도움이 돼요] 누르기',
