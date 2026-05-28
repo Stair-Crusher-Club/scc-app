@@ -109,23 +109,22 @@ export default function MissionCard({
 
       {isDimmed && (
         // 잠금 overlay: figma quest_card_dim (1993:14903).
-        // styled(BlurView) 로 wrap 하면 border/background/border-radius 가
-        // native BlurView 위에 일관되게 안 먹어서 (특히 Android), wrapper View 가
-        // 시각 스타일을 담당하고 BlurView 는 absoluteFill 로 blur 효과만 담당.
-        // iOS BlurView blurAmount 0-100, Android 0-32 라 같은 숫자가 다른 강도.
+        // BlurView 를 wrapper 자식 View 와 같은 부모에 두면 Android 에서 자식
+        // (lock 아이콘, 텍스트) 까지 살짝 blur 처리되는 현상이 보이므로, 자식 콘텐츠
+        // 를 별도 absolute layer 로 띄우고 elevation 으로 BlurView 위에 명시적으로
+        // 올린다. background-color + border 는 LockedOverlay 가 담당.
         <LockedOverlay>
           <BlurView
             style={StyleSheet.absoluteFillObject}
             blurType="light"
             blurAmount={Platform.OS === 'ios' ? 25 : 6}
           />
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <LockContent>
             <LockIcon
               source={require('@/assets/img/tutorial/mission_locked_lock.png')}
             />
             <DimText>{dimText ?? '이전 미션을 먼저 완료해주세요!'}</DimText>
-          </View>
+          </LockContent>
         </LockedOverlay>
       )}
     </CardContainer>
@@ -320,6 +319,14 @@ const LockedOverlay = styled.View`
   overflow: hidden;
   align-items: center;
   justify-content: center;
+`;
+
+// BlurView 위에 자식이 sharp 하게 그려지도록 별도 layer 분리. Android elevation
+// 으로 BlurView 보다 위, iOS 는 sibling order 만으로 충분 (BlurView 가 형제 위로
+// 먼저 그려지고 LockContent 가 나중 = 위에).
+const LockContent = styled.View`
+  align-items: center;
+  elevation: 4;
 `;
 
 const LockIcon = styled(Image)`
