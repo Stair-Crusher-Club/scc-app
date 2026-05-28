@@ -154,7 +154,7 @@ export const MainNavigationScreens: {
     component: UpvoteAnalyticsScreen,
     options: {headerShown: true, headerTitle: '도움돼요'},
   },
-  {name: 'Camera', component: CameraScreen},
+  {name: 'Camera', component: CameraScreen, options: {freezeOnBlur: true}},
   {
     name: 'CrusherActivity',
     component: CrusherActivityScreen,
@@ -239,7 +239,7 @@ export const MainNavigationScreens: {
   {
     name: 'ToiletMap',
     component: ToiletMapScreen,
-    options: {headerShown: false},
+    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     name: 'SavedPlaceLists',
@@ -254,18 +254,18 @@ export const MainNavigationScreens: {
   {
     name: 'PlaceListDetail',
     component: PlaceListDetailScreen,
-    options: {headerShown: false},
+    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     // deep link 하위호환: place-group/:id → PlaceListDetail
     name: 'PlaceGroupMap',
     component: PlaceListDetailScreen,
-    options: {headerShown: false},
+    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     name: 'SearchUnconqueredPlaces',
     component: SearchUnconqueredPlacesScreen,
-    options: {headerShown: false},
+    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     name: 'ImageZoomViewer',

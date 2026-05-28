@@ -182,6 +182,35 @@ const Logger = {
     crashlytics().recordError(error);
   },
 
+  async logHeatSample(params: {
+    sessionDurationMs: number;
+    foregroundDurationMs: number;
+    batteryLevel: number | null;
+    batteryDeltaSession: number | null;
+    gpsWatchMs: number;
+    mapNativeViewMs: number;
+    cameraActiveMs: number;
+    imageUploadMs: number;
+  }) {
+    logDebug('logHeatSample', params, currUserPropertiesForDebugging);
+    const eventParams = {
+      session_duration_ms: params.sessionDurationMs,
+      foreground_duration_ms: params.foregroundDurationMs,
+      ...(params.batteryLevel !== null && {
+        battery_level: params.batteryLevel,
+      }),
+      ...(params.batteryDeltaSession !== null && {
+        battery_delta_session: params.batteryDeltaSession,
+      }),
+      gps_watch_ms: params.gpsWatchMs,
+      map_native_view_ms: params.mapNativeViewMs,
+      camera_active_ms: params.cameraActiveMs,
+      image_upload_ms: params.imageUploadMs,
+    };
+    trackEvent('heat_sample', eventParams);
+    getAnalytics().logEvent('heat_sample', eventParams);
+  },
+
   async logAppPushOpen(params: AppPushOpenParams) {
     logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
     const eventParams = {
