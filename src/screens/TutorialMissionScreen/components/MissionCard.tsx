@@ -108,27 +108,32 @@ export default function MissionCard({
       )}
 
       {isDimmed && (
-        // 잠금 overlay: figma quest_card_dim (1993:14903).
-        // Android BlurView 는 nearest react-native-screens Screen ancestor 를
-        // capture root 로 잡고 그 안의 모든 픽셀을 캡처해서 blur 한다 (참고:
-        // node_modules/@sbaiahmed1/react-native-blur ReactNativeBlurView.kt
-        // findNearestScreenAncestor). BlurView 와 lock 콘텐츠를 sibling 으로 두면
-        // Screen 안에서 같이 캡처되어 lock 아이콘/텍스트도 blur 결과에 섞여 뿌옇게
-        // 보인다. lock 콘텐츠를 BlurView 의 child 로 두면 blur 가 background 로
-        // 그려진 위에 child 가 sharp 하게 그려진다.
-        // border/border-radius/background-color 는 styled(BlurView) 에서 안 먹기
-        // 때문에 wrapper View 가 담당하고, BlurView 는 absoluteFill 로 안쪽을 채운다.
-        // (참고: MissionCompletedOverlay 는 Modal 안에 있어서 Screen ancestor 가
-        // 없고 decor view 가 capture root → modal sibling 은 캡처되지 않아 영향
-        // 없음.)
+        // 잠금 overlay: figma quest_card_dim (1993:14903) — fill rgba(0,0,0,0.7)
+        // + BACKGROUND_BLUR radius 11.
+        //
+        // Android: `@sbaiahmed1/react-native-blur` 의 BlurView 는 nearest
+        //   react-native-screens Screen ancestor 를 capture root 로 잡고 그 안의
+        //   모든 픽셀을 캡처해 blur 한다 (참고: ReactNativeBlurView.kt
+        //   findNearestScreenAncestor). BlurView 의 sibling 은 같이 캡처되어
+        //   blur 결과에 섞이므로 lock 콘텐츠를 BlurView 의 child 로 넣어야 sharp
+        //   하게 렌더된다. blurType="light" + wrapper 의 rgba(0,0,0,0.7) bg 조합으로
+        //   적당한 dim 이 나옴.
+        // iOS: 네이티브 UIVisualEffectView. blurType="light" 면 흰색 tint 가 강해
+        //   wrapper 의 검정 bg 를 덮어 카드가 흰색으로 떠 보인다 → "dark" 로 분기.
+        //   dark tint 가 검정 계열이라 wrapper bg 와 합쳐져 figma 의 어두운 dim 을
+        //   살린다.
+        //
+        // (참고: MissionCompletedOverlay 는 Modal 안에 있어 Screen ancestor 가 없고
+        // decor view 가 capture root → modal sibling 은 capture 영향 없음. 같은
+        // 라이브러리지만 그쪽은 BlurView sibling 으로 텍스트를 둬도 문제 없다.)
         <LockedOverlay>
           <BlurView
             style={[
               StyleSheet.absoluteFillObject,
               {alignItems: 'center', justifyContent: 'center'},
             ]}
-            blurType="light"
-            blurAmount={Platform.OS === 'ios' ? 25 : 6}>
+            blurType={Platform.OS === 'ios' ? 'dark' : 'light'}
+            blurAmount={Platform.OS === 'ios' ? 30 : 6}>
             <LockIcon
               source={require('@/assets/img/tutorial/mission_locked_lock.png')}
             />
@@ -313,8 +318,13 @@ const CompletedLinkText = styled.Text`
 `;
 
 // figma 1993:14903 quest_card_dim 잠금 overlay wrapper:
-// border-radius/border/background-color 담당. Android 에서 styled(BlurView) 는
-// 이 속성들을 무시하므로 wrapper 는 일반 View 로 두고 안쪽에 BlurView 를 child 로 넣는다.
+// border-radius/border 담당. Android 에서 styled(BlurView) 는 border/border-radius
+// 를 무시하므로 wrapper 는 일반 View 로 두고 안쪽에 BlurView 를 child 로 넣는다.
+//
+// background-color rgba(0,0,0,0.7) 은 Android 에서만 적용한다 (light blur tint 위에
+// 살짝 어두운 톤을 더해 figma 의 dark dim 을 재현). iOS 는 blurType="dark" 자체에
+// 충분히 강한 검정 tint 가 있어 wrapper bg 를 더하면 카드 backdrop 이 가려질 만큼
+// 과하게 어두워지므로 생략한다.
 const LockedOverlay = styled.View`
   position: absolute;
   top: 0;
@@ -324,7 +334,7 @@ const LockedOverlay = styled.View`
   border-radius: 8px;
   border-width: 1.5px;
   border-color: #bcc69b;
-  background-color: rgba(0, 0, 0, 0.7);
+  ${Platform.OS === 'android' ? 'background-color: rgba(0, 0, 0, 0.7);' : 'background-color: rgba(0, 0, 0, 0.6);'}
   overflow: hidden;
 `;
 
