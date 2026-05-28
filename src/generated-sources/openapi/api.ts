@@ -1470,6 +1470,38 @@ export interface CompactAccessibilityInfoDto {
     'createdAt'?: EpochMillisTimestamp;
 }
 /**
+ * 튜토리얼 미션 완료 요청. missionType 에 따라 미션별 추가 컨텍스트 필드가 필요할 수도 있다. 새 미션 종류가 추가될 때 이 DTO 에 optional context 필드만 추가하면 되도록 설계. 
+ * @export
+ * @interface CompleteUserTutorialMissionRequestDto
+ */
+export interface CompleteUserTutorialMissionRequestDto {
+    /**
+     * 
+     * @type {TutorialMissionTypeDto}
+     * @memberof CompleteUserTutorialMissionRequestDto
+     */
+    'missionType': TutorialMissionTypeDto;
+    /**
+     * 
+     * @type {CompleteUserTutorialSavePlaceListMissionContextDto}
+     * @memberof CompleteUserTutorialMissionRequestDto
+     */
+    'savePlaceListContext'?: CompleteUserTutorialSavePlaceListMissionContextDto;
+}
+/**
+ * SAVE_PLACE_LIST 미션 완료를 위한 추가 컨텍스트.
+ * @export
+ * @interface CompleteUserTutorialSavePlaceListMissionContextDto
+ */
+export interface CompleteUserTutorialSavePlaceListMissionContextDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CompleteUserTutorialSavePlaceListMissionContextDto
+     */
+    'placeListId': string;
+}
+/**
  * 
  * @export
  * @interface ContributedChallengeInfoDto
@@ -1627,7 +1659,7 @@ export interface CrusherActivityHistorySummaryDto {
      */
     'historyType': CrusherActivityHistorySummaryTypeDto;
     /**
-     * 
+     * CrusherClub 객체 ID. historyType이 `CREW`일 때만 존재한다.
      * @type {string}
      * @memberof CrusherActivityHistorySummaryDto
      */
@@ -2842,6 +2874,50 @@ export interface GetReviewActivityReportResponseDto {
 /**
  * 
  * @export
+ * @interface GetSccContentDetailsRequestDto
+ */
+export interface GetSccContentDetailsRequestDto {
+    /**
+     * 조회할 컨텐츠의 URL. 서버에서 정규화 후 SccContent를 찾는다.
+     * @type {string}
+     * @memberof GetSccContentDetailsRequestDto
+     */
+    'url': string;
+}
+/**
+ * 웹뷰 진입 시 단일 호출용 통합 응답. SccContent가 한 번도 저장된 적 없으면 sccContentId는 null이고 isSaved/isUpvoted는 false다. 
+ * @export
+ * @interface GetSccContentDetailsResponseDto
+ */
+export interface GetSccContentDetailsResponseDto {
+    /**
+     * 저장된 적 있다면 SccContent의 id. 없으면 null.
+     * @type {string}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'sccContentId'?: string;
+    /**
+     * 현재 유저가 이 컨텐츠를 저장했는지 여부.
+     * @type {boolean}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'isSaved': boolean;
+    /**
+     * 현재 유저가 이 컨텐츠에 \'도움이 돼요\'를 표시했는지 여부.
+     * @type {boolean}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'isUpvoted': boolean;
+    /**
+     * 이 컨텐츠가 받은 \'도움이 돼요\'의 총 개수.
+     * @type {number}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'totalUpvoteCount': number;
+}
+/**
+ * 
+ * @export
  * @interface GetUpvoteDetailsRequestDto
  */
 export interface GetUpvoteDetailsRequestDto {
@@ -3701,6 +3777,44 @@ export interface ListRegisteredToiletReviewsResponseDto {
      * @memberof ListRegisteredToiletReviewsResponseDto
      */
     'toiletReviews': Array<ToiletReviewListItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListSavedContentsRequestDto
+ */
+export interface ListSavedContentsRequestDto {
+    /**
+     * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
+     * @type {string}
+     * @memberof ListSavedContentsRequestDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListSavedContentsRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListSavedContentsResponseDto
+ */
+export interface ListSavedContentsResponseDto {
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListSavedContentsResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<UserSavedContentDto>}
+     * @memberof ListSavedContentsResponseDto
+     */
+    'items': Array<UserSavedContentDto>;
 }
 /**
  * 
@@ -5697,6 +5811,62 @@ export type ReportTargetTypeDto = typeof ReportTargetTypeDto[keyof typeof Report
 /**
  * 
  * @export
+ * @interface SaveContentRequestDto
+ */
+export interface SaveContentRequestDto {
+    /**
+     * 저장할 컨텐츠의 URL. 서버에서 정규화 후 unique 키로 사용한다.
+     * @type {string}
+     * @memberof SaveContentRequestDto
+     */
+    'url': string;
+    /**
+     * 
+     * @type {SccContentTypeDto}
+     * @memberof SaveContentRequestDto
+     */
+    'contentType': SccContentTypeDto;
+    /**
+     * 앱이 웹뷰의 og:title 또는 document.title에서 추출. 없으면 null.
+     * @type {string}
+     * @memberof SaveContentRequestDto
+     */
+    'title'?: string;
+    /**
+     * 앱이 웹뷰의 og:image에서 추출. 없으면 null.
+     * @type {string}
+     * @memberof SaveContentRequestDto
+     */
+    'thumbnailUrl'?: string;
+    /**
+     * 앱이 웹뷰의 og:description 또는 meta[name=description]에서 추출. 없으면 null.
+     * @type {string}
+     * @memberof SaveContentRequestDto
+     */
+    'description'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface SaveContentResponseDto
+ */
+export interface SaveContentResponseDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SaveContentResponseDto
+     */
+    'sccContentId': string;
+    /**
+     * 저장 후 상태. 항상 true.
+     * @type {boolean}
+     * @memberof SaveContentResponseDto
+     */
+    'isSaved': boolean;
+}
+/**
+ * 
+ * @export
  * @interface SavePlaceListRequestDto
  */
 export interface SavePlaceListRequestDto {
@@ -5726,6 +5896,62 @@ export interface SavePlaceRequestDto {
      */
     'placeListId'?: string;
 }
+/**
+ * URL을 기준으로 유일성을 가지는 컨텐츠. title/thumbnail/description은 OG 메타에서 가져온다. 
+ * @export
+ * @interface SccContentDto
+ */
+export interface SccContentDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {SccContentTypeDto}
+     * @memberof SccContentDto
+     */
+    'contentType': SccContentTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'url': string;
+    /**
+     * 컨텐츠 제목. OG title이 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'title'?: string;
+    /**
+     * 컨텐츠 썸네일 URL. OG image가 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'thumbnailUrl'?: string;
+    /**
+     * 컨텐츠 설명. OG description이 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'description'?: string;
+}
+/**
+ * 저장 가능한 컨텐츠 타입. 초기에는 WEB_PAGE 하나만 지원하지만 향후 확장 가능. 
+ * @export
+ * @enum {string}
+ */
+
+export const SccContentTypeDto = {
+    WebPage: 'WEB_PAGE'
+} as const;
+
+export type SccContentTypeDto = typeof SccContentTypeDto[keyof typeof SccContentTypeDto];
+
+
 /**
  * 
  * @export
@@ -6504,6 +6730,19 @@ export type TutorialMissionTypeDto = typeof TutorialMissionTypeDto[keyof typeof 
 /**
  * 
  * @export
+ * @interface UnsaveContentRequestDto
+ */
+export interface UnsaveContentRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UnsaveContentRequestDto
+     */
+    'sccContentId': string;
+}
+/**
+ * 
+ * @export
  * @interface UnsavePlaceListRequestDto
  */
 export interface UnsavePlaceListRequestDto {
@@ -6853,6 +7092,31 @@ export type UserMobilityToolDto = typeof UserMobilityToolDto[keyof typeof UserMo
 
 
 /**
+ * 한 유저가 컨텐츠를 저장한 행위. createdAt은 저장 시각. 
+ * @export
+ * @interface UserSavedContentDto
+ */
+export interface UserSavedContentDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserSavedContentDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {SccContentDto}
+     * @memberof UserSavedContentDto
+     */
+    'sccContent': SccContentDto;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof UserSavedContentDto
+     */
+    'createdAt': EpochMillisTimestamp;
+}
+/**
  * 윌리의 외출 NUX 튜토리얼 개별 미션의 진행 상태.
  * @export
  * @interface UserTutorialMissionDto
@@ -7171,13 +7435,16 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+         * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeUserTutorialHiddenMission: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/completeUserTutorialHiddenMission`;
+        completeUserTutorialMission: async (completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'completeUserTutorialMissionRequestDto' is not null or undefined
+            assertParamExists('completeUserTutorialMission', 'completeUserTutorialMissionRequestDto', completeUserTutorialMissionRequestDto)
+            const localVarPath = `/completeUserTutorialMission`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7195,43 +7462,12 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        completeUserTutorialUpvoteAccessibilityMission: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/completeUserTutorialUpvoteAccessibilityMission`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Identified required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(completeUserTutorialMissionRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8470,6 +8706,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+         * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSccContentDetailsPost: async (getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getSccContentDetailsRequestDto' is not null or undefined
+            assertParamExists('getSccContentDetailsPost', 'getSccContentDetailsRequestDto', getSccContentDetailsRequestDto)
+            const localVarPath = `/getSccContentDetails`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getSccContentDetailsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
          * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -9082,6 +9358,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(listRegisteredReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+         * @summary 저장한 컨텐츠 목록을 조회한다.
+         * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSavedContentsPost: async (listSavedContentsRequestDto: ListSavedContentsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listSavedContentsRequestDto' is not null or undefined
+            assertParamExists('listSavedContentsPost', 'listSavedContentsRequestDto', listSavedContentsRequestDto)
+            const localVarPath = `/listSavedContents`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listSavedContentsRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -9971,6 +10287,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * @summary 웹페이지 등 컨텐츠를 저장한다.
+         * @param {SaveContentRequestDto} saveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        saveContentPost: async (saveContentRequestDto: SaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'saveContentRequestDto' is not null or undefined
+            assertParamExists('saveContentPost', 'saveContentRequestDto', saveContentRequestDto)
+            const localVarPath = `/saveContent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(saveContentRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -10332,6 +10688,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary 컨텐츠 저장을 해제한다.
+         * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsaveContentPost: async (unsaveContentRequestDto: UnsaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'unsaveContentRequestDto' is not null or undefined
+            assertParamExists('unsaveContentPost', 'unsaveContentRequestDto', unsaveContentRequestDto)
+            const localVarPath = `/unsaveContent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(unsaveContentRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary 장소를 내 저장 리스트에서 제거한다.
          * @param {UnsavePlaceRequestDto} unsavePlaceRequestDto 
          * @param {*} [options] Override http request option.
@@ -10627,23 +11023,14 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+         * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeUserTutorialHiddenMission(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialHiddenMission(options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async completeUserTutorialUpvoteAccessibilityMission(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialUpvoteAccessibilityMission(options);
+        async completeUserTutorialMission(completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserTutorialProgressDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeUserTutorialMission(completeUserTutorialMissionRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -10994,6 +11381,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+         * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSccContentDetailsPost(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSccContentDetailsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSccContentDetailsPost(getSccContentDetailsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
          * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -11166,6 +11564,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRegisteredToiletReviewsResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+         * @summary 저장한 컨텐츠 목록을 조회한다.
+         * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listSavedContentsPost(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSavedContentsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSavedContentsPost(listSavedContentsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11413,6 +11822,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * @summary 웹페이지 등 컨텐츠를 저장한다.
+         * @param {SaveContentRequestDto} saveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async saveContentPost(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SaveContentResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.saveContentPost(saveContentRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -11509,6 +11929,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuggestPlacesResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.suggestPlacesPost(suggestPlacesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 컨텐츠 저장을 해제한다.
+         * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async unsaveContentPost(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unsaveContentPost(unsaveContentRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11630,22 +12061,14 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-         * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+         * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeUserTutorialHiddenMission(options?: any): AxiosPromise<UserTutorialProgressDto> {
-            return localVarFp.completeUserTutorialHiddenMission(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-         * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        completeUserTutorialUpvoteAccessibilityMission(options?: any): AxiosPromise<UserTutorialProgressDto> {
-            return localVarFp.completeUserTutorialUpvoteAccessibilityMission(options).then((request) => request(axios, basePath));
+        completeUserTutorialMission(completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options?: any): AxiosPromise<UserTutorialProgressDto> {
+            return localVarFp.completeUserTutorialMission(completeUserTutorialMissionRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -11963,6 +12386,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
         },
         /**
+         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+         * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSccContentDetailsPost(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: any): AxiosPromise<GetSccContentDetailsResponseDto> {
+            return localVarFp.getSccContentDetailsPost(getSccContentDetailsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
          * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -12120,6 +12553,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: any): AxiosPromise<ListRegisteredToiletReviewsResponseDto> {
             return localVarFp.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+         * @summary 저장한 컨텐츠 목록을 조회한다.
+         * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSavedContentsPost(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: any): AxiosPromise<ListSavedContentsResponseDto> {
+            return localVarFp.listSavedContentsPost(listSavedContentsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12344,6 +12787,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * @summary 웹페이지 등 컨텐츠를 저장한다.
+         * @param {SaveContentRequestDto} saveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        saveContentPost(saveContentRequestDto: SaveContentRequestDto, options?: any): AxiosPromise<SaveContentResponseDto> {
+            return localVarFp.saveContentPost(saveContentRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -12432,6 +12885,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: any): AxiosPromise<SuggestPlacesResponseDto> {
             return localVarFp.suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 컨텐츠 저장을 해제한다.
+         * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsaveContentPost(unsaveContentRequestDto: UnsaveContentRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.unsaveContentPost(unsaveContentRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12554,25 +13017,15 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 히든 미션(tally form 제출) 완료 후 호출하여 진행 상태를 업데이트한다. 서버는 tally API를 통해 해당 사용자의 form 제출 기록을 검증하며, 제출 기록이 없으면 400을 반환한다. 사용자 자가 confirm 방식이 아닌 서버 검증 방식으로 동작한다. 
-     * @summary 윌리의 외출 NUX 튜토리얼의 히든 미션 완료를 처리한다.
+     * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+     * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
+     * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public completeUserTutorialHiddenMission(options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).completeUserTutorialHiddenMission(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 튜토리얼 전용 가짜 PDP 화면에서 \"도움돼요\" 버튼을 눌렀을 때 앱이 호출한다. 실제 장소가 아니므로 /giveUpvote 경로 대신 이 엔드포인트로 미션 3(UPVOTE_ACCESSIBILITY) 완료를 명시적으로 기록한다. idempotent: 이미 완료된 미션이면 no-op. 
-     * @summary 윌리의 외출 NUX 튜토리얼 미션 3(접근성 정보 도움돼요)의 완료를 처리한다.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public completeUserTutorialUpvoteAccessibilityMission(options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).completeUserTutorialUpvoteAccessibilityMission(options).then((request) => request(this.axios, this.basePath));
+    public completeUserTutorialMission(completeUserTutorialMissionRequestDto: CompleteUserTutorialMissionRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).completeUserTutorialMission(completeUserTutorialMissionRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12955,6 +13408,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+     * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+     * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getSccContentDetailsPost(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getSccContentDetailsPost(getSccContentDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
      * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -13143,6 +13608,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+     * @summary 저장한 컨텐츠 목록을 조회한다.
+     * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listSavedContentsPost(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listSavedContentsPost(listSavedContentsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13412,6 +13889,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+     * @summary 웹페이지 등 컨텐츠를 저장한다.
+     * @param {SaveContentRequestDto} saveContentRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public saveContentPost(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).saveContentPost(saveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 장소를 내 저장 리스트에 추가한다.
      * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -13517,6 +14006,18 @@ export class DefaultApi extends BaseAPI {
      */
     public suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 컨텐츠 저장을 해제한다.
+     * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public unsaveContentPost(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unsaveContentPost(unsaveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
