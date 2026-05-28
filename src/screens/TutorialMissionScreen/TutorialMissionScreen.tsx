@@ -367,6 +367,28 @@ export default function TutorialMissionScreen({
     });
   }, [allMainCompleted, checkAuth, navigation]);
 
+  // 외출템 다 모은 직후(variant 4) → 팝업 본 뒤(variant 5) 전환 시 hero PNG 를
+  // "Click!" 인디케이터가 있는 stage3_seek_hidden.png 로 swap.
+  // 서버는 단일 stage3 URL 만 보내므로 클라이언트가 같은 prefix 의 다른 파일명으로
+  // URL 을 string-replace. PROD/DEV 양쪽 모두 같은 패턴이라 안전.
+  const effectiveHeroImageUrl = useMemo(() => {
+    const url = progress?.heroImageUrl ?? '';
+    if (!url) return url;
+    if (
+      allMainCompleted &&
+      hasShownOutingItemsCollectedPopup &&
+      !isHiddenCompleted
+    ) {
+      return url.replace(/stage3\.png(\?|$)/, 'stage3_seek_hidden.png$1');
+    }
+    return url;
+  }, [
+    progress?.heroImageUrl,
+    allMainCompleted,
+    hasShownOutingItemsCollectedPopup,
+    isHiddenCompleted,
+  ]);
+
   if (!progress) {
     return <ScreenLayout isHeaderVisible={true} />;
   }
@@ -382,7 +404,7 @@ export default function TutorialMissionScreen({
               hiddenCompleted={isHiddenCompleted}
               onHiddenPress={handleHiddenMissionPress}
               imageWidth={SCREEN_WIDTH}
-              heroImageUrl={progress.heroImageUrl}
+              heroImageUrl={effectiveHeroImageUrl}
               bubbleVariant={bubbleState.variant}
               bubbleFloat={bubbleState.float}
               onMissionItemPress={handleMissionItemPress}
@@ -449,6 +471,12 @@ export default function TutorialMissionScreen({
                     alignItems: 'center',
                     marginBottom: 4,
                     transform: [{translateY: tooltipFloatY}],
+                    // figma 2004:14518 tooltip drop-shadow 2px 4px 2px rgba(0,0,0,0.25).
+                    shadowColor: '#000',
+                    shadowOffset: {width: 2, height: 4},
+                    shadowOpacity: 0.25,
+                    shadowRadius: 2,
+                    elevation: 3,
                   }}>
                   <TooltipBubble>
                     <TooltipText>히든 리스트를 확인해보세요!</TooltipText>
@@ -591,15 +619,15 @@ const HiddenCtaText = styled.Text`
 const TooltipBubble = styled.View`
   background-color: ${color.gray90v2};
   border-radius: 8px;
-  padding: 6px 12px;
+  padding: 6px 18px;
   align-items: center;
   justify-content: center;
 `;
 
 const TooltipText = styled.Text`
   font-family: ${font.pretendardMedium};
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
   letter-spacing: -0.26px;
   color: ${color.white};
 `;
