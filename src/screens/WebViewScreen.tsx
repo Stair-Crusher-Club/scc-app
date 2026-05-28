@@ -45,15 +45,14 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     fixedTitle || undefined,
   );
 
-  // 뿌클로드(con.staircrusher.club) / 계뿌클 Notion 양쪽에서 콘텐츠 ID 추출
-  const sccContentId = useMemo(() => {
-    const match = currentUrl.match(
-      /(?:con\.staircrusher\.club|staircrusherclub\.notion\.site)\/([^/?#]+)/,
-    );
-    return match ? match[1] : null;
-  }, [currentUrl]);
+  // 웹페이지 OG 메타 (저장 시 서버로 전달)
+  const [ogMeta, setOgMeta] = useState<{
+    title: string | null;
+    thumbnailUrl: string | null;
+    description: string | null;
+  } | null>(null);
 
-  // SCC 콘텐츠 도메인이면 ID 추출 실패해도 floating bar는 노출 (id 없으면 도움이돼요만 숨김)
+  // SCC 콘텐츠 도메인이면 floating bar 노출
   const shouldShowFloatingBar =
     currentUrl.startsWith('https://con.staircrusher.club') ||
     currentUrl.startsWith('https://staircrusherclub.notion.site');
@@ -74,7 +73,60 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   }, [navigation, confirmOnClose]);
 
   const handleMessage = useCallback((message: WebViewMessageEvent) => {
-    setTitle(message.nativeEvent.data);
+    const raw = message.nativeEvent.data;
+    // OG 메타 메시지인지 확인 (JSON)
+    try {
+      const parsed = JSON.parse(raw);
+      if (
+        parsed &&
+        typeof parsed === 'object' &&
+        parsed.type === 'SCC_OG_META'
+      ) {
+        const payload = parsed.payload as {
+          title: string | null;
+          thumbnailUrl: string | null;
+          description: string | null;
+        } | null;
+        if (payload) {
+          setOgMeta({
+            title: payload.title ?? null,
+            thumbnailUrl: payload.thumbnailUrl ?? null,
+            description: payload.description ?? null,
+          });
+          if (payload.title) {
+            setTitle(payload.title);
+          }
+        }
+        return;
+      }
+    } catch (_e) {
+      // JSON 아니면 기존 document.title 메시지로 처리
+    }
+    setTitle(raw);
+  }, []);
+
+  // 페이지 로드 완료 시 OG 메타 추출 스크립트 주입
+  const handleLoadEnd = useCallback(() => {
+    const extractOgScript = `
+      (function() {
+        try {
+          var get = function(sel) {
+            var el = document.querySelector(sel);
+            return el ? el.getAttribute('content') : null;
+          };
+          var og = {
+            title: get('meta[property="og:title"]') || document.title || null,
+            thumbnailUrl: get('meta[property="og:image"]'),
+            description: get('meta[property="og:description"]') || get('meta[name="description"]'),
+          };
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'SCC_OG_META', payload: og}));
+        } catch (e) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'SCC_OG_META', payload: null}));
+        }
+      })();
+      true;
+    `;
+    webViewRef.current?.injectJavaScript(extractOgScript);
   }, []);
 
   const handleBackPress = useCallback(() => {
@@ -135,9 +187,13 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         source={{uri: resolvedInitialUrl}}
         injectedJavaScript="window.postMessage(document.title)"
         onMessage={handleMessage}
+        onLoadEnd={handleLoadEnd}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
+          if (navState.url !== currentUrl) {
+            setOgMeta(null);
+          }
           setCurrentUrl(navState.url);
         }}
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
@@ -145,8 +201,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       {shouldShowFloatingBar && (
         <SccContentFloatingBar
           url={currentUrl}
-          sccContentId={sccContentId}
           title={title}
+          ogTitle={ogMeta?.title ?? null}
+          ogThumbnailUrl={ogMeta?.thumbnailUrl ?? null}
+          ogDescription={ogMeta?.description ?? null}
         />
       )}
     </SafeAreaWrapper>

@@ -4,63 +4,89 @@ import {useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
+import {
+  SccContentTypeDto,
+  UpvoteTargetTypeDto,
+} from '@/generated-sources/openapi';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SccButton} from '@/components/atoms/SccButton';
 import {SccPressable} from '@/components/SccPressable';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
+import {useSaveContent} from '@/hooks/useSaveContent';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useMe} from '@/atoms/Auth';
 
 import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
+import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
+import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 interface SccContentFloatingBarProps {
   url: string;
-  sccContentId: string | null;
   title?: string;
+  ogTitle?: string | null;
+  ogThumbnailUrl?: string | null;
+  ogDescription?: string | null;
 }
 
 export default function SccContentFloatingBar({
   url,
-  sccContentId,
   title,
+  ogTitle,
+  ogThumbnailUrl,
+  ogDescription,
 }: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
-  const {userInfo} = useMe();
 
-  // Upvote 상태 조회 (sccContentId가 있을 때만)
-  const {data: upvoteDetails} = useQuery({
-    queryKey: ['SccContentUpvoteDetails', sccContentId],
+  // SccContent 통합 상태 조회 (isSaved + isUpvoted + totalUpvoteCount + sccContentId)
+  const {data: sccContentDetails} = useQuery({
+    queryKey: ['SccContentDetails', url],
     queryFn: async () => {
-      return await api.getUpvoteDetailsPost({
-        targetType: UpvoteTargetTypeDto.BbucleRoad,
-        id: sccContentId!,
-      });
+      return (await api.getSccContentDetailsPost({url})).data;
     },
-    enabled: !!sccContentId,
   });
 
-  const upvotedUsers = upvoteDetails?.data?.upvotedUsers ?? [];
-  const totalCount = upvotedUsers.length;
-  const hasUpvoted =
-    upvotedUsers.some(user => user.nickname === userInfo?.nickname) ?? false;
+  const sccContentId = sccContentDetails?.sccContentId ?? null;
+  const isSaved = sccContentDetails?.isSaved ?? false;
+  const initialIsUpvoted = sccContentDetails?.isUpvoted ?? false;
+  const initialTotalUpvoteCount = sccContentDetails?.totalUpvoteCount;
 
   // Upvote 토글 hook
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
-    initialIsUpvoted: hasUpvoted,
-    initialTotalCount: totalCount,
+    initialIsUpvoted,
+    initialTotalCount: initialTotalUpvoteCount,
     targetId: sccContentId ?? undefined,
     targetType: UpvoteTargetTypeDto.BbucleRoad,
     placeId: '',
   });
   const checkAuth = useCheckAuth();
+  const saveContent = useSaveContent();
+
+  const handleToggleSave = useCallback(() => {
+    saveContent({
+      url,
+      contentType: SccContentTypeDto.WebPage,
+      title: ogTitle ?? title ?? null,
+      thumbnailUrl: ogThumbnailUrl ?? null,
+      description: ogDescription ?? null,
+      currentIsSaved: isSaved,
+      currentSccContentId: sccContentId,
+    });
+  }, [
+    saveContent,
+    url,
+    ogTitle,
+    title,
+    ogThumbnailUrl,
+    ogDescription,
+    isSaved,
+    sccContentId,
+  ]);
 
   // 공유하기
   const handleShare = useCallback(async () => {
@@ -112,6 +138,25 @@ export default function SccContentFloatingBar({
             ) : null}
           </UpvoteButton>
         )}
+
+        {/* 저장 버튼 */}
+        <SaveButton
+          onPress={() => {
+            checkAuth(handleToggleSave, () =>
+              ToastUtils.show('로그인이 필요합니다'),
+            );
+          }}
+          elementName="scc-content-save"
+          logParams={{url, isSaved}}>
+          {isSaved ? (
+            <BookmarkFilledIcon width={20} height={20} color={color.gray80} />
+          ) : (
+            <BookmarkIcon width={16} height={20} color={color.gray80} />
+          )}
+          <SaveLabel isActive={isSaved}>
+            {isSaved ? '저장됨' : '저장'}
+          </SaveLabel>
+        </SaveButton>
 
         <Spacer />
 
@@ -182,6 +227,23 @@ const UpvoteButton = styled(SccPressable)`
   border-width: 1px;
   border-color: ${color.gray25};
   background-color: ${color.white};
+`;
+
+const SaveButton = styled(SccPressable)`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: ${color.gray25};
+  background-color: ${color.white};
+`;
+
+const SaveLabel = styled.Text<{isActive: boolean}>`
+  font-size: 14px;
+  font-family: ${font.pretendardSemibold};
+  color: ${color.gray80};
 `;
 
 const UpvoteCount = styled.Text<{isActive: boolean}>`
