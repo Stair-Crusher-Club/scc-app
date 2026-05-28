@@ -58,6 +58,38 @@ interface BubbleStateInput {
   isHiddenCompleted: boolean;
 }
 
+// 박원 figma 시안 (quest_card_dim) 의 완료 후 보조 링크. 미션 1/2 만 후속 화면이 있고
+// 미션 3 은 후속 액션이 없어 링크 미노출. navigation 객체를 인자로 받아 onPress 클로저
+// 안에서 navigate 호출.
+function pickPostCompletionLink({
+  missionType,
+  navigation,
+}: {
+  missionType: TutorialMissionTypeDto;
+  navigation: ScreenProps<'TutorialMission'>['navigation'];
+}): {text: string; onPress: () => void} | undefined {
+  switch (missionType) {
+    case TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes:
+      return {
+        text: '관심 지역, 관심 주제 수정하기 →',
+        onPress: () => navigation.navigate('ProfileEditor'),
+      };
+    case TutorialMissionTypeDto.SavePlaceList:
+      return {
+        text: '저장리스트 다시 보기 →',
+        onPress: () => navigation.navigate('SavedPlaceLists'),
+      };
+    case TutorialMissionTypeDto.UpvoteAccessibility:
+      return undefined;
+    case TutorialMissionTypeDto.HiddenAppSurvey:
+      return undefined;
+    default: {
+      const _exhaustive: never = missionType;
+      return _exhaustive;
+    }
+  }
+}
+
 // 박원 2026-05-27 시안 stage → bubble variant + float 매핑.
 function pickBubbleState({
   collectedMainCount,
@@ -373,12 +405,19 @@ export default function TutorialMissionScreen({
                     isMissionCompleted(missionByType.get(prev)),
                   );
                   const isDimmed = !isPreviousCompleted && !isCompleted;
+                  const isCurrent = isPreviousCompleted && !isCompleted;
+                  const postCompletionLink = pickPostCompletionLink({
+                    missionType,
+                    navigation,
+                  });
                   return (
                     <MissionCard
                       key={missionType}
                       missionType={missionType}
+                      missionIndex={index + 1}
                       meta={meta}
                       isCompleted={isCompleted}
+                      isCurrent={isCurrent}
                       isDimmed={isDimmed}
                       dimText={
                         index > 0
@@ -388,6 +427,8 @@ export default function TutorialMissionScreen({
                           : undefined
                       }
                       onStart={() => handleStartMission(missionType)}
+                      postCompletionLinkText={postCompletionLink?.text}
+                      onPostCompletionLinkPress={postCompletionLink?.onPress}
                     />
                   );
                 })}
