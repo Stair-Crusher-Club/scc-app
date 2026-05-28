@@ -78,7 +78,7 @@ const ValueRow = styled(SccPressable)`
 
 const ValueText = styled.Text`
   font-family: ${font.pretendardRegular};
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.gray90v2};
@@ -86,7 +86,7 @@ const ValueText = styled.Text`
 
 const PlaceholderText = styled.Text`
   font-family: ${font.pretendardRegular};
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.gray40};

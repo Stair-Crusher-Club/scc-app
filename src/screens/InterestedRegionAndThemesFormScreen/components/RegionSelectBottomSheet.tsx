@@ -164,7 +164,8 @@ export default function RegionSelectBottomSheet({
                         key={group.id}
                         elementName="interested_region_group_item"
                         logParams={{group_id: group.id}}
-                        onPress={() => toggleGroup(group.id)}>
+                        onPress={() => toggleGroup(group.id)}
+                        selected={isSelected}>
                         <GroupLabel>{group.label}</GroupLabel>
                         {isSelected && (
                           <CheckColoredIcon width={24} height={24} />
@@ -311,9 +312,9 @@ const ProvinceItem = styled(SccPressable)<{active: boolean}>`
 
 const ProvinceLabel = styled.Text`
   font-family: ${font.pretendardRegular};
-  font-size: 18px;
+  font-size: 17px;
   line-height: 26px;
-  letter-spacing: -0.36px;
+  letter-spacing: -0.34px;
   color: ${color.gray90v2};
 `;
 
@@ -322,19 +323,21 @@ const GroupColumn = styled.ScrollView`
   background-color: ${color.white};
 `;
 
-// Figma 1648:38975: padding 16, space-between (label 좌측 / check 우측).
-const GroupItem = styled(SccPressable)`
+// Figma 1648:38975 + 박원 디자이너 수정안 (2026-05-27): 선택된 아이템에 brand10 배경.
+const GroupItem = styled(SccPressable)<{selected: boolean}>`
   padding: 16px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  background-color: ${({selected}) =>
+    selected ? color.brand10 : 'transparent'};
 `;
 
 const GroupLabel = styled.Text`
   font-family: ${font.pretendardRegular};
-  font-size: 18px;
+  font-size: 17px;
   line-height: 26px;
-  letter-spacing: -0.36px;
+  letter-spacing: -0.34px;
   color: ${color.gray90v2};
 `;
 

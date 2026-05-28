@@ -84,8 +84,8 @@ const DescriptionWrapper = styled.View`
 
 const Description = styled.Text`
   font-family: ${font.pretendardMedium};
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 26px;
   letter-spacing: -0.4px;
   color: ${color.white};
   text-align: center;

@@ -4,60 +4,77 @@ import styled from 'styled-components/native';
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
 
+import SpeechBubble, {BubbleVariant} from './SpeechBubble';
+
 interface MissionHeroProps {
   hiddenActive: boolean;
   hiddenCompleted: boolean;
   onHiddenPress: () => void;
-  onHiddenListPress: () => void;
   imageWidth: number;
   heroImageUrl: string;
+  /**
+   * 박원 디자이너 시안(2026-05-27)에 따른 말풍선 variant. null 이면 말풍선 미노출.
+   * (스플래시 직전 등 hero 만 렌더해야 하는 케이스 대비.)
+   */
+  bubbleVariant: BubbleVariant | null;
+  /**
+   * 말풍선 둥실(float) 애니메이션 여부. hero 자체는 정지하고 말풍선만 움직인다.
+   * - variant 1/2/3/5: true (둥실)
+   * - variant 4/6: false (정지)
+   */
+  bubbleFloat: boolean;
+  /**
+   * 미션 카드 hot zone 탭 핸들러. hero 안의 외출템(스마트폰/지도/돋보기)을 누르면
+   * 해당 미션 카드로 부모 ScrollView 가 스크롤한다.
+   */
+  onMissionItemPress?: (index: 0 | 1 | 2) => void;
 }
 
-// Figma 잔디밭 윌리 2 frame: width=390, height=575 (x=0, y=94 ~ y=669 in screen coord).
-// hero 이미지는 잔디밭 윌리 2 영역 전체를 한 장의 PNG로 합쳐서 export한 것.
-// 통이미지에 sky/잔디/title/subtitle/bubble/willy/외출템/CTA 가 모두 baked-in 되어 있다.
-// hero-local 좌표(= figma 절대좌표 - 94)로 hot zone과 CTA pressable을 통이미지 위에 띄운다.
+// 박원 figma 의 hero(visual) frame 사이즈. button/말풍선은 hero PNG 에서 제외됐고
+// 클라이언트가 따로 sticky CTA / SpeechBubble layer 로 띄운다.
 const DESIGN_WIDTH = 390;
-const DESIGN_HEIGHT = 575;
+const DESIGN_HEIGHT = 512;
 
-// figma 절대좌표(y=380.63) - hero top(94) = 286.63
+// 윌리 모자 위 hot zone (히든 미션 트리거). figma visual 안 mission_item > item_hidden
+// 좌표(이미지의 모자 자리)를 hero-local 로 변환. variant 별 frame 마다 미세하게 다르지만,
+// 모든 stage 에 공통으로 잘 떨어지는 중심 좌표 + 충분히 큰 영역으로 단순화.
 const HAT_HOT_ZONE = {
-  left: 144.14,
-  top: 286.63,
-  width: 92.06,
-  height: 57.79,
+  left: 144,
+  top: 220,
+  width: 92,
+  height: 70,
 };
 
-// figma 절대좌표(y=581) - hero top(94) = 487
-const CTA_BUTTON = {
-  left: 40,
-  top: 487,
-  width: 310,
-  height: 48,
-};
+// figma `mission_item` group 의 외출템 좌표 → hero-local 변환값. 모든 variant frame
+// 에서 동일한 절대 좌표를 사용한다 (박원 시안의 vector 노드 좌표는 stage 별로 같음).
+const MISSION_ITEM_HOT_ZONES = [
+  // item_1 (smartphone): hero-local x=58, y=272, w=67, h=95
+  {left: 58, top: 272, width: 67, height: 95},
+  // item_2 (map): hero-local x=25, y=392, w=95, h=74
+  {left: 25, top: 392, width: 95, height: 74},
+  // item_3 (magnifier): hero-local x=285, y=337, w=72, h=87
+  {left: 285, top: 337, width: 72, height: 87},
+] as const;
 
 export default function MissionHero({
   hiddenActive,
   hiddenCompleted,
   onHiddenPress,
-  onHiddenListPress,
   imageWidth,
   heroImageUrl,
+  bubbleVariant,
+  bubbleFloat,
+  onMissionItemPress,
 }: MissionHeroProps) {
   const scale = imageWidth / DESIGN_WIDTH;
   const heroHeight = DESIGN_HEIGHT * scale;
   const px = (val: number) => val * scale;
-
-  const ctaActivated = hiddenActive;
 
   return (
     <HeroContainer style={{width: imageWidth, height: heroHeight}}>
       <SccRemoteImage
         imageUrl={heroImageUrl}
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
           width: imageWidth,
           height: heroHeight,
         }}
@@ -79,18 +96,29 @@ export default function MissionHero({
         />
       )}
 
-      <HiddenListCtaButton
-        elementName="tutorial_mission_hidden_list_cta"
-        onPress={ctaActivated ? onHiddenListPress : undefined}
-        disabled={!ctaActivated}
-        style={{
-          position: 'absolute',
-          left: px(CTA_BUTTON.left),
-          top: px(CTA_BUTTON.top),
-          width: px(CTA_BUTTON.width),
-          height: px(CTA_BUTTON.height),
-        }}
-      />
+      {onMissionItemPress &&
+        MISSION_ITEM_HOT_ZONES.map((zone, idx) => (
+          <MissionItemHotZone
+            key={idx}
+            elementName={`tutorial_mission_item_${idx + 1}_hot_zone`}
+            onPress={() => onMissionItemPress(idx as 0 | 1 | 2)}
+            style={{
+              position: 'absolute',
+              left: px(zone.left),
+              top: px(zone.top),
+              width: px(zone.width),
+              height: px(zone.height),
+            }}
+          />
+        ))}
+
+      {bubbleVariant && (
+        <SpeechBubble
+          variant={bubbleVariant}
+          heroWidth={imageWidth}
+          float={bubbleFloat}
+        />
+      )}
     </HeroContainer>
   );
 }
@@ -99,8 +127,6 @@ const HeroContainer = styled.View`
   overflow: hidden;
 `;
 
-// hot zone과 CTA pressable은 투명 — 시각적 UI는 통이미지에 포함됨.
-// 사용자 터치 이벤트만 가로채는 역할.
 const HatHotZone = styled(SccPressable)``;
 
-const HiddenListCtaButton = styled(SccPressable)``;
+const MissionItemHotZone = styled(SccPressable)``;

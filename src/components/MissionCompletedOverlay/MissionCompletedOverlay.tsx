@@ -123,7 +123,8 @@ function FormattedDescription({description}: {description: string}) {
   );
 }
 
-// Figma 1648:39361: 본문 라인은 Medium 20/28, 폭 311, white, text-shadow 0 0 4 rgba(0,0,0,0.25).
+// Figma 1648:39361 기준, 박원 디자이너 수정안 (2026-05-27): fontSize 20→18pt.
+// Medium 18/26, 폭 311, white, text-shadow 0 0 4 rgba(0,0,0,0.25).
 const Description = styled.Text.attrs({
   style: {
     textShadowColor: 'rgba(0, 0, 0, 0.25)',
@@ -133,8 +134,8 @@ const Description = styled.Text.attrs({
 })`
   max-width: 90%;
   font-family: ${font.pretendardMedium};
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 26px;
   letter-spacing: -0.4px;
   text-align: center;
   color: ${color.white};

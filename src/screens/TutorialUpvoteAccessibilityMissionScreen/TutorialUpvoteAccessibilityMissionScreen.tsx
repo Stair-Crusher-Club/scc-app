@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
   Dimensions,
+  Easing,
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -49,6 +50,9 @@ const V2_APP_BAR_HEIGHT = 50;
 // 띄워진 V2AppBar 가 body 이미지 최상단을 덮지 않게) — 따라서 섹션이 viewport 상단(=appbar 바로 아래)
 // 에 보이려면 scrollY = body offset (paddingTop 은 자연스럽게 보정됨).
 const SCROLL_TARGET_Y = (526 * SCREEN_WIDTH) / 390;
+// 박원 디자이너 시안 (2026-05-27): 자동 스크롤 속도 80% (= 더 느리게).
+// `animated:true` 의 OS default 보다 명시적으로 길게 잡아 부드러운 inOut easing 적용.
+const AUTO_SCROLL_DURATION_MS = 700;
 // figma 1648:41483 frame 은 390 wide. 화면 폭이 다르더라도 디자인 비율을 그대로 유지.
 const INITIAL_DIM_SCALE = SCREEN_WIDTH / 390;
 
@@ -100,6 +104,18 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
   const bottomBarAnim = useRef(new Animated.Value(0)).current;
+  // 자동 스크롤 manual 애니메이션: scrollAnim Listener 가 매 프레임 scrollTo(animated:false)
+  // 를 호출. 박원 시안의 80% 속도(=느리게)를 위해 명시적 duration 사용.
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const listenerId = scrollAnim.addListener(({value}) => {
+      scrollViewRef.current?.scrollTo({y: value, animated: false});
+    });
+    return () => {
+      scrollAnim.removeListener(listenerId);
+    };
+  }, [scrollAnim]);
 
   // PlaceDetailV2Screen 와 동일하게 layout y 좌표를 ref 로 측정.
   const nameBottomYRef = useRef(220); // figma 기준 place name 하단 추정값 (status bar + app bar + name 영역 ≈ 220)
@@ -134,22 +150,28 @@ export default function TutorialUpvoteAccessibilityMissionScreen({
 
   // INITIAL_DIM 에서 사용자 터치(swipe / tap) 가 감지되면 한 번만 auto-scroll 발동.
   // ScrollView 자체는 scrollEnabled=false 라 유저는 자유롭게 스크롤 못 한다.
+  // 박원 디자이너 시안: 명시적 duration + inOut easing 으로 OS default 보다 80% 느리게.
   const handleScrollTrigger = useCallback(() => {
     if (phaseRef.current !== 'INITIAL_DIM') {
       return;
     }
     setPhase('AUTO_SCROLLING');
-    setTimeout(() => {
-      scrollViewRef.current?.scrollTo({y: SCROLL_TARGET_Y, animated: true});
-    }, 50);
-  }, [setPhase]);
+    scrollAnim.setValue(0);
+    Animated.timing(scrollAnim, {
+      toValue: SCROLL_TARGET_Y,
+      duration: AUTO_SCROLL_DURATION_MS,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: false,
+    }).start(({finished}) => {
+      if (finished && phaseRef.current === 'AUTO_SCROLLING') {
+        setPhase('UPVOTE_DIM');
+      }
+    });
+  }, [scrollAnim, setPhase]);
 
-  const handleMomentumScrollEnd = useCallback(() => {
-    if (phaseRef.current !== 'AUTO_SCROLLING') {
-      return;
-    }
-    setPhase('UPVOTE_DIM');
-  }, [setPhase]);
+  // manual 스크롤 애니메이션으로 변경 후에는 momentumScrollEnd 가 발생하지 않으므로
+  // Animated.timing 의 callback 에서 phase 를 전환한다 (no-op handler 유지).
+  const handleMomentumScrollEnd = useCallback(() => {}, []);
 
   // UPVOTE_DIM 진입 시 도움돼요 버튼의 화면 절대 좌표를 측정한다.
   // 한 번 측정해도 layout 직후엔 0 이 나올 수 있어 짧은 retry 를 한다.
