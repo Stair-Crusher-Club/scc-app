@@ -116,9 +116,8 @@ export default function MissionCard({
         <LockedOverlay>
           <BlurView
             style={StyleSheet.absoluteFillObject}
-            blurType="dark"
-            blurAmount={Platform.OS === 'ios' ? 25 : 8}
-            reducedTransparencyFallbackColor="rgba(0,0,0,0.8)"
+            blurType="light"
+            blurAmount={Platform.OS === 'ios' ? 25 : 6}
           />
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -337,7 +336,4 @@ const DimText = styled.Text`
   color: ${color.white};
   text-align: center;
   padding: 0 16px;
-  text-shadow-color: rgba(0, 0, 0, 0.65);
-  text-shadow-offset: 0px 0px;
-  text-shadow-radius: 4px;
 `;
