@@ -1,6 +1,6 @@
 import {BlurView} from '@sbaiahmed1/react-native-blur';
 import React from 'react';
-import {Image, Platform, View} from 'react-native';
+import {Image, Platform, StyleSheet, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -108,12 +108,18 @@ export default function MissionCard({
       )}
 
       {isDimmed && (
-        // 잠금 overlay: bg rgba(0,0,0,0.7) + backdrop-blur 5.5px + 1.5px #BCC69B border
-        // iOS BlurView blurAmount 0-100, Android 0-32 라 같은 숫자 다른 강도. iOS 35 / Android 6 으로 통일.
-        <LockedOverlay
-          blurType={Platform.OS === 'ios' ? 'dark' : 'dark'}
-          blurAmount={Platform.OS === 'ios' ? 25 : 6}
-          reducedTransparencyFallbackColor="rgba(0,0,0,0.7)">
+        // 잠금 overlay: figma quest_card_dim (1993:14903).
+        // styled(BlurView) 로 wrap 하면 border/background/border-radius 가
+        // native BlurView 위에 일관되게 안 먹어서 (특히 Android), wrapper View 가
+        // 시각 스타일을 담당하고 BlurView 는 absoluteFill 로 blur 효과만 담당.
+        // iOS BlurView blurAmount 0-100, Android 0-32 라 같은 숫자가 다른 강도.
+        <LockedOverlay>
+          <BlurView
+            style={StyleSheet.absoluteFillObject}
+            blurType="dark"
+            blurAmount={Platform.OS === 'ios' ? 25 : 8}
+            reducedTransparencyFallbackColor="rgba(0,0,0,0.8)"
+          />
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
             <LockIcon
@@ -299,9 +305,10 @@ const CompletedLinkText = styled.Text`
   text-align: center;
 `;
 
-// figma 1993:14903 quest_card_dim 잠금 overlay:
-// bg rgba(0,0,0,0.7) + backdrop-blur 5.5px + 1.5px #BCC69B border.
-const LockedOverlay = styled(BlurView)`
+// figma 1993:14903 quest_card_dim 잠금 overlay wrapper:
+// bg rgba(0,0,0,0.7) + 1.5px #BCC69B border + rounded 8 + overflow:hidden 으로
+// 자식 BlurView 가 모서리를 따라 잘리도록.
+const LockedOverlay = styled.View`
   position: absolute;
   top: 0;
   left: 0;
@@ -311,6 +318,9 @@ const LockedOverlay = styled(BlurView)`
   border-width: 1.5px;
   border-color: #bcc69b;
   background-color: rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
 `;
 
 const LockIcon = styled(Image)`
