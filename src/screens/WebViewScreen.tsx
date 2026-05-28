@@ -74,7 +74,6 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
 
   const handleMessage = useCallback((message: WebViewMessageEvent) => {
     const raw = message.nativeEvent.data;
-    // OG 메타 메시지인지 확인 (JSON)
     try {
       const parsed = JSON.parse(raw);
       if (
@@ -97,12 +96,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
             setTitle(payload.title);
           }
         }
-        return;
       }
     } catch (_e) {
-      // JSON 아니면 기존 document.title 메시지로 처리
+      // OG 스크립트 외 메시지는 무시 (의도되지 않은 raw postMessage).
     }
-    setTitle(raw);
   }, []);
 
   // 페이지 로드 완료 시 OG 메타 추출 스크립트 주입
@@ -185,16 +182,19 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         ref={webViewRef}
         style={styles.webview}
         source={{uri: resolvedInitialUrl}}
-        injectedJavaScript="window.postMessage(document.title)"
         onMessage={handleMessage}
         onLoadEnd={handleLoadEnd}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
-          if (navState.url !== currentUrl) {
-            setOgMeta(null);
-          }
-          setCurrentUrl(navState.url);
+          // 함수형 setter 로 atomic 하게 비교 + 갱신 — onNavigationStateChange 는 빠르게
+          // 연속 호출될 수 있어 인라인 콜백의 currentUrl 클로저가 stale 일 수 있다.
+          setCurrentUrl(prev => {
+            if (prev !== navState.url) {
+              setOgMeta(null);
+            }
+            return navState.url;
+          });
         }}
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />

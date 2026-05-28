@@ -244,7 +244,7 @@ export const MainNavigationScreens: {
   {
     name: 'SavedPlaceLists',
     component: SavedPlaceListsScreen,
-    options: {headerShown: true, headerTitle: '저장한 장소'},
+    options: {headerShown: true, headerTitle: '저장한 목록'},
   },
   {
     name: 'FavoritePlaces',

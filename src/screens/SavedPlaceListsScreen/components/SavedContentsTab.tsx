@@ -31,7 +31,7 @@ export default function SavedContentsTab() {
     queryKey: ['SavedContents'],
     queryFn: async ({pageParam}) =>
       (
-        await api.listSavedContentsPost({
+        await api.listSavedContents({
           nextToken: pageParam ?? undefined,
           limit: 20,
         })

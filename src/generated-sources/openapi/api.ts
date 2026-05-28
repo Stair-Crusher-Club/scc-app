@@ -2885,7 +2885,7 @@ export interface GetSccContentDetailsRequestDto {
     'url': string;
 }
 /**
- * 웹뷰 진입 시 단일 호출용 통합 응답. SccContent가 한 번도 저장된 적 없으면 sccContentId는 null이고 isSaved/isUpvoted는 false다. 
+ * 웹뷰 진입 시 단일 호출용 통합 응답. SccContent가 한 번도 저장된 적 없으면 sccContentId는 null이다. 좋아요 지원 컨텐츠가 아니면 isUpvoted/totalUpvoteCount는 null이다. 
  * @export
  * @interface GetSccContentDetailsResponseDto
  */
@@ -2903,17 +2903,17 @@ export interface GetSccContentDetailsResponseDto {
      */
     'isSaved': boolean;
     /**
-     * 현재 유저가 이 컨텐츠에 \'도움이 돼요\'를 표시했는지 여부.
+     * 현재 유저가 이 컨텐츠에 \'도움이 돼요\'를 표시했는지 여부. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 null.
      * @type {boolean}
      * @memberof GetSccContentDetailsResponseDto
      */
-    'isUpvoted': boolean;
+    'isUpvoted'?: boolean;
     /**
-     * 이 컨텐츠가 받은 \'도움이 돼요\'의 총 개수.
+     * 이 컨텐츠가 받은 \'도움이 돼요\'의 총 개수. 좋아요 지원 컨텐츠가 아니거나 sccContentId가 없으면 null.
      * @type {number}
      * @memberof GetSccContentDetailsResponseDto
      */
-    'totalUpvoteCount': number;
+    'totalUpvoteCount'?: number;
 }
 /**
  * 
@@ -3803,6 +3803,12 @@ export interface ListSavedContentsRequestDto {
  * @interface ListSavedContentsResponseDto
  */
 export interface ListSavedContentsResponseDto {
+    /**
+     * 저장한 컨텐츠의 전체 개수.
+     * @type {number}
+     * @memberof ListSavedContentsResponseDto
+     */
+    'totalNumberOfItems': number;
     /**
      * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
      * @type {string}
@@ -8706,15 +8712,15 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
          * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSccContentDetailsPost: async (getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getSccContentDetails: async (getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'getSccContentDetailsRequestDto' is not null or undefined
-            assertParamExists('getSccContentDetailsPost', 'getSccContentDetailsRequestDto', getSccContentDetailsRequestDto)
+            assertParamExists('getSccContentDetails', 'getSccContentDetailsRequestDto', getSccContentDetailsRequestDto)
             const localVarPath = `/getSccContentDetails`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -9371,9 +9377,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSavedContentsPost: async (listSavedContentsRequestDto: ListSavedContentsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listSavedContents: async (listSavedContentsRequestDto: ListSavedContentsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'listSavedContentsRequestDto' is not null or undefined
-            assertParamExists('listSavedContentsPost', 'listSavedContentsRequestDto', listSavedContentsRequestDto)
+            assertParamExists('listSavedContents', 'listSavedContentsRequestDto', listSavedContentsRequestDto)
             const localVarPath = `/listSavedContents`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -10293,9 +10299,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        saveContentPost: async (saveContentRequestDto: SaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        saveContent: async (saveContentRequestDto: SaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'saveContentRequestDto' is not null or undefined
-            assertParamExists('saveContentPost', 'saveContentRequestDto', saveContentRequestDto)
+            assertParamExists('saveContent', 'saveContentRequestDto', saveContentRequestDto)
             const localVarPath = `/saveContent`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -10693,9 +10699,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unsaveContentPost: async (unsaveContentRequestDto: UnsaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        unsaveContent: async (unsaveContentRequestDto: UnsaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'unsaveContentRequestDto' is not null or undefined
-            assertParamExists('unsaveContentPost', 'unsaveContentRequestDto', unsaveContentRequestDto)
+            assertParamExists('unsaveContent', 'unsaveContentRequestDto', unsaveContentRequestDto)
             const localVarPath = `/unsaveContent`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -11381,14 +11387,14 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
          * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSccContentDetailsPost(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSccContentDetailsResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSccContentDetailsPost(getSccContentDetailsRequestDto, options);
+        async getSccContentDetails(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSccContentDetailsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSccContentDetails(getSccContentDetailsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11573,8 +11579,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listSavedContentsPost(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSavedContentsResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listSavedContentsPost(listSavedContentsRequestDto, options);
+        async listSavedContents(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSavedContentsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSavedContents(listSavedContentsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11828,8 +11834,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async saveContentPost(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SaveContentResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.saveContentPost(saveContentRequestDto, options);
+        async saveContent(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SaveContentResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.saveContent(saveContentRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11938,8 +11944,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async unsaveContentPost(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.unsaveContentPost(unsaveContentRequestDto, options);
+        async unsaveContent(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unsaveContent(unsaveContentRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -12386,14 +12392,14 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
         },
         /**
-         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
          * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSccContentDetailsPost(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: any): AxiosPromise<GetSccContentDetailsResponseDto> {
-            return localVarFp.getSccContentDetailsPost(getSccContentDetailsRequestDto, options).then((request) => request(axios, basePath));
+        getSccContentDetails(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: any): AxiosPromise<GetSccContentDetailsResponseDto> {
+            return localVarFp.getSccContentDetails(getSccContentDetailsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12561,8 +12567,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSavedContentsPost(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: any): AxiosPromise<ListSavedContentsResponseDto> {
-            return localVarFp.listSavedContentsPost(listSavedContentsRequestDto, options).then((request) => request(axios, basePath));
+        listSavedContents(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: any): AxiosPromise<ListSavedContentsResponseDto> {
+            return localVarFp.listSavedContents(listSavedContentsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12793,8 +12799,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        saveContentPost(saveContentRequestDto: SaveContentRequestDto, options?: any): AxiosPromise<SaveContentResponseDto> {
-            return localVarFp.saveContentPost(saveContentRequestDto, options).then((request) => request(axios, basePath));
+        saveContent(saveContentRequestDto: SaveContentRequestDto, options?: any): AxiosPromise<SaveContentResponseDto> {
+            return localVarFp.saveContent(saveContentRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12893,8 +12899,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unsaveContentPost(unsaveContentRequestDto: UnsaveContentRequestDto, options?: any): AxiosPromise<void> {
-            return localVarFp.unsaveContentPost(unsaveContentRequestDto, options).then((request) => request(axios, basePath));
+        unsaveContent(unsaveContentRequestDto: UnsaveContentRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.unsaveContent(unsaveContentRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -13408,15 +13414,15 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 
+     * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
      * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
      * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getSccContentDetailsPost(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getSccContentDetailsPost(getSccContentDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public getSccContentDetails(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getSccContentDetails(getSccContentDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13618,8 +13624,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public listSavedContentsPost(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listSavedContentsPost(listSavedContentsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public listSavedContents(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listSavedContents(listSavedContentsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13896,8 +13902,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public saveContentPost(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).saveContentPost(saveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public saveContent(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).saveContent(saveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14016,8 +14022,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public unsaveContentPost(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).unsaveContentPost(unsaveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public unsaveContent(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unsaveContent(unsaveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

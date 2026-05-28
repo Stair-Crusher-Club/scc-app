@@ -12,7 +12,11 @@ interface UseUpvoteToggleParams {
   initialTotalCount: number | undefined;
   targetId: string | undefined;
   targetType: UpvoteTargetTypeDto;
-  placeId: string;
+  /**
+   * 장소 연관 좋아요(PLACE/PLACE_ACCESSIBILITY/BUILDING_ACCESSIBILITY/리뷰) 의 PlaceDetail 캐시 invalidate 키.
+   * SccContent 같이 장소와 무관한 좋아요에는 undefined 를 넘긴다.
+   */
+  placeId: string | undefined;
   /**
    * mutation 성공 시 호출되는 부가 콜백. wasUpvoted = 호출 직전 isUpvoted 값.
    * (false → true 전환 시 wasUpvoted=false)

@@ -44,25 +44,26 @@ export default function SccContentFloatingBar({
   const insets = useSafeAreaInsets();
 
   // SccContent 통합 상태 조회 (isSaved + isUpvoted + totalUpvoteCount + sccContentId)
-  const {data: sccContentDetails} = useQuery({
+  const {data: sccContentDetails, isLoading: isDetailsLoading} = useQuery({
     queryKey: ['SccContentDetails', url],
     queryFn: async () => {
-      return (await api.getSccContentDetailsPost({url})).data;
+      return (await api.getSccContentDetails({url})).data;
     },
   });
 
   const sccContentId = sccContentDetails?.sccContentId ?? null;
   const isSaved = sccContentDetails?.isSaved ?? false;
   const initialIsUpvoted = sccContentDetails?.isUpvoted ?? false;
-  const initialTotalUpvoteCount = sccContentDetails?.totalUpvoteCount;
+  const initialTotalUpvoteCount =
+    sccContentDetails?.totalUpvoteCount ?? undefined;
 
-  // Upvote 토글 hook
+  // Upvote 토글 hook (SccContent 좋아요는 장소 무관 → placeId undefined)
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted,
     initialTotalCount: initialTotalUpvoteCount,
     targetId: sccContentId ?? undefined,
     targetType: UpvoteTargetTypeDto.BbucleRoad,
-    placeId: '',
+    placeId: undefined,
   });
   const checkAuth = useCheckAuth();
   const saveContent = useSaveContent();
@@ -139,9 +140,11 @@ export default function SccContentFloatingBar({
           </UpvoteButton>
         )}
 
-        {/* 저장 버튼 */}
+        {/* 저장 버튼 — 상세 조회 로딩 중에는 잘못된 isSaved=false 가 잠깐 보이는 플리커를 막기 위해 disable */}
         <SaveButton
+          disabled={isDetailsLoading}
           onPress={() => {
+            if (isDetailsLoading) return;
             checkAuth(handleToggleSave, () =>
               ToastUtils.show('로그인이 필요합니다'),
             );
