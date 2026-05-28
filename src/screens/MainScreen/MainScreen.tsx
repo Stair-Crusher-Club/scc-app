@@ -113,6 +113,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
           title: '지도',
           headerShown: false,
           tabBarIcon: MapTabIcon,
+          freezeOnBlur: true,
         }}
       />
       <Tab.Screen

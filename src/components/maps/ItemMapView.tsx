@@ -30,6 +30,7 @@ import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {useIsForeground} from '@/hooks/useIsForeground';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
 import useNavigation from '@/navigation/useNavigation.ts';
 import {useLogger} from '@/logging/useLogger';
@@ -100,6 +101,8 @@ const FRefInputComp = <T extends MarkerItem>(
   // context 값이 0이 되어 추가 padding 없음.
   const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
   const isFocused = useIsFocused();
+  const isForeground = useIsForeground();
+  const isActive = isFocused && isForeground;
   const onMyLocationPress = () => {
     mapRef.current?.setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
@@ -124,11 +127,13 @@ const FRefInputComp = <T extends MarkerItem>(
     return () => clearTimeout(timer);
   }, []);
 
-  // 화면이 포커스된 동안에만 GPS watch. 다른 화면으로 push 되면 즉시 해제.
+  // 화면이 포커스 + 앱이 foreground 인 동안에만 GPS watch.
+  // - useIsFocused: navigation stack 의 다른 화면으로 push 되면 GPS 해제
+  // - useIsForeground: 앱이 백그라운드로 가면 GPS 해제 (isFocused 만으로는 안 됨)
   // 2시간 활동 발열 원인 1순위: enableHighAccuracy GPS가 navigation stack에
   // 깔린 모든 map 화면에서 동시에 돌고 있던 누수.
   useEffect(() => {
-    if (!isFocused) return;
+    if (!isActive) return;
     HeatTelemetry.start('gps_watch');
     const watchId = Geolocation.watchPosition(
       position => {
@@ -150,7 +155,7 @@ const FRefInputComp = <T extends MarkerItem>(
       Geolocation.clearWatch(watchId);
       HeatTelemetry.stop('gps_watch');
     };
-  }, [isFocused, setCurrentLocation]);
+  }, [isActive, setCurrentLocation]);
 
   useEffect(() => {
     HeatTelemetry.start('map_native_view');

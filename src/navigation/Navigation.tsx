@@ -71,9 +71,6 @@ export const Navigation = () => {
       initialRouteName="Intro"
       screenOptions={() => ({
         headerShown: false,
-        // inactive 화면의 JS 실행을 동결. stack에 깔린 map/카메라 등 무거운 화면이
-        // 백그라운드에서 계속 GPU/CPU 자원을 쓰는 것을 막아 2시간 활동 발열을 완화.
-        freezeOnBlur: true,
         // native-stack screen 컨테이너 기본값이 투명이라, 화면 전환 중/후에
         // GestureHandlerRootView 등 상위 트리의 배경색이 leak된다. 모든 화면을
         // 흰 배경으로 강제해 leak 차단. (특정 화면이 투명 필요시 override)
