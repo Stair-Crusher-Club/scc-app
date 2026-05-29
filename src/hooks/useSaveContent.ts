@@ -19,7 +19,11 @@ interface SaveContentMutateArgs {
   url: string;
   contentType: SccContentTypeDto;
   title?: string | null;
-  thumbnailUrl?: string | null;
+  /**
+   * 페이지에서 추출한 이미지 URL 목록 (og:image + 본문 <img>). 빈 배열이라도 항상 전달한다
+   * (SaveContentRequestDto.imageUrls 가 required).
+   */
+  imageUrls: string[];
   description?: string | null;
   currentIsSaved: boolean;
   currentSccContentId?: string | null;
@@ -40,7 +44,7 @@ export function useSaveContent(options?: UseSaveContentOptions) {
       url,
       contentType,
       title,
-      thumbnailUrl,
+      imageUrls,
       description,
       currentIsSaved,
       currentSccContentId,
@@ -57,8 +61,8 @@ export function useSaveContent(options?: UseSaveContentOptions) {
         const {data} = await api.saveContent({
           url,
           contentType,
+          imageUrls,
           ...(title != null ? {title} : {}),
-          ...(thumbnailUrl != null ? {thumbnailUrl} : {}),
           ...(description != null ? {description} : {}),
         });
         return {isSaved: true, sccContentId: data.sccContentId};

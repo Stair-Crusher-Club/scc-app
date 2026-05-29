@@ -45,11 +45,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     fixedTitle || undefined,
   );
 
-  // 웹페이지 OG 메타 (저장 시 서버로 전달)
+  // 웹페이지 OG 메타 + 본문 이미지 (저장 시 서버로 전달)
   const [ogMeta, setOgMeta] = useState<{
     title: string | null;
-    thumbnailUrl: string | null;
     description: string | null;
+    imageUrls: string[];
   } | null>(null);
 
   // SCC 콘텐츠 도메인이면 floating bar 노출
@@ -92,14 +92,16 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       ) {
         const payload = parsed.payload as {
           title: string | null;
-          thumbnailUrl: string | null;
           description: string | null;
+          imageUrls?: string[] | null;
         } | null;
         if (payload) {
           setOgMeta({
             title: payload.title ?? null,
-            thumbnailUrl: payload.thumbnailUrl ?? null,
             description: payload.description ?? null,
+            imageUrls: Array.isArray(payload.imageUrls)
+              ? payload.imageUrls
+              : [],
           });
           if (payload.title) {
             setTitle(payload.title);
@@ -111,7 +113,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     }
   }, []);
 
-  // 페이지 로드 완료 시 OG 메타 추출 스크립트 주입
+  // 페이지 로드 완료 시 OG 메타 + 본문 이미지 추출 스크립트 주입
   const handleLoadEnd = useCallback(() => {
     const extractOgScript = `
       (function() {
@@ -120,10 +122,35 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
             var el = document.querySelector(sel);
             return el ? el.getAttribute('content') : null;
           };
+          // og:image 를 먼저 push 한 뒤 본문 <img> src 를 절대 URL 화하여 합친다.
+          // data: URI / 빈 src 는 제외, 중복은 제거, 등장 순서는 유지.
+          var imageUrls = [];
+          var seen = Object.create(null);
+          var ogImage = get('meta[property="og:image"]');
+          if (ogImage) {
+            try {
+              var ogAbs = new URL(ogImage, document.baseURI).toString();
+              imageUrls.push(ogAbs);
+              seen[ogAbs] = true;
+            } catch (_e) {
+              imageUrls.push(ogImage);
+              seen[ogImage] = true;
+            }
+          }
+          var imgs = document.querySelectorAll('img[src]');
+          for (var i = 0; i < imgs.length; i++) {
+            var src = imgs[i].getAttribute('src');
+            if (!src || src.indexOf('data:') === 0) continue;
+            var abs = src;
+            try { abs = new URL(src, document.baseURI).toString(); } catch (_e) {}
+            if (seen[abs]) continue;
+            seen[abs] = true;
+            imageUrls.push(abs);
+          }
           var og = {
             title: get('meta[property="og:title"]') || document.title || null,
-            thumbnailUrl: get('meta[property="og:image"]'),
             description: get('meta[property="og:description"]') || get('meta[name="description"]'),
+            imageUrls: imageUrls,
           };
           window.ReactNativeWebView.postMessage(JSON.stringify({type: 'SCC_OG_META', payload: og}));
         } catch (e) {
@@ -213,7 +240,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           bbucleRoadId={bbucleRoadId}
           title={title}
           ogTitle={ogMeta?.title ?? null}
-          ogThumbnailUrl={ogMeta?.thumbnailUrl ?? null}
+          ogImageUrls={ogMeta?.imageUrls ?? []}
           ogDescription={ogMeta?.description ?? null}
         />
       )}

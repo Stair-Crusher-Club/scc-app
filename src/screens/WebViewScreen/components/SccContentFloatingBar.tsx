@@ -32,7 +32,8 @@ interface SccContentFloatingBarProps {
   bbucleRoadId: string | null;
   title?: string;
   ogTitle?: string | null;
-  ogThumbnailUrl?: string | null;
+  /** og:image + 본문 <img> 합쳐서 중복 제거 + 등장 순서로 정렬된 절대 URL 목록. */
+  ogImageUrls?: string[];
   ogDescription?: string | null;
 }
 
@@ -41,7 +42,7 @@ export default function SccContentFloatingBar({
   bbucleRoadId,
   title,
   ogTitle,
-  ogThumbnailUrl,
+  ogImageUrls,
   ogDescription,
 }: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
@@ -94,7 +95,7 @@ export default function SccContentFloatingBar({
       url,
       contentType: SccContentTypeDto.WebPage,
       title: ogTitle ?? title ?? null,
-      thumbnailUrl: ogThumbnailUrl ?? null,
+      imageUrls: ogImageUrls ?? [],
       description: ogDescription ?? null,
       currentIsSaved: isSaved,
       currentSccContentId: sccContentId,
@@ -104,7 +105,7 @@ export default function SccContentFloatingBar({
     url,
     ogTitle,
     title,
-    ogThumbnailUrl,
+    ogImageUrls,
     ogDescription,
     isSaved,
     sccContentId,
