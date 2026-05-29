@@ -1,7 +1,7 @@
 import {FlashList} from '@shopify/flash-list';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import React, {useCallback} from 'react';
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -116,6 +116,12 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
       logParams={{sccContentId: sccContent.id}}
       onPress={onPress}>
       <ItemContainer isFirst={isFirst}>
+        <ItemHeader>
+          <AuthorAvatar />
+          <ItemAuthor>{authorLabel}</ItemAuthor>
+          <ItemMeta>· {savedAtLabel}</ItemMeta>
+        </ItemHeader>
+
         {sccContent.title ? (
           <ItemTitle numberOfLines={2}>{sccContent.title}</ItemTitle>
         ) : (
@@ -128,15 +134,27 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
           </ItemDescription>
         ) : null}
 
-        {displayedImages.length > 0 ? (
+        {displayedImages.length === 0 ? null : displayedImages.length < 5 ? (
+          <ItemImageRow>
+            {displayedImages.map((url, i) => (
+              <SccRemoteImage
+                key={`${url}-${i}`}
+                imageUrl={url}
+                resizeMode="cover"
+                wrapperBackgroundColor={null}
+                style={{width: 72, height: 72, borderRadius: 6}}
+              />
+            ))}
+          </ItemImageRow>
+        ) : (
           <ItemImageRow>
             {displayedImages.map((url, i) => (
               <ItemImageCell key={`${url}-${i}`}>
                 <SccRemoteImage
                   imageUrl={url}
-                  fixedHeight={72}
                   resizeMode="cover"
-                  style={{width: '100%', height: 72}}
+                  wrapperBackgroundColor={null}
+                  style={StyleSheet.absoluteFillObject}
                 />
                 {i === displayedImages.length - 1 && extraImageCount > 0 ? (
                   <ItemImageOverlay>
@@ -148,7 +166,7 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
               </ItemImageCell>
             ))}
           </ItemImageRow>
-        ) : null}
+        )}
       </ItemContainer>
     </SccPressable>
   );
@@ -202,6 +220,32 @@ const ItemContainer = styled.View<{isFirst: boolean}>`
   background-color: ${color.white};
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
   border-top-color: #f2f2f5;
+`;
+
+const ItemHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+`;
+
+const AuthorAvatar = styled.View`
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: ${color.brand10};
+`;
+
+const ItemAuthor = styled.Text`
+  font-size: 13px;
+  font-family: ${() => font.pretendardMedium};
+  color: ${color.gray70};
+`;
+
+const ItemMeta = styled.Text`
+  font-size: 12px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${color.gray50};
 `;
 
 const ItemTitle = styled.Text`
