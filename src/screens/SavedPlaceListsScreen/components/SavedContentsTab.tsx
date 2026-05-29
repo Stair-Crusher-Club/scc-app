@@ -116,11 +116,6 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
       logParams={{sccContentId: sccContent.id}}
       onPress={onPress}>
       <ItemContainer isFirst={isFirst}>
-        <ItemHeader>
-          <ItemAuthor numberOfLines={1}>{authorLabel}</ItemAuthor>
-          <ItemMeta>· {savedAtLabel}</ItemMeta>
-        </ItemHeader>
-
         {sccContent.title ? (
           <ItemTitle numberOfLines={2}>{sccContent.title}</ItemTitle>
         ) : (
@@ -207,26 +202,6 @@ const ItemContainer = styled.View<{isFirst: boolean}>`
   background-color: ${color.white};
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
   border-top-color: #f2f2f5;
-`;
-
-const ItemHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-`;
-
-const ItemAuthor = styled.Text`
-  flex-shrink: 1;
-  font-size: 13px;
-  font-family: ${() => font.pretendardMedium};
-  color: ${color.gray70};
-`;
-
-const ItemMeta = styled.Text`
-  font-size: 12px;
-  font-family: ${() => font.pretendardRegular};
-  color: ${color.gray50};
 `;
 
 const ItemTitle = styled.Text`
