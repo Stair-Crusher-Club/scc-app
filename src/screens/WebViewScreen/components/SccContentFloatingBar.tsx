@@ -14,19 +14,22 @@ import {SccButton} from '@/components/atoms/SccButton';
 import {SccPressable} from '@/components/SccPressable';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {useSaveContent} from '@/hooks/useSaveContent';
+import {useMe} from '@/atoms/Auth';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import useAppComponents from '@/hooks/useAppComponents';
 
 import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
-import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
-import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
+import BookmarkIcon from '@/assets/icon/ic_v2_bookmark.svg';
+import BookmarkFilledIcon from '@/assets/icon/ic_v2_bookmark_on.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 interface SccContentFloatingBarProps {
   url: string;
+  /** BBUCLE_ROAD 좋아요용 path id. URL path에서 추출한 식별자. */
+  bbucleRoadId: string | null;
   title?: string;
   ogTitle?: string | null;
   ogThumbnailUrl?: string | null;
@@ -35,6 +38,7 @@ interface SccContentFloatingBarProps {
 
 export default function SccContentFloatingBar({
   url,
+  bbucleRoadId,
   title,
   ogTitle,
   ogThumbnailUrl,
@@ -43,25 +47,42 @@ export default function SccContentFloatingBar({
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
 
-  // SccContent 통합 상태 조회 (isSaved + isUpvoted + totalUpvoteCount + sccContentId)
+  // 저장(SccContent) 상태 조회. SccContent가 한 번도 저장된 적 없으면 sccContentId=null/isSaved=false.
   const {data: sccContentDetails, isLoading: isDetailsLoading} = useQuery({
     queryKey: ['SccContentDetails', url],
     queryFn: async () => {
       return (await api.getSccContentDetails({url})).data;
     },
   });
-
   const sccContentId = sccContentDetails?.sccContentId ?? null;
   const isSaved = sccContentDetails?.isSaved ?? false;
-  const initialIsUpvoted = sccContentDetails?.isUpvoted ?? false;
-  const initialTotalUpvoteCount =
-    sccContentDetails?.totalUpvoteCount ?? undefined;
 
-  // Upvote 토글 hook (SccContent 좋아요는 장소 무관 → placeId undefined)
+  // 좋아요는 BBUCLE_ROAD path id 기준으로 별도 조회 (저장 여부와 무관).
+  // 기존 좋아요 누적치가 path id로 쌓여 있으므로 동일 기준 사용.
+  const {data: upvoteDetails} = useQuery({
+    queryKey: ['SccContentUpvoteDetails', bbucleRoadId],
+    queryFn: async () => {
+      return (
+        await api.getUpvoteDetailsPost({
+          targetType: UpvoteTargetTypeDto.BbucleRoad,
+          id: bbucleRoadId!,
+        })
+      ).data;
+    },
+    enabled: !!bbucleRoadId,
+  });
+  const {userInfo} = useMe();
+  const initialIsUpvoted =
+    upvoteDetails?.upvotedUsers?.some(
+      u => userInfo?.nickname && u.nickname === userInfo.nickname,
+    ) ?? false;
+  const initialTotalUpvoteCount = upvoteDetails?.upvotedUsers?.length;
+
+  // Upvote 토글 hook — BBUCLE_ROAD 좋아요는 장소와 무관하므로 placeId undefined
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
     initialIsUpvoted,
     initialTotalCount: initialTotalUpvoteCount,
-    targetId: sccContentId ?? undefined,
+    targetId: bbucleRoadId ?? undefined,
     targetType: UpvoteTargetTypeDto.BbucleRoad,
     placeId: undefined,
   });
@@ -119,47 +140,47 @@ export default function SccContentFloatingBar({
   return (
     <Container style={{paddingBottom: insets.bottom}}>
       <ContentRow>
-        {/* 도움이 돼요 버튼 (sccContentId 있을 때만) */}
-        {sccContentId !== null && (
-          <UpvoteButton
-            onPress={() => {
-              checkAuth(toggleUpvote, () =>
-                ToastUtils.show('로그인이 필요합니다'),
-              );
-            }}
-            elementName="scc-content-upvote"
-            logParams={{sccContentId}}>
-            {isUpvoted ? (
-              <ThumbsUpFillIcon width={20} height={20} />
-            ) : (
-              <ThumbsUpIcon width={20} height={20} />
-            )}
-            {totalUpvoteCount !== undefined && totalUpvoteCount > 0 ? (
-              <UpvoteCount isActive={isUpvoted}>{totalUpvoteCount}</UpvoteCount>
-            ) : null}
-          </UpvoteButton>
-        )}
+        {/* 도움이 돼요 + 저장 버튼은 같은 노출 조건 (BBUCLE_ROAD path id가 추출되는 컨텐츠) */}
+        {bbucleRoadId !== null && (
+          <>
+            <UpvoteButton
+              onPress={() => {
+                checkAuth(toggleUpvote, () =>
+                  ToastUtils.show('로그인이 필요합니다'),
+                );
+              }}
+              elementName="scc-content-upvote"
+              logParams={{bbucleRoadId}}>
+              {isUpvoted ? (
+                <ThumbsUpFillIcon width={20} height={20} />
+              ) : (
+                <ThumbsUpIcon width={20} height={20} />
+              )}
+              {totalUpvoteCount !== undefined && totalUpvoteCount > 0 ? (
+                <UpvoteCount isActive={isUpvoted}>
+                  {totalUpvoteCount}
+                </UpvoteCount>
+              ) : null}
+            </UpvoteButton>
 
-        {/* 저장 버튼 — 상세 조회 로딩 중에는 잘못된 isSaved=false 가 잠깐 보이는 플리커를 막기 위해 disable */}
-        <SaveButton
-          disabled={isDetailsLoading}
-          onPress={() => {
-            if (isDetailsLoading) return;
-            checkAuth(handleToggleSave, () =>
-              ToastUtils.show('로그인이 필요합니다'),
-            );
-          }}
-          elementName="scc-content-save"
-          logParams={{url, isSaved}}>
-          {isSaved ? (
-            <BookmarkFilledIcon width={20} height={20} color={color.gray80} />
-          ) : (
-            <BookmarkIcon width={16} height={20} color={color.gray80} />
-          )}
-          <SaveLabel isActive={isSaved}>
-            {isSaved ? '저장됨' : '저장'}
-          </SaveLabel>
-        </SaveButton>
+            <SaveButton
+              disabled={isDetailsLoading}
+              onPress={() => {
+                if (isDetailsLoading) return;
+                checkAuth(handleToggleSave, () =>
+                  ToastUtils.show('로그인이 필요합니다'),
+                );
+              }}
+              elementName="scc-content-save"
+              logParams={{url, isSaved}}>
+              {isSaved ? (
+                <BookmarkFilledIcon width={20} height={20} color="#232328" />
+              ) : (
+                <BookmarkIcon width={20} height={20} color="#7A7A88" />
+              )}
+            </SaveButton>
+          </>
+        )}
 
         <Spacer />
 
@@ -241,12 +262,6 @@ const SaveButton = styled(SccPressable)`
   border-width: 1px;
   border-color: ${color.gray25};
   background-color: ${color.white};
-`;
-
-const SaveLabel = styled.Text<{isActive: boolean}>`
-  font-size: 14px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
 `;
 
 const UpvoteCount = styled.Text<{isActive: boolean}>`

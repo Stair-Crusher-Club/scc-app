@@ -57,6 +57,15 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     currentUrl.startsWith('https://con.staircrusher.club') ||
     currentUrl.startsWith('https://staircrusherclub.notion.site');
 
+  // BBUCLE_ROAD 좋아요용 path id (기존 흐름과 동일).
+  // 좋아요는 SccContent 저장 여부와 무관하게 path id 기준으로 누적/조회된다.
+  const bbucleRoadId = useMemo(() => {
+    const match = currentUrl.match(
+      /(?:con\.staircrusher\.club|staircrusherclub\.notion\.site)\/([^/?#]+)/,
+    );
+    return match ? match[1] : null;
+  }, [currentUrl]);
+
   const onTapCloseButton = useCallback(() => {
     if (!confirmOnClose) {
       navigation.goBack();
@@ -201,6 +210,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       {shouldShowFloatingBar && (
         <SccContentFloatingBar
           url={currentUrl}
+          bbucleRoadId={bbucleRoadId}
           title={title}
           ogTitle={ogMeta?.title ?? null}
           ogThumbnailUrl={ogMeta?.thumbnailUrl ?? null}
