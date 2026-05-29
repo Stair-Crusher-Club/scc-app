@@ -2885,7 +2885,7 @@ export interface GetSccContentDetailsRequestDto {
     'url': string;
 }
 /**
- * 웹뷰 진입 시 단일 호출용 통합 응답. SccContent가 한 번도 저장된 적 없으면 sccContentId는 null이다. 좋아요 지원 컨텐츠가 아니면 isUpvoted/totalUpvoteCount는 null이다. 
+ * URL 기준 SccContent 의 id 와 현재 유저의 저장 여부. SccContent 가 한 번도 저장된 적 없으면 sccContentId 는 null 이다. 
  * @export
  * @interface GetSccContentDetailsResponseDto
  */
@@ -2902,18 +2902,6 @@ export interface GetSccContentDetailsResponseDto {
      * @memberof GetSccContentDetailsResponseDto
      */
     'isSaved': boolean;
-    /**
-     * 현재 유저가 이 컨텐츠에 \'도움이 돼요\'를 표시했는지 여부. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 null.
-     * @type {boolean}
-     * @memberof GetSccContentDetailsResponseDto
-     */
-    'isUpvoted'?: boolean;
-    /**
-     * 이 컨텐츠가 받은 \'도움이 돼요\'의 총 개수. 좋아요 지원 컨텐츠가 아니거나 sccContentId가 없으면 null.
-     * @type {number}
-     * @memberof GetSccContentDetailsResponseDto
-     */
-    'totalUpvoteCount'?: number;
 }
 /**
  * 
@@ -5839,17 +5827,17 @@ export interface SaveContentRequestDto {
      */
     'title'?: string;
     /**
-     * 앱이 웹뷰의 og:image에서 추출. 없으면 null.
-     * @type {string}
-     * @memberof SaveContentRequestDto
-     */
-    'thumbnailUrl'?: string;
-    /**
      * 앱이 웹뷰의 og:description 또는 meta[name=description]에서 추출. 없으면 null.
      * @type {string}
      * @memberof SaveContentRequestDto
      */
     'description'?: string;
+    /**
+     * 앱이 웹뷰에서 추출한 이미지 URL들. og:image 와 본문 <img> src 를 합쳐 중복 제거 + 등장 순서로 정렬해 보낸다. 비어 있으면 빈 배열을 보낸다. 
+     * @type {Array<string>}
+     * @memberof SaveContentRequestDto
+     */
+    'imageUrls': Array<string>;
 }
 /**
  * 
@@ -5903,7 +5891,7 @@ export interface SavePlaceRequestDto {
     'placeListId'?: string;
 }
 /**
- * URL을 기준으로 유일성을 가지는 컨텐츠. title/thumbnail/description은 OG 메타에서 가져온다. 
+ * URL을 기준으로 유일성을 가지는 컨텐츠. title/description/imageUrls는 OG 메타 + 본문 이미지에서 가져온다. 
  * @export
  * @interface SccContentDto
  */
@@ -5933,17 +5921,17 @@ export interface SccContentDto {
      */
     'title'?: string;
     /**
-     * 컨텐츠 썸네일 URL. OG image가 없으면 null일 수 있다.
-     * @type {string}
-     * @memberof SccContentDto
-     */
-    'thumbnailUrl'?: string;
-    /**
      * 컨텐츠 설명. OG description이 없으면 null일 수 있다.
      * @type {string}
      * @memberof SccContentDto
      */
     'description'?: string;
+    /**
+     * 컨텐츠 페이지에서 추출한 이미지 URL들. 본문 img + og:image 를 순서대로 수집한다. 빈 배열일 수 있다. 목록 노출에서는 앞쪽 N장 + 더보기 표기를 사용한다. 
+     * @type {Array<string>}
+     * @memberof SccContentDto
+     */
+    'imageUrls': Array<string>;
 }
 /**
  * 저장 가능한 컨텐츠 타입. 초기에는 WEB_PAGE 하나만 지원하지만 향후 확장 가능. 
@@ -8712,8 +8700,8 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
-         * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+         * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -10293,7 +10281,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
          * @summary 웹페이지 등 컨텐츠를 저장한다.
          * @param {SaveContentRequestDto} saveContentRequestDto 
          * @param {*} [options] Override http request option.
@@ -11387,8 +11375,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
-         * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+         * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -11828,7 +11816,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
          * @summary 웹페이지 등 컨텐츠를 저장한다.
          * @param {SaveContentRequestDto} saveContentRequestDto 
          * @param {*} [options] Override http request option.
@@ -12392,8 +12380,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
         },
         /**
-         * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
-         * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+         * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -12793,7 +12781,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
          * @summary 웹페이지 등 컨텐츠를 저장한다.
          * @param {SaveContentRequestDto} saveContentRequestDto 
          * @param {*} [options] Override http request option.
@@ -13414,8 +13402,8 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 웹뷰 진입 시 단일 호출로 isSaved + 좋아요 상태(isUpvoted, totalUpvoteCount) + 컨텐츠 메타를 받아온다. BBUCLE_ROAD 타깃의 좋아요 정보를 별도로 fetch하던 흐름을 이 엔드포인트로 통합한다. sccContentId는 한 번도 저장된 적 없으면 null로 응답한다. 좋아요 지원 컨텐츠(BBUCLE_ROAD 등)가 아니거나 sccContentId가 없으면 isUpvoted/totalUpvoteCount는 null로 응답한다. 
-     * @summary 웹뷰 컨텐츠의 좋아요 상태, 저장 상태, 메타를 통합 조회한다.
+     * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
+     * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
      * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -13895,7 +13883,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, thumbnailUrl, description)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+     * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
      * @summary 웹페이지 등 컨텐츠를 저장한다.
      * @param {SaveContentRequestDto} saveContentRequestDto 
      * @param {*} [options] Override http request option.
