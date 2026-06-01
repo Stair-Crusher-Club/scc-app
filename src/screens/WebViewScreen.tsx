@@ -124,17 +124,25 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           };
           // og:image 를 먼저 push 한 뒤 본문 <img> src 를 절대 URL 화하여 합친다.
           // data: URI / 빈 src 는 제외, 중복은 제거, 등장 순서는 유지.
+          // BLOCKED: con.staircrusher.club 의 공통 og:image (모든 페이지에 동일하게 박혀있음)
+          var BLOCKED = {
+            'https://oopy.lazyrockets.com/api/rest/cdn/image/272f5141-2c9f-46a7-b8dd-274bc7291fbb.png': true,
+          };
           var imageUrls = [];
           var seen = Object.create(null);
           var ogImage = get('meta[property="og:image"]');
           if (ogImage) {
             try {
               var ogAbs = new URL(ogImage, document.baseURI).toString();
-              imageUrls.push(ogAbs);
-              seen[ogAbs] = true;
+              if (!BLOCKED[ogAbs]) {
+                imageUrls.push(ogAbs);
+                seen[ogAbs] = true;
+              }
             } catch (_e) {
-              imageUrls.push(ogImage);
-              seen[ogImage] = true;
+              if (!BLOCKED[ogImage]) {
+                imageUrls.push(ogImage);
+                seen[ogImage] = true;
+              }
             }
           }
           // 아이콘/장식 이미지 필터링:
@@ -152,6 +160,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
             if (nw > 0 && nh > 0 && (nw < MIN_IMAGE_SIDE || nh < MIN_IMAGE_SIDE)) continue;
             var abs = src;
             try { abs = new URL(src, document.baseURI).toString(); } catch (_e) {}
+            if (BLOCKED[abs]) continue;
             if (seen[abs]) continue;
             seen[abs] = true;
             imageUrls.push(abs);
