@@ -103,12 +103,10 @@ interface SavedContentItemProps {
 }
 
 function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
-  const {sccContent, createdAt} = item;
+  const {sccContent} = item;
   const imageUrls = sccContent.imageUrls ?? [];
   const displayedImages = imageUrls.slice(0, 5);
   const extraImageCount = Math.max(0, imageUrls.length - 5);
-  const authorLabel = getAuthorLabel(sccContent.url);
-  const savedAtLabel = formatSavedAt(createdAt.value);
 
   return (
     <SccPressable
@@ -116,12 +114,6 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
       logParams={{sccContentId: sccContent.id}}
       onPress={onPress}>
       <ItemContainer isFirst={isFirst}>
-        <ItemHeader>
-          <AuthorAvatar />
-          <ItemAuthor>{authorLabel}</ItemAuthor>
-          <ItemMeta>· {savedAtLabel}</ItemMeta>
-        </ItemHeader>
-
         {sccContent.title ? (
           <ItemTitle numberOfLines={2}>{sccContent.title}</ItemTitle>
         ) : (
@@ -172,30 +164,6 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
   );
 }
 
-/**
- * 작성자 라벨. SccContentDto 에 author 필드가 없으므로 URL hostname 으로 대체.
- * (예: con.staircrusher.club, staircrusherclub.notion.site)
- */
-function getAuthorLabel(url: string): string {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.replace(/^www\./, '');
-  } catch (_e) {
-    return url;
-  }
-}
-
-/**
- * EpochMillis → "YYYY.MM.DD" 포맷.
- */
-function formatSavedAt(epochMillis: number): string {
-  const d = new Date(epochMillis);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${yyyy}.${mm}.${dd}`;
-}
-
 const ListContainer = styled(View)`
   flex: 1;
 `;
@@ -220,32 +188,6 @@ const ItemContainer = styled.View<{isFirst: boolean}>`
   background-color: ${color.white};
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
   border-top-color: #f2f2f5;
-`;
-
-const ItemHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-`;
-
-const AuthorAvatar = styled.View`
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  background-color: ${color.brand10};
-`;
-
-const ItemAuthor = styled.Text`
-  font-size: 13px;
-  font-family: ${() => font.pretendardMedium};
-  color: ${color.gray70};
-`;
-
-const ItemMeta = styled.Text`
-  font-size: 12px;
-  font-family: ${() => font.pretendardRegular};
-  color: ${color.gray50};
 `;
 
 const ItemTitle = styled.Text`

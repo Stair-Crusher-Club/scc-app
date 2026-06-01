@@ -137,10 +137,19 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
               seen[ogImage] = true;
             }
           }
+          // 아이콘/장식 이미지 필터링:
+          // (1) src 에 .svg 가 박혀 있으면 제외 (query 안 .svg 도 포함 — notion oopy icon 등)
+          // (2) 자연 크기가 100x100 미만이면 제외 (이미 로드된 img 만 판정 가능,
+          //     naturalWidth 0 인 lazy/미로드 img 는 일단 통과시킨다)
+          var MIN_IMAGE_SIDE = 100;
           var imgs = document.querySelectorAll('img[src]');
           for (var i = 0; i < imgs.length; i++) {
             var src = imgs[i].getAttribute('src');
             if (!src || src.indexOf('data:') === 0) continue;
+            if (src.toLowerCase().indexOf('.svg') !== -1) continue;
+            var nw = imgs[i].naturalWidth || 0;
+            var nh = imgs[i].naturalHeight || 0;
+            if (nw > 0 && nh > 0 && (nw < MIN_IMAGE_SIDE || nh < MIN_IMAGE_SIDE)) continue;
             var abs = src;
             try { abs = new URL(src, document.baseURI).toString(); } catch (_e) {}
             if (seen[abs]) continue;
