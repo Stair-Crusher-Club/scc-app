@@ -47,7 +47,7 @@ export default function MenuListSection() {
   const menuItems = [
     {
       elementName: 'menu_favorite_places',
-      title: '저장한 장소',
+      title: '내 저장',
       icon: <MenuBookmarkIcon />,
       onPress: goToSavedPlaces,
     },

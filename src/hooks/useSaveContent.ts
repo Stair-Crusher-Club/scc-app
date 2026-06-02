@@ -130,7 +130,7 @@ export function useSaveContent(options?: UseSaveContentOptions) {
       queryClient.invalidateQueries({queryKey: ['SavedContents']});
 
       if (isSaved) {
-        ToastUtils.show('[메뉴 > 저장한 장소 > 저장한 컨텐츠]에 저장했습니다.');
+        ToastUtils.show('[메뉴 > 내 저장 > 저장한 컨텐츠]에 저장했습니다.');
       } else {
         ToastUtils.show('저장을 해제했습니다.');
       }
