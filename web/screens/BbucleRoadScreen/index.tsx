@@ -10,9 +10,11 @@ import type { WebStackParamList } from '../../navigation/WebNavigation';
 import { api, apiConfig } from '../../config/api';
 import { color } from '@/constant/color';
 import { LogParamsProvider } from '@/logging/LogParamsProvider';
-import { UpvoteTargetTypeDto } from '@/generated-sources/openapi';
+import { SccContentTypeDto, UpvoteTargetTypeDto } from '@/generated-sources/openapi';
 import { useUpvoteToggle } from '@/hooks/useUpvoteToggle';
+import { useSaveContent } from '@/hooks/useSaveContent';
 import useAppComponents from '@/hooks/useAppComponents';
+import { useAppInjectedAuth } from '../../hooks/useAppInjectedAuth';
 
 import HeaderSection from './sections/HeaderSection';
 import OverviewSection from './sections/OverviewSection';
@@ -191,6 +193,45 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
 
   const hasFloatingHeader = !!data.floatingHeaderTitle;
 
+  // 앱(scc-app) 웹뷰 안에서 띄워졌다면 access token 이 주입되어 있다.
+  // 이 경우 CTA 자리에 저장 버튼을 노출한다.
+  const appInjectedToken = useAppInjectedAuth();
+  const isInApp = appInjectedToken !== null;
+
+  // 저장 상태 조회 — 앱 컨텍스트에서만 의미가 있으므로 token 이 있을 때만 fetch.
+  const currentPageUrl = useMemo(
+    () => (typeof window !== 'undefined' ? window.location.href : ''),
+    [],
+  );
+  const { data: sccContentDetails, isLoading: isSavedStatusLoading } = useQuery({
+    queryKey: ['SccContentDetails', currentPageUrl],
+    queryFn: async () => (await appApi.getSccContentDetails({ url: currentPageUrl })).data,
+    enabled: isInApp && currentPageUrl.length > 0,
+  });
+  const isSaved = sccContentDetails?.isSaved ?? false;
+  const savedSccContentId = sccContentDetails?.sccContentId ?? null;
+
+  const saveContent = useSaveContent();
+  const handleToggleSave = useCallback(() => {
+    if (!isInApp) return;
+    saveContent({
+      url: currentPageUrl,
+      contentType: SccContentTypeDto.WebPage,
+      title: data.title ?? null,
+      imageUrls: extractDomImageUrls(),
+      description: null,
+      currentIsSaved: isSaved,
+      currentSccContentId: savedSccContentId,
+    });
+  }, [
+    isInApp,
+    saveContent,
+    currentPageUrl,
+    data.title,
+    isSaved,
+    savedSccContentId,
+  ]);
+
   return (
     <LogParamsProvider params={{ isDesktop }}>
       {hasFloatingHeader && (
@@ -292,9 +333,67 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
         ctaButtonUrl={ctaButtonUrl}
         onLikePress={toggleUpvote}
         isVisible={isBottomBarVisible}
+        isInApp={isInApp}
+        isSaved={isSaved}
+        isSaveDisabled={isSavedStatusLoading}
+        onSavePress={handleToggleSave}
       />
     </LogParamsProvider>
   );
+}
+
+/**
+ * 페이지 본문에서 저장에 쓸 이미지 URL 목록을 추출한다.
+ * scc-app WebViewScreen 의 OG 추출 스크립트와 같은 규칙:
+ * - og:image 를 가장 앞에
+ * - 본문 <img src> 를 절대 URL 화하여 추가
+ * - data: URI, .svg, 100px 미만 이미지 제외
+ * - 등장 순서 유지 + 중복 제거
+ */
+function extractDomImageUrls(): string[] {
+  if (typeof document === 'undefined') return [];
+  const MIN_IMAGE_SIDE = 100;
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  const ogImage = document
+    .querySelector('meta[property="og:image"]')
+    ?.getAttribute('content');
+  if (ogImage) {
+    try {
+      const abs = new URL(ogImage, document.baseURI).toString();
+      if (!seen.has(abs)) {
+        seen.add(abs);
+        result.push(abs);
+      }
+    } catch (_e) {
+      if (!seen.has(ogImage)) {
+        seen.add(ogImage);
+        result.push(ogImage);
+      }
+    }
+  }
+
+  document.querySelectorAll('img[src]').forEach((img) => {
+    const src = img.getAttribute('src');
+    if (!src || src.startsWith('data:')) return;
+    if (src.toLowerCase().includes('.svg')) return;
+    const imgEl = img as HTMLImageElement;
+    const w = imgEl.naturalWidth || 0;
+    const h = imgEl.naturalHeight || 0;
+    if (w > 0 && h > 0 && (w < MIN_IMAGE_SIDE || h < MIN_IMAGE_SIDE)) return;
+    let abs = src;
+    try {
+      abs = new URL(src, document.baseURI).toString();
+    } catch (_e) {
+      // 절대 URL 변환 실패 시 원본 src 사용
+    }
+    if (seen.has(abs)) return;
+    seen.add(abs);
+    result.push(abs);
+  });
+
+  return result;
 }
 
 /**
@@ -433,6 +532,7 @@ function EditModeContent({ bbucleRoadId }: { bbucleRoadId: string }) {
 export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   const { bbucleRoadId } = route.params;
   const [isInitializing, setIsInitializing] = useState(true);
+  const appInjectedToken = useAppInjectedAuth();
 
   const isEditMode = useMemo(() => getIsEditMode(), []);
 
@@ -448,10 +548,34 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     return createEmptyBbucleRoadData(bbucleRoadId);
   }, [configData, bbucleRoadId]);
 
+  // 앱이 늦게 토큰을 주입한 경우(atom 로딩 지연 등)에도 즉시 반영한다.
+  // 익명 유저로 이미 init 되었더라도 app token 으로 덮어쓰면 이후 API 호출은 실제 유저로 인증된다.
+  useEffect(() => {
+    if (appInjectedToken) {
+      apiConfig.accessToken = appInjectedToken;
+    }
+  }, [appInjectedToken]);
+
   // Initialize auth (for upvote and image upload)
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // 0순위: scc-app 웹뷰가 주입한 access token. 익명 유저 생성보다 우선한다.
+        if (appInjectedToken) {
+          apiConfig.accessToken = appInjectedToken;
+          // bbucleRoadUserId 가 비어있으면 채워둔다 (좋아요 표시 등에 쓰임)
+          if (!window.localStorage.getItem('bbucleRoadUserId')) {
+            try {
+              const userInfoResponse = await api.getUserInfoGet();
+              window.localStorage.setItem('bbucleRoadUserId', userInfoResponse.data.user.id);
+            } catch {
+              // ignore
+            }
+          }
+          setIsInitializing(false);
+          return;
+        }
+
         // Check localStorage for existing token
         const storedToken = window.localStorage.getItem('sccAccessToken');
         if (storedToken) {

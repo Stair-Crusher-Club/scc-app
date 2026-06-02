@@ -1,13 +1,15 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {SccPressable} from '@/components/SccPressable';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
+import {useAtomValue} from 'jotai';
+import Config from 'react-native-config';
 
 import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
 import CloseIcon from '@/assets/icon/close.svg';
-import {useMe} from '@/atoms/Auth';
+import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {CloseAppBar} from '@/components/AppBar';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
@@ -34,6 +36,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   } = route.params;
   const webViewRef = useRef<WebView>(null);
   const {userInfo} = useMe();
+  const accessToken = useAtomValue(accessTokenAtom);
   const resolvedInitialUrl = useMemo(
     () => resolveTemplatedExternalUrl(url, {userId: userInfo?.id}),
     [url, userInfo?.id],
@@ -113,8 +116,42 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     }
   }, []);
 
+  // web.staircrusher.club 페이지가 현재 로드되어 있을 때만 앱 access token 을 주입한다.
+  // 페이지의 BbucleRoadScreen 이 window.__SCC_APP_AUTH__ 를 감지해서 저장 기능을 활성화한다.
+  const isWebStaircrusherUrl = useCallback(
+    (targetUrl: string) =>
+      targetUrl.startsWith('https://web.staircrusher.club'),
+    [],
+  );
+
+  const buildAuthInjectScript = useCallback((token: string | null) => {
+    if (!token) return '';
+    // JSON.stringify 로 따옴표/이스케이프 safety 확보
+    return `
+      try {
+        window.__SCC_APP_AUTH__ = { token: ${JSON.stringify(token)} };
+        window.dispatchEvent(new Event('scc-app-auth-ready'));
+      } catch (_e) {}
+    `;
+  }, []);
+
+  // atom 이 늦게 로드된 경우(앱 cold start) 페이지가 먼저 떠 있을 수 있다.
+  // accessToken 이 도착하면 즉시 주입해서 저장 버튼이 활성화되도록 한다.
+  useEffect(() => {
+    if (!accessToken) return;
+    if (!isWebStaircrusherUrl(currentUrl)) return;
+    const script = `(function(){${buildAuthInjectScript(accessToken)}})(); true;`;
+    webViewRef.current?.injectJavaScript(script);
+  }, [accessToken, currentUrl, isWebStaircrusherUrl, buildAuthInjectScript]);
+
   // 페이지 로드 완료 시 OG 메타 + 본문 이미지 추출 스크립트 주입
   const handleLoadEnd = useCallback(() => {
+    // 1) web.staircrusher.club 라면 access token 도 같이 주입 (저장 버튼 활성화)
+    if (isWebStaircrusherUrl(currentUrl) && accessToken) {
+      const authScript = `(function(){${buildAuthInjectScript(accessToken)}})(); true;`;
+      webViewRef.current?.injectJavaScript(authScript);
+    }
+
     const extractOgScript = `
       (function() {
         try {
@@ -178,7 +215,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       true;
     `;
     webViewRef.current?.injectJavaScript(extractOgScript);
-  }, []);
+  }, [accessToken, currentUrl, isWebStaircrusherUrl, buildAuthInjectScript]);
 
   const handleBackPress = useCallback(() => {
     if (canGoBack && webViewRef.current) {
@@ -236,6 +273,18 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         ref={webViewRef}
         style={styles.webview}
         source={{uri: resolvedInitialUrl}}
+        // 로컬 개발 빌드(FLAVOR=local) 에서만 HTTPS 페이지의 HTTP API 호출을 허용.
+        // 예: web.staircrusher.club (HTTPS) 안에서 http://10.0.2.2:8080 으로 saveContent 호출.
+        // sandbox/production 빌드는 차단 유지 (MITM 공격 방지).
+        mixedContentMode={Config.FLAVOR === 'local' ? 'always' : 'never'}
+        // 페이지 JS 가 실행되기 전에 미리 token 을 심어준다. 초기 source 가 web.staircrusher.club
+        // 이고 token 도 마운트 시점에 준비되어 있는 경우 BbucleRoadScreen 의 initializeAuth 가
+        // window.__SCC_APP_AUTH__ 를 즉시 감지할 수 있다.
+        injectedJavaScriptBeforeContentLoaded={
+          isWebStaircrusherUrl(resolvedInitialUrl) && accessToken
+            ? `(function(){${buildAuthInjectScript(accessToken)}})(); true;`
+            : undefined
+        }
         onMessage={handleMessage}
         onLoadEnd={handleLoadEnd}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
