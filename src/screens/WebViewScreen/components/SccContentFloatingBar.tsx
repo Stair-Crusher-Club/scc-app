@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Linking, Share, View} from 'react-native';
+import {Share, View} from 'react-native';
 import {useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -21,9 +21,9 @@ import useAppComponents from '@/hooks/useAppComponents';
 
 import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
+import ShareIcon from '@/assets/icon/ic_share.svg';
 import BookmarkIcon from '@/assets/icon/ic_v2_bookmark.svg';
 import BookmarkFilledIcon from '@/assets/icon/ic_v2_bookmark_on.svg';
-import ShareIcon from '@/assets/icon/ic_share.svg';
 import {useCheckAuth} from '@/utils/checkAuth';
 
 interface SccContentFloatingBarProps {
@@ -128,59 +128,28 @@ export default function SccContentFloatingBar({
     }
   }, [sccContentId, url, title]);
 
-  // 정보 더 받아보기 (Tally 링크)
-  const handleMoreInfo = useCallback(async () => {
-    try {
-      const tallyUrl = 'https://forms.staircrusher.club/contents-alarm';
-      await Linking.openURL(tallyUrl);
-    } catch (_error) {
-      ToastUtils.show('링크를 열 수 없습니다');
-    }
-  }, []);
-
   return (
     <Container style={{paddingBottom: insets.bottom}}>
       <ContentRow>
-        {/* 도움이 돼요 + 저장 버튼은 같은 노출 조건 (BBUCLE_ROAD path id가 추출되는 컨텐츠) */}
+        {/* 도움이 돼요는 BBUCLE_ROAD path id가 추출되는 컨텐츠에서만 노출 */}
         {bbucleRoadId !== null && (
-          <>
-            <UpvoteButton
-              onPress={() => {
-                checkAuth(toggleUpvote, () =>
-                  ToastUtils.show('로그인이 필요합니다'),
-                );
-              }}
-              elementName="scc-content-upvote"
-              logParams={{bbucleRoadId}}>
-              {isUpvoted ? (
-                <ThumbsUpFillIcon width={20} height={20} />
-              ) : (
-                <ThumbsUpIcon width={20} height={20} />
-              )}
-              {totalUpvoteCount !== undefined && totalUpvoteCount > 0 ? (
-                <UpvoteCount isActive={isUpvoted}>
-                  {totalUpvoteCount}
-                </UpvoteCount>
-              ) : null}
-            </UpvoteButton>
-
-            <SaveButton
-              disabled={isDetailsLoading}
-              onPress={() => {
-                if (isDetailsLoading) return;
-                checkAuth(handleToggleSave, () =>
-                  ToastUtils.show('로그인이 필요합니다'),
-                );
-              }}
-              elementName="scc-content-save"
-              logParams={{url, isSaved}}>
-              {isSaved ? (
-                <BookmarkFilledIcon width={20} height={20} color="#232328" />
-              ) : (
-                <BookmarkIcon width={20} height={20} color="#7A7A88" />
-              )}
-            </SaveButton>
-          </>
+          <UpvoteButton
+            onPress={() => {
+              checkAuth(toggleUpvote, () =>
+                ToastUtils.show('로그인이 필요합니다'),
+              );
+            }}
+            elementName="scc-content-upvote"
+            logParams={{bbucleRoadId}}>
+            {isUpvoted ? (
+              <ThumbsUpFillIcon width={20} height={20} />
+            ) : (
+              <ThumbsUpIcon width={20} height={20} />
+            )}
+            {totalUpvoteCount !== undefined && totalUpvoteCount > 0 ? (
+              <UpvoteCount isActive={isUpvoted}>{totalUpvoteCount}</UpvoteCount>
+            ) : null}
+          </UpvoteButton>
         )}
 
         <Spacer />
@@ -203,18 +172,26 @@ export default function SccContentFloatingBar({
           logParams={{sccContentId, url}}
         />
 
-        {/* 정보 더 받아보기 버튼 */}
+        {/* 저장하기 / 저장됨 토글 — 디자이너 피드백으로 기존 '정보 더 받아보기' 자리를 대체 */}
         <SccButton
-          text="정보 더 받아보기"
+          text={isSaved ? '저장됨' : '저장하기'}
+          leftIcon={isSaved ? BookmarkFilledIcon : BookmarkIcon}
+          iconSize={16}
           buttonColor="brand40"
           textColor="white"
           style={{paddingHorizontal: 20, borderRadius: 8}}
           fontSize={14}
           fontWeight={'500'}
           height={40}
-          onPress={handleMoreInfo}
-          elementName="scc-content-more-info"
-          logParams={{sccContentId, url}}
+          isDisabled={isDetailsLoading}
+          onPress={() => {
+            if (isDetailsLoading) return;
+            checkAuth(handleToggleSave, () =>
+              ToastUtils.show('로그인이 필요합니다'),
+            );
+          }}
+          elementName="scc-content-save"
+          logParams={{sccContentId, url, isSaved}}
         />
       </ContentRow>
     </Container>
@@ -244,17 +221,6 @@ const ContentRow = styled(View)`
 `;
 
 const UpvoteButton = styled(SccPressable)`
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-  padding: 10px;
-  border-radius: 8px;
-  border-width: 1px;
-  border-color: ${color.gray25};
-  background-color: ${color.white};
-`;
-
-const SaveButton = styled(SccPressable)`
   flex-direction: row;
   align-items: center;
   gap: 4px;
