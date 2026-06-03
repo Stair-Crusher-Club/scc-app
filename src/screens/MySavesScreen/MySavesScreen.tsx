@@ -14,7 +14,7 @@ const TAB_ITEMS: Array<{value: SavedTabKey; label: string}> = [
   {value: 'CONTENTS', label: '저장한 컨텐츠'},
 ];
 
-export default function SavedPlaceListsScreen() {
+export default function MySavesScreen() {
   const [currentTab, setCurrentTab] = useState<SavedTabKey>('PLACES');
 
   return (

@@ -26,53 +26,62 @@ import BookmarkIcon from '@/assets/icon/ic_v2_bookmark.svg';
 import BookmarkFilledIcon from '@/assets/icon/ic_v2_bookmark_on.svg';
 import {useCheckAuth} from '@/utils/checkAuth';
 
+/**
+ * 웹페이지에서 추출한 OG 메타 + 본문 이미지 묶음.
+ * SccContent 저장 시 서버로 전달되는 metadata.
+ */
+export interface OgDetail {
+  title?: string | null;
+  /** og:image + 본문 <img> 합쳐서 중복 제거 + 등장 순서로 정렬된 절대 URL 목록. */
+  imageUrls?: string[];
+  description?: string | null;
+}
+
 interface SccContentFloatingBarProps {
   url: string;
   /** BBUCLE_ROAD 좋아요용 path id. URL path에서 추출한 식별자. */
   bbucleRoadId: string | null;
+  /** 화면 상단 (header) 에 노출되는 title. fixedTitle / OG title / document.title 중 하나. */
   title?: string;
-  ogTitle?: string | null;
-  /** og:image + 본문 <img> 합쳐서 중복 제거 + 등장 순서로 정렬된 절대 URL 목록. */
-  ogImageUrls?: string[];
-  ogDescription?: string | null;
+  /** 웹페이지 OG 메타 + 본문 이미지. 저장 호출 시 그대로 서버로 전달. */
+  ogDetail?: OgDetail;
 }
 
 export default function SccContentFloatingBar({
   url,
   bbucleRoadId,
   title,
-  ogTitle,
-  ogImageUrls,
-  ogDescription,
+  ogDetail,
 }: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
+  const {userInfo} = useMe();
 
-  // 저장(SccContent) 상태 조회. SccContent가 한 번도 저장된 적 없으면 sccContentId=null/isSaved=false.
+  // 저장(SccContent) 상태 + 좋아요 정보 통합 조회.
+  // 웹뷰 진입 시 라운드트립 1회로 isSaved + sccContentId + upvoteDetails 를 모두 받는다.
+  // BBUCLE_ROAD path id 가 있으면 upvoteDetails 가 채워져 응답됨.
+  // query key 마지막 segment 는 useSaveContent 의 cache key 와 정확히 일치시켜야 한다
+  // (낙관적 setQueryData 가 exact match 로 동작하므로).
   const {data: sccContentDetails, isLoading: isDetailsLoading} = useQuery({
-    queryKey: ['SccContentDetails', url],
+    queryKey: ['SccContentDetails', url, bbucleRoadId ?? null],
     queryFn: async () => {
-      return (await api.getSccContentDetails({url})).data;
+      return (
+        await api.getSccContentDetails({
+          url,
+          ...(bbucleRoadId
+            ? {
+                upvoteTargetType: UpvoteTargetTypeDto.BbucleRoad,
+                upvoteTargetId: bbucleRoadId,
+              }
+            : {}),
+        })
+      ).data;
     },
   });
   const sccContentId = sccContentDetails?.sccContentId ?? null;
   const isSaved = sccContentDetails?.isSaved ?? false;
 
-  // 좋아요는 BBUCLE_ROAD path id 기준으로 별도 조회 (저장 여부와 무관).
-  // 기존 좋아요 누적치가 path id로 쌓여 있으므로 동일 기준 사용.
-  const {data: upvoteDetails} = useQuery({
-    queryKey: ['SccContentUpvoteDetails', bbucleRoadId],
-    queryFn: async () => {
-      return (
-        await api.getUpvoteDetailsPost({
-          targetType: UpvoteTargetTypeDto.BbucleRoad,
-          id: bbucleRoadId!,
-        })
-      ).data;
-    },
-    enabled: !!bbucleRoadId,
-  });
-  const {userInfo} = useMe();
+  const upvoteDetails = sccContentDetails?.upvoteDetails;
   const initialIsUpvoted =
     upvoteDetails?.upvotedUsers?.some(
       u => userInfo?.nickname && u.nickname === userInfo.nickname,
@@ -94,22 +103,14 @@ export default function SccContentFloatingBar({
     saveContent({
       url,
       contentType: SccContentTypeDto.WebPage,
-      title: ogTitle ?? title ?? null,
-      imageUrls: ogImageUrls ?? [],
-      description: ogDescription ?? null,
+      title: ogDetail?.title ?? title ?? null,
+      imageUrls: ogDetail?.imageUrls ?? [],
+      description: ogDetail?.description ?? null,
       currentIsSaved: isSaved,
       currentSccContentId: sccContentId,
+      upvoteTargetId: bbucleRoadId,
     });
-  }, [
-    saveContent,
-    url,
-    ogTitle,
-    title,
-    ogImageUrls,
-    ogDescription,
-    isSaved,
-    sccContentId,
-  ]);
+  }, [saveContent, url, ogDetail, title, isSaved, sccContentId, bbucleRoadId]);
 
   // 공유하기
   const handleShare = useCallback(async () => {
@@ -234,7 +235,7 @@ const UpvoteButton = styled(SccPressable)`
 const UpvoteCount = styled.Text<{isActive: boolean}>`
   font-size: 14px;
   font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
+  color: ${({isActive}) => (isActive ? color.brand40 : color.gray80)};
 `;
 
 const Spacer = styled(View)`

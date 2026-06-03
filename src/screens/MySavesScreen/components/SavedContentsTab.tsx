@@ -104,7 +104,8 @@ interface SavedContentItemProps {
 
 function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
   const {sccContent} = item;
-  const imageUrls = sccContent.imageUrls ?? [];
+  const webPageDetail = sccContent.webPageDetail;
+  const imageUrls = webPageDetail?.imageUrls ?? [];
   const displayedImages = imageUrls.slice(0, 5);
   const extraImageCount = Math.max(0, imageUrls.length - 5);
 
@@ -114,15 +115,15 @@ function SavedContentItem({item, isFirst, onPress}: SavedContentItemProps) {
       logParams={{sccContentId: sccContent.id}}
       onPress={onPress}>
       <ItemContainer isFirst={isFirst}>
-        {sccContent.title ? (
-          <ItemTitle numberOfLines={2}>{sccContent.title}</ItemTitle>
+        {webPageDetail?.title ? (
+          <ItemTitle numberOfLines={2}>{webPageDetail.title}</ItemTitle>
         ) : (
           <ItemTitle numberOfLines={2}>{sccContent.url}</ItemTitle>
         )}
 
-        {sccContent.description ? (
+        {webPageDetail?.description ? (
           <ItemDescription numberOfLines={2}>
-            {sccContent.description}
+            {webPageDetail.description}
           </ItemDescription>
         ) : null}
 

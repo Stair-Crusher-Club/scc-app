@@ -295,6 +295,8 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           setCurrentUrl(prev => {
             if (prev !== navState.url) {
               setOgMeta(null);
+              // URL 이 바뀌면 title 도 fixedTitle 로 되돌린다 (이전 페이지의 OG title 잔존 방지).
+              setTitle(fixedTitle || undefined);
             }
             return navState.url;
           });
@@ -306,9 +308,15 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           url={currentUrl}
           bbucleRoadId={bbucleRoadId}
           title={title}
-          ogTitle={ogMeta?.title ?? null}
-          ogImageUrls={ogMeta?.imageUrls ?? []}
-          ogDescription={ogMeta?.description ?? null}
+          ogDetail={
+            ogMeta
+              ? {
+                  title: ogMeta.title,
+                  imageUrls: ogMeta.imageUrls,
+                  description: ogMeta.description,
+                }
+              : undefined
+          }
         />
       )}
     </SafeAreaWrapper>

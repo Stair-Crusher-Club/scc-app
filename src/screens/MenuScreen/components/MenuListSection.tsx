@@ -18,7 +18,7 @@ export default function MenuListSection() {
   }
 
   function goToSavedPlaces() {
-    navigation.navigate('SavedPlaceLists');
+    navigation.navigate('MySaves');
   }
 
   function goToCrusherHistory() {

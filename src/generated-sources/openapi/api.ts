@@ -2872,7 +2872,7 @@ export interface GetReviewActivityReportResponseDto {
     'thisMonthReviewedCount': number;
 }
 /**
- * 
+ * 웹뷰 진입 시 1회 호출로 저장 상태 + 좋아요 정보까지 모두 받기 위한 통합 요청. upvoteTargetType + upvoteTargetId 를 같이 보내면 응답의 upvoteDetails 가 채워진다. (좋아요 정보가 컨텐츠와 무관하게 별도 키로 관리되어 클라이언트가 target 키를 결정해야 하기 때문이다.) 
  * @export
  * @interface GetSccContentDetailsRequestDto
  */
@@ -2883,9 +2883,21 @@ export interface GetSccContentDetailsRequestDto {
      * @memberof GetSccContentDetailsRequestDto
      */
     'url': string;
+    /**
+     * 
+     * @type {UpvoteTargetTypeDto}
+     * @memberof GetSccContentDetailsRequestDto
+     */
+    'upvoteTargetType'?: UpvoteTargetTypeDto;
+    /**
+     * 좋아요 대상 ID. upvoteTargetType 과 같이 보낸다.
+     * @type {string}
+     * @memberof GetSccContentDetailsRequestDto
+     */
+    'upvoteTargetId'?: string;
 }
 /**
- * URL 기준 SccContent 의 id 와 현재 유저의 저장 여부. SccContent 가 한 번도 저장된 적 없으면 sccContentId 는 null 이다. 
+ * URL 기준 SccContent 의 id, 현재 유저의 저장 여부, 그리고 좋아요 정보 (요청에 upvoteTarget* 가 있을 때). SccContent 가 한 번도 저장된 적 없으면 sccContentId 는 null 이다. 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 좋아요 정보까지 함께 응답한다. 
  * @export
  * @interface GetSccContentDetailsResponseDto
  */
@@ -2902,6 +2914,12 @@ export interface GetSccContentDetailsResponseDto {
      * @memberof GetSccContentDetailsResponseDto
      */
     'isSaved': boolean;
+    /**
+     * 
+     * @type {GetUpvoteDetailsResponseDto}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'upvoteDetails'?: GetUpvoteDetailsResponseDto;
 }
 /**
  * 
@@ -5803,7 +5821,7 @@ export type ReportTargetTypeDto = typeof ReportTargetTypeDto[keyof typeof Report
 
 
 /**
- * 
+ * contentType 에 따라 어떤 detail 필드가 채워져야 하는지가 달라진다. WEB_PAGE 이면 webPageDetail 을 채워서 보낸다. (없거나 비어있어도 받지만 메타가 비어진 채 저장됨) 
  * @export
  * @interface SaveContentRequestDto
  */
@@ -5821,23 +5839,11 @@ export interface SaveContentRequestDto {
      */
     'contentType': SccContentTypeDto;
     /**
-     * 앱이 웹뷰의 og:title 또는 document.title에서 추출. 없으면 null.
-     * @type {string}
+     * 
+     * @type {SccContentWebPageDetailDto}
      * @memberof SaveContentRequestDto
      */
-    'title'?: string;
-    /**
-     * 앱이 웹뷰의 og:description 또는 meta[name=description]에서 추출. 없으면 null.
-     * @type {string}
-     * @memberof SaveContentRequestDto
-     */
-    'description'?: string;
-    /**
-     * 앱이 웹뷰에서 추출한 이미지 URL들. og:image 와 본문 <img> src 를 합쳐 중복 제거 + 등장 순서로 정렬해 보낸다. 비어 있으면 빈 배열을 보낸다. 
-     * @type {Array<string>}
-     * @memberof SaveContentRequestDto
-     */
-    'imageUrls': Array<string>;
+    'webPageDetail'?: SccContentWebPageDetailDto;
 }
 /**
  * 
@@ -5891,7 +5897,7 @@ export interface SavePlaceRequestDto {
     'placeListId'?: string;
 }
 /**
- * URL을 기준으로 유일성을 가지는 컨텐츠. title/description/imageUrls는 OG 메타 + 본문 이미지에서 가져온다. 
+ * URL을 기준으로 유일성을 가지는 컨텐츠. 타입별 상세 정보는 별도 detail DTO로 분리되어 nullable 필드로 노출된다. contentType이 WEB_PAGE이면 webPageDetail 이 채워진다. 향후 타입이 늘어나면 각 타입별 detail 필드가 추가된다. 
  * @export
  * @interface SccContentDto
  */
@@ -5915,23 +5921,11 @@ export interface SccContentDto {
      */
     'url': string;
     /**
-     * 컨텐츠 제목. OG title이 없으면 null일 수 있다.
-     * @type {string}
+     * 
+     * @type {SccContentWebPageDetailDto}
      * @memberof SccContentDto
      */
-    'title'?: string;
-    /**
-     * 컨텐츠 설명. OG description이 없으면 null일 수 있다.
-     * @type {string}
-     * @memberof SccContentDto
-     */
-    'description'?: string;
-    /**
-     * 컨텐츠 페이지에서 추출한 이미지 URL들. 본문 img + og:image 를 순서대로 수집한다. 빈 배열일 수 있다. 목록 노출에서는 앞쪽 N장 + 더보기 표기를 사용한다. 
-     * @type {Array<string>}
-     * @memberof SccContentDto
-     */
-    'imageUrls': Array<string>;
+    'webPageDetail'?: SccContentWebPageDetailDto;
 }
 /**
  * 저장 가능한 컨텐츠 타입. 초기에는 WEB_PAGE 하나만 지원하지만 향후 확장 가능. 
@@ -5946,6 +5940,31 @@ export const SccContentTypeDto = {
 export type SccContentTypeDto = typeof SccContentTypeDto[keyof typeof SccContentTypeDto];
 
 
+/**
+ * WEB_PAGE 타입 SccContent 의 메타데이터. OG 메타 + 본문 이미지에서 추출한다. 
+ * @export
+ * @interface SccContentWebPageDetailDto
+ */
+export interface SccContentWebPageDetailDto {
+    /**
+     * 컨텐츠 제목. OG title이 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentWebPageDetailDto
+     */
+    'title'?: string;
+    /**
+     * 컨텐츠 설명. OG description이 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentWebPageDetailDto
+     */
+    'description'?: string;
+    /**
+     * 컨텐츠 페이지에서 추출한 이미지 URL들. 본문 img + og:image 를 순서대로 수집한다. 빈 배열일 수 있다. 목록 노출에서는 앞쪽 N장 + 더보기 표기를 사용한다. 
+     * @type {Array<string>}
+     * @memberof SccContentWebPageDetailDto
+     */
+    'imageUrls': Array<string>;
+}
 /**
  * 
  * @export
@@ -6722,17 +6741,23 @@ export type TutorialMissionTypeDto = typeof TutorialMissionTypeDto[keyof typeof 
 
 
 /**
- * 
+ * 저장 해제 대상을 지정한다. sccContentId 와 url 중 적어도 하나는 필수이며, sccContentId 가 있으면 그 값을 우선 사용하고 없으면 url 로 SccContent 를 찾는다. 앱이 SccContent 가 생성되기 전 화면에서도 (URL만 알고 sccContentId 없이) 호출할 수 있도록 url fallback 을 둔다. 
  * @export
  * @interface UnsaveContentRequestDto
  */
 export interface UnsaveContentRequestDto {
     /**
-     * 
+     * 알면 이걸 우선 사용. 모르면 url 로 fallback.
      * @type {string}
      * @memberof UnsaveContentRequestDto
      */
-    'sccContentId': string;
+    'sccContentId'?: string;
+    /**
+     * sccContentId 없을 때 사용. 서버에서 정규화 후 SccContent 를 찾는다.
+     * @type {string}
+     * @memberof UnsaveContentRequestDto
+     */
+    'url'?: string;
 }
 /**
  * 
@@ -8700,8 +8725,8 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
-         * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -11375,8 +11400,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
-         * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -12380,8 +12405,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
         },
         /**
-         * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
-         * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -13402,8 +13427,8 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 웹뷰 진입 시 URL 기준으로 SccContent 의 id 와 현재 유저의 저장 여부를 조회한다. 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 좋아요 정보(isUpvoted/totalUpvoteCount)는 BBUCLE_ROAD 타깃 단위로 별도 유지되므로 이 엔드포인트가 아니라 기존 /getUpvoteDetails 를 사용한다. 
-     * @summary 웹뷰 컨텐츠의 저장 상태와 메타데이터를 조회한다.
+     * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+     * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
      * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

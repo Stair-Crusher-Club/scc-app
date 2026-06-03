@@ -1,9 +1,7 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 
-import {
-  GetSccContentDetailsResponseDto,
-  SccContentTypeDto,
-} from '@/generated-sources/openapi';
+import {SccContentTypeDto} from '@/generated-sources/openapi';
+import type {GetSccContentDetailsResponseDto} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
 import useAppComponents from './useAppComponents';
@@ -21,16 +19,23 @@ interface SaveContentMutateArgs {
   title?: string | null;
   /**
    * 페이지에서 추출한 이미지 URL 목록 (og:image + 본문 <img>). 빈 배열이라도 항상 전달한다
-   * (SaveContentRequestDto.imageUrls 가 required).
+   * (SccContentWebPageDetailDto.imageUrls 가 required).
    */
   imageUrls: string[];
   description?: string | null;
   currentIsSaved: boolean;
   currentSccContentId?: string | null;
+  /**
+   * SccContentDetails 캐시 query key 의 추가 segment.
+   * 호출처(SccContentFloatingBar)가 ['SccContentDetails', url, bbucleRoadId] 로 cache 하므로
+   * 낙관적 setQueryData 가 exact match 되도록 동일 segment 를 전달한다.
+   */
+  upvoteTargetId?: string | null;
 }
 
 /**
  * SccContentDetails 캐시의 isSaved/sccContentId만 즉시 toggle하기 위한 query key prefix.
+ * 실제 cache key 는 [PREFIX, url, upvoteTargetId ?? null] 형태로 호출처와 일치시킨다.
  * 서버 응답 + invalidate refetch 사이의 지연을 가리기 위함.
  */
 const SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX = 'SccContentDetails';
@@ -50,36 +55,44 @@ export function useSaveContent(options?: UseSaveContentOptions) {
       currentSccContentId,
     }: SaveContentMutateArgs) => {
       if (currentIsSaved) {
-        if (!currentSccContentId) {
-          // 직전 save 응답이 도착하지 않은 빠른 탭. unsave 호출 대신 noop 으로 처리한다.
-          // (이 케이스에서 save 로 fallthrough 하면 중복 저장 요청이 나간다)
-          throw new Error('SAVE_IN_PROGRESS');
-        }
-        await api.unsaveContent({sccContentId: currentSccContentId});
-        return {isSaved: false, sccContentId: currentSccContentId};
+        // sccContentId가 있으면 그걸 우선 사용하고, 없으면 URL로 unsave.
+        // 직전 save 응답 도착 전 빠른 탭 케이스에서도 URL fallback 으로 안전하게 처리된다.
+        await api.unsaveContent(
+          currentSccContentId ? {sccContentId: currentSccContentId} : {url},
+        );
+        return {isSaved: false, sccContentId: currentSccContentId ?? undefined};
       } else {
         const {data} = await api.saveContent({
           url,
           contentType,
-          imageUrls,
-          ...(title != null ? {title} : {}),
-          ...(description != null ? {description} : {}),
+          webPageDetail: {
+            imageUrls,
+            ...(title != null ? {title} : {}),
+            ...(description != null ? {description} : {}),
+          },
         });
         return {isSaved: true, sccContentId: data.sccContentId};
       }
     },
-    onMutate: async ({url, currentIsSaved, currentSccContentId}) => {
-      await queryClient.cancelQueries({
-        queryKey: [SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX, url],
-      });
-
-      const prev = queryClient.getQueryData<GetSccContentDetailsResponseDto>([
+    onMutate: async ({
+      url,
+      currentIsSaved,
+      currentSccContentId,
+      upvoteTargetId,
+    }) => {
+      const cacheKey = [
         SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX,
         url,
-      ]);
+        upvoteTargetId ?? null,
+      ];
+
+      await queryClient.cancelQueries({queryKey: cacheKey});
+
+      const prev =
+        queryClient.getQueryData<GetSccContentDetailsResponseDto>(cacheKey);
 
       queryClient.setQueryData<GetSccContentDetailsResponseDto>(
-        [SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX, url],
+        cacheKey,
         old => {
           if (!old) {
             return {
@@ -98,12 +111,13 @@ export function useSaveContent(options?: UseSaveContentOptions) {
         },
       );
 
-      return {prev};
+      return {prev, cacheKey};
     },
-    onSuccess: ({isSaved, sccContentId}, variables) => {
+    onSuccess: ({isSaved, sccContentId}, variables, context) => {
+      const cacheKey = context.cacheKey;
       // 새로 저장된 경우 캐시에 sccContentId도 반영
       queryClient.setQueryData<GetSccContentDetailsResponseDto>(
-        [SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX, variables.url],
+        cacheKey,
         old => {
           if (!old) {
             return {
@@ -137,16 +151,9 @@ export function useSaveContent(options?: UseSaveContentOptions) {
 
       options?.onSuccess?.({isSaved, url: variables.url});
     },
-    onError: (error, variables, context) => {
-      // SAVE_IN_PROGRESS: 직전 save 응답 대기 중 빠른 탭으로 unsave 트리거된 케이스. 조용히 무시.
-      if (error instanceof Error && error.message === 'SAVE_IN_PROGRESS') {
-        return;
-      }
+    onError: (error, _variables, context) => {
       if (context?.prev !== undefined) {
-        queryClient.setQueryData(
-          [SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX, variables.url],
-          context.prev,
-        );
+        queryClient.setQueryData(context.cacheKey, context.prev);
       }
       ToastUtils.showOnApiError(error);
     },
