@@ -126,7 +126,7 @@ export default function FloatingBottomBar({
               >
                 <CTAButton isDesktop={isDesktop}>
                   <CTAButtonText isDesktop={isDesktop}>
-                    {isSaved ? '저장됨' : '저장하기'}
+                    {isSaved ? '저장완료' : '저장하기'}
                   </CTAButtonText>
                 </CTAButton>
               </SccPressable>
