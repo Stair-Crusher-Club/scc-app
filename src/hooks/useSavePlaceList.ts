@@ -79,7 +79,7 @@ export function useSavePlaceList(options?: UseSavePlaceListOptions) {
     },
     onSuccess: (_data, variables) => {
       if (!variables.isSaved) {
-        ToastUtils.show('리스트를 [메뉴 > 저장한 장소]에 저장했습니다.');
+        ToastUtils.show('리스트를 [메뉴 > 내 저장]에 저장했습니다.');
       } else {
         ToastUtils.show('리스트 저장을 해제했습니다.');
       }

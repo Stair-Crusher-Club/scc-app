@@ -2872,6 +2872,44 @@ export interface GetReviewActivityReportResponseDto {
     'thisMonthReviewedCount': number;
 }
 /**
+ * 웹뷰 진입 시 1회 호출로 저장 상태 + 좋아요 정보까지 모두 받기 위한 통합 요청. 클라이언트는 URL 만 보내고, 서버가 URL pattern 으로 좋아요 target 을 추론한다. 
+ * @export
+ * @interface GetSccContentDetailsRequestDto
+ */
+export interface GetSccContentDetailsRequestDto {
+    /**
+     * 조회할 컨텐츠의 URL. 서버에서 정규화 후 SccContent를 찾는다. 또한 이 URL 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 도 추론한다.
+     * @type {string}
+     * @memberof GetSccContentDetailsRequestDto
+     */
+    'url': string;
+}
+/**
+ * URL 기준 SccContent 의 id, 현재 유저의 저장 여부, 그리고 좋아요 요약 정보. SccContent 가 한 번도 저장된 적 없으면 sccContentId 는 null 이다. 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 좋아요 요약까지 함께 응답한다. URL 이 좋아요 대상이 아니라 좋아요 개념을 적용할 수 없는 컨텐츠면 upvoteSummary 는 null. 
+ * @export
+ * @interface GetSccContentDetailsResponseDto
+ */
+export interface GetSccContentDetailsResponseDto {
+    /**
+     * 저장된 적 있다면 SccContent의 id. 없으면 null.
+     * @type {string}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'sccContentId'?: string;
+    /**
+     * 현재 유저가 이 컨텐츠를 저장했는지 여부.
+     * @type {boolean}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'isSaved': boolean;
+    /**
+     * 
+     * @type {SccContentUpvoteSummaryDto}
+     * @memberof GetSccContentDetailsResponseDto
+     */
+    'upvoteSummary'?: SccContentUpvoteSummaryDto;
+}
+/**
  * 
  * @export
  * @interface GetUpvoteDetailsRequestDto
@@ -3733,6 +3771,50 @@ export interface ListRegisteredToiletReviewsResponseDto {
      * @memberof ListRegisteredToiletReviewsResponseDto
      */
     'toiletReviews': Array<ToiletReviewListItemDto>;
+}
+/**
+ * 
+ * @export
+ * @interface ListSavedContentsRequestDto
+ */
+export interface ListSavedContentsRequestDto {
+    /**
+     * 페이지 정보. 없으면 첫 페이지 요소들을 내려준다.
+     * @type {string}
+     * @memberof ListSavedContentsRequestDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListSavedContentsRequestDto
+     */
+    'limit'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface ListSavedContentsResponseDto
+ */
+export interface ListSavedContentsResponseDto {
+    /**
+     * 저장한 컨텐츠의 전체 개수.
+     * @type {number}
+     * @memberof ListSavedContentsResponseDto
+     */
+    'totalNumberOfItems': number;
+    /**
+     * 다음 페이지 정보. 없으면 더 이상 요청할 값이 없음을 의미한다.
+     * @type {string}
+     * @memberof ListSavedContentsResponseDto
+     */
+    'nextToken'?: string;
+    /**
+     * 
+     * @type {Array<UserSavedContentDto>}
+     * @memberof ListSavedContentsResponseDto
+     */
+    'items': Array<UserSavedContentDto>;
 }
 /**
  * 
@@ -5727,6 +5809,50 @@ export type ReportTargetTypeDto = typeof ReportTargetTypeDto[keyof typeof Report
 
 
 /**
+ * contentType 에 따라 어떤 detail 필드가 채워져야 하는지가 달라진다. WEB_PAGE 이면 webPageDetail 을 채워서 보낸다. (없거나 비어있어도 받지만 메타가 비어진 채 저장됨) 
+ * @export
+ * @interface SaveContentRequestDto
+ */
+export interface SaveContentRequestDto {
+    /**
+     * 저장할 컨텐츠의 URL. 서버에서 정규화 후 unique 키로 사용한다.
+     * @type {string}
+     * @memberof SaveContentRequestDto
+     */
+    'url': string;
+    /**
+     * 
+     * @type {SccContentTypeDto}
+     * @memberof SaveContentRequestDto
+     */
+    'contentType': SccContentTypeDto;
+    /**
+     * 
+     * @type {SccContentWebPageDetailDto}
+     * @memberof SaveContentRequestDto
+     */
+    'webPageDetail'?: SccContentWebPageDetailDto;
+}
+/**
+ * 
+ * @export
+ * @interface SaveContentResponseDto
+ */
+export interface SaveContentResponseDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SaveContentResponseDto
+     */
+    'sccContentId': string;
+    /**
+     * 저장 후 상태. 항상 true.
+     * @type {boolean}
+     * @memberof SaveContentResponseDto
+     */
+    'isSaved': boolean;
+}
+/**
  * 
  * @export
  * @interface SavePlaceListRequestDto
@@ -5757,6 +5883,94 @@ export interface SavePlaceRequestDto {
      * @memberof SavePlaceRequestDto
      */
     'placeListId'?: string;
+}
+/**
+ * URL을 기준으로 유일성을 가지는 컨텐츠. 타입별 상세 정보는 별도 detail DTO로 분리되어 nullable 필드로 노출된다. contentType이 WEB_PAGE이면 webPageDetail 이 채워진다. 향후 타입이 늘어나면 각 타입별 detail 필드가 추가된다. 
+ * @export
+ * @interface SccContentDto
+ */
+export interface SccContentDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {SccContentTypeDto}
+     * @memberof SccContentDto
+     */
+    'contentType': SccContentTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof SccContentDto
+     */
+    'url': string;
+    /**
+     * 
+     * @type {SccContentWebPageDetailDto}
+     * @memberof SccContentDto
+     */
+    'webPageDetail'?: SccContentWebPageDetailDto;
+}
+/**
+ * 저장 가능한 컨텐츠 타입. 초기에는 WEB_PAGE 하나만 지원하지만 향후 확장 가능. 
+ * @export
+ * @enum {string}
+ */
+
+export const SccContentTypeDto = {
+    WebPage: 'WEB_PAGE'
+} as const;
+
+export type SccContentTypeDto = typeof SccContentTypeDto[keyof typeof SccContentTypeDto];
+
+
+/**
+ * SccContent 의 좋아요 요약. 웹뷰 floating bar 표시에 필요한 최소 정보만 가진다. (PDP 의 GetUpvoteDetailsResponseDto 와는 별도 — 거기엔 누가 눌렀는지 목록이 필요하지만 여기는 불필요.) 
+ * @export
+ * @interface SccContentUpvoteSummaryDto
+ */
+export interface SccContentUpvoteSummaryDto {
+    /**
+     * 이 컨텐츠가 받은 총 좋아요 수.
+     * @type {number}
+     * @memberof SccContentUpvoteSummaryDto
+     */
+    'totalCount': number;
+    /**
+     * 현재 유저가 이 컨텐츠에 좋아요를 눌렀는지 여부.
+     * @type {boolean}
+     * @memberof SccContentUpvoteSummaryDto
+     */
+    'isUpvoted': boolean;
+}
+/**
+ * WEB_PAGE 타입 SccContent 의 메타데이터. OG 메타 + 본문 이미지에서 추출한다. 
+ * @export
+ * @interface SccContentWebPageDetailDto
+ */
+export interface SccContentWebPageDetailDto {
+    /**
+     * 컨텐츠 제목. OG title이 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentWebPageDetailDto
+     */
+    'title'?: string;
+    /**
+     * 컨텐츠 설명. OG description이 없으면 null일 수 있다.
+     * @type {string}
+     * @memberof SccContentWebPageDetailDto
+     */
+    'description'?: string;
+    /**
+     * 컨텐츠 페이지에서 추출한 이미지 URL들. 본문 img + og:image 를 순서대로 수집한다. 빈 배열일 수 있다. 목록 노출에서는 앞쪽 N장 + 더보기 표기를 사용한다. 
+     * @type {Array<string>}
+     * @memberof SccContentWebPageDetailDto
+     */
+    'imageUrls': Array<string>;
 }
 /**
  * 
@@ -6534,6 +6748,25 @@ export type TutorialMissionTypeDto = typeof TutorialMissionTypeDto[keyof typeof 
 
 
 /**
+ * 저장 해제 대상을 지정한다. sccContentId 와 url 중 적어도 하나는 필수이며, sccContentId 가 있으면 그 값을 우선 사용하고 없으면 url 로 SccContent 를 찾는다. 앱이 SccContent 가 생성되기 전 화면에서도 (URL만 알고 sccContentId 없이) 호출할 수 있도록 url fallback 을 둔다. 
+ * @export
+ * @interface UnsaveContentRequestDto
+ */
+export interface UnsaveContentRequestDto {
+    /**
+     * 알면 이걸 우선 사용. 모르면 url 로 fallback.
+     * @type {string}
+     * @memberof UnsaveContentRequestDto
+     */
+    'sccContentId'?: string;
+    /**
+     * sccContentId 없을 때 사용. 서버에서 정규화 후 SccContent 를 찾는다.
+     * @type {string}
+     * @memberof UnsaveContentRequestDto
+     */
+    'url'?: string;
+}
+/**
  * 
  * @export
  * @interface UnsavePlaceListRequestDto
@@ -6884,6 +7117,31 @@ export const UserMobilityToolDto = {
 export type UserMobilityToolDto = typeof UserMobilityToolDto[keyof typeof UserMobilityToolDto];
 
 
+/**
+ * 한 유저가 컨텐츠를 저장한 행위. createdAt은 저장 시각. 
+ * @export
+ * @interface UserSavedContentDto
+ */
+export interface UserSavedContentDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserSavedContentDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {SccContentDto}
+     * @memberof UserSavedContentDto
+     */
+    'sccContent': SccContentDto;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof UserSavedContentDto
+     */
+    'createdAt': EpochMillisTimestamp;
+}
 /**
  * 윌리의 외출 NUX 튜토리얼 개별 미션의 진행 상태.
  * @export
@@ -8474,6 +8732,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
+         * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSccContentDetails: async (getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getSccContentDetailsRequestDto' is not null or undefined
+            assertParamExists('getSccContentDetails', 'getSccContentDetailsRequestDto', getSccContentDetailsRequestDto)
+            const localVarPath = `/getSccContentDetails`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getSccContentDetailsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
          * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -9086,6 +9384,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(listRegisteredReviewsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+         * @summary 저장한 컨텐츠 목록을 조회한다.
+         * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSavedContents: async (listSavedContentsRequestDto: ListSavedContentsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listSavedContentsRequestDto' is not null or undefined
+            assertParamExists('listSavedContents', 'listSavedContentsRequestDto', listSavedContentsRequestDto)
+            const localVarPath = `/listSavedContents`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listSavedContentsRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -9975,6 +10313,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * @summary 웹페이지 등 컨텐츠를 저장한다.
+         * @param {SaveContentRequestDto} saveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        saveContent: async (saveContentRequestDto: SaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'saveContentRequestDto' is not null or undefined
+            assertParamExists('saveContent', 'saveContentRequestDto', saveContentRequestDto)
+            const localVarPath = `/saveContent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(saveContentRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -10328,6 +10706,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(suggestPlacesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary 컨텐츠 저장을 해제한다.
+         * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsaveContent: async (unsaveContentRequestDto: UnsaveContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'unsaveContentRequestDto' is not null or undefined
+            assertParamExists('unsaveContent', 'unsaveContentRequestDto', unsaveContentRequestDto)
+            const localVarPath = `/unsaveContent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(unsaveContentRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -10989,6 +11407,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
+         * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSccContentDetails(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSccContentDetailsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSccContentDetails(getSccContentDetailsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
          * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -11161,6 +11590,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRegisteredToiletReviewsResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+         * @summary 저장한 컨텐츠 목록을 조회한다.
+         * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listSavedContents(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSavedContentsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSavedContents(listSavedContentsRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11408,6 +11848,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * @summary 웹페이지 등 컨텐츠를 저장한다.
+         * @param {SaveContentRequestDto} saveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async saveContent(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SaveContentResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.saveContent(saveContentRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -11504,6 +11955,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         async suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuggestPlacesResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.suggestPlacesPost(suggestPlacesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary 컨텐츠 저장을 해제한다.
+         * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async unsaveContent(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unsaveContent(unsaveContentRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -11950,6 +12412,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
         },
         /**
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
+         * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSccContentDetails(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: any): AxiosPromise<GetSccContentDetailsResponseDto> {
+            return localVarFp.getSccContentDetails(getSccContentDetailsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
          * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -12107,6 +12579,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: any): AxiosPromise<ListRegisteredToiletReviewsResponseDto> {
             return localVarFp.listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+         * @summary 저장한 컨텐츠 목록을 조회한다.
+         * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSavedContents(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: any): AxiosPromise<ListSavedContentsResponseDto> {
+            return localVarFp.listSavedContents(listSavedContentsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12331,6 +12813,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+         * @summary 웹페이지 등 컨텐츠를 저장한다.
+         * @param {SaveContentRequestDto} saveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        saveContent(saveContentRequestDto: SaveContentRequestDto, options?: any): AxiosPromise<SaveContentResponseDto> {
+            return localVarFp.saveContent(saveContentRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 장소를 내 저장 리스트에 추가한다.
          * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -12419,6 +12911,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: any): AxiosPromise<SuggestPlacesResponseDto> {
             return localVarFp.suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 컨텐츠 저장을 해제한다.
+         * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsaveContent(unsaveContentRequestDto: UnsaveContentRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.unsaveContent(unsaveContentRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12932,6 +13434,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+     * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
+     * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getSccContentDetails(getSccContentDetailsRequestDto: GetSccContentDetailsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getSccContentDetails(getSccContentDetailsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 도움이 되었어요를 누른 사람들과 통계를 받아온다
      * @param {GetUpvoteDetailsRequestDto} getUpvoteDetailsRequestDto 
@@ -13120,6 +13634,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto: ListRegisteredReviewsRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listRegisteredToiletReviewsPost(listRegisteredReviewsRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 저장 시각 역순(createdAt DESC)으로 페이징한다. \'저장한 장소\' 페이지의 \'저장한 컨텐츠\' 탭에서 사용한다. 
+     * @summary 저장한 컨텐츠 목록을 조회한다.
+     * @param {ListSavedContentsRequestDto} listSavedContentsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listSavedContents(listSavedContentsRequestDto: ListSavedContentsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listSavedContents(listSavedContentsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13389,6 +13915,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
+     * @summary 웹페이지 등 컨텐츠를 저장한다.
+     * @param {SaveContentRequestDto} saveContentRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public saveContent(saveContentRequestDto: SaveContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).saveContent(saveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 장소를 내 저장 리스트에 추가한다.
      * @param {SavePlaceRequestDto} savePlaceRequestDto 
@@ -13494,6 +14032,18 @@ export class DefaultApi extends BaseAPI {
      */
     public suggestPlacesPost(suggestPlacesRequestDto: SuggestPlacesRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).suggestPlacesPost(suggestPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 컨텐츠 저장을 해제한다.
+     * @param {UnsaveContentRequestDto} unsaveContentRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public unsaveContent(unsaveContentRequestDto: UnsaveContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).unsaveContent(unsaveContentRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

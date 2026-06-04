@@ -8,7 +8,6 @@ import styled from 'styled-components/native';
 
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
-import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -22,7 +21,7 @@ const BANNER_HEIGHT = (BANNER_WIDTH / 350) * 67;
 const ESTIMATED_ITEM_HEIGHT = 80;
 const BANNER_GAP = 16;
 
-export default function SavedPlaceListsScreen() {
+export default function SavedPlaceListsTab() {
   const navigation = useNavigation();
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
@@ -98,82 +97,88 @@ export default function SavedPlaceListsScreen() {
     </BannerWrapper>
   );
 
+  if (isLoading) {
+    return <SearchLoading />;
+  }
+
+  if (isError) {
+    return (
+      <NoResultContainer>
+        <NoResultText>리스트를 불러올 수 없습니다.</NoResultText>
+      </NoResultContainer>
+    );
+  }
+
+  if (placeLists.length === 0) {
+    return (
+      <NoResultContainer>
+        <NoResultText>저장한 장소가 없습니다.</NoResultText>
+      </NoResultContainer>
+    );
+  }
+
   return (
-    <ScreenLayout isHeaderVisible={true}>
-      {isLoading ? (
-        <SearchLoading />
-      ) : isError ? (
-        <NoResultContainer>
-          <NoResultText>리스트를 불러올 수 없습니다.</NoResultText>
-        </NoResultContainer>
-      ) : placeLists.length === 0 ? (
-        <NoResultContainer>
-          <NoResultText>저장한 장소가 없습니다.</NoResultText>
-        </NoResultContainer>
-      ) : (
-        <ListContainer
-          onLayout={e => setContainerHeight(e.nativeEvent.layout.height)}>
-          <FlashList
-            contentContainerStyle={{
-              backgroundColor: color.white,
-              paddingBottom: shouldInlineBanner
-                ? BANNER_GAP
-                : bannerBottomOffset + bannerTotalHeight,
-            }}
-            data={placeLists}
-            keyExtractor={item => item.id}
-            renderItem={({item, index}) => (
-              <SccPressable
-                elementName="saved_place_list_item"
-                logParams={{placeListId: item.id}}
-                onPress={() => handleItemPress(item)}>
-                <ItemWrapper isFirst={index === 0}>
-                  <IconTextGroup>
-                    <IconCircle
-                      bgColor={
-                        item.type === PlaceListTypeDto.MyPlaces
-                          ? '#67AEFF'
-                          : (item.iconColor ?? '#FFC01E')
-                      }>
-                      <BookmarkFilledIcon
-                        width={20}
-                        height={20}
-                        color={color.white}
-                      />
-                    </IconCircle>
-                    <ItemContent>
-                      <ItemName numberOfLines={1}>{item.name}</ItemName>
-                      <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
-                    </ItemContent>
-                  </IconTextGroup>
-                  <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
-                </ItemWrapper>
-              </SccPressable>
-            )}
-            ListFooterComponent={shouldInlineBanner ? renderBanner : undefined}
-            estimatedItemSize={ESTIMATED_ITEM_HEIGHT}
-            onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) {
-                fetchNextPage();
-              }
-            }}
-            onEndReachedThreshold={0.5}
-          />
-          {!shouldInlineBanner && (
-            <View
-              style={{
-                position: 'absolute',
-                bottom: bannerBottomOffset,
-                left: 0,
-                right: 0,
-                alignItems: 'center',
-              }}>
-              {renderBanner()}
-            </View>
-          )}
-        </ListContainer>
+    <ListContainer
+      onLayout={e => setContainerHeight(e.nativeEvent.layout.height)}>
+      <FlashList
+        contentContainerStyle={{
+          backgroundColor: color.white,
+          paddingBottom: shouldInlineBanner
+            ? BANNER_GAP
+            : bannerBottomOffset + bannerTotalHeight,
+        }}
+        data={placeLists}
+        keyExtractor={item => item.id}
+        renderItem={({item, index}) => (
+          <SccPressable
+            elementName="saved_place_list_item"
+            logParams={{placeListId: item.id}}
+            onPress={() => handleItemPress(item)}>
+            <ItemWrapper isFirst={index === 0}>
+              <IconTextGroup>
+                <IconCircle
+                  bgColor={
+                    item.type === PlaceListTypeDto.MyPlaces
+                      ? '#67AEFF'
+                      : (item.iconColor ?? '#FFC01E')
+                  }>
+                  <BookmarkFilledIcon
+                    width={20}
+                    height={20}
+                    color={color.white}
+                  />
+                </IconCircle>
+                <ItemContent>
+                  <ItemName numberOfLines={1}>{item.name}</ItemName>
+                  <ItemPlaceCount>{item.placeCount}곳</ItemPlaceCount>
+                </ItemContent>
+              </IconTextGroup>
+              <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
+            </ItemWrapper>
+          </SccPressable>
+        )}
+        ListFooterComponent={shouldInlineBanner ? renderBanner : undefined}
+        estimatedItemSize={ESTIMATED_ITEM_HEIGHT}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+      />
+      {!shouldInlineBanner && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: bannerBottomOffset,
+            left: 0,
+            right: 0,
+            alignItems: 'center',
+          }}>
+          {renderBanner()}
+        </View>
       )}
-    </ScreenLayout>
+    </ListContainer>
   );
 }
 

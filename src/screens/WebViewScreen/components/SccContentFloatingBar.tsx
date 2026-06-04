@@ -1,66 +1,101 @@
 import React, {useCallback} from 'react';
-import {Linking, Share, View} from 'react-native';
+import {Share, View} from 'react-native';
 import {useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {UpvoteTargetTypeDto} from '@/generated-sources/openapi';
+import {
+  SccContentTypeDto,
+  UpvoteTargetTypeDto,
+} from '@/generated-sources/openapi';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SccButton} from '@/components/atoms/SccButton';
 import {SccPressable} from '@/components/SccPressable';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
+import {useSaveContent} from '@/hooks/useSaveContent';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import useAppComponents from '@/hooks/useAppComponents';
-import {useMe} from '@/atoms/Auth';
 
 import ThumbsUpIcon from '@/assets/icon/ic_thumbs_up.svg';
 import ThumbsUpFillIcon from '@/assets/icon/ic_thumbs_up_fill.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
+import BookmarkIcon from '@/assets/icon/ic_v2_bookmark.svg';
+import BookmarkFilledIcon from '@/assets/icon/ic_v2_bookmark_on.svg';
 import {useCheckAuth} from '@/utils/checkAuth';
+
+/**
+ * 웹페이지에서 추출한 OG 메타 + 본문 이미지 묶음.
+ * SccContent 저장 시 서버로 전달되는 metadata.
+ */
+export interface OgDetail {
+  title?: string | null;
+  /** og:image + 본문 <img> 합쳐서 중복 제거 + 등장 순서로 정렬된 절대 URL 목록. */
+  imageUrls?: string[];
+  description?: string | null;
+}
 
 interface SccContentFloatingBarProps {
   url: string;
-  sccContentId: string | null;
+  /** BBUCLE_ROAD 좋아요용 path id. URL path에서 추출한 식별자. */
+  bbucleRoadId: string | null;
+  /** 화면 상단 (header) 에 노출되는 title. fixedTitle / OG title / document.title 중 하나. */
   title?: string;
+  /** 웹페이지 OG 메타 + 본문 이미지. 저장 호출 시 그대로 서버로 전달. */
+  ogDetail?: OgDetail;
 }
 
 export default function SccContentFloatingBar({
   url,
-  sccContentId,
+  bbucleRoadId,
   title,
+  ogDetail,
 }: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
-  const {userInfo} = useMe();
 
-  // Upvote 상태 조회 (sccContentId가 있을 때만)
-  const {data: upvoteDetails} = useQuery({
-    queryKey: ['SccContentUpvoteDetails', sccContentId],
+  // 저장(SccContent) 상태 + 좋아요 요약 통합 조회.
+  // 웹뷰 진입 시 라운드트립 1회로 isSaved + sccContentId + upvoteSummary 를 모두 받는다.
+  // URL 만 보내면 서버가 URL pattern 으로 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여
+  // upvoteSummary (totalCount, isUpvoted) 를 채워준다. 좋아요 대상이 아닌 URL 이면 null.
+  // query key 는 useSaveContent 의 cache key 와 정확히 일치시켜야 한다
+  // (낙관적 setQueryData 가 exact match 로 동작하므로).
+  const {data: sccContentDetails, isLoading: isDetailsLoading} = useQuery({
+    queryKey: ['SccContentDetails', url],
     queryFn: async () => {
-      return await api.getUpvoteDetailsPost({
-        targetType: UpvoteTargetTypeDto.BbucleRoad,
-        id: sccContentId!,
-      });
+      return (await api.getSccContentDetails({url})).data;
     },
-    enabled: !!sccContentId,
   });
+  const sccContentId = sccContentDetails?.sccContentId ?? null;
+  const isSaved = sccContentDetails?.isSaved ?? false;
 
-  const upvotedUsers = upvoteDetails?.data?.upvotedUsers ?? [];
-  const totalCount = upvotedUsers.length;
-  const hasUpvoted =
-    upvotedUsers.some(user => user.nickname === userInfo?.nickname) ?? false;
+  const upvoteSummary = sccContentDetails?.upvoteSummary;
+  const initialIsUpvoted = upvoteSummary?.isUpvoted ?? false;
+  const initialTotalUpvoteCount = upvoteSummary?.totalCount;
 
-  // Upvote 토글 hook
+  // Upvote 토글 hook — BBUCLE_ROAD 좋아요는 장소와 무관하므로 placeId undefined
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
-    initialIsUpvoted: hasUpvoted,
-    initialTotalCount: totalCount,
-    targetId: sccContentId ?? undefined,
+    initialIsUpvoted,
+    initialTotalCount: initialTotalUpvoteCount,
+    targetId: bbucleRoadId ?? undefined,
     targetType: UpvoteTargetTypeDto.BbucleRoad,
-    placeId: '',
+    placeId: undefined,
   });
   const checkAuth = useCheckAuth();
+  const saveContent = useSaveContent();
+
+  const handleToggleSave = useCallback(() => {
+    saveContent({
+      url,
+      contentType: SccContentTypeDto.WebPage,
+      title: ogDetail?.title ?? title ?? null,
+      imageUrls: ogDetail?.imageUrls ?? [],
+      description: ogDetail?.description ?? null,
+      currentIsSaved: isSaved,
+      currentSccContentId: sccContentId,
+    });
+  }, [saveContent, url, ogDetail, title, isSaved, sccContentId]);
 
   // 공유하기
   const handleShare = useCallback(async () => {
@@ -79,21 +114,11 @@ export default function SccContentFloatingBar({
     }
   }, [sccContentId, url, title]);
 
-  // 정보 더 받아보기 (Tally 링크)
-  const handleMoreInfo = useCallback(async () => {
-    try {
-      const tallyUrl = 'https://forms.staircrusher.club/contents-alarm';
-      await Linking.openURL(tallyUrl);
-    } catch (_error) {
-      ToastUtils.show('링크를 열 수 없습니다');
-    }
-  }, []);
-
   return (
     <Container style={{paddingBottom: insets.bottom}}>
       <ContentRow>
-        {/* 도움이 돼요 버튼 (sccContentId 있을 때만) */}
-        {sccContentId !== null && (
+        {/* 도움이 돼요는 BBUCLE_ROAD path id가 추출되는 컨텐츠에서만 노출 */}
+        {bbucleRoadId !== null && (
           <UpvoteButton
             onPress={() => {
               checkAuth(toggleUpvote, () =>
@@ -101,7 +126,7 @@ export default function SccContentFloatingBar({
               );
             }}
             elementName="scc-content-upvote"
-            logParams={{sccContentId}}>
+            logParams={{bbucleRoadId}}>
             {isUpvoted ? (
               <ThumbsUpFillIcon width={20} height={20} />
             ) : (
@@ -133,18 +158,26 @@ export default function SccContentFloatingBar({
           logParams={{sccContentId, url}}
         />
 
-        {/* 정보 더 받아보기 버튼 */}
+        {/* 저장하기 / 저장됨 토글 — 디자이너 피드백으로 기존 '정보 더 받아보기' 자리를 대체 */}
         <SccButton
-          text="정보 더 받아보기"
+          text={isSaved ? '저장됨' : '저장하기'}
+          leftIcon={isSaved ? BookmarkFilledIcon : BookmarkIcon}
+          iconSize={16}
           buttonColor="brand40"
           textColor="white"
           style={{paddingHorizontal: 20, borderRadius: 8}}
           fontSize={14}
           fontWeight={'500'}
           height={40}
-          onPress={handleMoreInfo}
-          elementName="scc-content-more-info"
-          logParams={{sccContentId, url}}
+          isDisabled={isDetailsLoading}
+          onPress={() => {
+            if (isDetailsLoading) return;
+            checkAuth(handleToggleSave, () =>
+              ToastUtils.show('로그인이 필요합니다'),
+            );
+          }}
+          elementName="scc-content-save"
+          logParams={{sccContentId, url, isSaved}}
         />
       </ContentRow>
     </Container>
@@ -187,7 +220,7 @@ const UpvoteButton = styled(SccPressable)`
 const UpvoteCount = styled.Text<{isActive: boolean}>`
   font-size: 14px;
   font-family: ${font.pretendardSemibold};
-  color: ${color.gray80};
+  color: ${({isActive}) => (isActive ? color.brand40 : color.gray80)};
 `;
 
 const Spacer = styled(View)`

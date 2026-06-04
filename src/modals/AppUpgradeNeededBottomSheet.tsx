@@ -52,7 +52,7 @@ const AppUpgradeNeededBottomSheet = ({
     <BottomSheet isVisible={isVisible}>
       <ContentsContainer>
         <Title>
-          {isRequired ? '앱 업데이트가 필요합니다' : '앱 업데이트를 추천합니다'}
+          {isRequired ? '최신 버전으로 업데이트가 필요해요' : '최신 버전으로 업데이트를 권장해요'}
         </Title>
         <Message>{message}</Message>
       </ContentsContainer>
