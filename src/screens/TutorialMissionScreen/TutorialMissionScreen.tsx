@@ -136,6 +136,29 @@ export default function TutorialMissionScreen({
   const completeMission = useCompleteUserTutorialMission();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
+  // ScrollView 내부 content 컨테이너 ref. 카드 y 좌표 측정의 기준 좌표계.
+  // New Architecture(Fabric)에서는 getInnerViewNode() node handle 기반 measureLayout
+  // 이 동작하지 않으므로, 직접 content View 를 감싸고 그 host instance ref 를 기준으로
+  // measureLayout 한다.
+  const scrollContentRef = useRef<View>(null);
+  // 각 메인 미션 카드 wrapper 의 ref. hero 의 외출템 탭 시 해당 카드로 스크롤한다.
+  const cardRefs = useRef<Array<View | null>>([]);
+
+  const scrollToMissionCard = useCallback((index: number) => {
+    const cardNode = cardRefs.current[index];
+    const contentNode = scrollContentRef.current;
+    if (!cardNode || !contentNode) {
+      return;
+    }
+    cardNode.measureLayout(
+      contentNode,
+      (_x, y) => {
+        // 카드가 화면 최상단에 딱 붙지 않도록 약간의 여백을 두고 스크롤.
+        scrollRef.current?.scrollTo({y: Math.max(0, y - 16), animated: true});
+      },
+      () => {},
+    );
+  }, []);
 
   // 미션 완료 후 popTo 로 돌아왔을 때 instant scroll top.
   // 일반 back 으로 돌아온 경우엔 token 이 변하지 않으므로 스크롤이 유지된다.
@@ -287,29 +310,27 @@ export default function TutorialMissionScreen({
   }, [allMainCompleted, isHiddenCompleted, checkAuth, progress, navigation]);
 
   // hero 의 외출템(?) hot zone 탭 핸들러.
-  // - 이미 완료된 외출템: 무반응 (PNG 가 컬러여서 ? 표시가 없음, 클릭 의미 없음).
-  // - 잠긴 외출템(이전 미션 미완료): 무반응. 아직 못 깨는 미션이라 시작 페이지로 보내면 X.
-  // - 현재 진행 가능 미션 (= 다음에 깰 미션 = 첫 미완료 + 이전 모두 완료): 미션 카드의
-  //   "미션 시작" 버튼을 누른 것과 동일하게 미션 시작 페이지로 이동.
+  // - 이미 완료된 외출템: 페이지 아래쪽의 해당 미션 list item 으로 스크롤.
+  // - 현재 진행 가능 미션 (= 다음에 깰 미션 = 첫 미완료 + 이전 모두 완료): 마찬가지로
+  //   해당 미션 list item 으로 스크롤 (미션 시작 페이지로 바로 보내지 않는다).
+  // - 잠긴 외출템(이전 미션 미완료): 무반응. 아직 못 깨는 미션이라 스크롤할 의미 없음.
   const handleMissionItemPress = useCallback(
     (index: 0 | 1 | 2) => {
       const missionType = MAIN_MISSION_TYPES[index];
       if (!missionType) {
         return;
       }
-      const mission = missionByType.get(missionType);
-      if (isMissionCompleted(mission)) {
-        return;
-      }
+      const isCompleted = isMissionCompleted(missionByType.get(missionType));
       const allPreviousCompleted = MAIN_MISSION_TYPES.slice(0, index).every(
         prev => isMissionCompleted(missionByType.get(prev)),
       );
-      if (!allPreviousCompleted) {
+      const isCurrent = allPreviousCompleted && !isCompleted;
+      if (!isCompleted && !isCurrent) {
         return;
       }
-      handleStartMission(missionType);
+      scrollToMissionCard(index);
     },
-    [missionByType, handleStartMission],
+    [missionByType, scrollToMissionCard],
   );
 
   // 박원 2026-05-27 시안. hero PNG 자체는 정지하고 hero 위에 overlay 한 말풍선만
@@ -399,66 +420,76 @@ export default function TutorialMissionScreen({
         params={{displaySectionName: 'tutorial_mission_screen'}}>
         <BgContainer>
           <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
-            <MissionHero
-              hiddenActive={allMainCompleted}
-              hiddenCompleted={isHiddenCompleted}
-              onHiddenPress={handleHiddenMissionPress}
-              imageWidth={SCREEN_WIDTH}
-              heroImageUrl={effectiveHeroImageUrl}
-              bubbleVariant={bubbleState.variant}
-              bubbleFloat={bubbleState.float}
-              onMissionItemPress={handleMissionItemPress}
-            />
+            <View ref={scrollContentRef} collapsable={false}>
+              <MissionHero
+                hiddenActive={allMainCompleted}
+                hiddenCompleted={isHiddenCompleted}
+                onHiddenPress={handleHiddenMissionPress}
+                imageWidth={SCREEN_WIDTH}
+                heroImageUrl={effectiveHeroImageUrl}
+                bubbleVariant={bubbleState.variant}
+                bubbleFloat={bubbleState.float}
+                onMissionItemPress={handleMissionItemPress}
+              />
 
-            <ContentArea>
-              <SectionTitle>
-                {`${
-                  allMainCompleted ? 3 : MAIN_MISSION_TYPES.length
-                }개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
-              </SectionTitle>
+              <ContentArea>
+                <SectionTitle>
+                  {`${
+                    allMainCompleted ? 3 : MAIN_MISSION_TYPES.length
+                  }개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
+                </SectionTitle>
 
-              <CardsWrapper>
-                {MAIN_MISSION_TYPES.map((missionType, index) => {
-                  const mission = missionByType.get(missionType);
-                  const meta = TUTORIAL_MISSION_META[missionType];
-                  const isCompleted = isMissionCompleted(mission);
-                  const previousMissions = MAIN_MISSION_TYPES.slice(0, index);
-                  const isPreviousCompleted = previousMissions.every(prev =>
-                    isMissionCompleted(missionByType.get(prev)),
-                  );
-                  const isDimmed = !isPreviousCompleted && !isCompleted;
-                  const isCurrent = isPreviousCompleted && !isCompleted;
-                  const postCompletionLink = pickPostCompletionLink({
-                    missionType,
-                    navigation,
-                  });
-                  return (
-                    <MissionCard
-                      key={missionType}
-                      missionType={missionType}
-                      missionIndex={index + 1}
-                      meta={meta}
-                      isCompleted={isCompleted}
-                      isCurrent={isCurrent}
-                      isDimmed={isDimmed}
-                      dimText={
-                        index > 0
-                          ? `외출템 ${index}을 모으면, 외출템 ${
-                              index + 1
-                            } 미션이 열려요!`
-                          : undefined
-                      }
-                      onStart={() => handleStartMission(missionType)}
-                      postCompletionLinkText={postCompletionLink?.text}
-                      onPostCompletionLinkPress={postCompletionLink?.onPress}
-                    />
-                  );
-                })}
-              </CardsWrapper>
+                <CardsWrapper>
+                  {MAIN_MISSION_TYPES.map((missionType, index) => {
+                    const mission = missionByType.get(missionType);
+                    const meta = TUTORIAL_MISSION_META[missionType];
+                    const isCompleted = isMissionCompleted(mission);
+                    const previousMissions = MAIN_MISSION_TYPES.slice(0, index);
+                    const isPreviousCompleted = previousMissions.every(prev =>
+                      isMissionCompleted(missionByType.get(prev)),
+                    );
+                    const isDimmed = !isPreviousCompleted && !isCompleted;
+                    const isCurrent = isPreviousCompleted && !isCompleted;
+                    const postCompletionLink = pickPostCompletionLink({
+                      missionType,
+                      navigation,
+                    });
+                    return (
+                      <View
+                        key={missionType}
+                        ref={el => {
+                          cardRefs.current[index] = el;
+                        }}
+                        collapsable={false}>
+                        <MissionCard
+                          missionType={missionType}
+                          missionIndex={index + 1}
+                          meta={meta}
+                          isCompleted={isCompleted}
+                          isCurrent={isCurrent}
+                          isDimmed={isDimmed}
+                          dimText={
+                            index > 0
+                              ? `외출템 ${index}을 모으면, 외출템 ${
+                                  index + 1
+                                } 미션이 열려요!`
+                              : undefined
+                          }
+                          onStart={() => handleStartMission(missionType)}
+                          postCompletionLinkText={postCompletionLink?.text}
+                          onPostCompletionLinkPress={
+                            postCompletionLink?.onPress
+                          }
+                        />
+                      </View>
+                    );
+                  })}
+                </CardsWrapper>
 
-              {/* sticky bottom CTA + tooltip 영역과 겹치지 않도록 충분한 여백 확보. */}
-              <View style={{height: showStickyHiddenCta ? 140 : 40}} />
-            </ContentArea>
+                {/* sticky bottom CTA + tooltip 영역과 겹치지 않도록 충분한 여백 확보. */}
+                <View style={{height: showStickyHiddenCta ? 140 : 40}} />
+              </ContentArea>
+            </View>
           </ScrollView>
 
           {showStickyHiddenCta && (
