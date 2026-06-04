@@ -126,10 +126,18 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
 
   const buildAuthInjectScript = useCallback((token: string | null) => {
     if (!token) return '';
-    // JSON.stringify 로 따옴표/이스케이프 safety 확보
+    // baseUrl 도 함께 주입해서 web bundle 이 이 환경에 맞는 API 서버로 호출하게 한다.
+    // (web.staircrusher.club 의 web bundle 은 default 로 prod API 를 가리키므로,
+    //  sandbox 앱 안에서 띄우면 prod API 호출 → 신규 endpoint 미배포 → 404 등 사고.)
+    // BASE_URL 이 비어있으면 web 측 default(prod) 가 그대로 사용된다.
+    // JSON.stringify 로 따옴표/이스케이프 safety 확보.
+    const baseUrl = Config.BASE_URL ?? '';
     return `
       try {
-        window.__SCC_APP_AUTH__ = { token: ${JSON.stringify(token)} };
+        window.__SCC_APP_AUTH__ = {
+          token: ${JSON.stringify(token)},
+          baseUrl: ${JSON.stringify(baseUrl)},
+        };
         window.dispatchEvent(new Event('scc-app-auth-ready'));
       } catch (_e) {}
     `;
