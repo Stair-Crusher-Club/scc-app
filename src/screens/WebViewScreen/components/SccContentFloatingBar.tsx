@@ -169,7 +169,7 @@ export default function SccContentFloatingBar({
 
         {/* 저장하기 / 저장됨 토글 — 디자이너 피드백으로 기존 '정보 더 받아보기' 자리를 대체 */}
         <SccButton
-          text={isSaved ? '저장됨' : '저장하기'}
+          text={isSaved ? '저장완료' : '저장하기'}
           leftIcon={isSaved ? BookmarkFilledIcon : BookmarkIcon}
           iconSize={16}
           buttonColor="brand40"
