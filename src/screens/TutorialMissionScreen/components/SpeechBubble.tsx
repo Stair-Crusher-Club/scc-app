@@ -1,6 +1,8 @@
 import React, {useEffect, useRef} from 'react';
 import {Animated, Easing, Image, ImageSourcePropType} from 'react-native';
 
+import {SccPressable} from '@/components/SccPressable';
+
 /**
  * 박원 디자이너 2026-05-27 시안의 hero 말풍선.
  *
@@ -86,12 +88,15 @@ interface SpeechBubbleProps {
   heroWidth: number;
   /** float=true → 위아래 둥실. false → 정지. variant 4/6 은 보통 false. */
   float: boolean;
+  /** 지정 시 말풍선이 탭 가능해진다(진행 중 미션으로 스크롤 등). 미지정이면 터치 통과. */
+  onPress?: () => void;
 }
 
 export default function SpeechBubble({
   variant,
   heroWidth,
   float,
+  onPress,
 }: SpeechBubbleProps) {
   const spec = VARIANT_SPECS[variant];
   const scale = heroWidth / 390;
@@ -123,9 +128,17 @@ export default function SpeechBubble({
     return () => loop.stop();
   }, [float, floatY]);
 
+  const image = (
+    <Image
+      source={spec.source}
+      style={{width: '100%', height: '100%'}}
+      resizeMode="contain"
+    />
+  );
+
   return (
     <Animated.View
-      pointerEvents="none"
+      pointerEvents={onPress ? 'auto' : 'none'}
       style={{
         position: 'absolute',
         left: spec.x * scale,
@@ -134,11 +147,17 @@ export default function SpeechBubble({
         height: spec.h * scale,
         transform: [{translateY: floatY}],
       }}>
-      <Image
-        source={spec.source}
-        style={{width: '100%', height: '100%'}}
-        resizeMode="contain"
-      />
+      {onPress ? (
+        <SccPressable
+          elementName="tutorial_mission_bubble"
+          logParams={{variant}}
+          onPress={onPress}
+          style={{width: '100%', height: '100%'}}>
+          {image}
+        </SccPressable>
+      ) : (
+        image
+      )}
     </Animated.View>
   );
 }

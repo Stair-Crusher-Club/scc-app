@@ -28,6 +28,11 @@ interface MissionHeroProps {
    * 해당 미션 카드로 부모 ScrollView 가 스크롤한다.
    */
   onMissionItemPress?: (index: 0 | 1 | 2) => void;
+  /**
+   * 말풍선 탭 핸들러. 지정 시 말풍선이 탭 가능해진다(진행 중 미션으로 스크롤). 진행 중
+   * 미션이 있는 variant 1/2/3 에서만 부모가 전달한다.
+   */
+  onBubblePress?: () => void;
 }
 
 // 박원 figma 의 hero(visual) frame 사이즈. button/말풍선은 hero PNG 에서 제외됐고
@@ -65,6 +70,7 @@ export default function MissionHero({
   bubbleVariant,
   bubbleFloat,
   onMissionItemPress,
+  onBubblePress,
 }: MissionHeroProps) {
   const scale = imageWidth / DESIGN_WIDTH;
   const heroHeight = DESIGN_HEIGHT * scale;
@@ -117,6 +123,7 @@ export default function MissionHero({
           variant={bubbleVariant}
           heroWidth={imageWidth}
           float={bubbleFloat}
+          onPress={onBubblePress}
         />
       )}
     </HeroContainer>

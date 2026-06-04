@@ -77,7 +77,8 @@ function pickPostCompletionLink({
     case TutorialMissionTypeDto.SavePlaceList:
       return {
         text: '저장리스트 다시 보기 →',
-        onPress: () => navigation.navigate('SavedPlaceLists'),
+        // 저장한 장소 리스트는 MySaves 화면(기본 '장소' 탭)에서 볼 수 있다.
+        onPress: () => navigation.navigate('MySaves'),
       };
     case TutorialMissionTypeDto.UpvoteAccessibility:
       return undefined;
@@ -430,6 +431,13 @@ export default function TutorialMissionScreen({
                 bubbleVariant={bubbleState.variant}
                 bubbleFloat={bubbleState.float}
                 onMissionItemPress={handleMissionItemPress}
+                onBubblePress={
+                  // 진행 중 미션이 있을 때(= 메인 미션 미완료, bubble variant 1/2/3)만
+                  // 말풍선 탭 → 현재 진행 미션 카드로 스크롤. 다 모은 뒤(v4/5/6)엔 미전달.
+                  allMainCompleted
+                    ? undefined
+                    : () => scrollToMissionCard(collectedMainCount as 0 | 1 | 2)
+                }
               />
 
               <ContentArea>
