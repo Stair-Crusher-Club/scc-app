@@ -464,7 +464,7 @@ export default function TutorialMissionScreen({
           {showStickyHiddenCta && (
             <StickyHiddenCtaWrapper
               pointerEvents="box-none"
-              style={{bottom: insets.bottom + 50}}>
+              style={{bottom: insets.bottom + 20}}>
               {showHiddenTooltip && (
                 <Animated.View
                   style={{
