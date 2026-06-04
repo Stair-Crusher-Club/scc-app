@@ -77,8 +77,8 @@ function pickPostCompletionLink({
     case TutorialMissionTypeDto.SavePlaceList:
       return {
         text: '저장리스트 다시 보기 →',
-        // 저장한 장소 리스트는 MySaves 화면(기본 '장소' 탭)에서 볼 수 있다.
-        onPress: () => navigation.navigate('PublicPlaceLists'),
+        // 단순 "다시 보기" 진입이므로 튜토리얼 완료 트리거(fromTutorial)는 주지 않는다.
+        onPress: () => navigation.navigate('PublicPlaceLists', {}),
       };
     case TutorialMissionTypeDto.UpvoteAccessibility:
       return undefined;
@@ -311,10 +311,10 @@ export default function TutorialMissionScreen({
   }, [allMainCompleted, isHiddenCompleted, checkAuth, progress, navigation]);
 
   // hero 의 외출템(?) hot zone 탭 핸들러.
-  // - 이미 완료된 외출템: 페이지 아래쪽의 해당 미션 list item 으로 스크롤.
-  // - 현재 진행 가능 미션 (= 다음에 깰 미션 = 첫 미완료 + 이전 모두 완료): 마찬가지로
-  //   해당 미션 list item 으로 스크롤 (미션 시작 페이지로 바로 보내지 않는다).
-  // - 잠긴 외출템(이전 미션 미완료): 무반응. 아직 못 깨는 미션이라 스크롤할 의미 없음.
+  // - 현재 진행 가능 미션 (= 다음에 깰 미션 = 첫 미완료 + 이전 모두 완료): 해당 미션
+  //   list item 으로 스크롤 (미션 시작 페이지로 바로 보내지 않는다).
+  // - 이미 완료된 외출템: 무반응.
+  // - 잠긴 외출템(이전 미션 미완료): 무반응.
   const handleMissionItemPress = useCallback(
     (index: 0 | 1 | 2) => {
       const missionType = MAIN_MISSION_TYPES[index];
@@ -326,7 +326,7 @@ export default function TutorialMissionScreen({
         prev => isMissionCompleted(missionByType.get(prev)),
       );
       const isCurrent = allPreviousCompleted && !isCompleted;
-      if (!isCompleted && !isCurrent) {
+      if (!isCurrent) {
         return;
       }
       scrollToMissionCard(index);
