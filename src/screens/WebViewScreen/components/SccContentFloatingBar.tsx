@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {Share, View} from 'react-native';
-import {useQuery} from '@tanstack/react-query';
+import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -61,12 +61,21 @@ export default function SccContentFloatingBar({
   // upvoteSummary (totalCount, isUpvoted) 를 채워준다. 좋아요 대상이 아닌 URL 이면 null.
   // query key 는 useSaveContent 의 cache key 와 정확히 일치시켜야 한다
   // (낙관적 setQueryData 가 exact match 로 동작하므로).
-  const {data: sccContentDetails, isLoading: isDetailsLoading} = useQuery({
+  //
+  // 웹뷰 내 페이지 이동(con.staircrusher.club 안에서 다른 컨텐츠로 navigate) 시
+  // url 이 바뀌면서 queryKey 가 새것이 되어 isLoading=true 가 잠시 뜨면 저장 버튼이 깜빡인다.
+  // placeholderData: keepPreviousData 로 이전 url 의 응답을 background fetch 동안 그대로 보여줘
+  // 깜빡임을 막는다. 새 데이터 도착 시 자연스럽게 교체된다.
+  const {data: sccContentDetails} = useQuery({
     queryKey: ['SccContentDetails', url],
     queryFn: async () => {
       return (await api.getSccContentDetails({url})).data;
     },
+    placeholderData: keepPreviousData,
   });
+  // 진짜 데이터가 한 번도 없는 첫 로드일 때만 disable. URL 이 바뀐 중간 fetch 동안은
+  // 이전 응답 (placeholder) 이 깔리므로 sccContentDetails 가 정의되어 있어 disable 되지 않는다.
+  const isDetailsLoading = sccContentDetails === undefined;
   const sccContentId = sccContentDetails?.sccContentId ?? null;
   const isSaved = sccContentDetails?.isSaved ?? false;
 

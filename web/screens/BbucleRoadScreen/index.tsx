@@ -195,8 +195,8 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
 
   // 앱(scc-app) 웹뷰 안에서 띄워졌다면 access token 이 주입되어 있다.
   // 이 경우 CTA 자리에 저장 버튼을 노출한다.
-  const appInjectedToken = useAppInjectedAuth();
-  const isInApp = appInjectedToken !== null;
+  const appInjectedAuth = useAppInjectedAuth();
+  const isInApp = appInjectedAuth !== null;
 
   // 저장 상태 조회 — 앱 컨텍스트에서만 의미가 있으므로 token 이 있을 때만 fetch.
   const currentPageUrl = useMemo(
@@ -532,7 +532,7 @@ function EditModeContent({ bbucleRoadId }: { bbucleRoadId: string }) {
 export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   const { bbucleRoadId } = route.params;
   const [isInitializing, setIsInitializing] = useState(true);
-  const appInjectedToken = useAppInjectedAuth();
+  const appInjectedAuth = useAppInjectedAuth();
 
   const isEditMode = useMemo(() => getIsEditMode(), []);
 
@@ -549,20 +549,27 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   }, [configData, bbucleRoadId]);
 
   // 앱이 늦게 토큰을 주입한 경우(atom 로딩 지연 등)에도 즉시 반영한다.
-  // 익명 유저로 이미 init 되었더라도 app token 으로 덮어쓰면 이후 API 호출은 실제 유저로 인증된다.
+  // 익명 유저로 이미 init 되었더라도 app token + baseUrl 로 덮어쓰면 이후 API 호출은
+  // 앱 환경(sandbox/production)의 서버 + 실제 유저로 인증된다.
   useEffect(() => {
-    if (appInjectedToken) {
-      apiConfig.accessToken = appInjectedToken;
+    if (appInjectedAuth) {
+      apiConfig.accessToken = appInjectedAuth.token;
+      if (appInjectedAuth.baseUrl) {
+        apiConfig.basePath = appInjectedAuth.baseUrl;
+      }
     }
-  }, [appInjectedToken]);
+  }, [appInjectedAuth]);
 
   // Initialize auth (for upvote and image upload)
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // 0순위: scc-app 웹뷰가 주입한 access token. 익명 유저 생성보다 우선한다.
-        if (appInjectedToken) {
-          apiConfig.accessToken = appInjectedToken;
+        // 0순위: scc-app 웹뷰가 주입한 access token + baseUrl. 익명 유저 생성보다 우선한다.
+        if (appInjectedAuth) {
+          apiConfig.accessToken = appInjectedAuth.token;
+          if (appInjectedAuth.baseUrl) {
+            apiConfig.basePath = appInjectedAuth.baseUrl;
+          }
           // bbucleRoadUserId 가 비어있으면 채워둔다 (좋아요 표시 등에 쓰임)
           if (!window.localStorage.getItem('bbucleRoadUserId')) {
             try {
