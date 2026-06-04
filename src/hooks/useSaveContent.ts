@@ -25,17 +25,12 @@ interface SaveContentMutateArgs {
   description?: string | null;
   currentIsSaved: boolean;
   currentSccContentId?: string | null;
-  /**
-   * SccContentDetails 캐시 query key 의 추가 segment.
-   * 호출처(SccContentFloatingBar)가 ['SccContentDetails', url, bbucleRoadId] 로 cache 하므로
-   * 낙관적 setQueryData 가 exact match 되도록 동일 segment 를 전달한다.
-   */
-  upvoteTargetId?: string | null;
 }
 
 /**
  * SccContentDetails 캐시의 isSaved/sccContentId만 즉시 toggle하기 위한 query key prefix.
- * 실제 cache key 는 [PREFIX, url, upvoteTargetId ?? null] 형태로 호출처와 일치시킨다.
+ * 실제 cache key 는 [PREFIX, url] 형태로 호출처와 일치시킨다.
+ * 서버가 URL pattern 으로 upvote target 을 추론하므로 URL 만으로 unique 하다.
  * 서버 응답 + invalidate refetch 사이의 지연을 가리기 위함.
  */
 const SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX = 'SccContentDetails';
@@ -74,17 +69,8 @@ export function useSaveContent(options?: UseSaveContentOptions) {
         return {isSaved: true, sccContentId: data.sccContentId};
       }
     },
-    onMutate: async ({
-      url,
-      currentIsSaved,
-      currentSccContentId,
-      upvoteTargetId,
-    }) => {
-      const cacheKey = [
-        SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX,
-        url,
-        upvoteTargetId ?? null,
-      ];
+    onMutate: async ({url, currentIsSaved, currentSccContentId}) => {
+      const cacheKey = [SCC_CONTENT_DETAILS_QUERY_KEY_PREFIX, url];
 
       await queryClient.cancelQueries({queryKey: cacheKey});
 
@@ -100,7 +86,7 @@ export function useSaveContent(options?: UseSaveContentOptions) {
                 ? {sccContentId: currentSccContentId}
                 : {}),
               isSaved: !currentIsSaved,
-              // isUpvoted/totalUpvoteCount는 응답 도착 전까지 unknown → undefined로 두고
+              // upvoteSummary 는 응답 도착 전까지 unknown → undefined로 두고
               // 다음 refetch 시 서버 값으로 채워진다.
             };
           }

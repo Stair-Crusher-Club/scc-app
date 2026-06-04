@@ -2872,32 +2872,20 @@ export interface GetReviewActivityReportResponseDto {
     'thisMonthReviewedCount': number;
 }
 /**
- * 웹뷰 진입 시 1회 호출로 저장 상태 + 좋아요 정보까지 모두 받기 위한 통합 요청. upvoteTargetType + upvoteTargetId 를 같이 보내면 응답의 upvoteDetails 가 채워진다. (좋아요 정보가 컨텐츠와 무관하게 별도 키로 관리되어 클라이언트가 target 키를 결정해야 하기 때문이다.) 
+ * 웹뷰 진입 시 1회 호출로 저장 상태 + 좋아요 정보까지 모두 받기 위한 통합 요청. 클라이언트는 URL 만 보내고, 서버가 URL pattern 으로 좋아요 target 을 추론한다. 
  * @export
  * @interface GetSccContentDetailsRequestDto
  */
 export interface GetSccContentDetailsRequestDto {
     /**
-     * 조회할 컨텐츠의 URL. 서버에서 정규화 후 SccContent를 찾는다.
+     * 조회할 컨텐츠의 URL. 서버에서 정규화 후 SccContent를 찾는다. 또한 이 URL 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 도 추론한다.
      * @type {string}
      * @memberof GetSccContentDetailsRequestDto
      */
     'url': string;
-    /**
-     * 
-     * @type {UpvoteTargetTypeDto}
-     * @memberof GetSccContentDetailsRequestDto
-     */
-    'upvoteTargetType'?: UpvoteTargetTypeDto;
-    /**
-     * 좋아요 대상 ID. upvoteTargetType 과 같이 보낸다.
-     * @type {string}
-     * @memberof GetSccContentDetailsRequestDto
-     */
-    'upvoteTargetId'?: string;
 }
 /**
- * URL 기준 SccContent 의 id, 현재 유저의 저장 여부, 그리고 좋아요 정보 (요청에 upvoteTarget* 가 있을 때). SccContent 가 한 번도 저장된 적 없으면 sccContentId 는 null 이다. 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 좋아요 정보까지 함께 응답한다. 
+ * URL 기준 SccContent 의 id, 현재 유저의 저장 여부, 그리고 좋아요 요약 정보. SccContent 가 한 번도 저장된 적 없으면 sccContentId 는 null 이다. 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 좋아요 요약까지 함께 응답한다. URL 이 좋아요 대상이 아니라 좋아요 개념을 적용할 수 없는 컨텐츠면 upvoteSummary 는 null. 
  * @export
  * @interface GetSccContentDetailsResponseDto
  */
@@ -2916,10 +2904,10 @@ export interface GetSccContentDetailsResponseDto {
     'isSaved': boolean;
     /**
      * 
-     * @type {GetUpvoteDetailsResponseDto}
+     * @type {SccContentUpvoteSummaryDto}
      * @memberof GetSccContentDetailsResponseDto
      */
-    'upvoteDetails'?: GetUpvoteDetailsResponseDto;
+    'upvoteSummary'?: SccContentUpvoteSummaryDto;
 }
 /**
  * 
@@ -5941,6 +5929,25 @@ export type SccContentTypeDto = typeof SccContentTypeDto[keyof typeof SccContent
 
 
 /**
+ * SccContent 의 좋아요 요약. 웹뷰 floating bar 표시에 필요한 최소 정보만 가진다. (PDP 의 GetUpvoteDetailsResponseDto 와는 별도 — 거기엔 누가 눌렀는지 목록이 필요하지만 여기는 불필요.) 
+ * @export
+ * @interface SccContentUpvoteSummaryDto
+ */
+export interface SccContentUpvoteSummaryDto {
+    /**
+     * 이 컨텐츠가 받은 총 좋아요 수.
+     * @type {number}
+     * @memberof SccContentUpvoteSummaryDto
+     */
+    'totalCount': number;
+    /**
+     * 현재 유저가 이 컨텐츠에 좋아요를 눌렀는지 여부.
+     * @type {boolean}
+     * @memberof SccContentUpvoteSummaryDto
+     */
+    'isUpvoted': boolean;
+}
+/**
  * WEB_PAGE 타입 SccContent 의 메타데이터. OG 메타 + 본문 이미지에서 추출한다. 
  * @export
  * @interface SccContentWebPageDetailDto
@@ -8725,8 +8732,8 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
-         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -11400,8 +11407,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
-         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -12405,8 +12412,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
         },
         /**
-         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
-         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -13427,8 +13434,8 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 정보를 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 요청에 upvoteTargetType + upvoteTargetId 를 함께 보내면 응답의 upvoteDetails 에 좋아요 정보가 채워진다. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
-     * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 정보를 한 번에 조회한다.
+     * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+     * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
      * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

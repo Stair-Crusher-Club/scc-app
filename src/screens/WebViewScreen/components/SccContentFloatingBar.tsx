@@ -14,7 +14,6 @@ import {SccButton} from '@/components/atoms/SccButton';
 import {SccPressable} from '@/components/SccPressable';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {useSaveContent} from '@/hooks/useSaveContent';
-import {useMe} from '@/atoms/Auth';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -55,38 +54,25 @@ export default function SccContentFloatingBar({
 }: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
-  const {userInfo} = useMe();
 
-  // 저장(SccContent) 상태 + 좋아요 정보 통합 조회.
-  // 웹뷰 진입 시 라운드트립 1회로 isSaved + sccContentId + upvoteDetails 를 모두 받는다.
-  // BBUCLE_ROAD path id 가 있으면 upvoteDetails 가 채워져 응답됨.
-  // query key 마지막 segment 는 useSaveContent 의 cache key 와 정확히 일치시켜야 한다
+  // 저장(SccContent) 상태 + 좋아요 요약 통합 조회.
+  // 웹뷰 진입 시 라운드트립 1회로 isSaved + sccContentId + upvoteSummary 를 모두 받는다.
+  // URL 만 보내면 서버가 URL pattern 으로 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여
+  // upvoteSummary (totalCount, isUpvoted) 를 채워준다. 좋아요 대상이 아닌 URL 이면 null.
+  // query key 는 useSaveContent 의 cache key 와 정확히 일치시켜야 한다
   // (낙관적 setQueryData 가 exact match 로 동작하므로).
   const {data: sccContentDetails, isLoading: isDetailsLoading} = useQuery({
-    queryKey: ['SccContentDetails', url, bbucleRoadId ?? null],
+    queryKey: ['SccContentDetails', url],
     queryFn: async () => {
-      return (
-        await api.getSccContentDetails({
-          url,
-          ...(bbucleRoadId
-            ? {
-                upvoteTargetType: UpvoteTargetTypeDto.BbucleRoad,
-                upvoteTargetId: bbucleRoadId,
-              }
-            : {}),
-        })
-      ).data;
+      return (await api.getSccContentDetails({url})).data;
     },
   });
   const sccContentId = sccContentDetails?.sccContentId ?? null;
   const isSaved = sccContentDetails?.isSaved ?? false;
 
-  const upvoteDetails = sccContentDetails?.upvoteDetails;
-  const initialIsUpvoted =
-    upvoteDetails?.upvotedUsers?.some(
-      u => userInfo?.nickname && u.nickname === userInfo.nickname,
-    ) ?? false;
-  const initialTotalUpvoteCount = upvoteDetails?.upvotedUsers?.length;
+  const upvoteSummary = sccContentDetails?.upvoteSummary;
+  const initialIsUpvoted = upvoteSummary?.isUpvoted ?? false;
+  const initialTotalUpvoteCount = upvoteSummary?.totalCount;
 
   // Upvote 토글 hook — BBUCLE_ROAD 좋아요는 장소와 무관하므로 placeId undefined
   const {isUpvoted, totalUpvoteCount, toggleUpvote} = useUpvoteToggle({
@@ -108,9 +94,8 @@ export default function SccContentFloatingBar({
       description: ogDetail?.description ?? null,
       currentIsSaved: isSaved,
       currentSccContentId: sccContentId,
-      upvoteTargetId: bbucleRoadId,
     });
-  }, [saveContent, url, ogDetail, title, isSaved, sccContentId, bbucleRoadId]);
+  }, [saveContent, url, ogDetail, title, isSaved, sccContentId]);
 
   // 공유하기
   const handleShare = useCallback(async () => {
