@@ -46,7 +46,7 @@ import PlaceFormV2Screen, {
   PlaceFormV2ScreenParams,
 } from '@/screens/PlaceFormV2Screen';
 import FavoritePlacesScreen from '@/screens/FavoritePlacesScreen';
-import SavedPlaceListsScreen from '@/screens/SavedPlaceListsScreen';
+import MySavesScreen from '@/screens/MySavesScreen';
 import PlacePhotoGuideScreen from '@/screens/PlacePhotoGuideScreen';
 import {PlacePhotoGuideScreenParams} from '@/screens/PlacePhotoGuideScreen/PlacePhotoGuideScreen';
 import PlaceReviewFormScreen, {
@@ -242,9 +242,9 @@ export const MainNavigationScreens: {
     options: {headerShown: false, freezeOnBlur: true},
   },
   {
-    name: 'SavedPlaceLists',
-    component: SavedPlaceListsScreen,
-    options: {headerShown: true, headerTitle: '저장한 장소'},
+    name: 'MySaves',
+    component: MySavesScreen,
+    options: {headerShown: true, headerTitle: '내 저장'},
   },
   {
     name: 'FavoritePlaces',
@@ -400,7 +400,7 @@ export type ScreenParams = {
   'Conquerer/Monthly': ConquererMonthlyScreenParams;
   'Conquerer/Upvote': undefined;
   UpvoteAnalytics: UpvoteAnalyticsScreenProps;
-  SavedPlaceLists: undefined;
+  MySaves: undefined;
   FavoritePlaces: undefined;
   PlaceListDetail: PlaceListDetailScreenParams;
   PlaceGroupMap: PlaceListDetailScreenParams;

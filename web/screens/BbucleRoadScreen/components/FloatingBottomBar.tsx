@@ -17,6 +17,13 @@ interface FloatingBottomBarProps {
   ctaButtonUrl: string;
   onLikePress?: () => void;
   onSharePress?: () => void;
+  /** scc-app 웹뷰 안에서 띄워졌는지 (token 주입 감지). 켜지면 CTA 자리를 저장 버튼으로 대체한다. */
+  isInApp?: boolean;
+  /** isInApp 일 때 현재 저장 상태. true 면 '저장됨', false 면 '저장하기'. */
+  isSaved?: boolean;
+  /** 저장 상태 fetch 중이면 버튼 비활성화. */
+  isSaveDisabled?: boolean;
+  onSavePress?: () => void;
 }
 
 export default function FloatingBottomBar({
@@ -26,6 +33,10 @@ export default function FloatingBottomBar({
   ctaButtonUrl,
   onLikePress,
   onSharePress,
+  isInApp,
+  isSaved,
+  isSaveDisabled,
+  onSavePress,
 }: FloatingBottomBarProps) {
   const { isDesktop } = useResponsive();
   const editContext = useEditMode();
@@ -94,9 +105,9 @@ export default function FloatingBottomBar({
             </SccPressable>
           </LeftButtonsContainer>
 
-          {/* CTA Button with Tooltip */}
+          {/* CTA Button with Tooltip — 앱 웹뷰에서는 저장 버튼으로 대체 */}
           <CTAWrapper>
-            {isDesktop && (
+            {isDesktop && !isInApp && (
               <TooltipContainer>
                 <TooltipContent>
                   <TooltipText>정보가 더 필요한 장소가 있다면 요청해주세요! 🎯</TooltipText>
@@ -104,23 +115,40 @@ export default function FloatingBottomBar({
                 <TooltipArrow />
               </TooltipContainer>
             )}
-            <SccPressable
-              onPress={handleCTAPress}
-              elementName="bbucle-road-floating-cta"
-              logParams={{ ctaButtonUrl, isDesktop }}
-              disableLogging={isEditMode}
-              style={{ flex: 1 }}
-            >
-              <CTAButton isDesktop={isDesktop}>
-                <CTAButtonText isDesktop={isDesktop}>정보 요청하기!</CTAButtonText>
-              </CTAButton>
-            </SccPressable>
+            {isInApp ? (
+              <SccPressable
+                onPress={onSavePress}
+                elementName="bbucle-road-floating-save"
+                logParams={{ isSaved: !!isSaved, isDesktop }}
+                disabled={isSaveDisabled}
+                disableLogging={isEditMode}
+                style={{ flex: 1 }}
+              >
+                <CTAButton isDesktop={isDesktop}>
+                  <CTAButtonText isDesktop={isDesktop}>
+                    {isSaved ? '저장됨' : '저장하기'}
+                  </CTAButtonText>
+                </CTAButton>
+              </SccPressable>
+            ) : (
+              <SccPressable
+                onPress={handleCTAPress}
+                elementName="bbucle-road-floating-cta"
+                logParams={{ ctaButtonUrl, isDesktop }}
+                disableLogging={isEditMode}
+                style={{ flex: 1 }}
+              >
+                <CTAButton isDesktop={isDesktop}>
+                  <CTAButtonText isDesktop={isDesktop}>정보 요청하기!</CTAButtonText>
+                </CTAButton>
+              </SccPressable>
+            )}
           </CTAWrapper>
         </ContentWrapper>
       </ButtonsSection>
 
-      {/* Mobile Bottom Green Bar */}
-      {!isDesktop && (
+      {/* Mobile Bottom Green Bar — 앱 웹뷰에서는 CTA 안내 문구도 함께 숨긴다 */}
+      {!isDesktop && !isInApp && (
         <MobileBottomBar>
           <MobileBottomBarText>정보가 더 필요한 장소가 있다면 요청해주세요! 🎯</MobileBottomBarText>
         </MobileBottomBar>

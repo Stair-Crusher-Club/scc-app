@@ -1,13 +1,15 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {SccPressable} from '@/components/SccPressable';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
 import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
+import {useAtomValue} from 'jotai';
+import Config from 'react-native-config';
 
 import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
 import CloseIcon from '@/assets/icon/close.svg';
-import {useMe} from '@/atoms/Auth';
+import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {CloseAppBar} from '@/components/AppBar';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
@@ -34,6 +36,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   } = route.params;
   const webViewRef = useRef<WebView>(null);
   const {userInfo} = useMe();
+  const accessToken = useAtomValue(accessTokenAtom);
   const resolvedInitialUrl = useMemo(
     () => resolveTemplatedExternalUrl(url, {userId: userInfo?.id}),
     [url, userInfo?.id],
@@ -45,18 +48,26 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     fixedTitle || undefined,
   );
 
-  // 뿌클로드(con.staircrusher.club) / 계뿌클 Notion 양쪽에서 콘텐츠 ID 추출
-  const sccContentId = useMemo(() => {
+  // 웹페이지 OG 메타 + 본문 이미지 (저장 시 서버로 전달)
+  const [ogMeta, setOgMeta] = useState<{
+    title: string | null;
+    description: string | null;
+    imageUrls: string[];
+  } | null>(null);
+
+  // SCC 콘텐츠 도메인이면 floating bar 노출
+  const shouldShowFloatingBar =
+    currentUrl.startsWith('https://con.staircrusher.club') ||
+    currentUrl.startsWith('https://staircrusherclub.notion.site');
+
+  // BBUCLE_ROAD 좋아요용 path id (기존 흐름과 동일).
+  // 좋아요는 SccContent 저장 여부와 무관하게 path id 기준으로 누적/조회된다.
+  const bbucleRoadId = useMemo(() => {
     const match = currentUrl.match(
       /(?:con\.staircrusher\.club|staircrusherclub\.notion\.site)\/([^/?#]+)/,
     );
     return match ? match[1] : null;
   }, [currentUrl]);
-
-  // SCC 콘텐츠 도메인이면 ID 추출 실패해도 floating bar는 노출 (id 없으면 도움이돼요만 숨김)
-  const shouldShowFloatingBar =
-    currentUrl.startsWith('https://con.staircrusher.club') ||
-    currentUrl.startsWith('https://staircrusherclub.notion.site');
 
   const onTapCloseButton = useCallback(() => {
     if (!confirmOnClose) {
@@ -74,8 +85,137 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   }, [navigation, confirmOnClose]);
 
   const handleMessage = useCallback((message: WebViewMessageEvent) => {
-    setTitle(message.nativeEvent.data);
+    const raw = message.nativeEvent.data;
+    try {
+      const parsed = JSON.parse(raw);
+      if (
+        parsed &&
+        typeof parsed === 'object' &&
+        parsed.type === 'SCC_OG_META'
+      ) {
+        const payload = parsed.payload as {
+          title: string | null;
+          description: string | null;
+          imageUrls?: string[] | null;
+        } | null;
+        if (payload) {
+          setOgMeta({
+            title: payload.title ?? null,
+            description: payload.description ?? null,
+            imageUrls: Array.isArray(payload.imageUrls)
+              ? payload.imageUrls
+              : [],
+          });
+          if (payload.title) {
+            setTitle(payload.title);
+          }
+        }
+      }
+    } catch (_e) {
+      // OG 스크립트 외 메시지는 무시 (의도되지 않은 raw postMessage).
+    }
   }, []);
+
+  // web.staircrusher.club 페이지가 현재 로드되어 있을 때만 앱 access token 을 주입한다.
+  // 페이지의 BbucleRoadScreen 이 window.__SCC_APP_AUTH__ 를 감지해서 저장 기능을 활성화한다.
+  const isWebStaircrusherUrl = useCallback(
+    (targetUrl: string) =>
+      targetUrl.startsWith('https://web.staircrusher.club'),
+    [],
+  );
+
+  const buildAuthInjectScript = useCallback((token: string | null) => {
+    if (!token) return '';
+    // JSON.stringify 로 따옴표/이스케이프 safety 확보
+    return `
+      try {
+        window.__SCC_APP_AUTH__ = { token: ${JSON.stringify(token)} };
+        window.dispatchEvent(new Event('scc-app-auth-ready'));
+      } catch (_e) {}
+    `;
+  }, []);
+
+  // atom 이 늦게 로드된 경우(앱 cold start) 페이지가 먼저 떠 있을 수 있다.
+  // accessToken 이 도착하면 즉시 주입해서 저장 버튼이 활성화되도록 한다.
+  useEffect(() => {
+    if (!accessToken) return;
+    if (!isWebStaircrusherUrl(currentUrl)) return;
+    const script = `(function(){${buildAuthInjectScript(accessToken)}})(); true;`;
+    webViewRef.current?.injectJavaScript(script);
+  }, [accessToken, currentUrl, isWebStaircrusherUrl, buildAuthInjectScript]);
+
+  // 페이지 로드 완료 시 OG 메타 + 본문 이미지 추출 스크립트 주입
+  const handleLoadEnd = useCallback(() => {
+    // 1) web.staircrusher.club 라면 access token 도 같이 주입 (저장 버튼 활성화)
+    if (isWebStaircrusherUrl(currentUrl) && accessToken) {
+      const authScript = `(function(){${buildAuthInjectScript(accessToken)}})(); true;`;
+      webViewRef.current?.injectJavaScript(authScript);
+    }
+
+    const extractOgScript = `
+      (function() {
+        try {
+          var get = function(sel) {
+            var el = document.querySelector(sel);
+            return el ? el.getAttribute('content') : null;
+          };
+          // og:image 를 먼저 push 한 뒤 본문 <img> src 를 절대 URL 화하여 합친다.
+          // data: URI / 빈 src 는 제외, 중복은 제거, 등장 순서는 유지.
+          // BLOCKED: con.staircrusher.club 의 공통 og:image (모든 페이지에 동일하게 박혀있음)
+          var BLOCKED = {
+            'https://oopy.lazyrockets.com/api/rest/cdn/image/272f5141-2c9f-46a7-b8dd-274bc7291fbb.png': true,
+          };
+          var imageUrls = [];
+          var seen = Object.create(null);
+          var ogImage = get('meta[property="og:image"]');
+          if (ogImage) {
+            try {
+              var ogAbs = new URL(ogImage, document.baseURI).toString();
+              if (!BLOCKED[ogAbs]) {
+                imageUrls.push(ogAbs);
+                seen[ogAbs] = true;
+              }
+            } catch (_e) {
+              if (!BLOCKED[ogImage]) {
+                imageUrls.push(ogImage);
+                seen[ogImage] = true;
+              }
+            }
+          }
+          // 아이콘/장식 이미지 필터링:
+          // (1) src 에 .svg 가 박혀 있으면 제외 (query 안 .svg 도 포함 — notion oopy icon 등)
+          // (2) 자연 크기가 100x100 미만이면 제외 (이미 로드된 img 만 판정 가능,
+          //     naturalWidth 0 인 lazy/미로드 img 는 일단 통과시킨다)
+          var MIN_IMAGE_SIDE = 100;
+          var imgs = document.querySelectorAll('img[src]');
+          for (var i = 0; i < imgs.length; i++) {
+            var src = imgs[i].getAttribute('src');
+            if (!src || src.indexOf('data:') === 0) continue;
+            if (src.toLowerCase().indexOf('.svg') !== -1) continue;
+            var nw = imgs[i].naturalWidth || 0;
+            var nh = imgs[i].naturalHeight || 0;
+            if (nw > 0 && nh > 0 && (nw < MIN_IMAGE_SIDE || nh < MIN_IMAGE_SIDE)) continue;
+            var abs = src;
+            try { abs = new URL(src, document.baseURI).toString(); } catch (_e) {}
+            if (BLOCKED[abs]) continue;
+            if (seen[abs]) continue;
+            seen[abs] = true;
+            imageUrls.push(abs);
+          }
+          var og = {
+            title: get('meta[property="og:title"]') || document.title || null,
+            description: get('meta[property="og:description"]') || get('meta[name="description"]'),
+            imageUrls: imageUrls,
+          };
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'SCC_OG_META', payload: og}));
+        } catch (e) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'SCC_OG_META', payload: null}));
+        }
+      })();
+      true;
+    `;
+    webViewRef.current?.injectJavaScript(extractOgScript);
+  }, [accessToken, currentUrl, isWebStaircrusherUrl, buildAuthInjectScript]);
 
   const handleBackPress = useCallback(() => {
     if (canGoBack && webViewRef.current) {
@@ -133,20 +273,50 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         ref={webViewRef}
         style={styles.webview}
         source={{uri: resolvedInitialUrl}}
-        injectedJavaScript="window.postMessage(document.title)"
+        // 로컬 개발 빌드(FLAVOR=local) 에서만 HTTPS 페이지의 HTTP API 호출을 허용.
+        // 예: web.staircrusher.club (HTTPS) 안에서 http://10.0.2.2:8080 으로 saveContent 호출.
+        // sandbox/production 빌드는 차단 유지 (MITM 공격 방지).
+        mixedContentMode={Config.FLAVOR === 'local' ? 'always' : 'never'}
+        // 페이지 JS 가 실행되기 전에 미리 token 을 심어준다. 초기 source 가 web.staircrusher.club
+        // 이고 token 도 마운트 시점에 준비되어 있는 경우 BbucleRoadScreen 의 initializeAuth 가
+        // window.__SCC_APP_AUTH__ 를 즉시 감지할 수 있다.
+        injectedJavaScriptBeforeContentLoaded={
+          isWebStaircrusherUrl(resolvedInitialUrl) && accessToken
+            ? `(function(){${buildAuthInjectScript(accessToken)}})(); true;`
+            : undefined
+        }
         onMessage={handleMessage}
+        onLoadEnd={handleLoadEnd}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
-          setCurrentUrl(navState.url);
+          // 함수형 setter 로 atomic 하게 비교 + 갱신 — onNavigationStateChange 는 빠르게
+          // 연속 호출될 수 있어 인라인 콜백의 currentUrl 클로저가 stale 일 수 있다.
+          setCurrentUrl(prev => {
+            if (prev !== navState.url) {
+              setOgMeta(null);
+              // URL 이 바뀌면 title 도 fixedTitle 로 되돌린다 (이전 페이지의 OG title 잔존 방지).
+              setTitle(fixedTitle || undefined);
+            }
+            return navState.url;
+          });
         }}
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />
       {shouldShowFloatingBar && (
         <SccContentFloatingBar
           url={currentUrl}
-          sccContentId={sccContentId}
+          bbucleRoadId={bbucleRoadId}
           title={title}
+          ogDetail={
+            ogMeta
+              ? {
+                  title: ogMeta.title,
+                  imageUrls: ogMeta.imageUrls,
+                  description: ogMeta.description,
+                }
+              : undefined
+          }
         />
       )}
     </SafeAreaWrapper>
