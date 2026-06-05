@@ -451,9 +451,9 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
       <View
         style={{
           position: 'absolute',
-          left: 62,
+          left: 40,
           bottom: 12,
-          width: SCREEN_WIDTH - (23 * SCREEN_WIDTH) / 390 - (holeX + 62),
+          width: SCREEN_WIDTH - (23 * SCREEN_WIDTH) / 390 - (holeX + 40),
         }}>
         <TooltipText>
           <TooltipHighlight>{'[도움돼요] '}</TooltipHighlight>

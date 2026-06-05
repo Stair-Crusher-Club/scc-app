@@ -57,7 +57,7 @@ export default function MissionCompletedOverlay({
         style={StyleSheet.absoluteFill}
         blurType="dark"
         blurAmount={Platform.OS === 'ios' ? 35 : 6}
-        overlayColor="rgba(0,0,0,0.6)"
+        overlayColor="rgba(0,0,0,0.8)"
       />
       <DimContent>
         <Contents>
