@@ -461,14 +461,15 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
         </TooltipText>
       </View>
       {/* 화살표 (figma 1956:22150) — 곡선 점선 화살표. 화살촉(↓)이 bbox 좌하단에 있고
-          위로 갈수록 우측으로 굽는다. button top-left anchor 기준 left 62 에 두고, 화살촉이
-          버튼 상단 근처에 닿도록 bottom 을 button top 살짝 위(top = -(h+2))에 맞춘다. */}
+          위로 갈수록 우측으로 굽는다. button top-left anchor 기준 left 62 에 둔다.
+          화살촉이 spotlight 포커스 테두리(button 을 HOLE_PADDING 만큼 확장한 hole) 바깥
+          위쪽에 오도록, 화살표 bottom 을 hole 상단(-HOLE_PADDING) 보다 4dp 더 위에 맞춘다. */}
       <Image
         source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
         style={{
           position: 'absolute',
           left: 62,
-          top: -(TOOLTIP_ARROW_HEIGHT + 2),
+          top: -(TOOLTIP_ARROW_HEIGHT + HOLE_PADDING + 4),
           width: TOOLTIP_ARROW_WIDTH,
           height: TOOLTIP_ARROW_HEIGHT,
         }}
