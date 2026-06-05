@@ -434,6 +434,14 @@ interface TooltipBlockProps {
  *   - 화살표: button left + 82dp, button top - 2dp (= figma 1648:42181 displayed bbox)
  */
 function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
+  const scale = SCREEN_WIDTH / 390;
+  const rightMargin = 23 * scale; // figma: 텍스트 우측 여백 23dp
+  // 블록(화살표+텍스트) 의 좌측 한계 (button left 기준). 우측은 화면 우측-여백 에 고정,
+  // 블록은 내용에 맞춰 우측 정렬로 shrink-wrap 되므로 이 값은 maxWidth 상한만 결정한다.
+  const blockLeft = 40;
+  const containerWidth = SCREEN_WIDTH - rightMargin - (holeX + blockLeft);
+  const arrowTextGap = 4;
+  const maxTextWidth = containerWidth - TOOLTIP_ARROW_WIDTH - arrowTextGap;
   return (
     <View
       pointerEvents="none"
@@ -444,37 +452,36 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
         width: 0,
         height: 0,
       }}>
-      {/* 텍스트 (figma 1956:22149) — 우측정렬. 폰트 사이즈가 커져도 자연스럽게 줄바꿈
-          되도록 maxWidth 를 화살표 왼쪽(button left + 62) ~ 화면 우측(여백 23dp) 으로 잡고,
-          줄 수가 몇 줄이든 도움돼요 버튼 bar 위쪽에 딱 붙도록 bottom 을 button top - 12 에
-          고정한다 (top 대신 bottom anchor → 위로 자란다). */}
+      {/* 화살표 + 텍스트를 하나의 우측정렬 row 로 묶는다 (figma 1956:22149/22150).
+          - 화살표는 항상 텍스트 좌측 하단에 딱 붙는다 (row + alignItems flex-end +
+            justifyContent flex-end → 텍스트 줄바꿈/길이와 무관하게 텍스트 왼쪽에 glue).
+          - 폰트 크기가 커져도 maxTextWidth 안에서 자연 줄바꿈.
+          - 줄 수가 몇 줄이든 블록 bottom 을 button top 위(HOLE_PADDING+4 만큼) 에 고정해
+            화살촉이 spotlight 포커스 테두리 바깥 위쪽에 오도록 한다. */}
       <View
         style={{
           position: 'absolute',
-          left: 40,
-          bottom: 12,
-          width: SCREEN_WIDTH - (23 * SCREEN_WIDTH) / 390 - (holeX + 40),
+          left: blockLeft,
+          bottom: HOLE_PADDING + 4,
+          width: containerWidth,
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
         }}>
-        <TooltipText>
+        <Image
+          source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
+          style={{
+            width: TOOLTIP_ARROW_WIDTH,
+            height: TOOLTIP_ARROW_HEIGHT,
+            marginRight: arrowTextGap,
+          }}
+          resizeMode="contain"
+        />
+        <TooltipText style={{maxWidth: maxTextWidth}}>
           <TooltipHighlight>{'[도움돼요] '}</TooltipHighlight>
-          버튼을 누르면 정보 등록자에게 감사 인사를 전할 수 있어요
+          {'버튼을 누르면 정보 등록자에게 감사 인사를 전할 수 있어요'}
         </TooltipText>
       </View>
-      {/* 화살표 (figma 1956:22150) — 곡선 점선 화살표. 화살촉(↓)이 bbox 좌하단에 있고
-          위로 갈수록 우측으로 굽는다. button top-left anchor 기준 left 62 에 둔다.
-          화살촉이 spotlight 포커스 테두리(button 을 HOLE_PADDING 만큼 확장한 hole) 바깥
-          위쪽에 오도록, 화살표 bottom 을 hole 상단(-HOLE_PADDING) 보다 4dp 더 위에 맞춘다. */}
-      <Image
-        source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
-        style={{
-          position: 'absolute',
-          left: 62,
-          top: -(TOOLTIP_ARROW_HEIGHT + HOLE_PADDING + 4),
-          width: TOOLTIP_ARROW_WIDTH,
-          height: TOOLTIP_ARROW_HEIGHT,
-        }}
-        resizeMode="contain"
-      />
     </View>
   );
 }
