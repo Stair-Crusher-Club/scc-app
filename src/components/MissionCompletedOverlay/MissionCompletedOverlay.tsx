@@ -55,7 +55,7 @@ export default function MissionCompletedOverlay({
           fallback 색도 어둡게 해서 흰 텍스트 가독성 확보. Android 는 figma 와 일치하므로 유지. */}
       <BlurView
         style={StyleSheet.absoluteFill}
-        blurType="dark"
+        blurType={Platform.OS === 'ios' ? 'dark' : 'extraDark'}
         blurAmount={Platform.OS === 'ios' ? 35 : 6}
         overlayColor="rgba(0,0,0,0.8)"
       />
