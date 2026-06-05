@@ -435,14 +435,14 @@ interface TooltipBlockProps {
  */
 function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
   const scale = SCREEN_WIDTH / 390;
-  // figma 1956:22149 텍스트 박스: frame-x 43~367 (width 324dp, 우측 여백 23dp).
-  // 화면 폭 비율로 환산해 텍스트를 충분히 넓게 잡아 보통 2줄로 떨어지게 한다.
-  const textLeftScreen = 43 * scale;
-  const textWidth = 324 * scale;
-  // 화살표는 텍스트 아래, button left + 62 위치에 세로로 따로 배치.
-  const arrowLeft = 62;
-  const arrowBottom = HOLE_PADDING + 4; // 화살촉이 spotlight 포커스 테두리 바깥 위쪽
-  const textBottom = arrowBottom + TOOLTIP_ARROW_HEIGHT + 4; // 텍스트는 화살표 위
+  // figma 2251:9775 — 텍스트 + 화살표를 통째로 export 한 합본 이미지. 줄바꿈/폰트 대응을
+  // RN 레이아웃으로 흉내내지 않고 디자이너 시안 그대로 렌더한다.
+  // export PNG 1029×144 px @3x = 343×48 dp. frame-x 27~367 위치.
+  const imgWidth = 343 * scale;
+  const imgHeight = 48 * scale;
+  const imgLeftScreen = 27 * scale; // figma frame 기준 좌측
+  // 이미지 하단(화살촉)을 spotlight 포커스 테두리 바깥 위쪽(HOLE_PADDING+4) 에 맞춘다.
+  const imgBottom = HOLE_PADDING + 4;
   return (
     <View
       pointerEvents="none"
@@ -453,29 +453,14 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
         width: 0,
         height: 0,
       }}>
-      {/* 텍스트 (figma 1956:22149) — 우측정렬, figma 폭(324dp)으로 넓게 위쪽에 배치.
-          bottom anchor 라 줄 수가 늘어도 위로 자란다. 정보/등록자 사이는 NBSP 로 묶어 같은 줄 유지. */}
-      <View
-        style={{
-          position: 'absolute',
-          left: textLeftScreen - holeX,
-          bottom: textBottom,
-          width: textWidth,
-        }}>
-        <TooltipText>
-          <TooltipHighlight>{'[도움돼요] '}</TooltipHighlight>
-          {'버튼을 누르면 정보 등록자에게 감사 인사를 전할 수 있어요'}
-        </TooltipText>
-      </View>
-      {/* 화살표 (figma 1956:22150) — 텍스트 아래, button left + 62 에 세로 배치. */}
       <Image
-        source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
+        source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip.png')}
         style={{
           position: 'absolute',
-          left: arrowLeft,
-          bottom: arrowBottom,
-          width: TOOLTIP_ARROW_WIDTH,
-          height: TOOLTIP_ARROW_HEIGHT,
+          left: imgLeftScreen - holeX,
+          bottom: imgBottom,
+          width: imgWidth,
+          height: imgHeight,
         }}
         resizeMode="contain"
       />
@@ -484,9 +469,6 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
 }
 // 버튼 모서리(border-radius 8) 와 hole 의 디자인 의도(figma 1648:42314)에 맞춰 외곽 padding 을 추가한다.
 const HOLE_PADDING = 4;
-// figma 1956:22150 export PNG (transforms baked, 73° 회전) — 54×82 px @3x = 18×27 dp.
-const TOOLTIP_ARROW_WIDTH = 18;
-const TOOLTIP_ARROW_HEIGHT = 27;
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
  * SVG mask 로 dim rect 에 rounded rect hole 을 punch out (4-rect 방식과 달리 hole 모서리에
@@ -583,20 +565,6 @@ const GuideText = styled.Text`
 
 // figma — 강조 색 #c3f708 (yellow-green).
 const GuideHighlight = styled.Text`
-  color: #c3f708;
-`;
-
-// figma 1956:22149 — Pretendard SemiBold 20/28, letter-spacing -0.4, 우측정렬. 부분 강조는 nested span.
-const TooltipText = styled.Text`
-  font-family: ${font.pretendardSemibold};
-  font-size: 20px;
-  line-height: 28px;
-  letter-spacing: -0.4px;
-  color: ${color.white};
-  text-align: right;
-`;
-
-const TooltipHighlight = styled.Text`
   color: #c3f708;
 `;
 
