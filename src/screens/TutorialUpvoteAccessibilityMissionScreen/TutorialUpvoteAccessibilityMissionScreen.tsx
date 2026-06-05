@@ -444,15 +444,20 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
         width: 0,
         height: 0,
       }}>
-      {/* 텍스트 — 컴포넌트 anchor 기준 (98, -40). single line, paddingLeft 없음. */}
+      {/* 텍스트 (figma 1956:22149) — 우측정렬. 폰트 사이즈가 커져도 자연스럽게 줄바꿈
+          되도록 maxWidth 를 화살표 왼쪽(button left + 62) ~ 화면 우측(여백 23dp) 으로 잡고,
+          줄 수가 몇 줄이든 도움돼요 버튼 bar 위쪽에 딱 붙도록 bottom 을 button top - 12 에
+          고정한다 (top 대신 bottom anchor → 위로 자란다). */}
       <View
         style={{
           position: 'absolute',
-          left: 98,
-          top: -40,
+          left: 62,
+          bottom: 12,
+          width: SCREEN_WIDTH - (23 * SCREEN_WIDTH) / 390 - (holeX + 62),
         }}>
         <TooltipText>
-          <TooltipHighlight>[도움돼요]</TooltipHighlight>버튼을 눌러보세요!
+          <TooltipHighlight>{'[도움돼요] '}</TooltipHighlight>
+          버튼을 누르면 정보 등록자에게 감사 인사를 전할 수 있어요
         </TooltipText>
       </View>
       {/* 화살표 — 컴포넌트 anchor 기준 (62, -26). 18 dp 높이라 button top 아래로 16 dp 들어감
@@ -576,13 +581,14 @@ const GuideHighlight = styled.Text`
   color: #c3f708;
 `;
 
-// figma 1648:42315 — Pretendard SemiBold 20/28, letter-spacing -0.4. 부분 강조는 nested span.
+// figma 1956:22149 — Pretendard SemiBold 20/28, letter-spacing -0.4, 우측정렬. 부분 강조는 nested span.
 const TooltipText = styled.Text`
   font-family: ${font.pretendardSemibold};
   font-size: 20px;
   line-height: 28px;
   letter-spacing: -0.4px;
   color: ${color.white};
+  text-align: right;
 `;
 
 const TooltipHighlight = styled.Text`

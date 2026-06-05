@@ -153,7 +153,11 @@ const ThemeGrid = styled.View`
 `;
 
 const ThemeChip = styled(SccPressable)<{selected: boolean}>`
-  width: 169px;
+  /* 고정 width(169px) 는 좁은 폰에서 2칸이 한 줄에 안 들어가 1-column 으로 깨진다.
+     flex-basis 40% + flex-grow 1 로 화면 폭과 무관하게 항상 2-column 이 되도록 한다
+     (3번째는 120% 라 자동 줄바꿈, 같은 줄 2칸은 grow 로 남은 폭을 채움). */
+  flex-grow: 1;
+  flex-basis: 40%;
   padding: 14px 8px;
   border-radius: 14px;
   border-width: 1.2px;
