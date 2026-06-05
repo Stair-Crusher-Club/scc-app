@@ -7204,6 +7204,12 @@ export interface UserTutorialProgressDto {
      * @memberof UserTutorialProgressDto
      */
     'heroImageUrl': string;
+    /**
+     * 튜토리얼 보상(히든) 저장리스트의 placeListId. 앱은 \"히든 저장리스트 보러 가기\" CTA 에서 이 id 로 해당 place list 상세로 진입한다 (deeplink `stair-crusher://place-list/{rewardPlaceListId}`). 서버에 보상 리스트가 설정되지 않았거나 익명 사용자처럼 알 수 없는 경우 null. 
+     * @type {string}
+     * @memberof UserTutorialProgressDto
+     */
+    'rewardPlaceListId'?: string | null;
 }
 /**
  * 

@@ -385,9 +385,18 @@ export default function TutorialMissionScreen({
       return;
     }
     checkAuth(() => {
+      // 보상(히든) 저장리스트 id 가 있으면 해당 place list 상세로 deeplink 진입.
+      // 서버에 보상 리스트가 설정되지 않은 경우(null)엔 기존처럼 공개 리스트 목록으로.
+      const rewardPlaceListId = progress?.rewardPlaceListId;
+      if (rewardPlaceListId) {
+        navigation.navigate('PlaceListDetail', {
+          placeListId: rewardPlaceListId,
+        });
+        return;
+      }
       navigation.navigate('PublicPlaceLists', {fromTutorial: true});
     });
-  }, [allMainCompleted, checkAuth, navigation]);
+  }, [allMainCompleted, checkAuth, navigation, progress]);
 
   // 외출템 다 모은 직후(variant 4) → 팝업 본 뒤(variant 5) 전환 시 hero PNG 를
   // "Click!" 인디케이터가 있는 stage3_seek_hidden.png 로 swap.
