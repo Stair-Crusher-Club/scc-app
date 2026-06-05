@@ -460,14 +460,15 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
           버튼을 누르면 정보 등록자에게 감사 인사를 전할 수 있어요
         </TooltipText>
       </View>
-      {/* 화살표 — 컴포넌트 anchor 기준 (62, -26). 18 dp 높이라 button top 아래로 16 dp 들어감
-          (figma 의도: 화살촉이 버튼 상단 근처에 닿음). */}
+      {/* 화살표 (figma 1956:22150) — 곡선 점선 화살표. 화살촉(↓)이 bbox 좌하단에 있고
+          위로 갈수록 우측으로 굽는다. button top-left anchor 기준 left 62 에 두고, 화살촉이
+          버튼 상단 근처에 닿도록 bottom 을 button top 살짝 위(top = -(h+2))에 맞춘다. */}
       <Image
         source={require('@/assets/img/tutorial/tutorial_mission_3_tooltip_arrow.png')}
         style={{
           position: 'absolute',
           left: 62,
-          top: -26,
+          top: -(TOOLTIP_ARROW_HEIGHT + 2),
           width: TOOLTIP_ARROW_WIDTH,
           height: TOOLTIP_ARROW_HEIGHT,
         }}
@@ -479,9 +480,9 @@ function TooltipBlock({holeX, holeY}: TooltipBlockProps) {
 
 // 버튼 모서리(border-radius 8) 와 hole 의 디자인 의도(figma 1648:42314)에 맞춰 외곽 padding 을 추가한다.
 const HOLE_PADDING = 4;
-// figma 1648:42181 export PNG (transforms baked) — 96×54 px @3x = 32×18 dp.
-const TOOLTIP_ARROW_WIDTH = 32;
-const TOOLTIP_ARROW_HEIGHT = 18;
+// figma 1956:22150 export PNG (transforms baked, 73° 회전) — 54×82 px @3x = 18×27 dp.
+const TOOLTIP_ARROW_WIDTH = 18;
+const TOOLTIP_ARROW_HEIGHT = 27;
 /**
  * 도움돼요 버튼 위치만 비워두고 나머지를 dim 처리하는 spotlight.
  * SVG mask 로 dim rect 에 rounded rect hole 을 punch out (4-rect 방식과 달리 hole 모서리에
