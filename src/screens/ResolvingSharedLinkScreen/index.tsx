@@ -34,15 +34,23 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
               placeInfo: {placeId: data.place!.place.id},
             });
             break;
-          case ResolveSharedPlaceLinkResultStatusDto.Ambiguous:
+          case ResolveSharedPlaceLinkResultStatusDto.Ambiguous: {
             // TODO: 바텀시트 후보 선택. 지금은 첫 번째 후보로 랜딩
+            const firstCandidate = data.candidates?.[0];
+            if (!firstCandidate) {
+              navigation.goBack();
+              break;
+            }
             navigation.replace('PlaceDetailV2', {
-              placeInfo: {placeId: data.candidates![0].place.id},
+              placeInfo: {placeId: firstCandidate.place.id},
             });
             break;
+          }
           case ResolveSharedPlaceLinkResultStatusDto.NotFound:
-            navigation.replace('Search', {
-              initKeyword: data.fallbackQuery,
+            // Search는 MainScreen 탭 내부 화면이므로 navigate(크로스 네비게이터)로 이동
+            navigation.navigate('Search', {
+              initKeyword: data.fallbackQuery ?? undefined,
+              toMap: false,
             });
             break;
           default: {
