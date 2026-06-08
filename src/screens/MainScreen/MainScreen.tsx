@@ -9,6 +9,10 @@ import {
   getDeferredDeepLinkUrl,
   setDeferredDeepLinkUrl,
 } from '@/deeplink/DeferredDeepLink';
+import {
+  getPendingSharedText,
+  setPendingSharedText,
+} from '@/deeplink/PendingSharedText';
 import {useLogger} from '@/logging/useLogger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {linkingScreensConfig} from '@/navigation/linkingConfig';
@@ -78,6 +82,19 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
     if (action) {
       navigation.dispatch(action);
     }
+  }, [accessToken, navigation]);
+
+  // 비로그인 상태에서 수신된 공유 텍스트 소비: 로그인 완료 후 ResolvingSharedLink로 이동
+  useEffect(() => {
+    if (!accessToken) {
+      return;
+    }
+    const sharedText = getPendingSharedText();
+    if (!sharedText) {
+      return;
+    }
+    setPendingSharedText(null);
+    navigation.navigate('ResolvingSharedLink', {sharedText});
   }, [accessToken, navigation]);
 
   return (

@@ -94,6 +94,9 @@ import ToiletReviewFormScreen, {
 import UpvoteAnalyticsScreen, {
   UpvoteAnalyticsScreenProps,
 } from '@/screens/UpvoteAnalyticsScreen';
+import ResolvingSharedLinkScreen, {
+  ResolvingSharedLinkScreenParams,
+} from '@/screens/ResolvingSharedLinkScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
@@ -380,6 +383,11 @@ export const MainNavigationScreens: {
       gestureEnabled: false,
     },
   },
+  {
+    name: 'ResolvingSharedLink',
+    component: ResolvingSharedLinkScreen,
+    options: {headerShown: false},
+  },
 ];
 
 export type ScreenParams = {
@@ -446,6 +454,7 @@ export type ScreenParams = {
   PublicPlaceLists: PublicPlaceListsScreenParams;
   TutorialMissionSavePlaceList: PublicPlaceListsScreenParams;
   TutorialUpvoteAccessibilityMission: undefined;
+  ResolvingSharedLink: ResolvingSharedLinkScreenParams;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =

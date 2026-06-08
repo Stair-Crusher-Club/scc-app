@@ -3,9 +3,10 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Linking, Platform} from 'react-native';
 import Config from 'react-native-config';
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
@@ -13,6 +14,7 @@ import {Airbridge} from 'airbridge-react-native-sdk';
 import {getStorageValue} from '@/atoms/atomForLocal';
 import DevTool from '@/components/DevTool/DevTool';
 import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
+import {setPendingSharedText} from '@/deeplink/PendingSharedText';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
@@ -56,6 +58,40 @@ const RootScreen = () => {
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
+
+  // 외부 지도앱에서 공유된 텍스트 수신 처리
+  useEffect(() => {
+    const handleSharedFiles = (
+      files: {contentType?: string; text?: string}[],
+    ) => {
+      const sharedText = files?.find(f => f.contentType === 'text/plain')?.text;
+      if (!sharedText) {
+        return;
+      }
+      const isLoggedIn = !!getStorageValue<string>('scc-token');
+      if (!isLoggedIn) {
+        // 비로그인: pendingSharedText에 보관, Login 화면으로 이동
+        setPendingSharedText(sharedText);
+        (navigationRef.current?.navigate as any)('Login');
+        return;
+      }
+      (navigationRef.current?.navigate as any)('ResolvingSharedLink', {
+        sharedText,
+      });
+    };
+
+    ReceiveSharingIntent.getReceivedFiles(
+      handleSharedFiles,
+      (error: unknown) => {
+        logDebug('ReceiveSharingIntent error', error);
+      },
+      'ShareMedia-',
+    );
+
+    return () => {
+      ReceiveSharingIntent.clearReceivedFiles();
+    };
+  }, [navigationRef]);
 
   return (
     <>
