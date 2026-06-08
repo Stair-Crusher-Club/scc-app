@@ -2,7 +2,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import React from 'react';
-import {SafeAreaView, ScrollView, Text, View} from 'react-native';
+import {Dimensions, SafeAreaView, ScrollView, Text, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -21,37 +21,59 @@ import EntranceSlopeIcon from '@/assets/icon/ic_toilet_entrance_slope.svg';
 import EntranceStepIcon from '@/assets/icon/ic_toilet_entrance_step.svg';
 import GenderFemaleIcon from '@/assets/icon/ic_toilet_female.svg';
 import GenderMaleIcon from '@/assets/icon/ic_toilet_male.svg';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {ToiletAccessibilityDetailDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import AvailableLabel from '@/screens/ExternalAccessibilityDetailScreen/AvailableLabel';
-import {mapToToiletDetails} from '@/screens/ToiletMapScreen/data';
+import {mapDetailToToiletDetails} from '@/screens/ToiletMapScreen/data';
 import ToastUtils from '@/utils/ToastUtils.ts';
 
 export interface ExternalAccessibilityDetailScreenParams {
-  externalAccessibilityId: string;
+  /** 신규: 통합 화장실 ID (prefix TA). */
+  toiletAccessibilityId?: string;
+  /** 하위 호환: 구버전 진입점에서 사용하던 ExternalAccessibility ID. */
+  externalAccessibilityId?: string;
 }
 
 const ExternalAccessibilityDetailScreen = ({
   route,
 }: ScreenProps<'ExternalAccessibilityDetail'>) => {
-  const {externalAccessibilityId} = route.params;
-  const {api} = useAppComponents();
+  const {toiletAccessibilityId, externalAccessibilityId} = route.params;
+  const {toiletAccessibilityApi} = useAppComponents();
+  // 신규 파라미터(toiletAccessibilityId)가 없으면 구버전 externalAccessibilityId로 폴백.
+  const accessibilityId = toiletAccessibilityId ?? externalAccessibilityId;
   const {data} = useQuery({
-    queryKey: ['toiletDetails', externalAccessibilityId],
+    enabled: accessibilityId != null,
+    queryKey: ['toiletAccessibilityDetail', accessibilityId],
     queryFn: async () => {
-      return await api.getExternalAccessibilityPost({
-        externalAccessibilityId: externalAccessibilityId,
+      return await toiletAccessibilityApi.getToiletAccessibility({
+        toiletAccessibilityId: accessibilityId!,
       });
     },
   });
-  const toiletDetails = data?.data && mapToToiletDetails(data?.data);
-  if (toiletDetails === undefined) {
+  const detail = data?.data;
+  if (detail === undefined) {
     // TODO: 로딩 UI
     return <Text>Loading...</Text>;
   }
+
+  if (detail.sourceType === 'USER_TOILET_REVIEW') {
+    return <UserToiletDetail detail={detail} />;
+  }
+
+  return <ExternalToiletDetail detail={detail} />;
+};
+
+const ExternalToiletDetail = ({
+  detail,
+}: {
+  detail: ToiletAccessibilityDetailDto;
+}) => {
+  const toiletDetails = mapDetailToToiletDetails(detail);
   const onCopy = () => {
     if (toiletDetails.address) {
       Clipboard.setString(toiletDetails.address);
@@ -252,6 +274,72 @@ const ExternalAccessibilityDetailScreen = ({
               이용하였습니다.
             </FooterText>
           </Footer>
+        </Container>
+      </ScrollView>
+    </ScreenLayout>
+  );
+};
+
+const USER_TOILET_IMAGE_WIDTH = Dimensions.get('window').width;
+
+const UserToiletDetail = ({detail}: {detail: ToiletAccessibilityDetailDto}) => {
+  const onCopy = () => {
+    if (detail.address) {
+      Clipboard.setString(detail.address);
+      ToastUtils.show('주소가 복사되었습니다.');
+    }
+  };
+
+  return (
+    <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
+      <ScrollView>
+        <AppBar />
+        {detail.images.length > 0 && (
+          <View>
+            {detail.images.map(image => (
+              <SccRemoteImage
+                key={image.imageUrl}
+                imageUrl={image.imageUrl}
+                style={{width: USER_TOILET_IMAGE_WIDTH}}
+                resizeMode="cover"
+              />
+            ))}
+          </View>
+        )}
+        <Container>
+          <Section>
+            <TitleArea>
+              <TitleText>{detail.name}</TitleText>
+              {detail.address != null && (
+                <>
+                  <SubSectionLabel>{detail.address}</SubSectionLabel>
+                  <CopyButton
+                    elementName="toilet_accessibility_copy_button"
+                    onPress={onCopy}
+                    style={{marginTop: -4}}>
+                    <CopyIcon />
+                    <CopyText>복사</CopyText>
+                  </CopyButton>
+                </>
+              )}
+            </TitleArea>
+          </Section>
+          {detail.locationComment != null && (
+            <Section>
+              <SectionTitleText>화장실 위치</SectionTitleText>
+              <SectionDivider />
+              <SubSectionDescription>
+                {detail.locationComment}
+              </SubSectionDescription>
+            </Section>
+          )}
+          {detail.comment != null && (
+            <Section>
+              <SectionTitleText>기타 참고사항</SectionTitleText>
+              <SectionDivider />
+              <SubSectionDescription>{detail.comment}</SubSectionDescription>
+            </Section>
+          )}
         </Container>
       </ScrollView>
     </ScreenLayout>

@@ -15,7 +15,11 @@ import {accessTokenAtom} from '@/atoms/Auth';
 import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import SplashOverlay from '@/splash/SplashOverlay';
-import {Configuration, DefaultApi} from '@/generated-sources/openapi';
+import {
+  Configuration,
+  DefaultApi,
+  ToiletAccessibilityApi,
+} from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
 
@@ -43,7 +47,12 @@ const AppWithProviders = () => {
       <Provider>
         <SafeAreaProvider>
           <AppComponentsProvider
-            api={new DefaultApi(new Configuration({basePath: getBaseURL()}))}>
+            api={new DefaultApi(new Configuration({basePath: getBaseURL()}))}
+            toiletAccessibilityApi={
+              new ToiletAccessibilityApi(
+                new Configuration({basePath: getBaseURL()}),
+              )
+            }>
             <QueryClientProvider client={queryClient}>
               <App />
             </QueryClientProvider>

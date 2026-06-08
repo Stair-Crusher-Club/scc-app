@@ -2,6 +2,7 @@ import {useAtomValue} from 'jotai';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import React from 'react';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
@@ -41,25 +42,34 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   const onBookmark = () => {
     ToastUtils.show('준비 중입니다.');
   };
-  const tagTexts: string[] = [item.gender?.desc, item.entrance?.desc].filter(
-    Boolean,
-  ) as string[];
+  const isUserSource = item.sourceType === 'USER_TOILET_REVIEW';
+  const tagTexts: string[] = isUserSource
+    ? []
+    : ([item.gender?.desc, item.entrance?.desc].filter(Boolean) as string[]);
 
   return (
-    <LogParamsProvider params={{external_accessibility_id: item.id}}>
+    <LogParamsProvider
+      params={{
+        toilet_accessibility_id: item.id,
+        toilet_source_type: item.sourceType,
+      }}>
       <Container
         elementName="toilet_card"
         onPress={() => {
           navigation.navigate('ExternalAccessibilityDetail', {
-            externalAccessibilityId: item.id,
+            toiletAccessibilityId: item.id,
           });
         }}>
         <InfoArea>
           <LabelIconArea>
-            <AvailableLabel
-              availableState={item.available?.state ?? 'UNKNOWN'}
-              text={item.available?.desc ?? '알수없음'}
-            />
+            {isUserSource ? (
+              <View />
+            ) : (
+              <AvailableLabel
+                availableState={item.available?.state ?? 'UNKNOWN'}
+                text={item.available?.desc ?? '알수없음'}
+              />
+            )}
             <IconArea>
               <SccTouchableOpacity
                 elementName="toilet_card_share_button"
@@ -83,9 +93,11 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
               <AddressText>{item.address}</AddressText>
             </LocationBox>
           </TitleArea>
-          <ExtraArea>
-            <Tags texts={tagTexts} />
-          </ExtraArea>
+          {tagTexts.length > 0 && (
+            <ExtraArea>
+              <Tags texts={tagTexts} />
+            </ExtraArea>
+          )}
         </InfoArea>
         <ImageList images={images} />
       </Container>

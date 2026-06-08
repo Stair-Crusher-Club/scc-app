@@ -1,8 +1,14 @@
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {ExternalAccessibility} from '@/generated-sources/openapi';
+import {
+  ExternalAccessibility,
+  ToiletAccessibilityDetailDto,
+  ToiletAccessibilitySourceTypeDto,
+  ToiletAccessibilitySummaryDto,
+} from '@/generated-sources/openapi';
 
 export type ToiletDetails = Omit<
   ExternalAccessibility & {
+    sourceType: ToiletAccessibilitySourceTypeDto;
     imageUrl?: string;
     gender?: {
       state: 'MALE' | 'FEMALE' | 'BOTH';
@@ -30,7 +36,7 @@ export type ToiletDetails = Omit<
     washStandHandle?: string;
     extra?: string;
   },
-  'toilet_details'
+  'toilet_details' | 'category'
 >;
 
 export function mapToToiletDetails(
@@ -122,6 +128,7 @@ export function mapToToiletDetails(
       : undefined;
   return {
     ...toilet,
+    sourceType: ToiletAccessibilitySourceTypeDto.ExternalAccessibility,
     imageUrl: toilet.toilet_details?.image_url,
     available,
     gender,
@@ -142,6 +149,47 @@ export function mapToToiletDetails(
           : availableState === 'UNAVAILABLE'
             ? '5'
             : 'none',
+    },
+  };
+}
+
+/**
+ * 통합 화장실 상세(`/getToiletAccessibility`) 응답(`ToiletAccessibilityDetailDto`, EXTERNAL 소스)을
+ * 기존 TDP 렌더에 쓰이는 `ToiletDetails`로 매핑한다.
+ */
+export function mapDetailToToiletDetails(
+  detail: ToiletAccessibilityDetailDto,
+): ToiletDetails {
+  const externalShaped: ExternalAccessibility = {
+    id: detail.id,
+    name: detail.name,
+    address: detail.address ?? undefined,
+    location: detail.location,
+    category: 'TOILET',
+    toilet_details: detail.toiletDetails,
+  };
+  return mapToToiletDetails(externalShaped);
+}
+
+/**
+ * 통합 화장실 검색(`/searchToiletAccessibilities`) 결과(`ToiletAccessibilitySummaryDto`)를
+ * 카드/마커 렌더에 쓰이는 `ToiletDetails & MarkerItem`으로 매핑한다.
+ * USER 소스는 성별/입구 등 상세 필드가 없으므로 태그/사용가능 라벨 없이 이름/주소/썸네일만 채운다.
+ */
+export function mapSummaryToToiletDetails(
+  summary: ToiletAccessibilitySummaryDto,
+): ToiletDetails & MarkerItem {
+  return {
+    id: summary.id,
+    sourceType: summary.sourceType,
+    name: summary.name,
+    address: summary.address ?? undefined,
+    location: summary.location,
+    imageUrl: summary.thumbnailUrl ?? undefined,
+    displayName: summary.name,
+    markerIcon: {
+      icon: 'toilet',
+      level: 'none',
     },
   };
 }

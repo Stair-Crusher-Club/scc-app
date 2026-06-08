@@ -2912,6 +2912,19 @@ export interface GetSccContentDetailsResponseDto {
 /**
  * 
  * @export
+ * @interface GetToiletAccessibilityRequestDto
+ */
+export interface GetToiletAccessibilityRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetToiletAccessibilityRequestDto
+     */
+    'toiletAccessibilityId': string;
+}
+/**
+ * 
+ * @export
  * @interface GetUpvoteDetailsRequestDto
  */
 export interface GetUpvoteDetailsRequestDto {
@@ -5698,6 +5711,12 @@ export interface RegisterToiletReviewRequestDto {
      */
     'imageUrls'?: Array<string>;
     /**
+     * 화장실 위치 설명 (기타 참고사항과 별도)
+     * @type {string}
+     * @memberof RegisterToiletReviewRequestDto
+     */
+    'locationComment'?: string | null;
+    /**
      * 화장실에 대해 자세히 알려주세요
      * @type {string}
      * @memberof RegisterToiletReviewRequestDto
@@ -6288,6 +6307,44 @@ export interface SearchPlacesResponseDto {
 /**
  * 
  * @export
+ * @interface SearchToiletAccessibilitiesRequestDto
+ */
+export interface SearchToiletAccessibilitiesRequestDto {
+    /**
+     * 
+     * @type {Location}
+     * @memberof SearchToiletAccessibilitiesRequestDto
+     */
+    'currentLocation': Location;
+    /**
+     * nearest-N 개수 (기본 50)
+     * @type {number}
+     * @memberof SearchToiletAccessibilitiesRequestDto
+     */
+    'limit'?: number;
+    /**
+     * 최대 반경 (미터). 없으면 limit만 적용
+     * @type {number}
+     * @memberof SearchToiletAccessibilitiesRequestDto
+     */
+    'distanceMetersLimit'?: number | null;
+}
+/**
+ * 
+ * @export
+ * @interface SearchToiletAccessibilitiesResponseDto
+ */
+export interface SearchToiletAccessibilitiesResponseDto {
+    /**
+     * 
+     * @type {Array<ToiletAccessibilitySummaryDto>}
+     * @memberof SearchToiletAccessibilitiesResponseDto
+     */
+    'items': Array<ToiletAccessibilitySummaryDto>;
+}
+/**
+ * 
+ * @export
  * @interface SearchUnconqueredPlacesNearbyRequestDto
  */
 export interface SearchUnconqueredPlacesNearbyRequestDto {
@@ -6469,6 +6526,73 @@ export interface SuggestPlacesResponseDto {
 /**
  * 
  * @export
+ * @interface ToiletAccessibilityDetailDto
+ */
+export interface ToiletAccessibilityDetailDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {ToiletAccessibilitySourceTypeDto}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'sourceType': ToiletAccessibilitySourceTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'address'?: string | null;
+    /**
+     * 
+     * @type {Location}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'location': Location;
+    /**
+     * 
+     * @type {Array<ImageDto>}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'images': Array<ImageDto>;
+    /**
+     * 화장실 위치 설명 (USER 소스)
+     * @type {string}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'locationComment'?: string | null;
+    /**
+     * 기타 참고사항 (USER 소스)
+     * @type {string}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'comment'?: string | null;
+    /**
+     * 
+     * @type {ToiletAccessibilityDetails}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'toiletDetails'?: ToiletAccessibilityDetails;
+    /**
+     * USER 소스의 placeId/buildingId (앱에서 PDP 이동 보조)
+     * @type {string}
+     * @memberof ToiletAccessibilityDetailDto
+     */
+    'referenceTargetId'?: string | null;
+}
+/**
+ * 
+ * @export
  * @interface ToiletAccessibilityDetails
  */
 export interface ToiletAccessibilityDetails {
@@ -6546,6 +6670,63 @@ export interface ToiletAccessibilityDetails {
     'extraDesc'?: string;
 }
 /**
+ * 화장실 접근성 데이터 소스 타입
+ * @export
+ * @enum {string}
+ */
+
+export const ToiletAccessibilitySourceTypeDto = {
+    UserToiletReview: 'USER_TOILET_REVIEW',
+    ExternalAccessibility: 'EXTERNAL_ACCESSIBILITY'
+} as const;
+
+export type ToiletAccessibilitySourceTypeDto = typeof ToiletAccessibilitySourceTypeDto[keyof typeof ToiletAccessibilitySourceTypeDto];
+
+
+/**
+ * 
+ * @export
+ * @interface ToiletAccessibilitySummaryDto
+ */
+export interface ToiletAccessibilitySummaryDto {
+    /**
+     * ToiletAccessibility ID (prefix: TA)
+     * @type {string}
+     * @memberof ToiletAccessibilitySummaryDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {ToiletAccessibilitySourceTypeDto}
+     * @memberof ToiletAccessibilitySummaryDto
+     */
+    'sourceType': ToiletAccessibilitySourceTypeDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletAccessibilitySummaryDto
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletAccessibilitySummaryDto
+     */
+    'address'?: string | null;
+    /**
+     * 
+     * @type {Location}
+     * @memberof ToiletAccessibilitySummaryDto
+     */
+    'location': Location;
+    /**
+     * 
+     * @type {string}
+     * @memberof ToiletAccessibilitySummaryDto
+     */
+    'thumbnailUrl'?: string | null;
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -6597,6 +6778,12 @@ export interface ToiletReviewDto {
      * @memberof ToiletReviewDto
      */
     'entranceDoorTypes'?: Array<EntranceDoorType>;
+    /**
+     * 화장실 위치 설명 (기타 참고사항과 별도)
+     * @type {string}
+     * @memberof ToiletReviewDto
+     */
+    'locationComment'?: string | null;
     /**
      * 
      * @type {string}
@@ -14122,6 +14309,190 @@ export class DefaultApi extends BaseAPI {
      */
     public validateUserProfilePost(validateUserProfilePostRequest: ValidateUserProfilePostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).validateUserProfilePost(validateUserProfilePostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * ToiletAccessibilityApi - axios parameter creator
+ * @export
+ */
+export const ToiletAccessibilityApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary 통합 화장실 접근성 상세 정보를 조회한다.
+         * @param {GetToiletAccessibilityRequestDto} getToiletAccessibilityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getToiletAccessibility: async (getToiletAccessibilityRequestDto: GetToiletAccessibilityRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getToiletAccessibilityRequestDto' is not null or undefined
+            assertParamExists('getToiletAccessibility', 'getToiletAccessibilityRequestDto', getToiletAccessibilityRequestDto)
+            const localVarPath = `/getToiletAccessibility`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getToiletAccessibilityRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * isSearchable=true 인 ToiletAccessibility를 위치 기반 nearest-N으로 반환한다. 공공데이터(ExternalAccessibility)와 유저 등록(ToiletReview) 두 소스를 통합하여 제공한다. 
+         * @summary 통합 화장실 접근성 정보를 위치 기반으로 검색한다.
+         * @param {SearchToiletAccessibilitiesRequestDto} searchToiletAccessibilitiesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchToiletAccessibilities: async (searchToiletAccessibilitiesRequestDto: SearchToiletAccessibilitiesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'searchToiletAccessibilitiesRequestDto' is not null or undefined
+            assertParamExists('searchToiletAccessibilities', 'searchToiletAccessibilitiesRequestDto', searchToiletAccessibilitiesRequestDto)
+            const localVarPath = `/searchToiletAccessibilities`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchToiletAccessibilitiesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ToiletAccessibilityApi - functional programming interface
+ * @export
+ */
+export const ToiletAccessibilityApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ToiletAccessibilityApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary 통합 화장실 접근성 상세 정보를 조회한다.
+         * @param {GetToiletAccessibilityRequestDto} getToiletAccessibilityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getToiletAccessibility(getToiletAccessibilityRequestDto: GetToiletAccessibilityRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ToiletAccessibilityDetailDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getToiletAccessibility(getToiletAccessibilityRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * isSearchable=true 인 ToiletAccessibility를 위치 기반 nearest-N으로 반환한다. 공공데이터(ExternalAccessibility)와 유저 등록(ToiletReview) 두 소스를 통합하여 제공한다. 
+         * @summary 통합 화장실 접근성 정보를 위치 기반으로 검색한다.
+         * @param {SearchToiletAccessibilitiesRequestDto} searchToiletAccessibilitiesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchToiletAccessibilities(searchToiletAccessibilitiesRequestDto: SearchToiletAccessibilitiesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchToiletAccessibilitiesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchToiletAccessibilities(searchToiletAccessibilitiesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * ToiletAccessibilityApi - factory interface
+ * @export
+ */
+export const ToiletAccessibilityApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ToiletAccessibilityApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary 통합 화장실 접근성 상세 정보를 조회한다.
+         * @param {GetToiletAccessibilityRequestDto} getToiletAccessibilityRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getToiletAccessibility(getToiletAccessibilityRequestDto: GetToiletAccessibilityRequestDto, options?: any): AxiosPromise<ToiletAccessibilityDetailDto> {
+            return localVarFp.getToiletAccessibility(getToiletAccessibilityRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * isSearchable=true 인 ToiletAccessibility를 위치 기반 nearest-N으로 반환한다. 공공데이터(ExternalAccessibility)와 유저 등록(ToiletReview) 두 소스를 통합하여 제공한다. 
+         * @summary 통합 화장실 접근성 정보를 위치 기반으로 검색한다.
+         * @param {SearchToiletAccessibilitiesRequestDto} searchToiletAccessibilitiesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchToiletAccessibilities(searchToiletAccessibilitiesRequestDto: SearchToiletAccessibilitiesRequestDto, options?: any): AxiosPromise<SearchToiletAccessibilitiesResponseDto> {
+            return localVarFp.searchToiletAccessibilities(searchToiletAccessibilitiesRequestDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ToiletAccessibilityApi - object-oriented interface
+ * @export
+ * @class ToiletAccessibilityApi
+ * @extends {BaseAPI}
+ */
+export class ToiletAccessibilityApi extends BaseAPI {
+    /**
+     * 
+     * @summary 통합 화장실 접근성 상세 정보를 조회한다.
+     * @param {GetToiletAccessibilityRequestDto} getToiletAccessibilityRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ToiletAccessibilityApi
+     */
+    public getToiletAccessibility(getToiletAccessibilityRequestDto: GetToiletAccessibilityRequestDto, options?: AxiosRequestConfig) {
+        return ToiletAccessibilityApiFp(this.configuration).getToiletAccessibility(getToiletAccessibilityRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * isSearchable=true 인 ToiletAccessibility를 위치 기반 nearest-N으로 반환한다. 공공데이터(ExternalAccessibility)와 유저 등록(ToiletReview) 두 소스를 통합하여 제공한다. 
+     * @summary 통합 화장실 접근성 정보를 위치 기반으로 검색한다.
+     * @param {SearchToiletAccessibilitiesRequestDto} searchToiletAccessibilitiesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ToiletAccessibilityApi
+     */
+    public searchToiletAccessibilities(searchToiletAccessibilitiesRequestDto: SearchToiletAccessibilitiesRequestDto, options?: AxiosRequestConfig) {
+        return ToiletAccessibilityApiFp(this.configuration).searchToiletAccessibilities(searchToiletAccessibilitiesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -23,7 +23,7 @@ import {
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import {
-  mapToToiletDetails,
+  mapSummaryToToiletDetails,
   ToiletDetails,
 } from '@/screens/ToiletMapScreen/data';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
@@ -40,7 +40,7 @@ function generateRequestId(): string {
 }
 
 export default function useSearchRequest() {
-  const {api} = useAppComponents();
+  const {api, toiletAccessibilityApi} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered, hasReview} =
     useAtomValue(filterAtom);
   const {text, location, radiusMeter, useCameraRegion} =
@@ -140,22 +140,18 @@ export default function useSearchRequest() {
 
       // Call different API based on search mode
       if (searchMode === 'toilet') {
-        // 화장실 카테고리 선택 시 API에는 '화장실'로 검색
-        const toiletSearchText =
-          text === '서울 장애인 화장실' ? '화장실' : text;
-        // Toilet 모드는 항상 현위치 기반 검색 (ToiletMapScreen과 동일)
+        // 통합 화장실 검색: 위치 기반 nearest-N (키워드/반경 고정 로직 없음)
         const toiletCurrentLocation = location ?? currentLocation;
-        const toiletSearchRadius = radiusMeter ?? 2000; // ToiletMapScreen 기본값과 동일
-        const response = await api.searchExternalAccessibilitiesPost(
-          {
-            searchText: toiletSearchText,
-            currentLocation: toiletCurrentLocation,
-            distanceMetersLimit: toiletSearchRadius,
-            categories: [],
-          },
-          {signal},
-        );
-        const result = response?.data.items?.map(mapToToiletDetails) ?? [];
+        const response =
+          await toiletAccessibilityApi.searchToiletAccessibilities(
+            {
+              currentLocation: toiletCurrentLocation!,
+              limit: 50,
+            },
+            {signal},
+          );
+        const result =
+          response?.data.items?.map(mapSummaryToToiletDetails) ?? [];
         const requestId = generateRequestId();
         setSearchRequestId(requestId);
         logger.logElementClick('toilet_search', {
@@ -163,8 +159,7 @@ export default function useSearchRequest() {
           search_request_id: requestId,
           search_lat: toiletCurrentLocation?.lat,
           search_lng: toiletCurrentLocation?.lng,
-          search_region_type: 'circle',
-          search_radius: toiletSearchRadius,
+          search_region_type: 'nearest',
           result_count: result.length,
           top_result_ids: result
             .slice(0, 3)

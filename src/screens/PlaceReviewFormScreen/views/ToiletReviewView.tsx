@@ -51,6 +51,7 @@ export interface FormValues {
   doorTypes: EntranceDoorType;
   toiletPhotos: ImageFile[];
   comment: string;
+  locationComment: string;
 }
 
 export default function ToiletReviewView({
@@ -71,6 +72,7 @@ export default function ToiletReviewView({
       floor: 1,
       toiletPhotos: [],
       comment: '',
+      locationComment: '',
     },
   });
 
@@ -192,6 +194,7 @@ async function submitRegistration({
       toiletLocationType: values.toiletLocationType,
       entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
       comment: values.comment,
+      locationComment: values.locationComment,
       imageUrls: uploaded.images,
       floor: isNoneOrEtc ? undefined : values.floor,
     } as unknown as RegisterToiletReviewRequestDto); // FIXME: update api yaml

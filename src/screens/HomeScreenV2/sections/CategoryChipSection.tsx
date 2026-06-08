@@ -24,7 +24,7 @@ const SEARCH_CATEGORIES: CategoryChipItem[] = [
   {
     category: 'TOILET',
     label: '화장실',
-    keyword: '서울 장애인 화장실',
+    keyword: '장애인 화장실',
     mode: 'toilet',
   },
   {
