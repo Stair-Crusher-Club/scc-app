@@ -323,34 +323,36 @@ export default function WebSearchScreen({
       {/* Right Panel - Place Detail (1/5 width) - Only show when place is selected */}
       {isPlaceSelected && (
         <RightPanel>
-          {placeId ? (
-            <PlaceDetailV2Screen
-              route={{
-                key: 'PlaceDetailV2',
-                name: 'PlaceDetailV2' as any,
-                params: {
-                  placeInfo: {
-                    placeId: placeId,
+          <PdpInner>
+            {placeId ? (
+              <PlaceDetailV2Screen
+                route={{
+                  key: 'PlaceDetailV2',
+                  name: 'PlaceDetailV2' as any,
+                  params: {
+                    placeInfo: {
+                      placeId: placeId,
+                    },
                   },
-                },
-              }}
-              navigation={navigation as any}
-            />
-          ) : selectedPlace ? (
-            <PlaceDetailV2Screen
-              route={{
-                key: 'PlaceDetailV2',
-                name: 'PlaceDetailV2' as any,
-                params: {
-                  placeInfo: {
-                    place: selectedPlace.place,
-                    building: selectedPlace.building,
+                }}
+                navigation={navigation as any}
+              />
+            ) : selectedPlace ? (
+              <PlaceDetailV2Screen
+                route={{
+                  key: 'PlaceDetailV2',
+                  name: 'PlaceDetailV2' as any,
+                  params: {
+                    placeInfo: {
+                      place: selectedPlace.place,
+                      building: selectedPlace.building,
+                    },
                   },
-                },
-              }}
-              navigation={navigation as any}
-            />
-          ) : null}
+                }}
+                navigation={navigation as any}
+              />
+            ) : null}
+          </PdpInner>
         </RightPanel>
       )}
 
@@ -425,8 +427,19 @@ const RightPanel = styled.div`
   background-color: #ffffff;
   border-left: 1px solid #e0e0e0;
   z-index: 10;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  position: relative;
+`;
+
+const PdpInner = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 const MapBackground = styled.div<{isRightPanelVisible: boolean}>`
