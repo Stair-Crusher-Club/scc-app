@@ -2046,6 +2046,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-receive-sharing-intent (2.0.0):
+    - React-Core
   - react-native-safe-area-context (5.5.0):
     - boost
     - DoubleConversion
@@ -3199,6 +3201,7 @@ DEPENDENCIES:
   - "react-native-image-editor (from `../node_modules/@react-native-community/image-editor`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - react-native-receive-sharing-intent (from `../node_modules/react-native-receive-sharing-intent`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-tracking-transparency (from `../node_modules/react-native-tracking-transparency`)
@@ -3394,6 +3397,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-receive-sharing-intent:
+    :path: "../node_modules/react-native-receive-sharing-intent"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-splash-screen:
@@ -3578,6 +3583,7 @@ SPEC CHECKSUMS:
   react-native-image-editor: 222266592916017e937001a221503108c79fd5f4
   react-native-image-picker: e9d833df19e87e25e38ddc0be3bad92f57307765
   react-native-mmkv: 7fb4729ad5cb787a4394e6c4bd48e4b8ec30f25c
+  react-native-receive-sharing-intent: cbd6daac89f5e84c231fe0d8e5453490cc431193
   react-native-safe-area-context: 3bae4f8474c13ab141c40ed6c5c33f6177778d71
   react-native-splash-screen: 95994222cc95c236bd3cdc59fe45ed5f27969594
   react-native-tracking-transparency: 15eb319f2b982070eb9831582af27d87badfa624
@@ -3638,6 +3644,6 @@ SPEC CHECKSUMS:
   VisionCamera: c5c07db74721d37f4c9f8331ad1f8da7b2539995
   Yoga: 0c4b7d2aacc910a1f702694fa86be830386f4ceb
 
-PODFILE CHECKSUM: c91163c858279fb12eceac629a81f01114ffb3d2
+PODFILE CHECKSUM: d0b32245e06aa4b43f905913671bc076c53ace48
 
 COCOAPODS: 1.16.2

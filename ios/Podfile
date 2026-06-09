@@ -110,3 +110,7 @@ target 'sccReactNative' do
     end
   end
 end
+
+target 'ShareExtension' do
+  # No pods needed — pure Swift extension with no external dependencies
+end
