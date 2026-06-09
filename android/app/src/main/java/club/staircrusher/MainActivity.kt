@@ -35,7 +35,7 @@ class MainActivity : ReactActivity() {
 
     override fun onResume() {
         super.onResume()
-        AirbridgeReactNative.trackDeeplink(intent)
+        intent?.let { AirbridgeReactNative.trackDeeplink(it) }
     }
 
     override fun onNewIntent(intent: Intent) {
