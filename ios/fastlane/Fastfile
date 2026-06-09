@@ -121,7 +121,7 @@ platform :ios do
     call_match(
       type: "appstore",
       api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
-      app_identifier: identifier,
+      app_identifier: [identifier, "#{identifier}.ShareExtension"],
       force_for_new_devices: true,
       verbose: true
     )
@@ -144,7 +144,7 @@ platform :ios do
     call_match(
       type: "appstore",
       api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
-      app_identifier: identifier,
+      app_identifier: [identifier, "#{identifier}.ShareExtension"],
       force_for_new_devices: true,
       verbose: true
     )
@@ -155,7 +155,13 @@ platform :ios do
       archive_path: "./build/#{options[:scheme]}/StairCrusherClub-#{bundle_version}.xcarchive",
       export_method: "app-store",
       output_directory: "./build/#{options[:scheme]}",
-      output_name: "StairCrusherClub-#{bundle_version}.ipa"
+      output_name: "StairCrusherClub-#{bundle_version}.ipa",
+      export_options: {
+        provisioningProfiles: {
+          identifier => "match AppStore #{identifier}",
+          "#{identifier}.ShareExtension" => "match AppStore #{identifier}.ShareExtension"
+        }
+      }
     )
   end
 
@@ -168,7 +174,7 @@ platform :ios do
     call_match(
       type: "adhoc",
       api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
-      app_identifier: identifier,
+      app_identifier: [identifier, "#{identifier}.ShareExtension"],
       force_for_new_devices: true,
       verbose: true
     )
@@ -179,7 +185,13 @@ platform :ios do
       archive_path: "./build/#{options[:scheme]}/StairCrusherClub-#{bundle_version}.xcarchive",
       export_method: "ad-hoc",
       output_directory: "./build/#{options[:scheme]}",
-      output_name: "StairCrusherClub-Firebase-#{bundle_version}.ipa"
+      output_name: "StairCrusherClub-Firebase-#{bundler_version}.ipa",
+      export_options: {
+        provisioningProfiles: {
+          identifier => "match AdHoc #{identifier}",
+          "#{identifier}.ShareExtension" => "match AdHoc #{identifier}.ShareExtension"
+        }
+      }
     )
   end
 
