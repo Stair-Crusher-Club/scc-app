@@ -7,6 +7,11 @@ import {
 
 export type ToiletDetails = Omit<
   ExternalAccessibility & {
+    /**
+     * 병합된 통합 화장실(Toilet) ID. 상세 화면(`getToilet`) 이동 시 사용한다.
+     * `id`(ExternalAccessibility id)와는 별개이며, 동기화된 데이터에만 존재한다.
+     */
+    toiletId?: string;
     imageUrl?: string;
     gender?: {
       state: 'MALE' | 'FEMALE' | 'BOTH';
@@ -126,6 +131,7 @@ export function mapToToiletDetails(
       : undefined;
   return {
     ...toilet,
+    toiletId: toilet.toiletId ?? undefined,
     imageUrl: toilet.toilet_details?.image_url,
     available,
     gender,
@@ -163,6 +169,8 @@ export function mapToiletDetailsToToiletDetails(
 ): ToiletDetails {
   const externalShaped: ExternalAccessibility = {
     id,
+    // 상세(`/getToilet`)에서 내려온 id는 이미 통합 Toilet id이다.
+    toiletId: id,
     name,
     address,
     location,
@@ -182,6 +190,8 @@ export function mapSummaryToToiletDetails(
 ): ToiletDetails & MarkerItem {
   return {
     id: summary.id,
+    // 검색(`/searchToilets`) 결과의 id는 이미 통합 Toilet id이므로 상세 이동에 그대로 쓴다.
+    toiletId: summary.id,
     name: summary.name,
     address: summary.address ?? undefined,
     location: summary.location,

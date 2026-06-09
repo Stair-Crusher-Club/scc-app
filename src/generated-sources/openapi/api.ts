@@ -2236,6 +2236,12 @@ export interface ExternalAccessibility {
      * @memberof ExternalAccessibility
      */
     'toilet_details'?: ToiletAccessibilityDetails;
+    /**
+     * 병합된 통합 화장실(Toilet) ID. 동기화된 TOILET 카테고리 데이터에만 존재. 상세 이동(getToilet) 시 사용.
+     * @type {string}
+     * @memberof ExternalAccessibility
+     */
+    'toiletId'?: string | null;
 }
 /**
  * 층 정보 교정
