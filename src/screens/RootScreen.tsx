@@ -160,12 +160,14 @@ const RootScreen = () => {
               const url = await Linking.getInitialURL();
               if (url) {
                 logDebug('Normal deeplink click during app quit state', url);
-                // iOS Share Extension cold start
+                // iOS Share Extension cold start: navigationRef가 아직 null이므로
+                // navigate 직접 호출 불가 → PendingSharedText에 저장하고 null 반환.
+                // MainScreen.useEffect([accessToken, navigation])이 마운트 시 소비.
                 if (url.startsWith('stair-crusher://shared?text=')) {
                   const sharedText = decodeURIComponent(
                     url.replace('stair-crusher://shared?text=', ''),
                   );
-                  handleSharedText(sharedText);
+                  setPendingSharedText(sharedText);
                   return null;
                 }
                 resolvedUrl = url;
