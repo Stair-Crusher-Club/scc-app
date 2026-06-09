@@ -139,7 +139,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
           )}
           {isExist && (
             <View className="gap-2">
-              <Question>화장실 위치를 알려주세요.</Question>
+              <Question>화장실 위치 혹은 가는 방법을 알려주세요.</Question>
               <Controller
                 name="locationComment"
                 render={({field}) => (
@@ -170,7 +170,9 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
           )}
           {(isExist || isVisibleTextarea) && (
             <View className="gap-2">
-              {isExist && <Question>화장실 이용 경험을 알려주세요.</Question>}
+              {isExist && (
+                <Question>그외 알려주고 싶은 부분을 적어주세요.</Question>
+              )}
               <Controller
                 name="comment"
                 render={({field}) => (

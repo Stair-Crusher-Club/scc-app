@@ -13,7 +13,7 @@ import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
-import AvailableLabel from '@/screens/ExternalAccessibilityDetailScreen/AvailableLabel';
+import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -42,33 +42,31 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   const onBookmark = () => {
     ToastUtils.show('준비 중입니다.');
   };
-  const isUserSource = item.sourceType === 'USER_TOILET_REVIEW';
-  const tagTexts: string[] = isUserSource
-    ? []
-    : ([item.gender?.desc, item.entrance?.desc].filter(Boolean) as string[]);
+  const tagTexts: string[] = [item.gender?.desc, item.entrance?.desc].filter(
+    Boolean,
+  ) as string[];
 
   return (
     <LogParamsProvider
       params={{
-        toilet_accessibility_id: item.id,
-        toilet_source_type: item.sourceType,
+        toilet_id: item.id,
       }}>
       <Container
         elementName="toilet_card"
         onPress={() => {
-          navigation.navigate('ExternalAccessibilityDetail', {
-            toiletAccessibilityId: item.id,
+          navigation.navigate('ToiletDetail', {
+            toiletId: item.id,
           });
         }}>
         <InfoArea>
           <LabelIconArea>
-            {isUserSource ? (
-              <View />
-            ) : (
+            {item.available ? (
               <AvailableLabel
-                availableState={item.available?.state ?? 'UNKNOWN'}
-                text={item.available?.desc ?? '알수없음'}
+                availableState={item.available.state}
+                text={item.available.desc}
               />
+            ) : (
+              <View />
             )}
             <IconArea>
               <SccTouchableOpacity

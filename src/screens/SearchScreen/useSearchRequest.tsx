@@ -40,7 +40,7 @@ function generateRequestId(): string {
 }
 
 export default function useSearchRequest() {
-  const {api, toiletAccessibilityApi} = useAppComponents();
+  const {api, toiletApi} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered, hasReview} =
     useAtomValue(filterAtom);
   const {text, location, radiusMeter, useCameraRegion} =
@@ -140,16 +140,18 @@ export default function useSearchRequest() {
 
       // Call different API based on search mode
       if (searchMode === 'toilet') {
-        // 통합 화장실 검색: 위치 기반 nearest-N (키워드/반경 고정 로직 없음)
         const toiletCurrentLocation = location ?? currentLocation;
-        const response =
-          await toiletAccessibilityApi.searchToiletAccessibilities(
-            {
-              currentLocation: toiletCurrentLocation!,
-              limit: 50,
-            },
-            {signal},
-          );
+        if (!toiletCurrentLocation) {
+          ToastUtils.show('현재 위치를 확인할 수 없습니다.');
+          return [];
+        }
+        const response = await toiletApi.searchToilets(
+          {
+            currentLocation: toiletCurrentLocation,
+            limit: 50,
+          },
+          {signal},
+        );
         const result =
           response?.data.items?.map(mapSummaryToToiletDetails) ?? [];
         const requestId = generateRequestId();

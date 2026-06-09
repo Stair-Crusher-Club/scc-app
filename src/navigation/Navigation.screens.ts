@@ -23,9 +23,9 @@ import ConquererUpVoteScreen from '@/screens/ConquererUpVoteScreen';
 import CrusherActivityScreen, {
   CrusherActivityScreenParams,
 } from '@/screens/CrusherActivity';
-import ExternalAccessibilityDetailScreen, {
-  ExternalAccessibilityDetailScreenParams,
-} from '@/screens/ExternalAccessibilityDetailScreen';
+import ToiletDetailScreen, {
+  ToiletDetailScreenParams,
+} from '@/screens/ToiletDetailScreen';
 import PlaceListDetailScreen, {
   PlaceListDetailScreenParams,
 } from '@/screens/PlaceListDetailScreen';
@@ -177,8 +177,8 @@ export const MainNavigationScreens: {
   },
   {name: 'PlaceDetailV2', component: PlaceDetailV2Screen},
   {
-    name: 'ExternalAccessibilityDetail',
-    component: ExternalAccessibilityDetailScreen,
+    name: 'ToiletDetail',
+    component: ToiletDetailScreen,
   },
   {
     name: 'BuildingFormV2',
@@ -393,7 +393,7 @@ export type ScreenParams = {
   Camera: CameraScreenParams;
   PlaceFormV2: PlaceFormV2ScreenParams;
   PlaceDetailV2: PlaceDetailV2ScreenParams;
-  ExternalAccessibilityDetail: ExternalAccessibilityDetailScreenParams;
+  ToiletDetail: ToiletDetailScreenParams;
   BuildingFormV2: BuildingFormV2ScreenParams;
   AddComment: AddCommentScreenParams;
 

@@ -1,25 +1,25 @@
 import React, {PropsWithChildren} from 'react';
 import {createContext} from 'react';
 
-import {DefaultApi, ToiletAccessibilityApi} from '@/generated-sources/openapi';
+import {DefaultApi, ToiletApi} from '@/generated-sources/openapi';
 
 interface AppComponents extends PropsWithChildren {
   api: DefaultApi;
-  toiletAccessibilityApi: ToiletAccessibilityApi;
+  toiletApi: ToiletApi;
 }
 
 export const AppComponentsContext = createContext<AppComponents>({
   api: new DefaultApi(),
-  toiletAccessibilityApi: new ToiletAccessibilityApi(),
+  toiletApi: new ToiletApi(),
 });
 
 export const AppComponentsProvider = ({
   children,
   api,
-  toiletAccessibilityApi,
+  toiletApi,
 }: AppComponents) => {
   return (
-    <AppComponentsContext.Provider value={{api, toiletAccessibilityApi}}>
+    <AppComponentsContext.Provider value={{api, toiletApi}}>
       {children}
     </AppComponentsContext.Provider>
   );

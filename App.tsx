@@ -18,7 +18,7 @@ import SplashOverlay from '@/splash/SplashOverlay';
 import {
   Configuration,
   DefaultApi,
-  ToiletAccessibilityApi,
+  ToiletApi,
 } from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
@@ -48,10 +48,8 @@ const AppWithProviders = () => {
         <SafeAreaProvider>
           <AppComponentsProvider
             api={new DefaultApi(new Configuration({basePath: getBaseURL()}))}
-            toiletAccessibilityApi={
-              new ToiletAccessibilityApi(
-                new Configuration({basePath: getBaseURL()}),
-              )
+            toiletApi={
+              new ToiletApi(new Configuration({basePath: getBaseURL()}))
             }>
             <QueryClientProvider client={queryClient}>
               <App />
