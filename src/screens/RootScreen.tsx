@@ -3,7 +3,7 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Linking, Platform} from 'react-native';
 import Config from 'react-native-config';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
@@ -59,18 +59,11 @@ const RootScreen = () => {
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
 
-  // 외부 지도앱에서 공유된 텍스트 수신 처리
-  useEffect(() => {
-    const handleSharedFiles = (
-      files: {contentType?: string; text?: string}[],
-    ) => {
-      const sharedText = files?.find(f => f.contentType === 'text/plain')?.text;
-      if (!sharedText) {
-        return;
-      }
+  // 외부 지도앱 공유 텍스트 처리 (Android: ReceiveSharingIntent / iOS: stair-crusher://shared?text=)
+  const handleSharedText = useCallback(
+    (sharedText: string) => {
       const isLoggedIn = !!getStorageValue<string>('scc-token');
       if (!isLoggedIn) {
-        // 비로그인: pendingSharedText에 보관, Login 화면으로 이동
         setPendingSharedText(sharedText);
         (navigationRef.current?.navigate as any)('Login');
         return;
@@ -78,6 +71,22 @@ const RootScreen = () => {
       (navigationRef.current?.navigate as any)('ResolvingSharedLink', {
         sharedText,
       });
+    },
+    [navigationRef],
+  );
+
+  // Android: ReceiveSharingIntent (ACTION_SEND intent)
+  useEffect(() => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+    const handleSharedFiles = (
+      files: {contentType?: string; text?: string}[],
+    ) => {
+      const sharedText = files?.find(f => f.contentType === 'text/plain')?.text;
+      if (sharedText) {
+        handleSharedText(sharedText);
+      }
     };
 
     ReceiveSharingIntent.getReceivedFiles(
@@ -91,7 +100,7 @@ const RootScreen = () => {
     return () => {
       ReceiveSharingIntent.clearReceivedFiles();
     };
-  }, [navigationRef]);
+  }, [handleSharedText]);
 
   return (
     <>
@@ -151,6 +160,14 @@ const RootScreen = () => {
               const url = await Linking.getInitialURL();
               if (url) {
                 logDebug('Normal deeplink click during app quit state', url);
+                // iOS Share Extension cold start
+                if (url.startsWith('stair-crusher://shared?text=')) {
+                  const sharedText = decodeURIComponent(
+                    url.replace('stair-crusher://shared?text=', ''),
+                  );
+                  handleSharedText(sharedText);
+                  return null;
+                }
                 resolvedUrl = url;
               }
             }
@@ -192,6 +209,14 @@ const RootScreen = () => {
               ({url}) => {
                 // 카카오 콜백 URL 무시 (iOS에서 Airbridge trackDeeplink가 처리하면서 딥링크 상태 방해)
                 if (url.startsWith('kakao')) {
+                  return;
+                }
+                // iOS Share Extension: stair-crusher://shared?text=<encoded>
+                if (url.startsWith('stair-crusher://shared?text=')) {
+                  const sharedText = decodeURIComponent(
+                    url.replace('stair-crusher://shared?text=', ''),
+                  );
+                  handleSharedText(sharedText);
                   return;
                 }
                 // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트

@@ -28,7 +28,7 @@ class ShareViewController: UIViewController {
                             self?.completeRequest()
                             return
                         }
-                        self?.saveAndOpen(text: text)
+                        self?.openMainApp(sharedText: text)
                     }
                     return
                 } else if attachment.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
@@ -37,7 +37,7 @@ class ShareViewController: UIViewController {
                             self?.completeRequest()
                             return
                         }
-                        self?.saveAndOpen(text: text)
+                        self?.openMainApp(sharedText: text)
                     }
                     return
                 }
@@ -46,33 +46,14 @@ class ShareViewController: UIViewController {
         completeRequest()
     }
 
-    private func saveAndOpen(text: String) {
-        // ShareExtension bundle ID: "club.staircrusher.ShareExtension" or "club.staircrusher.sandbox.ShareExtension"
-        // Strip the .ShareExtension suffix to get main app bundle ID
-        let extensionBundleId = Bundle.main.bundleIdentifier ?? ""
-        let mainBundleId = extensionBundleId
-            .replacingOccurrences(of: ".ShareExtension", with: "")
-        let groupId = "group.\(mainBundleId)"
-
-        guard let userDefaults = UserDefaults(suiteName: groupId) else {
+    // URL-encode the shared text directly in the stair-crusher:// scheme.
+    // No App Groups needed — avoids provisioning profile changes.
+    private func openMainApp(sharedText: String) {
+        guard let encoded = sharedText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "stair-crusher://shared?text=\(encoded)") else {
             completeRequest()
             return
         }
-
-        // Key format used by ReceiveSharingIntent library:
-        // url.host = "ShareMedia-text=<key>", url.host.components(separatedBy:"=").last = <key>
-        // So we store with key = timestamp string, and URL host = "ShareMedia-text=<key>"
-        let key = "ShareMedia-\(Int(Date().timeIntervalSince1970 * 1000))"
-        userDefaults.set([text], forKey: key)
-        userDefaults.synchronize()
-
-        // URL format: stair-crusher://ShareMedia-text=<key>#text
-        // ReceiveSharingIntent reads: url.host?.components(separatedBy:"=").last → key
-        guard let url = URL(string: "stair-crusher://ShareMedia-text=\(key)#text") else {
-            completeRequest()
-            return
-        }
-
         openURL(url)
         completeRequest()
     }
