@@ -60,6 +60,44 @@ adb shell input tap 996 2209
 adb shell input tap 540 860
 ```
 
+## Chrome Custom Tab (WebView) 내 버튼 클릭이 안 될 때
+
+`adb shell input tap`은 Chrome Custom Tab의 WebView 내 요소에 전달되지 않는다.
+CDP(Chrome DevTools Protocol)로 해결:
+
+```bash
+# 1. 포트 포워딩
+adb forward tcp:9222 localabstract:chrome_devtools_remote
+# 2. 페이지 목록 확인
+curl -s http://localhost:9222/json | python3 -m json.tool
+# 3. Node.js WebSocket으로 클릭 (page ID를 확인 후 사용)
+node -e "
+const WebSocket = require('ws');
+const ws = new WebSocket('ws://localhost:9222/devtools/page/<PAGE_ID>');
+ws.on('open', () => {
+  // 먼저 버튼 좌표 가져오기
+  ws.send(JSON.stringify({id:1, method:'Runtime.evaluate', params:{
+    expression: \`var b=document.querySelector('button'); var r=b.getBoundingClientRect(); JSON.stringify({x:r.left+r.width/2,y:r.top+r.height/2})\`,
+    returnByValue: true
+  }}));
+});
+let step=0;
+let c;
+ws.on('message', d => {
+  step++;
+  if(step===1) {
+    c=JSON.parse(JSON.parse(d).result.result.value);
+    // Input.dispatchMouseEvent로 실제 클릭
+    ws.send(JSON.stringify({id:2,method:'Input.dispatchMouseEvent',params:{type:'mousePressed',x:c.x,y:c.y,button:'left',clickCount:1}}));
+  } else if(step===2) {
+    ws.send(JSON.stringify({id:3,method:'Input.dispatchMouseEvent',params:{type:'mouseReleased',x:c.x,y:c.y,button:'left',clickCount:1}}));
+  } else { ws.close(); process.exit(0); }
+});
+"
+```
+
+**주의**: `form.submit()`은 OAuth 흐름에서 동작하지 않는다 (JS 이벤트 핸들러 우회). 반드시 `Input.dispatchMouseEvent`나 DOM click 사용.
+
 ## E2E 검증 깊이 (MANDATORY)
 
 **"화면이 떴는지"만 확인하면 불합격.** 각 화면에서 반드시:
