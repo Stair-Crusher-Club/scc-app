@@ -82,7 +82,8 @@ const RootScreen = () => {
     }
     const {ShareIntentModule} = NativeModules;
 
-    const checkPendingShareText = async () => {
+    // cold start: navigation 아직 미준비 → PendingSharedText 경유 (MainScreen이 소비)
+    const checkOnColdStart = async () => {
       try {
         const text: string | null = await ShareIntentModule?.getPendingShareText();
         if (text) {
@@ -93,19 +94,30 @@ const RootScreen = () => {
       }
     };
 
-    checkPendingShareText();
+    // background→foreground: navigation 이미 준비됨 → 바로 navigate
+    const checkOnForeground = async () => {
+      try {
+        const text: string | null = await ShareIntentModule?.getPendingShareText();
+        if (text) {
+          handleSharedText(text);
+        }
+      } catch (e) {
+        logDebug('ShareIntentModule error', e);
+      }
+    };
 
-    // background→foreground 전환 시 onNewIntent로 들어온 공유도 처리
+    checkOnColdStart();
+
     const subscription = AppState.addEventListener('change', state => {
       if (state === 'active') {
-        checkPendingShareText();
+        checkOnForeground();
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [handleSharedText]);
 
   return (
     <>
