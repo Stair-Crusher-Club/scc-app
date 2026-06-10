@@ -154,7 +154,7 @@ const ThemeGrid = styled.View`
 `;
 
 const ThemeChip = styled(SccPressable)<{selected: boolean}>`
-  width: 40%;
+  width: 48%;
   padding: 14px 8px;
   border-radius: 14px;
   border-width: 1.2px;
