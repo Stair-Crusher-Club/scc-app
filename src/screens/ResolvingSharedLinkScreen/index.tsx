@@ -1,10 +1,11 @@
 import React, {useEffect} from 'react';
-import {ActivityIndicator, Alert, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {ResolveSharedPlaceLinkResultStatusDto} from '@/generated-sources/openapi';
+import ToastUtils from '@/utils/ToastUtils';
 
 export type ResolvingSharedLinkScreenParams = {
   sharedText: string;
@@ -47,7 +48,7 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
             break;
           }
           case ResolveSharedPlaceLinkResultStatusDto.NotFound:
-            Alert.alert('장소를 찾을 수 없어요', '공유된 장소를 찾지 못했어요. 직접 검색해 주세요.');
+            ToastUtils.show('공유된 장소를 찾지 못했어요.');
             navigation.goBack();
             break;
           default: {
@@ -73,11 +74,13 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
     <ScreenLayout isHeaderVisible={false}>
       <View style={styles.container}>
         <ActivityIndicator size="large" />
+        <Text style={styles.message}>{'장소를 찾는 중입니다\n잠시만 기다려주세요...'}</Text>
       </View>
     </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  container: {flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16},
+  message: {fontSize: 15, color: '#666', textAlign: 'center', lineHeight: 22},
 });
