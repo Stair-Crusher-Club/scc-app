@@ -25,7 +25,7 @@ import {
 import {
   mapSummaryToToiletDetails,
   ToiletDetails,
-} from '@/screens/ToiletMapScreen/data';
+} from '@/components/toilet/data';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';

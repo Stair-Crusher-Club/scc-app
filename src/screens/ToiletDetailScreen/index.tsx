@@ -33,7 +33,7 @@ import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
 import {
   mapToiletDetailsToToiletDetails,
   ToiletDetails,
-} from '@/screens/ToiletMapScreen/data';
+} from '@/components/toilet/data';
 import ToastUtils from '@/utils/ToastUtils.ts';
 
 export interface ToiletDetailScreenParams {
@@ -82,16 +82,39 @@ const ToiletDetailScreen = ({route}: ScreenProps<'ToiletDetail'>) => {
 const IMAGE_WIDTH = Dimensions.get('window').width;
 
 const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
-  const toiletDetails: ToiletDetails | undefined =
-    detail.toiletDetails != null
-      ? mapToiletDetailsToToiletDetails(
+  // 여러 소스(유저 리뷰 N개 + 공공데이터)가 accessibilities 배열로 내려온다.
+  // sourceType 분기 없이, 존재하는 필드만 조건부로 모아서 렌더한다.
+  const allImages = detail.accessibilities.flatMap(
+    accessibility => accessibility.images,
+  );
+  const locationComments = detail.accessibilities
+    .map(accessibility => accessibility.locationComment)
+    .filter((it): it is string => it != null);
+  const comments = detail.accessibilities
+    .map(accessibility => accessibility.comment)
+    .filter((it): it is string => it != null);
+  // 공공데이터 상세(toiletDetails)를 가진 소스들을 TDP 섹션용 모델로 매핑한다.
+  const publicToiletDetails: ToiletDetails[] = detail.accessibilities.flatMap(
+    accessibility => {
+      const toiletDetails = accessibility.toiletDetails;
+      if (toiletDetails == null) {
+        return [];
+      }
+      return [
+        mapToiletDetailsToToiletDetails(
           detail.id,
           detail.name,
           detail.address ?? undefined,
           detail.location,
-          detail.toiletDetails,
-        )
-      : undefined;
+          toiletDetails,
+        ),
+      ];
+    },
+  );
+  // 타이틀 영역의 사용가능 라벨은 공공데이터 상세에서 가져온다.
+  const availableForLabel = publicToiletDetails.find(
+    it => it.available != null,
+  )?.available;
 
   const onCopy = () => {
     if (detail.address) {
@@ -110,9 +133,9 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
       <ScrollView>
         <AppBar />
-        {detail.images.length > 0 && (
+        {allImages.length > 0 && (
           <View>
-            {detail.images.map(image => (
+            {allImages.map(image => (
               <SccRemoteImage
                 key={image.imageUrl}
                 imageUrl={image.imageUrl}
@@ -125,10 +148,10 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
         <Container>
           <Section>
             <TitleArea>
-              {toiletDetails?.available && (
+              {availableForLabel && (
                 <AvailableLabel
-                  availableState={toiletDetails.available.state}
-                  text={toiletDetails.available.desc}
+                  availableState={availableForLabel.state}
+                  text={availableForLabel.desc}
                 />
               )}
               <TitleText>{detail.name}</TitleText>
@@ -163,27 +186,28 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
             </TitleArea>
           </Section>
 
-          {detail.locationComment != null && (
-            <Section>
+          {locationComments.map((locationComment, index) => (
+            <Section key={`location-comment-${index}`}>
               <SectionTitleText>화장실 위치</SectionTitleText>
               <SectionDivider />
-              <SubSectionDescription>
-                {detail.locationComment}
-              </SubSectionDescription>
+              <SubSectionDescription>{locationComment}</SubSectionDescription>
             </Section>
-          )}
+          ))}
 
-          {detail.comment != null && (
-            <Section>
+          {comments.map((comment, index) => (
+            <Section key={`comment-${index}`}>
               <SectionTitleText>기타 참고사항</SectionTitleText>
               <SectionDivider />
-              <SubSectionDescription>{detail.comment}</SubSectionDescription>
+              <SubSectionDescription>{comment}</SubSectionDescription>
             </Section>
-          )}
+          ))}
 
-          {toiletDetails && (
-            <ToiletPublicDetailSections toiletDetails={toiletDetails} />
-          )}
+          {publicToiletDetails.map((toiletDetails, index) => (
+            <ToiletPublicDetailSections
+              key={`public-detail-${index}`}
+              toiletDetails={toiletDetails}
+            />
+          ))}
         </Container>
       </ScrollView>
     </ScreenLayout>

@@ -5834,6 +5834,71 @@ export type ReportTargetTypeDto = typeof ReportTargetTypeDto[keyof typeof Report
 
 
 /**
+ * 
+ * @export
+ * @interface ResolveSharedPlaceLinkRequestDto
+ */
+export interface ResolveSharedPlaceLinkRequestDto {
+    /**
+     * 외부 앱이 공유 시트로 넘긴 원문 텍스트 전체(URL 포함). 서버가 파싱한다.
+     * @type {string}
+     * @memberof ResolveSharedPlaceLinkRequestDto
+     */
+    'sharedText': string;
+}
+/**
+ * 
+ * @export
+ * @interface ResolveSharedPlaceLinkResponseDto
+ */
+export interface ResolveSharedPlaceLinkResponseDto {
+    /**
+     * 
+     * @type {ResolveSharedPlaceLinkResultStatusDto}
+     * @memberof ResolveSharedPlaceLinkResponseDto
+     */
+    'status': ResolveSharedPlaceLinkResultStatusDto;
+    /**
+     * 
+     * @type {PlaceListItem}
+     * @memberof ResolveSharedPlaceLinkResponseDto
+     */
+    'place'?: PlaceListItem;
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof ResolveSharedPlaceLinkResponseDto
+     */
+    'candidates'?: Array<PlaceListItem>;
+    /**
+     * status=NOT_FOUND 일 때 Search 화면 prefill 용 검색어
+     * @type {string}
+     * @memberof ResolveSharedPlaceLinkResponseDto
+     */
+    'fallbackQuery'?: string;
+    /**
+     * 
+     * @type {SharedPlaceLinkVendorDto}
+     * @memberof ResolveSharedPlaceLinkResponseDto
+     */
+    'detectedVendor': SharedPlaceLinkVendorDto;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ResolveSharedPlaceLinkResultStatusDto = {
+    Matched: 'MATCHED',
+    Ambiguous: 'AMBIGUOUS',
+    NotFound: 'NOT_FOUND'
+} as const;
+
+export type ResolveSharedPlaceLinkResultStatusDto = typeof ResolveSharedPlaceLinkResultStatusDto[keyof typeof ResolveSharedPlaceLinkResultStatusDto];
+
+
+/**
  * contentType 에 따라 어떤 detail 필드가 채워져야 하는지가 달라진다. WEB_PAGE 이면 webPageDetail 을 채워서 보낸다. (없거나 비어있어도 받지만 메타가 비어진 채 저장됨) 
  * @export
  * @interface SaveContentRequestDto
@@ -6400,6 +6465,23 @@ export interface SendPhoneNumberVerifCodeSmsResponseDto {
     'token': string;
 }
 /**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const SharedPlaceLinkVendorDto = {
+    Kakao: 'KAKAO',
+    Naver: 'NAVER',
+    Google: 'GOOGLE',
+    Tmap: 'TMAP',
+    Unknown: 'UNKNOWN'
+} as const;
+
+export type SharedPlaceLinkVendorDto = typeof SharedPlaceLinkVendorDto[keyof typeof SharedPlaceLinkVendorDto];
+
+
+/**
  * 시군구를 표현하기 위한 모델.
  * @export
  * @interface SiGunGu
@@ -6609,7 +6691,56 @@ export interface ToiletAccessibilityDetails {
     'extraDesc'?: string;
 }
 /**
- * Toilet + 병합된 소스들의 조합. 각 섹션은 데이터가 있을 때만 채워지며, 클라이언트는 sourceType 분기 없이 존재하는 필드만 조건부로 렌더링한다. 
+ * Toilet에 병합된 단일 소스(유저 리뷰 ToiletReview 또는 공공데이터 ExternalAccessibility)의 접근성 정보. 소스 종류에 따라 채워지는 필드가 다르며, 클라이언트는 sourceType 분기 없이 존재하는 필드만 조건부로 렌더링한다. 
+ * @export
+ * @interface ToiletAccessibilityDto
+ */
+export interface ToiletAccessibilityDto {
+    /**
+     * 소스 엔티티 id (ToiletReview 또는 ExternalAccessibility)
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'id': string;
+    /**
+     * 이 소스의 이미지들 (공공데이터는 0~1장, 유저 리뷰는 0~N장)
+     * @type {Array<ImageDto>}
+     * @memberof ToiletAccessibilityDto
+     */
+    'images': Array<ImageDto>;
+    /**
+     * 화장실 위치 설명 (유저 리뷰 소스)
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'locationComment'?: string | null;
+    /**
+     * 기타 참고사항 (유저 리뷰 소스)
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'comment'?: string | null;
+    /**
+     * 화장실 위치 유형 PLACE/BUILDING/NONE/ETC (유저 리뷰 소스)
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'toiletLocationType'?: string | null;
+    /**
+     * 
+     * @type {ToiletAccessibilityDetails}
+     * @memberof ToiletAccessibilityDto
+     */
+    'toiletDetails'?: ToiletAccessibilityDetails;
+    /**
+     * 유저 리뷰 소스의 placeId/buildingId (앱에서 PDP 이동 보조)
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'referenceTargetId'?: string | null;
+}
+/**
+ * 통합 Toilet + 병합된 소스별 접근성 정보 리스트. PDP(Place + PlaceAccessibility[]) 패턴. Toilet 레벨 식별/표시 정보 + 소스별 ToiletAccessibilityDto 배열로 구성된다. 
  * @export
  * @interface ToiletDetailDto
  */
@@ -6639,35 +6770,11 @@ export interface ToiletDetailDto {
      */
     'location': Location;
     /**
-     * 병합된 모든 소스의 이미지 합본
-     * @type {Array<ImageDto>}
+     * 이 Toilet에 병합된 모든 소스(유저 리뷰 + 공공데이터)의 접근성 정보
+     * @type {Array<ToiletAccessibilityDto>}
      * @memberof ToiletDetailDto
      */
-    'images': Array<ImageDto>;
-    /**
-     * 화장실 위치 설명 (유저 리뷰 소스가 있으면)
-     * @type {string}
-     * @memberof ToiletDetailDto
-     */
-    'locationComment'?: string | null;
-    /**
-     * 기타 참고사항 (유저 리뷰 소스가 있으면)
-     * @type {string}
-     * @memberof ToiletDetailDto
-     */
-    'comment'?: string | null;
-    /**
-     * 
-     * @type {ToiletAccessibilityDetails}
-     * @memberof ToiletDetailDto
-     */
-    'toiletDetails'?: ToiletAccessibilityDetails;
-    /**
-     * 유저 리뷰 소스의 placeId/buildingId (앱에서 PDP 이동 보조)
-     * @type {string}
-     * @memberof ToiletDetailDto
-     */
-    'referenceTargetId'?: string | null;
+    'accessibilities': Array<ToiletAccessibilityDto>;
 }
 /**
  * 
@@ -10480,6 +10587,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 
+         * @summary 외부 지도앱에서 공유된 텍스트를 해석해 내부 장소로 매핑한다.
+         * @param {ResolveSharedPlaceLinkRequestDto} resolveSharedPlaceLinkRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveSharedPlaceLinkPost: async (resolveSharedPlaceLinkRequestDto: ResolveSharedPlaceLinkRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resolveSharedPlaceLinkRequestDto' is not null or undefined
+            assertParamExists('resolveSharedPlaceLinkPost', 'resolveSharedPlaceLinkRequestDto', resolveSharedPlaceLinkRequestDto)
+            const localVarPath = `/resolveSharedPlaceLink`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(resolveSharedPlaceLinkRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
          * @summary 웹페이지 등 컨텐츠를 저장한다.
          * @param {SaveContentRequestDto} saveContentRequestDto 
@@ -12015,6 +12162,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 
+         * @summary 외부 지도앱에서 공유된 텍스트를 해석해 내부 장소로 매핑한다.
+         * @param {ResolveSharedPlaceLinkRequestDto} resolveSharedPlaceLinkRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async resolveSharedPlaceLinkPost(resolveSharedPlaceLinkRequestDto: ResolveSharedPlaceLinkRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResolveSharedPlaceLinkResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.resolveSharedPlaceLinkPost(resolveSharedPlaceLinkRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
          * @summary 웹페이지 등 컨텐츠를 저장한다.
          * @param {SaveContentRequestDto} saveContentRequestDto 
@@ -12978,6 +13136,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: any): AxiosPromise<ReportAccessibilityResponseDto> {
             return localVarFp.reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 외부 지도앱에서 공유된 텍스트를 해석해 내부 장소로 매핑한다.
+         * @param {ResolveSharedPlaceLinkRequestDto} resolveSharedPlaceLinkRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveSharedPlaceLinkPost(resolveSharedPlaceLinkRequestDto: ResolveSharedPlaceLinkRequestDto, options?: any): AxiosPromise<ResolveSharedPlaceLinkResponseDto> {
+            return localVarFp.resolveSharedPlaceLinkPost(resolveSharedPlaceLinkRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * URL을 기준으로 SccContent를 upsert하고, 유저의 UserSavedContent를 생성한다. OG 메타데이터(title, description) + 페이지 본문 이미지(imageUrls)는 앱이 웹뷰에서 추출해 전달한다. 같은 URL로 이미 저장한 적이 있고 soft delete 상태였다면 다시 살린다. 
@@ -14079,6 +14247,18 @@ export class DefaultApi extends BaseAPI {
      */
     public reportAccessibilityPost(reportAccessibilityPostRequest: ReportAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).reportAccessibilityPost(reportAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 외부 지도앱에서 공유된 텍스트를 해석해 내부 장소로 매핑한다.
+     * @param {ResolveSharedPlaceLinkRequestDto} resolveSharedPlaceLinkRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public resolveSharedPlaceLinkPost(resolveSharedPlaceLinkRequestDto: ResolveSharedPlaceLinkRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).resolveSharedPlaceLinkPost(resolveSharedPlaceLinkRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

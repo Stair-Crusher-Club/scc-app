@@ -7,8 +7,8 @@ import {color} from '@/constant/color';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
-import ToiletCard from '@/screens/ToiletMapScreen/ToiletCard';
-import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
+import ToiletCard from '@/components/toilet/ToiletCard';
+import {ToiletDetails} from '@/components/toilet/data';
 
 export default function ToiletListView({
   searchResults,

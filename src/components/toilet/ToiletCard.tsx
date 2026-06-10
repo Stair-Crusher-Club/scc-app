@@ -10,20 +10,18 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import Tags from '@/components/Tag';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
+import {ToiletDetails} from '@/components/toilet/data';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
 import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
-import {useLogger} from '@/logging/useLogger';
 
 export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   const navigation = useNavigation();
-  const logger = useLogger({toilet_id: item.id});
   const currentLocation = useAtomValue(currentLocationAtom);
   const distanceText = (() => {
     let distance;
@@ -51,18 +49,11 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   return (
     <LogParamsProvider
       params={{
-        toilet_id: item.id,
+        toilet_id: item.toiletId,
       }}>
       <Container
         elementName="toilet_card"
         onPress={() => {
-          // toiletId가 없으면(통합 Toilet 데이터 미동기화) 상세로 이동할 수 없다.
-          // getToilet은 통합 Toilet id(TLT)를 요구하므로 EA id로는 깨진다 → 가드.
-          if (item.toiletId == null) {
-            logger.logElementClick('toilet_card_navigation_blocked');
-            ToastUtils.show('상세 정보를 준비 중입니다.');
-            return;
-          }
           navigation.navigate('ToiletDetail', {
             toiletId: item.toiletId,
           });

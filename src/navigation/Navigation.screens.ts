@@ -70,7 +70,6 @@ import SearchUnconqueredPlacesScreen, {
 } from '@/screens/SearchUnconqueredPlacesScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
-import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import TutorialScreen from '@/screens/TutorialScreen';
 import TutorialMissionScreen, {
   TutorialMissionScreenParams,
@@ -235,11 +234,6 @@ export const MainNavigationScreens: {
     name: 'Webview',
     component: WebViewScreen,
     options: {presentation: 'fullScreenModal'},
-  },
-  {
-    name: 'ToiletMap',
-    component: ToiletMapScreen,
-    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     name: 'MySaves',
@@ -429,7 +423,6 @@ export type ScreenParams = {
 
   Setting: undefined;
   MapTest: undefined;
-  ToiletMap: undefined;
   SearchUnconqueredPlaces: SearchUnconqueredPlacesScreenParams;
 
   // fullscreen modals
