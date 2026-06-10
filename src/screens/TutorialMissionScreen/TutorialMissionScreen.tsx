@@ -225,7 +225,7 @@ export default function TutorialMissionScreen({
         onError: error => {
           if (error instanceof AxiosError && error.response?.status === 400) {
             ToastUtils.show(
-              'Tally Form 제출이 확인되지 않았어요.\n잠시 후 다시 시도하거나 Form을 다시 제출해주세요.',
+              '설문 제출이 확인되지 않았어요.\n잠시 후 다시 시도하거나 설문을 다시 제출해주세요.',
             );
           }
         },
