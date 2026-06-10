@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {ActivityIndicator, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Alert, StyleSheet, View} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -47,11 +47,8 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
             break;
           }
           case ResolveSharedPlaceLinkResultStatusDto.NotFound:
-            // Search는 MainScreen 탭 내부 화면이므로 navigate(크로스 네비게이터)로 이동
-            navigation.navigate('Search', {
-              initKeyword: data.fallbackQuery ?? undefined,
-              toMap: false,
-            });
+            Alert.alert('장소를 찾을 수 없어요', '공유된 장소를 찾지 못했어요. 직접 검색해 주세요.');
+            navigation.goBack();
             break;
           default: {
             const _exhaustiveCheck: never = data.status;
