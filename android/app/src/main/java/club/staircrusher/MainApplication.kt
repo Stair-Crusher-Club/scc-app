@@ -27,6 +27,12 @@ class MainApplication : Application(), ReactApplication {
             override fun getPackages(): List<ReactPackage> =
                 PackageList(this).packages.apply {
                     add(SccCameraButtonsPackage())
+                    add(object : ReactPackage {
+                        override fun createNativeModules(reactContext: ReactApplicationContext) =
+                            listOf(ShareIntentModule(reactContext))
+                        override fun createViewManagers(reactContext: ReactApplicationContext) =
+                            emptyList<ViewManager<*, *>>()
+                    })
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     add(object : ReactPackage, ViewManagerOnDemandReactPackage {
                         override fun getViewManagerNames(reactContext: ReactApplicationContext) =

@@ -31,6 +31,9 @@ class MainActivity : ReactActivity() {
         SplashScreen.show(this)
         // https://github.com/software-mansion/react-native-screens/issues/17#issuecomment-424704067
         super.onCreate(null)
+        // ACTION_SEND intent를 React Native 초기화 전에 static으로 저장.
+        // getCurrentActivity()가 null일 수 있는 타이밍 문제를 우회.
+        extractAndSavePendingShareText(intent)
     }
 
     override fun onResume() {
@@ -41,6 +44,20 @@ class MainActivity : ReactActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        extractAndSavePendingShareText(intent)
+    }
+
+    private fun extractAndSavePendingShareText(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+            if (!text.isNullOrBlank()) {
+                pendingShareText = text
+            }
+        }
+    }
+
+    companion object {
+        var pendingShareText: String? = null
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {

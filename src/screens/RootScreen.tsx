@@ -4,9 +4,8 @@ import {
   useNavigationContainerRef,
 } from '@react-navigation/native';
 import React, {useCallback, useEffect, useRef} from 'react';
-import {Linking, Platform} from 'react-native';
+import {AppState, Linking, NativeModules, Platform} from 'react-native';
 import Config from 'react-native-config';
-import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
@@ -75,44 +74,38 @@ const RootScreen = () => {
     [navigationRef],
   );
 
-  // Android: ReceiveSharingIntent (ACTION_SEND intent)
-  // 라이브러리는 contentType 없이 text/weblink 필드로 반환한다.
-  // 라이브러리 내부에 AppState listener가 있으므로 우리는 추가하지 않는다.
-  // cold start 시 navigation이 아직 ready가 아닐 수 있으므로 PendingSharedText 경유.
+  // Android: MainActivity에서 직접 읽은 ACTION_SEND 텍스트를 NativeModule로 가져옴.
+  // ReceiveSharingIntent 라이브러리는 getCurrentActivity() 타이밍 문제로 cold start 시 동작 안 함.
   useEffect(() => {
     if (Platform.OS !== 'android') {
       return;
     }
-    const handleSharedFiles = (
-      files: {text?: string | null; weblink?: string | null}[],
-    ) => {
-      const item = files?.find(f => f.text || f.weblink);
-      const sharedText = item?.text || item?.weblink;
-      if (!sharedText) {
-        return;
-      }
-      ReceiveSharingIntent.clearReceivedFiles();
-      if (navigationRef.isReady()) {
-        // 앱이 이미 실행 중(background→foreground): 바로 navigate
-        handleSharedText(sharedText);
-      } else {
-        // cold start: navigation 아직 준비 안 됨 → PendingSharedText에 저장, MainScreen이 소비
-        setPendingSharedText(sharedText);
+    const {ShareIntentModule} = NativeModules;
+
+    const checkPendingShareText = async () => {
+      try {
+        const text: string | null = await ShareIntentModule?.getPendingShareText();
+        if (text) {
+          setPendingSharedText(text);
+        }
+      } catch (e) {
+        logDebug('ShareIntentModule error', e);
       }
     };
 
-    ReceiveSharingIntent.getReceivedFiles(
-      handleSharedFiles,
-      (error: unknown) => {
-        logDebug('ReceiveSharingIntent error', error);
-      },
-      'ShareMedia-',
-    );
+    checkPendingShareText();
+
+    // background→foreground 전환 시 onNewIntent로 들어온 공유도 처리
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        checkPendingShareText();
+      }
+    });
 
     return () => {
-      ReceiveSharingIntent.clearReceivedFiles();
+      subscription.remove();
     };
-  }, [handleSharedText, navigationRef]);
+  }, []);
 
   return (
     <>
