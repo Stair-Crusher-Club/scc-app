@@ -85,7 +85,9 @@ val module = reactContext?.getNativeModule(MyModule::class.java)
 - **웹 배포는 로컬에서 수동 실행한다.** (CI 워크플로우 없음)
 - 배포 절차:
   1. `git checkout main && git reset --hard origin/main` (최신 main 기준)
-  2. `ENVFILE=.env.local yarn web:build` (production 빌드 → `web-dist/`)
+  2. `yarn web:build` (production 빌드 → `web-dist/`)
+     - 내부적으로 `ENVFILE=subprojects/scc-frontend-build-configurations/production/.env` 가 강제되어 `BASE_URL=https://api.staircrusher.club` 가 bake 된다.
+     - `ENVFILE=.env.local` 같이 native dev 용 env 로 빌드하면 `BASE_URL=10.0.2.2:8080` 가 박혀 일반 브라우저에서 닿지 못한다. 절대 그렇게 빌드하지 말 것.
   3. **빌드 후 반드시 로컬에서 동작 확인** — `yarn web` 으로 dev server 띄우고 Playwright 또는 브라우저로 주요 페이지 접속 테스트. 콘솔 에러 없는지 확인.
   4. `aws-vault exec swann-scc -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
 - **배포 전 테스트 필수 (MANDATORY)**: 테스트 없이 배포하지 않는다. 최소한 데스크톱/모바일 각각 1개 페이지씩 접속하여 렌더링 + 콘솔 에러 확인.
