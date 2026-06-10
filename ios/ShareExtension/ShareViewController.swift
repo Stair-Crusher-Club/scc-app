@@ -52,10 +52,18 @@ class ShareViewController: UIViewController {
             completeRequest()
             return
         }
-        // extensionContext.open은 앱이 killed 상태여도 올바르게 launch한다.
-        // UIApplication 방식은 extension process에서 UIApplication 접근이 불가능해 killed 상태에서 동작 안 함.
-        extensionContext?.open(url) { [weak self] _ in
-            self?.completeRequest()
+        openURL(url)
+        completeRequest()
+    }
+
+    @objc private func openURL(_ url: URL) {
+        var responder: UIResponder? = self
+        while responder != nil {
+            if let application = responder as? UIApplication {
+                application.open(url, options: [:], completionHandler: nil)
+                return
+            }
+            responder = responder?.next
         }
     }
 
