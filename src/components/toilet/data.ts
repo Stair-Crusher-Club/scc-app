@@ -215,6 +215,14 @@ export function mapSummaryToToiletDetails(
   const enriched = representativeToiletDetails
     ? parseToiletAccessibilityDetails(representativeToiletDetails)
     : undefined;
+  // 유저 리뷰(toilet_review)로 만들어진 화장실은 등록 자체가 "사용 가능"을 의미하므로 항상 사용가능으로 표기한다.
+  // (리뷰 소스는 공공데이터 toiletDetails가 없어 availableDesc가 없음 → toiletLocationType 존재로 리뷰 소스 판별)
+  const isFromUserReview = summary.accessibilities.some(
+    accessibility => accessibility.toiletLocationType != null,
+  );
+  const available: ToiletDetails['available'] =
+    enriched?.available ??
+    (isFromUserReview ? {state: 'AVAILABLE', desc: '사용가능'} : undefined);
   return {
     // MarkerItem 식별자. 검색 결과의 id는 통합 Toilet id이다.
     id: summary.id,
@@ -231,7 +239,7 @@ export function mapSummaryToToiletDetails(
     // 카드가 기존(외부 접근성 검색 시절)과 동일하게 이미지 + 사용가능/성별/입구를 렌더하도록 채운다.
     imageUrl: allImages[0]?.imageUrl,
     gender: enriched?.gender,
-    available: enriched?.available,
+    available,
     door: enriched?.door,
     entrance: enriched?.entrance,
     stall: enriched?.stall,
