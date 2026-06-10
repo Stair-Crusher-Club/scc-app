@@ -315,7 +315,7 @@ const ToiletPublicDetailSections = ({
                 가로 {toiletDetails.stall.width}
               </SubSectionTitle>
               <SubSectionTitle>
-                가로 {toiletDetails.stall.depth}
+                세로 {toiletDetails.stall.depth}
               </SubSectionTitle>
             </SubSection>
           )}
