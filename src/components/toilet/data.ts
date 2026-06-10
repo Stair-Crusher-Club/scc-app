@@ -198,11 +198,23 @@ export function mapToiletDetailsToToiletDetails(
 /**
  * 화장실 검색(`/searchToilets`) 결과(`ToiletSummaryDto`)를
  * 카드/마커 렌더에 쓰이는 `ToiletDetails & MarkerItem`으로 매핑한다.
- * 검색 응답에는 성별/입구 등 상세 필드가 없으므로 이름/주소만 채운다.
+ *
+ * 요약도 상세(`/getToilet`)와 동일한 `accessibilities[]`를 내려주므로, TDP와 같은 방식으로 집계한다:
+ * - 이미지: 모든 소스의 이미지 중 첫 장을 카드 대표 이미지로 사용
+ * - 공공데이터 상세(사용가능/성별/입구 등): toiletDetails를 가진 첫 번째 대표 소스에서 파싱
  */
 export function mapSummaryToToiletDetails(
   summary: ToiletSummaryDto,
 ): ToiletDetails & MarkerItem {
+  const allImages = summary.accessibilities.flatMap(
+    accessibility => accessibility.images,
+  );
+  const representativeToiletDetails = summary.accessibilities.find(
+    accessibility => accessibility.toiletDetails != null,
+  )?.toiletDetails;
+  const enriched = representativeToiletDetails
+    ? parseToiletAccessibilityDetails(representativeToiletDetails)
+    : undefined;
   return {
     // MarkerItem 식별자. 검색 결과의 id는 통합 Toilet id이다.
     id: summary.id,
@@ -216,5 +228,17 @@ export function mapSummaryToToiletDetails(
       icon: 'toilet',
       level: 'none',
     },
+    // 카드가 기존(외부 접근성 검색 시절)과 동일하게 이미지 + 사용가능/성별/입구를 렌더하도록 채운다.
+    imageUrl: allImages[0]?.imageUrl,
+    gender: enriched?.gender,
+    available: enriched?.available,
+    door: enriched?.door,
+    entrance: enriched?.entrance,
+    stall: enriched?.stall,
+    accessDesc: enriched?.accessDesc,
+    doorSideRoom: enriched?.doorSideRoom,
+    washStandBelowRoom: enriched?.washStandBelowRoom,
+    washStandHandle: enriched?.washStandHandle,
+    extra: enriched?.extra,
   };
 }

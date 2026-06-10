@@ -6998,6 +6998,12 @@ export interface ToiletSummaryDto {
      * @memberof ToiletSummaryDto
      */
     'location': Location;
+    /**
+     * 이 Toilet에 병합된 모든 소스(유저 리뷰 + 공공데이터)의 접근성 정보. 카드가 대표 이미지/사용가능/성별/입구 정보를 렌더하는 데 사용한다. (상세 getToilet과 동일 DTO)
+     * @type {Array<ToiletAccessibilityDto>}
+     * @memberof ToiletSummaryDto
+     */
+    'accessibilities': Array<ToiletAccessibilityDto>;
 }
 /**
  * 윌리의 외출 NUX 튜토리얼 미션 종류. HIDDEN_APP_SURVEY가 히든 미션(앱 사용 후기 설문)이며, 나머지 3개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 4개를 모두 포함한다. 
