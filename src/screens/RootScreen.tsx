@@ -4,7 +4,7 @@ import {
   useNavigationContainerRef,
 } from '@react-navigation/native';
 import React, {useCallback, useEffect, useRef} from 'react';
-import {AppState, Linking, Platform} from 'react-native';
+import {Linking, Platform} from 'react-native';
 import Config from 'react-native-config';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import SplashScreen from 'react-native-splash-screen';
@@ -76,8 +76,9 @@ const RootScreen = () => {
   );
 
   // Android: ReceiveSharingIntent (ACTION_SEND intent)
-  // 라이브러리는 contentType 필드 없이 text/weblink 필드로 반환한다.
-  // text: URL이 아닌 텍스트 (지도앱 공유 텍스트), weblink: URL만 있을 때
+  // 라이브러리는 contentType 없이 text/weblink 필드로 반환한다.
+  // 라이브러리 내부에 AppState listener가 있으므로 우리는 추가하지 않는다.
+  // cold start 시 navigation이 아직 ready가 아닐 수 있으므로 PendingSharedText 경유.
   useEffect(() => {
     if (Platform.OS !== 'android') {
       return;
@@ -87,36 +88,31 @@ const RootScreen = () => {
     ) => {
       const item = files?.find(f => f.text || f.weblink);
       const sharedText = item?.text || item?.weblink;
-      if (sharedText) {
-        ReceiveSharingIntent.clearReceivedFiles();
+      if (!sharedText) {
+        return;
+      }
+      ReceiveSharingIntent.clearReceivedFiles();
+      if (navigationRef.isReady()) {
+        // 앱이 이미 실행 중(background→foreground): 바로 navigate
         handleSharedText(sharedText);
+      } else {
+        // cold start: navigation 아직 준비 안 됨 → PendingSharedText에 저장, MainScreen이 소비
+        setPendingSharedText(sharedText);
       }
     };
 
-    const checkSharedFiles = () => {
-      ReceiveSharingIntent.getReceivedFiles(
-        handleSharedFiles,
-        (error: unknown) => {
-          logDebug('ReceiveSharingIntent error', error);
-        },
-        'ShareMedia-',
-      );
-    };
-
-    checkSharedFiles();
-
-    // 앱이 background에서 foreground로 돌아올 때 재확인 (onNewIntent로 들어온 공유 처리)
-    const subscription = AppState.addEventListener('change', state => {
-      if (state === 'active') {
-        checkSharedFiles();
-      }
-    });
+    ReceiveSharingIntent.getReceivedFiles(
+      handleSharedFiles,
+      (error: unknown) => {
+        logDebug('ReceiveSharingIntent error', error);
+      },
+      'ShareMedia-',
+    );
 
     return () => {
-      subscription.remove();
       ReceiveSharingIntent.clearReceivedFiles();
     };
-  }, [handleSharedText]);
+  }, [handleSharedText, navigationRef]);
 
   return (
     <>
