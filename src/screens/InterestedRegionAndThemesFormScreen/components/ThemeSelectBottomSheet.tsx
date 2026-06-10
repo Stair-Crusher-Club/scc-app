@@ -153,11 +153,18 @@ const ThemeGrid = styled.View`
 `;
 
 const ThemeChip = styled(SccPressable)<{selected: boolean}>`
-  /* 고정 width(169px) 는 좁은 폰에서 2칸이 한 줄에 안 들어가 1-column 으로 깨진다.
-     flex-basis 40% + flex-grow 1 로 화면 폭과 무관하게 항상 2-column 이 되도록 한다
-     (3번째는 120% 라 자동 줄바꿈, 같은 줄 2칸은 grow 로 남은 폭을 채움). */
+  /* width 40% + flex-grow 1 로 화면 폭과 무관하게 항상 2-column 을 유지한다
+     (3번째는 120% 라 자동 줄바꿈, 같은 줄 2칸은 grow 로 남은 폭을 채움).
+
+     주의: flex-basis(%) 는 컨테이너의 "확정된(definite)" main size 기준으로만
+     해석된다. BottomSheet 의 Container 는 명시적 width 없이 align-items: stretch
+     체인으로만 폭이 정해지므로, 일부 기기(갤럭시 플립6·S23 울트라 등)에서는
+     Yoga 가 이 폭을 indefinite 로 보고 flex-basis(%) 를 content size 로 대체한다.
+     그 결과 flex-grow 가 각 칩을 한 줄 전체로 늘려 1-column 으로 깨졌다.
+     width(%) 는 부모의 resolved width 기준으로 안정적으로 해석되므로
+     Options.style.ts 의 검증된 2-column 패턴과 동일하게 width 40% 를 사용한다. */
   flex-grow: 1;
-  flex-basis: 40%;
+  width: 40%;
   padding: 14px 8px;
   border-radius: 14px;
   border-width: 1.2px;
