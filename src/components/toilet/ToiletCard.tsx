@@ -53,6 +53,7 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
       }}>
       <Container
         elementName="toilet_card"
+        hasImage={images.length > 0}
         onPress={() => {
           navigation.navigate('ToiletDetail', {
             toiletId: item.toiletId,
@@ -97,7 +98,7 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
             </ExtraArea>
           )}
         </InfoArea>
-        <ImageList images={images} />
+        {images.length > 0 && <ImageList images={images} />}
       </Container>
     </LogParamsProvider>
   );
@@ -142,13 +143,13 @@ const IconArea = styled.View`
   gap: 8px;
 `;
 
-const Container = styled(SccPressable)`
+const Container = styled(SccPressable)<{hasImage: boolean}>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  height: 230px;
+  ${({hasImage}) => (hasImage ? 'height: 230px;' : '')}
 `;
 const TitleText = styled.Text`
   font-size: 16px;

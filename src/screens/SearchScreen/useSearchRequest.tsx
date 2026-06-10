@@ -140,7 +140,15 @@ export default function useSearchRequest() {
 
       // Call different API based on search mode
       if (searchMode === 'toilet') {
-        const toiletCurrentLocation = location ?? currentLocation;
+        // 카메라 영역 검색('이 지역 재검색')이면 뷰포트 중심/반경으로 제한한다.
+        // place 검색과 동일하게 draftCameraRegion이 있으면 rectangleRegion이 세팅되고,
+        // searchLocation(중심)/searchRadius(대각 반경)도 함께 계산되어 있다.
+        // searchToilets는 currentLocation + distanceMetersLimit(반경)을 받으므로
+        // 카메라 영역의 중심을 currentLocation으로, 뷰포트 반경을 distanceMetersLimit으로 넘긴다.
+        const isCameraRegionSearch = rectangleRegion != null;
+        const toiletCurrentLocation = isCameraRegionSearch
+          ? searchLocation
+          : (location ?? currentLocation);
         if (!toiletCurrentLocation) {
           ToastUtils.show('현재 위치를 확인할 수 없습니다.');
           return [];
@@ -149,6 +157,7 @@ export default function useSearchRequest() {
           {
             currentLocation: toiletCurrentLocation,
             limit: 50,
+            distanceMetersLimit: isCameraRegionSearch ? searchRadius : null,
           },
           {signal},
         );
@@ -161,7 +170,8 @@ export default function useSearchRequest() {
           search_request_id: requestId,
           search_lat: toiletCurrentLocation?.lat,
           search_lng: toiletCurrentLocation?.lng,
-          search_region_type: 'nearest',
+          search_region_type: isCameraRegionSearch ? 'rectangle' : 'nearest',
+          search_radius: isCameraRegionSearch ? searchRadius : undefined,
           result_count: result.length,
           top_result_ids: result
             .slice(0, 3)

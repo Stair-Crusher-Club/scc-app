@@ -2,7 +2,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import React from 'react';
-import {Dimensions, SafeAreaView, ScrollView, View} from 'react-native';
+import {SafeAreaView, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -21,7 +21,6 @@ import GenderFemaleIcon from '@/assets/icon/ic_toilet_female.svg';
 import GenderMaleIcon from '@/assets/icon/ic_toilet_male.svg';
 import {LoadingView} from '@/components/LoadingView';
 import {SccPressable} from '@/components/SccPressable';
-import SccRemoteImage from '@/components/SccRemoteImage';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
@@ -30,6 +29,7 @@ import {ToiletDetailDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
+import ToiletImageCarousel from '@/screens/ToiletDetailScreen/ToiletImageCarousel';
 import {
   mapToiletDetailsToToiletDetails,
   ToiletDetails,
@@ -79,42 +79,38 @@ const ToiletDetailScreen = ({route}: ScreenProps<'ToiletDetail'>) => {
   return <ToiletDetail detail={detail} />;
 };
 
-const IMAGE_WIDTH = Dimensions.get('window').width;
-
 const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
-  // 여러 소스(유저 리뷰 N개 + 공공데이터)가 accessibilities 배열로 내려온다.
-  // sourceType 분기 없이, 존재하는 필드만 조건부로 모아서 렌더한다.
+  // 여러 소스(유저 리뷰 N개 + 공공데이터 N개)가 accessibilities 배열로 내려온다.
+  // 소스마다 섹션을 반복 렌더하면 같은 섹션 타입이 중복되므로,
+  // sourceType 분기 없이 "섹션 타입별 1회"로 집계(aggregate)하여 단일 뷰로 렌더한다.
+
+  // 이미지: 모든 accessibility의 images를 하나로 합쳐 1개 캐러셀로 보여준다.
   const allImages = detail.accessibilities.flatMap(
     accessibility => accessibility.images,
   );
-  const locationComments = detail.accessibilities
+  // 유저 리뷰 섹션: locationComment / comment가 있는 첫 번째 대표값만 사용한다.
+  const locationComment = detail.accessibilities
     .map(accessibility => accessibility.locationComment)
-    .filter((it): it is string => it != null);
-  const comments = detail.accessibilities
+    .find((it): it is string => it != null);
+  const comment = detail.accessibilities
     .map(accessibility => accessibility.comment)
-    .filter((it): it is string => it != null);
-  // 공공데이터 상세(toiletDetails)를 가진 소스들을 TDP 섹션용 모델로 매핑한다.
-  const publicToiletDetails: ToiletDetails[] = detail.accessibilities.flatMap(
-    accessibility => {
-      const toiletDetails = accessibility.toiletDetails;
-      if (toiletDetails == null) {
-        return [];
-      }
-      return [
-        mapToiletDetailsToToiletDetails(
+    .find((it): it is string => it != null);
+  // 공공데이터 상세(toiletDetails): toiletDetails를 가진 첫 번째 대표 소스만 사용한다.
+  const representativeToiletDetails = detail.accessibilities.find(
+    accessibility => accessibility.toiletDetails != null,
+  )?.toiletDetails;
+  const publicToiletDetails: ToiletDetails | undefined =
+    representativeToiletDetails != null
+      ? mapToiletDetailsToToiletDetails(
           detail.id,
           detail.name,
           detail.address ?? undefined,
           detail.location,
-          toiletDetails,
-        ),
-      ];
-    },
-  );
+          representativeToiletDetails,
+        )
+      : undefined;
   // 타이틀 영역의 사용가능 라벨은 공공데이터 상세에서 가져온다.
-  const availableForLabel = publicToiletDetails.find(
-    it => it.available != null,
-  )?.available;
+  const availableForLabel = publicToiletDetails?.available;
 
   const onCopy = () => {
     if (detail.address) {
@@ -133,18 +129,7 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
       <ScrollView>
         <AppBar />
-        {allImages.length > 0 && (
-          <View>
-            {allImages.map(image => (
-              <SccRemoteImage
-                key={image.imageUrl}
-                imageUrl={image.imageUrl}
-                style={{width: IMAGE_WIDTH}}
-                resizeMode="cover"
-              />
-            ))}
-          </View>
-        )}
+        {allImages.length > 0 && <ToiletImageCarousel images={allImages} />}
         <Container>
           <Section>
             <TitleArea>
@@ -186,28 +171,25 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
             </TitleArea>
           </Section>
 
-          {locationComments.map((locationComment, index) => (
-            <Section key={`location-comment-${index}`}>
+          {locationComment != null && (
+            <Section>
               <SectionTitleText>화장실 위치</SectionTitleText>
               <SectionDivider />
               <SubSectionDescription>{locationComment}</SubSectionDescription>
             </Section>
-          ))}
+          )}
 
-          {comments.map((comment, index) => (
-            <Section key={`comment-${index}`}>
+          {comment != null && (
+            <Section>
               <SectionTitleText>기타 참고사항</SectionTitleText>
               <SectionDivider />
               <SubSectionDescription>{comment}</SubSectionDescription>
             </Section>
-          ))}
+          )}
 
-          {publicToiletDetails.map((toiletDetails, index) => (
-            <ToiletPublicDetailSections
-              key={`public-detail-${index}`}
-              toiletDetails={toiletDetails}
-            />
-          ))}
+          {publicToiletDetails != null && (
+            <ToiletPublicDetailSections toiletDetails={publicToiletDetails} />
+          )}
         </Container>
       </ScrollView>
     </ScreenLayout>
