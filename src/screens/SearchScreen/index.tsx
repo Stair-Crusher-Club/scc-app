@@ -43,7 +43,7 @@ import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
 import useSearchRequest from '@/screens/SearchScreen/useSearchRequest';
 import {PlaceListItem} from '@/generated-sources/openapi';
 import {MarkerItem} from '@/components/maps/MarkerItem';
-import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
+import {ToiletDetails} from '@/components/toilet/data';
 
 import {resetHighlightAnimation} from '@/components/AccessibilityInfoRequestButton';
 

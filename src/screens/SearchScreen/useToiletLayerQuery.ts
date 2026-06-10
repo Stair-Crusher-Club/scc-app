@@ -3,18 +3,18 @@ import {useAtomValue} from 'jotai';
 
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getCenterAndRadius} from '@/components/maps/Types.tsx';
+import {
+  mapSummaryToToiletDetails,
+  ToiletDetails,
+} from '@/components/toilet/data';
 import useAppComponents from '@/hooks/useAppComponents';
 import {
   draftCameraRegionAtom,
   toiletLayerActiveAtom,
 } from '@/screens/SearchScreen/atoms';
-import {
-  mapToToiletDetails,
-  ToiletDetails,
-} from '@/screens/ToiletMapScreen/data';
 
 export default function useToiletLayerQuery(): (ToiletDetails & MarkerItem)[] {
-  const {api} = useAppComponents();
+  const {toiletApi} = useAppComponents();
   const toiletLayerActive = useAtomValue(toiletLayerActiveAtom);
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
 
@@ -37,19 +37,17 @@ export default function useToiletLayerQuery(): (ToiletDetails & MarkerItem)[] {
         return [];
       }
       const {center, radius} = getCenterAndRadius(draftCameraRegion);
-      const response = await api.searchExternalAccessibilitiesPost(
+      const response = await toiletApi.searchToilets(
         {
-          searchText: '화장실',
           currentLocation: {
             lat: center.latitude,
             lng: center.longitude,
           },
           distanceMetersLimit: Math.round(radius),
-          categories: [],
         },
         {signal},
       );
-      return response?.data.items?.map(mapToToiletDetails) ?? [];
+      return response?.data.items?.map(mapSummaryToToiletDetails) ?? [];
     },
   });
 

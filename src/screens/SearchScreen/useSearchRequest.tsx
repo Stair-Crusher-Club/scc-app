@@ -23,9 +23,9 @@ import {
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
 import {
-  mapToToiletDetails,
+  mapSummaryToToiletDetails,
   ToiletDetails,
-} from '@/screens/ToiletMapScreen/data';
+} from '@/components/toilet/data';
 import {useUpdateSearchQuery} from '@/screens/SearchScreen/useUpdateSearchQuery.tsx';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
@@ -40,7 +40,7 @@ function generateRequestId(): string {
 }
 
 export default function useSearchRequest() {
-  const {api} = useAppComponents();
+  const {api, toiletApi} = useAppComponents();
   const {sortOption, scoreUnder, hasSlope, isRegistered, hasReview} =
     useAtomValue(filterAtom);
   const {text, location, radiusMeter, useCameraRegion} =
@@ -140,22 +140,29 @@ export default function useSearchRequest() {
 
       // Call different API based on search mode
       if (searchMode === 'toilet') {
-        // 화장실 카테고리 선택 시 API에는 '화장실'로 검색
-        const toiletSearchText =
-          text === '서울 장애인 화장실' ? '화장실' : text;
-        // Toilet 모드는 항상 현위치 기반 검색 (ToiletMapScreen과 동일)
-        const toiletCurrentLocation = location ?? currentLocation;
-        const toiletSearchRadius = radiusMeter ?? 2000; // ToiletMapScreen 기본값과 동일
-        const response = await api.searchExternalAccessibilitiesPost(
+        // 카메라 영역 검색('이 지역 재검색')이면 뷰포트 중심/반경으로 제한한다.
+        // place 검색과 동일하게 draftCameraRegion이 있으면 rectangleRegion이 세팅되고,
+        // searchLocation(중심)/searchRadius(대각 반경)도 함께 계산되어 있다.
+        // searchToilets는 currentLocation + distanceMetersLimit(반경)을 받으므로
+        // 카메라 영역의 중심을 currentLocation으로, 뷰포트 반경을 distanceMetersLimit으로 넘긴다.
+        const isCameraRegionSearch = rectangleRegion != null;
+        const toiletCurrentLocation = isCameraRegionSearch
+          ? searchLocation
+          : (location ?? currentLocation);
+        if (!toiletCurrentLocation) {
+          ToastUtils.show('현재 위치를 확인할 수 없습니다.');
+          return [];
+        }
+        const response = await toiletApi.searchToilets(
           {
-            searchText: toiletSearchText,
             currentLocation: toiletCurrentLocation,
-            distanceMetersLimit: toiletSearchRadius,
-            categories: [],
+            limit: 50,
+            distanceMetersLimit: isCameraRegionSearch ? searchRadius : null,
           },
           {signal},
         );
-        const result = response?.data.items?.map(mapToToiletDetails) ?? [];
+        const result =
+          response?.data.items?.map(mapSummaryToToiletDetails) ?? [];
         const requestId = generateRequestId();
         setSearchRequestId(requestId);
         logger.logElementClick('toilet_search', {
@@ -163,8 +170,8 @@ export default function useSearchRequest() {
           search_request_id: requestId,
           search_lat: toiletCurrentLocation?.lat,
           search_lng: toiletCurrentLocation?.lng,
-          search_region_type: 'circle',
-          search_radius: toiletSearchRadius,
+          search_region_type: isCameraRegionSearch ? 'rectangle' : 'nearest',
+          search_radius: isCameraRegionSearch ? searchRadius : undefined,
           result_count: result.length,
           top_result_ids: result
             .slice(0, 3)

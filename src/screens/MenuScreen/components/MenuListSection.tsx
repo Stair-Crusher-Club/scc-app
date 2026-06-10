@@ -6,7 +6,6 @@ import MenuFlagIcon from '@/assets/icon/menu_ic_flag.svg';
 import MenuReviewIcon from '@/assets/icon/menu_ic_review.svg';
 import MenuSCCRoadIcon from '@/assets/icon/menu_ic_scc_road.svg';
 import MenuSettingIcon from '@/assets/icon/menu_ic_setting.svg';
-import MenuWheelChairIcon from '@/assets/icon/menu_ic_wheelchair.svg';
 import MenuRow from '@/components/MenuRow';
 import useNavigation from '@/navigation/useNavigation';
 
@@ -38,10 +37,6 @@ export default function MenuListSection() {
 
   function goToSettings() {
     navigation.navigate('Setting');
-  }
-
-  function goToToilet() {
-    navigation.navigate('ToiletMap');
   }
 
   const menuItems = [
@@ -82,12 +77,6 @@ export default function MenuListSection() {
       hidden: true,
       disabled: true,
       badgeText: '준비중',
-    },
-    {
-      elementName: 'menu_seoul_toilet',
-      title: '서울 장애인 화장실 정보',
-      icon: <MenuWheelChairIcon />,
-      onPress: goToToilet,
     },
     {
       elementName: 'menu_bbucleroad',

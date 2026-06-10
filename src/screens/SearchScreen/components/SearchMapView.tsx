@@ -23,8 +23,8 @@ import {
 } from '@/screens/SearchScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import useToiletLayerQuery from '@/screens/SearchScreen/useToiletLayerQuery';
-import ToiletCard from '@/screens/ToiletMapScreen/ToiletCard';
-import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
+import ToiletCard from '@/components/toilet/ToiletCard';
+import {ToiletDetails} from '@/components/toilet/data';
 import type {SearchResultItem} from '@/screens/SearchScreen/useSearchRequest';
 
 export type SearchMapViewHandle = {

@@ -9,7 +9,11 @@ import TextInput from '@/components/form/TextArea';
 import {color} from '@/constant/color';
 import {
   DOOR_TYPE_OPTIONS,
+  TOILET_COMMENT_PLACEHOLDER,
+  TOILET_LOCATION_COMMENT_PLACEHOLDER,
   TOILET_LOCATION_TYPE_OPTIONS,
+  TOILET_PHOTO_GUIDE,
+  TOILET_SECTION_TITLE,
 } from '@/constant/review';
 
 import FloorSelect from '../components/FloorSelect';
@@ -31,6 +35,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
       resetField('floor');
       resetField('doorTypes');
       resetField('toiletPhotos');
+      resetField('locationComment');
     }
   }, [toiletLocationType]);
 
@@ -38,7 +43,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
     <View className="px-5 py-8 gap-6 bg-white flex-1 justify-between">
       <View className="gap-6">
         <Text className="font-pretendard-bold text-[20px] leading-[28px]">
-          장애인 화장실 정보
+          {TOILET_SECTION_TITLE}
         </Text>
 
         <View className="gap-3">
@@ -108,12 +113,20 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
         )}
         <View className="gap-3">
           {isExist && (
-            <Question>화장실 이용 경험 및 참고할 점을 알려주세요.</Question>
+            <>
+              <Question required>화장실 사진을 촬영해 주세요.</Question>
+              <Text className="font-pretendard-regular text-[14px] leading-[20px] text-gray-70">
+                {TOILET_PHOTO_GUIDE}
+              </Text>
+            </>
           )}
           {isExist && (
             <Controller
               name="toiletPhotos"
-              rules={{required: false}}
+              rules={{
+                validate: photos =>
+                  (photos?.length ?? 0) > 0 || '사진을 1장 이상 등록해 주세요.',
+              }}
               render={({field}) => (
                 <Photos
                   value={field.value ?? []}
@@ -124,8 +137,42 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
               )}
             />
           )}
+          {isExist && (
+            <View className="gap-2">
+              <Question>화장실 위치 혹은 가는 방법을 알려주세요.</Question>
+              <Controller
+                name="locationComment"
+                render={({field}) => (
+                  <>
+                    <TextInput
+                      multiline
+                      style={{
+                        color: color.black,
+                        fontSize: 16,
+                        paddingVertical: 0,
+                        textAlignVertical: 'top',
+                        minHeight: 80,
+                      }}
+                      className="font-pretendard-regular"
+                      value={field.value}
+                      maxLength={300}
+                      placeholder={TOILET_LOCATION_COMMENT_PLACEHOLDER}
+                      placeholderTextColor={color.gray50}
+                      onChangeText={field.onChange}
+                    />
+                    <Text className="self-end text-gray-50">
+                      {field.value?.length ?? 0}/300
+                    </Text>
+                  </>
+                )}
+              />
+            </View>
+          )}
           {(isExist || isVisibleTextarea) && (
             <View className="gap-2">
+              {isExist && (
+                <Question>그외 알려주고 싶은 부분을 적어주세요.</Question>
+              )}
               <Controller
                 name="comment"
                 render={({field}) => (
@@ -145,7 +192,7 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
                       placeholder={
                         toiletLocationType === 'ETC'
                           ? '기타 사항을 작성해주세요.'
-                          : '화장실 넓이, 세면대 높이, 청결도 등을 알려주시면 도움이 됩니다.'
+                          : TOILET_COMMENT_PLACEHOLDER
                       }
                       placeholderTextColor={color.gray50}
                       onChangeText={field.onChange}

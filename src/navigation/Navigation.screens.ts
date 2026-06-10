@@ -23,9 +23,9 @@ import ConquererUpVoteScreen from '@/screens/ConquererUpVoteScreen';
 import CrusherActivityScreen, {
   CrusherActivityScreenParams,
 } from '@/screens/CrusherActivity';
-import ExternalAccessibilityDetailScreen, {
-  ExternalAccessibilityDetailScreenParams,
-} from '@/screens/ExternalAccessibilityDetailScreen';
+import ToiletDetailScreen, {
+  ToiletDetailScreenParams,
+} from '@/screens/ToiletDetailScreen';
 import PlaceListDetailScreen, {
   PlaceListDetailScreenParams,
 } from '@/screens/PlaceListDetailScreen';
@@ -70,7 +70,6 @@ import SearchUnconqueredPlacesScreen, {
 } from '@/screens/SearchUnconqueredPlacesScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
-import ToiletMapScreen from '@/screens/ToiletMapScreen';
 import TutorialScreen from '@/screens/TutorialScreen';
 import TutorialMissionScreen, {
   TutorialMissionScreenParams,
@@ -177,8 +176,8 @@ export const MainNavigationScreens: {
   },
   {name: 'PlaceDetailV2', component: PlaceDetailV2Screen},
   {
-    name: 'ExternalAccessibilityDetail',
-    component: ExternalAccessibilityDetailScreen,
+    name: 'ToiletDetail',
+    component: ToiletDetailScreen,
   },
   {
     name: 'BuildingFormV2',
@@ -235,11 +234,6 @@ export const MainNavigationScreens: {
     name: 'Webview',
     component: WebViewScreen,
     options: {presentation: 'fullScreenModal'},
-  },
-  {
-    name: 'ToiletMap',
-    component: ToiletMapScreen,
-    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     name: 'MySaves',
@@ -393,7 +387,7 @@ export type ScreenParams = {
   Camera: CameraScreenParams;
   PlaceFormV2: PlaceFormV2ScreenParams;
   PlaceDetailV2: PlaceDetailV2ScreenParams;
-  ExternalAccessibilityDetail: ExternalAccessibilityDetailScreenParams;
+  ToiletDetail: ToiletDetailScreenParams;
   BuildingFormV2: BuildingFormV2ScreenParams;
   AddComment: AddCommentScreenParams;
 
@@ -429,7 +423,6 @@ export type ScreenParams = {
 
   Setting: undefined;
   MapTest: undefined;
-  ToiletMap: undefined;
   SearchUnconqueredPlaces: SearchUnconqueredPlacesScreenParams;
 
   // fullscreen modals

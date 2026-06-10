@@ -2,6 +2,7 @@ import {useAtomValue} from 'jotai';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import React from 'react';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
@@ -9,12 +10,12 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import Tags from '@/components/Tag';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
+import {ToiletDetails} from '@/components/toilet/data';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
-import AvailableLabel from '@/screens/ExternalAccessibilityDetailScreen/AvailableLabel';
+import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
-import {ToiletDetails} from '@/screens/ToiletMapScreen/data';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -46,20 +47,28 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   ) as string[];
 
   return (
-    <LogParamsProvider params={{external_accessibility_id: item.id}}>
+    <LogParamsProvider
+      params={{
+        toilet_id: item.toiletId,
+      }}>
       <Container
         elementName="toilet_card"
+        hasImage={images.length > 0}
         onPress={() => {
-          navigation.navigate('ExternalAccessibilityDetail', {
-            externalAccessibilityId: item.id,
+          navigation.navigate('ToiletDetail', {
+            toiletId: item.toiletId,
           });
         }}>
         <InfoArea>
           <LabelIconArea>
-            <AvailableLabel
-              availableState={item.available?.state ?? 'UNKNOWN'}
-              text={item.available?.desc ?? '알수없음'}
-            />
+            {item.available ? (
+              <AvailableLabel
+                availableState={item.available.state}
+                text={item.available.desc}
+              />
+            ) : (
+              <View />
+            )}
             <IconArea>
               <SccTouchableOpacity
                 elementName="toilet_card_share_button"
@@ -83,11 +92,13 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
               <AddressText>{item.address}</AddressText>
             </LocationBox>
           </TitleArea>
-          <ExtraArea>
-            <Tags texts={tagTexts} />
-          </ExtraArea>
+          {tagTexts.length > 0 && (
+            <ExtraArea>
+              <Tags texts={tagTexts} />
+            </ExtraArea>
+          )}
         </InfoArea>
-        <ImageList images={images} />
+        {images.length > 0 && <ImageList images={images} />}
       </Container>
     </LogParamsProvider>
   );
@@ -132,13 +143,13 @@ const IconArea = styled.View`
   gap: 8px;
 `;
 
-const Container = styled(SccPressable)`
+const Container = styled(SccPressable)<{hasImage: boolean}>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  height: 230px;
+  ${({hasImage}) => (hasImage ? 'height: 230px;' : '')}
 `;
 const TitleText = styled.Text`
   font-size: 16px;

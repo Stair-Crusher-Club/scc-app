@@ -112,6 +112,12 @@ export const makeRecommendedMobilityOptions = (
   });
 };
 
+export const TOILET_SECTION_TITLE = '장애인 화장실 정보';
+export const TOILET_PHOTO_GUIDE = '장애인 화장실 입구와 내부를 촬영해 주세요';
+export const TOILET_LOCATION_COMMENT_PLACEHOLDER =
+  '화장실 위치를 설명해 주세요 (예: 1층 엘리베이터 옆)';
+export const TOILET_COMMENT_PLACEHOLDER = '기타 참고사항을 입력해 주세요';
+
 type ToiletLocationTypeMap = typeof ToiletLocationTypeDto;
 
 export type ToiletLocationTypeDtoWithoutNotSure =
