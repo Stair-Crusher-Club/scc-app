@@ -211,6 +211,15 @@ const Logger = {
     getAnalytics().logEvent('heat_sample', eventParams);
   },
 
+  async logSharePlaceLinkUsed() {
+    const eventParams = {
+      user_id: currUserPropertiesForDebugging.userId,
+    };
+    logDebug('logSharePlaceLinkUsed', eventParams);
+    trackEvent('share_place_link_used', eventParams);
+    getAnalytics().logEvent('share_place_link_used', eventParams);
+  },
+
   async logAppPushOpen(params: AppPushOpenParams) {
     logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
     const eventParams = {
