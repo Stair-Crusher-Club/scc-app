@@ -5,7 +5,6 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {ResolveSharedPlaceLinkResultStatusDto} from '@/generated-sources/openapi';
-import Logger from '@/logging/Logger';
 import ToastUtils from '@/utils/ToastUtils';
 
 export type ResolvingSharedLinkScreenParams = {
@@ -20,9 +19,6 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
 
   useEffect(() => {
     let cancelled = false;
-
-    // 공유하기 기능 이용 1회 (userId는 GA user property + 이벤트 파라미터로 기록)
-    Logger.logSharePlaceLinkUsed();
 
     async function resolve() {
       try {
@@ -78,9 +74,7 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
     <ScreenLayout isHeaderVisible={false}>
       <View style={styles.container}>
         <ActivityIndicator size="large" />
-        <Text style={styles.message}>
-          {'장소를 찾는 중입니다\n잠시만 기다려주세요...'}
-        </Text>
+        <Text style={styles.message}>{'장소를 찾는 중입니다\n잠시만 기다려주세요...'}</Text>
       </View>
     </ScreenLayout>
   );
