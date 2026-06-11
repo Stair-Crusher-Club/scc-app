@@ -1,6 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import React from 'react';
 import {SafeAreaView, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
@@ -25,7 +26,10 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ToiletDetailDto} from '@/generated-sources/openapi';
+import {
+  ToiletAccessibilityDto,
+  ToiletDetailDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
@@ -88,13 +92,18 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
   const allImages = detail.accessibilities.flatMap(
     accessibility => accessibility.images,
   );
-  // 유저 리뷰 섹션: locationComment / comment가 있는 첫 번째 대표값만 사용한다.
-  const locationComment = detail.accessibilities
-    .map(accessibility => accessibility.locationComment)
-    .find((it): it is string => it != null);
-  const comment = detail.accessibilities
-    .map(accessibility => accessibility.comment)
-    .find((it): it is string => it != null);
+  // 유저 리뷰 섹션: locationComment / comment를 가진 첫 번째 대표 소스를 사용한다.
+  // (등록자/등록시점을 함께 표시하기 위해 값이 아니라 소스 accessibility를 찾는다.)
+  const locationCommentSource = detail.accessibilities.find(
+    accessibility => accessibility.locationComment != null,
+  );
+  const commentSource = detail.accessibilities.find(
+    accessibility => accessibility.comment != null,
+  );
+  const locationComment = locationCommentSource?.locationComment;
+  const comment = commentSource?.comment;
+  // 등록자/등록시점은 유저 리뷰 소스 기준으로 타이틀 영역에 한 번만 표시한다.
+  const reviewSource = locationCommentSource ?? commentSource;
   // 공공데이터 상세(toiletDetails): toiletDetails를 가진 첫 번째 대표 소스만 사용한다.
   const representativeToiletDetails = detail.accessibilities.find(
     accessibility => accessibility.toiletDetails != null,
@@ -141,17 +150,17 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
               )}
               <TitleText>{detail.name}</TitleText>
               {detail.address != null && (
-                <>
-                  <SubSectionLabel>{detail.address}</SubSectionLabel>
+                <AddressRow>
+                  <AddressText>{detail.address}</AddressText>
                   <CopyButton
                     elementName="toilet_detail_copy_button"
-                    onPress={onCopy}
-                    style={{marginTop: -4}}>
+                    onPress={onCopy}>
                     <CopyIcon />
                     <CopyText>복사</CopyText>
                   </CopyButton>
-                </>
+                </AddressRow>
               )}
+              {reviewSource && <RegistrantMeta source={reviewSource} />}
               <SectionDivider />
               <TextButtonContainer>
                 <TextButton
@@ -361,6 +370,20 @@ const ToiletPublicDetailSections = ({
   );
 };
 
+// 유저 리뷰 소스의 등록자/등록시점을 PDP 코멘트 박스와 동일한 스타일로 표시한다.
+function RegistrantMeta({source}: {source: ToiletAccessibilityDto}) {
+  const userName = source.registeredUserName ?? '익명';
+  const dateStr = source.createdAt
+    ? dayjs(source.createdAt.value).format('YYYY.MM.DD')
+    : null;
+  return (
+    <RegistrantRow>
+      <RegistrantName>{userName}</RegistrantName>
+      {dateStr != null && <RegistrantDate>{dateStr}</RegistrantDate>}
+    </RegistrantRow>
+  );
+}
+
 function AppBar() {
   const navigation = useNavigation();
 
@@ -531,6 +554,40 @@ const TitleArea = styled.View`
   align-items: flex-start;
   display: flex;
   flex-direction: column;
+`;
+
+const RegistrantRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+const RegistrantName = styled.Text`
+  font-size: 12px;
+  line-height: 16px;
+  font-family: ${() => font.pretendardMedium};
+  color: ${color.brand50};
+`;
+
+const RegistrantDate = styled.Text`
+  font-size: 12px;
+  line-height: 16px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${color.gray60};
+`;
+
+const AddressRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 1;
+`;
+
+const AddressText = styled.Text`
+  font-size: 14px;
+  font-family: ${() => font.pretendardBold};
+  color: ${color.gray70};
+  flex-shrink: 1;
 `;
 
 const CopyButton = styled(SccTouchableOpacity)`

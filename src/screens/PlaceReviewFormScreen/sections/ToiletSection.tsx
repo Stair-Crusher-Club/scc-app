@@ -48,6 +48,10 @@ export default function ToiletSection({onSave}: {onSave: () => void}) {
 
         <View className="gap-3">
           <Question required>장애인 화장실이 있나요?</Question>
+          <Text className="font-pretendard-regular text-[14px] leading-[20px] text-gray-70">
+            휠체어 사용자도 이용 가능한 화장실인 경우에만 '있음'으로
+            선택해주세요.
+          </Text>
           <View className="flex-row flex-wrap items-start gap-2">
             <Controller
               name="toiletLocationType"

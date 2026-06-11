@@ -6738,6 +6738,18 @@ export interface ToiletAccessibilityDto {
      * @memberof ToiletAccessibilityDto
      */
     'referenceTargetId'?: string | null;
+    /**
+     * 유저 리뷰 작성자 닉네임. 익명이거나 공공데이터 소스면 null. (유저 리뷰 소스)
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'registeredUserName'?: string | null;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ToiletAccessibilityDto
+     */
+    'createdAt'?: EpochMillisTimestamp;
 }
 /**
  * 통합 Toilet + 병합된 소스별 접근성 정보 리스트. PDP(Place + PlaceAccessibility[]) 패턴. Toilet 레벨 식별/표시 정보 + 소스별 ToiletAccessibilityDto 배열로 구성된다. 
