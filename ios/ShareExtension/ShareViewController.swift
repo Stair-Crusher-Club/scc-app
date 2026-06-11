@@ -53,18 +53,22 @@ class ShareViewController: UIViewController {
             return
         }
         openURL(url)
-        completeRequest()
     }
 
     @objc private func openURL(_ url: URL) {
         var responder: UIResponder? = self
         while responder != nil {
             if let application = responder as? UIApplication {
-                application.open(url, options: [:], completionHandler: nil)
+                // completeRequest는 반드시 open 완료(=cold-launch가 시스템에 인계된 뒤) 콜백에서 호출.
+                // 동기 호출 시 killed 상태에서 extension이 먼저 종료되어 cold-launch가 취소된다.
+                application.open(url, options: [:]) { [weak self] _ in
+                    self?.completeRequest()
+                }
                 return
             }
             responder = responder?.next
         }
+        completeRequest()
     }
 
     private func completeRequest() {
