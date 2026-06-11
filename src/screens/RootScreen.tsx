@@ -3,8 +3,8 @@ import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import React, {useRef} from 'react';
-import {Linking, Platform} from 'react-native';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {AppState, Linking, NativeModules, Platform} from 'react-native';
 import Config from 'react-native-config';
 import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
@@ -13,6 +13,7 @@ import {Airbridge} from 'airbridge-react-native-sdk';
 import {getStorageValue} from '@/atoms/atomForLocal';
 import DevTool from '@/components/DevTool/DevTool';
 import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
+import {setPendingSharedText} from '@/deeplink/PendingSharedText';
 import {useLogParams} from '@/logging/LogParamsProvider';
 import Logger from '@/logging/Logger';
 import {Navigation} from '@/navigation';
@@ -56,6 +57,67 @@ const RootScreen = () => {
   const routeNameRef = useRef<string>(undefined);
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
+
+  // 외부 지도앱 공유 텍스트 처리 (Android: ReceiveSharingIntent / iOS: stair-crusher://shared?text=)
+  const handleSharedText = useCallback(
+    (sharedText: string) => {
+      const isLoggedIn = !!getStorageValue<string>('scc-token');
+      if (!isLoggedIn) {
+        setPendingSharedText(sharedText);
+        (navigationRef.current?.navigate as any)('Login');
+        return;
+      }
+      (navigationRef.current?.navigate as any)('ResolvingSharedLink', {
+        sharedText,
+      });
+    },
+    [navigationRef],
+  );
+
+  // Android: MainActivity에서 직접 읽은 ACTION_SEND 텍스트를 NativeModule로 가져옴.
+  // ReceiveSharingIntent 라이브러리는 getCurrentActivity() 타이밍 문제로 cold start 시 동작 안 함.
+  useEffect(() => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+    const {ShareIntentModule} = NativeModules;
+
+    // cold start: navigation 아직 미준비 → PendingSharedText 경유 (MainScreen이 소비)
+    const checkOnColdStart = async () => {
+      try {
+        const text: string | null = await ShareIntentModule?.getPendingShareText();
+        if (text) {
+          setPendingSharedText(text);
+        }
+      } catch (e) {
+        logDebug('ShareIntentModule error', e);
+      }
+    };
+
+    // background→foreground: navigation 이미 준비됨 → 바로 navigate
+    const checkOnForeground = async () => {
+      try {
+        const text: string | null = await ShareIntentModule?.getPendingShareText();
+        if (text) {
+          handleSharedText(text);
+        }
+      } catch (e) {
+        logDebug('ShareIntentModule error', e);
+      }
+    };
+
+    checkOnColdStart();
+
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        checkOnForeground();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [handleSharedText]);
 
   return (
     <>
@@ -115,6 +177,16 @@ const RootScreen = () => {
               const url = await Linking.getInitialURL();
               if (url) {
                 logDebug('Normal deeplink click during app quit state', url);
+                // iOS Share Extension cold start: navigationRef가 아직 null이므로
+                // navigate 직접 호출 불가 → PendingSharedText에 저장하고 null 반환.
+                // MainScreen.useEffect([accessToken, navigation])이 마운트 시 소비.
+                if (url.startsWith('stair-crusher://shared?text=')) {
+                  const sharedText = decodeURIComponent(
+                    url.replace('stair-crusher://shared?text=', ''),
+                  );
+                  setPendingSharedText(sharedText);
+                  return null;
+                }
                 resolvedUrl = url;
               }
             }
@@ -156,6 +228,14 @@ const RootScreen = () => {
               ({url}) => {
                 // 카카오 콜백 URL 무시 (iOS에서 Airbridge trackDeeplink가 처리하면서 딥링크 상태 방해)
                 if (url.startsWith('kakao')) {
+                  return;
+                }
+                // iOS Share Extension: stair-crusher://shared?text=<encoded>
+                if (url.startsWith('stair-crusher://shared?text=')) {
+                  const sharedText = decodeURIComponent(
+                    url.replace('stair-crusher://shared?text=', ''),
+                  );
+                  handleSharedText(sharedText);
                   return;
                 }
                 // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트

@@ -12,11 +12,15 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2790871B2E66FF3B00E34E91 /* Gumi-Romance.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2790871A2E66FF3B00E34E91 /* Gumi-Romance.ttf */; };
+		5744A09827CF9D771785C40B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBBE1A1125566BFD65BBFC2F /* Foundation.framework */; };
+		5B04909AFE904AAA2736FB41 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5207EEBE418C7670378E364B /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6132EF182BDFF13200BBE14D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6132EF172BDFF13200BBE14D /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		89B86B8879E417A56F32F316 /* libPods-sccReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ECE3E814901418FC26F6DBA /* libPods-sccReactNative.a */; };
 		8A6A039BA7E33064C0C58694 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75688A217AAD3DBF51038FD8 /* AVKit.framework */; };
 		A2C8A2C7A737590D1707FF2C /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CDDDC8775B20FB298A0F377 /* MediaPlayer.framework */; };
+		AF205C376039085475FA9D4F /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CCBC3E6DBDF629CE51FACBC /* libPods-ShareExtension.a */; };
+		AF9128B9FBCF34998A6F9CE1 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B533496E92E1D6DF4762DEA /* ShareViewController.swift */; };
 		D37EE964BE80BC6FEEEDA497 /* SccCameraButtons.mm in Sources */ = {isa = PBXBuildFile; fileRef = C2E6AC38FC31CD0188A67E64 /* SccCameraButtons.mm */; };
 		F113F2C4DFB2AA6F111C7E69 /* libPods-sccReactNative-sccReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5010FAB64AC4B204FBF2657D /* libPods-sccReactNative-sccReactNativeTests.a */; };
 		F850682B2CF32E060002762A /* Pretendard-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F85068262CF32E060002762A /* Pretendard-Light.ttf */; };
@@ -43,12 +47,35 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = sccReactNative;
 		};
+		75960DE3E88C5D7C55608BDE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6E7BAD83862D9039B76B6D89;
+			remoteInfo = ShareExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BFF557D9F3E13879C579C647 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				5B04909AFE904AAA2736FB41 /* ShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* sccReactNativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sccReactNativeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* sccReactNativeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = sccReactNativeTests.m; sourceTree = "<group>"; };
+		0B533496E92E1D6DF4762DEA /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		10F98BF400E1598EB9F0241E /* Pods-ShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debug.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* StairCrusherClub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StairCrusherClub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = sccReactNative/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = sccReactNative/AppDelegate.mm; sourceTree = "<group>"; };
@@ -59,17 +86,26 @@
 		23CC0859DD486E5ABD1A2F80 /* Pods-sccReactNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative.debug.xcconfig"; path = "Target Support Files/Pods-sccReactNative/Pods-sccReactNative.debug.xcconfig"; sourceTree = "<group>"; };
 		2790871A2E66FF3B00E34E91 /* Gumi-Romance.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Gumi-Romance.ttf"; sourceTree = "<group>"; };
 		33094D7371956E1695FADA2B /* Pods-sccReactNative-sccReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative-sccReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-sccReactNative-sccReactNativeTests/Pods-sccReactNative-sccReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
+		34DF0639E62632BA0A959B0F /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		4ECE3E814901418FC26F6DBA /* libPods-sccReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-sccReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5010FAB64AC4B204FBF2657D /* libPods-sccReactNative-sccReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-sccReactNative-sccReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5207EEBE418C7670378E364B /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6002185BD33DA0C9D12E3914 /* Pods-sccReactNative-sccReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative-sccReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-sccReactNative-sccReactNativeTests/Pods-sccReactNative-sccReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6132EF172BDFF13200BBE14D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = sccReactNative/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6CCBC3E6DBDF629CE51FACBC /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		75688A217AAD3DBF51038FD8 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = sccReactNative/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8CDDDC8775B20FB298A0F377 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		954E79361F7DE8969DC86744 /* ShareExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = ShareExtension.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
 		9CD56FF44FF27BF1ED301175 /* SccCameraButtons.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SccCameraButtons.h; path = sccReactNative/SccCameraButtons.h; sourceTree = "<group>"; };
 		A70675EF7CDECE2F83D8B811 /* Pods-sccReactNative.releasesandbox.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative.releasesandbox.xcconfig"; path = "Target Support Files/Pods-sccReactNative/Pods-sccReactNative.releasesandbox.xcconfig"; sourceTree = "<group>"; };
+		AB0A9725C5662271BB7EFA5C /* ShareExtensionSandbox.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = ShareExtensionSandbox.entitlements; path = ShareExtensionSandbox.entitlements; sourceTree = "<group>"; };
+		BBBE1A1125566BFD65BBFC2F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		C2E6AC38FC31CD0188A67E64 /* SccCameraButtons.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = SccCameraButtons.mm; path = sccReactNative/SccCameraButtons.mm; sourceTree = "<group>"; };
 		C61C13B7B0F0C29ED2D6F3A1 /* Pods-sccReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative.release.xcconfig"; path = "Target Support Files/Pods-sccReactNative/Pods-sccReactNative.release.xcconfig"; sourceTree = "<group>"; };
+		CFD9BF5F316D042ABA76C19F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "<group>"; };
+		D4769243E2178A2E0B83326A /* Pods-ShareExtension.releasesandbox.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.releasesandbox.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.releasesandbox.xcconfig"; sourceTree = "<group>"; };
+		D63345ACE054B7D2A2642CD5 /* Pods-ShareExtension.debugsandbox.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debugsandbox.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debugsandbox.xcconfig"; sourceTree = "<group>"; };
 		D83FB7472A9B57CC00136989 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		D87B9BD72AC8370F00FB5C91 /* sccReactNative.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = sccReactNative.entitlements; path = sccReactNative/sccReactNative.entitlements; sourceTree = "<group>"; };
 		E19A82E089D3E954FE231ECA /* Pods-sccReactNative.debugsandbox.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sccReactNative.debugsandbox.xcconfig"; path = "Target Support Files/Pods-sccReactNative/Pods-sccReactNative.debugsandbox.xcconfig"; sourceTree = "<group>"; };
@@ -113,6 +149,15 @@
 				89B86B8879E417A56F32F316 /* libPods-sccReactNative.a in Frameworks */,
 				8A6A039BA7E33064C0C58694 /* AVKit.framework in Frameworks */,
 				A2C8A2C7A737590D1707FF2C /* MediaPlayer.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A479183920EDFE3A532AD83A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5744A09827CF9D771785C40B /* Foundation.framework in Frameworks */,
+				AF205C376039085475FA9D4F /* libPods-ShareExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,6 +217,8 @@
 				5010FAB64AC4B204FBF2657D /* libPods-sccReactNative-sccReactNativeTests.a */,
 				75688A217AAD3DBF51038FD8 /* AVKit.framework */,
 				8CDDDC8775B20FB298A0F377 /* MediaPlayer.framework */,
+				CAB0711871063B0219203561 /* iOS */,
+				6CCBC3E6DBDF629CE51FACBC /* libPods-ShareExtension.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -211,6 +258,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				FD1C1D0127FF50293F45D462 /* ShareExtension */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -222,6 +270,7 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* StairCrusherClub.app */,
 				00E356EE1AD99517003FC87E /* sccReactNativeTests.xctest */,
+				5207EEBE418C7670378E364B /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -237,8 +286,32 @@
 				E65F302B8EB7389206E1FA88 /* Pods-sccReactNative-sccReactNativeTests.debugsandbox.xcconfig */,
 				33094D7371956E1695FADA2B /* Pods-sccReactNative-sccReactNativeTests.release.xcconfig */,
 				1470CE35F9FD3B765363D0AF /* Pods-sccReactNative-sccReactNativeTests.releasesandbox.xcconfig */,
+				34DF0639E62632BA0A959B0F /* Pods-ShareExtension.release.xcconfig */,
+				10F98BF400E1598EB9F0241E /* Pods-ShareExtension.debug.xcconfig */,
+				D63345ACE054B7D2A2642CD5 /* Pods-ShareExtension.debugsandbox.xcconfig */,
+				D4769243E2178A2E0B83326A /* Pods-ShareExtension.releasesandbox.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		CAB0711871063B0219203561 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				BBBE1A1125566BFD65BBFC2F /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		FD1C1D0127FF50293F45D462 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				0B533496E92E1D6DF4762DEA /* ShareViewController.swift */,
+				CFD9BF5F316D042ABA76C19F /* Info.plist */,
+				954E79361F7DE8969DC86744 /* ShareExtension.entitlements */,
+				AB0A9725C5662271BB7EFA5C /* ShareExtensionSandbox.entitlements */,
+			);
+			name = ShareExtension;
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -273,6 +346,7 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
+				BFF557D9F3E13879C579C647 /* Embed Foundation Extensions */,
 				4D7A11282A6D2168000EA22D /* Copy Google plist */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				BFA0F0DEE4A1DEF6AC325A2D /* [CP] Embed Pods Frameworks */,
@@ -285,11 +359,30 @@
 			buildRules = (
 			);
 			dependencies = (
+				F01EDAE1965E2D780F4E3D37 /* PBXTargetDependency */,
 			);
 			name = sccReactNative;
 			productName = sccReactNative;
 			productReference = 13B07F961A680F5B00A75B9A /* StairCrusherClub.app */;
 			productType = "com.apple.product-type.application";
+		};
+		6E7BAD83862D9039B76B6D89 /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 126C63E428B5178E2FEC4757 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				F7B610C9F816E45C04BB283C /* [CP] Check Pods Manifest.lock */,
+				7A1D665591C5ACE743B7ABBB /* Sources */,
+				A479183920EDFE3A532AD83A /* Frameworks */,
+				14A6BF38391861EC1A96FB26 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = 5207EEBE418C7670378E364B /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -323,6 +416,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* sccReactNative */,
 				00E356ED1AD99517003FC87E /* sccReactNativeTests */,
+				6E7BAD83862D9039B76B6D89 /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -351,6 +445,13 @@
 				F85068302CF32E060002762A /* Pretendard-Bold.ttf in Resources */,
 				F85068312CF32E060002762A /* Pretendard-Medium.ttf in Resources */,
 				F85068322CF32E060002762A /* Pretendard-Regular.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		14A6BF38391861EC1A96FB26 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,6 +667,28 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\nset -e\n\nif [[ ${PODS_ROOT} ]]; then\n  echo \"info: Exec FirebaseCrashlytics Run from Pods\"\n  \"${PODS_ROOT}/FirebaseCrashlytics/run\"\nelse\n  echo \"info: Exec FirebaseCrashlytics Run from framework\"\n  \"${PROJECT_DIR}/FirebaseCrashlytics.framework/run\"\nfi\n";
 		};
+		F7B610C9F816E45C04BB283C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ShareExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -593,6 +716,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7A1D665591C5ACE743B7ABBB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF9128B9FBCF34998A6F9CE1 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -600,6 +731,12 @@
 			isa = PBXTargetDependency;
 			target = 13B07F861A680F5B00A75B9A /* sccReactNative */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
+		};
+		F01EDAE1965E2D780F4E3D37 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ShareExtension;
+			target = 6E7BAD83862D9039B76B6D89 /* ShareExtension */;
+			targetProxy = 75960DE3E88C5D7C55608BDE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -665,7 +802,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 174;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -703,7 +840,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 174;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = ZYCW4V3VNY;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -727,6 +864,50 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "sccReactNative-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		24604FAB04FA09EAFD9B2332 /* DebugSandbox */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D63345ACE054B7D2A2642CD5 /* Pods-ShareExtension.debugsandbox.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtensionSandbox.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = ZYCW4V3VNY;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				PRODUCT_BUNDLE_IDENTIFIER = club.staircrusher.sandbox.ShareExtension;
+				PRODUCT_NAME = ShareExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = DebugSandbox;
+		};
+		323B5C8B1B0B425CE75DFCDF /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 34DF0639E62632BA0A959B0F /* Pods-ShareExtension.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = ZYCW4V3VNY;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				PRODUCT_BUNDLE_IDENTIFIER = club.staircrusher.ShareExtension;
+				PRODUCT_NAME = ShareExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore club.staircrusher.ShareExtension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -817,7 +998,7 @@
 				CODE_SIGN_ENTITLEMENTS = sccReactNative/sccReactNative.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 174;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = ZYCW4V3VNY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -952,7 +1133,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 174;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = ZYCW4V3VNY;
 				INFOPLIST_FILE = sccReactNative/Info.plist;
@@ -1151,6 +1332,50 @@
 			};
 			name = Release;
 		};
+		BE57048796A9BE944B71FAC5 /* ReleaseSandbox */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D4769243E2178A2E0B83326A /* Pods-ShareExtension.releasesandbox.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtensionSandbox.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = ZYCW4V3VNY;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				PRODUCT_BUNDLE_IDENTIFIER = club.staircrusher.sandbox.ShareExtension;
+				PRODUCT_NAME = ShareExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore club.staircrusher.sandbox.ShareExtension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = ReleaseSandbox;
+		};
+		E53E1387BFC252A391D70716 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 10F98BF400E1598EB9F0241E /* Pods-ShareExtension.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = ZYCW4V3VNY;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				PRODUCT_BUNDLE_IDENTIFIER = club.staircrusher.ShareExtension;
+				PRODUCT_NAME = ShareExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1164,6 +1389,17 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
+		};
+		126C63E428B5178E2FEC4757 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				323B5C8B1B0B425CE75DFCDF /* Release */,
+				E53E1387BFC252A391D70716 /* Debug */,
+				24604FAB04FA09EAFD9B2332 /* DebugSandbox */,
+				BE57048796A9BE944B71FAC5 /* ReleaseSandbox */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "sccReactNative" */ = {
 			isa = XCConfigurationList;
