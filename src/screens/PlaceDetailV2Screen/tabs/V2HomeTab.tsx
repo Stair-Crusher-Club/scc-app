@@ -396,7 +396,7 @@ export default function V2HomeTab({
           </ToiletReviewList>
         ) : (
           <EmptyStateCard
-            title={'아직 등록된 화장실 정보가 없어요🥲'}
+            title={'아직 등록된 장애인 화장실 정보가 없어요🥲'}
             description={
               '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
             }
