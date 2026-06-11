@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Share, View} from 'react-native';
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
@@ -14,6 +14,7 @@ import {SccButton} from '@/components/atoms/SccButton';
 import {SccPressable} from '@/components/SccPressable';
 import {useUpvoteToggle} from '@/hooks/useUpvoteToggle';
 import {useSaveContent} from '@/hooks/useSaveContent';
+import {useLogger} from '@/logging/useLogger';
 import ShareUtils from '@/utils/ShareUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -54,6 +55,17 @@ export default function SccContentFloatingBar({
 }: SccContentFloatingBarProps) {
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
+
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
+
+  // floating bar 는 SCC 컨텐츠 도메인에서만 마운트되므로, 이 view 이벤트가
+  // "저장 가능한 웹페이지 컨텐츠를 봤다"의 기준 계측이 된다 (퍼널 분석용).
+  // 웹뷰 안에서 다른 컨텐츠로 이동하면 url 이 바뀌므로 url 단위로 1회씩 남긴다.
+  useEffect(() => {
+    loggerRef.current.logElementView('scc-content-floating-bar', {url});
+  }, [url]);
 
   // 저장(SccContent) 상태 + 좋아요 요약 통합 조회.
   // 웹뷰 진입 시 라운드트립 1회로 isSaved + sccContentId + upvoteSummary 를 모두 받는다.
