@@ -295,28 +295,33 @@ function SearchItemCard({
         onPress={onPress}>
         <InfoArea>
           <LabelIconArea>
-            {!isInfoRequestEligible({
-              hasPlaceAccessibility: item.hasPlaceAccessibility,
-              address: item.place.address,
-              category: item.place.category,
-              isConquestMode,
-            }) ? (
-              <ScoreLabel
-                score={getPlaceAccessibilityScore({
-                  score: item.accessibilityInfo?.accessibilityScore,
-                  hasPlaceAccessibility: item.hasPlaceAccessibility,
-                  hasBuildingAccessibility: item.hasBuildingAccessibility,
-                })}
-                isIconVisible={!hideScoreIcon}
-              />
-            ) : (
-              <AccessibilityInfoRequestButton
-                placeId={item.place.id}
-                isRequested={item.isAccessibilityInfoRequested}
-                animated
-                listQueryKey={listQueryKey}
-              />
-            )}
+            <ScoreLabelGroup>
+              {!isInfoRequestEligible({
+                hasPlaceAccessibility: item.hasPlaceAccessibility,
+                address: item.place.address,
+                category: item.place.category,
+                isConquestMode,
+              }) ? (
+                <ScoreLabel
+                  score={getPlaceAccessibilityScore({
+                    score: item.accessibilityInfo?.accessibilityScore,
+                    hasPlaceAccessibility: item.hasPlaceAccessibility,
+                    hasBuildingAccessibility: item.hasBuildingAccessibility,
+                  })}
+                  isIconVisible={!hideScoreIcon}
+                />
+              ) : (
+                <AccessibilityInfoRequestButton
+                  placeId={item.place.id}
+                  isRequested={item.isAccessibilityInfoRequested}
+                  animated
+                  listQueryKey={listQueryKey}
+                />
+              )}
+              {(item.placeTags?.length ?? 0) > 0 && (
+                <PlaceTags tags={item.placeTags ?? []} />
+              )}
+            </ScoreLabelGroup>
             {!hideActions && (
               <IconArea>
                 <SccTouchableOpacity
@@ -375,9 +380,6 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
-            {(item.placeTags?.length ?? 0) > 0 && (
-              <PlaceTags tags={item.placeTags ?? []} />
-            )}
             {registerStatus !== 'UNAVAILABLE' && registerStatus !== 'NONE' && (
               <View
                 style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
@@ -512,6 +514,14 @@ const LabelIconArea = styled.View`
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 3px;
+`;
+
+const ScoreLabelGroup = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  overflow: visible;
 `;
 
 const TitleArea = styled.View`

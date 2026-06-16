@@ -163,24 +163,22 @@ export default function V2SummarySection({
   if (isIconOnly) {
     return (
       <Container>
-        <StairLevelBadge scoreStatus={scoreStatus}>
-          <StairLevelText scoreStatus={scoreStatus}>
-            {hasScore
-              ? `접근레벨 ${accessibilityScore}`
-              : isProcessing
-                ? '계산중(건물정보 필요)'
-                : '접근레벨 -'}
-          </StairLevelText>
-        </StairLevelBadge>
+        <StairLevelRow>
+          <StairLevelBadge scoreStatus={scoreStatus}>
+            <StairLevelText scoreStatus={scoreStatus}>
+              {hasScore
+                ? `접근레벨 ${accessibilityScore}`
+                : isProcessing
+                  ? '계산중(건물정보 필요)'
+                  : '접근레벨 -'}
+            </StairLevelText>
+          </StairLevelBadge>
+          {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
+        </StairLevelRow>
         <NameContainer onLayout={onNameLayout}>
           <PlaceName>{place.name}</PlaceName>
         </NameContainer>
         {tagsRow}
-        {(placeTags?.length ?? 0) > 0 && (
-          <PlaceTagsRow>
-            <PlaceTags tags={placeTags ?? []} />
-          </PlaceTagsRow>
-        )}
         <T1ActionButtonsRow onLayout={onActionButtonsLayout}>
           <T1RegisterButton
             isPrimary={!hasAccessibility}
@@ -228,24 +226,22 @@ export default function V2SummarySection({
 
   return (
     <Container>
-      <StairLevelBadge scoreStatus={scoreStatus}>
-        <StairLevelText scoreStatus={scoreStatus}>
-          {hasScore
-            ? `접근레벨 ${accessibilityScore}`
-            : isProcessing
-              ? '계산중(건물정보 필요)'
-              : '접근레벨 -'}
-        </StairLevelText>
-      </StairLevelBadge>
+      <StairLevelRow>
+        <StairLevelBadge scoreStatus={scoreStatus}>
+          <StairLevelText scoreStatus={scoreStatus}>
+            {hasScore
+              ? `접근레벨 ${accessibilityScore}`
+              : isProcessing
+                ? '계산중(건물정보 필요)'
+                : '접근레벨 -'}
+          </StairLevelText>
+        </StairLevelBadge>
+        {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
+      </StairLevelRow>
       <NameContainer onLayout={onNameLayout}>
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
       {tagsRow}
-      {(placeTags?.length ?? 0) > 0 && (
-        <PlaceTagsRow>
-          <PlaceTags tags={placeTags ?? []} />
-        </PlaceTagsRow>
-      )}
       <ActionButtonsRow onLayout={onActionButtonsLayout}>
         <RegisterButton
           isPrimary={!hasAccessibility}
@@ -375,9 +371,11 @@ const V2ReviewCount = styled.Text`
   color: ${color.brand50};
 `;
 
-const PlaceTagsRow = styled.View`
-  margin-top: 6px;
-  padding-right: 20px;
+const StairLevelRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  overflow: visible;
 `;
 
 // --- CONTROL styled components ---
