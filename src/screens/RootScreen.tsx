@@ -85,7 +85,8 @@ const RootScreen = () => {
     // cold start: navigation 아직 미준비 → PendingSharedText 경유 (MainScreen이 소비)
     const checkOnColdStart = async () => {
       try {
-        const text: string | null = await ShareIntentModule?.getPendingShareText();
+        const text: string | null =
+          await ShareIntentModule?.getPendingShareText();
         if (text) {
           setPendingSharedText(text);
         }
@@ -97,7 +98,8 @@ const RootScreen = () => {
     // background→foreground: navigation 이미 준비됨 → 바로 navigate
     const checkOnForeground = async () => {
       try {
-        const text: string | null = await ShareIntentModule?.getPendingShareText();
+        const text: string | null =
+          await ShareIntentModule?.getPendingShareText();
         if (text) {
           handleSharedText(text);
         }
@@ -142,6 +144,19 @@ const RootScreen = () => {
           prefixes: DEEP_LINK_PREFIXES,
           // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
           getInitialURL: async () => {
+            // iOS Share Extension cold start: Airbridge 가로채기보다 먼저 분기한다.
+            // background subscribe 경로와 동일한 우선순위 — 이 순서가 없으면 Airbridge의
+            // setOnDeeplinkReceived가 share URL을 먼저 먹어버려 PendingSharedText가 set되지 않는다.
+            const initialUrl = await Linking.getInitialURL();
+            if (initialUrl?.startsWith('stair-crusher://shared?text=')) {
+              const sharedText = decodeURIComponent(
+                initialUrl.replace('stair-crusher://shared?text=', ''),
+              );
+              logDebug('iOS Share Extension cold start', sharedText);
+              setPendingSharedText(sharedText);
+              return null;
+            }
+
             // Airbridge 디퍼드 딥링크 확인 (production만)
             let resolvedUrl: string | null = null;
 
@@ -155,6 +170,10 @@ const RootScreen = () => {
                 Airbridge.setOnDeeplinkReceived((deeplink: string) => {
                   clearTimeout(timeout);
                   if (deeplink.startsWith('kakao')) {
+                    return;
+                  }
+                  // iOS Share Extension URL은 위에서 이미 처리됨 — Airbridge가 다시 삼키지 않도록 무시
+                  if (deeplink.startsWith('stair-crusher://shared')) {
                     return;
                   }
                   if (!resolved) {
@@ -172,23 +191,13 @@ const RootScreen = () => {
               }
             }
 
-            // 일반 딥링크 처리
-            if (!resolvedUrl) {
-              const url = await Linking.getInitialURL();
-              if (url) {
-                logDebug('Normal deeplink click during app quit state', url);
-                // iOS Share Extension cold start: navigationRef가 아직 null이므로
-                // navigate 직접 호출 불가 → PendingSharedText에 저장하고 null 반환.
-                // MainScreen.useEffect([accessToken, navigation])이 마운트 시 소비.
-                if (url.startsWith('stair-crusher://shared?text=')) {
-                  const sharedText = decodeURIComponent(
-                    url.replace('stair-crusher://shared?text=', ''),
-                  );
-                  setPendingSharedText(sharedText);
-                  return null;
-                }
-                resolvedUrl = url;
-              }
+            // 일반 딥링크 처리 (share URL은 위에서 이미 처리됨)
+            if (!resolvedUrl && initialUrl) {
+              logDebug(
+                'Normal deeplink click during app quit state',
+                initialUrl,
+              );
+              resolvedUrl = initialUrl;
             }
 
             // authDeferred=true → URL 저장 후 null 반환 (Main 마운트 후 소비)
