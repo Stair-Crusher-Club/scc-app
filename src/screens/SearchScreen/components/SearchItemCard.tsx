@@ -11,6 +11,7 @@ import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import PlaceTags from '@/components/PlaceTags';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -374,6 +375,9 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
+            {(item.placeTags?.length ?? 0) > 0 && (
+              <PlaceTags tags={item.placeTags ?? []} />
+            )}
             {registerStatus !== 'UNAVAILABLE' && registerStatus !== 'NONE' && (
               <View
                 style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>

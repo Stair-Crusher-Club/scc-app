@@ -21,6 +21,7 @@ import {
   toiletLayerActiveAtom,
   viewStateAtom,
 } from '@/screens/SearchScreen/atoms';
+import PlaceSearchRecommendationChips from '@/screens/SearchScreen/components/PlaceSearchRecommendationChips';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import useToiletLayerQuery from '@/screens/SearchScreen/useToiletLayerQuery';
 import ToiletCard from '@/components/toilet/ToiletCard';
@@ -144,6 +145,11 @@ const SearchMapView = forwardRef<
           onToiletLayerToggle={handleToiletLayerToggle}
           showToiletLayerToggle={showToiletLayerToggle}
         />
+        {isSearchQueryEmpty && searchMode !== 'toilet' && (
+          <ChipsOverlay>
+            <PlaceSearchRecommendationChips />
+          </ChipsOverlay>
+        )}
       </Wrapper>
     </LogParamsProvider>
   );
@@ -155,4 +161,11 @@ const Wrapper = styled.View`
   background-color: ${() => color.white};
   flex-grow: 1;
   overflow: hidden;
+`;
+
+const ChipsOverlay = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 `;

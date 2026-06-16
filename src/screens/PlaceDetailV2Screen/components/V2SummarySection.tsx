@@ -11,10 +11,15 @@ import SirenOutlineIcon from '@/assets/icon/ic_siren_outline.svg';
 import ThumbsUpBlueIcon from '@/assets/icon/ic_thumbsup_blue.svg';
 import ThumbsUpOutlineIcon from '@/assets/icon/ic_thumbsup_outline.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
+import PlaceTags from '@/components/PlaceTags';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoV2Dto,
+  Place,
+  PlaceTagDto,
+} from '@/generated-sources/openapi';
 import {useExperimentVariant} from '@/hooks/useExperiment';
 
 type ScoreStatus = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
@@ -65,6 +70,7 @@ interface V2SummarySectionProps {
   onPressUpvote: () => void;
   accessibility?: AccessibilityInfoV2Dto;
   reviewCount: number;
+  placeTags?: PlaceTagDto[];
   onPressRegister: () => void;
   onPressWriteReview: () => void;
   onPressSiren: () => void;
@@ -81,6 +87,7 @@ export default function V2SummarySection({
   onPressUpvote,
   accessibility,
   reviewCount,
+  placeTags,
   onPressRegister,
   onPressWriteReview,
   onPressSiren,
@@ -169,6 +176,11 @@ export default function V2SummarySection({
           <PlaceName>{place.name}</PlaceName>
         </NameContainer>
         {tagsRow}
+        {(placeTags?.length ?? 0) > 0 && (
+          <PlaceTagsRow>
+            <PlaceTags tags={placeTags ?? []} />
+          </PlaceTagsRow>
+        )}
         <T1ActionButtonsRow onLayout={onActionButtonsLayout}>
           <T1RegisterButton
             isPrimary={!hasAccessibility}
@@ -229,6 +241,11 @@ export default function V2SummarySection({
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
       {tagsRow}
+      {(placeTags?.length ?? 0) > 0 && (
+        <PlaceTagsRow>
+          <PlaceTags tags={placeTags ?? []} />
+        </PlaceTagsRow>
+      )}
       <ActionButtonsRow onLayout={onActionButtonsLayout}>
         <RegisterButton
           isPrimary={!hasAccessibility}
@@ -356,6 +373,11 @@ const V2ReviewCount = styled.Text`
   line-height: 18px;
   letter-spacing: -0.26px;
   color: ${color.brand50};
+`;
+
+const PlaceTagsRow = styled.View`
+  margin-top: 6px;
+  padding-right: 20px;
 `;
 
 // --- CONTROL styled components ---
