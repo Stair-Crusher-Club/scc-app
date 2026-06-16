@@ -1,5 +1,5 @@
 import React from 'react';
-import {Platform, ScrollView} from 'react-native';
+import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -35,20 +35,20 @@ function renderTag(
   navigation: ReturnType<typeof useNavigation>,
 ): React.ReactElement {
   switch (tag.type) {
-    case PlaceTagTypeDto.SavedList: {
+    case PlaceTagTypeDto.PlaceList: {
       const placeListId = tag.placeListId;
       return (
-        <SavedListTag
+        <PlaceListTag
           key={index}
-          elementName="place_tag_saved_list"
+          elementName="place_tag_place_list"
           logParams={{placeListId}}
           onPress={() => {
             if (placeListId) {
               navigation.navigate('PlaceListDetail', {placeListId});
             }
           }}>
-          <SavedListTagText>{tag.name}</SavedListTagText>
-        </SavedListTag>
+          <PlaceListTagText>{tag.name}</PlaceListTagText>
+        </PlaceListTag>
       );
     }
     default: {
@@ -58,25 +58,16 @@ function renderTag(
   }
 }
 
-const SavedListTag = styled(SccTouchableOpacity)`
+const PlaceListTag = styled(SccTouchableOpacity)`
   background-color: ${color.brand5};
   border-radius: 4px;
-  padding-horizontal: 4px;
-  height: 20px;
+  padding-horizontal: 6px;
+  padding-vertical: 4px;
   margin-right: 4px;
-  ${Platform.select({
-    ios: {
-      'padding-vertical': '4px',
-    },
-    android: {
-      'padding-top': '3px',
-      'padding-bottom': '4px',
-    },
-  })}
 `;
 
-const SavedListTagText = styled.Text`
-  font-size: 10px;
-  font-family: ${font.pretendardRegular};
+const PlaceListTagText = styled.Text`
+  font-size: 12px;
+  font-family: ${font.pretendardMedium};
   color: ${color.gray80};
 `;

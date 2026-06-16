@@ -1,11 +1,23 @@
-import React from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {useAtomValue} from 'jotai';
+import React, {useEffect} from 'react';
 import {ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {
+  PlaceSearchRecommendationDto,
+  PlaceSearchRecommendationTypeDto,
+} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
+import {currentLocationAtom} from '@/atoms/Location';
+import {draftCameraRegionAtom} from '@/screens/SearchScreen/atoms';
 import type {SearchMode} from '@/screens/SearchScreen/atoms';
+import useNavigation from '@/navigation/useNavigation';
+import ToastUtils from '@/utils/ToastUtils';
+import {Region} from '@/components/maps/Types';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
 
@@ -14,6 +26,84 @@ export default function SearchCategory({
 }: {
   onPressKeyword: (keyword: string, mode: SearchMode) => void;
 }) {
+  const {api} = useAppComponents();
+  const navigation = useNavigation();
+  const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
+
+  const rectangleRegion = draftCameraRegion
+    ? {
+        leftTopLocation: {
+          lat: draftCameraRegion.northEast.latitude,
+          lng: draftCameraRegion.southWest.longitude,
+        },
+        rightBottomLocation: {
+          lat: draftCameraRegion.southWest.latitude,
+          lng: draftCameraRegion.northEast.longitude,
+        },
+      }
+    : undefined;
+
+  const centerLocation = draftCameraRegion
+    ? {
+        lat:
+          (draftCameraRegion.northEast.latitude +
+            draftCameraRegion.southWest.latitude) /
+          2,
+        lng:
+          (draftCameraRegion.northEast.longitude +
+            draftCameraRegion.southWest.longitude) /
+          2,
+      }
+    : currentLocation
+      ? {lat: currentLocation.latitude, lng: currentLocation.longitude}
+      : null;
+
+  const {data: recommendationItems, isError: isRecommendationError} = useQuery({
+    enabled: centerLocation != null,
+    queryKey: [
+      'PlaceSearchRecommendations',
+      draftCameraRegion as Region | null,
+      centerLocation?.lat ?? null,
+      centerLocation?.lng ?? null,
+    ],
+    queryFn: async () => {
+      if (!centerLocation) {
+        return [];
+      }
+      const response = await api.listPlaceSearchRecommendations({
+        currentLocation: centerLocation,
+        rectangleRegion,
+      });
+      return response.data.items;
+    },
+  });
+
+  useEffect(() => {
+    if (isRecommendationError) {
+      ToastUtils.show('추천 목록을 불러올 수 없습니다.');
+    }
+  }, [isRecommendationError]);
+
+  const handleRecommendationChipPress = (
+    item: PlaceSearchRecommendationDto,
+  ) => {
+    switch (item.type) {
+      case PlaceSearchRecommendationTypeDto.PlaceList: {
+        if (item.placeListId) {
+          navigation.navigate('PlaceListDetail', {
+            placeListId: item.placeListId,
+          });
+        }
+        return;
+      }
+      default: {
+        const _exhaustiveCheck: never = item.type;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
   const _renderItem = ({item}: {item: SearchCategoryItem}) => {
     return (
       <PressableCategory
@@ -26,6 +116,9 @@ export default function SearchCategory({
       </PressableCategory>
     );
   };
+
+  const recommendations = recommendationItems ?? [];
+
   return (
     <ScrollView
       style={{
@@ -34,7 +127,20 @@ export default function SearchCategory({
       horizontal={true}
       showsHorizontalScrollIndicator={false}>
       <View style={{flexDirection: 'row', gap: 6}}>
-        {SEARCH_CATEGORIES.map(item => _renderItem({item}))}
+        {_renderItem({item: SEARCH_CATEGORIES[0]})}
+        {recommendations.map(item => (
+          <PressableCategory
+            key={item.id}
+            elementName="place_search_recommendation_chip"
+            logParams={{
+              recommendationId: item.id,
+              placeListId: item.placeListId,
+            }}
+            onPress={() => handleRecommendationChipPress(item)}>
+            <CategoryText>{item.name}</CategoryText>
+          </PressableCategory>
+        ))}
+        {SEARCH_CATEGORIES.slice(1).map(item => _renderItem({item}))}
       </View>
     </ScrollView>
   );

@@ -4648,12 +4648,6 @@ export interface PlaceListDto {
      */
     'name': string;
     /**
-     * 검색 결과 카드 등 공간이 좁은 곳에 표시하는 짧은 이름 (최대 8자). null이면 태그 미노출.
-     * @type {string}
-     * @memberof PlaceListDto
-     */
-    'shortName'?: string | null;
-    /**
      * 
      * @type {PlaceListTypeDto}
      * @memberof PlaceListDto
@@ -4990,26 +4984,26 @@ export interface PlaceSearchRecommendationDto {
      */
     'type': PlaceSearchRecommendationTypeDto;
     /**
-     * 칩에 표시하는 짧은 이름 (최대 12자)
+     * 칩에 표시하는 짧은 이름 (최대 8자)
      * @type {string}
      * @memberof PlaceSearchRecommendationDto
      */
     'name': string;
     /**
-     * REGION_BASED 타입일 때 탭 시 이동할 저장리스트 ID
+     * PLACE_LIST 타입일 때 탭 시 이동할 저장리스트 ID
      * @type {string}
      * @memberof PlaceSearchRecommendationDto
      */
     'placeListId'?: string | null;
 }
 /**
- * 장소 검색 추천 타입
+ * 장소 검색 추천 타입 (클라이언트에 노출되는 컨텐츠 타입)
  * @export
  * @enum {string}
  */
 
 export const PlaceSearchRecommendationTypeDto = {
-    RegionBased: 'REGION_BASED'
+    PlaceList: 'PLACE_LIST'
 } as const;
 
 export type PlaceSearchRecommendationTypeDto = typeof PlaceSearchRecommendationTypeDto[keyof typeof PlaceSearchRecommendationTypeDto];
@@ -5060,7 +5054,7 @@ export interface PlaceTagDto {
      */
     'name': string;
     /**
-     * SAVED_LIST 타입일 때 연결된 저장리스트 ID
+     * PLACE_LIST 타입일 때 연결된 저장리스트 ID
      * @type {string}
      * @memberof PlaceTagDto
      */
@@ -5073,7 +5067,7 @@ export interface PlaceTagDto {
  */
 
 export const PlaceTagTypeDto = {
-    SavedList: 'SAVED_LIST'
+    PlaceList: 'PLACE_LIST'
 } as const;
 
 export type PlaceTagTypeDto = typeof PlaceTagTypeDto[keyof typeof PlaceTagTypeDto];
