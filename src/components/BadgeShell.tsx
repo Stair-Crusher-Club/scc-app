@@ -87,10 +87,10 @@ export function BadgeShell(props: BadgeShellProps) {
   return <View style={shellStyle}>{children}</View>;
 }
 
-/** 배지 내 텍스트 공통 스타일 — font-size/family/line-height의 단일 소스. color는 props로. */
+/** 배지 내 텍스트 공통 스타일 — font-size/family의 단일 소스. color는 props로.
+ *  line-height는 명시하지 않는다(기존 접근레벨 배지 원본과 동일 — 명시 시 안드로이드에서 높이 달라져 하위호환 깨짐). */
 export const BadgeText = styled.Text<{textColor: string}>`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
-  line-height: 15.6px;
   color: ${({textColor}) => textColor};
 `;
