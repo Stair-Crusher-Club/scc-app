@@ -12,7 +12,6 @@ import {
   PlaceSearchRecommendationTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import {currentLocationAtom} from '@/atoms/Location';
 import {draftCameraRegionAtom} from '@/screens/SearchScreen/atoms';
 import type {SearchMode} from '@/screens/SearchScreen/atoms';
 import useNavigation from '@/navigation/useNavigation';
@@ -28,7 +27,6 @@ export default function SearchCategory({
   const {api} = useAppComponents();
   const navigation = useNavigation();
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
-  const currentLocation = useAtomValue(currentLocationAtom);
 
   const rectangleRegion = draftCameraRegion
     ? {
@@ -43,6 +41,10 @@ export default function SearchCategory({
       }
     : undefined;
 
+  // 칩은 "지금 보고 있는 지도 영역(settle된 camera)" 기준으로만 조회한다.
+  // GPS currentLocation fallback을 쓰면, 탭 재진입 시 draftCameraRegion이 아직 null인
+  // 순간 GPS(예: 시청)로 즉시 조회돼 '있음'이 떴다가, camera settle 과정의 transient
+  // region에서 '없음'→'있음'으로 깜빡인다. fallback 제거 → 없음→있음.
   const centerLocation = draftCameraRegion
     ? {
         lat:
@@ -54,9 +56,7 @@ export default function SearchCategory({
             draftCameraRegion.southWest.longitude) /
           2,
       }
-    : currentLocation
-      ? {lat: currentLocation.latitude, lng: currentLocation.longitude}
-      : null;
+    : null;
 
   const {data: recommendationItems} = useQuery({
     enabled: centerLocation != null,
