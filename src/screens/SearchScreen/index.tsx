@@ -4,6 +4,7 @@ import {
   useNavigationState,
   useRoute,
 } from '@react-navigation/native';
+import {useQueryClient} from '@tanstack/react-query';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
 import {Keyboard, View} from 'react-native';
@@ -121,6 +122,7 @@ const SearchScreenContent = ({
   const setSearchRequestId = useSetAtom(searchRequestIdAtom);
   const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
   const setDraftKeyword = useSetAtom(draftKeywordAtom);
+  const queryClient = useQueryClient();
   const setFilterModalState = useSetAtom(filterModalStateAtom);
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
@@ -226,6 +228,9 @@ const SearchScreenContent = ({
       setSearchRequestId(null);
       setToiletLayerActive(false);
       resetHighlightAnimation();
+      // 추천 칩 캐시도 함께 비운다(전역 atom reset과 동일 맥락) → 재진입 시
+      // stale '있음'이 먼저 떴다 사라지는 깜빡임 없이 없음→있음.
+      queryClient.removeQueries({queryKey: ['PlaceSearchRecommendations']});
     };
   }, []);
 
