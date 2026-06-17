@@ -1,6 +1,6 @@
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -16,7 +16,6 @@ import {currentLocationAtom} from '@/atoms/Location';
 import {draftCameraRegionAtom} from '@/screens/SearchScreen/atoms';
 import type {SearchMode} from '@/screens/SearchScreen/atoms';
 import useNavigation from '@/navigation/useNavigation';
-import ToastUtils from '@/utils/ToastUtils';
 import {Region} from '@/components/maps/Types';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
@@ -59,7 +58,7 @@ export default function SearchCategory({
       ? {lat: currentLocation.latitude, lng: currentLocation.longitude}
       : null;
 
-  const {data: recommendationItems, isError: isRecommendationError} = useQuery({
+  const {data: recommendationItems} = useQuery({
     enabled: centerLocation != null,
     queryKey: [
       'PlaceSearchRecommendations',
@@ -79,12 +78,7 @@ export default function SearchCategory({
     },
     placeholderData: keepPreviousData,
   });
-
-  useEffect(() => {
-    if (isRecommendationError) {
-      ToastUtils.show('추천 목록을 불러올 수 없습니다.');
-    }
-  }, [isRecommendationError]);
+  // 추천 조회 실패는 조용히 빈 목록으로 처리(토스트 없음) — 추천이 없는 것처럼 동작.
 
   const handleRecommendationChipPress = (
     item: PlaceSearchRecommendationDto,

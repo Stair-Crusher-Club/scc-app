@@ -1,5 +1,4 @@
 import React from 'react';
-import {ScrollView} from 'react-native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import {BadgeShell, BadgeText} from '@/components/BadgeShell';
@@ -18,15 +17,8 @@ export default function PlaceTags({tags}: PlaceTagsProps) {
     return null;
   }
 
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={{overflow: 'visible'}}
-      contentContainerStyle={{alignItems: 'center'}}>
-      {tags.map((tag, index) => renderTag(tag, index, navigation))}
-    </ScrollView>
-  );
+  // 스크롤은 부모(접근레벨 배지까지 포함한 한 줄)가 담당 — 여기선 배지들만 나열.
+  return <>{tags.map((tag, index) => renderTag(tag, index, navigation))}</>;
 }
 
 function renderTag(
@@ -54,7 +46,13 @@ function renderTag(
             }
           }}
           style={{marginRight: 4}}>
-          <BookmarkIcon marginTop={1} viewBox="0 -0.5 16 20" width={11} height={12} color={color.gray80} />
+          <BookmarkIcon
+            viewBox="0 -0.5 16 20"
+            width={11}
+            height={12}
+            color={color.gray80}
+            style={{marginTop: 1}}
+          />
           <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
         </BadgeShell>
       );

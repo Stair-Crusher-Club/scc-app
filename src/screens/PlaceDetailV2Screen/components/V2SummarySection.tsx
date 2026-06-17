@@ -361,10 +361,16 @@ const V2ReviewCount = styled.Text`
   color: ${color.brand50};
 `;
 
-const StairLevelRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
+// 접근레벨 배지 + 저장리스트 태그를 한 줄로 묶어 가로 스크롤.
+const StairLevelRow = styled.ScrollView.attrs({
+  horizontal: true,
+  showsHorizontalScrollIndicator: false,
+  contentContainerStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  } as const,
+})`
   overflow: visible;
 `;
 

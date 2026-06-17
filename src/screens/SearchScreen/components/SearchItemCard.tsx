@@ -518,11 +518,17 @@ const LabelIconArea = styled.View`
   margin-bottom: 3px;
 `;
 
-const ScoreLabelGroup = styled.View`
+// 접근레벨 배지 + 저장리스트 태그를 한 줄로 묶어 가로 스크롤(태그가 많아도 접근레벨까지 함께 스크롤).
+const ScoreLabelGroup = styled.ScrollView.attrs({
+  horizontal: true,
+  showsHorizontalScrollIndicator: false,
+  contentContainerStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  } as const,
+})`
   flex: 1;
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
   overflow: visible;
 `;
 
