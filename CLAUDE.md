@@ -24,6 +24,7 @@
 - **섹션 공통 로깅 파라미터는 `LogParamsProvider`** — 개별 logParams에 `displaySectionName`을 직접 넣지 않는다
 - **컴포넌트 구조**: 컴포넌트당 1파일(컴포넌트명 = 파일명), styled-components는 파일 하단에 (별도 스타일 파일 금지), 메인 컴포넌트만 export, prop 타입은 함수에 인라인
 - 로직은 hook으로, UI 컴포넌트는 최대한 stateless로
+- **동일한 UI 껍데기는 shell 컴포넌트로 추출**: 배지/칩/버튼처럼 모양(높이·padding·radius·폰트·레이아웃)이 같은 요소는 치수를 한 컴포넌트(예: `BadgeShell`)에 두고 색·텍스트·동작·아이콘만 props로 받는다. **스타일 값을 컴포넌트마다 수동 복제 금지** — 드리프트의 원인(저장리스트 태그↔접근레벨 배지 사례)
 
 ## Hook 설계 원칙
 
