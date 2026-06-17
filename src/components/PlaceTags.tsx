@@ -41,6 +41,7 @@ function renderTag(
           key={index}
           backgroundColor={color.brand5}
           textColor={color.gray80}
+          borderColor={color.brand5}
           elementName="place_tag_place_list"
           logParams={{placeListId}}
           onPress={() => {
