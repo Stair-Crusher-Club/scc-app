@@ -54,7 +54,7 @@ function renderTag(
             }
           }}
           style={{marginRight: 4}}>
-          <BookmarkIcon width={10} height={12} color={color.gray80} />
+          <BookmarkIcon marginTop={1} viewBox="0 -0.5 16 20" width={11} height={12} color={color.gray80} />
           <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
         </BadgeShell>
       );
