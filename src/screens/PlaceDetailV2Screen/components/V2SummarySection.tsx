@@ -168,7 +168,10 @@ export default function V2SummarySection({
           <BadgeShell
             backgroundColor={ScoreColorMap[scoreStatus].background}
             textColor={ScoreColorMap[scoreStatus].text}
-            borderColor={ScoreColorMap[scoreStatus].border}
+            borderColor={
+              ScoreColorMap[scoreStatus].border ??
+              ScoreColorMap[scoreStatus].background
+            }
             paddingHorizontal={
               scoreStatus === 'unknown' || scoreStatus === 'progress' ? 7 : 6
             }>
@@ -239,7 +242,10 @@ export default function V2SummarySection({
         <BadgeShell
           backgroundColor={ScoreColorMap[scoreStatus].background}
           textColor={ScoreColorMap[scoreStatus].text}
-          borderColor={ScoreColorMap[scoreStatus].border}>
+          borderColor={
+            ScoreColorMap[scoreStatus].border ??
+            ScoreColorMap[scoreStatus].background
+          }>
           <BadgeText
             textColor={ScoreColorMap[scoreStatus].text}
             style={{letterSpacing: -0.24}}>
