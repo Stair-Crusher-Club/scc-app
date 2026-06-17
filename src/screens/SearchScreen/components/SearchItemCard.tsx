@@ -45,6 +45,7 @@ function SearchItemCard({
   isConquestMode,
   hideActions,
   hideScoreIcon,
+  hidePlaceTags,
   onPress,
   listQueryKey,
 }: {
@@ -53,6 +54,7 @@ function SearchItemCard({
   isConquestMode?: boolean;
   hideActions?: boolean;
   hideScoreIcon?: boolean;
+  hidePlaceTags?: boolean;
   onPress?: () => void;
   listQueryKey?: QueryKey;
 }) {
@@ -318,7 +320,7 @@ function SearchItemCard({
                   listQueryKey={listQueryKey}
                 />
               )}
-              {(item.placeTags?.length ?? 0) > 0 && (
+              {!hidePlaceTags && (item.placeTags?.length ?? 0) > 0 && (
                 <PlaceTags tags={item.placeTags ?? []} />
               )}
             </ScoreLabelGroup>

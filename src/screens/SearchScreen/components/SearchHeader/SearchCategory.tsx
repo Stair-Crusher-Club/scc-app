@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query';
+import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import React, {useEffect} from 'react';
 import {ScrollView, View} from 'react-native';
@@ -77,6 +77,7 @@ export default function SearchCategory({
       });
       return response.data.items;
     },
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function SearchCategory({
         if (item.placeListId) {
           navigation.navigate('PlaceListDetail', {
             placeListId: item.placeListId,
+            initialViewMode: 'map',
           });
         }
         return;

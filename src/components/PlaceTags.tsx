@@ -23,7 +23,8 @@ export default function PlaceTags({tags}: PlaceTagsProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={{overflow: 'visible'}}>
+      style={{overflow: 'visible'}}
+      contentContainerStyle={{alignItems: 'center'}}>
       {tags.map((tag, index) => renderTag(tag, index, navigation))}
     </ScrollView>
   );
@@ -44,7 +45,10 @@ function renderTag(
           logParams={{placeListId}}
           onPress={() => {
             if (placeListId) {
-              navigation.navigate('PlaceListDetail', {placeListId});
+              navigation.navigate('PlaceListDetail', {
+                placeListId,
+                initialViewMode: 'map',
+              });
             }
           }}>
           <PlaceListTagText>{tag.name}</PlaceListTagText>
@@ -68,6 +72,7 @@ const PlaceListTag = styled(SccTouchableOpacity)`
 
 const PlaceListTagText = styled.Text`
   font-size: 12px;
+  line-height: 15.6px;
   font-family: ${font.pretendardMedium};
   color: ${color.gray80};
 `;
