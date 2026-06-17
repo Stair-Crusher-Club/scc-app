@@ -36,6 +36,7 @@
 - 데이터 fetching은 React Query (`useQuery`/`useMutation`), POST는 custom `usePost` hook
 - loading/error/success 상태를 UI에서 모두 처리. API 에러는 무시하지 말고 보통 toast로 피드백
 - API 로직은 hook/유틸에 두고 UI 컴포넌트에 넣지 않는다. async/await 선호
+- **refetch 깜빡임 금지**: queryKey 변경/refetch 동안 화면을 빈 상태로 리셋하지 말 것. `placeholderData: keepPreviousData`(react-query v5)로 이전 결과를 유지하다 새 응답으로 override한다 — 칩/리스트/지도 오버레이처럼 위치 변화로 자주 refetch되는 UI에서 특히. (반복 지적)
 
 ## Screen Structure
 
