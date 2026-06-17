@@ -1,6 +1,7 @@
 import React from 'react';
 import {ScrollView} from 'react-native';
 
+import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import {BadgeShell, BadgeText} from '@/components/BadgeShell';
 import {color} from '@/constant/color';
 import {PlaceTagDto, PlaceTagTypeDto} from '@/generated-sources/openapi';
@@ -53,6 +54,7 @@ function renderTag(
             }
           }}
           style={{marginRight: 4}}>
+          <BookmarkIcon width={10} height={12} color={color.gray80} />
           <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
         </BadgeShell>
       );
