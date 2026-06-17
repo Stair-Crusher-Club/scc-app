@@ -123,7 +123,6 @@ export default function SearchCategory({
       horizontal={true}
       showsHorizontalScrollIndicator={false}>
       <View style={{flexDirection: 'row', gap: 6}}>
-        {_renderItem({item: SEARCH_CATEGORIES[0]})}
         {recommendations.map(item => (
           <PressableCategory
             key={item.id}
@@ -136,7 +135,7 @@ export default function SearchCategory({
             <CategoryText>{item.name}</CategoryText>
           </PressableCategory>
         ))}
-        {SEARCH_CATEGORIES.slice(1).map(item => _renderItem({item}))}
+        {SEARCH_CATEGORIES.map(item => _renderItem({item}))}
       </View>
     </ScrollView>
   );
