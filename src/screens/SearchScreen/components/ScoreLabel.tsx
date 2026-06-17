@@ -1,8 +1,8 @@
 import React from 'react';
 import {Text} from 'react-native';
-import styled from 'styled-components/native';
 
 import InfoIcon from '@/assets/icon/ic_info.svg';
+import {BadgeShell, BadgeText} from '@/components/BadgeShell';
 import PositionedModal from '@/components/PositionedModal';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -61,43 +61,19 @@ export default function ScoreLabel({
           레벨이 낮을 수록 매장 입구 접근이 쉬워요.
         </Text>
       }>
-      <ScoreLabelArea status={status} isIconVisible={isIconVisible}>
-        <ScoreLabelText status={status}>
+      <BadgeShell
+        backgroundColor={ColorMap[status].background}
+        textColor={ColorMap[status].text}
+        borderColor={ColorMap[status].border ?? ColorMap[status].background}
+        borderRadius={6}
+        paddingHorizontal={isIconVisible ? 8 : 6}>
+        <BadgeText textColor={ColorMap[status].text}>
           {score === 'processing'
             ? '계산중(건물정보 필요)'
             : `접근레벨 ${score === undefined ? '-' : score}`}
-        </ScoreLabelText>
+        </BadgeText>
         {isIconVisible && <InfoIcon color={ColorMap[status].text} />}
-      </ScoreLabelArea>
+      </BadgeShell>
     </PositionedModal>
   );
 }
-
-const ScoreLabelArea = styled.View<{
-  status: Status;
-  isIconVisible?: boolean;
-}>`
-  display: flex;
-  flex-direction: row;
-  background-color: ${({status}) => ColorMap[status].background};
-  border: 1px solid
-    ${({status}) =>
-      ColorMap[status].border
-        ? ColorMap[status].border
-        : ColorMap[status].background};
-  align-items: center;
-  border-radius: 6px;
-  padding-left: ${props => (props.isIconVisible ? 8 : 6)}px;
-  padding-right: 6px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  gap: 4px;
-`;
-
-const ScoreLabelText = styled.Text<{
-  status: Status;
-}>`
-  font-size: 12px;
-  font-family: ${font.pretendardMedium};
-  color: ${({status}) => ColorMap[status].text};
-`;

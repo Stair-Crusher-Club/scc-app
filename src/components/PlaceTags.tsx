@@ -1,10 +1,8 @@
 import React from 'react';
 import {ScrollView} from 'react-native';
-import styled from 'styled-components/native';
 
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {BadgeShell, BadgeText} from '@/components/BadgeShell';
 import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {PlaceTagDto, PlaceTagTypeDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
 
@@ -39,8 +37,10 @@ function renderTag(
     case PlaceTagTypeDto.PlaceList: {
       const placeListId = tag.placeListId;
       return (
-        <PlaceListTag
+        <BadgeShell
           key={index}
+          backgroundColor={color.brand5}
+          textColor={color.gray80}
           elementName="place_tag_place_list"
           logParams={{placeListId}}
           onPress={() => {
@@ -50,9 +50,10 @@ function renderTag(
                 initialViewMode: 'map',
               });
             }
-          }}>
-          <PlaceListTagText>{tag.name}</PlaceListTagText>
-        </PlaceListTag>
+          }}
+          style={{marginRight: 4}}>
+          <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
+        </BadgeShell>
       );
     }
     default: {
@@ -61,18 +62,3 @@ function renderTag(
     }
   }
 }
-
-const PlaceListTag = styled(SccTouchableOpacity)`
-  background-color: ${color.brand5};
-  border-radius: 4px;
-  padding-horizontal: 6px;
-  padding-vertical: 4px;
-  margin-right: 4px;
-`;
-
-const PlaceListTagText = styled.Text`
-  font-size: 12px;
-  line-height: 15.6px;
-  font-family: ${font.pretendardMedium};
-  color: ${color.gray80};
-`;

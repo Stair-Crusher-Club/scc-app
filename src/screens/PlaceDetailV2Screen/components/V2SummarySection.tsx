@@ -11,6 +11,7 @@ import SirenOutlineIcon from '@/assets/icon/ic_siren_outline.svg';
 import ThumbsUpBlueIcon from '@/assets/icon/ic_thumbsup_blue.svg';
 import ThumbsUpOutlineIcon from '@/assets/icon/ic_thumbsup_outline.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
+import {BadgeShell, BadgeText} from '@/components/BadgeShell';
 import PlaceTags from '@/components/PlaceTags';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -164,15 +165,23 @@ export default function V2SummarySection({
     return (
       <Container>
         <StairLevelRow>
-          <StairLevelBadge scoreStatus={scoreStatus}>
-            <StairLevelText scoreStatus={scoreStatus}>
+          <BadgeShell
+            backgroundColor={ScoreColorMap[scoreStatus].background}
+            textColor={ScoreColorMap[scoreStatus].text}
+            borderColor={ScoreColorMap[scoreStatus].border}
+            paddingHorizontal={
+              scoreStatus === 'unknown' || scoreStatus === 'progress' ? 7 : 6
+            }>
+            <BadgeText
+              textColor={ScoreColorMap[scoreStatus].text}
+              style={{letterSpacing: -0.24}}>
               {hasScore
                 ? `접근레벨 ${accessibilityScore}`
                 : isProcessing
                   ? '계산중(건물정보 필요)'
                   : '접근레벨 -'}
-            </StairLevelText>
-          </StairLevelBadge>
+            </BadgeText>
+          </BadgeShell>
           {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
         </StairLevelRow>
         <NameContainer onLayout={onNameLayout}>
@@ -227,15 +236,20 @@ export default function V2SummarySection({
   return (
     <Container>
       <StairLevelRow>
-        <StairLevelBadge scoreStatus={scoreStatus}>
-          <StairLevelText scoreStatus={scoreStatus}>
+        <BadgeShell
+          backgroundColor={ScoreColorMap[scoreStatus].background}
+          textColor={ScoreColorMap[scoreStatus].text}
+          borderColor={ScoreColorMap[scoreStatus].border}>
+          <BadgeText
+            textColor={ScoreColorMap[scoreStatus].text}
+            style={{letterSpacing: -0.24}}>
             {hasScore
               ? `접근레벨 ${accessibilityScore}`
               : isProcessing
                 ? '계산중(건물정보 필요)'
                 : '접근레벨 -'}
-          </StairLevelText>
-        </StairLevelBadge>
+          </BadgeText>
+        </BadgeShell>
         {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
       </StairLevelRow>
       <NameContainer onLayout={onNameLayout}>
@@ -296,30 +310,6 @@ export default function V2SummarySection({
 const Container = styled.View`
   padding-left: 20px;
   padding-top: 4px;
-`;
-
-const StairLevelBadge = styled.View<{
-  scoreStatus: ScoreStatus;
-}>`
-  background-color: ${({scoreStatus}) => ScoreColorMap[scoreStatus].background};
-  border-radius: 4px;
-  padding-horizontal: ${({scoreStatus}) =>
-    scoreStatus === 'unknown' || scoreStatus === 'progress' ? '7px' : '6px'};
-  padding-vertical: 4px;
-  align-self: flex-start;
-  ${({scoreStatus}) =>
-    ScoreColorMap[scoreStatus].border
-      ? `border-width: 1px; border-color: ${ScoreColorMap[scoreStatus].border};`
-      : ''}
-`;
-
-const StairLevelText = styled.Text<{
-  scoreStatus: ScoreStatus;
-}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 12px;
-  letter-spacing: -0.24px;
-  color: ${({scoreStatus}) => ScoreColorMap[scoreStatus].text};
 `;
 
 const NameContainer = styled.View`
