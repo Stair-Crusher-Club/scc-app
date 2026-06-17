@@ -1,4 +1,9 @@
-import {keepPreviousData, useQuery} from '@tanstack/react-query';
+import {useFocusEffect} from '@react-navigation/native';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import React from 'react';
 import {ScrollView, View} from 'react-native';
@@ -27,8 +32,21 @@ export default function SearchCategory({
 }) {
   const {api} = useAppComponents();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
   const currentLocation = useAtomValue(currentLocationAtom);
+
+  // 지도 탭 이탈 시 추천 캐시 제거 → 재진입 때 이전 region의 stale '있음'이 먼저 떴다가
+  // 사라지는 깜빡임(있음→없음→있음)을 막고 없음→있음 순서가 되게 한다.
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        queryClient.removeQueries({
+          queryKey: ['PlaceSearchRecommendations'],
+        });
+      };
+    }, [queryClient]),
+  );
 
   const rectangleRegion = draftCameraRegion
     ? {
