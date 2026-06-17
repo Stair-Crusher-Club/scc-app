@@ -24,6 +24,7 @@
 - **섹션 공통 로깅 파라미터는 `LogParamsProvider`** — 개별 logParams에 `displaySectionName`을 직접 넣지 않는다
 - **컴포넌트 구조**: 컴포넌트당 1파일(컴포넌트명 = 파일명), styled-components는 파일 하단에 (별도 스타일 파일 금지), 메인 컴포넌트만 export, prop 타입은 함수에 인라인
 - 로직은 hook으로, UI 컴포넌트는 최대한 stateless로
+- **동일한 UI 껍데기는 shell 컴포넌트로 추출**: 배지/칩/버튼처럼 모양(높이·padding·radius·폰트·레이아웃)이 같은 요소는 치수를 한 컴포넌트(예: `BadgeShell`)에 두고 색·텍스트·동작·아이콘만 props로 받는다. **스타일 값을 컴포넌트마다 수동 복제 금지** — 드리프트의 원인(저장리스트 태그↔접근레벨 배지 사례)
 
 ## Hook 설계 원칙
 
@@ -36,6 +37,7 @@
 - 데이터 fetching은 React Query (`useQuery`/`useMutation`), POST는 custom `usePost` hook
 - loading/error/success 상태를 UI에서 모두 처리. API 에러는 무시하지 말고 보통 toast로 피드백
 - API 로직은 hook/유틸에 두고 UI 컴포넌트에 넣지 않는다. async/await 선호
+- **refetch 깜빡임 금지**: queryKey 변경/refetch 동안 화면을 빈 상태로 리셋하지 말 것. `placeholderData: keepPreviousData`(react-query v5)로 이전 결과를 유지하다 새 응답으로 override한다 — 칩/리스트/지도 오버레이처럼 위치 변화로 자주 refetch되는 UI에서 특히. (반복 지적)
 
 ## Screen Structure
 

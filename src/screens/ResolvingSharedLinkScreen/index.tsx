@@ -74,7 +74,9 @@ export default function ResolvingSharedLinkScreen({navigation, route}: Props) {
     <ScreenLayout isHeaderVisible={false}>
       <View style={styles.container}>
         <ActivityIndicator size="large" />
-        <Text style={styles.message}>{'장소를 찾는 중입니다\n잠시만 기다려주세요...'}</Text>
+        <Text style={styles.message}>
+          {'장소를 찾는 중입니다\n잠시만 기다려주세요...'}
+        </Text>
       </View>
     </ScreenLayout>
   );

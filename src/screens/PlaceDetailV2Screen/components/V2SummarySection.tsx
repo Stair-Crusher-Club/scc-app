@@ -11,10 +11,16 @@ import SirenOutlineIcon from '@/assets/icon/ic_siren_outline.svg';
 import ThumbsUpBlueIcon from '@/assets/icon/ic_thumbsup_blue.svg';
 import ThumbsUpOutlineIcon from '@/assets/icon/ic_thumbsup_outline.svg';
 import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
+import {BadgeShell, BadgeText} from '@/components/BadgeShell';
+import PlaceTags from '@/components/PlaceTags';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {AccessibilityInfoV2Dto, Place} from '@/generated-sources/openapi';
+import {
+  AccessibilityInfoV2Dto,
+  Place,
+  PlaceTagDto,
+} from '@/generated-sources/openapi';
 import {useExperimentVariant} from '@/hooks/useExperiment';
 
 type ScoreStatus = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
@@ -65,6 +71,7 @@ interface V2SummarySectionProps {
   onPressUpvote: () => void;
   accessibility?: AccessibilityInfoV2Dto;
   reviewCount: number;
+  placeTags?: PlaceTagDto[];
   onPressRegister: () => void;
   onPressWriteReview: () => void;
   onPressSiren: () => void;
@@ -81,6 +88,7 @@ export default function V2SummarySection({
   onPressUpvote,
   accessibility,
   reviewCount,
+  placeTags,
   onPressRegister,
   onPressWriteReview,
   onPressSiren,
@@ -156,15 +164,29 @@ export default function V2SummarySection({
   if (isIconOnly) {
     return (
       <Container>
-        <StairLevelBadge scoreStatus={scoreStatus}>
-          <StairLevelText scoreStatus={scoreStatus}>
-            {hasScore
-              ? `접근레벨 ${accessibilityScore}`
-              : isProcessing
-                ? '계산중(건물정보 필요)'
-                : '접근레벨 -'}
-          </StairLevelText>
-        </StairLevelBadge>
+        <StairLevelRow>
+          <BadgeShell
+            backgroundColor={ScoreColorMap[scoreStatus].background}
+            textColor={ScoreColorMap[scoreStatus].text}
+            borderColor={
+              ScoreColorMap[scoreStatus].border ??
+              ScoreColorMap[scoreStatus].background
+            }
+            paddingHorizontal={
+              scoreStatus === 'unknown' || scoreStatus === 'progress' ? 7 : 6
+            }>
+            <BadgeText
+              textColor={ScoreColorMap[scoreStatus].text}
+              style={{letterSpacing: -0.24}}>
+              {hasScore
+                ? `접근레벨 ${accessibilityScore}`
+                : isProcessing
+                  ? '계산중(건물정보 필요)'
+                  : '접근레벨 -'}
+            </BadgeText>
+          </BadgeShell>
+          {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
+        </StairLevelRow>
         <NameContainer onLayout={onNameLayout}>
           <PlaceName>{place.name}</PlaceName>
         </NameContainer>
@@ -216,15 +238,26 @@ export default function V2SummarySection({
 
   return (
     <Container>
-      <StairLevelBadge scoreStatus={scoreStatus}>
-        <StairLevelText scoreStatus={scoreStatus}>
-          {hasScore
-            ? `접근레벨 ${accessibilityScore}`
-            : isProcessing
-              ? '계산중(건물정보 필요)'
-              : '접근레벨 -'}
-        </StairLevelText>
-      </StairLevelBadge>
+      <StairLevelRow>
+        <BadgeShell
+          backgroundColor={ScoreColorMap[scoreStatus].background}
+          textColor={ScoreColorMap[scoreStatus].text}
+          borderColor={
+            ScoreColorMap[scoreStatus].border ??
+            ScoreColorMap[scoreStatus].background
+          }>
+          <BadgeText
+            textColor={ScoreColorMap[scoreStatus].text}
+            style={{letterSpacing: -0.24}}>
+            {hasScore
+              ? `접근레벨 ${accessibilityScore}`
+              : isProcessing
+                ? '계산중(건물정보 필요)'
+                : '접근레벨 -'}
+          </BadgeText>
+        </BadgeShell>
+        {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
+      </StairLevelRow>
       <NameContainer onLayout={onNameLayout}>
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
@@ -285,30 +318,6 @@ const Container = styled.View`
   padding-top: 4px;
 `;
 
-const StairLevelBadge = styled.View<{
-  scoreStatus: ScoreStatus;
-}>`
-  background-color: ${({scoreStatus}) => ScoreColorMap[scoreStatus].background};
-  border-radius: 4px;
-  padding-horizontal: ${({scoreStatus}) =>
-    scoreStatus === 'unknown' || scoreStatus === 'progress' ? '7px' : '6px'};
-  padding-vertical: 4px;
-  align-self: flex-start;
-  ${({scoreStatus}) =>
-    ScoreColorMap[scoreStatus].border
-      ? `border-width: 1px; border-color: ${ScoreColorMap[scoreStatus].border};`
-      : ''}
-`;
-
-const StairLevelText = styled.Text<{
-  scoreStatus: ScoreStatus;
-}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 12px;
-  letter-spacing: -0.24px;
-  color: ${({scoreStatus}) => ScoreColorMap[scoreStatus].text};
-`;
-
 const NameContainer = styled.View`
   margin-top: 8px;
   padding-bottom: 6px;
@@ -356,6 +365,19 @@ const V2ReviewCount = styled.Text`
   line-height: 18px;
   letter-spacing: -0.26px;
   color: ${color.brand50};
+`;
+
+// 접근레벨 배지 + 저장리스트 태그를 한 줄로 묶어 가로 스크롤.
+const StairLevelRow = styled.ScrollView.attrs({
+  horizontal: true,
+  showsHorizontalScrollIndicator: false,
+  contentContainerStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  } as const,
+})`
+  overflow: visible;
 `;
 
 // --- CONTROL styled components ---

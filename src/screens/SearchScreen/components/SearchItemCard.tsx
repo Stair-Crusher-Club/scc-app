@@ -11,6 +11,7 @@ import {currentLocationAtom} from '@/atoms/Location';
 import {hasBeenRegisteredAccessibilityAtom} from '@/atoms/User';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import PlaceTags from '@/components/PlaceTags';
 import Tags from '@/components/Tag';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -44,6 +45,7 @@ function SearchItemCard({
   isConquestMode,
   hideActions,
   hideScoreIcon,
+  hidePlaceTags,
   onPress,
   listQueryKey,
 }: {
@@ -52,6 +54,7 @@ function SearchItemCard({
   isConquestMode?: boolean;
   hideActions?: boolean;
   hideScoreIcon?: boolean;
+  hidePlaceTags?: boolean;
   onPress?: () => void;
   listQueryKey?: QueryKey;
 }) {
@@ -294,28 +297,33 @@ function SearchItemCard({
         onPress={onPress}>
         <InfoArea>
           <LabelIconArea>
-            {!isInfoRequestEligible({
-              hasPlaceAccessibility: item.hasPlaceAccessibility,
-              address: item.place.address,
-              category: item.place.category,
-              isConquestMode,
-            }) ? (
-              <ScoreLabel
-                score={getPlaceAccessibilityScore({
-                  score: item.accessibilityInfo?.accessibilityScore,
-                  hasPlaceAccessibility: item.hasPlaceAccessibility,
-                  hasBuildingAccessibility: item.hasBuildingAccessibility,
-                })}
-                isIconVisible={!hideScoreIcon}
-              />
-            ) : (
-              <AccessibilityInfoRequestButton
-                placeId={item.place.id}
-                isRequested={item.isAccessibilityInfoRequested}
-                animated
-                listQueryKey={listQueryKey}
-              />
-            )}
+            <ScoreLabelGroup>
+              {!isInfoRequestEligible({
+                hasPlaceAccessibility: item.hasPlaceAccessibility,
+                address: item.place.address,
+                category: item.place.category,
+                isConquestMode,
+              }) ? (
+                <ScoreLabel
+                  score={getPlaceAccessibilityScore({
+                    score: item.accessibilityInfo?.accessibilityScore,
+                    hasPlaceAccessibility: item.hasPlaceAccessibility,
+                    hasBuildingAccessibility: item.hasBuildingAccessibility,
+                  })}
+                  isIconVisible={!hideScoreIcon}
+                />
+              ) : (
+                <AccessibilityInfoRequestButton
+                  placeId={item.place.id}
+                  isRequested={item.isAccessibilityInfoRequested}
+                  animated
+                  listQueryKey={listQueryKey}
+                />
+              )}
+              {!hidePlaceTags && (item.placeTags?.length ?? 0) > 0 && (
+                <PlaceTags tags={item.placeTags ?? []} />
+              )}
+            </ScoreLabelGroup>
             {!hideActions && (
               <IconArea>
                 <SccTouchableOpacity
@@ -508,6 +516,20 @@ const LabelIconArea = styled.View`
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 3px;
+`;
+
+// 접근레벨 배지 + 저장리스트 태그를 한 줄로 묶어 가로 스크롤(태그가 많아도 접근레벨까지 함께 스크롤).
+const ScoreLabelGroup = styled.ScrollView.attrs({
+  horizontal: true,
+  showsHorizontalScrollIndicator: false,
+  contentContainerStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  } as const,
+})`
+  flex: 1;
+  overflow: visible;
 `;
 
 const TitleArea = styled.View`

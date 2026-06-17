@@ -26,6 +26,7 @@ import {
   PlaceDoorDirectionTypeDto,
   PlaceListItem,
   PlaceSpecialAccessibilityDto,
+  PlaceTagDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
   UpvoteTargetTypeDto,
@@ -210,6 +211,7 @@ export default function PlaceDetailV2Screen({
       specialAccessibility: navSpecialAccessibility as
         | PlaceSpecialAccessibilityDto
         | undefined,
+      placeTags: undefined as PlaceTagDto[] | undefined,
     },
     queryKey: ['PlaceDetailV2', placeId],
     queryFn: async ({queryKey}) => {
@@ -224,6 +226,7 @@ export default function PlaceDetailV2Screen({
         accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
         kakaoPlaceId: kakaoVendor?.vendorPlaceId,
         specialAccessibility: result.data.specialAccessibility,
+        placeTags: result.data.placeTags,
       };
     },
   });
@@ -939,6 +942,7 @@ export default function PlaceDetailV2Screen({
                 onPressUpvote={handleUpvote}
                 accessibility={accessibilityPost}
                 reviewCount={(reviewPost ?? []).length}
+                placeTags={data?.placeTags ?? undefined}
                 onPressRegister={() => setShowRegistrationSheet(true)}
                 onPressWriteReview={handleReviewRegister}
                 onPressSiren={() =>

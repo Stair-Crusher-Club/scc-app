@@ -3684,6 +3684,38 @@ export interface ListPlaceFavoritesResponseDto {
     'items': Array<PlaceListItem>;
 }
 /**
+ * 장소 검색 추천 목록 조회 요청
+ * @export
+ * @interface ListPlaceSearchRecommendationsRequestDto
+ */
+export interface ListPlaceSearchRecommendationsRequestDto {
+    /**
+     * 
+     * @type {Location}
+     * @memberof ListPlaceSearchRecommendationsRequestDto
+     */
+    'currentLocation': Location;
+    /**
+     * 
+     * @type {RectangleSearchRegionDto}
+     * @memberof ListPlaceSearchRecommendationsRequestDto
+     */
+    'rectangleRegion'?: RectangleSearchRegionDto;
+}
+/**
+ * 장소 검색 추천 목록 응답
+ * @export
+ * @interface ListPlaceSearchRecommendationsResponseDto
+ */
+export interface ListPlaceSearchRecommendationsResponseDto {
+    /**
+     * 추천 항목 목록. 매칭 없으면 빈 배열.
+     * @type {Array<PlaceSearchRecommendationDto>}
+     * @memberof ListPlaceSearchRecommendationsResponseDto
+     */
+    'items': Array<PlaceSearchRecommendationDto>;
+}
+/**
  * 
  * @export
  * @interface ListPlacesInBuildingPost200Response
@@ -4736,6 +4768,12 @@ export interface PlaceListItem {
      * @memberof PlaceListItem
      */
     'specialAccessibility'?: PlaceSpecialAccessibilityDto;
+    /**
+     * 장소에 연결된 태그 목록 (예: 저장리스트 태그). shortName이 설정된 PUBLIC 저장리스트에 포함된 경우에만 노출.
+     * @type {Array<PlaceTagDto>}
+     * @memberof PlaceListItem
+     */
+    'placeTags'?: Array<PlaceTagDto>;
 }
 /**
  * 저장 리스트 타입
@@ -4928,6 +4966,50 @@ export interface PlaceReviewListItemDto {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 장소 검색 추천 항목 (지도 empty view 칩)
+ * @export
+ * @interface PlaceSearchRecommendationDto
+ */
+export interface PlaceSearchRecommendationDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceSearchRecommendationDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {PlaceSearchRecommendationTypeDto}
+     * @memberof PlaceSearchRecommendationDto
+     */
+    'type': PlaceSearchRecommendationTypeDto;
+    /**
+     * 칩에 표시하는 짧은 이름 (최대 8자)
+     * @type {string}
+     * @memberof PlaceSearchRecommendationDto
+     */
+    'name': string;
+    /**
+     * PLACE_LIST 타입일 때 탭 시 이동할 저장리스트 ID
+     * @type {string}
+     * @memberof PlaceSearchRecommendationDto
+     */
+    'placeListId'?: string | null;
+}
+/**
+ * 장소 검색 추천 타입 (클라이언트에 노출되는 컨텐츠 타입)
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceSearchRecommendationTypeDto = {
+    PlaceList: 'PLACE_LIST'
+} as const;
+
+export type PlaceSearchRecommendationTypeDto = typeof PlaceSearchRecommendationTypeDto[keyof typeof PlaceSearchRecommendationTypeDto];
+
+
+/**
  * 장소의 특수 접근성 정보. 뿌클로드 등 특수한 방식으로 접근성 정보를 제공하는 장소에 대한 메타데이터.
  * @export
  * @interface PlaceSpecialAccessibilityDto
@@ -4952,6 +5034,44 @@ export const PlaceSpecialAccessibilityDtoAccessibilityTypeEnum = {
 } as const;
 
 export type PlaceSpecialAccessibilityDtoAccessibilityTypeEnum = typeof PlaceSpecialAccessibilityDtoAccessibilityTypeEnum[keyof typeof PlaceSpecialAccessibilityDtoAccessibilityTypeEnum];
+
+/**
+ * 장소에 연결된 태그
+ * @export
+ * @interface PlaceTagDto
+ */
+export interface PlaceTagDto {
+    /**
+     * 
+     * @type {PlaceTagTypeDto}
+     * @memberof PlaceTagDto
+     */
+    'type': PlaceTagTypeDto;
+    /**
+     * 태그 표시 이름
+     * @type {string}
+     * @memberof PlaceTagDto
+     */
+    'name': string;
+    /**
+     * PLACE_LIST 타입일 때 연결된 저장리스트 ID
+     * @type {string}
+     * @memberof PlaceTagDto
+     */
+    'placeListId'?: string | null;
+}
+/**
+ * 장소 태그 타입
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceTagTypeDto = {
+    PlaceList: 'PLACE_LIST'
+} as const;
+
+export type PlaceTagTypeDto = typeof PlaceTagTypeDto[keyof typeof PlaceTagTypeDto];
+
 
 /**
  * 장소 단위 도움이 돼요 정보
@@ -6300,6 +6420,12 @@ export interface SearchPlacesByNaturalLanguageResultItemDto {
      * @memberof SearchPlacesByNaturalLanguageResultItemDto
      */
     'specialAccessibility'?: PlaceSpecialAccessibilityDto;
+    /**
+     * 장소에 연결된 태그 목록 (예: 저장리스트 태그). shortName이 설정된 PUBLIC 저장리스트에 포함된 경우에만 노출.
+     * @type {Array<PlaceTagDto>}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'placeTags'?: Array<PlaceTagDto>;
 }
 /**
  * 
@@ -9529,6 +9655,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 현재 지도 중심점(currentLocation)이 추천 항목의 폴리곤 내부에 있으면 해당 추천을 반환한다. 매칭되는 추천이 없으면 빈 배열을 반환한다. 비인증 사용자도 조회 가능하다. 
+         * @summary 현재 지도 영역에 해당하는 장소 검색 추천 목록을 조회한다.
+         * @param {ListPlaceSearchRecommendationsRequestDto} listPlaceSearchRecommendationsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPlaceSearchRecommendations: async (listPlaceSearchRecommendationsRequestDto: ListPlaceSearchRecommendationsRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listPlaceSearchRecommendationsRequestDto' is not null or undefined
+            assertParamExists('listPlaceSearchRecommendations', 'listPlaceSearchRecommendationsRequestDto', listPlaceSearchRecommendationsRequestDto)
+            const localVarPath = `/listPlaceSearchRecommendations`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listPlaceSearchRecommendationsRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * \'이 건물에 다른 점포 등록하기\'를 눌렀을 때 호출된다.
          * @summary 특정 건물의 점포를 조회한다.
          * @param {ListPlacesInBuildingPostRequest} listPlacesInBuildingPostRequest 
@@ -11882,6 +12048,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 현재 지도 중심점(currentLocation)이 추천 항목의 폴리곤 내부에 있으면 해당 추천을 반환한다. 매칭되는 추천이 없으면 빈 배열을 반환한다. 비인증 사용자도 조회 가능하다. 
+         * @summary 현재 지도 영역에 해당하는 장소 검색 추천 목록을 조회한다.
+         * @param {ListPlaceSearchRecommendationsRequestDto} listPlaceSearchRecommendationsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listPlaceSearchRecommendations(listPlaceSearchRecommendationsRequestDto: ListPlaceSearchRecommendationsRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListPlaceSearchRecommendationsResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listPlaceSearchRecommendations(listPlaceSearchRecommendationsRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * \'이 건물에 다른 점포 등록하기\'를 눌렀을 때 호출된다.
          * @summary 특정 건물의 점포를 조회한다.
          * @param {ListPlacesInBuildingPostRequest} listPlacesInBuildingPostRequest 
@@ -12883,6 +13060,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listPlaceReviewsPost(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: any): AxiosPromise<Array<PlaceReviewDto>> {
             return localVarFp.listPlaceReviewsPost(getAccessibilityPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 현재 지도 중심점(currentLocation)이 추천 항목의 폴리곤 내부에 있으면 해당 추천을 반환한다. 매칭되는 추천이 없으면 빈 배열을 반환한다. 비인증 사용자도 조회 가능하다. 
+         * @summary 현재 지도 영역에 해당하는 장소 검색 추천 목록을 조회한다.
+         * @param {ListPlaceSearchRecommendationsRequestDto} listPlaceSearchRecommendationsRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPlaceSearchRecommendations(listPlaceSearchRecommendationsRequestDto: ListPlaceSearchRecommendationsRequestDto, options?: any): AxiosPromise<ListPlaceSearchRecommendationsResponseDto> {
+            return localVarFp.listPlaceSearchRecommendations(listPlaceSearchRecommendationsRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * \'이 건물에 다른 점포 등록하기\'를 눌렀을 때 호출된다.
@@ -13940,6 +14127,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listPlaceReviewsPost(getAccessibilityPostRequest: GetAccessibilityPostRequest, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listPlaceReviewsPost(getAccessibilityPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 현재 지도 중심점(currentLocation)이 추천 항목의 폴리곤 내부에 있으면 해당 추천을 반환한다. 매칭되는 추천이 없으면 빈 배열을 반환한다. 비인증 사용자도 조회 가능하다. 
+     * @summary 현재 지도 영역에 해당하는 장소 검색 추천 목록을 조회한다.
+     * @param {ListPlaceSearchRecommendationsRequestDto} listPlaceSearchRecommendationsRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listPlaceSearchRecommendations(listPlaceSearchRecommendationsRequestDto: ListPlaceSearchRecommendationsRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listPlaceSearchRecommendations(listPlaceSearchRecommendationsRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

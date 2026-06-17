@@ -1,11 +1,21 @@
+import {keepPreviousData, useQuery} from '@tanstack/react-query';
+import {useAtomValue} from 'jotai';
 import React from 'react';
 import {ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
-import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {
+  PlaceSearchRecommendationDto,
+  PlaceSearchRecommendationTypeDto,
+} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
+import {draftCameraRegionAtom} from '@/screens/SearchScreen/atoms';
 import type {SearchMode} from '@/screens/SearchScreen/atoms';
+import useNavigation from '@/navigation/useNavigation';
+import {Region} from '@/components/maps/Types';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
 
@@ -14,6 +24,82 @@ export default function SearchCategory({
 }: {
   onPressKeyword: (keyword: string, mode: SearchMode) => void;
 }) {
+  const {api} = useAppComponents();
+  const navigation = useNavigation();
+  const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
+
+  const rectangleRegion = draftCameraRegion
+    ? {
+        leftTopLocation: {
+          lat: draftCameraRegion.northEast.latitude,
+          lng: draftCameraRegion.southWest.longitude,
+        },
+        rightBottomLocation: {
+          lat: draftCameraRegion.southWest.latitude,
+          lng: draftCameraRegion.northEast.longitude,
+        },
+      }
+    : undefined;
+
+  // 칩은 "지금 보고 있는 지도 영역(settle된 camera)" 기준으로만 조회한다.
+  // GPS currentLocation fallback을 쓰면, 탭 재진입 시 draftCameraRegion이 아직 null인
+  // 순간 GPS(예: 시청)로 즉시 조회돼 '있음'이 떴다가, camera settle 과정의 transient
+  // region에서 '없음'→'있음'으로 깜빡인다. fallback 제거 → 없음→있음.
+  const centerLocation = draftCameraRegion
+    ? {
+        lat:
+          (draftCameraRegion.northEast.latitude +
+            draftCameraRegion.southWest.latitude) /
+          2,
+        lng:
+          (draftCameraRegion.northEast.longitude +
+            draftCameraRegion.southWest.longitude) /
+          2,
+      }
+    : null;
+
+  const {data: recommendationItems} = useQuery({
+    enabled: centerLocation != null,
+    queryKey: [
+      'PlaceSearchRecommendations',
+      draftCameraRegion as Region | null,
+      centerLocation?.lat ?? null,
+      centerLocation?.lng ?? null,
+    ],
+    queryFn: async () => {
+      if (!centerLocation) {
+        return [];
+      }
+      const response = await api.listPlaceSearchRecommendations({
+        currentLocation: centerLocation,
+        rectangleRegion,
+      });
+      return response.data.items;
+    },
+    placeholderData: keepPreviousData,
+  });
+  // 추천 조회 실패는 조용히 빈 목록으로 처리(토스트 없음) — 추천이 없는 것처럼 동작.
+
+  const handleRecommendationChipPress = (
+    item: PlaceSearchRecommendationDto,
+  ) => {
+    switch (item.type) {
+      case PlaceSearchRecommendationTypeDto.PlaceList: {
+        if (item.placeListId) {
+          navigation.navigate('PlaceListDetail', {
+            placeListId: item.placeListId,
+            initialViewMode: 'map',
+          });
+        }
+        return;
+      }
+      default: {
+        const _exhaustiveCheck: never = item.type;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
   const _renderItem = ({item}: {item: SearchCategoryItem}) => {
     return (
       <PressableCategory
@@ -26,6 +112,9 @@ export default function SearchCategory({
       </PressableCategory>
     );
   };
+
+  const recommendations = recommendationItems ?? [];
+
   return (
     <ScrollView
       style={{
@@ -34,7 +123,20 @@ export default function SearchCategory({
       horizontal={true}
       showsHorizontalScrollIndicator={false}>
       <View style={{flexDirection: 'row', gap: 6}}>
-        {SEARCH_CATEGORIES.map(item => _renderItem({item}))}
+        {_renderItem({item: SEARCH_CATEGORIES[0]})}
+        {recommendations.map(item => (
+          <PressableCategory
+            key={item.id}
+            elementName="place_search_recommendation_chip"
+            logParams={{
+              recommendationId: item.id,
+              placeListId: item.placeListId,
+            }}
+            onPress={() => handleRecommendationChipPress(item)}>
+            <CategoryText>{item.name}</CategoryText>
+          </PressableCategory>
+        ))}
+        {SEARCH_CATEGORIES.slice(1).map(item => _renderItem({item}))}
       </View>
     </ScrollView>
   );

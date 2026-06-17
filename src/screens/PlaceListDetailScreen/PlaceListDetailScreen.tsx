@@ -43,6 +43,10 @@ import {placeListFilterAtom, placeListFilterModalStateAtom} from './atoms';
 import FilterBar from './sections/FilterBar';
 import PlaceListFilterModal from './sections/PlaceListFilterModal';
 
+type PlaceMarkerItem = MarkerItem & PlaceListItem;
+
+type ViewMode = 'map' | 'list';
+
 export interface PlaceListDetailScreenParams {
   placeListId: string;
   /**
@@ -52,11 +56,9 @@ export interface PlaceListDetailScreenParams {
    * 일반 진입 (홈에서 PublicPlaceLists 직접 진입 등) 에서는 미션이 완료되지 않는다.
    */
   fromTutorial?: boolean;
+  /** 초기 뷰 모드. 미지정 시 'list'. */
+  initialViewMode?: ViewMode;
 }
-
-type PlaceMarkerItem = MarkerItem & PlaceListItem;
-
-type ViewMode = 'map' | 'list';
 
 type ListSection =
   | {type: 'header'; key: string}
@@ -67,11 +69,15 @@ const PlaceListDetailScreen = ({
   route,
   navigation,
 }: ScreenProps<'PlaceListDetail'>) => {
-  const {placeListId, fromTutorial = false} = route.params;
+  const {
+    placeListId,
+    fromTutorial = false,
+    initialViewMode = 'list',
+  } = route.params;
   const {api} = useAppComponents();
   const {userInfo} = useMe();
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
   const pdpScreen = usePlaceDetailScreenName();
   const checkAuth = useCheckAuth();
   const insets = useSafeAreaInsets();
@@ -251,6 +257,7 @@ const PlaceListDetailScreen = ({
         isHeightFlex
         hideActions
         hideScoreIcon
+        hidePlaceTags
         onPress={props.onPress}
         listQueryKey={placeListQueryKey}
       />
@@ -316,6 +323,7 @@ const PlaceListDetailScreen = ({
             isHeightFlex
             hideActions
             hideScoreIcon
+            hidePlaceTags
             onPress={() => handleItemPress(item.data)}
             listQueryKey={placeListQueryKey}
           />
