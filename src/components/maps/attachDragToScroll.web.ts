@@ -63,6 +63,7 @@ export default function attachDragToScroll(
   const ANIM_MS = 280;
 
   let isDown = false;
+  let captured = false;
   let startX = 0;
   let startScroll = 0;
   let moved = false;
@@ -126,21 +127,29 @@ export default function attachDragToScroll(
     isAnimating = false;
     isDown = true;
     moved = false;
+    captured = false;
     startX = e.pageX;
     startScroll = target.scrollLeft;
     samples = [{x: e.pageX, t: e.timeStamp}];
-    target.style.scrollSnapType = 'none';
-    target.style.scrollBehavior = 'auto';
-    try {
-      target.setPointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
+    // 포인터 캡처는 실제 드래그가 시작된 뒤(pointermove)에만 건다. pointerdown 에서
+    // 캡처하면 이어지는 click 이벤트가 카드가 아니라 스크롤러로 디스패치돼(크롬 동작)
+    // 카드 onPress(PDP 진입)가 먹지 않는다. 순수 탭은 캡처하지 않아 click 이 카드로 간다.
   };
   const onPointerMove = (e: PointerEvent) => {
     if (!isDown) return;
     const dx = e.pageX - startX;
-    if (Math.abs(dx) > 3) moved = true;
+    if (!moved && Math.abs(dx) > 3) {
+      moved = true;
+      target.style.scrollSnapType = 'none';
+      target.style.scrollBehavior = 'auto';
+      try {
+        target.setPointerCapture(e.pointerId);
+        captured = true;
+      } catch {
+        // ignore
+      }
+    }
+    if (!moved) return;
     target.scrollLeft = startScroll - dx;
     samples.push({x: e.pageX, t: e.timeStamp});
     // 최근 100ms 구간만 유지.
@@ -150,6 +159,16 @@ export default function attachDragToScroll(
   const onPointerUp = (e: PointerEvent) => {
     if (!isDown) return;
     isDown = false;
+    if (captured) {
+      try {
+        target.releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+      captured = false;
+    }
+    // 순수 탭(드래그 없음): 스크롤/스냅을 건드리지 않고 click 이 카드로 가게 둔다.
+    if (!moved) return;
     // 최근 구간 평균 속도(px/ms). 마지막 한 샘플만 쓰면 release 직전 감속 때문에
     // 과소평가되어 빠른 플릭도 안 넘어간다 → 100ms 윈도우의 시작점과 비교.
     const now = e.timeStamp;
