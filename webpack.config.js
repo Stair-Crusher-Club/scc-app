@@ -252,7 +252,24 @@ module.exports = {
       },
       {
         test: /\.svg$/,
-        use: ['@svgr/webpack'],
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              // svgo 기본 설정은 viewBox 를 제거해버려, width/height prop 으로 크기를
+              // 줄여도 path 가 원래 좌표(예: 24×24)대로 그려져 박스를 넘친다(앱보다 큼).
+              // viewBox 를 유지해야 prop 크기에 맞게 스케일된다.
+              svgoConfig: {
+                plugins: [
+                  {
+                    name: 'preset-default',
+                    params: {overrides: {removeViewBox: false}},
+                  },
+                ],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.svg\.txt$/,
