@@ -317,10 +317,8 @@ export default function V2HomeTab({
           </AccessibilitySectionContainer>
         ) : (
           <EmptyStateCard
-            title={'아직 등록된 접근성 정보가 없어요🥲'}
-            description={
-              '아래 버튼을 눌러주시면\n최대한 빨리 장소를 정복해볼게요!'
-            }
+            title={'등록된 접근성 정보가 없어요🥲'}
+            description={'아래 버튼을 눌러서 정보를 등록해주세요.'}
             buttonText="정보 등록하기"
             onPress={onPressPlaceRegister}
             elementName="v2_home_tab_register_place"
@@ -396,10 +394,8 @@ export default function V2HomeTab({
           </ToiletReviewList>
         ) : (
           <EmptyStateCard
-            title={'아직 등록된 장애인 화장실 정보가 없어요🥲'}
-            description={
-              '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
-            }
+            title={'등록된 장애인 화장실 정보가 없어요🥲'}
+            description={'장애인 화장실을 등록해주시면, 필요한 분들께 큰 도움이 됩니다.'}
             buttonText="장애인 화장실 정보 등록"
             onPress={onPressToiletRegister}
             elementName="v2_home_tab_register_toilet"
