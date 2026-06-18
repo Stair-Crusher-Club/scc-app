@@ -59,15 +59,16 @@ export default function TutorialOverlay({
 
   const handlePrev = useCallback(() => {
     const target = Math.max(0, activeSlide - 1);
-    // setActiveSlide 직접 갱신: rn-web 에서는 onMomentumScrollEnd 가 발화하지 않아
-    // scrollTo 만으로는 activeSlide(점·버튼 상태)가 갱신되지 않는다.
-    setActiveSlide(target);
+    // 웹에서만 직접 갱신: rn-web 은 onMomentumScrollEnd 가 발화하지 않아 scrollTo
+    // 만으로는 activeSlide(점·버튼 상태)가 갱신되지 않는다. 네이티브는
+    // onMomentumScrollEnd 가 갱신하므로 기존 동작을 그대로 둔다.
+    if (isWeb) setActiveSlide(target);
     scrollRef.current?.scrollTo({x: target * SCREEN_WIDTH, animated: true});
   }, [activeSlide]);
 
   const handleNext = useCallback(() => {
     const target = Math.min(slides.length - 1, activeSlide + 1);
-    setActiveSlide(target);
+    if (isWeb) setActiveSlide(target);
     scrollRef.current?.scrollTo({x: target * SCREEN_WIDTH, animated: true});
   }, [activeSlide]);
 
@@ -120,7 +121,9 @@ export default function TutorialOverlay({
           showsHorizontalScrollIndicator={false}
           bounces={false}
           onMomentumScrollEnd={handleScroll}
-          onScroll={handleScroll}
+          // 웹에서만 onScroll 로 점 상태를 추적(rn-web 은 onMomentumScrollEnd 미발화).
+          // 네이티브는 onMomentumScrollEnd 만 쓰던 기존 동작 유지(스크롤 중 점 미갱신).
+          onScroll={isWeb ? handleScroll : undefined}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           scrollEventThrottle={16}>

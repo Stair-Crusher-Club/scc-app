@@ -15,22 +15,23 @@ export function useCheckAuth() {
     onFailed?: () => void,
     message?: string,
   ) => {
-    // 웹: 앱 전용 기능(message가 지정된 액션 = 정보 등록/리뷰/신고 등)은 진입 시도
-    // 즉시 앱 설치 유도. 위치 확인 모달/네비게이션까지 가지 않고 버튼 누르자마자 뜬다.
-    // (RootScreen의 라우트 게이트는 직접 URL 진입에 대한 backstop으로 유지.)
+    // 비회원이라면 로그인 페이지를 열고 (웹도 로그인 지원 → 웹/네이티브 공통)
+    if (isAnonymousUser) {
+      onFailed?.();
+      console.log('anonymous user! open login');
+      navigation.navigate('Login', {asModal: true});
+      return;
+    }
+    // 웹: 로그인했지만 웹에서 불가능한 앱 전용 기능(message 지정 = 정보 등록/리뷰/
+    // 신고 등)은 진입 시도 즉시 앱 설치 유도. 위치 확인 모달/네비게이션까지 가지
+    // 않고 버튼 누르자마자 뜬다. (RootScreen 라우트 게이트는 직접 URL 진입 backstop.)
     if (Platform.OS === 'web' && message) {
       onFailed?.();
       showAppInstallPrompt(message);
       return;
     }
-    // 비회원이라면 로그인 페이지를 열고
-    if (isAnonymousUser) {
-      onFailed?.();
-      console.log('anonymous user! open login');
-      navigation.navigate('Login', {asModal: true});
-    }
     // 회원이라면 주어진 콜백을 실행
-    else onAuth();
+    onAuth();
   };
 
   return checkAuth;
