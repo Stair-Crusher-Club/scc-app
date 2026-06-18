@@ -395,7 +395,7 @@ export default function V2HomeTab({
         ) : (
           <EmptyStateCard
             title={'등록된 장애인 화장실 정보가 없어요🥲'}
-            description={'장애인 화장실을 등록해주시면, 필요한 분들께 큰 도움이 됩니다.'}
+            description={'장애인 화장실을 등록해주시면 큰 도움이 됩니다.'}
             buttonText="장애인 화장실 정보 등록"
             onPress={onPressToiletRegister}
             elementName="v2_home_tab_register_toilet"

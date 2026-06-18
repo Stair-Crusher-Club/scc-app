@@ -56,10 +56,8 @@ export default function V2RestroomTab({
     return (
       <EmptyStateWrapper>
         <EmptyStateCard
-          title={'아직 등록된 장애인 화장실 정보가 없어요🥲'}
-          description={
-            '장애인 화장실이 있었나요?\n정보를 등록해주시면 필요한 분들에게 큰 도움이 돼요.'
-          }
+          title={'등록된 장애인 화장실 정보가 없어요🥲'}
+          description={'장애인 화장실을 등록해주시면 큰 도움이 됩니다.'}
           buttonText="장애인 화장실 정보 등록"
           onPress={handleToiletReviewPress}
           elementName="place_detail_restroom_tab_empty_register"
