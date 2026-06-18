@@ -24,12 +24,18 @@ export function showAppInstallPrompt(message?: string) {
 
   const overlay = document.createElement('div');
   overlay.id = 'app-install-overlay';
+  // 오버레이는 body 직속이라 480px 프레임 밖에 놓인다. 프레임과 동일하게 중앙
+  // 정렬(left:50% + translateX(-50%) + max-width:480px)해 프레임 위에 덮이게 한다.
+  // (이 값을 빼면 web/index.tsx 의 body-portal 규칙의 translateX(-50%) 만 적용돼
+  // 모달이 화면 왼쪽 끝(left 0)에 붙어 보인다.)
   Object.assign(overlay.style, {
     position: 'fixed',
     top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '100%',
+    maxWidth: '480px',
+    height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     display: 'flex',
     alignItems: 'center',
