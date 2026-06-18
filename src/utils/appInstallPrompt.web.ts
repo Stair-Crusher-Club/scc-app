@@ -1,13 +1,13 @@
+// Web-only DOM modal prompting users to install the app for app-only features.
+// Extracted from checkAuth.web.ts so the route gate can reuse it.
 const APP_DOWNLOAD_BASE_URL = 'https://link.staircrusher.club/epnb5p';
 const APP_ICON_URL = new URL('../../web/assets/app-icon.png', import.meta.url)
   .href;
 
 function getDeepLinkPath(): string | null {
   const path = window.location.pathname;
-  // /place-list/:placeListId(/place/:placeId) → place-list/:placeListId
   const placeListMatch = path.match(/^\/place-list\/([^/]+)/);
   if (placeListMatch) return `place-list/${placeListMatch[1]}`;
-  // /search/:query → search?searchQuery=:query
   const searchMatch = path.match(/^\/search\/([^/]+)/);
   if (searchMatch) return `search?searchQuery=${searchMatch[1]}`;
   return null;
@@ -19,7 +19,7 @@ function buildAppDownloadUrl(): string {
   return `${APP_DOWNLOAD_BASE_URL}?deeplink_path=${encodeURIComponent(deepLinkPath)}`;
 }
 
-function showAppInstallPrompt(message?: string) {
+export function showAppInstallPrompt(message?: string) {
   if (document.getElementById('app-install-overlay')) return;
 
   const overlay = document.createElement('div');
@@ -38,7 +38,6 @@ function showAppInstallPrompt(message?: string) {
     animation: 'fadeIn 0.2s ease',
   });
 
-  // 애니메이션 CSS 주입
   if (!document.getElementById('app-install-style')) {
     const style = document.createElement('style');
     style.id = 'app-install-style';
@@ -64,7 +63,6 @@ function showAppInstallPrompt(message?: string) {
     animation: 'slideUp 0.25s ease',
   });
 
-  // 앱 아이콘 (그림자 + 약간 큰 사이즈)
   const icon = document.createElement('img');
   icon.src = APP_ICON_URL;
   Object.assign(icon.style, {
@@ -75,7 +73,6 @@ function showAppInstallPrompt(message?: string) {
     marginBottom: '4px',
   });
 
-  // 앱 이름
   const appName = document.createElement('p');
   appName.textContent = '계단뿌셔클럽';
   Object.assign(appName.style, {
@@ -85,7 +82,6 @@ function showAppInstallPrompt(message?: string) {
     margin: '0',
   });
 
-  // 설명 문구
   const desc = document.createElement('p');
   desc.textContent = message || '계단뿌셔클럽 앱에서 만나요';
   Object.assign(desc.style, {
@@ -96,7 +92,6 @@ function showAppInstallPrompt(message?: string) {
     lineHeight: '1.4',
   });
 
-  // 설치 버튼
   const installBtn = document.createElement('button');
   installBtn.textContent = '앱으로 열기';
   Object.assign(installBtn.style, {
@@ -123,7 +118,6 @@ function showAppInstallPrompt(message?: string) {
     overlay.remove();
   };
 
-  // 웹으로 계속 보기
   const dismissLink = document.createElement('span');
   dismissLink.textContent = '웹에서 계속 볼게요';
   Object.assign(dismissLink.style, {
@@ -148,17 +142,4 @@ function showAppInstallPrompt(message?: string) {
   };
 
   document.body.appendChild(overlay);
-}
-
-export function useCheckAuth() {
-  const checkAuth = async (
-    _onAuth: () => void,
-    onFailed?: () => void,
-    message?: string,
-  ) => {
-    onFailed?.();
-    showAppInstallPrompt(message);
-  };
-
-  return checkAuth;
 }

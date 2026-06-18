@@ -33,7 +33,9 @@ const queryClient = new QueryClient();
 
 // Get BASE_URL with local development override
 const getBaseURL = () => {
-  if (Config.FLAVOR === 'local') {
+  // On web there is no localhost-emulator bridge; always use the configured
+  // BASE_URL (the dev server origin must be CORS-allowed by that backend).
+  if (Config.FLAVOR === 'local' && Platform.OS !== 'web') {
     return Platform.OS === 'ios'
       ? 'http://localhost:8080'
       : 'http://10.0.2.2:8080';
@@ -139,8 +141,15 @@ const HotUpdatedApp = HotUpdater.wrap({
 
 const AppRoot = () => (
   <View style={{flex: 1, backgroundColor: color.brand30}}>
-    <HotUpdatedApp />
-    <SplashOverlay />
+    {Platform.OS === 'web' ? (
+      // Web: no OTA (HotUpdater) and no native splash. The provider tree is shared.
+      <AppWithProviders />
+    ) : (
+      <>
+        <HotUpdatedApp />
+        <SplashOverlay />
+      </>
+    )}
   </View>
 );
 

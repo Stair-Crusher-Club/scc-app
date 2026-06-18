@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { WebStackParamList } from '../../navigation/WebNavigation';
 import { api, apiConfig } from '../../config/api';
 import { color } from '@/constant/color';
+import { getStorageValue } from '@/atoms/atomForLocal';
 import { LogParamsProvider } from '@/logging/LogParamsProvider';
 import { SccContentTypeDto, UpvoteTargetTypeDto } from '@/generated-sources/openapi';
 import { useUpvoteToggle } from '@/hooks/useUpvoteToggle';
@@ -575,6 +576,27 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
             try {
               const userInfoResponse = await api.getUserInfoGet();
               window.localStorage.setItem('bbucleRoadUserId', userInfoResponse.data.user.id);
+            } catch {
+              // ignore
+            }
+          }
+          setIsInitializing(false);
+          return;
+        }
+
+        // 1순위: 메인 앱에 로그인돼 있으면(scc-token) 그 토큰을 그대로 사용한다.
+        // 익명 유저를 새로 만들면, 만료된 익명 토큰으로 401 이 날 때 globalAxios 공유
+        // 인터셉터가 로그인 유저의 세션까지 풀어버린다. 이미 토큰이 있으면 재사용한다.
+        const appToken = getStorageValue<string>('scc-token');
+        if (appToken) {
+          apiConfig.accessToken = appToken;
+          if (!window.localStorage.getItem('bbucleRoadUserId')) {
+            try {
+              const userInfoResponse = await api.getUserInfoGet();
+              window.localStorage.setItem(
+                'bbucleRoadUserId',
+                userInfoResponse.data.user.id,
+              );
             } catch {
               // ignore
             }

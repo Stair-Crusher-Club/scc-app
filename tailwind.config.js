@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./App.tsx', './src/**/*.{js,jsx,ts,tsx}'],
+  // 'class' (not default 'media') so NativeWind's web color-scheme runtime does
+  // not throw when syncing. No `dark:` variants are used, so this is inert.
+  darkMode: 'class',
   presets: [require('nativewind/preset')],
   theme: {
     colors: {

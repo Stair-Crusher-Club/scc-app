@@ -448,6 +448,11 @@ export type ScreenParams = {
   TutorialMissionSavePlaceList: PublicPlaceListsScreenParams;
   TutorialUpvoteAccessibilityMission: undefined;
   ResolvingSharedLink: ResolvingSharedLinkScreenParams;
+
+  // 웹 전용 화면 (Platform.OS === 'web' 에서만 등록됨; webScreens 참조)
+  BbucleRoad: {bbucleRoadId: string};
+  BbucleRoadList: undefined;
+  KakaoCallback: undefined;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =
