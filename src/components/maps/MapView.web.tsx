@@ -199,11 +199,18 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
         if (item.iconColor && svg) {
           svg = svg.replace(/fill="#9A9B9F"/g, `fill="${item.iconColor}"`);
         }
-        const content = `<div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;">
-          <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">${svg}</div>
+        // 마커 아이콘을 SVG 고유 크기로 렌더한다. 선택 시 svg 가 24×24 → 48×55 로
+        // 커지므로, 고정 32×32 박스에 가두면(기존) 선택 핀이 줄어들어 앱보다 덜 커
+        // 보였다. svg 의 width/height 를 읽어 박스 크기와 anchor(바닥 중앙=핀 끝)를 맞춘다.
+        const wMatch = svg.match(/width="(\d+(?:\.\d+)?)"/);
+        const hMatch = svg.match(/height="(\d+(?:\.\d+)?)"/);
+        const svgW = wMatch ? parseFloat(wMatch[1]) : 32;
+        const svgH = hMatch ? parseFloat(hMatch[1]) : 32;
+        const content = `<div style="position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+          <div style="width:${svgW}px;height:${svgH}px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svg}</div>
           ${
             item.captionText
-              ? `<div style="background:rgba(255,255,255,0.9);padding:2px 6px;font-size:11px;font-weight:500;color:#333;white-space:nowrap;border-radius:8px;max-width:100px;overflow:hidden;text-overflow:ellipsis;">${item.captionText}</div>`
+              ? `<div style="position:absolute;top:${svgH}px;left:50%;transform:translateX(-50%);margin-top:2px;background:rgba(255,255,255,0.9);padding:2px 6px;font-size:11px;font-weight:500;color:#333;white-space:nowrap;border-radius:8px;max-width:100px;overflow:hidden;text-overflow:ellipsis;">${item.captionText}</div>`
               : ''
           }
         </div>`;
@@ -211,7 +218,10 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
           position,
           map,
           zIndex: item.zIndex ?? 0,
-          icon: {content, anchor: new window.naver.maps.Point(16, 34)},
+          icon: {
+            content,
+            anchor: new window.naver.maps.Point(svgW / 2, svgH),
+          },
         });
         window.naver.maps.Event.addListener(marker, 'click', () => {
           onMarkerPress?.({nativeEvent: {id: item.id}} as any);
