@@ -30,7 +30,18 @@ function ItemMapList<T extends {id: string}>(
   ref: Ref<FlatList<T>>,
 ) {
   const wrapperRef = useRef<View>(null);
-  useEffect(() => attachDragToScroll(wrapperRef.current), []);
+  // 웹 스냅 시 최신 결과/콜백을 참조하도록 ref 로 감싼다 (effect 는 1회만 attach).
+  const onSettleRef = useRef<(index: number) => void>(() => {});
+  onSettleRef.current = (index: number) =>
+    onFocusedItemChange(searchResults[index] ?? null);
+  useEffect(
+    () =>
+      attachDragToScroll(wrapperRef.current, {
+        itemSize: ITEM_SIZE,
+        onSettle: index => onSettleRef.current(index),
+      }),
+    [],
+  );
   return (
     <View
       ref={wrapperRef}
