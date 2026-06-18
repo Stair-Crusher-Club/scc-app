@@ -76,6 +76,13 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
     const programmaticMoveRef = useRef(false);
     const [isMapLoaded, setIsMapLoaded] = React.useState(false);
 
+    // The `idle` listener is registered once (init effect), so capture the
+    // latest props via refs to avoid stale closures.
+    const onCameraIdleRef = useRef(onCameraIdle);
+    onCameraIdleRef.current = onCameraIdle;
+    const mapPaddingRef = useRef(mapPadding);
+    mapPaddingRef.current = mapPadding;
+
     // --- Map init (wait for async-loaded Naver SDK) ---
     useEffect(() => {
       let cancelled = false;
@@ -111,24 +118,53 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
         mapInstanceRef.current = map;
 
         window.naver.maps.Event.addListener(map, 'idle', () => {
-          if (!onCameraIdle) return;
+          const cb = onCameraIdleRef.current;
+          if (!cb) return;
           const bounds = map.getBounds();
           const ne = bounds.getNE();
           const sw = bounds.getSW();
           const c = map.getCenter();
+
+          let northEastLat = ne.lat();
+          let northEastLng = ne.lng();
+          let southWestLat = sw.lat();
+          let southWestLng = sw.lng();
+
+          // Inset the reported region by mapPadding so the search region excludes
+          // the card overlay(bottom) + 재검색 버튼(top) 영역과 핀/캡션을 위한
+          // 좌우 버퍼를 제외한 더 작은 사각형이 되도록 한다. (네이티브 SccMapView가
+          // padding 을 반영한 region 을 주는 동작을 웹에서 재현)
+          const pad = mapPaddingRef.current;
+          const el = containerRef.current;
+          if (pad && el && el.clientWidth > 0 && el.clientHeight > 0) {
+            const latPerPx = (northEastLat - southWestLat) / el.clientHeight;
+            const lngPerPx = (northEastLng - southWestLng) / el.clientWidth;
+            const insetNorth = northEastLat - (pad.top ?? 0) * latPerPx;
+            const insetSouth = southWestLat + (pad.bottom ?? 0) * latPerPx;
+            const insetEast = northEastLng - (pad.right ?? 0) * lngPerPx;
+            const insetWest = southWestLng + (pad.left ?? 0) * lngPerPx;
+            // 패딩이 과도해 사각형이 뒤집히는 경우만 원본 유지.
+            if (insetNorth > insetSouth && insetEast > insetWest) {
+              northEastLat = insetNorth;
+              southWestLat = insetSouth;
+              northEastLng = insetEast;
+              southWestLng = insetWest;
+            }
+          }
+
           const wasProgrammatic = programmaticMoveRef.current;
           programmaticMoveRef.current = false;
           const event: NativeCameraIdleEvent = {
-            northEastLat: ne.lat(),
-            northEastLng: ne.lng(),
-            southWestLat: sw.lat(),
-            southWestLng: sw.lng(),
+            northEastLat,
+            northEastLng,
+            southWestLat,
+            southWestLng,
             zoom: map.getZoom(),
             centerLat: c.lat(),
             centerLng: c.lng(),
             reason: wasProgrammatic ? 3 : 0,
           };
-          onCameraIdle({nativeEvent: event} as any);
+          cb({nativeEvent: event} as any);
         });
 
         setIsMapLoaded(true);
