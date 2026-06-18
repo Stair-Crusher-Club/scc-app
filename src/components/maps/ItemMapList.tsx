@@ -1,6 +1,8 @@
-import React, {forwardRef, Ref} from 'react';
+import React, {forwardRef, Ref, useEffect, useRef} from 'react';
 import {Dimensions, FlatList, LayoutChangeEvent, View} from 'react-native';
 import styled from 'styled-components/native';
+
+import attachDragToScroll from '@/components/maps/attachDragToScroll';
 
 const {width} = Dimensions.get('window');
 const ITEM_RATIO = 0.9;
@@ -27,8 +29,11 @@ function ItemMapList<T extends {id: string}>(
   }: Props<T>,
   ref: Ref<FlatList<T>>,
 ) {
+  const wrapperRef = useRef<View>(null);
+  useEffect(() => attachDragToScroll(wrapperRef.current), []);
   return (
     <View
+      ref={wrapperRef}
       style={{
         width: '100%',
         height: searchResults.length > 0 ? 242 + 28 : 0,
