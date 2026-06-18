@@ -21,7 +21,13 @@ export function atomForLocal<T>(atomKey: string) {
       storage.delete(key);
     },
   };
-  return atomWithStorage<T | null>(atomKey, null, valueStore);
+  // getOnInit: hydrate synchronously from storage at init (matches
+  // atomForLocalNonNull). Without it, the first render sees `null` before the
+  // storage value loads, so token-gated initial routing (Intro/Main) wrongly
+  // redirects logged-in users to Login — visible on web where the timing differs.
+  return atomWithStorage<T | null>(atomKey, null, valueStore, {
+    getOnInit: true,
+  });
 }
 
 export function atomForLocalNonNull<T>(atomKey: string, defaultValue: T) {

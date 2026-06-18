@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 import {getMarkerSvg, MarkerColors, ToiletMarkerColor} from '@/assets/markers';
 import {currentLocationAtom} from '@/atoms/Location.ts';
 import {useDevTool} from '@/components/DevTool/useDevTool';
-import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView.tsx';
+import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
 import {useLogger} from '@/logging/useLogger';

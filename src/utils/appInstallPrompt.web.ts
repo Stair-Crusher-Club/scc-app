@@ -1,13 +1,13 @@
+// Web-only DOM modal prompting users to install the app for app-only features.
+// Extracted from checkAuth.web.ts so the route gate can reuse it.
 const APP_DOWNLOAD_BASE_URL = 'https://link.staircrusher.club/epnb5p';
 const APP_ICON_URL = new URL('../../web/assets/app-icon.png', import.meta.url)
   .href;
 
 function getDeepLinkPath(): string | null {
   const path = window.location.pathname;
-  // /place-list/:placeListId(/place/:placeId) → place-list/:placeListId
   const placeListMatch = path.match(/^\/place-list\/([^/]+)/);
   if (placeListMatch) return `place-list/${placeListMatch[1]}`;
-  // /search/:query → search?searchQuery=:query
   const searchMatch = path.match(/^\/search\/([^/]+)/);
   if (searchMatch) return `search?searchQuery=${searchMatch[1]}`;
   return null;
@@ -19,17 +19,23 @@ function buildAppDownloadUrl(): string {
   return `${APP_DOWNLOAD_BASE_URL}?deeplink_path=${encodeURIComponent(deepLinkPath)}`;
 }
 
-function showAppInstallPrompt(message?: string) {
+export function showAppInstallPrompt(message?: string) {
   if (document.getElementById('app-install-overlay')) return;
 
   const overlay = document.createElement('div');
   overlay.id = 'app-install-overlay';
+  // 오버레이는 body 직속이라 480px 프레임 밖에 놓인다. 프레임과 동일하게 중앙
+  // 정렬(left:50% + translateX(-50%) + max-width:480px)해 프레임 위에 덮이게 한다.
+  // (이 값을 빼면 web/index.tsx 의 body-portal 규칙의 translateX(-50%) 만 적용돼
+  // 모달이 화면 왼쪽 끝(left 0)에 붙어 보인다.)
   Object.assign(overlay.style, {
     position: 'fixed',
     top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '100%',
+    maxWidth: '480px',
+    height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     display: 'flex',
     alignItems: 'center',
@@ -38,7 +44,6 @@ function showAppInstallPrompt(message?: string) {
     animation: 'fadeIn 0.2s ease',
   });
 
-  // 애니메이션 CSS 주입
   if (!document.getElementById('app-install-style')) {
     const style = document.createElement('style');
     style.id = 'app-install-style';
@@ -64,7 +69,6 @@ function showAppInstallPrompt(message?: string) {
     animation: 'slideUp 0.25s ease',
   });
 
-  // 앱 아이콘 (그림자 + 약간 큰 사이즈)
   const icon = document.createElement('img');
   icon.src = APP_ICON_URL;
   Object.assign(icon.style, {
@@ -75,7 +79,6 @@ function showAppInstallPrompt(message?: string) {
     marginBottom: '4px',
   });
 
-  // 앱 이름
   const appName = document.createElement('p');
   appName.textContent = '계단뿌셔클럽';
   Object.assign(appName.style, {
@@ -85,7 +88,6 @@ function showAppInstallPrompt(message?: string) {
     margin: '0',
   });
 
-  // 설명 문구
   const desc = document.createElement('p');
   desc.textContent = message || '계단뿌셔클럽 앱에서 만나요';
   Object.assign(desc.style, {
@@ -96,7 +98,6 @@ function showAppInstallPrompt(message?: string) {
     lineHeight: '1.4',
   });
 
-  // 설치 버튼
   const installBtn = document.createElement('button');
   installBtn.textContent = '앱으로 열기';
   Object.assign(installBtn.style, {
@@ -123,7 +124,6 @@ function showAppInstallPrompt(message?: string) {
     overlay.remove();
   };
 
-  // 웹으로 계속 보기
   const dismissLink = document.createElement('span');
   dismissLink.textContent = '웹에서 계속 볼게요';
   Object.assign(dismissLink.style, {
@@ -148,17 +148,4 @@ function showAppInstallPrompt(message?: string) {
   };
 
   document.body.appendChild(overlay);
-}
-
-export function useCheckAuth() {
-  const checkAuth = async (
-    _onAuth: () => void,
-    onFailed?: () => void,
-    message?: string,
-  ) => {
-    onFailed?.();
-    showAppInstallPrompt(message);
-  };
-
-  return checkAuth;
 }

@@ -7783,6 +7783,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"autoprefixer@npm:^10.5.0":
+  version: 10.5.0
+  resolution: "autoprefixer@npm:10.5.0"
+  dependencies:
+    browserslist: "npm:^4.28.2"
+    caniuse-lite: "npm:^1.0.30001787"
+    fraction.js: "npm:^5.3.4"
+    picocolors: "npm:^1.1.1"
+    postcss-value-parser: "npm:^4.2.0"
+  peerDependencies:
+    postcss: ^8.1.0
+  bin:
+    autoprefixer: bin/autoprefixer
+  checksum: 10c0/3e1a7bb65ef3a44925d19fd18cbb96a9a73ef1a8bfaa134bc131743787a8983045d6e756cff0204d37c34a52cfc86d79182f444c221b631401f79d7873ae97a8
+  languageName: node
+  linkType: hard
+
 "available-typed-arrays@npm:^1.0.5":
   version: 1.0.5
   resolution: "available-typed-arrays@npm:1.0.5"
@@ -8126,6 +8143,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"baseline-browser-mapping@npm:^2.10.12":
+  version: 2.10.38
+  resolution: "baseline-browser-mapping@npm:2.10.38"
+  bin:
+    baseline-browser-mapping: dist/cli.cjs
+  checksum: 10c0/44bbea61ec54df6845f5f6f149c99057370081f1041d6e8dbc92835630ce37da9adc102528ebebd37f563342da2a5eea525d24698ced6674cdcfadb2ed613136
+  languageName: node
+  linkType: hard
+
 "baseline-browser-mapping@npm:^2.8.3":
   version: 2.8.4
   resolution: "baseline-browser-mapping@npm:2.8.4"
@@ -8295,6 +8321,21 @@ __metadata:
   bin:
     browserslist: cli.js
   checksum: 10c0/1146339dad33fda77786b11ea07f1c40c48899edd897d73a9114ee0dbb1ee6475bb4abda263a678c104508bdca8e66760ff8e10be1947d3e20d34bae01d8b89b
+  languageName: node
+  linkType: hard
+
+"browserslist@npm:^4.28.2":
+  version: 4.28.2
+  resolution: "browserslist@npm:4.28.2"
+  dependencies:
+    baseline-browser-mapping: "npm:^2.10.12"
+    caniuse-lite: "npm:^1.0.30001782"
+    electron-to-chromium: "npm:^1.5.328"
+    node-releases: "npm:^2.0.36"
+    update-browserslist-db: "npm:^1.2.3"
+  bin:
+    browserslist: cli.js
+  checksum: 10c0/c0228b6330f785b7fa59d2d360124ec6d9322f96ed9f3ee1f873e33ecc9503a6f0ffc3b71191a28c4ff6e930b753b30043da1c33844a9548f3018d491f09ce60
   languageName: node
   linkType: hard
 
@@ -8535,6 +8576,13 @@ __metadata:
   version: 1.0.30001743
   resolution: "caniuse-lite@npm:1.0.30001743"
   checksum: 10c0/1bd730ca10d881a1ca9f55ce864d34c3b18501718c03976e0d3419f4694b715159e13fdef6d58ad47b6d2445d315940f3a01266658876828c820a3331aac021d
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001782, caniuse-lite@npm:^1.0.30001787":
+  version: 1.0.30001799
+  resolution: "caniuse-lite@npm:1.0.30001799"
+  checksum: 10c0/f24f9834edc7b60188f368ce44714695c3901bc4acb7f2a977dd9b7b697e39ddc0f9947fad6224a955b789f36a73432cb888d620aa7280d728f582d3bd8927a7
   languageName: node
   linkType: hard
 
@@ -9877,6 +9925,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"electron-to-chromium@npm:^1.5.328":
+  version: 1.5.375
+  resolution: "electron-to-chromium@npm:1.5.375"
+  checksum: 10c0/f8cd3d364779589acfffd75c0566b15112aa78421520712dfa88708185b71eaf0de24b76df1f2a70b80aea6b1ade2c8c0b08b17db57f85259ec74c70a8d4475c
+  languageName: node
+  linkType: hard
+
 "emittery@npm:^0.13.1":
   version: 0.13.1
   resolution: "emittery@npm:0.13.1"
@@ -11120,6 +11175,13 @@ __metadata:
   version: 0.2.0
   resolution: "forwarded@npm:0.2.0"
   checksum: 10c0/9b67c3fac86acdbc9ae47ba1ddd5f2f81526fa4c8226863ede5600a3f7c7416ef451f6f1e240a3cc32d0fd79fcfe6beb08fd0da454f360032bde70bf80afbb33
+  languageName: node
+  linkType: hard
+
+"fraction.js@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "fraction.js@npm:5.3.4"
+  checksum: 10c0/f90079fe9bfc665e0a07079938e8ff71115bce9462f17b32fc283f163b0540ec34dc33df8ed41bb56f028316b04361b9a9995b9ee9258617f8338e0b05c5f95a
   languageName: node
   linkType: hard
 
@@ -13025,6 +13087,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jiti@npm:^2.5.1":
+  version: 2.7.0
+  resolution: "jiti@npm:2.7.0"
+  bin:
+    jiti: lib/jiti-cli.mjs
+  checksum: 10c0/1b1e2310a490dce1aeea3da5f5dfe18273516c20ce48be2e98eb8ea452d5f3dcc8fd0cfd6d28b4052a24c5dbab6e3089b2d7e79f0bce7915b10d750929563c42
+  languageName: node
+  linkType: hard
+
 "jju@npm:^1.4.0":
   version: 1.4.0
   resolution: "jju@npm:1.4.0"
@@ -14537,6 +14608,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-releases@npm:^2.0.36":
+  version: 2.0.47
+  resolution: "node-releases@npm:2.0.47"
+  checksum: 10c0/fb1a703adb88c3bfe73aa39ebe0a0bc6d59c9d20d74ad61fb50958ffb22840da82a7a256076840b84c8ed57bb80e6fc8e588e675712fcf7af269aab16206b9b5
+  languageName: node
+  linkType: hard
+
 "node-stream-zip@npm:^1.9.1":
   version: 1.15.0
   resolution: "node-stream-zip@npm:1.15.0"
@@ -15311,6 +15389,26 @@ __metadata:
     yaml:
       optional: true
   checksum: 10c0/74173a58816dac84e44853f7afbd283f4ef13ca0b6baeba27701214beec33f9e309b128f8102e2b173e8d45ecba45d279a9be94b46bf48d219626aa9b5730848
+  languageName: node
+  linkType: hard
+
+"postcss-loader@npm:^8.2.1":
+  version: 8.2.1
+  resolution: "postcss-loader@npm:8.2.1"
+  dependencies:
+    cosmiconfig: "npm:^9.0.0"
+    jiti: "npm:^2.5.1"
+    semver: "npm:^7.6.2"
+  peerDependencies:
+    "@rspack/core": 0.x || ^1.0.0 || ^2.0.0-0
+    postcss: ^7.0.0 || ^8.0.1
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    "@rspack/core":
+      optional: true
+    webpack:
+      optional: true
+  checksum: 10c0/8ef4687f05972a85b4ad8e714f692fceec16f334d99edaa09c222dc08d01afcdcf7bed2b3a45f7888900cb9fd3324b9741d98ce694e33e87bebdc038dd17e30b
   languageName: node
   linkType: hard
 
@@ -16997,6 +17095,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.35.1"
     "@typescript-eslint/parser": "npm:^8.35.1"
     airbridge-react-native-sdk: "npm:^4.8.0"
+    autoprefixer: "npm:^10.5.0"
     axios: "npm:^1.8.2"
     babel-jest: "npm:^29.6.3"
     babel-loader: "npm:^9.2.1"
@@ -17020,6 +17119,7 @@ __metadata:
     lottie-react-native: "npm:^7.2.4"
     nativewind: "npm:^4.2.1"
     patch-package: "npm:^8.0.1"
+    postcss-loader: "npm:^8.2.1"
     prettier: "npm:3.6.2"
     prettier-plugin-tailwindcss: "npm:^0.5.11"
     process: "npm:^0.11.10"
@@ -17162,6 +17262,15 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 10c0/fbfe717094ace0aa8d6332d7ef5ce727259815bd8d8815700853f4faf23aacbd7192522f0dc5af6df52ef4fa85a355ebd2f5d39f554bd028200d6cf481ab9b53
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.6.2":
+  version: 7.8.4
+  resolution: "semver@npm:7.8.4"
+  bin:
+    semver: bin/semver.js
+  checksum: 10c0/81b7c296fd7927b80f67fa516b75fa1017caac8167795320de28e76ccbc6f7f01763c30ecd10d6a0d8fd089708ab0548a5aebb94b0870e99c2a2b4600a46389b
   languageName: node
   linkType: hard
 
@@ -18691,6 +18800,20 @@ __metadata:
   bin:
     update-browserslist-db: cli.js
   checksum: 10c0/682e8ecbf9de474a626f6462aa85927936cdd256fe584c6df2508b0df9f7362c44c957e9970df55dfe44d3623807d26316ea2c7d26b80bb76a16c56c37233c32
+  languageName: node
+  linkType: hard
+
+"update-browserslist-db@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "update-browserslist-db@npm:1.2.3"
+  dependencies:
+    escalade: "npm:^3.2.0"
+    picocolors: "npm:^1.1.1"
+  peerDependencies:
+    browserslist: ">= 4.21.0"
+  bin:
+    update-browserslist-db: cli.js
+  checksum: 10c0/13a00355ea822388f68af57410ce3255941d5fb9b7c49342c4709a07c9f230bbef7f7499ae0ca7e0de532e79a82cc0c4edbd125f1a323a1845bf914efddf8bec
   languageName: node
   linkType: hard
 

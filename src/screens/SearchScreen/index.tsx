@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
-import {Keyboard, View} from 'react-native';
+import {Keyboard, Platform, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
@@ -297,7 +297,15 @@ const SearchScreenContent = ({
     // tabBarStyle 옵션을 받기 위해 캐스팅한다.
     (navigation as unknown as {setOptions: (o: object) => void}).setOptions({
       tabBarStyle: isEmptyView
-        ? {position: 'absolute', left: 0, right: 0, bottom: 0}
+        ? {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            // 웹 전용: 기본 탭바 높이(49px)가 부족해 내용물이 잘리는 문제. 이 override가
+            // 네비게이터 screenOptions 의 height 를 덮어쓰므로 여기서도 풀어준다. (앱 미영향)
+            ...(Platform.OS === 'web' ? {height: 'auto' as const} : {}),
+          }
         : {display: 'none'},
     });
   }, [navigation, isEmptyView]);

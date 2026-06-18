@@ -1,6 +1,14 @@
-import React, {forwardRef, Ref} from 'react';
+import React, {
+  forwardRef,
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import {Dimensions, FlatList, LayoutChangeEvent, View} from 'react-native';
 import styled from 'styled-components/native';
+
+import attachDragToScroll from '@/components/maps/attachDragToScroll';
 
 const {width} = Dimensions.get('window');
 const ITEM_RATIO = 0.9;
@@ -27,14 +35,48 @@ function ItemMapList<T extends {id: string}>(
   }: Props<T>,
   ref: Ref<FlatList<T>>,
 ) {
+  const wrapperRef = useRef<View>(null);
+  const listRef = useRef<FlatList<T>>(null);
+  // 웹 스냅 시 최신 결과/콜백을 참조하도록 ref 로 감싼다 (effect 는 1회만 attach).
+  const onSettleRef = useRef<(index: number) => void>(() => {});
+  onSettleRef.current = (index: number) =>
+    onFocusedItemChange(searchResults[index] ?? null);
+  // 웹에서 핀 클릭 시 부드러운 스크롤을 위해 attachDragToScroll 이 채워주는 핸들.
+  const controlRef = useRef<{scrollToIndex?: (index: number) => void}>({});
+  useEffect(
+    () =>
+      attachDragToScroll(wrapperRef.current, {
+        itemSize: ITEM_SIZE,
+        onSettle: index => onSettleRef.current(index),
+        control: controlRef.current,
+      }),
+    [],
+  );
+  // 외부(ItemMapView)에서 cardsRef.scrollToIndex 호출 시: 웹은 부드러운 스크롤,
+  // 그 외엔 네이티브 FlatList 동작.
+  useImperativeHandle(
+    ref,
+    () =>
+      ({
+        scrollToIndex: (params: {index: number; animated?: boolean}) => {
+          if (controlRef.current.scrollToIndex) {
+            controlRef.current.scrollToIndex(params.index);
+          } else {
+            listRef.current?.scrollToIndex(params);
+          }
+        },
+      }) as unknown as FlatList<T>,
+    [],
+  );
   return (
     <View
+      ref={wrapperRef}
       style={{
         width: '100%',
         height: searchResults.length > 0 ? 242 + 28 : 0,
       }}>
       <FlatList
-        ref={ref}
+        ref={listRef}
         data={searchResults}
         contentContainerStyle={{
           paddingHorizontal: ITEM_SIDE_PADDING,

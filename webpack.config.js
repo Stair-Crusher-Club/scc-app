@@ -16,7 +16,49 @@ const transpileDeps = [
   'react-native-screens',
   'react-native-safe-area-context',
   'react-native-vector-icons',
+  // ESM packages that omit file extensions (fail webpack's fullySpecified check)
+  'react-native-markdown-display',
 ];
+
+// React Native resolves `foo.png` to the highest-density `foo@3x.png` variant;
+// webpack does not. This resolver plugin retries any image request with an
+// `@3x` suffix, falling through to the exact path if that variant is absent.
+class DensityImageResolverPlugin {
+  apply(resolver) {
+    const target = resolver.ensureHook('resolve');
+    resolver
+      .getHook('resolve')
+      .tapAsync(
+        'DensityImageResolverPlugin',
+        (request, resolveContext, callback) => {
+          const req = request.request;
+          if (
+            !req ||
+            !/\.(png|jpe?g|gif)$/.test(req) ||
+            /@\d+x\.(png|jpe?g|gif)$/.test(req)
+          ) {
+            return callback();
+          }
+          const altered = {
+            ...request,
+            request: req.replace(/\.(png|jpe?g|gif)$/, '@3x.$1'),
+          };
+          resolver.doResolve(
+            target,
+            altered,
+            `try @3x variant for ${req}`,
+            resolveContext,
+            (err, result) => {
+              if (!err && result) {
+                return callback(null, result);
+              }
+              return callback();
+            },
+          );
+        },
+      );
+  }
+}
 
 module.exports = {
   mode: 'development',
@@ -55,7 +97,15 @@ module.exports = {
         'web/mocks/react-native-mmkv.js',
       ),
       '@shopify/flash-list': path.resolve(__dirname, 'web/mocks/flash-list.js'),
-      'lottie-react-native': false,
+      'lottie-react-native': path.resolve(__dirname, 'web/mocks/lottie.js'),
+      '@sbaiahmed1/react-native-blur': path.resolve(
+        __dirname,
+        'web/mocks/blur.js',
+      ),
+      'react-native-keyboard-aware-scroll-view': path.resolve(
+        __dirname,
+        'web/mocks/keyboard-aware-scroll-view.js',
+      ),
       '@d11/react-native-fast-image': path.resolve(
         __dirname,
         'web/mocks/react-native-fast-image.js',
@@ -87,12 +137,70 @@ module.exports = {
         __dirname,
         'web/mocks/react-native-image-zoom-viewer.tsx',
       ),
+      // Mock native-only modules so the real App.tsx tree bundles on web
+      'react-native-config': path.resolve(
+        __dirname,
+        'web/mocks/react-native-config.js',
+      ),
+      '@hot-updater/react-native': path.resolve(
+        __dirname,
+        'web/mocks/hot-updater.js',
+      ),
+      '@react-native-community/geolocation': path.resolve(
+        __dirname,
+        'web/mocks/geolocation.js',
+      ),
+      'react-native-splash-screen': path.resolve(
+        __dirname,
+        'web/mocks/splash-screen.js',
+      ),
+      'react-native-tracking-transparency': path.resolve(
+        __dirname,
+        'web/mocks/tracking-transparency.js',
+      ),
+      'airbridge-react-native-sdk': path.resolve(
+        __dirname,
+        'web/mocks/airbridge.js',
+      ),
+      'react-native-vision-camera': path.resolve(
+        __dirname,
+        'web/mocks/vision-camera.js',
+      ),
+      'react-native-image-picker': path.resolve(
+        __dirname,
+        'web/mocks/image-picker.js',
+      ),
+      '@react-native-community/image-editor': path.resolve(
+        __dirname,
+        'web/mocks/image-editor.js',
+      ),
+      '@invertase/react-native-apple-authentication': path.resolve(
+        __dirname,
+        'web/mocks/apple-authentication.js',
+      ),
+      '@react-native-seoul/kakao-login': path.resolve(
+        __dirname,
+        'web/mocks/kakao-login.js',
+      ),
+      '@react-native-clipboard/clipboard': path.resolve(
+        __dirname,
+        'web/mocks/clipboard.js',
+      ),
+      'react-native-device-info': path.resolve(
+        __dirname,
+        'web/mocks/device-info.js',
+      ),
+      'react-native-webview': path.resolve(
+        __dirname,
+        'web/mocks/react-native-webview.tsx',
+      ),
     },
     // Disable fully specified imports for all dependencies
     fullySpecified: false,
     fallback: {
       process: require.resolve('process/browser'),
     },
+    plugins: [new DensityImageResolverPlugin()],
   },
   module: {
     rules: [
@@ -107,7 +215,10 @@ module.exports = {
               target: 'es2015',
               module: 'esnext',
               lib: ['dom', 'es2015', 'es2017'],
-              jsx: 'react',
+              // NativeWind v4: emit the automatic JSX runtime pointing at
+              // nativewind so `className` props are interpreted on web.
+              jsx: 'react-jsx',
+              jsxImportSource: 'nativewind',
               downlevelIteration: true,
             },
           },
@@ -129,15 +240,36 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
         test: /\.(png|jpg|jpeg|gif)$/,
         type: 'asset/resource',
       },
       {
+        test: /\.lottie$/,
+        type: 'asset/resource',
+      },
+      {
         test: /\.svg$/,
-        use: ['@svgr/webpack'],
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              // svgo 기본 설정은 viewBox 를 제거해버려, width/height prop 으로 크기를
+              // 줄여도 path 가 원래 좌표(예: 24×24)대로 그려져 박스를 넘친다(앱보다 큼).
+              // viewBox 를 유지해야 prop 크기에 맞게 스케일된다.
+              svgoConfig: {
+                plugins: [
+                  {
+                    name: 'preset-default',
+                    params: {overrides: {removeViewBox: false}},
+                  },
+                ],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.svg\.txt$/,
@@ -158,9 +290,36 @@ module.exports = {
     }),
   ],
   devServer: {
-    port: 3001,
+    port: 3000,
     hot: true,
     historyApiFallback: true,
+    // Allow serving under the prod hostname (via browser host-resolver) so the
+    // Naver Maps key — registered for web.staircrusher.club — authenticates in
+    // local testing.
+    allowedHosts: 'all',
+    // Don't let non-fatal warnings (RN module export shims) or environmental
+    // runtime errors (e.g. denied geolocation permission) cover the app.
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+        runtimeErrors: error => {
+          const text = String(error?.message ?? error ?? '');
+          // Suppress environmental / already-handled rejections so they don't
+          // cover the app: denied geolocation, and API errors that the app
+          // handles (axios interceptor clears the token & redirects on 401, etc).
+          if (
+            /Geolocation|geolocation position/i.test(text) ||
+            /Request failed with status code|Network Error|AxiosError/i.test(
+              text,
+            )
+          ) {
+            return false;
+          }
+          return true;
+        },
+      },
+    },
   },
   devtool: 'source-map',
 };

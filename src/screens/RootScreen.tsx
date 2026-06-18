@@ -20,8 +20,11 @@ import {Navigation} from '@/navigation';
 import {
   DEEP_LINK_PREFIXES,
   linkingScreensConfig,
+  webLinkingScreensConfig,
 } from '@/navigation/linkingConfig';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
+import {classifyWebRoute} from '@/navigation/webAccess';
+import {showAppInstallPrompt} from '@/utils/appInstallPrompt';
 import {logDebug} from '@/utils/DebugUtils';
 import {isAuthDeferred} from '@/utils/deepLinkUtils';
 import HeatTelemetry from '@/utils/HeatTelemetry';
@@ -70,6 +73,41 @@ const RootScreen = () => {
       (navigationRef.current?.navigate as any)('ResolvingSharedLink', {
         sharedText,
       });
+    },
+    [navigationRef],
+  );
+
+  // 웹 라우트 게이트: 앱 화면은 token 필수(없으면 Login), 카메라 등록 플로우는 앱 설치
+  // 유도. bbucle-road 등 웹 전용 컨텐츠는 token 없이 허용. 초기 딥링크(onReady)와
+  // 이후 화면 전환(onStateChange) 양쪽에서 호출한다. 리다이렉트했으면 true 반환.
+  const runWebRouteGate = useCallback(
+    (routeName?: string): boolean => {
+      if (Platform.OS !== 'web' || !routeName) {
+        return false;
+      }
+      const access = classifyWebRoute(routeName);
+      if (access === 'appOnly') {
+        showAppInstallPrompt('이 기능은 앱에서만 이용할 수 있어요');
+        if (navigationRef.current?.canGoBack()) {
+          navigationRef.current.goBack();
+        } else {
+          (navigationRef.current?.navigate as any)('Main');
+        }
+        return true;
+      }
+      if (access === 'requireToken' && !getStorageValue<string>('scc-token')) {
+        // 게이팅된 콘텐츠 URL을 redirect로 보존 → 로그인 후 그 페이지로 복귀.
+        const loc = (
+          globalThis as {location?: {pathname?: string; search?: string}}
+        ).location;
+        const redirect = loc ? `${loc.pathname ?? ''}${loc.search ?? ''}` : '';
+        (navigationRef.current?.navigate as any)(
+          'Login',
+          redirect && !redirect.startsWith('/login') ? {redirect} : undefined,
+        );
+        return true;
+      }
+      return false;
     },
     [navigationRef],
   );
@@ -134,178 +172,211 @@ const RootScreen = () => {
           HeatTelemetry.beginSession().catch(() => {});
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
+          // 초기 딥링크 게이트 (onStateChange는 초기 상태엔 발화하지 않음)
+          if (runWebRouteGate(currentScreenName)) {
+            return;
+          }
           logDebug(`App starts at ${currentScreenName}`);
           await Logger.logScreenView({
             currScreenName: currentScreenName,
           });
           routeNameRef.current = currentScreenName;
         }}
-        linking={{
-          prefixes: DEEP_LINK_PREFIXES,
-          // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
-          getInitialURL: async () => {
-            // iOS Share Extension cold start: Airbridge 가로채기보다 먼저 분기한다.
-            // background subscribe 경로와 동일한 우선순위 — 이 순서가 없으면 Airbridge의
-            // setOnDeeplinkReceived가 share URL을 먼저 먹어버려 PendingSharedText가 set되지 않는다.
-            const initialUrl = await Linking.getInitialURL();
-            if (initialUrl?.startsWith('stair-crusher://shared?text=')) {
-              const sharedText = decodeURIComponent(
-                initialUrl.replace('stair-crusher://shared?text=', ''),
-              );
-              logDebug('iOS Share Extension cold start', sharedText);
-              setPendingSharedText(sharedText);
-              return null;
-            }
-
-            // Airbridge 디퍼드 딥링크 확인 (production만)
-            let resolvedUrl: string | null = null;
-
-            if (Config.FLAVOR === 'production') {
-              let resolved = false;
-              const airbridgeUrl = await new Promise<string | null>(resolve => {
-                const timeout = setTimeout(() => {
-                  resolved = true;
-                  resolve(null);
-                }, 3000);
-                Airbridge.setOnDeeplinkReceived((deeplink: string) => {
-                  clearTimeout(timeout);
-                  if (deeplink.startsWith('kakao')) {
-                    return;
-                  }
-                  // iOS Share Extension URL은 위에서 이미 처리됨 — Airbridge가 다시 삼키지 않도록 무시
-                  if (deeplink.startsWith('stair-crusher://shared')) {
-                    return;
-                  }
-                  if (!resolved) {
-                    resolved = true;
-                    resolve(deeplink);
-                  } else {
-                    // ATT 응답 후 늦게 도착한 디퍼드 딥링크
-                    setDeferredDeepLinkUrl(deeplink);
-                  }
-                });
-              });
-              if (airbridgeUrl) {
-                logDebug('Airbridge deferred deeplink received', airbridgeUrl);
-                resolvedUrl = airbridgeUrl;
+        linking={
+          Platform.OS === 'web'
+            ? {
+                // 웹: 브라우저 URL ↔ 화면 동기화는 react-navigation이 자동 처리.
+                // 네이티브 deeplink/push/airbridge 로직은 불필요.
+                prefixes: [
+                  (globalThis as {location?: {origin?: string}}).location
+                    ?.origin ?? '',
+                ],
+                config: webLinkingScreensConfig,
               }
-            }
+            : {
+                prefixes: DEEP_LINK_PREFIXES,
+                // 앱 quit 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
+                getInitialURL: async () => {
+                  // iOS Share Extension cold start: Airbridge 가로채기보다 먼저 분기한다.
+                  // background subscribe 경로와 동일한 우선순위 — 이 순서가 없으면 Airbridge의
+                  // setOnDeeplinkReceived가 share URL을 먼저 먹어버려 PendingSharedText가 set되지 않는다.
+                  const initialUrl = await Linking.getInitialURL();
+                  if (initialUrl?.startsWith('stair-crusher://shared?text=')) {
+                    const sharedText = decodeURIComponent(
+                      initialUrl.replace('stair-crusher://shared?text=', ''),
+                    );
+                    logDebug('iOS Share Extension cold start', sharedText);
+                    setPendingSharedText(sharedText);
+                    return null;
+                  }
 
-            // 일반 딥링크 처리 (share URL은 위에서 이미 처리됨)
-            if (!resolvedUrl && initialUrl) {
-              logDebug(
-                'Normal deeplink click during app quit state',
-                initialUrl,
-              );
-              resolvedUrl = initialUrl;
-            }
+                  // Airbridge 디퍼드 딥링크 확인 (production만)
+                  let resolvedUrl: string | null = null;
 
-            // authDeferred=true → URL 저장 후 null 반환 (Main 마운트 후 소비)
-            if (resolvedUrl && isAuthDeferred(resolvedUrl)) {
-              logDebug('Auth-deferred deep link intercepted', resolvedUrl);
-              setDeferredDeepLinkUrl(resolvedUrl);
-              return null;
-            }
+                  if (Config.FLAVOR === 'production') {
+                    let resolved = false;
+                    const airbridgeUrl = await new Promise<string | null>(
+                      resolve => {
+                        const timeout = setTimeout(() => {
+                          resolved = true;
+                          resolve(null);
+                        }, 3000);
+                        Airbridge.setOnDeeplinkReceived((deeplink: string) => {
+                          clearTimeout(timeout);
+                          if (deeplink.startsWith('kakao')) {
+                            return;
+                          }
+                          // iOS Share Extension URL은 위에서 이미 처리됨 — Airbridge가 다시 삼키지 않도록 무시
+                          if (deeplink.startsWith('stair-crusher://shared')) {
+                            return;
+                          }
+                          if (!resolved) {
+                            resolved = true;
+                            resolve(deeplink);
+                          } else {
+                            // ATT 응답 후 늦게 도착한 디퍼드 딥링크
+                            setDeferredDeepLinkUrl(deeplink);
+                          }
+                        });
+                      },
+                    );
+                    if (airbridgeUrl) {
+                      logDebug(
+                        'Airbridge deferred deeplink received',
+                        airbridgeUrl,
+                      );
+                      resolvedUrl = airbridgeUrl;
+                    }
+                  }
 
-            if (resolvedUrl) {
-              return resolvedUrl;
-            }
+                  // 일반 딥링크 처리 (share URL은 위에서 이미 처리됨)
+                  if (!resolvedUrl && initialUrl) {
+                    logDebug(
+                      'Normal deeplink click during app quit state',
+                      initialUrl,
+                    );
+                    resolvedUrl = initialUrl;
+                  }
 
-            // 푸시 알림 처리
-            const message = await getMessaging().getInitialNotification();
-            if (message) {
-              logDebug('getInitialNotification', message);
-              Logger.logAppPushOpen({
-                title: message.notification?.title || '',
-                body: message.notification?.body || '',
-                campaignId: message.data?.campaign_id as string | undefined,
-                campaignType: message.data?.campaign_type as string | undefined,
-                serverPushLogId: message.data?.server_push_log_id as
-                  | string
-                  | undefined,
-              });
-              const data = message.data as {_d: string};
-              return data?._d;
-            }
-            return null;
-          },
-          // 앱 background 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
-          subscribe(listener) {
-            // 일반 딥링크 처리
-            const linkingSubscription = Linking.addEventListener(
-              'url',
-              ({url}) => {
-                // 카카오 콜백 URL 무시 (iOS에서 Airbridge trackDeeplink가 처리하면서 딥링크 상태 방해)
-                if (url.startsWith('kakao')) {
-                  return;
-                }
-                // iOS Share Extension: stair-crusher://shared?text=<encoded>
-                if (url.startsWith('stair-crusher://shared?text=')) {
-                  const sharedText = decodeURIComponent(
-                    url.replace('stair-crusher://shared?text=', ''),
+                  // authDeferred=true → URL 저장 후 null 반환 (Main 마운트 후 소비)
+                  if (resolvedUrl && isAuthDeferred(resolvedUrl)) {
+                    logDebug(
+                      'Auth-deferred deep link intercepted',
+                      resolvedUrl,
+                    );
+                    setDeferredDeepLinkUrl(resolvedUrl);
+                    return null;
+                  }
+
+                  if (resolvedUrl) {
+                    return resolvedUrl;
+                  }
+
+                  // 푸시 알림 처리
+                  const message = await getMessaging().getInitialNotification();
+                  if (message) {
+                    logDebug('getInitialNotification', message);
+                    Logger.logAppPushOpen({
+                      title: message.notification?.title || '',
+                      body: message.notification?.body || '',
+                      campaignId: message.data?.campaign_id as
+                        | string
+                        | undefined,
+                      campaignType: message.data?.campaign_type as
+                        | string
+                        | undefined,
+                      serverPushLogId: message.data?.server_push_log_id as
+                        | string
+                        | undefined,
+                    });
+                    const data = message.data as {_d: string};
+                    return data?._d;
+                  }
+                  return null;
+                },
+                // 앱 background 상태에서 deeplink 클릭이나 앱 푸시 클릭을 했을 때의 처리
+                subscribe(listener) {
+                  // 일반 딥링크 처리
+                  const linkingSubscription = Linking.addEventListener(
+                    'url',
+                    ({url}) => {
+                      // 카카오 콜백 URL 무시 (iOS에서 Airbridge trackDeeplink가 처리하면서 딥링크 상태 방해)
+                      if (url.startsWith('kakao')) {
+                        return;
+                      }
+                      // iOS Share Extension: stair-crusher://shared?text=<encoded>
+                      if (url.startsWith('stair-crusher://shared?text=')) {
+                        const sharedText = decodeURIComponent(
+                          url.replace('stair-crusher://shared?text=', ''),
+                        );
+                        handleSharedText(sharedText);
+                        return;
+                      }
+                      // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
+                      if (
+                        isAuthDeferred(url) &&
+                        !getStorageValue<string>('scc-token')
+                      ) {
+                        logDebug('Auth-deferred deep link (background)', url);
+                        setDeferredDeepLinkUrl(url);
+                        (navigationRef.current?.navigate as any)('Login');
+                        return;
+                      }
+                      // 로그인 상태이거나 authDeferred 아님 → React Navigation에 위임
+                      listener(url);
+                    },
                   );
-                  handleSharedText(sharedText);
-                  return;
-                }
-                // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
-                if (
-                  isAuthDeferred(url) &&
-                  !getStorageValue<string>('scc-token')
-                ) {
-                  logDebug('Auth-deferred deep link (background)', url);
-                  setDeferredDeepLinkUrl(url);
-                  (navigationRef.current?.navigate as any)('Login');
-                  return;
-                }
-                // 로그인 상태이거나 authDeferred 아님 → React Navigation에 위임
-                listener(url);
-              },
-            );
 
-            // 푸시 알림 처리
-            const pushSubscription = getMessaging().onNotificationOpenedApp(
-              async remoteMessage => {
-                // https://github.com/invertase/react-native-firebase/issues/7749#issuecomment-2075084174
-                // 1. background 상태 -> 2. 앱 푸시 A 클릭해서 오픈 -> 3. quit 상태 -> 4. 앱 푸시 B 클릭해서 오픈
-                // 위와 같은 시나리오를 겪을 때, 4번의 getInitialNotification()에서 앱 푸시 A의 remoteMessage를 수신하는 문제가 있다.
-                // 링크된 github issue를 보면 2번 타이밍 때 getInitialNotification() 쪽에 앱 푸시 A에 대한 데이터가 로컬에 저장되는데,
-                // onNotificationOpenedApp() 호출로는 이 데이터가 초기화되지 않아서 4번 타이밍에 앱 푸시 A의 remoteMessage가 쓰이는 것으로 보인다.
-                // 임시 방편으로 2번 타이밍 때 getInitialNotification()를 호출해줘서 강제로 로컬에 저장된 remoteMessage를 초기화해준다.
-                getMessaging().getInitialNotification();
+                  // 푸시 알림 처리
+                  const pushSubscription =
+                    getMessaging().onNotificationOpenedApp(
+                      async remoteMessage => {
+                        // https://github.com/invertase/react-native-firebase/issues/7749#issuecomment-2075084174
+                        // 1. background 상태 -> 2. 앱 푸시 A 클릭해서 오픈 -> 3. quit 상태 -> 4. 앱 푸시 B 클릭해서 오픈
+                        // 위와 같은 시나리오를 겪을 때, 4번의 getInitialNotification()에서 앱 푸시 A의 remoteMessage를 수신하는 문제가 있다.
+                        // 링크된 github issue를 보면 2번 타이밍 때 getInitialNotification() 쪽에 앱 푸시 A에 대한 데이터가 로컬에 저장되는데,
+                        // onNotificationOpenedApp() 호출로는 이 데이터가 초기화되지 않아서 4번 타이밍에 앱 푸시 A의 remoteMessage가 쓰이는 것으로 보인다.
+                        // 임시 방편으로 2번 타이밍 때 getInitialNotification()를 호출해줘서 강제로 로컬에 저장된 remoteMessage를 초기화해준다.
+                        getMessaging().getInitialNotification();
 
-                logDebug('onNotificationOpenedApp', remoteMessage);
-                Logger.logAppPushOpen({
-                  title: remoteMessage.notification?.title || '',
-                  body: remoteMessage.notification?.body || '',
-                  campaignId: remoteMessage.data?.campaign_id as
-                    | string
-                    | undefined,
-                  campaignType: remoteMessage.data?.campaign_type as
-                    | string
-                    | undefined,
-                  serverPushLogId: remoteMessage.data?.server_push_log_id as
-                    | string
-                    | undefined,
-                });
+                        logDebug('onNotificationOpenedApp', remoteMessage);
+                        Logger.logAppPushOpen({
+                          title: remoteMessage.notification?.title || '',
+                          body: remoteMessage.notification?.body || '',
+                          campaignId: remoteMessage.data?.campaign_id as
+                            | string
+                            | undefined,
+                          campaignType: remoteMessage.data?.campaign_type as
+                            | string
+                            | undefined,
+                          serverPushLogId: remoteMessage.data
+                            ?.server_push_log_id as string | undefined,
+                        });
 
-                const data = remoteMessage.data as {_d?: string};
-                if (data?._d) {
-                  listener(data._d);
-                }
-              },
-            );
+                        const data = remoteMessage.data as {_d?: string};
+                        if (data?._d) {
+                          listener(data._d);
+                        }
+                      },
+                    );
 
-            return () => {
-              linkingSubscription.remove();
-              pushSubscription();
-            };
-          },
-          config: linkingScreensConfig,
-        }}
+                  return () => {
+                    linkingSubscription.remove();
+                    pushSubscription();
+                  };
+                },
+                config: linkingScreensConfig,
+              }
+        }
         onStateChange={async state => {
           const previousScreenName = routeNameRef.current;
           const currentScreenName =
             navigationRef.current?.getCurrentRoute()?.name;
+
+          if (runWebRouteGate(currentScreenName)) {
+            return;
+          }
+
           if (previousScreenName !== currentScreenName) {
             logDebug(`Screen ${previousScreenName} -> ${currentScreenName}`);
             const routeParams = state?.routes.at(-1)?.params ?? {};

@@ -4,24 +4,27 @@ export const DEEP_LINK_PREFIXES = [
   'https://app.staircrusher.club/',
 ];
 
+// PlaceDetailV2 path uses the placeId string directly as the URL segment.
+const placeDetailV2Linking = {
+  path: 'place/:placeInfo',
+  parse: {
+    placeInfo: (placeId: string) => {
+      return {placeId};
+    },
+  },
+  stringify: {
+    placeInfo: (placeInfo: {placeId: string}) => {
+      return placeInfo.placeId;
+    },
+  },
+};
+
 export const linkingScreensConfig = {
   initialRouteName: 'Main' as any,
   screens: {
     ProfileEditor: 'profile',
     Setting: 'setting',
-    PlaceDetailV2: {
-      path: 'place/:placeInfo',
-      parse: {
-        placeInfo: (placeId: string) => {
-          return {placeId};
-        },
-      },
-      stringify: {
-        placeInfo: (placeInfo: {placeId: string}) => {
-          return placeInfo.placeId;
-        },
-      },
-    },
+    PlaceDetailV2: placeDetailV2Linking,
     ChallengeDetail: {
       path: 'challenge/:challengeId',
     },
@@ -66,5 +69,43 @@ export const linkingScreensConfig = {
     TutorialUpvoteAccessibilityMission: {
       path: 'tutorial-mission-upvote-accessibility',
     },
+  },
+};
+
+// Web-only linking config: drives browser URLs (NavigationContainer syncs with
+// window.location on web). Kept beside the native config so URL ↔ screen mapping
+// stays in one place. Adds web-only routes (bbucle-road, oauth/kakao) and nests
+// the bottom-tab screens for clean /home, /search URLs.
+export const webLinkingScreensConfig = {
+  initialRouteName: 'Intro' as any,
+  screens: {
+    Intro: '',
+    Login: 'login',
+    Signup: 'signup',
+    Main: {
+      screens: {
+        Home: 'home',
+        Search: 'search',
+        Challenge: 'challenge',
+        Menu: 'menu',
+      },
+    },
+    PlaceDetailV2: placeDetailV2Linking,
+    ToiletDetail: {path: 'toilet/:toiletId'},
+    PlaceListDetail: {path: 'place-list/:placeListId'},
+    PlaceGroupMap: {path: 'place-group/:placeListId'},
+    ChallengeDetail: {path: 'challenge/:challengeId'},
+    ProfileEditor: 'profile',
+    Setting: 'setting',
+    CrusherActivity: 'crusher-activity',
+    PublicPlaceLists: 'public-place-lists',
+    SearchUnconqueredPlaces: 'search-unconquered-places',
+    MySaves: 'my-saves',
+    FavoritePlaces: 'favorite-places',
+    // Web-only content (viewable without a token)
+    BbucleRoadList: 'bbucle-road',
+    BbucleRoad: 'bbucle-road/:bbucleRoadId',
+    // Kakao web OAuth redirect target
+    KakaoCallback: 'oauth/kakao',
   },
 };

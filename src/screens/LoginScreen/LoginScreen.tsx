@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
+import Config from 'react-native-config';
 
 import AppleLogo from '@/assets/icon/ic_logo_apple.svg';
 import KakaoLogo from '@/assets/icon/ic_logo_kakao.svg';
@@ -25,6 +26,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {logDebug} from '@/utils/DebugUtils';
+import {appleWebSignIn} from '@/utils/socialLoginWeb';
 import ToastUtils from '@/utils/ToastUtils';
 
 interface SlideData {
@@ -57,8 +59,11 @@ const LoginWith3rdParty = ({
           카카오톡으로 계속하기
         </Text>
       </SccTouchableOpacity>
-      {/* 안드로이드 애플로그인 지원 시 appleAuthAndroid.isSupported 체크 필요 */}
-      {Platform.OS === 'ios' && (
+      {/* 안드로이드 애플로그인 지원 시 appleAuthAndroid.isSupported 체크 필요.
+          웹은 Apple 웹 Service ID(APPLE_WEB_SERVICE_ID)가 설정된 경우에만 노출 —
+          미설정 시 깨진 버튼을 막고, 설정되면 자동 활성화된다. */}
+      {(Platform.OS === 'ios' ||
+        (Platform.OS === 'web' && !!Config.APPLE_WEB_SERVICE_ID)) && (
         <SccTouchableOpacity
           className="flex-row items-center justify-center p-[16px] w-full h-[58px] rounded-[12px] border-[1px] border-black bg-white"
           elementName="login_apple_button"
@@ -92,6 +97,11 @@ export interface LoginScreenParams {
    * - 비회원으로 둘러보기 버튼을 감춤
    */
   asModal?: boolean;
+  /**
+   * (웹) 로그인 후 돌아갈 경로. 웹 라우트 게이트가 토큰 없는 콘텐츠 진입 시 설정한다.
+   * 없으면 홈(Main)으로 간다.
+   */
+  redirect?: string;
 }
 
 export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
@@ -99,7 +109,32 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
   const {setUserInfo} = useMe();
   const [activeSlide, setActiveSlide] = useState(0);
-  const {asModal} = route.params ?? {};
+  const {asModal, redirect} = route.params ?? {};
+
+  // 로그인 완료 후 이동: 모달이면 닫고, (웹) redirect 가 있으면 그 경로로, 없으면 홈.
+  function goAfterLogin() {
+    if (asModal) {
+      navigation.goBack();
+      return;
+    }
+    if (Platform.OS === 'web') {
+      const loc = (
+        globalThis as {
+          location?: {search?: string; assign: (u: string) => void};
+        }
+      ).location;
+      // route.params 로 안 들어오는 경우가 있어 URL 쿼리도 함께 확인.
+      const fromQuery = loc?.search
+        ? new URLSearchParams(loc.search).get('redirect')
+        : null;
+      const dest = redirect || fromQuery || undefined;
+      if (dest && dest.startsWith('/') && !dest.startsWith('/login')) {
+        loc?.assign(dest);
+        return;
+      }
+    }
+    navigation.replace('Main');
+  }
 
   async function afterSocialLogin(user: User, tokens: AuthTokensDto) {
     // 미가입 유저 : 앱 종료 후 재시작 시 로그인 되지 않도록 토큰을 저장하지 않는다
@@ -114,12 +149,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
     setAccessToken(tokens.accessToken);
     await setUserInfo(user);
 
-    if (asModal) {
-      // 모달로 열린 경우, 로그인 되면 닫아버린다
-      navigation.goBack();
-    } else {
-      navigation.replace('Main');
-    }
+    goAfterLogin();
   }
 
   async function kakaoLogin() {
@@ -212,9 +242,21 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
     }
   }
 
+  async function webAppleLogin() {
+    const {authorizationCode, identityToken} = await appleWebSignIn();
+    const res = await api.loginWithApplePost({
+      authorizationCode,
+      identityToken,
+    });
+    const {authTokens, user} = res.data;
+    await afterSocialLogin(user, authTokens);
+  }
+
   async function appleLogin() {
     try {
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'web') {
+        await webAppleLogin();
+      } else if (Platform.OS === 'android') {
         await androidAppleLogin();
       } else {
         await iosAppleLogin();
@@ -240,7 +282,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       };
       setAccessToken(tokens.accessToken);
       await setUserInfo(anonymousUser);
-      navigation.replace('Main');
+      goAfterLogin();
     } catch (e) {
       ToastUtils.show('로그인 중 문제가 발생했습니다.');
     }

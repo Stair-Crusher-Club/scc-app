@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
+import Config from 'react-native-config';
 import styled from 'styled-components/native';
+
+import { storage } from '@/atoms/atomForLocal';
 
 import { api, apiConfig } from '../config/api';
 
@@ -13,8 +16,19 @@ export default function KakaoCallbackScreen() {
       const code = urlParams.get('code');
       const state = urlParams.get('state');
 
-      // Decode nextUrl from state parameter and make it absolute
-      const decodedPath = state ? decodeURIComponent(state) : '/';
+      // Decode the post-login destination from `state`. Never return to the
+      // auth screens themselves — fall back to home so login lands on home when
+      // there's no explicit next/redirect target.
+      let decodedPath = state ? decodeURIComponent(state) : '/';
+      if (
+        !decodedPath.startsWith('/') ||
+        decodedPath === '/login' ||
+        decodedPath.startsWith('/login') ||
+        decodedPath.startsWith('/signup') ||
+        decodedPath.startsWith('/oauth')
+      ) {
+        decodedPath = '/';
+      }
       const nextUrl = window.location.origin + decodedPath;
 
       if (!code) {
@@ -34,7 +48,9 @@ export default function KakaoCallbackScreen() {
           },
           body: new URLSearchParams({
             grant_type: 'authorization_code',
-            client_id: '1ae6e66e491cf3bf3041015e235c08e1',
+            // 웹 전용 Kakao REST API 키 (authorize와 동일해야 함).
+            client_id:
+              Config.KAKAO_REST_API_KEY ?? '1ae6e66e491cf3bf3041015e235c08e1',
             redirect_uri: window.location.origin + '/oauth/kakao',
             code: code,
           }),
@@ -62,9 +78,11 @@ export default function KakaoCallbackScreen() {
 
         const { authTokens, user } = response.data;
 
-        // Store tokens
-        window.localStorage.setItem('sccAccessToken', authTokens.accessToken);
-        window.localStorage.setItem('sccUserName', user.nickname || user.email || '사용자');
+        // Store into the app's MMKV-backed storage (scc-token / userInfo) so the
+        // real app tree (accessTokenAtom / userInfoAtom) picks it up on reload.
+        // Values are JSON-stringified to match atomForLocal's encoding.
+        storage.set('scc-token', JSON.stringify(authTokens.accessToken));
+        storage.set('userInfo', JSON.stringify(user));
         apiConfig.accessToken = authTokens.accessToken;
 
         console.log('Kakao login successful, redirecting to:', nextUrl);

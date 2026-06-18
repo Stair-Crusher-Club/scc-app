@@ -178,8 +178,6 @@ const MapListToggleText = styled.Text({
 });
 
 const Container = styled.View`
-  shadow-offset: 0px 3px;
-  shadow-radius: 5px;
   flex: 1;
   display: flex;
   flex-direction: row;

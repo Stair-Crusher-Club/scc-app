@@ -25,7 +25,7 @@ import RedoIcon from '@/assets/icon/ic_redo.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import ItemMap from '@/components/maps/ItemMap';
 import ItemMapList from '@/components/maps/ItemMapList';
-import {MapViewHandle} from '@/components/maps/MapView.tsx';
+import {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';

@@ -14,7 +14,10 @@ import {
   MainNavigationScreens,
   ScreenParams,
 } from './Navigation.screens';
+import {webOnlyScreens} from './webScreens';
 import * as S from './Navigation.style';
+
+const AllNavigationScreens = [...MainNavigationScreens, ...webOnlyScreens];
 
 const Stack = createNativeStackNavigator<ScreenParams>();
 
@@ -98,7 +101,7 @@ export const Navigation = () => {
           );
         },
       })}>
-      {MainNavigationScreens.map(screen => (
+      {AllNavigationScreens.map(screen => (
         <Stack.Screen
           key={screen.name}
           name={screen.name}

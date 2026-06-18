@@ -108,7 +108,9 @@ export function useMe() {
 
   const setUserInfo = async (user: User) => {
     _setUserInfoAtom(user);
-    _syncUserInfo(user);
+    // fire-and-forget: 401 등은 axios interceptor 가 토큰 정리 + 로그인 리다이렉트로
+    // 처리하므로 여기서 unhandled rejection 으로 새지 않게 catch 한다.
+    _syncUserInfo(user).catch(e => logDebug('syncUserInfo failed', e));
   };
 
   const syncUserInfo = async () => {
@@ -122,7 +124,9 @@ export function useMe() {
       userInfo.id &&
       userInfo.nickname !== ANONYMOUS_USER_TEMPLATE.nickname
     ) {
-      _syncUserInfo(userInfo);
+      // catch: 만료/로그아웃 후 getUserInfo 401 은 interceptor 가 처리하므로
+      // unhandled rejection 으로 새지 않게 한다 (웹 dev 오버레이 블락 방지).
+      _syncUserInfo(userInfo).catch(e => logDebug('syncUserInfo failed', e));
     }
   }, [userInfo?.id]);
 

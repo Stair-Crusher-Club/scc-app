@@ -6,6 +6,7 @@ import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   ScrollView,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -19,6 +20,7 @@ import {font} from '@/constant/font';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
+const isWeb = Platform.OS === 'web';
 
 const slides = [
   require('@/assets/img/tutorial_1.png'),
@@ -56,17 +58,18 @@ export default function TutorialOverlay({
   );
 
   const handlePrev = useCallback(() => {
-    scrollRef.current?.scrollTo({
-      x: (activeSlide - 1) * SCREEN_WIDTH,
-      animated: true,
-    });
+    const target = Math.max(0, activeSlide - 1);
+    // 웹에서만 직접 갱신: rn-web 은 onMomentumScrollEnd 가 발화하지 않아 scrollTo
+    // 만으로는 activeSlide(점·버튼 상태)가 갱신되지 않는다. 네이티브는
+    // onMomentumScrollEnd 가 갱신하므로 기존 동작을 그대로 둔다.
+    if (isWeb) setActiveSlide(target);
+    scrollRef.current?.scrollTo({x: target * SCREEN_WIDTH, animated: true});
   }, [activeSlide]);
 
   const handleNext = useCallback(() => {
-    scrollRef.current?.scrollTo({
-      x: (activeSlide + 1) * SCREEN_WIDTH,
-      animated: true,
-    });
+    const target = Math.min(slides.length - 1, activeSlide + 1);
+    if (isWeb) setActiveSlide(target);
+    scrollRef.current?.scrollTo({x: target * SCREEN_WIDTH, animated: true});
   }, [activeSlide]);
 
   // 탭 위치로 이전/다음 판단 (스와이프는 ScrollView가 처리)
@@ -118,6 +121,9 @@ export default function TutorialOverlay({
           showsHorizontalScrollIndicator={false}
           bounces={false}
           onMomentumScrollEnd={handleScroll}
+          // 웹에서만 onScroll 로 점 상태를 추적(rn-web 은 onMomentumScrollEnd 미발화).
+          // 네이티브는 onMomentumScrollEnd 만 쓰던 기존 동작 유지(스크롤 중 점 미갱신).
+          onScroll={isWeb ? handleScroll : undefined}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           scrollEventThrottle={16}>
@@ -125,7 +131,17 @@ export default function TutorialOverlay({
             <SlideContainer key={index}>
               <Image
                 source={source}
-                style={{width: SCREEN_WIDTH, height: scaledHeight}}
+                // 웹: resolveAssetSource 가 실제 치수를 모르므로 scaledHeight 가
+                // 부정확하다. contain 으로 프레임 안에 이미지를 온전히 맞춘다.
+                style={
+                  isWeb
+                    ? {
+                        width: SCREEN_WIDTH,
+                        height: '100%',
+                        resizeMode: 'contain',
+                      }
+                    : {width: SCREEN_WIDTH, height: scaledHeight}
+                }
               />
             </SlideContainer>
           ))}

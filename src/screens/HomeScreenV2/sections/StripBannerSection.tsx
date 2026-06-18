@@ -26,7 +26,10 @@ const SCROLL_ANIMATION_DURATION_MS = 800;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const BANNER_HORIZONTAL_PADDING = 20;
 const BANNER_WIDTH = SCREEN_WIDTH - BANNER_HORIZONTAL_PADDING * 2;
-const BANNER_HEIGHT = 67;
+// 390pt 디자인 기준 띠배너 박스는 350×67(≈5.22:1). 고정 높이를 쓰면 화면 폭이
+// 디자인과 다를 때(웹 프레임/태블릿 등) cover 크롭이 심해진다 → 폭에 비례해 높이를
+// 계산해 어디서나 디자인 비율을 유지한다. (390pt 폭에선 기존과 동일한 67)
+const BANNER_HEIGHT = Math.round(BANNER_WIDTH * (67 / 350));
 const BANNER_GAP = 12;
 const ITEM_SLOT_WIDTH = BANNER_WIDTH + BANNER_GAP;
 
