@@ -47,6 +47,11 @@ const Tag = styled.View`
       'padding-top': '3px',
       'padding-bottom': '4px',
     },
+    // 웹은 ios/android 처럼 padding 으로 텍스트를 내리는 대신 세로 중앙 정렬한다.
+    // (그대로 두면 고정 height 20px 안에서 텍스트가 위로 붙는다)
+    web: {
+      'justify-content': 'center',
+    },
   })}
 `;
 
