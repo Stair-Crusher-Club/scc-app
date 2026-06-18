@@ -7,6 +7,10 @@ import {AppRegistry} from 'react-native';
 // a polyfill is code that implements a feature on web browsers that do not natively support the feature.
 import 'react-native-url-polyfill/auto';
 
+// JS 실행 시작 시점(jsStart)을 가능한 한 일찍 캡처하기 위해 최상단에서 import한다.
+// (콜드스타트 splash 지연 진단용 — App.tsx/RootScreen.tsx에서 사용)
+import '@/logging/startupTiming';
+
 import {getStorageValue} from '@/atoms/atomForLocal';
 import Logger from '@/logging/Logger';
 import App from './App';

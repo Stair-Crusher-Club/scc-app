@@ -21,6 +21,8 @@ import {
   ToiletApi,
 } from '@/generated-sources/openapi';
 import RootScreen from '@/screens/RootScreen';
+import Logger from '@/logging/Logger';
+import {startupTiming} from '@/logging/startupTiming';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
 
 import {setupGlobalFeatures} from '@/features/globalFeatures';
@@ -132,6 +134,24 @@ const AppWithMigration = () => {
 const HotUpdatedApp = HotUpdater.wrap({
   source: Config.HOT_UPDATER_URL ?? '',
   fallbackComponent: () => null,
+  onProgress: () => {
+    // 번들 다운로드(UPDATING) 시작 시점만 한 번 기록 — 다운로드 소요 분리용
+    if (!startupTiming.otaFirstProgress) {
+      startupTiming.otaFirstProgress = Date.now();
+    }
+  },
+  onUpdateProcessCompleted: res => {
+    startupTiming.otaCompleted = Date.now();
+    Logger.logOtaCompleted({
+      status: res.status,
+      didDownload: res.status !== 'UP_TO_DATE',
+      jsToOtaMs: startupTiming.otaCompleted - startupTiming.jsStart,
+      downloadMs: startupTiming.otaFirstProgress
+        ? startupTiming.otaCompleted - startupTiming.otaFirstProgress
+        : 0,
+      bundleId: HotUpdater.getBundleId() ?? 'unknown',
+    });
+  },
   onError: error => {
     getAnalytics().logEvent('HotUpdaterError', {
       error: error.message,

@@ -22,6 +22,7 @@ import {
   linkingScreensConfig,
   webLinkingScreensConfig,
 } from '@/navigation/linkingConfig';
+import {startupTiming} from '@/logging/startupTiming';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {classifyWebRoute} from '@/navigation/webAccess';
 import {showAppInstallPrompt} from '@/utils/appInstallPrompt';
@@ -164,6 +165,14 @@ const RootScreen = () => {
       <NavigationContainer
         ref={navigationRef}
         onReady={async () => {
+          // 콜드스타트 splash 종료 시점 계측 (진단용)
+          const navReady = Date.now();
+          Logger.logSplashDismissed({
+            jsToNavReadyMs: navReady - startupTiming.jsStart,
+            otaToNavReadyMs: startupTiming.otaCompleted
+              ? navReady - startupTiming.otaCompleted
+              : 0,
+          });
           SplashScreen.hide();
           dismissSplashOverlay();
           if (Platform.OS === 'ios') {

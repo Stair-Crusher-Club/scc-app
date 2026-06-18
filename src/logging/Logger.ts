@@ -211,6 +211,40 @@ const Logger = {
     getAnalytics().logEvent('heat_sample', eventParams);
   },
 
+  // 콜드스타트 splash 지연 진단: HotUpdater(OTA) 프로세스 완료 시점
+  async logOtaCompleted(params: {
+    status: string; // UP_TO_DATE | UPDATE | ROLLBACK
+    didDownload: boolean;
+    jsToOtaMs: number; // JS 시작 ~ OTA 완료 (② 구간 근사: check 왕복 + 다운로드)
+    downloadMs: number; // 첫 progress ~ OTA 완료 (다운로드만, 없으면 0)
+    bundleId: string;
+  }) {
+    logDebug('logOtaCompleted', params, currUserPropertiesForDebugging);
+    const eventParams = {
+      status: params.status,
+      did_download: params.didDownload ? 1 : 0,
+      js_to_ota_ms: params.jsToOtaMs,
+      download_ms: params.downloadMs,
+      bundle_id: params.bundleId,
+    };
+    trackEvent('ota_completed', eventParams);
+    getAnalytics().logEvent('ota_completed', eventParams);
+  },
+
+  // 콜드스타트 splash 지연 진단: splash가 사라지는 시점(NavigationContainer.onReady)
+  async logSplashDismissed(params: {
+    jsToNavReadyMs: number; // JS 시작 ~ splash 종료 (②+③ 합)
+    otaToNavReadyMs: number; // OTA 완료 ~ splash 종료 (③ 마운트~navReady, OTA 미발화 시 0)
+  }) {
+    logDebug('logSplashDismissed', params, currUserPropertiesForDebugging);
+    const eventParams = {
+      js_to_nav_ready_ms: params.jsToNavReadyMs,
+      ota_to_nav_ready_ms: params.otaToNavReadyMs,
+    };
+    trackEvent('splash_dismissed', eventParams);
+    getAnalytics().logEvent('splash_dismissed', eventParams);
+  },
+
   async logAppPushOpen(params: AppPushOpenParams) {
     logDebug('logAppPushOpen', params, currUserPropertiesForDebugging);
     const eventParams = {
