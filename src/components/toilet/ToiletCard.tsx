@@ -98,7 +98,11 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
             </ExtraArea>
           )}
         </InfoArea>
-        {images.length > 0 && <ImageList images={images} />}
+        {images.length > 0 && (
+          <View style={{width: '100%', flexShrink: 2, overflow: 'hidden'}}>
+            <ImageList images={images} />
+          </View>
+        )}
       </Container>
     </LogParamsProvider>
   );
