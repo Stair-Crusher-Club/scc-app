@@ -344,6 +344,7 @@ const CharacterWrapper = styled.View`
 `;
 
 const AnnouncementContainer = styled.View`
+  align-self: stretch;
   background-color: ${color.gray15};
   border-radius: ${ANNOUNCEMENT_RADIUS}px;
   padding-left: 16px;
