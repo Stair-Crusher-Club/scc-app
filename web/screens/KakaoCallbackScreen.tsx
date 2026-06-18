@@ -48,9 +48,13 @@ export default function KakaoCallbackScreen() {
           },
           body: new URLSearchParams({
             grant_type: 'authorization_code',
-            // 웹 전용 Kakao REST API 키 (authorize와 동일해야 함).
+            // 토큰 교환 client_id = authorize 와 동일한 JS키. 카카오 /oauth/token 은
+            // JS키도 client_id 로 허용하며(실측 확인), 이때 발급되는 idToken 의 aud 가
+            // 그 JS키가 된다. 백엔드는 웹 idToken 의 aud 를 web-oauth-client-id(=이 JS키)
+            // 로 검증하므로 일치해야 한다. (REST키로 교환하면 aud=REST키가 되어
+            // 백엔드에서 "audience does not match" 발생 — KOE 아님, 백엔드 검증 실패.)
             client_id:
-              Config.KAKAO_REST_API_KEY ?? '1ae6e66e491cf3bf3041015e235c08e1',
+              Config.KAKAO_JS_KEY ?? '484a369f5c19e5d59aac0d975beabc78',
             redirect_uri: window.location.origin + '/oauth/kakao',
             code: code,
           }),
