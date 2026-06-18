@@ -108,6 +108,7 @@ const InfoArea = styled.View`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 `;
 
 const LabelIconArea = styled.View`
@@ -125,6 +126,7 @@ const TitleArea = styled.View`
   align-items: flex-start;
   gap: 4px;
   margin-bottom: 8px;
+  width: 100%;
 `;
 
 const ExtraArea = styled.View`
@@ -149,6 +151,7 @@ const Container = styled(SccPressable)<{hasImage: boolean}>`
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  width: 100%;
   ${({hasImage}) => (hasImage ? 'height: 230px;' : '')}
 `;
 const TitleText = styled.Text`
