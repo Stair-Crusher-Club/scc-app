@@ -1,6 +1,6 @@
 import {useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Animated, Dimensions, Easing, Image, Linking} from 'react-native';
+import {Animated, Dimensions, Easing, Image} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
@@ -13,6 +13,7 @@ import {HomeAnnouncementDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import {searchModeAtom} from '@/screens/SearchScreen/atoms';
+import {openAppDeepLink} from '@/utils/appLinkNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -253,7 +254,7 @@ function AnnouncementItem({
     const url = announcement.linkUrl;
 
     if (isAppDeepLink(url)) {
-      await Linking.openURL(url);
+      openAppDeepLink(url, navigation);
     } else {
       navigation.navigate('Webview', {
         fixedTitle: '공지사항',

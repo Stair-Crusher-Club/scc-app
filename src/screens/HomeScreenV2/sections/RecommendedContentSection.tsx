@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, Linking, View} from 'react-native';
+import {FlatList, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import Skeleton from '@/components/Skeleton';
@@ -10,6 +10,7 @@ import {font} from '@/constant/font';
 import {HomeRecommendedContentDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
+import {openAppDeepLink} from '@/utils/appLinkNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
 const CARD_WIDTH = 130;
@@ -97,7 +98,7 @@ function ContentCard({content, index}: ContentCardProps) {
     const url = content.linkUrl;
 
     if (isAppDeepLink(url)) {
-      await Linking.openURL(url);
+      openAppDeepLink(url, navigation);
     } else {
       navigation.navigate('Webview', {
         fixedTitle: content.title,
