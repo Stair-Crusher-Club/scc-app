@@ -79,7 +79,9 @@ export default function CategoryChipSection() {
               onPress={() => handlePress(item.keyword, item.mode)}>
               <ChipInner>
                 <SearchCategoryIcon icon={item.category} size={20} />
-                <ChipText>{item.label ?? item.keyword}</ChipText>
+                <ChipText numberOfLines={1}>
+                  {item.label ?? item.keyword}
+                </ChipText>
               </ChipInner>
             </SccPressable>
           ))}
@@ -97,7 +99,8 @@ const ChipInner = styled.View`
   border-width: 1px;
   border-color: #fff;
   border-radius: 100px;
-  width: 84px;
+  min-width: 84px;
+  flex-shrink: 0;
   padding: 8px 14px;
   gap: 4px;
   shadow-color: #000;
