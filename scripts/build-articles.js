@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node */
 /**
  * build-articles.js — Notion → web.staircrusher.club/articles 정적 생성기 (결정론적, incremental)
  *
@@ -57,14 +58,19 @@ async function api(method, p, body) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const j = await res.json();
-  if (j && j.object === 'error') throw new Error(`Notion ${j.code}: ${j.message}`);
+  if (j && j.object === 'error')
+    throw new Error(`Notion ${j.code}: ${j.message}`);
   return j;
 }
 async function queryAllPages() {
   const out = [];
   let cursor;
   do {
-    const j = await api('POST', `databases/${DB_ID}/query`, cursor ? {start_cursor: cursor} : {});
+    const j = await api(
+      'POST',
+      `databases/${DB_ID}/query`,
+      cursor ? {start_cursor: cursor} : {},
+    );
     out.push(...j.results);
     cursor = j.has_more ? j.next_cursor : undefined;
   } while (cursor);
@@ -169,7 +175,17 @@ function resolveRow(page) {
       faq = [];
     }
   }
-  return {rowId: page.id, contentPageId, isMention: !!mention, title, slug, summary, ogImage, tags, faq};
+  return {
+    rowId: page.id,
+    contentPageId,
+    isMention: !!mention,
+    title,
+    slug,
+    summary,
+    ogImage,
+    tags,
+    faq,
+  };
 }
 
 // ---------- 이미지 다운로드 (presigned 만료 대응) ----------
@@ -179,14 +195,32 @@ async function downloadImage(url, destDir, idx) {
   if (!res.ok) throw new Error(`image ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
   const ct = res.headers.get('content-type') || '';
-  const ext = ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : ct.includes('gif') ? 'gif' : ct.includes('svg') ? 'svg' : 'jpg';
+  const ext = ct.includes('png')
+    ? 'png'
+    : ct.includes('webp')
+      ? 'webp'
+      : ct.includes('gif')
+        ? 'gif'
+        : ct.includes('svg')
+          ? 'svg'
+          : 'jpg';
   const name = `img-${idx}.${ext}`;
   fs.writeFileSync(path.join(destDir, name), buf);
   return `assets/${name}`;
 }
 
 // ---------- rich text → inline HTML ----------
-const COLOR = {gray:'#787774',brown:'#9f6b53',orange:'#d9730d',yellow:'#cb912f',green:'#448361',blue:'#337ea9',purple:'#9065b0',pink:'#c14c8a',red:'#d44c47'};
+const COLOR = {
+  gray: '#787774',
+  brown: '#9f6b53',
+  orange: '#d9730d',
+  yellow: '#cb912f',
+  green: '#448361',
+  blue: '#337ea9',
+  purple: '#9065b0',
+  pink: '#c14c8a',
+  red: '#d44c47',
+};
 function renderRich(rich) {
   return (rich || [])
     .map(r => {
@@ -219,7 +253,9 @@ async function renderBlocks(blocks, ctx) {
       let items = '';
       while (i < blocks.length && blocks[i].type === b.type) {
         const it = blocks[i];
-        const inner = it.__children ? await renderBlocks(it.__children, ctx) : '';
+        const inner = it.__children
+          ? await renderBlocks(it.__children, ctx)
+          : '';
         items += `<li>${renderRich(it[it.type].rich_text)}${inner}</li>`;
         i++;
       }
@@ -277,7 +313,9 @@ async function renderBlock(b, ctx) {
     case 'bookmark':
     case 'embed': {
       const url = d.url || '';
-      return url ? `<p><a href="${esc(url)}" rel="noopener">${esc(url)}</a></p>` : '';
+      return url
+        ? `<p><a href="${esc(url)}" rel="noopener">${esc(url)}</a></p>`
+        : '';
     }
     case 'column_list': {
       let cols = '';
@@ -288,13 +326,14 @@ async function renderBlock(b, ctx) {
     case 'table': {
       const rows = b.__children || [];
       const body = rows
-        .map((r, ri) =>
-          `<tr>${r.table_row.cells
-            .map(c => {
-              const tag = ri === 0 && d.has_column_header ? 'th' : 'td';
-              return `<${tag}>${renderRich(c)}</${tag}>`;
-            })
-            .join('')}</tr>`,
+        .map(
+          (r, ri) =>
+            `<tr>${r.table_row.cells
+              .map(c => {
+                const tag = ri === 0 && d.has_column_header ? 'th' : 'td';
+                return `<${tag}>${renderRich(c)}</${tag}>`;
+              })
+              .join('')}</tr>`,
         )
         .join('');
       return `<table>${body}</table>`;
@@ -303,7 +342,9 @@ async function renderBlock(b, ctx) {
     case 'file':
     case 'pdf': {
       const url = d.type === 'external' ? d.external?.url : d.file?.url;
-      return url ? `<p><a href="${esc(url)}" rel="noopener">${esc(t)}: ${esc(url)}</a></p>` : '';
+      return url
+        ? `<p><a href="${esc(url)}" rel="noopener">${esc(t)}: ${esc(url)}</a></p>`
+        : '';
     }
     default:
       if (d.rich_text) return `<p>${renderRich(d.rich_text)}</p>`;
@@ -325,7 +366,8 @@ async function buildArticle(meta, times) {
   const contentHtml = await renderBlocks(blocks, ctx);
 
   // ctx.firstImage = "/articles/<slug>/assets/img-0.ext" (루트절대) → og는 도메인 붙여 절대 URL
-  const ogImageUrl = meta.ogImage || (ctx.firstImage ? `${SITE.baseUrl}${ctx.firstImage}` : '');
+  const ogImageUrl =
+    meta.ogImage || (ctx.firstImage ? `${SITE.baseUrl}${ctx.firstImage}` : '');
 
   const html = renderArticlePage({
     title: meta.title,
@@ -348,13 +390,22 @@ function mergeSitemap(articles) {
   const today = new Date().toISOString().split('T')[0];
   const urls = [
     {loc: `${SITE.baseUrl}/articles`, pr: '0.9'},
-    ...articles.map(a => ({loc: `${SITE.baseUrl}/articles/${a.slug}`, pr: '0.8'})),
+    ...articles.map(a => ({
+      loc: `${SITE.baseUrl}/articles/${a.slug}`,
+      pr: '0.8',
+    })),
   ]
-    .map(u => `  <url><loc>${u.loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${u.pr}</priority></url>`)
+    .map(
+      u =>
+        `  <url><loc>${u.loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${u.pr}</priority></url>`,
+    )
     .join('\n');
   let xml = readFileOr(sp, '');
   if (xml.includes('</urlset>')) {
-    xml = xml.replace(/\s*<url>(?:(?!<\/url>)[\s\S])*?\/articles(?:\/[^<]*)?<\/loc>[\s\S]*?<\/url>/g, '');
+    xml = xml.replace(
+      /\s*<url>(?:(?!<\/url>)[\s\S])*?\/articles(?:\/[^<]*)?<\/loc>[\s\S]*?<\/url>/g,
+      '',
+    );
     xml = xml.replace('</urlset>', `${urls}\n</urlset>`);
   } else {
     xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
@@ -405,14 +456,27 @@ async function main() {
   const changed = rows.filter(r => {
     if (FORCE) return true;
     const prev = manifest[r.meta.rowId];
-    return !prev || prev.editedTime !== r.times.editedTime || prev.slug !== r.meta.slug;
+    return (
+      !prev ||
+      prev.editedTime !== r.times.editedTime ||
+      prev.slug !== r.meta.slug
+    );
   });
   const deleted = Object.keys(manifest).filter(id => !current.has(id));
 
-  console.log(`🔎 신규/변경 ${changed.length} · 삭제 ${deleted.length} · 메타미비(스킵) ${needsMeta.length} · 전체 ${pages.length}`);
+  console.log(
+    `🔎 신규/변경 ${changed.length} · 삭제 ${deleted.length} · 메타미비(스킵) ${needsMeta.length} · 전체 ${pages.length}`,
+  );
   if (needsMeta.length)
-    console.log(`   ⚠️ slug/summary 없는 문서(스킬 STEP 2에서 메타 생성·라이트백 필요):\n` +
-      needsMeta.map(n => `      - "${n.meta.title}" (rowId=${n.meta.rowId}, contentPageId=${n.meta.contentPageId})`).join('\n'));
+    console.log(
+      `   ⚠️ slug/summary 없는 문서(스킬 STEP 2에서 메타 생성·라이트백 필요):\n` +
+        needsMeta
+          .map(
+            n =>
+              `      - "${n.meta.title}" (rowId=${n.meta.rowId}, contentPageId=${n.meta.contentPageId})`,
+          )
+          .join('\n'),
+    );
 
   if (DRY) {
     console.log('   (--dry: 변경 없음)');
@@ -443,7 +507,8 @@ async function main() {
   fs.mkdirSync(DIST_ARTICLES, {recursive: true});
   // 공용 에셋(로고 등): web-articles/_assets → web-dist/articles/assets
   const sharedAssets = path.join(SRC_DIR, '_assets');
-  if (fs.existsSync(sharedAssets)) copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
+  if (fs.existsSync(sharedAssets))
+    copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
   const published = Object.values(manifest).sort((a, b) =>
     (b.createdTime || '').localeCompare(a.createdTime || ''),
   );
@@ -451,7 +516,10 @@ async function main() {
     const src = path.join(SRC_DIR, a.slug);
     if (fs.existsSync(src)) copyDir(src, path.join(DIST_ARTICLES, a.slug));
   }
-  fs.writeFileSync(path.join(DIST_ARTICLES, 'index.html'), renderListPage(published));
+  fs.writeFileSync(
+    path.join(DIST_ARTICLES, 'index.html'),
+    renderListPage(published),
+  );
   mergeSitemap(published);
   writeRobots();
   writeLlms(published);

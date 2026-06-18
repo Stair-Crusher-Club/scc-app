@@ -1,11 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-  Animated,
-  Dimensions,
-  Easing,
-  Linking,
-  PanResponder,
-} from 'react-native';
+import {Animated, Dimensions, Easing, PanResponder} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
@@ -17,6 +11,7 @@ import {font} from '@/constant/font';
 import {HomeBannerDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
+import {openAppDeepLink} from '@/utils/appLinkNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
 
@@ -290,7 +285,7 @@ function MainBanner({banner, index, trackView = false}: MainBannerProps) {
     const url = banner.clickPageUrl;
 
     if (isAppDeepLink(url)) {
-      await Linking.openURL(url);
+      openAppDeepLink(url, navigation);
     } else {
       navigation.navigate('Webview', {
         fixedTitle: banner.clickPageTitle,

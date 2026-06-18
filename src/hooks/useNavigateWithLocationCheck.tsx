@@ -1,4 +1,5 @@
 import React, {useState, useCallback} from 'react';
+import {Platform} from 'react-native';
 
 import {Location} from '@/generated-sources/openapi';
 import LocationConfirmBottomSheet from '@/modals/LocationConfirmBottomSheet';
@@ -29,6 +30,13 @@ export default function useNavigateWithLocationCheck() {
       type,
       onNavigate,
     }: NavigateWithLocationCheckParams) => {
+      // 웹: 위치 확인 모달은 "현장 방문" 전제라 의미가 없고, 대상(정보등록/리뷰)은
+      // 모두 앱 전용이라 어차피 라우트 게이트가 앱 설치를 유도한다. 모달 없이 바로
+      // 진행해 앱 설치 팝업이 위치 모달에 가려지지 않고 즉시 뜨게 한다.
+      if (Platform.OS === 'web') {
+        onNavigate();
+        return;
+      }
       // 거리 체크
       const distance =
         await getDistanceMetersFromCurrentLocation(targetLocation);

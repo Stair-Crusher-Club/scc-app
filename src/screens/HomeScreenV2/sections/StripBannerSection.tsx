@@ -1,11 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-  Animated,
-  Dimensions,
-  Easing,
-  Linking,
-  PanResponder,
-} from 'react-native';
+import {Animated, Dimensions, Easing, PanResponder} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 
 import styled from 'styled-components/native';
@@ -17,6 +11,7 @@ import {color} from '@/constant/color';
 import {HomeBannerDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
+import {openAppDeepLink} from '@/utils/appLinkNavigation';
 import {useCheckAuth} from '@/utils/checkAuth';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 
@@ -282,7 +277,7 @@ function StripBanner({banner, index, trackView = false}: StripBannerProps) {
     const url = banner.clickPageUrl;
 
     if (isAppDeepLink(url)) {
-      await Linking.openURL(url);
+      openAppDeepLink(url, navigation);
     } else {
       navigation.navigate('Webview', {
         fixedTitle: banner.clickPageTitle,
