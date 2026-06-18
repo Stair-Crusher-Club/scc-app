@@ -51,11 +51,17 @@ export default function attachDragToScroll(
   };
   enableSnap();
 
+  // 드래그 놓을 때 관성을 반영해 몇 칸 넘길지 투영하는 시간(ms). 클수록 약한 플릭도 넘어감.
+  const MOMENTUM_MS = 180;
+
   let isDown = false;
   let startX = 0;
   let startScroll = 0;
   let moved = false;
   let lastIndex = -1;
+  let lastMoveX = 0;
+  let lastMoveT = 0;
+  let velocity = 0; // 포인터 px/ms (오른쪽 +)
   let scrollStopTimer: ReturnType<typeof setTimeout> | undefined;
 
   const settle = () => {
@@ -72,7 +78,10 @@ export default function attachDragToScroll(
     moved = false;
     startX = e.pageX;
     startScroll = target.scrollLeft;
-    // 드래그 중에는 스냅을 끄고 자유 스크롤 (release 시 다시 켜 스냅 유도).
+    lastMoveX = e.pageX;
+    lastMoveT = e.timeStamp;
+    velocity = 0;
+    // 드래그 중에는 스냅을 끄고 자유 스크롤 (release 시 관성 반영해 스냅).
     target.style.scrollSnapType = 'none';
     target.style.scrollBehavior = 'auto';
   };
@@ -81,11 +90,23 @@ export default function attachDragToScroll(
     const dx = e.pageX - startX;
     if (Math.abs(dx) > 3) moved = true;
     target.scrollLeft = startScroll - dx;
+    const dt = e.timeStamp - lastMoveT;
+    if (dt > 0) velocity = (e.pageX - lastMoveX) / dt;
+    lastMoveX = e.pageX;
+    lastMoveT = e.timeStamp;
   };
   const onPointerUp = () => {
     if (!isDown) return;
     isDown = false;
-    enableSnap(); // mandatory 재적용 → 가장 가까운 카드로 네이티브 스냅
+    // 관성 투영: 포인터가 왼쪽으로 빠르게 움직였으면(velocity<0) 스크롤은 오른쪽으로
+    // 더 가야 하므로 scrollLeft 를 (-velocity*MOMENTUM) 만큼 즉시 더 밀어준 뒤,
+    // 네이티브 mandatory 스냅이 그 위치에서 가장 가까운 카드로 부드럽게 정렬하게 한다.
+    // (imperative smooth scrollTo 는 rn-web 내부 스크롤 상태와 충돌해 0 으로 리셋되므로
+    //  즉시 nudge + 네이티브 스냅 조합을 쓴다.)
+    const maxScroll = Math.max(0, target.scrollWidth - target.clientWidth);
+    const projected = target.scrollLeft - velocity * MOMENTUM_MS;
+    target.scrollLeft = Math.max(0, Math.min(maxScroll, projected));
+    enableSnap();
   };
   // 드래그 직후 발생하는 click 이 카드 onPress(상세 진입)로 새지 않게 막는다.
   const onClickCapture = (e: MouseEvent) => {
