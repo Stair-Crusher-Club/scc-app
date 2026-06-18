@@ -334,7 +334,10 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
       isHeaderVisible={false}
       safeAreaEdges={['bottom']}
       style={{backgroundColor: 'white'}}>
-      <View className="flex-1 justify-end">
+      <View
+        className={`flex-1 ${
+          Platform.OS === 'web' ? 'justify-center' : 'justify-end'
+        }`}>
         <View className="mt-[40px] w-full h-[440px]">
           <Carousel
             data={slides}

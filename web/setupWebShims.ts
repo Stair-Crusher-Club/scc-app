@@ -7,11 +7,13 @@ import {Dimensions, Image} from 'react-native';
 
 const FRAME_MAX_WIDTH = 480;
 
-// Initialize the Kakao JS SDK with the web Kakao key (the SDK script is loaded
-// in index.html). The main login flow uses the REST endpoints, but bbucle-road
-// edit mode uses window.Kakao.Auth.
+// Initialize the Kakao JS SDK with the environment-specific JavaScript key (the
+// SDK script is loaded in index.html). 로그인 플로우(web/mocks/kakao-login.js)와
+// bbucle-road edit mode 모두 이 init 된 JS 키로 window.Kakao.Auth 를 쓴다.
+// 환경별 키는 .env 의 KAKAO_JS_KEY (production: prod 앱 JS 키). 이 키의 카카오 앱이
+// 해당 환경 백엔드와 같아야 로그인 토큰 aud 가 일치한다.
 const kakaoWebKey =
-  process.env.KAKAO_REST_API_KEY || '1ae6e66e491cf3bf3041015e235c08e1';
+  process.env.KAKAO_JS_KEY || '1ae6e66e491cf3bf3041015e235c08e1';
 const kakaoSdk = (globalThis as {Kakao?: any}).Kakao;
 if (kakaoWebKey && kakaoSdk && !kakaoSdk.isInitialized?.()) {
   try {
