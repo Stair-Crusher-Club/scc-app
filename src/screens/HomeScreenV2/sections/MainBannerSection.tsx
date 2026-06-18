@@ -5,6 +5,7 @@ import {
   Easing,
   Linking,
   PanResponder,
+  Platform,
 } from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
@@ -25,7 +26,14 @@ const SCROLL_ANIMATION_DURATION_MS = 800;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const BANNER_HORIZONTAL_PADDING = 20;
 const BANNER_WIDTH = SCREEN_WIDTH - BANNER_HORIZONTAL_PADDING * 2;
-const BANNER_HEIGHT = 230;
+// 390pt 디자인 기준 배너 박스는 350×230(=1.52:1). 웹 프레임(480px)은 더 넓어
+// 고정 높이 230 을 쓰면 cover 크롭이 앱보다 심해진다 → 웹에서만 디자인 비율을
+// 유지하도록 너비에 비례해 높이를 계산한다. (네이티브는 기존 230 유지)
+const DESIGN_BANNER_WIDTH = 350;
+const BANNER_HEIGHT =
+  Platform.OS === 'web'
+    ? Math.round(BANNER_WIDTH * (230 / DESIGN_BANNER_WIDTH))
+    : 230;
 const BANNER_GAP = 12;
 const ITEM_SLOT_WIDTH = BANNER_WIDTH + BANNER_GAP;
 const BANNER_RADIUS = 12;
