@@ -381,9 +381,9 @@ export function StrokeCTAButton({
     <StrokeCTAContainer
       elementName={elementName}
       onPress={onPress}
-      style={fullWidth ? {width: '100%'} : undefined}>
+      style={fullWidth ? {alignSelf: 'stretch'} : undefined}>
       <PlusStrokeIcon width={20} height={20} color={color.brand40} />
-      <StrokeCTAText numberOfLines={1}>{text}</StrokeCTAText>
+      <StrokeCTAText>{text}</StrokeCTAText>
     </StrokeCTAContainer>
   );
 }
@@ -455,8 +455,9 @@ const EmptyStateCardDescription = styled.Text`
 // StrokeCTAButton (Figma H-48px Stroke + Left icon)
 // 아이콘 + 텍스트를 별도 row View로 중첩하면 Android에서 row 내부 Text가
 // 다음 줄로 깨져 잘렸다 (RN #51306: alignItems:center 부모 + flexDirection:row
-// 자식의 Android 측정 버그). 컨테이너 자체를 row 로 평탄화해 definite width 를
-// 주고, 텍스트는 numberOfLines={1} 로 줄바꿈을 막는다.
+// 자식의 Android 너비 측정 버그). 컨테이너 자체를 row 로 평탄화하고 fullWidth는
+// align-self:stretch 로 확실한 definite width 를 줘서 텍스트가 intrinsic 너비를
+// 온전히 받게 한다 (그래야 측정=렌더가 일치해 잘리지 않음).
 const StrokeCTAContainer = styled(SccTouchableOpacity)`
   background-color: ${color.white};
   border-width: 1px;
@@ -478,7 +479,6 @@ const StrokeCTAText = styled.Text.attrs({
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.brand40};
-  flex-shrink: 1;
 `;
 
 // Subsection layout
