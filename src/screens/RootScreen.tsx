@@ -226,10 +226,14 @@ const RootScreen = () => {
                     let resolved = false;
                     const airbridgeUrl = await new Promise<string | null>(
                       resolve => {
+                        // 타임아웃 후 늦게 도착한 deeplink는 아래 else 분기에서
+                        // setDeferredDeepLinkUrl로 async 처리됨(MainScreen/HomeScreenV2가 소비)
+                        // → 짧게 잡아도 attribution 안 깨지고, 콜드스타트 splash 지연만 단축.
+                        // (3000ms → 800ms: prod 콜드스타트 ③ 구간이 3s 고정 대기였음, 계측으로 확인)
                         const timeout = setTimeout(() => {
                           resolved = true;
                           resolve(null);
-                        }, 3000);
+                        }, 800);
                         Airbridge.setOnDeeplinkReceived((deeplink: string) => {
                           clearTimeout(timeout);
                           if (deeplink.startsWith('kakao')) {
