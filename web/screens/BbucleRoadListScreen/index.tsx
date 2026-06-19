@@ -102,7 +102,7 @@ function BbucleRoadListContent({
 
 export default function BbucleRoadListScreen({ navigation }: Props) {
   return (
-    <Container data-testid="bbucle-road-list">
+    <Container testID="bbucle-road-list">
       <ResponsiveProvider>
         <BbucleRoadListContent navigation={navigation} />
       </ResponsiveProvider>
