@@ -1,20 +1,22 @@
 /**
  * Article HTML template (self-contained, JS-free, SEO/AEO 최적)
  *
- * web.staircrusher.club/articles 정적 페이지의 셸/메타/구조화데이터를 생성한다.
- * - SPA(web/index.tsx → App.tsx)의 480px 모바일 프레임을 타지 않는 독립 HTML.
- * - 콘텐츠 컬럼 ~720px 자체 반응형. 크롤러/LLM이 JS 없이 본문을 읽을 수 있도록 인라인 CSS.
- *
- * build-articles.js에서 사용. 여기서는 본문(contentHtml)을 생성하지 않고 셸만 만든다.
+ * web.staircrusher.club/articles 정적 페이지. 타이포/색/간격은 Notion 퍼블리시 페이지
+ * (staircrusherclub.notion.site)의 computed style을 그대로 맞춘다:
+ *   본문 16px / line-height 1.5 / #2c2c2b, 볼드 600, 본문폭 720px,
+ *   title 40px/700, H1 30px/600, H2 24px/600, H3 20px/600, 시스템 sans 폰트.
+ * SPA(web/index.tsx → App.tsx)의 480px 모바일 프레임을 타지 않는 독립 HTML.
  */
 
 const SITE = {
   baseUrl: 'https://web.staircrusher.club',
   name: '계단뿌셔클럽',
-  // 앱 설치/서비스 유도 CTA (저장→로그인 기능은 다음 페이즈)
   appUrl: 'https://staircrusher.club',
   logo: 'https://web.staircrusher.club/articles/assets/scc-logo.png',
 };
+
+const FONT_STACK =
+  'ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif';
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -24,61 +26,81 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+const escapeAttr = escapeHtml;
 
-function escapeAttr(s) {
-  return escapeHtml(s);
-}
-
+// Notion 톤에 맞춘 CSS (디테일 페이지 + 목록 페이지 공용)
 const BASE_CSS = `
-:root { --fg:#191919; --muted:#6b6b6b; --line:#ececec; --accent:#1f6feb; --bg:#fff; --callout-bg:#f7f6f3; }
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin:0; background:var(--bg); color:var(--fg);
-  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-  font-size:18px; line-height:1.75; word-break:keep-all; }
-a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
-img { max-width:100%; height:auto; border-radius:8px; }
-.site-header, .site-footer { max-width:760px; margin:0 auto; padding:16px 20px; }
-.site-header { display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); }
-.site-header img { width:28px; height:28px; border-radius:6px; }
-.site-header b { font-size:16px; }
-main { max-width:760px; margin:0 auto; padding:24px 20px 64px; }
-article h1 { font-size:32px; line-height:1.3; margin:8px 0 4px; }
-.article-meta { color:var(--muted); font-size:14px; margin-bottom:8px; }
-.lead { font-size:19px; color:#333; background:var(--callout-bg); border-left:3px solid var(--accent);
-  padding:14px 16px; border-radius:8px; margin:16px 0 28px; }
-article h2 { font-size:24px; margin:36px 0 12px; line-height:1.35; }
-article h3 { font-size:20px; margin:28px 0 10px; }
-article p { margin:14px 0; }
-article ul, article ol { margin:14px 0; padding-left:24px; }
-article li { margin:6px 0; }
-blockquote { margin:18px 0; padding:8px 16px; border-left:3px solid #d0d0d0; color:#555; }
-.callout { display:flex; gap:10px; background:var(--callout-bg); border:1px solid var(--line);
-  border-radius:10px; padding:14px 16px; margin:18px 0; }
-.callout .emoji { flex:0 0 auto; }
-details { background:var(--callout-bg); border:1px solid var(--line); border-radius:10px; padding:8px 14px; margin:14px 0; }
-details summary { cursor:pointer; font-weight:600; }
-pre { background:#0d1117; color:#e6edf3; padding:16px; border-radius:10px; overflow:auto; font-size:14px; }
-code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
-:not(pre) > code { background:#f0f0f0; padding:2px 6px; border-radius:5px; font-size:0.9em; }
-hr { border:0; border-top:1px solid var(--line); margin:32px 0; }
-.columns { display:flex; flex-wrap:wrap; gap:20px; margin:18px 0; }
-.columns > .column { flex:1 1 0; min-width:220px; }
-table { border-collapse:collapse; width:100%; margin:18px 0; font-size:16px; }
-th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; }
-figure { margin:18px 0; } figcaption { color:var(--muted); font-size:14px; text-align:center; margin-top:6px; }
-.tags { margin:28px 0 0; }
-.tags span { display:inline-block; background:#f0f0f0; color:#555; border-radius:14px; padding:4px 12px; font-size:13px; margin:0 6px 6px 0; }
-.cta { max-width:760px; margin:40px auto 0; padding:24px 20px; background:var(--callout-bg);
-  border-radius:14px; text-align:center; }
-.cta a { display:inline-block; background:var(--accent); color:#fff; padding:12px 24px; border-radius:24px;
-  font-weight:600; margin-top:10px; }
-.site-footer { border-top:1px solid var(--line); color:var(--muted); font-size:14px; }
-/* article list */
-.article-list { list-style:none; padding:0; margin:24px 0 0; }
-.article-list li { padding:20px 0; border-bottom:1px solid var(--line); }
-.article-list h2 { font-size:21px; margin:0 0 6px; }
-.article-list p { color:var(--muted); margin:0; font-size:16px; }
+:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:#fff;color:var(--fg);font-family:${FONT_STACK};font-size:16px;line-height:1.5;word-break:keep-all;}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px;}
+a{color:inherit;}
+img{max-width:100%;height:auto;}
+/* top bar */
+.site-header{border-bottom:1px solid var(--line);}
+.site-header .wrap{display:flex;align-items:center;gap:8px;height:48px;}
+.site-header img{width:24px;height:24px;border-radius:5px;}
+.site-header b{font-size:15px;font-weight:600;}
+.back{display:inline-flex;align-items:center;gap:5px;margin:22px 0 -6px;color:var(--muted);font-size:14px;text-decoration:none;}
+.back:hover{color:var(--fg);}
+/* article body — Notion 매칭 */
+article{padding:8px 0 72px;}
+h1.title{font-size:40px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;margin:16px 0 6px;}
+.article-date{color:var(--muted);font-size:14px;margin:0 0 26px;}
+article h2{font-size:30px;font-weight:600;line-height:1.3;margin:34px 0 6px;}
+article h3{font-size:24px;font-weight:600;line-height:1.3;margin:26px 0 4px;}
+article h4{font-size:20px;font-weight:600;line-height:1.3;margin:20px 0 2px;}
+article p{margin:0;padding:3px 0;}
+article strong,article b{font-weight:600;}
+article a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);text-underline-offset:2px;}
+article ul,article ol{margin:0;padding:2px 0 2px 1.7em;}
+article li{padding:2px 0;}
+article li::marker{color:var(--muted);}
+blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
+.callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
+.callout .emoji{flex:0 0 auto;line-height:1.5;}
+.callout>div>*:first-child{margin-top:0;padding-top:0;}
+details{margin:3px 0;}
+details summary{cursor:pointer;padding:3px 0;font-weight:600;}
+pre{background:var(--soft);border-radius:4px;padding:16px;overflow:auto;font-size:14px;line-height:1.4;margin:8px 0;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+:not(pre)>code{background:rgba(135,131,120,.15);color:#eb5757;padding:.2em .4em;border-radius:3px;font-size:.86em;}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0;}
+figure{margin:10px 0;}
+figure img{display:block;border-radius:3px;}
+figcaption{color:var(--muted);font-size:14px;margin-top:6px;}
+table{border-collapse:collapse;margin:8px 0;font-size:14px;width:100%;}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+th{background:var(--soft);font-weight:600;}
+.columns{display:flex;gap:16px;margin:8px 0;}
+.columns>.column{flex:1 1 0;min-width:0;}
+.tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
+.tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
+.cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
+.cta div{font-size:15px;}
+.cta a{display:inline-block;background:#2c2c2b;color:#fff;padding:11px 22px;border-radius:6px;font-size:15px;font-weight:600;text-decoration:none;margin-top:12px;}
+.site-footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:22px 0;margin-top:48px;}
+/* list page */
+.list-title{font-size:34px;font-weight:700;margin:28px 0 4px;}
+.list-sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:0 0 8px;}
+.hero{display:block;text-decoration:none;color:inherit;}
+.hero .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--soft);display:block;}
+.hero h2{font-size:20px;font-weight:600;line-height:1.35;margin:14px 0 6px;}
+.hero p{color:var(--muted);font-size:15px;line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.rest{list-style:none;padding:0;margin:8px 0 0;}
+.rest li a{display:flex;gap:16px;align-items:center;padding:20px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit;}
+.rest .thumb{width:104px;height:104px;flex:0 0 104px;object-fit:cover;border-radius:8px;background:var(--soft);}
+.rest h2{font-size:18px;font-weight:600;line-height:1.35;margin:0 0 6px;}
+.rest p{color:var(--muted);font-size:14px;line-height:1.5;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+@media (max-width:600px){
+  h1.title{font-size:30px;}
+  article h2{font-size:25px;}
+  article h3{font-size:21px;}
+  .columns{flex-direction:column;}
+  .hero-grid{grid-template-columns:1fr;}
+}
 `;
 
 function jsonLd(obj) {
@@ -86,25 +108,33 @@ function jsonLd(obj) {
 }
 
 function header() {
-  // 로고 img는 루트상대경로 → 로컬/프로덕션 모두 정상. (og/JSON-LD는 절대 URL인 SITE.logo 사용)
-  return `<header class="site-header">
-  <a href="/articles"><img src="/articles/assets/scc-logo.png" alt="${SITE.name}"></a>
-  <b>${SITE.name}</b>
-</header>`;
+  return `<header class="site-header"><div class="wrap">
+  <a href="/articles" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;"><img src="/articles/assets/scc-logo.png" alt="${SITE.name}"><b>${SITE.name}</b></a>
+</div></header>`;
 }
 
 function footerCta() {
   return `<section class="cta">
   <div>이동약자를 위한 진짜 접근성 정보, 계단뿌셔클럽에서 더 보기</div>
   <a href="${SITE.appUrl}">계단뿌셔클럽 바로가기</a>
-  <!-- TODO(다음 페이즈): 저장 버튼 → 로그인 유도 -->
 </section>
-<footer class="site-footer">© ${SITE.name}</footer>`;
+<footer class="site-footer"><div class="wrap">© ${SITE.name}</div></footer>`;
+}
+
+function headCommon(title, desc, canonical, extra) {
+  return `<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(title)}</title>
+<meta name="description" content="${escapeAttr(desc)}">
+<link rel="canonical" href="${canonical}">
+${extra}
+<style>${BASE_CSS}</style>`;
 }
 
 /**
- * 개별 아티클 페이지 HTML.
+ * 개별 아티클 페이지.
  * meta: { title, summary, slug, ogImageUrl, tags[], contentHtml, faq[{q,a}], createdTime, lastEditedTime }
+ * 주의: summary(=리드 요약)는 본문에 그리지 않는다 (Notion 원본에 없음). meta/JSON-LD에만 사용.
  */
 function renderArticlePage(meta) {
   const url = `${SITE.baseUrl}/articles/${meta.slug}`;
@@ -145,18 +175,9 @@ function renderArticlePage(meta) {
     Array.isArray(meta.tags) && meta.tags.length
       ? `<div class="tags">${meta.tags.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>`
       : '';
-
   const dateLabel = (meta.createdTime || '').slice(0, 10);
 
-  return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(meta.title)} | ${SITE.name}</title>
-<meta name="description" content="${escapeAttr(desc)}">
-<link rel="canonical" href="${url}">
-<meta property="og:type" content="article">
+  const og = `<meta property="og:type" content="article">
 <meta property="og:title" content="${escapeAttr(meta.title)}">
 <meta property="og:description" content="${escapeAttr(desc)}">
 <meta property="og:url" content="${url}">
@@ -166,21 +187,24 @@ function renderArticlePage(meta) {
 <meta name="twitter:title" content="${escapeAttr(meta.title)}">
 <meta name="twitter:description" content="${escapeAttr(desc)}">
 <meta name="twitter:image" content="${escapeAttr(ogImage)}">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
-<style>${BASE_CSS}</style>
-${ld.map(jsonLd).join('\n')}
+${ld.map(jsonLd).join('\n')}`;
+
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+${headCommon(`${meta.title} | ${SITE.name}`, desc, url, og)}
 </head>
 <body>
 ${header()}
-<main>
+<div class="wrap">
+<a class="back" href="/articles">← 목록으로</a>
 <article data-testid="article-detail">
-<h1>${escapeHtml(meta.title)}</h1>
-<div class="article-meta">${dateLabel}</div>
-${desc ? `<p class="lead">${escapeHtml(desc)}</p>` : ''}
+<h1 class="title">${escapeHtml(meta.title)}</h1>
+<div class="article-date">${dateLabel}</div>
 ${meta.contentHtml}
 ${tagsHtml}
 </article>
-</main>
+</div>
 ${footerCta()}
 </body>
 </html>`;
@@ -188,18 +212,41 @@ ${footerCta()}
 
 /**
  * /articles 목록 페이지.
- * articles: [{ slug, title, summary, createdTime }] (시간 역순 정렬은 호출측 책임)
+ * articles: [{ slug, title, summary, image, createdTime }] (시간 역순 정렬은 호출측 책임)
+ * 최근 2개는 큰 썸네일 히어로 카드, 나머지는 좌측 썸네일 리스트.
  */
 function renderListPage(articles) {
   const url = `${SITE.baseUrl}/articles`;
-  const items = articles
-    .map(
-      a => `<li>
-  <a href="/articles/${a.slug}"><h2>${escapeHtml(a.title)}</h2></a>
+  const thumb = a =>
+    a.image
+      ? `<img class="thumb" src="${escapeAttr(a.image)}" alt="${escapeAttr(a.title)}" loading="lazy">`
+      : `<div class="thumb"></div>`;
+
+  const heroes = articles.slice(0, 2);
+  const rest = articles.slice(2);
+
+  const heroHtml = heroes.length
+    ? `<div class="hero-grid">${heroes
+        .map(
+          a => `<a class="hero" href="/articles/${a.slug}">
+  ${thumb(a)}
+  <h2>${escapeHtml(a.title)}</h2>
   <p>${escapeHtml(a.summary || '')}</p>
-</li>`,
-    )
-    .join('\n');
+</a>`,
+        )
+        .join('\n')}</div>`
+    : '';
+
+  const restHtml = rest.length
+    ? `<ul class="rest">${rest
+        .map(
+          a => `<li><a href="/articles/${a.slug}">
+  ${thumb(a)}
+  <div><h2>${escapeHtml(a.title)}</h2><p>${escapeHtml(a.summary || '')}</p></div>
+</a></li>`,
+        )
+        .join('\n')}</ul>`
+    : '';
 
   const ld = {
     '@context': 'https://schema.org',
@@ -216,28 +263,26 @@ function renderListPage(articles) {
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>아티클 | ${SITE.name}</title>
-<meta name="description" content="이동약자를 위한 접근성 정보 콘텐츠 모음 - ${SITE.name}">
-<link rel="canonical" href="${url}">
-<meta property="og:type" content="website">
+${headCommon(
+  `아티클 | ${SITE.name}`,
+  `이동약자를 위한 접근성 정보 콘텐츠 모음 - ${SITE.name}`,
+  url,
+  `<meta property="og:type" content="website">
 <meta property="og:title" content="아티클 | ${SITE.name}">
 <meta property="og:description" content="이동약자를 위한 접근성 정보 콘텐츠 모음">
 <meta property="og:url" content="${url}">
 <meta property="og:site_name" content="${SITE.name}">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
-<style>${BASE_CSS}</style>
-${jsonLd(ld)}
+${jsonLd(ld)}`,
+)}
 </head>
 <body>
 ${header()}
-<main>
-<h1>아티클</h1>
-<ul class="article-list" data-testid="article-list">
-${items}
-</ul>
-</main>
+<div class="wrap" data-testid="article-list">
+<h1 class="list-title">아티클</h1>
+<p class="list-sub">이동약자를 위한 진짜 접근성 정보</p>
+${heroHtml}
+${restHtml}
+</div>
 ${footerCta()}
 </body>
 </html>`;

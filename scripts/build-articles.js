@@ -215,17 +215,28 @@ async function downloadImage(url, destDir, idx) {
   return `assets/${name}`;
 }
 
-// ---------- rich text → inline HTML ----------
-const COLOR = {
+// ---------- rich text → inline HTML (Notion 팔레트 그대로) ----------
+const TEXT_COLOR = {
   gray: '#787774',
-  brown: '#9f6b53',
-  orange: '#d9730d',
-  yellow: '#cb912f',
-  green: '#448361',
-  blue: '#337ea9',
-  purple: '#9065b0',
-  pink: '#c14c8a',
-  red: '#d44c47',
+  brown: '#976d57',
+  orange: '#cc782f',
+  yellow: '#c29343',
+  green: '#548164',
+  blue: '#487ca5',
+  purple: '#8a67ab',
+  pink: '#b35488',
+  red: '#c4554d',
+};
+const BG_COLOR = {
+  gray: '#f1f1ef',
+  brown: '#f3eeee',
+  orange: '#fbecdd',
+  yellow: '#fbf3db',
+  green: '#eef3ed',
+  blue: '#e7f3f8',
+  purple: '#f6f3f9',
+  pink: '#faf1f5',
+  red: '#fdebec',
 };
 function renderRich(rich) {
   return (rich || [])
@@ -238,9 +249,13 @@ function renderRich(rich) {
       if (a.strikethrough) t = `<s>${t}</s>`;
       if (a.underline) t = `<u>${t}</u>`;
       if (a.color && a.color !== 'default') {
-        const bg = a.color.endsWith('_background');
-        const c = a.color.replace('_background', '');
-        t = `<span style="${bg ? 'background:' : 'color:'}${COLOR[c] || c}">${t}</span>`;
+        if (a.color.endsWith('_background')) {
+          const c = a.color.replace('_background', '');
+          const bg = BG_COLOR[c] || c;
+          t = `<span style="background:${bg};padding:.1em .2em;border-radius:3px;">${t}</span>`;
+        } else {
+          t = `<span style="color:${TEXT_COLOR[a.color] || a.color};">${t}</span>`;
+        }
       }
       if (r.href) t = `<a href="${esc(r.href)}" rel="noopener">${t}</a>`;
       return t;
@@ -388,6 +403,7 @@ async function buildArticle(meta, times) {
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
   if (fs.readdirSync(assetsDir).length === 0) rmrf(assetsDir);
+  return ctx.firstImage || ''; // 목록 썸네일용 대표 이미지(루트절대경로)
 }
 
 // ---------- sitemap / robots / llms ----------
@@ -529,11 +545,12 @@ async function main() {
   }
   for (const {meta, times} of changed) {
     console.log(`  🔧 생성: ${meta.slug}  (${meta.title})`);
-    await buildArticle(meta, times);
+    const image = await buildArticle(meta, times);
     manifest[meta.rowId] = {
       slug: meta.slug,
       title: meta.title,
       summary: meta.summary,
+      image, // 목록 썸네일용 대표 이미지
       createdTime: times.createdTime,
       editedTime: times.editedTime,
       contentPageId: meta.contentPageId,
