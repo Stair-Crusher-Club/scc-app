@@ -8,10 +8,11 @@ disable-model-invocation: true
 
 ## OTA 배포 규칙 (MANDATORY)
 
-- **`ota-deploy` 수동 실행 금지.** OTA 배포는 main 푸시 시 자동 실행된다.
-- 배포 절차: 코드 변경 → lint/tsc 통과 → 커밋 → 태그(`v{major}.{minor}-YYYYMMDD-NN`) → main 푸시 (자동 배포)
-- 태그 없이 푸시하지 않는다
-- git push/tag는 사용자가 명시적으로 요청한 것만 실행한다 (태그 생성/push는 hook이 ask로 가로챈다)
+- **sandbox 배포 = 태그 없이 `main` push** (`.github/workflows/cd-sandbox.yml`, "OTA Deployment" → `ota-deploy:sandbox`). "sandbox 배포", "샌드박스에서 테스트", 그냥 "main push 해" = 태그 만들지 말고 `git push origin main`만.
+- **prod 배포 = `v*` 태그 push** (`cd-production.yml`, "Production OTA Deployment"). 태그 형식 `v{major}.{minor}-YYYYMMDD-NN`. **`v*` 태그는 prod 배포다 — sandbox 요청에 절대 태그를 만들지 않는다.**
+- **`ota-deploy` 수동 실행 금지.** 위 트리거로 GitHub Actions가 자동 실행한다.
+- prod 배포 절차: 코드 변경 → lint/tsc 통과 → 커밋 → `v*` 태그 → 태그 push (자동 배포). prod는 태그 없이 푸시하지 않는다.
+- git push/tag는 사용자가 명시적으로 요청한 것만 실행한다 (태그 생성/push는 hook이 ask로 가로챈다). 헷갈리면 워크플로우의 `on: push: branches/tags`를 직접 확인할 것.
 
 ## 웹 배포 규칙
 
