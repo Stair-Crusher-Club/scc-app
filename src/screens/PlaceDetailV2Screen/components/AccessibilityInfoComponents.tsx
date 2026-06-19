@@ -382,10 +382,8 @@ export function StrokeCTAButton({
       elementName={elementName}
       onPress={onPress}
       style={fullWidth ? {width: '100%'} : undefined}>
-      <StrokeCTAContent>
-        <PlusStrokeIcon width={20} height={20} color={color.brand40} />
-        <StrokeCTAText>{text}</StrokeCTAText>
-      </StrokeCTAContent>
+      <PlusStrokeIcon width={20} height={20} color={color.brand40} />
+      <StrokeCTAText numberOfLines={1}>{text}</StrokeCTAText>
     </StrokeCTAContainer>
   );
 }
@@ -455,20 +453,17 @@ const EmptyStateCardDescription = styled.Text`
 `;
 
 // StrokeCTAButton (Figma H-48px Stroke + Left icon)
+// 아이콘 + 텍스트를 별도 row View로 중첩하면 Android에서 row 내부 Text가
+// 다음 줄로 깨져 잘렸다 (RN #51306: alignItems:center 부모 + flexDirection:row
+// 자식의 Android 측정 버그). 컨테이너 자체를 row 로 평탄화해 definite width 를
+// 주고, 텍스트는 numberOfLines={1} 로 줄바꿈을 막는다.
 const StrokeCTAContainer = styled(SccTouchableOpacity)`
   background-color: ${color.white};
   border-width: 1px;
   border-color: ${color.brand40};
   border-radius: 8px;
   padding-vertical: 12px;
-  padding-horizontal: 28px;
-  justify-content: center;
-`;
-
-// align-items: center 를 컨테이너에 두면 Android에서 row 내부 Text가 잘린다
-// (RN #51306: alignItems:center 부모 + flexDirection:row 자식의 Android 측정 버그).
-// 대신 row 자체를 stretch 시키고 justify-content 로 중앙 정렬 + Text flex-shrink.
-const StrokeCTAContent = styled.View`
+  padding-horizontal: 16px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
