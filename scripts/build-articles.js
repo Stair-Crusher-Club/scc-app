@@ -36,13 +36,19 @@ const DB_ID = arg('db') || process.env.ARTICLES_DB_ID;
 const TOKEN = process.env.NOTION_TOKEN;
 const DRY = process.argv.includes('--dry');
 const FORCE = process.argv.includes('--force'); // 템플릿/스타일 변경 시 전체 재생성
-if (!TOKEN) {
-  console.error('❌ NOTION_TOKEN 환경변수가 필요합니다.');
-  process.exit(1);
-}
-if (!DB_ID) {
-  console.error('❌ --db <database_id> 또는 ARTICLES_DB_ID 가 필요합니다.');
-  process.exit(1);
+// offline: Notion 미사용. 레포에 커밋된 web-articles/(소스+manifest)로 web-dist만 재조립.
+// → yarn web:build가 이걸 돌려, 앱 웹 배포 시에도 web-dist에 /articles가 항상 포함된다
+//   (web-deploy.sh의 `sync --delete`가 /articles를 지우지 않게 하는 구조적 안전장치).
+const OFFLINE = process.argv.includes('--offline');
+if (!OFFLINE) {
+  if (!TOKEN) {
+    console.error('❌ NOTION_TOKEN 환경변수가 필요합니다. (배포용 재조립만이면 --offline)');
+    process.exit(1);
+  }
+  if (!DB_ID) {
+    console.error('❌ --db <database_id> 또는 ARTICLES_DB_ID 가 필요합니다. (또는 --offline)');
+    process.exit(1);
+  }
 }
 
 // ---------- Notion REST ----------
@@ -425,10 +431,43 @@ function writeLlms(articles) {
   );
 }
 
+// ---------- dist 재조립 (Notion 불필요: 커밋된 web-articles/ + manifest만 사용) ----------
+function reassembleDist(manifest) {
+  fs.mkdirSync(DIST_DIR, {recursive: true});
+  rmrf(DIST_ARTICLES);
+  fs.mkdirSync(DIST_ARTICLES, {recursive: true});
+  // 공용 에셋(로고 등): web-articles/_assets → web-dist/articles/assets
+  const sharedAssets = path.join(SRC_DIR, '_assets');
+  if (fs.existsSync(sharedAssets))
+    copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
+  const published = Object.values(manifest).sort((a, b) =>
+    (b.createdTime || '').localeCompare(a.createdTime || ''),
+  );
+  for (const a of published) {
+    const src = path.join(SRC_DIR, a.slug);
+    if (fs.existsSync(src)) copyDir(src, path.join(DIST_ARTICLES, a.slug));
+  }
+  fs.writeFileSync(
+    path.join(DIST_ARTICLES, 'index.html'),
+    renderListPage(published),
+  );
+  mergeSitemap(published);
+  writeRobots();
+  writeLlms(published);
+  return published;
+}
+
 // ---------- main ----------
 async function main() {
   fs.mkdirSync(SRC_DIR, {recursive: true});
   const manifest = readJson(MANIFEST_PATH, {});
+
+  // offline: Notion 없이 커밋된 소스로 web-dist만 재조립 (yarn web:build에서 호출)
+  if (OFFLINE) {
+    const published = reassembleDist(manifest);
+    console.log(`📴 offline 재조립: ${published.length}건 → web-dist/articles/`);
+    return;
+  }
 
   console.log('📥 Notion DB 쿼리...');
   const pages = await queryAllPages();
@@ -502,28 +541,7 @@ async function main() {
   }
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
 
-  // dist 재조립
-  rmrf(DIST_ARTICLES);
-  fs.mkdirSync(DIST_ARTICLES, {recursive: true});
-  // 공용 에셋(로고 등): web-articles/_assets → web-dist/articles/assets
-  const sharedAssets = path.join(SRC_DIR, '_assets');
-  if (fs.existsSync(sharedAssets))
-    copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
-  const published = Object.values(manifest).sort((a, b) =>
-    (b.createdTime || '').localeCompare(a.createdTime || ''),
-  );
-  for (const a of published) {
-    const src = path.join(SRC_DIR, a.slug);
-    if (fs.existsSync(src)) copyDir(src, path.join(DIST_ARTICLES, a.slug));
-  }
-  fs.writeFileSync(
-    path.join(DIST_ARTICLES, 'index.html'),
-    renderListPage(published),
-  );
-  mergeSitemap(published);
-  writeRobots();
-  writeLlms(published);
-
+  const published = reassembleDist(manifest);
   console.log(`✅ 완료: 발행 ${published.length}건 → web-dist/articles/`);
 }
 
