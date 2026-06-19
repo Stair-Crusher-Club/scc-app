@@ -668,7 +668,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     }
 
     return (
-      <Container data-testid="bbucle-road-detail">
+      <Container testID="bbucle-road-detail">
         <ResponsiveProvider>
           <EditModeProvider
             isEditMode={true}
@@ -699,7 +699,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   }
 
   return (
-    <Container data-testid="bbucle-road-detail">
+    <Container testID="bbucle-road-detail">
       <ResponsiveProvider>
         <BbucleRoadContent data={configData} bbucleRoadId={bbucleRoadId} />
       </ResponsiveProvider>
