@@ -1,0 +1,25 @@
+diff --git a/node_modules/@hot-updater/react-native/src/ensureUpdateInfo.ts b/node_modules/@hot-updater/react-native/src/ensureUpdateInfo.ts
+index 743e12c..c07ef03 100644
+--- a/node_modules/@hot-updater/react-native/src/ensureUpdateInfo.ts
++++ b/node_modules/@hot-updater/react-native/src/ensureUpdateInfo.ts
+@@ -14,11 +14,19 @@ export const ensureUpdateInfo = async (
+     let bundles: Bundle[] | null = null;
+     if (typeof source === "string") {
+       if (source.startsWith("http")) {
+-        return await fetch(source, {
++        // 캐시버스터: 온디바이스 HTTP 캐시(iOS URLCache / Android OkHttp)가
++        // 직전 UP_TO_DATE 응답을 보관해 배포가 한참 안 반영되던 문제 방지.
++        // 매 요청 URL을 유일하게 만들어 캐시를 원천 우회한다.
++        const bustedSource =
++          source + (source.includes("?") ? "&" : "?") + "_cb=" + Date.now();
++        return await fetch(bustedSource, {
++          cache: "no-store",
+           headers: {
+             "x-app-platform": platform,
+             "x-app-version": appVersion,
+             "x-bundle-id": bundleId,
++            "Cache-Control": "no-cache",
++            Pragma: "no-cache",
+             ...requestHeaders,
+           },
+         }).then((res) => res.json());

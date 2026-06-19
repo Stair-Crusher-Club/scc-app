@@ -1,4 +1,3 @@
-// OTA 반영 라이브 테스트용 무의미 변경 (2026-06-19) — 동작 영향 없음
 import {HotUpdater} from '@hot-updater/react-native';
 import {getAnalytics} from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
