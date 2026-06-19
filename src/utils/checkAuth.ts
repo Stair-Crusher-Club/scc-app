@@ -1,5 +1,6 @@
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
+import {Platform} from 'react-native';
 
 import {isAnonymousUserAtom} from '@/atoms/Auth';
 import {ScreenParams} from '@/navigation/Navigation.screens';
@@ -20,6 +21,18 @@ export function useCheckAuth() {
     if (isAnonymousUser) {
       onFailed?.();
       console.log('anonymous user! open login');
+      // 웹: 카카오 로그인은 풀 페이지 리다이렉트라 모달 네비 스택이 소실된다.
+      // 로그인 후 원래 페이지로 돌아오도록 현재 경로를 redirect 로 넘긴다.
+      if (Platform.OS === 'web') {
+        const loc = (
+          globalThis as {location?: {pathname?: string; search?: string}}
+        ).location;
+        const current = loc
+          ? (loc.pathname ?? '') + (loc.search ?? '')
+          : undefined;
+        navigation.navigate('Login', {asModal: true, redirect: current});
+        return;
+      }
       navigation.navigate('Login', {asModal: true});
       return;
     }

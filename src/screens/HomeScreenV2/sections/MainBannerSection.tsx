@@ -1,5 +1,11 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Animated, Dimensions, Easing, PanResponder} from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  Easing,
+  PanResponder,
+  Platform,
+} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
@@ -299,7 +305,10 @@ function MainBanner({banner, index, trackView = false}: MainBannerProps) {
       elementName="home_v2_main_banner"
       logParams={{banner_key: banner.loggingKey, index}}
       trackView={trackView}
-      onPress={() => checkAuth(openBanner)}>
+      onPress={() =>
+        // 웹: 배너는 비회원도 그냥 볼 수 있게 authGuard 없이 바로 연다.
+        Platform.OS === 'web' ? openBanner() : checkAuth(openBanner)
+      }>
       <BannerContainer>
         <SccRemoteImage
           imageUrl={banner.imageUrl}
