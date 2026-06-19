@@ -18,11 +18,24 @@
 export const login = () => {
   const origin = window.location.origin;
   const redirectUri = `${origin}/oauth/kakao`;
-  // 로그인 후 돌아갈 곳: ?redirect= 가 있으면 그 경로, 없으면 홈('/').
-  // (로그인 화면 경로 '/login' 으로 되돌아가지 않도록 — next param 없으면 홈)
+  // 로그인 후 돌아갈 곳 결정 (우선순위):
+  //   1) ?redirect= 쿼리 (checkAuth / 라우트 게이트가 원래 경로를 넘김)
+  //   2) 현재 경로 (모달 로그인이 URL 을 /login 으로 안 바꾼 경우 — 사용자가 있던 페이지)
+  //   3) 홈('/')
+  // 단, 인증 경로(/login·/signup·/oauth)로는 절대 되돌아가지 않는다.
+  const isAuthPath = p =>
+    p.startsWith('/login') ||
+    p.startsWith('/signup') ||
+    p.startsWith('/oauth');
   const params = new URLSearchParams(window.location.search);
   const redirect = params.get('redirect');
-  const dest = redirect && redirect.startsWith('/') ? redirect : '/';
+  const currentPath = window.location.pathname + window.location.search;
+  let dest = '/';
+  if (redirect && redirect.startsWith('/') && !isAuthPath(redirect)) {
+    dest = redirect;
+  } else if (currentPath.startsWith('/') && !isAuthPath(currentPath)) {
+    dest = currentPath;
+  }
   const state = encodeURIComponent(dest);
 
   const Kakao = globalThis.Kakao;

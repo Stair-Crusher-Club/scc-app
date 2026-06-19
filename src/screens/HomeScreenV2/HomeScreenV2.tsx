@@ -119,6 +119,10 @@ const HomeScreenV2 = ({navigation}: any) => {
   // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도).
   // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출).
   const [needsPlaceSearchTutorial] = useState(() => {
+    // 웹에서는 장소 검색 튜토리얼 오버레이를 띄우지 않는다(플로우가 어색함).
+    if (Platform.OS === 'web') {
+      return false;
+    }
     if (getDeferredDeepLinkUrl()) {
       return false;
     }
