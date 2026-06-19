@@ -462,13 +462,16 @@ const StrokeCTAContainer = styled(SccTouchableOpacity)`
   border-radius: 8px;
   padding-vertical: 12px;
   padding-horizontal: 28px;
-  align-items: center;
   justify-content: center;
 `;
 
+// align-items: center 를 컨테이너에 두면 Android에서 row 내부 Text가 잘린다
+// (RN #51306: alignItems:center 부모 + flexDirection:row 자식의 Android 측정 버그).
+// 대신 row 자체를 stretch 시키고 justify-content 로 중앙 정렬 + Text flex-shrink.
 const StrokeCTAContent = styled.View`
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 `;
 
@@ -480,6 +483,7 @@ const StrokeCTAText = styled.Text.attrs({
   line-height: 24px;
   letter-spacing: -0.32px;
   color: ${color.brand40};
+  flex-shrink: 1;
 `;
 
 // Subsection layout
