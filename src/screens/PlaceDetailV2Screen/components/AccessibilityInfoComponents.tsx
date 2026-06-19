@@ -383,7 +383,10 @@ export function StrokeCTAButton({
       onPress={onPress}
       style={fullWidth ? {alignSelf: 'stretch'} : undefined}>
       <PlusStrokeIcon width={20} height={20} color={color.brand40} />
-      <StrokeCTAText>{text}</StrokeCTAText>
+      {/* 끝에 NBSP 1칸: Android(특히 삼성)에서 텍스트 측정 폭이 실제 렌더보다
+          몇 px 좁게 잡혀 마지막 토큰이 통째로 다음 줄로 밀려 잘리던 문제 보정.
+          justify-content:center 가 텍스트 박스를 intrinsic 으로 잡기 때문. */}
+      <StrokeCTAText>{`${text}\u00A0`}</StrokeCTAText>
     </StrokeCTAContainer>
   );
 }
