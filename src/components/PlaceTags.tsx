@@ -1,10 +1,14 @@
 import React from 'react';
+import {Image} from 'react-native';
 
-import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
-import {BadgeShell, BadgeText} from '@/components/BadgeShell';
+import GradientBorderPill from '@/components/GradientBorderPill';
+import {BadgeText} from '@/components/BadgeShell';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {PlaceTagDto, PlaceTagTypeDto} from '@/generated-sources/openapi';
 import useNavigation from '@/navigation/useNavigation';
+
+const savedListBadgeImage = require('@/assets/img/ic_saved_list_badge.png');
 
 interface PlaceTagsProps {
   tags: PlaceTagDto[];
@@ -30,11 +34,8 @@ function renderTag(
     case PlaceTagTypeDto.PlaceList: {
       const placeListId = tag.placeListId;
       return (
-        <BadgeShell
+        <SccTouchableOpacity
           key={index}
-          backgroundColor={color.brand5}
-          textColor={color.gray80}
-          borderColor={color.brand5}
           elementName="place_tag_place_list"
           logParams={{placeListId}}
           onPress={() => {
@@ -46,15 +47,25 @@ function renderTag(
             }
           }}
           style={{marginRight: 4}}>
-          <BookmarkIcon
-            viewBox="0 -0.5 16 20"
-            width={11}
-            height={12}
-            color={color.gray80}
-            style={{marginTop: 1}}
-          />
-          <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
-        </BadgeShell>
+          <GradientBorderPill
+            borderWidth={1}
+            gradientId="tag-gradient"
+            contentStyle={{
+              paddingTop: 4,
+              paddingBottom: 4,
+              paddingLeft: 6,
+              paddingRight: 8,
+              gap: 4,
+            }}>
+            {/* 그라데이션 원 + 흰색 북마크 — Figma node 9068-2112 에서 추출한 3x PNG */}
+            <Image
+              source={savedListBadgeImage}
+              style={{width: 16, height: 16}}
+              resizeMode="contain"
+            />
+            <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
+          </GradientBorderPill>
+        </SccTouchableOpacity>
       );
     }
     default: {
