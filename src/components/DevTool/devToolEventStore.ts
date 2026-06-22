@@ -45,19 +45,37 @@ export const convertToDevToolLoggedEvent = (
 };
 
 // Helper to add API log to store
+// 같은 id가 이미 있으면(요청 시 추가된 PENDING row) 새 row를 쌓지 않고 그 자리에서
+// 응답/에러 정보를 병합한다 → 요청 1건당 row 1개 (PENDING → 결과로 갱신).
 export const convertToDevToolAPILog = (
   apiLogs: DevToolAPILog[],
-  newLog: Omit<DevToolAPILog, 'id' | 'timestamp'> & {timestamp?: number},
+  newLog: Omit<DevToolAPILog, 'id' | 'timestamp'> & {
+    id?: string;
+    timestamp?: number;
+  },
 ): DevToolAPILog[] => {
+  if (newLog.id) {
+    const index = apiLogs.findIndex(l => l.id === newLog.id);
+    if (index >= 0) {
+      const merged = [...apiLogs];
+      merged[index] = {
+        ...merged[index],
+        ...newLog,
+        id: merged[index].id,
+        timestamp: merged[index].timestamp,
+      };
+      return merged;
+    }
+  }
+
   const log: DevToolAPILog = {
     ...newLog,
-    id: `${Date.now()}-${Math.random()}`,
-    timestamp: newLog.timestamp || Date.now(),
+    id: newLog.id ?? `${Date.now()}-${Math.random()}`,
+    timestamp: newLog.timestamp ?? Date.now(),
   };
 
   // Keep only last 100 API logs
-  const updatedLogs = [log, ...apiLogs].slice(0, 100);
-  return updatedLogs;
+  return [log, ...apiLogs].slice(0, 100);
 };
 
 // DevTool API tracking helpers
@@ -70,7 +88,10 @@ export const initializeAPILoggingDevTool = (setter: (apiLogs: any) => void) => {
 };
 
 const trackAPI = (
-  apiLog: Omit<DevToolAPILog, 'id' | 'timestamp'> & {timestamp?: number},
+  apiLog: Omit<DevToolAPILog, 'id' | 'timestamp'> & {
+    id?: string;
+    timestamp?: number;
+  },
 ) => {
   if (shouldShowDevTool() && apiLoggingEnabled && setAPILogs) {
     setAPILogs((prev: any) => convertToDevToolAPILog(prev, apiLog));
