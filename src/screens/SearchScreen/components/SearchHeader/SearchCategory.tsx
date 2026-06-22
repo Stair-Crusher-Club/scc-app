@@ -4,6 +4,7 @@ import React from 'react';
 import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import GradientBorderPill from '@/components/GradientBorderPill';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
@@ -107,7 +108,7 @@ export default function SearchCategory({
     switch (item.type) {
       case PlaceSearchRecommendationTypeDto.RegionBased: {
         return (
-          <RegionBasedChip
+          <SccTouchableOpacity
             key={item.id}
             elementName="place_search_recommendation_chip"
             logParams={{
@@ -115,13 +116,32 @@ export default function SearchCategory({
               placeListId: item.placeListId,
             }}
             onPress={() => handleRecommendationChipPress(item)}>
-            <Image
-              source={locationPinImage}
-              style={{width: 20, height: 20}}
-              resizeMode="contain"
-            />
-            <RecommendationChipText>{item.name}</RecommendationChipText>
-          </RegionBasedChip>
+            {/* drop-shadow는 GradientBorderPill의 outerStyle에 — overflow:hidden 밖 */}
+            <GradientBorderPill
+              borderWidth={1.5}
+              gradientId="chip-gradient"
+              outerStyle={{
+                shadowColor: color.black,
+                shadowOpacity: 0.25,
+                shadowRadius: 1.5,
+                shadowOffset: {width: 0, height: 0},
+                elevation: 2,
+              }}
+              contentStyle={{
+                paddingTop: 8,
+                paddingBottom: 8,
+                paddingLeft: 10,
+                paddingRight: 16,
+                gap: 2,
+              }}>
+              <Image
+                source={locationPinImage}
+                style={{width: 20, height: 20}}
+                resizeMode="contain"
+              />
+              <RecommendationChipText>{item.name}</RecommendationChipText>
+            </GradientBorderPill>
+          </SccTouchableOpacity>
         );
       }
       default: {
@@ -178,27 +198,6 @@ const CategoryText = styled.Text`
   font-family: ${font.pretendardMedium};
   color: ${color.gray90};
   margin-left: 4px;
-`;
-
-// REGION_BASED 추천 칩 — 핀 스타일 (PressableCategory와 완전히 별개)
-const RegionBasedChip = styled(SccTouchableOpacity)`
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 10px;
-  padding-right: 16px;
-  gap: 2px;
-  border-width: 1.5px;
-  border-color: ${color.savedListGreen};
-  background-color: ${color.white};
-  border-radius: 100px;
-  shadow-color: ${color.black};
-  shadow-opacity: 0.25;
-  shadow-radius: 1.5px;
-  shadow-offset: 0px 0px;
-  elevation: 2;
 `;
 
 const RecommendationChipText = styled.Text`

@@ -79,9 +79,6 @@ export const color = {
   danger: '#dc3545',
   dangerBright: '#ff4444',
 
-  // 저장리스트/지역 추천 액센트 그린 (brand 계열 블루와 구분)
-  savedListGreen: '#59b93b',
-
   // HomeScreenV2 redesign colors
   quickActionGreen: '#ecfadf',
   quickActionBlue: '#e3f0fd',
