@@ -41,7 +41,18 @@ export default function GradientBorderPill({
   const innerBorderRadius = BORDER_RADIUS - borderWidth;
 
   return (
-    <View style={[{alignSelf: 'flex-start'}, outerStyle]}>
+    // 바깥 wrapper에 white bg + borderRadius를 줘야 Android elevation이 pill 모양 그림자를
+    // 그린다(투명 배경이면 elevation 그림자가 렌더되지 않음). 위에 동일 크기 그라데이션 pill이
+    // 덮으므로 흰색은 보이지 않고 그림자만 바깥으로 새어 나온다.
+    <View
+      style={[
+        {
+          alignSelf: 'flex-start',
+          backgroundColor: 'white',
+          borderRadius: BORDER_RADIUS,
+        },
+        outerStyle,
+      ]}>
       {/* innerWrapper: overflow hidden + borderRadius → 그라데이션 SVG가 pill 모양으로 잘림 */}
       <View
         style={{
