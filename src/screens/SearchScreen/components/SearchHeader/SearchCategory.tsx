@@ -17,7 +17,6 @@ import useAppComponents from '@/hooks/useAppComponents';
 import {draftCameraRegionAtom} from '@/screens/SearchScreen/atoms';
 import type {SearchMode} from '@/screens/SearchScreen/atoms';
 import useNavigation from '@/navigation/useNavigation';
-import {Region} from '@/components/maps/Types';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
 
@@ -62,14 +61,25 @@ export default function SearchCategory({
       }
     : null;
 
+  // 지도 카메라가 멈춰 있어도 onCameraIdle이 미세하게 흔들린 region을 ~1초마다 emit한다.
+  // 풀-정밀도 좌표를 queryKey에 넣으면 /listPlaceSearchRecommendations가 매초 refetch되고
+  // (직전 요청은 취소돼 'API Aborted' 로그가 쌓인다). 추천 매칭 기준이 중심점 폴리곤 포함
+  // (서버 ST_Contains)이라 ~11m(소수 4자리)로 양자화하면 그 이하 jitter는 무시되어 refetch 안 함.
+  const recommendationCenterKey = centerLocation
+    ? {
+        lat: Math.round(centerLocation.lat * 1e4) / 1e4,
+        lng: Math.round(centerLocation.lng * 1e4) / 1e4,
+      }
+    : null;
+
   const {data: recommendationItems} = useQuery({
     enabled: centerLocation != null,
     queryKey: [
       'PlaceSearchRecommendations',
-      draftCameraRegion as Region | null,
-      centerLocation?.lat ?? null,
-      centerLocation?.lng ?? null,
+      recommendationCenterKey?.lat ?? null,
+      recommendationCenterKey?.lng ?? null,
     ],
+    staleTime: 60_000,
     queryFn: async () => {
       if (!centerLocation) {
         return [];
