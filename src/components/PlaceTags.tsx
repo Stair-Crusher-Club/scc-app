@@ -1,4 +1,5 @@
 import React from 'react';
+import {View} from 'react-native';
 
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import {BadgeShell, BadgeText} from '@/components/BadgeShell';
@@ -32,9 +33,11 @@ function renderTag(
       return (
         <BadgeShell
           key={index}
-          backgroundColor={color.brand5}
+          backgroundColor={color.white}
           textColor={color.gray80}
-          borderColor={color.brand5}
+          borderColor={color.savedListGreen}
+          borderRadius={100}
+          paddingHorizontal={6}
           elementName="place_tag_place_list"
           logParams={{placeListId}}
           onPress={() => {
@@ -45,14 +48,18 @@ function renderTag(
               });
             }
           }}
-          style={{marginRight: 4}}>
-          <BookmarkIcon
-            viewBox="0 -0.5 16 20"
-            width={11}
-            height={12}
-            color={color.gray80}
-            style={{marginTop: 1}}
-          />
+          style={{marginRight: 4, paddingRight: 8}}>
+          <View
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: 8,
+              backgroundColor: color.savedListGreen,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <BookmarkIcon width={10} height={10} color={color.white} />
+          </View>
           <BadgeText textColor={color.gray80}>{tag.name}</BadgeText>
         </BadgeShell>
       );

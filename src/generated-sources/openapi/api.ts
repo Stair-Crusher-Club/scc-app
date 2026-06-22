@@ -4984,26 +4984,45 @@ export interface PlaceSearchRecommendationDto {
      */
     'type': PlaceSearchRecommendationTypeDto;
     /**
+     * 
+     * @type {PlaceSearchRecommendationNavigationTypeDto}
+     * @memberof PlaceSearchRecommendationDto
+     */
+    'navigationType': PlaceSearchRecommendationNavigationTypeDto;
+    /**
      * 칩에 표시하는 짧은 이름 (최대 8자)
      * @type {string}
      * @memberof PlaceSearchRecommendationDto
      */
     'name': string;
     /**
-     * PLACE_LIST 타입일 때 탭 시 이동할 저장리스트 ID
+     * navigationType이 PLACE_LIST일 때 탭 시 이동할 저장리스트 ID
      * @type {string}
      * @memberof PlaceSearchRecommendationDto
      */
     'placeListId'?: string | null;
 }
 /**
- * 장소 검색 추천 타입 (클라이언트에 노출되는 컨텐츠 타입)
+ * 장소 검색 추천 칩 탭 시 랜딩(navigation) 타입
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceSearchRecommendationNavigationTypeDto = {
+    PlaceList: 'PLACE_LIST'
+} as const;
+
+export type PlaceSearchRecommendationNavigationTypeDto = typeof PlaceSearchRecommendationNavigationTypeDto[keyof typeof PlaceSearchRecommendationNavigationTypeDto];
+
+
+/**
+ * 장소 검색 추천의 discovery 타입 — 추천이 어떻게 만들어지고 매칭됐는지를 나타낸다. 칩의 비주얼 디자인을 결정한다. 탭 시 랜딩은 navigationType이 결정(직교한 별도 차원).
  * @export
  * @enum {string}
  */
 
 export const PlaceSearchRecommendationTypeDto = {
-    PlaceList: 'PLACE_LIST'
+    RegionBased: 'REGION_BASED'
 } as const;
 
 export type PlaceSearchRecommendationTypeDto = typeof PlaceSearchRecommendationTypeDto[keyof typeof PlaceSearchRecommendationTypeDto];

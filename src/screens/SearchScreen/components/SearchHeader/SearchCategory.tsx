@@ -1,7 +1,7 @@
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import React from 'react';
-import {ScrollView, View} from 'react-native';
+import {Image, ScrollView, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -9,6 +9,7 @@ import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 import {
   PlaceSearchRecommendationDto,
+  PlaceSearchRecommendationNavigationTypeDto,
   PlaceSearchRecommendationTypeDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -18,6 +19,8 @@ import useNavigation from '@/navigation/useNavigation';
 import {Region} from '@/components/maps/Types';
 
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
+
+const locationPinImage = require('@/assets/img/ic_location_pin.png');
 
 export default function SearchCategory({
   onPressKeyword,
@@ -83,8 +86,8 @@ export default function SearchCategory({
   const handleRecommendationChipPress = (
     item: PlaceSearchRecommendationDto,
   ) => {
-    switch (item.type) {
-      case PlaceSearchRecommendationTypeDto.PlaceList: {
+    switch (item.navigationType) {
+      case PlaceSearchRecommendationNavigationTypeDto.PlaceList: {
         if (item.placeListId) {
           navigation.navigate('PlaceListDetail', {
             placeListId: item.placeListId,
@@ -92,6 +95,34 @@ export default function SearchCategory({
           });
         }
         return;
+      }
+      default: {
+        const _exhaustiveCheck: never = item.navigationType;
+        return _exhaustiveCheck;
+      }
+    }
+  };
+
+  const renderRecommendationChip = (item: PlaceSearchRecommendationDto) => {
+    switch (item.type) {
+      case PlaceSearchRecommendationTypeDto.RegionBased: {
+        return (
+          <RegionBasedChip
+            key={item.id}
+            elementName="place_search_recommendation_chip"
+            logParams={{
+              recommendationId: item.id,
+              placeListId: item.placeListId,
+            }}
+            onPress={() => handleRecommendationChipPress(item)}>
+            <Image
+              source={locationPinImage}
+              style={{width: 20, height: 20}}
+              resizeMode="contain"
+            />
+            <RecommendationChipText>{item.name}</RecommendationChipText>
+          </RegionBasedChip>
+        );
       }
       default: {
         const _exhaustiveCheck: never = item.type;
@@ -123,24 +154,14 @@ export default function SearchCategory({
       horizontal={true}
       showsHorizontalScrollIndicator={false}>
       <View style={{flexDirection: 'row', gap: 6}}>
-        {recommendations.map(item => (
-          <PressableCategory
-            key={item.id}
-            elementName="place_search_recommendation_chip"
-            logParams={{
-              recommendationId: item.id,
-              placeListId: item.placeListId,
-            }}
-            onPress={() => handleRecommendationChipPress(item)}>
-            <CategoryText>{item.name}</CategoryText>
-          </PressableCategory>
-        ))}
+        {recommendations.map(item => renderRecommendationChip(item))}
         {SEARCH_CATEGORIES.map(item => _renderItem({item}))}
       </View>
     </ScrollView>
   );
 }
 
+// 기존 카테고리 칩 — 회색 테두리 스타일 유지
 const PressableCategory = styled(SccTouchableOpacity)`
   flex-direction: row;
   justify-content: center;
@@ -157,6 +178,35 @@ const CategoryText = styled.Text`
   font-family: ${font.pretendardMedium};
   color: ${color.gray90};
   margin-left: 4px;
+`;
+
+// REGION_BASED 추천 칩 — 핀 스타일 (PressableCategory와 완전히 별개)
+const RegionBasedChip = styled(SccTouchableOpacity)`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 10px;
+  padding-right: 16px;
+  gap: 2px;
+  border-width: 1.5px;
+  border-color: ${color.savedListGreen};
+  background-color: ${color.white};
+  border-radius: 100px;
+  shadow-color: ${color.black};
+  shadow-opacity: 0.25;
+  shadow-radius: 1.5px;
+  shadow-offset: 0px 0px;
+  elevation: 2;
+`;
+
+const RecommendationChipText = styled.Text`
+  font-size: 14px;
+  font-family: ${font.pretendardMedium};
+  color: ${color.gray90};
+  line-height: 20px;
+  letter-spacing: -0.28px;
 `;
 
 type SearchCategoryItem = {
