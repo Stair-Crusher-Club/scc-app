@@ -49,6 +49,8 @@ import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet, {
   GeolocationErrorReason,
 } from '@/modals/GeolocationPermissionBottomSheet';
+import {openAppDeepLink} from '@/utils/appLinkNavigation';
+import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -323,7 +325,12 @@ const HomeScreenV2 = ({navigation}: any) => {
           onClose={onClose}
           onImageClick={() => {
             if (activePopup!.clickUrl) {
-              Linking.openURL(activePopup!.clickUrl).catch(() => {});
+              const url = activePopup!.clickUrl;
+              if (isAppDeepLink(url)) {
+                openAppDeepLink(url, navigation);
+              } else {
+                navigation.navigate('Webview', {url});
+              }
             }
             onClose();
           }}

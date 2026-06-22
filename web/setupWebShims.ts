@@ -12,8 +12,9 @@ const FRAME_MAX_WIDTH = 480;
 // bbucle-road edit mode 모두 이 init 된 JS 키로 window.Kakao.Auth 를 쓴다.
 // 환경별 키는 .env 의 KAKAO_JS_KEY (production: prod 앱 JS 키). 이 키의 카카오 앱이
 // 해당 환경 백엔드와 같아야 로그인 토큰 aud 가 일치한다.
-const kakaoWebKey =
-  process.env.KAKAO_JS_KEY || '1ae6e66e491cf3bf3041015e235c08e1';
+// 하드코딩 폴백 금지 — 환경별로 키가 달라 폴백을 두면 잘못된 키로 조용히 로그인이
+// 깨진다(KOE114). 값은 빌드 시 webpack 이 검증하므로(REQUIRED_ENV_KEYS) 항상 존재한다.
+const kakaoWebKey = process.env.KAKAO_JS_KEY;
 const kakaoSdk = (globalThis as {Kakao?: any}).Kakao;
 if (kakaoWebKey && kakaoSdk && !kakaoSdk.isInitialized?.()) {
   try {

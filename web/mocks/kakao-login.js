@@ -44,8 +44,8 @@ export const login = () => {
     Kakao.Auth.authorize({redirectUri, state});
   } else {
     // SDK 미로딩 폴백: 수동 authorize URL (JS 키를 client_id 로).
-    const key =
-      process.env.KAKAO_JS_KEY || '1ae6e66e491cf3bf3041015e235c08e1';
+    // 하드코딩 폴백 금지 — 빌드 시 webpack 이 KAKAO_JS_KEY 존재를 검증한다.
+    const key = process.env.KAKAO_JS_KEY;
     window.location.href =
       'https://kauth.kakao.com/oauth/authorize' +
       `?client_id=${key}` +

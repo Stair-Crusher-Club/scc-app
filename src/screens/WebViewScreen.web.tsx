@@ -4,6 +4,8 @@ import {ActivityIndicator, View} from 'react-native';
 import {useMe} from '@/atoms/Auth';
 import {color} from '@/constant/color';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {openAppDeepLink} from '@/utils/appLinkNavigation';
+import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import {resolveTemplatedExternalUrl} from '@/utils/externalUrlTemplating';
 
 // Web has no in-app WebView. Open external links in a new tab; for same-origin
@@ -17,6 +19,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
 
   useEffect(() => {
     const resolved = resolveTemplatedExternalUrl(url, {userId: userInfo?.id});
+    if (isAppDeepLink(resolved)) {
+      openAppDeepLink(resolved, navigation);
+      return;
+    }
     if (resolved.startsWith(WEB_ORIGIN)) {
       // 같은 origin → 그대로 이동(리다이렉트). 현재 origin이 web.staircrusher.club이면
       // 동일 출처 내 경로 이동이 된다. replace 로 /webview 히스토리 엔트리를 덮어써

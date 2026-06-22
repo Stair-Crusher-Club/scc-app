@@ -39,6 +39,17 @@ export default function KakaoCallbackScreen() {
         return;
       }
 
+      // 빌드 시 webpack 이 KAKAO_JS_KEY 존재를 검증하므로 정상 빌드에선 항상 존재한다.
+      // 그래도 폴백 키로 조용히 잘못 교환하지 않도록 fail-loud 가드를 둔다.
+      const kakaoJsKey = Config.KAKAO_JS_KEY;
+      if (!kakaoJsKey) {
+        setError('카카오 로그인 설정이 올바르지 않습니다.');
+        setTimeout(() => {
+          window.location.href = nextUrl;
+        }, 2000);
+        return;
+      }
+
       try {
         // Exchange code for tokens using Kakao REST API
         const tokenResponse = await fetch('https://kauth.kakao.com/oauth/token', {
@@ -53,8 +64,9 @@ export default function KakaoCallbackScreen() {
             // 그 JS키가 된다. 백엔드는 웹 idToken 의 aud 를 web-oauth-client-id(=이 JS키)
             // 로 검증하므로 일치해야 한다. (REST키로 교환하면 aud=REST키가 되어
             // 백엔드에서 "audience does not match" 발생 — KOE 아님, 백엔드 검증 실패.)
-            client_id:
-              Config.KAKAO_JS_KEY ?? '484a369f5c19e5d59aac0d975beabc78',
+            // 하드코딩 폴백 금지 — authorize 와 동일 키여야 KOE114(Application ID
+            // mismatch)가 안 난다. 값은 빌드 시 webpack 이 검증한다.
+            client_id: kakaoJsKey,
             redirect_uri: window.location.origin + '/oauth/kakao',
             code: code,
           }),

@@ -9,6 +9,24 @@ const envConfig = dotenv.config({path: envFile}).parsed || {};
 console.log('📝 Loaded environment:', envFile);
 console.log('🌐 BASE_URL:', envConfig.BASE_URL || 'not set');
 
+// Fail fast on a misconfigured web build. These keys come from the
+// `scc-frontend-build-configurations` submodule's .env files. The most common
+// failure is a STALE submodule checkout: the on-disk .env then lacks newer keys
+// (e.g. KAKAO_JS_KEY), dotenv silently returns undefined, DefinePlugin inlines
+// `undefined`, and the build "succeeds" while shipping broken Kakao login
+// (KOE114 Application ID mismatch). Turn that silent failure into a hard error
+// so a wrong build can never reach web.staircrusher.club. (재발 방지)
+const REQUIRED_ENV_KEYS = ['BASE_URL', 'KAKAO_JS_KEY'];
+const missingEnvKeys = REQUIRED_ENV_KEYS.filter(key => !envConfig[key]);
+if (missingEnvKeys.length > 0) {
+  throw new Error(
+    `\n❌ ENVFILE '${envFile}' is missing required keys: ${missingEnvKeys.join(', ')}.\n` +
+      `   이 값들은 scc-frontend-build-configurations submodule 의 .env 에서 옵니다.\n` +
+      `   submodule 이 stale 일 가능성이 높습니다. 다음을 실행한 뒤 다시 빌드하세요:\n` +
+      `     git submodule update --init subprojects/scc-frontend-build-configurations\n`,
+  );
+}
+
 const transpileDeps = [
   '@react-navigation',
   'react-native-gesture-handler',
