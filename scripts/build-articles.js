@@ -433,11 +433,14 @@ function mergeSitemap(articles) {
     xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
   }
   fs.writeFileSync(sp, xml);
+  // 동일 내용의 새 파일명 사본. GSC가 기존 sitemap.xml에 "읽을 수 없음" 상태를
+  // 캐싱했을 때, 이력 없는 새 URL로 제출하면 깨끗하게 재fetch된다.
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap-v2.xml'), xml);
 }
 function writeRobots() {
   fs.writeFileSync(
     path.join(DIST_DIR, 'robots.txt'),
-    `User-agent: *\nAllow: /\n\n# AI/answer engines (AEO/GEO)\nUser-agent: GPTBot\nAllow: /\nUser-agent: OAI-SearchBot\nAllow: /\nUser-agent: ChatGPT-User\nAllow: /\nUser-agent: ClaudeBot\nAllow: /\nUser-agent: PerplexityBot\nAllow: /\nUser-agent: Google-Extended\nAllow: /\n\nSitemap: ${SITE.baseUrl}/sitemap.xml\n`,
+    `User-agent: *\nAllow: /\n\n# AI/answer engines (AEO/GEO)\nUser-agent: GPTBot\nAllow: /\nUser-agent: OAI-SearchBot\nAllow: /\nUser-agent: ChatGPT-User\nAllow: /\nUser-agent: ClaudeBot\nAllow: /\nUser-agent: PerplexityBot\nAllow: /\nUser-agent: Google-Extended\nAllow: /\n\nSitemap: ${SITE.baseUrl}/sitemap.xml\nSitemap: ${SITE.baseUrl}/sitemap-v2.xml\n`,
   );
 }
 function writeLlms(articles) {

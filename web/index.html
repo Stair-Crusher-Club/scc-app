@@ -45,5 +45,16 @@
 </head>
 <body>
     <div id="root"></div>
+    <!-- 크롤러/JS 비활성 환경용 내부 링크 폴백. SPA 루트는 #root만 그리므로
+         /articles·/bbucle-road 정적 콘텐츠 섹션이 홈에서 끊긴 고아(orphan)가 된다.
+         검색엔진이 홈 → 콘텐츠 허브로 들어가는 크롤 경로를 확보한다. -->
+    <noscript>
+        <nav aria-label="콘텐츠 메뉴">
+            <ul>
+                <li><a href="/articles">아티클 — 이동약자를 위한 접근성 정보 콘텐츠</a></li>
+                <li><a href="/bbucle-road">뿌클로드 — 휠체어로 가는 장소별 접근성 정보</a></li>
+            </ul>
+        </nav>
+    </noscript>
 </body>
 </html>
