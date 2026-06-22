@@ -76,8 +76,17 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   const { isDesktop } = useResponsive();
   const navigation = useNavigation<BbucleRoadScreenNavigationProp>();
 
-  const handleMenuPress = useCallback(() => {
-    navigation.navigate('BbucleRoadList');
+  const handleBackPress = useCallback(() => {
+    // 상세의 논리적 부모는 리스트다. 직전 화면이 리스트면 goBack(리스트 스크롤 보존),
+    // 아니면 리스트로 이동한다. 로그인 OAuth 풀리로드 후엔 스택이 [Intro, BbucleRoad]
+    // 로 재구성돼 goBack 이 home(Intro)으로 가버리므로, 이 경우 리스트로 보낸다.
+    const navState = navigation.getState();
+    const previousRoute = navState.routes[navState.index - 1];
+    if (navigation.canGoBack() && previousRoute?.name === 'BbucleRoadList') {
+      navigation.goBack();
+    } else {
+      navigation.navigate('BbucleRoadList');
+    }
   }, [navigation]);
   const { api: appApi } = useAppComponents();
 
@@ -238,7 +247,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
       {hasFloatingHeader && (
         <FloatingHeader
           title={data.floatingHeaderTitle!}
-          onMenuPress={handleMenuPress}
+          onBackPress={handleBackPress}
         />
       )}
       <ScrollView

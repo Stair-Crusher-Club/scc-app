@@ -8,35 +8,7 @@ import { color } from '@/constant/color';
 import ImageUploader from '../components/ImageUploader';
 import RegionDetailModal from '../components/RegionDetailModal';
 import type { BbucleRoadClickableRegionDto } from '@/generated-sources/openapi';
-
-// Kakao SDK v2 type declaration
-declare global {
-  interface Window {
-    Kakao: {
-      isInitialized: () => boolean;
-      init: (appKey: string) => void;
-      Auth: {
-        authorize: (options: { redirectUri: string; scope?: string; state?: string }) => void;
-        setAccessToken: (token: string) => void;
-        getAccessToken: () => string | null;
-        logout: () => Promise<void>;
-      };
-      API: {
-        request: (options: { url: string }) => Promise<KakaoUserResponse>;
-      };
-    };
-  }
-}
-
-interface KakaoUserResponse {
-  id: number;
-  kakao_account?: {
-    email?: string;
-    profile?: {
-      nickname?: string;
-    };
-  };
-}
+import { loginWithKakao, logoutFromKakao } from '../../../utils/kakaoAuth';
 
 export default function EditSidebar() {
   const editContext = useEditMode();
@@ -70,40 +42,15 @@ export default function EditSidebar() {
   }, []);
 
   const handleKakaoLogin = useCallback(() => {
-    if (!window.Kakao?.isInitialized()) {
-      setLoginError('Kakao SDK가 초기화되지 않았습니다.');
-      return;
-    }
-
     setLoginError(null);
-
-    // Use redirect-based OAuth flow with state parameter for nextUrl
-    const nextUrl = window.location.pathname + window.location.search;
-    const redirectUri = window.location.origin + '/oauth/kakao';
-    window.Kakao.Auth.authorize({
-      redirectUri,
-      state: encodeURIComponent(nextUrl),
-    });
+    const result = loginWithKakao();
+    if (!result.ok) {
+      setLoginError(result.error ?? '로그인을 시작하지 못했습니다.');
+    }
   }, []);
 
   const handleLogout = useCallback(async () => {
-    // Clear stored tokens
-    window.localStorage.removeItem('sccAccessToken');
-    window.localStorage.removeItem('sccUserName');
-    window.localStorage.removeItem('anonymousAccessToken');
-    window.localStorage.removeItem('anonymousTokenExpiry');
-    apiConfig.accessToken = undefined;
-
-    // Logout from Kakao if SDK available
-    try {
-      if (window.Kakao?.Auth?.getAccessToken()) {
-        await window.Kakao.Auth.logout();
-        console.log('Kakao logout successful');
-      }
-    } catch (err) {
-      console.log('Kakao logout skipped:', err);
-    }
-
+    await logoutFromKakao();
     setIsLoggedIn(false);
     setUserName(null);
     setLoginError(null);

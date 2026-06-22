@@ -1,46 +1,33 @@
 import React from 'react';
-import { View, Text, Linking } from 'react-native';
+import {View, Text} from 'react-native';
 import styled from 'styled-components/native';
 
-import { color } from '@/constant/color';
-import { SccPressable } from '@/components/SccPressable';
-import SccRemoteImage from '@/components/SccRemoteImage';
-import { useResponsive } from '../../BbucleRoadScreen/context/ResponsiveContext';
+import {color} from '@/constant/color';
+import LogoBbucleRoad from '@/assets/icon/logo_bbucle_road.svg';
 
-const COVER_IMAGE_URL =
-  'https://scc-dev-accessibility-images-2.s3.ap-northeast-2.amazonaws.com/20260119_BBUCLE_ROAD_LIST_COVER_V3.png';
-const APP_DOWNLOAD_URL = 'https://link.staircrusher.club/gexs2i';
+import {useResponsive} from '../../BbucleRoadScreen/context/ResponsiveContext';
+import LoginButton from '../../../components/LoginButton';
 
 export default function ListHeader() {
-  const { isDesktop } = useResponsive();
-
-  const handleAppDownload = () => {
-    Linking.openURL(APP_DOWNLOAD_URL);
-  };
+  const {isDesktop} = useResponsive();
 
   return (
     <Container>
-      <SccRemoteImage
-        imageUrl={COVER_IMAGE_URL}
-        resizeMode="cover"
-        wrapperBackgroundColor={null}
-      />
+      <AppBar>
+        <AppBarInner isDesktop={isDesktop}>
+          <Side />
+          <LogoBbucleRoad width={94} height={43} />
+          <Side align="flex-end">
+            <LoginButton location="list-header" />
+          </Side>
+        </AppBarInner>
+      </AppBar>
 
-      <ContentWrapper isDesktop={isDesktop}>
-        <Title isDesktop={isDesktop}>뿌클로드</Title>
-        <Description isDesktop={isDesktop}>
-          공연장, 경기장, 핫플까지 휠체어로 가는 법!<br />뿌클로드에서 동선, 시야, 접근성을 한 번에 확인해보세요 🙌
+      <DescriptionWrapper isDesktop={isDesktop}>
+        <Description>
+          공연장, 경기장, 핫플까지 휠체어로 가는 법!<br />뿌클로드에서 동선, 시야, 접근성을 한 번에 확인해보세요🙌
         </Description>
-
-        <SccPressable
-          elementName="app-download-button"
-          logParams={{ location: 'list-header' }}
-          onPress={handleAppDownload}>
-          <DownloadButton isDesktop={isDesktop}>
-            <DownloadButtonText>앱 다운로드</DownloadButtonText>
-          </DownloadButton>
-        </SccPressable>
-      </ContentWrapper>
+      </DescriptionWrapper>
     </Container>
   );
 }
@@ -49,37 +36,38 @@ const Container = styled(View)`
   width: 100%;
 `;
 
-const ContentWrapper = styled(View)<{ isDesktop: boolean }>`
+const AppBar = styled(View)`
   width: 100%;
-  max-width: ${({ isDesktop }) => (isDesktop ? '800px' : '100%')};
+  background-color: #b8ff55;
+`;
+
+const AppBarInner = styled(View)<{isDesktop: boolean}>`
+  flex-direction: row;
+  align-items: center;
+  height: 60px;
+  width: 100%;
+  max-width: ${({isDesktop}) => (isDesktop ? '800px' : '100%')};
   align-self: center;
-  padding: ${({ isDesktop }) => (isDesktop ? '32px 0' : '24px 16px')};
-  align-items: ${({ isDesktop }) => (isDesktop ? 'center' : 'flex-start')};
+  padding: 0 20px;
 `;
 
-const Title = styled(Text)<{ isDesktop: boolean }>`
-  font-size: ${({ isDesktop }) => (isDesktop ? '28px' : '22px')};
-  font-weight: 700;
-  color: ${color.gray80};
-  margin-bottom: 8px;
+const Side = styled(View)<{align?: string}>`
+  flex: 1;
+  align-items: ${({align}) => align ?? 'flex-start'};
 `;
 
-const Description = styled(Text)<{ isDesktop: boolean }>`
-  ${({ isDesktop }) => (isDesktop ? 'text-align: center;' : '')}
-  font-size: ${({ isDesktop }) => (isDesktop ? '16px' : '14px')};
-  color: ${color.gray60};
-  margin-bottom: 20px;
-  line-height: ${({ isDesktop }) => (isDesktop ? '24px' : '20px')};
+const DescriptionWrapper = styled(View)<{isDesktop: boolean}>`
+  width: 100%;
+  max-width: ${({isDesktop}) => (isDesktop ? '800px' : '100%')};
+  align-self: center;
+  padding: ${({isDesktop}) => (isDesktop ? '24px 0 20px' : '24px 20px 0px 20px')};
 `;
 
-const DownloadButton = styled(View)<{ isDesktop: boolean }>`
-  background-color: ${color.brand30};
-  padding: ${({ isDesktop }) => (isDesktop ? '12px 24px' : '10px 20px')};
-  border-radius: 8px;
-`;
-
-const DownloadButtonText = styled(Text)`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${color.white};
+const Description = styled(Text)`
+  font-family: Pretendard;
+  font-size: 18px;
+  font-weight: 500;
+  color: ${color.black};
+  line-height: 26px;
+  letter-spacing: -0.36px;
 `;
