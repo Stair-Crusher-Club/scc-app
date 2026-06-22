@@ -18,6 +18,9 @@ export const logDebug = (...args: any[]) => {
 
 // Store for tracking request timing
 const requestTimestamps = new Map<string, number>();
+// 요청별 DevTool 로그 id — 요청 시 PENDING row를 만들고, 응답/에러에서 같은 id로 갱신해
+// row가 2개로 쌓이지 않게 한다.
+const requestLogIds = new Map<string, string>();
 
 export const logRequest = (config: InternalAxiosRequestConfig) => {
   if (!isAPILoggingEnabled) return;
@@ -25,9 +28,11 @@ export const logRequest = (config: InternalAxiosRequestConfig) => {
   const {method, url, data, headers} = config;
   const requestKey = `${method}-${url}`;
   const timestamp = Date.now();
+  const logId = `${timestamp}-${Math.random()}`;
 
   // Store timestamp for duration calculation
   requestTimestamps.set(requestKey, timestamp);
+  requestLogIds.set(requestKey, logId);
 
   console.log('🚀 API Request:', {
     method: method?.toUpperCase(),
@@ -39,6 +44,7 @@ export const logRequest = (config: InternalAxiosRequestConfig) => {
   // Send to DevTool if enabled
   if (shouldShowDevTool()) {
     logAPICall({
+      id: logId,
       method: method?.toUpperCase() || 'UNKNOWN',
       url: url || '',
       requestHeaders: headers as Record<string, string>,
@@ -56,9 +62,11 @@ export const logResponse = (response: AxiosResponse) => {
   const endTime = Date.now();
   const startTime = requestTimestamps.get(requestKey);
   const duration = startTime ? endTime - startTime : undefined;
+  const logId = requestLogIds.get(requestKey);
 
   // Clean up timestamp
   requestTimestamps.delete(requestKey);
+  requestLogIds.delete(requestKey);
 
   console.log('✅ API Response:', {
     status,
@@ -69,6 +77,7 @@ export const logResponse = (response: AxiosResponse) => {
   // Send to DevTool if enabled
   if (shouldShowDevTool()) {
     logAPICall({
+      id: logId,
       method: config.method?.toUpperCase() || 'UNKNOWN',
       url: config.url || '',
       requestHeaders: config.headers as Record<string, string>,
@@ -90,9 +99,11 @@ export const logError = (error: unknown, context?: string) => {
     const endTime = Date.now();
     const startTime = requestTimestamps.get(requestKey);
     const duration = startTime ? endTime - startTime : undefined;
+    const logId = requestLogIds.get(requestKey);
 
     // Clean up timestamp
     requestTimestamps.delete(requestKey);
+    requestLogIds.delete(requestKey);
 
     let errorTitle = '';
 
@@ -113,6 +124,7 @@ export const logError = (error: unknown, context?: string) => {
     // Send to DevTool if enabled
     if (shouldShowDevTool()) {
       logAPICall({
+        id: logId,
         method: error.config?.method?.toUpperCase() || 'UNKNOWN',
         url: error.config?.url || '',
         requestHeaders: error.config?.headers as Record<string, string>,
