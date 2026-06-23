@@ -196,7 +196,7 @@ const PressableCategory = styled(SccTouchableOpacity)`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 8px 18px;
+  padding: 8px 14px;
   border-width: 1px;
   border-color: ${color.gray20};
   background-color: ${color.white};
@@ -204,14 +204,14 @@ const PressableCategory = styled(SccTouchableOpacity)`
 `;
 
 const CategoryText = styled.Text`
-  font-size: 15px;
+  font-size: 14px;
   font-family: ${font.pretendardMedium};
   color: ${color.gray90};
   margin-left: 4px;
 `;
 
 const RecommendationChipText = styled.Text`
-  font-size: 14px;
+  font-size: 14px; /* Figma: 카테고리 칩과 동일 14px */
   font-family: ${font.pretendardMedium};
   color: ${color.gray90};
   line-height: 20px;
