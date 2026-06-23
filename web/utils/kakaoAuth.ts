@@ -8,12 +8,13 @@
  */
 
 import {storage, getStorageValue} from '@/atoms/atomForLocal';
+import {ANONYMOUS_USER_TEMPLATE} from '@/atoms/Auth';
+import {User} from '@/generated-sources/openapi';
 
 import {apiConfig} from '../config/api';
 
 // Kakao JS SDK v2 (web/index.html 에서 로드, setupWebShims 에서 init).
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     Kakao?: {
       isInitialized: () => boolean;
@@ -36,14 +37,28 @@ declare global {
 const REAL_TOKEN_KEY = 'scc-token';
 
 /**
- * "실제 로그인" 여부.
- * 모든 방문자가 받는 익명 토큰(anonymousAccessToken)은 로그인으로 치지 않는다.
- * scc-token(메인 앱/카카오 콜백) 또는 legacy sccAccessToken(EditSidebar) 존재 시 로그인.
+ * "실제 로그인"(카카오/애플로 식별된 IDENTIFIED 유저) 여부.
+ *
+ * 토큰 존재만으로는 부족하다 — 익명(비회원) 유저도 토큰을 갖는다:
+ * - 뿌클로드 상세의 익명 플로우: localStorage `anonymousAccessToken`
+ * - 메인 앱 게스트 로그인(LoginScreen.guestLogin): 익명 토큰을 `scc-token`(MMKV)에
+ *   저장하고 userInfo 를 ANONYMOUS_USER_TEMPLATE(닉네임 '비회원')로 기록한다.
+ *
+ * 따라서 `scc-token` 존재만 보면 익명 게스트를 로그인으로 오인한다. 식별 여부는
+ * userInfo 가 익명 템플릿(id '0' 또는 닉네임 '비회원')이 아닌지로 판정한다
+ * (앱의 isAnonymousUserAtom 과 동일 기준).
+ * legacy sccAccessToken(EditSidebar 실제 로그인)은 그대로 로그인으로 친다.
  */
 export function getIsLoggedIn(): boolean {
   if (typeof window === 'undefined') return false;
-  if (getStorageValue<string>(REAL_TOKEN_KEY)) return true;
-  return !!window.localStorage.getItem('sccAccessToken');
+  if (window.localStorage.getItem('sccAccessToken')) return true;
+  if (!getStorageValue<string>(REAL_TOKEN_KEY)) return false;
+  const userInfo = getStorageValue<User>('userInfo');
+  if (!userInfo) return false;
+  return (
+    userInfo.id !== '0' &&
+    userInfo.nickname !== ANONYMOUS_USER_TEMPLATE.nickname
+  );
 }
 
 export interface KakaoLoginResult {

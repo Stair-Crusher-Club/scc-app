@@ -453,6 +453,7 @@ export type ScreenParams = {
   BbucleRoad: {bbucleRoadId: string};
   BbucleRoadList: undefined;
   KakaoCallback: undefined;
+  AppleCallback: undefined;
 };
 
 export type ScreenProps<Name extends keyof ScreenParams> =

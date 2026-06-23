@@ -13,6 +13,7 @@ const NO_TOKEN_ALLOWED = new Set<string>([
   'Login',
   'Signup',
   'KakaoCallback',
+  'AppleCallback',
   'BbucleRoad',
   'BbucleRoadList',
 ]);

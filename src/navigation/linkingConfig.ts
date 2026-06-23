@@ -107,5 +107,7 @@ export const webLinkingScreensConfig = {
     BbucleRoad: 'bbucle-road/:bbucleRoadId',
     // Kakao web OAuth redirect target
     KakaoCallback: 'oauth/kakao',
+    // Apple web OAuth popup Return URL target
+    AppleCallback: 'oauth/apple',
   },
 };
