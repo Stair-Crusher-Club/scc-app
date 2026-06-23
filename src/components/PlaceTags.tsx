@@ -42,7 +42,7 @@ function renderTag(
             if (placeListId) {
               navigation.navigate('PlaceListDetail', {
                 placeListId,
-                initialViewMode: 'map',
+                initialViewMode: 'list',
               });
             }
           }}
