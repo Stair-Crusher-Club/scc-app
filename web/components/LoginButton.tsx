@@ -6,7 +6,7 @@ import {color} from '@/constant/color';
 import {SccPressable} from '@/components/SccPressable';
 
 import {getIsInAppWebView} from '../utils/isInAppWebView';
-import {getIsLoggedIn, loginWithKakao, logoutFromKakao} from '../utils/kakaoAuth';
+import {getIsLoggedIn, logoutFromKakao} from '../utils/kakaoAuth';
 
 interface LoginButtonProps {
   /** 로깅용 위치 식별자 (예: 'list-header', 'detail-header'). */
@@ -16,7 +16,7 @@ interface LoginButtonProps {
 /**
  * 뿌클로드 web 공통 로그인/로그아웃 버튼.
  * - 앱 webview: 토큰 여부와 무관하게 항상 숨김(null).
- * - 웹 + 미로그인: '로그인' → 카카오 OAuth.
+ * - 웹 + 미로그인: '로그인' → /login 페이지로 이동(카카오/애플 선택, 완료 후 원래 경로 복귀).
  * - 웹 + 로그인: '로그아웃' → 토큰 정리 후 reload.
  *
  * 훅을 쓰지 않으므로 조건부 early-return 이 안전하다(로그인/로그아웃은 풀페이지
@@ -28,17 +28,15 @@ export default function LoginButton({location}: LoginButtonProps) {
   const isLoggedIn = getIsLoggedIn();
 
   const handlePress = async () => {
+    if (typeof window === 'undefined') return;
     if (isLoggedIn) {
       await logoutFromKakao();
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
+      window.location.reload();
       return;
     }
-    const result = loginWithKakao();
-    if (!result.ok && typeof window !== 'undefined') {
-      window.alert(result.error ?? '로그인을 시작하지 못했습니다.');
-    }
+    // /login 으로 이동해 카카오/애플 중 선택하게 한다. 로그인 완료 후 현재 경로로 복귀.
+    const next = window.location.pathname + window.location.search;
+    window.location.assign(`/login?redirect=${encodeURIComponent(next)}`);
   };
 
   return (
