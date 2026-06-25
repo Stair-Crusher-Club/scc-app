@@ -12,9 +12,9 @@ import {font} from '@/constant/font';
 import {
   BbucleRoadAccessibilityDtoBbucleRoadTypeEnum,
   PlaceListItem,
-  PlaceCategoryDto,
 } from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+import {getPlaceCategoryLabel} from '@/models/Place';
 import ImageList from '@/screens/PlaceDetailScreen/components/PlaceDetailImageList';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
@@ -283,9 +283,7 @@ function SearchItemCard({
           <TitleArea>
             <TextWrapper>
               <TitleText>{item.place.name}</TitleText>
-              <CategoryText>
-                {getCategoryText(item.place.category)}
-              </CategoryText>
+              <CategoryText>{getPlaceCategoryLabel(item.place)}</CategoryText>
             </TextWrapper>
             <LocationBox>
               <DistanceText>{distanceText}</DistanceText>
@@ -315,49 +313,6 @@ function SearchItemCard({
       </Container>
     </LogParamsProvider>
   );
-}
-
-function getCategoryText(category?: PlaceCategoryDto) {
-  switch (category) {
-    case PlaceCategoryDto.Restaurant:
-      return '식당';
-    case PlaceCategoryDto.Cafe:
-      return '카페';
-    case PlaceCategoryDto.Accomodation:
-      return '숙소';
-    case PlaceCategoryDto.Market:
-      return '시장';
-    case PlaceCategoryDto.ConvenienceStore:
-      return '편의점';
-    case PlaceCategoryDto.Kindergarten:
-      return '유치원';
-    case PlaceCategoryDto.School:
-      return '학교';
-    case PlaceCategoryDto.Academy:
-      return '학원';
-    case PlaceCategoryDto.ParkingLot:
-      return '주차장';
-    case PlaceCategoryDto.GasStation:
-      return '주유소';
-    case PlaceCategoryDto.SubwayStation:
-      return '지하철역';
-    case PlaceCategoryDto.Bank:
-      return '은행';
-    case PlaceCategoryDto.CulturalFacilities:
-      return '문화시설';
-    case PlaceCategoryDto.Agency:
-      return '대행사';
-    case PlaceCategoryDto.PublicOffice:
-      return '공공기관';
-    case PlaceCategoryDto.Attraction:
-      return '관광명소';
-    case PlaceCategoryDto.Hospital:
-      return '병원';
-    case PlaceCategoryDto.Pharmacy:
-      return '약국';
-    default:
-      return '';
-  }
 }
 
 // Styled components from original
