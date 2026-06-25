@@ -121,6 +121,7 @@ export default function SearchCategory({
           <SccTouchableOpacity
             key={item.id}
             elementName="place_search_recommendation_chip"
+            trackView
             logParams={{
               recommendationId: item.id,
               placeListId: item.placeListId,

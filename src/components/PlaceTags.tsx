@@ -37,6 +37,7 @@ function renderTag(
         <SccTouchableOpacity
           key={index}
           elementName="place_tag_place_list"
+          trackView
           logParams={{placeListId}}
           onPress={() => {
             if (placeListId) {
