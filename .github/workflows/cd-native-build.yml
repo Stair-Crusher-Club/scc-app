@@ -7,6 +7,11 @@ on:
     paths:
       - 'ios/**'
       - 'android/**'
+      # 네이티브 모듈을 가진 JS 의존성 추가/변경은 ios/android 디렉토리를 건드리지 않고
+      # package.json/yarn.lock 에만 반영된다(Android autolinking, iOS도 Podfile.lock 외엔
+      # 앱 프로젝트 파일 무변경). 이 경우에도 양 플랫폼 네이티브 빌드가 돌아야 한다.
+      - 'package.json'
+      - 'yarn.lock'
   workflow_dispatch:
     inputs:
       platform:
@@ -39,8 +44,12 @@ jobs:
           filters: |
             ios:
               - 'ios/**'
+              - 'package.json'
+              - 'yarn.lock'
             android:
               - 'android/**'
+              - 'package.json'
+              - 'yarn.lock'
       - name: Decide platforms to build
         id: decide
         run: |
