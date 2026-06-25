@@ -4244,6 +4244,12 @@ export interface Place {
      */
     'category'?: PlaceCategoryDto;
     /**
+     * vendor 원본 데이터에서 추출한 세부 카테고리명(e.g. \"육류,고기\"). 없으면 category 기반 라벨로 표시한다.
+     * @type {string}
+     * @memberof Place
+     */
+    'displayCategoryName'?: string;
+    /**
      * 내가 즐겨찾기한 점포인지 여부.
      * @type {boolean}
      * @memberof Place

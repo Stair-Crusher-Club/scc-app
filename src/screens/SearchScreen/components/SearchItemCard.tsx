@@ -367,7 +367,8 @@ function SearchItemCard({
             <TextWrapper>
               <TitleText>{item.place.name}</TitleText>
               <CategoryText>
-                {getCategoryText(item.place.category)}
+                {item.place.displayCategoryName ||
+                  getCategoryText(item.place.category)}
               </CategoryText>
             </TextWrapper>
             <LocationBox>
