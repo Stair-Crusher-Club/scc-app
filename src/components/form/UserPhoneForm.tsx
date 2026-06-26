@@ -202,7 +202,9 @@ export default function UserPhoneForm({
   return (
     <Container>
       {/* 전화번호 입력 */}
-      <FieldLabelText>휴대전화번호</FieldLabelText>
+      <FieldLabelText>
+        휴대전화번호<RequiredMark> *</RequiredMark>
+      </FieldLabelText>
       <InputRow>
         <InputFlexWrapper>
           <UnderlineInput
@@ -302,6 +304,10 @@ const FieldLabelText = styled.Text`
   line-height: 18px;
   color: ${color.gray80};
   margin-bottom: 8px;
+`;
+
+const RequiredMark = styled.Text`
+  color: ${color.red};
 `;
 
 const InputRow = styled.View`

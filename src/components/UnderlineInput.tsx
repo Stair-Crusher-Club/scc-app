@@ -37,6 +37,7 @@ interface Props {
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
   onSubmitEditing?: () => void;
+  isRequired?: boolean;
   isClearable?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
   keyboardType?: TextInputProps['keyboardType'];
@@ -64,6 +65,7 @@ const UnderlineInput = forwardRef<TextInput, Props>(
       keyboardType,
       maxLength,
       editable = true,
+      isRequired = false,
       isClearable = false,
       timer,
       containerStyle,
@@ -117,7 +119,12 @@ const UnderlineInput = forwardRef<TextInput, Props>(
 
     return (
       <InputContainer style={containerStyle}>
-        {label && <FieldLabelText>{label}</FieldLabelText>}
+        {label && (
+          <FieldLabelText>
+            {label}
+            {isRequired && <RequiredMark> *</RequiredMark>}
+          </FieldLabelText>
+        )}
         <InputWrapper isFocused={isFocused} isValid={isValid}>
           {onPress ? (
             <SccTouchableOpacity
@@ -239,5 +246,9 @@ const TimerText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
   line-height: 16px;
+  color: ${color.red};
+`;
+
+const RequiredMark = styled.Text`
   color: ${color.red};
 `;

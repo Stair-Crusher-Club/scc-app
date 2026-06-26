@@ -21,6 +21,7 @@ interface Props {
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
   onSubmitEditing?: () => void;
+  isRequired?: boolean;
   isClearable?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
   keyboardType?: TextInputProps['keyboardType'];
@@ -44,6 +45,7 @@ const SignupInput = forwardRef<TextInput, Props>(
       onBlur,
       onPress,
       onSubmitEditing,
+      isRequired,
       returnKeyType,
       keyboardType,
       maxLength,
@@ -65,6 +67,7 @@ const SignupInput = forwardRef<TextInput, Props>(
         value={value}
         placeholder={placeholder}
         label={label}
+        isRequired={isRequired}
         getCaptionByFocus={getLabel}
         state={convertState()}
         onChangeText={onChangeText}

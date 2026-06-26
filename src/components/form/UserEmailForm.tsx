@@ -74,6 +74,7 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
         <SignupInput
           ref={ref}
           label="이메일"
+          isRequired
           placeholder="이메일을 입력해주세요"
           returnKeyType="next"
           state={state.email}

@@ -24,6 +24,7 @@ const UserBirthYearForm = forwardRef<
     <View style={{paddingHorizontal: 20}}>
       <SignupInput
         label="출생년도"
+        isRequired
         placeholder="출생년도를 입력해주세요"
         returnKeyType="done"
         keyboardType="number-pad"
