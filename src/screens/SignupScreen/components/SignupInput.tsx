@@ -7,7 +7,7 @@ import {
   TextInputProps,
 } from 'react-native';
 
-import UnderlineInput, {UnderlineInputState} from '@/components/UnderlineInput';
+import SignupBoxInput from '@/screens/SignupScreen/components/SignupBoxInput';
 import {FormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
 interface Props {
@@ -16,12 +16,12 @@ interface Props {
   getLabel: (isFocused?: boolean) => string | undefined;
   state: FormState | undefined;
   label?: string;
+  isRequired?: boolean;
   onChangeText?: (text: string) => void;
   onFocus?: () => void;
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
   onSubmitEditing?: () => void;
-  isRequired?: boolean;
   isClearable?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
   keyboardType?: TextInputProps['keyboardType'];
@@ -29,8 +29,8 @@ interface Props {
 }
 
 /**
- * SignupInput - UnderlineInput을 감싼 회원가입용 Input 컴포넌트
- * 기존 호환성을 위해 유지
+ * SignupInput — SignupBoxInput을 감싼 회원가입용 Input 컴포넌트.
+ * getLabel로 caption 텍스트를 받아 SignupBoxInput에 전달한다.
  */
 const SignupInput = forwardRef<TextInput, Props>(
   (
@@ -40,36 +40,28 @@ const SignupInput = forwardRef<TextInput, Props>(
       getLabel,
       state,
       label,
+      isRequired,
       onChangeText,
       onFocus,
       onBlur,
       onPress,
       onSubmitEditing,
-      isRequired,
       returnKeyType,
       keyboardType,
       maxLength,
       isClearable = false,
-    }: Props,
+    },
     ref,
   ) => {
-    // FormState를 UnderlineInputState로 변환
-    const convertState = (): UnderlineInputState => {
-      if (state === undefined) return undefined;
-      if (state === 'VALID') return 'VALID';
-      if (state === 'PROGRESS') return 'PROGRESS';
-      return 'INVALID';
-    };
-
     return (
-      <UnderlineInput
+      <SignupBoxInput
         ref={ref}
         value={value}
         placeholder={placeholder}
         label={label}
         isRequired={isRequired}
-        getCaptionByFocus={getLabel}
-        state={convertState()}
+        state={state}
+        caption={getLabel()}
         onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}
@@ -79,7 +71,6 @@ const SignupInput = forwardRef<TextInput, Props>(
         keyboardType={keyboardType}
         maxLength={maxLength}
         isClearable={isClearable}
-        containerStyle={{marginBottom: 12}}
       />
     );
   },
