@@ -78,12 +78,19 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
           placeholder="이메일을 입력해주세요"
           returnKeyType="next"
           state={state.email}
-          caption={match(state.email)
-            .with(undefined, () => '뉴스레터, 공지 등을 전달받아요.')
-            .with('VALID', () => '사용 가능한 이메일입니다.')
-            .with('PROGRESS', () => '이메일 확인 중...')
-            .with({errorMessage: Pattern.string}, error => error.errorMessage)
-            .exhaustive()}
+          caption={
+            suggestions.length > 0
+              ? undefined
+              : match(state.email)
+                  .with(undefined, () => '뉴스레터, 공지 등을 전달받아요.')
+                  .with('VALID', () => '사용 가능한 이메일입니다.')
+                  .with('PROGRESS', () => '이메일 확인 중...')
+                  .with(
+                    {errorMessage: Pattern.string},
+                    error => error.errorMessage,
+                  )
+                  .exhaustive()
+          }
           value={value.email}
           onChangeText={onChangeText}
           onFocus={() => setIsFocused(true)}
@@ -92,20 +99,16 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
           isClearable={isClearable}
         />
         {suggestions.length > 0 && (
-          <SuggestionsContainer>
+          <ChipRow>
             {suggestions.map(domain => (
-              <SuggestionItem
+              <DomainChip
                 key={domain}
                 elementName="email_domain_suggestion"
                 onPress={() => handleSelectDomain(domain)}>
-                <SuggestionText>
-                  {value.email.includes('@')
-                    ? `${value.email.slice(0, value.email.indexOf('@') + 1)}${domain}`
-                    : `${value.email}@${domain}`}
-                </SuggestionText>
-              </SuggestionItem>
+                <DomainChipText>{domain}</DomainChipText>
+              </DomainChip>
             ))}
-          </SuggestionsContainer>
+          </ChipRow>
         )}
         <LetterBox
           elementName="newsletter_subscription_checkbox"
@@ -133,23 +136,24 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
 
 UserEmailForm.displayName = 'UserEmailForm';
 
-const SuggestionsContainer = styled.View`
-  background-color: ${color.white};
+const ChipRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+`;
+
+const DomainChip = styled(SccTouchableOpacity)`
+  padding-vertical: 8px;
+  padding-horizontal: 14px;
+  border-radius: 18px;
   border-width: 1px;
   border-color: ${color.gray20};
-  border-radius: 8px;
-  margin-bottom: 8px;
-  overflow: hidden;
+  background-color: ${color.white};
 `;
 
-const SuggestionItem = styled(SccTouchableOpacity)`
-  padding-vertical: 12px;
-  padding-horizontal: 16px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${color.gray10};
-`;
-
-const SuggestionText = styled.Text`
+const DomainChipText = styled.Text`
   font-size: 14px;
   color: ${color.gray100};
 `;

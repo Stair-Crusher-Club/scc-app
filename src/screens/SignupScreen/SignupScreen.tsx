@@ -67,21 +67,6 @@ export default function SignupScreen({
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // __DEV__ only: expose step setter globally for E2E testing
-  React.useEffect(() => {
-    if (__DEV__) {
-      (globalThis as any).__signupSetStep = setStep;
-      (globalThis as any).__signupSetPhoneVerified = () =>
-        updateField('isPhoneVerified', true);
-    }
-    return () => {
-      if (__DEV__) {
-        delete (globalThis as any).__signupSetStep;
-        delete (globalThis as any).__signupSetPhoneVerified;
-      }
-    };
-  }, [updateField]);
-
   // step1 휴대폰 인증 상태 — UserPhoneForm에서 올라옴
   const [isCodeInputStep, setIsCodeInputStep] = useState(false);
   const [isVerifyButtonActive, setIsVerifyButtonActive] = useState(false);
@@ -91,7 +76,11 @@ export default function SignupScreen({
 
   // 인증 완료되면 step2로 자동 전환 (최초 1회만 — 뒤로가기 시 재발동 방지)
   useEffect(() => {
-    if (formValue.isPhoneVerified && step === 1 && !hasAutoAdvancedRef.current) {
+    if (
+      formValue.isPhoneVerified &&
+      step === 1 &&
+      !hasAutoAdvancedRef.current
+    ) {
       hasAutoAdvancedRef.current = true;
       setStep(2);
     }
