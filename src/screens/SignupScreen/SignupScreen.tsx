@@ -58,8 +58,11 @@ export default function SignupScreen({
     enforceBirthYearRange: true,
   });
 
+  // 닉네임 pre-fill은 최초 1회만. 사용자가 X로 지우면 다시 채우지 않는다.
+  const hasPrefilledRef = React.useRef(false);
   useEffect(() => {
-    if (!isLoadingUser && initialNickname) {
+    if (!isLoadingUser && initialNickname && !hasPrefilledRef.current) {
+      hasPrefilledRef.current = true;
       updateField('nickname', initialNickname);
     }
   }, [isLoadingUser, initialNickname]);
@@ -71,19 +74,15 @@ export default function SignupScreen({
   const [isCodeInputStep, setIsCodeInputStep] = useState(false);
   const [isVerifyButtonActive, setIsVerifyButtonActive] = useState(false);
   const verifyHandlerRef = React.useRef<(() => void) | null>(null);
-  // 인증 완료 후 자동 전환을 한 번만 수행하기 위한 플래그
-  const hasAutoAdvancedRef = React.useRef(false);
 
-  // 인증 완료되면 step2로 자동 전환 (최초 1회만 — 뒤로가기 시 재발동 방지)
+  // 인증이 막 완료된 순간(false→true 전이)에만 자동으로 step2 전환.
+  // 이미 인증된 채로 step1에 돌아온 경우는 자동 전환하지 않고, 하단 "다음" 버튼으로 진행한다.
+  const prevVerifiedRef = React.useRef(false);
   useEffect(() => {
-    if (
-      formValue.isPhoneVerified &&
-      step === 1 &&
-      !hasAutoAdvancedRef.current
-    ) {
-      hasAutoAdvancedRef.current = true;
+    if (formValue.isPhoneVerified && !prevVerifiedRef.current && step === 1) {
       setStep(2);
     }
+    prevVerifiedRef.current = formValue.isPhoneVerified;
   }, [formValue.isPhoneVerified, step]);
 
   const progress = Math.round((step / TOTAL_STEPS) * 100);
@@ -154,6 +153,15 @@ export default function SignupScreen({
     switch (step) {
       case 1:
         // step1 = 휴대폰 인증
+        if (formValue.isPhoneVerified) {
+          // 인증 완료: 하단 버튼 = 다음 (재진입 시에도 진행 가능)
+          return {
+            text: '다음',
+            disabled: false,
+            onPress: () => setStep(2),
+            rightLabel: '',
+          };
+        }
         if (isCodeInputStep) {
           // 인증번호 입력 단계: 하단 버튼 = 인증번호 확인
           return {
@@ -228,7 +236,6 @@ export default function SignupScreen({
             formValue={formValue}
             formState={formState}
             updateField={updateField}
-            initialNickname={initialNickname}
           />
         );
       case 3:

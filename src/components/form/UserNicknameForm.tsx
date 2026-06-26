@@ -29,6 +29,7 @@ const UserNicknameForm = forwardRef<TextInput, UserNicknameFormProps>(
         <SignupBoxInput
           ref={ref}
           label="닉네임"
+          isRequired
           placeholder="닉네임을 입력해주세요"
           returnKeyType="next"
           state={state}

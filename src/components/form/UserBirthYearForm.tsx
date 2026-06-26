@@ -31,11 +31,8 @@ const UserBirthYearForm = forwardRef<
         maxLength={4}
         state={state}
         caption={match(state)
-          .with(undefined, () => '숫자로만 4자리 입력해주세요.')
-          .with('VALID', () => undefined)
-          .with('PROGRESS', () => undefined)
           .with({errorMessage: Pattern.string}, error => error.errorMessage)
-          .exhaustive()}
+          .otherwise(() => '숫자로만 4자리 입력해주세요.')}
         value={value}
         onChangeText={text => {
           const numbersOnly = text.replace(/[^0-9]/g, '');

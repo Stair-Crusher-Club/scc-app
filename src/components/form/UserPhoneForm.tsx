@@ -89,13 +89,22 @@ export default function UserPhoneForm({
     }
   }, [timeRemaining]);
 
-  // 전화번호 입력 (숫자만)
+  // 전화번호 입력 (숫자만). 인증번호 요청 후 번호를 수정하면 인증 단계를 초기화한다.
   const handlePhoneNumberChange = useCallback(
     (text: string) => {
       const numbersOnly = text.replace(/[^0-9]/g, '');
       onPhoneNumberChange(numbersOnly);
+      if (step === 'INPUT_CODE') {
+        setStep('INPUT_PHONE');
+        setVerificationCode('');
+        setVerificationStatus('IDLE');
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }
     },
-    [onPhoneNumberChange],
+    [onPhoneNumberChange, step],
   );
 
   // 인증번호 입력 (숫자만)
@@ -251,7 +260,6 @@ export default function UserPhoneForm({
           onChangeText={handlePhoneNumberChange}
           placeholder="'-' 없이 입력해주세요"
           keyboardType="number-pad"
-          editable={step === 'INPUT_PHONE'}
           state={phoneInputState}
         />
 

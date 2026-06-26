@@ -82,14 +82,11 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
             suggestions.length > 0
               ? undefined
               : match(state.email)
-                  .with(undefined, () => '뉴스레터, 공지 등을 전달받아요.')
-                  .with('VALID', () => '사용 가능한 이메일입니다.')
-                  .with('PROGRESS', () => '이메일 확인 중...')
                   .with(
                     {errorMessage: Pattern.string},
                     error => error.errorMessage,
                   )
-                  .exhaustive()
+                  .otherwise(() => undefined)
           }
           value={value.email}
           onChangeText={onChangeText}
@@ -162,6 +159,7 @@ const LetterBox = styled(SccTouchableOpacity)`
   flex-direction: row;
   align-items: center;
   gap: 4px;
+  margin-top: 12px;
 `;
 
 const LetterText = styled.Text`
