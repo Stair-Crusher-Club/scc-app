@@ -2,9 +2,9 @@ import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import React from 'react';
 import {Image, ScrollView, View} from 'react-native';
+import AnimatedGlow, {type PresetConfig} from 'react-native-animated-glow';
 import styled from 'styled-components/native';
 
-import GradientBorderPill from '@/components/GradientBorderPill';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
@@ -127,31 +127,26 @@ export default function SearchCategory({
               placeListId: item.placeListId,
             }}
             onPress={() => handleRecommendationChipPress(item)}>
-            {/* drop-shadow는 GradientBorderPill의 outerStyle에 — overflow:hidden 밖 */}
-            <GradientBorderPill
-              borderWidth={1.5}
-              gradientId="chip-gradient"
-              outerStyle={{
-                shadowColor: color.black,
-                shadowOpacity: 0.25,
-                shadowRadius: 1.5,
-                shadowOffset: {width: 0, height: 0},
-                elevation: 2,
-              }}
-              contentStyle={{
-                paddingTop: 8,
-                paddingBottom: 8,
-                paddingLeft: 10,
-                paddingRight: 16,
-                gap: 2,
-              }}>
-              <Image
-                source={locationPinImage}
-                style={{width: 20, height: 20}}
-                resizeMode="contain"
-              />
-              <RecommendationChipText>{item.name}</RecommendationChipText>
-            </GradientBorderPill>
+            {/* 발견성 강화: Figma 블랙 칩 + react-native-animated-glow 빛나는 테두리(항상 ON) */}
+            <AnimatedGlow preset={RECOMMENDATION_CHIP_GLOW}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingTop: 8,
+                  paddingBottom: 8,
+                  paddingLeft: 10,
+                  paddingRight: 16,
+                  gap: 2,
+                }}>
+                <Image
+                  source={locationPinImage}
+                  style={{width: 20, height: 20}}
+                  resizeMode="contain"
+                />
+                <RecommendationChipText>{item.name}</RecommendationChipText>
+              </View>
+            </AnimatedGlow>
           </SccTouchableOpacity>
         );
       }
@@ -214,10 +209,75 @@ const CategoryText = styled.Text`
 const RecommendationChipText = styled.Text`
   font-size: 14px; /* Figma: 카테고리 칩과 동일 14px */
   font-family: ${font.pretendardMedium};
-  color: ${color.gray90};
+  color: ${color.white}; /* Figma 블랙 칩 위 흰 텍스트 */
   line-height: 20px;
   letter-spacing: -0.28px;
 `;
+
+// 저장리스트 추천 칩 글로우 — react-native-animated-glow "Confirmation Green" 프리셋 기반.
+// (Slack 디자인 협의: 시인성↑ + 고대비를 위한 '블랙 버튼 + 빛나는 테두리' 조합)
+// 기본 프리셋에서 General borderColor만 아래 3색으로 교체하고,
+// backgroundColor는 Figma 블랙 칩(#16181C)으로 지정. 애니메이션은 항상(default 상태) 동작.
+// borderColor: #1EFF00(green) → #0093FF(blue) → #00FFFA(cyan)
+const RECOMMENDATION_CHIP_GLOW: PresetConfig = {
+  metadata: {
+    name: 'Recommendation Chip Glow',
+    textColor: '#FFFFFF',
+    category: 'Custom',
+    tags: ['recommendation', 'chip'],
+  },
+  states: [
+    {
+      name: 'default',
+      preset: {
+        cornerRadius: 20,
+        outlineWidth: 2,
+        borderColor: ['#1EFF00', '#0093FF', '#00FFFA'],
+        backgroundColor: '#16181C',
+        animationSpeed: 2,
+        borderSpeedMultiplier: 1,
+        glowLayers: [
+          {
+            glowPlacement: 'behind',
+            colors: ['#0fff47', 'rgba(255, 241, 0, 1)', '#00d646'],
+            glowSize: 10,
+            opacity: 0.05,
+            speedMultiplier: 1,
+            coverage: 1,
+            relativeOffset: 0,
+          },
+          {
+            glowPlacement: 'behind',
+            colors: ['#0fff47', 'rgba(255, 241, 0, 1)', '#00d646'],
+            glowSize: 4,
+            opacity: 0.1,
+            speedMultiplier: 1,
+            coverage: 1,
+            relativeOffset: 0,
+          },
+          {
+            glowPlacement: 'inside',
+            colors: ['rgba(99, 255, 0, 1)', 'rgba(180, 255, 65, 1)'],
+            glowSize: [0, 20],
+            opacity: 0.02,
+            speedMultiplier: 1,
+            coverage: 0.3,
+            relativeOffset: 0,
+          },
+          {
+            glowPlacement: 'over',
+            colors: ['rgba(135, 255, 0, 1)', 'rgba(255, 248, 196, 1)'],
+            glowSize: [0, 1],
+            opacity: 0.5,
+            speedMultiplier: 1,
+            coverage: 0.4,
+            relativeOffset: 0,
+          },
+        ],
+      },
+    },
+  ],
+};
 
 type SearchCategoryItem = {
   category: keyof typeof Icons;
