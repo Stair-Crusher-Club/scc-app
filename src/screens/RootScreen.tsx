@@ -62,6 +62,13 @@ const RootScreen = () => {
   const navigationRef = useNavigationContainerRef();
   const globalLogParams = useLogParams();
 
+  // __DEV__ only: expose navigationRef globally for CDP-based E2E testing
+  React.useEffect(() => {
+    if (__DEV__) {
+      (globalThis as any).__navRef = navigationRef;
+    }
+  }, [navigationRef]);
+
   // 외부 지도앱 공유 텍스트 처리 (Android: ReceiveSharingIntent / iOS: stair-crusher://shared?text=)
   const handleSharedText = useCallback(
     (sharedText: string) => {

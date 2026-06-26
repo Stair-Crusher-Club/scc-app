@@ -1,10 +1,8 @@
-import React, {forwardRef, useImperativeHandle} from 'react';
+import React, {forwardRef} from 'react';
 import {View} from 'react-native';
 import {match, Pattern} from 'ts-pattern';
 
-import BottomSheet from '@/modals/BottomSheet';
-import BirthYearSelector from '@/screens/SignupScreen/components/BirthYearSelector';
-import SignupInput from '@/screens/SignupScreen/components/SignupInput';
+import SignupBoxInput from '@/screens/SignupScreen/components/SignupBoxInput';
 import {UserFormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
 interface UserBirthYearFormProps {
@@ -21,45 +19,28 @@ export interface UserBirthYearFormRef {
 const UserBirthYearForm = forwardRef<
   UserBirthYearFormRef,
   UserBirthYearFormProps
->(({value, state, onChangeText, onSubmitEditing}, ref) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  useImperativeHandle(ref, () => ({
-    show: () => setIsOpen(true),
-  }));
-
+>(({value, state, onChangeText, onSubmitEditing}, _ref) => {
   return (
-    <>
-      <View style={{paddingHorizontal: 20}}>
-        <SignupInput
-          label="출생년도"
-          placeholder="태어난 해를 알려주세요"
-          returnKeyType="done"
-          state={state}
-          onPress={() => setIsOpen(true)}
-          getLabel={() =>
-            match(state)
-              .with(undefined, () => undefined)
-              .with('VALID', () => undefined)
-              .with('PROGRESS', () => undefined)
-              .with({errorMessage: Pattern.string}, error => error.errorMessage)
-              .exhaustive()
-          }
-          value={value}
-          onChangeText={onChangeText}
-          onSubmitEditing={onSubmitEditing}
-        />
-      </View>
-      <BottomSheet
-        isVisible={isOpen}
-        onPressBackground={() => setIsOpen(false)}>
-        <BirthYearSelector
-          value={value}
-          onChange={onChangeText}
-          onClose={() => setIsOpen(false)}
-        />
-      </BottomSheet>
-    </>
+    <View style={{paddingHorizontal: 20}}>
+      <SignupBoxInput
+        label="출생년도"
+        isRequired
+        placeholder="출생년도를 입력해주세요"
+        returnKeyType="done"
+        keyboardType="number-pad"
+        maxLength={4}
+        state={state}
+        caption={match(state)
+          .with({errorMessage: Pattern.string}, error => error.errorMessage)
+          .otherwise(() => '숫자로만 4자리 입력해주세요.')}
+        value={value}
+        onChangeText={text => {
+          const numbersOnly = text.replace(/[^0-9]/g, '');
+          onChangeText(numbersOnly);
+        }}
+        onSubmitEditing={onSubmitEditing}
+      />
+    </View>
   );
 });
 

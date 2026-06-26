@@ -9,6 +9,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ProgressViewer from '@/screens/SignupScreen/components/ProgressViewer';
 import ToastUtils from '@/utils/ToastUtils';
@@ -29,24 +30,60 @@ export default function SignupScreen({
   route,
   navigation,
 }: ScreenProps<'Signup'>) {
+  const {api} = useAppComponents();
   const setAccessToken = useSetAtom(accessTokenAtom);
   const {setUserInfo} = useMe();
-  const {formValue, updateField, formState, submit} = useUpdateUser({
-    accessToken: route.params.token,
-  });
+
+  const [initialNickname, setInitialNickname] = useState<string>('');
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
-    updateField('nickname', '');
-    updateField('email', '');
-    updateField('birthYear', '');
-    updateField('phoneNumber', '');
-    updateField('isPhoneVerified', false);
-    updateField('mobilityTools', []);
-    updateField('isNewsLetterSubscriptionAgreed', false);
+    const fetchInitialNickname = async () => {
+      try {
+        const response = await api.getUserInfoGet({
+          headers: {Authorization: `Bearer ${route.params.token}`},
+        });
+        setInitialNickname(response.data.user.nickname ?? '');
+      } catch {
+        setInitialNickname('');
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+    fetchInitialNickname();
   }, []);
+
+  const {formValue, updateField, formState, submit} = useUpdateUser({
+    accessToken: route.params.token,
+    enforceBirthYearRange: true,
+  });
+
+  // 닉네임 pre-fill은 최초 1회만. 사용자가 X로 지우면 다시 채우지 않는다.
+  const hasPrefilledRef = React.useRef(false);
+  useEffect(() => {
+    if (!isLoadingUser && initialNickname && !hasPrefilledRef.current) {
+      hasPrefilledRef.current = true;
+      updateField('nickname', initialNickname);
+    }
+  }, [isLoadingUser, initialNickname]);
 
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // step1 휴대폰 인증 상태 — UserPhoneForm에서 올라옴
+  const [isCodeInputStep, setIsCodeInputStep] = useState(false);
+  const [isVerifyButtonActive, setIsVerifyButtonActive] = useState(false);
+  const verifyHandlerRef = React.useRef<(() => void) | null>(null);
+
+  // 인증이 막 완료된 순간(false→true 전이)에만 자동으로 step2 전환.
+  // 이미 인증된 채로 step1에 돌아온 경우는 자동 전환하지 않고, 하단 "다음" 버튼으로 진행한다.
+  const prevVerifiedRef = React.useRef(false);
+  useEffect(() => {
+    if (formValue.isPhoneVerified && !prevVerifiedRef.current && step === 1) {
+      setStep(2);
+    }
+    prevVerifiedRef.current = formValue.isPhoneVerified;
+  }, [formValue.isPhoneVerified, step]);
 
   const progress = Math.round((step / TOTAL_STEPS) * 100);
 
@@ -115,25 +152,51 @@ export default function SignupScreen({
   const getButtonConfig = () => {
     switch (step) {
       case 1:
+        // step1 = 휴대폰 인증
+        if (formValue.isPhoneVerified) {
+          // 인증 완료: 하단 버튼 = 다음 (재진입 시에도 진행 가능)
+          return {
+            text: '다음',
+            disabled: false,
+            onPress: () => setStep(2),
+            rightLabel: '',
+          };
+        }
+        if (isCodeInputStep) {
+          // 인증번호 입력 단계: 하단 버튼 = 인증번호 확인
+          return {
+            text: '인증번호 확인',
+            disabled: !isVerifyButtonActive,
+            onPress: () => verifyHandlerRef.current?.(),
+            rightLabel: '',
+          };
+        }
+        // 전화번호 입력 단계: 버튼 숨김(아직 인증 시작 전)
+        return {
+          text: '',
+          disabled: true,
+          onPress: () => {},
+          rightLabel: '',
+          hidden: true,
+        };
+      case 2:
+        // step2 = 기본정보
         return {
           text: '다음',
           disabled: !isFirstFormValid,
-          onPress: () => setStep(2),
-          rightLabel: '',
-        };
-      case 2:
-        return {
-          text: '다음',
-          disabled: !formValue.isPhoneVerified,
           onPress: () => setStep(3),
           rightLabel: '',
         };
       case 3:
+        // step3 = 이동유형
         return {
           text: '가입하기',
-          disabled: isSubmitting,
+          disabled: isSubmitting || formValue.mobilityTools.length === 0,
           onPress: signup,
-          rightLabel: `${formValue.mobilityTools.length} 개`,
+          rightLabel:
+            formValue.mobilityTools.length > 0
+              ? `${formValue.mobilityTools.length} 개`
+              : '',
         };
       default:
         return {
@@ -145,11 +208,29 @@ export default function SignupScreen({
     }
   };
 
-  const buttonConfig = getButtonConfig();
+  const buttonConfig = getButtonConfig() as ReturnType<
+    typeof getButtonConfig
+  > & {hidden?: boolean};
 
   const renderPage = () => {
     switch (step) {
       case 1:
+        // step1 = 휴대폰 인증
+        return (
+          <SignupPhonePage
+            formValue={formValue}
+            formState={formState}
+            updateField={updateField}
+            accessToken={route.params.token}
+            onCodeInputStepChange={setIsCodeInputStep}
+            onVerifyActiveChange={setIsVerifyButtonActive}
+            onVerifyRequest={handler => {
+              verifyHandlerRef.current = handler;
+            }}
+          />
+        );
+      case 2:
+        // step2 = 기본정보
         return (
           <SignupBasicPage
             formValue={formValue}
@@ -157,16 +238,8 @@ export default function SignupScreen({
             updateField={updateField}
           />
         );
-      case 2:
-        return (
-          <SignupPhonePage
-            formValue={formValue}
-            formState={formState}
-            updateField={updateField}
-            accessToken={route.params.token}
-          />
-        );
       case 3:
+        // step3 = 이동유형
         return (
           <SignupMobilityToolPage
             formValue={formValue}
@@ -189,19 +262,21 @@ export default function SignupScreen({
           <ProgressViewer progress={progress} />
         </View>
         <ScrollView className="bg-white">{renderPage()}</ScrollView>
-        <View className="w-full px-[20px] py-[10px] bg-white">
-          <SccButton
-            onPress={buttonConfig.onPress}
-            buttonColor="blue50"
-            borderColor="blue50"
-            textColor="white"
-            fontFamily={font.pretendardBold}
-            text={buttonConfig.text}
-            isDisabled={buttonConfig.disabled}
-            rightLabel={buttonConfig.rightLabel}
-            elementName="signup_submit"
-          />
-        </View>
+        {!buttonConfig.hidden && (
+          <View className="w-full px-[20px] py-[10px] bg-white">
+            <SccButton
+              onPress={buttonConfig.onPress}
+              buttonColor="blue50"
+              borderColor="blue50"
+              textColor="white"
+              fontFamily={font.pretendardBold}
+              text={buttonConfig.text}
+              isDisabled={buttonConfig.disabled}
+              rightLabel={buttonConfig.rightLabel}
+              elementName="signup_submit"
+            />
+          </View>
+        )}
       </View>
     </ScreenLayout>
   );

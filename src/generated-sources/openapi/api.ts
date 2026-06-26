@@ -7548,7 +7548,14 @@ export const UserMobilityToolDto = {
     WalkingAssistanceDevice: 'WALKING_ASSISTANCE_DEVICE',
     Cluch: 'CLUCH',
     None: 'NONE',
-    FriendOfToolUser: 'FRIEND_OF_TOOL_USER'
+    FriendOfToolUser: 'FRIEND_OF_TOOL_USER',
+    Scooter: 'SCOOTER',
+    WheelchairUserCompanion: 'WHEELCHAIR_USER_COMPANION',
+    Walker: 'WALKER',
+    Cane: 'CANE',
+    WalkingCart: 'WALKING_CART',
+    Crutch: 'CRUTCH',
+    WalkingDifficulty: 'WALKING_DIFFICULTY'
 } as const;
 
 export type UserMobilityToolDto = typeof UserMobilityToolDto[keyof typeof UserMobilityToolDto];

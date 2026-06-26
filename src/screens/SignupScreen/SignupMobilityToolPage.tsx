@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 import UserMobilityToolsForm from '@/components/form/UserMobilityToolsForm';
 
@@ -29,13 +29,13 @@ export default function SignupMobilityToolPage({
           맞춤 정보 제공 및 탐색을 위해 필요한 정보입니다.
         </Text>
       </View>
-      <ScrollView keyboardDismissMode={'interactive'} className="mt-[24px]">
+      <View className="mt-[24px]">
         <UserMobilityToolsForm
           value={formValue.mobilityTools}
           onChangeValue={value => updateField('mobilityTools', value)}
           onSubmit={onSubmit}
         />
-      </ScrollView>
+      </View>
     </>
   );
 }
