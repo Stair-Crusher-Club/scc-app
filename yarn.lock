@@ -8618,6 +8618,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"canvaskit-wasm@npm:0.39.1":
+  version: 0.39.1
+  resolution: "canvaskit-wasm@npm:0.39.1"
+  dependencies:
+    "@webgpu/types": "npm:0.1.21"
+  checksum: 10c0/0ae60ae5c430aaa88152f3a20f40fc9a6debb15714a2ce1bdebef93005ec6d5e72e0316b91ab637f50aab220dd8694101abac497209bcf16788d00db78f5a898
+  languageName: node
+  linkType: hard
+
 "canvaskit-wasm@npm:0.41.0":
   version: 0.41.0
   resolution: "canvaskit-wasm@npm:0.41.0"
@@ -16047,6 +16056,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-animated-glow@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "react-native-animated-glow@npm:3.1.0"
+  dependencies:
+    canvaskit-wasm: "npm:0.39.1"
+  peerDependencies:
+    "@shopify/react-native-skia": ">=0.2.0 || ^2.0.0-next"
+    react: "*"
+    react-native: "*"
+    react-native-gesture-handler: ">=2.0.0"
+    react-native-reanimated: ">=3.0.0"
+  checksum: 10c0/1dd21151b4f07047914890d5a34da258ff9bc83c5a1cb94e0b0c365ee3e432057a0344f76caef253d76de81f5a18c7be8c4fbe0e88b4f1a94bce555ab6597aa0
+  languageName: node
+  linkType: hard
+
 "react-native-codegen@npm:^0.70.7":
   version: 0.70.7
   resolution: "react-native-codegen@npm:0.70.7"
@@ -17209,6 +17233,7 @@ __metadata:
     react-dom: "npm:19.1.0"
     react-hook-form: "npm:^7.60.0"
     react-native: "npm:0.80.0"
+    react-native-animated-glow: "npm:^3.1.0"
     react-native-codegen: "npm:^0.70.7"
     react-native-compressor: "npm:^1.16.0"
     react-native-config: "npm:^1.5.5"
