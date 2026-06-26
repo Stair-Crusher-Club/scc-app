@@ -5,6 +5,7 @@ import {Image, Linking, Platform} from 'react-native';
 import styled from 'styled-components/native';
 
 import SccRemoteImage from '@/components/SccRemoteImage';
+import RoadView from '@/components/maps/RoadView';
 
 import StoreAddressIcon from '@/assets/icon/ic_store_address_fill.svg';
 import StoreInfoIcon from '@/assets/icon/ic_store_info_fill.svg';
@@ -214,6 +215,14 @@ export default function V2HomeTab({
           </PlaceInfoRow>
         </PlaceInfoContent>
       </PlaceInfoSection>
+
+      {/* ── 1.5. 로드뷰 — PA가 없을 때만 홈탭에 노출 (PA가 있으면 '로드뷰' 탭에서) ── */}
+      {!hasAccessibility && place.location && (
+        <RoadView
+          position={{lat: place.location.lat, lng: place.location.lng}}
+          name={place.name}
+        />
+      )}
 
       {/* ── 2. AskBanner ── */}
       {isInfoRequestEligible({
