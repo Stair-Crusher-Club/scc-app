@@ -6,7 +6,7 @@ import {match, Pattern} from 'ts-pattern';
 import CheckboxSquareIcon from '@/assets/icon/ic_checkbox_square.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
-import SignupInput from '@/screens/SignupScreen/components/SignupInput';
+import SignupBoxInput from '@/screens/SignupScreen/components/SignupBoxInput';
 import {UserFormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
 const TOP_DOMAINS = ['naver.com', 'gmail.com', 'hanmail.net'];
@@ -71,21 +71,19 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
 
     return (
       <View style={{paddingHorizontal: 20}}>
-        <SignupInput
+        <SignupBoxInput
           ref={ref}
           label="이메일"
           isRequired
           placeholder="이메일을 입력해주세요"
           returnKeyType="next"
           state={state.email}
-          getLabel={() =>
-            match(state.email)
-              .with(undefined, () => '뉴스레터, 공지 등을 전달받아요.')
-              .with('VALID', () => '사용 가능한 이메일입니다.')
-              .with('PROGRESS', () => '이메일 확인 중...')
-              .with({errorMessage: Pattern.string}, error => error.errorMessage)
-              .exhaustive()
-          }
+          caption={match(state.email)
+            .with(undefined, () => '뉴스레터, 공지 등을 전달받아요.')
+            .with('VALID', () => '사용 가능한 이메일입니다.')
+            .with('PROGRESS', () => '이메일 확인 중...')
+            .with({errorMessage: Pattern.string}, error => error.errorMessage)
+            .exhaustive()}
           value={value.email}
           onChangeText={onChangeText}
           onFocus={() => setIsFocused(true)}

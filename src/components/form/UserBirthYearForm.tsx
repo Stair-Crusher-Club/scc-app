@@ -2,7 +2,7 @@ import React, {forwardRef} from 'react';
 import {View} from 'react-native';
 import {match, Pattern} from 'ts-pattern';
 
-import SignupInput from '@/screens/SignupScreen/components/SignupInput';
+import SignupBoxInput from '@/screens/SignupScreen/components/SignupBoxInput';
 import {UserFormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
 interface UserBirthYearFormProps {
@@ -22,7 +22,7 @@ const UserBirthYearForm = forwardRef<
 >(({value, state, onChangeText, onSubmitEditing}, _ref) => {
   return (
     <View style={{paddingHorizontal: 20}}>
-      <SignupInput
+      <SignupBoxInput
         label="출생년도"
         isRequired
         placeholder="출생년도를 입력해주세요"
@@ -30,14 +30,12 @@ const UserBirthYearForm = forwardRef<
         keyboardType="number-pad"
         maxLength={4}
         state={state}
-        getLabel={() =>
-          match(state)
-            .with(undefined, () => '숫자로만 4자리 입력해주세요.')
-            .with('VALID', () => undefined)
-            .with('PROGRESS', () => undefined)
-            .with({errorMessage: Pattern.string}, error => error.errorMessage)
-            .exhaustive()
-        }
+        caption={match(state)
+          .with(undefined, () => '숫자로만 4자리 입력해주세요.')
+          .with('VALID', () => undefined)
+          .with('PROGRESS', () => undefined)
+          .with({errorMessage: Pattern.string}, error => error.errorMessage)
+          .exhaustive()}
         value={value}
         onChangeText={text => {
           const numbersOnly = text.replace(/[^0-9]/g, '');

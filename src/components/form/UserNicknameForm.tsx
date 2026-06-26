@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import {match, Pattern} from 'ts-pattern';
 
-import SignupInput from '@/screens/SignupScreen/components/SignupInput';
+import SignupBoxInput from '@/screens/SignupScreen/components/SignupBoxInput';
 import {UserFormState} from '@/screens/SignupScreen/hooks/useUpdateUser';
 
 interface UserNicknameFormProps {
@@ -26,23 +26,18 @@ const UserNicknameForm = forwardRef<TextInput, UserNicknameFormProps>(
   ) => {
     return (
       <View style={{paddingHorizontal: 20}}>
-        <SignupInput
+        <SignupBoxInput
           ref={ref}
           label="닉네임"
           placeholder="닉네임을 입력해주세요"
           returnKeyType="next"
           state={state}
-          getLabel={() =>
-            match(state)
-              .with(
-                undefined,
-                () => '닉네임은 영어, 한글, 숫자만 사용 가능해요.',
-              )
-              .with('VALID', () => '사용 가능한 닉네임입니다.')
-              .with('PROGRESS', () => '닉네임 확인 중...')
-              .with({errorMessage: Pattern.string}, error => error.errorMessage)
-              .exhaustive()
-          }
+          caption={match(state)
+            .with(undefined, () => '닉네임은 영어, 한글, 숫자만 사용 가능해요.')
+            .with('VALID', () => '사용 가능한 닉네임입니다.')
+            .with('PROGRESS', () => '닉네임 확인 중...')
+            .with({errorMessage: Pattern.string}, error => error.errorMessage)
+            .exhaustive()}
           value={value}
           onChangeText={onChangeText}
           onBlur={
