@@ -175,10 +175,6 @@ export default function UserPhoneForm({
   const isCodeValid = verificationCode.length >= 4;
   const isTimerExpired = timeRemaining === 0;
 
-  // 버튼 텍스트
-  const requestButtonText =
-    step === 'INPUT_PHONE' ? '인증번호 받기' : '다시받기';
-
   // 전화번호 입력 상태
   const phoneInputState: UnderlineInputState =
     step === 'INPUT_CODE' ? 'VALID' : undefined;
@@ -219,15 +215,24 @@ export default function UserPhoneForm({
             state={phoneInputState}
           />
         </InputFlexWrapper>
-        <RequestButton
-          elementName="phone_verification_request"
-          onPress={handleRequestCode}
-          disabled={!isPhoneValid || isRequesting}
-          isActive={isPhoneValid && !isRequesting}>
-          <RequestButtonText isActive={isPhoneValid && !isRequesting}>
-            {isRequesting ? '발송중...' : requestButtonText}
-          </RequestButtonText>
-        </RequestButton>
+        {step === 'INPUT_PHONE' ? (
+          <RequestButton
+            elementName="phone_verification_request"
+            onPress={handleRequestCode}
+            disabled={!isPhoneValid || isRequesting}
+            isActive={isPhoneValid && !isRequesting}>
+            <RequestButtonText isActive={isPhoneValid && !isRequesting}>
+              {isRequesting ? '발송중...' : '인증번호 받기'}
+            </RequestButtonText>
+          </RequestButton>
+        ) : (
+          <TextResendButton
+            elementName="phone_verification_resend"
+            onPress={handleRequestCode}
+            disabled={isRequesting}>
+            <TextResendButtonText>인증번호 다시 받기</TextResendButtonText>
+          </TextResendButton>
+        )}
       </InputRow>
 
       {/* 인증번호 입력 (인증번호 요청 후 표시) */}
@@ -335,6 +340,21 @@ const RequestButtonText = styled.Text<{isActive: boolean}>`
   font-size: 14px;
   line-height: 20px;
   color: ${props => (props.isActive ? color.brand40 : color.gray25)};
+`;
+
+const TextResendButton = styled(SccTouchableOpacity)`
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  padding-horizontal: 8px;
+`;
+
+const TextResendButtonText = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  line-height: 20px;
+  color: ${color.brand40};
+  text-decoration-line: underline;
 `;
 
 const VerifyButton = styled(SccTouchableOpacity)<{

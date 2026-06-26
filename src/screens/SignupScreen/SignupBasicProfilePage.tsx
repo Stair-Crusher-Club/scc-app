@@ -1,9 +1,7 @@
 import React, {useRef} from 'react';
 import {Text, TextInput, View} from 'react-native';
 
-import UserBirthYearForm, {
-  UserBirthYearFormRef,
-} from '@/components/form/UserBirthYearForm';
+import UserBirthYearForm from '@/components/form/UserBirthYearForm';
 import UserEmailForm from '@/components/form/UserEmailForm';
 import UserNicknameForm from '@/components/form/UserNicknameForm';
 
@@ -13,15 +11,16 @@ interface SignupFirstPageProps {
   formValue: UserFormValue;
   formState: UserFormState;
   updateField: (field: keyof UserFormValue, value: any) => Promise<void>;
+  initialNickname: string;
 }
 
 export default function SignupBasicPage({
   formValue,
   formState,
   updateField,
+  initialNickname,
 }: SignupFirstPageProps) {
   const emailInputRef = useRef<TextInput>(null);
-  const birthYearRef = useRef<UserBirthYearFormRef>(null);
 
   return (
     <>
@@ -38,7 +37,13 @@ export default function SignupBasicPage({
           value={formValue.nickname}
           state={formState.nickname}
           onChangeText={value => updateField('nickname', value)}
+          onBlur={() => {
+            if (formValue.nickname === '' && initialNickname) {
+              updateField('nickname', initialNickname);
+            }
+          }}
           onSubmitEditing={() => emailInputRef.current?.focus()}
+          isClearable
         />
         <UserEmailForm
           ref={emailInputRef}
@@ -58,7 +63,6 @@ export default function SignupBasicPage({
           onChangeText={value => updateField('email', value)}
         />
         <UserBirthYearForm
-          ref={birthYearRef}
           value={formValue.birthYear}
           state={formState.birthYear}
           onChangeText={value => updateField('birthYear', value)}

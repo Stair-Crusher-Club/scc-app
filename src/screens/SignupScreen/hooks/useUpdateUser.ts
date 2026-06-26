@@ -109,7 +109,14 @@ export function useUpdateUser({
 
   const validateBirthYear = (birthYear: string): string | undefined => {
     if (!birthYear) {
-      return '출생연도를 선택해주세요.';
+      return '출생년도를 입력해주세요.';
+    }
+    if (!/^\d{4}$/.test(birthYear)) {
+      return '숫자로만 4자리 입력해주세요.';
+    }
+    const year = parseInt(birthYear, 10);
+    if (year < 1960 || year > 2026) {
+      return '출생년도는 1960년부터 2026년 사이여야 합니다.';
     }
     return undefined;
   };

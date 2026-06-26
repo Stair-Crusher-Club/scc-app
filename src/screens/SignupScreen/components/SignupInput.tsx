@@ -4,6 +4,7 @@ import {
   ReturnKeyTypeOptions,
   TextInput,
   TextInputFocusEventData,
+  TextInputProps,
 } from 'react-native';
 
 import UnderlineInput, {UnderlineInputState} from '@/components/UnderlineInput';
@@ -16,11 +17,14 @@ interface Props {
   state: FormState | undefined;
   label?: string;
   onChangeText?: (text: string) => void;
+  onFocus?: () => void;
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
   onSubmitEditing?: () => void;
   isClearable?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
+  keyboardType?: TextInputProps['keyboardType'];
+  maxLength?: number;
 }
 
 /**
@@ -36,10 +40,13 @@ const SignupInput = forwardRef<TextInput, Props>(
       state,
       label,
       onChangeText,
+      onFocus,
       onBlur,
       onPress,
       onSubmitEditing,
       returnKeyType,
+      keyboardType,
+      maxLength,
       isClearable = false,
     }: Props,
     ref,
@@ -61,10 +68,13 @@ const SignupInput = forwardRef<TextInput, Props>(
         getCaptionByFocus={getLabel}
         state={convertState()}
         onChangeText={onChangeText}
+        onFocus={onFocus}
         onBlur={onBlur}
         onPress={onPress}
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}
+        keyboardType={keyboardType}
+        maxLength={maxLength}
         isClearable={isClearable}
         containerStyle={{marginBottom: 12}}
       />

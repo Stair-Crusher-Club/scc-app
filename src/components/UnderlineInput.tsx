@@ -33,12 +33,14 @@ interface Props {
   getCaptionByFocus?: (isFocused?: boolean) => string | undefined;
   state?: UnderlineInputState;
   onChangeText?: (text: string) => void;
+  onFocus?: () => void;
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
   onSubmitEditing?: () => void;
   isClearable?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
   keyboardType?: TextInputProps['keyboardType'];
+  maxLength?: number;
   editable?: boolean;
   timer?: string;
   containerStyle?: object;
@@ -54,11 +56,13 @@ const UnderlineInput = forwardRef<TextInput, Props>(
       getCaptionByFocus,
       state,
       onChangeText,
+      onFocus: onFocusProp,
       onBlur,
       onPress,
       onSubmitEditing,
       returnKeyType,
       keyboardType,
+      maxLength,
       editable = true,
       isClearable = false,
       timer,
@@ -76,7 +80,10 @@ const UnderlineInput = forwardRef<TextInput, Props>(
         ? undefined
         : state === 'VALID' || state === 'PROGRESS';
 
-    const handleFocus = () => setIsFocused(true);
+    const handleFocus = () => {
+      setIsFocused(true);
+      onFocusProp?.();
+    };
     const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
       setIsFocused(false);
       onBlur?.(e);
@@ -99,6 +106,7 @@ const UnderlineInput = forwardRef<TextInput, Props>(
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}
         keyboardType={keyboardType}
+        maxLength={maxLength}
         editable={editable && !onPress}
         style={[styles.input, !editable && styles.disabledInput]}
         {...props}

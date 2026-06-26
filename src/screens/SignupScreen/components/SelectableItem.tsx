@@ -8,6 +8,7 @@ import {cn} from '@/utils/cn';
 
 interface SelectableItemProps {
   isSelected: boolean;
+  isDimmed?: boolean;
   onPress: () => void;
   text: string;
   elementName: string;
@@ -15,6 +16,7 @@ interface SelectableItemProps {
 
 export default function SelectableItem({
   isSelected,
+  isDimmed = false,
   onPress,
   text,
   elementName,
@@ -24,6 +26,7 @@ export default function SelectableItem({
       elementName={elementName}
       logParams={{text}}
       onPress={onPress}
+      style={{opacity: isDimmed ? 0.4 : 1}}
       className={cn(
         'flex-row items-center justify-start gap-[8px] p-[16px_12px] rounded-[20px] border-[1px]',
         isSelected

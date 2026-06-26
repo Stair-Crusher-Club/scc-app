@@ -9,6 +9,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccButton} from '@/components/atoms';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
+import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ProgressViewer from '@/screens/SignupScreen/components/ProgressViewer';
 import ToastUtils from '@/utils/ToastUtils';
@@ -29,21 +30,38 @@ export default function SignupScreen({
   route,
   navigation,
 }: ScreenProps<'Signup'>) {
+  const {api} = useAppComponents();
   const setAccessToken = useSetAtom(accessTokenAtom);
   const {setUserInfo} = useMe();
+
+  const [initialNickname, setInitialNickname] = useState<string>('');
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+  useEffect(() => {
+    const fetchInitialNickname = async () => {
+      try {
+        const response = await api.getUserInfoGet({
+          headers: {Authorization: `Bearer ${route.params.token}`},
+        });
+        setInitialNickname(response.data.user.nickname ?? '');
+      } catch {
+        setInitialNickname('');
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+    fetchInitialNickname();
+  }, []);
+
   const {formValue, updateField, formState, submit} = useUpdateUser({
     accessToken: route.params.token,
   });
 
   useEffect(() => {
-    updateField('nickname', '');
-    updateField('email', '');
-    updateField('birthYear', '');
-    updateField('phoneNumber', '');
-    updateField('isPhoneVerified', false);
-    updateField('mobilityTools', []);
-    updateField('isNewsLetterSubscriptionAgreed', false);
-  }, []);
+    if (!isLoadingUser && initialNickname) {
+      updateField('nickname', initialNickname);
+    }
+  }, [isLoadingUser, initialNickname]);
 
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,25 +133,31 @@ export default function SignupScreen({
   const getButtonConfig = () => {
     switch (step) {
       case 1:
+        // step1 = 휴대폰 인증
         return {
           text: '다음',
-          disabled: !isFirstFormValid,
+          disabled: !formValue.isPhoneVerified,
           onPress: () => setStep(2),
           rightLabel: '',
         };
       case 2:
+        // step2 = 기본정보
         return {
           text: '다음',
-          disabled: !formValue.isPhoneVerified,
+          disabled: !isFirstFormValid,
           onPress: () => setStep(3),
           rightLabel: '',
         };
       case 3:
+        // step3 = 이동유형
         return {
           text: '가입하기',
-          disabled: isSubmitting,
+          disabled: isSubmitting || formValue.mobilityTools.length === 0,
           onPress: signup,
-          rightLabel: `${formValue.mobilityTools.length} 개`,
+          rightLabel:
+            formValue.mobilityTools.length > 0
+              ? `${formValue.mobilityTools.length} 개`
+              : '',
         };
       default:
         return {
@@ -150,14 +174,7 @@ export default function SignupScreen({
   const renderPage = () => {
     switch (step) {
       case 1:
-        return (
-          <SignupBasicPage
-            formValue={formValue}
-            formState={formState}
-            updateField={updateField}
-          />
-        );
-      case 2:
+        // step1 = 휴대폰 인증
         return (
           <SignupPhonePage
             formValue={formValue}
@@ -166,7 +183,18 @@ export default function SignupScreen({
             accessToken={route.params.token}
           />
         );
+      case 2:
+        // step2 = 기본정보
+        return (
+          <SignupBasicPage
+            formValue={formValue}
+            formState={formState}
+            updateField={updateField}
+            initialNickname={initialNickname}
+          />
+        );
       case 3:
+        // step3 = 이동유형
         return (
           <SignupMobilityToolPage
             formValue={formValue}
