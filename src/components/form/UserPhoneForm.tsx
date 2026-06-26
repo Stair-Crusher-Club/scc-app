@@ -18,6 +18,9 @@ interface UserPhoneFormProps {
   phoneNumber: string;
   onPhoneNumberChange: (value: string) => void;
   onVerificationComplete: () => void;
+  onCodeInputStepChange?: (isCodeInputStep: boolean) => void;
+  onVerifyActiveChange?: (isActive: boolean) => void;
+  onVerifyRequest?: (handler: () => void) => void;
   accessToken?: string;
 }
 
@@ -27,6 +30,9 @@ export default function UserPhoneForm({
   phoneNumber,
   onPhoneNumberChange,
   onVerificationComplete,
+  onCodeInputStepChange,
+  onVerifyActiveChange,
+  onVerifyRequest,
   accessToken,
 }: UserPhoneFormProps) {
   const {api} = useAppComponents();
@@ -174,6 +180,11 @@ export default function UserPhoneForm({
   const isCodeValid = verificationCode.length >= 4;
   const isTimerExpired = timeRemaining === 0;
 
+  // step 변경 알림
+  useEffect(() => {
+    onCodeInputStepChange?.(step === 'INPUT_CODE');
+  }, [step, onCodeInputStepChange]);
+
   // 전화번호 입력 상태 (인증번호 전송 후 → VALID로 표시)
   const phoneInputState: FormState | undefined =
     step === 'INPUT_CODE' ? 'VALID' : undefined;
@@ -213,6 +224,16 @@ export default function UserPhoneForm({
     !isTimerExpired &&
     verificationStatus !== 'VERIFYING' &&
     verificationStatus !== 'SUCCESS';
+
+  // 인증 버튼 활성 상태 알림
+  useEffect(() => {
+    onVerifyActiveChange?.(isVerifyButtonActive);
+  }, [isVerifyButtonActive, onVerifyActiveChange]);
+
+  // 인증번호 확인 핸들러 등록
+  useEffect(() => {
+    onVerifyRequest?.(handleVerifyCode);
+  }, [handleVerifyCode, onVerifyRequest]);
 
   return (
     <Container>
@@ -265,17 +286,6 @@ export default function UserPhoneForm({
             caption={getCodeCaption()}
             captionColor={getCodeCaptionColor()}
           />
-
-          {/* 인증번호 확인 — 풀폭 버튼 */}
-          <ActionButton
-            elementName="phone_verification_confirm"
-            onPress={handleVerifyCode}
-            disabled={!isVerifyButtonActive}
-            isActive={isVerifyButtonActive}>
-            <ActionButtonText isActive={isVerifyButtonActive}>
-              인증번호 확인
-            </ActionButtonText>
-          </ActionButton>
         </CodeSection>
       )}
 

@@ -67,6 +67,36 @@ export default function SignupScreen({
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // __DEV__ only: expose step setter globally for E2E testing
+  React.useEffect(() => {
+    if (__DEV__) {
+      (globalThis as any).__signupSetStep = setStep;
+      (globalThis as any).__signupSetPhoneVerified = () =>
+        updateField('isPhoneVerified', true);
+    }
+    return () => {
+      if (__DEV__) {
+        delete (globalThis as any).__signupSetStep;
+        delete (globalThis as any).__signupSetPhoneVerified;
+      }
+    };
+  }, [updateField]);
+
+  // step1 휴대폰 인증 상태 — UserPhoneForm에서 올라옴
+  const [isCodeInputStep, setIsCodeInputStep] = useState(false);
+  const [isVerifyButtonActive, setIsVerifyButtonActive] = useState(false);
+  const verifyHandlerRef = React.useRef<(() => void) | null>(null);
+  // 인증 완료 후 자동 전환을 한 번만 수행하기 위한 플래그
+  const hasAutoAdvancedRef = React.useRef(false);
+
+  // 인증 완료되면 step2로 자동 전환 (최초 1회만 — 뒤로가기 시 재발동 방지)
+  useEffect(() => {
+    if (formValue.isPhoneVerified && step === 1 && !hasAutoAdvancedRef.current) {
+      hasAutoAdvancedRef.current = true;
+      setStep(2);
+    }
+  }, [formValue.isPhoneVerified, step]);
+
   const progress = Math.round((step / TOTAL_STEPS) * 100);
 
   const isFirstFormValid =
@@ -135,11 +165,22 @@ export default function SignupScreen({
     switch (step) {
       case 1:
         // step1 = 휴대폰 인증
+        if (isCodeInputStep) {
+          // 인증번호 입력 단계: 하단 버튼 = 인증번호 확인
+          return {
+            text: '인증번호 확인',
+            disabled: !isVerifyButtonActive,
+            onPress: () => verifyHandlerRef.current?.(),
+            rightLabel: '',
+          };
+        }
+        // 전화번호 입력 단계: 버튼 숨김(아직 인증 시작 전)
         return {
-          text: '다음',
-          disabled: !formValue.isPhoneVerified,
-          onPress: () => setStep(2),
+          text: '',
+          disabled: true,
+          onPress: () => {},
           rightLabel: '',
+          hidden: true,
         };
       case 2:
         // step2 = 기본정보
@@ -170,7 +211,9 @@ export default function SignupScreen({
     }
   };
 
-  const buttonConfig = getButtonConfig();
+  const buttonConfig = getButtonConfig() as ReturnType<
+    typeof getButtonConfig
+  > & {hidden?: boolean};
 
   const renderPage = () => {
     switch (step) {
@@ -182,6 +225,11 @@ export default function SignupScreen({
             formState={formState}
             updateField={updateField}
             accessToken={route.params.token}
+            onCodeInputStepChange={setIsCodeInputStep}
+            onVerifyActiveChange={setIsVerifyButtonActive}
+            onVerifyRequest={handler => {
+              verifyHandlerRef.current = handler;
+            }}
           />
         );
       case 2:
@@ -218,19 +266,21 @@ export default function SignupScreen({
           <ProgressViewer progress={progress} />
         </View>
         <ScrollView className="bg-white">{renderPage()}</ScrollView>
-        <View className="w-full px-[20px] py-[10px] bg-white">
-          <SccButton
-            onPress={buttonConfig.onPress}
-            buttonColor="blue50"
-            borderColor="blue50"
-            textColor="white"
-            fontFamily={font.pretendardBold}
-            text={buttonConfig.text}
-            isDisabled={buttonConfig.disabled}
-            rightLabel={buttonConfig.rightLabel}
-            elementName="signup_submit"
-          />
-        </View>
+        {!buttonConfig.hidden && (
+          <View className="w-full px-[20px] py-[10px] bg-white">
+            <SccButton
+              onPress={buttonConfig.onPress}
+              buttonColor="blue50"
+              borderColor="blue50"
+              textColor="white"
+              fontFamily={font.pretendardBold}
+              text={buttonConfig.text}
+              isDisabled={buttonConfig.disabled}
+              rightLabel={buttonConfig.rightLabel}
+              elementName="signup_submit"
+            />
+          </View>
+        )}
       </View>
     </ScreenLayout>
   );
