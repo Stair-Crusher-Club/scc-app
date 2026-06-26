@@ -55,6 +55,7 @@ export default function SignupScreen({
 
   const {formValue, updateField, formState, submit} = useUpdateUser({
     accessToken: route.params.token,
+    enforceBirthYearRange: true,
   });
 
   useEffect(() => {

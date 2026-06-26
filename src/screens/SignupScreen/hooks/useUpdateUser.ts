@@ -22,9 +22,11 @@ export type FormState = 'VALID' | 'PROGRESS' | {errorMessage: string};
 export function useUpdateUser({
   initialValues,
   accessToken,
+  enforceBirthYearRange = false,
 }: {
   initialValues?: UserFormValue;
   accessToken?: string; // 회원가입 시나리오에서는 로컬에 access token 을 저장하지 않는다. 따라서 회원가입 시나리오에서는 이 값을 넘겨준다.
+  enforceBirthYearRange?: boolean; // 회원가입에서만 true — 1960~2026 범위 강제. 프로필 편집은 기존 동작 유지.
 }) {
   const {api} = useAppComponents();
   const initialFormValues = initialValues ?? {
@@ -114,9 +116,11 @@ export function useUpdateUser({
     if (!/^\d{4}$/.test(birthYear)) {
       return '숫자로만 4자리 입력해주세요.';
     }
-    const year = parseInt(birthYear, 10);
-    if (year < 1960 || year > 2026) {
-      return '출생년도는 1960년부터 2026년 사이여야 합니다.';
+    if (enforceBirthYearRange) {
+      const year = parseInt(birthYear, 10);
+      if (year < 1960 || year > 2026) {
+        return '출생년도는 1960년부터 2026년 사이여야 합니다.';
+      }
     }
     return undefined;
   };
