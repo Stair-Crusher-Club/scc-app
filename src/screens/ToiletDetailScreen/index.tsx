@@ -3,7 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import React, {useState} from 'react';
-import {Linking, SafeAreaView, ScrollView} from 'react-native';
+import {SafeAreaView, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -331,13 +331,7 @@ const ToiletPublicDetailSections = ({
             <SubSection>
               <SubSectionLabel>전화번호</SubSectionLabel>
               <PhoneRow>
-                <SccTouchableOpacity
-                  elementName="toilet_detail_phone_call"
-                  onPress={() =>
-                    Linking.openURL(`tel:${toiletDetails.phoneNumber}`)
-                  }>
-                  <PhoneNumberText>{toiletDetails.phoneNumber}</PhoneNumberText>
-                </SccTouchableOpacity>
+                <PhoneNumberText>{toiletDetails.phoneNumber}</PhoneNumberText>
                 <CopyButton
                   elementName="toilet_detail_phone_copy"
                   onPress={() => {
@@ -505,36 +499,20 @@ function AppBar() {
     <AppBarContainer>
       <SccPressable
         elementName="toilet_detail_back_button"
-        hitSlop={2}
+        hitSlop={10}
         onPress={() => navigation.goBack()}>
-        <BackButton>
-          <LeftArrowIcon width={24} height={24} color={color.black} />
-        </BackButton>
+        <LeftArrowIcon width={24} height={24} color={color.black} />
       </SccPressable>
     </AppBarContainer>
   );
 }
 
 const AppBarContainer = styled(SafeAreaView)`
-  position: absolute;
-  top: 0px;
-  z-index: 999;
-  width: 100%;
   flex-direction: row;
-  margin-top: 13px;
-  margin-left: 20px;
   align-items: center;
-  padding: 10px 8px;
+  padding: 10px 20px;
+  background-color: ${color.white};
 `;
-
-const BackButton = styled.View({
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  backgroundColor: 'white',
-});
 
 const ErrorContainer = styled.View`
   flex: 1;
@@ -636,8 +614,7 @@ const PhoneNumberText = styled.Text`
   font-size: 20px;
   line-height: 32px;
   font-family: ${() => font.pretendardBold};
-  color: ${color.brand50};
-  text-decoration-line: underline;
+  color: ${color.black};
 `;
 
 const SubSectionDescription = styled.Text`
