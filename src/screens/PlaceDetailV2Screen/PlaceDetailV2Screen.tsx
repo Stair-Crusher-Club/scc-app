@@ -43,6 +43,7 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import {useLogger} from '@/logging/useLogger';
 import ShareUtils from '@/utils/ShareUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
+import {showAppInstallPrompt} from '@/utils/appInstallPrompt';
 import {distanceInMeter} from '@/utils/DistanceUtils';
 
 import ToastUtils from '@/utils/ToastUtils';
@@ -547,15 +548,24 @@ export default function PlaceDetailV2Screen({
     );
   }, [checkAuth, navigation, navigateWithLocationCheck, place]);
 
-  // 웹은 정보 등록이 앱 전용이라 4지선다 바텀시트가 무의미 — 버튼 클릭 시
-  // 바로 로그인/앱 설치 방어(checkAuth)를 태운다. 네이티브는 기존대로 바텀시트.
+  // 정보 등록 버튼: 모든 guard를 버튼 클릭 시점에 먼저 통과시키고, 다 만족돼야
+  // 4지선다 바텀시트를 연다.
+  //   1) auth guard — checkAuth: 비회원이면 로그인 유도(웹 팝업 / 네이티브 로그인)
+  //   2) app guard  — 웹은 정보 등록(카메라)이 앱 전용이라 앱 설치 유도 팝업을 바로 띄우고 멈춘다
+  //   3) 모든 guard 통과(현재는 네이티브만 해당) → 바텀시트
   const handlePressRegister = useCallback(() => {
-    if (Platform.OS === 'web') {
-      handlePlaceRegister();
-      return;
-    }
-    setShowRegistrationSheet(true);
-  }, [handlePlaceRegister]);
+    checkAuth(
+      () => {
+        if (Platform.OS === 'web') {
+          showAppInstallPrompt('이 기능은 앱에서만 이용할 수 있어요');
+          return;
+        }
+        setShowRegistrationSheet(true);
+      },
+      undefined,
+      '앱에서 접근성 정보를 등록해보세요',
+    );
+  }, [checkAuth]);
 
   // Scroll-dependent AppBar title
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
