@@ -12,6 +12,7 @@ interface SignupPhonePageProps {
   accessToken?: string;
   onCodeInputStepChange?: (isCodeInputStep: boolean) => void;
   onVerifyActiveChange?: (isActive: boolean) => void;
+  onVerifyReset?: () => void;
   onVerifyRequest?: (handler: () => void) => void;
 }
 
@@ -21,6 +22,7 @@ export default function SignupPhonePage({
   accessToken,
   onCodeInputStepChange,
   onVerifyActiveChange,
+  onVerifyReset,
   onVerifyRequest,
 }: SignupPhonePageProps) {
   const handlePhoneNumberChange = useCallback(
@@ -51,6 +53,7 @@ export default function SignupPhonePage({
           onVerificationComplete={handleVerificationComplete}
           onCodeInputStepChange={onCodeInputStepChange}
           onVerifyActiveChange={onVerifyActiveChange}
+          onVerifyReset={onVerifyReset}
           onVerifyRequest={onVerifyRequest}
           accessToken={accessToken}
         />

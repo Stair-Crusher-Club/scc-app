@@ -18,6 +18,7 @@ interface UserPhoneFormProps {
   phoneNumber: string;
   onPhoneNumberChange: (value: string) => void;
   onVerificationComplete: () => void;
+  onVerifyReset?: () => void;
   onCodeInputStepChange?: (isCodeInputStep: boolean) => void;
   onVerifyActiveChange?: (isActive: boolean) => void;
   onVerifyRequest?: (handler: () => void) => void;
@@ -30,6 +31,7 @@ export default function UserPhoneForm({
   phoneNumber,
   onPhoneNumberChange,
   onVerificationComplete,
+  onVerifyReset,
   onCodeInputStepChange,
   onVerifyActiveChange,
   onVerifyRequest,
@@ -89,7 +91,7 @@ export default function UserPhoneForm({
     }
   }, [timeRemaining]);
 
-  // 전화번호 입력 (숫자만). 인증번호 요청 후 번호를 수정하면 인증 단계를 초기화한다.
+  // 전화번호 입력 (숫자만). 인증번호 요청/완료 후 번호를 수정하면 인증을 처음부터 초기화한다.
   const handlePhoneNumberChange = useCallback(
     (text: string) => {
       const numbersOnly = text.replace(/[^0-9]/g, '');
@@ -102,9 +104,11 @@ export default function UserPhoneForm({
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
+        // 이미 인증 완료된 번호를 수정한 경우 → 부모의 인증 완료 플래그도 해제
+        onVerifyReset?.();
       }
     },
-    [onPhoneNumberChange, step],
+    [onPhoneNumberChange, step, onVerifyReset],
   );
 
   // 인증번호 입력 (숫자만)
@@ -290,7 +294,11 @@ export default function UserPhoneForm({
               verificationStatus !== 'VERIFYING'
             }
             state={codeInputState}
-            timer={formatTime(timeRemaining)}
+            timer={
+              verificationStatus === 'SUCCESS'
+                ? undefined
+                : formatTime(timeRemaining)
+            }
             caption={getCodeCaption()}
             captionColor={getCodeCaptionColor()}
           />

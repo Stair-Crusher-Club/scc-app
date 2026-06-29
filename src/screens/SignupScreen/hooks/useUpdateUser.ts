@@ -118,8 +118,8 @@ export function useUpdateUser({
     }
     if (enforceBirthYearRange) {
       const year = parseInt(birthYear, 10);
-      if (year < 1960 || year > 2026) {
-        return '출생년도는 1960년부터 2026년 사이여야 합니다.';
+      if (year < 1900 || year > 2026) {
+        return '출생년도는 1900년부터 2026년 사이여야 합니다.';
       }
     }
     return undefined;

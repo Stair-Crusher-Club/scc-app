@@ -212,45 +212,40 @@ export default function SignupScreen({
     typeof getButtonConfig
   > & {hidden?: boolean};
 
-  const renderPage = () => {
-    switch (step) {
-      case 1:
-        // step1 = 휴대폰 인증
-        return (
-          <SignupPhonePage
-            formValue={formValue}
-            formState={formState}
-            updateField={updateField}
-            accessToken={route.params.token}
-            onCodeInputStepChange={setIsCodeInputStep}
-            onVerifyActiveChange={setIsVerifyButtonActive}
-            onVerifyRequest={handler => {
-              verifyHandlerRef.current = handler;
-            }}
-          />
-        );
-      case 2:
-        // step2 = 기본정보
-        return (
-          <SignupBasicPage
-            formValue={formValue}
-            formState={formState}
-            updateField={updateField}
-          />
-        );
-      case 3:
-        // step3 = 이동유형
-        return (
-          <SignupMobilityToolPage
-            formValue={formValue}
-            updateField={updateField}
-            onSubmit={signup}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
+  // → step2/3로 갔다가 돌아와도 인증 완료 UI 상태(인증번호 입력/성공)가 그대로 보존된다.
+  const renderPages = () => (
+    <>
+      <View style={{display: step === 1 ? 'flex' : 'none'}}>
+        <SignupPhonePage
+          formValue={formValue}
+          formState={formState}
+          updateField={updateField}
+          accessToken={route.params.token}
+          onCodeInputStepChange={setIsCodeInputStep}
+          onVerifyActiveChange={setIsVerifyButtonActive}
+          onVerifyReset={() => updateField('isPhoneVerified', false)}
+          onVerifyRequest={handler => {
+            verifyHandlerRef.current = handler;
+          }}
+        />
+      </View>
+      {step === 2 && (
+        <SignupBasicPage
+          formValue={formValue}
+          formState={formState}
+          updateField={updateField}
+        />
+      )}
+      {step === 3 && (
+        <SignupMobilityToolPage
+          formValue={formValue}
+          updateField={updateField}
+          onSubmit={signup}
+        />
+      )}
+    </>
+  );
 
   return (
     <ScreenLayout
@@ -261,7 +256,7 @@ export default function SignupScreen({
         <View className="px-[20px]">
           <ProgressViewer progress={progress} />
         </View>
-        <ScrollView className="bg-white">{renderPage()}</ScrollView>
+        <ScrollView className="bg-white">{renderPages()}</ScrollView>
         {!buttonConfig.hidden && (
           <View className="w-full px-[20px] py-[10px] bg-white">
             <SccButton

@@ -29,7 +29,7 @@ export default function SignupMobilityToolPage({
           맞춤 정보 제공 및 탐색을 위해 필요한 정보입니다.
         </Text>
       </View>
-      <View className="mt-[24px]">
+      <View className="mt-[36px]">
         <UserMobilityToolsForm
           value={formValue.mobilityTools}
           onChangeValue={value => updateField('mobilityTools', value)}

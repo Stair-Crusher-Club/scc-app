@@ -1,12 +1,22 @@
 import React from 'react';
+import {Dimensions} from 'react-native';
 import styled from 'styled-components/native';
 
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
 import {
   MOBILITY_TOOL_GROUPS,
   MOBILITY_TOOL_LABELS,
 } from '@/constant/mobilityTool';
 import {UserMobilityToolDto} from '@/generated-sources/openapi';
 import SelectableItem from '@/screens/SignupScreen/components/SelectableItem';
+
+// Figma: 2열 그리드. 좌우 패딩 20, 아이템 간격 8px → 절반 너비 = (width - 40 - 8) / 2
+const H_PADDING = 20;
+const ITEM_GAP = 8;
+const HALF_WIDTH = Math.floor(
+  (Dimensions.get('window').width - H_PADDING * 2 - ITEM_GAP) / 2,
+);
 
 interface UserMobilityToolsFormProps {
   value: UserMobilityToolDto[];
@@ -60,7 +70,9 @@ export default function UserMobilityToolsForm({
                 : value.includes(option.value);
               const isDimmed = isNoneSelected && !isNone;
               return (
-                <GridItem key={option.value}>
+                <GridItem
+                  key={option.value}
+                  style={{width: option.fullWidth ? '100%' : HALF_WIDTH}}>
                   <SelectableItem
                     isSelected={isSelected}
                     isDimmed={isDimmed}
@@ -81,17 +93,19 @@ export default function UserMobilityToolsForm({
 const Container = styled.View`
   padding-horizontal: 20px;
   padding-bottom: 20px;
-  gap: 24px;
+  gap: 36px;
 `;
 
 const GroupContainer = styled.View`
-  gap: 12px;
+  gap: 8px;
 `;
 
 const GroupLabel = styled.Text`
-  font-size: 14px;
-  font-weight: 600;
-  color: #666;
+  font-family: ${font.pretendardSemibold};
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+  color: ${color.gray80v2};
 `;
 
 const GridRow = styled.View`
@@ -100,6 +114,4 @@ const GridRow = styled.View`
   gap: 8px;
 `;
 
-const GridItem = styled.View`
-  width: 48%;
-`;
+const GridItem = styled.View``;

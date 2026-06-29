@@ -32,7 +32,7 @@ const UserBirthYearForm = forwardRef<
         state={state}
         caption={match(state)
           .with({errorMessage: Pattern.string}, error => error.errorMessage)
-          .otherwise(() => '숫자로만 4자리 입력해주세요.')}
+          .otherwise(() => undefined)}
         value={value}
         onChangeText={text => {
           const numbersOnly = text.replace(/[^0-9]/g, '');

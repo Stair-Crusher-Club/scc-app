@@ -32,16 +32,21 @@ export default function ProgressViewer({progress}: {progress: number}) {
     }).start();
   }, [animatedValue, progress]);
 
+  // 100%일 때 캐릭터는 깃발(우측 고정) 바로 왼쪽에 "도달"한 모습이어야 한다.
+  // 깃발 중심이 trackWidth에 있으므로, 채움/캐릭터를 깃발 폭만큼 앞에서 멈춰야
+  // 캐릭터가 깃발을 덮거나 화면 밖으로 잘리지 않고 깃발이 그 오른쪽에 또렷이 보인다.
+  const fillMax = trackWidth - GOAL_ICON_WIDTH;
+
   // MoveIcon x position: follows the fill right edge, offset by half icon width
   const moveIconX = animatedValue.interpolate({
     inputRange: [0, 100],
-    outputRange: [-(MOVE_ICON_SIZE / 2), trackWidth - MOVE_ICON_SIZE / 2],
+    outputRange: [-(MOVE_ICON_SIZE / 2), fillMax - MOVE_ICON_SIZE / 2],
   });
 
   // Fill width as absolute pixels (not %)
   const fillWidth = animatedValue.interpolate({
     inputRange: [0, 100],
-    outputRange: [0, trackWidth],
+    outputRange: [0, fillMax],
   });
 
   const onTrackLayout = (e: LayoutChangeEvent) => {

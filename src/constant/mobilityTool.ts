@@ -22,9 +22,15 @@ export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolDto, string> = {
   [UserMobilityToolDto.FriendOfToolUser]: '이동약자의 친구/가족/동료',
 };
 
+export interface MobilityToolOption {
+  value: UserMobilityToolDto;
+  label: string;
+  fullWidth?: boolean;
+}
+
 export interface MobilityToolGroup {
   groupLabel: string;
-  options: {value: UserMobilityToolDto; label: string}[];
+  options: MobilityToolOption[];
 }
 
 export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
@@ -52,6 +58,7 @@ export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
         value: UserMobilityToolDto.WheelchairUserCompanion,
         label:
           MOBILITY_TOOL_LABELS[UserMobilityToolDto.WheelchairUserCompanion],
+        fullWidth: true,
       },
     ],
   },
@@ -94,6 +101,7 @@ export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
       {
         value: UserMobilityToolDto.WalkingDifficulty,
         label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.WalkingDifficulty],
+        fullWidth: true,
       },
     ],
   },
