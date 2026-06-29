@@ -1,10 +1,22 @@
-import React, {useRef, useState} from 'react';
-import {View} from 'react-native';
+import React from 'react';
+import {Dimensions} from 'react-native';
+import styled from 'styled-components/native';
 
-import {MOBILITY_TOOL_OPTIONS} from '@/constant/mobilityTool';
+import {color} from '@/constant/color';
+import {font} from '@/constant/font';
+import {
+  MOBILITY_TOOL_GROUPS,
+  MOBILITY_TOOL_LABELS,
+} from '@/constant/mobilityTool';
 import {UserMobilityToolDto} from '@/generated-sources/openapi';
-import AskBottomSheet from '@/screens/SignupScreen/components/AskBottomSheet';
 import SelectableItem from '@/screens/SignupScreen/components/SelectableItem';
+
+// Figma: 2열 그리드. 좌우 패딩 20, 아이템 간격 8px → 절반 너비 = (width - 40 - 8) / 2
+const H_PADDING = 20;
+const ITEM_GAP = 8;
+const HALF_WIDTH = Math.floor(
+  (Dimensions.get('window').width - H_PADDING * 2 - ITEM_GAP) / 2,
+);
 
 interface UserMobilityToolsFormProps {
   value: UserMobilityToolDto[];
@@ -12,90 +24,94 @@ interface UserMobilityToolsFormProps {
   onSubmit?: () => void;
 }
 
-const isNotUsingMobilityTool = (
-  value: UserMobilityToolDto[] | UserMobilityToolDto,
-) =>
-  Array.isArray(value)
-    ? value.length === 1 &&
-      (value[0] === UserMobilityToolDto.None ||
-        value[0] === UserMobilityToolDto.FriendOfToolUser)
-    : value === UserMobilityToolDto.None ||
-      value === UserMobilityToolDto.FriendOfToolUser;
-
 export default function UserMobilityToolsForm({
   value,
   onChangeValue,
-  onSubmit,
 }: UserMobilityToolsFormProps) {
-  const [isAskBottomSheetVisible, setIsAskBottomSheetVisible] = useState(false);
-  const prevValueRef = useRef<UserMobilityToolDto[]>([]);
+  const isNoneSelected =
+    value.length === 1 && value[0] === UserMobilityToolDto.None;
+
+  const handlePress = (pressed: UserMobilityToolDto) => {
+    if (pressed === UserMobilityToolDto.None) {
+      if (isNoneSelected) {
+        onChangeValue([]);
+      } else {
+        onChangeValue([UserMobilityToolDto.None]);
+      }
+      return;
+    }
+
+    if (isNoneSelected) {
+      onChangeValue([pressed]);
+      return;
+    }
+
+    if (value.includes(pressed)) {
+      onChangeValue(value.filter(tool => tool !== pressed));
+    } else {
+      onChangeValue([...value, pressed]);
+    }
+  };
+
+  const getLabel = (tool: UserMobilityToolDto): string => {
+    return MOBILITY_TOOL_LABELS[tool] ?? tool;
+  };
 
   return (
-    <>
-      <View
-        style={{
-          paddingHorizontal: 20,
-          flexDirection: 'column',
-          gap: 12,
-          marginBottom: 12,
-        }}>
-        {MOBILITY_TOOL_OPTIONS.map(option => (
-          <SelectableItem
-            key={option.value}
-            isSelected={
-              isNotUsingMobilityTool(option.value)
-                ? isNotUsingMobilityTool(value)
-                : value.includes(option.value)
-            }
-            onPress={() => {
-              const prev = value;
-              const pressed = option.value;
-              if (
-                isNotUsingMobilityTool(prev) &&
-                !isNotUsingMobilityTool(pressed)
-              ) {
-                onChangeValue([pressed]);
-                return;
-              }
-
-              if (
-                !isNotUsingMobilityTool(prev) &&
-                isNotUsingMobilityTool(pressed)
-              ) {
-                prevValueRef.current = prev;
-                setIsAskBottomSheetVisible(true);
-                onChangeValue([UserMobilityToolDto.None]);
-                return;
-              }
-
-              if (value.includes(option.value)) {
-                onChangeValue(value.filter(tool => tool !== option.value));
-              } else {
-                onChangeValue([...value, option.value]);
-              }
-            }}
-            text={option.label}
-            elementName="user_mobility_tool_option"
-          />
-        ))}
-      </View>
-
-      <AskBottomSheet
-        isVisible={isAskBottomSheetVisible}
-        onClose={isAgree => {
-          setIsAskBottomSheetVisible(false);
-          onChangeValue([
-            isAgree
-              ? UserMobilityToolDto.FriendOfToolUser
-              : UserMobilityToolDto.None,
-          ]);
-          onSubmit?.();
-        }}
-        onDismiss={() => {
-          setIsAskBottomSheetVisible(false);
-          onChangeValue(prevValueRef.current);
-        }}
-      />
-    </>
+    <Container>
+      {MOBILITY_TOOL_GROUPS.map(group => (
+        <GroupContainer key={group.groupLabel}>
+          <GroupLabel>{group.groupLabel}</GroupLabel>
+          <GridRow>
+            {group.options.map(option => {
+              const isNone = option.value === UserMobilityToolDto.None;
+              const isSelected = isNone
+                ? isNoneSelected
+                : value.includes(option.value);
+              const isDimmed = isNoneSelected && !isNone;
+              return (
+                <GridItem
+                  key={option.value}
+                  style={{width: option.fullWidth ? '100%' : HALF_WIDTH}}>
+                  <SelectableItem
+                    isSelected={isSelected}
+                    isDimmed={isDimmed}
+                    onPress={() => handlePress(option.value)}
+                    text={getLabel(option.value)}
+                    elementName="user_mobility_tool_option"
+                  />
+                </GridItem>
+              );
+            })}
+          </GridRow>
+        </GroupContainer>
+      ))}
+    </Container>
   );
 }
+
+const Container = styled.View`
+  padding-horizontal: 20px;
+  padding-bottom: 20px;
+  gap: 36px;
+`;
+
+const GroupContainer = styled.View`
+  gap: 8px;
+`;
+
+const GroupLabel = styled.Text`
+  font-family: ${font.pretendardSemibold};
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+  color: ${color.gray80v2};
+`;
+
+const GridRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const GridItem = styled.View``;

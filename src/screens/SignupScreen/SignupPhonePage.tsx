@@ -10,12 +10,20 @@ interface SignupPhonePageProps {
   formState: UserFormState;
   updateField: (field: keyof UserFormValue, value: any) => Promise<void>;
   accessToken?: string;
+  onCodeInputStepChange?: (isCodeInputStep: boolean) => void;
+  onVerifyActiveChange?: (isActive: boolean) => void;
+  onVerifyReset?: () => void;
+  onVerifyRequest?: (handler: () => void) => void;
 }
 
 export default function SignupPhonePage({
   formValue,
   updateField,
   accessToken,
+  onCodeInputStepChange,
+  onVerifyActiveChange,
+  onVerifyReset,
+  onVerifyRequest,
 }: SignupPhonePageProps) {
   const handlePhoneNumberChange = useCallback(
     (value: string) => {
@@ -43,6 +51,10 @@ export default function SignupPhonePage({
           phoneNumber={formValue.phoneNumber}
           onPhoneNumberChange={handlePhoneNumberChange}
           onVerificationComplete={handleVerificationComplete}
+          onCodeInputStepChange={onCodeInputStepChange}
+          onVerifyActiveChange={onVerifyActiveChange}
+          onVerifyReset={onVerifyReset}
+          onVerifyRequest={onVerifyRequest}
           accessToken={accessToken}
         />
       </View>
