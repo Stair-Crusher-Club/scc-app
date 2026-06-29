@@ -212,6 +212,12 @@ module.exports = {
         __dirname,
         'web/mocks/react-native-webview.tsx',
       ),
+      // react-native-animated-glow pulls in @shopify/react-native-skia +
+      // canvaskit-wasm, which can't bundle for web. Mock it as a pass-through.
+      'react-native-animated-glow': path.resolve(
+        __dirname,
+        'web/mocks/animated-glow.js',
+      ),
     },
     // Disable fully specified imports for all dependencies
     fullySpecified: false,
