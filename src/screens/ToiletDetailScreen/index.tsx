@@ -2,13 +2,14 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, {useState} from 'react';
 import {SafeAreaView, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import CopyIcon from '@/assets/icon/ic_copy.svg';
+import NavigationIcon from '@/assets/icon/ic_navigation.svg';
 import ShareIcon from '@/assets/icon/ic_share.svg';
 import GenderBothIcon from '@/assets/icon/ic_toilet_both.svg';
 import DoorAutoIcon from '@/assets/icon/ic_toilet_door_auto.svg';
@@ -21,20 +22,22 @@ import EntranceStepIcon from '@/assets/icon/ic_toilet_entrance_step.svg';
 import GenderFemaleIcon from '@/assets/icon/ic_toilet_female.svg';
 import GenderMaleIcon from '@/assets/icon/ic_toilet_male.svg';
 import {LoadingView} from '@/components/LoadingView';
-import RoadView from '@/components/maps/RoadView';
 import {SccPressable} from '@/components/SccPressable';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import type {ToiletAccessibilityDto as ToiletAccessibilityDtoType} from '@/generated-sources/openapi';
-import {ToiletDetailDto} from '@/generated-sources/openapi';
+import {
+  AccessibilitySourceDto,
+  ToiletAccessibilityDto,
+  ToiletDetailDto,
+} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import NavigationAppsBottomSheet from '@/screens/PlaceDetailScreen/modals/NavigationAppsBottomSheet';
 import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
 import ToiletImageCarousel from '@/screens/ToiletDetailScreen/ToiletImageCarousel';
 import {
-  accessibilitySourceLabel,
   mapToiletDetailsToToiletDetails,
   ToiletDetails,
 } from '@/components/toilet/data';
@@ -84,6 +87,7 @@ const ToiletDetailScreen = ({route}: ScreenProps<'ToiletDetail'>) => {
 };
 
 const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
+  const [showNavigation, setShowNavigation] = useState(false);
   // 여러 소스(유저 리뷰 N개 + 공공데이터 N개)가 accessibilities 배열로 내려온다.
   // 소스마다 섹션을 반복 렌더하면 같은 섹션 타입이 중복되므로,
   // sourceType 분기 없이 "섹션 타입별 1회"로 집계(aggregate)하여 단일 뷰로 렌더한다.
@@ -105,11 +109,9 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
   // 등록자/등록시점은 유저 리뷰 소스 기준으로 타이틀 영역에 한 번만 표시한다.
   const reviewSource = locationCommentSource ?? commentSource;
   // 공공데이터 상세(toiletDetails): toiletDetails를 가진 첫 번째 대표 소스만 사용한다.
-  // 공공데이터 상세(toiletDetails): toiletDetails를 가진 첫 번째 대표 소스만 사용한다.
-  const publicDataSource = detail.accessibilities.find(
+  const representativeToiletDetails = detail.accessibilities.find(
     accessibility => accessibility.toiletDetails != null,
-  );
-  const representativeToiletDetails = publicDataSource?.toiletDetails;
+  )?.toiletDetails;
   const publicToiletDetails: ToiletDetails | undefined =
     representativeToiletDetails != null
       ? mapToiletDetailsToToiletDetails(
@@ -122,18 +124,6 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
       : undefined;
   // 타이틀 영역의 사용가능 라벨은 공공데이터 상세에서 가져온다.
   const availableForLabel = publicToiletDetails?.available;
-  // 로드뷰 노출 조건: PA급 상세 필드 중 하나라도 없으면(hasRichToiletDetail=false) 로드뷰 노출.
-  // 공공데이터 전용 필드(openingHours/phoneNumber 등)가 있어도 PA급이 없으면 로드뷰를 띄운다.
-  const hasRichToiletDetail = [
-    publicToiletDetails?.stall?.width,
-    publicToiletDetails?.stall?.depth,
-    publicToiletDetails?.door?.desc,
-    publicToiletDetails?.entrance?.desc,
-    publicToiletDetails?.accessDesc,
-    publicToiletDetails?.doorSideRoom,
-    publicToiletDetails?.washStandBelowRoom,
-    publicToiletDetails?.washStandHandle,
-  ].some(v => !!v);
 
   const onCopy = () => {
     if (detail.address) {
@@ -174,12 +164,20 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
                   </CopyButton>
                 </AddressRow>
               )}
-              <MetaRow
-                reviewSource={reviewSource ?? null}
-                publicDataSource={publicDataSource ?? null}
-              />
+              {reviewSource && <RegistrantMeta source={reviewSource} />}
               <SectionDivider />
               <TextButtonContainer>
+                {detail.location != null && (
+                  <>
+                    <TextButton
+                      elementName="toilet_detail_directions_button"
+                      onPress={() => setShowNavigation(true)}>
+                      <NavigationIcon />
+                      <TextButtonText>길찾기</TextButtonText>
+                    </TextButton>
+                    <VerticalDivider />
+                  </>
+                )}
                 <TextButton
                   elementName="toilet_detail_share_button"
                   onPress={onShare}>
@@ -213,32 +211,38 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
             </Section>
           )}
 
-          {detail.location != null && !hasRichToiletDetail && (
-            <RoadView
-              position={{lat: detail.location.lat, lng: detail.location.lng}}
-              name={detail.name}
-            />
-          )}
-
           {publicToiletDetails != null && (
-            <ToiletPublicDetailSections toiletDetails={publicToiletDetails} />
+            <ToiletPublicDetailSections
+              toiletDetails={publicToiletDetails}
+              showSeoulAttribution={detail.accessibilities.some(
+                a => a.source === AccessibilitySourceDto.SmartSeoulMap,
+              )}
+            />
           )}
         </Container>
       </ScrollView>
+      {detail.location != null && (
+        <NavigationAppsBottomSheet
+          isVisible={showNavigation}
+          latitude={detail.location.lat}
+          longitude={detail.location.lng}
+          placeName={detail.name}
+          onClose={() => setShowNavigation(false)}
+        />
+      )}
     </ScreenLayout>
   );
 };
 
 const ToiletPublicDetailSections = ({
   toiletDetails,
+  showSeoulAttribution,
 }: {
   toiletDetails: ToiletDetails;
+  showSeoulAttribution: boolean;
 }) => {
   const hasUsageInfo =
-    toiletDetails.gender != null ||
-    toiletDetails.available != null ||
-    toiletDetails.openingHours != null ||
-    toiletDetails.phoneNumber != null;
+    toiletDetails.gender != null || toiletDetails.available != null;
   const hasAccessInfo =
     toiletDetails.entrance?.state != null ||
     toiletDetails.door?.state != null ||
@@ -287,18 +291,6 @@ const ToiletPublicDetailSections = ({
               <SubSectionDescription>
                 {toiletDetails.available.desc}
               </SubSectionDescription>
-            </SubSection>
-          )}
-          {toiletDetails.openingHours != null && (
-            <SubSection>
-              <SubSectionLabel>개방시간</SubSectionLabel>
-              <SubSectionTitle>{toiletDetails.openingHours}</SubSectionTitle>
-            </SubSection>
-          )}
-          {toiletDetails.phoneNumber != null && (
-            <SubSection>
-              <SubSectionLabel>전화번호</SubSectionLabel>
-              <SubSectionTitle>{toiletDetails.phoneNumber}</SubSectionTitle>
             </SubSection>
           )}
         </Section>
@@ -399,52 +391,30 @@ const ToiletPublicDetailSections = ({
         </Section>
       )}
 
-      <Footer>
-        <FooterText>
-          본 저작물은 ‘스마트 서울맵 - (동행)휠체어도 가는 화장실 지도'를
-          이용하였습니다.
-        </FooterText>
-      </Footer>
+      {showSeoulAttribution && (
+        <Footer>
+          <FooterText>
+            본 저작물은 ‘스마트 서울맵 - (동행)휠체어도 가는 화장실 지도’를
+            이용하였습니다.
+          </FooterText>
+        </Footer>
+      )}
     </>
   );
 };
 
-/**
- * 타이틀 영역 메타 행: 리뷰 소스가 있으면 등록자+등록일, 없고 공공데이터 소스만 있으면 출처+확인일.
- * 어떤 경우든 meta 행은 1개만 렌더한다.
- */
-function MetaRow({
-  reviewSource,
-  publicDataSource,
-}: {
-  reviewSource: ToiletAccessibilityDtoType | null;
-  publicDataSource: ToiletAccessibilityDtoType | null;
-}) {
-  if (reviewSource != null) {
-    const userName = reviewSource.registeredUserName ?? '익명';
-    const dateStr = reviewSource.createdAt
-      ? dayjs(reviewSource.createdAt.value).format('YYYY.MM.DD')
-      : null;
-    return (
-      <RegistrantRow>
-        <RegistrantName>{userName}</RegistrantName>
-        {dateStr != null && <RegistrantDate>{dateStr}</RegistrantDate>}
-      </RegistrantRow>
-    );
-  }
-  if (publicDataSource?.source != null) {
-    const sourceName = accessibilitySourceLabel(publicDataSource.source);
-    const dateStr = publicDataSource.lastVerifiedAt
-      ? dayjs(publicDataSource.lastVerifiedAt.value).format('YYYY.MM.DD')
-      : null;
-    return (
-      <RegistrantRow>
-        <RegistrantName>{sourceName}</RegistrantName>
-        {dateStr != null && <RegistrantDate>{dateStr} 확인</RegistrantDate>}
-      </RegistrantRow>
-    );
-  }
-  return null;
+// 유저 리뷰 소스의 등록자/등록시점을 PDP 코멘트 박스와 동일한 스타일로 표시한다.
+function RegistrantMeta({source}: {source: ToiletAccessibilityDto}) {
+  const userName = source.registeredUserName ?? '익명';
+  const dateStr = source.createdAt
+    ? dayjs(source.createdAt.value).format('YYYY.MM.DD')
+    : null;
+  return (
+    <RegistrantRow>
+      <RegistrantName>{userName}</RegistrantName>
+      {dateStr != null && <RegistrantDate>{dateStr}</RegistrantDate>}
+    </RegistrantRow>
+  );
 }
 
 function AppBar() {
