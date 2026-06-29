@@ -6,7 +6,7 @@ import React, {useState} from 'react';
 import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
-import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
+import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import CopyIcon from '@/assets/icon/ic_copy.svg';
 import RouteFillIcon from '@/assets/icon/ic_route_fill.svg';
@@ -500,7 +500,7 @@ function AppBar({name}: {name?: string}) {
         elementName="toilet_detail_back_button"
         hitSlop={10}
         onPress={() => navigation.goBack()}>
-        <LeftArrowIcon width={24} height={24} color={color.black} />
+        <BackIcon width={24} height={24} color={color.black} />
       </SccPressable>
       <AppBarTitleContainer>
         {name ? (
