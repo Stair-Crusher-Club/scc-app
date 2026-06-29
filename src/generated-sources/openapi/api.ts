@@ -344,6 +344,20 @@ export type AccessibilityReportReason = typeof AccessibilityReportReason[keyof t
 
 
 /**
+ * 접근성 데이터 출처
+ * @export
+ * @enum {string}
+ */
+
+export const AccessibilitySourceDto = {
+    SmartSeoulMap: 'SMART_SEOUL_MAP',
+    MoisPublicToilet: 'MOIS_PUBLIC_TOILET'
+} as const;
+
+export type AccessibilitySourceDto = typeof AccessibilitySourceDto[keyof typeof AccessibilitySourceDto];
+
+
+/**
  * 
  * @export
  * @interface ApiErrorResponse
@@ -2242,6 +2256,18 @@ export interface ExternalAccessibility {
      * @memberof ExternalAccessibility
      */
     'toiletId'?: string | null;
+    /**
+     * 
+     * @type {AccessibilitySourceDto}
+     * @memberof ExternalAccessibility
+     */
+    'source'?: AccessibilitySourceDto;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ExternalAccessibility
+     */
+    'lastVerifiedAt'?: EpochMillisTimestamp;
 }
 /**
  * 층 정보 교정
@@ -6840,6 +6866,18 @@ export interface ToiletAccessibilityDetails {
      * @memberof ToiletAccessibilityDetails
      */
     'extraDesc'?: string;
+    /**
+     * 화장실 개방시간 (예: \"월-금 06:00~22:00\"). 공공데이터 소스에만 존재.
+     * @type {string}
+     * @memberof ToiletAccessibilityDetails
+     */
+    'openingHours'?: string | null;
+    /**
+     * 관리기관 전화번호. 공공데이터 소스에만 존재.
+     * @type {string}
+     * @memberof ToiletAccessibilityDetails
+     */
+    'phoneNumber'?: string | null;
 }
 /**
  * Toilet에 병합된 단일 소스(유저 리뷰 ToiletReview 또는 공공데이터 ExternalAccessibility)의 접근성 정보. 소스 종류에 따라 채워지는 필드가 다르며, 클라이언트는 sourceType 분기 없이 존재하는 필드만 조건부로 렌더링한다. 
@@ -6901,6 +6939,18 @@ export interface ToiletAccessibilityDto {
      * @memberof ToiletAccessibilityDto
      */
     'createdAt'?: EpochMillisTimestamp;
+    /**
+     * 
+     * @type {AccessibilitySourceDto}
+     * @memberof ToiletAccessibilityDto
+     */
+    'source'?: AccessibilitySourceDto;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ToiletAccessibilityDto
+     */
+    'lastVerifiedAt'?: EpochMillisTimestamp;
 }
 /**
  * 통합 Toilet + 병합된 소스별 접근성 정보 리스트. PDP(Place + PlaceAccessibility[]) 패턴. Toilet 레벨 식별/표시 정보 + 소스별 ToiletAccessibilityDto 배열로 구성된다. 

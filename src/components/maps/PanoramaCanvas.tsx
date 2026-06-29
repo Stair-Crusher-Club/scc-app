@@ -148,9 +148,12 @@ export default function PanoramaCanvas({
       }}
       scrollEnabled={false}
       scalesPageToFit={false}
-      // RN WebView는 Android에서 Modal 안에 있으면 빈 화면으로 렌더되는 알려진
-      // 버그가 있다. hardware 레이어로 강제해 풀스크린 파노라마가 그려지게 한다.
-      androidLayerType="hardware"
+      // Android WebView 레이어:
+      // - 풀스크린(interactive=Modal 내부): Modal 안에서 hardware 레이어가 아니면
+      //   빈 화면으로 렌더되는 알려진 버그가 있어 hardware 강제.
+      // - 미리보기(non-interactive=ScrollView 내부): 반대로 hardware 레이어면
+      //   ScrollView 안에서 paint가 안 돼 회색으로 비는 이슈가 있어 software 사용.
+      androidLayerType={interactive ? 'hardware' : 'software'}
       // 미리보기에서는 제스처를 막아 상위 Pressable이 탭을 받게 한다.
       pointerEvents={interactive ? 'auto' : 'none'}
     />

@@ -1,9 +1,30 @@
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {
+  AccessibilitySourceDto,
+  EpochMillisTimestamp,
   Location,
   ToiletAccessibilityDetails,
   ToiletSummaryDto,
 } from '@/generated-sources/openapi';
+
+/**
+ * 공공데이터 출처 enum → 표시 레이블 매핑.
+ * exhaustive switch: 새 enum 값 추가 시 컴파일 에러로 잡힌다.
+ */
+export function accessibilitySourceLabel(
+  source: AccessibilitySourceDto,
+): string {
+  switch (source) {
+    case AccessibilitySourceDto.SmartSeoulMap:
+      return '스마트서울맵';
+    case AccessibilitySourceDto.MoisPublicToilet:
+      return '행정안전부 전국공중화장실표준데이터';
+    default: {
+      const _exhaustive: never = source;
+      return _exhaustive;
+    }
+  }
+}
 
 /**
  * 화장실 카드/마커 및 TDP 공공데이터 섹션 렌더에 사용하는 화장실 표시 모델.
@@ -44,6 +65,14 @@ export interface ToiletDetails {
   washStandBelowRoom?: string;
   washStandHandle?: string;
   extra?: string;
+  /** 공공데이터 출처 enum. 유저 리뷰 소스는 undefined. 표시명은 accessibilitySourceLabel()로 변환. */
+  source?: AccessibilitySourceDto | null;
+  /** 마지막으로 화장실 정보가 확인된 시각. 유저 리뷰 소스는 undefined. */
+  lastVerifiedAt?: EpochMillisTimestamp;
+  /** 개방시간 (공공데이터 소스). */
+  openingHours?: string | null;
+  /** 전화번호 (공공데이터 소스). */
+  phoneNumber?: string | null;
 }
 
 /**
@@ -65,6 +94,8 @@ function parseToiletAccessibilityDetails(
   | 'washStandBelowRoom'
   | 'washStandHandle'
   | 'extra'
+  | 'openingHours'
+  | 'phoneNumber'
 > & {availableState: 'AVAILABLE' | 'UNAVAILABLE' | 'UNKNOWN'} {
   const genderDesc = toiletDetails.gender;
   const genderType: 'MALE' | 'FEMALE' | 'BOTH' = (() => {
@@ -160,6 +191,8 @@ function parseToiletAccessibilityDetails(
     washStandBelowRoom: toiletDetails.washStandBelowRoom,
     washStandHandle: toiletDetails.washStandHandle,
     extra: toiletDetails.extraDesc,
+    openingHours: toiletDetails.openingHours,
+    phoneNumber: toiletDetails.phoneNumber,
   };
 }
 
@@ -192,6 +225,8 @@ export function mapToiletDetailsToToiletDetails(
     washStandBelowRoom: enriched.washStandBelowRoom,
     washStandHandle: enriched.washStandHandle,
     extra: enriched.extra,
+    openingHours: enriched.openingHours,
+    phoneNumber: enriched.phoneNumber,
   };
 }
 
@@ -248,5 +283,14 @@ export function mapSummaryToToiletDetails(
     washStandBelowRoom: enriched?.washStandBelowRoom,
     washStandHandle: enriched?.washStandHandle,
     extra: enriched?.extra,
+    openingHours: enriched?.openingHours,
+    phoneNumber: enriched?.phoneNumber,
+    // 공공데이터 소스(toiletDetails 있는 첫 소스)의 source/lastVerifiedAt을 카드에 표시한다.
+    source: summary.accessibilities.find(
+      accessibility => accessibility.toiletDetails != null,
+    )?.source,
+    lastVerifiedAt: summary.accessibilities.find(
+      accessibility => accessibility.toiletDetails != null,
+    )?.lastVerifiedAt,
   };
 }

@@ -1,4 +1,5 @@
 import {useAtomValue} from 'jotai';
+import dayjs from 'dayjs';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import React from 'react';
@@ -10,7 +11,11 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import Tags from '@/components/Tag';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {ToiletDetails} from '@/components/toilet/data';
+import PanoramaCanvas from '@/components/maps/PanoramaCanvas';
+import {
+  accessibilitySourceLabel,
+  ToiletDetails,
+} from '@/components/toilet/data';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
@@ -36,6 +41,8 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
     return prettyFormatMeter(distance);
   })();
   const images = item.imageUrl ? [{imageUrl: item.imageUrl}] : [];
+  const hasImage = images.length > 0;
+  const showRoadview = !hasImage;
   const onShare = () => {
     ToastUtils.show('준비 중입니다.');
   };
@@ -53,7 +60,7 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
       }}>
       <Container
         elementName="toilet_card"
-        hasImage={images.length > 0}
+        hasImage={hasImage || showRoadview}
         onPress={() => {
           navigation.navigate('ToiletDetail', {
             toiletId: item.toiletId,
@@ -97,11 +104,35 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
               <Tags texts={tagTexts} />
             </ExtraArea>
           )}
+          {item.source != null && (
+            <SourceMetaRow>
+              <SourceNameText>
+                {accessibilitySourceLabel(item.source)}
+              </SourceNameText>
+              {item.lastVerifiedAt != null && (
+                <SourceDateText>
+                  {dayjs(item.lastVerifiedAt.value).format('YYYY.MM.DD')} 확인
+                </SourceDateText>
+              )}
+            </SourceMetaRow>
+          )}
         </InfoArea>
-        {images.length > 0 && (
+        {hasImage && (
           <View style={{width: '100%', flexShrink: 2, overflow: 'hidden'}}>
             <ImageList images={images} />
           </View>
+        )}
+        {showRoadview && (
+          // ponytail: pointerEvents="none" so taps pass through to Container → TDP navigate
+          <RoadviewPreviewBox pointerEvents="none">
+            <PanoramaCanvas
+              position={{lat: item.location.lat, lng: item.location.lng}}
+              label={item.name}
+              showPin={false}
+              interactive={false}
+              style={{width: '100%', height: '100%'}}
+            />
+          </RoadviewPreviewBox>
         )}
       </Container>
     </LogParamsProvider>
@@ -189,4 +220,33 @@ const LocationDivider = styled.View`
   height: 2px;
   border-radius: 1px;
   background-color: ${() => color.gray80};
+`;
+
+const SourceMetaRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+`;
+
+const SourceNameText = styled.Text`
+  font-size: 11px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${() => color.gray60};
+`;
+
+const SourceDateText = styled.Text`
+  font-size: 11px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${() => color.gray50};
+`;
+
+const RoadviewPreviewBox = styled.View`
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: ${() => color.gray10};
+  flex-shrink: 2;
 `;
