@@ -214,12 +214,10 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
           )}
 
           {detail.location != null && !hasRichToiletDetail && (
-            <Section>
-              <RoadView
-                position={{lat: detail.location.lat, lng: detail.location.lng}}
-                name={detail.name}
-              />
-            </Section>
+            <RoadView
+              position={{lat: detail.location.lat, lng: detail.location.lng}}
+              name={detail.name}
+            />
           )}
 
           {publicToiletDetails != null && (
