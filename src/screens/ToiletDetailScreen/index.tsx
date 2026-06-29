@@ -3,7 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import React, {useState} from 'react';
-import {SafeAreaView, ScrollView} from 'react-native';
+import {Linking, SafeAreaView, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -330,7 +330,24 @@ const ToiletPublicDetailSections = ({
           {toiletDetails.phoneNumber != null && (
             <SubSection>
               <SubSectionLabel>전화번호</SubSectionLabel>
-              <SubSectionTitle>{toiletDetails.phoneNumber}</SubSectionTitle>
+              <PhoneRow>
+                <SccTouchableOpacity
+                  elementName="toilet_detail_phone_call"
+                  onPress={() =>
+                    Linking.openURL(`tel:${toiletDetails.phoneNumber}`)
+                  }>
+                  <PhoneNumberText>{toiletDetails.phoneNumber}</PhoneNumberText>
+                </SccTouchableOpacity>
+                <CopyButton
+                  elementName="toilet_detail_phone_copy"
+                  onPress={() => {
+                    Clipboard.setString(toiletDetails.phoneNumber!);
+                    ToastUtils.show('전화번호가 복사되었습니다.');
+                  }}>
+                  <CopyIcon />
+                  <CopyText>복사</CopyText>
+                </CopyButton>
+              </PhoneRow>
             </SubSection>
           )}
         </Section>
@@ -606,6 +623,21 @@ const SubSectionTitle = styled.Text`
   margin-top: 8px;
   font-family: ${() => font.pretendardBold};
   color: ${color.black};
+`;
+
+const PhoneRow = styled.View`
+  margin-top: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+`;
+
+const PhoneNumberText = styled.Text`
+  font-size: 20px;
+  line-height: 32px;
+  font-family: ${() => font.pretendardBold};
+  color: ${color.brand50};
+  text-decoration-line: underline;
 `;
 
 const SubSectionDescription = styled.Text`
