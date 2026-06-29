@@ -7,6 +7,7 @@ import {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   ScrollView,
   View,
 } from 'react-native';
@@ -546,6 +547,16 @@ export default function PlaceDetailV2Screen({
     );
   }, [checkAuth, navigation, navigateWithLocationCheck, place]);
 
+  // 웹은 정보 등록이 앱 전용이라 4지선다 바텀시트가 무의미 — 버튼 클릭 시
+  // 바로 로그인/앱 설치 방어(checkAuth)를 태운다. 네이티브는 기존대로 바텀시트.
+  const handlePressRegister = useCallback(() => {
+    if (Platform.OS === 'web') {
+      handlePlaceRegister();
+      return;
+    }
+    setShowRegistrationSheet(true);
+  }, [handlePlaceRegister]);
+
   // Scroll-dependent AppBar title
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
   const nameBottomYRef = useRef<number>(0);
@@ -943,7 +954,7 @@ export default function PlaceDetailV2Screen({
                 accessibility={accessibilityPost}
                 reviewCount={(reviewPost ?? []).length}
                 placeTags={data?.placeTags ?? undefined}
-                onPressRegister={() => setShowRegistrationSheet(true)}
+                onPressRegister={handlePressRegister}
                 onPressWriteReview={handleReviewRegister}
                 onPressSiren={() =>
                   showNegativeFeedbackBottomSheet(
@@ -1032,7 +1043,7 @@ export default function PlaceDetailV2Screen({
             isUpvoted={isUpvoted}
             totalUpvoteCount={totalUpvoteCount}
             onPressUpvote={handleUpvote}
-            onPressRegister={() => setShowRegistrationSheet(true)}
+            onPressRegister={handlePressRegister}
             onPressWriteReview={handleReviewRegister}
             onPressSiren={() =>
               showNegativeFeedbackBottomSheet(

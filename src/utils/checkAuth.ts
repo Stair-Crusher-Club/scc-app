@@ -4,6 +4,7 @@ import {Platform} from 'react-native';
 
 import {isAnonymousUserAtom} from '@/atoms/Auth';
 import {ScreenParams} from '@/navigation/Navigation.screens';
+import {showLoginPrompt} from '@/utils/appInstallPrompt';
 
 export function useCheckAuth() {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
@@ -23,6 +24,8 @@ export function useCheckAuth() {
       console.log('anonymous user! open login');
       // 웹: 카카오 로그인은 풀 페이지 리다이렉트라 모달 네비 스택이 소실된다.
       // 로그인 후 원래 페이지로 돌아오도록 현재 경로를 redirect 로 넘긴다.
+      // 바로 /login 으로 넘어가면 어색해서, 앱 설치 유도와 동일 디자인의 로그인
+      // 유도 팝업을 먼저 띄우고 OK 를 누를 때 이동한다.
       if (Platform.OS === 'web') {
         const loc = (
           globalThis as {location?: {pathname?: string; search?: string}}
@@ -30,7 +33,9 @@ export function useCheckAuth() {
         const current = loc
           ? (loc.pathname ?? '') + (loc.search ?? '')
           : undefined;
-        navigation.navigate('Login', {asModal: true, redirect: current});
+        showLoginPrompt(() => {
+          navigation.navigate('Login', {asModal: true, redirect: current});
+        });
         return;
       }
       navigation.navigate('Login', {asModal: true});

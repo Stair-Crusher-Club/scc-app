@@ -1,4 +1,5 @@
-// Web-only DOM modal prompting users to install the app for app-only features.
+// Web-only DOM modals prompting users to install the app (app-only features)
+// or to log in (auth-required actions). Both share one modal design.
 // Extracted from checkAuth.web.ts so the route gate can reuse it.
 const APP_DOWNLOAD_BASE_URL = 'https://link.staircrusher.club/epnb5p';
 const APP_ICON_URL = new URL('../../web/assets/app-icon.png', import.meta.url)
@@ -19,7 +20,14 @@ function buildAppDownloadUrl(): string {
   return `${APP_DOWNLOAD_BASE_URL}?deeplink_path=${encodeURIComponent(deepLinkPath)}`;
 }
 
-export function showAppInstallPrompt(message?: string) {
+// 앱 설치 유도 / 로그인 유도 공통 모달. 아이콘·앱명·디자인은 동일하고
+// 설명 문구·기본 버튼 라벨/동작·하단 dismiss 링크만 다르다.
+function showPrompt(opts: {
+  message: string;
+  primaryLabel: string;
+  onPrimary: () => void;
+  dismissLabel?: string;
+}) {
   if (document.getElementById('app-install-overlay')) return;
 
   const overlay = document.createElement('div');
@@ -89,7 +97,7 @@ export function showAppInstallPrompt(message?: string) {
   });
 
   const desc = document.createElement('p');
-  desc.textContent = message || '계단뿌셔클럽 앱에서 만나요';
+  desc.textContent = opts.message;
   Object.assign(desc.style, {
     fontSize: '14px',
     color: '#6B6E78',
@@ -98,9 +106,9 @@ export function showAppInstallPrompt(message?: string) {
     lineHeight: '1.4',
   });
 
-  const installBtn = document.createElement('button');
-  installBtn.textContent = '앱으로 열기';
-  Object.assign(installBtn.style, {
+  const primaryBtn = document.createElement('button');
+  primaryBtn.textContent = opts.primaryLabel;
+  Object.assign(primaryBtn.style, {
     width: '100%',
     height: '50px',
     backgroundColor: '#0C76F7',
@@ -113,34 +121,37 @@ export function showAppInstallPrompt(message?: string) {
     transition: 'background-color 0.15s',
     marginBottom: '4px',
   });
-  installBtn.onmouseenter = () => {
-    installBtn.style.backgroundColor = '#0a63d1';
+  primaryBtn.onmouseenter = () => {
+    primaryBtn.style.backgroundColor = '#0a63d1';
   };
-  installBtn.onmouseleave = () => {
-    installBtn.style.backgroundColor = '#0C76F7';
+  primaryBtn.onmouseleave = () => {
+    primaryBtn.style.backgroundColor = '#0C76F7';
   };
-  installBtn.onclick = () => {
-    window.open(buildAppDownloadUrl(), '_blank');
+  primaryBtn.onclick = () => {
     overlay.remove();
+    opts.onPrimary();
   };
-
-  const dismissLink = document.createElement('span');
-  dismissLink.textContent = '웹에서 계속 볼게요';
-  Object.assign(dismissLink.style, {
-    fontSize: '13px',
-    color: '#A0A2AE',
-    textDecoration: 'underline',
-    textUnderlineOffset: '2px',
-    cursor: 'pointer',
-    padding: '8px',
-  });
-  dismissLink.onclick = () => overlay.remove();
 
   modal.appendChild(icon);
   modal.appendChild(appName);
   modal.appendChild(desc);
-  modal.appendChild(installBtn);
-  modal.appendChild(dismissLink);
+  modal.appendChild(primaryBtn);
+
+  if (opts.dismissLabel) {
+    const dismissLink = document.createElement('span');
+    dismissLink.textContent = opts.dismissLabel;
+    Object.assign(dismissLink.style, {
+      fontSize: '13px',
+      color: '#A0A2AE',
+      textDecoration: 'underline',
+      textUnderlineOffset: '2px',
+      cursor: 'pointer',
+      padding: '8px',
+    });
+    dismissLink.onclick = () => overlay.remove();
+    modal.appendChild(dismissLink);
+  }
+
   overlay.appendChild(modal);
 
   overlay.onclick = e => {
@@ -148,4 +159,23 @@ export function showAppInstallPrompt(message?: string) {
   };
 
   document.body.appendChild(overlay);
+}
+
+export function showAppInstallPrompt(message?: string) {
+  showPrompt({
+    message: message || '계단뿌셔클럽 앱에서 만나요',
+    primaryLabel: '앱으로 열기',
+    onPrimary: () => window.open(buildAppDownloadUrl(), '_blank'),
+    dismissLabel: '웹에서 계속 볼게요',
+  });
+}
+
+// 로그인 유도 팝업. OK(로그인하기)를 누르면 onConfirm(보통 /login 이동)을 실행한다.
+export function showLoginPrompt(onConfirm: () => void, message?: string) {
+  showPrompt({
+    message: message || '로그인하고 모든 기능을 이용해보세요',
+    primaryLabel: '로그인하기',
+    onPrimary: onConfirm,
+    dismissLabel: '다음에 할게요',
+  });
 }
