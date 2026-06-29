@@ -33,12 +33,15 @@ interface Props {
   getCaptionByFocus?: (isFocused?: boolean) => string | undefined;
   state?: UnderlineInputState;
   onChangeText?: (text: string) => void;
+  onFocus?: () => void;
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
   onPress?: () => void;
   onSubmitEditing?: () => void;
+  isRequired?: boolean;
   isClearable?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
   keyboardType?: TextInputProps['keyboardType'];
+  maxLength?: number;
   editable?: boolean;
   timer?: string;
   containerStyle?: object;
@@ -54,12 +57,15 @@ const UnderlineInput = forwardRef<TextInput, Props>(
       getCaptionByFocus,
       state,
       onChangeText,
+      onFocus: onFocusProp,
       onBlur,
       onPress,
       onSubmitEditing,
       returnKeyType,
       keyboardType,
+      maxLength,
       editable = true,
+      isRequired = false,
       isClearable = false,
       timer,
       containerStyle,
@@ -76,7 +82,10 @@ const UnderlineInput = forwardRef<TextInput, Props>(
         ? undefined
         : state === 'VALID' || state === 'PROGRESS';
 
-    const handleFocus = () => setIsFocused(true);
+    const handleFocus = () => {
+      setIsFocused(true);
+      onFocusProp?.();
+    };
     const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
       setIsFocused(false);
       onBlur?.(e);
@@ -99,6 +108,7 @@ const UnderlineInput = forwardRef<TextInput, Props>(
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}
         keyboardType={keyboardType}
+        maxLength={maxLength}
         editable={editable && !onPress}
         style={[styles.input, !editable && styles.disabledInput]}
         {...props}
@@ -109,7 +119,12 @@ const UnderlineInput = forwardRef<TextInput, Props>(
 
     return (
       <InputContainer style={containerStyle}>
-        {label && <FieldLabelText>{label}</FieldLabelText>}
+        {label && (
+          <FieldLabelText>
+            {label}
+            {isRequired && <RequiredMark> *</RequiredMark>}
+          </FieldLabelText>
+        )}
         <InputWrapper isFocused={isFocused} isValid={isValid}>
           {onPress ? (
             <SccTouchableOpacity
@@ -231,5 +246,9 @@ const TimerText = styled.Text`
   font-family: ${font.pretendardMedium};
   font-size: 12px;
   line-height: 16px;
+  color: ${color.red};
+`;
+
+const RequiredMark = styled.Text`
   color: ${color.red};
 `;
