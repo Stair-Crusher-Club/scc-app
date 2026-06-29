@@ -3,7 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import React, {useState} from 'react';
-import {SafeAreaView, ScrollView} from 'react-native';
+import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -64,7 +64,7 @@ const ToiletDetailScreen = ({route}: ScreenProps<'ToiletDetail'>) => {
 
   if (isLoading) {
     return (
-      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
+      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
         <AppBar />
         <LoadingView />
       </ScreenLayout>
@@ -76,7 +76,7 @@ const ToiletDetailScreen = ({route}: ScreenProps<'ToiletDetail'>) => {
       ToastUtils.showOnApiError(error);
     }
     return (
-      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
+      <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
         <AppBar />
         <ErrorContainer>
           <ErrorText>화장실 정보를 불러오지 못했습니다.</ErrorText>
@@ -155,9 +155,9 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
   const [showNavigation, setShowNavigation] = useState(false);
 
   return (
-    <ScreenLayout isHeaderVisible={false} safeAreaEdges={['bottom']}>
+    <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top', 'bottom']}>
+      <AppBar name={detail.name} />
       <ScrollView>
-        <AppBar />
         {allImages.length > 0 && <ToiletImageCarousel images={allImages} />}
         <Container>
           <Section>
@@ -168,7 +168,6 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
                   text={availableForLabel.desc}
                 />
               )}
-              <TitleText>{detail.name}</TitleText>
               {detail.address != null && (
                 <AddressRow>
                   <AddressText>{detail.address}</AddressText>
@@ -492,7 +491,7 @@ function MetaRow({
   return null;
 }
 
-function AppBar() {
+function AppBar({name}: {name?: string}) {
   const navigation = useNavigation();
 
   return (
@@ -503,15 +502,34 @@ function AppBar() {
         onPress={() => navigation.goBack()}>
         <LeftArrowIcon width={24} height={24} color={color.black} />
       </SccPressable>
+      <AppBarTitleContainer>
+        {name ? (
+          <AppBarTitleText numberOfLines={1}>{name}</AppBarTitleText>
+        ) : null}
+      </AppBarTitleContainer>
     </AppBarContainer>
   );
 }
 
-const AppBarContainer = styled(SafeAreaView)`
+const AppBarContainer = styled.View`
   flex-direction: row;
   align-items: center;
-  padding: 10px 20px;
+  height: 50px;
+  padding: 0 20px;
   background-color: ${color.white};
+`;
+
+const AppBarTitleContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  padding: 0 8px;
+`;
+
+const AppBarTitleText = styled.Text`
+  font-size: 18px;
+  line-height: 26px;
+  font-family: ${() => font.pretendardMedium};
+  color: ${color.black};
 `;
 
 const ErrorContainer = styled.View`
@@ -531,13 +549,6 @@ const Container = styled.View`
   flex: 1;
   gap: 13px;
   background-color: ${color.gray10};
-`;
-
-const TitleText = styled.Text`
-  font-size: 20px;
-  line-height: 32px;
-  font-family: ${() => font.pretendardBold};
-  color: ${color.black};
 `;
 
 const SectionTitleText = styled.Text`
