@@ -4,7 +4,7 @@ import {
 } from '@invertase/react-native-apple-authentication';
 import {login} from '@react-native-seoul/kakao-login';
 import {useAtom} from 'jotai';
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   Image,
   ImageSourcePropType,
@@ -24,6 +24,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import Logger from '@/logging/Logger';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {logDebug} from '@/utils/DebugUtils';
 import {appleWebSignIn} from '@/utils/socialLoginWeb';
@@ -110,6 +111,29 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   const {setUserInfo} = useMe();
   const [activeSlide, setActiveSlide] = useState(0);
   const {asModal, redirect} = route.params ?? {};
+
+  // 로그인 진입점: navigation stack의 직전 라우트 이름을 사용한다.
+  // 웹에서 스택에 이전 화면이 없으면(deep link/직접 접속) document.referrer로 폴백.
+  const entryPoint = useMemo(() => {
+    const state = navigation.getState();
+    const currentIndex = state.index;
+    if (currentIndex > 0) {
+      return state.routes[currentIndex - 1]?.name ?? 'unknown';
+    }
+    if (Platform.OS === 'web') {
+      const referrer =
+        (globalThis as {document?: {referrer?: string}}).document?.referrer ??
+        '';
+      if (referrer) {
+        try {
+          return new URL(referrer).pathname;
+        } catch {
+          return referrer;
+        }
+      }
+    }
+    return 'direct';
+  }, []);
 
   // 로그인 완료 후 이동: 모달이면 닫고, (웹) redirect 가 있으면 그 경로로, 없으면 홈.
   function goAfterLogin() {
@@ -330,51 +354,53 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   }
 
   return (
-    <ScreenLayout
-      isHeaderVisible={false}
-      safeAreaEdges={['bottom']}
-      style={{backgroundColor: 'white'}}>
-      <View
-        className={`flex-1 ${
-          Platform.OS === 'web' ? 'justify-center' : 'justify-end'
-        }`}>
-        <View className="mt-[40px] w-full h-[440px]">
-          <Carousel
-            data={slides}
-            width={windowWidth}
-            loop
-            renderItem={renderSlide}
-            onProgressChange={(_, i) => setActiveSlide(i)}
-            onConfigurePanGesture={gestureChain => {
-              gestureChain.activeOffsetX([-10, 10]);
-            }}
-            autoPlay={true}
-            autoPlayInterval={5000}
-          />
-          <View className="flex-row gap-[8px] justify-center mt-[10px]">
-            {slides.map((_, index) => (
-              <View
-                key={index}
-                className="w-[8px] h-[8px] rounded-[4px] bg-gray-20">
+    <LogParamsProvider params={{entry_point: entryPoint}}>
+      <ScreenLayout
+        isHeaderVisible={false}
+        safeAreaEdges={['bottom']}
+        style={{backgroundColor: 'white'}}>
+        <View
+          className={`flex-1 ${
+            Platform.OS === 'web' ? 'justify-center' : 'justify-end'
+          }`}>
+          <View className="mt-[40px] w-full h-[440px]">
+            <Carousel
+              data={slides}
+              width={windowWidth}
+              loop
+              renderItem={renderSlide}
+              onProgressChange={(_, i) => setActiveSlide(i)}
+              onConfigurePanGesture={gestureChain => {
+                gestureChain.activeOffsetX([-10, 10]);
+              }}
+              autoPlay={true}
+              autoPlayInterval={5000}
+            />
+            <View className="flex-row gap-[8px] justify-center mt-[10px]">
+              {slides.map((_, index) => (
                 <View
-                  className="absolute top-0 left-0 w-[8px] h-[8px] rounded-[4px] bg-blue-50"
-                  style={{
-                    opacity: getDotColor(index, activeSlide, slides.length),
-                  }}
-                />
-              </View>
-            ))}
+                  key={index}
+                  className="w-[8px] h-[8px] rounded-[4px] bg-gray-20">
+                  <View
+                    className="absolute top-0 left-0 w-[8px] h-[8px] rounded-[4px] bg-blue-50"
+                    style={{
+                      opacity: getDotColor(index, activeSlide, slides.length),
+                    }}
+                  />
+                </View>
+              ))}
+            </View>
+          </View>
+          <View className="justify-end px-[20px] gap-[10px] mt-[58px]">
+            <LoginWith3rdParty
+              onKakaoButtonPressed={kakaoLogin}
+              onAppleButtonPressed={appleLogin}
+              onGuestButtonPressed={guestLogin}
+            />
           </View>
         </View>
-        <View className="justify-end px-[20px] gap-[10px] mt-[58px]">
-          <LoginWith3rdParty
-            onKakaoButtonPressed={kakaoLogin}
-            onAppleButtonPressed={appleLogin}
-            onGuestButtonPressed={guestLogin}
-          />
-        </View>
-      </View>
-    </ScreenLayout>
+      </ScreenLayout>
+    </LogParamsProvider>
   );
 }
 

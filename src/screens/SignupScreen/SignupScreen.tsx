@@ -160,6 +160,7 @@ export default function SignupScreen({
             disabled: false,
             onPress: () => setStep(2),
             rightLabel: '',
+            elementName: 'signup_step1_next',
           };
         }
         if (isCodeInputStep) {
@@ -169,6 +170,7 @@ export default function SignupScreen({
             disabled: !isVerifyButtonActive,
             onPress: () => verifyHandlerRef.current?.(),
             rightLabel: '',
+            elementName: 'signup_phone_verify',
           };
         }
         // 전화번호 입력 단계: 버튼 숨김(아직 인증 시작 전)
@@ -177,6 +179,7 @@ export default function SignupScreen({
           disabled: true,
           onPress: () => {},
           rightLabel: '',
+          elementName: 'signup_phone_verify',
           hidden: true,
         };
       case 2:
@@ -186,6 +189,7 @@ export default function SignupScreen({
           disabled: !isFirstFormValid,
           onPress: () => setStep(3),
           rightLabel: '',
+          elementName: 'signup_step2_next',
         };
       case 3:
         // step3 = 이동유형
@@ -197,6 +201,7 @@ export default function SignupScreen({
             formValue.mobilityTools.length > 0
               ? `${formValue.mobilityTools.length} 개`
               : '',
+          elementName: 'signup_step3_submit',
         };
       default:
         return {
@@ -204,13 +209,14 @@ export default function SignupScreen({
           disabled: true,
           onPress: () => {},
           rightLabel: '',
+          elementName: 'signup_submit',
         };
     }
   };
 
   const buttonConfig = getButtonConfig() as ReturnType<
     typeof getButtonConfig
-  > & {hidden?: boolean};
+  > & {hidden?: boolean; elementName: string};
 
   // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
   // → step2/3로 갔다가 돌아와도 인증 완료 UI 상태(인증번호 입력/성공)가 그대로 보존된다.
@@ -268,7 +274,7 @@ export default function SignupScreen({
               text={buttonConfig.text}
               isDisabled={buttonConfig.disabled}
               rightLabel={buttonConfig.rightLabel}
-              elementName="signup_submit"
+              elementName={buttonConfig.elementName}
             />
           </View>
         )}
