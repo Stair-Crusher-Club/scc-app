@@ -10,7 +10,7 @@ import MoveIcon from '@/assets/icon/ic_signup_move.svg';
 //   - MoveIcon (Willy): ~48px square, rides along fill; its center aligns with fill right edge
 const GOAL_ICON_WIDTH = 29;
 const GOAL_ICON_HEIGHT = 35;
-const MOVE_ICON_SIZE = 48;
+const MOVE_ICON_SIZE = 35;
 const TRACK_HEIGHT = 6;
 
 // Container must be tall enough to show MoveIcon above the track.
@@ -35,12 +35,12 @@ export default function ProgressViewer({progress}: {progress: number}) {
   // 100%일 때 캐릭터는 깃발(우측 고정) 바로 왼쪽에 "도달"한 모습이어야 한다.
   // 깃발 중심이 trackWidth에 있으므로, 채움/캐릭터를 깃발 폭만큼 앞에서 멈춰야
   // 캐릭터가 깃발을 덮거나 화면 밖으로 잘리지 않고 깃발이 그 오른쪽에 또렷이 보인다.
-  const fillMax = trackWidth - GOAL_ICON_WIDTH;
+  const fillMax = trackWidth;
 
   // MoveIcon x position: follows the fill right edge, offset by half icon width
   const moveIconX = animatedValue.interpolate({
     inputRange: [0, 100],
-    outputRange: [-(MOVE_ICON_SIZE / 2), fillMax - MOVE_ICON_SIZE / 2],
+    outputRange: [-MOVE_ICON_SIZE, fillMax - MOVE_ICON_SIZE - 3], // -3은 미세 조정
   });
 
   // Fill width as absolute pixels (not %)
@@ -53,8 +53,8 @@ export default function ProgressViewer({progress}: {progress: number}) {
     setTrackWidth(e.nativeEvent.layout.width);
   };
 
-  const goalIconTop = TRACK_TOP - (GOAL_ICON_HEIGHT - TRACK_HEIGHT) / 2;
-  const moveIconTop = TRACK_TOP - (MOVE_ICON_SIZE - TRACK_HEIGHT) / 2;
+  const goalIconTop = TRACK_TOP - (GOAL_ICON_HEIGHT - TRACK_HEIGHT) + 2; // +2는 미세 조정
+  const moveIconTop = TRACK_TOP - (MOVE_ICON_SIZE - TRACK_HEIGHT) + 3; // +3은 미세 조정
 
   return (
     <View style={{height: CONTAINER_HEIGHT, position: 'relative'}}>
@@ -85,7 +85,17 @@ export default function ProgressViewer({progress}: {progress: number}) {
         }}
       />
 
-      {/* MoveIcon (Willy) — sibling, follows fill right edge */}
+      {/* GoalIcon (Flag) — fixed at right end */}
+      <View
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: goalIconTop,
+        }}>
+        <GoalIcon width={GOAL_ICON_WIDTH} height={GOAL_ICON_HEIGHT} />
+      </View>
+
+      {/* MoveIcon (Willy) — sibling, follows fill right edge. 깃발보다 더 앞에 렌더링되어야 하므로 깃발 뒤에 컴포넌트를 선언해준다. */}
       {trackWidth > 0 && (
         <Animated.View
           style={{
@@ -98,16 +108,6 @@ export default function ProgressViewer({progress}: {progress: number}) {
           <MoveIcon width={MOVE_ICON_SIZE} height={MOVE_ICON_SIZE} />
         </Animated.View>
       )}
-
-      {/* GoalIcon (Flag) — fixed at right end */}
-      <View
-        style={{
-          position: 'absolute',
-          right: 0,
-          top: goalIconTop,
-        }}>
-        <GoalIcon width={GOAL_ICON_WIDTH} height={GOAL_ICON_HEIGHT} />
-      </View>
     </View>
   );
 }
