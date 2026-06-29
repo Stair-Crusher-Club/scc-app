@@ -21,6 +21,7 @@ import EntranceStepIcon from '@/assets/icon/ic_toilet_entrance_step.svg';
 import GenderFemaleIcon from '@/assets/icon/ic_toilet_female.svg';
 import GenderMaleIcon from '@/assets/icon/ic_toilet_male.svg';
 import {LoadingView} from '@/components/LoadingView';
+import RoadView from '@/components/maps/RoadView';
 import {SccPressable} from '@/components/SccPressable';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -105,9 +106,11 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
   // 등록자/등록시점은 유저 리뷰 소스 기준으로 타이틀 영역에 한 번만 표시한다.
   const reviewSource = locationCommentSource ?? commentSource;
   // 공공데이터 상세(toiletDetails): toiletDetails를 가진 첫 번째 대표 소스만 사용한다.
-  const representativeToiletDetails = detail.accessibilities.find(
+  // 공공데이터 상세(toiletDetails): toiletDetails를 가진 첫 번째 대표 소스만 사용한다.
+  const publicDataSource = detail.accessibilities.find(
     accessibility => accessibility.toiletDetails != null,
-  )?.toiletDetails;
+  );
+  const representativeToiletDetails = publicDataSource?.toiletDetails;
   const publicToiletDetails: ToiletDetails | undefined =
     representativeToiletDetails != null
       ? mapToiletDetailsToToiletDetails(
@@ -120,6 +123,18 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
       : undefined;
   // 타이틀 영역의 사용가능 라벨은 공공데이터 상세에서 가져온다.
   const availableForLabel = publicToiletDetails?.available;
+  // 로드뷰 노출 조건: PA급 상세 필드 중 하나라도 없으면(hasRichToiletDetail=false) 로드뷰 노출.
+  // 공공데이터 전용 필드(openingHours/phoneNumber 등)가 있어도 PA급이 없으면 로드뷰를 띄운다.
+  const hasRichToiletDetail = !!(
+    representativeToiletDetails?.stallWidth ??
+    representativeToiletDetails?.stallDepth ??
+    representativeToiletDetails?.doorDesc ??
+    representativeToiletDetails?.entranceDesc ??
+    representativeToiletDetails?.accessDesc ??
+    representativeToiletDetails?.doorSideRoom ??
+    representativeToiletDetails?.washStandBelowRoom ??
+    representativeToiletDetails?.washStandHandle
+  );
 
   const onCopy = () => {
     if (detail.address) {
@@ -161,6 +176,12 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
                 </AddressRow>
               )}
               {reviewSource && <RegistrantMeta source={reviewSource} />}
+              {publicDataSource?.sourceName != null && (
+                <PublicDataMeta
+                  sourceName={publicDataSource.sourceName}
+                  lastVerifiedAt={publicDataSource.lastVerifiedAt}
+                />
+              )}
               <SectionDivider />
               <TextButtonContainer>
                 <TextButton
@@ -196,6 +217,15 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
             </Section>
           )}
 
+          {detail.location != null && !hasRichToiletDetail && (
+            <Section>
+              <RoadView
+                position={{lat: detail.location.lat, lng: detail.location.lng}}
+                name={detail.name}
+              />
+            </Section>
+          )}
+
           {publicToiletDetails != null && (
             <ToiletPublicDetailSections toiletDetails={publicToiletDetails} />
           )}
@@ -211,7 +241,10 @@ const ToiletPublicDetailSections = ({
   toiletDetails: ToiletDetails;
 }) => {
   const hasUsageInfo =
-    toiletDetails.gender != null || toiletDetails.available != null;
+    toiletDetails.gender != null ||
+    toiletDetails.available != null ||
+    toiletDetails.openingHours != null ||
+    toiletDetails.phoneNumber != null;
   const hasAccessInfo =
     toiletDetails.entrance?.state != null ||
     toiletDetails.door?.state != null ||
@@ -260,6 +293,18 @@ const ToiletPublicDetailSections = ({
               <SubSectionDescription>
                 {toiletDetails.available.desc}
               </SubSectionDescription>
+            </SubSection>
+          )}
+          {toiletDetails.openingHours != null && (
+            <SubSection>
+              <SubSectionLabel>개방시간</SubSectionLabel>
+              <SubSectionTitle>{toiletDetails.openingHours}</SubSectionTitle>
+            </SubSection>
+          )}
+          {toiletDetails.phoneNumber != null && (
+            <SubSection>
+              <SubSectionLabel>전화번호</SubSectionLabel>
+              <SubSectionTitle>{toiletDetails.phoneNumber}</SubSectionTitle>
             </SubSection>
           )}
         </Section>
@@ -362,7 +407,7 @@ const ToiletPublicDetailSections = ({
 
       <Footer>
         <FooterText>
-          본 저작물은 ‘마트 서울맵 - (동행)휠체어도 가는 화장실 지도'를
+          본 저작물은 ‘스마트 서울맵 - (동행)휠체어도 가는 화장실 지도'를
           이용하였습니다.
         </FooterText>
       </Footer>
@@ -380,6 +425,25 @@ function RegistrantMeta({source}: {source: ToiletAccessibilityDto}) {
     <RegistrantRow>
       <RegistrantName>{userName}</RegistrantName>
       {dateStr != null && <RegistrantDate>{dateStr}</RegistrantDate>}
+    </RegistrantRow>
+  );
+}
+
+// 공공데이터 소스의 출처명 + 마지막 확인 시각을 메타로 표시한다.
+function PublicDataMeta({
+  sourceName,
+  lastVerifiedAt,
+}: {
+  sourceName: string;
+  lastVerifiedAt?: {value: number};
+}) {
+  const dateStr = lastVerifiedAt
+    ? dayjs(lastVerifiedAt.value).format('YYYY.MM.DD')
+    : null;
+  return (
+    <RegistrantRow>
+      <RegistrantName>{sourceName}</RegistrantName>
+      {dateStr != null && <RegistrantDate>{dateStr} 확인</RegistrantDate>}
     </RegistrantRow>
   );
 }

@@ -1,5 +1,6 @@
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {
+  EpochMillisTimestamp,
   Location,
   ToiletAccessibilityDetails,
   ToiletSummaryDto,
@@ -44,6 +45,14 @@ export interface ToiletDetails {
   washStandBelowRoom?: string;
   washStandHandle?: string;
   extra?: string;
+  /** 출처 표시명 (예: '스마트서울맵', '행정안전부 전국공중화장실표준데이터'). 유저 리뷰 소스는 undefined. */
+  sourceName?: string | null;
+  /** 마지막으로 화장실 정보가 확인된 시각. 유저 리뷰 소스는 undefined. */
+  lastVerifiedAt?: EpochMillisTimestamp;
+  /** 개방시간 (공공데이터 소스). */
+  openingHours?: string | null;
+  /** 전화번호 (공공데이터 소스). */
+  phoneNumber?: string | null;
 }
 
 /**
@@ -65,6 +74,8 @@ function parseToiletAccessibilityDetails(
   | 'washStandBelowRoom'
   | 'washStandHandle'
   | 'extra'
+  | 'openingHours'
+  | 'phoneNumber'
 > & {availableState: 'AVAILABLE' | 'UNAVAILABLE' | 'UNKNOWN'} {
   const genderDesc = toiletDetails.gender;
   const genderType: 'MALE' | 'FEMALE' | 'BOTH' = (() => {
@@ -160,6 +171,8 @@ function parseToiletAccessibilityDetails(
     washStandBelowRoom: toiletDetails.washStandBelowRoom,
     washStandHandle: toiletDetails.washStandHandle,
     extra: toiletDetails.extraDesc,
+    openingHours: toiletDetails.openingHours,
+    phoneNumber: toiletDetails.phoneNumber,
   };
 }
 
@@ -192,6 +205,8 @@ export function mapToiletDetailsToToiletDetails(
     washStandBelowRoom: enriched.washStandBelowRoom,
     washStandHandle: enriched.washStandHandle,
     extra: enriched.extra,
+    openingHours: enriched.openingHours,
+    phoneNumber: enriched.phoneNumber,
   };
 }
 
@@ -248,5 +263,14 @@ export function mapSummaryToToiletDetails(
     washStandBelowRoom: enriched?.washStandBelowRoom,
     washStandHandle: enriched?.washStandHandle,
     extra: enriched?.extra,
+    openingHours: enriched?.openingHours,
+    phoneNumber: enriched?.phoneNumber,
+    // 공공데이터 소스(toiletDetails 있는 첫 소스)의 sourceName/lastVerifiedAt을 카드에 표시한다.
+    sourceName: summary.accessibilities.find(
+      accessibility => accessibility.toiletDetails != null,
+    )?.sourceName,
+    lastVerifiedAt: summary.accessibilities.find(
+      accessibility => accessibility.toiletDetails != null,
+    )?.lastVerifiedAt,
   };
 }

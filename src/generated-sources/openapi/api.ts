@@ -2242,6 +2242,18 @@ export interface ExternalAccessibility {
      * @memberof ExternalAccessibility
      */
     'toiletId'?: string | null;
+    /**
+     * 데이터 출처 소스 코드 (예: SMART_SEOUL_MAP, MOIS_PUBLIC_TOILET). null이면 출처 미상.
+     * @type {string}
+     * @memberof ExternalAccessibility
+     */
+    'source'?: string | null;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ExternalAccessibility
+     */
+    'lastVerifiedAt'?: EpochMillisTimestamp;
 }
 /**
  * 층 정보 교정
@@ -6840,6 +6852,18 @@ export interface ToiletAccessibilityDetails {
      * @memberof ToiletAccessibilityDetails
      */
     'extraDesc'?: string;
+    /**
+     * 화장실 개방시간 (예: \"월-금 06:00~22:00\"). 공공데이터 소스에만 존재.
+     * @type {string}
+     * @memberof ToiletAccessibilityDetails
+     */
+    'openingHours'?: string | null;
+    /**
+     * 관리기관 전화번호. 공공데이터 소스에만 존재.
+     * @type {string}
+     * @memberof ToiletAccessibilityDetails
+     */
+    'phoneNumber'?: string | null;
 }
 /**
  * Toilet에 병합된 단일 소스(유저 리뷰 ToiletReview 또는 공공데이터 ExternalAccessibility)의 접근성 정보. 소스 종류에 따라 채워지는 필드가 다르며, 클라이언트는 sourceType 분기 없이 존재하는 필드만 조건부로 렌더링한다. 
@@ -6901,6 +6925,18 @@ export interface ToiletAccessibilityDto {
      * @memberof ToiletAccessibilityDto
      */
     'createdAt'?: EpochMillisTimestamp;
+    /**
+     * 출처 표시명 (예: \"스마트서울맵\", \"행정안전부 전국공중화장실표준데이터\"). 유저 리뷰 소스는 null.
+     * @type {string}
+     * @memberof ToiletAccessibilityDto
+     */
+    'sourceName'?: string | null;
+    /**
+     * 
+     * @type {EpochMillisTimestamp}
+     * @memberof ToiletAccessibilityDto
+     */
+    'lastVerifiedAt'?: EpochMillisTimestamp;
 }
 /**
  * 통합 Toilet + 병합된 소스별 접근성 정보 리스트. PDP(Place + PlaceAccessibility[]) 패턴. Toilet 레벨 식별/표시 정보 + 소스별 ToiletAccessibilityDto 배열로 구성된다. 
@@ -7548,7 +7584,14 @@ export const UserMobilityToolDto = {
     WalkingAssistanceDevice: 'WALKING_ASSISTANCE_DEVICE',
     Cluch: 'CLUCH',
     None: 'NONE',
-    FriendOfToolUser: 'FRIEND_OF_TOOL_USER'
+    FriendOfToolUser: 'FRIEND_OF_TOOL_USER',
+    Scooter: 'SCOOTER',
+    WheelchairUserCompanion: 'WHEELCHAIR_USER_COMPANION',
+    Walker: 'WALKER',
+    Cane: 'CANE',
+    WalkingCart: 'WALKING_CART',
+    Crutch: 'CRUTCH',
+    WalkingDifficulty: 'WALKING_DIFFICULTY'
 } as const;
 
 export type UserMobilityToolDto = typeof UserMobilityToolDto[keyof typeof UserMobilityToolDto];

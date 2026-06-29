@@ -1,4 +1,5 @@
 import {useAtomValue} from 'jotai';
+import dayjs from 'dayjs';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import React from 'react';
@@ -97,6 +98,16 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
               <Tags texts={tagTexts} />
             </ExtraArea>
           )}
+          {item.sourceName != null && (
+            <SourceMetaRow>
+              <SourceNameText>{item.sourceName}</SourceNameText>
+              {item.lastVerifiedAt != null && (
+                <SourceDateText>
+                  {dayjs(item.lastVerifiedAt.value).format('YYYY.MM.DD')} 확인
+                </SourceDateText>
+              )}
+            </SourceMetaRow>
+          )}
         </InfoArea>
         {images.length > 0 && (
           <View style={{width: '100%', flexShrink: 2, overflow: 'hidden'}}>
@@ -189,4 +200,24 @@ const LocationDivider = styled.View`
   height: 2px;
   border-radius: 1px;
   background-color: ${() => color.gray80};
+`;
+
+const SourceMetaRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+`;
+
+const SourceNameText = styled.Text`
+  font-size: 11px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${() => color.gray60};
+`;
+
+const SourceDateText = styled.Text`
+  font-size: 11px;
+  font-family: ${() => font.pretendardRegular};
+  color: ${() => color.gray50};
 `;
