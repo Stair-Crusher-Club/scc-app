@@ -1,4 +1,4 @@
-import React, {forwardRef} from 'react';
+import React, {forwardRef, useState} from 'react';
 import {
   NativeSyntheticEvent,
   ReturnKeyTypeOptions,
@@ -53,6 +53,18 @@ const SignupInput = forwardRef<TextInput, Props>(
     },
     ref,
   ) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleFocus = () => {
+      setIsFocused(true);
+      onFocus?.();
+    };
+
+    const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+      setIsFocused(false);
+      onBlur?.(e);
+    };
+
     return (
       <SignupBoxInput
         ref={ref}
@@ -61,10 +73,10 @@ const SignupInput = forwardRef<TextInput, Props>(
         label={label}
         isRequired={isRequired}
         state={state}
-        caption={getLabel()}
+        caption={getLabel(isFocused)}
         onChangeText={onChangeText}
-        onFocus={onFocus}
-        onBlur={onBlur}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         onPress={onPress}
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}

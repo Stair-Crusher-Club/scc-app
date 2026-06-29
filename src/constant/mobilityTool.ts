@@ -107,7 +107,10 @@ export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
   },
 ];
 
-// 레거시 호환: 기존 코드에서 MOBILITY_TOOL_OPTIONS를 참조하는 곳이 있으면 그대로 사용 가능
-export const MOBILITY_TOOL_OPTIONS = MOBILITY_TOOL_GROUPS.flatMap(
-  g => g.options,
-);
+// 레거시 호환: 기존 flat 옵션 계약 유지 (그룹에 미노출된 하위호환 값도 포함해야 함)
+export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS)
+  .filter(([value]) => value !== UserMobilityToolDto.FriendOfToolUser) // 친구 선택은 NONE 선택 이후 진행됨
+  .map(([value, label]) => ({
+    value: value as UserMobilityToolDto,
+    label,
+  }));
