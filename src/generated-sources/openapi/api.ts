@@ -344,6 +344,20 @@ export type AccessibilityReportReason = typeof AccessibilityReportReason[keyof t
 
 
 /**
+ * 접근성 데이터 출처
+ * @export
+ * @enum {string}
+ */
+
+export const AccessibilitySourceDto = {
+    SmartSeoulMap: 'SMART_SEOUL_MAP',
+    MoisPublicToilet: 'MOIS_PUBLIC_TOILET'
+} as const;
+
+export type AccessibilitySourceDto = typeof AccessibilitySourceDto[keyof typeof AccessibilitySourceDto];
+
+
+/**
  * 
  * @export
  * @interface ApiErrorResponse
@@ -2243,11 +2257,11 @@ export interface ExternalAccessibility {
      */
     'toiletId'?: string | null;
     /**
-     * 데이터 출처 소스 코드 (예: SMART_SEOUL_MAP, MOIS_PUBLIC_TOILET). null이면 출처 미상.
-     * @type {string}
+     * 
+     * @type {AccessibilitySourceDto}
      * @memberof ExternalAccessibility
      */
-    'source'?: string | null;
+    'source'?: AccessibilitySourceDto;
     /**
      * 
      * @type {EpochMillisTimestamp}
@@ -6926,11 +6940,11 @@ export interface ToiletAccessibilityDto {
      */
     'createdAt'?: EpochMillisTimestamp;
     /**
-     * 출처 표시명 (예: \"스마트서울맵\", \"행정안전부 전국공중화장실표준데이터\"). 유저 리뷰 소스는 null.
-     * @type {string}
+     * 
+     * @type {AccessibilitySourceDto}
      * @memberof ToiletAccessibilityDto
      */
-    'sourceName'?: string | null;
+    'source'?: AccessibilitySourceDto;
     /**
      * 
      * @type {EpochMillisTimestamp}

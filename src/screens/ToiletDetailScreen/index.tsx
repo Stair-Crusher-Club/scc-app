@@ -27,15 +27,14 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  ToiletAccessibilityDto,
-  ToiletDetailDto,
-} from '@/generated-sources/openapi';
+import type {ToiletAccessibilityDto as ToiletAccessibilityDtoType} from '@/generated-sources/openapi';
+import {ToiletDetailDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import AvailableLabel from '@/screens/ToiletDetailScreen/AvailableLabel';
 import ToiletImageCarousel from '@/screens/ToiletDetailScreen/ToiletImageCarousel';
 import {
+  accessibilitySourceLabel,
   mapToiletDetailsToToiletDetails,
   ToiletDetails,
 } from '@/components/toilet/data';
@@ -125,16 +124,16 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
   const availableForLabel = publicToiletDetails?.available;
   // 로드뷰 노출 조건: PA급 상세 필드 중 하나라도 없으면(hasRichToiletDetail=false) 로드뷰 노출.
   // 공공데이터 전용 필드(openingHours/phoneNumber 등)가 있어도 PA급이 없으면 로드뷰를 띄운다.
-  const hasRichToiletDetail = !!(
-    representativeToiletDetails?.stallWidth ??
-    representativeToiletDetails?.stallDepth ??
-    representativeToiletDetails?.doorDesc ??
-    representativeToiletDetails?.entranceDesc ??
-    representativeToiletDetails?.accessDesc ??
-    representativeToiletDetails?.doorSideRoom ??
-    representativeToiletDetails?.washStandBelowRoom ??
-    representativeToiletDetails?.washStandHandle
-  );
+  const hasRichToiletDetail = [
+    publicToiletDetails?.stall?.width,
+    publicToiletDetails?.stall?.depth,
+    publicToiletDetails?.door?.desc,
+    publicToiletDetails?.entrance?.desc,
+    publicToiletDetails?.accessDesc,
+    publicToiletDetails?.doorSideRoom,
+    publicToiletDetails?.washStandBelowRoom,
+    publicToiletDetails?.washStandHandle,
+  ].some(v => !!v);
 
   const onCopy = () => {
     if (detail.address) {
@@ -175,13 +174,10 @@ const ToiletDetail = ({detail}: {detail: ToiletDetailDto}) => {
                   </CopyButton>
                 </AddressRow>
               )}
-              {reviewSource && <RegistrantMeta source={reviewSource} />}
-              {publicDataSource?.sourceName != null && (
-                <PublicDataMeta
-                  sourceName={publicDataSource.sourceName}
-                  lastVerifiedAt={publicDataSource.lastVerifiedAt}
-                />
-              )}
+              <MetaRow
+                reviewSource={reviewSource ?? null}
+                publicDataSource={publicDataSource ?? null}
+              />
               <SectionDivider />
               <TextButtonContainer>
                 <TextButton
@@ -415,37 +411,42 @@ const ToiletPublicDetailSections = ({
   );
 };
 
-// 유저 리뷰 소스의 등록자/등록시점을 PDP 코멘트 박스와 동일한 스타일로 표시한다.
-function RegistrantMeta({source}: {source: ToiletAccessibilityDto}) {
-  const userName = source.registeredUserName ?? '익명';
-  const dateStr = source.createdAt
-    ? dayjs(source.createdAt.value).format('YYYY.MM.DD')
-    : null;
-  return (
-    <RegistrantRow>
-      <RegistrantName>{userName}</RegistrantName>
-      {dateStr != null && <RegistrantDate>{dateStr}</RegistrantDate>}
-    </RegistrantRow>
-  );
-}
-
-// 공공데이터 소스의 출처명 + 마지막 확인 시각을 메타로 표시한다.
-function PublicDataMeta({
-  sourceName,
-  lastVerifiedAt,
+/**
+ * 타이틀 영역 메타 행: 리뷰 소스가 있으면 등록자+등록일, 없고 공공데이터 소스만 있으면 출처+확인일.
+ * 어떤 경우든 meta 행은 1개만 렌더한다.
+ */
+function MetaRow({
+  reviewSource,
+  publicDataSource,
 }: {
-  sourceName: string;
-  lastVerifiedAt?: {value: number};
+  reviewSource: ToiletAccessibilityDtoType | null;
+  publicDataSource: ToiletAccessibilityDtoType | null;
 }) {
-  const dateStr = lastVerifiedAt
-    ? dayjs(lastVerifiedAt.value).format('YYYY.MM.DD')
-    : null;
-  return (
-    <RegistrantRow>
-      <RegistrantName>{sourceName}</RegistrantName>
-      {dateStr != null && <RegistrantDate>{dateStr} 확인</RegistrantDate>}
-    </RegistrantRow>
-  );
+  if (reviewSource != null) {
+    const userName = reviewSource.registeredUserName ?? '익명';
+    const dateStr = reviewSource.createdAt
+      ? dayjs(reviewSource.createdAt.value).format('YYYY.MM.DD')
+      : null;
+    return (
+      <RegistrantRow>
+        <RegistrantName>{userName}</RegistrantName>
+        {dateStr != null && <RegistrantDate>{dateStr}</RegistrantDate>}
+      </RegistrantRow>
+    );
+  }
+  if (publicDataSource?.source != null) {
+    const sourceName = accessibilitySourceLabel(publicDataSource.source);
+    const dateStr = publicDataSource.lastVerifiedAt
+      ? dayjs(publicDataSource.lastVerifiedAt.value).format('YYYY.MM.DD')
+      : null;
+    return (
+      <RegistrantRow>
+        <RegistrantName>{sourceName}</RegistrantName>
+        {dateStr != null && <RegistrantDate>{dateStr} 확인</RegistrantDate>}
+      </RegistrantRow>
+    );
+  }
+  return null;
 }
 
 function AppBar() {

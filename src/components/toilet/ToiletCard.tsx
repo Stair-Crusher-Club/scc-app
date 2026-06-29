@@ -11,7 +11,10 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import Tags from '@/components/Tag';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {ToiletDetails} from '@/components/toilet/data';
+import {
+  accessibilitySourceLabel,
+  ToiletDetails,
+} from '@/components/toilet/data';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import useNavigation from '@/navigation/useNavigation';
@@ -98,9 +101,11 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
               <Tags texts={tagTexts} />
             </ExtraArea>
           )}
-          {item.sourceName != null && (
+          {item.source != null && (
             <SourceMetaRow>
-              <SourceNameText>{item.sourceName}</SourceNameText>
+              <SourceNameText>
+                {accessibilitySourceLabel(item.source)}
+              </SourceNameText>
               {item.lastVerifiedAt != null && (
                 <SourceDateText>
                   {dayjs(item.lastVerifiedAt.value).format('YYYY.MM.DD')} 확인
