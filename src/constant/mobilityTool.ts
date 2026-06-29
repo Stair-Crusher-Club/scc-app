@@ -6,7 +6,7 @@ export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolDto, string> = {
   [UserMobilityToolDto.ManualAndElectricWheelchair]: '수전동 휠체어',
   [UserMobilityToolDto.Scooter]: '스쿠터',
   [UserMobilityToolDto.WheelchairUserCompanion]:
-    '휠체어 사용자의 가족·친구·동료',
+    '휠체어 사용자의 가족 · 친구 · 동료',
   [UserMobilityToolDto.ProstheticFoot]: '의족',
   [UserMobilityToolDto.Walker]: '워커',
   [UserMobilityToolDto.Cane]: '지팡이',
@@ -15,7 +15,7 @@ export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolDto, string> = {
   [UserMobilityToolDto.None]: '해당하는 유형없음',
   [UserMobilityToolDto.Stroller]: '유아차 동반',
   [UserMobilityToolDto.WalkingDifficulty]:
-    '보행 대체·보조 기기가 없으나 보행 불편',
+    '보행 대체 · 보조 기기가 없으나 보행 불편',
   // 하위호환 유지 (신규 UI에 미표시)
   [UserMobilityToolDto.WalkingAssistanceDevice]: '보행보조도구',
   [UserMobilityToolDto.Cluch]: '클러치(목발, 지팡이 등)',

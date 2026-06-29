@@ -25,7 +25,7 @@ export default function SignupMobilityToolPage({
             (중복선택가능)
           </Text>
         </Text>
-        <Text className="font-pretendard-medium text-[16px] text-gray-90 mt-[4px]">
+        <Text className="font-pretendard-medium text-[16px] text-gray-70 mt-[4px]">
           맞춤 정보 제공 및 탐색을 위해 필요한 정보입니다.
         </Text>
       </View>

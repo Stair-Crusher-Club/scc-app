@@ -46,7 +46,7 @@ export default function SelectableItem({
           fontFamily: font.pretendardMedium,
           fontSize: 16,
           lineHeight: 24,
-          letterSpacing: -0.32,
+          letterSpacing: -0.2,
           color: color.gray90v2,
         }}>
         {text}

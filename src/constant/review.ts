@@ -25,13 +25,13 @@ export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolMapDto, string> = {
   [UserMobilityToolDto.None]: '해당없음',
   [UserMobilityToolDto.Scooter]: '스쿠터',
   [UserMobilityToolDto.WheelchairUserCompanion]:
-    '휠체어 사용자의 가족·친구·동료',
+    '휠체어 사용자의 가족 · 친구 · 동료',
   [UserMobilityToolDto.Walker]: '워커',
   [UserMobilityToolDto.Cane]: '지팡이',
   [UserMobilityToolDto.WalkingCart]: '보행차',
   [UserMobilityToolDto.Crutch]: '목발',
   [UserMobilityToolDto.WalkingDifficulty]:
-    '보행 대체·보조 기기가 없으나 보행 불편',
+    '보행 대체 · 보조 기기가 없으나 보행 불편',
 };
 
 export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS)
