@@ -572,7 +572,7 @@ const SectionDivider = styled.View`
 
 const Section = styled.View`
   background-color: white;
-  padding: 30px;
+  padding: 30px 30px 20px;
   flex-direction: column;
   gap: 20px;
   align-items: flex-start;
@@ -677,6 +677,7 @@ const RegistrantRow = styled.View`
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  margin-top: 16px;
 `;
 
 const RegistrantName = styled.Text`
@@ -704,7 +705,7 @@ const DirectionsRow = styled.View`
   flex-direction: row;
   align-items: center;
   gap: 4px;
-  margin-top: 8px;
+  margin-top: 0px;
 `;
 
 const DirectionsText = styled.Text`
