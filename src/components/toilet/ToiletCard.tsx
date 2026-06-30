@@ -11,7 +11,6 @@ import ShareIcon from '@/assets/icon/ic_share.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import Tags from '@/components/Tag';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import PanoramaCanvas from '@/components/maps/PanoramaCanvas';
 import {
   accessibilitySourceLabel,
   ToiletDetails,
@@ -42,7 +41,6 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
   })();
   const images = item.imageUrl ? [{imageUrl: item.imageUrl}] : [];
   const hasImage = images.length > 0;
-  const showRoadview = !hasImage;
   const onShare = () => {
     ToastUtils.show('준비 중입니다.');
   };
@@ -60,7 +58,7 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
       }}>
       <Container
         elementName="toilet_card"
-        hasImage={hasImage || showRoadview}
+        hasImage={hasImage}
         onPress={() => {
           navigation.navigate('ToiletDetail', {
             toiletId: item.toiletId,
@@ -96,7 +94,9 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
             <LocationBox>
               <DistanceText>{distanceText}</DistanceText>
               <LocationDivider />
-              <AddressText>{item.address}</AddressText>
+              <AddressText numberOfLines={1} ellipsizeMode="tail">
+                {item.address}
+              </AddressText>
             </LocationBox>
           </TitleArea>
           {tagTexts.length > 0 && (
@@ -121,18 +121,6 @@ export default function ToiletCard({item}: {item: ToiletDetails & MarkerItem}) {
           <View style={{width: '100%', flexShrink: 2, overflow: 'hidden'}}>
             <ImageList images={images} />
           </View>
-        )}
-        {showRoadview && (
-          // ponytail: pointerEvents="none" so taps pass through to Container → TDP navigate
-          <RoadviewPreviewBox pointerEvents="none">
-            <PanoramaCanvas
-              position={{lat: item.location.lat, lng: item.location.lng}}
-              label={item.name}
-              showPin={false}
-              interactive={false}
-              style={{width: '100%', height: '100%'}}
-            />
-          </RoadviewPreviewBox>
         )}
       </Container>
     </LogParamsProvider>
@@ -202,6 +190,7 @@ const DistanceText = styled.Text`
 `;
 
 const AddressText = styled.Text`
+  flex: 1;
   font-size: 14px;
   font-family: ${() => font.pretendardRegular};
   color: ${() => color.gray80};
@@ -213,6 +202,7 @@ const LocationBox = styled.View`
   align-items: center;
   justify-content: flex-start;
   gap: 4px;
+  width: 100%;
 `;
 
 const LocationDivider = styled.View`
@@ -240,13 +230,4 @@ const SourceDateText = styled.Text`
   font-size: 11px;
   font-family: ${() => font.pretendardRegular};
   color: ${() => color.gray50};
-`;
-
-const RoadviewPreviewBox = styled.View`
-  width: 100%;
-  height: 150px;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: ${() => color.gray10};
-  flex-shrink: 2;
 `;
