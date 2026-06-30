@@ -329,6 +329,8 @@ export default function SignupScreen({
           className="bg-white"
           contentContainerStyle={{paddingBottom: 40}}
           scrollEventThrottle={16}
+          // 회원가입 화면에 한해: 키보드가 떠 있어도 버튼/input 첫 탭이 즉시 동작.
+          keyboardShouldPersistTaps="always"
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}>
