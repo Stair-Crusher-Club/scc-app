@@ -7,6 +7,7 @@ import {Keyboard, ScrollView, Text, TextInput, View} from 'react-native';
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {SccTouchableWithoutFeedback} from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
@@ -330,11 +331,20 @@ export default function SignupScreen({
           contentContainerStyle={{paddingBottom: 40}}
           scrollEventThrottle={16}
           // 회원가입 화면에 한해: 키보드가 떠 있어도 버튼/input 첫 탭이 즉시 동작.
+          // (안드로이드는 'handled'로는 첫 탭이 씹혀 'always' 불가피)
           keyboardShouldPersistTaps="always"
+          // 'always'라 빈 영역 탭으로는 안 닫히므로 닫기 수단을 따로 제공:
+          // 스와이프 다운(on-drag) + 아래 SccTouchableWithoutFeedback(빈 영역 탭).
+          keyboardDismissMode="on-drag"
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}>
-          {renderPages()}
+          <SccTouchableWithoutFeedback
+            elementName="signup_background_dismiss_keyboard"
+            disableLogging
+            accessible={false}>
+            <View>{renderPages()}</View>
+          </SccTouchableWithoutFeedback>
         </ScrollView>
         {!buttonConfig.hidden && (
           // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
