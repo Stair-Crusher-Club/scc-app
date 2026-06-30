@@ -240,29 +240,34 @@ export default function SignupScreen({
         cb: (x: number, y: number, w: number, h: number) => void,
       ) => void;
     };
-    const scrollNode = (
-      scrollViewRef.current as unknown as {
-        getNativeScrollRef?: () => Measurable | null;
-      } | null
-    )?.getNativeScrollRef?.();
-    const input = TextInput.State.currentlyFocusedInput() as Measurable | null;
-    if (!scrollNode || !input) return;
-    scrollNode.measureInWindow((_sx, sy, _sw, sh) => {
-      input.measureInWindow((_ix, iy, _iw, ih) => {
-        const topRel = iy - sy;
-        const bottomRel = iy + ih - sy;
-        let delta = 0;
-        if (bottomRel + GAP > sh) {
-          delta = bottomRel + GAP - sh; // 아래로 부족한 만큼만 내림
-        } else if (topRel < 0) {
-          delta = topRel; // 위로 가려졌으면 그만큼만 올림
-        }
-        if (Math.abs(delta) > 1) {
-          scrollViewRef.current?.scrollTo({
-            y: Math.max(0, scrollOffsetRef.current + delta),
-            animated: true,
-          });
-        }
+    // 다음 프레임으로 미뤄 포커스 전환(TextInput.State 갱신)이 끝난 뒤 측정한다.
+    // 즉시 읽으면 이미 키보드가 떠 있는 상태에서 input을 바꿀 때 직전 input이 잡힌다.
+    requestAnimationFrame(() => {
+      const scrollNode = (
+        scrollViewRef.current as unknown as {
+          getNativeScrollRef?: () => Measurable | null;
+        } | null
+      )?.getNativeScrollRef?.();
+      const input =
+        TextInput.State.currentlyFocusedInput() as Measurable | null;
+      if (!scrollNode || !input) return;
+      scrollNode.measureInWindow((_sx, sy, _sw, sh) => {
+        input.measureInWindow((_ix, iy, _iw, ih) => {
+          const topRel = iy - sy;
+          const bottomRel = iy + ih - sy;
+          let delta = 0;
+          if (bottomRel + GAP > sh) {
+            delta = bottomRel + GAP - sh; // 아래로 부족한 만큼만 내림
+          } else if (topRel < 0) {
+            delta = topRel; // 위로 가려졌으면 그만큼만 올림
+          }
+          if (Math.abs(delta) > 1) {
+            scrollViewRef.current?.scrollTo({
+              y: Math.max(0, scrollOffsetRef.current + delta),
+              animated: true,
+            });
+          }
+        });
       });
     });
   }, []);
@@ -333,9 +338,9 @@ export default function SignupScreen({
           // 회원가입 화면에 한해: 키보드가 떠 있어도 버튼/input 첫 탭이 즉시 동작.
           // (안드로이드는 'handled'로는 첫 탭이 씹혀 'always' 불가피)
           keyboardShouldPersistTaps="always"
-          // 'always'라 빈 영역 탭으로는 안 닫히므로 닫기 수단을 따로 제공:
-          // 스와이프 다운(on-drag) + 아래 SccTouchableWithoutFeedback(빈 영역 탭).
-          keyboardDismissMode="on-drag"
+          // 'always'라 빈 영역 탭으로는 안 닫히므로, 아래 SccTouchableWithoutFeedback로
+          // 닫기를 제공. on-drag는 스크롤 시작 즉시 닫혀 키보드 유지 스크롤이 안 되므로 안 씀.
+          // (TouchableWithoutFeedback.onPress는 탭-릴리즈에서만 발동, 스크롤 중엔 취소됨)
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}>
