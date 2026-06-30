@@ -7598,13 +7598,12 @@ export const UserMobilityToolDto = {
     WalkingAssistanceDevice: 'WALKING_ASSISTANCE_DEVICE',
     Cluch: 'CLUCH',
     None: 'NONE',
-    FriendOfToolUser: 'FRIEND_OF_TOOL_USER',
+    FriendOfWheelchairUser: 'FRIEND_OF_WHEELCHAIR_USER',
     Scooter: 'SCOOTER',
-    WheelchairUserCompanion: 'WHEELCHAIR_USER_COMPANION',
-    Walker: 'WALKER',
     Cane: 'CANE',
-    WalkingCart: 'WALKING_CART',
+    WalkerAndWalkingCart: 'WALKER_AND_WALKING_CART',
     Crutch: 'CRUTCH',
+    FriendOfWalkingAidUser: 'FRIEND_OF_WALKING_AID_USER',
     WalkingDifficulty: 'WALKING_DIFFICULTY'
 } as const;
 

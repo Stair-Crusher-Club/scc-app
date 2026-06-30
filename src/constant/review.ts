@@ -12,7 +12,7 @@ type UserMobilityToolMap = typeof UserMobilityToolDto;
 
 export type UserMobilityToolMapDto = UserMobilityToolMap[keyof Omit<
   UserMobilityToolMap,
-  'FriendOfToolUser' | 'Cluch'
+  'Cluch'
 >];
 
 export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolMapDto, string> = {
@@ -23,23 +23,24 @@ export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolMapDto, string> = {
   [UserMobilityToolDto.ProstheticFoot]: '의족',
   [UserMobilityToolDto.Stroller]: '유아차 동반',
   [UserMobilityToolDto.None]: '해당없음',
-  [UserMobilityToolDto.Scooter]: '스쿠터',
-  [UserMobilityToolDto.WheelchairUserCompanion]:
+  [UserMobilityToolDto.Scooter]: '전동스쿠터(의료용)',
+  [UserMobilityToolDto.FriendOfWheelchairUser]:
     '휠체어 사용자의 가족 · 친구 · 동료',
-  [UserMobilityToolDto.Walker]: '워커',
   [UserMobilityToolDto.Cane]: '지팡이',
-  [UserMobilityToolDto.WalkingCart]: '보행차',
+  [UserMobilityToolDto.WalkerAndWalkingCart]: '워커 · 보행차',
   [UserMobilityToolDto.Crutch]: '목발',
+  [UserMobilityToolDto.FriendOfWalkingAidUser]:
+    '보행 보조 기기 사용자의 가족 · 친구 · 동료',
   [UserMobilityToolDto.WalkingDifficulty]:
     '보행 대체 · 보조 기기가 없으나 보행 불편',
 };
 
-export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS)
-  .filter(([value]) => value !== UserMobilityToolDto.FriendOfToolUser)
-  .map(([value, label]) => ({
+export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS).map(
+  ([value, label]) => ({
     value: value as UserMobilityToolDto,
     label,
-  }));
+  }),
+);
 
 export function getMobilityToolDefaultValue(
   mobilityTools?: UserMobilityToolDto[],

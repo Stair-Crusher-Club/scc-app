@@ -1,25 +1,24 @@
 import {UserMobilityToolDto} from '@/generated-sources/openapi';
 
 export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolDto, string> = {
-  [UserMobilityToolDto.ManualWheelchair]: '수동 휠체어',
-  [UserMobilityToolDto.ElectricWheelchair]: '전동 휠체어',
-  [UserMobilityToolDto.ManualAndElectricWheelchair]: '수전동 휠체어',
-  [UserMobilityToolDto.Scooter]: '스쿠터',
-  [UserMobilityToolDto.WheelchairUserCompanion]:
+  [UserMobilityToolDto.ManualWheelchair]: '수동휠체어',
+  [UserMobilityToolDto.ElectricWheelchair]: '전동휠체어',
+  [UserMobilityToolDto.ManualAndElectricWheelchair]: '수전동휠체어',
+  [UserMobilityToolDto.Scooter]: '전동스쿠터(의료용)',
+  [UserMobilityToolDto.FriendOfWheelchairUser]:
     '휠체어 사용자의 가족 · 친구 · 동료',
   [UserMobilityToolDto.ProstheticFoot]: '의족',
-  [UserMobilityToolDto.Walker]: '워커',
   [UserMobilityToolDto.Cane]: '지팡이',
-  [UserMobilityToolDto.WalkingCart]: '보행차',
+  [UserMobilityToolDto.WalkerAndWalkingCart]: '워커 · 보행차',
   [UserMobilityToolDto.Crutch]: '목발',
-  [UserMobilityToolDto.None]: '해당하는 유형없음',
+  [UserMobilityToolDto.FriendOfWalkingAidUser]:
+    '보행 보조 기기 사용자의 가족 · 친구 · 동료',
+  [UserMobilityToolDto.None]: '해당 없음',
   [UserMobilityToolDto.Stroller]: '유아차 동반',
-  [UserMobilityToolDto.WalkingDifficulty]:
-    '보행 대체 · 보조 기기가 없으나 보행 불편',
+  [UserMobilityToolDto.WalkingDifficulty]: '보행 보조 기기가 없으나 보행 불편',
   // 하위호환 유지 (신규 UI에 미표시)
   [UserMobilityToolDto.WalkingAssistanceDevice]: '보행보조도구',
   [UserMobilityToolDto.Cluch]: '클러치(목발, 지팡이 등)',
-  [UserMobilityToolDto.FriendOfToolUser]: '이동약자의 친구/가족/동료',
 };
 
 export interface MobilityToolOption {
@@ -35,7 +34,7 @@ export interface MobilityToolGroup {
 
 export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
   {
-    groupLabel: '휠체어 사용',
+    groupLabel: '이동수단',
     options: [
       {
         value: UserMobilityToolDto.ManualWheelchair,
@@ -55,35 +54,35 @@ export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
         label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.Scooter],
       },
       {
-        value: UserMobilityToolDto.WheelchairUserCompanion,
-        label:
-          MOBILITY_TOOL_LABELS[UserMobilityToolDto.WheelchairUserCompanion],
+        value: UserMobilityToolDto.FriendOfWheelchairUser,
+        label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.FriendOfWheelchairUser],
         fullWidth: true,
       },
     ],
   },
   {
-    groupLabel: '보행 대체 · 보조 기기',
+    groupLabel: '보행 보조 기기',
     options: [
       {
         value: UserMobilityToolDto.ProstheticFoot,
         label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.ProstheticFoot],
       },
       {
-        value: UserMobilityToolDto.Walker,
-        label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.Walker],
-      },
-      {
         value: UserMobilityToolDto.Cane,
         label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.Cane],
       },
       {
-        value: UserMobilityToolDto.WalkingCart,
-        label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.WalkingCart],
+        value: UserMobilityToolDto.WalkerAndWalkingCart,
+        label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.WalkerAndWalkingCart],
       },
       {
         value: UserMobilityToolDto.Crutch,
         label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.Crutch],
+      },
+      {
+        value: UserMobilityToolDto.FriendOfWalkingAidUser,
+        label: MOBILITY_TOOL_LABELS[UserMobilityToolDto.FriendOfWalkingAidUser],
+        fullWidth: true,
       },
     ],
   },
@@ -107,10 +106,10 @@ export const MOBILITY_TOOL_GROUPS: MobilityToolGroup[] = [
   },
 ];
 
-// 레거시 호환: 기존 flat 옵션 계약 유지 (그룹에 미노출된 하위호환 값도 포함해야 함)
-export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS)
-  .filter(([value]) => value !== UserMobilityToolDto.FriendOfToolUser) // 친구 선택은 NONE 선택 이후 진행됨
-  .map(([value, label]) => ({
+// 레거시 호환: 기존 flat 옵션 계약 유지
+export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS).map(
+  ([value, label]) => ({
     value: value as UserMobilityToolDto,
     label,
-  }));
+  }),
+);

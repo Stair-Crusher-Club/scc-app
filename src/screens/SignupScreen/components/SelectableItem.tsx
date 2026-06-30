@@ -31,9 +31,7 @@ export default function SelectableItem({
       style={{opacity: isDimmed ? 0.4 : 1}}
       className={cn(
         'flex-row items-center gap-[8px] pl-[10px] pr-[12px] py-[12px] rounded-[12px] border-[1px]',
-        isSelected
-          ? 'bg-brand-5 border-brand-color'
-          : 'bg-white border-gray-20',
+        isSelected ? 'bg-brand-5 border-brand-50' : 'bg-white border-gray-20',
       )}>
       {isSelected ? (
         <FilledCheckIcon width={24} height={24} />
