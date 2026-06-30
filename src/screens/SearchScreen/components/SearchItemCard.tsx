@@ -483,7 +483,7 @@ const ScoreLabelGroup = styled.ScrollView.attrs({
   } as const,
 })`
   flex: 1;
-  overflow: visible;
+  overflow: hidden;
 `;
 
 const TitleArea = styled.View`

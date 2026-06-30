@@ -377,7 +377,7 @@ const StairLevelRow = styled.ScrollView.attrs({
     gap: 6,
   } as const,
 })`
-  overflow: visible;
+  overflow: hidden;
 `;
 
 // --- CONTROL styled components ---
