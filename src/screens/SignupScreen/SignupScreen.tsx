@@ -265,7 +265,11 @@ export default function SignupScreen({
         <View className="px-[20px]">
           <ProgressViewer progress={progress} />
         </View>
-        <ScrollView className="bg-white">{renderPages()}</ScrollView>
+        <ScrollView
+          className="bg-white"
+          contentContainerStyle={{paddingBottom: 40}}>
+          {renderPages()}
+        </ScrollView>
         {!buttonConfig.hidden && (
           // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
           // 내렸을 때: 좌우 20 여백 + rounded-8 플로팅 버튼. (Figma 2439-34293/33927)
