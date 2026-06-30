@@ -27,10 +27,12 @@ function getDomainSuggestions(email: string): string[] {
   if (domainPart === '') {
     return TOP_DOMAINS;
   }
-  const firstChar = domainPart[0].toLowerCase();
+  const lowerDomain = domainPart.toLowerCase();
+  const firstChar = lowerDomain[0];
   const candidates = DOMAIN_PREFIX_MAP[firstChar] ?? [];
-  return candidates.filter(domain =>
-    domain.startsWith(domainPart.toLowerCase()),
+  // 이미 완전히 일치하는 도메인은 추천할 필요 없으므로 제외.
+  return candidates.filter(
+    domain => domain.startsWith(lowerDomain) && domain !== lowerDomain,
   );
 }
 
