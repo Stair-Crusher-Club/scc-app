@@ -372,7 +372,7 @@ const ActionButton = styled(SccTouchableOpacity)<{
   disabled?: boolean;
   isActive: boolean;
 }>`
-  height: 56px;
+  height: 48px;
   width: 100%;
   justify-content: center;
   align-items: center;
