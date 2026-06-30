@@ -44,6 +44,7 @@ export default function UserMobilityToolsForm({
       return;
     }
 
+    // NONE 선택 상태에서 다른 옵션 탭 → NONE 해제하고 그 옵션으로 전환(원탭)
     if (isNoneSelected) {
       onChangeValue([pressed]);
       return;

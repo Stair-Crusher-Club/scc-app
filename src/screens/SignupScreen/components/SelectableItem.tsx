@@ -23,6 +23,8 @@ export default function SelectableItem({
   text,
   elementName,
 }: SelectableItemProps) {
+  // 라벨 끝의 부가설명 괄호는 작게 (예: "전동스쿠터(의료용)" → (의료용) 14px). 디자인 node 2439:35068
+  const parenMatch = text.match(/^(.*?)(\([^)]+\))$/);
   return (
     <SccPressable
       elementName={elementName}
@@ -47,7 +49,16 @@ export default function SelectableItem({
           letterSpacing: -0.2,
           color: color.gray90v2,
         }}>
-        {text}
+        {parenMatch ? (
+          <>
+            {parenMatch[1]}
+            <Text style={{fontSize: 14, letterSpacing: -0.28}}>
+              {parenMatch[2]}
+            </Text>
+          </>
+        ) : (
+          text
+        )}
       </Text>
     </SccPressable>
   );
