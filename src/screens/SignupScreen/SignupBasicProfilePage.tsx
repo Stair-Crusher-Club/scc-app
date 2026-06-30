@@ -11,14 +11,12 @@ interface SignupFirstPageProps {
   formValue: UserFormValue;
   formState: UserFormState;
   updateField: (field: keyof UserFormValue, value: any) => Promise<void>;
-  scrollToBottom?: () => void;
 }
 
 export default function SignupBasicPage({
   formValue,
   formState,
   updateField,
-  scrollToBottom,
 }: SignupFirstPageProps) {
   const emailInputRef = useRef<TextInput>(null);
 
@@ -61,7 +59,6 @@ export default function SignupBasicPage({
           value={formValue.birthYear}
           state={formState.birthYear}
           onChangeText={value => updateField('birthYear', value)}
-          onFocus={scrollToBottom}
         />
       </View>
     </>

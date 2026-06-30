@@ -2,7 +2,8 @@ import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
 import {useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useState} from 'react';
-import {ScrollView, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -221,7 +222,7 @@ export default function SignupScreen({
     typeof getButtonConfig
   > & {hidden?: boolean; elementName: string};
 
-  const scrollViewRef = React.useRef<ScrollView>(null);
+  const scrollViewRef = React.useRef<KeyboardAwareScrollView>(null);
   // 키보드 위 도킹 푸터/컨테이너 배경색 (버튼과 동일 → 키보드 코너 radius 틈도 같은 색으로 채움)
   const footerBg = buttonConfig.disabled
     ? isKeyboardVisible
@@ -231,7 +232,7 @@ export default function SignupScreen({
 
   // 스텝 전환 시 스크롤 최상단으로 리셋
   useEffect(() => {
-    scrollViewRef.current?.scrollTo({y: 0, animated: false});
+    scrollViewRef.current?.scrollToPosition(0, 0, false);
   }, [step]);
 
   // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
@@ -257,12 +258,6 @@ export default function SignupScreen({
           formValue={formValue}
           formState={formState}
           updateField={updateField}
-          scrollToBottom={() =>
-            setTimeout(
-              () => scrollViewRef.current?.scrollToEnd({animated: true}),
-              300,
-            )
-          }
         />
       )}
       {step === 3 && (
@@ -284,12 +279,19 @@ export default function SignupScreen({
         <View className="px-[20px]">
           <ProgressViewer progress={progress} />
         </View>
-        <ScrollView
+        <KeyboardAwareScrollView
           ref={scrollViewRef}
-          className="bg-white"
-          contentContainerStyle={{paddingBottom: 40}}>
+          style={{backgroundColor: color.white}}
+          contentContainerStyle={{paddingBottom: 40}}
+          // 포커스된 input을 키보드 위 40px 지점까지 한 번에 스크롤.
+          // KAV가 컨테이너를 줄여 스크롤뷰 하단=키보드 상단이므로 이중 패딩 없음.
+          // ponytail: 40 = input 하단과 키보드 사이 여백(디자인 튜닝 값)
+          extraScrollHeight={40}
+          enableOnAndroid
+          enableResetScrollToCoords={false}
+          keyboardShouldPersistTaps="handled">
           {renderPages()}
-        </ScrollView>
+        </KeyboardAwareScrollView>
         {!buttonConfig.hidden && (
           // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
           // 내렸을 때: 좌우 20 여백 + rounded-8 플로팅 버튼. (Figma 2439-34293/33927)

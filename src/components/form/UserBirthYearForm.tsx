@@ -10,7 +10,6 @@ interface UserBirthYearFormProps {
   state: UserFormState['birthYear'];
   onChangeText: (value: string) => Promise<void>;
   onSubmitEditing?: () => void;
-  onFocus?: () => void;
 }
 
 export interface UserBirthYearFormRef {
@@ -20,7 +19,7 @@ export interface UserBirthYearFormRef {
 const UserBirthYearForm = forwardRef<
   UserBirthYearFormRef,
   UserBirthYearFormProps
->(({value, state, onChangeText, onSubmitEditing, onFocus}, _ref) => {
+>(({value, state, onChangeText, onSubmitEditing}, _ref) => {
   return (
     <View style={{paddingHorizontal: 20}}>
       <SignupBoxInput
@@ -39,7 +38,6 @@ const UserBirthYearForm = forwardRef<
           onChangeText(numbersOnly);
         }}
         onSubmitEditing={onSubmitEditing}
-        onFocus={onFocus}
       />
     </View>
   );
