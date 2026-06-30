@@ -33,6 +33,8 @@ export default function UserMobilityToolsForm({
 }: UserMobilityToolsFormProps) {
   const isNoneSelected =
     value.length === 1 && value[0] === UserMobilityToolDto.None;
+  // 3개(MAX)를 채우면 NONE 선택 때처럼 나머지(미선택) 항목을 dim + 비활성화.
+  const isMaxSelected = !isNoneSelected && value.length >= MAX_SELECTION;
 
   const handlePress = (pressed: UserMobilityToolDto) => {
     if (pressed === UserMobilityToolDto.None) {
@@ -76,7 +78,10 @@ export default function UserMobilityToolsForm({
               const isSelected = isNone
                 ? isNoneSelected
                 : value.includes(option.value);
-              const isDimmed = isNoneSelected && !isNone;
+              // MAX 도달 시 미선택 항목(NONE 포함)은 비활성화. 선택된 항목은
+              // 해제할 수 있어야 하므로 활성 유지.
+              const isDisabledByMax = isMaxSelected && !isSelected;
+              const isDimmed = (isNoneSelected && !isNone) || isDisabledByMax;
               return (
                 <GridItem
                   key={option.value}
@@ -84,6 +89,7 @@ export default function UserMobilityToolsForm({
                   <SelectableItem
                     isSelected={isSelected}
                     isDimmed={isDimmed}
+                    disabled={isDisabledByMax}
                     onPress={() => handlePress(option.value)}
                     text={getLabel(option.value)}
                     elementName="user_mobility_tool_option"
