@@ -230,9 +230,9 @@ export default function SignupScreen({
       : color.gray15v2
     : color.brand40;
 
-  // 포커스된 input의 하단+40px이 뷰포트 밖일 때'만', 부족한 만큼'만' 스크롤한다.
+  // 포커스된 input의 하단+GAP이 뷰포트 밖일 때'만', 부족한 만큼'만' 스크롤한다.
   // KAV가 스크롤뷰를 키보드 위로 줄여주므로 뷰포트 높이(sh)만으로 판정 — 키보드 좌표 계산 불필요.
-  const GAP = 40;
+  const GAP = 60;
   const ensureFocusedInputVisible = useCallback(() => {
     type Measurable = {
       measureInWindow: (
@@ -329,7 +329,6 @@ export default function SignupScreen({
           className="bg-white"
           contentContainerStyle={{paddingBottom: 40}}
           scrollEventThrottle={16}
-          keyboardShouldPersistTaps="handled"
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}>

@@ -1,4 +1,4 @@
-import React, {forwardRef, useState} from 'react';
+import React, {forwardRef} from 'react';
 import {TextInput, View} from 'react-native';
 import styled from 'styled-components/native';
 import {match, Pattern} from 'ts-pattern';
@@ -60,9 +60,8 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
     },
     ref,
   ) => {
-    const [isFocused, setIsFocused] = useState(false);
-
-    const suggestions = isFocused ? getDomainSuggestions(value.email) : [];
+    // focus 여부와 무관하게 입력된 텍스트 기준으로 추천 도메인을 표시한다.
+    const suggestions = getDomainSuggestions(value.email);
 
     const handleSelectDomain = (domain: string) => {
       const atIndex = value.email.indexOf('@');
@@ -92,11 +91,7 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
           }
           value={value.email}
           onChangeText={onChangeText}
-          onFocus={() => {
-            setIsFocused(true);
-            onFocus?.();
-          }}
-          onBlur={_e => setIsFocused(false)}
+          onFocus={onFocus}
           onSubmitEditing={onSubmitEditing}
           isClearable={isClearable}
         />
