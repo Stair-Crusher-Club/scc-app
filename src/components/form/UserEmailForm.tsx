@@ -43,6 +43,7 @@ interface UserEmailFormProps {
   onChangeText: (value: string) => Promise<void>;
   onChangeNewsLetterSubscriptionAgreed: (value: boolean) => void;
   onSubmitEditing?: () => void;
+  onFocus?: () => void;
   isClearable?: boolean;
 }
 
@@ -54,6 +55,7 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
       onChangeText,
       onChangeNewsLetterSubscriptionAgreed,
       onSubmitEditing,
+      onFocus,
       isClearable = false,
     },
     ref,
@@ -90,7 +92,10 @@ const UserEmailForm = forwardRef<TextInput, UserEmailFormProps>(
           }
           value={value.email}
           onChangeText={onChangeText}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            setIsFocused(true);
+            onFocus?.();
+          }}
           onBlur={_e => setIsFocused(false)}
           onSubmitEditing={onSubmitEditing}
           isClearable={isClearable}

@@ -2,8 +2,7 @@ import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
 import {useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useState} from 'react';
-import {Text, View} from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {Keyboard, ScrollView, Text, TextInput, View} from 'react-native';
 
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -222,7 +221,8 @@ export default function SignupScreen({
     typeof getButtonConfig
   > & {hidden?: boolean; elementName: string};
 
-  const scrollViewRef = React.useRef<KeyboardAwareScrollView>(null);
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  const scrollOffsetRef = React.useRef(0);
   // 키보드 위 도킹 푸터/컨테이너 배경색 (버튼과 동일 → 키보드 코너 radius 틈도 같은 색으로 채움)
   const footerBg = buttonConfig.disabled
     ? isKeyboardVisible
@@ -230,9 +230,53 @@ export default function SignupScreen({
       : color.gray15v2
     : color.brand40;
 
+  // 포커스된 input의 하단+40px이 뷰포트 밖일 때'만', 부족한 만큼'만' 스크롤한다.
+  // KAV가 스크롤뷰를 키보드 위로 줄여주므로 뷰포트 높이(sh)만으로 판정 — 키보드 좌표 계산 불필요.
+  const GAP = 40;
+  const ensureFocusedInputVisible = useCallback(() => {
+    type Measurable = {
+      measureInWindow: (
+        cb: (x: number, y: number, w: number, h: number) => void,
+      ) => void;
+    };
+    const scrollNode = (
+      scrollViewRef.current as unknown as {
+        getNativeScrollRef?: () => Measurable | null;
+      } | null
+    )?.getNativeScrollRef?.();
+    const input = TextInput.State.currentlyFocusedInput() as Measurable | null;
+    if (!scrollNode || !input) return;
+    scrollNode.measureInWindow((_sx, sy, _sw, sh) => {
+      input.measureInWindow((_ix, iy, _iw, ih) => {
+        const topRel = iy - sy;
+        const bottomRel = iy + ih - sy;
+        let delta = 0;
+        if (bottomRel + GAP > sh) {
+          delta = bottomRel + GAP - sh; // 아래로 부족한 만큼만 내림
+        } else if (topRel < 0) {
+          delta = topRel; // 위로 가려졌으면 그만큼만 올림
+        }
+        if (Math.abs(delta) > 1) {
+          scrollViewRef.current?.scrollTo({
+            y: Math.max(0, scrollOffsetRef.current + delta),
+            animated: true,
+          });
+        }
+      });
+    });
+  }, []);
+
+  // 키보드가 완전히 올라온 뒤(레이아웃 안정) 한 번, 그리고 input 포커스 전환 시(아래 onInputFocus)에 보정.
+  useEffect(() => {
+    const sub = Keyboard.addListener('keyboardDidShow', () =>
+      ensureFocusedInputVisible(),
+    );
+    return () => sub.remove();
+  }, [ensureFocusedInputVisible]);
+
   // 스텝 전환 시 스크롤 최상단으로 리셋
   useEffect(() => {
-    scrollViewRef.current?.scrollToPosition(0, 0, false);
+    scrollViewRef.current?.scrollTo({y: 0, animated: false});
   }, [step]);
 
   // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
@@ -258,6 +302,7 @@ export default function SignupScreen({
           formValue={formValue}
           formState={formState}
           updateField={updateField}
+          onInputFocus={ensureFocusedInputVisible}
         />
       )}
       {step === 3 && (
@@ -279,19 +324,17 @@ export default function SignupScreen({
         <View className="px-[20px]">
           <ProgressViewer progress={progress} />
         </View>
-        <KeyboardAwareScrollView
+        <ScrollView
           ref={scrollViewRef}
-          style={{backgroundColor: color.white}}
+          className="bg-white"
           contentContainerStyle={{paddingBottom: 40}}
-          // 포커스된 input을 키보드 위 40px 지점까지 한 번에 스크롤.
-          // KAV가 컨테이너를 줄여 스크롤뷰 하단=키보드 상단이므로 이중 패딩 없음.
-          // ponytail: 40 = input 하단과 키보드 사이 여백(디자인 튜닝 값)
-          extraScrollHeight={40}
-          enableOnAndroid
-          enableResetScrollToCoords={false}
-          keyboardShouldPersistTaps="handled">
+          scrollEventThrottle={16}
+          keyboardShouldPersistTaps="handled"
+          onScroll={e => {
+            scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+          }}>
           {renderPages()}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         {!buttonConfig.hidden && (
           // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
           // 내렸을 때: 좌우 20 여백 + rounded-8 플로팅 버튼. (Figma 2439-34293/33927)

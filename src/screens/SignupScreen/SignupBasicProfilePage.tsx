@@ -11,12 +11,14 @@ interface SignupFirstPageProps {
   formValue: UserFormValue;
   formState: UserFormState;
   updateField: (field: keyof UserFormValue, value: any) => Promise<void>;
+  onInputFocus?: () => void;
 }
 
 export default function SignupBasicPage({
   formValue,
   formState,
   updateField,
+  onInputFocus,
 }: SignupFirstPageProps) {
   const emailInputRef = useRef<TextInput>(null);
 
@@ -36,6 +38,7 @@ export default function SignupBasicPage({
           state={formState.nickname}
           onChangeText={value => updateField('nickname', value)}
           onSubmitEditing={() => emailInputRef.current?.focus()}
+          onFocus={onInputFocus}
           isClearable
         />
         <UserEmailForm
@@ -54,11 +57,13 @@ export default function SignupBasicPage({
             updateField('isNewsLetterSubscriptionAgreed', value)
           }
           onChangeText={value => updateField('email', value)}
+          onFocus={onInputFocus}
         />
         <UserBirthYearForm
           value={formValue.birthYear}
           state={formState.birthYear}
           onChangeText={value => updateField('birthYear', value)}
+          onFocus={onInputFocus}
         />
       </View>
     </>
