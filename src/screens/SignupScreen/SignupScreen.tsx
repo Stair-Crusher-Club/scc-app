@@ -229,6 +229,11 @@ export default function SignupScreen({
       : color.gray15v2
     : color.brand40;
 
+  // 스텝 전환 시 스크롤 최상단으로 리셋
+  useEffect(() => {
+    scrollViewRef.current?.scrollTo({y: 0, animated: false});
+  }, [step]);
+
   // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
   // → step2/3로 갔다가 돌아와도 인증 완료 UI 상태(인증번호 입력/성공)가 그대로 보존된다.
   const renderPages = () => (
