@@ -22,7 +22,7 @@ export default function SignupMobilityToolPage({
         <Text className="font-pretendard-bold text-[24px] text-gray-100 mt-[12px]">
           나에게 해당하는 이동 유형을{'\n'}모두 선택해주세요.{' '}
           <Text className="text-gray-50 font-pretendard-regular text-[16px]">
-            (중복선택가능)
+            (최대 3개까지 선택)
           </Text>
         </Text>
         <Text className="font-pretendard-medium text-[16px] text-gray-70 mt-[4px]">

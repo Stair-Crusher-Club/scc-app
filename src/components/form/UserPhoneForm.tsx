@@ -372,7 +372,7 @@ const ActionButton = styled(SccTouchableOpacity)<{
   disabled?: boolean;
   isActive: boolean;
 }>`
-  height: 56px;
+  height: 48px;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -383,8 +383,8 @@ const ActionButton = styled(SccTouchableOpacity)<{
 
 const ActionButtonText = styled.Text<{isActive: boolean}>`
   font-family: ${font.pretendardSemibold};
-  font-size: 18px;
-  line-height: 26px;
-  letter-spacing: -0.36px;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.32px;
   color: ${props => (props.isActive ? color.white : color.gray30v2)};
 `;

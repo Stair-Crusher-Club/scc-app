@@ -10,6 +10,9 @@ import {
 } from '@/constant/mobilityTool';
 import {UserMobilityToolDto} from '@/generated-sources/openapi';
 import SelectableItem from '@/screens/SignupScreen/components/SelectableItem';
+import ToastUtils from '@/utils/ToastUtils';
+
+const MAX_SELECTION = 3;
 
 // Figma: 2열 그리드. 좌우 패딩 20, 아이템 간격 8px → 절반 너비 = (width - 40 - 8) / 2
 const H_PADDING = 20;
@@ -41,6 +44,7 @@ export default function UserMobilityToolsForm({
       return;
     }
 
+    // NONE 선택 상태에서 다른 옵션 탭 → NONE 해제하고 그 옵션으로 전환(원탭)
     if (isNoneSelected) {
       onChangeValue([pressed]);
       return;
@@ -49,6 +53,10 @@ export default function UserMobilityToolsForm({
     if (value.includes(pressed)) {
       onChangeValue(value.filter(tool => tool !== pressed));
     } else {
+      if (value.length >= MAX_SELECTION) {
+        ToastUtils.show(`최대 ${MAX_SELECTION}개까지 선택할 수 있어요.`);
+        return;
+      }
       onChangeValue([...value, pressed]);
     }
   };

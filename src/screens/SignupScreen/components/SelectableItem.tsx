@@ -23,6 +23,8 @@ export default function SelectableItem({
   text,
   elementName,
 }: SelectableItemProps) {
+  // 라벨 끝의 부가설명 괄호는 작게 (예: "전동스쿠터(의료용)" → (의료용) 14px). 디자인 node 2439:35068
+  const parenMatch = text.match(/^(.*?)(\([^)]+\))$/);
   return (
     <SccPressable
       elementName={elementName}
@@ -31,9 +33,7 @@ export default function SelectableItem({
       style={{opacity: isDimmed ? 0.4 : 1}}
       className={cn(
         'flex-row items-center gap-[8px] pl-[10px] pr-[12px] py-[12px] rounded-[12px] border-[1px]',
-        isSelected
-          ? 'bg-brand-5 border-brand-color'
-          : 'bg-white border-gray-20',
+        isSelected ? 'bg-brand-5 border-brand-50' : 'bg-white border-gray-20',
       )}>
       {isSelected ? (
         <FilledCheckIcon width={24} height={24} />
@@ -49,7 +49,16 @@ export default function SelectableItem({
           letterSpacing: -0.2,
           color: color.gray90v2,
         }}>
-        {text}
+        {parenMatch ? (
+          <>
+            {parenMatch[1]}
+            <Text style={{fontSize: 14, letterSpacing: -0.28}}>
+              {parenMatch[2]}
+            </Text>
+          </>
+        ) : (
+          text
+        )}
       </Text>
     </SccPressable>
   );
