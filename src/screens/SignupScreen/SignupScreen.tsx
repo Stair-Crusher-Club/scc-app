@@ -221,6 +221,14 @@ export default function SignupScreen({
     typeof getButtonConfig
   > & {hidden?: boolean; elementName: string};
 
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  // 키보드 위 도킹 푸터/컨테이너 배경색 (버튼과 동일 → 키보드 코너 radius 틈도 같은 색으로 채움)
+  const footerBg = buttonConfig.disabled
+    ? isKeyboardVisible
+      ? '#E3E4E8'
+      : color.gray15v2
+    : color.brand40;
+
   // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
   // → step2/3로 갔다가 돌아와도 인증 완료 UI 상태(인증번호 입력/성공)가 그대로 보존된다.
   const renderPages = () => (
@@ -244,6 +252,12 @@ export default function SignupScreen({
           formValue={formValue}
           formState={formState}
           updateField={updateField}
+          scrollToBottom={() =>
+            setTimeout(
+              () => scrollViewRef.current?.scrollToEnd({animated: true}),
+              300,
+            )
+          }
         />
       )}
       {step === 3 && (
@@ -266,6 +280,7 @@ export default function SignupScreen({
           <ProgressViewer progress={progress} />
         </View>
         <ScrollView
+          ref={scrollViewRef}
           className="bg-white"
           contentContainerStyle={{paddingBottom: 40}}>
           {renderPages()}
@@ -274,11 +289,14 @@ export default function SignupScreen({
           // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
           // 내렸을 때: 좌우 20 여백 + rounded-8 플로팅 버튼. (Figma 2439-34293/33927)
           <View
-            className="bg-white"
             style={
               isKeyboardVisible
-                ? undefined
-                : {paddingHorizontal: 20, paddingVertical: 10}
+                ? {backgroundColor: footerBg}
+                : {
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
+                    backgroundColor: color.white,
+                  }
             }>
             <SccTouchableOpacity
               elementName={buttonConfig.elementName}
@@ -292,11 +310,7 @@ export default function SignupScreen({
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: isKeyboardVisible ? 0 : 8,
-                backgroundColor: buttonConfig.disabled
-                  ? isKeyboardVisible
-                    ? '#E3E4E8' // 키보드 위 disabled (Figma gray/20)
-                    : color.gray15v2
-                  : color.brand40,
+                backgroundColor: footerBg,
               }}>
               <Text
                 style={{
