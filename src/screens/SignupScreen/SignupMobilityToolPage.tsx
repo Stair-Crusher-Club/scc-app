@@ -19,7 +19,7 @@ export default function SignupMobilityToolPage({
   return (
     <>
       <View className="px-[20px] flex-col">
-        <Text className="font-pretendard-bold text-[24px] text-gray-100 mt-[12px]">
+        <Text className="font-pretendard-bold text-[24px] leading-[33.6px] text-gray-100 mt-[12px]">
           나에게 해당하는 이동 유형을{'\n'}모두 선택해주세요.{' '}
           <Text className="text-gray-50 font-pretendard-regular text-[16px]">
             (최대 3개까지 선택)

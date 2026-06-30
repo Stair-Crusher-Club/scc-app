@@ -39,7 +39,7 @@ export default function SignupPhonePage({
   return (
     <>
       <View className="px-[20px] flex-col">
-        <Text className="font-pretendard-bold text-[24px] text-gray-100 mt-[12px]">
+        <Text className="font-pretendard-bold text-[24px] leading-[33.6px] text-gray-100 mt-[12px]">
           크러셔님 환영합니다!
         </Text>
         <Text className="font-pretendard-regular text-[16px] text-gray-70 mt-[4px]">

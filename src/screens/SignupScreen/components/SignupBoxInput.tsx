@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: font.pretendardRegular,
     fontSize: 18,
-    lineHeight: 26,
     letterSpacing: -0.36,
     color: color.gray90v2,
     padding: 0,
@@ -236,9 +235,9 @@ const InputBox = styled.View<{borderColor: string}>`
 
 const TimerText = styled.Text`
   font-family: ${font.pretendardMedium};
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: -0.24px;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.28px;
   color: ${color.red};
 `;
 

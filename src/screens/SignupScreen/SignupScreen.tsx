@@ -2,14 +2,16 @@ import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
 import {useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useState} from 'react';
-import {ScrollView, View} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
 
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SccButton} from '@/components/atoms';
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import ProgressViewer from '@/screens/SignupScreen/components/ProgressViewer';
 import ToastUtils from '@/utils/ToastUtils';
@@ -33,6 +35,7 @@ export default function SignupScreen({
   const {api} = useAppComponents();
   const setAccessToken = useSetAtom(accessTokenAtom);
   const {setUserInfo} = useMe();
+  const isKeyboardVisible = useKeyboardVisible();
 
   const [initialNickname, setInitialNickname] = useState<string>('');
   const [isLoadingUser, setIsLoadingUser] = useState(true);
@@ -264,18 +267,60 @@ export default function SignupScreen({
         </View>
         <ScrollView className="bg-white">{renderPages()}</ScrollView>
         {!buttonConfig.hidden && (
-          <View className="w-full px-[20px] py-[10px] bg-white">
-            <SccButton
-              onPress={buttonConfig.onPress}
-              buttonColor="blue50"
-              borderColor="blue50"
-              textColor="white"
-              fontFamily={font.pretendardBold}
-              text={buttonConfig.text}
-              isDisabled={buttonConfig.disabled}
-              rightLabel={buttonConfig.rightLabel}
+          // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
+          // 내렸을 때: 좌우 20 여백 + rounded-8 플로팅 버튼. (Figma 2439-34293/33927)
+          <View
+            className="bg-white"
+            style={
+              isKeyboardVisible
+                ? undefined
+                : {paddingHorizontal: 20, paddingVertical: 10}
+            }>
+            <SccTouchableOpacity
               elementName={buttonConfig.elementName}
-            />
+              logParams={{button_text: buttonConfig.text}}
+              onPress={buttonConfig.disabled ? () => {} : buttonConfig.onPress}
+              disabled={buttonConfig.disabled}
+              style={{
+                height: 56,
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: isKeyboardVisible ? 0 : 8,
+                backgroundColor: buttonConfig.disabled
+                  ? isKeyboardVisible
+                    ? '#E3E4E8' // 키보드 위 disabled (Figma gray/20)
+                    : color.gray15v2
+                  : color.brand40,
+              }}>
+              <Text
+                style={{
+                  fontFamily: font.pretendardSemibold,
+                  fontSize: 18,
+                  lineHeight: 26,
+                  letterSpacing: -0.36,
+                  color: buttonConfig.disabled
+                    ? isKeyboardVisible
+                      ? color.gray40
+                      : color.gray30v2
+                    : color.white,
+                }}>
+                {buttonConfig.text}
+              </Text>
+              {buttonConfig.rightLabel ? (
+                <Text
+                  style={{
+                    position: 'absolute',
+                    right: 20,
+                    fontFamily: font.pretendardMedium,
+                    fontSize: 14,
+                    color: buttonConfig.disabled ? color.gray30v2 : color.white,
+                  }}>
+                  {buttonConfig.rightLabel}
+                </Text>
+              ) : null}
+            </SccTouchableOpacity>
           </View>
         )}
       </View>
