@@ -12,6 +12,7 @@ import styled from 'styled-components/native';
 import {match} from 'ts-pattern';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
+import {useKeyboardAwareFocus} from '@/components/KeyboardAwareFormScrollView';
 import ClearIcon from '@/assets/icon/ic_clear.svg';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -73,6 +74,7 @@ const SignupBoxInput = forwardRef<TextInput, Props>(
   ) => {
     const [isFocused, setIsFocused] = React.useState(false);
     const localRef = React.useRef<TextInput>(null);
+    const {notifyInputFocus} = useKeyboardAwareFocus();
 
     React.useImperativeHandle(ref, () => localRef.current as TextInput);
 
@@ -84,6 +86,8 @@ const SignupBoxInput = forwardRef<TextInput, Props>(
     const handleFocus = () => {
       setIsFocused(true);
       onFocusProp?.();
+      // 래퍼(KeyboardAwareFormScrollView) 안이면 포커스된 input이 보이도록 스크롤 보정.
+      notifyInputFocus();
     };
 
     const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {

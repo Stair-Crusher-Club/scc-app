@@ -15,22 +15,13 @@ interface UserNicknameFormProps {
   state: UserFormState['nickname'];
   onChangeText: (value: string) => Promise<void>;
   onBlur?: () => void;
-  onFocus?: () => void;
   onSubmitEditing?: () => void;
   isClearable?: boolean;
 }
 
 const UserNicknameForm = forwardRef<TextInput, UserNicknameFormProps>(
   (
-    {
-      value,
-      state,
-      onChangeText,
-      onBlur,
-      onFocus,
-      onSubmitEditing,
-      isClearable = false,
-    },
+    {value, state, onChangeText, onBlur, onSubmitEditing, isClearable = false},
     ref,
   ) => {
     return (
@@ -55,7 +46,6 @@ const UserNicknameForm = forwardRef<TextInput, UserNicknameFormProps>(
               ? (_e: NativeSyntheticEvent<TextInputFocusEventData>) => onBlur()
               : undefined
           }
-          onFocus={onFocus}
           onSubmitEditing={onSubmitEditing}
           isClearable={isClearable}
         />

@@ -2,12 +2,14 @@ import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
 import {useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useState} from 'react';
-import {Keyboard, ScrollView, Text, TextInput, View} from 'react-native';
+import {Text, View} from 'react-native';
 
 import {accessTokenAtom, useMe} from '@/atoms/Auth';
+import KeyboardAwareFormScrollView, {
+  KeyboardAwareFormScrollViewRef,
+} from '@/components/KeyboardAwareFormScrollView';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
-import {SccTouchableWithoutFeedback} from '@/components/SccTouchableWithoutFeedback';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ApiErrorResponse} from '@/generated-sources/openapi';
@@ -222,8 +224,7 @@ export default function SignupScreen({
     typeof getButtonConfig
   > & {hidden?: boolean; elementName: string};
 
-  const scrollViewRef = React.useRef<ScrollView>(null);
-  const scrollOffsetRef = React.useRef(0);
+  const scrollViewRef = React.useRef<KeyboardAwareFormScrollViewRef>(null);
   // 키보드 위 도킹 푸터/컨테이너 배경색 (버튼과 동일 → 키보드 코너 radius 틈도 같은 색으로 채움)
   const footerBg = buttonConfig.disabled
     ? isKeyboardVisible
@@ -231,58 +232,9 @@ export default function SignupScreen({
       : color.gray15v2
     : color.brand40;
 
-  // 포커스된 input의 하단+GAP이 뷰포트 밖일 때'만', 부족한 만큼'만' 스크롤한다.
-  // KAV가 스크롤뷰를 키보드 위로 줄여주므로 뷰포트 높이(sh)만으로 판정 — 키보드 좌표 계산 불필요.
-  const GAP = 60;
-  const ensureFocusedInputVisible = useCallback(() => {
-    type Measurable = {
-      measureInWindow: (
-        cb: (x: number, y: number, w: number, h: number) => void,
-      ) => void;
-    };
-    // 다음 프레임으로 미뤄 포커스 전환(TextInput.State 갱신)이 끝난 뒤 측정한다.
-    // 즉시 읽으면 이미 키보드가 떠 있는 상태에서 input을 바꿀 때 직전 input이 잡힌다.
-    requestAnimationFrame(() => {
-      const scrollNode = (
-        scrollViewRef.current as unknown as {
-          getNativeScrollRef?: () => Measurable | null;
-        } | null
-      )?.getNativeScrollRef?.();
-      const input =
-        TextInput.State.currentlyFocusedInput() as Measurable | null;
-      if (!scrollNode || !input) return;
-      scrollNode.measureInWindow((_sx, sy, _sw, sh) => {
-        input.measureInWindow((_ix, iy, _iw, ih) => {
-          const topRel = iy - sy;
-          const bottomRel = iy + ih - sy;
-          let delta = 0;
-          if (bottomRel + GAP > sh) {
-            delta = bottomRel + GAP - sh; // 아래로 부족한 만큼만 내림
-          } else if (topRel < 0) {
-            delta = topRel; // 위로 가려졌으면 그만큼만 올림
-          }
-          if (Math.abs(delta) > 1) {
-            scrollViewRef.current?.scrollTo({
-              y: Math.max(0, scrollOffsetRef.current + delta),
-              animated: true,
-            });
-          }
-        });
-      });
-    });
-  }, []);
-
-  // 키보드가 완전히 올라온 뒤(레이아웃 안정) 한 번, 그리고 input 포커스 전환 시(아래 onInputFocus)에 보정.
-  useEffect(() => {
-    const sub = Keyboard.addListener('keyboardDidShow', () =>
-      ensureFocusedInputVisible(),
-    );
-    return () => sub.remove();
-  }, [ensureFocusedInputVisible]);
-
   // 스텝 전환 시 스크롤 최상단으로 리셋
   useEffect(() => {
-    scrollViewRef.current?.scrollTo({y: 0, animated: false});
+    scrollViewRef.current?.scrollToTop();
   }, [step]);
 
   // step1(휴대폰 인증)은 항상 마운트해두고 비활성 시 display:none으로 숨긴다.
@@ -308,7 +260,6 @@ export default function SignupScreen({
           formValue={formValue}
           formState={formState}
           updateField={updateField}
-          onInputFocus={ensureFocusedInputVisible}
         />
       )}
       {step === 3 && (
@@ -330,29 +281,12 @@ export default function SignupScreen({
         <View className="px-[20px]">
           <ProgressViewer progress={progress} />
         </View>
-        <ScrollView
+        <KeyboardAwareFormScrollView
           ref={scrollViewRef}
           className="bg-white"
-          // flexGrow: 콘텐츠가 짧은 스텝(step1)에서도 래퍼가 뷰포트를 가득 채워
-          // 빈 영역 어디를 탭해도 키보드가 닫히도록.
-          contentContainerStyle={{flexGrow: 1, paddingBottom: 40}}
-          scrollEventThrottle={16}
-          // 회원가입 화면에 한해: 키보드가 떠 있어도 버튼/input 첫 탭이 즉시 동작.
-          // (안드로이드는 'handled'로는 첫 탭이 씹혀 'always' 불가피)
-          keyboardShouldPersistTaps="always"
-          // 'always'라 빈 영역 탭으로는 안 닫히므로, 아래 SccTouchableWithoutFeedback로
-          // 닫기를 제공. on-drag는 스크롤 시작 즉시 닫혀 키보드 유지 스크롤이 안 되므로 안 씀.
-          // (TouchableWithoutFeedback.onPress는 탭-릴리즈에서만 발동, 스크롤 중엔 취소됨)
-          onScroll={e => {
-            scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-          }}>
-          <SccTouchableWithoutFeedback
-            elementName="signup_background_dismiss_keyboard"
-            disableLogging
-            accessible={false}>
-            <View style={{flexGrow: 1}}>{renderPages()}</View>
-          </SccTouchableWithoutFeedback>
-        </ScrollView>
+          contentContainerStyle={{paddingBottom: 40}}>
+          {renderPages()}
+        </KeyboardAwareFormScrollView>
         {!buttonConfig.hidden && (
           // 키보드 떴을 때: 풀폭 플랫 바(좌우여백/라운드 없이 키보드 위 도킹).
           // 내렸을 때: 좌우 20 여백 + rounded-8 플로팅 버튼. (Figma 2439-34293/33927)
