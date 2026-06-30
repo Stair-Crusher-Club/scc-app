@@ -333,7 +333,9 @@ export default function SignupScreen({
         <ScrollView
           ref={scrollViewRef}
           className="bg-white"
-          contentContainerStyle={{paddingBottom: 40}}
+          // flexGrow: 콘텐츠가 짧은 스텝(step1)에서도 래퍼가 뷰포트를 가득 채워
+          // 빈 영역 어디를 탭해도 키보드가 닫히도록.
+          contentContainerStyle={{flexGrow: 1, paddingBottom: 40}}
           scrollEventThrottle={16}
           // 회원가입 화면에 한해: 키보드가 떠 있어도 버튼/input 첫 탭이 즉시 동작.
           // (안드로이드는 'handled'로는 첫 탭이 씹혀 'always' 불가피)
@@ -348,7 +350,7 @@ export default function SignupScreen({
             elementName="signup_background_dismiss_keyboard"
             disableLogging
             accessible={false}>
-            <View>{renderPages()}</View>
+            <View style={{flexGrow: 1}}>{renderPages()}</View>
           </SccTouchableWithoutFeedback>
         </ScrollView>
         {!buttonConfig.hidden && (
