@@ -438,7 +438,9 @@ const OverlayCardContainer = styled.View`
   align-self: stretch;
   height: ${CARD_LIST_HEIGHT}px;
   align-items: center;
-  justify-content: flex-start;
+  /* 카드 하단을 밴드 바닥에 고정 → 썸네일 없는 짧은 카드는 위쪽이 열려
+     지도 아래가 비지 않는다 (top 고정이면 아래가 텅 빔). */
+  justify-content: flex-end;
 `;
 
 const OverlayCardWrapper = styled.View`
