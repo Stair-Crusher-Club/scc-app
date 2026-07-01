@@ -137,7 +137,9 @@ const ItemWrapper = styled.View`
   shadow-opacity: 0.25;
   shadow-radius: 3.84px;
   elevation: 3;
-  align-self: flex-start;
+  /* 카드 하단을 캐러셀 밴드 바닥에 고정 → 썸네일 없는 짧은 카드는 위쪽이 열려
+     지도 아래가 비지 않는다 (flex-start면 위에 붙어 아래가 텅 빔). */
+  align-self: flex-end;
   background-color: white;
   overflow: visible;
   width: ${() => ITEM_SIZE - 10}px;
