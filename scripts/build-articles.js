@@ -134,6 +134,54 @@ async function fetchChildren(blockId) {
   }
   return out;
 }
+// 이미지 표시 폭/정렬은 공식 API가 안 준다 → Notion 비공식 v3 loadPageChunk에서 가져온다.
+// (공개 페이지는 무인증 200. Oopy 등이 쓰는 그 데이터.) 반환: blockId(하이픈) → {w, ar, align, full}
+async function fetchImageLayout(pageId) {
+  const out = {};
+  try {
+    let cursor = {stack: []};
+    for (let guard = 0; guard < 30; guard++) {
+      const res = await fetchWithTimeout(
+        'https://www.notion.so/api/v3/loadPageChunk',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0',
+          },
+          body: JSON.stringify({
+            pageId,
+            limit: 100,
+            chunkNumber: guard,
+            cursor,
+            verticalColumns: false,
+          }),
+        },
+        20000,
+        2,
+      );
+      if (!res.ok) break;
+      const j = await res.json();
+      const bm = (j.recordMap && j.recordMap.block) || {};
+      for (const id in bm) {
+        const v = bm[id].value && (bm[id].value.value || bm[id].value);
+        if (v && v.type === 'image' && v.format)
+          out[id] = {
+            w: v.format.block_width,
+            ar: v.format.block_aspect_ratio,
+            align: v.format.block_alignment,
+            full: v.format.block_full_width,
+          };
+      }
+      cursor =
+        j.cursor && j.cursor.stack && j.cursor.stack.length ? j.cursor : null;
+      if (!cursor) break;
+    }
+  } catch (e) {
+    console.warn(`  ⚠️ 이미지 레이아웃(v3) 조회 실패(${pageId}): ${e.message}`);
+  }
+  return out;
+}
 
 // ---------- utils ----------
 const readJson = (p, f) => {
@@ -624,6 +672,7 @@ async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
     slug: fullSlug,
     emittedSubPages: [],
     headings: [],
+    imgLayout: await fetchImageLayout(row.id),
   };
   const body = row.__children || (await fetchChildren(row.id));
   indexHeadings(body, ctx);
@@ -867,7 +916,20 @@ async function renderBlock(b, ctx) {
       } catch (e) {
         console.warn(`  ⚠️ 이미지 다운로드 실패: ${e.message}`);
       }
-      return `<figure><img src="${esc(src)}" alt="${esc(plain(d.caption) || ctx.title)}" loading="lazy">${cap ? `<figcaption>${cap}</figcaption>` : ''}</figure>`;
+      // Notion 표시 폭/정렬 반영(비공식 v3에서 수집). full-width면 100%, 아니면 block_width로 캡.
+      const lay = ctx.imgLayout && ctx.imgLayout[b.id];
+      let imgStyle = '';
+      if (lay && !lay.full && lay.w) {
+        const w = Math.round(lay.w);
+        const m =
+          lay.align === 'center'
+            ? 'margin-left:auto;margin-right:auto;'
+            : lay.align === 'right'
+              ? 'margin-left:auto;'
+              : '';
+        imgStyle = ` style="max-width:${w}px;${m}"`;
+      }
+      return `<figure><img src="${esc(src)}"${imgStyle} alt="${esc(plain(d.caption) || ctx.title)}" loading="lazy">${cap ? `<figcaption>${cap}</figcaption>` : ''}</figure>`;
     }
     case 'bookmark':
     case 'embed': {
@@ -941,6 +1003,7 @@ async function buildArticle(meta, times) {
     slug,
     emittedSubPages: [], // 카드형 DB row들의 상세 페이지(부모 렌더 중 발행)
     headings: [],
+    imgLayout: await fetchImageLayout(meta.contentPageId),
   };
   indexHeadings(blocks, ctx);
   const contentHtml = await renderBlocks(blocks, ctx);

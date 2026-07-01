@@ -137,7 +137,7 @@ aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무
 - **callout 아이콘은 Notion 원본대로**(`renderCalloutIcon`) — `emoji`는 그대로; 빌트인(`type:"icon"`, 예 cursor-click)은 `https://www.notion.so/icons/{name}_{color}.svg` 다운로드; external/file/custom_emoji는 그 URL 다운로드; **`icon:null`이면 아이콘 없음(💡 강제 금지)**. 💡 폴백으로 뭉개면 커스텀 디자인이 다 죽는다(실제 지적).
 - **줄바꿈(shift+enter) 보존** — Notion rich_text `plain_text`의 `\n`은 HTML에서 공백으로 붕괴 → `renderRich`에서 `\n`→`<br>`. 표 셀(`renderPropValue`→`renderRich`)에도 적용됨.
 - **빈 줄(empty line) 보존** — 내용·하위블록 없는 빈 `paragraph`도 `<p class="empty">`(높이 1em)로 유지. 버리면 의도된 줄간격이 뭉개져 다닥다닥 붙는다.
-- **이미지 표시 크기/정렬은 공식 API 한계** — 공식 Notion API 이미지 블록은 caption/file만 주고 **수동 리사이즈 폭·정렬을 노출 안 함**. CSS `img{max-width:100%}`로 자연 크기 캡+좌측정렬까지가 한계. 컨테이너보다 큰 이미지를 Notion에서 축소해둔 건 복원 불가(비공식 API `format.block_width` 필요 → cookie 인증이라 미사용). 필요 시 사용자에게 고지.
+- **이미지 표시 폭/정렬은 비공식 v3 API로 반영**(`fetchImageLayout`) — 공식 API 이미지 블록은 caption/file만 주고 표시 폭/정렬을 **안 준다**. Notion 비공식 `POST https://www.notion.so/api/v3/loadPageChunk`(공개 페이지는 **무인증 200**, Oopy가 쓰는 그 데이터)의 `recordMap.block[id].value.value.format`에서 `block_width`(px)·`block_alignment`·`block_full_width`를 페이지 단위로 수집(`ctx.imgLayout`, blockId=하이픈 UUID로 매칭). image 렌더에서 full이면 100%, 아니면 `max-width:{block_width}px` + align(center=margin auto/right). 페이지가 비공개면 무데이터 → 자연 크기 폴백. (공식 API "불가능"으로 착각 금지 — 실제 지적받음.)
 - **heading 토글** — `is_toggleable`면 `<details>`(하위 블록 유실 방지). 모든 heading에 `id`(=블록id no-hyphen) 부여.
 - **`table_of_contents` + 앵커** — heading id 기반 목차 nav 렌더. 인페이지 `#블록id` 링크는 `fixHref`가 `#no-hyphen`으로 remap.
 - **내부 링크 remap(`fixHref`)** — Notion 페이지-id 경로(`/d490…`)·노션 도메인은 죽은 링크 → `LINK_MAP`(발행된 글/상세 URL) 있으면 그리로, 없으면 `/articles`. ("뒤로가기" 등 전 글의 dead link 제거.)
