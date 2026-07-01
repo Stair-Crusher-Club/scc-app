@@ -60,6 +60,7 @@ article li::marker{color:var(--muted);}
 blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
 .callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
 .callout .emoji{flex:0 0 auto;line-height:1.5;}
+.callout .callout-ico{flex:0 0 auto;width:22px;height:22px;margin-top:2px;object-fit:contain;}
 .callout>div>*:first-child{margin-top:0;padding-top:0;}
 details{margin:3px 0;}
 details summary{cursor:pointer;padding:3px 0;font-weight:600;}
@@ -78,8 +79,10 @@ th{background:var(--soft);font-weight:600;}
 /* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
 figure.db{margin:12px 0;}
 .db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
-.db-wrap table{margin:0;border:0;min-width:100%;white-space:nowrap;}
-.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
+.db-wrap table{margin:0;border:0;width:100%;table-layout:auto;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;max-width:22em;}
+.db-title{font-weight:600;font-size:15px;margin:14px 0 6px;}
+.empty{height:1em;margin:0;}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
 /* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */

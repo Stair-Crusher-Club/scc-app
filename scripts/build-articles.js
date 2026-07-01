@@ -281,7 +281,7 @@ const BG_COLOR = {
 function renderRich(rich) {
   return (rich || [])
     .map(r => {
-      let t = esc(r.plain_text);
+      let t = esc(r.plain_text).replace(/\n/g, '<br>'); // Notion shift+enter → 줄바꿈 보존
       const a = r.annotations || {};
       if (a.code) t = `<code>${t}</code>`;
       if (a.bold) t = `<strong>${t}</strong>`;
@@ -314,10 +314,31 @@ function colorStyle(color) {
   }
   return ` style="color:${TEXT_COLOR[color] || color};"`;
 }
-// callout color는 배경 의미 (gray=회색 배경, blue_background=파랑 배경)
+// callout color는 배경 의미 (gray=회색 배경, blue_background=파랑 배경, default=Notion 기본 회색)
 function calloutBgStyle(color) {
-  const c = (color || '').replace('_background', '');
-  return `background:${BG_COLOR[c] || 'var(--soft)'};`;
+  const c = (color || 'default').replace('_background', '');
+  return `background:${BG_COLOR[c] || '#f1f1ef'};`;
+}
+// callout 아이콘을 Notion 원본대로 렌더 — emoji는 그대로, 빌트인/외부/파일 아이콘은 이미지로 다운로드,
+// 아이콘이 없으면(icon:null) 웹도 아이콘 없음(💡 강제 금지).
+async function renderCalloutIcon(icon, ctx) {
+  if (!icon) return '';
+  if (icon.type === 'emoji')
+    return `<span class="emoji">${esc(icon.emoji)}</span>`;
+  let url = '';
+  if (icon.type === 'external') url = icon.external?.url;
+  else if (icon.type === 'file') url = icon.file?.url;
+  else if (icon.type === 'custom_emoji') url = icon.custom_emoji?.url;
+  else if (icon.type === 'icon' && icon.icon?.name)
+    url = `https://www.notion.so/icons/${icon.icon.name}_${icon.icon.color || 'gray'}.svg`;
+  if (!/^https?:/i.test(url || '')) return '';
+  try {
+    const rel = await downloadImage(url, ctx.assetsDir, ctx.imgIdx++);
+    return `<img class="callout-ico" src="/articles/${ctx.slug}/${rel}" alt="" aria-hidden="true">`;
+  } catch (e) {
+    console.warn(`  ⚠️ callout 아이콘 다운로드 실패: ${e.message}`);
+    return '';
+  }
 }
 // Notion 내부 링크 remap: 페이지-id 경로/노션 도메인은 죽은 링크 → 우리 URL(LINK_MAP)이나 /articles로.
 // 페이지 내 앵커(#블록id)는 로컬 앵커(#하이픈제거 hex)로 유지 — heading id와 매칭.
@@ -666,7 +687,8 @@ async function renderChildDatabase(dbId, title, ctx) {
     rows.some(r => renderPropValue(r.properties[n]).trim() !== '');
   const nonEmpty = names.filter(hasValue);
   const nonTitleProps = nonEmpty.filter(n => n !== titleName);
-  const cap = title ? `<figcaption>${esc(title)}</figcaption>` : '';
+  // Notion 인라인 DB는 제목이 표 위에 온다 → 표 상단 제목으로 렌더(하단 figcaption 아님)
+  const dbTitle = title ? `<p class="db-title">${esc(title)}</p>` : '';
 
   // 본문 보유 여부 감지(앞 3개 row 샘플)
   const sample = rows.slice(0, 3);
@@ -698,7 +720,7 @@ async function renderChildDatabase(dbId, title, ctx) {
               }<div class="db-card-body"><b>${esc(it.titlePlain)}</b>${it.summary ? `<p>${esc(it.summary)}</p>` : ''}</div></a>`,
           )
           .join('');
-        return `<figure class="db"><div class="db-cards">${cards}</div>${cap}</figure>`;
+        return `<figure class="db">${dbTitle}<div class="db-cards">${cards}</div></figure>`;
       }
       const cols = orderedCols(dbId, nonEmpty, titleName, true);
       const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}</tr>`;
@@ -714,7 +736,7 @@ async function renderChildDatabase(dbId, title, ctx) {
             .join('')}</tr>`;
         })
         .join('');
-      return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
+      return `<figure class="db">${dbTitle}<div class="db-wrap"><table>${head}${body}</table></div></figure>`;
     }
 
     // 그 외 본문 보유(주로 사진만) → 상세 페이지 안 만들고 표에 사진 컬럼 인라인(콘텐츠 유실 방지)
@@ -729,7 +751,7 @@ async function renderChildDatabase(dbId, title, ctx) {
       const thumbs = await renderRowImages(r.__children, ctx);
       body += `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}<td>${thumbs}</td></tr>`;
     }
-    return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
+    return `<figure class="db">${dbTitle}<div class="db-wrap"><table>${head}${body}</table></div></figure>`;
   }
 
   // 프로퍼티형 → 기존 표
@@ -742,7 +764,7 @@ async function renderChildDatabase(dbId, title, ctx) {
         `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}</tr>`,
     )
     .join('');
-  return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
+  return `<figure class="db">${dbTitle}<div class="db-wrap"><table>${head}${body}</table></div></figure>`;
 }
 
 // heading: id 부여(앵커) + is_toggleable면 <details>로 접기/펼치기 모방
@@ -800,7 +822,8 @@ async function renderBlock(b, ctx) {
     case 'paragraph': {
       // paragraph도 하위 블록을 가질 수 있다(전국모음 '추가 정보' 섹션) → 반드시 재귀
       const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';
-      if (!d.rich_text.length) return inner;
+      // 빈 문단(내용·하위블록 없음)도 Notion의 의도된 줄간격이므로 공백 블록으로 보존
+      if (!d.rich_text.length) return inner || '<p class="empty"></p>';
       return `<p${colorStyle(d.color)}>${renderRich(d.rich_text)}</p>${inner}`;
     }
     case 'heading_1':
@@ -817,9 +840,9 @@ async function renderBlock(b, ctx) {
     case 'quote':
       return `<blockquote>${renderRich(d.rich_text)}${b.__children ? await renderBlocks(b.__children, ctx) : ''}</blockquote>`;
     case 'callout': {
-      const emoji = d.icon && d.icon.type === 'emoji' ? d.icon.emoji : '💡';
+      const iconHtml = await renderCalloutIcon(d.icon, ctx);
       const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';
-      return `<aside class="callout" style="${calloutBgStyle(d.color)}"><span class="emoji">${esc(emoji)}</span><div>${renderRich(d.rich_text)}${inner}</div></aside>`;
+      return `<aside class="callout" style="${calloutBgStyle(d.color)}">${iconHtml}<div>${renderRich(d.rich_text)}${inner}</div></aside>`;
     }
     case 'toggle': {
       const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';

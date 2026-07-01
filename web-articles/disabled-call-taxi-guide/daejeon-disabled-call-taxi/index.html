@@ -48,6 +48,7 @@ article li::marker{color:var(--muted);}
 blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
 .callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
 .callout .emoji{flex:0 0 auto;line-height:1.5;}
+.callout .callout-ico{flex:0 0 auto;width:22px;height:22px;margin-top:2px;object-fit:contain;}
 .callout>div>*:first-child{margin-top:0;padding-top:0;}
 details{margin:3px 0;}
 details summary{cursor:pointer;padding:3px 0;font-weight:600;}
@@ -66,8 +67,10 @@ th{background:var(--soft);font-weight:600;}
 /* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
 figure.db{margin:12px 0;}
 .db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
-.db-wrap table{margin:0;border:0;min-width:100%;white-space:nowrap;}
-.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
+.db-wrap table{margin:0;border:0;width:100%;table-layout:auto;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;max-width:22em;}
+.db-title{font-weight:600;font-size:15px;margin:14px 0 6px;}
+.empty{height:1em;margin:0;}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
 /* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
@@ -132,34 +135,7 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 <article data-testid="article-detail">
 <h1 class="title">대전 콜택시 </h1>
 <div class="article-date">2024-10-01</div>
-<figure><img src="/articles/disabled-call-taxi-guide/daejeon-disabled-call-taxi/assets/img-0.png" alt="대전 콜택시 " loading="lazy"></figure><h3 id="ecc121ffb24c47d091b802b4f55a3fa8"><strong>🚕 대전 장애인 콜택시 정보 </strong></h3><hr><table><tr><th><strong>항목</strong></th><th><strong>내용</strong></th></tr><tr><td><strong>서비스명</strong></td><td>대전 장애인 콜택시</td></tr><tr><td><strong>운영 기관</strong></td><td>대전교통약자이동지원센터</td></tr><tr><td><strong>문의처 전화번호</strong></td><td>1588-1668
-042-612-1050</td></tr><tr><td><strong>운영시간</strong></td><td>평일 06:00-23:00
-주말 07:00-22:00</td></tr><tr><td>팩스번호 </td><td>042-612-1099  </td></tr><tr><td><strong>콜택시 대표번호</strong></td><td>(사랑나눔콜)1588-1668
-042-612-1010</td></tr><tr><td>콜택시 이용요금 </td><td>(기본요금) 1000원(3km), 초과시 440m/100원 
-※ 고속도로 및 유료도로 통행료, 주차료 이용자 부담</td></tr><tr><td>이용지역 </td><td>- 대전지역
-- 대전 인접지역 (계룡, 공주, 금산, 논산, 세종, 옥천, 청주) - 전화로만 접수
-- 충청권광역이동지역 (보은 + 충청남도) </td></tr><tr><td><strong>콜택시 어플(안드로이드)</strong></td><td><a href="https://play.google.com/store/apps/details?id=com.essetel.reserved.daejeon" rel="noopener">대전교통약자지원센터(안드로이드)</a></td></tr><tr><td><strong>콜택시 어플(아이폰)</strong></td><td><a href="https://apps.apple.com/kr/app/%EB%8C%80%EC%A0%84%EA%B5%90%ED%86%B5%EC%95%BD%EC%9E%90%EC%9D%B4%EB%8F%99%EC%A7%80%EC%9B%90%EC%84%BC%ED%84%B0/id1494987886" rel="noopener">대전교통약자지원센터(아이폰)</a></td></tr></table><h4 id="be1a806afa9942ae886865f4d3a8b725"><strong>
-</strong><span style="color:#487ca5;"><strong>✓ 콜택시 이용대상</strong></span></h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><u><strong>장애인 콜택시는 다음과 같은 교통약자들이 이용할 수 있습니다.
-</strong></u>
-1) 보행상 장애인으로서 장애의 정도가 심한 사람
-2) 보행상 장애인이 아닌 사람(20.10.30.부터 확대 시행)
-- 대상: 장애의 정도가 심한 사람 중 보행상 장애인은 아니지만 ‘중복장애인’으로서 ‘이동지원 서비스’가 필요한 사람
-3) 65세 이상 노약자 중 휠체어 이용자로서 장기요양등급 1~3등급에 해당되는 사람
-4) 일시적 휠체어 이용자 </div></aside><h4 id="e6a8d01826624f0fadcba0ed3474fe81"><span style="color:#487ca5;"><strong>✓ 콜택시 이용시, 필요서류</strong></span></h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><u><strong>콜택시를 이용하기 위해서는 다음과 같은 서류가 필요합니다.
-</strong></u>
-1) 이용 신청서
-2) 이용자 준수사항 동의서
-3) 개인정보 동의서 
-※  주민등록번호 뒷자리 삭제후 제출 (예)220101-3******)
-4) 장애인의 경우 : 장애인증명서, 장애정도 심사결과 추가안내문(안내문 확인이 안된 경우 진단서 제출)
-5) 노약자 중 휠체어 이용자 : 신분증, 장기요양인정서, 복지용구 급여확인서 
-6) 일시적 휠체어 이용자 : 3개월 이내의 진단서(보행 불가 사유 명시), 신분증 </div></aside><h4 id="53a2005d262b4a21a8c672e394b580d8"><span style="color:#487ca5;"><strong>✓ 이동약자 등록방법</strong></span></h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><u><strong>장애인 콜택시를 이용하려면, 사전등록이 필수입니다. </strong></u>
-<p>1) 유선안내 : 042-612-1050
-2) 접수 : 4가지 중에 선택하여 접수
-① 팩스 042-612-1099  
-② 문자전용 010-4400-0940   
-③ 홈페이지 가입(필요서류 파일첨부 가능)   
-④ 내방하여 직접 제출</p></div></aside><h4 id="f6ce216b52884d6e87cdba8fc7d52620"><strong>🚖  </strong><span style="color:#487ca5;"><strong>더 자세한 정보는 아래 홈페이지를 통해 확인하실 수 있습니다.</strong></span><strong> </strong></h4><hr><p><a href="https://djcall.or.kr/information.php" rel="noopener">https://djcall.or.kr/information.php</a></p><figure><img src="/articles/disabled-call-taxi-guide/daejeon-disabled-call-taxi/assets/img-1.png" alt="대전 콜택시 " loading="lazy"></figure>
+<figure><img src="/articles/disabled-call-taxi-guide/daejeon-disabled-call-taxi/assets/img-0.png" alt="대전 콜택시 " loading="lazy"></figure><p class="empty"></p><p class="empty"></p><h3 id="ecc121ffb24c47d091b802b4f55a3fa8"><strong>🚕 대전 장애인 콜택시 정보 </strong></h3><hr><table><tr><th><strong>항목</strong></th><th><strong>내용</strong></th></tr><tr><td><strong>서비스명</strong></td><td>대전 장애인 콜택시</td></tr><tr><td><strong>운영 기관</strong></td><td>대전교통약자이동지원센터</td></tr><tr><td><strong>문의처 전화번호</strong></td><td>1588-1668<br>042-612-1050</td></tr><tr><td><strong>운영시간</strong></td><td>평일 06:00-23:00<br>주말 07:00-22:00</td></tr><tr><td>팩스번호 </td><td>042-612-1099  </td></tr><tr><td><strong>콜택시 대표번호</strong></td><td>(사랑나눔콜)1588-1668<br>042-612-1010</td></tr><tr><td>콜택시 이용요금 </td><td>(기본요금) 1000원(3km), 초과시 440m/100원 <br>※ 고속도로 및 유료도로 통행료, 주차료 이용자 부담</td></tr><tr><td>이용지역 </td><td>- 대전지역<br>- 대전 인접지역 (계룡, 공주, 금산, 논산, 세종, 옥천, 청주) - 전화로만 접수<br>- 충청권광역이동지역 (보은 + 충청남도) </td></tr><tr><td><strong>콜택시 어플(안드로이드)</strong></td><td><a href="https://play.google.com/store/apps/details?id=com.essetel.reserved.daejeon" rel="noopener">대전교통약자지원센터(안드로이드)</a></td></tr><tr><td><strong>콜택시 어플(아이폰)</strong></td><td><a href="https://apps.apple.com/kr/app/%EB%8C%80%EC%A0%84%EA%B5%90%ED%86%B5%EC%95%BD%EC%9E%90%EC%9D%B4%EB%8F%99%EC%A7%80%EC%9B%90%EC%84%BC%ED%84%B0/id1494987886" rel="noopener">대전교통약자지원센터(아이폰)</a></td></tr></table><h4 id="be1a806afa9942ae886865f4d3a8b725"><strong><br></strong><span style="color:#487ca5;"><strong>✓ 콜택시 이용대상</strong></span></h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><u><strong>장애인 콜택시는 다음과 같은 교통약자들이 이용할 수 있습니다.<br></strong></u><br>1) 보행상 장애인으로서 장애의 정도가 심한 사람<br>2) 보행상 장애인이 아닌 사람(20.10.30.부터 확대 시행)<br>- 대상: 장애의 정도가 심한 사람 중 보행상 장애인은 아니지만 ‘중복장애인’으로서 ‘이동지원 서비스’가 필요한 사람<br>3) 65세 이상 노약자 중 휠체어 이용자로서 장기요양등급 1~3등급에 해당되는 사람<br>4) 일시적 휠체어 이용자 </div></aside><p class="empty"></p><h4 id="e6a8d01826624f0fadcba0ed3474fe81"><span style="color:#487ca5;"><strong>✓ 콜택시 이용시, 필요서류</strong></span></h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><u><strong>콜택시를 이용하기 위해서는 다음과 같은 서류가 필요합니다.<br></strong></u><br>1) 이용 신청서<br>2) 이용자 준수사항 동의서<br>3) 개인정보 동의서 <br>※  주민등록번호 뒷자리 삭제후 제출 (예)220101-3******)<br>4) 장애인의 경우 : 장애인증명서, 장애정도 심사결과 추가안내문(안내문 확인이 안된 경우 진단서 제출)<br>5) 노약자 중 휠체어 이용자 : 신분증, 장기요양인정서, 복지용구 급여확인서 <br>6) 일시적 휠체어 이용자 : 3개월 이내의 진단서(보행 불가 사유 명시), 신분증 </div></aside><p class="empty"></p><h4 id="53a2005d262b4a21a8c672e394b580d8"><span style="color:#487ca5;"><strong>✓ 이동약자 등록방법</strong></span></h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><u><strong>장애인 콜택시를 이용하려면, 사전등록이 필수입니다. </strong></u><br><p>1) 유선안내 : 042-612-1050<br>2) 접수 : 4가지 중에 선택하여 접수<br>① 팩스 042-612-1099  <br>② 문자전용 010-4400-0940   <br>③ 홈페이지 가입(필요서류 파일첨부 가능)   <br>④ 내방하여 직접 제출</p></div></aside><p class="empty"></p><h4 id="f6ce216b52884d6e87cdba8fc7d52620"><strong>🚖  </strong><span style="color:#487ca5;"><strong>더 자세한 정보는 아래 홈페이지를 통해 확인하실 수 있습니다.</strong></span><strong> </strong></h4><hr><p><a href="https://djcall.or.kr/information.php" rel="noopener">https://djcall.or.kr/information.php</a></p><figure><img src="/articles/disabled-call-taxi-guide/daejeon-disabled-call-taxi/assets/img-1.png" alt="대전 콜택시 " loading="lazy"></figure>
 
 </article>
 </div>

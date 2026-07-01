@@ -130,8 +130,14 @@ aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무
   2. **본문=사진만(image-only)**: goyang/kspo/nationwide → 표 + row별 **사진 썸네일 컬럼** 인라인(얇은 상세 페이지 안 만듦).
   3. **본문=리치(heading/callout/텍스트)**: diaspora/콜택시-지역별 → row별 **독립 상세 페이지 발행**(`/articles/<parent>/<rowSlug>/`) + 부모는 **링크 카드/링크 표**(Notion "카드 클릭→상세" 모방). 상세 slug/summary는 `web-articles/subpages.json`(rowId→메타)에 LLM으로 생성해 커밋(STEP 2b). sitemap 포함, 목록엔 미노출.
   - **컬럼 순서**: 공식 API가 뷰 순서를 안 줌 → `COLUMN_ORDER` 맵(블록 id→컬럼 배열), 새 DB는 갱신. 뷰 순서는 DB public 페이지 `.notion-table-view-header-cell`로 확인.
+  - **DB 제목은 표 위** — 인라인 DB 제목은 `<figcaption>`(표 하단)이 아니라 표 위 `<p class="db-title">`로. (Notion 인라인 DB 디자인)
+  - **표 셀은 wrap** — `.db-wrap table`에 `white-space:nowrap` 금지(모든 셀 1줄 강제 → 무한 가로 스크롤). `white-space:normal;word-break:keep-all;overflow-wrap:anywhere`로 한글 단어 유지하며 컨테이너 폭에 맞춰 줄바꿈. 표 셀 shift+enter는 아래 `\n`→`<br>` 규칙으로 해결됨.
 - **하위 블록 재귀 필수** — `paragraph`·`to_do`도 `has_children`면 하위를 렌더해야 한다. 안 하면 **문단 하위 섹션·중첩 체크리스트가 통째로 유실**(nationwide '추가 정보' 섹션, 전동휠체어 준비물 6항목 실제 사고).
-- **컬러 callout/블록** — callout `color`=배경, paragraph/heading 블록 `color`도 반영(`colorStyle`). 인라인 span 색/밑줄은 `renderRich`.
+- **컬러 callout/블록** — callout `color`=배경(`default_background`→Notion 기본 회색 `#f1f1ef`), paragraph/heading 블록 `color`도 반영(`colorStyle`). 인라인 span 색/밑줄은 `renderRich`.
+- **callout 아이콘은 Notion 원본대로**(`renderCalloutIcon`) — `emoji`는 그대로; 빌트인(`type:"icon"`, 예 cursor-click)은 `https://www.notion.so/icons/{name}_{color}.svg` 다운로드; external/file/custom_emoji는 그 URL 다운로드; **`icon:null`이면 아이콘 없음(💡 강제 금지)**. 💡 폴백으로 뭉개면 커스텀 디자인이 다 죽는다(실제 지적).
+- **줄바꿈(shift+enter) 보존** — Notion rich_text `plain_text`의 `\n`은 HTML에서 공백으로 붕괴 → `renderRich`에서 `\n`→`<br>`. 표 셀(`renderPropValue`→`renderRich`)에도 적용됨.
+- **빈 줄(empty line) 보존** — 내용·하위블록 없는 빈 `paragraph`도 `<p class="empty">`(높이 1em)로 유지. 버리면 의도된 줄간격이 뭉개져 다닥다닥 붙는다.
+- **이미지 표시 크기/정렬은 공식 API 한계** — 공식 Notion API 이미지 블록은 caption/file만 주고 **수동 리사이즈 폭·정렬을 노출 안 함**. CSS `img{max-width:100%}`로 자연 크기 캡+좌측정렬까지가 한계. 컨테이너보다 큰 이미지를 Notion에서 축소해둔 건 복원 불가(비공식 API `format.block_width` 필요 → cookie 인증이라 미사용). 필요 시 사용자에게 고지.
 - **heading 토글** — `is_toggleable`면 `<details>`(하위 블록 유실 방지). 모든 heading에 `id`(=블록id no-hyphen) 부여.
 - **`table_of_contents` + 앵커** — heading id 기반 목차 nav 렌더. 인페이지 `#블록id` 링크는 `fixHref`가 `#no-hyphen`으로 remap.
 - **내부 링크 remap(`fixHref`)** — Notion 페이지-id 경로(`/d490…`)·노션 도메인은 죽은 링크 → `LINK_MAP`(발행된 글/상세 URL) 있으면 그리로, 없으면 `/articles`. ("뒤로가기" 등 전 글의 dead link 제거.)
