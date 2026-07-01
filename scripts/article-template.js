@@ -79,8 +79,8 @@ th{background:var(--soft);font-weight:600;}
 /* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
 figure.db{margin:12px 0;}
 .db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
-.db-wrap table{margin:0;border:0;width:100%;table-layout:auto;}
-.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;max-width:22em;}
+.db-wrap table{margin:0;border:0;min-width:100%;table-layout:auto;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;min-width:8em;max-width:24em;}
 .db-title{font-weight:600;font-size:15px;margin:14px 0 6px;}
 .empty{height:1em;margin:0;}
 .db-wrap tr:last-child td{border-bottom:0;}
@@ -126,7 +126,7 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .hero p{color:var(--muted);font-size:15px;line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .rest{list-style:none;padding:0;margin:8px 0 0;}
 .rest li a{display:flex;gap:16px;align-items:center;padding:20px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit;}
-.rest .thumb{width:104px;height:104px;flex:0 0 104px;object-fit:cover;border-radius:8px;background:var(--soft);}
+.rest .thumb{width:160px;aspect-ratio:16/9;flex:0 0 160px;object-fit:cover;border-radius:8px;background:var(--soft);}
 .rest h2{font-size:18px;font-weight:600;line-height:1.35;margin:0 0 6px;}
 .rest p{color:var(--muted);font-size:14px;line-height:1.5;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 @media (max-width:600px){

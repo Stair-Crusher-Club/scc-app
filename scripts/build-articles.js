@@ -921,12 +921,13 @@ async function renderBlock(b, ctx) {
       let imgStyle = '';
       if (lay && !lay.full && lay.w) {
         const w = Math.round(lay.w);
+        // Notion 기본 정렬은 중앙(block_alignment 없으면 center) — Oopy와 동일. left만 좌측.
         const m =
-          lay.align === 'center'
-            ? 'margin-left:auto;margin-right:auto;'
+          lay.align === 'left'
+            ? ''
             : lay.align === 'right'
               ? 'margin-left:auto;'
-              : '';
+              : 'margin-left:auto;margin-right:auto;';
         imgStyle = ` style="max-width:${w}px;${m}"`;
       }
       return `<figure><img src="${esc(src)}"${imgStyle} alt="${esc(plain(d.caption) || ctx.title)}" loading="lazy">${cap ? `<figcaption>${cap}</figcaption>` : ''}</figure>`;
