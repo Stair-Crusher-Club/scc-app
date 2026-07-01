@@ -134,11 +134,17 @@ async function fetchChildren(blockId) {
   }
   return out;
 }
-// 이미지 표시 폭/정렬은 공식 API가 안 준다 → Notion 비공식 v3 loadPageChunk에서 가져온다.
-// (공개 페이지는 무인증 200. Oopy 등이 쓰는 그 데이터.) 반환: blockId(하이픈) → {w, ar, align, full}
-async function fetchImageLayout(pageId) {
-  const out = {};
+// 이미지 표시 폭/정렬 + 인라인 DB 컬럼 폭/순서는 공식 API가 안 준다 → Notion 비공식 v3
+// loadPageChunk에서 가져온다. (공개 페이지는 무인증 200. Oopy 등이 쓰는 그 데이터.)
+// 반환: { img: {blockId → {w,ar,align,full}}, db: {dbBlockId → [{name,width}]}(뷰 순서) }
+const v3val = r => r && r.value && (r.value.value || r.value);
+async function fetchPageLayout(pageId) {
+  const img = {};
+  const db = {};
   try {
+    const blockMap = {};
+    const cvMap = {};
+    const colMap = {};
     let cursor = {stack: []};
     for (let guard = 0; guard < 30; guard++) {
       const res = await fetchWithTimeout(
@@ -162,25 +168,49 @@ async function fetchImageLayout(pageId) {
       );
       if (!res.ok) break;
       const j = await res.json();
-      const bm = (j.recordMap && j.recordMap.block) || {};
-      for (const id in bm) {
-        const v = bm[id].value && (bm[id].value.value || bm[id].value);
-        if (v && v.type === 'image' && v.format)
-          out[id] = {
-            w: v.format.block_width,
-            ar: v.format.block_aspect_ratio,
-            align: v.format.block_alignment,
-            full: v.format.block_full_width,
-          };
-      }
+      Object.assign(blockMap, (j.recordMap && j.recordMap.block) || {});
+      Object.assign(cvMap, (j.recordMap && j.recordMap.collection_view) || {});
+      Object.assign(colMap, (j.recordMap && j.recordMap.collection) || {});
       cursor =
         j.cursor && j.cursor.stack && j.cursor.stack.length ? j.cursor : null;
       if (!cursor) break;
     }
+    for (const id in blockMap) {
+      const v = v3val(blockMap[id]);
+      if (!v) continue;
+      if (v.type === 'image' && v.format)
+        img[id] = {
+          w: v.format.block_width,
+          ar: v.format.block_aspect_ratio,
+          align: v.format.block_alignment,
+          full: v.format.block_full_width,
+        };
+      // 인라인 DB(collection_view): 뷰의 table_properties = 컬럼 순서 + 폭(px)
+      if (
+        (v.type === 'collection_view' || v.type === 'collection_view_page') &&
+        v.collection_id &&
+        v.view_ids &&
+        v.view_ids.length
+      ) {
+        const schema = (v3val(colMap[v.collection_id]) || {}).schema || {};
+        const view = v3val(cvMap[v.view_ids[0]]);
+        const tp = view && view.format && view.format.table_properties;
+        if (tp) {
+          const cols = tp
+            .filter(p => p.visible !== false)
+            .map(p => ({
+              name: schema[p.property] && schema[p.property].name,
+              width: p.width,
+            }))
+            .filter(c => c.name);
+          if (cols.length) db[id] = cols;
+        }
+      }
+    }
   } catch (e) {
-    console.warn(`  ⚠️ 이미지 레이아웃(v3) 조회 실패(${pageId}): ${e.message}`);
+    console.warn(`  ⚠️ 레이아웃(v3) 조회 실패(${pageId}): ${e.message}`);
   }
-  return out;
+  return {img, db};
 }
 
 // ---------- utils ----------
@@ -612,6 +642,41 @@ function orderedCols(dbId, nonEmpty, titleName, quiet) {
     : nonEmpty;
 }
 
+// 컬럼 + 폭 결정. v3(ctx.dbLayout)에 뷰 순서·컬럼 폭(px)이 있으면 그걸로
+// table-layout:fixed + <colgroup>(Notion 컬럼 폭 그대로, 코멘트 456px 등). 없으면 COLUMN_ORDER 폴백.
+// extraWidths: 합성 컬럼('사진' 등) 폭(px) — cols엔 안 들어가고 colgroup 끝에만 추가.
+function resolveCols(ctx, dbId, nonEmpty, titleName, quiet, extraWidths = []) {
+  const layout = ctx.dbLayout && ctx.dbLayout[dbId];
+  let cols;
+  let widths = null;
+  if (layout && layout.length) {
+    const seen = new Set();
+    cols = [];
+    widths = [];
+    for (const c of layout)
+      if (nonEmpty.includes(c.name) && !seen.has(c.name)) {
+        cols.push(c.name);
+        widths.push(c.width);
+        seen.add(c.name);
+      }
+    for (const n of nonEmpty)
+      if (!seen.has(n)) {
+        cols.push(n);
+        widths.push(null);
+      }
+  } else {
+    cols = orderedCols(dbId, nonEmpty, titleName, quiet);
+  }
+  if (widths) {
+    const colgroup = `<colgroup>${widths
+      .concat(extraWidths)
+      .map(w => (w ? `<col style="width:${Math.round(w)}px">` : '<col>'))
+      .join('')}</colgroup>`;
+    return {cols, colgroup, tableOpen: '<table style="table-layout:fixed">'};
+  }
+  return {cols, colgroup: '', tableOpen: '<table>'};
+}
+
 // row 본문이 "리치"(사진 외 구조화 콘텐츠: heading/callout/텍스트/리스트/표)인가?
 // 사진만 있는 본문(image/divider/빈 문단)은 리치 아님 → 표에 썸네일 인라인.
 function bodyIsRich(blocks) {
@@ -664,6 +729,7 @@ async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
   const assetsDir = path.join(srcDir, 'assets');
   rmrf(srcDir);
   fs.mkdirSync(assetsDir, {recursive: true});
+  const layout = await fetchPageLayout(row.id);
   const ctx = {
     assetsDir,
     imgIdx: 0,
@@ -672,7 +738,8 @@ async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
     slug: fullSlug,
     emittedSubPages: [],
     headings: [],
-    imgLayout: await fetchImageLayout(row.id),
+    imgLayout: layout.img,
+    dbLayout: layout.db,
   };
   const body = row.__children || (await fetchChildren(row.id));
   indexHeadings(body, ctx);
@@ -771,7 +838,13 @@ async function renderChildDatabase(dbId, title, ctx) {
           .join('');
         return `<figure class="db">${dbTitle}<div class="db-cards">${cards}</div></figure>`;
       }
-      const cols = orderedCols(dbId, nonEmpty, titleName, true);
+      const {cols, colgroup, tableOpen} = resolveCols(
+        ctx,
+        dbId,
+        nonEmpty,
+        titleName,
+        true,
+      );
       const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}</tr>`;
       const body = rows
         .map((r, i) => {
@@ -785,7 +858,7 @@ async function renderChildDatabase(dbId, title, ctx) {
             .join('')}</tr>`;
         })
         .join('');
-      return `<figure class="db">${dbTitle}<div class="db-wrap"><table>${head}${body}</table></div></figure>`;
+      return `<figure class="db">${dbTitle}<div class="db-wrap">${tableOpen}${colgroup}${head}${body}</table></div></figure>`;
     }
 
     // 그 외 본문 보유(주로 사진만) → 상세 페이지 안 만들고 표에 사진 컬럼 인라인(콘텐츠 유실 방지)
@@ -793,18 +866,30 @@ async function renderChildDatabase(dbId, title, ctx) {
       console.warn(
         `  ⚠️ 리치 본문 DB인데 subpages 메타 없음(${dbId} "${title}") — 표+사진 인라인 폴백. 메타 생성 권장`,
       );
-    const cols = orderedCols(dbId, nonEmpty, titleName, true);
+    const {cols, colgroup, tableOpen} = resolveCols(
+      ctx,
+      dbId,
+      nonEmpty,
+      titleName,
+      true,
+      [140],
+    );
     const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}<th>사진</th></tr>`;
     let body = '';
     for (const r of rows) {
       const thumbs = await renderRowImages(r.__children, ctx);
       body += `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}<td>${thumbs}</td></tr>`;
     }
-    return `<figure class="db">${dbTitle}<div class="db-wrap"><table>${head}${body}</table></div></figure>`;
+    return `<figure class="db">${dbTitle}<div class="db-wrap">${tableOpen}${colgroup}${head}${body}</table></div></figure>`;
   }
 
   // 프로퍼티형 → 기존 표
-  const cols = orderedCols(dbId, nonEmpty, titleName);
+  const {cols, colgroup, tableOpen} = resolveCols(
+    ctx,
+    dbId,
+    nonEmpty,
+    titleName,
+  );
   if (!cols.length) return '';
   const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}</tr>`;
   const body = rows
@@ -813,7 +898,7 @@ async function renderChildDatabase(dbId, title, ctx) {
         `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}</tr>`,
     )
     .join('');
-  return `<figure class="db">${dbTitle}<div class="db-wrap"><table>${head}${body}</table></div></figure>`;
+  return `<figure class="db">${dbTitle}<div class="db-wrap">${tableOpen}${colgroup}${head}${body}</table></div></figure>`;
 }
 
 // heading: id 부여(앵커) + is_toggleable면 <details>로 접기/펼치기 모방
@@ -928,7 +1013,8 @@ async function renderBlock(b, ctx) {
             : lay.align === 'right'
               ? 'margin-left:auto;'
               : 'margin-left:auto;margin-right:auto;';
-        imgStyle = ` style="max-width:${w}px;${m}"`;
+        // min(폭,100%)로 좁은 화면에선 컨테이너 안으로 캡(모바일 가로 넘침 방지)
+        imgStyle = ` style="max-width:min(${w}px,100%);${m}"`;
       }
       return `<figure><img src="${esc(src)}"${imgStyle} alt="${esc(plain(d.caption) || ctx.title)}" loading="lazy">${cap ? `<figcaption>${cap}</figcaption>` : ''}</figure>`;
     }
@@ -996,6 +1082,7 @@ async function buildArticle(meta, times) {
   fs.mkdirSync(assetsDir, {recursive: true});
 
   const blocks = await fetchChildren(meta.contentPageId);
+  const layout = await fetchPageLayout(meta.contentPageId);
   const ctx = {
     assetsDir,
     imgIdx: 0,
@@ -1004,7 +1091,8 @@ async function buildArticle(meta, times) {
     slug,
     emittedSubPages: [], // 카드형 DB row들의 상세 페이지(부모 렌더 중 발행)
     headings: [],
-    imgLayout: await fetchImageLayout(meta.contentPageId),
+    imgLayout: layout.img,
+    dbLayout: layout.db,
   };
   indexHeadings(blocks, ctx);
   const contentHtml = await renderBlocks(blocks, ctx);
