@@ -72,13 +72,13 @@ async function api(method, p, body) {
     throw new Error(`Notion ${j.code}: ${j.message}`);
   return j;
 }
-async function queryAllPages() {
+async function queryDb(dbId) {
   const out = [];
   let cursor;
   do {
     const j = await api(
       'POST',
-      `databases/${DB_ID}/query`,
+      `databases/${dbId}/query`,
       cursor ? {start_cursor: cursor} : {},
     );
     out.push(...j.results);
@@ -86,6 +86,7 @@ async function queryAllPages() {
   } while (cursor);
   return out;
 }
+const queryAllPages = () => queryDb(DB_ID);
 async function retrievePage(id) {
   return api('GET', `pages/${id}`);
 }
@@ -180,7 +181,12 @@ function resolveRow(page) {
   let faq = [];
   if (props.faq && props.faq.type === 'rich_text') {
     try {
-      faq = JSON.parse(plain(props.faq.rich_text)) || [];
+      // ponytail: strip leading whitespace/zero-width/BOM before parse. Notion MCP
+      // auto-parses (then rejects) any rich_text value that is a bare JSON array,
+      // so faq writers prefix a zero-width space (or plain space) to keep it a
+      // string. Build is the single robust parse point. (/scc-web-articles-publish STEP 2)
+      faq =
+        JSON.parse(plain(props.faq.rich_text).replace(/^[\s﻿​]+/, '')) || [];
     } catch {
       faq = [];
     }
@@ -267,6 +273,252 @@ function renderRich(rich) {
     .join('');
 }
 
+// ---------- Notion block-level color → inline style ----------
+// 텍스트색 vs 배경색(_background). default는 스타일 없음.
+function colorStyle(color) {
+  if (!color || color === 'default') return '';
+  if (color.endsWith('_background')) {
+    const c = color.replace('_background', '');
+    return ` style="background:${BG_COLOR[c] || c};padding:3px 8px;border-radius:4px;"`;
+  }
+  return ` style="color:${TEXT_COLOR[color] || color};"`;
+}
+// callout color는 배경 의미 (gray=회색 배경, blue_background=파랑 배경)
+function calloutBgStyle(color) {
+  const c = (color || '').replace('_background', '');
+  return `background:${BG_COLOR[c] || 'var(--soft)'};`;
+}
+
+// ---------- child_database (인라인 DB) → 표 ----------
+function pill(name, color) {
+  const c = (color || 'default').replace('_background', '');
+  return `<span class="pill" style="background:${BG_COLOR[c] || 'var(--soft)'};">${esc(name)}</span>`;
+}
+function renderPropValue(prop) {
+  if (!prop) return '';
+  switch (prop.type) {
+    case 'title':
+      return renderRich(prop.title);
+    case 'rich_text':
+      return renderRich(prop.rich_text);
+    case 'select':
+      return prop.select ? pill(prop.select.name, prop.select.color) : '';
+    case 'status':
+      return prop.status ? pill(prop.status.name, prop.status.color) : '';
+    case 'multi_select':
+      return (prop.multi_select || [])
+        .map(o => pill(o.name, o.color))
+        .join(' ');
+    case 'number':
+      return prop.number == null ? '' : esc(String(prop.number));
+    case 'checkbox':
+      return prop.checkbox ? '✓' : '';
+    case 'url':
+      return prop.url
+        ? `<a href="${esc(prop.url)}" rel="noopener">${esc(prop.url)}</a>`
+        : '';
+    case 'email':
+      return prop.email ? esc(prop.email) : '';
+    case 'phone_number':
+      return prop.phone_number ? esc(prop.phone_number) : '';
+    case 'date':
+      return prop.date
+        ? esc(prop.date.start + (prop.date.end ? ` ~ ${prop.date.end}` : ''))
+        : '';
+    default:
+      return '';
+  }
+}
+// child_database 블록 id → Notion 인라인 뷰의 컬럼 순서(공식 API 미제공이라 수동 지정).
+// 값 없는 컬럼은 렌더 시 자동 제외되므로, 뷰에 보이는 순서를 그대로 나열하면 된다.
+const COLUMN_ORDER = {
+  // 흑백요리사2 (백/흑)
+  '2e4c9499-b060-8138-9b78-d697d0b2ea98': [
+    '셰프명',
+    '식당',
+    '주요역',
+    '접근레벨',
+    '층수',
+    '계단정보',
+    '내부',
+    '코멘트',
+  ],
+  '2e4c9499-b060-80ab-9fcb-f836bff1223f': [
+    '셰프명',
+    '식당',
+    '주요역',
+    '접근레벨',
+    '층수',
+    '계단정보',
+    '내부',
+    '코멘트',
+  ],
+  // 흑백요리사1 (미리보기)
+  '125c9499-b060-8114-9568-e5a77f6177c8': [
+    '셰프명',
+    '식당',
+    '주요역',
+    '접근레벨',
+    '층수',
+    '계단정보',
+    '내부',
+    '코멘트',
+  ],
+  // BTS 맛집 22곳
+  '254c9499-b060-80c6-a70a-ff34ea40d8c1': [
+    '식당명',
+    '멤버별',
+    '지역',
+    '접근레벨',
+    '층수',
+    '입구계단',
+    '코멘트',
+    '지도링크',
+  ],
+  // 전국 모음.zip (지역별 5개 — 갤러리 뷰, 카드 필드 순서)
+  'c95bbf72-71c6-439c-afa1-c60a3f6e99ee': [
+    '이름',
+    '특징 한줄',
+    '카테고리',
+    '장소',
+    '실제주소',
+    '대상',
+    '추천이유',
+    '대표링크',
+  ],
+  '3b7d3ecc-1598-4f13-b6b1-70d18e457d46': [
+    '이름',
+    '특징한줄',
+    '카테고리',
+    '장소',
+    '실제주소',
+    '대상',
+    '추천이유',
+    '대표링크',
+  ],
+  '8cf44368-9bd8-4ddf-a030-3d1b95ce334c': [
+    '이름',
+    '특징 한줄',
+    '카테고리',
+    '장소',
+    '실제주소',
+    '대상',
+    '추천이유',
+    '대표링크',
+  ],
+  'b9f627e1-b66e-4ee6-b77c-fbfca4b5c7dd': [
+    '이름',
+    '특징한줄',
+    '카테고리',
+    '장소',
+    '실제주소',
+    '대상',
+    '추천이유',
+    '대표링크',
+  ],
+  'da732f1f-9321-4a6d-ad4e-21f903fb406b': [
+    '이름',
+    '특징한줄',
+    '카테고리',
+    '장소',
+    '실제주소',
+    '대상',
+    '추천이유',
+    '대표링크',
+  ],
+  // 콜택시
+  '0cbe49a5-d081-4806-880f-26e875001a7b': [
+    '지역(클릭)',
+    '차량운영시간',
+    '콜택시 전화번호',
+    '콜택시 어플이름(링크)',
+    '문의처',
+  ],
+  // 고양종합운동장
+  '33ac9499-b060-81f8-8c3c-f2e8b2f2a8e1': [
+    '식당명',
+    'Tags',
+    '위치',
+    '접근레벨',
+    '계단정보',
+    '내부',
+  ],
+  // KSPO DOME (추천 / 식당 / 카페·편의점). "[추천]"(16bc…8094)은 standalone 미공개라
+  // 뷰 순서 직접 확인 불가 → 형제 DB 순서를 적용(누락 컬럼 Tags/주소/주요역은 자동 후미 append).
+  '16bc9499-b060-8094-9f65-f115c7b20a50': [
+    '식당명',
+    '위치',
+    '접근레벨',
+    '층수',
+    '계단정보',
+    '내부',
+    '코멘트',
+  ],
+  '165c9499-b060-80db-a208-e78b27abca7a': [
+    '식당명',
+    '위치',
+    '접근레벨',
+    '층수',
+    '계단정보',
+    '내부',
+    '코멘트',
+  ],
+  '16bc9499-b060-805c-9962-f29a783f371a': [
+    '식당명',
+    '위치',
+    '접근레벨',
+    '층수',
+    '계단정보',
+    '내부',
+    '코멘트',
+  ],
+};
+
+// 인라인 DB는 본문이 아니라 row 프로퍼티에 내용이 있다(식당/장소 카드). Notion 인라인
+// 표 뷰처럼 프로퍼티를 표로 렌더(가로 스크롤). 값 없는 컬럼·title 공란은 자동 생략.
+async function renderChildDatabase(dbId, title, ctx) {
+  let rows;
+  try {
+    rows = await queryDb(dbId);
+  } catch (e) {
+    console.warn(`  ⚠️ child_database 쿼리 실패(${dbId}): ${e.message}`);
+    return '';
+  }
+  if (!rows.length) return '';
+  const names = Object.keys(rows[0].properties || {});
+  const titleName = names.find(n => rows[0].properties[n].type === 'title');
+  const hasValue = n =>
+    rows.some(r => renderPropValue(r.properties[n]).trim() !== '');
+  const nonEmpty = names.filter(hasValue);
+  // 공식 API는 인라인 뷰의 컬럼 순서를 주지 않는다 → COLUMN_ORDER로 Notion 뷰 순서를 수동 지정.
+  // 매핑 없으면 스키마 순서(title 우선)로 폴백하고 경고(새 DB는 순서 확인 필요).
+  const preferred = COLUMN_ORDER[dbId];
+  let cols;
+  if (preferred) {
+    cols = preferred.filter(n => nonEmpty.includes(n));
+    // 매핑에 빠졌지만 값이 있는 컬럼은 뒤에 덧붙여 데이터 유실 방지
+    for (const n of nonEmpty) if (!cols.includes(n)) cols.push(n);
+  } else {
+    console.warn(
+      `  ⚠️ child_database 컬럼 순서 미지정(${dbId} "${title}") — Notion 뷰 순서 확인 필요, 스키마 순서로 폴백`,
+    );
+    cols =
+      titleName && nonEmpty.includes(titleName)
+        ? [titleName, ...nonEmpty.filter(n => n !== titleName)]
+        : nonEmpty;
+  }
+  if (!cols.length) return '';
+  const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}</tr>`;
+  const body = rows
+    .map(
+      r =>
+        `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}</tr>`,
+    )
+    .join('');
+  const cap = title ? `<figcaption>${esc(title)}</figcaption>` : '';
+  return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
+}
+
 // ---------- blocks → HTML ----------
 async function renderBlocks(blocks, ctx) {
   let html = '';
@@ -297,13 +549,15 @@ async function renderBlock(b, ctx) {
   const d = b[t] || {};
   switch (t) {
     case 'paragraph':
-      return d.rich_text.length ? `<p>${renderRich(d.rich_text)}</p>` : '';
+      return d.rich_text.length
+        ? `<p${colorStyle(d.color)}>${renderRich(d.rich_text)}</p>`
+        : '';
     case 'heading_1':
-      return `<h2>${renderRich(d.rich_text)}</h2>`;
+      return `<h2${colorStyle(d.color)}>${renderRich(d.rich_text)}</h2>`;
     case 'heading_2':
-      return `<h3>${renderRich(d.rich_text)}</h3>`;
+      return `<h3${colorStyle(d.color)}>${renderRich(d.rich_text)}</h3>`;
     case 'heading_3':
-      return `<h4>${renderRich(d.rich_text)}</h4>`;
+      return `<h4${colorStyle(d.color)}>${renderRich(d.rich_text)}</h4>`;
     case 'to_do':
       return `<p><input type="checkbox" disabled ${d.checked ? 'checked' : ''}> ${renderRich(d.rich_text)}</p>`;
     case 'quote':
@@ -311,7 +565,7 @@ async function renderBlock(b, ctx) {
     case 'callout': {
       const emoji = d.icon && d.icon.type === 'emoji' ? d.icon.emoji : '💡';
       const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';
-      return `<aside class="callout"><span class="emoji">${esc(emoji)}</span><div>${renderRich(d.rich_text)}${inner}</div></aside>`;
+      return `<aside class="callout" style="${calloutBgStyle(d.color)}"><span class="emoji">${esc(emoji)}</span><div>${renderRich(d.rich_text)}${inner}</div></aside>`;
     }
     case 'toggle': {
       const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';
@@ -323,6 +577,9 @@ async function renderBlock(b, ctx) {
       return '<hr>';
     case 'image': {
       const url = d.type === 'external' ? d.external.url : d.file.url;
+      // 트래킹 픽셀(seeyoufarm 등)·비-http(file: 첨부) 이미지는 건너뛴다
+      if (!/^https?:/i.test(url || '') || /seeyoufarm\.com/i.test(url))
+        return '';
       const cap = d.caption && d.caption.length ? renderRich(d.caption) : '';
       let src = url;
       try {
@@ -363,6 +620,11 @@ async function renderBlock(b, ctx) {
         .join('');
       return `<table>${body}</table>`;
     }
+    case 'child_database':
+      return await renderChildDatabase(b.id, d.title, ctx);
+    case 'table_of_contents':
+      // 평탄화된 정적 페이지에선 의미 없음(앵커 점프 불가) → 생략
+      return '';
     case 'video':
     case 'file':
     case 'pdf': {

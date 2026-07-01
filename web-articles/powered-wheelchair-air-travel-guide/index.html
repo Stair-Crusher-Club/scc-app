@@ -64,6 +64,13 @@ th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-alig
 th{background:var(--soft);font-weight:600;}
 .columns{display:flex;gap:16px;margin:8px 0;}
 .columns>.column{flex:1 1 0;min-width:0;}
+/* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
+figure.db{margin:12px 0;}
+.db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
+.db-wrap table{margin:0;border:0;min-width:100%;white-space:nowrap;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
+.db-wrap tr:last-child td{border-bottom:0;}
+.pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
 .tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
 .tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
 .cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}

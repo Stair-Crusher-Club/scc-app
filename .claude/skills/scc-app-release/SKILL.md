@@ -18,7 +18,7 @@ disable-model-invocation: true
 
 - **웹 배포는 로컬에서 수동 실행한다.** (CI 워크플로우 없음)
 - 배포 절차:
-  1. `git checkout main && git reset --hard origin/main` (최신 main 기준)
+  1. **현재 워킹트리 기준으로 빌드**(미커밋 발행본 포함). `git reset --hard`는 쓰지 않는다 — 커밋 안 한 web-articles 발행본/렌더러 수정을 날린다. main 최신 반영이 필요하면 `git fetch origin main && git rebase origin/main`로 비파괴적으로. 배포 전 워킹트리에 의도치 않은 변경(app src 등)이 없는지 `git status`로 확인.
   2. `yarn web:build` (production 빌드 → `web-dist/`)
      - 내부적으로 `ENVFILE=subprojects/scc-frontend-build-configurations/production/.env`가 강제되어 `BASE_URL=https://api.staircrusher.club`가 bake 된다.
      - `ENVFILE=.env.local` 같이 native dev용 env 로 빌드하면 `BASE_URL=10.0.2.2:8080`이 박혀 일반 브라우저에서 닿지 못한다. 절대 그렇게 빌드하지 말 것.

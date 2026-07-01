@@ -16,5 +16,167 @@
     "createdTime": "2026-04-07T08:06:00.000Z",
     "editedTime": "2026-06-19T01:29:00.000Z",
     "contentPageId": "33bc9499-b060-806b-9501-d3bf838cbed1"
+  },
+  "38fc9499-b060-8126-82b6-f888fd7f8c15": {
+    "slug": "coex-kiaf-art-fair-accessibility",
+    "title": "코엑스 A홀 - 키아프전시",
+    "summary": "삼성역·봉은사역 인근 서울 강남 코엑스 A홀 키아프(KIAF) 전시의 전동휠체어 접근성 정보. A홀은 입구부터 내부 전체가 턱 없는 평지라 승강기 없이 휠체어 여러 대가 편리하게 이동 가능하며, 장애인 전용주차구역·장애인 화장실·엘리베이터를 갖췄습니다. 장애인콜택시는 아셈타워로 설정하면 편리합니다.",
+    "image": "/articles/coex-kiaf-art-fair-accessibility/assets/img-0.png",
+    "createdTime": "2024-10-04T07:06:00.000Z",
+    "editedTime": "2025-04-29T12:26:00.000Z",
+    "contentPageId": "bdddccbb-78e1-4d45-85a0-924906260415"
+  },
+  "38fc9499-b060-814a-aec4-fe1d3a38ef22": {
+    "slug": "war-memorial-archive-accessibility",
+    "title": "전쟁기념관 - 6.25 아카이브센터ㅡ",
+    "summary": "4·6호선 삼각지역 11번 출구 228m 거리 전쟁기념관 2층 6.25 아카이브센터의 휠체어 접근성 정보. 자동문, 경사로, 엘리베이터, 장애인 주차장 6면, 장애인 화장실을 갖춰 전동휠체어도 넉넉히 이동 가능한 남산타워뷰 무료 공공도서관입니다.",
+    "image": "/articles/war-memorial-archive-accessibility/assets/img-0.png",
+    "createdTime": "2024-10-15T04:37:00.000Z",
+    "editedTime": "2025-10-13T06:51:00.000Z",
+    "contentPageId": "c54018e8-6cc2-45ee-bc77-51e3aadb4f26"
+  },
+  "38fc9499-b060-819f-a55f-cc7a20505f84": {
+    "slug": "seocho-yangjae-library-accessibility",
+    "title": "서초구립 양재도서관",
+    "summary": "서울 서초구 양재천로 33 서초구립양재도서관의 휠체어 접근성 정보. 자동문 주출입구, 지하~3층 엘리베이터, 2층 창가 장애인 전용좌석 2석, 각 층 장애인 화장실, 양재천뷰 테라스를 갖춘 도서관입니다. 주차장이 협소해 양재역·신분당선 양재시민의숲역에서 대중교통 이용을 추천합니다.",
+    "image": "/articles/seocho-yangjae-library-accessibility/assets/img-0.png",
+    "createdTime": "2024-10-15T04:59:00.000Z",
+    "editedTime": "2025-08-01T06:37:00.000Z",
+    "contentPageId": "e4598180-6aa1-4564-a801-b0b63a646a81"
+  },
+  "38fc9499-b060-81a8-90c7-d68412769b26": {
+    "slug": "ddp-magazine-library-accessibility",
+    "title": "DDP 매거진 라이브러리",
+    "summary": "동대문역사문화공원역(2·4·5호선) 1번 출구 26m 거리 DDP 디자인랩 3층 매거진 라이브러리의 휠체어 접근성 정보. 대형 엘리베이터, 자동문, 평탄한 내부 동선, 지하 1층 장애인 전용주차구역 10면, 장애인 화장실, 휠체어·유아차 대여까지 갖춘 접근성 우수 무료 도서관입니다.",
+    "image": "/articles/ddp-magazine-library-accessibility/assets/img-0.png",
+    "createdTime": "2024-10-15T05:23:00.000Z",
+    "editedTime": "2025-04-29T12:26:00.000Z",
+    "contentPageId": "410016f5-3f2f-4a2f-ac53-c4e68c596213"
+  },
+  "38fc9499-b060-818f-8177-d45b3d370655": {
+    "slug": "kim-young-sam-library-accessibility",
+    "title": "동작문화재단 - 김영삼도서관",
+    "summary": "서울 동작구 상도역(7호선 4번 출구 255m) 인근 김영삼도서관은 서울형 장애물없는 건물 인증 구립도서관입니다. 자동문 주출입구와 넉넉한 로비·종합자료실로 층 내 휠체어 이동이 수월하고 7층에 휠체어용 독서보조기기가 있습니다. 다만 엘리베이터가 1대뿐이라 층간 이동 대기가 길고, 장애인 화장실은 지하 1층 로비에 있습니다.",
+    "image": "/articles/kim-young-sam-library-accessibility/assets/img-0.png",
+    "createdTime": "2024-11-19T14:51:00.000Z",
+    "editedTime": "2025-04-29T12:26:00.000Z",
+    "contentPageId": "140860fc-bf41-4896-a571-86c6c5ee8627"
+  },
+  "38fc9499-b060-812c-81a9-dc2392c235be": {
+    "slug": "hwadamsup-forest-accessibility",
+    "title": "국내여행 화담숲",
+    "summary": "경기 광주시 도척면에 위치한 화담숲은 매표소까지 차로 올라갈 수 있고 꼭대기 주차장에 장애인 전용 구역이 있습니다. 곳곳에 경사로가 잘 설치돼 있고 휠체어 탑승이 가능한 모노레일이 있어 단풍 산행을 휠체어로 즐길 수 있습니다. 장애인 화장실도 곳곳에 있으나, 산이라 경사진 곳은 동행자의 도움이 필요합니다.",
+    "image": "/articles/hwadamsup-forest-accessibility/assets/img-0.png",
+    "createdTime": "2024-11-23T15:48:00.000Z",
+    "editedTime": "2025-07-18T09:51:00.000Z",
+    "contentPageId": "b04b37df-2dbf-4982-9414-4532c513fd8e"
+  },
+  "38fc9499-b060-819e-afd6-c3b9566af6bd": {
+    "slug": "jeonbuk-museum-of-art-accessibility",
+    "title": "전북완주 전북도립미술관",
+    "summary": "전북 완주군 모악산 자락의 전북도립미술관은 턱 없는 주출입구, 2층 전시실 연결 엘리베이터, 곳곳에 상주하는 안내 직원으로 이동약자 친화적입니다. 휠체어·유아차 관람객도 많습니다. 다만 장애인 화장실이 남자 화장실 입구와 연결되고 입구 폭이 좁으며, 1전시실은 협소해 혼잡 시 이동이 어려울 수 있습니다.",
+    "image": "/articles/jeonbuk-museum-of-art-accessibility/assets/img-0.png",
+    "createdTime": "2025-08-21T05:48:00.000Z",
+    "editedTime": "2025-08-27T05:39:00.000Z",
+    "contentPageId": "256c9499-b060-804e-9dbd-c28685f5b942"
+  },
+  "38fc9499-b060-8158-b555-e3085c9a63d8": {
+    "slug": "haengjusanseong-history-park-accessibility",
+    "title": "행주산성 역사공원",
+    "summary": "경기 고양시 덕양구에 위치한 행주산성 역사공원은 무료 장애인 전용 주차장에서 공원 입구까지 바로 연결되고, 양쪽 끝 완만한 경사로(나무데크)와 넓고 평탄한 동선으로 휠체어·유아차 이동이 원활합니다. 한강 조망이 가능하고 한적해 쾌적하나, 대중교통 접근은 불편해 장애인 콜택시 이용을 권장합니다.",
+    "image": "/articles/haengjusanseong-history-park-accessibility/assets/img-0.png",
+    "createdTime": "2025-08-21T05:48:00.000Z",
+    "editedTime": "2025-08-27T05:52:00.000Z",
+    "contentPageId": "256c9499-b060-8035-8605-c9fa73512beb"
+  },
+  "38fc9499-b060-816d-824c-f795f570394a": {
+    "slug": "seocho-audeum-museum-accessibility",
+    "title": "서울서초 오디움",
+    "summary": "서울 서초구 헌릉로8길에 위치한 오디오 박물관 오디움은 자동문 주출입구(폭 88cm), 전 층 연결 엘리베이터, 층마다 갖춰진 장애인 화장실로 휠체어 접근성이 우수합니다. 도로변 입구는 계단이라 힐스테이트·주차장 방면 입구를 이용해야 하며, 사전 예약제 도슨트 투어로 운영됩니다.",
+    "image": "/articles/seocho-audeum-museum-accessibility/assets/img-0.png",
+    "createdTime": "2025-08-21T05:48:00.000Z",
+    "editedTime": "2025-08-27T05:56:00.000Z",
+    "contentPageId": "256c9499-b060-8090-a6e2-d1be48817c82"
+  },
+  "38fc9499-b060-8101-baf4-c45260f0c71e": {
+    "slug": "disabled-call-taxi-guide",
+    "title": "[뿌클로드] 장애인 콜택시 이용 가이드",
+    "summary": "전국 장애인 콜택시(특별교통수단) 이용 가이드입니다. 지역별 명칭, 전화번호, 이용방법, 사전등록 절차를 한 곳에 정리해 교통약자가 쉽게 찾아볼 수 있어요.",
+    "image": "/articles/disabled-call-taxi-guide/assets/img-0.png",
+    "createdTime": "2024-09-30T15:57:00.000Z",
+    "editedTime": "2025-04-29T12:28:00.000Z",
+    "contentPageId": "1aab5a9d-be3e-4c4d-a8d8-4e3a4778849b"
+  },
+  "38fc9499-b060-8130-b0c1-e27f28239d87": {
+    "slug": "culinary-class-wars-accessible-restaurants",
+    "title": "[흑백요리사] 이븐한 접근 정도?!",
+    "summary": "넷플릭스 흑백요리사 출연 식당의 접근성 정보를 휠체어 이용자가 직접 조사해 정리했습니다. 층수, 입구 턱, 엘리베이터, 계단 수 기준으로 접근레벨 0~5단계를 매겨 방문 가능 여부를 미리 확인할 수 있어요.",
+    "image": "/articles/culinary-class-wars-accessible-restaurants/assets/img-0.png",
+    "createdTime": "2024-10-20T12:57:00.000Z",
+    "editedTime": "2025-04-29T12:28:00.000Z",
+    "contentPageId": "8bf05caf-e81d-418a-84ca-584d7b5da817"
+  },
+  "38fc9499-b060-8176-b32a-e9dcba83b4d3": {
+    "slug": "kspo-dome-concert-hall-accessibility",
+    "title": "<뿌클로드 특별기획> KSPO DOME 공연장 편",
+    "summary": "KSPO DOME(올림픽체조경기장) 공연장 접근성 가이드. 5·9호선 올림픽공원역(엘리베이터 4번 출구)에서 가는 법, 저상버스 노선, P5 등 주차장별 장애인 주차구역과 전용 엘리베이터, 장애인 콜택시 승하차 위치, 휠체어석 가까운 2-1·2-2 게이트와 2층 장애인 화장실, 올림픽공원 장애인 화장실 정보까지 휠체어 이용자를 위해 정리했습니다.",
+    "image": "/articles/kspo-dome-concert-hall-accessibility/assets/img-0.png",
+    "createdTime": "2024-12-22T09:10:00.000Z",
+    "editedTime": "2025-11-27T13:39:00.000Z",
+    "contentPageId": "164c9499-b060-80b5-a994-d41a087fd658"
+  },
+  "38fc9499-b060-81ff-9b5b-dde126f9cf8e": {
+    "slug": "nationwide-accessible-places",
+    "title": "[뿌클로드] 전국 접근성 좋은 공간 모음.zip",
+    "summary": "전국 지역별(서울·경기/인천·경상·전라·충청) 접근성 좋은 식당과 공간을 모았습니다. 휠체어·유아차·목발·의족 사용자 등 이동약자가 공유한 정보를 바탕으로 여행과 외출 전 접근성을 미리 확인할 수 있어요.",
+    "image": "/articles/nationwide-accessible-places/assets/img-0.png",
+    "createdTime": "2025-01-24T15:32:00.000Z",
+    "editedTime": "2025-05-21T08:07:00.000Z",
+    "contentPageId": "2f06018e-d580-4e68-a41c-7b6e3d4802ab"
+  },
+  "38fc9499-b060-8186-9aff-dc604dbf1fb4": {
+    "slug": "bts-accessible-restaurants-seoul",
+    "title": "[특집기획] 담당자가 사심담아 만든 BTS 맛집 22곳",
+    "summary": "BTS 맛집·방탄순례 핫플 22곳의 휠체어 접근성 정보를 정리했습니다. 경사로, 계단, 층수, 입구 턱, 엘리베이터 여부로 접근레벨을 체크해 휠체어·보행장애인·유아차 동반인·고령자도 편하게 방문할 곳을 찾아보세요.",
+    "image": "/articles/bts-accessible-restaurants-seoul/assets/img-0.png",
+    "createdTime": "2025-08-19T06:32:00.000Z",
+    "editedTime": "2025-09-11T13:52:00.000Z",
+    "contentPageId": "254c9499-b060-80b3-8636-c562c2e50db3"
+  },
+  "38fc9499-b060-8117-aabf-fc25f2992e19": {
+    "slug": "culinary-class-wars-2-accessible-restaurants",
+    "title": "[뿌클로드] 흑백요리사2, 오만가지 접근성 정보",
+    "summary": "넷플릭스 흑백요리사2 출연 식당의 휠체어 접근성 정보를 정리했습니다. 층수, 입구 턱, 엘리베이터, 계단 수를 바탕으로 접근레벨 0~5단계로 나눠 휠체어·유아차 이용자가 방문 전 확인할 수 있어요.",
+    "image": "/articles/culinary-class-wars-2-accessible-restaurants/assets/img-0.png",
+    "createdTime": "2026-01-10T08:11:00.000Z",
+    "editedTime": "2026-06-05T01:31:00.000Z",
+    "contentPageId": "2e4c9499-b060-8046-af69-c517f46d9aca"
+  },
+  "38fc9499-b060-8155-aae3-f205c87b9c63": {
+    "slug": "goyang-stadium-accessibility",
+    "title": "<뿌클로드 특별기획> 고양종합운동장 접근성 완전정복",
+    "summary": "고양종합운동장 공연장 접근성 완전정복 가이드. 3호선 대화역(엘리베이터 있는 3·4번 출구)·GTX 킨텍스역에서 가는 법, 저상버스 노선, 장애인 콜택시 승하차 위치, 휠체어석과 가까운 EAST GATE 1~4 및 장애인 화장실, 휠체어석 시야 안내까지 휠체어 이용자를 위해 정리했습니다.",
+    "image": "/articles/goyang-stadium-accessibility/assets/img-0.png",
+    "createdTime": "2026-04-06T14:25:00.000Z",
+    "editedTime": "2026-05-19T07:03:00.000Z",
+    "contentPageId": "33ac9499-b060-80e4-a7e8-d81e39078c13"
+  },
+  "38fc9499-b060-8003-ac61-dd4a92cc31bd": {
+    "slug": "diaspora-film-festival-accessibility",
+    "title": "제14회 디아스포라영화제 공간 접근성 정보",
+    "summary": "제14회 디아스포라영화제(5/22~5/26, 인천) 상영관 접근성 안내. 전석 무료 영화제의 휠체어석 예매 방법과 상영관별 접근성 정보를 계단뿌셔클럽과 인천영상위원회 디아스포라영화제 사무국이 함께 정리했습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T07:38:00.000Z",
+    "editedTime": "2026-05-20T03:13:00.000Z",
+    "contentPageId": "35dc9499-b060-807f-813a-c37c40448fc8"
+  },
+  "38fc9499-b060-809d-b02d-d84009a074f7": {
+    "slug": "yeonghee-festival-mapo-art-center-accessibility",
+    "title": "2026 <영희 페스티벌> 마포아트센터 공간 접근성 정보",
+    "summary": "2026 영희 페스티벌이 열리는 마포아트센터 접근성 가이드. 2호선 이대입구역·6호선 대흥역에서 가는 법, 지하 1층 장애인주차장(7면)과 장애인 콜택시 승하차, 1·2층 장애인 화장실, 엘리베이터 위치, 아트홀맥·플레이맥·갤러리맥 휠체어석 위치와 시야, 휠체어석 전화 예매 방법까지 휠체어 이용자를 위해 정리했습니다.",
+    "image": "/articles/yeonghee-festival-mapo-art-center-accessibility/assets/img-0.png",
+    "createdTime": "2026-06-02T14:37:00.000Z",
+    "editedTime": "2026-06-30T09:12:00.000Z",
+    "contentPageId": "373c9499-b060-8058-8262-d61174aed4ed"
   }
 }
