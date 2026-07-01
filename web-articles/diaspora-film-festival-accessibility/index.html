@@ -71,6 +71,31 @@ figure.db{margin:12px 0;}
 .db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
 .tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
 .tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
 .cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
@@ -114,7 +139,7 @@ figure.db{margin:12px 0;}
 <u><strong>2026.5.11.(월) 14:00 </strong></u>
 (30분 전까지, 현장티켓 제외 수량 온라인 예매가능)</li><li>현장예매 : *전석무료
 <u><strong>2026.5.22.(금) 17:30</strong></u> - 개막작 상영 시작 전 
-<u><strong>2026.5.23.(토)~ 5.26.(화) 10:30</strong></u> - 각 상영 시작 10분 후</li><li><strong>모바일 티켓(QR 티켓)으로만 운영</strong></li></ul><p><a href="https://www.diaff.org/kor/addon/10000001/page.asp?page_num=40365" rel="noopener">https://www.diaff.org/kor/addon/10000001/page.asp?page_num=40365</a></p></div></div><hr><p style="background:#f1f1ef;padding:3px 8px;border-radius:4px;">💡 <strong>휠체어석 관람</strong>을 희망하시는 분은 영화제 사무국 이메일 또는 전화로 사전 예매하시는 것을 권장드립니다. 일반 온라인 예매나 당일 현장 예매로도 발권 및 입장이 가능하지만, 잔여 좌석 상황에 따라 관람이 어려울 수 있습니다. 방문 전 아래 연락처를 통해 휠체어석 예매 가능 여부를 확인해 주세요.</p><p><span style="background:#fbf3db;padding:.1em .2em;border-radius:3px;"><strong>문의 및 예매</strong></span></p><ul><li>이메일: diasporaff@gmail.com</li><li>전화: 070-5208-0666</li></ul><figure class="db"><div class="db-wrap"><table><tr><th>이름</th></tr><tr><td>[인천] 한중문화관</td></tr><tr><td>[인천] 인천아트플랫폼</td></tr><tr><td>[인천] 애관극장</td></tr></table></div><figcaption>카드 클릭 후 접근성 확인 가능해요!</figcaption></figure><hr><p><span style="color:#787774;">계단뿌셔클럽의 고유 콘텐츠 템플릿입니다. 무단복제 및 사용을 금합니다. 
+<u><strong>2026.5.23.(토)~ 5.26.(화) 10:30</strong></u> - 각 상영 시작 10분 후</li><li><strong>모바일 티켓(QR 티켓)으로만 운영</strong></li></ul><p><a href="https://www.diaff.org/kor/addon/10000001/page.asp?page_num=40365" rel="noopener">https://www.diaff.org/kor/addon/10000001/page.asp?page_num=40365</a></p></div></div><hr><p style="background:#f1f1ef;padding:3px 8px;border-radius:4px;">💡 <strong>휠체어석 관람</strong>을 희망하시는 분은 영화제 사무국 이메일 또는 전화로 사전 예매하시는 것을 권장드립니다. 일반 온라인 예매나 당일 현장 예매로도 발권 및 입장이 가능하지만, 잔여 좌석 상황에 따라 관람이 어려울 수 있습니다. 방문 전 아래 연락처를 통해 휠체어석 예매 가능 여부를 확인해 주세요.</p><p><span style="background:#fbf3db;padding:.1em .2em;border-radius:3px;"><strong>문의 및 예매</strong></span></p><ul><li>이메일: diasporaff@gmail.com</li><li>전화: 070-5208-0666</li></ul><figure class="db"><div class="db-cards"><a class="db-card" href="/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/"><img class="db-card-thumb" src="/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/assets/img-0.png" alt="[인천] 한중문화관" loading="lazy"><div class="db-card-body"><b>[인천] 한중문화관</b><p>인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.</p></div></a><a class="db-card" href="/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/"><img class="db-card-thumb" src="/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/assets/img-0.png" alt="[인천] 인천아트플랫폼" loading="lazy"><div class="db-card-body"><b>[인천] 인천아트플랫폼</b><p>인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.</p></div></a><a class="db-card" href="/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/"><img class="db-card-thumb" src="/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/assets/img-0.png" alt="[인천] 애관극장" loading="lazy"><div class="db-card-body"><b>[인천] 애관극장</b><p>인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.</p></div></a></div><figcaption>카드 클릭 후 접근성 확인 가능해요!</figcaption></figure><hr><p><span style="color:#787774;">계단뿌셔클럽의 고유 콘텐츠 템플릿입니다. 무단복제 및 사용을 금합니다. 
 ©2026 계단뿌셔클럽 All Rights Reserved. </span></p>
 <div class="tags"><span>접근성</span><span>휠체어</span><span>뿌클로드</span></div>
 </article>

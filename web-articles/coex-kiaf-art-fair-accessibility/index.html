@@ -71,6 +71,31 @@ figure.db{margin:12px 0;}
 .db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
 .tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
 .tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
 .cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
@@ -108,35 +133,35 @@ figure.db{margin:12px 0;}
 <article data-testid="article-detail">
 <h1 class="title">코엑스 A홀 - 키아프전시</h1>
 <div class="article-date">2024-10-04</div>
-<figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-0.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><h4>
+<figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-0.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><h4 id="115c9499b06081b88826c0ac0c8e5dca">
 📸  뿌클로드 객원 에디터 정보 &amp; 접근성 정보 취재 장소 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>객원 에디터 : 민지 님 
 방문장소 : 코엑스 A홀 (키아프 미술관람)
 방문 날짜 : 2024년 9월 8일 
 방문주소 : 서울 강남 영동대로 513 코엑스 A홀
-지도 URL :  <a href="https://naver.me/GrSjxWtr" rel="noopener">https://naver.me/GrSjxWtr</a><p><a href="https://naver.me/GrSjxWtr" rel="noopener">https://naver.me/GrSjxWtr</a></p></div></aside><h4>🚊 이동수단 + 이동방법</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>이동수단 : 전동휠체어 (주보 B6) 
+지도 URL :  <a href="https://naver.me/GrSjxWtr" rel="noopener">https://naver.me/GrSjxWtr</a><p><a href="https://naver.me/GrSjxWtr" rel="noopener">https://naver.me/GrSjxWtr</a></p></div></aside><h4 id="115c9499b06081a48a3deef0e5a588e0">🚊 이동수단 + 이동방법</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>이동수단 : 전동휠체어 (주보 B6) 
 교통수단 : 지하철 + 장애인콜택시
 가까운 지하철역 : 삼성역, 봉은사역 
 동행인 유무 : 전동휠체어 이용자와 함께 이동
 <span style="color:#487ca5;"><strong>
 💬 장애인 콜택시 이동시, 탑승구 설정에 유의하세요! 저는 주로 ‘아셈타워’로 설정합니다.
-💬 KIAF 전시는 아셈타워 출입구 바로 앞이 A홀에서 진행되어서 편리했어요! </strong></span></div></aside><h4> 🏢 방문하신 장소의 접근성 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>코엑스의 경우, 자동문+수동문 여러곳에 위치 
+💬 KIAF 전시는 아셈타워 출입구 바로 앞이 A홀에서 진행되어서 편리했어요! </strong></span></div></aside><h4 id="115c9499b06081749cd0f99aa06fe44f"> 🏢 방문하신 장소의 접근성 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>코엑스의 경우, 자동문+수동문 여러곳에 위치 
 대부분 직원이 상주해 유아차 및 휠체어 이용자들이 편리하게 이동가능 
 코엑스 내부는 매우 넓고 홀마다 이동이 편리하고, 층마다 승강기가 있어요! 
 
 <span style="color:#487ca5;"><strong>💬 키아프전시가 진행된 코엑스 A홀의 경우 승강기 이용도 없이, 이동하기 너무 편리함!
-💬 코엑스 A홀은 입구부터 내부전체가 턱없는 평지로, 휠체어 여러대 이용가능해요! </strong></span></div></aside><h4> 🚾 주차공간 및 장애인 화장실 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>주차가능 여부 : 주차 가능
+💬 코엑스 A홀은 입구부터 내부전체가 턱없는 평지로, 휠체어 여러대 이용가능해요! </strong></span></div></aside><h4 id="115c9499b060818ea23defd158e13414"> 🚾 주차공간 및 장애인 화장실 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>주차가능 여부 : 주차 가능
 장애인 전용주차 구역 : 있음 
 장애인 화장실 유무 : 있음 
 엘리베이터 유무 : 있음 
 
 <span style="color:#487ca5;"><strong>💬 코엑스의 넓은 홀로 인해, 승강기 위치를 찾기 어려울 수 있어요. 내부 지도 또는 안내데스크에 문의하세요! 
-💬 코엑스 A홀 양쪽 모서리 끝에 승강기가 있습니다. </strong></span></div></aside><h4> ℹ️  문화시설 이외, 휴식공간 등 즐길거리</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>코엑스 A홀의 경우, 입퇴장 전후 쉴수있는 휴게 공간이 있어요!
+💬 코엑스 A홀 양쪽 모서리 끝에 승강기가 있습니다. </strong></span></div></aside><h4 id="115c9499b0608159b378d3cde90af923"> ℹ️  문화시설 이외, 휴식공간 등 즐길거리</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>코엑스 A홀의 경우, 입퇴장 전후 쉴수있는 휴게 공간이 있어요!
 홀 내부에도 매년 다른 카페가 입점해 있고, 별도 벤치가 있어서 중간 휴식 취하기 좋아요. 
 카페 이외에도 브랜드 SNS 이벤트 도 참여해서 선물도 받아보는 소소한 재미를 찾아보세요! 
 
 <span style="color:#487ca5;"><strong>💬 코엑스 홀 건물 앞 1층 특히 추천! 깔끔하고 잔디로 조성된 공원에서 휴식을 취하기 좋더라구요. 
 💬 같은 층 카페 추천! 테라로사, 가배도 등 대형카페도 있어요! </strong></span></div></aside><p>
-</p><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-1.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><aside class="callout" style="background:#e7f3f8;"><span class="emoji">💬</span><div><span style="color:#487ca5;"><strong>미술관을 특별히 좋아하지 않더라도 즐겁게 볼 수 있는 전시! 키아프 서울! </strong></span></div></aside><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-2.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-3.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><p><a href="/d490b175d1de4827a96a28374b9c25d8" rel="noopener"><span style="background:#e7f3f8;padding:.1em .2em;border-radius:3px;"><strong>⏮️ 뒤로가기</strong></span></a></p><hr><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-4.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-5.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-6.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-7.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><div class="columns"><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-8.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-9.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div></div><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-10.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-11.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><div class="columns"><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-12.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-13.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div></div><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-14.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-15.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-16.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-17.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-18.png" alt="https://naver.me/x8tipydg" loading="lazy"><figcaption><a href="https://naver.me/x8tipydg" rel="noopener">https://naver.me/x8tipydg</a></figcaption></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-19.png" alt="https://tosto.re/staircrusherclub" loading="lazy"><figcaption><a href="https://tosto.re/staircrusherclub" rel="noopener">https://tosto.re/staircrusherclub</a></figcaption></figure>
+</p><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-1.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><aside class="callout" style="background:#e7f3f8;"><span class="emoji">💬</span><div><span style="color:#487ca5;"><strong>미술관을 특별히 좋아하지 않더라도 즐겁게 볼 수 있는 전시! 키아프 서울! </strong></span></div></aside><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-2.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-3.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><p><a href="/articles" rel="noopener"><span style="background:#e7f3f8;padding:.1em .2em;border-radius:3px;"><strong>⏮️ 뒤로가기</strong></span></a></p><hr><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-4.png" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-5.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-6.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-7.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><div class="columns"><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-8.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-9.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div></div><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-10.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-11.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><div class="columns"><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-12.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div><div class="column"><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-13.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure></div></div><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-14.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-15.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-16.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-17.jpg" alt="코엑스 A홀 - 키아프전시" loading="lazy"></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-18.png" alt="https://naver.me/x8tipydg" loading="lazy"><figcaption><a href="https://naver.me/x8tipydg" rel="noopener">https://naver.me/x8tipydg</a></figcaption></figure><figure><img src="/articles/coex-kiaf-art-fair-accessibility/assets/img-19.png" alt="https://tosto.re/staircrusherclub" loading="lazy"><figcaption><a href="https://tosto.re/staircrusherclub" rel="noopener">https://tosto.re/staircrusherclub</a></figcaption></figure>
 <div class="tags"><span>접근성</span><span>휠체어</span><span>전동휠체어</span><span>뿌클로드</span><span>전시</span></div>
 </article>
 </div>

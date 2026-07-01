@@ -125,11 +125,19 @@ aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무
 
 빌드 STEP 3 후 **모든 article을 Notion 원본과 시각 대조**한다(STEP 4). 새 글은 기존 글이 안 쓰던 블록을 쓸 수 있고, `renderBlock`의 `default`는 본문을 **버린다**(`⚠️ 미지원 블록(스킵)` 로그 필수 확인). 지금까지 처리한 것:
 
-- **`child_database` (인라인 DB)** — 뿌클로드 글의 핵심 콘텐츠(식당/장소/콜택시 목록)는 본문이 아니라 **인라인 DB의 row 프로퍼티**에 있다. 안 다루면 article이 텅 빈다. → `renderChildDatabase`가 `databases/{id}/query`로 row를 받아 **가로 스크롤 표**로 렌더(select/multi_select는 Notion 색 pill).
-  - **컬럼 순서**: 공식 API는 인라인 **뷰의 컬럼 순서**를 안 준다(스키마 순서만). → `build-articles.js`의 **`COLUMN_ORDER` 맵**(child_database 블록 id → 컬럼명 배열)에 수동 지정. **새 DB 추가 시 맵 갱신 필수**(누락 시 폴백 + 경고 로그). 뷰 순서는 DB public 페이지(`agnica.notion.site/<id-no-hyphens>`)에서 `.notion-table-view-header-cell` innerText로 읽는다. 갤러리 뷰는 헤더셀이 없어 카드 필드 순서로 대체.
-- **컬러 callout/블록** — callout `color`는 배경색 의미(`calloutBgStyle`), paragraph/heading 블록 `color`도 배경/글자색 반영(`colorStyle`). 인라인 span 색/밑줄은 `renderRich`가 이미 처리.
-- **이미지 가드** — 트래킹 픽셀(seeyoufarm 등)·비-http(`file:` 첨부)는 스킵.
-- **`table_of_contents`** — 평탄화 정적 페이지에선 앵커 점프 불가 → 생략.
+- **`child_database` (인라인 DB) — row 본문 유무로 3분기** (`renderChildDatabase`). 핵심 콘텐츠가 프로퍼티에 있는지/row 하위 페이지 본문에 있는지 반드시 확인(`get-block-children`으로 row 본문 샘플). 안 하면 통째로 유실된다:
+  1. **본문 없음(프로퍼티형)**: 흑백/BTS/전국-표 등 → 가로 스크롤 **표**(select/multi_select는 Notion 색 pill).
+  2. **본문=사진만(image-only)**: goyang/kspo/nationwide → 표 + row별 **사진 썸네일 컬럼** 인라인(얇은 상세 페이지 안 만듦).
+  3. **본문=리치(heading/callout/텍스트)**: diaspora/콜택시-지역별 → row별 **독립 상세 페이지 발행**(`/articles/<parent>/<rowSlug>/`) + 부모는 **링크 카드/링크 표**(Notion "카드 클릭→상세" 모방). 상세 slug/summary는 `web-articles/subpages.json`(rowId→메타)에 LLM으로 생성해 커밋(STEP 2b). sitemap 포함, 목록엔 미노출.
+  - **컬럼 순서**: 공식 API가 뷰 순서를 안 줌 → `COLUMN_ORDER` 맵(블록 id→컬럼 배열), 새 DB는 갱신. 뷰 순서는 DB public 페이지 `.notion-table-view-header-cell`로 확인.
+- **하위 블록 재귀 필수** — `paragraph`·`to_do`도 `has_children`면 하위를 렌더해야 한다. 안 하면 **문단 하위 섹션·중첩 체크리스트가 통째로 유실**(nationwide '추가 정보' 섹션, 전동휠체어 준비물 6항목 실제 사고).
+- **컬러 callout/블록** — callout `color`=배경, paragraph/heading 블록 `color`도 반영(`colorStyle`). 인라인 span 색/밑줄은 `renderRich`.
+- **heading 토글** — `is_toggleable`면 `<details>`(하위 블록 유실 방지). 모든 heading에 `id`(=블록id no-hyphen) 부여.
+- **`table_of_contents` + 앵커** — heading id 기반 목차 nav 렌더. 인페이지 `#블록id` 링크는 `fixHref`가 `#no-hyphen`으로 remap.
+- **내부 링크 remap(`fixHref`)** — Notion 페이지-id 경로(`/d490…`)·노션 도메인은 죽은 링크 → `LINK_MAP`(발행된 글/상세 URL) 있으면 그리로, 없으면 `/articles`. ("뒤로가기" 등 전 글의 dead link 제거.)
+- **이미지 가드** — 트래킹 픽셀(seeyoufarm)·비-http(`file:`) 스킵.
+- **fetch 타임아웃/재시도(`fetchWithTimeout`)** — 무타임아웃 fetch는 stalled 연결(만료 presigned 등)에서 **빌드 무한 hang**. 25~30s 타임아웃 + 재시도 + 429 백오프 필수.
+- **불가피**: Notion API가 `type:"unsupported"`로 주는 블록(button 등)은 콘텐츠가 없어 렌더 불가 — 기록만.
 
 ## AEO/GEO 체크리스트 (생성기/메타에 반영됨)
 - ✅ 정적 본문이 초기 HTML에 텍스트로 존재(JS 의존 0) — LLM 크롤러가 읽음

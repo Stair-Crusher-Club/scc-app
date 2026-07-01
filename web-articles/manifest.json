@@ -178,5 +178,155 @@
     "createdTime": "2026-06-02T14:37:00.000Z",
     "editedTime": "2026-06-30T09:12:00.000Z",
     "contentPageId": "373c9499-b060-8058-8262-d61174aed4ed"
+  },
+  "19ec9499-b060-80c9-aa97-ea403e6db509": {
+    "slug": "disabled-call-taxi-guide/gwangju-disabled-call-taxi",
+    "title": "광주광역시 콜택시",
+    "summary": "광주광역시 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/gwangju-disabled-call-taxi/assets/img-0.png",
+    "createdTime": "2025-02-18T07:17:00.000Z",
+    "editedTime": "2025-02-18T07:47:00.000Z",
+    "contentPageId": "19ec9499-b060-80c9-aa97-ea403e6db509",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "5ee5f911-d809-41eb-ab14-0442a6519373": {
+    "slug": "disabled-call-taxi-guide/gangwon-disabled-call-taxi",
+    "title": "강원도 콜택시",
+    "summary": "강원도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/gangwon-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2025-01-17T08:45:00.000Z",
+    "editedTime": "2025-01-17T09:12:00.000Z",
+    "contentPageId": "5ee5f911-d809-41eb-ab14-0442a6519373",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "04b4f7e4-f3b1-467b-82b7-894a3a284ec5": {
+    "slug": "disabled-call-taxi-guide/jeju-disabled-call-taxi",
+    "title": "제주도 콜택시",
+    "summary": "제주도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-04T06:24:00.000Z",
+    "editedTime": "2024-11-20T03:22:00.000Z",
+    "contentPageId": "04b4f7e4-f3b1-467b-82b7-894a3a284ec5",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "20044d4f-e4e4-4cd8-b322-41885dc8b348": {
+    "slug": "disabled-call-taxi-guide/gyeongju-disabled-call-taxi",
+    "title": "경주 콜택시",
+    "summary": "경주 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/gyeongju-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-04T06:24:00.000Z",
+    "editedTime": "2024-10-08T00:22:00.000Z",
+    "contentPageId": "20044d4f-e4e4-4cd8-b322-41885dc8b348",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "e858f1ab-7ac3-417a-95a7-966446d34d8c": {
+    "slug": "disabled-call-taxi-guide/sokcho-disabled-call-taxi",
+    "title": "속초 콜택시",
+    "summary": "속초 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/sokcho-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-04T06:23:00.000Z",
+    "editedTime": "2024-10-08T00:03:00.000Z",
+    "contentPageId": "e858f1ab-7ac3-417a-95a7-966446d34d8c",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "828aa316-4bb3-40a1-9833-ac03224d6fb5": {
+    "slug": "disabled-call-taxi-guide/jeonju-disabled-call-taxi",
+    "title": "전주 콜택시",
+    "summary": "전주 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/jeonju-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-04T06:23:00.000Z",
+    "editedTime": "2024-10-14T00:45:00.000Z",
+    "contentPageId": "828aa316-4bb3-40a1-9833-ac03224d6fb5",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "b8e05afe-7683-41b4-bbf2-e6ce994d19e5": {
+    "slug": "disabled-call-taxi-guide/daegu-disabled-call-taxi",
+    "title": "대구 콜택시",
+    "summary": "대구 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/daegu-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-04T06:22:00.000Z",
+    "editedTime": "2024-10-08T00:15:00.000Z",
+    "contentPageId": "b8e05afe-7683-41b4-bbf2-e6ce994d19e5",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "3c12b946-daea-40f3-93f0-4adf673aed97": {
+    "slug": "disabled-call-taxi-guide/incheon-disabled-call-taxi",
+    "title": "인천 콜택시",
+    "summary": "인천 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/incheon-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-04T06:22:00.000Z",
+    "editedTime": "2024-10-07T23:56:00.000Z",
+    "contentPageId": "3c12b946-daea-40f3-93f0-4adf673aed97",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "598d3fc2-5c03-4212-a78b-f6bd0d901cb6": {
+    "slug": "disabled-call-taxi-guide/daejeon-disabled-call-taxi",
+    "title": "대전 콜택시 ",
+    "summary": "대전 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/daejeon-disabled-call-taxi/assets/img-0.png",
+    "createdTime": "2024-10-01T15:48:00.000Z",
+    "editedTime": "2024-10-07T23:56:00.000Z",
+    "contentPageId": "598d3fc2-5c03-4212-a78b-f6bd0d901cb6",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "acafeddb-e8b6-4fca-a645-f0d7b354bfa0": {
+    "slug": "disabled-call-taxi-guide/busan-disabled-call-taxi",
+    "title": "부산 콜택시 정보",
+    "summary": "부산 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/busan-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-01T15:48:00.000Z",
+    "editedTime": "2024-10-08T00:37:00.000Z",
+    "contentPageId": "acafeddb-e8b6-4fca-a645-f0d7b354bfa0",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "4693aa1c-ab77-478d-8475-a60e04d6a4c0": {
+    "slug": "disabled-call-taxi-guide/gyeonggi-disabled-call-taxi",
+    "title": "경기도 콜택시",
+    "summary": "경기도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/gyeonggi-disabled-call-taxi/assets/img-0.png",
+    "createdTime": "2024-10-01T15:47:00.000Z",
+    "editedTime": "2024-10-07T23:56:00.000Z",
+    "contentPageId": "4693aa1c-ab77-478d-8475-a60e04d6a4c0",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "a3ec15d8-ffc3-408f-9bc7-6de1a4c30868": {
+    "slug": "disabled-call-taxi-guide/seoul-disabled-call-taxi",
+    "title": " 서울 콜택시",
+    "summary": "서울 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "image": "/articles/disabled-call-taxi-guide/seoul-disabled-call-taxi/assets/img-0.jpg",
+    "createdTime": "2024-10-01T15:47:00.000Z",
+    "editedTime": "2024-10-07T14:56:00.000Z",
+    "contentPageId": "a3ec15d8-ffc3-408f-9bc7-6de1a4c30868",
+    "parent": "disabled-call-taxi-guide"
+  },
+  "35dc9499-b060-80d2-93f0-d3c75abd9850": {
+    "slug": "diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility",
+    "title": "[인천] 한중문화관",
+    "summary": "인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T13:41:00.000Z",
+    "editedTime": "2026-05-18T01:31:00.000Z",
+    "contentPageId": "35dc9499-b060-80d2-93f0-d3c75abd9850",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "35dc9499-b060-8064-8145-c6e07bf2e05a": {
+    "slug": "diaspora-film-festival-accessibility/incheon-art-platform-accessibility",
+    "title": "[인천] 인천아트플랫폼",
+    "summary": "인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T13:22:00.000Z",
+    "editedTime": "2026-05-18T00:47:00.000Z",
+    "contentPageId": "35dc9499-b060-8064-8145-c6e07bf2e05a",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "35dc9499-b060-8056-af99-f75c33a6f408": {
+    "slug": "diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility",
+    "title": "[인천] 애관극장",
+    "summary": "인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T08:55:00.000Z",
+    "editedTime": "2026-05-19T05:25:00.000Z",
+    "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
+    "parent": "diaspora-film-festival-accessibility"
   }
 }

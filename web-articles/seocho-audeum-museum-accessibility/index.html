@@ -71,6 +71,31 @@ figure.db{margin:12px 0;}
 .db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
 .tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
 .tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
 .cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
@@ -108,26 +133,26 @@ figure.db{margin:12px 0;}
 <article data-testid="article-detail">
 <h1 class="title">서울서초 오디움</h1>
 <div class="article-date">2025-08-21</div>
-<figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-0.png" alt="서울서초 오디움" loading="lazy"></figure><h4>
+<figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-0.png" alt="서울서초 오디움" loading="lazy"></figure><h4 id="25cc9499b06080c6bc84c2ad959caad2">
 📸  뿌클로드 객원 에디터 정보 &amp; 접근성 정보 취재 장소 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>객원 에디터</strong> : 으낭 님 (문화 취재 객원에디터)
 <strong>방문 장소</strong> : 오디움 (전시 관람)
 <strong>방문 일자</strong> : 2025년 6월 7일
 <strong>방문 주소</strong> : 서울 서초구 헌릉로8길 6
-<strong>지도 URL : </strong></p><p><a href="https://naver.me/xMjKMrlr" rel="noopener">https://naver.me/xMjKMrlr</a></p></div></aside><h4>🚊 이동수단 + 이동방법</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>이동수단</strong> : 버스 / 자차 가능
+<strong>지도 URL : </strong></p><p><a href="https://naver.me/xMjKMrlr" rel="noopener">https://naver.me/xMjKMrlr</a></p></div></aside><h4 id="25cc9499b06080068c24e9a2a81efbf4">🚊 이동수단 + 이동방법</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>이동수단</strong> : 버스 / 자차 가능
 <strong>주의사항</strong> : 인근 지하철역과는 거리가 있어 대중교통 접근성은 낮음
 <strong>자가용</strong> : 오디움 내부 주차장은 유료 (비싼 편) → 주변 주차장 이용 권장
-<strong>출입구 안내</strong> :</p><ul><li>도로변 입구 = 계단 → 휠체어 접근 불가</li><li>힐스테이트 방면 / 주차장 방면 입구 = 엘리베이터 이용 가능</li></ul><p><span style="color:#487ca5;"><strong>💬 </strong></span><span style="color:#487ca5;"><em><strong>사전 예약제 운영, B2 라운지에서 대기 후 투어 시작</strong></em></span></p></div></aside><h4> 🏢 방문하신 장소의 접근성 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>주출입구</strong> : 자동문, 폭 88cm → 휠체어 1대 무리 없이 통과
+<strong>출입구 안내</strong> :</p><ul><li>도로변 입구 = 계단 → 휠체어 접근 불가</li><li>힐스테이트 방면 / 주차장 방면 입구 = 엘리베이터 이용 가능</li></ul><p><span style="color:#487ca5;"><strong>💬 </strong></span><span style="color:#487ca5;"><em><strong>사전 예약제 운영, B2 라운지에서 대기 후 투어 시작</strong></em></span></p></div></aside><h4 id="25cc9499b06080178c11c8c4049d3882"> 🏢 방문하신 장소의 접근성 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>주출입구</strong> : 자동문, 폭 88cm → 휠체어 1대 무리 없이 통과
 <strong>엘리베이터</strong> : 모든 층 연결 (B2·3·4층), 층간 이동 지원 가능
 <strong>전시장 동선</strong> : 대부분 공간이 넓고 1~2대 휠체어 동시 이동 가능</p><ul><li>일부 전시실 통로는 좁음
 도슨트 투어(25명 규모) 특성상 혼잡한 순간이 있을 수 있음
-<strong>안내/도움</strong> : 도슨트 1인 + 스태프 1~2인 동행 → 도움 요청 쉬움</li></ul><p><span style="color:#487ca5;"><strong>💬 </strong></span><span style="color:#487ca5;"><em><strong>세계적 희소성을 가진 빈티지 오디오 기기 관람 가능!</strong></em></span></p></div></aside><h4> 🚾 주차공간 및 장애인 화장실 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>장애인 화장실</strong> : B2·3·4층 마련 (자동문, 폭 약 1m, 내부 공간 2.2m×1.5m)
+<strong>안내/도움</strong> : 도슨트 1인 + 스태프 1~2인 동행 → 도움 요청 쉬움</li></ul><p><span style="color:#487ca5;"><strong>💬 </strong></span><span style="color:#487ca5;"><em><strong>세계적 희소성을 가진 빈티지 오디오 기기 관람 가능!</strong></em></span></p></div></aside><h4 id="25cc9499b0608039869be25c39d09f63"> 🚾 주차공간 및 장애인 화장실 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p><strong>장애인 화장실</strong> : B2·3·4층 마련 (자동문, 폭 약 1m, 내부 공간 2.2m×1.5m)
 <strong>내부 휴식 공간</strong> : B2 라운지에 잠시 대기 가능한 공간만 있음
-<strong>카페</strong> : 별도 없음</p></div></aside><h4> ℹ️  문화시설 이외, 휴식공간 등 즐길거리</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p>오전 10시 투어 → <strong>Th. Mortier 오르골 시연</strong> 직접 청음 가능 (강력 추천!)
+<strong>카페</strong> : 별도 없음</p></div></aside><h4 id="25cc9499b06080d5b858c3ee69098400"> ℹ️  문화시설 이외, 휴식공간 등 즐길거리</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div><p>오전 10시 투어 → <strong>Th. Mortier 오르골 시연</strong> 직접 청음 가능 (강력 추천!)
 (온라인 사전 예약 필수)</p></div></aside><p>
 </p><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-1.png" alt="서울서초 오디움" loading="lazy"></figure><aside class="callout" style="background:#e7f3f8;"><span class="emoji">💬</span><div><p>자동문·엘리베이터·장애인 화장실 모두 잘 갖춰져 있어 접근성은 우수했습니다. 다만, 도슨트 투어 특성상 좁은 전시실에서는 작품을 가까이 보기 어렵거나 설명이 멀게 느껴질 수 있습니다. 스태프 분들이 상주하며 적극적으로 이동 지원을 도와주셔서 편안했습니다.
 
 </p><p>✅ 추천 이유</p><ol><li>층마다 장애인 화장실, 엘리베이터 완비</li><li>소규모(25명) 사전 예약제 투어 → 비교적 혼잡하지 않음</li><li>스태프 상주, 이동 지원 요청 용이</li><li>세계적 희소성 있는 음향 기기 전시
-</li></ol><p>⚠️ 아쉬운 점</p><ul><li>내부 카페/휴게 공간 없음</li><li>도로변 입구는 계단 → 반드시 힐스테이트/주차장 방면 입구 이용 필요</li><li>전시실 일부 통로 협소</li></ul></div></aside><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-2.png" alt="서울서초 오디움" loading="lazy"></figure><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-3.png" alt="서울서초 오디움" loading="lazy"></figure><p><a href="/d490b175d1de4827a96a28374b9c25d8" rel="noopener"><span style="background:#e7f3f8;padding:.1em .2em;border-radius:3px;"><strong>⏮️ 뒤로가기</strong></span></a></p><hr><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-4.png" alt="서울서초 오디움" loading="lazy"></figure>
+</li></ol><p>⚠️ 아쉬운 점</p><ul><li>내부 카페/휴게 공간 없음</li><li>도로변 입구는 계단 → 반드시 힐스테이트/주차장 방면 입구 이용 필요</li><li>전시실 일부 통로 협소</li></ul></div></aside><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-2.png" alt="서울서초 오디움" loading="lazy"></figure><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-3.png" alt="서울서초 오디움" loading="lazy"></figure><p><a href="/articles" rel="noopener"><span style="background:#e7f3f8;padding:.1em .2em;border-radius:3px;"><strong>⏮️ 뒤로가기</strong></span></a></p><hr><figure><img src="/articles/seocho-audeum-museum-accessibility/assets/img-4.png" alt="서울서초 오디움" loading="lazy"></figure>
 <div class="tags"><span>접근성</span><span>휠체어</span><span>문화시설</span><span>뿌클로드</span></div>
 </article>
 </div>

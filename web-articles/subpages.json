@@ -1,0 +1,194 @@
+{
+  "35dc9499-b060-80d2-93f0-d3c75abd9850": {
+    "parentSlug": "diaspora-film-festival-accessibility",
+    "slug": "incheon-hanjung-cultural-center-accessibility",
+    "summary": "인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.",
+    "title": "[인천] 한중문화관"
+  },
+  "35dc9499-b060-8064-8145-c6e07bf2e05a": {
+    "parentSlug": "diaspora-film-festival-accessibility",
+    "slug": "incheon-art-platform-accessibility",
+    "summary": "인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.",
+    "title": "[인천] 인천아트플랫폼"
+  },
+  "35dc9499-b060-8056-af99-f75c33a6f408": {
+    "parentSlug": "diaspora-film-festival-accessibility",
+    "slug": "incheon-aegwan-theater-accessibility",
+    "summary": "인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.",
+    "title": "[인천] 애관극장"
+  },
+  "33ac9499-b060-8190-8de0-da378e2d5440": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-the-food-accessibility",
+    "summary": "The food는 고양종합운동장 소노아레나 공연장 내 1층에 위치한 식당으로, 계단 없이 진입 가능한 접근레벨 0의 입식 매장이라 휠체어 이용자도 편하게 방문할 수 있습니다.",
+    "title": "[공연장 내] The food"
+  },
+  "33ac9499-b060-8126-98cb-ed451096f3f7": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-daehwa-gyudon-accessibility",
+    "summary": "대화규동은 고양종합운동장 인근 대화역에 있는 1층 식당으로, 계단 없이 진입 가능한 접근레벨 0 매장이라 이동약자도 부담 없이 이용할 수 있습니다.",
+    "title": "[대화역] 대화규동"
+  },
+  "33ac9499-b060-8138-8d07-f6e143bfa684": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-gifc-mall-accessibility",
+    "summary": "킨텍스 꿈에그린 GIFC몰은 고양종합운동장 인근 킨텍스역(GTX-A)에 있는 식당·카페 상가로, 계단 없이 진입 가능한 접근레벨 0에 매장이 넓어 휠체어 이용자에게 접근성이 좋습니다.",
+    "title": "[킨텍스역] 킨텍스 꿈에그린 GIFC몰"
+  },
+  "33ac9499-b060-8183-aab0-c95b1a678a96": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-sonoarena-cu-accessibility",
+    "summary": "소노아레나 CU는 고양종합운동장 소노아레나 공연장 내 1층 편의점으로, 계단 없이 진입 가능한 접근레벨 0 매장이라 이동약자도 편하게 이용할 수 있습니다.",
+    "title": "[공연장 내] 소노아레나 CU"
+  },
+  "33ac9499-b060-8185-85ee-db15ff59808e": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-hyundai-motorstudio-cafe-accessibility",
+    "summary": "현대모터스튜디오 고양 카페는 고양종합운동장 인근 킨텍스역에 있는 1층 카페로, 계단 없이 진입 가능한 접근레벨 0 매장이라 휠체어 이용자도 부담 없이 방문할 수 있습니다.",
+    "title": "[킨텍스역] 현대모터스튜디오 고양 카페"
+  },
+  "33ac9499-b060-81b9-9ebb-f26b25746bf8": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-mongkok-daehwa-accessibility",
+    "summary": "몽콕 대화역본점은 고양종합운동장 인근 대화역에 있는 1층 식당으로, 계단 없이 진입 가능한 접근레벨 0 매장이라 이동약자도 편하게 이용할 수 있습니다.",
+    "title": "[대화역] 몽콕 대화역본점"
+  },
+  "33ac9499-b060-81d0-81d6-c5057c8bf14e": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-subway-daehwa-accessibility",
+    "summary": "써브웨이 고양대화역점은 고양종합운동장 인근 대화역에 있는 1층 식당으로, 계단 없이 진입 가능한 접근레벨 0 매장이라 휠체어 이용자도 부담 없이 방문할 수 있습니다.",
+    "title": "[대화역] 써브웨이 고양대화역점"
+  },
+  "33ac9499-b060-81d3-8b09-d0f30d54b765": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-cafe-kumassi-accessibility",
+    "summary": "카페 쿠마씨는 고양종합운동장 인근 킨텍스역에 있는 1층 카페로, 계단 없이 진입 가능한 접근레벨 0의 여유롭고 분위기 좋은 매장이라 이동약자도 편하게 방문할 수 있습니다.",
+    "title": "[킨텍스역] 카페 쿠마씨"
+  },
+  "33ac9499-b060-81f1-9951-f502a7ffe713": {
+    "parentSlug": "goyang-stadium-accessibility",
+    "slug": "goyang-hyeongje-syabu-kalguksu-accessibility",
+    "summary": "형제버섯샤브칼국수 대화역점은 고양종합운동장 인근 대화역에 있는 1~2층 식당으로, 계단 없이 진입 가능하고 엘리베이터가 있는 접근레벨 0 매장이라 휠체어 이용자도 편하게 이용할 수 있습니다.",
+    "title": "[대화역] 형제버섯샤브칼국수 대화역점"
+  },
+  "19ec9499-b060-80c9-aa97-ea403e6db509": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "gwangju-disabled-call-taxi",
+    "summary": "광주광역시 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "광주광역시 콜택시"
+  },
+  "5ee5f911-d809-41eb-ab14-0442a6519373": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "gangwon-disabled-call-taxi",
+    "summary": "강원도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "강원도 콜택시"
+  },
+  "04b4f7e4-f3b1-467b-82b7-894a3a284ec5": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "jeju-disabled-call-taxi",
+    "summary": "제주도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "제주도 콜택시"
+  },
+  "20044d4f-e4e4-4cd8-b322-41885dc8b348": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "gyeongju-disabled-call-taxi",
+    "summary": "경주 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "경주 콜택시"
+  },
+  "e858f1ab-7ac3-417a-95a7-966446d34d8c": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "sokcho-disabled-call-taxi",
+    "summary": "속초 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "속초 콜택시"
+  },
+  "828aa316-4bb3-40a1-9833-ac03224d6fb5": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "jeonju-disabled-call-taxi",
+    "summary": "전주 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "전주 콜택시"
+  },
+  "b8e05afe-7683-41b4-bbf2-e6ce994d19e5": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "daegu-disabled-call-taxi",
+    "summary": "대구 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "대구 콜택시"
+  },
+  "3c12b946-daea-40f3-93f0-4adf673aed97": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "incheon-disabled-call-taxi",
+    "summary": "인천 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "인천 콜택시"
+  },
+  "598d3fc2-5c03-4212-a78b-f6bd0d901cb6": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "daejeon-disabled-call-taxi",
+    "summary": "대전 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "대전 콜택시"
+  },
+  "acafeddb-e8b6-4fca-a645-f0d7b354bfa0": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "busan-disabled-call-taxi",
+    "summary": "부산 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "부산 콜택시 정보"
+  },
+  "4693aa1c-ab77-478d-8475-a60e04d6a4c0": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "gyeonggi-disabled-call-taxi",
+    "summary": "경기도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": "경기도 콜택시"
+  },
+  "a3ec15d8-ffc3-408f-9bc7-6de1a4c30868": {
+    "parentSlug": "disabled-call-taxi-guide",
+    "slug": "seoul-disabled-call-taxi",
+    "summary": "서울 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.",
+    "title": " 서울 콜택시"
+  },
+  "16bc9499-b060-801b-b248-e4ed55d38a12": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "gs25-s9-olympic-park-kspo-accessibility",
+    "summary": "GS25 S9올림픽공원역점은 KSPO DOME(올림픽공원) 인근 편의점으로, 계단 없이 엘리베이터로 진입 가능한 접근레벨 0의 휠체어 접근성 좋은 곳입니다.",
+    "title": "GS25 S9올림픽공원역점"
+  },
+  "16bc9499-b060-808d-a9fa-c648525323b5": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "seven-eleven-s-olympic-park-kspo-accessibility",
+    "summary": "세븐일레븐 S올림픽공원역점은 KSPO DOME(올림픽공원) 인근 편의점으로, 계단 없이 엘리베이터로 진입 가능한 접근레벨 0의 휠체어 접근성 좋은 곳입니다.",
+    "title": "세븐일레븐 S올림픽공원역점"
+  },
+  "16bc9499-b060-80d7-98a7-e987ef6b5af1": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "cu-olympic-plaza-kspo-accessibility",
+    "summary": "CU 올림픽광장점은 KSPO DOME(올림픽공원) 인근 1층 편의점으로, 계단이 없어 휠체어로 편하게 진입할 수 있는 접근레벨 0의 접근성 좋은 곳입니다.",
+    "title": "CU 올림픽광장점"
+  },
+  "16bc9499-b060-80e2-aeab-db54afbbad55": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "twosome-place-olympic-park-kspo-accessibility",
+    "summary": "투썸플레이스 올림픽공원역점은 KSPO DOME(올림픽공원) 인근 1층 카페로, 계단 없이 입식 좌석을 갖춘 접근레벨 0의 휠체어 접근성 좋은 곳입니다.",
+    "title": "투썸플레이스 올림픽공원역점"
+  },
+  "16bc9499-b060-8085-a020-eb202b87195d": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "hollys-olympic-park-kspo-accessibility",
+    "summary": "할리스 올림픽공원역점은 KSPO DOME(올림픽공원) 인근 1층 카페로, 계단 없이 입식 좌석을 갖춘 접근레벨 0의 휠체어 접근성 좋은 곳입니다.",
+    "title": "할리스 올림픽공원역점"
+  },
+  "16bc9499-b060-8137-8f5c-d759081b2ea0": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "jeil-jemyeonso-olympic-park-kspo-accessibility",
+    "summary": "제일제면소 올림픽공원점은 KSPO DOME(올림픽공원) 인근 1층 식당으로, 계단 없이 입식 좌석을 갖춘 접근레벨 0의 휠체어 접근성 좋은 곳입니다.",
+    "title": "제일제면소 올림픽공원점"
+  },
+  "16bc9499-b060-8190-bd1a-ef4a68c374bf": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "paris-croissant-olympic-park-kspo-accessibility",
+    "summary": "파리크라상 올림픽공원점은 KSPO DOME(올림픽공원) 인근 1층 베이커리 카페로, 계단이 없어 휠체어로 편하게 진입할 수 있는 접근레벨 0의 접근성 좋은 곳입니다.",
+    "title": "파리크라상 올림픽공원점"
+  },
+  "16bc9499-b060-81ae-abab-fb069883edc9": {
+    "parentSlug": "kspo-dome-concert-hall-accessibility",
+    "slug": "songdo-bulgogi-olympic-park-kspo-accessibility",
+    "summary": "송도불고기 올림픽공원점은 KSPO DOME(올림픽공원) 인근 1층 식당으로, 계단 없이 입식 좌석을 갖춘 접근레벨 0의 휠체어 접근성 좋은 곳입니다.",
+    "title": "송도불고기 올림픽공원점"
+  }
+}

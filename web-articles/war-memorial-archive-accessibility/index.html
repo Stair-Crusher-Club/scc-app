@@ -71,6 +71,31 @@ figure.db{margin:12px 0;}
 .db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
 .tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
 .tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
 .cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
@@ -108,7 +133,7 @@ figure.db{margin:12px 0;}
 <article data-testid="article-detail">
 <h1 class="title">전쟁기념관 - 6.25 아카이브센터ㅡ</h1>
 <div class="article-date">2024-10-15</div>
-<figure><img src="/articles/war-memorial-archive-accessibility/assets/img-0.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><h4>
+<figure><img src="/articles/war-memorial-archive-accessibility/assets/img-0.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><h4 id="ecacc6b6363146b1bdc86ae906543b0a">
 
 
 📸  뿌클로드 객원 에디터 정보 &amp; 접근성 정보 취재 장소 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>객원 에디터 : 은선 님 (문화 취재 객원에디터)  
@@ -117,20 +142,20 @@ figure.db{margin:12px 0;}
 방문주소 : 서울 용산구 이태원로 29 전쟁기념관 
 지도 URL :  <a href="https://naver.me/xLJbS1aW" rel="noopener">https://naver.me/xLJbS1aW</a>
 (*전쟁기념관 2층 6.25 아카이브 센터는 별도의 주소 URL이 없어요.)
-<p><a href="https://naver.me/xLJbS1aW" rel="noopener">https://naver.me/xLJbS1aW</a></p></div></aside><h4>🚊 이동수단 + 이동방법</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>교통수단 : 도보 + 버스 
+<p><a href="https://naver.me/xLJbS1aW" rel="noopener">https://naver.me/xLJbS1aW</a></p></div></aside><h4 id="3c483f16e91d4a4abd78d7dfd75a868b">🚊 이동수단 + 이동방법</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>교통수단 : 도보 + 버스 
 가까운 지하철역 : 4호선, 6호선 삼각지역 11번 출구에서 228m
 *서울 지하철 4, 6호선 삼각지역 하차 후 도보로 5분 거리에 위치
 <span style="color:#487ca5;"><strong>
 💬 삼각지역에서 도보로 접근 가능하고, 자차 이용시에도 장애인 주차장이 잘 마련되어 이용 편리! 
 💬 장애인 주차장에서 기념관으로 이동하는 경사로가 잘 마련되어 있어요! 
-💬 이동 경로도 통로의 폭이 넓어 전동 휠체어도 넉넉히 접근이 가능합니다 </strong></span>🙂</div></aside><h4> 🏢 방문하신 장소의 접근성 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>전쟁기념관 주출입구는 자동문이고, 내부 엘리베이터, 장애인 화장실, 경사로가 잘 마련되어 접근성이 매우 좋아요! 특히 자동문을 통해 전쟁기념과 대부분 공간에 이동약자 접근이 가능하고요. 
+💬 이동 경로도 통로의 폭이 넓어 전동 휠체어도 넉넉히 접근이 가능합니다 </strong></span>🙂</div></aside><h4 id="fd318f2272a54a06b5dac1a99f91c2f8"> 🏢 방문하신 장소의 접근성 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>전쟁기념관 주출입구는 자동문이고, 내부 엘리베이터, 장애인 화장실, 경사로가 잘 마련되어 접근성이 매우 좋아요! 특히 자동문을 통해 전쟁기념과 대부분 공간에 이동약자 접근이 가능하고요. 
 아카이브 센터는 <strong>내부가 개방적</strong>이고 서재 배치가 여유로워 이동에 큰 제약이 없어요! 
 단, 6.25 전쟁 큐레이션 존은 서가들이 검색기기를 에워싸듯 배치되어 이동이 다소 불편할 수 있어요. 
 
 <span style="color:#487ca5;"><strong>💬 서울 무료 도서관으로, 통창을 통해 계절감을 느낄 수 있어요! 
 💬 특히, 용산/삼각지 근처에서 작업이나 공부할 공간으로 적합.
 💬 보도블럭, 주출입구, 경사로, 엘리베이터 등 접근성을 위한 요소들이 잘 마련되어 이동약자에게 추천! 
-💬 2층 중앙홀에 도움을 받을 수 있는 직원과 짐 보관함이 있음</strong></span>.</div></aside><h4> 🚾 주차공간 및 장애인 화장실 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>주차가능 여부 : 주차 가능
+💬 2층 중앙홀에 도움을 받을 수 있는 직원과 짐 보관함이 있음</strong></span>.</div></aside><h4 id="da2a9b9407bc4edfaacbd12ea7f1d0de"> 🚾 주차공간 및 장애인 화장실 정보 </h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>주차가능 여부 : 주차 가능
 장애인 전용주차 구역 : 있음 
 장애인 화장실 유무 : 있음 
 엘리베이터 유무 : 있음 
@@ -139,14 +164,14 @@ figure.db{margin:12px 0;}
 💬 여성 장애인 화장실은 2층 4호 승강기 옆에, 남성 장애인 화장실은 맞은편에 위치.
 💬 3층 장애인 화장실</strong></span><span style="color:#487ca5;">은 </span><span style="color:#487ca5;"><strong>엘리베이터</strong></span><span style="color:#487ca5;">를 통해 접근 가능.</span><span style="color:#487ca5;"><strong>
 💬 아카이브 센터 내 장애인 화장실</strong></span><span style="color:#487ca5;">은 좁고 수동문이므로, </span><span style="color:#487ca5;"><strong>3층 자동문 장애인 화장실</strong></span><span style="color:#487ca5;"> 이용 권장.
-</span><span style="color:#487ca5;"><strong>💬 장애인 화장실</strong></span><span style="color:#487ca5;">은 자동문 스위치로 열고 닫으며, 내부 관리 상태가 좋음.</span></div></aside><h4> ℹ️  문화시설 이외, 휴식공간 등 즐길거리</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>전쟁기념관 2층에는 컨텍스트 카페가 있어요. 다양한 베이커리와 음료 메뉴를 즐기기 좋아요!
+</span><span style="color:#487ca5;"><strong>💬 장애인 화장실</strong></span><span style="color:#487ca5;">은 자동문 스위치로 열고 닫으며, 내부 관리 상태가 좋음.</span></div></aside><h4 id="f4eeceedef6a4e57816107baf5c2d608"> ℹ️  문화시설 이외, 휴식공간 등 즐길거리</h4><hr><aside class="callout" style="background:#e7f3f8;"><span class="emoji">🔹</span><div>전쟁기념관 2층에는 컨텍스트 카페가 있어요. 다양한 베이커리와 음료 메뉴를 즐기기 좋아요!
 주로 4인 테이블과 긴 대형 테이블로 구성, 단 테이블 간격이 좁아 입구 가까운 좌석에 앉는 것이 편리해요! 
 
 <span style="color:#487ca5;"><strong>💬 컨텍스트 카페는 전쟁기념관 평화의광장 앞 전시관 2층에 위치! 
 💬 지하철 이용시, 삼각지역 12번출구에서 도보 5분 거리 위치! </strong></span>
 
 <span style="color:#487ca5;"><strong>👇🏼 컨텍스트 카페 바로가기 👇🏼</strong></span><p><a href="https://naver.me/GQYkyzvF" rel="noopener">https://naver.me/GQYkyzvF</a></p><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-1.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure></div></aside><p>
-</p><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-2.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><aside class="callout" style="background:#e7f3f8;"><span class="emoji">💬</span><div><span style="color:#487ca5;"><strong>이동약자를 위해 섬세하게 조성된 남산타워뷰 공공도서관!  </strong></span></div></aside><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-3.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-4.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><p><a href="/d490b175d1de4827a96a28374b9c25d8" rel="noopener"><span style="background:#e7f3f8;padding:.1em .2em;border-radius:3px;"><strong>⏮️ 뒤로가기</strong></span></a></p><hr><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-5.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-6.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-7.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-8.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-9.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-10.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-11.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-12.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-13.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-14.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-15.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-16.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-17.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-18.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-19.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-20.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-21.png" alt="https://naver.me/x8tipydg" loading="lazy"><figcaption><a href="https://naver.me/x8tipydg" rel="noopener">https://naver.me/x8tipydg</a></figcaption></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-22.png" alt="https://tosto.re/staircrusherclub" loading="lazy"><figcaption><a href="https://tosto.re/staircrusherclub" rel="noopener">https://tosto.re/staircrusherclub</a></figcaption></figure>
+</p><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-2.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><aside class="callout" style="background:#e7f3f8;"><span class="emoji">💬</span><div><span style="color:#487ca5;"><strong>이동약자를 위해 섬세하게 조성된 남산타워뷰 공공도서관!  </strong></span></div></aside><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-3.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-4.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><p><a href="/articles" rel="noopener"><span style="background:#e7f3f8;padding:.1em .2em;border-radius:3px;"><strong>⏮️ 뒤로가기</strong></span></a></p><hr><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-5.png" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-6.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-7.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-8.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-9.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-10.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-11.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-12.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-13.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-14.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-15.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-16.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-17.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-18.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-19.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-20.jpg" alt="전쟁기념관 - 6.25 아카이브센터ㅡ" loading="lazy"></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-21.png" alt="https://naver.me/x8tipydg" loading="lazy"><figcaption><a href="https://naver.me/x8tipydg" rel="noopener">https://naver.me/x8tipydg</a></figcaption></figure><figure><img src="/articles/war-memorial-archive-accessibility/assets/img-22.png" alt="https://tosto.re/staircrusherclub" loading="lazy"><figcaption><a href="https://tosto.re/staircrusherclub" rel="noopener">https://tosto.re/staircrusherclub</a></figcaption></figure>
 <div class="tags"><span>접근성</span><span>휠체어</span><span>전동휠체어</span><span>뿌클로드</span><span>도서관</span></div>
 </article>
 </div>

@@ -26,6 +26,14 @@ const SRC_DIR = path.join(ROOT, 'web-articles');
 const DIST_DIR = path.join(ROOT, 'web-dist');
 const DIST_ARTICLES = path.join(DIST_DIR, 'articles');
 const MANIFEST_PATH = path.join(SRC_DIR, 'manifest.json');
+const SUBPAGES_PATH = path.join(SRC_DIR, 'subpages.json');
+
+// 카드형 인라인 DB row → 상세 페이지 메타(rowId → {parentSlug, slug, summary, title}).
+// /scc-web-articles-publish STEP 2b에서 LLM으로 생성해 커밋. 렌더 시 상세 페이지 발행에 사용.
+let SUBPAGES = {};
+// Notion 내부 page-id(하이픈 제거, 소문자) → 우리 사이트 URL. 본문 내 내부 링크 remap용.
+let LINK_MAP = {};
+const noHy = s => (s || '').replace(/-/g, '').toLowerCase();
 
 // ---------- CLI / env ----------
 function arg(name) {
@@ -61,12 +69,34 @@ const H = {
   'Notion-Version': '2022-06-28',
   'Content-Type': 'application/json',
 };
+// fetch에 타임아웃+재시도(무타임아웃 fetch가 stalled 연결에서 무한 hang → 빌드 정지 방지)
+async function fetchWithTimeout(url, opts = {}, ms = 25000, tries = 3) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), ms);
+    try {
+      return await fetch(url, {...opts, signal: ac.signal});
+    } catch (e) {
+      lastErr = e;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr;
+}
 async function api(method, p, body) {
-  const res = await fetch(`https://api.notion.com/v1/${p}`, {
+  const res = await fetchWithTimeout(`https://api.notion.com/v1/${p}`, {
     method,
     headers: H,
     body: body ? JSON.stringify(body) : undefined,
   });
+  // 429 rate-limit → Retry-After 후 1회 재시도
+  if (res.status === 429) {
+    const wait = (Number(res.headers.get('retry-after')) || 2) * 1000;
+    await new Promise(r => setTimeout(r, wait));
+    return api(method, p, body);
+  }
   const j = await res.json();
   if (j && j.object === 'error')
     throw new Error(`Notion ${j.code}: ${j.message}`);
@@ -207,7 +237,7 @@ function resolveRow(page) {
 // ---------- 이미지 다운로드 (presigned 만료 대응) ----------
 async function downloadImage(url, destDir, idx) {
   fs.mkdirSync(destDir, {recursive: true});
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url, {}, 30000, 2);
   if (!res.ok) throw new Error(`image ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
   const ct = res.headers.get('content-type') || '';
@@ -267,7 +297,8 @@ function renderRich(rich) {
           t = `<span style="color:${TEXT_COLOR[a.color] || a.color};">${t}</span>`;
         }
       }
-      if (r.href) t = `<a href="${esc(r.href)}" rel="noopener">${t}</a>`;
+      if (r.href)
+        t = `<a href="${esc(fixHref(r.href))}" rel="noopener">${t}</a>`;
       return t;
     })
     .join('');
@@ -287,6 +318,27 @@ function colorStyle(color) {
 function calloutBgStyle(color) {
   const c = (color || '').replace('_background', '');
   return `background:${BG_COLOR[c] || 'var(--soft)'};`;
+}
+// Notion 내부 링크 remap: 페이지-id 경로/노션 도메인은 죽은 링크 → 우리 URL(LINK_MAP)이나 /articles로.
+// 페이지 내 앵커(#블록id)는 로컬 앵커(#하이픈제거 hex)로 유지 — heading id와 매칭.
+function fixHref(href) {
+  if (!href) return href;
+  if (href.startsWith('#')) return '#' + noHy(href.slice(1));
+  const hashIdx = href.indexOf('#');
+  if (hashIdx >= 0) {
+    const frag = noHy(href.slice(hashIdx + 1));
+    if (/^[0-9a-f]{16,}$/.test(frag)) return '#' + frag; // in-page 점프
+  }
+  const isNotion =
+    /^\/[0-9a-f-]{20,}/i.test(href) ||
+    /(notion\.so|notion\.site|app\.notion\.com)/i.test(href);
+  if (isNotion) {
+    const m = href.match(/[0-9a-f]{32}/i);
+    const id = m ? noHy(m[0]) : null;
+    if (id && LINK_MAP[id]) return LINK_MAP[id];
+    return '/articles';
+  }
+  return href;
 }
 
 // ---------- child_database (인라인 DB) → 표 ----------
@@ -474,8 +526,131 @@ const COLUMN_ORDER = {
   ],
 };
 
-// 인라인 DB는 본문이 아니라 row 프로퍼티에 내용이 있다(식당/장소 카드). Notion 인라인
-// 표 뷰처럼 프로퍼티를 표로 렌더(가로 스크롤). 값 없는 컬럼·title 공란은 자동 생략.
+// 컬럼 순서 결정(COLUMN_ORDER = Notion 뷰 순서 수동 지정, 없으면 스키마순+title우선)
+function orderedCols(dbId, nonEmpty, titleName, quiet) {
+  const preferred = COLUMN_ORDER[dbId];
+  if (preferred) {
+    const cols = preferred.filter(n => nonEmpty.includes(n));
+    for (const n of nonEmpty) if (!cols.includes(n)) cols.push(n);
+    return cols;
+  }
+  if (!quiet)
+    console.warn(
+      `  ⚠️ child_database 컬럼 순서 미지정(${dbId}) — Notion 뷰 순서 확인 필요, 스키마 순서로 폴백`,
+    );
+  return titleName && nonEmpty.includes(titleName)
+    ? [titleName, ...nonEmpty.filter(n => n !== titleName)]
+    : nonEmpty;
+}
+
+// row 본문이 "리치"(사진 외 구조화 콘텐츠: heading/callout/텍스트/리스트/표)인가?
+// 사진만 있는 본문(image/divider/빈 문단)은 리치 아님 → 표에 썸네일 인라인.
+function bodyIsRich(blocks) {
+  for (const b of blocks || []) {
+    const t = b.type;
+    if (t === 'image' || t === 'divider') continue;
+    if (t === 'paragraph') {
+      if ((b.paragraph.rich_text || []).length) return true;
+      if (b.__children && bodyIsRich(b.__children)) return true;
+      continue;
+    }
+    if (t === 'column_list' || t === 'column') {
+      if (b.__children && bodyIsRich(b.__children)) return true;
+      continue;
+    }
+    return true;
+  }
+  return false;
+}
+// row 본문 내 이미지들을 다운로드해 썸네일 <img>로(표 '사진' 셀용)
+async function renderRowImages(blocks, ctx) {
+  let html = '';
+  for (const b of blocks || []) {
+    if (b.type === 'image') {
+      const d = b.image;
+      const url = d.type === 'external' ? d.external.url : d.file.url;
+      if (!/^https?:/i.test(url || '') || /seeyoufarm\.com/i.test(url))
+        continue;
+      try {
+        const rel = await downloadImage(url, ctx.assetsDir, ctx.imgIdx++);
+        html += `<img class="db-thumb" src="/articles/${ctx.slug}/${rel}" loading="lazy" alt="${esc(plain(d.caption) || '')}">`;
+      } catch (e) {
+        console.warn(`  ⚠️ 이미지 다운로드 실패: ${e.message}`);
+      }
+    } else if (b.__children) {
+      html += await renderRowImages(b.__children, ctx);
+    }
+  }
+  return html;
+}
+
+// 카드형 row 하나 → 독립 상세 페이지 발행. 반환: {url, image, manifest}
+async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
+  const meta = SUBPAGES[row.id] || {};
+  const rslug = meta.slug || noHy(row.id).slice(0, 20);
+  const fullSlug = `${parentSlug}/${rslug}`;
+  const titlePlain =
+    plain((row.properties[titleName] || {}).title) || '(제목 없음)';
+  const srcDir = path.join(SRC_DIR, parentSlug, rslug);
+  const assetsDir = path.join(srcDir, 'assets');
+  rmrf(srcDir);
+  fs.mkdirSync(assetsDir, {recursive: true});
+  const ctx = {
+    assetsDir,
+    imgIdx: 0,
+    firstImage: null,
+    title: titlePlain,
+    slug: fullSlug,
+    emittedSubPages: [],
+    headings: [],
+  };
+  const body = row.__children || (await fetchChildren(row.id));
+  indexHeadings(body, ctx);
+  // 상세 페이지 상단에 접근성 프로퍼티 요약(접근레벨/위치 등) 표시
+  const propHtml = nonTitleProps.length
+    ? `<div class="db-detail-props">${nonTitleProps
+        .map(
+          n =>
+            `<span class="db-prop"><b>${esc(n)}</b> ${renderPropValue(row.properties[n])}</span>`,
+        )
+        .join('')}</div>`
+    : '';
+  const contentHtml = propHtml + (await renderBlocks(body, ctx));
+  const ogImageUrl = ctx.firstImage ? `${SITE.baseUrl}${ctx.firstImage}` : '';
+  const html = renderArticlePage({
+    title: titlePlain,
+    summary: meta.summary || '',
+    slug: fullSlug,
+    tags: [],
+    faq: [],
+    contentHtml,
+    ogImageUrl,
+    createdTime: row.created_time,
+    lastEditedTime: row.last_edited_time,
+    backHref: `/articles/${parentSlug}`,
+  });
+  fs.writeFileSync(path.join(srcDir, 'index.html'), html);
+  if (fs.readdirSync(assetsDir).length === 0) rmrf(assetsDir);
+  return {
+    url: `/articles/${fullSlug}/`,
+    image: ctx.firstImage || '',
+    titlePlain,
+    summary: meta.summary || '',
+    manifest: {
+      slug: fullSlug,
+      title: titlePlain,
+      summary: meta.summary || '',
+      image: ctx.firstImage || '',
+      createdTime: row.created_time,
+      editedTime: row.last_edited_time,
+      contentPageId: row.id,
+      parent: parentSlug,
+    },
+  };
+}
+
+// 인라인 DB 렌더. row에 하위 페이지 본문이 있으면(카드형) → row별 상세 페이지 발행 +
+// 링크(카드 그리드 / 링크 표). 본문이 없으면(프로퍼티형) → 기존 가로스크롤 표.
 async function renderChildDatabase(dbId, title, ctx) {
   let rows;
   try {
@@ -490,23 +665,75 @@ async function renderChildDatabase(dbId, title, ctx) {
   const hasValue = n =>
     rows.some(r => renderPropValue(r.properties[n]).trim() !== '');
   const nonEmpty = names.filter(hasValue);
-  // 공식 API는 인라인 뷰의 컬럼 순서를 주지 않는다 → COLUMN_ORDER로 Notion 뷰 순서를 수동 지정.
-  // 매핑 없으면 스키마 순서(title 우선)로 폴백하고 경고(새 DB는 순서 확인 필요).
-  const preferred = COLUMN_ORDER[dbId];
-  let cols;
-  if (preferred) {
-    cols = preferred.filter(n => nonEmpty.includes(n));
-    // 매핑에 빠졌지만 값이 있는 컬럼은 뒤에 덧붙여 데이터 유실 방지
-    for (const n of nonEmpty) if (!cols.includes(n)) cols.push(n);
-  } else {
-    console.warn(
-      `  ⚠️ child_database 컬럼 순서 미지정(${dbId} "${title}") — Notion 뷰 순서 확인 필요, 스키마 순서로 폴백`,
-    );
-    cols =
-      titleName && nonEmpty.includes(titleName)
-        ? [titleName, ...nonEmpty.filter(n => n !== titleName)]
-        : nonEmpty;
+  const nonTitleProps = nonEmpty.filter(n => n !== titleName);
+  const cap = title ? `<figcaption>${esc(title)}</figcaption>` : '';
+
+  // 본문 보유 여부 감지(앞 3개 row 샘플)
+  const sample = rows.slice(0, 3);
+  for (const r of sample) r.__children = await fetchChildren(r.id);
+  const bodyBearing = sample.some(r => (r.__children || []).length);
+
+  if (bodyBearing) {
+    for (const r of rows)
+      if (!r.__children) r.__children = await fetchChildren(r.id);
+    const rich = sample.some(r => bodyIsRich(r.__children));
+    const haveMeta = rows.some(r => SUBPAGES[r.id]);
+
+    // 리치 본문(구조화된 상세) + 메타 있음 → row별 상세 페이지 발행 + 링크(카드/링크표)
+    if (rich && haveMeta) {
+      const items = [];
+      for (const r of rows) {
+        const d = await buildDetailPage(r, ctx.slug, nonTitleProps, titleName);
+        ctx.emittedSubPages.push(d.manifest);
+        items.push(d);
+      }
+      if (nonTitleProps.length <= 1) {
+        const cards = items
+          .map(
+            it =>
+              `<a class="db-card" href="${it.url}">${
+                it.image
+                  ? `<img class="db-card-thumb" src="${esc(it.image)}" alt="${esc(it.titlePlain)}" loading="lazy">`
+                  : ''
+              }<div class="db-card-body"><b>${esc(it.titlePlain)}</b>${it.summary ? `<p>${esc(it.summary)}</p>` : ''}</div></a>`,
+          )
+          .join('');
+        return `<figure class="db"><div class="db-cards">${cards}</div>${cap}</figure>`;
+      }
+      const cols = orderedCols(dbId, nonEmpty, titleName, true);
+      const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}</tr>`;
+      const body = rows
+        .map((r, i) => {
+          const url = items[i].url;
+          return `<tr>${cols
+            .map(n =>
+              n === titleName
+                ? `<td><a href="${url}">${renderPropValue(r.properties[n])}</a></td>`
+                : `<td>${renderPropValue(r.properties[n])}</td>`,
+            )
+            .join('')}</tr>`;
+        })
+        .join('');
+      return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
+    }
+
+    // 그 외 본문 보유(주로 사진만) → 상세 페이지 안 만들고 표에 사진 컬럼 인라인(콘텐츠 유실 방지)
+    if (rich && !haveMeta)
+      console.warn(
+        `  ⚠️ 리치 본문 DB인데 subpages 메타 없음(${dbId} "${title}") — 표+사진 인라인 폴백. 메타 생성 권장`,
+      );
+    const cols = orderedCols(dbId, nonEmpty, titleName, true);
+    const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}<th>사진</th></tr>`;
+    let body = '';
+    for (const r of rows) {
+      const thumbs = await renderRowImages(r.__children, ctx);
+      body += `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}<td>${thumbs}</td></tr>`;
+    }
+    return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
   }
+
+  // 프로퍼티형 → 기존 표
+  const cols = orderedCols(dbId, nonEmpty, titleName);
   if (!cols.length) return '';
   const head = `<tr>${cols.map(n => `<th>${esc(n)}</th>`).join('')}</tr>`;
   const body = rows
@@ -515,8 +742,30 @@ async function renderChildDatabase(dbId, title, ctx) {
         `<tr>${cols.map(n => `<td>${renderPropValue(r.properties[n])}</td>`).join('')}</tr>`,
     )
     .join('');
-  const cap = title ? `<figcaption>${esc(title)}</figcaption>` : '';
   return `<figure class="db"><div class="db-wrap"><table>${head}${body}</table></div>${cap}</figure>`;
+}
+
+// heading: id 부여(앵커) + is_toggleable면 <details>로 접기/펼치기 모방
+async function renderHeading(tag, b, d, ctx) {
+  const h = `<${tag} id="${noHy(b.id)}"${colorStyle(d.color)}>${renderRich(d.rich_text)}</${tag}>`;
+  if (d.is_toggleable && b.__children)
+    return `<details class="htoggle"><summary>${h}</summary>${await renderBlocks(b.__children, ctx)}</details>`;
+  return h;
+}
+// TOC용 heading 사전 수집(렌더 전 1회). child_database row 본문은 별도 페이지라 제외됨.
+function indexHeadings(blocks, ctx) {
+  for (const b of blocks || []) {
+    if (/^heading_[123]$/.test(b.type)) {
+      const text = plain((b[b.type] || {}).rich_text).trim();
+      if (text)
+        ctx.headings.push({
+          id: noHy(b.id),
+          text,
+          level: Number(b.type.slice(-1)),
+        });
+    }
+    if (b.__children) indexHeadings(b.__children, ctx);
+  }
 }
 
 // ---------- blocks → HTML ----------
@@ -548,18 +797,23 @@ async function renderBlock(b, ctx) {
   const t = b.type;
   const d = b[t] || {};
   switch (t) {
-    case 'paragraph':
-      return d.rich_text.length
-        ? `<p${colorStyle(d.color)}>${renderRich(d.rich_text)}</p>`
-        : '';
+    case 'paragraph': {
+      // paragraph도 하위 블록을 가질 수 있다(전국모음 '추가 정보' 섹션) → 반드시 재귀
+      const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';
+      if (!d.rich_text.length) return inner;
+      return `<p${colorStyle(d.color)}>${renderRich(d.rich_text)}</p>${inner}`;
+    }
     case 'heading_1':
-      return `<h2${colorStyle(d.color)}>${renderRich(d.rich_text)}</h2>`;
+      return await renderHeading('h2', b, d, ctx);
     case 'heading_2':
-      return `<h3${colorStyle(d.color)}>${renderRich(d.rich_text)}</h3>`;
+      return await renderHeading('h3', b, d, ctx);
     case 'heading_3':
-      return `<h4${colorStyle(d.color)}>${renderRich(d.rich_text)}</h4>`;
-    case 'to_do':
-      return `<p><input type="checkbox" disabled ${d.checked ? 'checked' : ''}> ${renderRich(d.rich_text)}</p>`;
+      return await renderHeading('h4', b, d, ctx);
+    case 'to_do': {
+      // 중첩 체크리스트 하위 항목 유실 방지 → __children 재귀
+      const inner = b.__children ? await renderBlocks(b.__children, ctx) : '';
+      return `<p><input type="checkbox" disabled ${d.checked ? 'checked' : ''}> ${renderRich(d.rich_text)}</p>${inner}`;
+    }
     case 'quote':
       return `<blockquote>${renderRich(d.rich_text)}${b.__children ? await renderBlocks(b.__children, ctx) : ''}</blockquote>`;
     case 'callout': {
@@ -623,8 +877,15 @@ async function renderBlock(b, ctx) {
     case 'child_database':
       return await renderChildDatabase(b.id, d.title, ctx);
     case 'table_of_contents':
-      // 평탄화된 정적 페이지에선 의미 없음(앵커 점프 불가) → 생략
-      return '';
+      // heading id로 실제 앵커 점프하는 목차 렌더(사전 인덱싱된 ctx.headings 사용)
+      return (ctx.headings || []).length
+        ? `<nav class="toc">${ctx.headings
+            .map(
+              h =>
+                `<a class="toc-l${h.level}" href="#${h.id}">${esc(h.text)}</a>`,
+            )
+            .join('')}</nav>`
+        : '';
     case 'video':
     case 'file':
     case 'pdf': {
@@ -649,7 +910,16 @@ async function buildArticle(meta, times) {
   fs.mkdirSync(assetsDir, {recursive: true});
 
   const blocks = await fetchChildren(meta.contentPageId);
-  const ctx = {assetsDir, imgIdx: 0, firstImage: null, title: meta.title, slug};
+  const ctx = {
+    assetsDir,
+    imgIdx: 0,
+    firstImage: null,
+    title: meta.title,
+    slug,
+    emittedSubPages: [], // 카드형 DB row들의 상세 페이지(부모 렌더 중 발행)
+    headings: [],
+  };
+  indexHeadings(blocks, ctx);
   const contentHtml = await renderBlocks(blocks, ctx);
 
   // ctx.firstImage = "/articles/<slug>/assets/img-0.ext" (루트절대) → og는 도메인 붙여 절대 URL
@@ -669,7 +939,8 @@ async function buildArticle(meta, times) {
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
   if (fs.readdirSync(assetsDir).length === 0) rmrf(assetsDir);
-  return ctx.firstImage || ''; // 목록 썸네일용 대표 이미지(루트절대경로)
+  // image = 목록 썸네일용 대표 이미지, subPages = 발행된 카드형 상세 페이지들
+  return {image: ctx.firstImage || '', subPages: ctx.emittedSubPages};
 }
 
 // ---------- sitemap / robots / llms ----------
@@ -725,21 +996,23 @@ function reassembleDist(manifest) {
   const sharedAssets = path.join(SRC_DIR, '_assets');
   if (fs.existsSync(sharedAssets))
     copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
-  const published = Object.values(manifest).sort((a, b) =>
+  const all = Object.values(manifest).sort((a, b) =>
     (b.createdTime || '').localeCompare(a.createdTime || ''),
   );
-  for (const a of published) {
+  // 상세 페이지(parent 있음)는 부모 디렉토리에 중첩 → 부모 복사 시 함께 온다. 목록엔 top-level만.
+  const topLevel = all.filter(a => !a.parent);
+  for (const a of topLevel) {
     const src = path.join(SRC_DIR, a.slug);
     if (fs.existsSync(src)) copyDir(src, path.join(DIST_ARTICLES, a.slug));
   }
   fs.writeFileSync(
     path.join(DIST_ARTICLES, 'index.html'),
-    renderListPage(published),
+    renderListPage(topLevel),
   );
-  mergeSitemap(published);
+  mergeSitemap(all); // 상세 페이지 URL도 sitemap에 포함(SEO)
   writeRobots();
-  writeLlms(published);
-  return published;
+  writeLlms(all);
+  return all;
 }
 
 // ---------- main ----------
@@ -788,7 +1061,18 @@ async function main() {
       prev.slug !== r.meta.slug
     );
   });
-  const deleted = Object.keys(manifest).filter(id => !current.has(id));
+  // 상세 페이지(parent 있음)는 top-level DB에 없으니 삭제 판정에서 제외(부모 재빌드 시 재생성)
+  const deleted = Object.keys(manifest).filter(
+    id => !current.has(id) && !manifest[id].parent,
+  );
+
+  // 내부 링크 remap 테이블 + 카드형 상세 메타 로드
+  SUBPAGES = readJson(SUBPAGES_PATH, {});
+  LINK_MAP = {};
+  for (const {meta} of rows)
+    LINK_MAP[noHy(meta.contentPageId)] = `/articles/${meta.slug}`;
+  for (const [rid, sp] of Object.entries(SUBPAGES))
+    LINK_MAP[noHy(rid)] = `/articles/${sp.parentSlug}/${sp.slug}`;
 
   console.log(
     `🔎 신규/변경 ${changed.length} · 삭제 ${deleted.length} · 메타미비(스킵) ${needsMeta.length} · 전체 ${pages.length}`,
@@ -816,7 +1100,10 @@ async function main() {
   }
   for (const {meta, times} of changed) {
     console.log(`  🔧 생성: ${meta.slug}  (${meta.title})`);
-    const image = await buildArticle(meta, times);
+    // 이 부모의 기존 상세 페이지 manifest 엔트리 제거 후 재생성(스테일 방지)
+    for (const k of Object.keys(manifest))
+      if (manifest[k].parent === meta.slug) delete manifest[k];
+    const {image, subPages} = await buildArticle(meta, times);
     manifest[meta.rowId] = {
       slug: meta.slug,
       title: meta.title,
@@ -826,6 +1113,8 @@ async function main() {
       editedTime: times.editedTime,
       contentPageId: meta.contentPageId,
     };
+    for (const sp of subPages) manifest[sp.contentPageId] = sp;
+    if (subPages.length) console.log(`     ↳ 상세 페이지 ${subPages.length}건`);
   }
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
 
