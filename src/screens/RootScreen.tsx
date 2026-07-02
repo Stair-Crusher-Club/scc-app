@@ -35,6 +35,7 @@ const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
   'placeInfo.placeId': 'place_id',
   'placeInfo.place.id': 'place_id',
   'placeInfo.name': 'place_name',
+  placeListId: 'place_list_id', // PlaceListDetail screen_view 를 리스트별로 귀속 (튜토리얼·딥링크·탭 모든 진입 포함)
   // 필요에 따라 추가...
 };
 

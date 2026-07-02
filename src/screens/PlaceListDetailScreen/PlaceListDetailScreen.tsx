@@ -344,153 +344,155 @@ const PlaceListDetailScreen = ({
   );
 
   return (
-    <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
-      <HeaderRow $isMapMode={viewMode === 'map'}>
-        <HeaderLeftToggle
-          elementName={
-            viewMode === 'list'
-              ? 'place_list_detail_map_toggle'
-              : 'place_list_detail_list_toggle'
-          }
-          activeOpacity={0.8}
-          onPress={toggleViewMode}>
-          {viewMode === 'list' ? (
-            <MapIcon width={24} height={24} color={color.black} />
-          ) : (
-            <MenuIcon width={24} height={24} color={color.black} />
-          )}
-          <HeaderToggleText>
-            {viewMode === 'list' ? '지도' : '목록'}
-          </HeaderToggleText>
-        </HeaderLeftToggle>
-        <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
-        <SccTouchableOpacity
-          elementName="place_list_detail_close"
-          activeOpacity={0.8}
-          hitSlop={14}
-          onPress={() => navigation.goBack()}>
-          <CloseIcon width={16} height={16} color={color.black} />
-        </SccTouchableOpacity>
-      </HeaderRow>
+    <LogParamsProvider params={{place_list_id: placeListId}}>
+      <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
+        <HeaderRow $isMapMode={viewMode === 'map'}>
+          <HeaderLeftToggle
+            elementName={
+              viewMode === 'list'
+                ? 'place_list_detail_map_toggle'
+                : 'place_list_detail_list_toggle'
+            }
+            activeOpacity={0.8}
+            onPress={toggleViewMode}>
+            {viewMode === 'list' ? (
+              <MapIcon width={24} height={24} color={color.black} />
+            ) : (
+              <MenuIcon width={24} height={24} color={color.black} />
+            )}
+            <HeaderToggleText>
+              {viewMode === 'list' ? '지도' : '목록'}
+            </HeaderToggleText>
+          </HeaderLeftToggle>
+          <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
+          <SccTouchableOpacity
+            elementName="place_list_detail_close"
+            activeOpacity={0.8}
+            hitSlop={14}
+            onPress={() => navigation.goBack()}>
+            <CloseIcon width={16} height={16} color={color.black} />
+          </SccTouchableOpacity>
+        </HeaderRow>
 
-      {isLoading ? (
-        <SearchLoading />
-      ) : isError ? (
-        <ErrorContainer>
-          <ErrorText>리스트를 불러올 수 없습니다.</ErrorText>
-        </ErrorContainer>
-      ) : (
-        <ContentContainer>
-          {/* Fix 1: 지도 항상 렌더링 (뒤에 깔아두기) */}
-          <MapAbsoluteContainer
-            style={viewMode === 'list' ? {opacity: 0} : undefined}
-            pointerEvents={viewMode === 'list' ? 'none' : 'auto'}>
-            <ItemMapView
-              ref={mapRef}
-              items={items}
-              ItemCard={PlaceListItemCard}
-              isRefreshVisible={false}
-              onRefresh={() => {}}
-              onCameraIdle={() => {}}
-              myLocationBottomOffset={16}
-            />
-          </MapAbsoluteContainer>
-
-          {viewMode === 'list' ? (
-            <ListOverlay>
-              <FlatList
-                data={listData}
-                keyExtractor={item => item.key}
-                stickyHeaderIndices={[1]}
-                contentContainerStyle={{paddingBottom: 100}}
-                renderItem={renderListItem}
+        {isLoading ? (
+          <SearchLoading />
+        ) : isError ? (
+          <ErrorContainer>
+            <ErrorText>리스트를 불러올 수 없습니다.</ErrorText>
+          </ErrorContainer>
+        ) : (
+          <ContentContainer>
+            {/* Fix 1: 지도 항상 렌더링 (뒤에 깔아두기) */}
+            <MapAbsoluteContainer
+              style={viewMode === 'list' ? {opacity: 0} : undefined}
+              pointerEvents={viewMode === 'list' ? 'none' : 'auto'}>
+              <ItemMapView
+                ref={mapRef}
+                items={items}
+                ItemCard={PlaceListItemCard}
+                isRefreshVisible={false}
+                onRefresh={() => {}}
+                onCameraIdle={() => {}}
+                myLocationBottomOffset={16}
               />
-              <FloatingViewModeButton
-                elementName="place_list_detail_floating_map"
-                activeOpacity={0.8}
-                onPress={toggleViewMode}
-                style={{bottom: insets.bottom + 24}}
-                $isBlue>
-                <MapIcon width={16} height={16} color={color.white} />
-                <FloatingViewModeText $isBlue>지도보기</FloatingViewModeText>
-              </FloatingViewModeButton>
-            </ListOverlay>
-          ) : (
-            <>
-              <LogParamsProvider params={{viewMode: 'map'}}>
-                <MapFilterOverlay>
-                  <FilterBar
-                    mode="map"
-                    filters={filters}
-                    onOpenFilterModal={setFilterModalState}
-                  />
-                </MapFilterOverlay>
-              </LogParamsProvider>
-              <MapRightFloatingContainer>
-                <FloatingCircleButton
-                  elementName="place_list_detail_map_save"
+            </MapAbsoluteContainer>
+
+            {viewMode === 'list' ? (
+              <ListOverlay>
+                <FlatList
+                  data={listData}
+                  keyExtractor={item => item.key}
+                  stickyHeaderIndices={[1]}
+                  contentContainerStyle={{paddingBottom: 100}}
+                  renderItem={renderListItem}
+                />
+                <FloatingViewModeButton
+                  elementName="place_list_detail_floating_map"
                   activeOpacity={0.8}
-                  onPress={handleToggleSave}>
-                  {isSaved ? (
-                    <BookmarkOnIcon
-                      width={16}
-                      height={20}
-                      viewBox="-2.5 -0.5 20 20"
-                      color={color.brand40}
+                  onPress={toggleViewMode}
+                  style={{bottom: insets.bottom + 24}}
+                  $isBlue>
+                  <MapIcon width={16} height={16} color={color.white} />
+                  <FloatingViewModeText $isBlue>지도보기</FloatingViewModeText>
+                </FloatingViewModeButton>
+              </ListOverlay>
+            ) : (
+              <>
+                <LogParamsProvider params={{viewMode: 'map'}}>
+                  <MapFilterOverlay>
+                    <FilterBar
+                      mode="map"
+                      filters={filters}
+                      onOpenFilterModal={setFilterModalState}
                     />
-                  ) : (
-                    <BookmarkIcon
-                      width={16}
-                      height={20}
-                      viewBox="-2.5 -0.5 20 20"
-                      color={color.gray90}
-                    />
-                  )}
-                </FloatingCircleButton>
-                <FloatingCircleButton
-                  elementName="place_list_detail_map_share"
+                  </MapFilterOverlay>
+                </LogParamsProvider>
+                <MapRightFloatingContainer>
+                  <FloatingCircleButton
+                    elementName="place_list_detail_map_save"
+                    activeOpacity={0.8}
+                    onPress={handleToggleSave}>
+                    {isSaved ? (
+                      <BookmarkOnIcon
+                        width={16}
+                        height={20}
+                        viewBox="-2.5 -0.5 20 20"
+                        color={color.brand40}
+                      />
+                    ) : (
+                      <BookmarkIcon
+                        width={16}
+                        height={20}
+                        viewBox="-2.5 -0.5 20 20"
+                        color={color.gray90}
+                      />
+                    )}
+                  </FloatingCircleButton>
+                  <FloatingCircleButton
+                    elementName="place_list_detail_map_share"
+                    activeOpacity={0.8}
+                    onPress={handleShare}>
+                    <ShareIcon width={20} height={20} color={color.black} />
+                  </FloatingCircleButton>
+                </MapRightFloatingContainer>
+                {/* Fix 2: 동적 bottom으로 카드 위에 배치 */}
+                <FloatingViewModeButton
+                  elementName="place_list_detail_floating_list"
                   activeOpacity={0.8}
-                  onPress={handleShare}>
-                  <ShareIcon width={20} height={20} color={color.black} />
-                </FloatingCircleButton>
-              </MapRightFloatingContainer>
-              {/* Fix 2: 동적 bottom으로 카드 위에 배치 */}
-              <FloatingViewModeButton
-                elementName="place_list_detail_floating_list"
-                activeOpacity={0.8}
-                onPress={toggleViewMode}
-                style={{bottom: floatingBottom}}
-                $isBlue={false}>
-                <MenuIcon width={16} height={16} color="#24262B" />
-                <FloatingViewModeText $isBlue={false}>
-                  목록보기
-                </FloatingViewModeText>
-              </FloatingViewModeButton>
-            </>
-          )}
-        </ContentContainer>
-      )}
-      <PlaceListFilterModal />
-      {showSaveMissionCompleted && (
-        <MissionCompletedOverlay
-          isVisible={true}
-          itemImage={require('@/assets/img/tutorial/mission_complete_img_map.png')}
-          description={`접근성 지도 획득!\n${
-            userInfo?.nickname ?? '크러셔'
-          }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요 👍`}
-          confirmElementName="tutorial_mission_2_completed_confirm"
-          onClose={() => {
-            // 미션 완료 팝업 노출 자체가 fromTutorial=true 진입에서만 발생한다.
-            // 닫기 시 TutorialMissionScreen 으로 popTo (native-stack v7 popTo 는
-            // stack 에 있는 라우트까지 pop).
-            setShowSaveMissionCompleted(false);
-            navigation.popTo('TutorialMission', {
-              scrollResetToken: Date.now(),
-            });
-          }}
-        />
-      )}
-    </Layout>
+                  onPress={toggleViewMode}
+                  style={{bottom: floatingBottom}}
+                  $isBlue={false}>
+                  <MenuIcon width={16} height={16} color="#24262B" />
+                  <FloatingViewModeText $isBlue={false}>
+                    목록보기
+                  </FloatingViewModeText>
+                </FloatingViewModeButton>
+              </>
+            )}
+          </ContentContainer>
+        )}
+        <PlaceListFilterModal />
+        {showSaveMissionCompleted && (
+          <MissionCompletedOverlay
+            isVisible={true}
+            itemImage={require('@/assets/img/tutorial/mission_complete_img_map.png')}
+            description={`접근성 지도 획득!\n${
+              userInfo?.nickname ?? '크러셔'
+            }님이 찾은 지도로 접근성 좋은\n맛집, 카페를 확인할 수 있게 됐어요 👍`}
+            confirmElementName="tutorial_mission_2_completed_confirm"
+            onClose={() => {
+              // 미션 완료 팝업 노출 자체가 fromTutorial=true 진입에서만 발생한다.
+              // 닫기 시 TutorialMissionScreen 으로 popTo (native-stack v7 popTo 는
+              // stack 에 있는 라우트까지 pop).
+              setShowSaveMissionCompleted(false);
+              navigation.popTo('TutorialMission', {
+                scrollResetToken: Date.now(),
+              });
+            }}
+          />
+        )}
+      </Layout>
+    </LogParamsProvider>
   );
 };
 
