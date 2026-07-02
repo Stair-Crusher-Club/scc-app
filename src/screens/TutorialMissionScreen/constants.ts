@@ -102,3 +102,17 @@ export const MAIN_MISSION_TYPES: TutorialMissionTypeDto[] = [
   TutorialMissionTypeDto.SavePlaceList,
   TutorialMissionTypeDto.UpvoteAccessibility,
 ];
+
+/**
+ * 1-based 순서를 한글 서수("두 번째")로. 미션 개수가 늘어도 안전하게 fallback.
+ */
+const KOREAN_ORDINALS = [
+  '첫 번째',
+  '두 번째',
+  '세 번째',
+  '네 번째',
+  '다섯 번째',
+  '여섯 번째',
+];
+export const koreanOrdinal = (n: number) =>
+  KOREAN_ORDINALS[n - 1] ?? `${n}번째`;

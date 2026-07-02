@@ -43,7 +43,11 @@ import HiddenMissionCollectedPopup from './components/HiddenMissionCollectedPopu
 import MissionCard from './components/MissionCard';
 import MissionHero from './components/MissionHero';
 import {BubbleVariant} from './components/SpeechBubble';
-import {MAIN_MISSION_TYPES, TUTORIAL_MISSION_META} from './constants';
+import {
+  MAIN_MISSION_TYPES,
+  TUTORIAL_MISSION_META,
+  koreanOrdinal,
+} from './constants';
 
 function isMissionCompleted(
   mission: UserTutorialMissionDto | undefined,
@@ -451,9 +455,9 @@ export default function TutorialMissionScreen({
 
               <ContentArea>
                 <SectionTitle>
-                  {`${
+                  {`윌리와 함께\n${
                     allMainCompleted ? 3 : MAIN_MISSION_TYPES.length
-                  }개의 미션을 뿌시고,\n윌리의 외출템을 모아주세요!`}
+                  }개의 미션을 완료해봐요!`}
                 </SectionTitle>
 
                 <CardsWrapper>
@@ -487,9 +491,9 @@ export default function TutorialMissionScreen({
                           isDimmed={isDimmed}
                           dimText={
                             index > 0
-                              ? `외출템 ${index}을 모으면, 외출템 ${
-                                  index + 1
-                                } 미션이 열려요!`
+                              ? `외출템 ${index}을 모으면, ${koreanOrdinal(
+                                  index + 1,
+                                )} 미션이 열려요!`
                               : undefined
                           }
                           onStart={() => handleStartMission(missionType)}
