@@ -18,6 +18,7 @@ import {
   draftKeywordAtom,
   filterAtom,
   filterModalStateAtom,
+  isToiletSearchKeyword,
   SearchMode,
   searchModeAtom,
   SearchQuery,
@@ -140,9 +141,12 @@ const SearchScreenContent = ({
     const shouldAnimate = option.shouldAnimate ?? false;
     const shouldRemainInInputMode = option.shouldRemainInInputMode ?? false;
 
-    // Update search mode if specified
-    if (option.mode !== undefined) {
-      setSearchMode(option.mode);
+    // 검색어가 화장실 키워드면 어느 경로(타이핑/히스토리/딥링크)든 칩과 동일하게 toilet 모드로.
+    const effectiveMode = isToiletSearchKeyword(queryUpdate.text)
+      ? 'toilet'
+      : option.mode;
+    if (effectiveMode !== undefined) {
+      setSearchMode(effectiveMode);
     }
 
     updateQuery(queryUpdate);

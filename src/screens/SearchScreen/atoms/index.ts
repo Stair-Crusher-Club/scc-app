@@ -5,6 +5,14 @@ import {Region} from '@/components/maps/Types.tsx';
 export type SearchMode = 'place' | 'toilet';
 export const searchModeAtom = atom<SearchMode>('place');
 
+// 공백 제거 후 정확히 일치하는 검색어만 화장실 검색으로 취급.
+// "화장실" 칩(keyword="장애인 화장실")과 동일하게 toilet 모드로 라우팅하기 위함.
+// ponytail: exact-match. "근처 화장실" 같은 부분일치 요구가 생기면 그때 substring으로 확장.
+const TOILET_SEARCH_KEYWORDS = new Set(['화장실', '장애인화장실']);
+export function isToiletSearchKeyword(text?: string | null): boolean {
+  return !!text && TOILET_SEARCH_KEYWORDS.has(text.replace(/\s/g, ''));
+}
+
 export const searchKeywordAtom = atom<string>('');
 
 export type FilterOptions = {
