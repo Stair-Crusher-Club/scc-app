@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import styled from 'styled-components/native';
 
-import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
+import CircleInfoIcon from '@/assets/icon/ic_circle_info_gradient.svg';
 import CloseIcon from '@/assets/icon/close.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -40,6 +40,32 @@ export default function AiSummarySection({
             </SccPressable>
           )}
         </Header>
+        {aiSummary.items.map((item, index) => {
+          const sourceTab = item.sourceTab;
+          // 소스탭 기준 번호: 접근성 정보는 항상 1, 리뷰는 항상 2 (항목 순서와 무관).
+          const sourceBadgeNumber =
+            sourceTab === AiSummarySourceTabDto.Accessibility ? 1 : 2;
+          return (
+            <ItemRow key={index}>
+              <Bullet>{'•'}</Bullet>
+              <ItemContent>
+                <SummaryText>{item.text}</SummaryText>
+                {sourceTab && (
+                  <SccPressable
+                    elementName="ai_summary_source_badge"
+                    logParams={{sourceTab, index}}
+                    onPress={() => onPressSourceTab(sourceTab)}
+                    hitSlop={4}>
+                    <SourceBadge>
+                      <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
+                    </SourceBadge>
+                  </SccPressable>
+                )}
+              </ItemContent>
+            </ItemRow>
+          );
+        })}
+        {/* 다른 레이아웃을 밀어내지 않도록 absolute 오버레이로 띄운다 (Figma node 1-650). */}
         {showNotice && (
           <NoticeRow>
             <NoticeText>
@@ -54,28 +80,6 @@ export default function AiSummarySection({
             </SccPressable>
           </NoticeRow>
         )}
-        {aiSummary.items.map((item, index) => {
-          const sourceTab = item.sourceTab;
-          return (
-            <ItemRow key={index}>
-              <Bullet>{'•'}</Bullet>
-              <ItemContent>
-                <SummaryText>{item.text}</SummaryText>
-                {sourceTab && (
-                  <SccPressable
-                    elementName="ai_summary_source_badge"
-                    logParams={{sourceTab, index}}
-                    onPress={() => onPressSourceTab(sourceTab)}
-                    hitSlop={4}>
-                    <SourceBadge>
-                      <SourceBadgeText>{index + 1}</SourceBadgeText>
-                    </SourceBadge>
-                  </SccPressable>
-                )}
-              </ItemContent>
-            </ItemRow>
-          );
-        })}
       </Container>
     </LogParamsProvider>
   );
@@ -86,14 +90,17 @@ export default function AiSummarySection({
 const Container = styled.View`
   background-color: ${color.gray5};
   border-radius: 5px;
+  margin: 0 20px;
   padding: 10px 8px;
   gap: 6px;
+  position: relative;
+  overflow: visible;
 `;
 
 const Header = styled.View`
   flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   padding-left: 6px;
 `;
 
@@ -105,20 +112,35 @@ const TitleText = styled.Text`
   color: ${color.blue50};
 `;
 
+// 헤더 바로 아래에 다른 콘텐츠를 가리는 absolute 오버레이 (Figma node 1-650).
+// top: 34px = Container padding-top(10) + Header height(18) + gap(6).
 const NoticeRow = styled.View`
+  position: absolute;
+  top: 34px;
+  left: 8px;
+  right: 8px;
+  z-index: 10;
+  elevation: 6;
   flex-direction: row;
   align-items: flex-start;
-  gap: 8px;
+  gap: 4px;
   padding: 8px;
   background-color: ${color.white};
-  border-radius: 4px;
+  border-radius: 6px;
+  border-width: 1px;
+  border-color: #0089fa;
+  shadow-color: #000;
+  shadow-offset: 0px 0px;
+  shadow-opacity: 0.2;
+  shadow-radius: 16px;
 `;
 
 const NoticeText = styled.Text`
   flex: 1;
   font-family: ${font.pretendardRegular};
   font-size: 12px;
-  line-height: 18px;
+  line-height: 16px;
+  letter-spacing: -0.24px;
   color: ${color.gray70v2};
 `;
 

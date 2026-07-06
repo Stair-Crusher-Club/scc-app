@@ -2,7 +2,6 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
-  Animated,
   InteractionManager,
   LayoutChangeEvent,
   NativeScrollEvent,
@@ -573,12 +572,6 @@ export default function PlaceDetailV2Screen({
   const [showAppBarTitle, setShowAppBarTitle] = useState(false);
   const nameBottomYRef = useRef<number>(0);
 
-  // Issue 3: Bottom bar visibility (scroll-triggered)
-  const [showBottomBar, setShowBottomBar] = useState(false);
-  const actionButtonsTopYRef = useRef<number>(0);
-  const actionButtonsBottomYRef = useRef<number>(0);
-  const bottomBarAnim = useRef(new Animated.Value(0)).current;
-
   // Issue 4: Tab bar Y position for scroll preservation
   const tabBarYRef = useRef<number>(0);
 
@@ -723,13 +716,6 @@ export default function PlaceDetailV2Screen({
     nameBottomYRef.current = y + height;
   }, []);
 
-  // Issue 3: Track action buttons position for bottom bar trigger
-  const handleActionButtonsLayout = useCallback((e: LayoutChangeEvent) => {
-    const {y, height} = e.nativeEvent.layout;
-    actionButtonsTopYRef.current = y;
-    actionButtonsBottomYRef.current = y + height;
-  }, []);
-
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const scrollY = e.nativeEvent.contentOffset.y;
@@ -737,17 +723,6 @@ export default function PlaceDetailV2Screen({
 
       const shouldShow = scrollY > nameBottomYRef.current;
       setShowAppBarTitle(prev => (prev !== shouldShow ? shouldShow : prev));
-
-      // Bottom bar proportional animation
-      const topY = actionButtonsTopYRef.current;
-      const bottomY = actionButtonsBottomYRef.current;
-      const height = bottomY - topY;
-      if (height > 0) {
-        const hidden = Math.max(0, Math.min(scrollY - topY, height));
-        bottomBarAnim.setValue(hidden / height);
-      }
-      const shouldShowBar = scrollY > topY;
-      setShowBottomBar(prev => (prev !== shouldShowBar ? shouldShowBar : prev));
 
       // Active chip tracking for accessibility tab (skip during programmatic scroll)
       if (showChipBar && chips.length > 0 && !isScrollingFromChipRef.current) {
@@ -956,25 +931,10 @@ export default function PlaceDetailV2Screen({
               <V2SummarySection
                 place={place}
                 accessibilityScore={data?.accessibilityScore}
-                hasAccessibility={
-                  !!accessibilityPost?.placeAccessibility ||
-                  !!accessibilityPost?.buildingAccessibility
-                }
-                isUpvoted={isUpvoted}
-                totalUpvoteCount={totalUpvoteCount}
-                onPressUpvote={handleUpvote}
                 accessibility={accessibilityPost}
                 reviewCount={(reviewPost ?? []).length}
                 placeTags={data?.placeTags ?? undefined}
-                onPressRegister={handlePressRegister}
-                onPressWriteReview={handleReviewRegister}
-                onPressSiren={() =>
-                  showNegativeFeedbackBottomSheet(
-                    ReportTargetTypeDto.PlaceAccessibility,
-                  )
-                }
                 onNameLayout={handleNameLayout}
-                onActionButtonsLayout={handleActionButtonsLayout}
               />
               <AiSummarySection
                 aiSummary={accessibilityPost?.aiSummary}
@@ -1043,23 +1003,8 @@ export default function PlaceDetailV2Screen({
           </ScrollView>
         </GestureHandlerRootView>
 
-        <Animated.View
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            opacity: bottomBarAnim,
-            transform: [
-              {
-                translateY: bottomBarAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [100, 0],
-                }),
-              },
-            ],
-          }}
-          pointerEvents={showBottomBar ? 'auto' : 'none'}>
+        {/* 상단 액션버튼이 사라지면서 하단 navbar를 항상 노출 (스크롤 게이팅 제거) */}
+        <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
           <V2BottomBar
             accessibility={accessibilityPost}
             isUpvoted={isUpvoted}
@@ -1073,7 +1018,7 @@ export default function PlaceDetailV2Screen({
               )
             }
           />
-        </Animated.View>
+        </View>
 
         <RequireBuildingAccessibilityBottomSheet
           isVisible={!isFetching && showRequireBuildingAccessibilityBottomSheet}

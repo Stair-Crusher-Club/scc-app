@@ -2,18 +2,9 @@ import React from 'react';
 import {LayoutChangeEvent} from 'react-native';
 import styled from 'styled-components/native';
 
-import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
-import FlagIcon from '@/assets/icon/ic_flag_colored.svg';
-import PencilIcon from '@/assets/icon/ic_pencil_colored.svg';
 import ReviewOutlineIcon from '@/assets/icon/ic_review_outline.svg';
-import SirenIcon from '@/assets/icon/ic_siren_colored.svg';
-import SirenOutlineIcon from '@/assets/icon/ic_siren_outline.svg';
-import ThumbsUpBlueIcon from '@/assets/icon/ic_thumbsup_blue.svg';
-import ThumbsUpOutlineIcon from '@/assets/icon/ic_thumbsup_outline.svg';
-import ThumbsUpYellowIcon from '@/assets/icon/ic_thumbsup_yellow.svg';
 import {BadgeShell, BadgeText} from '@/components/BadgeShell';
 import PlaceTags from '@/components/PlaceTags';
-import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -21,7 +12,6 @@ import {
   Place,
   PlaceTagDto,
 } from '@/generated-sources/openapi';
-import {useExperimentVariant} from '@/hooks/useExperiment';
 
 type ScoreStatus = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
 
@@ -65,39 +55,20 @@ function getScoreStatus(
 interface V2SummarySectionProps {
   place: Place;
   accessibilityScore?: number;
-  hasAccessibility: boolean;
-  isUpvoted: boolean;
-  totalUpvoteCount: number | undefined;
-  onPressUpvote: () => void;
   accessibility?: AccessibilityInfoV2Dto;
   reviewCount: number;
   placeTags?: PlaceTagDto[];
-  onPressRegister: () => void;
-  onPressWriteReview: () => void;
-  onPressSiren: () => void;
   onNameLayout?: (event: LayoutChangeEvent) => void;
-  onActionButtonsLayout?: (event: LayoutChangeEvent) => void;
 }
 
 export default function V2SummarySection({
   place,
   accessibilityScore,
-  hasAccessibility,
-  isUpvoted,
-  totalUpvoteCount: _totalUpvoteCount,
-  onPressUpvote,
   accessibility,
   reviewCount,
   placeTags,
-  onPressRegister,
-  onPressWriteReview,
-  onPressSiren,
   onNameLayout,
-  onActionButtonsLayout,
 }: V2SummarySectionProps) {
-  const upvoteVariant = useExperimentVariant('UPVOTE_BUTTON_STYLE');
-  const isIconOnly = upvoteVariant === 'TREATMENT_1';
-
   const hasScore =
     accessibilityScore !== undefined && accessibilityScore !== null;
 
@@ -161,81 +132,6 @@ export default function V2SummarySection({
     </V2TagsRow>
   ) : null;
 
-  if (isIconOnly) {
-    return (
-      <Container>
-        <StairLevelRow>
-          <BadgeShell
-            backgroundColor={ScoreColorMap[scoreStatus].background}
-            textColor={ScoreColorMap[scoreStatus].text}
-            borderColor={
-              ScoreColorMap[scoreStatus].border ??
-              ScoreColorMap[scoreStatus].background
-            }
-            paddingHorizontal={
-              scoreStatus === 'unknown' || scoreStatus === 'progress' ? 7 : 6
-            }>
-            <BadgeText
-              textColor={ScoreColorMap[scoreStatus].text}
-              style={{letterSpacing: -0.24}}>
-              {hasScore
-                ? `접근레벨 ${accessibilityScore}`
-                : isProcessing
-                  ? '계산중(건물정보 필요)'
-                  : '접근레벨 -'}
-            </BadgeText>
-          </BadgeShell>
-          {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
-        </StairLevelRow>
-        <NameContainer onLayout={onNameLayout}>
-          <PlaceName>{place.name}</PlaceName>
-        </NameContainer>
-        {tagsRow}
-        <T1ActionButtonsRow onLayout={onActionButtonsLayout}>
-          <T1RegisterButton
-            isPrimary={!hasAccessibility}
-            elementName="place_detail_v2_register_button"
-            logParams={{experimentVariant: upvoteVariant}}
-            onPress={onPressRegister}>
-            <FlagIcon
-              width={20}
-              height={20}
-              color={!hasAccessibility ? color.white : undefined}
-            />
-            <T1RegisterButtonText isPrimary={!hasAccessibility}>
-              정보등록
-            </T1RegisterButtonText>
-          </T1RegisterButton>
-          <T1ReviewButton
-            elementName="place_detail_v2_write_review_button"
-            logParams={{experimentVariant: upvoteVariant}}
-            onPress={onPressWriteReview}>
-            <PencilIcon width={20} height={20} />
-            <T1ReviewButtonText>리뷰작성</T1ReviewButtonText>
-          </T1ReviewButton>
-          {hasAccessibility && (
-            <T1IconUpvoteButton
-              elementName="place_detail_v2_upvote_icon_button"
-              logParams={{experimentVariant: upvoteVariant}}
-              onPress={onPressUpvote}>
-              {isUpvoted ? (
-                <ThumbsUpBlueIcon width={24} height={24} />
-              ) : (
-                <ThumbsUpOutlineIcon width={24} height={24} />
-              )}
-            </T1IconUpvoteButton>
-          )}
-          <T1SirenButton
-            elementName="place_detail_v2_siren_button"
-            logParams={{experimentVariant: upvoteVariant}}
-            onPress={onPressSiren}>
-            <SirenOutlineIcon width={24} height={24} />
-          </T1SirenButton>
-        </T1ActionButtonsRow>
-      </Container>
-    );
-  }
-
   return (
     <Container>
       <StairLevelRow>
@@ -262,56 +158,11 @@ export default function V2SummarySection({
         <PlaceName>{place.name}</PlaceName>
       </NameContainer>
       {tagsRow}
-      <ActionButtonsRow onLayout={onActionButtonsLayout}>
-        <RegisterButton
-          isPrimary={!hasAccessibility}
-          elementName="place_detail_v2_register_button"
-          logParams={{experimentVariant: upvoteVariant}}
-          onPress={onPressRegister}>
-          <FlagIcon
-            width={16}
-            height={16}
-            color={!hasAccessibility ? color.white : undefined}
-          />
-          <RegisterButtonText isPrimary={!hasAccessibility}>
-            정보등록
-          </RegisterButtonText>
-        </RegisterButton>
-        <ReviewButton
-          elementName="place_detail_v2_write_review_button"
-          logParams={{experimentVariant: upvoteVariant}}
-          onPress={onPressWriteReview}>
-          <PencilIcon width={16} height={16} />
-          <ReviewButtonText>리뷰작성</ReviewButtonText>
-        </ReviewButton>
-        <SirenButton
-          elementName="place_detail_v2_siren_button"
-          logParams={{experimentVariant: upvoteVariant}}
-          onPress={onPressSiren}>
-          <SirenIcon width={20} height={20} />
-        </SirenButton>
-      </ActionButtonsRow>
-      {hasAccessibility && (
-        <UpvoteButton
-          isUpvoted={isUpvoted}
-          elementName="place_detail_v2_upvote_button"
-          logParams={{experimentVariant: upvoteVariant}}
-          onPress={onPressUpvote}>
-          {isUpvoted ? (
-            <CheckColoredIcon width={16} height={16} />
-          ) : (
-            <ThumbsUpYellowIcon width={16} height={16} />
-          )}
-          <UpvoteButtonText isUpvoted={isUpvoted}>
-            {isUpvoted ? '도움됐어요' : '도움돼요'}
-          </UpvoteButtonText>
-        </UpvoteButton>
-      )}
     </Container>
   );
 }
 
-// --- Shared styled components ---
+// --- styled components ---
 
 const Container = styled.View`
   padding-left: 20px;
@@ -378,145 +229,4 @@ const StairLevelRow = styled.ScrollView.attrs({
   } as const,
 })`
   overflow: hidden;
-`;
-
-// --- CONTROL styled components ---
-
-const ActionButtonsRow = styled.View`
-  flex-direction: row;
-  gap: 8px;
-  margin-top: 20px;
-  padding-right: 20px;
-`;
-
-const RegisterButton = styled(SccPressable)<{isPrimary?: boolean}>`
-  flex: 1;
-  height: 44px;
-  border-radius: 8px;
-  background-color: ${({isPrimary}) =>
-    isPrimary ? color.brand40 : color.gray15};
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-`;
-
-const RegisterButtonText = styled.Text<{isPrimary?: boolean}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  color: ${({isPrimary}) => (isPrimary ? color.white : color.gray80)};
-`;
-
-const ReviewButton = styled(SccPressable)`
-  flex: 1;
-  height: 44px;
-  border-radius: 8px;
-  background-color: ${color.gray15};
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-`;
-
-const ReviewButtonText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  color: ${color.gray80};
-`;
-
-const SirenButton = styled(SccPressable)`
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background-color: ${color.gray15};
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-`;
-
-const UpvoteButton = styled(SccPressable)<{isUpvoted: boolean}>`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 8px;
-  margin-right: 20px;
-  padding-vertical: 12px;
-  border-radius: 8px;
-  background-color: ${({isUpvoted}) => (isUpvoted ? '#D6EBFF' : '#0e64d3')};
-`;
-
-const UpvoteButtonText = styled.Text<{isUpvoted: boolean}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 14px;
-  color: ${({isUpvoted}) => (isUpvoted ? '#000000' : color.white)};
-`;
-
-// --- TREATMENT_1 styled components ---
-
-const T1ActionButtonsRow = styled.View`
-  flex-direction: row;
-  gap: 8px;
-  margin-top: 20px;
-  padding-right: 20px;
-`;
-
-const T1RegisterButton = styled(SccPressable)<{isPrimary?: boolean}>`
-  flex: 1;
-  height: 44px;
-  border-radius: 8px;
-  background-color: ${({isPrimary}) => (isPrimary ? color.brand40 : '#D6EBFF')};
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-`;
-
-const T1RegisterButtonText = styled.Text<{isPrimary?: boolean}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 15px;
-  line-height: 22px;
-  letter-spacing: -0.3px;
-  color: ${({isPrimary}) => (isPrimary ? color.white : '#24262b')};
-`;
-
-const T1ReviewButton = styled(SccPressable)`
-  flex: 1;
-  height: 44px;
-  border-radius: 8px;
-  background-color: #d6ebff;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-`;
-
-const T1ReviewButtonText = styled.Text`
-  font-family: ${font.pretendardMedium};
-  font-size: 15px;
-  line-height: 22px;
-  letter-spacing: -0.3px;
-  color: #24262b;
-`;
-
-const T1IconUpvoteButton = styled(SccPressable)`
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-width: 1px;
-  border-color: #e3e4e8;
-`;
-
-const T1SirenButton = styled(SccPressable)`
-  width: 44px;
-  height: 44px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  overflow: hidden;
-  border-width: 1px;
-  border-color: #e3e4e8;
 `;
