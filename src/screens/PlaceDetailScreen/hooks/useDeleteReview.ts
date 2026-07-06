@@ -39,11 +39,6 @@ export function useDeleteReview({
           queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
         });
 
-        // AI 요약(리뷰 불릿)이 접근성 응답에 실려오므로 함께 무효화해 재조회
-        queryClient.invalidateQueries({
-          queryKey: ['PlaceDetailV2', placeId, 'Accessibility'],
-        });
-
         // 내 리뷰 > 내가 작성한 리뷰 리스트
         queryClient.invalidateQueries({
           queryKey: ['MyReviews', UpvoteTargetTypeDto.PlaceReview],
