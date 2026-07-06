@@ -35,12 +35,17 @@ export const MOBILITY_TOOL_LABELS: Record<UserMobilityToolMapDto, string> = {
     '보행 대체 · 보조 기기가 없으나 보행 불편',
 };
 
-export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS).map(
-  ([value, label]) => ({
+export const MOBILITY_TOOL_OPTIONS = Object.entries(MOBILITY_TOOL_LABELS)
+  .map(([value, label]) => ({
     value: value as UserMobilityToolDto,
     label,
-  }),
-);
+  }))
+  // '해당없음'(NONE)은 라벨 목록 순서가 바뀌어도 항상 마지막에 오도록 한다. (Array.sort는 stable이라 나머지 순서는 유지)
+  .sort(
+    (a, b) =>
+      (a.value === UserMobilityToolDto.None ? 1 : 0) -
+      (b.value === UserMobilityToolDto.None ? 1 : 0),
+  );
 
 export function getMobilityToolDefaultValue(
   mobilityTools?: UserMobilityToolDto[],

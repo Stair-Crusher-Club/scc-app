@@ -54,38 +54,40 @@ export default function AiSummarySection({
             </SccPressable>
           )}
         </Header>
-        {aiSummary.items.map((item, index) => {
-          const sourceTab = item.sourceTab;
-          const sourceBadgeNumber =
-            sourceTab === AiSummarySourceTabDto.Accessibility
-              ? 1
-              : hasAccessibilityItem
-                ? 2
-                : 1;
-          return (
-            <ItemRow key={index}>
-              <Bullet>{'•'}</Bullet>
-              {/* 배지를 SummaryText(<Text>) 안 인라인 자식으로 넣는다 (RN은 <Text> 안에
-                  고정 크기 <View>를 넣으면 인라인으로 렌더됨). 텍스트가 여러 줄로 감겨도
-                  마지막 글자 바로 다음에 배지가 이어진다 (별도 우측 컬럼 X). */}
-              <SummaryText>
-                {item.text}
-                {sourceTab ? '  ' : ''}
-                {sourceTab && (
-                  <SccPressable
-                    elementName="ai_summary_source_badge"
-                    logParams={{sourceTab, index}}
-                    onPress={() => onPressSourceTab(sourceTab)}
-                    hitSlop={4}>
-                    <BadgeInline>
-                      <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
-                    </BadgeInline>
-                  </SccPressable>
-                )}
-              </SummaryText>
-            </ItemRow>
-          );
-        })}
+        <ItemContainer>
+          {aiSummary.items.map((item, index) => {
+            const sourceTab = item.sourceTab;
+            const sourceBadgeNumber =
+              sourceTab === AiSummarySourceTabDto.Accessibility
+                ? 1
+                : hasAccessibilityItem
+                  ? 2
+                  : 1;
+            return (
+              <ItemRow key={index}>
+                <Bullet>{'•'}</Bullet>
+                {/* 배지를 SummaryText(<Text>) 안 인라인 자식으로 넣는다 (RN은 <Text> 안에
+                    고정 크기 <View>를 넣으면 인라인으로 렌더됨). 텍스트가 여러 줄로 감겨도
+                    마지막 글자 바로 다음에 배지가 이어진다 (별도 우측 컬럼 X). */}
+                <SummaryText>
+                  {item.text}
+                  {sourceTab ? '  ' : ''}
+                  {sourceTab && (
+                    <SccPressable
+                      elementName="ai_summary_source_badge"
+                      logParams={{sourceTab, index}}
+                      onPress={() => onPressSourceTab(sourceTab)}
+                      hitSlop={4}>
+                      <BadgeInline>
+                        <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
+                      </BadgeInline>
+                    </SccPressable>
+                  )}
+                </SummaryText>
+              </ItemRow>
+            );
+          })}
+        </ItemContainer>
         {/* 다른 레이아웃을 밀어내지 않도록 absolute 오버레이로 띄운다 (Figma node 1-650). */}
         {showNotice && (
           <NoticeRow>
@@ -158,7 +160,7 @@ const Container = styled.View`
   background-color: ${color.gray5};
   border-radius: 5px;
   margin: 0 20px;
-  padding: 10px 8px;
+  padding: 12px 8px;
   gap: 6px;
   position: relative;
   overflow: visible;
@@ -220,6 +222,9 @@ const NoticeText = styled.Text`
 const CloseButtonSlot = styled.View`
   height: 16px;
   justify-content: center;
+`;
+
+const ItemContainer = styled.View`
 `;
 
 const ItemRow = styled.View`
