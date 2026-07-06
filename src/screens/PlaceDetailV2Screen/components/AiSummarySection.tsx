@@ -35,6 +35,11 @@ export default function AiSummarySection({
     return null;
   }
 
+  // 접근성 불릿이 하나라도 있으면 접근성=1/리뷰=2, 접근성 불릿이 없으면(리뷰만) 리뷰=1.
+  const hasAccessibilityItem = aiSummary.items.some(
+    i => i.sourceTab === AiSummarySourceTabDto.Accessibility,
+  );
+
   return (
     <LogParamsProvider params={{displaySectionName: 'ai_summary'}}>
       <Container>
@@ -51,27 +56,33 @@ export default function AiSummarySection({
         </Header>
         {aiSummary.items.map((item, index) => {
           const sourceTab = item.sourceTab;
-          // 소스탭 기준 번호: 접근성 정보는 항상 1, 리뷰는 항상 2 (항목 순서와 무관).
           const sourceBadgeNumber =
-            sourceTab === AiSummarySourceTabDto.Accessibility ? 1 : 2;
+            sourceTab === AiSummarySourceTabDto.Accessibility
+              ? 1
+              : hasAccessibilityItem
+                ? 2
+                : 1;
           return (
             <ItemRow key={index}>
               <Bullet>{'•'}</Bullet>
-              {/* 텍스트가 여러 줄로 감겨도 배지는 우측·첫 줄에 고정 (Figma node 1-324). */}
-              <SummaryText>{item.text}</SummaryText>
-              {sourceTab && (
-                <SccPressable
-                  elementName="ai_summary_source_badge"
-                  logParams={{sourceTab, index}}
-                  onPress={() => onPressSourceTab(sourceTab)}
-                  hitSlop={4}>
-                  <BadgeSlot>
-                    <SourceBadge>
+              {/* 배지를 SummaryText(<Text>) 안 인라인 자식으로 넣는다 (RN은 <Text> 안에
+                  고정 크기 <View>를 넣으면 인라인으로 렌더됨). 텍스트가 여러 줄로 감겨도
+                  마지막 글자 바로 다음에 배지가 이어진다 (별도 우측 컬럼 X). */}
+              <SummaryText>
+                {item.text}
+                {sourceTab ? '  ' : ''}
+                {sourceTab && (
+                  <SccPressable
+                    elementName="ai_summary_source_badge"
+                    logParams={{sourceTab, index}}
+                    onPress={() => onPressSourceTab(sourceTab)}
+                    hitSlop={4}>
+                    <BadgeInline>
                       <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
-                    </SourceBadge>
-                  </BadgeSlot>
-                </SccPressable>
-              )}
+                    </BadgeInline>
+                  </SccPressable>
+                )}
+              </SummaryText>
             </ItemRow>
           );
         })}
@@ -82,12 +93,16 @@ export default function AiSummarySection({
               등록된 외부 접근성 정보와 방문 리뷰를 바탕으로 AI가 요약한
               내용입니다. 실험 단계로 정확하지 않을 수 있어요.
             </NoticeText>
-            <SccPressable
-              elementName="ai_summary_notice_close"
-              onPress={() => setShowNotice(false)}
-              hitSlop={8}>
-              <CloseIcon width={12} height={12} />
-            </SccPressable>
+            {/* NoticeText 첫 줄(line-height 16px) 세로 중앙에 X를 맞춘다. NoticeRow는
+                align-items: flex-start를 유지하고, 이 슬롯만 16px 높이로 감싸 중앙 정렬. */}
+            <CloseButtonSlot>
+              <SccPressable
+                elementName="ai_summary_notice_close"
+                onPress={() => setShowNotice(false)}
+                hitSlop={8}>
+                <CloseIcon width={12} height={12} />
+              </SccPressable>
+            </CloseButtonSlot>
           </NoticeRow>
         )}
       </Container>
@@ -201,6 +216,12 @@ const NoticeText = styled.Text`
   color: ${color.gray70v2};
 `;
 
+// NoticeText 첫 줄 높이(line-height 16px)와 동일하게 잡아 닫기 X를 세로 중앙 정렬한다.
+const CloseButtonSlot = styled.View`
+  height: 16px;
+  justify-content: center;
+`;
+
 const ItemRow = styled.View`
   flex-direction: row;
   align-items: flex-start;
@@ -224,20 +245,16 @@ const SummaryText = styled.Text`
   color: ${color.gray70v2};
 `;
 
-// 16px 배지를 첫 줄(line-height 24) 세로 중앙에 맞춘다.
-const BadgeSlot = styled.View`
-  height: 24px;
-  margin-left: 6px;
-  justify-content: center;
-`;
-
-const SourceBadge = styled.View`
+// 16x16 원형 배지. SummaryText(<Text>) 안 인라인 자식으로 렌더되어 텍스트 흐름을 따라간다.
+// 인라인 배치라 기준선이 약간 어긋나면 translateY로 미세조정한다.
+const BadgeInline = styled.View`
   width: 16px;
   height: 16px;
   border-radius: 8px;
   background-color: ${color.gray25};
   align-items: center;
   justify-content: center;
+  transform: translateY(3px);
 `;
 
 const SourceBadgeText = styled.Text`
