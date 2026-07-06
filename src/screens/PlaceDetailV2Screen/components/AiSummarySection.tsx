@@ -100,7 +100,7 @@ export default function AiSummarySection({
                 elementName="ai_summary_notice_close"
                 onPress={() => setShowNotice(false)}
                 hitSlop={8}>
-                <CloseIcon width={12} height={12} />
+                <CloseIcon width={8.17} height={8.17} />
               </SccPressable>
             </CloseButtonSlot>
           </NoticeRow>
