@@ -938,13 +938,21 @@ export default function PlaceDetailV2Screen({
               />
               <AiSummarySection
                 aiSummary={accessibilityPost?.aiSummary}
-                onPressSourceTab={sourceTab =>
-                  setCurrentTab(
+                onPressSourceTab={sourceTab => {
+                  handleTabChange(
                     sourceTab === AiSummarySourceTabDto.Review
                       ? 'review'
                       : 'accessibility',
-                  )
-                }
+                  );
+                  // 요약 섹션(상단)에서 눌렀을 땐 탭바가 아직 화면 아래에 있으므로,
+                  // 탭 내용이 화면을 채우도록 탭바 상단으로 스크롤한다.
+                  requestAnimationFrame(() =>
+                    scrollViewRef.current?.scrollTo({
+                      y: tabBarYRef.current,
+                      animated: true,
+                    }),
+                  );
+                }}
               />
               <V2ThumbnailRow
                 accessibility={accessibilityPost}

@@ -1,4 +1,10 @@
 import React, {useState} from 'react';
+import Svg, {
+  Defs,
+  LinearGradient as SvgLinearGradient,
+  Stop,
+  Text as SvgText,
+} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import CircleInfoIcon from '@/assets/icon/ic_circle_info_gradient.svg';
@@ -11,6 +17,9 @@ import {
   PlaceAiSummaryDto,
 } from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+
+const TITLE = 'AI 접근성 요약';
+const TITLE_LINE_HEIGHT = 18;
 
 /** PDP 최상단 "AI 접근성 요약" 섹션. 서버가 조립한 문장 리스트를 그대로 렌더하는 dumb 컴포넌트. */
 export default function AiSummarySection({
@@ -30,7 +39,7 @@ export default function AiSummarySection({
     <LogParamsProvider params={{displaySectionName: 'ai_summary'}}>
       <Container>
         <Header>
-          <TitleText>AI 접근성 요약</TitleText>
+          <GradientTitle />
           {aiSummary.isExperimental && (
             <SccPressable
               elementName="ai_summary_info_icon"
@@ -48,20 +57,21 @@ export default function AiSummarySection({
           return (
             <ItemRow key={index}>
               <Bullet>{'•'}</Bullet>
-              <ItemContent>
-                <SummaryText>{item.text}</SummaryText>
-                {sourceTab && (
-                  <SccPressable
-                    elementName="ai_summary_source_badge"
-                    logParams={{sourceTab, index}}
-                    onPress={() => onPressSourceTab(sourceTab)}
-                    hitSlop={4}>
+              {/* 텍스트가 여러 줄로 감겨도 배지는 우측·첫 줄에 고정 (Figma node 1-324). */}
+              <SummaryText>{item.text}</SummaryText>
+              {sourceTab && (
+                <SccPressable
+                  elementName="ai_summary_source_badge"
+                  logParams={{sourceTab, index}}
+                  onPress={() => onPressSourceTab(sourceTab)}
+                  hitSlop={4}>
+                  <BadgeSlot>
                     <SourceBadge>
                       <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
                     </SourceBadge>
-                  </SccPressable>
-                )}
-              </ItemContent>
+                  </BadgeSlot>
+                </SccPressable>
+              )}
             </ItemRow>
           );
         })}
@@ -85,8 +95,50 @@ export default function AiSummarySection({
   );
 }
 
-// ponytail: Figma 타이틀은 blue→purple 그라디언트 텍스트지만, RN 텍스트 그라디언트는
-// MaskedView/SVG 추가 구현이 필요해 v1에서는 근사 단색(blue50)으로 대체. 필요 시 업그레이드.
+/**
+ * "AI 접근성 요약" blue→purple 그라디언트 텍스트 (Figma node 1-324).
+ * RN에는 네이티브 gradient text가 없어 react-native-svg 로 그린다. 보이지 않는 측정용 텍스트로
+ * 실제 폭을 잰 뒤 그 폭에 맞춰 Svg 를 겹쳐, 아이콘과의 간격이 어긋나지 않게 한다.
+ */
+function GradientTitle() {
+  const [width, setWidth] = useState(0);
+  return (
+    <TitleWrap>
+      <TitleMeasure onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+        {TITLE}
+      </TitleMeasure>
+      {width > 0 && (
+        <Svg
+          width={width}
+          height={TITLE_LINE_HEIGHT}
+          style={{position: 'absolute', left: 0, top: 0}}>
+          <Defs>
+            <SvgLinearGradient
+              id="aiSummaryTitleGradient"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="0">
+              <Stop offset="0" stopColor="#0089FA" />
+              <Stop offset="1" stopColor="#2F28B7" />
+            </SvgLinearGradient>
+          </Defs>
+          <SvgText
+            fill="url(#aiSummaryTitleGradient)"
+            fontFamily={font.pretendardBold}
+            fontSize={13}
+            fontWeight="700"
+            letterSpacing={-0.26}
+            x={0}
+            y={13.5}>
+            {TITLE}
+          </SvgText>
+        </Svg>
+      )}
+    </TitleWrap>
+  );
+}
+
 const Container = styled.View`
   background-color: ${color.gray5};
   border-radius: 5px;
@@ -104,12 +156,17 @@ const Header = styled.View`
   padding-left: 6px;
 `;
 
-const TitleText = styled.Text`
+const TitleWrap = styled.View`
+  align-self: flex-start;
+`;
+
+// 측정 전용 (그라디언트 Svg 폭 산정). 실제 색은 Svg 가 담당하므로 투명 처리.
+const TitleMeasure = styled.Text`
   font-family: ${font.pretendardBold};
   font-size: 13px;
-  line-height: 18px;
+  line-height: ${TITLE_LINE_HEIGHT}px;
   letter-spacing: -0.26px;
-  color: ${color.blue50};
+  opacity: 0;
 `;
 
 // 헤더 바로 아래에 다른 콘텐츠를 가리는 absolute 오버레이 (Figma node 1-650).
@@ -146,6 +203,7 @@ const NoticeText = styled.Text`
 
 const ItemRow = styled.View`
   flex-direction: row;
+  align-items: flex-start;
   padding-left: 8px;
 `;
 
@@ -157,20 +215,20 @@ const Bullet = styled.Text`
   width: 14px;
 `;
 
-const ItemContent = styled.View`
-  flex: 1;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-`;
-
 const SummaryText = styled.Text`
+  flex: 1;
   font-family: ${font.pretendardRegular};
   font-size: 15px;
   line-height: 24px;
   letter-spacing: -0.3px;
   color: ${color.gray70v2};
+`;
+
+// 16px 배지를 첫 줄(line-height 24) 세로 중앙에 맞춘다.
+const BadgeSlot = styled.View`
+  height: 24px;
+  margin-left: 6px;
+  justify-content: center;
 `;
 
 const SourceBadge = styled.View`
