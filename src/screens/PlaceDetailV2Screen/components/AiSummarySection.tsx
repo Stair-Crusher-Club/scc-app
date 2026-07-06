@@ -224,8 +224,7 @@ const CloseButtonSlot = styled.View`
   justify-content: center;
 `;
 
-const ItemContainer = styled.View`
-`;
+const ItemContainer = styled.View``;
 
 const ItemRow = styled.View`
   flex-direction: row;
