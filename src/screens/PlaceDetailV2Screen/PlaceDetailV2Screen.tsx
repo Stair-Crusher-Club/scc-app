@@ -20,6 +20,7 @@ import V2TabBar from './components/V2TabBar';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {color} from '@/constant/color';
 import {
+  AiSummarySourceTabDto,
   Building,
   ElevatorCorrectionTargetDto,
   FloorMovingMethodTypeDto,
@@ -70,6 +71,7 @@ import V2RestroomTab from './tabs/V2RestroomTab';
 import V2ConquerorTab from './tabs/V2ConquerorTab';
 import V2BottomBar from './components/V2BottomBar';
 import V2ThumbnailRow from './components/V2ThumbnailRow';
+import AiSummarySection from './components/AiSummarySection';
 import PlaceDetailRegistrationSheet from './components/PlaceDetailRegistrationSheet';
 
 export interface PlaceDetailV2ScreenParams {
@@ -973,6 +975,16 @@ export default function PlaceDetailV2Screen({
                 }
                 onNameLayout={handleNameLayout}
                 onActionButtonsLayout={handleActionButtonsLayout}
+              />
+              <AiSummarySection
+                aiSummary={accessibilityPost?.aiSummary}
+                onPressSourceTab={sourceTab =>
+                  setCurrentTab(
+                    sourceTab === AiSummarySourceTabDto.Review
+                      ? 'review'
+                      : 'accessibility',
+                  )
+                }
               />
               <V2ThumbnailRow
                 accessibility={accessibilityPost}

@@ -179,6 +179,12 @@ export interface AccessibilityInfoV2Dto {
      * @memberof AccessibilityInfoV2Dto
      */
     'buildingAccessibilities'?: Array<BuildingAccessibility>;
+    /**
+     * 
+     * @type {PlaceAiSummaryDto}
+     * @memberof AccessibilityInfoV2Dto
+     */
+    'aiSummary'?: PlaceAiSummaryDto;
 }
 /**
  * 
@@ -204,6 +210,12 @@ export interface AccessibilityInfoV2DtoAllOf {
      * @memberof AccessibilityInfoV2DtoAllOf
      */
     'buildingAccessibilities'?: Array<BuildingAccessibility>;
+    /**
+     * 
+     * @type {PlaceAiSummaryDto}
+     * @memberof AccessibilityInfoV2DtoAllOf
+     */
+    'aiSummary'?: PlaceAiSummaryDto;
 }
 /**
  * 
@@ -355,6 +367,20 @@ export const AccessibilitySourceDto = {
 } as const;
 
 export type AccessibilitySourceDto = typeof AccessibilitySourceDto[keyof typeof AccessibilitySourceDto];
+
+
+/**
+ * AI 요약 한 줄의 출처 탭.
+ * @export
+ * @enum {string}
+ */
+
+export const AiSummarySourceTabDto = {
+    Accessibility: 'ACCESSIBILITY',
+    Review: 'REVIEW'
+} as const;
+
+export type AiSummarySourceTabDto = typeof AiSummarySourceTabDto[keyof typeof AiSummarySourceTabDto];
 
 
 /**
@@ -4477,6 +4503,44 @@ export interface PlaceAccessibilityComment {
      * @memberof PlaceAccessibilityComment
      */
     'createdAt': EpochMillisTimestamp;
+}
+/**
+ * PDP 상단에 노출하는 AI 접근성/리뷰 요약.
+ * @export
+ * @interface PlaceAiSummaryDto
+ */
+export interface PlaceAiSummaryDto {
+    /**
+     * 요약 문장 리스트 (최대 4줄).
+     * @type {Array<PlaceAiSummaryItemDto>}
+     * @memberof PlaceAiSummaryDto
+     */
+    'items': Array<PlaceAiSummaryItemDto>;
+    /**
+     * 실험 단계 안내 문구/툴팁 노출 여부.
+     * @type {boolean}
+     * @memberof PlaceAiSummaryDto
+     */
+    'isExperimental': boolean;
+}
+/**
+ * AI 요약의 한 줄.
+ * @export
+ * @interface PlaceAiSummaryItemDto
+ */
+export interface PlaceAiSummaryItemDto {
+    /**
+     * 요약 문장.
+     * @type {string}
+     * @memberof PlaceAiSummaryItemDto
+     */
+    'text': string;
+    /**
+     * 
+     * @type {AiSummarySourceTabDto}
+     * @memberof PlaceAiSummaryItemDto
+     */
+    'sourceTab'?: AiSummarySourceTabDto;
 }
 /**
  * 
