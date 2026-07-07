@@ -287,4 +287,18 @@ platform :ios do
     firebase(scheme: options[:scheme])
     itc(scheme: options[:scheme])
   end
+
+  desc "Regenerate signing certificate & provisioning profiles via match without building. Use to recover after a certificate expires or profiles drift."
+  lane :sync_match do |options|
+    identifier = target_identifier(scheme: options[:scheme])
+    ["appstore", "adhoc"].each do |match_type|
+      call_match(
+        type: match_type,
+        api_key_path: File.expand_path("../../subprojects/scc-frontend-build-configurations/appstore-key.json"),
+        app_identifier: [identifier, "#{identifier}.ShareExtension"],
+        force_for_new_devices: true,
+        verbose: true
+      )
+    end
+  end
 end

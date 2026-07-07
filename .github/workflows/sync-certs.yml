@@ -1,0 +1,50 @@
+name: Sync iOS Signing (match)
+
+# Manual recovery workflow. Run this when the iOS distribution certificate
+# expires or provisioning profiles drift (e.g. the native build fails with
+# "certificate is not valid" or "No profile matching ... found").
+# It regenerates the certificate & provisioning profiles via `match` using the
+# existing MATCH_PASSWORD secret and pushes them to the build-certificates repo.
+# No app is built or shipped.
+
+on:
+  workflow_dispatch:
+    inputs:
+      scheme:
+        description: 'Scheme to sync signing for'
+        required: true
+        type: choice
+        options:
+          - production
+          - sandbox
+
+jobs:
+  sync:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          ssh-key: ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup SSH agent for build certificates
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SCC_BUILD_CERTIFICATES_SSH_KEY }}
+            ${{ secrets.SCC_FRONTEND_BUILD_CONFIGURATIONS_SSH_KEY }}
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.10'
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Run match sync
+        run: |
+          export MATCH_PASSWORD='${{ secrets.MATCH_PASSWORD }}'
+          cd ios
+          bundle exec fastlane ios sync_match scheme:${{ github.event.inputs.scheme }}
