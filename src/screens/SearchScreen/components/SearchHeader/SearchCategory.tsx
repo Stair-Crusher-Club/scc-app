@@ -2,7 +2,6 @@ import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
 import React from 'react';
 import {Image, ScrollView, View} from 'react-native';
-import AnimatedGlow, {type PresetConfig} from 'react-native-animated-glow';
 import styled from 'styled-components/native';
 
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
@@ -18,6 +17,7 @@ import {draftCameraRegionAtom} from '@/screens/SearchScreen/atoms';
 import type {SearchMode} from '@/screens/SearchScreen/atoms';
 import useNavigation from '@/navigation/useNavigation';
 
+import RecommendationChipGlow from './RecommendationChipGlow.tsx';
 import SearchCategoryIcon, {Icons} from './SearchCategoryIcon.tsx';
 
 const locationPinImage = require('@/assets/img/ic_location_pin.png');
@@ -127,8 +127,8 @@ export default function SearchCategory({
               placeListId: item.placeListId,
             }}
             onPress={() => handleRecommendationChipPress(item)}>
-            {/* 발견성 강화: Figma 블랙 칩 + react-native-animated-glow 빛나는 테두리(항상 ON) */}
-            <AnimatedGlow preset={RECOMMENDATION_CHIP_GLOW}>
+            {/* 발견성 강화: Figma 블랙 칩 + 빛나는 테두리 (iOS 애니메이션 / Android 정적) */}
+            <RecommendationChipGlow>
               <View
                 style={{
                   flexDirection: 'row',
@@ -146,7 +146,7 @@ export default function SearchCategory({
                 />
                 <RecommendationChipText>{item.name}</RecommendationChipText>
               </View>
-            </AnimatedGlow>
+            </RecommendationChipGlow>
           </SccTouchableOpacity>
         );
       }
@@ -213,71 +213,6 @@ const RecommendationChipText = styled.Text`
   line-height: 20px;
   letter-spacing: -0.28px;
 `;
-
-// 저장리스트 추천 칩 글로우 — react-native-animated-glow "Confirmation Green" 프리셋 기반.
-// (Slack 디자인 협의: 시인성↑ + 고대비를 위한 '블랙 버튼 + 빛나는 테두리' 조합)
-// 기본 프리셋에서 General borderColor만 아래 3색으로 교체하고,
-// backgroundColor는 Figma 블랙 칩(#16181C)으로 지정. 애니메이션은 항상(default 상태) 동작.
-// borderColor: #1EFF00(green) → #0093FF(blue) → #00FFFA(cyan)
-const RECOMMENDATION_CHIP_GLOW: PresetConfig = {
-  metadata: {
-    name: 'Recommendation Chip Glow',
-    textColor: '#FFFFFF',
-    category: 'Custom',
-    tags: ['recommendation', 'chip'],
-  },
-  states: [
-    {
-      name: 'default',
-      preset: {
-        cornerRadius: 20,
-        outlineWidth: 2,
-        borderColor: ['#1EFF00', '#0093FF', '#00FFFA'],
-        backgroundColor: '#16181C',
-        animationSpeed: 2,
-        borderSpeedMultiplier: 1,
-        glowLayers: [
-          {
-            glowPlacement: 'behind',
-            colors: ['#0fff47', 'rgba(255, 241, 0, 1)', '#00d646'],
-            glowSize: 10,
-            opacity: 0.05,
-            speedMultiplier: 1,
-            coverage: 1,
-            relativeOffset: 0,
-          },
-          {
-            glowPlacement: 'behind',
-            colors: ['#0fff47', 'rgba(255, 241, 0, 1)', '#00d646'],
-            glowSize: 4,
-            opacity: 0.1,
-            speedMultiplier: 1,
-            coverage: 1,
-            relativeOffset: 0,
-          },
-          {
-            glowPlacement: 'inside',
-            colors: ['rgba(99, 255, 0, 1)', 'rgba(180, 255, 65, 1)'],
-            glowSize: [0, 20],
-            opacity: 0.02,
-            speedMultiplier: 1,
-            coverage: 0.3,
-            relativeOffset: 0,
-          },
-          {
-            glowPlacement: 'over',
-            colors: ['rgba(135, 255, 0, 1)', 'rgba(255, 248, 196, 1)'],
-            glowSize: [0, 1],
-            opacity: 0.5,
-            speedMultiplier: 1,
-            coverage: 0.4,
-            relativeOffset: 0,
-          },
-        ],
-      },
-    },
-  ],
-};
 
 type SearchCategoryItem = {
   category: keyof typeof Icons;
