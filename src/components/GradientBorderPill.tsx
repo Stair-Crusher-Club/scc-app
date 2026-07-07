@@ -17,11 +17,13 @@ import {Defs, LinearGradient, Rect, Stop, Svg} from 'react-native-svg';
  * @param outerStyle   outerWrapper에 적용할 추가 스타일 (drop-shadow 등)
  * @param contentStyle contentView에 적용할 추가 스타일 (padding 등)
  * @param gradientId   SVG LinearGradient id — chip/tag 간 충돌 방지용 (고유 문자열)
+ * @param colors       그라데이션 색상(2색 이상). 미지정 시 기본 초록→파랑.
+ * @param borderRadius pill 라운드. 미지정 시 100(완전 pill).
+ * @param contentBackgroundColor 콘텐츠 배경. 미지정 시 white.
  */
 
-const GRADIENT_START = '#4AAB84';
-const GRADIENT_END = '#3596F7';
-const BORDER_RADIUS = 100;
+const DEFAULT_COLORS = ['#4AAB84', '#3596F7'];
+const DEFAULT_BORDER_RADIUS = 100;
 
 interface GradientBorderPillProps {
   borderWidth: number;
@@ -29,6 +31,9 @@ interface GradientBorderPillProps {
   outerStyle?: ViewStyle;
   contentStyle?: ViewStyle;
   gradientId: string;
+  colors?: string[];
+  borderRadius?: number;
+  contentBackgroundColor?: string;
 }
 
 export default function GradientBorderPill({
@@ -37,8 +42,11 @@ export default function GradientBorderPill({
   outerStyle,
   contentStyle,
   gradientId,
+  colors = DEFAULT_COLORS,
+  borderRadius = DEFAULT_BORDER_RADIUS,
+  contentBackgroundColor = 'white',
 }: GradientBorderPillProps) {
-  const innerBorderRadius = BORDER_RADIUS - borderWidth;
+  const innerBorderRadius = borderRadius - borderWidth;
 
   return (
     // 바깥 wrapper에 white bg + borderRadius를 줘야 Android elevation이 pill 모양 그림자를
@@ -49,14 +57,14 @@ export default function GradientBorderPill({
         {
           alignSelf: 'flex-start',
           backgroundColor: 'white',
-          borderRadius: BORDER_RADIUS,
+          borderRadius: borderRadius,
         },
         outerStyle,
       ]}>
       {/* innerWrapper: overflow hidden + borderRadius → 그라데이션 SVG가 pill 모양으로 잘림 */}
       <View
         style={{
-          borderRadius: BORDER_RADIUS,
+          borderRadius: borderRadius,
           overflow: 'hidden',
         }}>
         {/* 그라데이션 보더 레이어 — absoluteFill */}
@@ -66,8 +74,14 @@ export default function GradientBorderPill({
           height="100%">
           <Defs>
             <LinearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-              <Stop offset="0" stopColor={GRADIENT_START} stopOpacity="1" />
-              <Stop offset="1" stopColor={GRADIENT_END} stopOpacity="1" />
+              {colors.map((c, i) => (
+                <Stop
+                  key={i}
+                  offset={colors.length === 1 ? 0 : i / (colors.length - 1)}
+                  stopColor={c}
+                  stopOpacity="1"
+                />
+              ))}
             </LinearGradient>
           </Defs>
           <Rect
@@ -83,7 +97,7 @@ export default function GradientBorderPill({
           style={[
             {
               margin: borderWidth,
-              backgroundColor: 'white',
+              backgroundColor: contentBackgroundColor,
               borderRadius: innerBorderRadius,
               flexDirection: 'row',
               alignItems: 'center',
