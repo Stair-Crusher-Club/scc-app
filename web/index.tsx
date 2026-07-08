@@ -7,12 +7,16 @@ import {createRoot} from 'react-dom/client';
 
 import AppRoot from '../App';
 
+import DailyLoginPrompt from './components/DailyLoginPrompt';
+
 // Reset + mobile frame: on desktop the app is capped at 480px, centered, with a
 // subtle shadow on the sides so the "mobile" boundary is visible. On narrow
 // screens it fills the viewport with no shadow.
 const FRAME_CSS = `
   html, body, #root { height: 100%; margin: 0; padding: 0; }
   body { background: #f0f0f0; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   #scc-frame-bg {
     display: flex;
     justify-content: center;
@@ -67,6 +71,7 @@ root.render(
   <div id="scc-frame-bg">
     <div id="scc-app-frame">
       <AppRoot />
+      <DailyLoginPrompt />
     </div>
   </div>,
 );

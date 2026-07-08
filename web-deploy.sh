@@ -41,6 +41,27 @@ else
     exit 1
 fi
 
+# 고정 파일명 진입 파일(bundle.js)·HTML 은 Cache-Control=no-cache 로 재설정한다.
+# 이들은 파일명이 고정이라 Cache-Control 이 없으면 브라우저가 heuristic 캐시로 옛 번들을
+# 계속 물어, 배포해도 사용자에게 반영되지 않는다(예: 버튼이 안 먹는 옛 popup 번들).
+# CloudFront invalidation 은 edge 캐시만 비우고 브라우저 캐시는 못 비우므로 origin 헤더로 강제한다.
+# (해시 파일명 asset 은 내용이 바뀌면 이름이 바뀌므로 그대로 둔다.)
+echo -e "${YELLOW}진입 파일(bundle.js/HTML) Cache-Control=no-cache 재설정 중...${NC}"
+aws s3 cp "s3://$BUCKET_NAME/bundle.js" "s3://$BUCKET_NAME/bundle.js" \
+    --metadata-directive REPLACE --cache-control "no-cache" \
+    --content-type "application/javascript" > /dev/null
+if aws s3 ls "s3://$BUCKET_NAME/bundle.js.map" > /dev/null 2>&1; then
+    aws s3 cp "s3://$BUCKET_NAME/bundle.js.map" "s3://$BUCKET_NAME/bundle.js.map" \
+        --metadata-directive REPLACE --cache-control "no-cache" \
+        --content-type "application/json" > /dev/null
+fi
+# 모든 index.html (루트 SPA + bbucle-road prerender + articles 정적) no-cache
+aws s3 cp "s3://$BUCKET_NAME/" "s3://$BUCKET_NAME/" --recursive \
+    --exclude "*" --include "*.html" \
+    --metadata-directive REPLACE --cache-control "no-cache" \
+    --content-type "text/html; charset=utf-8" > /dev/null
+echo -e "${GREEN}✅ 진입 파일 Cache-Control 재설정 완료!${NC}"
+
 # CloudFront Distribution ID 가져오기
 echo -e "${YELLOW}CloudFront 캐시 무효화 확인 중...${NC}"
 if [ -n "$DISTRIBUTION_ID" ] && [ "$DISTRIBUTION_ID" != "null" ] && [ "$DISTRIBUTION_ID" != "" ]; then
