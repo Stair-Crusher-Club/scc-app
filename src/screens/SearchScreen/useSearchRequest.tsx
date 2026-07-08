@@ -232,8 +232,6 @@ export default function useSearchRequest() {
         logger.logElementClick('toilet_search', {
           search_query: text,
           search_request_id: requestId,
-          search_lat: response.data.toiletSearchCenter?.lat,
-          search_lng: response.data.toiletSearchCenter?.lng,
           search_region_type: 'region_keyword',
           result_count: toiletResult.length,
           top_result_ids: toiletResult

@@ -6641,12 +6641,6 @@ export interface SearchPlacesResponseDto {
      * @memberof SearchPlacesResponseDto
      */
     'toiletItems'?: Array<ToiletSummaryDto>;
-    /**
-     * 
-     * @type {Location}
-     * @memberof SearchPlacesResponseDto
-     */
-    'toiletSearchCenter'?: Location;
 }
 /**
  * 
