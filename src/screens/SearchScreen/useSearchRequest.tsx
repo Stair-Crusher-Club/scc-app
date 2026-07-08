@@ -8,6 +8,7 @@ import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getCenterAndRadius} from '@/components/maps/Types.tsx';
 import {
   PlaceListItem,
+  PlaceSearchResultModeDto,
   RectangleSearchRegionDto,
   SearchPlaceSortDto,
 } from '@/generated-sources/openapi';
@@ -17,6 +18,7 @@ import {
   SortOption,
   draftCameraRegionAtom,
   filterAtom,
+  SearchMode,
   searchModeAtom,
   searchQueryAtom,
   searchRequestIdAtom,
@@ -31,6 +33,17 @@ import GeolocationUtils from '@/utils/GeolocationUtils';
 import ToastUtils from '@/utils/ToastUtils.ts';
 
 export type SearchResultItem = PlaceListItem | (ToiletDetails & MarkerItem);
+
+/**
+ * 검색 결과와 그 결과의 렌더 모드를 함께 담는다. mode/items가 동일 응답에서 나오므로
+ * "toilet 모드인데 place 데이터" 같은 desync가 원천적으로 없다.
+ * (fetch 분기는 searchModeAtom, 렌더 분기는 이 mode를 쓴다 — "강남 화장실"은 place 엔드포인트로
+ *  fetch되지만 서버가 화장실 결과를 내려주면 mode='toilet'이 된다.)
+ */
+export interface SearchResult {
+  mode: SearchMode;
+  items: SearchResultItem[];
+}
 
 function generateRequestId(): string {
   const now = new Date();
@@ -54,8 +67,8 @@ export default function useSearchRequest() {
   const devTool = useDevTool();
   const keyboard = useKeyboard();
   const keyboardRef = useRef(keyboard);
-  const {data, isFetching, refetch} = useQuery({
-    initialData: [],
+  const {data, isFetching, refetch} = useQuery<SearchResult | null>({
+    initialData: {mode: 'place', items: []},
     throwOnError: error => {
       ToastUtils.showOnApiError(error);
       return false;
@@ -74,7 +87,7 @@ export default function useSearchRequest() {
         searchMode,
       },
     ],
-    queryFn: async ({signal}): Promise<SearchResultItem[] | null> => {
+    queryFn: async ({signal}): Promise<SearchResult | null> => {
       if (!text) {
         return null; // No search text -> Do not call API because it is landing page
       }
@@ -151,7 +164,7 @@ export default function useSearchRequest() {
           : (location ?? currentLocation);
         if (!toiletCurrentLocation) {
           ToastUtils.show('현재 위치를 확인할 수 없습니다.');
-          return [];
+          return {mode: 'toilet', items: []};
         }
         const response = await toiletApi.searchToilets(
           {
@@ -183,7 +196,7 @@ export default function useSearchRequest() {
         }
         onFetchCompleted.current?.(result);
         onFetchCompleted.current = () => {};
-        return result;
+        return {mode: 'toilet', items: result};
       }
 
       // Default: place search
@@ -207,6 +220,35 @@ export default function useSearchRequest() {
         },
         {signal},
       );
+
+      // "<지역명> 화장실" 검색은 place 엔드포인트로 나갔지만 서버가 장애인 화장실 검색으로
+      // 처리해 내려줄 수 있다. 이 경우 2차 fetch 없이 인라인 toiletItems를 그대로 화장실 결과로 쓴다.
+      if (response?.data.mode === PlaceSearchResultModeDto.AccessibleToilet) {
+        const toiletResult = (response.data.toiletItems ?? []).map(
+          mapSummaryToToiletDetails,
+        );
+        const requestId = generateRequestId();
+        setSearchRequestId(requestId);
+        logger.logElementClick('toilet_search', {
+          search_query: text,
+          search_request_id: requestId,
+          search_lat: response.data.toiletSearchCenter?.lat,
+          search_lng: response.data.toiletSearchCenter?.lng,
+          search_region_type: 'region_keyword',
+          result_count: toiletResult.length,
+          top_result_ids: toiletResult
+            .slice(0, 3)
+            .map(item => item.id)
+            .join(','),
+        });
+        if (toiletResult.length === 0) {
+          ToastUtils.show('검색 결과가 없습니다.');
+        }
+        onFetchCompleted.current?.(toiletResult);
+        onFetchCompleted.current = () => {};
+        return {mode: 'toilet', items: toiletResult};
+      }
+
       const result = response?.data.items || [];
       const requestId = generateRequestId();
       setSearchRequestId(requestId);
@@ -237,7 +279,7 @@ export default function useSearchRequest() {
       }
       onFetchCompleted.current?.(result);
       onFetchCompleted.current = () => {};
-      return result;
+      return {mode: 'place', items: result};
     },
   });
   const onFetchCompleted = useRef<(result: SearchResultItem[]) => void>(
@@ -272,10 +314,14 @@ export default function useSearchRequest() {
   const isTransitioningToMapView =
     !viewState.inputMode && viewState.type === 'map';
 
+  // mode/items를 항상 같은 응답에서 가져와 desync를 막는다. 렌더는 resultMode로 분기한다.
+  const items = data?.items ?? [];
+  const resultMode: SearchMode = data?.mode ?? 'place';
+
   useEffect(() => {
     if (isTransitioningToMapView && hasActiveSearch && !isFetching) {
       setTimeout(() => {
-        onFetchCompleted.current?.(data ?? []);
+        onFetchCompleted.current?.(items);
         onFetchCompleted.current = () => {};
       });
     }
@@ -294,7 +340,8 @@ export default function useSearchRequest() {
   }, [keyboard.keyboardShown]);
 
   return {
-    data,
+    data: items,
+    resultMode,
     isLoading: isFetching,
     refetch,
     updateQuery,

@@ -112,10 +112,9 @@ const SearchScreenContent = ({
   const setFilter = useSetAtom(filterAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
   const setSearchMode = useSetAtom(searchModeAtom);
-  const searchMode = useAtomValue(searchModeAtom);
   const setToiletLayerActive = useSetAtom(toiletLayerActiveAtom);
 
-  const {data, isLoading, updateQuery, setOnFetchCompleted} =
+  const {data, resultMode, isLoading, updateQuery, setOnFetchCompleted} =
     useSearchRequest();
 
   const searchRequestId = useAtomValue(searchRequestIdAtom);
@@ -356,9 +355,10 @@ const SearchScreenContent = ({
                 );
               }}
               data={data ?? []}
+              resultMode={resultMode}
             />
           </View>
-          {viewState.inputMode && searchMode === 'place' && (
+          {viewState.inputMode && resultMode === 'place' && (
             <SearchSummaryView
               onItemSelect={onItemSelect}
               isLoading={isLoading}
@@ -377,7 +377,7 @@ const SearchScreenContent = ({
           )}
           {!viewState.inputMode &&
             viewState.type === 'list' &&
-            searchMode === 'place' && (
+            resultMode === 'place' && (
               <SearchListView
                 isVisible={true}
                 isLoading={isLoading}
@@ -386,7 +386,7 @@ const SearchScreenContent = ({
             )}
           {!viewState.inputMode &&
             viewState.type === 'list' &&
-            searchMode === 'toilet' && (
+            resultMode === 'toilet' && (
               <ToiletListView
                 isVisible={true}
                 isLoading={isLoading}
