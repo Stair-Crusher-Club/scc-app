@@ -2,8 +2,7 @@ import {Share} from 'react-native';
 
 import {Place} from '@/generated-sources/openapi';
 
-// TODO(airbridge): 발급된 shortId로 교체 — 콩알이 발급 대기
-const SCC_CONTENT_SHARE_SHORT_ID = 'scc_content_share';
+const SCC_CONTENT_SHARE_SHORT_ID = 'scc-content';
 
 const ShareUtils = {
   async sharePlace(place: Place) {

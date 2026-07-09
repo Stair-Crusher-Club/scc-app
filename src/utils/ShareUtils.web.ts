@@ -1,8 +1,7 @@
 import type {Place} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
-// TODO(airbridge): 발급된 shortId로 교체 — 콩알이 발급 대기
-const SCC_CONTENT_SHARE_SHORT_ID = 'scc_content_share';
+const SCC_CONTENT_SHARE_SHORT_ID = 'scc-content';
 
 async function copyToClipboard(url: string) {
   try {
