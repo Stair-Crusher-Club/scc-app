@@ -16,10 +16,10 @@ const NO_TOKEN_ALLOWED = new Set<string>([
   'AppleCallback',
   'BbucleRoad',
   'BbucleRoadList',
+  // 공유 링크 랜딩. web 변형(index.web.tsx)이 getSccContent(public) 로 resolve 후
+  // window.location.replace 로 현재 탭을 원본 컨텐츠로 직접 보낸다 — Webview 라우트를
+  // 거치지 않으므로 'Webview' 를 여기 넣을 필요가 없다(기존 Webview 진입점의 토큰 게이트 보존).
   'ResolvingSccContent',
-  // getSccContent 는 Anonymous 허용 API. ResolvingSccContent 가 resolve 후
-  // replace 하는 목적지도 token 없이 열려야 R2/R3(미설치/데스크탑 브라우저) 가 성립한다.
-  'Webview',
 ]);
 
 // Camera / photo capture flows — not possible on web → app install prompt.
