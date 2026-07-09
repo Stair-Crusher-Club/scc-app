@@ -1,6 +1,8 @@
 import type {Place} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
+const SCC_CONTENT_SHARE_SHORT_ID = 'scc-content';
+
 async function copyToClipboard(url: string) {
   try {
     await navigator.clipboard.writeText(url);
@@ -34,8 +36,19 @@ const ShareUtils = {
   async sharePlace(place: Place) {
     await copyToClipboard(buildPlaceShareUrl(place.id));
   },
-  async shareBbucleRoad(_bbucleRoadId: string, _title?: string) {
-    await copyToClipboard(window.location.href);
+  // 네이티브와 동일 시그니처. id 있으면 트래킹링크, 없으면 contentUrl을 클립보드에 복사.
+  async shareSccContent(
+    sccContentId: string | null,
+    contentUrl: string,
+    _title?: string,
+  ) {
+    if (sccContentId) {
+      await copyToClipboard(
+        `https://link.staircrusher.club/${SCC_CONTENT_SHARE_SHORT_ID}?sccContentId=${encodeURIComponent(sccContentId)}`,
+      );
+      return;
+    }
+    await copyToClipboard(contentUrl);
   },
 };
 

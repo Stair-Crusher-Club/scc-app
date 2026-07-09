@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Share, View} from 'react-native';
+import {View} from 'react-native';
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -109,15 +109,7 @@ export default function SccContentFloatingBar({
   // 공유하기
   const handleShare = useCallback(async () => {
     try {
-      if (sccContentId) {
-        await ShareUtils.shareBbucleRoad(sccContentId, title);
-      } else {
-        await Share.share({
-          message: title
-            ? `[${title}]를 계단뿌셔클럽에서 확인해보세요!\n${url}`
-            : url,
-        });
-      }
+      await ShareUtils.shareSccContent(sccContentId, url, title);
     } catch (_error) {
       // Share 취소는 에러로 처리하지 않음
     }
