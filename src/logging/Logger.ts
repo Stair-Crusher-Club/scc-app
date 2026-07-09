@@ -99,7 +99,12 @@ export async function logElementClick(params: ElementEventParams) {
 const Logger = {
   async setUserId(userId: string) {
     logDebug('setUserId', userId, currUserPropertiesForDebugging);
+    // GA4 예약 user_id (BigQuery events.user_id 컬럼에 실림) — 사용자별 조회의 근간.
+    // setUserProperties({userId})는 커스텀 user property일 뿐 예약 필드가 아니라 events.user_id에 안 실린다.
+    getAnalytics().setUserId(userId);
     getAnalytics().setUserProperties({userId});
+    // Crashlytics도 동일 id로 태깅 → 콘솔/BigQuery(firebase_crashlytics)에서 계정으로 크래시 조회 가능.
+    crashlytics().setUserId(userId);
     currUserPropertiesForDebugging.userId = userId;
     logDebug('setUserId finished', userId, currUserPropertiesForDebugging);
   },
@@ -114,6 +119,10 @@ const Logger = {
     };
     trackEvent('screen_view', eventParams);
     getAnalytics().logScreenView(eventParams);
+    // 크래시/ANR 리포트에 "어느 화면에서 죽었나" 맥락 남기기 (브레드크럼 + last_screen 속성).
+    const screenName = params.currScreenName ?? 'unknown';
+    crashlytics().log(`screen_view: ${screenName}`);
+    crashlytics().setAttribute('last_screen', screenName);
   },
 
   async logUploadImage(metric: Record<string, number>) {

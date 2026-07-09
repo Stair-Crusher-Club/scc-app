@@ -12,6 +12,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AppComponentsProvider} from '@/AppComponentsContext';
 import {accessTokenAtom} from '@/atoms/Auth';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
 import SplashOverlay from '@/splash/SplashOverlay';
@@ -56,7 +57,9 @@ const AppWithProviders = () => {
               new ToiletApi(new Configuration({basePath: getBaseURL()}))
             }>
             <QueryClientProvider client={queryClient}>
-              <App />
+              <ErrorBoundary>
+                <App />
+              </ErrorBoundary>
             </QueryClientProvider>
           </AppComponentsProvider>
         </SafeAreaProvider>
