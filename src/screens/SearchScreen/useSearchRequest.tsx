@@ -338,7 +338,9 @@ export default function useSearchRequest() {
   }, [keyboard.keyboardShown]);
 
   return {
-    data: items,
+    // 검색어가 없으면 null을 반환해 랜딩(최근 검색어/추천) 화면을 띄운다.
+    // items로 뭉개면 []가 되어 "검색 결과 없음"이 대신 렌더된다.
+    data: hasActiveSearch ? items : null,
     resultMode,
     isLoading: isFetching,
     refetch,
