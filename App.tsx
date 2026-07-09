@@ -145,6 +145,7 @@ const HotUpdatedApp = HotUpdater.wrap({
   },
   onUpdateProcessCompleted: res => {
     startupTiming.otaCompleted = Date.now();
+    Logger.setOtaBundleId(HotUpdater.getBundleId() ?? 'unknown');
     Logger.logOtaCompleted({
       status: res.status,
       didDownload: res.status !== 'UP_TO_DATE',

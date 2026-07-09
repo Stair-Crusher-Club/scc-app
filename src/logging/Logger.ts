@@ -191,6 +191,14 @@ const Logger = {
     crashlytics().recordError(error);
   },
 
+  // OTA(HotUpdater) 번들 id를 크래시 리포트에 태깅.
+  // app_version(네이티브 바이너리)만으론 어느 JS 번들이 크래시났는지 못 가리므로 필수.
+  async setOtaBundleId(bundleId: string) {
+    logDebug('setOtaBundleId', bundleId, currUserPropertiesForDebugging);
+    crashlytics().setAttribute('ota_bundle_id', bundleId);
+    getAnalytics().setUserProperties({otaBundleId: bundleId});
+  },
+
   async logHeatSample(params: {
     sessionDurationMs: number;
     foregroundDurationMs: number;
