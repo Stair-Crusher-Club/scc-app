@@ -16,7 +16,7 @@ import {PlaceListItem} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {
   draftCameraRegionAtom,
-  searchModeAtom,
+  SearchMode,
   searchQueryAtom,
   toiletLayerActiveAtom,
   viewStateAtom,
@@ -40,10 +40,10 @@ const SearchMapView = forwardRef<
   SearchMapViewHandle,
   {
     data: SearchResultItem[];
+    resultMode: SearchMode;
     onRefresh: () => void;
   }
->(({data, onRefresh}, ref) => {
-  const searchMode = useAtomValue(searchModeAtom);
+>(({data, resultMode, onRefresh}, ref) => {
   const [toiletLayerActive, setToiletLayerActive] = useAtom(
     toiletLayerActiveAtom,
   );
@@ -74,16 +74,16 @@ const SearchMapView = forwardRef<
   const viewState = useAtomValue(viewStateAtom);
   const setDraftCameraRegion = useSetAtom(draftCameraRegionAtom);
   const datasForUI: MapViewItem[] = useMemo(() => {
-    if (searchMode === 'toilet') {
+    if (resultMode === 'toilet') {
       // Toilet data is already mapped with MarkerItem
       return (data as (ToiletDetails & MarkerItem)[]) ?? [];
     }
     // Place data needs to be mapped
     return (data as PlaceListItem[])?.map(toPlaceMarkerItem) ?? [];
-  }, [data, searchMode]);
+  }, [data, resultMode]);
   const isSearchQueryEmpty = !searchQuery.text;
 
-  const showToiletLayerToggle = searchMode !== 'toilet';
+  const showToiletLayerToggle = resultMode !== 'toilet';
 
   const handleOverlayMarkerPress = useCallback(
     (item: MarkerItem) => {
@@ -123,7 +123,7 @@ const SearchMapView = forwardRef<
           onRefresh={onRefresh}
           isRefreshVisible={!isSearchQueryEmpty}
           ItemCard={
-            (searchMode === 'toilet'
+            (resultMode === 'toilet'
               ? ToiletCard
               : SearchItemCard) as React.FC<{
               item: MapViewItem;

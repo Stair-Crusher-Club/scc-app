@@ -5125,6 +5125,20 @@ export type PlaceSearchRecommendationTypeDto = typeof PlaceSearchRecommendationT
 
 
 /**
+ * /searchPlaces 응답의 결과 종류 판별자.
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceSearchResultModeDto = {
+    Place: 'PLACE',
+    AccessibleToilet: 'ACCESSIBLE_TOILET'
+} as const;
+
+export type PlaceSearchResultModeDto = typeof PlaceSearchResultModeDto[keyof typeof PlaceSearchResultModeDto];
+
+
+/**
  * 장소의 특수 접근성 정보. 뿌클로드 등 특수한 방식으로 접근성 정보를 제공하는 장소에 대한 메타데이터.
  * @export
  * @interface PlaceSpecialAccessibilityDto
@@ -6615,6 +6629,18 @@ export interface SearchPlacesResponseDto {
      * @memberof SearchPlacesResponseDto
      */
     'items': Array<PlaceListItem>;
+    /**
+     * 
+     * @type {PlaceSearchResultModeDto}
+     * @memberof SearchPlacesResponseDto
+     */
+    'mode'?: PlaceSearchResultModeDto;
+    /**
+     * mode가 ACCESSIBLE_TOILET일 때의 장애인 화장실 검색 결과. 그 외에는 비어있다.
+     * @type {Array<ToiletSummaryDto>}
+     * @memberof SearchPlacesResponseDto
+     */
+    'toiletItems'?: Array<ToiletSummaryDto>;
 }
 /**
  * 
