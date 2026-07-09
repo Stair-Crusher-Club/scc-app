@@ -12,13 +12,9 @@ interface Props {
  */
 class ErrorBoundary extends React.Component<Props> {
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // log/recordError는 Promise를 반환 — componentDidCatch는 동기라 rejection이 새지 않도록 가드.
-    crashlytics()
-      .log(`ErrorBoundary caught: ${info.componentStack ?? ''}`)
-      .catch(() => {});
-    crashlytics()
-      .recordError(error)
-      .catch(() => {});
+    // RNFirebase v22의 log()/recordError()는 void 반환(동기 네이티브 호출) — rejection 없음.
+    crashlytics().log(`ErrorBoundary caught: ${info.componentStack ?? ''}`);
+    crashlytics().recordError(error);
   }
 
   render() {
