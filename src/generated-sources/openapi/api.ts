@@ -2968,6 +2968,19 @@ export interface GetSccContentDetailsResponseDto {
     'upvoteSummary'?: SccContentUpvoteSummaryDto;
 }
 /**
+ * id 로 SccContent 단건을 조회하기 위한 요청. 
+ * @export
+ * @interface GetSccContentRequestDto
+ */
+export interface GetSccContentRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetSccContentRequestDto
+     */
+    'sccContentId': string;
+}
+/**
  * 
  * @export
  * @interface GetToiletRequestDto
@@ -9321,6 +9334,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * sccContentId 로 SccContent 를 조회한다. 비로그인 사용자도 호출 가능하다 (예: 공유된 컨텐츠 링크로 진입). 
+         * @summary SccContent 단건을 id로 조회한다.
+         * @param {GetSccContentRequestDto} getSccContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSccContent: async (getSccContentRequestDto: GetSccContentRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getSccContentRequestDto' is not null or undefined
+            assertParamExists('getSccContent', 'getSccContentRequestDto', getSccContentRequestDto)
+            const localVarPath = `/getSccContent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getSccContentRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
          * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
@@ -12076,6 +12129,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * sccContentId 로 SccContent 를 조회한다. 비로그인 사용자도 호출 가능하다 (예: 공유된 컨텐츠 링크로 진입). 
+         * @summary SccContent 단건을 id로 조회한다.
+         * @param {GetSccContentRequestDto} getSccContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSccContent(getSccContentRequestDto: GetSccContentRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SccContentDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSccContent(getSccContentRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
          * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
@@ -13101,6 +13165,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getReviewActivityReportPost(options?: any): AxiosPromise<GetReviewActivityReportResponseDto> {
             return localVarFp.getReviewActivityReportPost(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * sccContentId 로 SccContent 를 조회한다. 비로그인 사용자도 호출 가능하다 (예: 공유된 컨텐츠 링크로 진입). 
+         * @summary SccContent 단건을 id로 조회한다.
+         * @param {GetSccContentRequestDto} getSccContentRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSccContent(getSccContentRequestDto: GetSccContentRequestDto, options?: any): AxiosPromise<SccContentDto> {
+            return localVarFp.getSccContent(getSccContentRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
@@ -14142,6 +14216,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getReviewActivityReportPost(options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getReviewActivityReportPost(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * sccContentId 로 SccContent 를 조회한다. 비로그인 사용자도 호출 가능하다 (예: 공유된 컨텐츠 링크로 진입). 
+     * @summary SccContent 단건을 id로 조회한다.
+     * @param {GetSccContentRequestDto} getSccContentRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getSccContent(getSccContentRequestDto: GetSccContentRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getSccContent(getSccContentRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

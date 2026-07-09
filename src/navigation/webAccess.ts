@@ -16,6 +16,10 @@ const NO_TOKEN_ALLOWED = new Set<string>([
   'AppleCallback',
   'BbucleRoad',
   'BbucleRoadList',
+  'ResolvingSccContent',
+  // getSccContent 는 Anonymous 허용 API. ResolvingSccContent 가 resolve 후
+  // replace 하는 목적지도 token 없이 열려야 R2/R3(미설치/데스크탑 브라우저) 가 성립한다.
+  'Webview',
 ]);
 
 // Camera / photo capture flows — not possible on web → app install prompt.

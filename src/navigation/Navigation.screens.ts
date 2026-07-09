@@ -96,6 +96,9 @@ import UpvoteAnalyticsScreen, {
 import ResolvingSharedLinkScreen, {
   ResolvingSharedLinkScreenParams,
 } from '@/screens/ResolvingSharedLinkScreen';
+import ResolvingSccContentScreen, {
+  ResolvingSccContentScreenParams,
+} from '@/screens/ResolvingSccContentScreen';
 import WebViewScreen, {WebViewScreenParams} from '@/screens/WebViewScreen';
 
 export type CustomNavigationOptions = NativeStackNavigationOptions & {
@@ -382,6 +385,11 @@ export const MainNavigationScreens: {
     component: ResolvingSharedLinkScreen,
     options: {headerShown: false},
   },
+  {
+    name: 'ResolvingSccContent',
+    component: ResolvingSccContentScreen,
+    options: {headerShown: false},
+  },
 ];
 
 export type ScreenParams = {
@@ -448,6 +456,7 @@ export type ScreenParams = {
   TutorialMissionSavePlaceList: PublicPlaceListsScreenParams;
   TutorialUpvoteAccessibilityMission: undefined;
   ResolvingSharedLink: ResolvingSharedLinkScreenParams;
+  ResolvingSccContent: ResolvingSccContentScreenParams;
 
   // 웹 전용 화면 (Platform.OS === 'web' 에서만 등록됨; webScreens 참조)
   BbucleRoad: {bbucleRoadId: string};

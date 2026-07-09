@@ -69,6 +69,9 @@ export const linkingScreensConfig = {
     TutorialUpvoteAccessibilityMission: {
       path: 'tutorial-mission-upvote-accessibility',
     },
+    ResolvingSccContent: {
+      path: 'scc-content/:sccContentId',
+    },
   },
 };
 
@@ -109,5 +112,8 @@ export const webLinkingScreensConfig = {
     KakaoCallback: 'oauth/kakao',
     // Apple web OAuth popup Return URL target
     AppleCallback: 'oauth/apple',
+    ResolvingSccContent: {
+      path: 'scc-content/:sccContentId',
+    },
   },
 };
