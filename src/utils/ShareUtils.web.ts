@@ -3,7 +3,7 @@ import ToastUtils from '@/utils/ToastUtils';
 
 const SCC_CONTENT_SHARE_SHORT_ID = 'scc-content';
 // 장소 공유 트래킹링크(native ShareUtils.ts와 동일). fallback: web.staircrusher.club/place/{placeId}
-const PLACE_SHARE_SHORT_ID = 'place_share';
+const PLACE_SHARE_SHORT_ID = 'place';
 
 async function copyToClipboard(url: string) {
   try {
@@ -20,7 +20,7 @@ const ShareUtils = {
   // webLinkingConfig에 없는 경로라 데스크톱에서 /home으로 튀었다.
   async sharePlace(place: Place) {
     await copyToClipboard(
-      `https://link.staircrusher.club/${PLACE_SHARE_SHORT_ID}?placeId=${place.id}`,
+      `https://link.staircrusher.club/${PLACE_SHARE_SHORT_ID}?placeId=${encodeURIComponent(place.id)}`,
     );
   },
   // 네이티브와 동일 시그니처. id 있으면 트래킹링크, 없으면 contentUrl을 클립보드에 복사.

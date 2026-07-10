@@ -11,7 +11,7 @@ import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
 
 import {getStorageValue, storage} from '@/atoms/atomForLocal';
-import {ANONYMOUS_USER_TEMPLATE} from '@/atoms/Auth';
+import {isAnonymousUser} from '@/atoms/Auth';
 import DevTool from '@/components/DevTool/DevTool';
 import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 import {setPendingSharedText} from '@/deeplink/PendingSharedText';
@@ -124,9 +124,11 @@ const RootScreen = () => {
       }
       // 무로그인 열람 허용. 익명 유저면 하루 한 번 로그인을 유도한다(비차단 팝업).
       if (!LOGIN_PROMPT_EXCLUDED_ROUTES.has(routeName)) {
-        const userInfo = getStorageValue<{nickname?: string}>('userInfo');
-        const isAnonymous =
-          !userInfo || userInfo.nickname === ANONYMOUS_USER_TEMPLATE.nickname;
+        const userInfo = getStorageValue<{id?: string; nickname?: string}>(
+          'userInfo',
+        );
+        // 무토큰(userInfo 없음)도 익명으로 간주. 판별은 Auth.ts 공유 predicate 사용.
+        const isAnonymous = !userInfo || isAnonymousUser(userInfo);
         const today = new Date().toDateString();
         if (
           isAnonymous &&
