@@ -2,25 +2,10 @@
 // anywhere); the gate that consumes it runs only in the web branch of RootScreen.
 //
 // Decision:
-// - app screens that also exist in the native app require a token (even a guest
-//   token) on web → redirect to Login when absent.
-// - web-only content (bbucle-road) and auth screens are viewable with no token.
+// - web는 무로그인화되어 있다: 진입 시 항상 익명 토큰을 발행하므로(App.tsx) 어떤 앱
+//   화면이든 토큰 없이 열람 가능하다. 로그인은 강제하지 않고, 익명 유저에게 1일 1회
+//   로그인 유도 팝업만 띄운다(RootScreen). → 별도 requireToken 분류가 필요 없다.
 // - accessibility-registration flows need a camera → app-install prompt on web.
-
-// Viewable without any token.
-const NO_TOKEN_ALLOWED = new Set<string>([
-  'Intro', // self-redirects based on token
-  'Login',
-  'Signup',
-  'KakaoCallback',
-  'AppleCallback',
-  'BbucleRoad',
-  'BbucleRoadList',
-  // 공유 링크 랜딩. web 변형(index.web.tsx)이 getSccContent(public) 로 resolve 후
-  // window.location.replace 로 현재 탭을 원본 컨텐츠로 직접 보낸다 — Webview 라우트를
-  // 거치지 않으므로 'Webview' 를 여기 넣을 필요가 없다(기존 Webview 진입점의 토큰 게이트 보존).
-  'ResolvingSccContent',
-]);
 
 // Camera / photo capture flows — not possible on web → app install prompt.
 const APP_ONLY = new Set<string>([
@@ -33,11 +18,10 @@ const APP_ONLY = new Set<string>([
   'PlacePhotoGuide',
 ]);
 
-export type WebRouteAccess = 'allow' | 'requireToken' | 'appOnly';
+export type WebRouteAccess = 'allow' | 'appOnly';
 
 export function classifyWebRoute(routeName?: string): WebRouteAccess {
   if (!routeName) return 'allow';
   if (APP_ONLY.has(routeName)) return 'appOnly';
-  if (NO_TOKEN_ALLOWED.has(routeName)) return 'allow';
-  return 'requireToken';
+  return 'allow';
 }

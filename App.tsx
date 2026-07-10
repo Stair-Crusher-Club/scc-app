@@ -3,15 +3,17 @@ import {getAnalytics} from '@react-native-firebase/analytics';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import globalAxios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {Provider, useAtomValue, useSetAtom} from 'jotai';
-import React, {useEffect} from 'react';
-import {Platform, StatusBar, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, Platform, StatusBar, View} from 'react-native';
 import Config from 'react-native-config';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AppComponentsProvider} from '@/AppComponentsContext';
+import {getStorageValue} from '@/atoms/atomForLocal';
 import {accessTokenAtom} from '@/atoms/Auth';
+import {useEnsureAnonymousUser} from '@/hooks/useEnsureAnonymousUser';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import {LoadingView} from '@/components/LoadingView';
 import {color} from '@/constant/color';
@@ -71,24 +73,48 @@ const AppWithProviders = () => {
 const App = () => {
   const accessToken = useAtomValue(accessTokenAtom);
   const setAccessToken = useSetAtom(accessTokenAtom);
+  const ensureAnonymousUser = useEnsureAnonymousUser();
+
+  // web 무로그인화: 토큰이 없으면 익명 계정을 발행해 항상 토큰이 존재하게 한다.
+  // 토큰이 첫 화면의 조회 쿼리(전역 Anonymous라 무토큰이면 401)보다 먼저 존재하도록
+  // 발행이 끝날 때까지 RootScreen 렌더를 막는다(스피너). 실패해도(finally) 앱은 띄운다.
+  // 이미 토큰이 있으면(재방문 — atom getOnInit로 동기 hydrate) 스피너 없이 바로 렌더.
+  const [webBootstrapDone, setWebBootstrapDone] = useState(
+    Platform.OS !== 'web' || !!accessToken,
+  );
+  useEffect(() => {
+    if (Platform.OS !== 'web' || accessToken) {
+      setWebBootstrapDone(true);
+      return;
+    }
+    let cancelled = false;
+    ensureAnonymousUser()
+      .catch(e => logError(e, 'web anonymous bootstrap'))
+      .finally(() => {
+        if (!cancelled) {
+          setWebBootstrapDone(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+    // 마운트 시 1회만. 이후 토큰 발행은 setAccessToken → 재렌더로 반영된다.
+  }, []);
 
   useEffect(() => {
-    // Request logging interceptor
+    // Request logging interceptor.
+    // 토큰은 매 요청 시점에 storage에서 직접 읽는다 — atom state 클로저를 캡처하면
+    // 익명 부트스트랩 직후 토큰이 아직 인터셉터에 반영 안 된 채 쿼리가 나가 401이 날 수 있다.
     const requestInterceptorId = globalAxios.interceptors.request.use(
       async (config: InternalAxiosRequestConfig) => {
         logRequest(config);
-
-        if (accessToken) {
-          config.headers.set('Content-Type', 'application/json');
-          if (!config.headers.get('Authorization')) {
-            // 회원가입 시나리오에서 state에 저장된 것과는 다른 access token을 사용하고 싶은 경우가 있다.
-            // 따라서 이미 Authoirzation header가 지정된 상태라면 access token injection을 스킵한다.
-            config.headers.set('Authorization', `Bearer ${accessToken}`);
-          }
-          config.headers.set('Accept', 'application/json');
-        } else {
-          config.headers.set('Content-Type', 'application/json');
-          config.headers.set('Accept', 'application/json');
+        config.headers.set('Content-Type', 'application/json');
+        config.headers.set('Accept', 'application/json');
+        const token = getStorageValue<string>('scc-token');
+        if (token && !config.headers.get('Authorization')) {
+          // 회원가입 시나리오에서 state에 저장된 것과는 다른 access token을 사용하고 싶은 경우가 있다.
+          // 따라서 이미 Authoirzation header가 지정된 상태라면 access token injection을 스킵한다.
+          config.headers.set('Authorization', `Bearer ${token}`);
         }
         return config;
       },
@@ -118,7 +144,21 @@ const App = () => {
       globalAxios.interceptors.request.eject(requestInterceptorId);
       globalAxios.interceptors.response.eject(responseInterceptorId);
     };
-  }, [accessToken]);
+  }, [setAccessToken]);
+
+  if (!webBootstrapDone) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: color.white,
+        }}>
+        <ActivityIndicator size="large" color={color.brand50} />
+      </View>
+    );
+  }
   return (
     <GestureHandlerRootView style={{flex: 1, backgroundColor: color.white}}>
       <RootSiblingParent>

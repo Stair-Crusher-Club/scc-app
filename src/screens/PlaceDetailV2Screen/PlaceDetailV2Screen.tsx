@@ -797,6 +797,9 @@ export default function PlaceDetailV2Screen({
       navigation.replace('Webview', {
         url: bbucleRoadUrl,
         fixedTitle: place.name,
+        // web: bbucleRoadUrl(외부 컨텐츠)로 현재 탭을 그대로 이동. 새 탭이면 데스크톱에서
+        // 팝업 차단 + 빈 Webview goBack → /home 으로 튄다.
+        webLinkTarget: '_self',
       });
     }
   }, [bbucleRoadUrl, place, navigation, didReplaceToBbucleRoad]);

@@ -25,6 +25,9 @@ export interface WebViewScreenParams {
   url: string;
   // close 버튼 누를 때 "정말 나가시겠어요?" confirm Alert 표시 여부. 기본 true.
   confirmOnClose?: boolean;
+  // (web 전용) 외부 url을 열 때 브라우저 target. '_blank'=새 탭(기본, 앱 내부 링크
+  // 클릭용), '_self'=현재 탭 이동. 미지정 시 '_blank'. (native는 인앱 웹뷰라 무시)
+  webLinkTarget?: '_self' | '_blank';
 }
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {

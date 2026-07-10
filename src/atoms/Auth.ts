@@ -18,15 +18,20 @@ export const ANONYMOUS_USER_TEMPLATE: User = {
   interestedThemes: [],
 };
 
-export const isAnonymousUserAtom = atom(get => {
-  const userInfo = get(userInfoAtom);
-  // 비회원 체크: nickname이 '비회원'인 경우
-  // (id가 '0'인 경우는 레거시 케이스이며, 실제로는 채번된 userId를 가짐)
+// 비회원(익명) 판별의 단일 소스. nickname이 '비회원'이거나 레거시 id '0'이면 익명.
+// atom(React)과 RootScreen의 storage 기반 게이트가 이 predicate를 공유한다.
+export function isAnonymousUser(
+  userInfo: {id?: string; nickname?: string} | null | undefined,
+): boolean {
   return (
     userInfo?.id === '0' ||
     userInfo?.nickname === ANONYMOUS_USER_TEMPLATE.nickname
   );
-});
+}
+
+export const isAnonymousUserAtom = atom(get =>
+  isAnonymousUser(get(userInfoAtom)),
+);
 
 export const accessTokenAtom = atomForLocal<string>('scc-token');
 

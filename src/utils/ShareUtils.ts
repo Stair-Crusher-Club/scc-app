@@ -3,10 +3,14 @@ import {Share} from 'react-native';
 import {Place} from '@/generated-sources/openapi';
 
 const SCC_CONTENT_SHARE_SHORT_ID = 'scc-content';
+// 장소 공유 airbridge 트래킹링크. deeplink `stair-crusher://place/{placeId}`,
+// 모든 fallback `https://web.staircrusher.club/place/{placeId}`(런타임 ?placeId= 치환).
+// 구 c8yi3t는 desktop fallback이 없는 경로(/search/asdf/place/..)라 데스크톱에서 깨졌음.
+const PLACE_SHARE_SHORT_ID = 'place';
 
 const ShareUtils = {
   async sharePlace(place: Place) {
-    const url = `https://link.staircrusher.club/c8yi3t?placeId=${place.id}`;
+    const url = `https://link.staircrusher.club/${PLACE_SHARE_SHORT_ID}?placeId=${encodeURIComponent(place.id)}`;
     return Share.share({
       message: `[${place.name}]의 접근성 정보를 계단뿌셔클럽 앱에서 확인해보세요!\n${url}`,
     });

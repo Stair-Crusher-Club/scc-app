@@ -2,6 +2,8 @@ import type {Place} from '@/generated-sources/openapi';
 import ToastUtils from '@/utils/ToastUtils';
 
 const SCC_CONTENT_SHARE_SHORT_ID = 'scc-content';
+// 장소 공유 트래킹링크(native ShareUtils.ts와 동일). fallback: web.staircrusher.club/place/{placeId}
+const PLACE_SHARE_SHORT_ID = 'place';
 
 async function copyToClipboard(url: string) {
   try {
@@ -12,29 +14,14 @@ async function copyToClipboard(url: string) {
   }
 }
 
-function buildPlaceShareUrl(placeId: string): string {
-  const origin = window.location.origin;
-  const path = window.location.pathname;
-
-  // /place-list/:placeListId 경로에서 공유 시
-  const placeListMatch = path.match(/^\/place-list\/([^/]+)/);
-  if (placeListMatch) {
-    return `${origin}/place-list/${placeListMatch[1]}/place/${encodeURIComponent(placeId)}`;
-  }
-
-  // /search/:query 경로에서 공유 시
-  const searchMatch = path.match(/^\/search\/([^/]+)/);
-  if (searchMatch) {
-    return `${origin}/search/${searchMatch[1]}/place/${encodeURIComponent(placeId)}`;
-  }
-
-  // 기타: 현재 URL
-  return window.location.href;
-}
-
 const ShareUtils = {
+  // native와 동일한 트래킹링크(placeId만 실어 앱/web.staircrusher.club 열릴 때 라우팅).
+  // 이전엔 현재 경로 기반 중첩 url(/place-list/:id/place/:id 등)을 복사했는데
+  // webLinkingConfig에 없는 경로라 데스크톱에서 /home으로 튀었다.
   async sharePlace(place: Place) {
-    await copyToClipboard(buildPlaceShareUrl(place.id));
+    await copyToClipboard(
+      `https://link.staircrusher.club/${PLACE_SHARE_SHORT_ID}?placeId=${encodeURIComponent(place.id)}`,
+    );
   },
   // 네이티브와 동일 시그니처. id 있으면 트래킹링크, 없으면 contentUrl을 클립보드에 복사.
   async shareSccContent(

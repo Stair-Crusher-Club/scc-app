@@ -32,6 +32,10 @@ function showPrompt(opts: {
 
   const overlay = document.createElement('div');
   overlay.id = 'app-install-overlay';
+  // prerender(generate-og-pages.js)가 스냅샷 직전 제거하는 마커. 1일1회 로그인
+  // 유도 팝업이 라우트 진입 시 자동으로 떠서 bbucle-road prerender에 박제되면
+  // 초기 페인트 깜빡임이 생기므로, 이 클라이언트 전용 오버레이를 스냅샷에서 뺀다.
+  overlay.setAttribute('data-scc-daily-login-prompt', '');
   // 오버레이는 body 직속이라 480px 프레임 밖에 놓인다. 프레임과 동일하게 중앙
   // 정렬(left:50% + translateX(-50%) + max-width:480px)해 프레임 위에 덮이게 한다.
   // (이 값을 빼면 web/index.tsx 의 body-portal 규칙의 translateX(-50%) 만 적용돼
