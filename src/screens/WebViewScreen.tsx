@@ -25,6 +25,11 @@ export interface WebViewScreenParams {
   url: string;
   // close 버튼 누를 때 "정말 나가시겠어요?" confirm Alert 표시 여부. 기본 true.
   confirmOnClose?: boolean;
+  // (web 전용) 이 Webview가 컨텐츠로 넘겨주기 위한 리다이렉트 목적지인 경우 true.
+  // 외부 url이어도 새 탭 대신 현재 탭을 그대로 그 컨텐츠로 replace한다(PSA 장소의
+  // bbucleRoadUrl 처럼 화면이 곧장 외부 컨텐츠로 대체돼야 하는 케이스). 미지정 시
+  // 기존 동작(외부 url은 새 탭 + goBack)을 유지한다 — 앱 내부 링크 클릭용.
+  replaceWithContentOnWeb?: boolean;
 }
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {

@@ -10,7 +10,8 @@ import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
 
-import {getStorageValue} from '@/atoms/atomForLocal';
+import {getStorageValue, storage} from '@/atoms/atomForLocal';
+import {ANONYMOUS_USER_TEMPLATE} from '@/atoms/Auth';
 import DevTool from '@/components/DevTool/DevTool';
 import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 import {setPendingSharedText} from '@/deeplink/PendingSharedText';
@@ -25,7 +26,7 @@ import {
 import {startupTiming} from '@/logging/startupTiming';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {classifyWebRoute} from '@/navigation/webAccess';
-import {showAppInstallPrompt} from '@/utils/appInstallPrompt';
+import {showAppInstallPrompt, showLoginPrompt} from '@/utils/appInstallPrompt';
 import {logDebug} from '@/utils/DebugUtils';
 import {isAuthDeferred} from '@/utils/deepLinkUtils';
 import HeatTelemetry from '@/utils/HeatTelemetry';
@@ -57,6 +58,16 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
 
   return extracted;
 };
+
+// 로그인 유도 팝업을 띄우지 않는 라우트(인증/자기 리다이렉트 화면).
+const LOGIN_PROMPT_EXCLUDED_ROUTES = new Set<string>([
+  'Intro',
+  'Login',
+  'Signup',
+  'KakaoCallback',
+  'AppleCallback',
+]);
+const LOGIN_PROMPT_SHOWN_DATE_KEY = 'login-prompt-shown-date';
 
 const RootScreen = () => {
   const routeNameRef = useRef<string>(undefined);
@@ -93,9 +104,9 @@ const RootScreen = () => {
     [navigationRef],
   );
 
-  // 웹 라우트 게이트: 앱 화면은 token 필수(없으면 Login), 카메라 등록 플로우는 앱 설치
-  // 유도. bbucle-road 등 웹 전용 컨텐츠는 token 없이 허용. 초기 딥링크(onReady)와
-  // 이후 화면 전환(onStateChange) 양쪽에서 호출한다. 리다이렉트했으면 true 반환.
+  // 웹 라우트 게이트: 카메라 등록 플로우는 앱 설치 유도. 그 외 화면은 무로그인 열람 허용
+  // (진입 시 익명 토큰 발행 — App.tsx). 익명 유저에겐 1일 1회 로그인 유도 팝업.
+  // 초기 딥링크(onReady)와 이후 화면 전환(onStateChange) 양쪽에서 호출. 리다이렉트했으면 true 반환.
   const runWebRouteGate = useCallback(
     (routeName?: string): boolean => {
       if (Platform.OS !== 'web' || !routeName) {
@@ -111,17 +122,21 @@ const RootScreen = () => {
         }
         return true;
       }
-      if (access === 'requireToken' && !getStorageValue<string>('scc-token')) {
-        // 게이팅된 콘텐츠 URL을 redirect로 보존 → 로그인 후 그 페이지로 복귀.
-        const loc = (
-          globalThis as {location?: {pathname?: string; search?: string}}
-        ).location;
-        const redirect = loc ? `${loc.pathname ?? ''}${loc.search ?? ''}` : '';
-        (navigationRef.current?.navigate as any)(
-          'Login',
-          redirect && !redirect.startsWith('/login') ? {redirect} : undefined,
-        );
-        return true;
+      // 무로그인 열람 허용. 익명 유저면 하루 한 번 로그인을 유도한다(비차단 팝업).
+      if (!LOGIN_PROMPT_EXCLUDED_ROUTES.has(routeName)) {
+        const userInfo = getStorageValue<{nickname?: string}>('userInfo');
+        const isAnonymous =
+          !userInfo || userInfo.nickname === ANONYMOUS_USER_TEMPLATE.nickname;
+        const today = new Date().toDateString();
+        if (
+          isAnonymous &&
+          storage.getString(LOGIN_PROMPT_SHOWN_DATE_KEY) !== today
+        ) {
+          storage.set(LOGIN_PROMPT_SHOWN_DATE_KEY, today);
+          showLoginPrompt(() =>
+            (navigationRef.current?.navigate as any)('Login'),
+          );
+        }
       }
       return false;
     },

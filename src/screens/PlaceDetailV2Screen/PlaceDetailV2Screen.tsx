@@ -797,6 +797,9 @@ export default function PlaceDetailV2Screen({
       navigation.replace('Webview', {
         url: bbucleRoadUrl,
         fixedTitle: place.name,
+        // web: 외부 bbucleRoadUrl도 새 탭이 아니라 현재 탭을 그대로 컨텐츠로 replace
+        // (PSA 장소 공유링크가 데스크톱에서 /home으로 튀던 버그 방지).
+        replaceWithContentOnWeb: true,
       });
     }
   }, [bbucleRoadUrl, place, navigation, didReplaceToBbucleRoad]);

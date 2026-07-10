@@ -18,15 +18,15 @@ import Config from 'react-native-config';
 
 import AppleLogo from '@/assets/icon/ic_logo_apple.svg';
 import KakaoLogo from '@/assets/icon/ic_logo_kakao.svg';
-import {accessTokenAtom, ANONYMOUS_USER_TEMPLATE, useMe} from '@/atoms/Auth';
+import {accessTokenAtom, useMe} from '@/atoms/Auth';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {AuthTokensDto, User} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {useEnsureAnonymousUser} from '@/hooks/useEnsureAnonymousUser';
 import Logger from '@/logging/Logger';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
-import {logDebug} from '@/utils/DebugUtils';
 import {appleWebSignIn} from '@/utils/socialLoginWeb';
 import ToastUtils from '@/utils/ToastUtils';
 
@@ -109,6 +109,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
   const {api} = useAppComponents();
   const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
   const {setUserInfo} = useMe();
+  const ensureAnonymousUser = useEnsureAnonymousUser();
   const [activeSlide, setActiveSlide] = useState(0);
   const {asModal, redirect} = route.params ?? {};
 
@@ -297,15 +298,7 @@ export default function LoginScreen({navigation, route}: ScreenProps<'Login'>) {
         navigation.goBack();
         return;
       }
-      const res = await api.createAnonymousUserPost();
-      const {authTokens: tokens, userId} = res.data;
-      logDebug('createAnonymousUserPost', res.data);
-      const anonymousUser: User = {
-        ...ANONYMOUS_USER_TEMPLATE,
-        id: userId, // userId는 createAnonymousUser가 끝나면 이미 채번된 상태이므로 해당 값을 사용해주도록 한다.
-      };
-      setAccessToken(tokens.accessToken);
-      await setUserInfo(anonymousUser);
+      await ensureAnonymousUser();
       goAfterLogin();
     } catch (e) {
       ToastUtils.show('로그인 중 문제가 발생했습니다.');

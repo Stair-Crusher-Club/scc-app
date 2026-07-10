@@ -14,7 +14,7 @@ import {resolveTemplatedExternalUrl} from '@/utils/externalUrlTemplating';
 const WEB_ORIGIN = 'https://web.staircrusher.club';
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
-  const {url} = route.params;
+  const {url, replaceWithContentOnWeb} = route.params;
   const {userInfo} = useMe();
 
   useEffect(() => {
@@ -30,7 +30,15 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       window.location.replace(resolved);
       return;
     }
-    // 외부 링크 → 새 탭. 그 후 빈 Webview 라우트에 머무르지 않도록 뒤로.
+    // 외부 링크 + 이 Webview가 컨텐츠 리다이렉트 목적지인 경우(PSA 장소 → PDP →
+    // bbucleRoadUrl replace 등): 현재 탭을 그대로 그 컨텐츠로 보낸다. 새 탭(window.open)은
+    // 사용자 제스처 없는 리다이렉트라 팝업 차단되고, 남은 빈 Webview에서 goBack하면
+    // 초기 라우트(홈)로 떨어졌다(/home 버그). replace로 히스토리 엔트리도 덮어쓴다.
+    if (replaceWithContentOnWeb) {
+      window.location.replace(resolved);
+      return;
+    }
+    // 앱 내부에서 클릭해 들어온 외부 링크 → 새 탭 + 앱에 머무름(기존 동작).
     window.open(resolved, '_blank', 'noopener,noreferrer');
     if (navigation.canGoBack()) {
       navigation.goBack();
