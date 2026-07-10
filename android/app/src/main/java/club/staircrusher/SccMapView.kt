@@ -82,6 +82,8 @@ class SccMapView(private val reactContext: ThemedReactContext) : MapView(
             // Fix logo at bottom-left so contentPadding changes don't move it
             it.uiSettings.logoGravity = Gravity.BOTTOM or Gravity.START
             it.uiSettings.setLogoMargin(0, 0, 0, 0)
+            // 앱에서 쓰지 않는 SDK 기본 나침반 위젯 비활성화 (지도 회전 시 노출되던 버그)
+            it.uiSettings.isCompassEnabled = false
             it.addOnCameraChangeListener { reason, _ ->
                 lastCameraChangeReason = reason
             }
