@@ -17,7 +17,7 @@ export interface ThemeOption {
 }
 
 export const THEME_OPTIONS: ThemeOption[] = [
-  {value: UserInterestedThemeDto.WheelchairReview, label: '🧑‍🦽 휠체어 찐후기'},
+  {value: UserInterestedThemeDto.WheelchairReview, label: '🧑‍🦽 휠체어 찐방문기'},
   {value: UserInterestedThemeDto.MediaHotspot, label: '🔥 방송·SNS 핫플'},
   {value: UserInterestedThemeDto.FoodCafeTour, label: '🍕 맛집·카페 투어'},
   {value: UserInterestedThemeDto.EmotionalView, label: '📸 감성·뷰 맛집'},
