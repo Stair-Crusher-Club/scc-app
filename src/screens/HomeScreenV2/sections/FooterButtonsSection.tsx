@@ -25,6 +25,8 @@ const DONATION_URL = 'https://staircrusher.club/donation';
 // `{userId}` 는 WebViewScreen 진입 시 실제 userId 로 자동 치환된다 (externalUrlTemplating).
 const CONTENT_REPORT_URL =
   'https://forms.staircrusher.club/app-feedback?userId={userId}';
+const NOTICE_URL =
+  'https://staircrusherclub.notion.site/1d5c9499b0608059994dcebcf13bb53f?v=1d5c9499b06080968da7000c18db4868&source=copy_link';
 
 const FOOTER_ROW_HEIGHT = 48;
 const FOOTER_ROW_RADIUS = 8;
@@ -53,6 +55,9 @@ export default function FooterButtonsSection({
   // featureFlags === null (아직 로딩 중) 이면 버튼 노출 보류.
   const isTutorialEnabled =
     featureFlags?.enabledFlags.has('USER_TUTORIAL') ?? false;
+  // IMPACT_SURVEY flag 가 켜진 사용자에게만 공지사항 진입 버튼을 노출 (동일 패턴).
+  const isImpactSurveyEnabled =
+    featureFlags?.enabledFlags.has('IMPACT_SURVEY') ?? false;
 
   if (isLoading) {
     return (
@@ -98,6 +103,14 @@ export default function FooterButtonsSection({
 
   const goToLongReview = () => {
     Linking.openURL('https://forms.gle/UZzVBhjZbPaexerR9');
+  };
+
+  const goToNotice = () => {
+    navigation.navigate('Webview', {
+      fixedTitle: '공지사항',
+      url: NOTICE_URL,
+      hideFloatingBar: true,
+    });
   };
 
   return (
@@ -156,6 +169,19 @@ export default function FooterButtonsSection({
               <RowContent>
                 <FooterLongReviewIcon width={16} height={16} />
                 <FooterText>[크루전용] 롱리뷰 작성하기</FooterText>
+              </RowContent>
+            </FooterRow>
+          </SccPressable>
+        )}
+
+        {isImpactSurveyEnabled && (
+          <SccPressable
+            elementName="home_v2_footer_notice"
+            onPress={goToNotice}>
+            <FooterRow>
+              <RowContent>
+                <FooterInfoIcon width={16} height={16} />
+                <FooterText>공지사항</FooterText>
               </RowContent>
             </FooterRow>
           </SccPressable>

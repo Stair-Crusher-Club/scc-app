@@ -28,6 +28,8 @@ export interface WebViewScreenParams {
   // (web 전용) 외부 url을 열 때 브라우저 target. '_blank'=새 탭(기본, 앱 내부 링크
   // 클릭용), '_self'=현재 탭 이동. 미지정 시 '_blank'. (native는 인앱 웹뷰라 무시)
   webLinkTarget?: '_self' | '_blank';
+  // true 면 SccContentFloatingBar(좋아요/저장 등) 를 강제로 숨긴다 (공지사항 등 콘텐츠 도메인이라도).
+  hideFloatingBar?: boolean;
 }
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
@@ -36,6 +38,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     url,
     headerVariant = 'navigation',
     confirmOnClose = true,
+    hideFloatingBar,
   } = route.params;
   const webViewRef = useRef<WebView>(null);
   const {userInfo} = useMe();
@@ -58,10 +61,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     imageUrls: string[];
   } | null>(null);
 
-  // SCC 콘텐츠 도메인이면 floating bar 노출
+  // SCC 콘텐츠 도메인이면 floating bar 노출 (hideFloatingBar 로 강제 opt-out 가능)
   const shouldShowFloatingBar =
-    currentUrl.startsWith('https://con.staircrusher.club') ||
-    currentUrl.startsWith('https://staircrusherclub.notion.site');
+    !hideFloatingBar &&
+    (currentUrl.startsWith('https://con.staircrusher.club') ||
+      currentUrl.startsWith('https://staircrusherclub.notion.site'));
 
   // BBUCLE_ROAD 좋아요용 path id (기존 흐름과 동일).
   // 좋아요는 SccContent 저장 여부와 무관하게 path id 기준으로 누적/조회된다.
