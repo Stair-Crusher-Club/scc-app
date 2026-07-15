@@ -11,6 +11,7 @@ disable-model-invocation: true
 - **sandbox 배포 = 태그 없이 `main` push** (`.github/workflows/cd-sandbox.yml`, "OTA Deployment" → `ota-deploy:sandbox`). "sandbox 배포", "샌드박스에서 테스트", 그냥 "main push 해" = 태그 만들지 말고 `git push origin main`만.
 - **prod 배포 = `v*` 태그 push** (`cd-production.yml`, "Production OTA Deployment"). 태그 형식 `v{major}.{minor}-YYYYMMDD-NN`. **`v*` 태그는 prod 배포다 — sandbox 요청에 절대 태그를 만들지 않는다.**
 - **`ota-deploy` 수동 실행 금지.** 위 트리거로 GitHub Actions가 자동 실행한다.
+- **네이티브 앱 릴리스 = `release-1.3.x` 브랜치.** 이 브랜치가 곧 `main`으로 가는 통합/PR 브랜치다 — 수정은 이 브랜치 위에 얹고 **`release-1.3.x → main` 단일 PR**로 머지한다. 별도 `fix/*` 브랜치를 파서 main으로 PR하지 않는다. `release-*` push = Native Build Deployment(sandbox 앱 네이티브 빌드) 자동 트리거이므로 "release 브랜치 push" 지시는 빌드 지시와 동치.
 - prod 배포 절차: 코드 변경 → lint/tsc 통과 → 커밋 → `v*` 태그 → 태그 push (자동 배포). prod는 태그 없이 푸시하지 않는다.
 - git push/tag는 사용자가 명시적으로 요청한 것만 실행한다 (태그 생성/push는 hook이 ask로 가로챈다). 헷갈리면 워크플로우의 `on: push: branches/tags`를 직접 확인할 것.
 
