@@ -25,6 +25,8 @@ const DONATION_URL = 'https://staircrusher.club/donation';
 // `{userId}` 는 WebViewScreen 진입 시 실제 userId 로 자동 치환된다 (externalUrlTemplating).
 const CONTENT_REPORT_URL =
   'https://forms.staircrusher.club/app-feedback?userId={userId}';
+const NOTICE_URL =
+  'https://staircrusherclub.notion.site/1d5c9499b0608059994dcebcf13bb53f?v=1d5c9499b06080968da7000c18db4868&source=copy_link';
 
 const FOOTER_ROW_HEIGHT = 48;
 const FOOTER_ROW_RADIUS = 8;
@@ -100,6 +102,14 @@ export default function FooterButtonsSection({
     Linking.openURL('https://forms.gle/UZzVBhjZbPaexerR9');
   };
 
+  const goToNotice = () => {
+    navigation.navigate('Webview', {
+      fixedTitle: '공지사항',
+      url: NOTICE_URL,
+      forceHideFloatingBar: true,
+    });
+  };
+
   return (
     <LogParamsProvider params={{displaySectionName: 'footer_buttons_section'}}>
       <Container>
@@ -160,6 +170,15 @@ export default function FooterButtonsSection({
             </FooterRow>
           </SccPressable>
         )}
+
+        <SccPressable elementName="home_v2_footer_notice" onPress={goToNotice}>
+          <FooterRow>
+            <RowContent>
+              <FooterInfoIcon width={16} height={16} />
+              <FooterText>공지사항</FooterText>
+            </RowContent>
+          </FooterRow>
+        </SccPressable>
       </Container>
     </LogParamsProvider>
   );
