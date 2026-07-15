@@ -1,10 +1,4 @@
 import React, {useState} from 'react';
-import Svg, {
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Stop,
-  Text as SvgText,
-} from 'react-native-svg';
 import styled from 'styled-components/native';
 
 import CircleInfoIcon from '@/assets/icon/ic_circle_info_gradient.svg';
@@ -47,7 +41,7 @@ export default function AiSummarySection({
     <LogParamsProvider params={{displaySectionName: 'ai_summary'}}>
       <Container>
         <Header>
-          <GradientTitle />
+          <TitleText>{TITLE}</TitleText>
           {aiSummary.isExperimental && (
             <SccPressable
               elementName="ai_summary_info_icon"
@@ -117,57 +111,6 @@ export default function AiSummarySection({
   );
 }
 
-/**
- * "AI 접근성 요약" blue→purple 그라디언트 텍스트 (Figma node 1-324).
- * RN에는 네이티브 gradient text가 없어 react-native-svg 로 그린다. 보이지 않는 측정용 RN
- * <Text>로 폭을 잰 뒤 그 폭으로 Svg를 겹쳐 그린다 — react-native-svg의 Text는 getBBox()로
- * 자기 자신의 렌더폭을 재는 방법이 New Architecture(Android)에서 빈 값만 반환해 동작하지
- * 않는다(실기기 확인: Object.keys(bbox) === [], bbox.width === undefined). 대신 진짜 원인을
- * 고쳤다 — 이전엔 SvgText에 fontFamily(이미 "Pretendard-Bold"로 weight가 이름에 포함된
- * PostScript 이름)와 fontWeight="700"을 동시에 넘겨 Android 폰트 매칭이 실패, 시스템 폴백
- * 폰트로 더 넓게 그려졌다(react-native-svg#1422와 동일 증상). fontWeight를 제거하면 RN
- * <Text>와 SvgText가 동일한 폰트 파일로 동일한 글자를 그리므로 측정폭과 렌더폭이 실제로
- * 일치한다. 혹시 남는 서브픽셀 오차는 SVG 루트가 기본으로 overflow:hidden이라 아이콘을
- * 덮는 대신 마지막 1px만 클리핑되는 안전한 방향으로 실패한다.
- */
-function GradientTitle() {
-  const [width, setWidth] = useState(0);
-  return (
-    <TitleWrap>
-      <TitleMeasure onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-        {TITLE}
-      </TitleMeasure>
-      {width > 0 && (
-        <Svg
-          width={width}
-          height={TITLE_LINE_HEIGHT}
-          style={{position: 'absolute', left: 0, top: 0}}>
-          <Defs>
-            <SvgLinearGradient
-              id="aiSummaryTitleGradient"
-              x1="0"
-              y1="0"
-              x2="1"
-              y2="0">
-              <Stop offset="0" stopColor="#0089FA" />
-              <Stop offset="1" stopColor="#2F28B7" />
-            </SvgLinearGradient>
-          </Defs>
-          <SvgText
-            fill="url(#aiSummaryTitleGradient)"
-            fontFamily={font.pretendardBold}
-            fontSize={13}
-            letterSpacing={-0.26}
-            x={0}
-            y={13.5}>
-            {TITLE}
-          </SvgText>
-        </Svg>
-      )}
-    </TitleWrap>
-  );
-}
-
 const Container = styled.View`
   background-color: ${color.gray5};
   border-radius: 5px;
@@ -185,17 +128,16 @@ const Header = styled.View`
   padding-left: 6px;
 `;
 
-const TitleWrap = styled.View`
-  align-self: flex-start;
-`;
-
-// 측정 전용 (그라디언트 Svg 폭 산정). 실제 색은 Svg 가 담당하므로 투명 처리.
-const TitleMeasure = styled.Text`
+// PDP "AI 접근성 요약" 제목. 단색 RN <Text> — 레이아웃폭=렌더폭이라 뒤따르는 info 아이콘과
+// 폰트/폴백에 상관없이 절대 겹치거나 잘리지 않는다. (과거 SVG 그라디언트 오버레이는 measure
+// 폭 vs SVG 렌더 폭 불일치로 클리핑/겹침 발생 — textLength/getBBox 모두 New Arch 미동작이라
+// SVG로는 근본 해결 불가. 그라디언트가 필요하면 MaskedView 도입 후 네이티브 릴리스로 복원.)
+const TitleText = styled.Text`
   font-family: ${font.pretendardBold};
   font-size: 13px;
   line-height: ${TITLE_LINE_HEIGHT}px;
   letter-spacing: -0.26px;
-  opacity: 0;
+  color: #0089fa;
 `;
 
 // 헤더 바로 아래에 다른 콘텐츠를 가리는 absolute 오버레이 (Figma node 1-650).
