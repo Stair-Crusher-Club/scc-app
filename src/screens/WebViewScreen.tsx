@@ -29,7 +29,7 @@ export interface WebViewScreenParams {
   // 클릭용), '_self'=현재 탭 이동. 미지정 시 '_blank'. (native는 인앱 웹뷰라 무시)
   webLinkTarget?: '_self' | '_blank';
   // true 면 SccContentFloatingBar(좋아요/저장 등) 를 강제로 숨긴다 (공지사항 등 콘텐츠 도메인이라도).
-  hideFloatingBar?: boolean;
+  forceHideFloatingBar?: boolean;
 }
 
 const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
@@ -38,7 +38,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     url,
     headerVariant = 'navigation',
     confirmOnClose = true,
-    hideFloatingBar,
+    forceHideFloatingBar,
   } = route.params;
   const webViewRef = useRef<WebView>(null);
   const {userInfo} = useMe();
@@ -61,9 +61,9 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     imageUrls: string[];
   } | null>(null);
 
-  // SCC 콘텐츠 도메인이면 floating bar 노출 (hideFloatingBar 로 강제 opt-out 가능)
+  // SCC 콘텐츠 도메인이면 floating bar 노출 (forceHideFloatingBar 로 강제 opt-out 가능)
   const shouldShowFloatingBar =
-    !hideFloatingBar &&
+    !forceHideFloatingBar &&
     (currentUrl.startsWith('https://con.staircrusher.club') ||
       currentUrl.startsWith('https://staircrusherclub.notion.site'));
 

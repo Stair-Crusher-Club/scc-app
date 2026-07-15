@@ -55,9 +55,6 @@ export default function FooterButtonsSection({
   // featureFlags === null (아직 로딩 중) 이면 버튼 노출 보류.
   const isTutorialEnabled =
     featureFlags?.enabledFlags.has('USER_TUTORIAL') ?? false;
-  // IMPACT_SURVEY flag 가 켜진 사용자에게만 공지사항 진입 버튼을 노출 (동일 패턴).
-  const isImpactSurveyEnabled =
-    featureFlags?.enabledFlags.has('IMPACT_SURVEY') ?? false;
 
   if (isLoading) {
     return (
@@ -109,7 +106,7 @@ export default function FooterButtonsSection({
     navigation.navigate('Webview', {
       fixedTitle: '공지사항',
       url: NOTICE_URL,
-      hideFloatingBar: true,
+      forceHideFloatingBar: true,
     });
   };
 
@@ -174,18 +171,14 @@ export default function FooterButtonsSection({
           </SccPressable>
         )}
 
-        {isImpactSurveyEnabled && (
-          <SccPressable
-            elementName="home_v2_footer_notice"
-            onPress={goToNotice}>
-            <FooterRow>
-              <RowContent>
-                <FooterInfoIcon width={16} height={16} />
-                <FooterText>공지사항</FooterText>
-              </RowContent>
-            </FooterRow>
-          </SccPressable>
-        )}
+        <SccPressable elementName="home_v2_footer_notice" onPress={goToNotice}>
+          <FooterRow>
+            <RowContent>
+              <FooterInfoIcon width={16} height={16} />
+              <FooterText>공지사항</FooterText>
+            </RowContent>
+          </FooterRow>
+        </SccPressable>
       </Container>
     </LogParamsProvider>
   );
