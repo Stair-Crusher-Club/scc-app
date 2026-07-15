@@ -20,6 +20,9 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 
 const TITLE = 'AI 접근성 요약';
 const TITLE_LINE_HEIGHT = 18;
+const SUMMARY_LINE_HEIGHT = 24;
+// 인라인 배지를 텍스트 라인 시각중심에 맞추는 세로 보정(px). 에뮬레이터 실측 캘리브레이션값.
+const BADGE_BASELINE_NUDGE_PX = 4;
 
 /** PDP 최상단 "AI 접근성 요약" 섹션. 서버가 조립한 문장 리스트를 그대로 렌더하는 dumb 컴포넌트. */
 export default function AiSummarySection({
@@ -79,7 +82,9 @@ export default function AiSummarySection({
                       onPress={() => onPressSourceTab(sourceTab)}
                       hitSlop={4}>
                       <BadgeInline>
-                        <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
+                        <Badge>
+                          <SourceBadgeText>{sourceBadgeNumber}</SourceBadgeText>
+                        </Badge>
                       </BadgeInline>
                     </SccPressable>
                   )}
@@ -114,8 +119,16 @@ export default function AiSummarySection({
 
 /**
  * "AI 접근성 요약" blue→purple 그라디언트 텍스트 (Figma node 1-324).
- * RN에는 네이티브 gradient text가 없어 react-native-svg 로 그린다. 보이지 않는 측정용 텍스트로
- * 실제 폭을 잰 뒤 그 폭에 맞춰 Svg 를 겹쳐, 아이콘과의 간격이 어긋나지 않게 한다.
+ * RN에는 네이티브 gradient text가 없어 react-native-svg 로 그린다. 보이지 않는 측정용 RN
+ * <Text>로 폭을 잰 뒤 그 폭으로 Svg를 겹쳐 그린다 — react-native-svg의 Text는 getBBox()로
+ * 자기 자신의 렌더폭을 재는 방법이 New Architecture(Android)에서 빈 값만 반환해 동작하지
+ * 않는다(실기기 확인: Object.keys(bbox) === [], bbox.width === undefined). 대신 진짜 원인을
+ * 고쳤다 — 이전엔 SvgText에 fontFamily(이미 "Pretendard-Bold"로 weight가 이름에 포함된
+ * PostScript 이름)와 fontWeight="700"을 동시에 넘겨 Android 폰트 매칭이 실패, 시스템 폴백
+ * 폰트로 더 넓게 그려졌다(react-native-svg#1422와 동일 증상). fontWeight를 제거하면 RN
+ * <Text>와 SvgText가 동일한 폰트 파일로 동일한 글자를 그리므로 측정폭과 렌더폭이 실제로
+ * 일치한다. 혹시 남는 서브픽셀 오차는 SVG 루트가 기본으로 overflow:hidden이라 아이콘을
+ * 덮는 대신 마지막 1px만 클리핑되는 안전한 방향으로 실패한다.
  */
 function GradientTitle() {
   const [width, setWidth] = useState(0);
@@ -144,7 +157,6 @@ function GradientTitle() {
             fill="url(#aiSummaryTitleGradient)"
             fontFamily={font.pretendardBold}
             fontSize={13}
-            fontWeight="700"
             letterSpacing={-0.26}
             x={0}
             y={13.5}>
@@ -244,21 +256,27 @@ const SummaryText = styled.Text`
   flex: 1;
   font-family: ${font.pretendardRegular};
   font-size: 15px;
-  line-height: 24px;
+  line-height: ${SUMMARY_LINE_HEIGHT}px;
   letter-spacing: -0.3px;
   color: ${color.gray70v2};
 `;
 
-// 16x16 원형 배지. SummaryText(<Text>) 안 인라인 자식으로 렌더되어 텍스트 흐름을 따라간다.
-// 인라인 배치라 기준선이 약간 어긋나면 translateY로 미세조정한다.
+// SummaryText(<Text>) 안 인라인 자식. RN(Android)은 인라인 View의 바닥을 텍스트 baseline에
+// 붙이므로, 16px 배지 중심이 텍스트 시각중심에 오도록 translateY로 보정한다(라인 정렬은 자식
+// 렌더 엔진 특성이라 이론값이 불안정 → 에뮬레이터 실측 캘리브레이션).
+// ponytail: BADGE_BASELINE_NUDGE_PX는 15px/line-height 24px 기준 실측값. 폰트/라인높이 바뀌면 재측정.
 const BadgeInline = styled.View`
+  transform: translateY(${BADGE_BASELINE_NUDGE_PX}px);
+`;
+
+// 16x16 원형 배지 (실제 시각 요소).
+const Badge = styled.View`
   width: 16px;
   height: 16px;
   border-radius: 8px;
   background-color: ${color.gray25};
   align-items: center;
   justify-content: center;
-  transform: translateY(3px);
 `;
 
 const SourceBadgeText = styled.Text`
