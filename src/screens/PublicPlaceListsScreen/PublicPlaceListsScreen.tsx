@@ -21,7 +21,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 
-const ESTIMATED_ITEM_HEIGHT = 72;
+const ESTIMATED_ITEM_HEIGHT = 84;
 const PUBLIC_PLACE_LISTS_QUERY_KEY = ['PublicPlaceLists'];
 
 export interface PublicPlaceListsScreenParams {
