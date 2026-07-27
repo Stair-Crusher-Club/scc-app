@@ -1,6 +1,6 @@
 ---
 name: scc-web-articles-publish
-description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/ogImage/tags/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~6을 끝까지 실행해 **prod(web.staircrusher.club) 배포까지 자동으로 완주**한다 — 커밋에서 멈추지 않는다.
+description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/ogImage/tags/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~7을 끝까지 실행해 **prod(web.staircrusher.club) 배포 + main 머지까지 자동으로 완주**한다 — 커밋이나 PR에서 멈추지 않는다.
 ---
 
 # SCC Web Articles Publish — Notion → web.staircrusher.club/articles
@@ -12,7 +12,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 - iframe 아님(`X-Frame-Options`로 막히고 SEO 크레딧이 notion으로 샘). **블록→HTML 1회 변환 후 정적 서빙**.
 - 사람은 **제목+본문만** 작성. 나머지 메타는 스킬이 생성·DB 라이트백.
 - 본문 변환은 **결정론적**(노드 스크립트, LLM 토큰 0). 메타 생성만 LLM, 그것도 **신규/변경분만**.
-- **완주 지점은 prod 배포(STEP 6)** — S3에 안 올라가면 검색 유입 0이라 목적 미달성. 커밋까지만 하고 "배포할까요?"로 멈추지 않는다.
+- **완주 지점은 prod 배포(STEP 6) + main 머지(STEP 7)** — S3에 안 올라가면 검색 유입 0이고, main에 안 들어가면 다음 재빌드 때 발행본이 날아간다. "배포할까요?"/"머지할까요?"로 멈추지 않는다.
 
 ## 구성 요소 (이미 레포에 있음)
 
@@ -108,10 +108,12 @@ npx serve web-dist -l 5050      # `-s` 금지: SPA 폴백이 /articles/<slug>를
   ```
 - 같은 스윕을 STEP 6 배포 후 prod origin에서 한 번 더 돌린다(캐시·리라이트까지 포함해 검증).
 
-### STEP 5 — 커밋
+### STEP 5 — 커밋 + PR
+- **먼저 브랜치를 확인한다.** 발행 작업은 무관한 feature 브랜치 위에서 시작되기 십상이다(`git branch --show-current`). `git fetch origin main && git checkout -b <branch> origin/main`으로 분기하면 워킹트리의 발행본은 그대로 따라온다(`web-articles/`·`scripts/`는 보통 feature 브랜치와 겹치지 않음).
 - `web-articles/`(manifest + 생성 HTML + 에셋)를 커밋&푸시. (`web-dist/`는 gitignore라 커밋 안 됨)
+- `gh pr create --base main`으로 PR 생성.
 
-### STEP 6 — prod 배포 (MANDATORY, 이 스킬의 기본 종착점)
+### STEP 6 — prod 배포 (MANDATORY)
 **발행 요청 = prod 배포 요청이다.** "노션 글 발행해줘"/"아티클 올려줘"류 요청은 STEP 6까지 완주한다 — 커밋에서 멈추고 "배포할까요?"라고 되묻지 않는다. 발행됐는데 prod에 없으면 검색 유입이 0이라 이 스킬의 목적 자체가 달성되지 않는다. (글로벌 CLAUDE.md의 "배포는 명시 요청만" 규칙보다 이 항목이 우선 — 여기서의 명시 요청은 '발행' 그 자체다.)
 
 **순서 필수** — `web-deploy.sh`는 `--delete` sync라 web-dist에 SPA+bbucle+articles가 **모두** 있어야 기존 사이트가 안 지워진다:
@@ -137,6 +139,16 @@ aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무
   ```
 - 캐시로 안 보이면 하드 리프레시(`Cmd+Shift+R`) / Playwright는 새 컨텍스트.
 - Google Search Console에 sitemap 제출(`https://web.staircrusher.club/sitemap.xml`).
+
+### STEP 7 — main 머지 (MANDATORY, 여기까지가 발행이다)
+prod S3에는 나갔는데 `web-articles/` 커밋본이 브랜치에만 있으면, **다음 사람이 main 기준으로 재빌드하는 순간 이번 발행분이 통째로 사라진다**(`--delete` sync). 배포와 머지는 한 세트다 — PR만 만들고 멈추지 않는다.
+
+```bash
+gh pr merge <번호> --squash --admin --delete-branch
+```
+- **`--admin` 필요** — 브랜치 보호가 `REVIEW_REQUIRED`라 리뷰어 없이는 `mergeStateStatus: BLOCKED`로 막힌다. 자기 PR은 self-approve가 안 되므로 admin 머지로 완주한다(CI `build`/CodeRabbit은 통과 확인 후).
+- **main push = sandbox OTA 배포 트리거**(`cd-sandbox.yml`). 정상 동작이니 놀라지 말 것. **`v*` 태그는 만들지 않는다** — 그건 prod 앱 OTA다(`/scc-app-release`). 아티클 발행에 앱 prod 배포는 불필요.
+- 머지 후 `gh run list --branch main`으로 OTA Deployment가 도는지만 확인하면 끝.
 
 ## 블록 렌더링 & 디자인 충실도 (Notion ↔ article 1:1)
 
