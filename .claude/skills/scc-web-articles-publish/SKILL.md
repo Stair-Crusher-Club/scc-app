@@ -1,6 +1,6 @@
 ---
 name: scc-web-articles-publish
-description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/ogImage/tags/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다.
+description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/ogImage/tags/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~6을 끝까지 실행해 **prod(web.staircrusher.club) 배포까지 자동으로 완주**한다 — 커밋에서 멈추지 않는다.
 ---
 
 # SCC Web Articles Publish — Notion → web.staircrusher.club/articles
@@ -12,6 +12,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 - iframe 아님(`X-Frame-Options`로 막히고 SEO 크레딧이 notion으로 샘). **블록→HTML 1회 변환 후 정적 서빙**.
 - 사람은 **제목+본문만** 작성. 나머지 메타는 스킬이 생성·DB 라이트백.
 - 본문 변환은 **결정론적**(노드 스크립트, LLM 토큰 0). 메타 생성만 LLM, 그것도 **신규/변경분만**.
+- **완주 지점은 prod 배포(STEP 6)** — S3에 안 올라가면 검색 유입 0이라 목적 미달성. 커밋까지만 하고 "배포할까요?"로 멈추지 않는다.
 
 ## 구성 요소 (이미 레포에 있음)
 
@@ -96,23 +97,39 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 
 ### STEP 4 — 시각 검증 (E2E)
 ```bash
-npx serve web-dist -s -l 5050
+npx serve web-dist -l 5050      # `-s` 금지: SPA 폴백이 /articles/<slug>를 /login으로 가로챈다
 ```
 - Playwright/브라우저로 `/articles`, 변경된 `/articles/{slug}` 접속 → callout/toggle/이미지/표가 정상인지 확인.
 - HTML 소스에 title/description/canonical/OG/JSON-LD 존재 확인. [Google Rich Results Test]로 Article/FAQPage 검증.
+- **전 페이지 자동 스윕(MANDATORY)** — 눈으로 몇 개만 보면 놓친다. `/articles`에 접속한 뒤 sitemap의 전 URL을 420px iframe에 순차 로드해 한 번에 판정한다(같은 origin이라 `contentDocument` 접근 가능). 실제로 이 스윕이 표 가로넘침·유실된 tab 본문·생 URL 앵커 3건을 잡았다:
+  ```js
+  // 판정: scrollWidth > clientWidth(가로 넘침) / naturalWidth===0(깨진 이미지) /
+  //       앵커 텍스트가 생 URL / article 텍스트 길이 200자 미만(본문 유실)
+  ```
+- 같은 스윕을 STEP 6 배포 후 prod origin에서 한 번 더 돌린다(캐시·리라이트까지 포함해 검증).
 
 ### STEP 5 — 커밋
 - `web-articles/`(manifest + 생성 HTML + 에셋)를 커밋&푸시. (`web-dist/`는 gitignore라 커밋 안 됨)
 
-### STEP 6 — 배포 (`/scc-app-release` 절차, 사용자 명시 요청 시에만)
+### STEP 6 — prod 배포 (MANDATORY, 이 스킬의 기본 종착점)
+**발행 요청 = prod 배포 요청이다.** "노션 글 발행해줘"/"아티클 올려줘"류 요청은 STEP 6까지 완주한다 — 커밋에서 멈추고 "배포할까요?"라고 되묻지 않는다. 발행됐는데 prod에 없으면 검색 유입이 0이라 이 스킬의 목적 자체가 달성되지 않는다. (글로벌 CLAUDE.md의 "배포는 명시 요청만" 규칙보다 이 항목이 우선 — 여기서의 명시 요청은 '발행' 그 자체다.)
+
 **순서 필수** — `web-deploy.sh`는 `--delete` sync라 web-dist에 SPA+bbucle+articles가 **모두** 있어야 기존 사이트가 안 지워진다:
 ```bash
 # git reset --hard 금지 — 커밋 안 한 web-articles 발행본을 날린다. 워킹트리 그대로 빌드.
 yarn web:build                                   # ① SPA + bbucle prerender + sitemap + articles(--offline 재조립)
 NOTION_TOKEN=... node scripts/build-articles.js --db <id>   # ② articles를 web-dist에 다시 채움 + sitemap 머지
-npx serve web-dist -s                            # ③ 로컬 확인 (MANDATORY)
+npx serve web-dist -l 5052                       # ③ 로컬 확인 (MANDATORY). `-s`는 금지 —
+                                                 #    SPA 폴백이 /articles/<slug>를 가로채 /login으로 보낸다
 aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무효화
 ```
+- ③에서 SPA·bbucle·articles 3개 표면이 **모두** 살아있는지 확인 후에만 ④로 간다(`--delete` sync라 빠진 표면은 prod에서 삭제됨):
+  ```bash
+  curl -s localhost:5052/ -o /dev/null -w '%{http_code}\n'                    # SPA
+  curl -s localhost:5052/bbucle-road/kspo-dome/ -o /dev/null -w '%{http_code}\n'  # bbucle
+  curl -s localhost:5052/articles/<slug> | grep -c '<제목 일부>'                # articles
+  ```
+- ④의 끝에 나오는 `terraform output ... No outputs found` 경고는 로컬 tf state가 없어서 나는 것 — **배포 실패 아님**. 실제 성공 여부는 아래 curl로 판정한다.
 - 배포 후 검증:
   ```bash
   curl -A "Googlebot" https://web.staircrusher.club/articles/<slug>   # 정적 본문 반환
