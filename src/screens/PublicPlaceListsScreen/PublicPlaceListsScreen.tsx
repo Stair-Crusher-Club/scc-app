@@ -6,8 +6,10 @@ import styled from 'styled-components/native';
 
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
+import StoreAddressFillIcon from '@/assets/icon/ic_store_address_fill.svg';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccPressable} from '@/components/SccPressable';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -96,14 +98,30 @@ export default function PublicPlaceListsScreen({
                   <ItemWrapper isFirst={index === 0}>
                     <IconTextGroup>
                       <IconCircle bgColor={resolveIconColor(item)}>
-                        <BookmarkFilledIcon
-                          width={20}
-                          height={20}
-                          color={color.white}
-                        />
+                        {item.nameChip?.iconUrl ? (
+                          <SccRemoteImage
+                            imageUrl={item.nameChip.iconUrl}
+                            style={{width: 20, height: 20}}
+                            wrapperBackgroundColor={null}
+                          />
+                        ) : (
+                          <BookmarkFilledIcon
+                            width={20}
+                            height={20}
+                            color={color.white}
+                          />
+                        )}
                       </IconCircle>
                       <ItemContent>
                         <ItemName numberOfLines={1}>{item.name}</ItemName>
+                        <ItemPlaceCountRow>
+                          <StoreAddressFillIcon
+                            width={16}
+                            height={16}
+                            color={color.gray40v2}
+                          />
+                          <ItemPlaceCount>{item.placeCount}개</ItemPlaceCount>
+                        </ItemPlaceCountRow>
                       </ItemContent>
                     </IconTextGroup>
                     <ChevronRightIcon width={20} height={20} color="#B4B4C0" />
@@ -160,7 +178,7 @@ const ItemWrapper = styled.View<{isFirst: boolean}>`
   gap: 8px;
   background-color: ${color.white};
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
-  border-top-color: #f2f2f5;
+  border-top-color: ${color.gray20v2};
 `;
 
 const IconTextGroup = styled.View`
@@ -190,4 +208,18 @@ const ItemName = styled.Text`
   color: #16181c;
   line-height: 24px;
   letter-spacing: -0.32px;
+`;
+
+const ItemPlaceCountRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+`;
+
+const ItemPlaceCount = styled.Text`
+  font-size: 13px;
+  font-family: ${font.pretendardRegular};
+  color: ${color.gray40v2};
+  line-height: 18px;
+  letter-spacing: -0.26px;
 `;

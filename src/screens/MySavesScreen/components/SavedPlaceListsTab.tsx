@@ -9,6 +9,7 @@ import styled from 'styled-components/native';
 import BookmarkFilledIcon from '@/assets/icon/ic_bookmark_filled.svg';
 import ChevronRightIcon from '@/assets/icon/ic_chevron_right.svg';
 import {SccPressable} from '@/components/SccPressable';
+import SccRemoteImage from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {PlaceListDto, PlaceListTypeDto} from '@/generated-sources/openapi';
@@ -142,11 +143,19 @@ export default function SavedPlaceListsTab() {
                       ? '#67AEFF'
                       : (item.iconColor ?? '#FFC01E')
                   }>
-                  <BookmarkFilledIcon
-                    width={20}
-                    height={20}
-                    color={color.white}
-                  />
+                  {item.nameChip?.iconUrl ? (
+                    <SccRemoteImage
+                      imageUrl={item.nameChip.iconUrl}
+                      style={{width: 20, height: 20}}
+                      wrapperBackgroundColor={null}
+                    />
+                  ) : (
+                    <BookmarkFilledIcon
+                      width={20}
+                      height={20}
+                      color={color.white}
+                    />
+                  )}
                 </IconCircle>
                 <ItemContent>
                   <ItemName numberOfLines={1}>{item.name}</ItemName>
