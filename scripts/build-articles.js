@@ -33,6 +33,8 @@ const SUBPAGES_PATH = path.join(SRC_DIR, 'subpages.json');
 let SUBPAGES = {};
 // Notion 내부 page-id(하이픈 제거, 소문자) → 우리 사이트 URL. 본문 내 내부 링크 remap용.
 let LINK_MAP = {};
+// 발행 경로(/articles/...) → 글 제목. bookmark 블록의 앵커 텍스트를 생 URL 대신 제목으로 쓰는 용도.
+let TITLE_BY_PATH = {};
 const noHy = s => (s || '').replace(/-/g, '').toLowerCase();
 
 // ---------- CLI / env ----------
@@ -1021,10 +1023,17 @@ async function renderBlock(b, ctx) {
     case 'bookmark':
     case 'embed': {
       const url = d.url || '';
-      return url
-        ? `<p><a href="${esc(url)}" rel="noopener">${esc(url)}</a></p>`
-        : '';
+      if (!url) return '';
+      // 발행된 글을 가리키는 북마크면 생 URL 대신 제목을 앵커 텍스트로 (내부링크 SEO + 가독성)
+      const urlPath = url.replace(SITE.baseUrl, '');
+      const title = TITLE_BY_PATH[urlPath.replace(/\/$/, '')];
+      return title
+        ? `<p><a href="${esc(urlPath)}" rel="noopener">${esc(title)}</a></p>`
+        : `<p><a href="${esc(url)}" rel="noopener">${esc(url)}</a></p>`;
     }
+    // 탭 컨테이너 자체엔 텍스트가 없다(API가 `tab: {}`) — 하위 블록을 펼쳐 렌더하지 않으면 본문이 통째로 유실된다
+    case 'tab':
+      return b.__children ? await renderBlocks(b.__children, ctx) : '';
     case 'column_list': {
       let cols = '';
       for (const col of b.__children || [])
@@ -1044,7 +1053,8 @@ async function renderBlock(b, ctx) {
               .join('')}</tr>`,
         )
         .join('');
-      return `<table>${body}</table>`;
+      // 스크롤 컨테이너로 감싼다 — 안 감싸면 넓은 표가 페이지를 통째로 가로 스크롤시킨다
+      return `<div class="tbl-wrap"><table>${body}</table></div>`;
     }
     case 'child_database':
       return await renderChildDatabase(b.id, d.title, ctx);
@@ -1068,7 +1078,10 @@ async function renderBlock(b, ctx) {
     }
     default:
       if (d.rich_text) return `<p>${renderRich(d.rich_text)}</p>`;
-      console.warn(`  ⚠️ 미지원 블록(스킵): ${t}`);
+      // 블록 id를 함께 찍어야 어느 블록이 유실됐는지 추적 가능
+      console.warn(
+        `  ⚠️ 미지원 블록(스킵): ${t} (id=${b.id}, has_children=${b.has_children})`,
+      );
       return '';
   }
 }
@@ -1244,10 +1257,15 @@ async function main() {
   // 내부 링크 remap 테이블 + 카드형 상세 메타 로드
   SUBPAGES = readJson(SUBPAGES_PATH, {});
   LINK_MAP = {};
-  for (const {meta} of rows)
+  TITLE_BY_PATH = {};
+  for (const {meta} of rows) {
     LINK_MAP[noHy(meta.contentPageId)] = `/articles/${meta.slug}`;
-  for (const [rid, sp] of Object.entries(SUBPAGES))
+    TITLE_BY_PATH[`/articles/${meta.slug}`] = meta.title;
+  }
+  for (const [rid, sp] of Object.entries(SUBPAGES)) {
     LINK_MAP[noHy(rid)] = `/articles/${sp.parentSlug}/${sp.slug}`;
+    TITLE_BY_PATH[`/articles/${sp.parentSlug}/${sp.slug}`] = sp.title;
+  }
 
   console.log(
     `🔎 신규/변경 ${changed.length} · 삭제 ${deleted.length} · 메타미비(스킵) ${needsMeta.length} · 전체 ${pages.length}`,

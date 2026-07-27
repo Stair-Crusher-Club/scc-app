@@ -53,7 +53,8 @@ article h3{font-size:24px;font-weight:600;line-height:1.3;margin:26px 0 4px;}
 article h4{font-size:20px;font-weight:600;line-height:1.3;margin:20px 0 2px;}
 article p{margin:0;padding:3px 0;}
 article strong,article b{font-weight:600;}
-article a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);text-underline-offset:2px;}
+/* 링크 텍스트가 생 URL이면 끊길 곳이 없어 페이지 전체가 가로로 늘어난다 */
+article a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);text-underline-offset:2px;overflow-wrap:anywhere;}
 article ul,article ol{margin:0;padding:2px 0 2px 1.7em;}
 article li{padding:2px 0;}
 article li::marker{color:var(--muted);}
@@ -74,6 +75,7 @@ figcaption{color:var(--muted);font-size:14px;margin-top:6px;}
 table{border-collapse:collapse;margin:8px 0;font-size:14px;width:100%;}
 th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
 th{background:var(--soft);font-weight:600;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .columns{display:flex;gap:16px;margin:8px 0;}
 .columns>.column{flex:1 1 0;min-width:0;}
 /* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
