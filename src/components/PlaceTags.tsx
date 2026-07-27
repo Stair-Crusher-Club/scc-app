@@ -31,7 +31,7 @@ function renderTag(
       return (
         <View key={index} style={{marginRight: 4}}>
           <PlaceListNameChip
-            {...tag.nameChip}
+            {...(tag.nameChip ?? {text: tag.name})}
             elementName="place_tag_place_list"
             logParams={{placeListId}}
             trackView
