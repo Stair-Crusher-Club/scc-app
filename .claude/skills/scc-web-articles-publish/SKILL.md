@@ -133,6 +133,8 @@ aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무
   - **DB 제목은 표 위** — 인라인 DB 제목은 `<figcaption>`(표 하단)이 아니라 표 위 `<p class="db-title">`로. (Notion 인라인 DB 디자인)
   - **표 셀은 wrap** — `.db-wrap table`에 `white-space:nowrap` 금지(모든 셀 1줄 강제 → 무한 가로 스크롤). `white-space:normal;word-break:keep-all;overflow-wrap:anywhere`로 한글 단어 유지하며 컨테이너 폭에 맞춰 줄바꿈. 표 셀 shift+enter는 아래 `\n`→`<br>` 규칙으로 해결됨.
 - **하위 블록 재귀 필수** — `paragraph`·`to_do`도 `has_children`면 하위를 렌더해야 한다. 안 하면 **문단 하위 섹션·중첩 체크리스트가 통째로 유실**(nationwide '추가 정보' 섹션, 전동휠체어 준비물 6항목 실제 사고).
+- **`tab` 블록 하위 렌더** — 탭 컨테이너는 API가 `tab: {}`(텍스트 없음)로 준다. 하위를 펼치지 않으면 탭 안 본문이 통째로 유실(애관극장 상영관 시야 3섹션 실제 사고).
+- **네이티브 `table`도 `.tbl-wrap`으로 감쌀 것** — 인라인 DB 표(`.db-wrap`)와 달리 `table` 블록은 감싸는 컨테이너가 없으면 **페이지 전체가 가로 스크롤**된다. 생 URL 앵커도 같은 증상 → `article a{overflow-wrap:anywhere}`. STEP 4에서 전 페이지 `scrollWidth > clientWidth` 전수 체크로 잡는다.
 - **컬러 callout/블록** — callout `color`=배경(`default_background`→Notion 기본 회색 `#f1f1ef`), paragraph/heading 블록 `color`도 반영(`colorStyle`). 인라인 span 색/밑줄은 `renderRich`.
 - **callout 아이콘은 Notion 원본대로**(`renderCalloutIcon`) — `emoji`는 그대로; 빌트인(`type:"icon"`, 예 cursor-click)은 `https://www.notion.so/icons/{name}_{color}.svg` 다운로드; external/file/custom_emoji는 그 URL 다운로드; **`icon:null`이면 아이콘 없음(💡 강제 금지)**. 💡 폴백으로 뭉개면 커스텀 디자인이 다 죽는다(실제 지적).
 - **줄바꿈(shift+enter) 보존** — Notion rich_text `plain_text`의 `\n`은 HTML에서 공백으로 붕괴 → `renderRich`에서 `\n`→`<br>`. 표 셀(`renderPropValue`→`renderRich`)에도 적용됨.
