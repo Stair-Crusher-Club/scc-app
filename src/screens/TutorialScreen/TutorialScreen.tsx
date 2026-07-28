@@ -12,10 +12,13 @@ import styled from 'styled-components/native';
 
 import ChevronRight from '@/assets/icon/ic_chevron_right.svg';
 import {hasShownHomeTutorialAtom} from '@/atoms/User';
+import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ScreenProps} from '@/navigation/Navigation.screens';
+import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
+import {useCompleteUserTutorialMission} from '@/hooks/useUserTutorialProgress';
+import type {ScreenProps} from '@/navigation/Navigation.screens';
 import {useSetAtom} from 'jotai';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -28,11 +31,26 @@ export const tutorialSlides = [
   require('@/assets/img/tutorial_3.png'),
 ];
 
-export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
+export interface TutorialScreenParams {
+  /**
+   * 튜토리얼 미션(윌리의 외출) 미션 1 로 진입한 경우 true.
+   * 마지막 장 CTA 가 "시작하기"(게스트용 홈 튜토리얼 종료) 대신
+   * "계뿌클 둘러보기 완료!"(미션 완료 API + 완료 팝업 + 미션 화면 이동)로 바뀐다.
+   */
+  fromTutorialMission?: boolean;
+}
+
+export default function TutorialScreen({
+  navigation,
+  route,
+}: ScreenProps<'Tutorial'>) {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
+  const fromTutorialMission = route.params?.fromTutorialMission === true;
+  const completeMission = useCompleteUserTutorialMission();
+  const [showMissionCompleted, setShowMissionCompleted] = useState(false);
 
   // Android 하드웨어 백버튼 차단
   useBackHandler(() => true, []);
@@ -72,6 +90,25 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
     navigation.goBack();
   }, [navigation, setHasShownHomeTutorial]);
 
+  // 미션 1 완료: 실패 시엔 팝업을 띄우지 않는다 (hook 이 에러 토스트 노출, 재탭 시
+  // 재시도 가능 — 완료 API 는 멱등).
+  const handleCompleteMission = useCallback(() => {
+    if (completeMission.isPending) {
+      return;
+    }
+    completeMission.mutate(
+      {missionType: TutorialMissionTypeDto.ViewTutorialImages},
+      {onSuccess: () => setShowMissionCompleted(true)},
+    );
+  }, [completeMission]);
+
+  // 미션 화면이 스택에 없으면(홈 → Tutorial 직진) 라우터가 현재 라우트를 대체하므로
+  // 어느 진입 경로에서도 미션 화면에 도착한다.
+  const handleMissionCompletedClose = useCallback(() => {
+    setShowMissionCompleted(false);
+    navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
+  }, [navigation]);
+
   return (
     <Container>
       <ScrollView
@@ -93,11 +130,20 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
       </ScrollView>
       <BottomBar style={{paddingBottom: insets.bottom + 20}}>
         {isLast ? (
-          <StartButton
-            onPress={handleStart}
-            elementName="tutorial_start_button">
-            <StartButtonText>시작하기</StartButtonText>
-          </StartButton>
+          fromTutorialMission ? (
+            <StartButton
+              onPress={handleCompleteMission}
+              disabled={completeMission.isPending}
+              elementName="tutorial_mission_1_view_images_complete_button">
+              <StartButtonText>계뿌클 둘러보기 완료!</StartButtonText>
+            </StartButton>
+          ) : (
+            <StartButton
+              onPress={handleStart}
+              elementName="tutorial_start_button">
+              <StartButtonText>시작하기</StartButtonText>
+            </StartButton>
+          )
         ) : (
           <NavRow>
             <SccPressable
@@ -125,6 +171,18 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
           </NavRow>
         )}
       </BottomBar>
+
+      {showMissionCompleted && (
+        <MissionCompletedOverlay
+          isVisible={true}
+          itemImage={require('@/assets/img/tutorial/mission_complete_img_magnifier.png')}
+          description={
+            '돋보기 획득!\n계뿌클 앱을 둘러봤어요.\n계뿌클 사용법 참 쉽죠!?'
+          }
+          confirmElementName="tutorial_mission_1_view_images_completed_confirm"
+          onClose={handleMissionCompletedClose}
+        />
+      )}
     </Container>
   );
 }

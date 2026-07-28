@@ -7422,12 +7422,13 @@ export interface ToiletSummaryDto {
     'accessibilities': Array<ToiletAccessibilityDto>;
 }
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 종류. HIDDEN_APP_SURVEY가 히든 미션(앱 사용 후기 설문)이며, 나머지 3개가 메인 미션이다. UserTutorialProgressDto.missions 배열은 이 enum 선언 순서대로 4개를 모두 포함한다. 
+ * 윌리의 외출 NUX 튜토리얼 미션 종류. HIDDEN_APP_SURVEY가 히든 미션(앱 사용 후기 설문)이며, 나머지가 메인 미션이다. 이 enum 선언 순서는 미션 순서를 의미하지 않는다. 미션 순서는 UserTutorialProgressDto.missions 배열 순서를 따르며, 사용자의 가입 시점에 따라 서로 다른 미션 셋(v1/v2)이 내려온다. 클라이언트는 순서를 하드코딩하지 않는다. 
  * @export
  * @enum {string}
  */
 
 export const TutorialMissionTypeDto = {
+    ViewTutorialImages: 'VIEW_TUTORIAL_IMAGES',
     RegisterInterestedRegionsAndThemes: 'REGISTER_INTERESTED_REGIONS_AND_THEMES',
     SavePlaceList: 'SAVE_PLACE_LIST',
     UpvoteAccessibility: 'UPVOTE_ACCESSIBILITY',
@@ -7871,19 +7872,19 @@ export interface UserTutorialMissionDtoCompletedAt {
     'value': number;
 }
 /**
- * 윌리의 외출 NUX 튜토리얼 미션 진행 상태. missions 배열은 TutorialMissionTypeDto 선언 순서대로 4개 (3 main + 1 hidden) 포함된다. 
+ * 윌리의 외출 NUX 튜토리얼 미션 진행 상태. 서버가 내려주는 missions 배열 순서가 곧 미션 순서다. 항상 4개(main 3 + hidden 1)를 포함하며, HIDDEN_APP_SURVEY를 제외한 3개가 메인 미션이다. 가입 시점에 따라 미션 구성/순서가 다를 수 있다. 
  * @export
  * @interface UserTutorialProgressDto
  */
 export interface UserTutorialProgressDto {
     /**
-     * TutorialMissionTypeDto 선언 순서대로 4개 (3 main + 1 hidden) 미션의 진행 상태
+     * 서버가 내려주는 배열 순서가 곧 미션 순서다. 항상 4개(main 3 + hidden 1)를 포함하며, HIDDEN_APP_SURVEY를 제외한 3개가 메인 미션이다. 가입 시점에 따라 미션 구성/순서가 다를 수 있다.
      * @type {Array<UserTutorialMissionDto>}
      * @memberof UserTutorialProgressDto
      */
     'missions': Array<UserTutorialMissionDto>;
     /**
-     * 현재 사용자가 다음으로 완료해야 하는 미션. 미션 선언 순서대로 첫 번째 미완료 미션을 가리킨다. 모든 미션이 완료되었거나 익명 사용자처럼 진행 상태를 알 수 없는 경우 null. 
+     * 현재 사용자가 다음으로 완료해야 하는 미션. 미션 배열 순서상 첫 번째 미완료 미션을 가리킨다. 모든 미션이 완료되었거나 익명 사용자처럼 진행 상태를 알 수 없는 경우 null. 
      * @type {TutorialMissionTypeDto}
      * @memberof UserTutorialProgressDto
      */
@@ -8163,7 +8164,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - VIEW_TUTORIAL_IMAGES: 추가 검증 없음 (앱이 튜토리얼 이미지 마지막 장 CTA에서 호출). - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
          * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
          * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
@@ -11867,7 +11868,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - VIEW_TUTORIAL_IMAGES: 추가 검증 없음 (앱이 튜토리얼 이미지 마지막 장 CTA에서 호출). - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
          * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
          * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
@@ -12938,7 +12939,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.checkInToClubQuestPost(checkInToClubQuestRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+         * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - VIEW_TUTORIAL_IMAGES: 추가 검증 없음 (앱이 튜토리얼 이미지 마지막 장 CTA에서 호출). - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
          * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
          * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
          * @param {*} [options] Override http request option.
@@ -13924,7 +13925,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
+     * 튜토리얼 전용 화면에서 미션 완료 조건을 충족했을 때 앱이 호출한다. request body 의 missionType 으로 어떤 미션을 완료하려는지 식별하며, 미션별 추가 컨텍스트(예: SAVE_PLACE_LIST 의 placeListId)는 동일 body 에 함께 전달한다.  서버 검증 (미션 타입별): - VIEW_TUTORIAL_IMAGES: 추가 검증 없음 (앱이 튜토리얼 이미지 마지막 장 CTA에서 호출). - REGISTER_INTERESTED_REGIONS_AND_THEMES: 추가 검증 없음 (클라이언트가 등록 직후 호출). - SAVE_PLACE_LIST: 추가 검증 없음 (클라이언트가 저장 직후 placeListId 와 함께 호출). - UPVOTE_ACCESSIBILITY: 추가 검증 없음 (가짜 PDP 에서 사용자 명시 액션 후 호출되므로). - HIDDEN_APP_SURVEY: tally API 로 form 제출 기록 검증. 제출 기록 없으면 400.  idempotent: 이미 완료된 미션이면 no-op + 현재 진행 상태 반환.  튜토리얼 페이지를 거치지 않은 진입 (홈에서 PublicPlaceList 직접 진입 등) 에서는 앱이 이 엔드포인트를 호출하지 않으므로 미션이 완료되지 않는다. 실제 데이터 등록/저장 API (savePlaceList, registerUserInterestedRegionsAndThemes, giveAccessibilityUpvote) 는 미션 진행을 자동 기록하지 않는다. 
      * @summary 윌리의 외출 NUX 튜토리얼 미션 완료를 처리한다.
      * @param {CompleteUserTutorialMissionRequestDto} completeUserTutorialMissionRequestDto 
      * @param {*} [options] Override http request option.

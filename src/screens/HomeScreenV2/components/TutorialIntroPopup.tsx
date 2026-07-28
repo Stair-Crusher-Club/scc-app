@@ -6,7 +6,9 @@ import styled from 'styled-components/native';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ScreenParams} from '@/navigation/Navigation.screens';
+import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
+import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
+import type {ScreenParams} from '@/navigation/Navigation.screens';
 
 interface TutorialIntroPopupProps {
   isVisible: boolean;
@@ -50,11 +52,21 @@ export default function TutorialIntroPopup({
   onClose,
 }: TutorialIntroPopupProps) {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
+  const {data: progress} = useUserTutorialProgress();
 
   const handleStart = useCallback(() => {
     onClose();
+    // 미션 1 이 "튜토리얼 이미지 확인하기"인 셋(v2)이면 미션 목록을 건너뛰고 이미지
+    // 화면으로 바로 진입시킨다. progress 로딩 전/실패 시엔 기존 경로(미션 목록)로 —
+    // 거기서 카드 [미션 시작]으로 같은 목적지에 도달할 수 있는 안전한 fallback.
+    if (
+      progress?.currentMissionType === TutorialMissionTypeDto.ViewTutorialImages
+    ) {
+      navigation.navigate('Tutorial', {fromTutorialMission: true});
+      return;
+    }
     navigation.navigate('TutorialMission', {});
-  }, [navigation, onClose]);
+  }, [navigation, onClose, progress?.currentMissionType]);
 
   return (
     // ponytail: 닫기/건너뛰기 없이 무조건 튜토리얼로 랜딩시키는 게 기획 의도라

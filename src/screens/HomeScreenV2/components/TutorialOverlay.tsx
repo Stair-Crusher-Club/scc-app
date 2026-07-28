@@ -17,16 +17,11 @@ import {SccPressable} from '@/components/SccPressable';
 import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {tutorialSlides as slides} from '@/screens/TutorialScreen';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const isWeb = Platform.OS === 'web';
-
-const slides = [
-  require('@/assets/img/tutorial_1.png'),
-  require('@/assets/img/tutorial_2.png'),
-  require('@/assets/img/tutorial_3.png'),
-];
 
 interface TutorialOverlayProps {
   visible: boolean;

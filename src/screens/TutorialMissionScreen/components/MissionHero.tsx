@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
 import SccRemoteImage from '@/components/SccRemoteImage';
+import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
 
 import SpeechBubble, {BubbleVariant} from './SpeechBubble';
 
@@ -24,10 +25,15 @@ interface MissionHeroProps {
    */
   bubbleFloat: boolean;
   /**
+   * hot zone 을 렌더할 메인 미션 타입 목록. 서버 응답 배열 순서 그대로 전달받는다
+   * (가입 시점에 따라 미션 구성/순서가 다르므로 앱이 순서를 하드코딩하지 않는다).
+   */
+  mainMissionTypes: TutorialMissionTypeDto[];
+  /**
    * 미션 카드 hot zone 탭 핸들러. hero 안의 외출템(스마트폰/지도/돋보기)을 누르면
    * 해당 미션 카드로 부모 ScrollView 가 스크롤한다.
    */
-  onMissionItemPress?: (index: 0 | 1 | 2) => void;
+  onMissionItemPress?: (missionType: TutorialMissionTypeDto) => void;
   /**
    * 말풍선 탭 핸들러. 지정 시 말풍선이 탭 가능해진다(진행 중 미션으로 스크롤). 진행 중
    * 미션이 있는 variant 1/2/3 에서만 부모가 전달한다.
@@ -52,14 +58,45 @@ const HAT_HOT_ZONE = {
 
 // figma `mission_item` group 의 외출템 좌표 → hero-local 변환값. 모든 variant frame
 // 에서 동일한 절대 좌표를 사용한다 (박원 시안의 vector 노드 좌표는 stage 별로 같음).
-const MISSION_ITEM_HOT_ZONES = [
+//
+// 좌표는 **외출템(아이템 그림) 고정**이지 미션 순서 고정이 아니다. v1/v2 에서 미션
+// 순서가 바뀌어도 "돋보기를 누르면 돋보기 미션 카드로" 정확히 라우팅되도록 미션
+// 타입을 키로 둔다. UPVOTE_ACCESSIBILITY(v1)와 VIEW_TUTORIAL_IMAGES(v2)는 둘 다
+// 돋보기이고 한 셋에 동시 등장하지 않으므로 같은 좌표를 공유한다.
+const MISSION_ITEM_HOT_ZONES: Partial<
+  Record<
+    TutorialMissionTypeDto,
+    {left: number; top: number; width: number; height: number}
+  >
+> = {
   // item_1 (smartphone): hero-local x=58, y=272, w=67, h=95
-  {left: 58, top: 272, width: 67, height: 95},
+  [TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes]: {
+    left: 58,
+    top: 272,
+    width: 67,
+    height: 95,
+  },
   // item_2 (map): hero-local x=25, y=392, w=95, h=74
-  {left: 25, top: 392, width: 95, height: 74},
+  [TutorialMissionTypeDto.SavePlaceList]: {
+    left: 25,
+    top: 392,
+    width: 95,
+    height: 74,
+  },
   // item_3 (magnifier): hero-local x=285, y=337, w=72, h=87
-  {left: 285, top: 337, width: 72, height: 87},
-] as const;
+  [TutorialMissionTypeDto.UpvoteAccessibility]: {
+    left: 285,
+    top: 337,
+    width: 72,
+    height: 87,
+  },
+  [TutorialMissionTypeDto.ViewTutorialImages]: {
+    left: 285,
+    top: 337,
+    width: 72,
+    height: 87,
+  },
+};
 
 export default function MissionHero({
   hiddenActive,
@@ -69,6 +106,7 @@ export default function MissionHero({
   heroImageUrl,
   bubbleVariant,
   bubbleFloat,
+  mainMissionTypes,
   onMissionItemPress,
   onBubblePress,
 }: MissionHeroProps) {
@@ -103,20 +141,27 @@ export default function MissionHero({
       )}
 
       {onMissionItemPress &&
-        MISSION_ITEM_HOT_ZONES.map((zone, idx) => (
-          <MissionItemHotZone
-            key={idx}
-            elementName={`tutorial_mission_item_${idx + 1}_hot_zone`}
-            onPress={() => onMissionItemPress(idx as 0 | 1 | 2)}
-            style={{
-              position: 'absolute',
-              left: px(zone.left),
-              top: px(zone.top),
-              width: px(zone.width),
-              height: px(zone.height),
-            }}
-          />
-        ))}
+        mainMissionTypes.map((missionType, idx) => {
+          const zone = MISSION_ITEM_HOT_ZONES[missionType];
+          if (!zone) {
+            return null;
+          }
+          return (
+            <MissionItemHotZone
+              key={missionType}
+              elementName={`tutorial_mission_item_${idx + 1}_hot_zone`}
+              logParams={{mission_type: missionType}}
+              onPress={() => onMissionItemPress(missionType)}
+              style={{
+                position: 'absolute',
+                left: px(zone.left),
+                top: px(zone.top),
+                width: px(zone.width),
+                height: px(zone.height),
+              }}
+            />
+          );
+        })}
 
       {bubbleVariant && (
         <SpeechBubble

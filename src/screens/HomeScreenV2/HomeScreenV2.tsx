@@ -37,10 +37,7 @@ import {
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
-import {
-  GetClientVersionStatusResponseDtoStatusEnum,
-  TutorialMissionTypeDto,
-} from '@/generated-sources/openapi';
+import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
 import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
@@ -49,6 +46,7 @@ import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet, {
   GeolocationErrorReason,
 } from '@/modals/GeolocationPermissionBottomSheet';
+import {allMainMissionsCompletedIn} from '@/screens/TutorialMissionScreen/constants';
 import {openAppDeepLink} from '@/utils/appLinkNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import GeolocationUtils from '@/utils/GeolocationUtils';
@@ -148,16 +146,12 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (!tutorialProgress) {
       return undefined;
     }
-    const mainTypes: TutorialMissionTypeDto[] = [
-      TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
-      TutorialMissionTypeDto.SavePlaceList,
-      TutorialMissionTypeDto.UpvoteAccessibility,
-    ];
-    return mainTypes.every(
-      type =>
-        tutorialProgress.missions.find(m => m.missionType === type)
-          ?.completedAt != null,
-    );
+    // 미션 구성은 가입 시점에 따라 다르므로(v1/v2) 서버 응답에서 파생한다. 하드코딩하면
+    // v2 유저가 존재하지도 않는 미션(UPVOTE_ACCESSIBILITY) 완료를 요구받아 "완료자"로
+    // 판정되지 않고 인트로 팝업이 재노출된다.
+    // 빈 배열(flag 미대상/익명) → false. 아래 effect 가 이 값으로
+    // hasShownTutorialIntroPopup 을 영구 마킹하므로 오판정이 치명적이다.
+    return allMainMissionsCompletedIn(tutorialProgress.missions);
   }, [tutorialProgress]);
 
   // 메인 미션 모두 완료자 = NUX 인트로 팝업 노출 대상이 아니므로 atom 을 미리 마킹.

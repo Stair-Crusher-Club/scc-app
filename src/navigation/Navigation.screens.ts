@@ -70,7 +70,9 @@ import SearchUnconqueredPlacesScreen, {
 } from '@/screens/SearchUnconqueredPlacesScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
-import TutorialScreen from '@/screens/TutorialScreen';
+import TutorialScreen, {
+  type TutorialScreenParams,
+} from '@/screens/TutorialScreen';
 import TutorialMissionScreen, {
   TutorialMissionScreenParams,
 } from '@/screens/TutorialMissionScreen';
@@ -447,7 +449,7 @@ export type ScreenParams = {
   Webview: WebViewScreenParams;
   ImageZoomViewer: ImageZoomViewerScreenParams;
   RegistrationComplete: RegistrationCompleteScreenParams;
-  Tutorial: undefined;
+  Tutorial: TutorialScreenParams | undefined;
   TutorialMission: TutorialMissionScreenParams;
   InterestedRegionAndThemes: InterestedRegionAndThemesFormScreenParams;
   EditInterestedRegion: EditInterestedRegionScreenParams;
