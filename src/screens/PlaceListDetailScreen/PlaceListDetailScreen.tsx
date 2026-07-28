@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import {useAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {FlatList, ListRenderItemInfo, Share} from 'react-native';
+import {FlatList, Image, ListRenderItemInfo, Share} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -13,7 +13,10 @@ import CloseIcon from '@/assets/icon/close.svg';
 import MapIcon from '@/assets/icon/ic_map.svg';
 import MenuIcon from '@/assets/icon/ic_menu.svg';
 import ShareIcon from '@/assets/icon/ic_share_web.svg';
+import StoreAddressFillIcon from '@/assets/icon/ic_store_address_fill.svg';
+import {BadgeShell, BadgeText} from '@/components/BadgeShell';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay';
+import PlaceListNameChip from '@/components/PlaceListNameChip';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
@@ -32,6 +35,7 @@ import {
   useUserTutorialProgress,
 } from '@/hooks/useUserTutorialProgress';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {THEME_LABEL_BY_VALUE} from '@/screens/InterestedRegionAndThemesFormScreen/constants';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -42,6 +46,8 @@ import GeolocationUtils from '@/utils/GeolocationUtils';
 import {placeListFilterAtom, placeListFilterModalStateAtom} from './atoms';
 import FilterBar from './sections/FilterBar';
 import PlaceListFilterModal from './sections/PlaceListFilterModal';
+
+const sccProfileAvatarImage = require('@/assets/img/img_scc_profile_avatar.png');
 
 type PlaceMarkerItem = MarkerItem & PlaceListItem;
 
@@ -204,6 +210,10 @@ const PlaceListDetailScreen = ({
   const title = data?.placeList?.name ?? '장소 리스트';
   const description = data?.placeList?.description;
   const isSaved = data?.placeList?.isSaved ?? false;
+  const placeCount = data?.placeList?.placeCount ?? 0;
+  const nameChip = data?.placeList?.nameChip;
+  const owner = data?.placeList?.owner;
+  const themes = data?.placeList?.themes ?? [];
 
   const handleItemPress = useCallback(
     (item: PlaceMarkerItem) => {
@@ -273,13 +283,56 @@ const PlaceListDetailScreen = ({
   const renderListItem = useCallback(
     ({item}: ListRenderItemInfo<ListSection>) => {
       if (item.type === 'header') {
+        const hasChips = nameChip != null || themes.length > 0;
         return (
           <HeaderSection>
-            {description ? (
-              <DescriptionContainer>
-                <DescriptionText>{description}</DescriptionText>
-              </DescriptionContainer>
-            ) : null}
+            <InfoBlock>
+              <TextBlock>
+                <MetaRow>
+                  <ProfileGroup>
+                    <AvatarImage
+                      source={
+                        owner?.profileImageUrl
+                          ? {uri: owner.profileImageUrl}
+                          : sccProfileAvatarImage
+                      }
+                    />
+                    <MetaText>{owner?.name}</MetaText>
+                  </ProfileGroup>
+                  <CountGroup>
+                    <Dot />
+                    <CountIconTextGroup>
+                      <StoreAddressFillIcon
+                        width={20}
+                        height={20}
+                        color={color.gray30v2}
+                      />
+                      <MetaText>{placeCount}개</MetaText>
+                    </CountIconTextGroup>
+                  </CountGroup>
+                </MetaRow>
+                {description ? (
+                  <DescriptionText>{description}</DescriptionText>
+                ) : null}
+              </TextBlock>
+              {hasChips ? (
+                <ChipRow>
+                  {nameChip ? <PlaceListNameChip {...nameChip} /> : null}
+                  {themes.map(theme => (
+                    <BadgeShell
+                      key={theme}
+                      backgroundColor={color.gray15v2}
+                      textColor={color.gray80v2}
+                      borderRadius={2}
+                      paddingHorizontal={6}>
+                      <BadgeText textColor={color.gray80v2}>
+                        {THEME_LABEL_BY_VALUE[theme]}
+                      </BadgeText>
+                    </BadgeShell>
+                  ))}
+                </ChipRow>
+              ) : null}
+            </InfoBlock>
             <SaveShareRow>
               <SaveButtonContainer
                 elementName="place_list_detail_save_button"
@@ -333,6 +386,9 @@ const PlaceListDetailScreen = ({
     [
       description,
       isSaved,
+      placeCount,
+      nameChip,
+      themes,
       handleToggleSave,
       handleShare,
       handleItemPress,
@@ -537,20 +593,78 @@ const HeaderTitle = styled.Text`
 const HeaderSection = styled.View`
   background-color: ${color.white};
   padding-horizontal: 20px;
-  padding-top: 20px;
-  padding-bottom: 16px;
+  padding-top: 16px;
+  padding-bottom: 20px;
+  flex-direction: column;
+  gap: 20px;
 `;
 
-const DescriptionContainer = styled.View`
-  padding-bottom: 12px;
+const InfoBlock = styled.View`
+  gap: 16px;
+`;
+
+const TextBlock = styled.View`
+  gap: 12px;
+`;
+
+const MetaRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+`;
+
+const ProfileGroup = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const AvatarImage = styled(Image)`
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+`;
+
+const CountGroup = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const Dot = styled.View`
+  width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: ${color.gray30v2};
+`;
+
+const CountIconTextGroup = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+`;
+
+const MetaText = styled.Text`
+  font-size: 15px;
+  font-family: ${font.pretendardRegular};
+  line-height: 22px;
+  letter-spacing: -0.3px;
+  color: ${color.gray90v2};
 `;
 
 const DescriptionText = styled.Text`
-  font-size: 14px;
+  width: 100%;
+  font-size: 16px;
   font-family: ${font.pretendardRegular};
-  line-height: 22px;
-  letter-spacing: -0.28px;
-  color: ${color.gray60};
+  line-height: 24px;
+  letter-spacing: -0.32px;
+  color: ${color.gray70v2};
+`;
+
+const ChipRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
 `;
 
 const SaveShareRow = styled.View`

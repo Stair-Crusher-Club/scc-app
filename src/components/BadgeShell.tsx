@@ -33,7 +33,7 @@ export interface BadgeShellPressableProps
   extends BadgeShellBaseProps,
     Pick<
       SccTouchableOpacityProps,
-      'elementName' | 'logParams' | 'disableLogging'
+      'elementName' | 'logParams' | 'disableLogging' | 'trackView'
     > {
   onPress: SccTouchableOpacityProps['onPress'];
 }
@@ -71,12 +71,13 @@ export function BadgeShell(props: BadgeShellProps) {
   };
 
   if (isPressable(props)) {
-    const {elementName, logParams, disableLogging, onPress} = props;
+    const {elementName, logParams, disableLogging, trackView, onPress} = props;
     return (
       <SccTouchableOpacity
         elementName={elementName}
         logParams={logParams}
         disableLogging={disableLogging}
+        trackView={trackView}
         onPress={onPress}
         style={shellStyle}>
         {children}

@@ -4800,6 +4800,24 @@ export interface PlaceListDto {
     'accessControl': PlaceListAccessControlDto;
     /**
      * 
+     * @type {PlaceListNameChipDto}
+     * @memberof PlaceListDto
+     */
+    'nameChip'?: PlaceListNameChipDto;
+    /**
+     * 저장리스트에 지정된 관심 테마 목록. 지정 안 하면 빈 배열.
+     * @type {Array<UserInterestedThemeDto>}
+     * @memberof PlaceListDto
+     */
+    'themes': Array<UserInterestedThemeDto>;
+    /**
+     * 
+     * @type {PlaceListOwnerDto}
+     * @memberof PlaceListDto
+     */
+    'owner': PlaceListOwnerDto;
+    /**
+     * 
      * @type {EpochMillisTimestamp}
      * @memberof PlaceListDto
      */
@@ -4878,11 +4896,74 @@ export interface PlaceListItem {
      */
     'specialAccessibility'?: PlaceSpecialAccessibilityDto;
     /**
-     * 장소에 연결된 태그 목록 (예: 저장리스트 태그). shortName이 설정된 PUBLIC 저장리스트에 포함된 경우에만 노출.
+     * 장소에 연결된 태그 목록. placeListNameChips로 대체됐다 — 이미 출시된 구버전 앱 호환용으로만 계속 내려준다. 신규 클라이언트는 쓰지 말 것.
      * @type {Array<PlaceTagDto>}
      * @memberof PlaceListItem
+     * @deprecated
      */
     'placeTags'?: Array<PlaceTagDto>;
+    /**
+     * 이 장소가 속한 저장리스트의 이름칩 목록. nameChip이 설정된 PUBLIC 저장리스트에 포함된 경우에만 노출. 각 칩의 placeListId로 리스트 상세로 이동한다.
+     * @type {Array<PlaceListNameChipDto>}
+     * @memberof PlaceListItem
+     */
+    'placeListNameChips'?: Array<PlaceListNameChipDto>;
+}
+/**
+ * 저장리스트 이름칩. 검색 카드/PDP/상세화면에 공통으로 쓰이는 칩 하나의 표현.
+ * @export
+ * @interface PlaceListNameChipDto
+ */
+export interface PlaceListNameChipDto {
+    /**
+     * 칩 표시 문구
+     * @type {string}
+     * @memberof PlaceListNameChipDto
+     */
+    'text': string;
+    /**
+     * 칩 좌측 아이콘 이미지 URL. null이면 기본 저장리스트 배지 아이콘 사용.
+     * @type {string}
+     * @memberof PlaceListNameChipDto
+     */
+    'iconUrl'?: string | null;
+    /**
+     * 칩 배경색 hex (예 \"#FFFFFF\"). null이면 기본 스타일.
+     * @type {string}
+     * @memberof PlaceListNameChipDto
+     */
+    'backgroundColor'?: string | null;
+    /**
+     * 칩 테두리색 hex (예 \"#C4132F\"). null이면 기본 스타일.
+     * @type {string}
+     * @memberof PlaceListNameChipDto
+     */
+    'borderColor'?: string | null;
+    /**
+     * 칩이 가리키는 저장리스트 ID. 장소에 붙어 내려올 때(placeListNameChips)만 채워진다. 저장리스트 자신의 nameChip으로 내려올 때는 null.
+     * @type {string}
+     * @memberof PlaceListNameChipDto
+     */
+    'placeListId'?: string | null;
+}
+/**
+ * 저장리스트를 만든 주체(큐레이터). 지금은 서버가 계단뿌셔클럽으로 고정해 내려준다 — PlaceList 엔티티에 저장하지 않는다.
+ * @export
+ * @interface PlaceListOwnerDto
+ */
+export interface PlaceListOwnerDto {
+    /**
+     * 표시 이름 (예 \"계단뿌셔클럽\")
+     * @type {string}
+     * @memberof PlaceListOwnerDto
+     */
+    'name': string;
+    /**
+     * 프로필 이미지 URL. null이면 클라이언트 기본 이미지 사용.
+     * @type {string}
+     * @memberof PlaceListOwnerDto
+     */
+    'profileImageUrl'?: string | null;
 }
 /**
  * 저장 리스트 타입
@@ -5178,7 +5259,7 @@ export const PlaceSpecialAccessibilityDtoAccessibilityTypeEnum = {
 export type PlaceSpecialAccessibilityDtoAccessibilityTypeEnum = typeof PlaceSpecialAccessibilityDtoAccessibilityTypeEnum[keyof typeof PlaceSpecialAccessibilityDtoAccessibilityTypeEnum];
 
 /**
- * 장소에 연결된 태그
+ * 장소에 연결된 태그. placeListNameChips로 대체됐다 — 이미 출시된 구버전 앱 호환용으로만 남아 있다. 신규 클라이언트는 placeListNameChips를 쓸 것.
  * @export
  * @interface PlaceTagDto
  */
@@ -5264,6 +5345,18 @@ export interface PublicPlaceListDto {
      * @memberof PublicPlaceListDto
      */
     'thumbnailUrl'?: string | null;
+    /**
+     * 리스트에 포함된 장소 수
+     * @type {number}
+     * @memberof PublicPlaceListDto
+     */
+    'placeCount': number;
+    /**
+     * 
+     * @type {PlaceListNameChipDto}
+     * @memberof PublicPlaceListDto
+     */
+    'nameChip'?: PlaceListNameChipDto;
     /**
      * 
      * @type {PlaceListAccessControlDto}
@@ -6563,11 +6656,18 @@ export interface SearchPlacesByNaturalLanguageResultItemDto {
      */
     'specialAccessibility'?: PlaceSpecialAccessibilityDto;
     /**
-     * 장소에 연결된 태그 목록 (예: 저장리스트 태그). shortName이 설정된 PUBLIC 저장리스트에 포함된 경우에만 노출.
+     * 장소에 연결된 태그 목록. placeListNameChips로 대체됐다 — 이미 출시된 구버전 앱 호환용으로만 계속 내려준다. 신규 클라이언트는 쓰지 말 것.
      * @type {Array<PlaceTagDto>}
      * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     * @deprecated
      */
     'placeTags'?: Array<PlaceTagDto>;
+    /**
+     * 이 장소가 속한 저장리스트의 이름칩 목록. nameChip이 설정된 PUBLIC 저장리스트에 포함된 경우에만 노출. 각 칩의 placeListId로 리스트 상세로 이동한다.
+     * @type {Array<PlaceListNameChipDto>}
+     * @memberof SearchPlacesByNaturalLanguageResultItemDto
+     */
+    'placeListNameChips'?: Array<PlaceListNameChipDto>;
 }
 /**
  * 
