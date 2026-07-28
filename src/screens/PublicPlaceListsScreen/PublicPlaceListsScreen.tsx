@@ -95,7 +95,7 @@ export default function PublicPlaceListsScreen({
                     accessControl: item.accessControl,
                   }}
                   onPress={() => handleItemPress(item)}>
-                  <ItemWrapper isFirst={index === 0}>
+                  <ItemWrapper>
                     <IconTextGroup>
                       {item.nameChip?.iconUrl ? (
                         // 아이콘이 있으면 원형 배경을 씌우지 않고 이미지가 그 자리를
@@ -171,7 +171,8 @@ const NoResultText = styled.Text`
   color: ${color.gray50};
 `;
 
-const ItemWrapper = styled.View<{isFirst: boolean}>`
+// 최상단 행 위에도 구분선이 있다 (Figma 2528:11972 — App bar 바로 아래 Divider).
+const ItemWrapper = styled.View`
   flex-direction: row;
   align-items: center;
   padding-left: 20px;
@@ -179,7 +180,7 @@ const ItemWrapper = styled.View<{isFirst: boolean}>`
   padding-vertical: 20px;
   gap: 8px;
   background-color: ${color.white};
-  border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
+  border-top-width: 1px;
   border-top-color: ${color.gray20v2};
 `;
 
