@@ -10,7 +10,7 @@ import {font} from '@/constant/font';
 import {
   AccessibilityInfoV2Dto,
   Place,
-  PlaceTagDto,
+  PlaceListNameChipDto,
 } from '@/generated-sources/openapi';
 
 type ScoreStatus = '0' | '1' | '2' | '3' | '4' | '5' | 'unknown' | 'progress';
@@ -57,7 +57,7 @@ interface V2SummarySectionProps {
   accessibilityScore?: number;
   accessibility?: AccessibilityInfoV2Dto;
   reviewCount: number;
-  placeTags?: PlaceTagDto[];
+  placeListNameChips?: PlaceListNameChipDto[];
   onNameLayout?: (event: LayoutChangeEvent) => void;
 }
 
@@ -66,7 +66,7 @@ export default function V2SummarySection({
   accessibilityScore,
   accessibility,
   reviewCount,
-  placeTags,
+  placeListNameChips,
   onNameLayout,
 }: V2SummarySectionProps) {
   const hasScore =
@@ -152,7 +152,9 @@ export default function V2SummarySection({
                 : '접근레벨 -'}
           </BadgeText>
         </BadgeShell>
-        {(placeTags?.length ?? 0) > 0 && <PlaceTags tags={placeTags ?? []} />}
+        {(placeListNameChips?.length ?? 0) > 0 && (
+          <PlaceTags chips={placeListNameChips ?? []} />
+        )}
       </StairLevelRow>
       <NameContainer onLayout={onNameLayout}>
         <PlaceName>{place.name}</PlaceName>

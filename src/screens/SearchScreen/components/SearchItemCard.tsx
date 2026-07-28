@@ -319,8 +319,8 @@ function SearchItemCard({
                   listQueryKey={listQueryKey}
                 />
               )}
-              {!hidePlaceTags && (item.placeTags?.length ?? 0) > 0 && (
-                <PlaceTags tags={item.placeTags ?? []} />
+              {!hidePlaceTags && (item.placeListNameChips?.length ?? 0) > 0 && (
+                <PlaceTags chips={item.placeListNameChips ?? []} />
               )}
             </ScoreLabelGroup>
             {!hideActions && (

@@ -27,7 +27,7 @@ import {
   PlaceDoorDirectionTypeDto,
   PlaceListItem,
   PlaceSpecialAccessibilityDto,
-  PlaceTagDto,
+  PlaceListNameChipDto,
   ReportAccessibilityPostRequest,
   ReportTargetTypeDto,
   UpvoteTargetTypeDto,
@@ -214,7 +214,7 @@ export default function PlaceDetailV2Screen({
       specialAccessibility: navSpecialAccessibility as
         | PlaceSpecialAccessibilityDto
         | undefined,
-      placeTags: undefined as PlaceTagDto[] | undefined,
+      placeListNameChips: undefined as PlaceListNameChipDto[] | undefined,
     },
     queryKey: ['PlaceDetailV2', placeId],
     queryFn: async ({queryKey}) => {
@@ -229,7 +229,7 @@ export default function PlaceDetailV2Screen({
         accessibilityScore: result.data.accessibilityInfo?.accessibilityScore,
         kakaoPlaceId: kakaoVendor?.vendorPlaceId,
         specialAccessibility: result.data.specialAccessibility,
-        placeTags: result.data.placeTags,
+        placeListNameChips: result.data.placeListNameChips,
       };
     },
   });
@@ -936,7 +936,7 @@ export default function PlaceDetailV2Screen({
                 accessibilityScore={data?.accessibilityScore}
                 accessibility={accessibilityPost}
                 reviewCount={(reviewPost ?? []).length}
-                placeTags={data?.placeTags ?? undefined}
+                placeListNameChips={data?.placeListNameChips ?? undefined}
                 onNameLayout={handleNameLayout}
               />
               <AiSummarySection

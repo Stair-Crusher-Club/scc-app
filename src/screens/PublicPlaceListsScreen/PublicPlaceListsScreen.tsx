@@ -97,28 +97,30 @@ export default function PublicPlaceListsScreen({
                   onPress={() => handleItemPress(item)}>
                   <ItemWrapper isFirst={index === 0}>
                     <IconTextGroup>
-                      <IconCircle bgColor={resolveIconColor(item)}>
-                        {item.nameChip?.iconUrl ? (
-                          <SccRemoteImage
-                            imageUrl={item.nameChip.iconUrl}
-                            style={{width: 20, height: 20}}
-                            wrapperBackgroundColor={null}
-                          />
-                        ) : (
+                      {item.nameChip?.iconUrl ? (
+                        // 아이콘이 있으면 원형 배경을 씌우지 않고 이미지가 그 자리를
+                        // 그대로 대체한다 — 업로드 자체를 원형으로 하는 것이 전제다.
+                        <SccRemoteImage
+                          imageUrl={item.nameChip.iconUrl}
+                          style={ICON_IMAGE_STYLE}
+                          wrapperBackgroundColor={null}
+                        />
+                      ) : (
+                        <IconCircle bgColor={resolveIconColor(item)}>
                           <BookmarkFilledIcon
                             width={20}
                             height={20}
                             color={color.white}
                           />
-                        )}
-                      </IconCircle>
+                        </IconCircle>
+                      )}
                       <ItemContent>
                         <ItemName numberOfLines={1}>{item.name}</ItemName>
                         <ItemPlaceCountRow>
                           <StoreAddressFillIcon
                             width={16}
                             height={16}
-                            color={color.gray40v2}
+                            color={color.gray30v2}
                           />
                           <ItemPlaceCount>{item.placeCount}개</ItemPlaceCount>
                         </ItemPlaceCountRow>
@@ -187,6 +189,15 @@ const IconTextGroup = styled.View`
   align-items: center;
   gap: 8px;
 `;
+
+// overflow: hidden이 있어야 borderRadius가 실제로 클리핑된다 (SccRemoteImage의
+// ImageWrapper에는 없다). 업로드 이미지가 원형이 아니어도 사각형으로 튀지 않는다.
+const ICON_IMAGE_STYLE = {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  overflow: 'hidden',
+} as const;
 
 const IconCircle = styled.View<{bgColor: string}>`
   width: 32px;

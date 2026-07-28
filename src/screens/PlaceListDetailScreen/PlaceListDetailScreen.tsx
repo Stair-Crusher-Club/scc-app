@@ -212,6 +212,7 @@ const PlaceListDetailScreen = ({
   const isSaved = data?.placeList?.isSaved ?? false;
   const placeCount = data?.placeList?.placeCount ?? 0;
   const nameChip = data?.placeList?.nameChip;
+  const owner = data?.placeList?.owner;
   const themes = data?.placeList?.themes ?? [];
 
   const handleItemPress = useCallback(
@@ -289,8 +290,14 @@ const PlaceListDetailScreen = ({
               <TextBlock>
                 <MetaRow>
                   <ProfileGroup>
-                    <AvatarImage source={sccProfileAvatarImage} />
-                    <MetaText>계단뿌셔클럽</MetaText>
+                    <AvatarImage
+                      source={
+                        owner?.profileImageUrl
+                          ? {uri: owner.profileImageUrl}
+                          : sccProfileAvatarImage
+                      }
+                    />
+                    <MetaText>{owner?.name}</MetaText>
                   </ProfileGroup>
                   <CountGroup>
                     <Dot />
@@ -298,7 +305,7 @@ const PlaceListDetailScreen = ({
                       <StoreAddressFillIcon
                         width={20}
                         height={20}
-                        color={color.gray90v2}
+                        color={color.gray30v2}
                       />
                       <MetaText>{placeCount}개</MetaText>
                     </CountIconTextGroup>
