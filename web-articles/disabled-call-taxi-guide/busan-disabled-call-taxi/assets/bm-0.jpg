@@ -1,0 +1,903 @@
+
+<!DOCTYPE html>
+<!-- saved from url=(0040)https://www.duribal.co.kr/main/main.html -->
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1.0, user-scalable=yes" />
+<meta name="description" content="부산광역시 교통약자를 위한 특별교통수단 두리발, 이용안내, 참여/알림마당 등 수록" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="부산 장애인콜택시 두리발" />
+<meta property="og:description" content="부산광역시 교통약자를 위한 특별교통수단 두리발, 이용안내, 참여/알림마당 등 수록" />
+<meta property="og:image" content="http://www.duribal.co.kr/image/common/logo.png" />
+<meta property="og:url" content="http://www.duribal.co.kr" />
+<meta http-equiv="Pragma" content="no-cache" />
+<title>부산 장애인콜택시 두리발</title>
+<!-- Google tag (gtag.js) -->
+<!--<script async="" src="js/js"></script>-->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2CDQXNJ9P3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-2CDQXNJ9P3');
+</script>
+<link rel="stylesheet" href="css/jquery-ui.css" type="text/css" />
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.12.3.min.js"></script> <!--  jquery-1.12.3.min.js-->
+<script type="text/javascript" src="js/jquery.easing.1.3.js"></script> <!-- jquery.easing.1.3.js -->
+<script type="text/javascript" src="js/sick.js"></script><!-- sick.js -->
+<!-- topmenu -->
+<script src="js/menu.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="js/TO.lib.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/common.lib.js"></script>
+<script type="text/javascript" src="js/Validator.js"></script>
+<script type="text/javascript" src="js/link.js"></script>
+<script type="text/javascript" src="js/site_pop.js"></script>
+
+<!-- jquery lazyload -->
+<script type="text/javascript" src="js/jquery.lazyload.min.js"></script>
+
+<!-- jquery 갤러리(movegellery) -->
+<script type="text/javascript" src="js/jquery.movegellery.js"></script>
+
+<!-- Magnific Popup -->
+<script type="text/javascript" src="js/jquery.magnific-popup.js"></script> 
+<link href="css/magnific-popup.css" rel="stylesheet" type="text/css" />
+<!-- jquery Slides blueberry-->
+<script src="js/jquery.blueberry.js" type="text/javascript"></script>
+ <!--bxslider-->
+<script src="js/jquery.bxslider.min.js" type="text/javascript"></script>
+<link href="css/jquery.bxslider.css" rel="stylesheet" type="text/css" />
+<!-- jquery ui -->
+<link type="text/css" rel="stylesheet" href="css/jquery-ui-1.10.4.custom.css" />
+<script src="js/jquery-ui-1.10.4.custom.js" type="text/javascript"></script>
+
+
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+<link rel="stylesheet" type="text/css" href="css/layout.css" /> <!-- layout.css-->
+<link rel="stylesheet" type="text/css" href="css/sub.css" />
+<link rel="stylesheet" type="text/css" href="css/slick.css" />
+<link rel="stylesheet" type="text/css" href="css/member.css" />
+
+<script type="text/javascript" src="js/gnb.js"></script> 
+<script type="text/javascript" src="js/common_new.js"></script> 
+<script type="text/javascript">
+// Global JS (20101029 )
+var strVersion = "TourOffice v20140715";
+var strHost = "www.duribal.co.kr";
+var strHost_ssl = "http://duribal.clickis.kr";
+var isLogin = "";
+var isMobile = "";
+var goPC= "";
+var lang = "kor"; // 외국어
+
+	var url="http://m.duribal.co.kr/main/main.html";
+	if(document.referrer.substring(0, url.length)!=url) {
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'BlackBerry', 'Android', 'Windows CE', 'LG', 'MOT', 'SAMSUNG', 'SonyEricsson', 'Symbian', 'nokia', 'webos', 'opera mini', 'opera mobi', 'iemobile');
+		for (var word in mobileKeyWords){
+			if (navigator.userAgent.match(mobileKeyWords[word]) != null){
+			 //	location.replace (url);
+			break;
+			}
+		}
+	}
+
+</script>
+<!-- AjaxCalendar(PHP) -->
+<script type="text/javascript" src="js/AjaxCalendar.js"></script>
+</head>
+
+<body style="overflow-y: visible;">
+<div id="skipNavi">
+	<a href="#section1" class="skipLink">본문 바로가기</a>
+</div>
+<!-- 로딩바 -->
+<div id="ajax_loading_bar" style="position:absolute;z-index:100;display:none;cursor:pointer;" onclick="$(this).hide();">
+	<img src="images/common/ajax-loader.gif" alt="로딩중입니다." />
+</div>
+
+<!-- ajax처리 레이어 -->
+<div id="ajax_proc"></div>
+
+
+
+<div id="wrap">
+
+	<header id="header">
+
+	<div class="header_nav">	
+	<h1 class="t-logo"><a href="/index.asp" title="부산시설공단 두리발 메인"><img src="/images/common/logo2.png" alt="부산시설공단 두리발" /></a></h1>
+	<a class="toggle" href="#header"><span class="blind">모바일 메뉴열기</span></a>
+	
+	<div class="gnb-wrap">
+		<div class="gnb">
+			<a href="#header" class="moclose">메뉴 닫기</a>										
+			<div class="mobile-top">
+				<div class="t-logo">
+					<h1><a href="/index.asp" title="부산시설공단 두리발 메인"><span class="blind"><img src="/images/common/logo.png" alt="부산시설공단 두리발" /></span></a></h1>
+					
+				</div>						 
+			</div>
+			
+			<ul class="top_menulist">
+				<li class="secs">
+					<a href="/01_int/int01.asp" class="depth1-1" title="두리발소개"><span>두리발소개</span></a>
+					<div class="sub-gnb" style="display: none;">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+								  <p class="tit">두리발소개</p>
+								  <p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+									<div class="depth"><a href="/01_int/int01.asp" class="depth2-1" title="두리발이란?"><span>두리발이란?</span></a></div>
+									
+									<!--<div class="depth"><a href="/01_int/int02.asp" class="depth2-1" title="운영현황"><span>운영현황</span></a></div>-->
+									<div class="depth"><a href="/01_int/int03.asp" class="depth2-1" title="찾아오시는길"><span>찾아오시는길</span></a></div>
+
+									<div class="depth"><a href="/01_int/int04.asp" class="depth2-1" title="이용방법/요금안내"><span>이용방법/요금안내</span></a></div>
+									<div class="depth"><a href="/01_int/int05.asp" class="depth2-1" title="이용대상 및 등록절차"><span>이용대상 및 등록절차</span></a></div>
+									
+									<div class="depth"><a href="/01_int/int06.asp" class="depth2-1" title="이용자 준수사항"><span>이용자 준수사항</span></a></div>
+									<div class="depth"><a href="/01_int/int07.asp" class="depth2-1" title="모바일 앱 이용방법"><span>모바일 앱 이용방법</span></a></div>
+									<!--<div class="depth"><a href="/01_int/int08.asp" class="depth2-1" title="특별교통수단 이용 등록"><span>특별교통수단 이용 등록</span></a></div>-->
+								</div>
+							</div>
+							
+						</div>
+					</div>	
+				</li>
+				<!-- <li class="secs">
+					<a href="/info/way.html" class="depth1-1"><span>이용안내</span></a>
+
+					<div class="sub-gnb">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+								  <p class="tit">이용안내</p>
+								  <p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+									<div class="depth"><a href="/info/way.html" class="depth2-1"><span>이용방법/요금안내</span></a></div>
+									<div class="depth"><a href="/info/price_info.html" class="depth2-1"><span>이용대상</span></a></div>
+									<div class="depth"><a href="/info/step.html" class="depth2-1"><span>등록절차</span></a></div>
+									<div class="depth"><a href="/info/terms.html" class="depth2-1"><span>이용자 준수사항</span></a></div>
+									<div class="depth"><a href="/info/app_guide.html" class="depth2-1"><span>모바일 앱 이용방법</span></a></div>
+									<div class="depth"><a href="/info/special.html" class="depth2-1"><span>특별교통수단 이용 등록</span></a></div>
+								</div>
+							</div>
+
+						</div>
+					</div>	
+					
+				</li> -->
+				<li class="secs">
+					<a href="/02_brd/brd01.asp" class="depth1-1" title="참여/알림마당"><span>참여/알림마당</span></a>
+
+					<div class="sub-gnb" style="display: none;">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+								  <p class="tit">참여/알림마당</p>
+								  <p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+									<div class="depth"><a href="/02_brd/brd01.asp" class="depth2-1" title="공지사항"><span>공지사항</span></a></div>
+									<!--<div class="depth"><a href="/02_brd/brd02.asp" class="depth2-1" title="자유게시판"><span>자유게시판</span></a></div>-->
+									<div class="depth"><a href="/02_brd/brd03.asp" class="depth2-1" title="문의하기"><span>문의하기<!--1:1질문답변--></span></a></div>
+									<div class="depth"><a href="/02_brd/brd04.asp" class="depth2-1" title="자료실"><span>자료실</span></a></div>
+									<div class="depth"><a href="/02_brd/brd05.asp" class="depth2-1" title="자주하는 질문"><span>자주하는 질문</span></a></div>
+									
+								</div>
+							</div>
+
+						</div>
+					</div>	
+	
+				</li>
+				<li class="secs">
+					<a href="/03_vou/vou01.asp" class="depth1-1" title="장애인콜택시"><span>장애인콜택시</span></a>
+
+					<div class="sub-gnb" style="display: none;">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+								  <p class="tit">장애인콜택시</p>
+								  <p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+									<div class="depth"><a href="/03_vou/vou01.asp" class="depth2-1" title="이용안내"><span>이용안내</span></a></div>
+								</div>
+							</div>
+
+						</div>
+					</div>							
+					
+				</li>
+				<li class="secs">
+					<a href="/04_mmc/mmc01.asp" class="depth1-1" title="임산부콜택시"><span>임산부콜택시</span></a>
+
+					<div class="sub-gnb" style="display: none;">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+								  <p class="tit">임산부콜택시</p>
+								  <p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+									<div class="depth"><a href="/04_mmc/mmc01.asp" class="depth2-1" title="이용안내"><span>이용안내</span></a></div>
+									<div class="depth"><a href="/04_mmc/mmc02.asp" class="depth2-1" title="Q&A"><span>Q&amp;A</span></a></div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					
+				</li>
+				<li class="secs">
+					<a href="/05_big/big01.asp" class="depth1-1" title="다인승두리발"><span>다인승두리발</span></a>
+
+					<div class="sub-gnb" style="display: none;">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+								  <p class="tit">다인승두리발</p>
+								  <p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+									<div class="depth"><a href="/05_big/big01.asp" class="depth2-1" title="다인승두리발(영도운행) 이용안내"><span>다인승두리발(영도운행) 이용안내</span></a></div>
+									<div class="depth"><a href="/05_big/big02.asp" class="depth2-1" title="다인승두리발(3인승) 이용안내">
+										<span class="view_hw">다인승두리발(3인승)<br /> 이용안내</span>
+										<span class="view_hm">다인승두리발(3인승) 이용안내</span></a>
+									</div>
+									<div class="depth"><a href="/05_big/big03.asp" class="depth2-1" title="차량예약"><span>차량예약</span></a></div>
+									<!--<div class="depth"><a href="/05_big/big04.asp" class="depth2-1" title="예약확인"><span>예약확인</span></a></div>-->
+									<div class="depth"><a href="/05_big/big05.asp" class="depth2-1" title="다인승두리발(전국) 이용 안내">
+										<span class="view_hw">다인승두리발(전국) <br /> 이용 안내</span>
+										<span class="view_hm">다인승두리발(전국) 이용 안내</span></a>
+									</div>
+									<div class="depth"><a href="/05_big/big06.asp" class="depth2-1" title="차량예약(전국)"><span>차량예약(전국)</span></a></div>
+									<div class="depth"><a href="/05_big/big09.asp" class="depth2-1" title="와상장애인 이용안내"><span>와상장애인 이용안내</span></a></div>
+									
+									
+
+									<!--<div class="depth"><a href="/05_big/big07.asp" class="depth2-1" title="예약확인(전국)"><span>예약확인(전국)</span></a></div>-->
+									<!-- <div class="depth"><a href="/bigbus/moving_step1.html" class="depth2-1"><span>광역이동지원</span></a></div> -->
+								</div>
+							</div>
+
+						</div>
+					</div>							
+					
+				</li>
+				<li class="secs">
+					<a href="/00_mem/mem02.asp" class="depth1-1" title="마이페이지"><span>마이페이지</span></a>
+
+					<div class="sub-gnb" style="display: none;">
+						<div class="sub-gnb-wrap">
+
+							<div class="nav">
+								<div class="nav-tit">
+									<p class="tit">마이페이지</p>
+									<p class="copy">부산시설공단 두리발의<br />다양한 소식을 알려드립니다</p>
+								</div>
+
+								<div class="nav-con">
+
+									<div class="depth"><a href="/00_mem/mem02.asp" class="depth2-1" title="회원정보수정"><span>회원정보수정</span></a></div>
+									<div class="depth"><a href="/00_mem/mem03.asp" class="depth2-1" title="예약정보 확인"><span>예약정보 확인</span></a></div>
+									
+									
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</li>
+				<!-- <li  class="secs">
+					<a href="#!" class="depth1-1"><span>인터넷접수</span></a>
+				</li> -->
+			</ul>
+
+		</div>
+	</div>
+
+
+	<div class="sub_link">				
+		<ul>					
+			
+				<li><a href="/00_mem/mem01.asp" class="login" title="회원가입">회원가입</a></li>
+				<li><a href="/login.asp" class="login" title="로그인">로그인</a></li>
+				<li><a href="/login_public.asp" class="login" title="공공기관">공공기관</a></li>
+				<!--<li><a href="/00_mem/mem01.asp" class="sitemap">사이트맵</a></li>-->
+			
+		</ul>
+	</div>
+
+	</div>	
+</header>
+<div class="mask-wrap"></div>
+
+	<!-- <script type="text/javascript">
+	$(document).ready(function() {
+		$('.simple-ajax-popup-align-top').magnificPopup({
+			type: 'ajax',
+			alignTop: true,
+			overflowY: 'scroll' 
+		});
+	});
+	</script>
+ -->
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('.event_rolling').blueberry({
+			pager: false
+		});
+
+
+
+
+		//쿠키 불러오기
+		function getCookie(name) {
+			var obj = name + "=";
+			var x = 0;
+			while (x <= document.cookie.length) {
+				var y = (x + obj.length);
+				if (document.cookie.substring(x, y) == obj) {
+					if ((endOfCookie = document.cookie.indexOf(";", y)) == -1)
+						endOfCookie = document.cookie.length;
+					return unescape(document.cookie.substring(y, endOfCookie));
+				}
+				x = document.cookie.indexOf(" ", x) + 1;
+
+				if (x == 0) break;
+			}
+			return "";
+		}
+	});
+
+	$(document).ready(function () {
+
+		var roll_speed = 1000;
+		var delay_speed = 5000;
+		var slider = $('.bxslider').bxSlider({
+			pager: false,
+			auto: true,
+			speed: roll_speed,
+			pause: delay_speed,
+			controls: false
+		});
+
+
+		// "다음" 버튼 클릭시 동작 정의
+		$('.next').mousedown(function () {
+			slider.goToNextSlide();
+		});
+		//"이전" 버튼 클릭시 동작 정의
+		$('.prev').mousedown(function () {
+			slider.goToPrevSlide();
+		});
+
+	});
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<script type="text/javascript" src="js/main.js"></script>
+
+<div id="section_wrap">
+	<div id="section1">
+		<div class="dv_wrap">
+			
+			<div class="msec-popup">
+				<div class="tit-wrap">
+					<p class="tit">POPUP ZONE</p>
+					<div class="controll">
+						<div class="v-count">
+							<strong>01</strong>
+							<span>02</span>
+						</div>
+						<button class="prev-slide" type="button">이전</button>
+						<button class="stop-slide" type="button">정지</button>
+						<button class="start-slide" type="button" style="display: none;">시작</button>
+						<button class="next-slide" type="button">다음</button>
+					</div>
+				</div>
+
+				<div class="popupzone">
+					<ul class="poplist">
+						
+						
+						<li>
+							
+							<img src="upload/main/mb176215207170807.jpg" alt="다인승 두리발(쏠라티) 일요일 운행 확대
+시행일 2025.8.1부
+접수일 2025.7.1부
+휴무일 없음 기존 일요일 휴무→운행 실시
+많은 이용 부탁드립니다."  border="0" />
+							
+						</li>
+						
+						<li>
+							
+							<a href="https://www.duribal.co.kr/02_brd/brd01_view.asp?idx=202" title="두리발(와상형)&사설구급차량 와상장애인 이동지원 서비스 시행" target="_self">
+							
+							<img src="upload/main/mp177910263696239.jpg" alt="두리발(와상형)&사설구급차량 와상장애인 이동지원 서비스 시행 
+시행일 2026.2.2부 
+차량예약 2026.2.9부 
+※ 이용일로부터 7일 전 ~ 1 일전 홈페이지 예약 
+가입방법 홈페이지,E-mail 
+지원차종 두리발(쏠라티-와상) 사설구급차량 
+특별교통수단 두리발은 복권기금과 함께합니다"  border="0" />
+							
+							</a>
+							
+						</li>
+						
+						
+					</ul>
+				</div>
+			</div>
+
+			<div class="info_wrap">
+				<div class="dv_img"><img src="images/main/text.png" alt="아름다운 동행 두리발은 복권기금을 지원받아 운영하고 있습니다." /></div>
+				<div class="call_box">
+					<div class="call type1">
+						<span class="stxt">콜센터 대표번호</span>
+						<span class="btxt">1555-<em>1114</em></span>
+					</div>
+
+					
+
+				</div>
+
+				<div class="service">
+					<div class="title">말로거는 <span>1636 서비스</span></div>
+					<p>1636을 누르고 ‘부산장애인콜택시’를 말하면 센터로 자동연결됩니다.</p>
+				</div>
+
+				<div class="special">
+					<a href="01_int/int08.asp" target="_self" title="특별교통수단 이용 등록(두리발, 마마콜)">
+						<div class="title">특별교통수단 이용 등록(두리발, 마마콜)</div>
+						<p>회원가입 후 승인 시 이용 가능합니다.</p>
+					</a>
+
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div id="section2">
+	<div class="dv_wrap">
+		<div class="quick">
+			<h2><span>Quick</span> Menu</h2>
+			<ul>
+				<li><a href="01_int/int04.asp" title="두리발 이용하기"><span>두리발 이용하기</span></a></li>
+				<li><a href="05_big/big02.asp" title="다인승두리발"><span>다인승두리발</span></a></li>
+				<li><a href="03_vou/vou01.asp" title="장애인 콜택시"><span>장애인 콜택시</span></a></li>
+				<li><a href="04_mmc/mmc01.asp" title="임산부 콜택시"><span>임산부 콜택시</span></a></li>
+			</ul>
+		</div>
+
+
+		<div class="board">
+			<h2>두리발 <span>소식</span></h2>
+			<div class="msec-board">
+				<ul>
+					<li class="tab active">
+						<a href="#n" class="tabs" id="noticeBtn"><span id="n1_sr" class="sr-only">확장됨 </span><span>공지사항</span></a>
+						<div class="list">
+
+							<ul class="notice_list">
+								
+								<li>
+									<a href="02_brd/brd01_view.asp?idx=209" tabindex="0" title="전화 연결 대기 없는 두리발 앱 이용안내(상세화면으로 이동)">
+										<span class="part">공지사항</span>
+										<span class="btxt">전화 연결 대기 없는 두리발 앱 이용안내</span>
+										<span class="stxt">두리발 앱(APP)을 이용하여 콜을 접수하시면 콜센터 전화 연결 대기없이(전화요금 없음) 24시간 언제 어디서나 편리하게 접수하실 수 있습니다.특히, 이용자가 많은 시간대에는 전화연결 지연이 될 수 있으므로 빠르고 편리한 앱 접수를 적극 이용해 주시기 바랍니다.■ 이용방법: 두리발 홈페이지-두리발 소개-모바일 앱 이용방법 참조&nbsp;▶안드로이드폰: 플레이스토어-두리발 다운로드&nbsp;▶ ​아이폰: 앱 스토어-두리발 다운로드기존 앱 사용하지 않으신 두리발 및 교통약자(장애인) 콜택시 사용자의 아이디는 전화번호이며비밀번호는 비밀번호 찾기로 설정하시면 됩니다.기타 궁금하신 사항은 콜센터(1555-1114)로 문의하시기 바랍니다.감사합니다.</span>
+										<span class="date">2026.06.19</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd01_view.asp?idx=202" tabindex="1" title="와상장애인 이동지원 서비스 시행(상세화면으로 이동)">
+										<span class="part">공지사항</span>
+										<span class="btxt">와상장애인 이동지원 서비스 시행</span>
+										<span class="stxt">와상장애인 이동지원 서비스 시행 안내드립니다.■ 이용대상: 부산시 거주 와상장애인■ 시 행 일: 2026. 2. 2.부■ ​차량예약: 2026. 2. 9.부&nbsp; - 이용일로부터 7일 전 ~ 1일 전 홈페이지 예약 접수, 상황에 따라 차량 변동 가능&nbsp; - 가급적 이용 3일 전 예약 접수바랍니다. ※배차가 안될 수 있음&nbsp; - 토, 일, 공휴일은 운행하지 않습니다.​■ 이용횟수: 월 4회/1인(편도기준)■ ​​가입방법: 홈페이지, E-mail​■&nbsp;​이용차량: 사설구급차량, 두리발(쏠라티-와상형)​</span>
+										<span class="date">2026.01.27</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd01_view.asp?idx=201" tabindex="2" title="특별교통수단(두리발, 바우처, 마마콜) 시스템 점검안내(상세화면으로 이동)">
+										<span class="part">공지사항</span>
+										<span class="btxt">특별교통수단(두리발, 바우처, 마마콜) 시스템 점검안내</span>
+										<span class="stxt">안정적인 서비스 제공을 위한 특별교통수단(두리발, 바우처, 마마콜) 시스템 점검으로 아래와 같이 서비스 장애가 예상되오니 많은 이해와 협조 부탁드립니다.&nbsp;※ 점검일시: 2026. 1. 20.(화) 00:00 ~ 03:30(약 3.5시간)&nbsp;점검시간동안 특별교통수단(두리발, 바우처, 마마콜) 이용이 불가함을 안내드립니다.</span>
+										<span class="date">2026.01.13</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd01_view.asp?idx=198" tabindex="3" title="교통약자 이동 파트너 「동행 콜센터」 체험 참가자 모집 안내(종료)(상세화면으로 이동)">
+										<span class="part">공지사항</span>
+										<span class="btxt">교통약자 이동 파트너 「동행 콜센터」 체험 참가자 모집 안내(종료)</span>
+										<span class="stxt">교통약자와 콜센터의 따뜻한 동행, 단순한 이동 지원을 넘어 진심을 나누는 이동지원 파트너로서 콜센터가 함께 합니다.▣ 참여대상: 두리발 이용자 중 참여 희망자&nbsp;※ 일시장애 및 65세 이상 장기요양 이용자 제외▣ 신청기간: 2025. 8. 12.(화) ~ 8. 31.(일)▣ 체험기간: 2025. 9. 12.(금), 9. 19.(금) 11:00~12:00, 3명/일▣ 참여자 선정: 무작위 추첨 5명(보호자 1명 동반 가능)▣ 체험내용: 콜센터 둘러보기, 상담사와 동석하여 전화상담 및 배차 체험 등▣ 참여방법: 두리발 홈페이지-참여/알림마당-1:1질문답변에서 신청&nbsp;※ 입력 필수사항: 제목에는 “동행 콜센터 신청하기”, 내용에는 “성명, 전화번호, 주소” 작성▣ 주 소: 부산광역시 연제구 중앙대로 1226번길18(거제동), 금샘빌딩 2층 복지콜팀&nbsp;※ 체험일정은 태풍 등 기상악화 또는 콜센터 사정에 따라 변경될 수 있으며, 콜센터는 2층에 위치하여 수동 휠체어로&nbsp;이동 가능하오니 양해 바랍니다.참여하신 분께는 차량 지원 및 소정의 기념품을 선물로 드립니다. 감사합니다.</span>
+										<span class="date">2025.08.11</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd01_view.asp?idx=197" tabindex="4" title="제21대 대통령 선거 투표 도움차량(두리발) 이용 안내(상세화면으로 이동)">
+										<span class="part">공지사항</span>
+										<span class="btxt">제21대 대통령 선거 투표 도움차량(두리발) 이용 안내</span>
+										<span class="stxt">1. 지원대상: 제21대 대통령 선거 사전 투표 및 본 투표 참여하는 교통약자 선거인&nbsp;도움차량(두리발)&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;※ 이용일 기준 두리발 회원으로 등록된 고객 한정(교통약자와 동행하는 가족 및 보호자도 이용 가능함)2. 지원일시: 사전투표일&nbsp; 2025. 5. 29.(목) ~ 5. 30.(금) 오전 6시 ~ 오후 6시&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;선거일 2025. 6. 3.(화) 오전 6시 ~ 오후 8시3. 이용방법1)&nbsp;통합콜센터(☎1555-1114)에 이용신청2) 두리발 배차 : 고객과 근거리에 있는 차량 배차 원칙3) 특별교통수단(두리발) 탑승4)&nbsp;(사전)투표소 도착 → (사전)투표소 이동 지원5) (사전)투표 후 거주지(출발지)로 이동 ☞ 두리발 추가 배차 요청 필요※ 이용자 증가로 인해 두리발 차량 대기시간이 길어질 수도 있음.4. 유의사항&nbsp; - (사전)투표소 이용고객은 콜센터 접수 시 선거권자 성명, 거주주소, 연락처, 투표소 위치 등을 알리고 지원 신청&nbsp; - 출·퇴근 시간 등 집중이용 시간에는 1시간 이상 배차가 지연될 수 있음5. 이용요금: 무료</span>
+										<span class="date">2025.05.20</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd01_view.asp?idx=196" tabindex="5" title="마마콜 이용 관련 신규 앱 설치 안내(상세화면으로 이동)">
+										<span class="part">공지사항</span>
+										<span class="btxt">마마콜 이용 관련 신규 앱 설치 안내</span>
+										<span class="stxt">* 이용방법:&nbsp;"두리발" 앱 설치* 회원별 이용안내회원별 이용안내의 2025.4.1.이전 가입자(이전 가입자 중 2025.4.1. 만료 기간 전일 경우),2025.4.1.이후 가입자(기존 회원 중 2025.4.1 이전일자 만료회원의 경우)에 관한 표입니다.2025.4.1.이전 가입자 (이전 가입자 중 2025.4.1. 만료 기간 전일 경우)2025.4.1.이후 신규 가입자 (기존 회원 중 2025.4.1 이전일자 만료회원의 경우)두리발 앱 다운로드로그인아이디(전화번호)본인인증비밀번호 설정마마콜 접수두리발 앱 다운로드회원가입-마마콜 클릭개인정보 동의-본인인증정보입력,신청서류 첨부마이페이지 접수 확인(추후 오픈예정)*&nbsp;서류심사는 업무일 3일 이내, 마이페이지에서 확인(4월 내 오픈 예정), 승인 후 신규 가입자 아이디는 가입시 설정한 아이디이며 기존 가입자와 같은 방법으로 두리발 앱 접속하시면 됩니다.* 승인시 문자 발송 및&nbsp;승인이 되면 "마마콜 접수" 기능이 활성화 됩니다.&nbsp; &nbsp;* 안정적인 서비스 제공을 위해 더욱 노력하겠습니다. 감사합니다.&nbsp; &nbsp;* 상담문의: 두리발 콜센터 1555-1114</span>
+										<span class="date">2025.04.07</span>
+									</a>
+								</li>
+								
+
+							</ul>
+
+							<a href="02_brd/brd01.asp" class="news_more" title="공지사항 페이지로 이동">공지사항 더보기</a>
+						</div>
+						<div class="control_type2">
+							<button class="prev-slide" type="button">이전</button>
+							<button class="stop-slide" type="button">정지</button>
+							<button class="start-slide" type="button">시작</button>
+							<button class="next-slide" type="button">다음</button>
+						</div>
+					</li>
+
+					<li class="tab">
+						<a href="#n" class="tabs" id="noticeBtn2"><span id="n2_sr" class="sr-only">축소됨 </span><span>자료실</span></a>
+						<div class="list">
+
+							<ul class="notice_list1">
+								
+								<li>
+									<a href="02_brd/brd04_view.asp?idx=203" tabindex="0" title="와상 장애인용 특별교통수단 이용 등록 신청서 양식(상세화면으로 이동)">
+										<span class="part">자료실</span>
+										<span class="btxt">와상 장애인용 특별교통수단 이용 등록 신청서 양식</span>
+										<span class="stxt">작성방법은 첨부파일의 예시를 참고하여 주시기 바랍니다.신청서를 포함한 제출서류를 모두 구비하여 두리발 앱/홈페이지 가입 후 신청하시거나이메일(duribal@bisco.or.kr)로 보내주시면 확인 후 등록 도와드리겠습니다.승인기간은 신청일로부터 업무일 기준 최대 3일까지 소요되며, 등록 후 별도의 승인 문자를 전송드릴 예정입니다.대리인 연락처 추가 등록을 원하실 경우[대리인 서명이 기재된 개인정보 수집이용 동의서], [위임장], [대리인 신분증]을 함께 첨부하여 주시기 바랍니다.※ 미비서류나 보완서류가 있을 경우 추가 제출을 요청드릴 수 있습니다.</span>
+										<span class="date">2026.01.30</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd04_view.asp?idx=36" tabindex="1" title="특별교통수단 이용 등록 신청서 양식 (두리발)(상세화면으로 이동)">
+										<span class="part">자료실</span>
+										<span class="btxt">특별교통수단 이용 등록 신청서 양식 (두리발)</span>
+										<span class="stxt">첨부파일 다운시 작성방법 등 상세하게 기입되어있으니 참고 바랍니다.다운받은 파일의 작성 예시를 참고하셔서 작성하여 주시기 바라며 필수서류 모두 첨부하여팩스(0502-922-8001) 혹은 이메일(duribal@bisco.or.kr)로 보내주시면&nbsp;서류가 접수 되며, 서류 심사(접수일로부터 3일이내) 후 이용 가능 여부는 별도 연락을 드릴 예정입니다.승인기간:&nbsp;신청일로부터 3일이내★대리인 등록을 원하실 경우,&nbsp;위임장 및 대리인 신분증을 함께 첨부해주셔야 합니다.등록 이후 대리인만 추가하시는 경우,&nbsp;대리인의&nbsp;개인정보제공동의서 ,&nbsp;위임장 및 대리인 신분증&nbsp;첨부 바랍니다.★★ 서류가 부족하거나 추가 서류가 필요할 경우 추가 제출 및 방문 요청을 드릴 수 있습니다.</span>
+										<span class="date">2020.01.28</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd04_view.asp?idx=35" tabindex="2" title="교통약자(장애인) 콜택시 신청 양식(상세화면으로 이동)">
+										<span class="part">자료실</span>
+										<span class="btxt">교통약자(장애인) 콜택시 신청 양식</span>
+										<span class="stxt">기본 이용 등록은&nbsp;거주하시는 해당 주민센터를 통하여 접수 및 등록하여 주시기 바라며,해당 주민센터에서는 접수된 신청건을&nbsp;두리발 홈페이지-참여/알림마당-교통약자콜택시 등록신청&nbsp;게시판의 게시글 작성을 통해 신청해 주시기 바랍니다.&nbsp;승인기간:&nbsp;신청일로부터 3일이내필요서류:&nbsp;1) 게시글 내용 작성&nbsp;2) 개인정보제공동의서&nbsp;★ 개인정보이용동의서 및 위임장 작성시 주의사항 ★개인정보이용제공동의서 동의자(법정대리인) 서명 = 위임장 신청자 란에 작성 및 서명★&nbsp;위임장 첨부 시 대리인 신분증&nbsp;첨부 필수!</span>
+										<span class="date">2020.01.28</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd04_view.asp?idx=34" tabindex="3" title="부산시 교통약자 특별교통수단 두리발소식지 11월, 12월호(상세화면으로 이동)">
+										<span class="part">자료실</span>
+										<span class="btxt">부산시 교통약자 특별교통수단 두리발소식지 11월, 12월호</span>
+										<span class="stxt"></span>
+										<span class="date">2018.01.18</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd04_view.asp?idx=33" tabindex="4" title="부산시 교통약자 특별교통수단 두리발소식지 10월호(상세화면으로 이동)">
+										<span class="part">자료실</span>
+										<span class="btxt">부산시 교통약자 특별교통수단 두리발소식지 10월호</span>
+										<span class="stxt"></span>
+										<span class="date">2017.11.10</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd04_view.asp?idx=32" tabindex="5" title="부산시 교통약자 특별교통수단 두리발소식지 9월호(상세화면으로 이동)">
+										<span class="part">자료실</span>
+										<span class="btxt">부산시 교통약자 특별교통수단 두리발소식지 9월호</span>
+										<span class="stxt"></span>
+										<span class="date">2017.09.01</span>
+									</a>
+								</li>
+								
+								
+
+							</ul>
+
+							<a href="02_brd/brd04.asp" class="news_more" title="자료실페이지로 이동">자료실 더보기</a>
+						</div>
+
+						<div class="control_type3">
+							<button class="prev-slide" type="button">이전</button>
+							<button class="stop-slide" type="button">정지</button>
+							<button class="start-slide" type="button">시작</button>
+							<button class="next-slide" type="button">다음</button>
+						</div>
+
+					</li>
+					
+					<!--자주하는 질문-->
+					<li class="tab">
+						<a href="#n" class="tabs" id="noticeBtn3"><span id="n3_sr" class="sr-only">축소됨 </span><span>자주하는 질문</span></a>
+						<div class="list">
+
+							<ul class="notice_list2">
+								
+								<li>
+									<a href="02_brd/brd05_view.asp?idx=210" tabindex="0" title="전화 연결 대기 없는 두리발 앱 이용 안내(상세화면으로 이동)">
+										<span class="part">자주하는 질문</span>
+										<span class="btxt">전화 연결 대기 없는 두리발 앱 이용 안내</span>
+										<span class="stxt">두리발 앱(APP)을 이용하여 콜을 접수하시면 콜센터 전화 연결 대기없이(전화요금 없음) 24시간 언제 어디서나 편리하게 접수하실 수 있습니다.특히, 이용자가 많은 시간대에는 전화연결 지연이 될 수 있으므로 빠르고 편리한 앱 접수를 적극 이용해 주시기 바랍니다.■ 이용방법: 두리발 홈페이지-두리발 소개-모바일 앱 이용방법 참조&nbsp;▶안드로이드폰: 플레이스토어-두리발 다운로드&nbsp;▶ ​아이폰: 앱 스토어-두리발 다운로드기존 앱 사용하지 않으신 두리발 및 교통약자(장애인) 콜택시 사용자의 아이디는 전화번호이며비밀번호는 비밀번호 찾기로 설정하시면 됩니다.기타 궁금하신 사항은 콜센터(1555-1114)로 문의하시기 바랍니다.감사합니다.​</span>
+										<span class="date">2026.06.19</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd05_view.asp?idx=31" tabindex="1" title="만료일 연장신청 반려시 미비서류 재 업로드 방법(상세화면으로 이동)">
+										<span class="part">자주하는 질문</span>
+										<span class="btxt">만료일 연장신청 반려시 미비서류 재 업로드 방법</span>
+										<span class="stxt">만료일 연장신청 반려시 미비서류 보완을 위한 안내입니다.1. 두리발 홈페이지-로그인-마이페이지-만료일 연장에서 정보입력 및 첨부파일 업로드-갱신 또는2. 두리발 앱-로그아웃-회원가입 클릭(두리발 홈페이지 접속)-로그인-마이페이지-만료일 연장에서 정보입력 및 첨부파일 업로드-갱신&nbsp;연장신청시 출산전 또는 출산후 서류 첨부는 필수입니다.서류심사는 업무일 3일 이내입니다. 감사합니다.</span>
+										<span class="date">2025.05.19</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd05_view.asp?idx=30" tabindex="2" title="마마콜 회원신청 반려시 정보 수정 방법(상세화면으로 이동)">
+										<span class="part">자주하는 질문</span>
+										<span class="btxt">마마콜 회원신청 반려시 정보 수정 방법</span>
+										<span class="stxt">마마콜 첨부서류 미비로 반려시 안내 드립니다.반려사유: 등본 미첨부, 가족관계증명서 미첨부, 등본 1개월 초과, 첨부서류 확인 불가(파일 열리지 않음), 임신확인서 아닌 산모수첩, 초음파 사진&nbsp;등&nbsp;정보 수정 방법1. 두리발 홈페이지-로그인-마이페이지(우측상단)-반려정보수정-입력 정보 확인 및 첨부서류&nbsp;업로드2. 두리발 앱-회원가입(로그인 상태라면 로그아웃 후) 클릭-두리발 홈페이지-로그인-마이페이지(우측상단)-반려정보수정-입력 정보 확인 및 첨부서류&nbsp;업로드&nbsp;&nbsp;최초 임신으로 마마콜 신청시 행정정보공동이용 조회로 성명, 전화번호, 생년월일, 분만예정일, 거주지 확인시 첨부서류 필요 없으나,행정정보공동이용 조회가 되지 않을 경우 첨부서류(신분증, 1개월 이내 등본, 산부인과 병원장 직인 및 분만예정일이 있는 임신확인서)를 반드시 첨부하셔야 합니다.&nbsp;출산후에는 자녀 출생일 조회가 되지 않으므로 반드시 신분증, 자녀가 등재된 1개월 이내 등본, 가족관계증명서 첨부 ​&nbsp;&nbsp;서류 심사는 업무일 3일 이내,&nbsp; 재심사로 승인시 문자 전송되며, 두리발 앱 로그인-비밀번호 설정 또는 비밀번호 입력 후 마마콜 접수 화면 클릭-차량 호출하시면 됩니다. 감사합니다.</span>
+										<span class="date">2025.05.09</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd05_view.asp?idx=29" tabindex="3" title="마마콜 연장신청(상세화면으로 이동)">
+										<span class="part">자주하는 질문</span>
+										<span class="btxt">마마콜 연장신청</span>
+										<span class="stxt">마마콜 이용기간 종료 후 출산&nbsp;또는 재임신 등 기간 연장신청시 안내 드립니다.&nbsp;1. 두리발 홈페이지-로그인-마이페이지(우측 상단 삼선 클릭)-만료일 연장-정보입력 및 첨부서류 업로드 -갱신2. 두리발 앱(로그아웃 후)-회원가입&nbsp; 클릭-두리발 홈페이지 연결-로그인-마이페이지(우측 상단 삼선 클릭)-만료일 연장-정보입력 및 첨부서류 업로드 -갱신&nbsp;&nbsp;서류심사는 업무일 3일 이내이며, 등본은 부산 거주 확인 목적으로 반드시 발급일 1개월 이내 첨부, 1개월 초과시 반려됩니다.승인시 승인 알림 문자 전송되며 두리발앱-로그인-비밀번호 입력-마마콜 접수 클릭으로 차량 호출하실 수 있습니다.감사합니다</span>
+										<span class="date">2025.05.09</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd05_view.asp?idx=28" tabindex="4" title="마마콜 가입자 신규 앱 설치 안내(상세화면으로 이동)">
+										<span class="part">자주하는 질문</span>
+										<span class="btxt">마마콜 가입자 신규 앱 설치 안내</span>
+										<span class="stxt">교통약자(장애인,임산부)콜택시 통합운영으로 기존 마마콜 이용자의 신규 앱 설치가 필요합니다.* 기존 가입자: 두리발앱 다운로드-로그인아이디(전화번호)-로그인-전화번호입력-비밀번호 입력-로그인-마마콜 접수&nbsp;* 신규 가입자: 두리발 홈페이지-회원가입-마마콜 클릭-본인인증-마마콜 신청서류 첨부-마이페이지 접수 확인(4월 예정)-서류심사 후 승인(업무일 3일 이내)-두리발앱 다운로드-로그인아이디(전화번호 또는 아이디)-로그인&nbsp;- 신규가입 시 서류면제 대상:&nbsp;​출산 전, 보건소나 정부24 등록된 부산 거주 임산부(자격확인 시 반영)&nbsp;두리발, 자비콜 회원은 기존에 쓰시던 앱 그대로 사용하시면 됩니다. 마마콜 서류 심사 후 승인 및 반려시 문자 전송됩니다. 감사합니다.</span>
+										<span class="date">2025.03.31</span>
+									</a>
+								</li>
+								
+								<li>
+									<a href="02_brd/brd05_view.asp?idx=27" tabindex="5" title="특별교통수단(두리발), 교통약자(장애인)콜택시 운행시간 및 요금수준은 어떻게 되나요?(상세화면으로 이동)">
+										<span class="part">자주하는 질문</span>
+										<span class="btxt">특별교통수단(두리발), 교통약자(장애인)콜택시 운행시간 및 요금수준은 어떻게 되나요?</span>
+										<span class="stxt">○ 운행시간: 24시간 운영○ 일반택시 중 중형택시 요금의 100분의 35에 해당하는 금액※ 기본요금 5Km까지 1,800원(422m당 100원, 102초당 100원(병산 요금))※ 요금의 수수: 카드 결제※ 시외 지역 운행시 요금이 20% 할증되며, 도로교통비는 고객 부담○ 시·도 경계 통과시 시외 할증요금 부과○ 고속도로 통행료: 고객부담</span>
+										<span class="date">2020.08.14</span>
+									</a>
+								</li>
+								
+								
+								
+
+
+							</ul>
+
+							<a href="02_brd/brd05.asp" class="news_more" title="자주하는 질문 페이지로 이동">자주하는 질문 더보기</a>
+						</div>
+
+						<div class="control_type4">
+							<button class="prev-slide" type="button">이전</button>
+							<button class="stop-slide" type="button">정지</button>
+							<button class="start-slide" type="button">시작</button>
+							<button class="next-slide" type="button">다음</button>
+						</div>
+
+					</li>
+
+					<!--자주하는 질문-->
+
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="section3">
+	<div class="aa_wrap">
+		<div class="div_left">
+
+			<div class="banner_zone">
+				<div class="tit_wrap">
+					<h2>배너존</h2>
+					<div class="control_type1">
+						<button class="prev-slide" type="button">이전</button>
+						<button class="stop-slide" type="button">정지</button>
+						<button class="start-slide" type="button" style="display: none;">시작</button>
+						<button class="next-slide" type="button">다음</button>
+					</div>
+				</div>
+				
+				<ul class="roll_banner_list">
+					
+					<li>
+						<a href="http://www.busan.go.kr/" target="_blank" title="새창열림">
+						<img src="images/main/banner01.gif" alt="부산광역시" /></a>
+					</li>
+					<li>
+						<a href="http://www.bisco.or.kr/" target="_blank" title="새창열림"><img src="images/main/banner02.gif" alt="부산시설공단" /></a>
+					</li>
+					<li>
+						<a href="http://www.pjy.or.kr/" target="_blank" title="새창열림"><img src="images/main/banner03.gif" alt="사단법인 부산장애인총연합회" /></a>
+					</li>
+					<li>
+						<a href="http://www.bgtj.or.kr/webapps/index.jsp" target="_blank" title="새창열림">
+						<img src="images/main/banner04.gif" alt="부산개인택시운송조합" /></a>
+					</li>
+					<li>
+						<a href="https://clinic.ppfk.or.kr/clinic/busan" target="_blank" title="새창열림" tabindex="-1">
+						<img src="images/main/banner05.gif" alt="인구보건복지협회" /></a>
+					</li>
+
+					
+				
+				</ul>
+
+
+			</div>
+
+
+			<div class="icon_list">
+				<!--<a href="https://www.duribal.co.kr/cmm/?BD_CD=FAQ"><span class="bg01">자주묻는 <em>질문</em></span></a>-->
+				<a href="02_brd/brd03.asp"  title="문의하기 페이지로 이동"><span class="bg02"><em>문의</em>하기</span></a>
+			</div>
+
+		</div>
+
+		<div class="div_right">
+			<div class="ban_wrap Slide02">
+				
+				<div class="bnn_list bg01">
+					<a href="04_mmc/mmc01.asp" tabindex="-1" title="임산부콜택시 페이지로 이동">
+						<span class="btxt">임산부콜택시</span>
+						<span class="stxt">임산부의 병원진료 등 교통편의를 제공하여<br />아이낳고 키우기 좋은 도시 부산을 만들어 갑니다!</span>
+					</a>
+				</div>
+				<div class="bnn_list bg02">
+					<a href="03_vou/vou01.asp" tabindex="-1" title="장애인콜택시 페이지로 이동">
+						<span class="btxt">장애인콜택시</span>
+						<span class="stxt">중증장애인에게 교통편의를 제공하여<br />좋은 도시 부산을 만들어 갑니다! </span>
+					</a>
+				</div>
+				<div class="bnn_list bg03">
+					<a href="05_big/big01.asp" tabindex="0" title="다인승두리발 페이지로 이동">
+						<span class="btxt">다인승두리발</span>
+						<span class="stxt">출발지 또는 목적지가 같은 2인 이상의<br />휠체어 이용고객 교통편의를 제공합니다!</span>
+					</a>
+				</div>
+					
+				
+			</div>
+			<div class="control">
+				<button class="prev-slide" type="button">이전</button>
+				<button class="stop-slide" type="button">정지</button>
+				<button class="start-slide" type="button" style="display: none;">시작</button>
+				<button class="next-slide" type="button">다음</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+</div>
+	
+	
+<!-- main_contents -->
+<div id="footer">
+		<div class="inner_wrap">
+			<div class="footer_top">
+				<h1><img src="/images/common/footer_logo2.jpg" alt="부산시설공단 두리발" /></h1>
+				<div class="tel_wrap">
+					<div class="tel_01">
+						<span class="tit">통합전화번호 </span>
+						<span class="tel">1555-1114</span>
+					</div>
+					<!-- <div class="tel_02">
+						<span class="tit">교통약자(장애인)콜택시</span>
+						<span class="tel">051-583-8000</span>
+					</div>
+					<div class="tel_03">
+						<span class="tit">마마콜</span>
+						<span class="tel">051-850-4646</span>
+					</div> -->
+				</div>
+			</div>	
+			<div class="footer_con">
+				<ul class="fList cB">
+					<li><a href="/01_int/int01.asp" title="두리발 소개">두리발 소개</a></li>
+					<!--<li><a href="../site/userule.html">이용약관</a></li> -->
+					<!-- <li><a href="../site/person.html"><strong>개인정보취급방침</strong></a></li> -->
+					<li><a href="https://www.bisco.or.kr/news/news04/news04_5/" target="_blank" title="새창열림"><strong>개인정보처리방침</strong></a></li>
+					<li><a href="/sitemap.asp" title="사이트맵">사이트맵</a></li>
+				</ul>
+				<p><span class="bar">(47513) 부산시 연제구 중앙대로 1226번길 18(거제동 금샘빌딩 1,2층)</span> FAX 0502-922-8001	© COPYRIGHT 2016 BY <strong>DURIBAL</strong>.All reghts reserved</p>
+
+			</div><!-- footer_con -->
+			<div class="web-in">
+				<!--<a title="pdf 파일보기(새 창 열림)" href="https://www.duribal.co.kr/image/common/duribal_web.pdf" target="_blank">-->
+				<a title="pdf 파일보기(새 창 열림)" href="https://www.duribal.co.kr/images/common/duribal_web_.pdf" target="_blank">
+					<img class="wa" alt="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인증마크(WA인증마크)" src="/images/common/duribal_web.png" />
+				</a>
+			</div> 
+			<div class="foot_site">
+				<a href="/index.asp#!" class="site_btn" aria-expanded="false" aria-controls="relatedSiteList">
+					관련 사이트
+				</a>
+				<ul id="relatedSiteList" class="site_btn3" style="display: none;">						
+					<li><a target="_blank" title="새창열림" href="https://www.bisco.or.kr/">부산시설공단</a></li>
+					<li><a target="_blank" title="새창열림" href="https://clinic.ppfk.or.kr/clinic/busan">인구보건복지협회 부산지회</a></li>
+					
+				</ul>
+			</div>
+		</div><!-- inner_wrap -->
+	</div>
+	<!-- footer -->
+	
+
+<!-- wrap -->
+
+<script type="text/javascript">
+ 
+	$(function($){
+		$("img.lazy").lazyload({effect : "fadeIn"});
+	});
+	
+	function adviceEmailSend(){
+		MM_openBrWindow('/newsletter/counsel_popup.html','openwindows','scrollbars=no,width=454,height=520');
+	}
+</script>
+</body>
+</html>
