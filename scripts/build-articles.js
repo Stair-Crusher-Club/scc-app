@@ -33,8 +33,8 @@ const SUBPAGES_PATH = path.join(SRC_DIR, 'subpages.json');
 let SUBPAGES = {};
 // Notion 내부 page-id(하이픈 제거, 소문자) → 우리 사이트 URL. 본문 내 내부 링크 remap용.
 let LINK_MAP = {};
-// 발행 경로(/articles/...) → 글 제목. bookmark 블록의 앵커 텍스트를 생 URL 대신 제목으로 쓰는 용도.
-let TITLE_BY_PATH = {};
+// 발행 경로(/articles/...) → {title, desc, image}. bookmark 블록을 Notion처럼 카드로 렌더하는 용도.
+let CARD_BY_PATH = {};
 const noHy = s => (s || '').replace(/-/g, '').toLowerCase();
 
 // ---------- CLI / env ----------
@@ -314,8 +314,56 @@ function resolveRow(page) {
   };
 }
 
+// ---------- 외부 링크 OG 메타 (bookmark 카드용) ----------
+const OG_CACHE = new Map();
+const unent = s =>
+  String(s || '')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .trim();
+async function fetchOg(url) {
+  if (OG_CACHE.has(url)) return OG_CACHE.get(url);
+  let card = null;
+  try {
+    const res = await fetchWithTimeout(
+      url,
+      {headers: {'user-agent': 'Mozilla/5.0 (compatible; SccArticleBot/1.0)'}},
+      15000,
+      2,
+    );
+    if (res.ok) {
+      const html = (await res.text()).slice(0, 300000);
+      const meta = key => {
+        const re = new RegExp(
+          `<meta[^>]+(?:property|name)=["']${key}["'][^>]+content=["']([^"']*)["']|<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${key}["']`,
+          'i',
+        );
+        const m = html.match(re);
+        return m ? unent(m[1] || m[2]) : '';
+      };
+      const title =
+        meta('og:title') ||
+        unent((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]);
+      const image = meta('og:image');
+      card = {
+        title,
+        desc: meta('og:description') || meta('description'),
+        image: image ? new URL(image, url).href : '',
+      };
+    }
+  } catch (e) {
+    console.warn(`  ⚠️ bookmark OG 조회 실패(${url}): ${e.message}`);
+  }
+  OG_CACHE.set(url, card);
+  return card;
+}
+
 // ---------- 이미지 다운로드 (presigned 만료 대응) ----------
-async function downloadImage(url, destDir, idx) {
+async function downloadImage(url, destDir, idx, prefix = 'img') {
   fs.mkdirSync(destDir, {recursive: true});
   const res = await fetchWithTimeout(url, {}, 30000, 2);
   if (!res.ok) throw new Error(`image ${res.status}`);
@@ -330,7 +378,7 @@ async function downloadImage(url, destDir, idx) {
         : ct.includes('svg')
           ? 'svg'
           : 'jpg';
-  const name = `img-${idx}.${ext}`;
+  const name = `${prefix}-${idx}.${ext}`;
   fs.writeFileSync(path.join(destDir, name), buf);
   return `assets/${name}`;
 }
@@ -347,36 +395,48 @@ const TEXT_COLOR = {
   pink: '#b35488',
   red: '#c4554d',
 };
+// Notion 현행 팔레트(--c-{col}BacSec). notion.site 퍼블리시 페이지의 computed style로 실측.
 const BG_COLOR = {
-  gray: '#f1f1ef',
-  brown: '#f3eeee',
-  orange: '#fbecdd',
-  yellow: '#fbf3db',
-  green: '#eef3ed',
-  blue: '#e7f3f8',
-  purple: '#f6f3f9',
-  pink: '#faf1f5',
-  red: '#fdebec',
+  gray: '#f0efed',
+  brown: '#f5ede9',
+  orange: '#fbebde',
+  yellow: '#f9f3dc',
+  green: '#e8f1ec',
+  blue: '#e5f2fc',
+  purple: '#f3ebf9',
+  pink: '#fae9f1',
+  red: '#fce9e7',
 };
 function renderRich(rich) {
   return (rich || [])
     .map(r => {
-      let t = esc(r.plain_text).replace(/\n/g, '<br>'); // Notion shift+enter → 줄바꿈 보존
       const a = r.annotations || {};
-      if (a.code) t = `<code>${t}</code>`;
-      if (a.bold) t = `<strong>${t}</strong>`;
-      if (a.italic) t = `<em>${t}</em>`;
-      if (a.strikethrough) t = `<s>${t}</s>`;
-      if (a.underline) t = `<u>${t}</u>`;
-      if (a.color && a.color !== 'default') {
-        if (a.color.endsWith('_background')) {
-          const c = a.color.replace('_background', '');
-          const bg = BG_COLOR[c] || c;
-          t = `<span style="background:${bg};padding:.1em .2em;border-radius:3px;">${t}</span>`;
-        } else {
-          t = `<span style="color:${TEXT_COLOR[a.color] || a.color};">${t}</span>`;
+      const annotate = line => {
+        let t = esc(line);
+        if (a.code) t = `<code>${t}</code>`;
+        if (a.bold) t = `<strong>${t}</strong>`;
+        if (a.italic) t = `<em>${t}</em>`;
+        if (a.strikethrough) t = `<s>${t}</s>`;
+        if (a.underline) t = `<u>${t}</u>`;
+        if (a.color && a.color !== 'default') {
+          if (a.color.endsWith('_background')) {
+            const c = a.color.replace('_background', '');
+            const bg = BG_COLOR[c] || c;
+            // Notion 인라인 하이라이트는 padding/radius 없이 배경만 — 넣으면 인접 하이라이트
+            // 사이가 흰 틈으로 끊긴다(🙌 + 링크 사례)
+            t = `<span style="background:${bg};">${t}</span>`;
+          } else {
+            t = `<span style="color:${TEXT_COLOR[a.color] || a.color};">${t}</span>`;
+          }
         }
-      }
+        return t;
+      };
+      // Notion shift+enter(\n) → <br>. 줄바꿈은 스타일 span **밖**에 둔다 —
+      // 안에 넣으면 배경색이 빈 줄까지 칠해진다(Notion은 안 칠함). (후원 섹션 실제 사고)
+      let t = String(r.plain_text || '')
+        .split('\n')
+        .map(line => (line === '' ? '' : annotate(line)))
+        .join('<br>');
       if (r.href)
         t = `<a href="${esc(fixHref(r.href))}" rel="noopener">${t}</a>`;
       return t;
@@ -394,10 +454,14 @@ function colorStyle(color) {
   }
   return ` style="color:${TEXT_COLOR[color] || color};"`;
 }
-// callout color는 배경 의미 (gray=회색 배경, blue_background=파랑 배경, default=Notion 기본 회색)
+// callout color는 배경 의미. Notion 실측: 컬러=--c-{col}BacSec, gray=--c-graBacPri(#f9f8f7,
+// 인라인 회색 하이라이트보다 옅다), default(=배경 없음)=투명 + 1px 테두리.
 function calloutBgStyle(color) {
   const c = (color || 'default').replace('_background', '');
-  return `background:${BG_COLOR[c] || '#f1f1ef'};`;
+  if (c === 'default')
+    return 'background:transparent;border:1px solid rgba(28,19,1,.11);';
+  if (c === 'gray') return 'background:#f9f8f7;';
+  return `background:${BG_COLOR[c] || '#f9f8f7'};`;
 }
 // callout 아이콘을 Notion 원본대로 렌더 — emoji는 그대로, 빌트인/외부/파일 아이콘은 이미지로 다운로드,
 // 아이콘이 없으면(icon:null) 웹도 아이콘 없음(💡 강제 금지).
@@ -735,6 +799,7 @@ async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
   const ctx = {
     assetsDir,
     imgIdx: 0,
+    bmIdx: 0,
     firstImage: null,
     title: titlePlain,
     slug: fullSlug,
@@ -1024,12 +1089,36 @@ async function renderBlock(b, ctx) {
     case 'embed': {
       const url = d.url || '';
       if (!url) return '';
-      // 발행된 글을 가리키는 북마크면 생 URL 대신 제목을 앵커 텍스트로 (내부링크 SEO + 가독성)
-      const urlPath = url.replace(SITE.baseUrl, '');
-      const title = TITLE_BY_PATH[urlPath.replace(/\/$/, '')];
-      return title
-        ? `<p><a href="${esc(urlPath)}" rel="noopener">${esc(title)}</a></p>`
-        : `<p><a href="${esc(url)}" rel="noopener">${esc(url)}</a></p>`;
+      // Notion과 동일한 북마크 카드(썸네일 + 제목/설명/URL). 내부 글은 manifest에서,
+      // 외부 링크는 OG 메타를 긁어서 채운다.
+      const urlPath = url.replace(SITE.baseUrl, '').replace(/\/$/, '');
+      const internal = CARD_BY_PATH[urlPath];
+      const card = internal || (await fetchOg(url)) || {};
+      let thumb = internal ? card.image : '';
+      if (!internal && card.image) {
+        try {
+          const rel = await downloadImage(
+            card.image,
+            ctx.assetsDir,
+            ctx.bmIdx++,
+            'bm',
+          );
+          thumb = `/articles/${ctx.slug}/${rel}`;
+        } catch (e) {
+          console.warn(`  ⚠️ bookmark 썸네일 실패(${url}): ${e.message}`);
+        }
+      }
+      const href = internal ? urlPath : url;
+      const title = card.title || url;
+      const body =
+        `<span class="bm-body"><span class="bm-title">${esc(title)}</span>` +
+        (card.desc ? `<span class="bm-desc">${esc(card.desc)}</span>` : '') +
+        // OG 제목을 못 얻으면 제목 자리에 URL이 오므로 URL 줄은 생략(같은 문자열 2번 금지)
+        (title === url ? '' : `<span class="bm-url">${esc(url)}</span>`) +
+        `</span>`;
+      return thumb
+        ? `<a class="bookmark" href="${esc(href)}" rel="noopener"><span class="bm-thumb"><img src="${esc(thumb)}" alt="" loading="lazy"></span>${body}</a>`
+        : `<a class="bookmark no-thumb" href="${esc(href)}" rel="noopener">${body}</a>`;
     }
     // 탭 컨테이너 자체엔 텍스트가 없다(API가 `tab: {}`) — 하위 블록을 펼쳐 렌더하지 않으면 본문이 통째로 유실된다
     case 'tab':
@@ -1099,6 +1188,7 @@ async function buildArticle(meta, times) {
   const ctx = {
     assetsDir,
     imgIdx: 0,
+    bmIdx: 0,
     firstImage: null,
     title: meta.title,
     slug,
@@ -1257,14 +1347,23 @@ async function main() {
   // 내부 링크 remap 테이블 + 카드형 상세 메타 로드
   SUBPAGES = readJson(SUBPAGES_PATH, {});
   LINK_MAP = {};
-  TITLE_BY_PATH = {};
+  CARD_BY_PATH = {};
   for (const {meta} of rows) {
     LINK_MAP[noHy(meta.contentPageId)] = `/articles/${meta.slug}`;
-    TITLE_BY_PATH[`/articles/${meta.slug}`] = meta.title;
+    CARD_BY_PATH[`/articles/${meta.slug}`] = {
+      title: meta.title,
+      desc: meta.summary,
+      // 이미 다운로드된 대표 이미지(로컬 경로) 재사용 — bookmark 카드 썸네일용
+      image: (manifest[meta.rowId] || {}).image || '',
+    };
   }
   for (const [rid, sp] of Object.entries(SUBPAGES)) {
     LINK_MAP[noHy(rid)] = `/articles/${sp.parentSlug}/${sp.slug}`;
-    TITLE_BY_PATH[`/articles/${sp.parentSlug}/${sp.slug}`] = sp.title;
+    CARD_BY_PATH[`/articles/${sp.parentSlug}/${sp.slug}`] = {
+      title: sp.title,
+      desc: sp.summary,
+      image: '',
+    };
   }
 
   console.log(

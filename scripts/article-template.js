@@ -62,6 +62,8 @@ blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
 .callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
 .callout .emoji{flex:0 0 auto;line-height:1.5;}
 .callout .callout-ico{flex:0 0 auto;width:22px;height:22px;margin-top:2px;object-fit:contain;}
+/* flex 아이템 기본 min-width:auto 때문에 내부 nowrap(북마크 카드 URL 등)이 페이지를 밀어낸다 */
+.callout>div{min-width:0;flex:1 1 auto;}
 .callout>div>*:first-child{margin-top:0;padding-top:0;}
 details{margin:3px 0;}
 details summary{cursor:pointer;padding:3px 0;font-weight:600;}
@@ -87,6 +89,16 @@ figure.db{margin:12px 0;}
 .empty{height:1em;margin:0;}
 .db-wrap tr:last-child td{border-bottom:0;}
 .pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* bookmark 블록 → Notion 북마크 카드(좌 썸네일 + 우 제목/설명/URL). 치수는 Notion 실측 */
+a.bookmark{display:flex;flex-wrap:wrap;align-items:stretch;margin:8px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;}
+a.bookmark:hover{background:rgba(55,53,47,.03);}
+.bm-thumb{flex:1 1 100px;min-width:0;height:154px;overflow:hidden;}
+.bm-thumb img{display:block;width:100%;height:100%;object-fit:cover;}
+.bm-body{flex:4 1 180px;min-width:0;display:flex;flex-direction:column;gap:8px;padding:18px 24px 14px;overflow:hidden;}
+a.bookmark.no-thumb .bm-body{padding:12px 16px;}
+.bm-title{font-size:17px;line-height:22px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bm-desc{font-size:13px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.bm-url{margin-top:auto;color:var(--muted);font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
 .db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
 .db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
