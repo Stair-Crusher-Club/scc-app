@@ -1282,7 +1282,28 @@ async function main() {
     );
 
   if (DRY) {
-    console.log('   (--dry: 변경 없음)');
+    // 어떤 글이 왜 잡혔는지 안 찍으면 STEP 2 대상을 역추적하는 데 별도 스크립트가 필요하다
+    if (changed.length)
+      console.log(
+        `   📝 신규/변경 문서:\n` +
+          changed
+            .map(c => {
+              const prev = manifest[c.meta.rowId];
+              const why = !prev
+                ? '신규'
+                : prev.slug !== c.meta.slug
+                  ? `slug 변경 ${prev.slug} → ${c.meta.slug}`
+                  : `수정 ${prev.editedTime} → ${c.times.editedTime}`;
+              return `      - ${c.meta.slug}  (${c.meta.title})\n        ${why} · rowId=${c.meta.rowId}`;
+            })
+            .join('\n'),
+      );
+    if (deleted.length)
+      console.log(
+        `   🗑️  삭제 대상:\n` +
+          deleted.map(id => `      - ${manifest[id].slug}`).join('\n'),
+      );
+    console.log('   (--dry: 파일 변경 없음)');
     return;
   }
 
