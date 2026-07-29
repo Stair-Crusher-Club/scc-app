@@ -8,6 +8,7 @@ import {
   allMainMissionsCompletedIn,
   mainMissionTypesOf,
   objectParticle,
+  shouldExitTutorialMission,
 } from '@/screens/TutorialMissionScreen/constants';
 
 const missions = (
@@ -127,6 +128,47 @@ describe('allMainMissionsCompletedIn', () => {
         ...missions(TutorialMissionTypeDto.HiddenAppSurvey),
       ]),
     ).toBe(true);
+  });
+});
+
+describe('shouldExitTutorialMission', () => {
+  const v2Set = missions(
+    TutorialMissionTypeDto.ViewTutorialImages,
+    TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
+    TutorialMissionTypeDto.SavePlaceList,
+    TutorialMissionTypeDto.HiddenAppSurvey,
+  );
+
+  // 이번 버그: 익명 유저는 _syncUserInfo 가 getUserInfo 를 스킵해 featureFlags 가
+  // 영원히 null(=undefined 전달) 이다. flag 만 보면 이탈 가드가 절대 발동하지 않아
+  // stair-crusher://tutorial-mission 딥링크로 들어온 익명 유저가 빈 화면에 갇힌다.
+  it('익명 유저(flag 모름 + 서버가 메인 미션 0개)는 이탈한다', () => {
+    expect(shouldExitTutorialMission(undefined, [])).toBe(true);
+  });
+
+  it('히든 미션만 내려와도 메인 0개이므로 이탈한다', () => {
+    expect(
+      shouldExitTutorialMission(
+        undefined,
+        missions(TutorialMissionTypeDto.HiddenAppSurvey),
+      ),
+    ).toBe(true);
+  });
+
+  // 회귀 가드: progress 로딩 중에 이탈시키면 정상 사용자가 튕긴다.
+  it('progress 로딩 중(undefined)에는 이탈하지 않는다', () => {
+    expect(shouldExitTutorialMission(undefined, undefined)).toBe(false);
+    expect(shouldExitTutorialMission(true, undefined)).toBe(false);
+  });
+
+  it('flag 보유 + 메인 미션 존재면 이탈하지 않는다 (가입 유저 정상 경로)', () => {
+    expect(shouldExitTutorialMission(true, v2Set)).toBe(false);
+  });
+
+  // 기존 동작 유지: flag 미보유 가입 유저는 progress 도착 전에도 즉시 이탈.
+  it('flag 미보유가 확정되면 progress 를 기다리지 않고 이탈한다', () => {
+    expect(shouldExitTutorialMission(false, undefined)).toBe(true);
+    expect(shouldExitTutorialMission(false, v2Set)).toBe(true);
   });
 });
 

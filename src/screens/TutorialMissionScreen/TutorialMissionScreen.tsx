@@ -49,6 +49,7 @@ import {
   koreanOrdinal,
   mainMissionTypesOf,
   objectParticle,
+  shouldExitTutorialMission,
 } from './constants';
 
 function isMissionCompleted(
@@ -187,13 +188,26 @@ export default function TutorialMissionScreen({
     scrollRef.current?.scrollTo({y: 0, animated: false});
   }, [scrollResetToken]);
 
-  // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
-  // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
+  // 튜토리얼 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX(빈 화면) 노출 방지.
+  // 판정은 shouldExitTutorialMission 이 전담한다 — flag 신호만 보면 익명 유저는
+  // featureFlags 가 영원히 null 이라 영구히 빈 화면에 갇힌다.
   useEffect(() => {
-    if (featureFlags && !featureFlags.enabledFlags.has('USER_TUTORIAL')) {
-      navigation.goBack();
+    if (
+      !shouldExitTutorialMission(
+        featureFlags?.enabledFlags.has('USER_TUTORIAL'),
+        progress?.missions,
+      )
+    ) {
+      return;
     }
-  }, [featureFlags, navigation]);
+    // 딥링크 콜드스타트로 스택에 이전 화면이 없으면 goBack() 이 no-op 이라 여전히 갇힌다.
+    // RootScreen.runWebRouteGate 와 동일한 패턴으로 홈으로 보낸다.
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('Main');
+    }
+  }, [featureFlags, progress?.missions, navigation]);
   const [showHiddenCollected, setShowHiddenCollected] = useState(false);
   const [
     hasShownOutingItemsCollectedPopup,
@@ -451,8 +465,8 @@ export default function TutorialMissionScreen({
   ]);
 
   // 메인 미션이 없으면(USER_TUTORIAL flag 미대상/익명 → 서버가 missions: [])
-  // 그릴 카드도 없고 "0개의 미션을 완료해봐요!" 같은 문구만 남는다. 위 flag 가드
-  // effect 의 goBack() 이 도는 사이 빈 화면을 보여준다.
+  // 그릴 카드도 없고 "0개의 미션을 완료해봐요!" 같은 문구만 남는다. 위 이탈 가드
+  // effect 가 goBack/홈 이동을 하는 사이 한 프레임만 빈 화면을 보여준다.
   if (!progress || mainMissionTypes.length === 0) {
     return <ScreenLayout isHeaderVisible={true} />;
   }

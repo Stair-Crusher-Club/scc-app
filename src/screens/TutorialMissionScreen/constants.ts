@@ -127,6 +127,28 @@ export const allMainMissionsCompletedIn = (
 };
 
 /**
+ * 튜토리얼 미션 화면에서 즉시 이탈시켜야 하는지. 두 개의 독립 신호를 OR 로 본다.
+ *
+ * - `isTutorialFlagEnabled`: `getUserInfo` 의 `USER_TUTORIAL` flag 보유 여부.
+ *   `undefined` = 아직 모름(응답 전 **또는 익명 유저**) → 대기.
+ * - `missions`: 서버 progress 의 미션 배열. `undefined` = 로딩 중 → 대기.
+ *
+ * flag 신호만으로는 부족하다: 익명 유저는 `_syncUserInfo` 가 getUserInfo 를 스킵해
+ * featureFlags 가 **영원히 null** 이므로 flag 가드가 절대 발동하지 않는다. 서버가
+ * 메인 미션을 0개로 내려준 것( `getUserTutorialProgress` 는 익명에게 `missions: []` )
+ * 자체가 "이 사용자는 튜토리얼 대상이 아니다" 라는 확정 신호라 이것만으로도 이탈시킨다.
+ */
+export const shouldExitTutorialMission = (
+  isTutorialFlagEnabled: boolean | undefined,
+  missions: UserTutorialMissionDto[] | undefined,
+): boolean => {
+  if (isTutorialFlagEnabled === false) {
+    return true;
+  }
+  return missions !== undefined && mainMissionTypesOf(missions).length === 0;
+};
+
+/**
  * 1-based 순서를 한글 서수("두 번째")로. 미션 개수가 늘어도 안전하게 fallback.
  */
 const KOREAN_ORDINALS = [
