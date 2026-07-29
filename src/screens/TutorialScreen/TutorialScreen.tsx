@@ -51,9 +51,12 @@ export default function TutorialScreen({
   const fromTutorialMission = route.params?.fromTutorialMission === true;
   const completeMission = useCompleteUserTutorialMission();
   const [showMissionCompleted, setShowMissionCompleted] = useState(false);
+  const [hasCompletionFailed, setHasCompletionFailed] = useState(false);
 
-  // Android 하드웨어 백버튼 차단
-  useBackHandler(() => true, []);
+  // Android 하드웨어 백버튼 차단. 단 미션 완료 API 가 한 번이라도 실패했다면 차단을 푼다
+  // (오프라인 등으로 완료가 불가능한데 나갈 방법까지 없으면 앱 강제 종료 외엔 답이 없다).
+  // 이때 나가도 미션 1 은 미완료로 남아 다시 진입해 재시도할 수 있다.
+  useBackHandler(() => !hasCompletionFailed, [hasCompletionFailed]);
 
   const isFirst = activeSlide === 0;
   const isLast = activeSlide === SLIDE_COUNT - 1;
@@ -92,13 +95,21 @@ export default function TutorialScreen({
 
   // 미션 1 완료: 실패 시엔 팝업을 띄우지 않는다 (hook 이 에러 토스트 노출, 재탭 시
   // 재시도 가능 — 완료 API 는 멱등).
+  //
+  // 실패를 기록해 백 버튼 차단을 푼다. "강제로 보기"는 스킵 방지가 목적이지 네트워크
+  // 장애 시 가두는 게 목적이 아니다 — 오프라인이면 완료 API 가 계속 실패하는데 헤더도
+  // 제스처 백도 없어(Navigation.screens.ts 의 headerShown/gestureEnabled false) 앱 강제
+  // 종료 외엔 빠져나갈 방법이 없어진다.
   const handleCompleteMission = useCallback(() => {
     if (completeMission.isPending) {
       return;
     }
     completeMission.mutate(
       {missionType: TutorialMissionTypeDto.ViewTutorialImages},
-      {onSuccess: () => setShowMissionCompleted(true)},
+      {
+        onSuccess: () => setShowMissionCompleted(true),
+        onError: () => setHasCompletionFailed(true),
+      },
     );
   }, [completeMission]);
 

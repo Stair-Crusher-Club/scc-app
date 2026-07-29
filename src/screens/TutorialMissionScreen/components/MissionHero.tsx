@@ -149,6 +149,11 @@ export default function MissionHero({
           return (
             <MissionItemHotZone
               key={missionType}
+              // elementName 은 **순서 기반을 의도적으로 유지**한다. 미션 타입 기반으로
+              // 바꾸면 이름이 정확해지는 대신 기존 v1 대시보드의 시계열이 끊긴다.
+              // 대신 v1/v2 가 같은 이름에 서로 다른 미션을 매핑하므로(v1 item_1=스마트폰,
+              // v2 item_1=돋보기) **코호트를 나눠 보려면 logParams 의 mission_type 을 써야
+              // 한다.** 두 셋이 공존하는 기간에는 elementName 만으로 집계하면 섞인다.
               elementName={`tutorial_mission_item_${idx + 1}_hot_zone`}
               logParams={{mission_type: missionType}}
               onPress={() => onMissionItemPress(missionType)}
