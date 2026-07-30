@@ -940,6 +940,7 @@ export default function PlaceDetailV2Screen({
                 onNameLayout={handleNameLayout}
               />
               <AiSummarySection
+                placeId={placeId}
                 aiSummary={accessibilityPost?.aiSummary}
                 onPressSourceTab={sourceTab => {
                   handleTabChange(
