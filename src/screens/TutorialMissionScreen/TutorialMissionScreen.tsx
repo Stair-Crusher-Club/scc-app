@@ -44,9 +44,12 @@ import MissionCard from './components/MissionCard';
 import MissionHero from './components/MissionHero';
 import {BubbleVariant} from './components/SpeechBubble';
 import {
-  MAIN_MISSION_TYPES,
   TUTORIAL_MISSION_META,
+  allMainMissionsCompletedIn,
   koreanOrdinal,
+  mainMissionTypesOf,
+  objectParticle,
+  shouldExitTutorialMission,
 } from './constants';
 
 function isMissionCompleted(
@@ -56,7 +59,8 @@ function isMissionCompleted(
 }
 
 interface BubbleStateInput {
-  collectedMainCount: number;
+  /** 서버 순서상 첫 미완료 메인 미션. 전부 완료면 undefined. */
+  currentMissionType: TutorialMissionTypeDto | undefined;
   allMainCompleted: boolean;
   hasShownOutingItemsCollectedPopup: boolean;
   isHiddenCompleted: boolean;
@@ -86,6 +90,10 @@ function pickPostCompletionLink({
       };
     case TutorialMissionTypeDto.UpvoteAccessibility:
       return undefined;
+    // 후속 링크 없음 (박원 시안 카드1의 "관심 지역, 관심 주제 수정하기 →" 는 미션2
+    // 텍스트 복붙 흔적이며 기획에서 "링크 없음" 으로 확정됐다).
+    case TutorialMissionTypeDto.ViewTutorialImages:
+      return undefined;
     case TutorialMissionTypeDto.HiddenAppSurvey:
       return undefined;
     default: {
@@ -96,12 +104,15 @@ function pickPostCompletionLink({
 }
 
 // 박원 2026-05-27 시안 stage → bubble variant + float 매핑.
+// 진행 중 말풍선은 "완료 개수"가 아니라 **현재 미션 타입**에서 파생한다 — 가입 시점에
+// 따라 미션 순서가 다르므로(v1/v2) 개수로는 어떤 외출템을 찾는 중인지 알 수 없다.
+// v1 셋(REGISTER→SAVE→UPVOTE)에서는 결과가 기존 개수 기반 매핑과 완전히 동일하다.
 function pickBubbleState({
-  collectedMainCount,
+  currentMissionType,
   allMainCompleted,
   hasShownOutingItemsCollectedPopup,
   isHiddenCompleted,
-}: BubbleStateInput): {variant: BubbleVariant; float: boolean} {
+}: BubbleStateInput): {variant: BubbleVariant | null; float: boolean} {
   if (isHiddenCompleted) {
     return {variant: 'v6_all_complete', float: false};
   }
@@ -111,13 +122,15 @@ function pickBubbleState({
     }
     return {variant: 'v5_seek_hidden', float: true};
   }
-  if (collectedMainCount === 0) {
-    return {variant: 'v1_seek_item', float: true};
+  // ponytail: 메인 미션이 하나도 없으면 allMainCompleted 가 true 라 여기 도달 불가.
+  // 그래도 문구를 날조하지 않고 말풍선 미노출(null)로 떨어뜨린다.
+  if (!currentMissionType) {
+    return {variant: null, float: false};
   }
-  if (collectedMainCount === 1) {
-    return {variant: 'v2_seek_map', float: true};
-  }
-  return {variant: 'v3_seek_detail', float: true};
+  return {
+    variant: TUTORIAL_MISSION_META[currentMissionType].bubbleVariant,
+    float: true,
+  };
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -175,13 +188,26 @@ export default function TutorialMissionScreen({
     scrollRef.current?.scrollTo({y: 0, animated: false});
   }, [scrollResetToken]);
 
-  // USER_TUTORIAL feature flag 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX
-  // 노출 방지. featureFlags === null (아직 getUserInfo 응답 전 / 익명 유저) 동안은 대기.
+  // 튜토리얼 미대상 사용자가 deeplink 등으로 우회 진입한 경우 broken UX(빈 화면) 노출 방지.
+  // 판정은 shouldExitTutorialMission 이 전담한다 — flag 신호만 보면 익명 유저는
+  // featureFlags 가 영원히 null 이라 영구히 빈 화면에 갇힌다.
   useEffect(() => {
-    if (featureFlags && !featureFlags.enabledFlags.has('USER_TUTORIAL')) {
-      navigation.goBack();
+    if (
+      !shouldExitTutorialMission(
+        featureFlags?.enabledFlags.has('USER_TUTORIAL'),
+        progress?.missions,
+      )
+    ) {
+      return;
     }
-  }, [featureFlags, navigation]);
+    // 딥링크 콜드스타트로 스택에 이전 화면이 없으면 goBack() 이 no-op 이라 여전히 갇힌다.
+    // RootScreen.runWebRouteGate 와 동일한 패턴으로 홈으로 보낸다.
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('Main');
+    }
+  }, [featureFlags, progress?.missions, navigation]);
   const [showHiddenCollected, setShowHiddenCollected] = useState(false);
   const [
     hasShownOutingItemsCollectedPopup,
@@ -202,13 +228,33 @@ export default function TutorialMissionScreen({
     return map;
   }, [progress]);
 
+  // 미션 순서/구성은 서버 응답 배열 순서가 유일한 정답이다 (가입 시점에 따라 v1/v2
+  // 서로 다른 셋이 내려온다). 앱은 순서를 하드코딩하지 않는다.
+  const mainMissionTypes = useMemo(
+    () => mainMissionTypesOf(progress?.missions ?? []),
+    [progress?.missions],
+  );
+
   const collectedMainCount = useMemo(() => {
-    return MAIN_MISSION_TYPES.filter(type =>
+    return mainMissionTypes.filter(type =>
       isMissionCompleted(missionByType.get(type)),
     ).length;
-  }, [missionByType]);
+  }, [mainMissionTypes, missionByType]);
 
-  const allMainCompleted = collectedMainCount === MAIN_MISSION_TYPES.length;
+  // 빈 미션 배열을 "전부 완료"로 오판하면 외출템 수집 완료 팝업/히든 CTA/모자 hot zone
+  // 이 헛발사된다 → 판정은 빈 배열 가드가 든 공용 헬퍼로만 한다.
+  const allMainCompleted = useMemo(
+    () => allMainMissionsCompletedIn(progress?.missions ?? []),
+    [progress?.missions],
+  );
+  // 서버 순서상 첫 미완료 메인 미션 (= 지금 깰 수 있는 미션).
+  const currentMainMissionType = useMemo(
+    () =>
+      mainMissionTypes.find(
+        type => !isMissionCompleted(missionByType.get(type)),
+      ),
+    [mainMissionTypes, missionByType],
+  );
   const isHiddenCompleted = isMissionCompleted(
     missionByType.get(TutorialMissionTypeDto.HiddenAppSurvey),
   );
@@ -273,7 +319,10 @@ export default function TutorialMissionScreen({
         if (meta.navigateTo === 'TallyForm') {
           return;
         }
-        if (meta.navigateTo === 'InterestedRegionAndThemes') {
+        if (meta.navigateTo === 'BasicUsageTutorial') {
+          // 계뿌클 기본 사용법 3장 화면. 마지막 장 CTA 가 미션 완료 API 를 호출한다.
+          navigation.navigate('BasicUsageTutorial');
+        } else if (meta.navigateTo === 'InterestedRegionAndThemes') {
           navigation.navigate('InterestedRegionAndThemes', {});
         } else if (meta.navigateTo === 'PublicPlaceLists') {
           // 튜토리얼 미션 2 (SAVE_PLACE_LIST) 진입은 전용 라우트로. 라우트 이름이
@@ -320,22 +369,13 @@ export default function TutorialMissionScreen({
   // - 이미 완료된 외출템: 무반응.
   // - 잠긴 외출템(이전 미션 미완료): 무반응.
   const handleMissionItemPress = useCallback(
-    (index: 0 | 1 | 2) => {
-      const missionType = MAIN_MISSION_TYPES[index];
-      if (!missionType) {
+    (missionType: TutorialMissionTypeDto) => {
+      if (missionType !== currentMainMissionType) {
         return;
       }
-      const isCompleted = isMissionCompleted(missionByType.get(missionType));
-      const allPreviousCompleted = MAIN_MISSION_TYPES.slice(0, index).every(
-        prev => isMissionCompleted(missionByType.get(prev)),
-      );
-      const isCurrent = allPreviousCompleted && !isCompleted;
-      if (!isCurrent) {
-        return;
-      }
-      scrollToMissionCard(index);
+      scrollToMissionCard(mainMissionTypes.indexOf(missionType));
     },
-    [missionByType, scrollToMissionCard],
+    [currentMainMissionType, mainMissionTypes, scrollToMissionCard],
   );
 
   // 박원 2026-05-27 시안. hero PNG 자체는 정지하고 hero 위에 overlay 한 말풍선만
@@ -345,7 +385,7 @@ export default function TutorialMissionScreen({
   // - variant 5: 숨겨진 외출템도 모아볼까 (allMain, popupShown, !hidden) → 둥실
   // - variant 6: 다모았다 (hidden 완료) → 정지
   const bubbleState = pickBubbleState({
-    collectedMainCount,
+    currentMissionType: currentMainMissionType,
     allMainCompleted,
     hasShownOutingItemsCollectedPopup,
     isHiddenCompleted,
@@ -424,7 +464,10 @@ export default function TutorialMissionScreen({
     isHiddenCompleted,
   ]);
 
-  if (!progress) {
+  // 메인 미션이 없으면(USER_TUTORIAL flag 미대상/익명 → 서버가 missions: [])
+  // 그릴 카드도 없고 "0개의 미션을 완료해봐요!" 같은 문구만 남는다. 위 이탈 가드
+  // effect 가 goBack/홈 이동을 하는 사이 한 프레임만 빈 화면을 보여준다.
+  if (!progress || mainMissionTypes.length === 0) {
     return <ScreenLayout isHeaderVisible={true} />;
   }
 
@@ -443,29 +486,28 @@ export default function TutorialMissionScreen({
                 heroImageUrl={effectiveHeroImageUrl}
                 bubbleVariant={bubbleState.variant}
                 bubbleFloat={bubbleState.float}
+                mainMissionTypes={mainMissionTypes}
                 onMissionItemPress={handleMissionItemPress}
                 onBubblePress={
                   // 진행 중 미션이 있을 때(= 메인 미션 미완료, bubble variant 1/2/3)만
                   // 말풍선 탭 → 현재 진행 미션 카드로 스크롤. 다 모은 뒤(v4/5/6)엔 미전달.
                   allMainCompleted
                     ? undefined
-                    : () => scrollToMissionCard(collectedMainCount as 0 | 1 | 2)
+                    : () => scrollToMissionCard(collectedMainCount)
                 }
               />
 
               <ContentArea>
                 <SectionTitle>
-                  {`윌리와 함께\n${
-                    allMainCompleted ? 3 : MAIN_MISSION_TYPES.length
-                  }개의 미션을 완료해봐요!`}
+                  {`윌리와 함께\n${mainMissionTypes.length}개의 미션을 완료해봐요!`}
                 </SectionTitle>
 
                 <CardsWrapper>
-                  {MAIN_MISSION_TYPES.map((missionType, index) => {
+                  {mainMissionTypes.map((missionType, index) => {
                     const mission = missionByType.get(missionType);
                     const meta = TUTORIAL_MISSION_META[missionType];
                     const isCompleted = isMissionCompleted(mission);
-                    const previousMissions = MAIN_MISSION_TYPES.slice(0, index);
+                    const previousMissions = mainMissionTypes.slice(0, index);
                     const isPreviousCompleted = previousMissions.every(prev =>
                       isMissionCompleted(missionByType.get(prev)),
                     );
@@ -491,7 +533,9 @@ export default function TutorialMissionScreen({
                           isDimmed={isDimmed}
                           dimText={
                             index > 0
-                              ? `외출템 ${index}을 모으면, ${koreanOrdinal(
+                              ? `외출템 ${index}${objectParticle(
+                                  index,
+                                )} 모으면, ${koreanOrdinal(
                                   index + 1,
                                 )} 미션이 열려요!`
                               : undefined

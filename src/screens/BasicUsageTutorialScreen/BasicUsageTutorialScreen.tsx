@@ -11,31 +11,40 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import ChevronRight from '@/assets/icon/ic_chevron_right.svg';
-import {hasShownHomeTutorialAtom} from '@/atoms/User';
+import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {ScreenProps} from '@/navigation/Navigation.screens';
-import {useSetAtom} from 'jotai';
+import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
+import {useCompleteUserTutorialMission} from '@/hooks/useUserTutorialProgress';
+import type {ScreenProps} from '@/navigation/Navigation.screens';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const SLIDE_COUNT = 3;
 
-export const tutorialSlides = [
+const tutorialSlides = [
   require('@/assets/img/tutorial_1.png'),
   require('@/assets/img/tutorial_2.png'),
   require('@/assets/img/tutorial_3.png'),
 ];
 
-export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
+/**
+ * 계뿌클 기본 사용법 안내 3장. **윌리의 외출 미션 1 전용 화면이다.**
+ * 게스트에게는 노출하지 않는다 — 이 3장을 보는 것 자체가 미션 1이라서,
+ * 미션 화면의 [미션 시작] 또는 홈 인트로 팝업으로 진입하는 경로만 존재한다.
+ */
+export default function BasicUsageTutorialScreen({
+  navigation,
+}: ScreenProps<'BasicUsageTutorial'>) {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [activeSlide, setActiveSlide] = useState(0);
-  const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
+  const completeMission = useCompleteUserTutorialMission();
+  const [showMissionCompleted, setShowMissionCompleted] = useState(false);
 
-  // Android 하드웨어 백버튼 차단
-  useBackHandler(() => true, []);
+  // Android 하드웨어 백버튼 차단 ("강제로 보기" 요건).
+  useBackHandler(() => true);
 
   const isFirst = activeSlide === 0;
   const isLast = activeSlide === SLIDE_COUNT - 1;
@@ -67,10 +76,34 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
     });
   }, [activeSlide]);
 
-  const handleStart = useCallback(() => {
-    setHasShownHomeTutorial(true);
-    navigation.goBack();
-  }, [navigation, setHasShownHomeTutorial]);
+  // 미션 화면이 스택에 없으면(홈 인트로 팝업 → 직진) 라우터가 현재 라우트를 대체하므로
+  // 어느 진입 경로에서도 미션 화면에 도착한다.
+  const goToMissionScreen = useCallback(() => {
+    navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
+  }, [navigation]);
+
+  // 미션 1 완료. 실패해도 이 화면에 붙잡아 두지 않고 미션 화면으로 내보낸다 — 이 화면은
+  // 헤더도 제스처 백도 없어서(Navigation.screens.ts 의 headerShown/gestureEnabled false)
+  // 오프라인처럼 완료 API 가 계속 실패하는 상황에서 머물게 하면 빠져나갈 방법이 없다.
+  // 미션 1 은 미완료로 남으므로 미션 카드에서 다시 진입해 재시도할 수 있다
+  // (완료 API 는 멱등). 실패 사유는 hook 이 토스트로 알린다.
+  const handleCompleteMission = useCallback(() => {
+    if (completeMission.isPending) {
+      return;
+    }
+    completeMission.mutate(
+      {missionType: TutorialMissionTypeDto.ViewTutorialImages},
+      {
+        onSuccess: () => setShowMissionCompleted(true),
+        onError: goToMissionScreen,
+      },
+    );
+  }, [completeMission, goToMissionScreen]);
+
+  const handleMissionCompletedClose = useCallback(() => {
+    setShowMissionCompleted(false);
+    goToMissionScreen();
+  }, [goToMissionScreen]);
 
   return (
     <Container>
@@ -94,9 +127,10 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
       <BottomBar style={{paddingBottom: insets.bottom + 20}}>
         {isLast ? (
           <StartButton
-            onPress={handleStart}
-            elementName="tutorial_start_button">
-            <StartButtonText>시작하기</StartButtonText>
+            onPress={handleCompleteMission}
+            disabled={completeMission.isPending}
+            elementName="tutorial_mission_1_view_images_complete_button">
+            <StartButtonText>계뿌클 둘러보기 완료!</StartButtonText>
           </StartButton>
         ) : (
           <NavRow>
@@ -125,6 +159,18 @@ export default function TutorialScreen({navigation}: ScreenProps<'Tutorial'>) {
           </NavRow>
         )}
       </BottomBar>
+
+      {showMissionCompleted && (
+        <MissionCompletedOverlay
+          isVisible={true}
+          itemImage={require('@/assets/img/tutorial/mission_complete_img_magnifier.png')}
+          description={
+            '돋보기 획득!\n계뿌클 앱을 둘러봤어요.\n계뿌클 사용법 참 쉽죠!?'
+          }
+          confirmElementName="tutorial_mission_1_view_images_completed_confirm"
+          onClose={handleMissionCompletedClose}
+        />
+      )}
     </Container>
   );
 }

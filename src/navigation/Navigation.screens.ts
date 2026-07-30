@@ -70,7 +70,7 @@ import SearchUnconqueredPlacesScreen, {
 } from '@/screens/SearchUnconqueredPlacesScreen';
 import SettingScreen from '@/screens/SettingScreen';
 import SignupScreen, {SignupScreenParams} from '@/screens/SignupScreen';
-import TutorialScreen from '@/screens/TutorialScreen';
+import BasicUsageTutorialScreen from '@/screens/BasicUsageTutorialScreen';
 import TutorialMissionScreen, {
   TutorialMissionScreenParams,
 } from '@/screens/TutorialMissionScreen';
@@ -280,8 +280,8 @@ export const MainNavigationScreens: {
     options: {headerShown: false, gestureEnabled: false},
   },
   {
-    name: 'Tutorial',
-    component: TutorialScreen,
+    name: 'BasicUsageTutorial',
+    component: BasicUsageTutorialScreen,
     options: {
       headerShown: false,
       gestureEnabled: false,
@@ -447,7 +447,7 @@ export type ScreenParams = {
   Webview: WebViewScreenParams;
   ImageZoomViewer: ImageZoomViewerScreenParams;
   RegistrationComplete: RegistrationCompleteScreenParams;
-  Tutorial: undefined;
+  BasicUsageTutorial: undefined;
   TutorialMission: TutorialMissionScreenParams;
   InterestedRegionAndThemes: InterestedRegionAndThemesFormScreenParams;
   EditInterestedRegion: EditInterestedRegionScreenParams;

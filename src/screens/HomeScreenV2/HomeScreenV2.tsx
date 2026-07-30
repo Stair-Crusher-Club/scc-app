@@ -31,16 +31,13 @@ import {
 import {currentLocationAtom} from '@/atoms/Location';
 import {
   dismissedHomePopupIdsAtom,
-  hasShownHomeTutorialAtom,
   hasShownTutorialIntroPopupAtom,
+  tutorialIntroPopupShownUserIdAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
-import {
-  GetClientVersionStatusResponseDtoStatusEnum,
-  TutorialMissionTypeDto,
-} from '@/generated-sources/openapi';
+import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useIsForeground} from '@/hooks/useIsForeground';
 import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
@@ -49,6 +46,7 @@ import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
 import GeolocationPermissionBottomSheet, {
   GeolocationErrorReason,
 } from '@/modals/GeolocationPermissionBottomSheet';
+import {allMainMissionsCompletedIn} from '@/screens/TutorialMissionScreen/constants';
 import {openAppDeepLink} from '@/utils/appLinkNavigation';
 import {isAppDeepLink} from '@/utils/deepLinkUtils';
 import GeolocationUtils from '@/utils/GeolocationUtils';
@@ -65,7 +63,7 @@ import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
 import HomePopupModal from './components/HomePopupModal';
 import TutorialIntroPopup from './components/TutorialIntroPopup';
-import TutorialOverlay from './components/TutorialOverlay';
+import {hasSeenTutorialIntroPopup} from './tutorialIntroPopupSeen';
 
 export interface HomeScreenV2Params {}
 
@@ -84,7 +82,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
 
   const _isForeground = useIsForeground();
-  const {syncUserInfo} = useMe();
+  const {userInfo, syncUserInfo} = useMe();
 
   // Fetch all home screen data in a single API call
   const {data: homeData, isLoading: isHomeDataLoading} = useQuery({
@@ -111,30 +109,46 @@ const HomeScreenV2 = ({navigation}: any) => {
   const versionStatus = versionData?.status;
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
   const featureFlags = useAtomValue(featureFlagAtom);
-  const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
-  const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
-  const [hasShownTutorialIntroPopup, setHasShownTutorialIntroPopup] = useAtom(
-    hasShownTutorialIntroPopupAtom,
-  );
+  // 인트로 팝업 노출 여부는 **유저 단위**로 기록한다. 기기 단위 boolean 이면 같은 기기에서
+  // 계정을 바꿨을 때(재가입/계정 전환) 새 유저가 팝업을 영영 못 본다.
+  const [tutorialIntroPopupShownUserId, setTutorialIntroPopupShownUserId] =
+    useAtom(tutorialIntroPopupShownUserIdAtom);
+  const [
+    legacyHasShownTutorialIntroPopup,
+    setLegacyHasShownTutorialIntroPopup,
+  ] = useAtom(hasShownTutorialIntroPopupAtom);
+  const myUserId = userInfo?.id ?? null;
 
-  // 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 렌더(디코딩), 3초 후 표시 자격 부여.
-  // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도).
-  // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출).
-  const [needsPlaceSearchTutorial] = useState(() => {
-    // 웹에서는 장소 검색 튜토리얼 오버레이를 띄우지 않는다(플로우가 어색함).
-    if (Platform.OS === 'web') {
-      return false;
-    }
-    if (getDeferredDeepLinkUrl()) {
-      return false;
-    }
-    if (!isAnonymousUser) {
-      return false;
-    }
-    return !hasShownHomeTutorial;
+  // 구버전(기기 단위 boolean)에서 올라온 기기 이관: 이미 본 것으로 기록돼 있으면 지금 로그인한
+  // 유저가 본 것으로 1회 귀속시킨다. 이게 없으면 업데이트 직후 전 유저에게 전면 팝업이 다시 뜬다.
+  useEffect(() => {
+    if (myUserId == null) return;
+    if (tutorialIntroPopupShownUserId != null) return;
+    if (!legacyHasShownTutorialIntroPopup) return;
+    setTutorialIntroPopupShownUserId(myUserId);
+  }, [
+    myUserId,
+    tutorialIntroPopupShownUserId,
+    legacyHasShownTutorialIntroPopup,
+    setTutorialIntroPopupShownUserId,
+  ]);
+
+  const hasShownTutorialIntroPopup = hasSeenTutorialIntroPopup({
+    userId: myUserId,
+    shownUserId: tutorialIntroPopupShownUserId,
+    legacyShown: legacyHasShownTutorialIntroPopup,
   });
-  const [placeSearchTutorialReady, setPlaceSearchTutorialReady] =
-    useState(false);
+
+  const setHasShownTutorialIntroPopup = useCallback(() => {
+    if (myUserId != null) {
+      setTutorialIntroPopupShownUserId(myUserId);
+    }
+    setLegacyHasShownTutorialIntroPopup(true);
+  }, [
+    myUserId,
+    setTutorialIntroPopupShownUserId,
+    setLegacyHasShownTutorialIntroPopup,
+  ]);
 
   // 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업: 가입자 + 미노출 1회만 (1초 딜레이).
   // __DEV__: Figma 시각 검증용 강제 활성화 (사용 후 false로 되돌릴 것)
@@ -148,16 +162,12 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (!tutorialProgress) {
       return undefined;
     }
-    const mainTypes: TutorialMissionTypeDto[] = [
-      TutorialMissionTypeDto.RegisterInterestedRegionsAndThemes,
-      TutorialMissionTypeDto.SavePlaceList,
-      TutorialMissionTypeDto.UpvoteAccessibility,
-    ];
-    return mainTypes.every(
-      type =>
-        tutorialProgress.missions.find(m => m.missionType === type)
-          ?.completedAt != null,
-    );
+    // 미션 구성은 가입 시점에 따라 다르므로(v1/v2) 서버 응답에서 파생한다. 하드코딩하면
+    // v2 유저가 존재하지도 않는 미션(UPVOTE_ACCESSIBILITY) 완료를 요구받아 "완료자"로
+    // 판정되지 않고 인트로 팝업이 재노출된다.
+    // 빈 배열(flag 미대상/익명) → false. 아래 effect 가 이 값으로
+    // hasShownTutorialIntroPopup 을 영구 마킹하므로 오판정이 치명적이다.
+    return allMainMissionsCompletedIn(tutorialProgress.missions);
   }, [tutorialProgress]);
 
   // 메인 미션 모두 완료자 = NUX 인트로 팝업 노출 대상이 아니므로 atom 을 미리 마킹.
@@ -167,7 +177,7 @@ const HomeScreenV2 = ({navigation}: any) => {
       allMainTutorialMissionsCompleted === true &&
       !hasShownTutorialIntroPopup
     ) {
-      setHasShownTutorialIntroPopup(true);
+      setHasShownTutorialIntroPopup();
     }
   }, [
     allMainTutorialMissionsCompleted,
@@ -201,29 +211,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
   }, [activePopup?.imageUrl]);
 
-  // 3초 후 TutorialOverlay 노출 자격 부여 + 탭바 숨김.
-  useEffect(() => {
-    if (!needsPlaceSearchTutorial) {
-      return;
-    }
-    const timer = setTimeout(() => {
-      setPlaceSearchTutorialReady(true);
-      // 탭바 숨기기
-      navigation.setOptions({
-        tabBarStyle: {display: 'none' as const},
-      });
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [needsPlaceSearchTutorial, navigation]);
-
-  const handlePlaceSearchTutorialClose = useCallback(() => {
-    setHasShownHomeTutorial(true);
-    // 탭바 복원
-    navigation.setOptions({
-      tabBarStyle: undefined,
-    });
-  }, [navigation, setHasShownHomeTutorial]);
-
   // === 홈 화면 오버레이 직렬화 (orchestrator) ===
   // 한 번에 하나의 오버레이만 노출. closedOverlayIds 는 현재 세션에서 닫힘 추적.
   //
@@ -256,13 +243,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     render: (onClose: () => void) => React.ReactNode;
   };
 
-  const placeSearchTutorialStatus: HomeOverlayStatus = (() => {
-    if (!needsPlaceSearchTutorial) return 'ineligible';
-    if (hasShownHomeTutorial) return 'ineligible';
-    if (!placeSearchTutorialReady) return 'pending';
-    return 'eligible';
-  })();
-
   const tutorialIntroStatus: HomeOverlayStatus = (() => {
     if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
       return tutorialIntroPopupReady ? 'eligible' : 'pending';
@@ -290,26 +270,13 @@ const HomeScreenV2 = ({navigation}: any) => {
 
   const overlays: HomeOverlay[] = [
     {
-      id: 'place-search-tutorial',
-      status: placeSearchTutorialStatus,
-      render: onClose => (
-        <TutorialOverlay
-          visible={true}
-          onClose={() => {
-            handlePlaceSearchTutorialClose();
-            onClose();
-          }}
-        />
-      ),
-    },
-    {
       id: 'tutorial-intro',
       status: tutorialIntroStatus,
       render: onClose => (
         <TutorialIntroPopup
           isVisible={true}
           onClose={() => {
-            setHasShownTutorialIntroPopup(true);
+            setHasShownTutorialIntroPopup();
             onClose();
           }}
         />
