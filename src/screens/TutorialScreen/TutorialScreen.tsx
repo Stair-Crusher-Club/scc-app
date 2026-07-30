@@ -51,12 +51,9 @@ export default function TutorialScreen({
   const fromTutorialMission = route.params?.fromTutorialMission === true;
   const completeMission = useCompleteUserTutorialMission();
   const [showMissionCompleted, setShowMissionCompleted] = useState(false);
-  const [hasCompletionFailed, setHasCompletionFailed] = useState(false);
 
-  // Android 하드웨어 백버튼 차단. 단 미션 완료 API 가 한 번이라도 실패했다면 차단을 푼다
-  // (오프라인 등으로 완료가 불가능한데 나갈 방법까지 없으면 앱 강제 종료 외엔 답이 없다).
-  // 이때 나가도 미션 1 은 미완료로 남아 다시 진입해 재시도할 수 있다.
-  useBackHandler(() => !hasCompletionFailed, [hasCompletionFailed]);
+  // Android 하드웨어 백버튼 차단 ("강제로 보기" 요건).
+  useBackHandler(() => true);
 
   const isFirst = activeSlide === 0;
   const isLast = activeSlide === SLIDE_COUNT - 1;
@@ -93,13 +90,17 @@ export default function TutorialScreen({
     navigation.goBack();
   }, [navigation, setHasShownHomeTutorial]);
 
-  // 미션 1 완료: 실패 시엔 팝업을 띄우지 않는다 (hook 이 에러 토스트 노출, 재탭 시
-  // 재시도 가능 — 완료 API 는 멱등).
-  //
-  // 실패를 기록해 백 버튼 차단을 푼다. "강제로 보기"는 스킵 방지가 목적이지 네트워크
-  // 장애 시 가두는 게 목적이 아니다 — 오프라인이면 완료 API 가 계속 실패하는데 헤더도
-  // 제스처 백도 없어(Navigation.screens.ts 의 headerShown/gestureEnabled false) 앱 강제
-  // 종료 외엔 빠져나갈 방법이 없어진다.
+  // 미션 화면이 스택에 없으면(홈 → Tutorial 직진) 라우터가 현재 라우트를 대체하므로
+  // 어느 진입 경로에서도 미션 화면에 도착한다.
+  const goToMissionScreen = useCallback(() => {
+    navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
+  }, [navigation]);
+
+  // 미션 1 완료. 실패해도 이 화면에 붙잡아 두지 않고 미션 화면으로 내보낸다 — 이 화면은
+  // 헤더도 제스처 백도 없어서(Navigation.screens.ts 의 headerShown/gestureEnabled false)
+  // 오프라인처럼 완료 API 가 계속 실패하는 상황에서 머물게 하면 빠져나갈 방법이 없다.
+  // 미션 1 은 미완료로 남으므로 미션 카드에서 다시 진입해 재시도할 수 있다
+  // (완료 API 는 멱등). 실패 사유는 hook 이 토스트로 알린다.
   const handleCompleteMission = useCallback(() => {
     if (completeMission.isPending) {
       return;
@@ -108,17 +109,15 @@ export default function TutorialScreen({
       {missionType: TutorialMissionTypeDto.ViewTutorialImages},
       {
         onSuccess: () => setShowMissionCompleted(true),
-        onError: () => setHasCompletionFailed(true),
+        onError: goToMissionScreen,
       },
     );
-  }, [completeMission]);
+  }, [completeMission, goToMissionScreen]);
 
-  // 미션 화면이 스택에 없으면(홈 → Tutorial 직진) 라우터가 현재 라우트를 대체하므로
-  // 어느 진입 경로에서도 미션 화면에 도착한다.
   const handleMissionCompletedClose = useCallback(() => {
     setShowMissionCompleted(false);
-    navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
-  }, [navigation]);
+    goToMissionScreen();
+  }, [goToMissionScreen]);
 
   return (
     <Container>

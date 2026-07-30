@@ -57,8 +57,11 @@ export default function TutorialIntroPopup({
   const handleStart = useCallback(() => {
     onClose();
     // 미션 1 이 "튜토리얼 이미지 확인하기"인 셋(v2)이면 미션 목록을 건너뛰고 이미지
-    // 화면으로 바로 진입시킨다. progress 로딩 전/실패 시엔 기존 경로(미션 목록)로 —
-    // 거기서 카드 [미션 시작]으로 같은 목적지에 도달할 수 있는 안전한 fallback.
+    // 화면으로 바로 진입시킨다 (Figma NUX_intro <변경사항>). v1 은 기존대로 미션 목록.
+    //
+    // progress 는 이미 로딩돼 있다 — HomeScreenV2 가 progress 를 받기 전에는 이 팝업을
+    // pending 으로 잡아둔다(HomeScreenV2.tsx tutorialIntroStatus). 여기 useUserTutorialProgress
+    // 는 같은 react-query 캐시를 읽는 것이라 추가 요청이 아니다.
     if (
       progress?.currentMissionType === TutorialMissionTypeDto.ViewTutorialImages
     ) {
