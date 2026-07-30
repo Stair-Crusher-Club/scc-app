@@ -36,11 +36,6 @@ export const hasShownCoachMarkForFirstVisitAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
-export const hasShownHomeTutorialAtom = atomForLocalNonNull<boolean>(
-  'hasShownHomeTutorial',
-  false,
-);
-
 /**
  * 윌리의 외출 NUX 튜토리얼: 외출 유도 전면 팝업을 **이미 본 유저의 id**.
  *

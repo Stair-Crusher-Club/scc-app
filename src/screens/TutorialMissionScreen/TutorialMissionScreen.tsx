@@ -319,9 +319,9 @@ export default function TutorialMissionScreen({
         if (meta.navigateTo === 'TallyForm') {
           return;
         }
-        if (meta.navigateTo === 'Tutorial') {
-          // 튜토리얼 이미지 3장 화면. 마지막 장 CTA 가 미션 완료 API 를 호출한다.
-          navigation.navigate('Tutorial', {fromTutorialMission: true});
+        if (meta.navigateTo === 'BasicUsageTutorial') {
+          // 계뿌클 기본 사용법 3장 화면. 마지막 장 CTA 가 미션 완료 API 를 호출한다.
+          navigation.navigate('BasicUsageTutorial');
         } else if (meta.navigateTo === 'InterestedRegionAndThemes') {
           navigation.navigate('InterestedRegionAndThemes', {});
         } else if (meta.navigateTo === 'PublicPlaceLists') {

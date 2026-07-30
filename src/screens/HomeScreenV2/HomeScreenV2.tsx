@@ -31,7 +31,6 @@ import {
 import {currentLocationAtom} from '@/atoms/Location';
 import {
   dismissedHomePopupIdsAtom,
-  hasShownHomeTutorialAtom,
   hasShownTutorialIntroPopupAtom,
   tutorialIntroPopupShownUserIdAtom,
 } from '@/atoms/User';
@@ -64,7 +63,6 @@ import SearchButtonSection from './sections/SearchButtonSection';
 import StripBannerSection from './sections/StripBannerSection';
 import HomePopupModal from './components/HomePopupModal';
 import TutorialIntroPopup from './components/TutorialIntroPopup';
-import TutorialOverlay from './components/TutorialOverlay';
 import {hasSeenTutorialIntroPopup} from './tutorialIntroPopupSeen';
 
 export interface HomeScreenV2Params {}
@@ -111,8 +109,6 @@ const HomeScreenV2 = ({navigation}: any) => {
   const versionStatus = versionData?.status;
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
   const featureFlags = useAtomValue(featureFlagAtom);
-  const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
-  const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
   // 인트로 팝업 노출 여부는 **유저 단위**로 기록한다. 기기 단위 boolean 이면 같은 기기에서
   // 계정을 바꿨을 때(재가입/계정 전환) 새 유저가 팝업을 영영 못 본다.
   const [tutorialIntroPopupShownUserId, setTutorialIntroPopupShownUserId] =
@@ -153,25 +149,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     setTutorialIntroPopupShownUserId,
     setLegacyHasShownTutorialIntroPopup,
   ]);
-
-  // 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 렌더(디코딩), 3초 후 표시 자격 부여.
-  // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도).
-  // Deferred deep link가 있으면 이번에는 tutorial 스킵 (hasShownHomeTutorial은 세팅하지 않아 다음에 정상 노출).
-  const [needsPlaceSearchTutorial] = useState(() => {
-    // 웹에서는 장소 검색 튜토리얼 오버레이를 띄우지 않는다(플로우가 어색함).
-    if (Platform.OS === 'web') {
-      return false;
-    }
-    if (getDeferredDeepLinkUrl()) {
-      return false;
-    }
-    if (!isAnonymousUser) {
-      return false;
-    }
-    return !hasShownHomeTutorial;
-  });
-  const [placeSearchTutorialReady, setPlaceSearchTutorialReady] =
-    useState(false);
 
   // 윌리의 외출 NUX 튜토리얼 외출 유도 전면 팝업: 가입자 + 미노출 1회만 (1초 딜레이).
   // __DEV__: Figma 시각 검증용 강제 활성화 (사용 후 false로 되돌릴 것)
@@ -234,29 +211,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
   }, [activePopup?.imageUrl]);
 
-  // 3초 후 TutorialOverlay 노출 자격 부여 + 탭바 숨김.
-  useEffect(() => {
-    if (!needsPlaceSearchTutorial) {
-      return;
-    }
-    const timer = setTimeout(() => {
-      setPlaceSearchTutorialReady(true);
-      // 탭바 숨기기
-      navigation.setOptions({
-        tabBarStyle: {display: 'none' as const},
-      });
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [needsPlaceSearchTutorial, navigation]);
-
-  const handlePlaceSearchTutorialClose = useCallback(() => {
-    setHasShownHomeTutorial(true);
-    // 탭바 복원
-    navigation.setOptions({
-      tabBarStyle: undefined,
-    });
-  }, [navigation, setHasShownHomeTutorial]);
-
   // === 홈 화면 오버레이 직렬화 (orchestrator) ===
   // 한 번에 하나의 오버레이만 노출. closedOverlayIds 는 현재 세션에서 닫힘 추적.
   //
@@ -289,13 +243,6 @@ const HomeScreenV2 = ({navigation}: any) => {
     render: (onClose: () => void) => React.ReactNode;
   };
 
-  const placeSearchTutorialStatus: HomeOverlayStatus = (() => {
-    if (!needsPlaceSearchTutorial) return 'ineligible';
-    if (hasShownHomeTutorial) return 'ineligible';
-    if (!placeSearchTutorialReady) return 'pending';
-    return 'eligible';
-  })();
-
   const tutorialIntroStatus: HomeOverlayStatus = (() => {
     if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
       return tutorialIntroPopupReady ? 'eligible' : 'pending';
@@ -322,19 +269,6 @@ const HomeScreenV2 = ({navigation}: any) => {
   })();
 
   const overlays: HomeOverlay[] = [
-    {
-      id: 'place-search-tutorial',
-      status: placeSearchTutorialStatus,
-      render: onClose => (
-        <TutorialOverlay
-          visible={true}
-          onClose={() => {
-            handlePlaceSearchTutorialClose();
-            onClose();
-          }}
-        />
-      ),
-    },
     {
       id: 'tutorial-intro',
       status: tutorialIntroStatus,

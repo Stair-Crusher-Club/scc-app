@@ -45,7 +45,7 @@ export const TUTORIAL_MISSION_META: Record<
     subtitleBoldSuffix: '돋보기',
     title: '튜토리얼 이미지 확인하기',
     // 튜토리얼 이미지 3장 화면(TutorialScreen)에서 마지막 장 CTA 로 미션 완료.
-    navigateTo: 'Tutorial',
+    navigateTo: 'BasicUsageTutorial',
     bubbleVariant: 'v1_seek_item',
   },
   REGISTER_INTERESTED_REGIONS_AND_THEMES: {

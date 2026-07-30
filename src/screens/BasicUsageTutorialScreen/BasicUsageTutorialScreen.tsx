@@ -11,7 +11,6 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
 import ChevronRight from '@/assets/icon/ic_chevron_right.svg';
-import {hasShownHomeTutorialAtom} from '@/atoms/User';
 import MissionCompletedOverlay from '@/components/MissionCompletedOverlay/MissionCompletedOverlay';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -19,36 +18,28 @@ import {font} from '@/constant/font';
 import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
 import {useCompleteUserTutorialMission} from '@/hooks/useUserTutorialProgress';
 import type {ScreenProps} from '@/navigation/Navigation.screens';
-import {useSetAtom} from 'jotai';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const SLIDE_COUNT = 3;
 
-export const tutorialSlides = [
+const tutorialSlides = [
   require('@/assets/img/tutorial_1.png'),
   require('@/assets/img/tutorial_2.png'),
   require('@/assets/img/tutorial_3.png'),
 ];
 
-export interface TutorialScreenParams {
-  /**
-   * 튜토리얼 미션(윌리의 외출) 미션 1 로 진입한 경우 true.
-   * 마지막 장 CTA 가 "시작하기"(게스트용 홈 튜토리얼 종료) 대신
-   * "계뿌클 둘러보기 완료!"(미션 완료 API + 완료 팝업 + 미션 화면 이동)로 바뀐다.
-   */
-  fromTutorialMission?: boolean;
-}
-
-export default function TutorialScreen({
+/**
+ * 계뿌클 기본 사용법 안내 3장. **윌리의 외출 미션 1 전용 화면이다.**
+ * 게스트에게는 노출하지 않는다 — 이 3장을 보는 것 자체가 미션 1이라서,
+ * 미션 화면의 [미션 시작] 또는 홈 인트로 팝업으로 진입하는 경로만 존재한다.
+ */
+export default function BasicUsageTutorialScreen({
   navigation,
-  route,
-}: ScreenProps<'Tutorial'>) {
+}: ScreenProps<'BasicUsageTutorial'>) {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [activeSlide, setActiveSlide] = useState(0);
-  const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
-  const fromTutorialMission = route.params?.fromTutorialMission === true;
   const completeMission = useCompleteUserTutorialMission();
   const [showMissionCompleted, setShowMissionCompleted] = useState(false);
 
@@ -85,12 +76,7 @@ export default function TutorialScreen({
     });
   }, [activeSlide]);
 
-  const handleStart = useCallback(() => {
-    setHasShownHomeTutorial(true);
-    navigation.goBack();
-  }, [navigation, setHasShownHomeTutorial]);
-
-  // 미션 화면이 스택에 없으면(홈 → Tutorial 직진) 라우터가 현재 라우트를 대체하므로
+  // 미션 화면이 스택에 없으면(홈 인트로 팝업 → 직진) 라우터가 현재 라우트를 대체하므로
   // 어느 진입 경로에서도 미션 화면에 도착한다.
   const goToMissionScreen = useCallback(() => {
     navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
@@ -140,20 +126,12 @@ export default function TutorialScreen({
       </ScrollView>
       <BottomBar style={{paddingBottom: insets.bottom + 20}}>
         {isLast ? (
-          fromTutorialMission ? (
-            <StartButton
-              onPress={handleCompleteMission}
-              disabled={completeMission.isPending}
-              elementName="tutorial_mission_1_view_images_complete_button">
-              <StartButtonText>계뿌클 둘러보기 완료!</StartButtonText>
-            </StartButton>
-          ) : (
-            <StartButton
-              onPress={handleStart}
-              elementName="tutorial_start_button">
-              <StartButtonText>시작하기</StartButtonText>
-            </StartButton>
-          )
+          <StartButton
+            onPress={handleCompleteMission}
+            disabled={completeMission.isPending}
+            elementName="tutorial_mission_1_view_images_complete_button">
+            <StartButtonText>계뿌클 둘러보기 완료!</StartButtonText>
+          </StartButton>
         ) : (
           <NavRow>
             <SccPressable

@@ -65,7 +65,7 @@ export default function TutorialIntroPopup({
     if (
       progress?.currentMissionType === TutorialMissionTypeDto.ViewTutorialImages
     ) {
-      navigation.navigate('Tutorial', {fromTutorialMission: true});
+      navigation.navigate('BasicUsageTutorial');
       return;
     }
     navigation.navigate('TutorialMission', {});
