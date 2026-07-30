@@ -98,7 +98,7 @@ export default function AiSummaryDownvoteBottomSheet({
               logParams={{reason: option.reason}}
               onPress={() => setSelectedReason(option.reason)}>
               <RadioCircle isSelected={selectedReason === option.reason}>
-                {selectedReason === option.reason && <RadioInnerDot />}
+                <RadioInnerDot />
               </RadioCircle>
               <ReasonLabel>{option.label}</ReasonLabel>
             </ReasonOptionRow>
@@ -117,7 +117,7 @@ export default function AiSummaryDownvoteBottomSheet({
             maxLength={COMMENT_MAX_LENGTH}
             placeholder="작성해주신 의견은 계단뿌셔클럽에 큰 도움이 되어요."
             placeholderTextColor={color.gray40}
-            style={{minHeight: 160}}
+            style={{minHeight: 134}}
           />
           <CommentCounter>
             {comment.length}/{COMMENT_MAX_LENGTH}
@@ -136,7 +136,7 @@ export default function AiSummaryDownvoteBottomSheet({
 }
 
 const ContentsContainer = styled.View`
-  padding-horizontal: 24px;
+  padding-horizontal: 20px;
   padding-bottom: 24px;
   background-color: ${color.white};
   border-top-left-radius: 20px;
@@ -183,16 +183,15 @@ const ReasonOptionRow = styled(SccPressable)`
   gap: 8px;
 `;
 
+// unselected도 selected와 같은 도넛 형태(꽉 찬 링 + 흰 내부 점) — 색만 다르다 (Figma 219:4019 실측).
 const RadioCircle = styled.View<{isSelected: boolean}>`
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
   align-items: center;
   justify-content: center;
   background-color: ${({isSelected}) =>
-    isSelected ? color.brand40 : color.white};
-  border-width: ${({isSelected}) => (isSelected ? 0 : 1.5)}px;
-  border-color: ${color.gray30v2};
+    isSelected ? color.brand40 : color.gray30v2};
 `;
 
 const RadioInnerDot = styled.View`
@@ -227,7 +226,10 @@ const CommentInput = styled(TextInput)`
   font-family: ${font.pretendardRegular};
   font-size: 15px;
   color: ${color.black};
-  padding: 0px;
+  border-width: 1px;
+  border-color: ${color.gray20v2};
+  border-radius: 8px;
+  padding: 12px;
   text-align-vertical: top;
 `;
 
