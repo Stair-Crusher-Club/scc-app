@@ -33,6 +33,7 @@ import {
   dismissedHomePopupIdsAtom,
   hasShownHomeTutorialAtom,
   hasShownTutorialIntroPopupAtom,
+  tutorialIntroPopupShownUserIdAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {prefetchRemoteImage} from '@/components/SccRemoteImage';
@@ -64,6 +65,7 @@ import StripBannerSection from './sections/StripBannerSection';
 import HomePopupModal from './components/HomePopupModal';
 import TutorialIntroPopup from './components/TutorialIntroPopup';
 import TutorialOverlay from './components/TutorialOverlay';
+import {hasSeenTutorialIntroPopup} from './tutorialIntroPopupSeen';
 
 export interface HomeScreenV2Params {}
 
@@ -82,7 +84,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
 
   const _isForeground = useIsForeground();
-  const {syncUserInfo} = useMe();
+  const {userInfo, syncUserInfo} = useMe();
 
   // Fetch all home screen data in a single API call
   const {data: homeData, isLoading: isHomeDataLoading} = useQuery({
@@ -111,9 +113,46 @@ const HomeScreenV2 = ({navigation}: any) => {
   const featureFlags = useAtomValue(featureFlagAtom);
   const hasShownHomeTutorial = useAtomValue(hasShownHomeTutorialAtom);
   const setHasShownHomeTutorial = useSetAtom(hasShownHomeTutorialAtom);
-  const [hasShownTutorialIntroPopup, setHasShownTutorialIntroPopup] = useAtom(
-    hasShownTutorialIntroPopupAtom,
-  );
+  // 인트로 팝업 노출 여부는 **유저 단위**로 기록한다. 기기 단위 boolean 이면 같은 기기에서
+  // 계정을 바꿨을 때(재가입/계정 전환) 새 유저가 팝업을 영영 못 본다.
+  const [tutorialIntroPopupShownUserId, setTutorialIntroPopupShownUserId] =
+    useAtom(tutorialIntroPopupShownUserIdAtom);
+  const [
+    legacyHasShownTutorialIntroPopup,
+    setLegacyHasShownTutorialIntroPopup,
+  ] = useAtom(hasShownTutorialIntroPopupAtom);
+  const myUserId = userInfo?.id ?? null;
+
+  // 구버전(기기 단위 boolean)에서 올라온 기기 이관: 이미 본 것으로 기록돼 있으면 지금 로그인한
+  // 유저가 본 것으로 1회 귀속시킨다. 이게 없으면 업데이트 직후 전 유저에게 전면 팝업이 다시 뜬다.
+  useEffect(() => {
+    if (myUserId == null) return;
+    if (tutorialIntroPopupShownUserId != null) return;
+    if (!legacyHasShownTutorialIntroPopup) return;
+    setTutorialIntroPopupShownUserId(myUserId);
+  }, [
+    myUserId,
+    tutorialIntroPopupShownUserId,
+    legacyHasShownTutorialIntroPopup,
+    setTutorialIntroPopupShownUserId,
+  ]);
+
+  const hasShownTutorialIntroPopup = hasSeenTutorialIntroPopup({
+    userId: myUserId,
+    shownUserId: tutorialIntroPopupShownUserId,
+    legacyShown: legacyHasShownTutorialIntroPopup,
+  });
+
+  const setHasShownTutorialIntroPopup = useCallback(() => {
+    if (myUserId != null) {
+      setTutorialIntroPopupShownUserId(myUserId);
+    }
+    setLegacyHasShownTutorialIntroPopup(true);
+  }, [
+    myUserId,
+    setTutorialIntroPopupShownUserId,
+    setLegacyHasShownTutorialIntroPopup,
+  ]);
 
   // 장소 검색 튜토리얼(TutorialOverlay): 마운트 시점부터 이미지 렌더(디코딩), 3초 후 표시 자격 부여.
   // 미가입자에게만 노출 (가입자에게는 TutorialIntroPopup으로 외출 튜토리얼 유도).
@@ -161,7 +200,7 @@ const HomeScreenV2 = ({navigation}: any) => {
       allMainTutorialMissionsCompleted === true &&
       !hasShownTutorialIntroPopup
     ) {
-      setHasShownTutorialIntroPopup(true);
+      setHasShownTutorialIntroPopup();
     }
   }, [
     allMainTutorialMissionsCompleted,
@@ -303,7 +342,7 @@ const HomeScreenV2 = ({navigation}: any) => {
         <TutorialIntroPopup
           isVisible={true}
           onClose={() => {
-            setHasShownTutorialIntroPopup(true);
+            setHasShownTutorialIntroPopup();
             onClose();
           }}
         />
