@@ -18,7 +18,7 @@
 
 코드 예제(BottomSheet, 로깅 패턴, SccRemoteImage 등)는 `/scc-app-add-screen` 참조.
 
-- **터치 가능한 컴포넌트는 SccXxx**(SccPressable, SccTouchableOpacity 등) + `elementName` prop 필수 (선택: `logParams`, `disableLogging`)
+- **터치 가능한 컴포넌트는 SccXxx**(SccPressable, SccTouchableOpacity 등) + `elementName` prop 필수 (선택: `logParams`, `disableLogging`). `elementName`은 로깅용이라 **스크린리더에 읽히지 않는다** — 아이콘 전용 버튼·라디오·토글 등 텍스트 없는 컨트롤은 `accessibilityRole`/`accessibilityLabel`/`accessibilityState`(selected·checked·disabled)도 함께 준다. (PR #226 리뷰)
 - **원격 URL 이미지는 `SccRemoteImage`** — `<Image source={{uri}}>` 직접 사용 금지
 - **`Logger.logElementView/Click` 직접 호출 금지** → `useLogger()` hook. `useCallback`/`useEffect` 안에서는 `loggerRef.current` 패턴
 - **섹션 공통 로깅 파라미터는 `LogParamsProvider`** — 개별 logParams에 `displaySectionName`을 직접 넣지 않는다

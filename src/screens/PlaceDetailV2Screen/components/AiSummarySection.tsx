@@ -1,7 +1,11 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 
 import CircleInfoIcon from '@/assets/icon/ic_circle_info_gradient.svg';
+import ThumbsDownIcon from '@/assets/icon/ic_ai_summary_thumbsdown.svg';
+import ThumbsDownFillIcon from '@/assets/icon/ic_ai_summary_thumbsdown_fill.svg';
+import ThumbsUpIcon from '@/assets/icon/ic_ai_summary_thumbsup.svg';
+import ThumbsUpFillIcon from '@/assets/icon/ic_ai_summary_thumbsup_fill.svg';
 import CloseIcon from '@/assets/icon/close.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
@@ -9,8 +13,12 @@ import {font} from '@/constant/font';
 import {
   AiSummarySourceTabDto,
   PlaceAiSummaryDto,
+  PlaceAiSummaryVoteDto,
 } from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
+
+import {useAiSummaryFeedback} from '../hooks/useAiSummaryFeedback';
+import AiSummaryDownvoteBottomSheet from '../modals/AiSummaryDownvoteBottomSheet';
 
 const TITLE = 'AI 접근성 요약';
 const TITLE_LINE_HEIGHT = 18;
@@ -20,13 +28,29 @@ const BADGE_BASELINE_NUDGE_PX = 4;
 
 /** PDP 최상단 "AI 접근성 요약" 섹션. 서버가 조립한 문장 리스트를 그대로 렌더하는 dumb 컴포넌트. */
 export default function AiSummarySection({
+  placeId,
   aiSummary,
   onPressSourceTab,
 }: {
+  placeId: string;
   aiSummary: PlaceAiSummaryDto | undefined;
   onPressSourceTab: (sourceTab: AiSummarySourceTabDto) => void;
 }) {
   const [showNotice, setShowNotice] = useState(false);
+  const [isDownvoteSheetVisible, setIsDownvoteSheetVisible] = useState(false);
+  const {vote, isPending, giveUpvote, giveDownvote, cancelFeedback} =
+    useAiSummaryFeedback(placeId);
+
+  // 노출 여부를 서버 값에서 "한 번만" 떼어낸다. 이후 어떤 refetch가 와도 이 화면 세션에서는 유지된다.
+  // (lazy initializer 금지 — 첫 렌더엔 aiSummary가 아직 undefined라 false로 잘못 고정된다.)
+  const [showFeedbackButtons, setShowFeedbackButtons] = useState<
+    boolean | null
+  >(null);
+  useEffect(() => {
+    if (showFeedbackButtons === null && aiSummary) {
+      setShowFeedbackButtons(!aiSummary.isFeedbackGiven);
+    }
+  }, [aiSummary, showFeedbackButtons]);
 
   if (!aiSummary || aiSummary.items.length === 0) {
     return null;
@@ -87,6 +111,69 @@ export default function AiSummarySection({
             );
           })}
         </ItemContainer>
+        {/* 버튼 행만 조건부로 추가하고 카드 높이는 콘텐츠에 맡긴다 (고정 금지). 우하단 배치는
+            이 행이 카드의 마지막 자식이면서 내부에서 flex-end로 정렬되는 것으로 달성한다. */}
+        {showFeedbackButtons && (
+          <FeedbackButtonRow>
+            <FeedbackButton
+              elementName="ai_summary_thumbs_down"
+              logParams={{
+                action: vote === PlaceAiSummaryVoteDto.Down ? 'cancel' : 'vote',
+              }}
+              onPress={() =>
+                vote === PlaceAiSummaryVoteDto.Down
+                  ? cancelFeedback()
+                  : setIsDownvoteSheetVisible(true)
+              }
+              disabled={isPending}
+              hitSlop={4}
+              accessibilityRole="button"
+              // 아이콘만 있는 버튼이라 스크린리더에 읽을 텍스트가 없다. elementName 은 로깅용이라 안 읽힌다.
+              accessibilityLabel={
+                vote === PlaceAiSummaryVoteDto.Down
+                  ? 'AI 요약이 아쉬워요, 선택됨. 누르면 취소합니다'
+                  : 'AI 요약이 아쉬워요'
+              }
+              accessibilityState={{
+                selected: vote === PlaceAiSummaryVoteDto.Down,
+                disabled: isPending,
+              }}>
+              {vote === PlaceAiSummaryVoteDto.Down ? (
+                <ThumbsDownFillIcon width={16} height={16} />
+              ) : (
+                <ThumbsDownIcon width={16} height={16} />
+              )}
+            </FeedbackButton>
+            <FeedbackButton
+              elementName="ai_summary_thumbs_up"
+              logParams={{
+                action: vote === PlaceAiSummaryVoteDto.Up ? 'cancel' : 'vote',
+              }}
+              onPress={() =>
+                vote === PlaceAiSummaryVoteDto.Up
+                  ? cancelFeedback()
+                  : giveUpvote()
+              }
+              disabled={isPending}
+              hitSlop={4}
+              accessibilityRole="button"
+              accessibilityLabel={
+                vote === PlaceAiSummaryVoteDto.Up
+                  ? 'AI 요약이 도움돼요, 선택됨. 누르면 취소합니다'
+                  : 'AI 요약이 도움돼요'
+              }
+              accessibilityState={{
+                selected: vote === PlaceAiSummaryVoteDto.Up,
+                disabled: isPending,
+              }}>
+              {vote === PlaceAiSummaryVoteDto.Up ? (
+                <ThumbsUpFillIcon width={16} height={16} />
+              ) : (
+                <ThumbsUpIcon width={16} height={16} />
+              )}
+            </FeedbackButton>
+          </FeedbackButtonRow>
+        )}
         {/* 다른 레이아웃을 밀어내지 않도록 absolute 오버레이로 띄운다 (Figma node 1-650). */}
         {showNotice && (
           <NoticeRow>
@@ -107,6 +194,17 @@ export default function AiSummarySection({
           </NoticeRow>
         )}
       </Container>
+      <AiSummaryDownvoteBottomSheet
+        isVisible={isDownvoteSheetVisible}
+        isPending={isPending}
+        onPressClose={() => setIsDownvoteSheetVisible(false)}
+        onSubmit={async params => {
+          // mutateAsync 성공 후에만 시트를 닫는다. 실패 시 giveDownvote가 던지는 에러가
+          // 여기서도 던져지므로, 시트는 이 catch를 만나지 않고 계속 열린 채로 남는다.
+          await giveDownvote(params);
+          setIsDownvoteSheetVisible(false);
+        }}
+      />
     </LogParamsProvider>
   );
 }
@@ -115,7 +213,7 @@ const Container = styled.View`
   background-color: ${color.gray5};
   border-radius: 5px;
   margin: 0 20px;
-  padding: 12px 8px;
+  padding: 14px;
   gap: 6px;
   position: relative;
   overflow: visible;
@@ -226,4 +324,21 @@ const SourceBadgeText = styled.Text`
   font-size: 11px;
   line-height: 14px;
   color: ${color.gray70v2};
+`;
+
+// 54x24 그룹을 카드 우하단에 붙인다. 두 버튼(24px) + gap(6px)이 정확히 54px을 이룬다.
+const FeedbackButtonRow = styled.View`
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 6px;
+`;
+
+// 선택 여부와 무관하게 배경은 항상 동일 — 아이콘만 outline/fill로 바뀐다.
+const FeedbackButton = styled(SccPressable)`
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: ${color.gray20v2};
+  align-items: center;
+  justify-content: center;
 `;

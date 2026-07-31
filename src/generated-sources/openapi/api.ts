@@ -3097,6 +3097,37 @@ export interface GivePlaceAccessibilityUpvoteRequestDto {
 /**
  * 
  * @export
+ * @interface GivePlaceAiSummaryFeedbackRequestDto
+ */
+export interface GivePlaceAiSummaryFeedbackRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof GivePlaceAiSummaryFeedbackRequestDto
+     */
+    'placeId': string;
+    /**
+     * 
+     * @type {PlaceAiSummaryVoteDto}
+     * @memberof GivePlaceAiSummaryFeedbackRequestDto
+     */
+    'vote': PlaceAiSummaryVoteDto;
+    /**
+     * 
+     * @type {PlaceAiSummaryDownvoteReasonDto}
+     * @memberof GivePlaceAiSummaryFeedbackRequestDto
+     */
+    'downvoteReason'?: PlaceAiSummaryDownvoteReasonDto;
+    /**
+     * 자유 의견 (선택). vote=UP 이면 무시된다.
+     * @type {string}
+     * @memberof GivePlaceAiSummaryFeedbackRequestDto
+     */
+    'comment'?: string;
+}
+/**
+ * 
+ * @export
  * @interface GiveUpvoteRequestDto
  */
 export interface GiveUpvoteRequestDto {
@@ -4518,6 +4549,21 @@ export interface PlaceAccessibilityComment {
     'createdAt': EpochMillisTimestamp;
 }
 /**
+ * 붐따 사유.
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceAiSummaryDownvoteReasonDto = {
+    InaccurateInfo: 'INACCURATE_INFO',
+    TooLong: 'TOO_LONG',
+    Other: 'OTHER'
+} as const;
+
+export type PlaceAiSummaryDownvoteReasonDto = typeof PlaceAiSummaryDownvoteReasonDto[keyof typeof PlaceAiSummaryDownvoteReasonDto];
+
+
+/**
  * PDP 상단에 노출하는 AI 접근성/리뷰 요약.
  * @export
  * @interface PlaceAiSummaryDto
@@ -4535,6 +4581,12 @@ export interface PlaceAiSummaryDto {
      * @memberof PlaceAiSummaryDto
      */
     'isExperimental': boolean;
+    /**
+     * 이 장소에 AI 요약 붐업/붐따를 남긴 적이 있는지. true면 클라이언트가 붐업/붐따 버튼을 숨긴다.
+     * @type {boolean}
+     * @memberof PlaceAiSummaryDto
+     */
+    'isFeedbackGiven': boolean;
 }
 /**
  * AI 요약의 한 줄.
@@ -4555,6 +4607,21 @@ export interface PlaceAiSummaryItemDto {
      */
     'sourceTab'?: AiSummarySourceTabDto;
 }
+/**
+ * AI 요약에 대한 붐업/붐따 투표. CANCEL 은 이미 남긴 붐업/붐따를 취소한 것으로, 서버는 해당 피드백을 삭제해 남기지 않은 상태로 되돌린다 (재진입 시 버튼이 다시 노출된다).
+ * @export
+ * @enum {string}
+ */
+
+export const PlaceAiSummaryVoteDto = {
+    Up: 'UP',
+    Down: 'DOWN',
+    Cancel: 'CANCEL'
+} as const;
+
+export type PlaceAiSummaryVoteDto = typeof PlaceAiSummaryVoteDto[keyof typeof PlaceAiSummaryVoteDto];
+
+
 /**
  * 
  * @export
@@ -9702,6 +9769,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary PDP AI 접근성 요약에 붐업/붐따를 남긴다. 같은 장소에 다시 호출하면 덮어쓴다.
+         * @param {GivePlaceAiSummaryFeedbackRequestDto} givePlaceAiSummaryFeedbackRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        givePlaceAiSummaryFeedbackPost: async (givePlaceAiSummaryFeedbackRequestDto: GivePlaceAiSummaryFeedbackRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'givePlaceAiSummaryFeedbackRequestDto' is not null or undefined
+            assertParamExists('givePlaceAiSummaryFeedbackPost', 'givePlaceAiSummaryFeedbackRequestDto', givePlaceAiSummaryFeedbackRequestDto)
+            const localVarPath = `/givePlaceAiSummaryFeedback`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(givePlaceAiSummaryFeedbackRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary \'도움이 돼요\'를 준다.
          * @param {GiveUpvoteRequestDto} giveUpvoteRequestDto 
          * @param {*} [options] Override http request option.
@@ -12304,6 +12411,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary PDP AI 접근성 요약에 붐업/붐따를 남긴다. 같은 장소에 다시 호출하면 덮어쓴다.
+         * @param {GivePlaceAiSummaryFeedbackRequestDto} givePlaceAiSummaryFeedbackRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async givePlaceAiSummaryFeedbackPost(givePlaceAiSummaryFeedbackRequestDto: GivePlaceAiSummaryFeedbackRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.givePlaceAiSummaryFeedbackPost(givePlaceAiSummaryFeedbackRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary \'도움이 돼요\'를 준다.
          * @param {GiveUpvoteRequestDto} giveUpvoteRequestDto 
          * @param {*} [options] Override http request option.
@@ -13332,6 +13450,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto: GivePlaceAccessibilityUpvoteRequestDto, options?: any): AxiosPromise<void> {
             return localVarFp.givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary PDP AI 접근성 요약에 붐업/붐따를 남긴다. 같은 장소에 다시 호출하면 덮어쓴다.
+         * @param {GivePlaceAiSummaryFeedbackRequestDto} givePlaceAiSummaryFeedbackRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        givePlaceAiSummaryFeedbackPost(givePlaceAiSummaryFeedbackRequestDto: GivePlaceAiSummaryFeedbackRequestDto, options?: any): AxiosPromise<void> {
+            return localVarFp.givePlaceAiSummaryFeedbackPost(givePlaceAiSummaryFeedbackRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14397,6 +14525,18 @@ export class DefaultApi extends BaseAPI {
      */
     public givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto: GivePlaceAccessibilityUpvoteRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).givePlaceAccessibilityUpvotePost(givePlaceAccessibilityUpvoteRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary PDP AI 접근성 요약에 붐업/붐따를 남긴다. 같은 장소에 다시 호출하면 덮어쓴다.
+     * @param {GivePlaceAiSummaryFeedbackRequestDto} givePlaceAiSummaryFeedbackRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public givePlaceAiSummaryFeedbackPost(givePlaceAiSummaryFeedbackRequestDto: GivePlaceAiSummaryFeedbackRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).givePlaceAiSummaryFeedbackPost(givePlaceAiSummaryFeedbackRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
