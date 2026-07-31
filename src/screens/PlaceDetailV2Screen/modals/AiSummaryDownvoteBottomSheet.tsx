@@ -42,8 +42,14 @@ import {LogView} from '@/logging/LogView';
 const COMMENT_MAX_LENGTH = 300;
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-// 등장/스프링백 공통. overshoot 이 살짝 남아 있어야 "올라와 붙는" 느낌이 난다.
-const SHEET_SPRING = {damping: 26, stiffness: 260, mass: 1} as const;
+// 등장/스프링백 공통. overshootClamping 으로 열림 위치(translateY=0)를 넘어 더 올라갔다
+// 되돌아오는 튕김을 없앤다 — 최고 높이를 초과하지 않고 감속만 한다.
+const SHEET_SPRING = {
+  damping: 26,
+  stiffness: 260,
+  mass: 1,
+  overshootClamping: true,
+} as const;
 const EXIT_DURATION_MS = 220;
 // 손을 뗀 시점의 속도를 이만큼(초) 미래로 투영한 위치로 닫힘을 판정한다.
 // 짧게 툭 튕겨도 닫히고, 천천히 조금 내린 건 안 닫힌다.
@@ -196,7 +202,7 @@ export default function AiSummaryDownvoteBottomSheet({
         // 손가락 속도를 그대로 이어받아 내려간다 (툭 튕기면 그만큼 빠르게 사라짐).
         translateY.value = withSpring(
           sheetHeight.value,
-          {...SHEET_SPRING, velocity: event.velocityY, overshootClamping: true},
+          {...SHEET_SPRING, velocity: event.velocityY},
           finished => {
             if (finished) {
               runOnJS(handleClose)();
@@ -281,6 +287,10 @@ export default function AiSummaryDownvoteBottomSheet({
               keyboardVerticalOffset={keyboardVerticalOffset}>
               <GestureDetector gesture={panGesture}>
                 <Animated.View onLayout={handleSheetLayout} style={sheetStyle}>
+                  {/* 위로 고무줄 드래그했을 때 시트 아래로 앱 화면이 비치지 않도록,
+                      시트와 같이 움직이는 흰 꼬리를 화면 높이만큼 깔아 둔다.
+                      absolute 라 onLayout 이 재는 시트 높이에는 잡히지 않는다. */}
+                  <SheetTail />
                   <Sheet
                     style={{paddingBottom: temporalContainerPaddingBottom}}>
                     <SafeAreaView edges={['bottom']}>
@@ -359,6 +369,17 @@ const styles = StyleSheet.create({
   keyboardAvoider: {flex: 1, justifyContent: 'flex-end'},
   commentInput: {minHeight: 134},
 });
+
+const SheetTail = styled.View`
+  position: absolute;
+  top: 100%;
+  /* 100% 가 기기 픽셀 격자에서 반내림되며 시트 바닥과 1px 틈이 생긴다 — 1dp 겹쳐 덮는다. */
+  margin-top: -1px;
+  left: 0;
+  right: 0;
+  height: ${SCREEN_HEIGHT}px;
+  background-color: ${color.white};
+`;
 
 const Sheet = styled.View`
   background-color: ${color.white};
