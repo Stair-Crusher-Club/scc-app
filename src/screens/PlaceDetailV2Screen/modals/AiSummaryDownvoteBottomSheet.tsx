@@ -31,7 +31,6 @@ import {
 } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
-import CloseIcon from '@/assets/icon/close.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
@@ -296,20 +295,8 @@ export default function AiSummaryDownvoteBottomSheet({
                     <SafeAreaView edges={['bottom']}>
                       <ContentsContainer>
                         <Grabber />
-                        <Header>
-                          <HeaderSpacer />
-                          <HeaderTitle>어떤점이 아쉬우셨나요?</HeaderTitle>
-                          <SccPressable
-                            elementName="ai_summary_downvote_close"
-                            onPress={handleClose}
-                            hitSlop={8}>
-                            <CloseIcon
-                              width={24}
-                              height={24}
-                              color={color.black}
-                            />
-                          </SccPressable>
-                        </Header>
+                        {/* X 버튼 없음 — 아래로 스와이프/배경 탭/back 으로 닫는다. */}
+                        <HeaderTitle>어떤점이 아쉬우셨나요?</HeaderTitle>
 
                         <ReasonList>
                           {REASON_OPTIONS.map(option => (
@@ -402,19 +389,8 @@ const Grabber = styled.View`
   margin-bottom: 16px;
 `;
 
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 24px;
-`;
-
-// close 아이콘(24px)과 같은 너비를 왼쪽에 비워, 타이틀이 헤더 정중앙에 오도록 한다.
-const HeaderSpacer = styled.View`
-  width: 24px;
-`;
-
 const HeaderTitle = styled.Text`
-  flex: 1;
+  margin-bottom: 24px;
   text-align: center;
   font-family: ${font.pretendardBold};
   font-size: 20px;
