@@ -38,7 +38,7 @@ export default function AiSummarySection({
 }) {
   const [showNotice, setShowNotice] = useState(false);
   const [isDownvoteSheetVisible, setIsDownvoteSheetVisible] = useState(false);
-  const {vote, isPending, giveUpvote, giveDownvote} =
+  const {vote, isPending, giveUpvote, giveDownvote, cancelFeedback} =
     useAiSummaryFeedback(placeId);
 
   // 노출 여부를 서버 값에서 "한 번만" 떼어낸다. 이후 어떤 refetch가 와도 이 화면 세션에서는 유지된다.
@@ -117,7 +117,14 @@ export default function AiSummarySection({
           <FeedbackButtonRow>
             <FeedbackButton
               elementName="ai_summary_thumbs_down"
-              onPress={() => setIsDownvoteSheetVisible(true)}
+              logParams={{
+                action: vote === PlaceAiSummaryVoteDto.Down ? 'cancel' : 'vote',
+              }}
+              onPress={() =>
+                vote === PlaceAiSummaryVoteDto.Down
+                  ? cancelFeedback()
+                  : setIsDownvoteSheetVisible(true)
+              }
               disabled={isPending}
               hitSlop={4}>
               {vote === PlaceAiSummaryVoteDto.Down ? (
@@ -128,7 +135,14 @@ export default function AiSummarySection({
             </FeedbackButton>
             <FeedbackButton
               elementName="ai_summary_thumbs_up"
-              onPress={giveUpvote}
+              logParams={{
+                action: vote === PlaceAiSummaryVoteDto.Up ? 'cancel' : 'vote',
+              }}
+              onPress={() =>
+                vote === PlaceAiSummaryVoteDto.Up
+                  ? cancelFeedback()
+                  : giveUpvote()
+              }
               disabled={isPending}
               hitSlop={4}>
               {vote === PlaceAiSummaryVoteDto.Up ? (

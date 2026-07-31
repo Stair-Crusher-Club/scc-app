@@ -10,6 +10,7 @@ import useAppComponents from '@/hooks/useAppComponents';
 import ToastUtils from '@/utils/ToastUtils';
 
 const FEEDBACK_THANKS_MESSAGE = '소중한 의견 감사합니다 🙌';
+const FEEDBACK_CANCEL_MESSAGE = '의견을 취소했어요';
 
 interface DownvoteParams {
   downvoteReason: PlaceAiSummaryDownvoteReasonDto;
@@ -34,12 +35,12 @@ export function useAiSummaryFeedback(placeId: string) {
     ) => api.givePlaceAiSummaryFeedbackPost({placeId, ...params}),
   });
 
-  const markFeedbackGiven = () => {
+  const setFeedbackGiven = (given: boolean) => {
     queryClient.setQueryData<AccessibilityInfoV2Dto | undefined>(
       ['PlaceDetailV2', placeId, 'Accessibility'],
       old =>
         old?.aiSummary
-          ? {...old, aiSummary: {...old.aiSummary, isFeedbackGiven: true}}
+          ? {...old, aiSummary: {...old.aiSummary, isFeedbackGiven: given}}
           : old,
     );
   };
@@ -53,7 +54,25 @@ export function useAiSummaryFeedback(placeId: string) {
     mutateAsync({vote: PlaceAiSummaryVoteDto.Up})
       .then(() => {
         ToastUtils.show(FEEDBACK_THANKS_MESSAGE);
-        markFeedbackGiven();
+        setFeedbackGiven(true);
+      })
+      .catch(error => {
+        setVote(previousVote);
+        ToastUtils.showOnApiError(error);
+      });
+  };
+
+  /** 이미 남긴 붐업/붐따를 취소한다 — 재진입 시 버튼이 다시 노출되도록 isFeedbackGiven을 되돌린다. */
+  const cancelFeedback = () => {
+    if (isPending) {
+      return;
+    }
+    const previousVote = vote;
+    setVote(null); // 낙관적 갱신 (giveUpvote와 동일 패턴)
+    mutateAsync({vote: PlaceAiSummaryVoteDto.Cancel})
+      .then(() => {
+        ToastUtils.show(FEEDBACK_CANCEL_MESSAGE);
+        setFeedbackGiven(false);
       })
       .catch(error => {
         setVote(previousVote);
@@ -74,8 +93,8 @@ export function useAiSummaryFeedback(placeId: string) {
     }
     setVote(PlaceAiSummaryVoteDto.Down);
     ToastUtils.show(FEEDBACK_THANKS_MESSAGE);
-    markFeedbackGiven();
+    setFeedbackGiven(true);
   };
 
-  return {vote, isPending, giveUpvote, giveDownvote};
+  return {vote, isPending, giveUpvote, giveDownvote, cancelFeedback};
 }

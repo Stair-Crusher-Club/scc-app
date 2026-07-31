@@ -4608,14 +4608,15 @@ export interface PlaceAiSummaryItemDto {
     'sourceTab'?: AiSummarySourceTabDto;
 }
 /**
- * AI 요약에 대한 붐업/붐따 투표.
+ * AI 요약에 대한 붐업/붐따 투표. CANCEL 은 이미 남긴 붐업/붐따를 취소한 것으로, 피드백을 남기지 않은 상태로 되돌린다(재진입 시 버튼이 다시 노출된다). 오클릭 지표를 위해 취소 이력 자체는 남긴다.
  * @export
  * @enum {string}
  */
 
 export const PlaceAiSummaryVoteDto = {
     Up: 'UP',
-    Down: 'DOWN'
+    Down: 'DOWN',
+    Cancel: 'CANCEL'
 } as const;
 
 export type PlaceAiSummaryVoteDto = typeof PlaceAiSummaryVoteDto[keyof typeof PlaceAiSummaryVoteDto];
