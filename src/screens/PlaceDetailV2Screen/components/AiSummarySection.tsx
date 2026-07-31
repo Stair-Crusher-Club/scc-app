@@ -126,7 +126,18 @@ export default function AiSummarySection({
                   : setIsDownvoteSheetVisible(true)
               }
               disabled={isPending}
-              hitSlop={4}>
+              hitSlop={4}
+              accessibilityRole="button"
+              // 아이콘만 있는 버튼이라 스크린리더에 읽을 텍스트가 없다. elementName 은 로깅용이라 안 읽힌다.
+              accessibilityLabel={
+                vote === PlaceAiSummaryVoteDto.Down
+                  ? 'AI 요약이 아쉬워요, 선택됨. 누르면 취소합니다'
+                  : 'AI 요약이 아쉬워요'
+              }
+              accessibilityState={{
+                selected: vote === PlaceAiSummaryVoteDto.Down,
+                disabled: isPending,
+              }}>
               {vote === PlaceAiSummaryVoteDto.Down ? (
                 <ThumbsDownFillIcon width={16} height={16} />
               ) : (
@@ -144,7 +155,17 @@ export default function AiSummarySection({
                   : giveUpvote()
               }
               disabled={isPending}
-              hitSlop={4}>
+              hitSlop={4}
+              accessibilityRole="button"
+              accessibilityLabel={
+                vote === PlaceAiSummaryVoteDto.Up
+                  ? 'AI 요약이 도움돼요, 선택됨. 누르면 취소합니다'
+                  : 'AI 요약이 도움돼요'
+              }
+              accessibilityState={{
+                selected: vote === PlaceAiSummaryVoteDto.Up,
+                disabled: isPending,
+              }}>
               {vote === PlaceAiSummaryVoteDto.Up ? (
                 <ThumbsUpFillIcon width={16} height={16} />
               ) : (

@@ -296,15 +296,21 @@ export default function AiSummaryDownvoteBottomSheet({
                       <ContentsContainer>
                         <Grabber />
                         {/* X 버튼 없음 — 아래로 스와이프/배경 탭/back 으로 닫는다. */}
-                        <HeaderTitle>어떤점이 아쉬우셨나요?</HeaderTitle>
+                        <HeaderTitle>어떤 점이 아쉬우셨나요?</HeaderTitle>
 
-                        <ReasonList>
+                        <ReasonList accessibilityRole="radiogroup">
                           {REASON_OPTIONS.map(option => (
                             <ReasonOptionRow
                               key={option.reason}
                               elementName="ai_summary_downvote_reason"
                               logParams={{reason: option.reason}}
-                              onPress={() => setSelectedReason(option.reason)}>
+                              onPress={() => setSelectedReason(option.reason)}
+                              accessibilityRole="radio"
+                              accessibilityLabel={option.label}
+                              accessibilityState={{
+                                selected: selectedReason === option.reason,
+                                checked: selectedReason === option.reason,
+                              }}>
                               <RadioCircle
                                 isSelected={selectedReason === option.reason}>
                                 <RadioInnerDot />
@@ -336,7 +342,9 @@ export default function AiSummaryDownvoteBottomSheet({
                         <SubmitButton
                           elementName="ai_summary_downvote_submit"
                           disabled={isSubmitDisabled}
-                          onPress={handleSubmit}>
+                          onPress={handleSubmit}
+                          accessibilityRole="button"
+                          accessibilityState={{disabled: isSubmitDisabled}}>
                           <SubmitButtonText>의견 보내기</SubmitButtonText>
                         </SubmitButton>
                       </ContentsContainer>
