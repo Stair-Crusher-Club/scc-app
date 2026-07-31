@@ -178,7 +178,7 @@ const Container = styled.View`
   background-color: ${color.gray5};
   border-radius: 5px;
   margin: 0 20px;
-  padding: 12px 8px;
+  padding: 14px;
   gap: 6px;
   position: relative;
   overflow: visible;
