@@ -41,9 +41,13 @@ const getBaseURL = () => {
   // On web there is no localhost-emulator bridge; always use the configured
   // BASE_URL (the dev server origin must be CORS-allowed by that backend).
   if (Config.FLAVOR === 'local' && Platform.OS !== 'web') {
-    return Platform.OS === 'ios'
-      ? 'http://localhost:8080'
-      : 'http://10.0.2.2:8080';
+    // .env.local 의 BASE_URL 을 그대로 존중한다. 예전엔 8080 을 하드코딩해서, 포트를
+    // 바꿔 띄울 때(8080 점유 등)마다 이 파일을 임시로 고쳤다 되돌려야 했다.
+    const configured = Config.BASE_URL ?? 'http://localhost:8080';
+    // 안드로이드 에뮬레이터에서 localhost 는 호스트가 아니라 에뮬레이터 자신을 가리킨다.
+    return Platform.OS === 'android'
+      ? configured.replace('localhost', '10.0.2.2')
+      : configured;
   }
   return Config.BASE_URL;
 };
