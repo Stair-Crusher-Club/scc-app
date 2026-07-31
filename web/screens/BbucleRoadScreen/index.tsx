@@ -16,6 +16,7 @@ import { useUpvoteToggle } from '@/hooks/useUpvoteToggle';
 import { useSaveContent } from '@/hooks/useSaveContent';
 import useAppComponents from '@/hooks/useAppComponents';
 import { useAppInjectedAuth } from '../../hooks/useAppInjectedAuth';
+import { requestAppLogin } from '@/utils/appWebViewBridge';
 
 import HeaderSection from './sections/HeaderSection';
 import OverviewSection from './sections/OverviewSection';
@@ -205,8 +206,12 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
 
   // 앱(scc-app) 웹뷰 안에서 띄워졌다면 access token 이 주입되어 있다.
   // 이 경우 CTA 자리에 저장 버튼을 노출한다.
+  // 주입 payload 는 로그아웃 상태에서도 오므로(token: null) 토큰 유무로 판정한다.
   const appInjectedAuth = useAppInjectedAuth();
-  const isInApp = appInjectedAuth !== null;
+  const isInApp = !!appInjectedAuth?.token;
+  // 익명(비회원) 유저의 저장은 익명 계정에 쌓여 나중에 로그인하면 사라진 것처럼 보인다.
+  // 저장 대신 앱 로그인 화면으로 위임한다(버튼 노출은 그대로).
+  const needsLoginToSave = appInjectedAuth?.isAnonymous ?? false;
 
   // 저장 상태 조회 — 앱 컨텍스트에서만 의미가 있으므로 token 이 있을 때만 fetch.
   const currentPageUrl = useMemo(
@@ -224,6 +229,9 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   const saveContent = useSaveContent();
   const handleToggleSave = useCallback(() => {
     if (!isInApp) return;
+    // 익명 유저면 앱 로그인 화면으로 위임하고 저장은 중단한다.
+    // requestAppLogin() 이 false = 위임 미지원 구버전 앱 → 기존 동작(그대로 저장) 유지.
+    if (needsLoginToSave && requestAppLogin()) return;
     saveContent({
       url: currentPageUrl,
       contentType: SccContentTypeDto.WebPage,
@@ -235,6 +243,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
     });
   }, [
     isInApp,
+    needsLoginToSave,
     saveContent,
     currentPageUrl,
     data.title,
@@ -562,7 +571,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
   // 익명 유저로 이미 init 되었더라도 app token + baseUrl 로 덮어쓰면 이후 API 호출은
   // 앱 환경(sandbox/production)의 서버 + 실제 유저로 인증된다.
   useEffect(() => {
-    if (appInjectedAuth) {
+    if (appInjectedAuth?.token) {
       apiConfig.accessToken = appInjectedAuth.token;
       if (appInjectedAuth.baseUrl) {
         apiConfig.basePath = appInjectedAuth.baseUrl;
@@ -575,7 +584,7 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
     const initializeAuth = async () => {
       try {
         // 0순위: scc-app 웹뷰가 주입한 access token + baseUrl. 익명 유저 생성보다 우선한다.
-        if (appInjectedAuth) {
+        if (appInjectedAuth?.token) {
           apiConfig.accessToken = appInjectedAuth.token;
           if (appInjectedAuth.baseUrl) {
             apiConfig.basePath = appInjectedAuth.baseUrl;
@@ -596,7 +605,15 @@ export default function BbucleRoadScreen({ route }: BbucleRoadScreenProps) {
         // 1순위: 메인 앱에 로그인돼 있으면(scc-token) 그 토큰을 그대로 사용한다.
         // 익명 유저를 새로 만들면, 만료된 익명 토큰으로 401 이 날 때 globalAxios 공유
         // 인터셉터가 로그인 유저의 세션까지 풀어버린다. 이미 토큰이 있으면 재사용한다.
-        const appToken = getStorageValue<string>('scc-token');
+        //
+        // 단 앱 웹뷰가 "토큰 없음"(로그아웃)을 명시적으로 주입했다면 이 폴백을 건너뛴다.
+        // 웹뷰의 localStorage 에는 이전 세션의 scc-token 이 남아 있어(웹뷰 저장소는 앱과
+        // 별개) 앱은 로그아웃인데 웹뷰만 로그인 상태로 보이기 때문이다.
+        // 주입이 아예 없는 경우(구버전 앱/브라우저)는 기존대로 폴백한다.
+        const appLoggedOut = appInjectedAuth !== null && !appInjectedAuth.token;
+        const appToken = appLoggedOut
+          ? null
+          : getStorageValue<string>('scc-token');
         if (appToken) {
           apiConfig.accessToken = appToken;
           if (!window.localStorage.getItem('bbucleRoadUserId')) {

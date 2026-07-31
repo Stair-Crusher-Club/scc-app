@@ -27,6 +27,7 @@ import {startupTiming} from '@/logging/startupTiming';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {classifyWebRoute} from '@/navigation/webAccess';
 import {showAppInstallPrompt, showLoginPrompt} from '@/utils/appInstallPrompt';
+import {isInAppWebView} from '@/utils/appWebViewBridge';
 import {logDebug} from '@/utils/DebugUtils';
 import {isAuthDeferred} from '@/utils/deepLinkUtils';
 import HeatTelemetry from '@/utils/HeatTelemetry';
@@ -123,7 +124,10 @@ const RootScreen = () => {
         return true;
       }
       // 무로그인 열람 허용. 익명 유저면 하루 한 번 로그인을 유도한다(비차단 팝업).
-      if (!LOGIN_PROMPT_EXCLUDED_ROUTES.has(routeName)) {
+      // 단 앱 웹뷰 안에서는 유도 팝업을 띄우지 않는다 — 웹뷰의 로그인 진입은 앱
+      // LoginScreen 위임(checkAuth)이 담당하고, 여기서 웹 /login 으로 보내면 앱 세션과
+      // 갈린다. 쿼터(1일 1회)도 소모하지 않도록 기록 전에 판정한다.
+      if (!LOGIN_PROMPT_EXCLUDED_ROUTES.has(routeName) && !isInAppWebView()) {
         const userInfo = getStorageValue<{id?: string; nickname?: string}>(
           'userInfo',
         );

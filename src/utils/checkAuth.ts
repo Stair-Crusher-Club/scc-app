@@ -5,6 +5,7 @@ import {Platform} from 'react-native';
 import {isAnonymousUserAtom} from '@/atoms/Auth';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 import {showLoginPrompt} from '@/utils/appInstallPrompt';
+import {requestAppLogin} from '@/utils/appWebViewBridge';
 
 export function useCheckAuth() {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
@@ -22,6 +23,12 @@ export function useCheckAuth() {
     if (isAnonymousUser) {
       onFailed?.();
       console.log('anonymous user! open login');
+      // 앱 웹뷰 안이라면 로그인은 앱 LoginScreen 이 담당한다(웹뷰 안 애플 로그인은
+      // 팝업 미지원으로 깨지고, 미가입 유저의 Signup 플로우도 웹에 없다).
+      // false = 웹뷰가 아니거나 위임 미지원 구버전 앱 → 아래 기존 경로로 폴백.
+      if (requestAppLogin()) {
+        return;
+      }
       // 웹: 카카오 로그인은 풀 페이지 리다이렉트라 모달 네비 스택이 소실된다.
       // 로그인 후 원래 페이지로 돌아오도록 현재 경로를 redirect 로 넘긴다.
       // 바로 /login 으로 넘어가면 어색해서, 앱 설치 유도와 동일 디자인의 로그인

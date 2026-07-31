@@ -9,7 +9,7 @@ import Config from 'react-native-config';
 
 import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
 import CloseIcon from '@/assets/icon/close.svg';
-import {accessTokenAtom, useMe} from '@/atoms/Auth';
+import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
 import {CloseAppBar} from '@/components/AppBar';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
@@ -18,6 +18,32 @@ import {ScreenProps} from '@/navigation/Navigation.screens';
 import {resolveTemplatedExternalUrl} from '@/utils/externalUrlTemplating';
 import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
 import SccContentFloatingBar from './WebViewScreen/components/SccContentFloatingBar';
+
+// 브리지(로그인 상태 주입 + 로그인 위임 메시지 수신)를 허용하는 origin.
+// prefix 매칭(`startsWith(origin)`)은 `https://web.staircrusher.club.evil.com` 같은
+// 접미사 도메인을 통과시켜 토큰을 넘겨주므로, origin 뒤에 경계문자가 오는지까지 본다.
+// (웹뷰 안 링크 클릭은 handleWebViewShouldStartLoad 가 http(s) 를 전부 통과시키므로
+//  외부 도메인으로 이동이 가능하다 — 여기가 유일한 신뢰 경계다.)
+const BRIDGE_ALLOWED_ORIGINS = ['https://web.staircrusher.club'];
+
+function isBridgeAllowedUrl(targetUrl: string): boolean {
+  return BRIDGE_ALLOWED_ORIGINS.some(
+    origin =>
+      targetUrl === origin ||
+      targetUrl.startsWith(`${origin}/`) ||
+      targetUrl.startsWith(`${origin}?`) ||
+      targetUrl.startsWith(`${origin}#`),
+  );
+}
+
+// 웹 → 앱 메시지 타입. 웹뷰 안 web bundle 이 "로그인이 필요하다" 를 앱에 위임한다.
+// (로그인 주체는 항상 앱 — 웹뷰 안 애플 로그인은 팝업 미지원으로 깨지고 신규가입
+//  플로우도 웹에 없다. 상세: src/utils/appWebViewBridge.web.ts)
+const APP_MESSAGE_REQUEST_LOGIN = 'SCC_REQUEST_LOGIN';
+
+// 주입 payload 의 스키마 버전. 웹은 이 값이 있을 때만 로그인 위임을 시도하고,
+// 없으면(= 이 코드가 없는 구버전 앱) 기존 동작으로 폴백한다.
+const AUTH_BRIDGE_VERSION = 1;
 
 export interface WebViewScreenParams {
   headerVariant?: 'appbar' | 'navigation';
@@ -43,6 +69,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
   const webViewRef = useRef<WebView>(null);
   const {userInfo} = useMe();
   const accessToken = useAtomValue(accessTokenAtom);
+  const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
+  // 앱은 게스트 로그인만 해도 익명 토큰을 갖는다 — 토큰 유무가 아니라 식별 여부를 웹에 알린다.
+  // 로그아웃은 토큰만 지우고 userInfo 는 남기므로(SettingScreen/BottomButtons) 둘을 함께 본다.
+  const isAnonymous = !accessToken || isAnonymousUser;
   const resolvedInitialUrl = useMemo(
     () => resolveTemplatedExternalUrl(url, {userId: userInfo?.id}),
     [url, userInfo?.id],
@@ -91,80 +121,91 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     ]);
   }, [navigation, confirmOnClose]);
 
-  const handleMessage = useCallback((message: WebViewMessageEvent) => {
-    const raw = message.nativeEvent.data;
-    try {
-      const parsed = JSON.parse(raw);
-      if (
-        parsed &&
-        typeof parsed === 'object' &&
-        parsed.type === 'SCC_OG_META'
-      ) {
-        const payload = parsed.payload as {
-          title: string | null;
-          description: string | null;
-          imageUrls?: string[] | null;
-        } | null;
-        if (payload) {
-          setOgMeta({
-            title: payload.title ?? null,
-            description: payload.description ?? null,
-            imageUrls: Array.isArray(payload.imageUrls)
-              ? payload.imageUrls
-              : [],
-          });
-          if (payload.title) {
-            setTitle(payload.title);
+  const handleMessage = useCallback(
+    (message: WebViewMessageEvent) => {
+      const raw = message.nativeEvent.data;
+      try {
+        const parsed = JSON.parse(raw);
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          parsed.type === APP_MESSAGE_REQUEST_LOGIN
+        ) {
+          // onMessage 에는 origin 이 없고, 주입 채널은 웹뷰가 외부 도메인으로 이동한 뒤에도
+          // 살아있다. 현재 로드된 URL 이 허용 origin 일 때만 로그인 화면을 띄운다.
+          if (!isBridgeAllowedUrl(currentUrl)) return;
+          navigation.navigate('Login', {asModal: true});
+          return;
+        }
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          parsed.type === 'SCC_OG_META'
+        ) {
+          const payload = parsed.payload as {
+            title: string | null;
+            description: string | null;
+            imageUrls?: string[] | null;
+          } | null;
+          if (payload) {
+            setOgMeta({
+              title: payload.title ?? null,
+              description: payload.description ?? null,
+              imageUrls: Array.isArray(payload.imageUrls)
+                ? payload.imageUrls
+                : [],
+            });
+            if (payload.title) {
+              setTitle(payload.title);
+            }
           }
         }
+      } catch (_e) {
+        // OG 스크립트 외 메시지는 무시 (의도되지 않은 raw postMessage).
       }
-    } catch (_e) {
-      // OG 스크립트 외 메시지는 무시 (의도되지 않은 raw postMessage).
-    }
-  }, []);
-
-  // web.staircrusher.club 페이지가 현재 로드되어 있을 때만 앱 access token 을 주입한다.
-  // 페이지의 BbucleRoadScreen 이 window.__SCC_APP_AUTH__ 를 감지해서 저장 기능을 활성화한다.
-  const isWebStaircrusherUrl = useCallback(
-    (targetUrl: string) =>
-      targetUrl.startsWith('https://web.staircrusher.club'),
-    [],
+    },
+    [currentUrl, navigation],
   );
 
-  const buildAuthInjectScript = useCallback((token: string | null) => {
-    if (!token) return '';
+  // 앱의 로그인 상태를 웹에 주입하는 스크립트. 페이지의 BbucleRoadScreen 이
+  // window.__SCC_APP_AUTH__ 를 감지해 저장 기능/로그인 위임을 결정한다.
+  //
+  // 토큰이 없거나(로그아웃) 익명이어도 주입한다 — "토큰 없음" 도 상태다. 여기서
+  // early-return 하면 웹이 자기 localStorage 의 옛 토큰으로 폴백해 앱은 로그아웃인데
+  // 웹뷰만 로그인 상태로 보인다(재진입 시 split-brain).
+  const authInjectScript = useMemo(() => {
     // baseUrl 도 함께 주입해서 web bundle 이 이 환경에 맞는 API 서버로 호출하게 한다.
     // (web.staircrusher.club 의 web bundle 은 default 로 prod API 를 가리키므로,
     //  sandbox 앱 안에서 띄우면 prod API 호출 → 신규 endpoint 미배포 → 404 등 사고.)
     // BASE_URL 이 비어있으면 web 측 default(prod) 가 그대로 사용된다.
     // JSON.stringify 로 따옴표/이스케이프 safety 확보.
     const baseUrl = Config.BASE_URL ?? '';
-    return `
+    return `(function(){
       try {
         window.__SCC_APP_AUTH__ = {
-          token: ${JSON.stringify(token)},
+          token: ${JSON.stringify(accessToken ?? null)},
           baseUrl: ${JSON.stringify(baseUrl)},
+          isAnonymous: ${isAnonymous ? 'true' : 'false'},
+          bridgeVersion: ${AUTH_BRIDGE_VERSION},
         };
         window.dispatchEvent(new Event('scc-app-auth-ready'));
       } catch (_e) {}
-    `;
-  }, []);
+    })(); true;`;
+  }, [accessToken, isAnonymous]);
 
-  // atom 이 늦게 로드된 경우(앱 cold start) 페이지가 먼저 떠 있을 수 있다.
-  // accessToken 이 도착하면 즉시 주입해서 저장 버튼이 활성화되도록 한다.
+  // 로그인 상태가 바뀌면(로그인 완료/로그아웃/cold start 후 atom 늦은 로드) 즉시 재주입한다.
+  // 웹뷰 안에서 앱 LoginScreen 으로 로그인한 뒤 웹이 갱신되는 경로가 바로 이것 —
+  // 웹의 useAppInjectedAuth 가 scc-app-auth-ready 를 받아 reload 없이 리렌더한다.
   useEffect(() => {
-    if (!accessToken) return;
-    if (!isWebStaircrusherUrl(currentUrl)) return;
-    const script = `(function(){${buildAuthInjectScript(accessToken)}})(); true;`;
-    webViewRef.current?.injectJavaScript(script);
-  }, [accessToken, currentUrl, isWebStaircrusherUrl, buildAuthInjectScript]);
+    if (!isBridgeAllowedUrl(currentUrl)) return;
+    webViewRef.current?.injectJavaScript(authInjectScript);
+  }, [authInjectScript, currentUrl]);
 
   // 페이지 로드 완료 시 OG 메타 + 본문 이미지 추출 스크립트 주입
   const handleLoadEnd = useCallback(() => {
-    // 1) web.staircrusher.club 라면 access token 도 같이 주입 (저장 버튼 활성화)
-    if (isWebStaircrusherUrl(currentUrl) && accessToken) {
-      const authScript = `(function(){${buildAuthInjectScript(accessToken)}})(); true;`;
-      webViewRef.current?.injectJavaScript(authScript);
+    // 1) web.staircrusher.club 라면 로그인 상태도 같이 주입 (저장 버튼/로그인 위임 결정)
+    if (isBridgeAllowedUrl(currentUrl)) {
+      webViewRef.current?.injectJavaScript(authInjectScript);
     }
 
     const extractOgScript = `
@@ -230,7 +271,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
       true;
     `;
     webViewRef.current?.injectJavaScript(extractOgScript);
-  }, [accessToken, currentUrl, isWebStaircrusherUrl, buildAuthInjectScript]);
+  }, [authInjectScript, currentUrl]);
 
   const handleBackPress = useCallback(() => {
     if (canGoBack && webViewRef.current) {
@@ -292,13 +333,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         // 예: web.staircrusher.club (HTTPS) 안에서 http://10.0.2.2:8080 으로 saveContent 호출.
         // sandbox/production 빌드는 차단 유지 (MITM 공격 방지).
         mixedContentMode={Config.FLAVOR === 'local' ? 'always' : 'never'}
-        // 페이지 JS 가 실행되기 전에 미리 token 을 심어준다. 초기 source 가 web.staircrusher.club
-        // 이고 token 도 마운트 시점에 준비되어 있는 경우 BbucleRoadScreen 의 initializeAuth 가
-        // window.__SCC_APP_AUTH__ 를 즉시 감지할 수 있다.
+        // 페이지 JS 가 실행되기 전에 미리 로그인 상태를 심어준다. 초기 source 가
+        // 허용 origin 이면 BbucleRoadScreen 의 initializeAuth 가 window.__SCC_APP_AUTH__ 를
+        // 즉시 감지할 수 있다(토큰이 없는 상태도 그대로 전달한다).
         injectedJavaScriptBeforeContentLoaded={
-          isWebStaircrusherUrl(resolvedInitialUrl) && accessToken
-            ? `(function(){${buildAuthInjectScript(accessToken)}})(); true;`
-            : undefined
+          isBridgeAllowedUrl(resolvedInitialUrl) ? authInjectScript : undefined
         }
         onMessage={handleMessage}
         onLoadEnd={handleLoadEnd}
