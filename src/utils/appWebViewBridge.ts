@@ -24,3 +24,7 @@ export function readAppInjectedAuth(): AppInjectedAuth | null {
 export function requestAppLogin(): boolean {
   return false;
 }
+
+export function syncAppInjectedAuthToStorage(): void {
+  // native 는 저장소가 곧 앱 세션이라 동기화할 대상이 없다.
+}

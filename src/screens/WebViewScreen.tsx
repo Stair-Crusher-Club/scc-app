@@ -1,4 +1,5 @@
 import {useBackHandler} from '@react-native-community/hooks';
+import {useFocusEffect} from '@react-navigation/native';
 import {SccPressable} from '@/components/SccPressable';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
@@ -106,6 +107,16 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     return match ? match[1] : null;
   }, [currentUrl]);
 
+  // 로그인 위임은 idempotent 해야 한다 — 웹이 몇 번을 요청하든 로그인 화면은 최대 1개.
+  // (중복 요청 경로를 다 막는 것보다 sink 에서 보장하는 쪽이 안전하다)
+  // 화면이 다시 포커스되면(= 로그인 화면이 닫혔다) 잠금을 푼다.
+  const loginRequestPendingRef = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      loginRequestPendingRef.current = false;
+    }, []),
+  );
+
   const onTapCloseButton = useCallback(() => {
     if (!confirmOnClose) {
       navigation.goBack();
@@ -134,6 +145,11 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           // onMessage 에는 origin 이 없고, 주입 채널은 웹뷰가 외부 도메인으로 이동한 뒤에도
           // 살아있다. 현재 로드된 URL 이 허용 origin 일 때만 로그인 화면을 띄운다.
           if (!isBridgeAllowedUrl(currentUrl)) return;
+          // 이미 요청했거나(같은 tick 의 중복 메시지) 로그인 화면이 떠 있으면 무시한다.
+          if (loginRequestPendingRef.current) return;
+          const routes = navigation.getState().routes;
+          if (routes[routes.length - 1]?.name === 'Login') return;
+          loginRequestPendingRef.current = true;
           navigation.navigate('Login', {asModal: true});
           return;
         }

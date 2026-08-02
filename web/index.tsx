@@ -6,8 +6,16 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 
 import AppRoot from '../App';
+import {syncAppInjectedAuthToStorage} from '@/utils/appWebViewBridge';
 
 import DailyLoginPrompt from './components/DailyLoginPrompt';
+import {SCC_APP_AUTH_READY_EVENT} from './hooks/useAppInjectedAuth';
+
+// 앱 웹뷰라면 주입된 로그인 상태를 저장소에 먼저 반영한다. 렌더 전에 해야
+// accessToken atom 이 앱 토큰으로 hydrate 되고(익명 부트스트랩 스킵), globalAxios
+// 인터셉터가 첫 요청부터 앱 유저로 인증한다. 로그인/로그아웃 후 재주입도 반영한다.
+syncAppInjectedAuthToStorage();
+window.addEventListener(SCC_APP_AUTH_READY_EVENT, syncAppInjectedAuthToStorage);
 
 // Reset + mobile frame: on desktop the app is capped at 480px, centered, with a
 // subtle shadow on the sides so the "mobile" boundary is visible. On narrow

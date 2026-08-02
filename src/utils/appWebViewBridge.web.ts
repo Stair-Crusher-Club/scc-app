@@ -34,7 +34,17 @@ declare global {
   }
 }
 
+import {storage} from '@/atoms/atomForLocal';
+
 const APP_MESSAGE_REQUEST_LOGIN = 'SCC_REQUEST_LOGIN';
+
+/** 앱/웹 공통 access token 저장 키 (atomForLocal, web 에선 localStorage 백업). */
+const APP_TOKEN_KEY = 'scc-token';
+const USER_INFO_KEY = 'userInfo';
+
+/** 같은 사용자 액션에서 위임 요청이 여러 번 나가는 것을 막는 창(ms). */
+const LOGIN_REQUEST_DEDUP_MS = 1500;
+let lastLoginRequestAt = 0;
 
 // 인앱 웹뷰 판정은 web/utils/isInAppWebView 하나만 쓴다(구현 중복 방지).
 // 이 브리지는 공용 src 코드(checkAuth, RootScreen)가 쓸 수 있는 진입점 역할.
@@ -69,6 +79,39 @@ export function requestAppLogin(): boolean {
   if (!bridge) return false;
   const auth = readAppInjectedAuth();
   if (!auth || auth.bridgeVersion < MIN_BRIDGE_VERSION_FOR_LOGIN) return false;
+  // 한 번의 사용자 액션에서 요청이 두 번 이상 나가면 로그인 화면이 겹쳐 뜬다.
+  // 앱 쪽에도 idempotent 가드가 있지만 원천에서도 막는다. 시간창 방식이라
+  // (플래그와 달리) 로그인하지 않고 닫아도 잠긴 채로 남지 않는다.
+  const now = Date.now();
+  if (now - lastLoginRequestAt < LOGIN_REQUEST_DEDUP_MS) return true;
+  lastLoginRequestAt = now;
   bridge.postMessage(JSON.stringify({type: APP_MESSAGE_REQUEST_LOGIN}));
   return true;
+}
+
+/**
+ * 앱이 주입한 로그인 상태를 web 저장소(`scc-token`)에 반영한다.
+ *
+ * 왜 필요한가: 웹 화면의 API 호출은 두 갈래로 인증된다.
+ *   1. `web/config/api.ts` 의 `apiConfig.accessToken` — 주입 토큰이 들어가는 곳
+ *   2. `useAppComponents().api` — App.tsx 가 **accessToken 없는 Configuration** 으로 만든
+ *      인스턴스라, 인증은 전적으로 globalAxios 인터셉터(App.tsx)가 매 요청마다
+ *      저장소의 `scc-token` 을 읽어 붙인다
+ * 저장(`useSaveContent`)·저장상태조회는 2번 경로다. 그래서 주입 토큰을 저장소에
+ * 반영하지 않으면 웹뷰 안에서도 **웹이 자체 발급한 익명 유저**로 호출되고,
+ * `/saveContent` 는 spec 상 `Identified` 전용이라 403 이 난다.
+ *
+ * 주입이 없으면(브라우저) 아무것도 건드리지 않는다 — 웹 자체 세션이 진실이다.
+ */
+export function syncAppInjectedAuthToStorage(): void {
+  const auth = readAppInjectedAuth();
+  if (!auth) return;
+  if (auth.token) {
+    // atomForLocal 인코딩(JSON)에 맞춘다 — KakaoCallbackScreen 과 동일.
+    storage.set(APP_TOKEN_KEY, JSON.stringify(auth.token));
+    return;
+  }
+  // 앱이 로그아웃 상태 → 웹뷰에 남아있는 이전 세션 흔적을 지운다.
+  storage.delete(APP_TOKEN_KEY);
+  storage.delete(USER_INFO_KEY);
 }
