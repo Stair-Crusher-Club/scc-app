@@ -45,6 +45,9 @@ export default function DailyLoginPrompt() {
     // 800ms 전에 이탈/리다이렉트/언마운트 시 팝업을 못 봤는데도 오늘 쿼터가 소모돼
     // 하루 종일 안 뜬다(유저 리포트 원인).
     const t = window.setTimeout(() => {
+      // 유도 팝업은 최대 1개 — 앱설치/로그인 유도 DOM 오버레이(appInstallPrompt.web.ts)가
+      // 이미 떠 있으면 겹쳐 띄우지 않는다. 쿼터도 소모하지 않는다.
+      if (document.querySelector('[data-scc-daily-login-prompt]')) return;
       window.localStorage.setItem(LAST_SHOWN_KEY, today);
       setVisible(true);
     }, 800);

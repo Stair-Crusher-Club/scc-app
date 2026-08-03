@@ -10,8 +10,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {requestTrackingPermission} from 'react-native-tracking-transparency';
 import {Airbridge} from 'airbridge-react-native-sdk';
 
-import {getStorageValue, storage} from '@/atoms/atomForLocal';
-import {isAnonymousUser} from '@/atoms/Auth';
+import {getStorageValue} from '@/atoms/atomForLocal';
 import DevTool from '@/components/DevTool/DevTool';
 import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 import {setPendingSharedText} from '@/deeplink/PendingSharedText';
@@ -26,8 +25,7 @@ import {
 import {startupTiming} from '@/logging/startupTiming';
 import {dismissSplashOverlay} from '@/splash/SplashOverlay';
 import {classifyWebRoute} from '@/navigation/webAccess';
-import {showAppInstallPrompt, showLoginPrompt} from '@/utils/appInstallPrompt';
-import {isInAppWebView} from '@/utils/appWebViewBridge';
+import {showAppInstallPrompt} from '@/utils/appInstallPrompt';
 import {logDebug} from '@/utils/DebugUtils';
 import {isAuthDeferred} from '@/utils/deepLinkUtils';
 import HeatTelemetry from '@/utils/HeatTelemetry';
@@ -59,16 +57,6 @@ const extractAllowedRouteParams = (routeParams: any): Record<string, any> => {
 
   return extracted;
 };
-
-// 로그인 유도 팝업을 띄우지 않는 라우트(인증/자기 리다이렉트 화면).
-const LOGIN_PROMPT_EXCLUDED_ROUTES = new Set<string>([
-  'Intro',
-  'Login',
-  'Signup',
-  'KakaoCallback',
-  'AppleCallback',
-]);
-const LOGIN_PROMPT_SHOWN_DATE_KEY = 'login-prompt-shown-date';
 
 const RootScreen = () => {
   const routeNameRef = useRef<string>(undefined);
@@ -123,27 +111,11 @@ const RootScreen = () => {
         }
         return true;
       }
-      // 무로그인 열람 허용. 익명 유저면 하루 한 번 로그인을 유도한다(비차단 팝업).
-      // 단 앱 웹뷰 안에서는 유도 팝업을 띄우지 않는다 — 웹뷰의 로그인 진입은 앱
-      // LoginScreen 위임(checkAuth)이 담당하고, 여기서 웹 /login 으로 보내면 앱 세션과
-      // 갈린다. 쿼터(1일 1회)도 소모하지 않도록 기록 전에 판정한다.
-      if (!LOGIN_PROMPT_EXCLUDED_ROUTES.has(routeName) && !isInAppWebView()) {
-        const userInfo = getStorageValue<{id?: string; nickname?: string}>(
-          'userInfo',
-        );
-        // 무토큰(userInfo 없음)도 익명으로 간주. 판별은 Auth.ts 공유 predicate 사용.
-        const isAnonymous = !userInfo || isAnonymousUser(userInfo);
-        const today = new Date().toDateString();
-        if (
-          isAnonymous &&
-          storage.getString(LOGIN_PROMPT_SHOWN_DATE_KEY) !== today
-        ) {
-          storage.set(LOGIN_PROMPT_SHOWN_DATE_KEY, today);
-          showLoginPrompt(() =>
-            (navigationRef.current?.navigate as any)('Login'),
-          );
-        }
-      }
+      // 무로그인 열람 허용. 익명 유저 1일 1회 로그인 유도는 여기서 하지 않는다 —
+      // web/components/DailyLoginPrompt.tsx(React 트리 렌더) 가 단일 소스다.
+      // 과거엔 이 게이트에서도 showLoginPrompt(DOM 오버레이)를 띄웠는데, 쿼터 키가
+      // 서로 달라(login-prompt-shown-date vs loginPromptLastShownDate) 둘 다 "오늘
+      // 아직 안 띄웠다"고 판정해 팝업이 2개 겹쳤다.
       return false;
     },
     [navigationRef],

@@ -28,7 +28,11 @@ function showPrompt(opts: {
   onPrimary: () => void;
   dismissLabel?: string;
 }) {
-  if (document.getElementById('app-install-overlay')) return;
+  // 유도 팝업은 무조건 최대 1개 — sink 에서 보장한다.
+  // id 만 보면 안 된다: React 트리에서 렌더되는 DailyLoginPrompt 오버레이에는 id 가
+  // 없어서 그 위에 DOM 오버레이가 하나 더 쌓였다(팝업 2개 겹침 리포트). 두 구현이
+  // 공통으로 다는 마커 속성으로 판정한다.
+  if (document.querySelector('[data-scc-daily-login-prompt]')) return;
 
   const overlay = document.createElement('div');
   overlay.id = 'app-install-overlay';
