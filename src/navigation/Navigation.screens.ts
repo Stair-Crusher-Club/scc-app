@@ -131,7 +131,16 @@ export const MainNavigationScreens: {
   {
     name: 'Signup',
     component: SignupScreen,
-    options: {headerShown: true, headerTitle: ''},
+    // 미가입 유저는 Login 이 Signup 으로 replace 되므로 asModal 도 그대로 이어진다.
+    // Login 과 같은 이유로 모달로 띄워야 한다 (안 그러면 웹뷰 모달 뒤에 가려져
+    // "아무 반응 없음" + X 두 번 눌러야 닫힘).
+    options: ({route}) => ({
+      headerShown: true,
+      headerTitle: '',
+      ...(route.params?.asModal
+        ? ({presentation: 'fullScreenModal'} as const)
+        : {}),
+    }),
   },
   {
     name: 'Setting',

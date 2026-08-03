@@ -148,7 +148,9 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
           // 이미 요청했거나(같은 tick 의 중복 메시지) 로그인 화면이 떠 있으면 무시한다.
           if (loginRequestPendingRef.current) return;
           const routes = navigation.getState().routes;
-          if (routes[routes.length - 1]?.name === 'Login') return;
+          // Login → (미가입) Signup 으로 replace 되므로 둘 다 "이미 떠 있음" 이다.
+          const topRouteName = routes[routes.length - 1]?.name;
+          if (topRouteName === 'Login' || topRouteName === 'Signup') return;
           loginRequestPendingRef.current = true;
           navigation.navigate('Login', {asModal: true});
           return;
