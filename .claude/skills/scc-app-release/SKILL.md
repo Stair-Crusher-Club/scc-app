@@ -18,8 +18,9 @@ disable-model-invocation: true
 ## 웹 배포 규칙
 
 - **웹 배포는 로컬에서 수동 실행한다.** (CI 워크플로우 없음)
+- **모든 배포는 `origin/main` 기준이다 (H19 hook이 차단).** 배포 직전 `git fetch origin main && git rev-parse HEAD origin/main`이 동일해야 하고 추적 파일에 미커밋 변경이 없어야 한다. 로컬 커밋 상태로 배포하면 prod에 뭐가 떴는지 git으로 되짚을 수 없고 롤백 기준도 사라진다. **sandbox 배포 = 무조건 main merge** — 브랜치에서 바로 배포하지 않는다.
 - 배포 절차:
-  1. **현재 워킹트리 기준으로 빌드**(미커밋 발행본 포함). `git reset --hard`는 쓰지 않는다 — 커밋 안 한 web-articles 발행본/렌더러 수정을 날린다. main 최신 반영이 필요하면 `git fetch origin main && git rebase origin/main`로 비파괴적으로. 배포 전 워킹트리에 의도치 않은 변경(app src 등)이 없는지 `git status`로 확인.
+  1. **origin/main == HEAD 확인 후, 그 상태의 워킹트리로 빌드**(web-articles 발행본은 먼저 커밋해 main에 올린다). `git reset --hard`는 쓰지 않는다 — 커밋 안 한 발행본/렌더러 수정을 날린다. main 최신 반영은 `git fetch origin main && git rebase origin/main`로 비파괴적으로.
   2. `yarn web:build` (production 빌드 → `web-dist/`)
      - 내부적으로 `ENVFILE=subprojects/scc-frontend-build-configurations/production/.env`가 강제되어 `BASE_URL=https://api.staircrusher.club`가 bake 된다.
      - `ENVFILE=.env.local` 같이 native dev용 env 로 빌드하면 `BASE_URL=10.0.2.2:8080`이 박혀 일반 브라우저에서 닿지 못한다. 절대 그렇게 빌드하지 말 것.
