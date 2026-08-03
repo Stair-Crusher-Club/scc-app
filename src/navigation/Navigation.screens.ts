@@ -109,11 +109,25 @@ export type CustomNavigationOptions = NativeStackNavigationOptions & {
 export const MainNavigationScreens: {
   name: keyof ScreenParams;
   component: React.ComponentType<any>;
-  options?: CustomNavigationOptions;
+  // route.params 에 따라 옵션을 바꿔야 하는 화면은 함수형으로 준다.
+  options?:
+    | CustomNavigationOptions
+    | ((props: {route: any; navigation: any}) => CustomNavigationOptions);
 }[] = [
   {name: 'Intro', component: IntroScreen},
   {name: 'Main', component: MainScreen},
-  {name: 'Login', component: LoginScreen},
+  {
+    name: 'Login',
+    component: LoginScreen,
+    // asModal(다른 화면 위에 띄우는 로그인)일 때만 모달로 표시한다.
+    // Webview 처럼 presentation: 'fullScreenModal' 로 뜬 화면 위에 기본 push 로 올리면
+    // 네이티브 모달이 위에 남아 로그인 화면이 가려진다 → 유저에겐 "버튼 눌러도 아무 반응
+    // 없음" 으로 보이고, 그 상태에서 X 를 누르면 위에 쌓인 Login 이 먼저 pop 돼서 두 번
+    // 눌러야 웹뷰가 닫힌다. (asModal 이 아닌 진입 — Intro/Main 의 replace, 로그아웃 reset —
+    //  은 기존 push 그대로 둔다)
+    options: ({route}) =>
+      route.params?.asModal ? {presentation: 'fullScreenModal'} : {},
+  },
   {
     name: 'Signup',
     component: SignupScreen,
