@@ -17,6 +17,8 @@ import { useSaveContent } from '@/hooks/useSaveContent';
 import useAppComponents from '@/hooks/useAppComponents';
 import { useAppInjectedAuth } from '../../hooks/useAppInjectedAuth';
 import { requestAppLogin } from '@/utils/appWebViewBridge';
+import { getIsInAppWebView } from '../../utils/isInAppWebView';
+import { getIsLoggedIn } from '../../utils/kakaoAuth';
 
 import HeaderSection from './sections/HeaderSection';
 import OverviewSection from './sections/OverviewSection';
@@ -204,11 +206,14 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
 
   const hasFloatingHeader = !!data.floatingHeaderTitle;
 
-  // 앱(scc-app) 웹뷰 안에서 띄워졌다면 access token 이 주입되어 있다.
-  // 이 경우 CTA 자리에 저장 버튼을 노출한다.
-  // 주입 payload 는 로그아웃 상태에서도 오므로(token: null) 토큰 유무로 판정한다.
+  // CTA 자리에 저장 버튼을 노출할 조건.
+  //  - 앱 웹뷰: 주입된 토큰이 있으면 (주입 payload 는 로그아웃 상태에서도 token: null 로
+  //    오므로 토큰 유무로 판정). 익명이면 탭 시 앱 로그인 화면으로 위임한다.
+  //  - 브라우저: 웹에서 로그인(식별)한 상태. 비로그인/익명은 기존 CTA(정보 요청하기) 유지.
   const appInjectedAuth = useAppInjectedAuth();
-  const isInApp = !!appInjectedAuth?.token;
+  const isInApp = getIsInAppWebView()
+    ? !!appInjectedAuth?.token
+    : getIsLoggedIn();
   // 익명(비회원) 유저의 저장은 익명 계정에 쌓여 나중에 로그인하면 사라진 것처럼 보인다.
   // 저장 대신 앱 로그인 화면으로 위임한다(버튼 노출은 그대로).
   const needsLoginToSave = appInjectedAuth?.isAnonymous ?? false;
