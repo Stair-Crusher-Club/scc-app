@@ -214,9 +214,9 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   const isInApp = getIsInAppWebView()
     ? !!appInjectedAuth?.token
     : getIsLoggedIn();
-  // 익명(비회원) 유저의 저장은 익명 계정에 쌓여 나중에 로그인하면 사라진 것처럼 보인다.
-  // 저장 대신 앱 로그인 화면으로 위임한다(버튼 노출은 그대로).
-  const needsLoginToSave = appInjectedAuth?.isAnonymous ?? false;
+  // 앱 웹뷰의 익명(비회원) 유저: 좋아요·저장을 익명 계정에 쌓지 않고 앱 로그인 화면으로
+  // 위임한다(버튼 노출은 그대로). 브라우저에선 주입이 없어 false — 기존 익명 동작 유지.
+  const needsAppLogin = appInjectedAuth?.isAnonymous ?? false;
 
   // 저장 상태 조회 — 앱 컨텍스트에서만 의미가 있으므로 token 이 있을 때만 fetch.
   const currentPageUrl = useMemo(
@@ -231,12 +231,18 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
   const isSaved = sccContentDetails?.isSaved ?? false;
   const savedSccContentId = sccContentDetails?.sccContentId ?? null;
 
+  // 좋아요도 저장과 동일: 앱 웹뷰의 익명 유저는 앱 로그인으로 위임한다.
+  const handleLikePress = useCallback(() => {
+    if (needsAppLogin && requestAppLogin()) return;
+    toggleUpvote();
+  }, [needsAppLogin, toggleUpvote]);
+
   const saveContent = useSaveContent();
   const handleToggleSave = useCallback(() => {
     if (!isInApp) return;
     // 익명 유저면 앱 로그인 화면으로 위임하고 저장은 중단한다.
     // requestAppLogin() 이 false = 위임 미지원 구버전 앱 → 기존 동작(그대로 저장) 유지.
-    if (needsLoginToSave && requestAppLogin()) return;
+    if (needsAppLogin && requestAppLogin()) return;
     saveContent({
       url: currentPageUrl,
       contentType: SccContentTypeDto.WebPage,
@@ -248,7 +254,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
     });
   }, [
     isInApp,
-    needsLoginToSave,
+    needsAppLogin,
     saveContent,
     currentPageUrl,
     data.title,
@@ -355,7 +361,7 @@ function BbucleRoadContent({ data, bbucleRoadId }: { data: BbucleRoadData; bbucl
         likeCount={totalUpvoteCount ?? 0}
         isLiked={isUpvoted}
         ctaButtonUrl={ctaButtonUrl}
-        onLikePress={toggleUpvote}
+        onLikePress={handleLikePress}
         isVisible={isBottomBarVisible}
         isInApp={isInApp}
         isSaved={isSaved}

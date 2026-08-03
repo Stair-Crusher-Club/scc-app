@@ -26,6 +26,7 @@ import {
 import RootScreen from '@/screens/RootScreen';
 import Logger from '@/logging/Logger';
 import {startupTiming} from '@/logging/startupTiming';
+import {readAppInjectedAuth} from '@/utils/appWebViewBridge';
 import {logError, logRequest, logResponse} from '@/utils/DebugUtils';
 
 import {setupGlobalFeatures} from '@/features/globalFeatures';
@@ -48,6 +49,16 @@ const getBaseURL = () => {
     return Platform.OS === 'android'
       ? configured.replace('localhost', '10.0.2.2')
       : configured;
+  }
+  // 앱 웹뷰 안이라면 앱이 주입한 BASE_URL 을 최우선으로 쓴다.
+  // web 번들에는 빌드 시점의 BASE_URL(prod)이 baked 되어 있어서, sandbox 앱 웹뷰에서
+  // 그대로 쓰면 **dev 토큰으로 prod API 를 호출**해 전부 401 이 난다(좋아요/저장 등).
+  // web/config/api.ts 의 apiConfig 는 BbucleRoadScreen 이 주입 baseUrl 로 덮지만,
+  // 이 Configuration(useAppComponents 용)은 아무도 덮지 않아 두 인스턴스가 엇갈렸다.
+  // native 는 readAppInjectedAuth() 가 항상 null 이라 영향 없다.
+  const injectedBaseUrl = readAppInjectedAuth()?.baseUrl;
+  if (injectedBaseUrl) {
+    return injectedBaseUrl;
   }
   return Config.BASE_URL;
 };
