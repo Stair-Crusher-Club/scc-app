@@ -2,6 +2,11 @@
 // app module evaluates (some read Dimensions.get at module load).
 import './setupWebShims';
 
+// 이탈 페이지 체류시간 계측 (side-effect import).
+// react-navigation 이 로드되기 **전에** history.pushState/replaceState 를 감싸야 하므로
+// ../App 보다 먼저 와야 한다. 자세한 배경은 해당 파일 주석 참조.
+import './utils/pageDwellTracker';
+
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 
