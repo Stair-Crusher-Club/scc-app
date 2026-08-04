@@ -165,7 +165,7 @@ function header() {
 function footerCta() {
   return `<section class="cta">
   <div>이동약자를 위한 진짜 접근성 정보, 계단뿌셔클럽에서 더 보기</div>
-  <a href="${SITE.appUrl}">계단뿌셔클럽 바로가기</a>
+  <a href="${SITE.appUrl}" target="_blank" rel="noopener noreferrer">계단뿌셔클럽 바로가기</a>
 </section>
 <footer class="site-footer"><div class="wrap">© ${SITE.name}</div></footer>`;
 }

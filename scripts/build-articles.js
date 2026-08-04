@@ -46,6 +46,12 @@ const DB_ID = arg('db') || process.env.ARTICLES_DB_ID;
 const TOKEN = process.env.NOTION_TOKEN;
 const DRY = process.argv.includes('--dry');
 const FORCE = process.argv.includes('--force'); // 템플릿/스타일 변경 시 전체 재생성
+// --only a,b,c : 지정 slug만 강제 재생성(단계적 롤아웃용). 나머지는 커밋된 HTML 그대로.
+// 렌더러를 바꿨는데 전체를 한 번에 갈아엎고 싶지 않을 때 쓴다.
+const ONLY = (arg('only') || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 // offline: Notion 미사용. 레포에 커밋된 web-articles/(소스+manifest)로 web-dist만 재조립.
 // → yarn web:build가 이걸 돌려, 앱 웹 배포 시에도 web-dist에 /articles가 항상 포함된다
 //   (web-deploy.sh의 `sync --delete`가 /articles를 지우지 않게 하는 구조적 안전장치).
@@ -443,8 +449,10 @@ function renderRich(rich) {
         .split('\n')
         .map(line => (line === '' ? '' : annotate(line)))
         .join('<br>');
-      if (r.href)
-        t = `<a href="${esc(fixHref(r.href))}" rel="noopener">${t}</a>`;
+      if (r.href) {
+        const h = fixHref(r.href);
+        t = `<a href="${esc(h)}"${linkAttrs(h)}>${t}</a>`;
+      }
       return t;
     })
     .join('');
@@ -512,6 +520,16 @@ function fixHref(href) {
   return href;
 }
 
+// 외부 링크는 새 탭. 본문을 읽다 CTA(카카오톡/저장리스트/예매 등)를 누르면 글에서
+// 튕겨나가던 문제. 같은 사이트 경로(/articles/…)와 인페이지 앵커(#)는 기존대로 현재 탭.
+function linkAttrs(href) {
+  const external =
+    /^https?:\/\//i.test(href || '') && !String(href).startsWith(SITE.baseUrl);
+  return external
+    ? ' target="_blank" rel="noopener noreferrer"'
+    : ' rel="noopener"';
+}
+
 // ---------- child_database (인라인 DB) → 표 ----------
 function pill(name, color) {
   const c = (color || 'default').replace('_background', '');
@@ -538,7 +556,7 @@ function renderPropValue(prop) {
       return prop.checkbox ? '✓' : '';
     case 'url':
       return prop.url
-        ? `<a href="${esc(prop.url)}" rel="noopener">${esc(prop.url)}</a>`
+        ? `<a href="${esc(prop.url)}"${linkAttrs(prop.url)}>${esc(prop.url)}</a>`
         : '';
     case 'email':
       return prop.email ? esc(prop.email) : '';
@@ -1123,8 +1141,8 @@ async function renderBlock(b, ctx) {
         (title === url ? '' : `<span class="bm-url">${esc(url)}</span>`) +
         `</span>`;
       return thumb
-        ? `<a class="bookmark" href="${esc(href)}" rel="noopener"><span class="bm-thumb"><img src="${esc(thumb)}" alt="" loading="lazy"></span>${body}</a>`
-        : `<a class="bookmark no-thumb" href="${esc(href)}" rel="noopener">${body}</a>`;
+        ? `<a class="bookmark" href="${esc(href)}"${linkAttrs(href)}><span class="bm-thumb"><img src="${esc(thumb)}" alt="" loading="lazy"></span>${body}</a>`
+        : `<a class="bookmark no-thumb" href="${esc(href)}"${linkAttrs(href)}>${body}</a>`;
     }
     // 탭 컨테이너 자체엔 텍스트가 없다(API가 `tab: {}`) — 하위 블록을 펼쳐 렌더하지 않으면 본문이 통째로 유실된다
     case 'tab':
@@ -1168,7 +1186,7 @@ async function renderBlock(b, ctx) {
     case 'pdf': {
       const url = d.type === 'external' ? d.external?.url : d.file?.url;
       return url
-        ? `<p><a href="${esc(url)}" rel="noopener">${esc(t)}: ${esc(url)}</a></p>`
+        ? `<p><a href="${esc(url)}"${linkAttrs(url)}>${esc(t)}: ${esc(url)}</a></p>`
         : '';
     }
     default:
@@ -1341,6 +1359,7 @@ async function main() {
   }
 
   const changed = rows.filter(r => {
+    if (ONLY.length) return ONLY.includes(r.meta.slug);
     if (FORCE) return true;
     const prev = manifest[r.meta.rowId];
     return (
@@ -1349,6 +1368,11 @@ async function main() {
       prev.slug !== r.meta.slug
     );
   });
+  if (ONLY.length) {
+    const missing = ONLY.filter(s => !rows.some(r => r.meta.slug === s));
+    if (missing.length)
+      console.log(`  ⚠️ --only 에 DB에 없는 slug: ${missing.join(', ')}`);
+  }
   // 상세 페이지(parent 있음)는 top-level DB에 없으니 삭제 판정에서 제외(부모 재빌드 시 재생성)
   const deleted = Object.keys(manifest).filter(
     id => !current.has(id) && !manifest[id].parent,
