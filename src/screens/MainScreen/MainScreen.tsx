@@ -23,7 +23,7 @@ import {useCheckAuth} from '@/utils/checkAuth';
 
 import ChallengeIcon from '../../assets/icon/ic_challenge.svg';
 import HomeIcon from '../../assets/icon/ic_home.svg';
-import MapIcon from '../../assets/icon/ic_map_detailed.svg';
+import MapIcon from '../../assets/icon/ic_nav_map.svg';
 import MenuIcon from '../../assets/icon/ic_menu.svg';
 import ChallengeScreen from '../ChallengeScreen';
 import HomeScreenV2 from '../HomeScreenV2';
