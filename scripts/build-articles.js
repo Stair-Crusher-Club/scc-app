@@ -288,6 +288,11 @@ function resolveRow(page) {
     props.tags && props.tags.type === 'multi_select'
       ? props.tags.multi_select.map(t => t.name)
       : [];
+  // featured(number): 값이 있으면 목록 맨 위로, 1·2·3… 오름차순. 비어 있으면 일반 글.
+  const featured =
+    props.featured && props.featured.type === 'number'
+      ? props.featured.number
+      : null;
   let faq = [];
   if (props.faq && props.faq.type === 'rich_text') {
     try {
@@ -311,6 +316,7 @@ function resolveRow(page) {
     ogImage,
     tags,
     faq,
+    featured,
   };
 }
 
@@ -1274,8 +1280,12 @@ function reassembleDist(manifest) {
   const sharedAssets = path.join(SRC_DIR, '_assets');
   if (fs.existsSync(sharedAssets))
     copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
-  const all = Object.values(manifest).sort((a, b) =>
-    (b.createdTime || '').localeCompare(a.createdTime || ''),
+  // featured(숫자)가 있는 글이 1·2·3… 순으로 맨 위, 나머지는 createdTime 내림차순.
+  const rank = a => (typeof a.featured === 'number' ? a.featured : Infinity);
+  const all = Object.values(manifest).sort(
+    (a, b) =>
+      rank(a) - rank(b) ||
+      (b.createdTime || '').localeCompare(a.createdTime || ''),
   );
   // 상세 페이지(parent 있음)는 부모 디렉토리에 중첩 → 부모 복사 시 함께 온다. 목록엔 top-level만.
   const topLevel = all.filter(a => !a.parent);
@@ -1429,6 +1439,11 @@ async function main() {
     for (const sp of subPages) manifest[sp.contentPageId] = sp;
     if (subPages.length) console.log(`     ↳ 상세 페이지 ${subPages.length}건`);
   }
+  // featured는 changed 루프 밖에서 매번 동기화한다. incremental 기준은 **본문 페이지**의
+  // editedTime이라, DB row의 featured만 바꾸면 본문 시각이 그대로여서 재빌드가 안 걸린다.
+  // (DB 쿼리는 이미 끝났으므로 추가 API 호출 0)
+  for (const {meta} of rows)
+    if (manifest[meta.rowId]) manifest[meta.rowId].featured = meta.featured;
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
 
   const published = reassembleDist(manifest);

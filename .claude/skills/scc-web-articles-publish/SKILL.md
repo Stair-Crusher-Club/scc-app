@@ -41,6 +41,8 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 ## Notion DB 스키마 (최소화 — 사람은 글만 쓴다)
 
 - **사람이 작성**: 페이지 **제목**(= h1/`<title>`) + **본문**. 그게 전부.
+- **사람이 선택적으로 지정**:
+  - `featured` (number, 선택) — 목록 상단 고정. 값이 있는 글이 `1`, `2`, `3`… 오름차순으로 맨 위에 오고, 비어 있으면 일반 글(`createdTime` 내림차순). **순서는 코드에 하드코딩하지 않는다** — 이 컬럼이 유일한 노출 순서 제어 수단이다.
 - **스킬이 생성해 DB에 라이트백**(머신 관리, 사람은 손 안 댐):
   - `slug` (rich_text) — 제목+내용 기반 URL id
   - `summary` (rich_text) — 검색 최적 한줄 요약 (meta description/리드 겸용)

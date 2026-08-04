@@ -6,7 +6,8 @@
     "image": "/articles/wheelchair-accessible-saved-lists/assets/img-0.png",
     "createdTime": "2026-06-05T06:07:00.000Z",
     "editedTime": "2026-06-09T04:53:00.000Z",
-    "contentPageId": "376c9499-b060-81df-bb48-f3ef03f54b2b"
+    "contentPageId": "376c9499-b060-81df-bb48-f3ef03f54b2b",
+    "featured": null
   },
   "383c9499-b060-8076-a7e1-ef3b18d4e5f1": {
     "slug": "powered-wheelchair-air-travel-guide",
@@ -15,7 +16,8 @@
     "image": "/articles/powered-wheelchair-air-travel-guide/assets/img-0.png",
     "createdTime": "2026-04-07T08:06:00.000Z",
     "editedTime": "2026-06-19T01:29:00.000Z",
-    "contentPageId": "33bc9499-b060-806b-9501-d3bf838cbed1"
+    "contentPageId": "33bc9499-b060-806b-9501-d3bf838cbed1",
+    "featured": null
   },
   "38fc9499-b060-8126-82b6-f888fd7f8c15": {
     "slug": "coex-kiaf-art-fair-accessibility",
@@ -24,7 +26,8 @@
     "image": "/articles/coex-kiaf-art-fair-accessibility/assets/img-0.png",
     "createdTime": "2024-10-04T07:06:00.000Z",
     "editedTime": "2025-04-29T12:26:00.000Z",
-    "contentPageId": "bdddccbb-78e1-4d45-85a0-924906260415"
+    "contentPageId": "bdddccbb-78e1-4d45-85a0-924906260415",
+    "featured": null
   },
   "38fc9499-b060-814a-aec4-fe1d3a38ef22": {
     "slug": "war-memorial-archive-accessibility",
@@ -33,7 +36,8 @@
     "image": "/articles/war-memorial-archive-accessibility/assets/img-0.png",
     "createdTime": "2024-10-15T04:37:00.000Z",
     "editedTime": "2026-07-01T06:32:00.000Z",
-    "contentPageId": "c54018e8-6cc2-45ee-bc77-51e3aadb4f26"
+    "contentPageId": "c54018e8-6cc2-45ee-bc77-51e3aadb4f26",
+    "featured": null
   },
   "38fc9499-b060-819f-a55f-cc7a20505f84": {
     "slug": "seocho-yangjae-library-accessibility",
@@ -42,7 +46,8 @@
     "image": "/articles/seocho-yangjae-library-accessibility/assets/img-0.png",
     "createdTime": "2024-10-15T04:59:00.000Z",
     "editedTime": "2025-08-01T06:37:00.000Z",
-    "contentPageId": "e4598180-6aa1-4564-a801-b0b63a646a81"
+    "contentPageId": "e4598180-6aa1-4564-a801-b0b63a646a81",
+    "featured": null
   },
   "38fc9499-b060-81a8-90c7-d68412769b26": {
     "slug": "ddp-magazine-library-accessibility",
@@ -51,7 +56,8 @@
     "image": "/articles/ddp-magazine-library-accessibility/assets/img-0.png",
     "createdTime": "2024-10-15T05:23:00.000Z",
     "editedTime": "2025-04-29T12:26:00.000Z",
-    "contentPageId": "410016f5-3f2f-4a2f-ac53-c4e68c596213"
+    "contentPageId": "410016f5-3f2f-4a2f-ac53-c4e68c596213",
+    "featured": null
   },
   "38fc9499-b060-818f-8177-d45b3d370655": {
     "slug": "kim-young-sam-library-accessibility",
@@ -60,7 +66,8 @@
     "image": "/articles/kim-young-sam-library-accessibility/assets/img-0.png",
     "createdTime": "2024-11-19T14:51:00.000Z",
     "editedTime": "2025-04-29T12:26:00.000Z",
-    "contentPageId": "140860fc-bf41-4896-a571-86c6c5ee8627"
+    "contentPageId": "140860fc-bf41-4896-a571-86c6c5ee8627",
+    "featured": null
   },
   "38fc9499-b060-812c-81a9-dc2392c235be": {
     "slug": "hwadamsup-forest-accessibility",
@@ -69,7 +76,8 @@
     "image": "/articles/hwadamsup-forest-accessibility/assets/img-0.png",
     "createdTime": "2024-11-23T15:48:00.000Z",
     "editedTime": "2025-07-18T09:51:00.000Z",
-    "contentPageId": "b04b37df-2dbf-4982-9414-4532c513fd8e"
+    "contentPageId": "b04b37df-2dbf-4982-9414-4532c513fd8e",
+    "featured": null
   },
   "38fc9499-b060-819e-afd6-c3b9566af6bd": {
     "slug": "jeonbuk-museum-of-art-accessibility",
@@ -78,7 +86,8 @@
     "image": "/articles/jeonbuk-museum-of-art-accessibility/assets/img-0.png",
     "createdTime": "2025-08-21T05:48:00.000Z",
     "editedTime": "2025-08-27T05:39:00.000Z",
-    "contentPageId": "256c9499-b060-804e-9dbd-c28685f5b942"
+    "contentPageId": "256c9499-b060-804e-9dbd-c28685f5b942",
+    "featured": null
   },
   "38fc9499-b060-8158-b555-e3085c9a63d8": {
     "slug": "haengjusanseong-history-park-accessibility",
@@ -87,7 +96,8 @@
     "image": "/articles/haengjusanseong-history-park-accessibility/assets/img-0.png",
     "createdTime": "2025-08-21T05:48:00.000Z",
     "editedTime": "2025-08-27T05:52:00.000Z",
-    "contentPageId": "256c9499-b060-8035-8605-c9fa73512beb"
+    "contentPageId": "256c9499-b060-8035-8605-c9fa73512beb",
+    "featured": null
   },
   "38fc9499-b060-816d-824c-f795f570394a": {
     "slug": "seocho-audeum-museum-accessibility",
@@ -96,7 +106,8 @@
     "image": "/articles/seocho-audeum-museum-accessibility/assets/img-0.png",
     "createdTime": "2025-08-21T05:48:00.000Z",
     "editedTime": "2025-08-27T05:56:00.000Z",
-    "contentPageId": "256c9499-b060-8090-a6e2-d1be48817c82"
+    "contentPageId": "256c9499-b060-8090-a6e2-d1be48817c82",
+    "featured": null
   },
   "38fc9499-b060-8101-baf4-c45260f0c71e": {
     "slug": "disabled-call-taxi-guide",
@@ -104,8 +115,9 @@
     "summary": "전국 장애인 콜택시(특별교통수단) 이용 가이드입니다. 지역별 명칭, 전화번호, 이용방법, 사전등록 절차를 한 곳에 정리해 교통약자가 쉽게 찾아볼 수 있어요.",
     "image": "/articles/disabled-call-taxi-guide/assets/img-0.png",
     "createdTime": "2024-09-30T15:57:00.000Z",
-    "editedTime": "2025-04-29T12:28:00.000Z",
-    "contentPageId": "1aab5a9d-be3e-4c4d-a8d8-4e3a4778849b"
+    "editedTime": "2026-07-30T15:05:00.000Z",
+    "contentPageId": "1aab5a9d-be3e-4c4d-a8d8-4e3a4778849b",
+    "featured": null
   },
   "38fc9499-b060-8130-b0c1-e27f28239d87": {
     "slug": "culinary-class-wars-accessible-restaurants",
@@ -113,8 +125,9 @@
     "summary": "넷플릭스 흑백요리사 출연 식당의 접근성 정보를 휠체어 이용자가 직접 조사해 정리했습니다. 층수, 입구 턱, 엘리베이터, 계단 수 기준으로 접근레벨 0~5단계를 매겨 방문 가능 여부를 미리 확인할 수 있어요.",
     "image": "/articles/culinary-class-wars-accessible-restaurants/assets/img-0.png",
     "createdTime": "2024-10-20T12:57:00.000Z",
-    "editedTime": "2025-04-29T12:28:00.000Z",
-    "contentPageId": "8bf05caf-e81d-418a-84ca-584d7b5da817"
+    "editedTime": "2026-07-30T15:04:00.000Z",
+    "contentPageId": "8bf05caf-e81d-418a-84ca-584d7b5da817",
+    "featured": null
   },
   "38fc9499-b060-8176-b32a-e9dcba83b4d3": {
     "slug": "kspo-dome-concert-hall-accessibility",
@@ -122,8 +135,9 @@
     "summary": "KSPO DOME(올림픽체조경기장) 공연장 접근성 가이드. 5·9호선 올림픽공원역(엘리베이터 4번 출구)에서 가는 법, 저상버스 노선, P5 등 주차장별 장애인 주차구역과 전용 엘리베이터, 장애인 콜택시 승하차 위치, 휠체어석 가까운 2-1·2-2 게이트와 2층 장애인 화장실, 올림픽공원 장애인 화장실 정보까지 휠체어 이용자를 위해 정리했습니다.",
     "image": "/articles/kspo-dome-concert-hall-accessibility/assets/img-0.png",
     "createdTime": "2024-12-22T09:10:00.000Z",
-    "editedTime": "2025-11-27T13:39:00.000Z",
-    "contentPageId": "164c9499-b060-80b5-a994-d41a087fd658"
+    "editedTime": "2026-07-30T15:44:00.000Z",
+    "contentPageId": "164c9499-b060-80b5-a994-d41a087fd658",
+    "featured": null
   },
   "38fc9499-b060-81ff-9b5b-dde126f9cf8e": {
     "slug": "nationwide-accessible-places",
@@ -131,8 +145,9 @@
     "summary": "전국 지역별(서울·경기/인천·경상·전라·충청) 접근성 좋은 식당과 공간을 모았습니다. 휠체어·유아차·목발·의족 사용자 등 이동약자가 공유한 정보를 바탕으로 여행과 외출 전 접근성을 미리 확인할 수 있어요.",
     "image": "/articles/nationwide-accessible-places/assets/img-0.png",
     "createdTime": "2025-01-24T15:32:00.000Z",
-    "editedTime": "2025-05-21T08:07:00.000Z",
-    "contentPageId": "2f06018e-d580-4e68-a41c-7b6e3d4802ab"
+    "editedTime": "2026-07-30T15:05:00.000Z",
+    "contentPageId": "2f06018e-d580-4e68-a41c-7b6e3d4802ab",
+    "featured": null
   },
   "38fc9499-b060-8186-9aff-dc604dbf1fb4": {
     "slug": "bts-accessible-restaurants-seoul",
@@ -141,7 +156,8 @@
     "image": "/articles/bts-accessible-restaurants-seoul/assets/img-0.png",
     "createdTime": "2025-08-19T06:32:00.000Z",
     "editedTime": "2025-09-11T13:52:00.000Z",
-    "contentPageId": "254c9499-b060-80b3-8636-c562c2e50db3"
+    "contentPageId": "254c9499-b060-80b3-8636-c562c2e50db3",
+    "featured": null
   },
   "38fc9499-b060-8117-aabf-fc25f2992e19": {
     "slug": "culinary-class-wars-2-accessible-restaurants",
@@ -150,7 +166,8 @@
     "image": "/articles/culinary-class-wars-2-accessible-restaurants/assets/img-0.png",
     "createdTime": "2026-01-10T08:11:00.000Z",
     "editedTime": "2026-06-05T01:31:00.000Z",
-    "contentPageId": "2e4c9499-b060-8046-af69-c517f46d9aca"
+    "contentPageId": "2e4c9499-b060-8046-af69-c517f46d9aca",
+    "featured": null
   },
   "38fc9499-b060-8155-aae3-f205c87b9c63": {
     "slug": "goyang-stadium-accessibility",
@@ -159,7 +176,8 @@
     "image": "/articles/goyang-stadium-accessibility/assets/img-0.png",
     "createdTime": "2026-04-06T14:25:00.000Z",
     "editedTime": "2026-05-19T07:03:00.000Z",
-    "contentPageId": "33ac9499-b060-80e4-a7e8-d81e39078c13"
+    "contentPageId": "33ac9499-b060-80e4-a7e8-d81e39078c13",
+    "featured": null
   },
   "38fc9499-b060-8003-ac61-dd4a92cc31bd": {
     "slug": "diaspora-film-festival-accessibility",
@@ -168,7 +186,8 @@
     "image": "/articles/diaspora-film-festival-accessibility/assets/img-0.png",
     "createdTime": "2026-05-11T07:38:00.000Z",
     "editedTime": "2026-05-20T03:13:00.000Z",
-    "contentPageId": "35dc9499-b060-807f-813a-c37c40448fc8"
+    "contentPageId": "35dc9499-b060-807f-813a-c37c40448fc8",
+    "featured": null
   },
   "38fc9499-b060-809d-b02d-d84009a074f7": {
     "slug": "yeonghee-festival-mapo-art-center-accessibility",
@@ -177,7 +196,8 @@
     "image": "/articles/yeonghee-festival-mapo-art-center-accessibility/assets/img-0.png",
     "createdTime": "2026-06-02T14:37:00.000Z",
     "editedTime": "2026-07-01T06:26:00.000Z",
-    "contentPageId": "373c9499-b060-8058-8262-d61174aed4ed"
+    "contentPageId": "373c9499-b060-8058-8262-d61174aed4ed",
+    "featured": null
   },
   "3aac9499-b060-80a0-afe4-fa9f65d71d03": {
     "slug": "wheelchair-solo-culture-spaces-seoul",
@@ -185,8 +205,69 @@
     "summary": "혼자서도 다녀올 수 있는 서울의 휠체어 접근 가능한 실내 문화공간 5곳 — 카페꼼마 여의도, 여의도 브라이튼 도서관, 서울영화센터, 영풍문고 종각점, 예술의전당 자유소극장. 계단뿌셔클럽 에디터크루가 직접 방문해 경사로·엘리베이터·장애인 화장실 정보를 정리했습니다.",
     "image": "/articles/wheelchair-solo-culture-spaces-seoul/assets/img-0.png",
     "createdTime": "2026-07-07T17:35:00.000Z",
-    "editedTime": "2026-07-28T04:37:00.000Z",
-    "contentPageId": "396c9499-b060-807a-b4a1-f40836284890"
+    "editedTime": "2026-08-04T06:59:00.000Z",
+    "contentPageId": "396c9499-b060-807a-b4a1-f40836284890",
+    "featured": null
+  },
+  "35dc9499-b060-80d2-93f0-d3c75abd9850": {
+    "slug": "diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility",
+    "title": "[인천] 한중문화관",
+    "summary": "인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T13:41:00.000Z",
+    "editedTime": "2026-05-18T01:31:00.000Z",
+    "contentPageId": "35dc9499-b060-80d2-93f0-d3c75abd9850",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "35dc9499-b060-8064-8145-c6e07bf2e05a": {
+    "slug": "diaspora-film-festival-accessibility/incheon-art-platform-accessibility",
+    "title": "[인천] 인천아트플랫폼",
+    "summary": "인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T13:22:00.000Z",
+    "editedTime": "2026-05-18T00:47:00.000Z",
+    "contentPageId": "35dc9499-b060-8064-8145-c6e07bf2e05a",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "35dc9499-b060-8056-af99-f75c33a6f408": {
+    "slug": "diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility",
+    "title": "[인천] 애관극장",
+    "summary": "인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T08:55:00.000Z",
+    "editedTime": "2026-05-19T05:25:00.000Z",
+    "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "3b2c9499-b060-80fd-ad82-ce177d1adcf9": {
+    "slug": "gyeongbokgung-wheelchair-accessible-cafes",
+    "title": "경복궁 나들이, 휠체어 접근성 좋은 카페 3",
+    "summary": "경복궁 근처에서 휠체어로 갈 수 있는 카페 3곳 — 애즈라이크 서촌, 테일러커피 서촌경복궁점, 스타벅스 경복궁역점. 입구 턱과 경사로, 내부 이동 공간까지 직접 확인한 접근성 정보를 정리했습니다.",
+    "image": "/articles/gyeongbokgung-wheelchair-accessible-cafes/assets/img-0.png",
+    "createdTime": "2026-07-21T16:08:00.000Z",
+    "editedTime": "2026-08-04T09:26:00.000Z",
+    "contentPageId": "3a4c9499-b060-80ed-a942-fd439975dc03",
+    "featured": 1
+  },
+  "3b2c9499-b060-8052-9cfc-e3e41489bf24": {
+    "slug": "anguk-station-wheelchair-accessible-cafes",
+    "title": "안국역 카페 20곳 모음 - 휠체어 접근성 체크 완료",
+    "summary": "안국역 주변 카페 20곳 중 계단 없이 출입할 수 있는 '접근 레벨 0' 장소만 모았습니다. 소진담 안녕인사동점, 더커피 안국, 사월의물고기, 테라로사 국립현대미술관서울점 등 입구와 이용 정보를 미리 확인하세요.",
+    "image": "/articles/anguk-station-wheelchair-accessible-cafes/assets/img-0.png",
+    "createdTime": "2026-08-02T14:16:00.000Z",
+    "editedTime": "2026-08-04T09:16:00.000Z",
+    "contentPageId": "3b0c9499-b060-8077-a20e-cf4b53c9f0f8",
+    "featured": null
+  },
+  "3b2c9499-b060-8085-a99a-c5f936f7cbbe": {
+    "slug": "seochon-wheelchair-accessible-restaurants-cafes",
+    "title": "이번 주말 서촌 어때? 휠체어로 가볼만한 카페∙음식점 20",
+    "summary": "서촌에서 휠체어로 이용할 수 있는 음식점·카페 20곳. 아키비스트, 토속촌삼계탕, 김용현베이커리, 호라파 등 계단뿌셔클럽 앱에 접근 레벨 0~2로 등록된 장소의 입구·내부 접근성 정보를 정리했습니다.",
+    "image": "/articles/seochon-wheelchair-accessible-restaurants-cafes/assets/img-0.png",
+    "createdTime": "2026-07-21T15:39:00.000Z",
+    "editedTime": "2026-08-04T09:22:00.000Z",
+    "contentPageId": "3a4c9499-b060-80d6-b3e1-f388cb5e5fce",
+    "featured": null
   },
   "19ec9499-b060-80c9-aa97-ea403e6db509": {
     "slug": "disabled-call-taxi-guide/gwangju-disabled-call-taxi",
@@ -307,35 +388,5 @@
     "editedTime": "2024-10-07T14:56:00.000Z",
     "contentPageId": "a3ec15d8-ffc3-408f-9bc7-6de1a4c30868",
     "parent": "disabled-call-taxi-guide"
-  },
-  "35dc9499-b060-80d2-93f0-d3c75abd9850": {
-    "slug": "diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility",
-    "title": "[인천] 한중문화관",
-    "summary": "인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.",
-    "image": "/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/assets/img-0.png",
-    "createdTime": "2026-05-11T13:41:00.000Z",
-    "editedTime": "2026-05-18T01:31:00.000Z",
-    "contentPageId": "35dc9499-b060-80d2-93f0-d3c75abd9850",
-    "parent": "diaspora-film-festival-accessibility"
-  },
-  "35dc9499-b060-8064-8145-c6e07bf2e05a": {
-    "slug": "diaspora-film-festival-accessibility/incheon-art-platform-accessibility",
-    "title": "[인천] 인천아트플랫폼",
-    "summary": "인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.",
-    "image": "/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/assets/img-0.png",
-    "createdTime": "2026-05-11T13:22:00.000Z",
-    "editedTime": "2026-05-18T00:47:00.000Z",
-    "contentPageId": "35dc9499-b060-8064-8145-c6e07bf2e05a",
-    "parent": "diaspora-film-festival-accessibility"
-  },
-  "35dc9499-b060-8056-af99-f75c33a6f408": {
-    "slug": "diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility",
-    "title": "[인천] 애관극장",
-    "summary": "인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.",
-    "image": "/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/assets/img-0.png",
-    "createdTime": "2026-05-11T08:55:00.000Z",
-    "editedTime": "2026-05-19T05:25:00.000Z",
-    "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
-    "parent": "diaspora-film-festival-accessibility"
   }
 }
