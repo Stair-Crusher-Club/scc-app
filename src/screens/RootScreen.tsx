@@ -36,6 +36,11 @@ const ROUTE_PARAMS_LOGGING_RULES: Record<string, string> = {
   'placeInfo.place.id': 'place_id',
   'placeInfo.name': 'place_name',
   placeListId: 'place_list_id', // PlaceListDetail screen_view 를 리스트별로 귀속 (튜토리얼·딥링크·탭 모든 진입 포함)
+  // Webview screen_view 에 진입 URL 을 귀속. BI '검색' 지표의 웹콘텐츠 조회 판정
+  // (bi_report.search_component) 이 이 값의 origin prefix 로 뿌클로드·scc-content 를
+  // 카카오/네이버 지도·구글폼 웹뷰와 구분한다. url route param 을 가진 화면은 Webview 뿐.
+  // Firebase 는 문자열 파라미터를 100자에서 자르지만 prefix 판정이라 무해하다.
+  url: 'url',
   // 필요에 따라 추가...
 };
 
