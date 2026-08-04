@@ -96,6 +96,7 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 ```
 - 변경분만 블록 fetch + 이미지 다운로드(presigned 만료 대응 — 로컬 에셋으로 커밋) + HTML 생성.
 - `web-articles/{slug}/`(커밋본)과 `web-dist/articles/`(배포용) + 목록/sitemap/robots/llms 동시 갱신.
+- **렌더러/템플릿을 고쳤으면 `--force`(전체) 대신 `--only a,b,c`로 단계적 롤아웃**을 고려한다. 지정 slug만 재생성하고 나머지는 커밋된 HTML 그대로 두므로, 39개 전체를 한 번에 갈아엎지 않고 최근 글부터 검증할 수 있다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
 
 ### STEP 4 — 시각 검증 (E2E)
 ```bash
@@ -106,7 +107,8 @@ npx serve web-dist -l 5050      # `-s` 금지: SPA 폴백이 /articles/<slug>를
 - **전 페이지 자동 스윕(MANDATORY)** — 눈으로 몇 개만 보면 놓친다. `/articles`에 접속한 뒤 sitemap의 전 URL을 420px iframe에 순차 로드해 한 번에 판정한다(같은 origin이라 `contentDocument` 접근 가능). 실제로 이 스윕이 표 가로넘침·유실된 tab 본문·생 URL 앵커 3건을 잡았다:
   ```js
   // 판정: scrollWidth > clientWidth(가로 넘침) / naturalWidth===0(깨진 이미지) /
-  //       앵커 텍스트가 생 URL / article 텍스트 길이 200자 미만(본문 유실)
+  //       앵커 텍스트가 생 URL / article 텍스트 길이 200자 미만(본문 유실) /
+  //       외부 절대 URL 앵커에 target="_blank" 누락 · 내부(/,#) 앵커에 target="_blank" 오부착
   ```
 - 같은 스윕을 STEP 6 배포 후 prod origin에서 한 번 더 돌린다(캐시·리라이트까지 포함해 검증).
 
@@ -174,6 +176,7 @@ gh pr merge <번호> --squash --admin --delete-branch
 - **heading 토글** — `is_toggleable`면 `<details>`(하위 블록 유실 방지). 모든 heading에 `id`(=블록id no-hyphen) 부여.
 - **`table_of_contents` + 앵커** — heading id 기반 목차 nav 렌더. 인페이지 `#블록id` 링크는 `fixHref`가 `#no-hyphen`으로 remap.
 - **내부 링크 remap(`fixHref`)** — Notion 페이지-id 경로(`/d490…`)·노션 도메인은 죽은 링크 → `LINK_MAP`(발행된 글/상세 URL) 있으면 그리로, 없으면 `/articles`. ("뒤로가기" 등 전 글의 dead link 제거.)
+- **외부 링크는 새 탭(`linkAttrs`)** — 본문/북마크/파일/표 셀의 외부 절대 URL은 `target="_blank" rel="noopener noreferrer"`. 안 하면 카카오톡·저장리스트·예매 같은 CTA를 누르는 순간 읽던 글에서 튕겨나간다(실제 지적). **같은 사이트 경로(`/articles/…`)와 인페이지 앵커(`#`)에는 붙이지 않는다** — 사이트 내 이동까지 새 탭이면 탭이 쌓인다. 앵커를 새로 렌더하는 코드를 추가하면 `rel="noopener"` 하드코딩 대신 반드시 `linkAttrs(href)`를 통과시킬 것.
 - **이미지 가드** — 트래킹 픽셀(seeyoufarm)·비-http(`file:`) 스킵.
 - **fetch 타임아웃/재시도(`fetchWithTimeout`)** — 무타임아웃 fetch는 stalled 연결(만료 presigned 등)에서 **빌드 무한 hang**. 25~30s 타임아웃 + 재시도 + 429 백오프 필수.
 - **불가피**: Notion API가 `type:"unsupported"`로 주는 블록(button 등)은 콘텐츠가 없어 렌더 불가 — 기록만.
