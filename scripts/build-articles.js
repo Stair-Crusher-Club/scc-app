@@ -258,15 +258,19 @@ function esc(s) {
 }
 
 // ---------- row → 메타/본문소스 해석 ----------
+function titleRichOf(page) {
+  const props = page.properties || {};
+  for (const k of Object.keys(props))
+    if (props[k].type === 'title') return props[k].title;
+  return [];
+}
+// 제목에 [WIP]가 있으면 작성 중 → 발행 대상에서 통째로 제외한다(대소문자 무시).
+// 이미 발행된 글에 [WIP]를 붙이면 삭제 판정에 걸려 prod에서 내려간다(= 발행 취소).
+const isWip = title => /\[\s*wip\s*\]/i.test(title || '');
+
 function resolveRow(page) {
   const props = page.properties || {};
-  let titleRich = [];
-  for (const k of Object.keys(props)) {
-    if (props[k].type === 'title') {
-      titleRich = props[k].title;
-      break;
-    }
-  }
+  const titleRich = titleRichOf(page);
   const title = plain(titleRich).trim();
   const mention = (titleRich || []).find(
     t => t.type === 'mention' && t.mention.type === 'page',
@@ -809,7 +813,13 @@ async function renderRowImages(blocks, ctx) {
 }
 
 // 카드형 row 하나 → 독립 상세 페이지 발행. 반환: {url, image, manifest}
-async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
+async function buildDetailPage(
+  row,
+  parentSlug,
+  nonTitleProps,
+  titleName,
+  publishedAt,
+) {
   const meta = SUBPAGES[row.id] || {};
   const rslug = meta.slug || noHy(row.id).slice(0, 20);
   const fullSlug = `${parentSlug}/${rslug}`;
@@ -853,7 +863,7 @@ async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
     faq: [],
     contentHtml,
     ogImageUrl,
-    createdTime: row.created_time,
+    publishedAt,
     lastEditedTime: row.last_edited_time,
     backHref: `/articles/${parentSlug}`,
   });
@@ -870,6 +880,7 @@ async function buildDetailPage(row, parentSlug, nonTitleProps, titleName) {
       summary: meta.summary || '',
       image: ctx.firstImage || '',
       createdTime: row.created_time,
+      publishedAt,
       editedTime: row.last_edited_time,
       contentPageId: row.id,
       parent: parentSlug,
@@ -912,7 +923,13 @@ async function renderChildDatabase(dbId, title, ctx) {
     if (rich && haveMeta) {
       const items = [];
       for (const r of rows) {
-        const d = await buildDetailPage(r, ctx.slug, nonTitleProps, titleName);
+        const d = await buildDetailPage(
+          r,
+          ctx.slug,
+          nonTitleProps,
+          titleName,
+          ctx.publishedAt,
+        );
         ctx.emittedSubPages.push(d.manifest);
         items.push(d);
       }
@@ -1220,6 +1237,7 @@ async function buildArticle(meta, times) {
     headings: [],
     imgLayout: layout.img,
     dbLayout: layout.db,
+    publishedAt: times.publishedAt, // 상세 페이지도 부모와 같은 발행일을 쓴다
   };
   indexHeadings(blocks, ctx);
   const contentHtml = await renderBlocks(blocks, ctx);
@@ -1236,7 +1254,7 @@ async function buildArticle(meta, times) {
     faq: meta.faq,
     contentHtml,
     ogImageUrl,
-    createdTime: times.createdTime,
+    publishedAt: times.publishedAt,
     lastEditedTime: times.editedTime,
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
@@ -1300,10 +1318,9 @@ function reassembleDist(manifest) {
     copyDir(sharedAssets, path.join(DIST_ARTICLES, 'assets'));
   // featured(숫자)가 있는 글이 1·2·3… 순으로 맨 위, 나머지는 createdTime 내림차순.
   const rank = a => (typeof a.featured === 'number' ? a.featured : Infinity);
+  const pub = a => a.publishedAt || a.createdTime || '';
   const all = Object.values(manifest).sort(
-    (a, b) =>
-      rank(a) - rank(b) ||
-      (b.createdTime || '').localeCompare(a.createdTime || ''),
+    (a, b) => rank(a) - rank(b) || pub(b).localeCompare(pub(a)),
   );
   // 상세 페이지(parent 있음)는 부모 디렉토리에 중첩 → 부모 복사 시 함께 온다. 목록엔 top-level만.
   const topLevel = all.filter(a => !a.parent);
@@ -1336,8 +1353,24 @@ async function main() {
   }
 
   console.log('📥 Notion DB 쿼리...');
-  const pages = await queryAllPages();
+  const allPages = await queryAllPages();
+  // [WIP] 글은 파이프라인 진입 전에 걸러낸다. current에서도 빠지므로, 발행된 글에
+  // 나중에 [WIP]를 붙이면 삭제 판정에 걸려 prod에서 내려간다.
+  const wipPages = allPages.filter(p => isWip(plain(titleRichOf(p))));
+  const pages = allPages.filter(p => !isWip(plain(titleRichOf(p))));
+  if (wipPages.length) {
+    console.log(`  ⏸️  [WIP] 제외 ${wipPages.length}건:`);
+    for (const p of wipPages)
+      console.log(`      - ${plain(titleRichOf(p)).trim()}`);
+  }
   const current = new Set(pages.map(p => p.id));
+
+  // 최초 발행 시각은 slug 기준으로 보존한다. 상세 페이지는 부모 재빌드 때 manifest
+  // 엔트리가 지워졌다 다시 생기므로, 삭제 전에 여기서 스냅샷을 떠둬야 날짜가 안 밀린다.
+  const NOW_ISO = new Date().toISOString();
+  const prevPublished = {};
+  for (const e of Object.values(manifest))
+    if (e.slug && e.publishedAt) prevPublished[e.slug] = e.publishedAt;
 
   const rows = []; // {meta, times}
   const needsMeta = [];
@@ -1355,7 +1388,17 @@ async function main() {
       needsMeta.push({meta, page});
       continue;
     }
-    rows.push({meta, times: {createdTime, editedTime}});
+    rows.push({
+      meta,
+      times: {
+        createdTime,
+        editedTime,
+        // 최초 발행 시각: 한 번 정해지면 재빌드해도 안 바뀐다. datePublished(JSON-LD)·
+        // 화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다. 원본 노션 페이지의 created_time을
+        // 쓰면 URL이 생기기도 전 날짜가 datePublished로 나가서 SEO상 맞지 않는다.
+        publishedAt: prevPublished[meta.slug] || NOW_ISO,
+      },
+    });
   }
 
   const changed = rows.filter(r => {
@@ -1457,10 +1500,15 @@ async function main() {
       summary: meta.summary,
       image, // 목록 썸네일용 대표 이미지
       createdTime: times.createdTime,
+      publishedAt: times.publishedAt,
       editedTime: times.editedTime,
       contentPageId: meta.contentPageId,
     };
-    for (const sp of subPages) manifest[sp.contentPageId] = sp;
+    for (const sp of subPages)
+      manifest[sp.contentPageId] = {
+        ...sp,
+        publishedAt: prevPublished[sp.slug] || sp.publishedAt || NOW_ISO,
+      };
     if (subPages.length) console.log(`     ↳ 상세 페이지 ${subPages.length}건`);
   }
   // featured는 changed 루프 밖에서 매번 동기화한다. incremental 기준은 **본문 페이지**의

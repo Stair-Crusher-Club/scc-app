@@ -182,7 +182,7 @@ ${extra}
 
 /**
  * 개별 아티클 페이지.
- * meta: { title, summary, slug, ogImageUrl, tags[], contentHtml, faq[{q,a}], createdTime, lastEditedTime }
+ * meta: { title, summary, slug, ogImageUrl, tags[], contentHtml, faq[{q,a}], publishedAt, lastEditedTime }
  * 주의: summary(=리드 요약)는 본문에 그리지 않는다 (Notion 원본에 없음). meta/JSON-LD에만 사용.
  */
 function renderArticlePage(meta) {
@@ -197,8 +197,8 @@ function renderArticlePage(meta) {
       headline: meta.title,
       description: desc,
       image: ogImage ? [ogImage] : undefined,
-      datePublished: meta.createdTime,
-      dateModified: meta.lastEditedTime || meta.createdTime,
+      datePublished: meta.publishedAt,
+      dateModified: meta.lastEditedTime || meta.publishedAt,
       mainEntityOfPage: {'@type': 'WebPage', '@id': url},
       author: {'@type': 'Organization', name: SITE.name, url: SITE.appUrl},
       publisher: {
@@ -224,7 +224,7 @@ function renderArticlePage(meta) {
     Array.isArray(meta.tags) && meta.tags.length
       ? `<div class="tags">${meta.tags.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>`
       : '';
-  const dateLabel = (meta.createdTime || '').slice(0, 10);
+  const dateLabel = (meta.publishedAt || '').slice(0, 10);
 
   const og = `<meta property="og:type" content="article">
 <meta property="og:title" content="${escapeAttr(meta.title)}">
@@ -261,7 +261,7 @@ ${footerCta()}
 
 /**
  * /articles 목록 페이지.
- * articles: [{ slug, title, summary, image, createdTime }] (시간 역순 정렬은 호출측 책임)
+ * articles: [{ slug, title, summary, image, publishedAt }] (시간 역순 정렬은 호출측 책임)
  * 최근 2개는 큰 썸네일 히어로 카드, 나머지는 좌측 썸네일 리스트.
  */
 function renderListPage(articles) {
