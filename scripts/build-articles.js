@@ -303,6 +303,15 @@ function resolveRow(page) {
     props.featured && props.featured.type === 'number'
       ? props.featured.number
       : null;
+  // publishedAt(date): 최초 발행 시각의 source of truth. 비어 있으면 아직 미발행 →
+  // 빌드가 지금 시각을 찍고 DB에 써넣는다(stampPublishedAt).
+  const publishedAt =
+    props.publishedAt &&
+    props.publishedAt.type === 'date' &&
+    props.publishedAt.date &&
+    props.publishedAt.date.start
+      ? new Date(props.publishedAt.date.start).toISOString()
+      : '';
   let faq = [];
   if (props.faq && props.faq.type === 'rich_text') {
     try {
@@ -327,7 +336,16 @@ function resolveRow(page) {
     tags,
     faq,
     featured,
+    publishedAt,
   };
+}
+
+// 최초 발행 시각을 DB에 1회 기록. DB가 source of truth이므로 여기서 써두면
+// 이후 재빌드·다른 사람의 빌드에서도 같은 날짜가 유지된다.
+async function stampPublishedAt(rowId, iso) {
+  await api('PATCH', `pages/${rowId}`, {
+    properties: {publishedAt: {date: {start: iso}}},
+  });
 }
 
 // ---------- 외부 링크 OG 메타 (bookmark 카드용) ----------
@@ -1374,6 +1392,7 @@ async function main() {
 
   const rows = []; // {meta, times}
   const needsMeta = [];
+  const newlyStamped = []; // DB에 publishedAt이 없어 이번에 찍은 글
   for (const page of pages) {
     const meta = resolveRow(page);
     // 본문 페이지의 시각(=incremental 기준). mention이면 타깃 페이지 조회.
@@ -1388,17 +1407,20 @@ async function main() {
       needsMeta.push({meta, page});
       continue;
     }
-    rows.push({
-      meta,
-      times: {
-        createdTime,
-        editedTime,
-        // 최초 발행 시각: 한 번 정해지면 재빌드해도 안 바뀐다. datePublished(JSON-LD)·
-        // 화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다. 원본 노션 페이지의 created_time을
-        // 쓰면 URL이 생기기도 전 날짜가 datePublished로 나가서 SEO상 맞지 않는다.
-        publishedAt: prevPublished[meta.slug] || NOW_ISO,
-      },
-    });
+    // 최초 발행 시각: 한 번 정해지면 재빌드해도 안 바뀐다. datePublished(JSON-LD)·
+    // 화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다. 원본 노션 페이지의 created_time을
+    // 쓰면 URL이 생기기도 전 날짜가 datePublished로 나가서 SEO상 맞지 않는다.
+    // 우선순위: DB(source of truth) → manifest(캐시) → 지금(최초 발행).
+    const publishedAt = meta.publishedAt || prevPublished[meta.slug] || NOW_ISO;
+    if (!meta.publishedAt && !DRY) newlyStamped.push({meta, publishedAt});
+    rows.push({meta, times: {createdTime, editedTime, publishedAt}});
+  }
+  // DB에 publishedAt이 비어 있던 글 = 이번이 최초 발행 → DB에 기록해 고정한다.
+  for (const s of newlyStamped) {
+    await stampPublishedAt(s.meta.rowId, s.publishedAt);
+    console.log(
+      `  🕒 최초 발행 시각 기록: ${s.meta.slug} → ${s.publishedAt.slice(0, 10)}`,
+    );
   }
 
   const changed = rows.filter(r => {

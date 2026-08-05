@@ -41,9 +41,14 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 ## Notion DB 스키마 (최소화 — 사람은 글만 쓴다)
 
 - **사람이 작성**: 페이지 **제목**(= h1/`<title>`) + **본문**. 그게 전부.
+- **제목에 `[WIP]`가 있으면 발행 대상에서 제외**(대소문자 무시). 파이프라인 진입 전에 걸러내므로 메타가 없어도 경고가 안 뜬다. 이미 발행된 글에 `[WIP]`를 붙이면 삭제 판정에 걸려 **prod에서 내려간다**(= 발행 취소).
 - **사람이 선택적으로 지정**:
   - `featured` (number, 선택) — 목록 상단 고정. 값이 있는 글이 `1`, `2`, `3`… 오름차순으로 맨 위에 오고, 비어 있으면 일반 글(`createdTime` 내림차순). **순서는 코드에 하드코딩하지 않는다** — 이 컬럼이 유일한 노출 순서 제어 수단이다. (일반화: 운영자가 바꿀 노출/편집 데이터는 코드 상수가 아니라 DB 컬럼으로 뺀다.)
     > **★ row 프로퍼티 함정**: incremental 판정 기준은 **본문 페이지**의 `last_edited_time`이라, DB row의 `featured`만 고치면 본문 시각이 그대로여서 **재빌드가 안 걸린다**. 그래서 `featured` 동기화는 changed 루프 **밖에서** 매번 돌린다(DB 쿼리는 이미 끝난 뒤라 추가 API 호출 0). row 프로퍼티만으로 출력이 달라지는 필드를 새로 추가할 땐 같은 처리가 필요하다 — changed 루프 안에만 넣으면 조용히 반영이 안 된다.
+- **빌드가 자동 기록**:
+  - `publishedAt` (date) — **최초 발행 시각의 source of truth**. 비어 있으면 빌드가 지금 시각을 찍어 DB에 써넣고(`stampPublishedAt`), 이후 재빌드해도 그 값을 유지한다. `datePublished`(JSON-LD)·화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다.
+    > **★ 원본 created_time 쓰지 말 것**: 대부분 mention row라 "팀이 원본 글을 처음 만든 날"이 잡히고, URL이 생기기도 전 날짜가 `datePublished`로 나간다(실제 PROD 버그. 경복궁 — row 08-04, 원본 07-21). 상세 페이지는 DB row가 아니라 부모의 `publishedAt`을 따른다.
+    > **★ Notion date는 분 단위 절삭**: `09:52:55`로 써도 `09:52:00`으로 돌아온다. 초까지 있는 값을 manifest/HTML에 넣어두면 재빌드마다 초 단위 diff가 나므로, DB에 쓴 뒤 그 값을 그대로 되읽어 쓴다.
 - **스킬이 생성해 DB에 라이트백**(머신 관리, 사람은 손 안 댐):
   - `slug` (rich_text) — 제목+내용 기반 URL id
   - `summary` (rich_text) — 검색 최적 한줄 요약 (meta description/리드 겸용)
