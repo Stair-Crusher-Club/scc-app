@@ -4,7 +4,10 @@ import {SccPressable} from '@/components/SccPressable';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import WebView, {WebViewMessageEvent} from 'react-native-webview';
-import type {ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes';
+import type {
+  ShouldStartLoadRequest,
+  WebViewOpenWindowEvent,
+} from 'react-native-webview/lib/WebViewTypes';
 import {useAtomValue} from 'jotai';
 import Config from 'react-native-config';
 
@@ -17,7 +20,11 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {resolveTemplatedExternalUrl} from '@/utils/externalUrlTemplating';
-import {handleWebViewShouldStartLoad} from '@/utils/webViewUtils';
+import {
+  handleWebViewOpenWindow,
+  handleWebViewShouldStartLoad,
+  isTrackingLinkUrl,
+} from '@/utils/webViewUtils';
 import SccContentFloatingBar from './WebViewScreen/components/SccContentFloatingBar';
 
 // 브리지(로그인 상태 주입 + 로그인 위임 메시지 수신)를 허용하는 origin.
@@ -299,13 +306,35 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     return false;
   }, [canGoBack]);
 
+  // 딥링크를 앱에 넘긴 뒤, 웹뷰가 airbridge 랜딩 페이지에 남아 있으면 원래 페이지로 되돌린다.
+  // (안 되돌리면 띄운 화면을 닫고 웹뷰로 돌아왔을 때 빈 랜딩 페이지가 보인다)
+  // 트래킹 링크는 이제 로드 전에 목적지를 확인하므로 보통 이 경로를 타지 않는다 —
+  // 랜딩 페이지가 실제로 로드된 경우(직접 링크 등)만 정리한다.
+  const handleAppDeepLink = useCallback(() => {
+    if (isTrackingLinkUrl(currentUrl)) {
+      webViewRef.current?.goBack();
+    }
+  }, [currentUrl]);
+
+  const loadHandlerOptions = useMemo(
+    () => ({
+      userId: userInfo?.id,
+      webViewRef,
+      onAppDeepLink: handleAppDeepLink,
+    }),
+    [userInfo?.id, handleAppDeepLink],
+  );
+
   const handleShouldStartLoad = useCallback(
     (request: ShouldStartLoadRequest) =>
-      handleWebViewShouldStartLoad(request, {
-        userId: userInfo?.id,
-        webViewRef,
-      }),
-    [userInfo?.id],
+      handleWebViewShouldStartLoad(request, loadHandlerOptions),
+    [loadHandlerOptions],
+  );
+
+  const handleOpenWindow = useCallback(
+    (event: WebViewOpenWindowEvent) =>
+      handleWebViewOpenWindow(event.nativeEvent.targetUrl, loadHandlerOptions),
+    [loadHandlerOptions],
   );
 
   useBackHandler(handleBackPress);
@@ -360,6 +389,9 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         onMessage={handleMessage}
         onLoadEnd={handleLoadEnd}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
+        // target="_blank" 클릭도 같은 판정을 타게 한다 (없으면 안드로이드에서 화면에 붙지 않는
+        // 새 WebView 로 새서 클릭이 사라진다 — 상세는 handleWebViewOpenWindow 주석)
+        onOpenWindow={handleOpenWindow}
         onNavigationStateChange={navState => {
           setCanGoBack(navState.canGoBack);
           // 함수형 setter 로 atomic 하게 비교 + 갱신 — onNavigationStateChange 는 빠르게
