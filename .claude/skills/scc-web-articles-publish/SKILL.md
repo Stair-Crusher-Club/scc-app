@@ -85,7 +85,7 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id> --dry
 변경된 각 문서에 대해:
 1. 본문을 읽는다 — MCP `notion-fetch`(enhanced markdown)로 내용 파악.
 2. **검색에 최대한 잘 걸리도록** 생성:
-   - `slug`: 영문 kebab-case, 핵심 키워드 포함, 적절한 길이(과도하게 길지 않게).
+   - `slug`: **이미 값이 있으면 그대로 유지한다 (절대 재생성 금지).** 미리 배정된 slug 는 다른 스킬이 발급한 CTA 트래킹링크의 `ad_group` 파라미터와 같은 값이라, 바꾸면 유입 리포트와 웹 URL 이 어긋난다. 비어 있을 때만 생성: 영문 kebab-case, 핵심 키워드 포함, 적절한 길이(과도하게 길지 않게).
    - `summary`: 1~2문장, 핵심 답변을 앞에. 검색 의도 키워드 자연 포함.
    - `ogImage`: 본문 내 대표 이미지 1개(없으면 비워둠 → 스크립트가 첫 이미지 사용).
    - `tags`: 2~5개.

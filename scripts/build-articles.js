@@ -1468,6 +1468,26 @@ async function main() {
   console.log(
     `🔎 신규/변경 ${changed.length} · 삭제 ${deleted.length} · 메타미비(스킵) ${needsMeta.length} · 전체 ${pages.length}`,
   );
+
+  // slug 가 바뀌면 (a) 기존 /articles/<old> 가 고아로 남고 (b) 그 slug 를 ad_group 으로
+  // 발급한 CTA 트래킹링크의 유입 리포트가 끊긴다. 조용히 새로 빌드하면 아무도 모른다.
+  // ponytail: 경고만 한다 — 옛 디렉토리를 자동 삭제하면 살아 있는 SEO 페이지가 사라진다
+  const renamed = rows.filter(r => {
+    const prev = manifest[r.meta.rowId];
+    return prev && prev.slug && prev.slug !== r.meta.slug;
+  });
+  if (renamed.length)
+    console.log(
+      `   ⚠️ slug 변경 감지 — 메타 생성 시 기존 slug 를 덮어쓰지 않았는지 확인할 것:\n` +
+        renamed
+          .map(
+            r =>
+              `      - "${r.meta.title}": ${manifest[r.meta.rowId].slug} → ${r.meta.slug}\n` +
+              `        · 옛 페이지 ${path.join(SRC_DIR, manifest[r.meta.rowId].slug)} 가 남는다 (수동 정리)\n` +
+              `        · 트래킹링크(ad_group=옛 slug)의 유입 집계가 끊긴다`,
+          )
+          .join('\n'),
+    );
   if (needsMeta.length)
     console.log(
       `   ⚠️ slug/summary 없는 문서(스킬 STEP 2에서 메타 생성·라이트백 필요):\n` +
