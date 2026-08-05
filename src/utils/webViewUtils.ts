@@ -203,12 +203,15 @@ function openExternalUrl(url: string): void {
  * 목적지 화면을 가리지 않는다 — 웹뷰가 띄울 수 있는 모든 화면에 동일하게 적용된다.
  */
 function withAsModalParam(url: string): string {
-  if (/[?&]asModal=/i.test(url)) {
+  // fragment 는 통째로 보존한다 ('#' 가 여러 개일 수 있다).
+  const fragmentIndex = url.indexOf('#');
+  const base = fragmentIndex === -1 ? url : url.slice(0, fragmentIndex);
+  const fragment = fragmentIndex === -1 ? '' : url.slice(fragmentIndex);
+  // 이미 지정돼 있으면 값을 보존한다 (asModal=false 로 push 를 원한 링크도 존중).
+  if (/[?&]asModal=/i.test(base)) {
     return url;
   }
-  const [base, fragment] = url.split('#');
-  const withParam = `${base}${base.includes('?') ? '&' : '?'}asModal=true`;
-  return fragment === undefined ? withParam : `${withParam}#${fragment}`;
+  return `${base}${base.includes('?') ? '&' : '?'}asModal=true${fragment}`;
 }
 
 /**

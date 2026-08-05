@@ -161,6 +161,22 @@ describe('handleWebViewShouldStartLoad — 앱 딥링크', () => {
     );
   });
 
+  it("'#' 가 여러 개인 fragment 도 통째로 보존한다", () => {
+    expect(shouldLoad('stair-crusher://place/x#a#b')).toBe(false);
+    expect(openURL).toHaveBeenCalledWith(
+      'stair-crusher://place/x?asModal=true#a#b',
+    );
+  });
+
+  it('asModal=false 로 push 를 원한 링크는 값을 보존한다', () => {
+    expect(shouldLoad('stair-crusher://place-group/x?asModal=false')).toBe(
+      false,
+    );
+    expect(openURL).toHaveBeenCalledWith(
+      'stair-crusher://place-group/x?asModal=false',
+    );
+  });
+
   it('안드로이드 intent URI 도 스킴을 복원해서 앱에 넘긴다', () => {
     const onAppDeepLink = jest.fn();
     expect(shouldLoad(ANDROID_INTENT_URL, onAppDeepLink)).toBe(false);
