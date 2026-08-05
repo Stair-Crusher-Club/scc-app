@@ -1,5 +1,8 @@
+/** 앱 전용 커스텀 스킴. "이 URL 의 목적지는 이 앱의 화면" 이라는 확정 신호로 쓰인다. */
+export const APP_SCHEME_PREFIX = 'stair-crusher://';
+
 export const DEEP_LINK_PREFIXES = [
-  'stair-crusher://',
+  APP_SCHEME_PREFIX,
   'https://scc.airbridge.io/',
   'https://app.staircrusher.club/',
 ];
