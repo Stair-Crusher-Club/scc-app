@@ -15,6 +15,7 @@ import {
   ScreenParams,
 } from './Navigation.screens';
 import {webOnlyScreens} from './webScreens';
+import {withModalPresentation} from './withModalPresentation';
 import * as S from './Navigation.style';
 
 const AllNavigationScreens = [...MainNavigationScreens, ...webOnlyScreens];
@@ -106,7 +107,7 @@ export const Navigation = () => {
           key={screen.name}
           name={screen.name}
           component={screen.component}
-          options={screen.options}
+          options={withModalPresentation(screen.options)}
         />
       ))}
     </Stack.Navigator>
