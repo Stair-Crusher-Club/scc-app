@@ -25,6 +25,19 @@ const ANDROID_INTENT_URL =
 const DEEP_LINK_URL =
   'stair-crusher://place-group/bbucle-road-gocheok-skydome?airbridge_referrer=abc';
 
+function fakeWebViewRef(): {
+  ref: React.RefObject<WebView | null>;
+  injectJavaScript: jest.Mock;
+} {
+  const injectJavaScript = jest.fn();
+  return {
+    ref: {
+      current: {injectJavaScript},
+    } as unknown as React.RefObject<WebView | null>,
+    injectJavaScript,
+  };
+}
+
 function shouldLoad(url: string, onAppDeepLink?: () => void): boolean {
   return handleWebViewShouldStartLoad(
     {url} as unknown as ShouldStartLoadRequest,
@@ -142,19 +155,14 @@ describe('handleWebViewShouldStartLoad — 웹 목적지', () => {
     expect(shouldLoad('tel:021234567')).toBe(false);
     expect(openURL).toHaveBeenCalledWith('tel:021234567');
   });
+
+  it('대문자 스킴도 웹 링크로 본다 (네이티브로 넘기지 않는다)', () => {
+    expect(shouldLoad('HTTPS://naver.me/5YSWYw6R')).toBe(true);
+    expect(openURL).not.toHaveBeenCalled();
+  });
 });
 
 describe('handleWebViewOpenWindow', () => {
-  function fakeWebViewRef() {
-    const injectJavaScript = jest.fn();
-    return {
-      ref: {
-        current: {injectJavaScript},
-      } as unknown as React.RefObject<WebView | null>,
-      injectJavaScript,
-    };
-  }
-
   it('웹 링크는 현재 웹뷰에서 연다', () => {
     const {ref, injectJavaScript} = fakeWebViewRef();
     handleWebViewOpenWindow('https://naver.me/5YSWYw6R', {webViewRef: ref});
@@ -218,12 +226,20 @@ describe('extractDeclaredAppDeepLink', () => {
   it('메타가 없어도 던지지 않는다', () => {
     expect(extractDeclaredAppDeepLink('<html></html>')).toBeNull();
   });
+
+  it('속성 순서/따옴표 종류/추가 속성에 의존하지 않는다', () => {
+    expect(
+      extractDeclaredAppDeepLink(
+        `<meta content='stair-crusher://place-group/x' data-rh="true" property='al:android:url'>`,
+      ),
+    ).toBe('stair-crusher://place-group/x');
+  });
 });
 
 describe('트래킹 링크 목적지 확인', () => {
   const TRACKING_URL = 'https://link.staircrusher.club/ns539uk';
 
-  function mockFetchHtml(html: string) {
+  function mockFetchHtml(html: string): jest.Mock {
     const fetchMock = jest.fn(() =>
       Promise.resolve({text: () => Promise.resolve(html)}),
     );
@@ -232,17 +248,43 @@ describe('트래킹 링크 목적지 확인', () => {
   }
 
   /** 비동기 확인이 끝나기를 기다린다. */
-  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+  const flush = (): Promise<void> =>
+    new Promise(resolve => setTimeout(resolve, 0));
 
   it('트래킹 링크는 웹뷰에 로드하지 않는다 (목적지를 먼저 확인)', () => {
     mockFetchHtml(LANDING_HTML_APP);
     expect(shouldLoad(TRACKING_URL)).toBe(false);
   });
 
+  it('확인이 끝나기 전에 다른 링크로 이동했으면 뒤늦은 결과를 버린다', async () => {
+    mockFetchHtml(LANDING_HTML_APP);
+    const {ref} = fakeWebViewRef();
+    handleWebViewOpenWindow(TRACKING_URL, {webViewRef: ref});
+    // 확인이 끝나기 전에 다음 네비게이션이 일어난다.
+    handleWebViewShouldStartLoad(
+      {url: 'https://naver.me/other'} as unknown as ShouldStartLoadRequest,
+      {webViewRef: ref},
+    );
+    await flush();
+    expect(openURL).not.toHaveBeenCalled();
+  });
+
+  it('화면이 닫힌 뒤 도착한 결과도 버린다', async () => {
+    mockFetchHtml(LANDING_HTML_APP);
+    const ref = {
+      current: {injectJavaScript: jest.fn()},
+    } as unknown as React.RefObject<WebView | null>;
+    handleWebViewOpenWindow(TRACKING_URL, {webViewRef: ref});
+    (ref as {current: unknown}).current = null; // 화면 unmount
+    await flush();
+    expect(openURL).not.toHaveBeenCalled();
+  });
+
   it('목적지가 앱 화면이면 그 화면을 띄운다', async () => {
     const fetchMock = mockFetchHtml(LANDING_HTML_APP);
     const onAppDeepLink = jest.fn();
-    shouldLoad(TRACKING_URL, onAppDeepLink);
+    const {ref} = fakeWebViewRef();
+    handleWebViewOpenWindow(TRACKING_URL, {webViewRef: ref, onAppDeepLink});
     await flush();
     // 브라우저 UA 를 안 보내면 airbridge 가 웹 fallback 을 주고 메타가 사라진다.
     expect(fetchMock).toHaveBeenCalledWith(TRACKING_URL, {

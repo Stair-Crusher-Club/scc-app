@@ -64,6 +64,11 @@ export interface WebViewLoadOptions {
   onAppDeepLink?: () => void;
 }
 
+// 마지막 네비게이션 판정 토큰. 비동기 목적지 확인 결과가 뒤늦게 도착했을 때 버릴지 판단한다.
+// ponytail: 웹뷰 화면이 동시에 여러 개 뜨는 구조가 아니라 모듈 전역 카운터로 충분하다.
+// 화면별로 독립돼야 하면 opts 로 토큰 소유자를 넘기는 형태로 승격.
+let latestNavigationToken = 0;
+
 function startsWithAny(url: string, prefixes: string[]): boolean {
   const lowerUrl = url.toLowerCase();
   return prefixes.some(prefix => lowerUrl.startsWith(prefix));
@@ -134,14 +139,21 @@ export function isTrackingLinkUrl(url: string): boolean {
  * 앱 스킴이 아니므로 null 이 되어 기존 동작(웹뷰에서 로드)으로 떨어진다.
  */
 export function extractDeclaredAppDeepLink(html: string): string | null {
-  const match = html.match(
-    /<meta\s+property="al:(?:android|ios):url"\s+content="([^"]*)"/i,
-  );
-  if (!match) {
-    return null;
+  // 속성 순서/따옴표 종류/추가 속성에 의존하지 않는다 — 여기서 못 읽으면 조용히 폴백되므로
+  // (스토어로 가진 않지만 딥링크도 안 뜬다) HTML 직렬화 형태에 결합시키지 않는다.
+  const metaTags = html.match(/<meta\b[^>]*>/gi) ?? [];
+  for (const tag of metaTags) {
+    const property = tag.match(/\bproperty\s*=\s*["']([^"']*)["']/i)?.[1];
+    if (!property || !/^al:(?:android|ios):url$/i.test(property)) {
+      continue;
+    }
+    const content = tag.match(/\bcontent\s*=\s*["']([^"']*)["']/i)?.[1];
+    const declared = content?.replace(/&amp;/g, '&');
+    if (declared?.toLowerCase().startsWith(APP_SCHEME_PREFIX)) {
+      return declared;
+    }
   }
-  const declared = match[1].replace(/&amp;/g, '&');
-  return declared.toLowerCase().startsWith(APP_SCHEME_PREFIX) ? declared : null;
+  return null;
 }
 
 /**
@@ -209,6 +221,13 @@ function decideWebViewLoad(
   requestUrl: string,
   opts?: WebViewLoadOptions,
 ): boolean {
+  // 이 판정이 최신임을 표시한다. 트래킹 링크 목적지 확인은 비동기라, 확인이 끝나기 전에
+  // 사용자가 다른 링크를 누르거나 화면을 닫으면 뒤늦게 도착한 결과가 엉뚱한 화면을 띄우거나
+  // 남의 페이지를 덮어쓴다. 마지막 네비게이션만 유효로 본다.
+  const navigationToken = ++latestNavigationToken;
+  const isStale = () =>
+    navigationToken !== latestNavigationToken || !opts?.webViewRef?.current;
+
   // Android intent URI 는 원래 스킴으로 되돌린 뒤 판정한다.
   const url = resolveIntentUri(requestUrl) ?? requestUrl;
 
@@ -238,17 +257,25 @@ function decideWebViewLoad(
   if (isTrackingLinkUrl(url)) {
     resolveTrackingLinkDeepLink(url)
       .then(deepLink => {
+        if (isStale()) {
+          return;
+        }
         if (deepLink) {
           handOffToApp(deepLink, opts);
         } else {
           loadInWebView(url, opts?.webViewRef);
         }
       })
-      .catch(() => loadInWebView(url, opts?.webViewRef));
+      .catch(() => {
+        if (!isStale()) {
+          loadInWebView(url, opts?.webViewRef);
+        }
+      });
     return false;
   }
 
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://')) {
     const resolved = resolveTemplatedExternalUrl(url, {userId: opts?.userId});
     if (resolved !== url && opts?.webViewRef?.current) {
       loadInWebView(resolved, opts.webViewRef);
