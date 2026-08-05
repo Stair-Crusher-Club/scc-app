@@ -87,7 +87,7 @@ describe('스토어 intent 에 실려온 딥링크', () => {
       false,
     );
     // 스토어(market://)를 그냥 삼키면 딥링크까지 사라져 "앱으로 이동" 버튼 페이지만 남는다.
-    expect(openURL).toHaveBeenCalledWith(DEEP_LINK_URL);
+    expect(openURL).toHaveBeenCalledWith(`${DEEP_LINK_URL}&asModal=true`);
     expect(onAppDeepLink).toHaveBeenCalled();
   });
 
@@ -132,15 +132,40 @@ describe('handleWebViewShouldStartLoad — 앱 딥링크', () => {
   it('stair-crusher:// 는 앱에 넘기고 웹뷰에서는 로드하지 않는다', () => {
     const onAppDeepLink = jest.fn();
     expect(shouldLoad(DEEP_LINK_URL, onAppDeepLink)).toBe(false);
-    expect(openURL).toHaveBeenCalledWith(DEEP_LINK_URL);
+    expect(openURL).toHaveBeenCalledWith(`${DEEP_LINK_URL}&asModal=true`);
     expect(onAppDeepLink).toHaveBeenCalled();
+  });
+
+  // 웹뷰는 항상 fullScreenModal 이라, 그 위에 뜨려면 목적지 화면도 모달이어야 한다
+  // (asModal 판단은 Navigation.tsx 의 withModalPresentation — 전 화면 공통).
+  it('쿼리가 없는 딥링크에도 asModal 을 붙인다', () => {
+    expect(shouldLoad('stair-crusher://place-group/x')).toBe(false);
+    expect(openURL).toHaveBeenCalledWith(
+      'stair-crusher://place-group/x?asModal=true',
+    );
+  });
+
+  it('이미 asModal 이 있으면 중복으로 붙이지 않는다', () => {
+    expect(shouldLoad('stair-crusher://place-group/x?asModal=true')).toBe(
+      false,
+    );
+    expect(openURL).toHaveBeenCalledWith(
+      'stair-crusher://place-group/x?asModal=true',
+    );
+  });
+
+  it('fragment 가 있어도 쿼리 위치를 지킨다', () => {
+    expect(shouldLoad('stair-crusher://place/x#section')).toBe(false);
+    expect(openURL).toHaveBeenCalledWith(
+      'stair-crusher://place/x?asModal=true#section',
+    );
   });
 
   it('안드로이드 intent URI 도 스킴을 복원해서 앱에 넘긴다', () => {
     const onAppDeepLink = jest.fn();
     expect(shouldLoad(ANDROID_INTENT_URL, onAppDeepLink)).toBe(false);
     // intent:// 를 그대로 넘기면 RN Linking 이 처리하지 못해 조용히 실패한다.
-    expect(openURL).toHaveBeenCalledWith(DEEP_LINK_URL);
+    expect(openURL).toHaveBeenCalledWith(`${DEEP_LINK_URL}&asModal=true`);
     expect(onAppDeepLink).toHaveBeenCalled();
   });
 });
@@ -184,7 +209,7 @@ describe('handleWebViewOpenWindow', () => {
     const {ref, injectJavaScript} = fakeWebViewRef();
     handleWebViewOpenWindow(ANDROID_INTENT_URL, {webViewRef: ref});
     expect(injectJavaScript).not.toHaveBeenCalled();
-    expect(openURL).toHaveBeenCalledWith(DEEP_LINK_URL);
+    expect(openURL).toHaveBeenCalledWith(`${DEEP_LINK_URL}&asModal=true`);
   });
 });
 
@@ -295,7 +320,7 @@ describe('트래킹 링크 목적지 확인', () => {
       },
     });
     expect(openURL).toHaveBeenCalledWith(
-      'stair-crusher://place-group/bbucle-road-gocheok-skydome?airbridge_referrer=abc&https_deeplink=true',
+      'stair-crusher://place-group/bbucle-road-gocheok-skydome?airbridge_referrer=abc&https_deeplink=true&asModal=true',
     );
     expect(onAppDeepLink).toHaveBeenCalled();
   });

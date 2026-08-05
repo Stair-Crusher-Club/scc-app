@@ -196,11 +196,27 @@ function openExternalUrl(url: string): void {
 }
 
 /**
+ * 딥링크에 `asModal` 을 붙인다. 웹뷰(=항상 `presentation: 'fullScreenModal'`)에서 띄우는
+ * 화면은 모달로 표시해야 iOS 에서 웹뷰 모달 위에 올라간다. 안 붙이면 모달 뒤에 깔려
+ * "눌러도 무반응 + 닫기 두 번" 이 된다. 표시 판단은 Navigation.tsx 의 withModalPresentation.
+ *
+ * 목적지 화면을 가리지 않는다 — 웹뷰가 띄울 수 있는 모든 화면에 동일하게 적용된다.
+ */
+function withAsModalParam(url: string): string {
+  if (/[?&]asModal=/i.test(url)) {
+    return url;
+  }
+  const [base, fragment] = url.split('#');
+  const withParam = `${base}${base.includes('?') ? '&' : '?'}asModal=true`;
+  return fragment === undefined ? withParam : `${withParam}#${fragment}`;
+}
+
+/**
  * 앱 딥링크를 OS 딥링크 경로에 넘긴다. RootScreen 의 linking subscribe 가 받아서
  * 현재 웹뷰 위로 해당 화면을 띄운다 (authDeferred 게이트, airbridge trackDeeplink 재사용).
  */
 function handOffToApp(deepLinkUrl: string, opts?: WebViewLoadOptions): void {
-  openExternalUrl(deepLinkUrl);
+  openExternalUrl(withAsModalParam(deepLinkUrl));
   opts?.onAppDeepLink?.();
 }
 
