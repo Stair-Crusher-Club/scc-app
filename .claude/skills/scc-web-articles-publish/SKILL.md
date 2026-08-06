@@ -19,7 +19,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 | 파일 | 역할 |
 |------|------|
 | `scripts/build-articles.js` | 결정론적 생성기: DB 쿼리 → incremental diff → 블록 fetch → 시맨틱 HTML + 이미지 다운로드 + manifest + sitemap/robots/llms |
-| `scripts/article-template.js` | 자체 반응형 셸 + SEO 메타 + JSON-LD(Article/FAQPage). 480px SPA 프레임 안 탐 |
+| `scripts/article-template.js` | 자체 반응형 셸 + SEO 메타 + JSON-LD(Article/FAQPage) + GA4. 480px SPA 프레임 안 탐 |
 | `web-articles/` (git-tracked) | `manifest.json`(=발행됨의 근거) + `{slug}/index.html` + `{slug}/assets/*` 커밋본 |
 | `scc-server/.../lambda/seo-handler.js` | `/articles*`를 UA 무관 항상 `index.html`로 리라이트(STATIC_PATTERNS) |
 
@@ -102,6 +102,7 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 ```
 - 변경분만 블록 fetch + 이미지 다운로드(presigned 만료 대응 — 로컬 에셋으로 커밋) + HTML 생성.
 - `web-articles/{slug}/`(커밋본)과 `web-dist/articles/`(배포용) + 목록/sitemap/robots/llms 동시 갱신.
+- **빌드 후 에셋 유실을 반드시 확인한다** — `git status --porcelain web-articles | grep '^ D'` 가 비어야 커밋한다. 빌드 로그의 `⚠️ 다운로드 실패` / `♻️ 기존 에셋 유지` 도 함께 읽는다. (사고: `--force` 재빌드가 콜아웃 아이콘 2개를 prod 에서 지웠다. 지금은 `reuseExistingAsset` 가 막지만, 새 에셋 경로를 추가하면 이 확인이 유일한 그물이다.)
 - **렌더러/템플릿을 고쳤으면 `--force`(전체) 대신 `--only a,b,c`로 단계적 롤아웃**을 고려한다. 지정 slug만 재생성하고 나머지는 커밋된 HTML 그대로 두므로, 39개 전체를 한 번에 갈아엎지 않고 최근 글부터 검증할 수 있다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
 
 ### STEP 4 — 시각 검증 (E2E)
