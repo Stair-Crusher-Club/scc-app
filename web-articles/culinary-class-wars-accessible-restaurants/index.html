@@ -8,6 +8,8 @@
 <link rel="canonical" href="https://web.staircrusher.club/articles/culinary-class-wars-accessible-restaurants">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-B80XR4HWJE');</script>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <meta property="og:type" content="article">
 <meta property="og:title" content="[흑백요리사] 이븐한 접근 정도?!">
 <meta property="og:description" content="넷플릭스 흑백요리사 출연 식당의 접근성 정보를 휠체어 이용자가 직접 조사해 정리했습니다. 층수, 입구 턱, 엘리베이터, 계단 수 기준으로 접근레벨 0~5단계를 매겨 방문 가능 여부를 미리 확인할 수 있어요.">
@@ -20,10 +22,13 @@
 <meta name="twitter:image" content="https://web.staircrusher.club/articles/culinary-class-wars-accessible-restaurants/assets/img-0.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"[흑백요리사] 이븐한 접근 정도?!","description":"넷플릭스 흑백요리사 출연 식당의 접근성 정보를 휠체어 이용자가 직접 조사해 정리했습니다. 층수, 입구 턱, 엘리베이터, 계단 수 기준으로 접근레벨 0~5단계를 매겨 방문 가능 여부를 미리 확인할 수 있어요.","image":["https://web.staircrusher.club/articles/culinary-class-wars-accessible-restaurants/assets/img-0.png"],"datePublished":"2026-07-01T04:58:00.000Z","dateModified":"2026-07-30T15:04:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://web.staircrusher.club/articles/culinary-class-wars-accessible-restaurants"},"author":{"@type":"Organization","name":"계단뿌셔클럽","url":"https://staircrusher.club"},"publisher":{"@type":"Organization","name":"계단뿌셔클럽","logo":{"@type":"ImageObject","url":"https://web.staircrusher.club/articles/assets/scc-logo.png"}}}</script>
 <style>
-:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;}
+:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
+/* 목록/푸터 디자인 토큰 (Figma) */
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
 *{box-sizing:border-box;}
+[hidden]{display:none!important;}
 html{-webkit-text-size-adjust:100%;}
-body{margin:0;background:#fff;color:var(--fg);font-family:ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
+body{margin:0;background:#fff;color:var(--fg);font-family:"Pretendard",ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
 .wrap{max-width:720px;margin:0 auto;padding:0 24px;}
 a{color:inherit;}
 img{max-width:100%;height:auto;}
@@ -114,31 +119,86 @@ details.htoggle>summary>*{display:inline;}
 details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
 details.htoggle[open]>summary::before{content:"▾ ";}
 :target{scroll-margin-top:60px;}
-.tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
-.tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
-.cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
-.cta div{font-size:15px;}
-.cta a{display:inline-block;background:#2c2c2b;color:#fff;padding:11px 22px;border-radius:6px;font-size:15px;font-weight:600;text-decoration:none;margin-top:12px;}
-.site-footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:22px 0;margin-top:48px;}
-/* list page */
-.list-title{font-size:34px;font-weight:700;margin:28px 0 4px;}
-.list-sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:0 0 8px;}
-.hero{display:block;text-decoration:none;color:inherit;}
-.hero .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--soft);display:block;}
-.hero h2{font-size:20px;font-weight:600;line-height:1.35;margin:14px 0 6px;}
-.hero p{color:var(--muted);font-size:15px;line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.rest{list-style:none;padding:0;margin:8px 0 0;}
-.rest li a{display:flex;gap:16px;align-items:center;padding:20px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit;}
-.rest .thumb{width:160px;aspect-ratio:16/9;flex:0 0 160px;object-fit:cover;border-radius:8px;background:var(--soft);}
-.rest h2{font-size:18px;font-weight:600;line-height:1.35;margin:0 0 6px;}
-.rest p{color:var(--muted);font-size:14px;line-height:1.5;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-@media (max-width:600px){
+/* ===== 사이트 푸터 (목록/상세 공용) ===== */
+/* PC/MO가 Figma에서 auto-layout 값이 다르다(108:700 vs 108:859) — 같다고 가정하지 말 것 */
+.site-footer{background:#27272a;padding:60px 0 100px;margin-top:80px;}
+.site-footer .lwrap{display:flex;flex-direction:column;gap:50px;}
+.f-top{display:flex;flex-direction:column;gap:20px;}
+.f-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.f-tagline{color:#fff;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-0.28px;margin:0;}
+.f-logo{display:block;width:208px;height:35px;max-width:100%;}
+.f-pills{display:flex;flex-wrap:wrap;gap:12px;}
+.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
+.f-pills a:hover{background:rgba(255,255,255,.1);}
+.f-pills img{display:block;width:20px;height:20px;}
+.f-bottom{display:flex;flex-direction:column;gap:20px;color:#c1c1c5;font-size:13px;}
+.f-legalgroup{display:flex;flex-direction:column;gap:16px;}
+.f-legal{display:flex;flex-direction:column;gap:4px;}
+.f-legal p{margin:0;}
+.f-copy{font-weight:600;line-height:1.3;}
+.f-biz{font-weight:400;line-height:1.5;}
+.f-links{display:flex;gap:20px;}
+.f-links a{color:#c1c1c5;line-height:1.3;text-decoration:underline;}
+/* 파트너 로고 3개는 한 장의 partners.svg(288x24)를 스프라이트로 잘라 각각 링크로 만든다.
+   좌표는 Figma Layer_1(108:1812) 자식 그룹 실측: 0/100, 124/61, 207/80 */
+.f-partners{display:flex;align-items:flex-start;height:24px;}
+.f-partners a{display:block;background-image:url(/articles/assets/partners.svg);background-repeat:no-repeat;background-size:288px 24px;}
+.f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
+.f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
+.f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 목록 페이지 ===== */
+/* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
+.lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
+/* padding-top만 — shorthand를 쓰면 .lwrap의 좌우 20px 패딩까지 덮어써서 모바일이 full-bleed 된다 */
+.list-page{padding-top:40px;}
+.list-head h1{font-size:28px;line-height:38px;font-weight:700;color:var(--g90);margin:0;}
+.list-head p{font-size:15px;line-height:22px;letter-spacing:-0.3px;color:var(--g60);margin:4px 0 0;}
+/* 칩 줄(532px)이 모바일 폭을 넘으므로 여기서 가로 스크롤을 흡수한다. 안 하면 페이지가 통째로 가로로 밀린다 */
+.cat-tabs{display:flex;gap:8px;margin:32px -20px 0;padding:0 20px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g60);font-size:15px;line-height:22px;font-weight:500;letter-spacing:-0.3px;padding:6px 14px;border-radius:100px;}
+.cat[aria-pressed="true"]{background:var(--g80);color:var(--g10);font-weight:600;}
+.arts{margin:32px 0 0;}
+.thumb{display:block;object-fit:cover;border-radius:4px;background:var(--g15);}
+.c-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.4px;color:#000;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-meta{display:flex;gap:6px;align-items:center;color:var(--g60);font-size:13px;line-height:18px;letter-spacing:-0.26px;}
+.c-meta b{font-weight:500;}
+.c-meta i{flex:0 0 auto;width:2px;height:2px;border-radius:50%;background:currentColor;}
+.feat{display:flex;gap:30px;align-items:center;text-decoration:none;color:inherit;}
+.feat .thumb{flex:0 0 330px;width:330px;height:186px;}
+.feat-body{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.feat-head{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.badge{color:var(--blue);font-size:13px;line-height:18px;font-weight:700;letter-spacing:-0.26px;}
+.excerpt{color:var(--g90);font-size:15px;line-height:24px;letter-spacing:-0.3px;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.feat-sep{border:0;border-top:1px solid var(--g25);margin:32px 0;}
+.cards{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;row-gap:32px;}
+.card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;}
+.card .thumb{width:100%;aspect-ratio:330/186;}
+.card-body{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.cat-empty{color:var(--g60);font-size:15px;margin:40px 0 0;text-align:center;}
+.more-wrap{display:flex;justify-content:center;margin:40px 0 0;}
+.more{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g80);font-size:16px;line-height:24px;font-weight:500;letter-spacing:-0.32px;padding:12px 28px;border-radius:8px;}
+@media (max-width:700px){
   h1.title{font-size:30px;}
   article h2{font-size:25px;}
   article h3{font-size:21px;}
   .columns{flex-direction:column;}
-  .hero-grid{grid-template-columns:1fr;}
+  .list-page{padding-top:30px;}
+  .list-head h1{font-size:24px;line-height:32px;}
+  .list-head p{font-size:14px;line-height:20px;letter-spacing:-0.28px;}
+  .arts{margin-top:24px;}
+  .feat{flex-direction:column;align-items:stretch;gap:12px;}
+  .feat .thumb{flex:none;width:100%;height:auto;aspect-ratio:350/197;}
+  .feat-body{gap:12px;}
+  .feat-sep{margin:28px 0;}
+  .cards{grid-template-columns:1fr;row-gap:28px;}
+  .card .thumb{aspect-ratio:350/197;}
+  /* 푸터는 MO auto-layout(108:859)이 PC(108:700)와 달라서 값을 되돌린다.
+     padding-bottom 은 get_design_context 가 100 이라 답하지만 프레임 실측/픽셀 실측 모두 80 */
+  .site-footer{margin-top:50px;padding-bottom:80px;}
+  .site-footer .lwrap{gap:80px;padding:0 16px;}
+  .f-bottom{gap:16px;}
+  .f-legalgroup{display:contents;}
 }
 </style>
 </head>
@@ -152,13 +212,37 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 <h1 class="title">[흑백요리사] 이븐한 접근 정도?!</h1>
 <div class="article-date">2026-07-01</div>
 <figure><img src="/articles/culinary-class-wars-accessible-restaurants/assets/img-0.png" style="max-width:min(3072px,100%);margin-left:auto;margin-right:auto;" alt="[흑백요리사] 이븐한 접근 정도?!" loading="lazy"></figure><aside class="callout" style="background:#f9f8f7;"><span class="emoji">🔥</span><div>넷플릭스 화제의 프로그램, 흑백요리사 🧑‍🍳<br>식당들의 접근 정도가 이븐한지 알기는 어려웠는데요. <br><br>계단뿌셔클럽 뿌클로드에서 접근성 정보를 뿌셔봤어요!<br><strong>층수, 입구 턱 여부, 엘리베이터 여부, 건물 입구 계단 수 등을 통해 </strong><strong><code>접근레벨</code></strong><strong> 을 체크 해보세요✅</strong><br><br><strong>혼자부터 친구/가족과 함께까지. </strong><br><strong>나의 상황에 맞게 판단할 수 있도록 맛집 러버 휠체어러들이 세심하게 살펴봤어요.</strong><br><strong>(코멘트란에서 맛집 러버 휠체어러들이 정보 조사하며 남긴 이야기도 꼭 확인해보세요!)</strong><br><br>*단, 너~무 인기가 많아 식당들 예약이 치열하다는 건 참고해주세요! </div></aside><p class="empty"></p><p style="background:#e5f2fc;padding:3px 8px;border-radius:4px;"><strong>💡접근레벨을 이용하는 TIP</strong><br>① 층수, 입구 턱 여부, 엘리베이터 여부, 건물 입구 계단 수 등을 바탕으로 <strong>접근이 쉬운순으로 </strong><strong><code>접근레벨 0~5</code></strong> 로 나뉩니다.<br>② 더 자세한 정보는 층수, 접근성 정보, 내부, 코멘트를 통해 확인해보세요.</p><p class="empty"></p><figure class="db"><p class="db-title">흑백요리사, 식당 접근성 정보 (미리보기)</p><div class="db-wrap"><table style="table-layout:fixed"><colgroup><col style="width:108px"><col style="width:107px"><col style="width:118px"><col style="width:100px"><col style="width:100px"><col style="width:146px"><col style="width:128px"><col style="width:456px"><col><col></colgroup><tr><th>셰프명</th><th>식당</th><th>주요역</th><th>접근레벨</th><th>층수</th><th>계단정보</th><th>내부</th><th>코멘트</th><th>Tags</th><th>주소</th></tr><tr><td>⚪️정지선</td><td><a href="https://naver.me/Gt1xAjOG" target="_blank" rel="noopener noreferrer">티엔미미 강남점</a></td><td><span class="pill" style="background:var(--soft);">강남역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#f0efed;">1</span></td><td><span class="pill" style="background:#f5ede9;">경사로 O</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>매장 바라보고 왼쪽에 건물 경사로가 있음</td><td></td><td>서울 서초구 사임당로 143 104-1~3</td></tr><tr><td>⚪️장호준</td><td><a href="https://naver.me/5fnjS4Ay" target="_blank" rel="noopener noreferrer">네기스키야키 압구정점</a></td><td><span class="pill" style="background:#fae9f1;">압구정역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#fce9e7;">-1</span></td><td><span class="pill" style="background:#f3ebf9;">엘리베이터 O</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>호텔 로비에서 엘리베이터를 타고 지하 1층의 식당으로 진입할 수 있습니다.</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 강남구 논현로 854 지하1층 네기스키야키</td></tr><tr><td>⚪️박준우</td><td><a href="https://naver.me/5i0YjAeR" target="_blank" rel="noopener noreferrer">오쁘띠베르</a></td><td><span class="pill" style="background:#e5f2fc;">경복궁역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#f0efed;">1</span></td><td><span class="pill" style="background:#fce9e7;">계단 X</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>1층, 2층을 함께 운영하고 있고 전층에 좌석이 있습니다. 2층으로 가는 엘리베이터는 없습니다.</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 종로구 자하문로 47-1</td></tr><tr><td>⚪️방기수</td><td><a href="https://naver.me/xn6CuFQi" target="_blank" rel="noopener noreferrer">서울 깃든</a></td><td><span class="pill" style="background:#f5ede9;">미아사거리역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#f0efed;">1</span></td><td><span class="pill" style="background:#fce9e7;">계단 X</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>입구 회전이 가구로 인해 다소 좁음</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 강북구 월계로7나길 46-5</td></tr><tr><td>⚪️정지선</td><td><a href="https://naver.me/5PSwkHek" target="_blank" rel="noopener noreferrer">티엔미미 홍대점</a></td><td><span class="pill" style="background:#fce9e7;">홍대입구역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:var(--soft);">4</span></td><td><span class="pill" style="background:#f3ebf9;">엘리베이터 O</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>엘리베이터 탑승 후 L충</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 마포구 양화로 144 머큐어 앰버서더 호텔 4층</td></tr><tr><td>⚪️조셉 리저우드</td><td><a href="https://naver.me/F5bFaeQb" target="_blank" rel="noopener noreferrer">에빗</a></td><td><span class="pill" style="background:#f5ede9;">압구정로데오역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#f0efed;">1</span></td><td><span class="pill" style="background:#fce9e7;">계단 X</span> <span class="pill" style="background:#f5ede9;">경사로 O</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td></td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 강남구 도산대로 45길 10-5</td></tr><tr><td>⚪️여경래</td><td><a href="https://naver.me/5bdxlVR6" target="_blank" rel="noopener noreferrer">홍보각</a></td><td><span class="pill" style="background:var(--soft);">신논현역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#fce9e7;">-1</span></td><td><span class="pill" style="background:#f3ebf9;">엘리베이터 O</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>노보텔 앰배서더 호텔 로비의 엘리베이터로 접근 가능한 지하 1층에 위치</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 강남구 봉은사로 130 노보텔 앰배서더 강남 LL층</td></tr><tr><td>⚪️최강록</td><td><a href="https://naver.me/GX0IKQRs" target="_blank" rel="noopener noreferrer">식당네오</a></td><td><span class="pill" style="background:#fae9f1;">삼전역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#f0efed;">1</span></td><td><span class="pill" style="background:#fce9e7;">계단 X</span></td><td><span class="pill" style="background:#f5ede9;">좌식</span></td><td>내부 바자리 쪽은 2칸의 계단이 있고, 안쪽에 룸도 별도로 있음</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 송파구 삼전로12길 4 101호</td></tr><tr><td>⚪️장호준</td><td><a href="https://naver.me/xJNavQPj" target="_blank" rel="noopener noreferrer">네기다이닝라운지</a></td><td><span class="pill" style="background:var(--soft);">신사역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:var(--soft);">4</span></td><td><span class="pill" style="background:#f3ebf9;">엘리베이터 O</span></td><td><span class="pill" style="background:#f9f3dc;">입식</span></td><td>건물 출입구가 건물 측면에 있습니다.</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 강남구 도산대로15길 18 4층 네기다이닝라운지</td></tr><tr><td>⚪️최지형</td><td><a href="https://naver.me/GFT0uHYF" target="_blank" rel="noopener noreferrer">리북방</a></td><td><span class="pill" style="background:#fce9e7;">마포역</span></td><td><span class="pill" style="background:#e8f1ec;">접근레벨 0</span></td><td><span class="pill" style="background:#f5ede9;">2</span></td><td><span class="pill" style="background:#f3ebf9;">엘리베이터 O</span></td><td><span class="pill" style="background:#fae9f1;">살짝 높은 바자리</span></td><td>약간 하이체어, 키 160, 수동휠체어 기준으로 보면 가슴정도에 와서 이용은 가능한 수준임, <br>서비스 시간 10분전~20분 후까지만 엘리베이터 이용 가능 (엘리베이터 크기가 작아 스쿠터는 안됨, 주보4정도까지 딱 들어 갈 것으로 보임)<br>건물 우측으로 가면 턱 없고, 엘베 이용 가능한 입구 있음</td><td><span class="pill" style="background:var(--soft);">백수저</span></td><td>서울 마포구 마포대로 1길 16</td></tr></table></div></figure><p class="empty"></p><p>💡식당 전체 정보는 계단뿌셔클럽 앱 ‘계단정복지도’에서 확인하실 수 있습니다.</p><figure><img src="/articles/culinary-class-wars-accessible-restaurants/assets/img-1.png" style="max-width:min(624px,100%);" alt="https://tosto.re/staircrusherclub" loading="lazy"><figcaption><a href="https://cutt.ly/xePaDlWj" target="_blank" rel="noopener noreferrer">https://tosto.re/staircrusherclub</a></figcaption></figure><p class="empty"></p><p class="empty"></p><figure><img src="/articles/culinary-class-wars-accessible-restaurants/assets/img-2.png" style="max-width:min(704px,100%);margin-left:auto;margin-right:auto;" alt="[흑백요리사] 이븐한 접근 정도?!" loading="lazy"></figure><p class="empty"></p><p class="empty"></p><p class="empty"></p><p><a href="/articles" rel="noopener"><span style="background:#e5f2fc;"><strong>⏮️ 뒤로가기</strong></span></a></p><p class="empty"></p><p class="empty"></p><hr><p><span style="color:#787774;">계단뿌셔클럽의 고유 콘텐츠 템플릿입니다. 무단복제 및 사용을 금합니다. </span></p><p><span style="color:#787774;">©2024 계단뿌셔클럽 All Rights Reserved. </span></p><p class="empty"></p><p class="empty"></p><p class="empty"></p>
-<div class="tags"><span>접근성</span><span>휠체어</span><span>맛집</span><span>큐레이션</span><span>뿌클로드</span></div>
 </article>
 </div>
-<section class="cta">
-  <div>이동약자를 위한 진짜 접근성 정보, 계단뿌셔클럽에서 더 보기</div>
-  <a href="https://staircrusher.club" target="_blank" rel="noopener noreferrer">계단뿌셔클럽 바로가기</a>
-</section>
-<footer class="site-footer"><div class="wrap">© 계단뿌셔클럽</div></footer>
+<footer class="site-footer"><div class="lwrap">
+<div class="f-top">
+  <div class="f-brand">
+    <p class="f-tagline">이동약자와 그 친구들의 막힘없는 이동</p>
+    <img class="f-logo" src="/articles/assets/scc-wordmark-white.svg" alt="계단뿌셔클럽" width="208" height="35">
+  </div>
+  <div class="f-pills">
+    <a href="https://link.staircrusher.club/articles_footer_app" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-download.svg" alt="" width="20" height="20">앱 다운로드</a>
+    <a href="https://link.staircrusher.club/articles_footer_kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-kakao.svg" alt="" width="20" height="20">카카오톡</a>
+    <a href="https://link.staircrusher.club/articles_footer_letter" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-mail.svg" alt="" width="20" height="20">뿌클레터</a>
+  </div>
+</div>
+<div class="f-bottom">
+  <div class="f-legalgroup">
+  <div class="f-legal">
+    <p class="f-copy">Copyright ⓒ 계단뿌셔클럽. All Rights Reserved</p>
+    <p class="f-biz">사업자등록번호 623-82-00565 &nbsp;|&nbsp; 대표 : 박수빈, 이대호 &nbsp;|&nbsp; 서울특별시 강남구 역삼로 172 마루360 5층</p>
+  </div>
+  <div class="f-links">
+    <a href="https://agnica.notion.site/07acba336959451fbdddcbd26e8d49b0" target="_blank" rel="noopener noreferrer">서비스 이용약관</a>
+    <a href="https://agnica.notion.site/?pvs=143" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a>
+  </div>
+  </div>
+  <div class="f-partners">
+    <a class="p-acrc" href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회"></a>
+    <a class="p-nts" href="https://www.nts.go.kr/nts/main.do" target="_blank" rel="noopener noreferrer" aria-label="국세청"></a>
+    <a class="p-seoul" href="https://www.seoul.go.kr/main/index.jsp" target="_blank" rel="noopener noreferrer" aria-label="서울특별시"></a>
+  </div>
+</div>
+</div></footer>
 </body>
 </html>

@@ -8,6 +8,8 @@
 <link rel="canonical" href="https://web.staircrusher.club/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-B80XR4HWJE');</script>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <meta property="og:type" content="article">
 <meta property="og:title" content="제주도 콜택시">
 <meta property="og:description" content="제주도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.">
@@ -20,10 +22,13 @@
 <meta name="twitter:image" content="https://web.staircrusher.club/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi/assets/img-0.jpg">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"제주도 콜택시","description":"제주도 장애인 콜택시(교통약자 특별교통수단)의 이용대상, 필요서류, 등록방법과 신청 절차를 안내합니다.","image":["https://web.staircrusher.club/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi/assets/img-0.jpg"],"datePublished":"2026-07-01T04:58:00.000Z","dateModified":"2024-11-20T03:22:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://web.staircrusher.club/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi"},"author":{"@type":"Organization","name":"계단뿌셔클럽","url":"https://staircrusher.club"},"publisher":{"@type":"Organization","name":"계단뿌셔클럽","logo":{"@type":"ImageObject","url":"https://web.staircrusher.club/articles/assets/scc-logo.png"}}}</script>
 <style>
-:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;}
+:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
+/* 목록/푸터 디자인 토큰 (Figma) */
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
 *{box-sizing:border-box;}
+[hidden]{display:none!important;}
 html{-webkit-text-size-adjust:100%;}
-body{margin:0;background:#fff;color:var(--fg);font-family:ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
+body{margin:0;background:#fff;color:var(--fg);font-family:"Pretendard",ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
 .wrap{max-width:720px;margin:0 auto;padding:0 24px;}
 a{color:inherit;}
 img{max-width:100%;height:auto;}
@@ -114,31 +119,86 @@ details.htoggle>summary>*{display:inline;}
 details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
 details.htoggle[open]>summary::before{content:"▾ ";}
 :target{scroll-margin-top:60px;}
-.tags{margin:36px 0 0;display:flex;flex-wrap:wrap;gap:8px;}
-.tags span{background:var(--soft);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:13px;}
-.cta{margin:48px 0 0;padding:24px;background:var(--soft);border-radius:8px;text-align:center;}
-.cta div{font-size:15px;}
-.cta a{display:inline-block;background:#2c2c2b;color:#fff;padding:11px 22px;border-radius:6px;font-size:15px;font-weight:600;text-decoration:none;margin-top:12px;}
-.site-footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:22px 0;margin-top:48px;}
-/* list page */
-.list-title{font-size:34px;font-weight:700;margin:28px 0 4px;}
-.list-sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:0 0 8px;}
-.hero{display:block;text-decoration:none;color:inherit;}
-.hero .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--soft);display:block;}
-.hero h2{font-size:20px;font-weight:600;line-height:1.35;margin:14px 0 6px;}
-.hero p{color:var(--muted);font-size:15px;line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.rest{list-style:none;padding:0;margin:8px 0 0;}
-.rest li a{display:flex;gap:16px;align-items:center;padding:20px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit;}
-.rest .thumb{width:160px;aspect-ratio:16/9;flex:0 0 160px;object-fit:cover;border-radius:8px;background:var(--soft);}
-.rest h2{font-size:18px;font-weight:600;line-height:1.35;margin:0 0 6px;}
-.rest p{color:var(--muted);font-size:14px;line-height:1.5;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-@media (max-width:600px){
+/* ===== 사이트 푸터 (목록/상세 공용) ===== */
+/* PC/MO가 Figma에서 auto-layout 값이 다르다(108:700 vs 108:859) — 같다고 가정하지 말 것 */
+.site-footer{background:#27272a;padding:60px 0 100px;margin-top:80px;}
+.site-footer .lwrap{display:flex;flex-direction:column;gap:50px;}
+.f-top{display:flex;flex-direction:column;gap:20px;}
+.f-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.f-tagline{color:#fff;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-0.28px;margin:0;}
+.f-logo{display:block;width:208px;height:35px;max-width:100%;}
+.f-pills{display:flex;flex-wrap:wrap;gap:12px;}
+.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
+.f-pills a:hover{background:rgba(255,255,255,.1);}
+.f-pills img{display:block;width:20px;height:20px;}
+.f-bottom{display:flex;flex-direction:column;gap:20px;color:#c1c1c5;font-size:13px;}
+.f-legalgroup{display:flex;flex-direction:column;gap:16px;}
+.f-legal{display:flex;flex-direction:column;gap:4px;}
+.f-legal p{margin:0;}
+.f-copy{font-weight:600;line-height:1.3;}
+.f-biz{font-weight:400;line-height:1.5;}
+.f-links{display:flex;gap:20px;}
+.f-links a{color:#c1c1c5;line-height:1.3;text-decoration:underline;}
+/* 파트너 로고 3개는 한 장의 partners.svg(288x24)를 스프라이트로 잘라 각각 링크로 만든다.
+   좌표는 Figma Layer_1(108:1812) 자식 그룹 실측: 0/100, 124/61, 207/80 */
+.f-partners{display:flex;align-items:flex-start;height:24px;}
+.f-partners a{display:block;background-image:url(/articles/assets/partners.svg);background-repeat:no-repeat;background-size:288px 24px;}
+.f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
+.f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
+.f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 목록 페이지 ===== */
+/* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
+.lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
+/* padding-top만 — shorthand를 쓰면 .lwrap의 좌우 20px 패딩까지 덮어써서 모바일이 full-bleed 된다 */
+.list-page{padding-top:40px;}
+.list-head h1{font-size:28px;line-height:38px;font-weight:700;color:var(--g90);margin:0;}
+.list-head p{font-size:15px;line-height:22px;letter-spacing:-0.3px;color:var(--g60);margin:4px 0 0;}
+/* 칩 줄(532px)이 모바일 폭을 넘으므로 여기서 가로 스크롤을 흡수한다. 안 하면 페이지가 통째로 가로로 밀린다 */
+.cat-tabs{display:flex;gap:8px;margin:32px -20px 0;padding:0 20px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g60);font-size:15px;line-height:22px;font-weight:500;letter-spacing:-0.3px;padding:6px 14px;border-radius:100px;}
+.cat[aria-pressed="true"]{background:var(--g80);color:var(--g10);font-weight:600;}
+.arts{margin:32px 0 0;}
+.thumb{display:block;object-fit:cover;border-radius:4px;background:var(--g15);}
+.c-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.4px;color:#000;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-meta{display:flex;gap:6px;align-items:center;color:var(--g60);font-size:13px;line-height:18px;letter-spacing:-0.26px;}
+.c-meta b{font-weight:500;}
+.c-meta i{flex:0 0 auto;width:2px;height:2px;border-radius:50%;background:currentColor;}
+.feat{display:flex;gap:30px;align-items:center;text-decoration:none;color:inherit;}
+.feat .thumb{flex:0 0 330px;width:330px;height:186px;}
+.feat-body{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.feat-head{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.badge{color:var(--blue);font-size:13px;line-height:18px;font-weight:700;letter-spacing:-0.26px;}
+.excerpt{color:var(--g90);font-size:15px;line-height:24px;letter-spacing:-0.3px;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.feat-sep{border:0;border-top:1px solid var(--g25);margin:32px 0;}
+.cards{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;row-gap:32px;}
+.card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;}
+.card .thumb{width:100%;aspect-ratio:330/186;}
+.card-body{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.cat-empty{color:var(--g60);font-size:15px;margin:40px 0 0;text-align:center;}
+.more-wrap{display:flex;justify-content:center;margin:40px 0 0;}
+.more{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g80);font-size:16px;line-height:24px;font-weight:500;letter-spacing:-0.32px;padding:12px 28px;border-radius:8px;}
+@media (max-width:700px){
   h1.title{font-size:30px;}
   article h2{font-size:25px;}
   article h3{font-size:21px;}
   .columns{flex-direction:column;}
-  .hero-grid{grid-template-columns:1fr;}
+  .list-page{padding-top:30px;}
+  .list-head h1{font-size:24px;line-height:32px;}
+  .list-head p{font-size:14px;line-height:20px;letter-spacing:-0.28px;}
+  .arts{margin-top:24px;}
+  .feat{flex-direction:column;align-items:stretch;gap:12px;}
+  .feat .thumb{flex:none;width:100%;height:auto;aspect-ratio:350/197;}
+  .feat-body{gap:12px;}
+  .feat-sep{margin:28px 0;}
+  .cards{grid-template-columns:1fr;row-gap:28px;}
+  .card .thumb{aspect-ratio:350/197;}
+  /* 푸터는 MO auto-layout(108:859)이 PC(108:700)와 달라서 값을 되돌린다.
+     padding-bottom 은 get_design_context 가 100 이라 답하지만 프레임 실측/픽셀 실측 모두 80 */
+  .site-footer{margin-top:50px;padding-bottom:80px;}
+  .site-footer .lwrap{gap:80px;padding:0 16px;}
+  .f-bottom{gap:16px;}
+  .f-legalgroup{display:contents;}
 }
 </style>
 </head>
@@ -152,13 +212,37 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 <h1 class="title">제주도 콜택시</h1>
 <div class="article-date">2026-07-01</div>
 <figure><img src="/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi/assets/img-0.jpg" style="max-width:min(672px,100%);margin-left:auto;margin-right:auto;" alt="제주도 콜택시" loading="lazy"></figure><p class="empty"></p><p class="empty"></p><h3 id="5c932daf40c04605838028f25c817172"><strong>🚕 제주도 장애인 콜택시 정보 </strong></h3><hr><div class="tbl-wrap"><table><tr><th><strong>항목</strong></th><th><strong>내용</strong></th></tr><tr><td><strong>서비스명</strong></td><td>제주도 장애인 콜택시 </td></tr><tr><td><strong>운영 기관</strong></td><td>제주특별자치도 교통약자이동지원센터</td></tr><tr><td><strong>문의처 전화번호</strong></td><td>064-740-9201</td></tr><tr><td><strong>운영시간</strong></td><td>24시간 운영</td></tr><tr><td>팩스번호 </td><td>070-4275-1253<br>(문자접수) 010-6641-6884<br>(이메일) jejuhappycall@naver.com</td></tr><tr><td><strong>콜택시 대표번호</strong></td><td>1899-6884</td></tr><tr><td>콜택시 이용요금 </td><td>[기본요금] 10km 당 1,200원<br>[추가요금] 10~30km 100원 </td></tr><tr><td>이용지역 </td><td>제주특별자치도 전지역(섬지역 제외)</td></tr><tr><td><strong>콜택시 어플(안드로이드)</strong></td><td><a href="https://play.google.com/store/apps/details?id=com.eksys.wp.jeju" target="_blank" rel="noopener noreferrer"><strong>제주교통약자이동지원센터 안드로이드 </strong></a></td></tr><tr><td><strong>콜택시 어플(아이폰)</strong></td><td><a href="https://apps.apple.com/kr/app/%EC%A0%9C%EC%A3%BC%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EB%8F%84-%EA%B5%90%ED%86%B5%EC%95%BD%EC%9E%90-%EC%9D%B4%EB%8F%99%EC%A7%80%EC%9B%90-%EC%84%BC%ED%84%B0/id1232235753" target="_blank" rel="noopener noreferrer"><strong>제주교통약자이동지원센터</strong></a><a href="https://apps.apple.com/kr/app/%EC%A0%9C%EC%A3%BC%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EB%8F%84-%EA%B5%90%ED%86%B5%EC%95%BD%EC%9E%90-%EC%9D%B4%EB%8F%99%EC%A7%80%EC%9B%90-%EC%84%BC%ED%84%B0/id1232235753" target="_blank" rel="noopener noreferrer"> 아이폰</a></td></tr></table></div><h4 id="6abe744efbb14c4694b54845c8342a62"><br><span style="color:#487ca5;"><strong>✓ 콜택시 이용대상</strong></span></h4><hr><aside class="callout" style="background:#e5f2fc;"><span class="emoji">🔹</span><div><u><strong>장애인 콜택시는 다음과 같은 교통약자들이 이용할 수 있습니다.</strong></u><br><br>1) 1급 또는 2급 장애인으로 대중교통 이용이 어려운 사람<br>2) 보행상 장애인으로 제3급 장애인 중 뇌병변 장애 또는 휠체어 이용자<br>3) 보행상 장애인으로 장애정도가 심한 장애인 (보건복지부 고시 2019-117호)<br>4) 만 65세 이상 보행이 어려운 고령자 <br>5) 제주특별자치도 조례에서 정하는 사람 </div></aside><p class="empty"></p><h4 id="bbf408d7b1464b85af9bf8ccb00abe50"><span style="color:#487ca5;"><strong>✓ 콜택시 이용시, 필요서류</strong></span></h4><hr><aside class="callout" style="background:#e5f2fc;"><span class="emoji">🔹</span><div><u><strong>콜택시를 이용하기 위해서는 다음과 같은 서류가 필요합니다.</strong></u><br>1) 2019.06.30까지 장애등록<br>- 장애인증명서 또는 복지카드 사본(앞,뒷면)<br>- (구)장애등급조회결과 안내문<br>2) 2019.07.01부터 장애등록<br>- 장애인증명서 또는 복지카드 사본(앞,뒷면)<br>- 장애정도 추가심사 결과안내문<br>- 보행상 장애 표준 기준표상 △ 해당자인 경우 필수이며, 보행상 장애에 해당되어야 함<br>3) 그외 대상<br>- 진단서, 신분증 (발급일 3개월 이내)<br>- 임산부 증명서류 (복지카드, 임산부 수첩 등)<br>- 외국인등록증, 여권 <p>※ 진단서는 &quot;<strong>보행장애로 인해 휠체어 이용이 불가피함에 따른 대중교통의 이용이 어렵다</strong>&quot; 는 진단내용이 명시</p></div></aside><p class="empty"></p><h4 id="6ed7e06d16f24b499b0d66c99fc0dea0"><span style="color:#487ca5;"><strong>✓ 이동약자 등록방법</strong></span></h4><hr><aside class="callout" style="background:#e5f2fc;"><span class="emoji">🔹</span><div><u><strong>장애인 콜택시를 이용하려면, 사전등록이 필수입니다. </strong></u><br><br>1) 이용신청서 작성 및 제출 <br>2) 제주도 교통약자 이동지원센터 어플 사전등록<br>3) 방문등록 <br>- 교통약자 지원센터 직접 방문, 서류 제출 <br>3) 전화상담 1899-6884 안내 및 서류제출 등록<br>- 팩스 및 문자 서류 제출 </div></aside><p class="empty"></p><h4 id="a5564a8322a549b8848fb11870142812"><strong>🚖  </strong><span style="color:#487ca5;"><strong>더 자세한 정보는 아래 홈페이지를 통해 확인하실 수 있습니다.</strong></span><strong> </strong></h4><hr><a class="bookmark" href="https://www.jejuhappycall.com/?mcode=guide01" target="_blank" rel="noopener noreferrer"><span class="bm-thumb"><img src="/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi/assets/bm-0.png" alt="" loading="lazy"></span><span class="bm-body"><span class="bm-title">사) 제주특별자치도 교통약자 이동지원센터</span><span class="bm-desc">사단법인 제주특별자치도 교통약자 이동지원센터 홈페이지 홈페이지</span><span class="bm-url">https://www.jejuhappycall.com/?mcode=guide01</span></span></a><figure><img src="/articles/disabled-call-taxi-guide/jeju-disabled-call-taxi/assets/img-1.png" style="max-width:min(708px,100%);margin-left:auto;margin-right:auto;" alt="제주도 콜택시" loading="lazy"></figure><p class="empty"></p><p class="empty"></p><p class="empty"></p><p class="empty"></p><p class="empty"></p>
-
 </article>
 </div>
-<section class="cta">
-  <div>이동약자를 위한 진짜 접근성 정보, 계단뿌셔클럽에서 더 보기</div>
-  <a href="https://staircrusher.club" target="_blank" rel="noopener noreferrer">계단뿌셔클럽 바로가기</a>
-</section>
-<footer class="site-footer"><div class="wrap">© 계단뿌셔클럽</div></footer>
+<footer class="site-footer"><div class="lwrap">
+<div class="f-top">
+  <div class="f-brand">
+    <p class="f-tagline">이동약자와 그 친구들의 막힘없는 이동</p>
+    <img class="f-logo" src="/articles/assets/scc-wordmark-white.svg" alt="계단뿌셔클럽" width="208" height="35">
+  </div>
+  <div class="f-pills">
+    <a href="https://link.staircrusher.club/articles_footer_app" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-download.svg" alt="" width="20" height="20">앱 다운로드</a>
+    <a href="https://link.staircrusher.club/articles_footer_kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-kakao.svg" alt="" width="20" height="20">카카오톡</a>
+    <a href="https://link.staircrusher.club/articles_footer_letter" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-mail.svg" alt="" width="20" height="20">뿌클레터</a>
+  </div>
+</div>
+<div class="f-bottom">
+  <div class="f-legalgroup">
+  <div class="f-legal">
+    <p class="f-copy">Copyright ⓒ 계단뿌셔클럽. All Rights Reserved</p>
+    <p class="f-biz">사업자등록번호 623-82-00565 &nbsp;|&nbsp; 대표 : 박수빈, 이대호 &nbsp;|&nbsp; 서울특별시 강남구 역삼로 172 마루360 5층</p>
+  </div>
+  <div class="f-links">
+    <a href="https://agnica.notion.site/07acba336959451fbdddcbd26e8d49b0" target="_blank" rel="noopener noreferrer">서비스 이용약관</a>
+    <a href="https://agnica.notion.site/?pvs=143" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a>
+  </div>
+  </div>
+  <div class="f-partners">
+    <a class="p-acrc" href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회"></a>
+    <a class="p-nts" href="https://www.nts.go.kr/nts/main.do" target="_blank" rel="noopener noreferrer" aria-label="국세청"></a>
+    <a class="p-seoul" href="https://www.seoul.go.kr/main/index.jsp" target="_blank" rel="noopener noreferrer" aria-label="서울특별시"></a>
+  </div>
+</div>
+</div></footer>
 </body>
 </html>
