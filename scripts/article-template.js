@@ -15,6 +15,12 @@ const SITE = {
   logo: 'https://web.staircrusher.club/articles/assets/scc-logo.png',
 };
 
+// SPA(web/index.html)와 동일한 GA4 속성. 이 셸은 SPA index.html을 안 타므로 여기에도 넣어야
+// /articles 조회수가 집계된다.
+const GA_ID = 'G-B80XR4HWJE';
+const GA_SNIPPET = `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');</script>`;
+
 const FONT_STACK =
   'ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif';
 
@@ -176,6 +182,7 @@ function headCommon(title, desc, canonical, extra) {
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeAttr(desc)}">
 <link rel="canonical" href="${canonical}">
+${GA_SNIPPET}
 ${extra}
 <style>${BASE_CSS}</style>`;
 }
