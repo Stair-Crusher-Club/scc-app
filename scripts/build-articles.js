@@ -1497,10 +1497,16 @@ async function main() {
       needsMeta.push({meta, page, lack});
       continue;
     }
+    // 경고만 하고 발행은 막지 않는다 — 오타 하나로 살아 있는 SEO 페이지를 내리는 게 더 나쁘다.
+    // 잘못된 값은 '전체'에는 나오고 해당 칩으로만 안 걸린다(graceful).
     const unknown = meta.categories.filter(c => !CATEGORIES.includes(c));
     if (unknown.length)
       console.log(
         `  ⚠️ ${meta.slug}: 목록 칩에 없는 category ${unknown.join(', ')} — 그 카테고리로는 필터링되지 않는다`,
+      );
+    if (meta.categories.length > 2)
+      console.log(
+        `  ⚠️ ${meta.slug}: category ${meta.categories.length}개 — 1개 원칙, 정말 애매할 때만 2개다`,
       );
     // 최초 발행 시각: 한 번 정해지면 재빌드해도 안 바뀐다. datePublished(JSON-LD)·
     // 화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다. 원본 노션 페이지의 created_time을

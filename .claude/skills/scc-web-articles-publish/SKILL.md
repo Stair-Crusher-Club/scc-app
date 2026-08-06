@@ -53,6 +53,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
   - `slug` (rich_text) — 제목+내용 기반 URL id
   - `summary` (rich_text) — 검색 최적 한줄 요약 (meta description/리드 겸용)
   - `category` (multi_select, **필수**) — 목록 페이지 카테고리 칩 필터의 유일한 근거. 허용값 5개(그 외 값은 어떤 칩에도 안 걸린다):
+
     | 값 | 범위 |
     |---|---|
     | `맛집/카페` | 식당, 카페 |
@@ -60,8 +61,14 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
     | `문화공간` | 아트센터, 도서관, 미술관, LP바 등 |
     | `여행/나들이` | 나들이·여행지, 지역 큐레이션 |
     | `이동/교통` | 장애인콜택시, 비행기 탑승 등 |
+
     - **1개가 원칙**. 정말 애매할 때만 2개(예: 마포아트센터 = `공연/행사`+`문화공간`). 3개 이상 금지.
-    - 비어 있으면 빌드가 `needsMeta`로 스킵 → **발행되지 않는다**. 목록 정렬·칩 순서는 `scripts/article-template.js`의 `CATEGORIES` 상수가 정의한다.
+    - 비어 있으면 빌드가 `needsMeta`로 스킵한다 → **신규 글은 발행되지 않는다**.
+      단 **이미 발행된 글의 category를 지워도 prod에서 내려가지 않는다** — needsMeta row는 `rows`에 안 들어가
+      manifest의 직전 값이 그대로 남고 `reassembleDist`가 그 값으로 재발행한다. 내리려면 `[WIP]`를 쓴다.
+    - 허용값 외 문자열/3개 이상은 **경고만** 하고 발행은 막지 않는다(오타로 살아 있는 SEO 페이지를 내리지 않기 위함).
+      잘못된 값은 `전체`에는 나오되 해당 칩으로 필터링되지 않는다.
+    - 목록 정렬·칩 순서는 `scripts/article-template.js`의 `CATEGORIES` 상수가 정의한다.
   - `ogImage` (url, 선택) — 대표 이미지. 없으면 본문 첫 이미지 자동 사용
   - ~~`tags` (multi_select)~~ — **더 이상 렌더되지 않는다**. 상세 하단 태그 칩이 제거되면서(2026-08) 소비처가 사라졌다. 컬럼과 기존 값은 보존하지만 **새로 채우지 않는다**. 되살리려면 `build-articles.js:resolveRow`에서 읽어 `renderArticlePage`로 넘기면 된다
   - `faq` (rich_text, 선택) — `[{"q":"...","a":"..."}]` JSON 문자열 → FAQPage 스키마

@@ -168,7 +168,7 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .f-tagline{color:#fff;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-0.28px;margin:0;}
 .f-logo{display:block;width:208px;height:35px;max-width:100%;}
 .f-pills{display:flex;flex-wrap:wrap;gap:12px;}
-.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.5);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
+.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
 .f-pills a:hover{background:rgba(255,255,255,.1);}
 .f-pills img{display:block;width:20px;height:20px;}
 .f-bottom{display:flex;flex-direction:column;gap:20px;color:#c1c1c5;font-size:13px;}
@@ -215,6 +215,7 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;}
 .card .thumb{width:100%;aspect-ratio:330/186;}
 .card-body{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.cat-empty{color:var(--g60);font-size:15px;margin:40px 0 0;text-align:center;}
 .more-wrap{display:flex;justify-content:center;margin:40px 0 0;}
 .more{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g80);font-size:16px;line-height:24px;font-weight:500;letter-spacing:-0.32px;padding:12px 28px;border-radius:8px;}
 @media (max-width:700px){
@@ -392,6 +393,7 @@ const LIST_JS = `<script>
   var tabs=[].slice.call(document.querySelectorAll('.cat'));
   var feat=document.querySelector('.feat'), sep=document.querySelector('.feat-sep');
   var moreWrap=document.querySelector('.more-wrap'), more=document.querySelector('.more');
+  var empty=document.querySelector('.cat-empty');
   var cat='', limit=${PAGE_SIZE};
   function matching(){
     return all.filter(function(c){
@@ -406,6 +408,7 @@ const LIST_JS = `<script>
     if(feat) feat.hidden=!!cat;
     if(sep) sep.hidden=!!cat;
     if(moreWrap) moreWrap.hidden=list.length<=limit;
+    if(empty) empty.hidden=list.length>0;
   }
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
@@ -475,6 +478,9 @@ ${CATEGORIES.map(
 ).join('\n')}
 </div>`;
 
+  const emptyHtml =
+    '<p class="cat-empty" hidden>이 카테고리에 아직 글이 없어요.</p>';
+
   const moreHtml = `<div class="more-wrap"${
     articles.length - 1 <= PAGE_SIZE ? ' hidden' : ''
   }><button type="button" class="more">더 보기</button></div>`;
@@ -505,7 +511,7 @@ ${headCommon(
 <meta property="og:site_name" content="${SITE.name}">
 ${jsonLd(ld)}`,
 )}
-<noscript><style>.cat-tabs,.more-wrap{display:none}</style></noscript>
+<noscript><style>.cat-tabs,.more-wrap{display:none}.cards .card[hidden]:not([data-dup]){display:flex!important}</style></noscript>
 </head>
 <body>
 ${header()}
@@ -518,6 +524,7 @@ ${tabsHtml}
 <div class="arts">
 ${featHtml}
 ${cardsHtml}
+${emptyHtml}
 </div>
 ${moreHtml}
 </div>
