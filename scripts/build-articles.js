@@ -56,7 +56,8 @@ const ONLY = (arg('only') || '')
 // → yarn web:build가 이걸 돌려, 앱 웹 배포 시에도 web-dist에 /articles가 항상 포함된다
 //   (web-deploy.sh의 `sync --delete`가 /articles를 지우지 않게 하는 구조적 안전장치).
 const OFFLINE = process.argv.includes('--offline');
-if (!OFFLINE) {
+// require.main 가드: 테스트에서 require 할 때 인자 검증으로 process.exit 하면 안 된다.
+if (!OFFLINE && require.main === module) {
   if (!TOKEN) {
     console.error(
       '❌ NOTION_TOKEN 환경변수가 필요합니다. (배포용 재조립만이면 --offline)',
@@ -397,10 +398,87 @@ async function fetchOg(url) {
 }
 
 // ---------- 이미지 다운로드 (presigned 만료 대응) ----------
+// assetsDir → 이번 빌드에서 실제로 쓴 파일명. 부모 렌더 도중 상세 페이지 빌드가
+// 끼어들므로(buildDetailPage) 전역 Set 하나로는 안 되고 디렉토리별로 추적한다.
+const usedAssets = new Map();
+function markUsed(destDir, name) {
+  if (!usedAssets.has(destDir)) usedAssets.set(destDir, new Set());
+  usedAssets.get(destDir).add(name);
+}
+
+// article 디렉토리 준비: assets/ 는 남기고 나머지(index.html, 하위 상세 페이지)만 지운다.
+// 왜: 예전엔 rmrf(srcDir)로 assets 까지 통째로 날린 뒤 다시 내려받아서, 다운로드가
+// transient 실패하면 이미 발행돼 있던 이미지가 그대로 유실됐다. 안 쓰인 에셋은
+// 렌더가 끝난 뒤 pruneUnusedAssets 로 정리한다.
+// 하위 디렉토리(= 카드형 상세 페이지)도 남긴다. 각자 자기 prepareArticleDir 로 정리하며,
+// 그래야 자식의 assets 도 같은 유실 보호를 받는다. 이번 빌드에서 발행 안 된 상세 페이지는
+// 부모 렌더가 끝난 뒤 pruneUnusedSubPages 가 지운다.
+function prepareArticleDir(srcDir) {
+  const assetsDir = path.join(srcDir, 'assets');
+  if (fs.existsSync(srcDir))
+    for (const e of fs.readdirSync(srcDir, {withFileTypes: true}))
+      if (e.isFile()) rmrf(path.join(srcDir, e.name));
+  fs.mkdirSync(assetsDir, {recursive: true});
+  usedAssets.set(assetsDir, new Set());
+  return assetsDir;
+}
+
+// 부모 srcDir 안의 상세 페이지 디렉토리 중 이번 빌드에서 발행되지 않은 것(= DB에서 빠진 row)을 정리.
+function pruneUnusedSubPages(srcDir, emitted) {
+  const keep = new Set(emitted.map(m => path.basename(m.slug)));
+  for (const e of fs.readdirSync(srcDir, {withFileTypes: true}))
+    if (e.isDirectory() && e.name !== 'assets' && !keep.has(e.name))
+      rmrf(path.join(srcDir, e.name));
+}
+
+function pruneUnusedAssets(assetsDir) {
+  if (!fs.existsSync(assetsDir)) return;
+  const used = usedAssets.get(assetsDir) || new Set();
+  for (const f of fs.readdirSync(assetsDir))
+    if (!used.has(f)) rmrf(path.join(assetsDir, f));
+  if (fs.readdirSync(assetsDir).length === 0) rmrf(assetsDir);
+}
+
+// 다운로드 실패 시 같은 인덱스로 이미 커밋돼 있는 에셋을 재사용한다.
+// 왜: notion.so/icons/*.svg 나 presigned URL 이 transient 403 을 내면, 예전엔 caller 가
+// img 태그를 통째로 버려 "이미 발행돼 있던 이미지가 재빌드로 사라지는" 회귀가 났다
+// (실제 사고: yeonghee-festival-… 콜아웃 아이콘 2개). 실패는 "이미지 없음"이 아니다.
+// 재사용 = 이번 빌드에서 쓴 것이므로 여기서 markUsed 까지 한다 (안 그러면 prune 이 지운다).
+function reuseExistingAsset(destDir, idx, prefix) {
+  if (!fs.existsSync(destDir)) return null;
+  const hit = fs
+    .readdirSync(destDir)
+    .find(f => new RegExp(`^${prefix}-${idx}\\.[a-z0-9]+$`, 'i').test(f));
+  if (!hit) return null;
+  markUsed(destDir, hit);
+  return `assets/${hit}`;
+}
+
 async function downloadImage(url, destDir, idx, prefix = 'img') {
   fs.mkdirSync(destDir, {recursive: true});
-  const res = await fetchWithTimeout(url, {}, 30000, 2);
-  if (!res.ok) throw new Error(`image ${res.status}`);
+  let res;
+  try {
+    res = await fetchWithTimeout(url, {}, 30000, 2);
+  } catch (e) {
+    const kept = reuseExistingAsset(destDir, idx, prefix);
+    if (kept) {
+      console.warn(
+        `  ♻️ 다운로드 실패(${e.message}) → 기존 에셋 유지: ${kept}`,
+      );
+      return kept;
+    }
+    throw e;
+  }
+  if (!res.ok) {
+    const kept = reuseExistingAsset(destDir, idx, prefix);
+    if (kept) {
+      console.warn(
+        `  ♻️ 다운로드 실패(${res.status}) → 기존 에셋 유지: ${kept}`,
+      );
+      return kept;
+    }
+    throw new Error(`image ${res.status}`);
+  }
   const buf = Buffer.from(await res.arrayBuffer());
   const ct = res.headers.get('content-type') || '';
   const ext = ct.includes('png')
@@ -414,6 +492,7 @@ async function downloadImage(url, destDir, idx, prefix = 'img') {
           : 'jpg';
   const name = `${prefix}-${idx}.${ext}`;
   fs.writeFileSync(path.join(destDir, name), buf);
+  markUsed(destDir, name);
   return `assets/${name}`;
 }
 
@@ -844,9 +923,7 @@ async function buildDetailPage(
   const titlePlain =
     plain((row.properties[titleName] || {}).title) || '(제목 없음)';
   const srcDir = path.join(SRC_DIR, parentSlug, rslug);
-  const assetsDir = path.join(srcDir, 'assets');
-  rmrf(srcDir);
-  fs.mkdirSync(assetsDir, {recursive: true});
+  const assetsDir = prepareArticleDir(srcDir);
   const layout = await fetchPageLayout(row.id);
   const ctx = {
     assetsDir,
@@ -886,7 +963,7 @@ async function buildDetailPage(
     backHref: `/articles/${parentSlug}`,
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
-  if (fs.readdirSync(assetsDir).length === 0) rmrf(assetsDir);
+  pruneUnusedAssets(assetsDir);
   return {
     url: `/articles/${fullSlug}/`,
     image: ctx.firstImage || '',
@@ -1238,9 +1315,7 @@ async function renderBlock(b, ctx) {
 async function buildArticle(meta, times) {
   const slug = meta.slug;
   const srcDir = path.join(SRC_DIR, slug);
-  const assetsDir = path.join(srcDir, 'assets');
-  rmrf(srcDir);
-  fs.mkdirSync(assetsDir, {recursive: true});
+  const assetsDir = prepareArticleDir(srcDir);
 
   const blocks = await fetchChildren(meta.contentPageId);
   const layout = await fetchPageLayout(meta.contentPageId);
@@ -1276,7 +1351,8 @@ async function buildArticle(meta, times) {
     lastEditedTime: times.editedTime,
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
-  if (fs.readdirSync(assetsDir).length === 0) rmrf(assetsDir);
+  pruneUnusedAssets(assetsDir);
+  pruneUnusedSubPages(srcDir, ctx.emittedSubPages);
   // image = 목록 썸네일용 대표 이미지, subPages = 발행된 카드형 상세 페이지들
   return {image: ctx.firstImage || '', subPages: ctx.emittedSubPages};
 }
@@ -1564,7 +1640,17 @@ async function main() {
   console.log(`✅ 완료: 발행 ${published.length}건 → web-dist/articles/`);
 }
 
-main().catch(e => {
-  console.error('❌ build-articles 실패:', e);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(e => {
+    console.error('❌ build-articles 실패:', e);
+    process.exit(1);
+  });
+} else {
+  // 에셋 유실 회귀 테스트용 (scripts/__tests__/build-articles-assets.test.js)
+  module.exports = {
+    prepareArticleDir,
+    pruneUnusedAssets,
+    pruneUnusedSubPages,
+    reuseExistingAsset,
+  };
+}
