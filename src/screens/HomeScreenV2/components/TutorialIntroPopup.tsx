@@ -6,8 +6,6 @@ import styled from 'styled-components/native';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {TutorialMissionTypeDto} from '@/generated-sources/openapi';
-import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import type {ScreenParams} from '@/navigation/Navigation.screens';
 
 interface TutorialIntroPopupProps {
@@ -52,24 +50,13 @@ export default function TutorialIntroPopup({
   onClose,
 }: TutorialIntroPopupProps) {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
-  const {data: progress} = useUserTutorialProgress();
 
+  // 미션 셋(v1/v2)과 무관하게 항상 미션 목록으로 보낸다. 미션 1(튜토리얼 이미지 3장)은
+  // 목록에서 카드의 [미션 시작]으로 진입한다.
   const handleStart = useCallback(() => {
     onClose();
-    // 미션 1 이 "튜토리얼 이미지 확인하기"인 셋(v2)이면 미션 목록을 건너뛰고 이미지
-    // 화면으로 바로 진입시킨다 (Figma NUX_intro <변경사항>). v1 은 기존대로 미션 목록.
-    //
-    // progress 는 이미 로딩돼 있다 — HomeScreenV2 가 progress 를 받기 전에는 이 팝업을
-    // pending 으로 잡아둔다(HomeScreenV2.tsx tutorialIntroStatus). 여기 useUserTutorialProgress
-    // 는 같은 react-query 캐시를 읽는 것이라 추가 요청이 아니다.
-    if (
-      progress?.currentMissionType === TutorialMissionTypeDto.ViewTutorialImages
-    ) {
-      navigation.navigate('BasicUsageTutorial');
-      return;
-    }
     navigation.navigate('TutorialMission', {});
-  }, [navigation, onClose, progress?.currentMissionType]);
+  }, [navigation, onClose]);
 
   return (
     // ponytail: 닫기/건너뛰기 없이 무조건 튜토리얼로 랜딩시키는 게 기획 의도라

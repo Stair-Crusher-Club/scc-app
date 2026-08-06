@@ -32,7 +32,7 @@ const tutorialSlides = [
 /**
  * 계뿌클 기본 사용법 안내 3장. **윌리의 외출 미션 1 전용 화면이다.**
  * 게스트에게는 노출하지 않는다 — 이 3장을 보는 것 자체가 미션 1이라서,
- * 미션 화면의 [미션 시작] 또는 홈 인트로 팝업으로 진입하는 경로만 존재한다.
+ * 미션 화면의 [미션 시작] 으로 진입하는 경로만 존재한다.
  */
 export default function BasicUsageTutorialScreen({
   navigation,
@@ -76,8 +76,8 @@ export default function BasicUsageTutorialScreen({
     });
   }, [activeSlide]);
 
-  // 미션 화면이 스택에 없으면(홈 인트로 팝업 → 직진) 라우터가 현재 라우트를 대체하므로
-  // 어느 진입 경로에서도 미션 화면에 도착한다.
+  // 진입 경로가 미션 화면뿐이라 항상 pop 이다. 혹시 미션 화면이 스택에 없더라도
+  // 라우터가 현재 라우트를 대체하므로 어느 경우에도 미션 화면에 도착한다.
   const goToMissionScreen = useCallback(() => {
     navigation.popTo('TutorialMission', {scrollResetToken: Date.now()});
   }, [navigation]);
