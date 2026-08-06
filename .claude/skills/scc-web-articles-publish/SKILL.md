@@ -1,6 +1,6 @@
 ---
 name: scc-web-articles-publish
-description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/ogImage/tags/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~7을 끝까지 실행해 **prod(web.staircrusher.club) 배포 + main 머지까지 자동으로 완주**한다 — 커밋이나 PR에서 멈추지 않는다.
+description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/category/ogImage/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~7을 끝까지 실행해 **prod(web.staircrusher.club) 배포 + main 머지까지 자동으로 완주**한다 — 커밋이나 PR에서 멈추지 않는다.
 ---
 
 # SCC Web Articles Publish — Notion → web.staircrusher.club/articles
@@ -44,7 +44,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 - **제목에 `[WIP]`가 있으면 발행 대상에서 제외**(대소문자 무시). 파이프라인 진입 전에 걸러내므로 메타가 없어도 경고가 안 뜬다. 이미 발행된 글에 `[WIP]`를 붙이면 삭제 판정에 걸려 **prod에서 내려간다**(= 발행 취소).
 - **사람이 선택적으로 지정**:
   - `featured` (number, 선택) — 목록 상단 고정. 값이 있는 글이 `1`, `2`, `3`… 오름차순으로 맨 위에 오고, 비어 있으면 일반 글(`createdTime` 내림차순). **순서는 코드에 하드코딩하지 않는다** — 이 컬럼이 유일한 노출 순서 제어 수단이다. (일반화: 운영자가 바꿀 노출/편집 데이터는 코드 상수가 아니라 DB 컬럼으로 뺀다.)
-    > **★ row 프로퍼티 함정**: incremental 판정 기준은 **본문 페이지**의 `last_edited_time`이라, DB row의 `featured`만 고치면 본문 시각이 그대로여서 **재빌드가 안 걸린다**. 그래서 `featured` 동기화는 changed 루프 **밖에서** 매번 돌린다(DB 쿼리는 이미 끝난 뒤라 추가 API 호출 0). row 프로퍼티만으로 출력이 달라지는 필드를 새로 추가할 땐 같은 처리가 필요하다 — changed 루프 안에만 넣으면 조용히 반영이 안 된다.
+    > **★ row 프로퍼티 함정**: incremental 판정 기준은 **본문 페이지**의 `last_edited_time`이라, DB row의 `featured`만 고치면 본문 시각이 그대로여서 **재빌드가 안 걸린다**. 그래서 `featured`·`category` 동기화는 changed 루프 **밖에서** 매번 돌린다(DB 쿼리는 이미 끝난 뒤라 추가 API 호출 0). row 프로퍼티만으로 출력이 달라지는 필드를 새로 추가할 땐 같은 처리가 필요하다 — changed 루프 안에만 넣으면 조용히 반영이 안 된다.
 - **빌드가 자동 기록**:
   - `publishedAt` (date) — **최초 발행 시각의 source of truth**. 비어 있으면 빌드가 지금 시각을 찍어 DB에 써넣고(`stampPublishedAt`), 이후 재빌드해도 그 값을 유지한다. `datePublished`(JSON-LD)·화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다.
     > **★ 원본 created_time 쓰지 말 것**: 대부분 mention row라 "팀이 원본 글을 처음 만든 날"이 잡히고, URL이 생기기도 전 날짜가 `datePublished`로 나간다(실제 PROD 버그. 경복궁 — row 08-04, 원본 07-21). 상세 페이지는 DB row가 아니라 부모의 `publishedAt`을 따른다.
@@ -52,8 +52,18 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 - **스킬이 생성해 DB에 라이트백**(머신 관리, 사람은 손 안 댐):
   - `slug` (rich_text) — 제목+내용 기반 URL id
   - `summary` (rich_text) — 검색 최적 한줄 요약 (meta description/리드 겸용)
+  - `category` (multi_select, **필수**) — 목록 페이지 카테고리 칩 필터의 유일한 근거. 허용값 5개(그 외 값은 어떤 칩에도 안 걸린다):
+    | 값 | 범위 |
+    |---|---|
+    | `맛집/카페` | 식당, 카페 |
+    | `공연/행사` | 페스티벌, 공연장, 야구장 |
+    | `문화공간` | 아트센터, 도서관, 미술관, LP바 등 |
+    | `여행/나들이` | 나들이·여행지, 지역 큐레이션 |
+    | `이동/교통` | 장애인콜택시, 비행기 탑승 등 |
+    - **1개가 원칙**. 정말 애매할 때만 2개(예: 마포아트센터 = `공연/행사`+`문화공간`). 3개 이상 금지.
+    - 비어 있으면 빌드가 `needsMeta`로 스킵 → **발행되지 않는다**. 목록 정렬·칩 순서는 `scripts/article-template.js`의 `CATEGORIES` 상수가 정의한다.
   - `ogImage` (url, 선택) — 대표 이미지. 없으면 본문 첫 이미지 자동 사용
-  - `tags` (multi_select, 선택)
+  - ~~`tags` (multi_select)~~ — **더 이상 렌더되지 않는다**. 상세 하단 태그 칩이 제거되면서(2026-08) 소비처가 사라졌다. 컬럼과 기존 값은 보존하지만 **새로 채우지 않는다**. 되살리려면 `build-articles.js:resolveRow`에서 읽어 `renderArticlePage`로 넘기면 된다
   - `faq` (rich_text, 선택) — `[{"q":"...","a":"..."}]` JSON 문자열 → FAQPage 스키마
 - **`published` 프로퍼티 없음** — 발행 여부 = `web-articles/manifest.json`에 존재하는지로 판단.
 
@@ -79,7 +89,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 NOTION_TOKEN=... node scripts/build-articles.js --db <database_id> --dry
 ```
 - 출력의 "신규/변경 N · 삭제 K · 메타미비 M"을 확인. 변경 문서 목록을 STEP 2 대상으로 잡는다.
-- "메타미비"(slug/summary 없음)로 잡힌 문서가 STEP 2에서 메타를 채워야 하는 신규 글이다.
+- "메타미비"(slug/summary/**category** 중 하나라도 없음)로 잡힌 문서가 STEP 2에서 메타를 채워야 하는 신규 글이다. 출력에 `[누락: ...]`로 어떤 필드가 비었는지 찍힌다.
 
 ### STEP 2 — 메타 생성 + DB 라이트백 (신규/변경분만, LLM)
 변경된 각 문서에 대해:
@@ -87,8 +97,9 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id> --dry
 2. **검색에 최대한 잘 걸리도록** 생성:
    - `slug`: **이미 값이 있으면 그대로 유지한다 (절대 재생성 금지).** 미리 배정된 slug 는 다른 스킬이 발급한 CTA 트래킹링크의 `ad_group` 파라미터와 같은 값이라, 바꾸면 유입 리포트와 웹 URL 이 어긋난다. 비어 있을 때만 생성: 영문 kebab-case, 핵심 키워드 포함, 적절한 길이(과도하게 길지 않게).
    - `summary`: 1~2문장, 핵심 답변을 앞에. 검색 의도 키워드 자연 포함.
+   - `category`: **필수 · 1개**. 위 스키마 표의 5개 값 중에서만 고른다. 본문이 두 범주에 실제로 걸칠 때만 2개(3개 이상 금지). **비워두면 그 글은 발행되지 않는다.**
    - `ogImage`: 본문 내 대표 이미지 1개(없으면 비워둠 → 스크립트가 첫 이미지 사용).
-   - `tags`: 2~5개.
+   - `tags`: **생성하지 않는다** (렌더 소비처 없음 — 위 스키마 참고).
    - `faq`: 본문에 Q&A 성격이 있으면 `[{"q","a"}]`로(AEO 핵심). 없으면 생략.
 3. MCP `notion-update-page`로 해당 프로퍼티를 **DB에 라이트백**(캐싱 + 사람이 검토·수정 가능).
 

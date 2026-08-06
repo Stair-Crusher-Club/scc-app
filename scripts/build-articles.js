@@ -11,7 +11,7 @@
  * - incremental: **본문이 있는 페이지의 last_edited_time**을 manifest와 대조해 변경분만 처리.
  *   (메타 라이트백은 row를 건드리므로 mention 형태에선 시계 함정이 자연 회피됨)
  * - 본문(블록)→시맨틱 HTML 변환은 결정론적(LLM 토큰 0). callout/toggle/column/색상 보존.
- * - 메타데이터(slug/summary/ogImage/tags/faq)는 생성하지 않고 **DB row 프로퍼티에서 읽기만** 한다.
+ * - 메타데이터(slug/summary/ogImage/category/faq)는 생성하지 않고 **DB row 프로퍼티에서 읽기만** 한다.
  *   (메타는 /scc-web-articles-publish 스킬에서 Claude가 생성해 row에 라이트백 해둠)
  *
  * 사용: NOTION_TOKEN=secret node scripts/build-articles.js --db <database_id> [--dry]
@@ -19,7 +19,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const {SITE, renderArticlePage, renderListPage} = require('./article-template');
+const {
+  SITE,
+  CATEGORIES,
+  renderArticlePage,
+  renderListPage,
+} = require('./article-template');
 
 const ROOT = path.resolve(__dirname, '..');
 const SRC_DIR = path.join(ROOT, 'web-articles');
@@ -295,9 +300,13 @@ function resolveRow(page) {
       ogImage = og.files[0].file?.url || og.files[0].external?.url || '';
     else if (og.type === 'rich_text') ogImage = plain(og.rich_text);
   }
-  const tags =
-    props.tags && props.tags.type === 'multi_select'
-      ? props.tags.multi_select.map(t => t.name)
+  // tags 는 더 이상 읽지 않는다 — 상세 하단 태그 칩이 제거되면서 렌더 소비처가 없어졌다.
+  // Notion 컬럼과 기존 값은 그대로 두므로 나중에 다시 쓰려면 여기서 읽어오면 된다.
+  // category(multi_select): 목록 페이지 카테고리 필터의 유일한 근거. 최소 1개 필수
+  // (없으면 needsMeta로 빠져 발행되지 않는다). 허용값은 article-template의 CATEGORIES.
+  const categories =
+    props.category && props.category.type === 'multi_select'
+      ? props.category.multi_select.map(t => t.name)
       : [];
   // featured(number): 값이 있으면 목록 맨 위로, 1·2·3… 오름차순. 비어 있으면 일반 글.
   const featured =
@@ -334,7 +343,7 @@ function resolveRow(page) {
     slug,
     summary,
     ogImage,
-    tags,
+    categories,
     faq,
     featured,
     publishedAt,
@@ -591,6 +600,8 @@ async function renderCalloutIcon(icon, ctx) {
   else if (icon.type === 'icon' && icon.icon?.name)
     url = `https://www.notion.so/icons/${icon.icon.name}_${icon.icon.color || 'gray'}.svg`;
   if (!/^https?:/i.test(url || '')) return '';
+  // notion.so/icons/*.svg 가 403을 주는 케이스는 downloadImage 의 reuseExistingAsset 폴백이
+  // 처리한다(같은 인덱스의 기존 에셋 재사용) — 여기서 따로 캐싱하지 않는다. (#235)
   try {
     const rel = await downloadImage(url, ctx.assetsDir, ctx.imgIdx++);
     return `<img class="callout-ico" src="/articles/${ctx.slug}/${rel}" alt="" aria-hidden="true">`;
@@ -954,7 +965,6 @@ async function buildDetailPage(
     title: titlePlain,
     summary: meta.summary || '',
     slug: fullSlug,
-    tags: [],
     faq: [],
     contentHtml,
     ogImageUrl,
@@ -1343,7 +1353,6 @@ async function buildArticle(meta, times) {
     title: meta.title,
     summary: meta.summary,
     slug,
-    tags: meta.tags,
     faq: meta.faq,
     contentHtml,
     ogImageUrl,
@@ -1479,10 +1488,20 @@ async function main() {
       createdTime = cp.created_time;
       editedTime = cp.last_edited_time;
     }
-    if (!meta.slug || !meta.summary) {
-      needsMeta.push({meta, page});
+    if (!meta.slug || !meta.summary || !meta.categories.length) {
+      const lack = [
+        !meta.slug && 'slug',
+        !meta.summary && 'summary',
+        !meta.categories.length && 'category',
+      ].filter(Boolean);
+      needsMeta.push({meta, page, lack});
       continue;
     }
+    const unknown = meta.categories.filter(c => !CATEGORIES.includes(c));
+    if (unknown.length)
+      console.log(
+        `  ⚠️ ${meta.slug}: 목록 칩에 없는 category ${unknown.join(', ')} — 그 카테고리로는 필터링되지 않는다`,
+      );
     // 최초 발행 시각: 한 번 정해지면 재빌드해도 안 바뀐다. datePublished(JSON-LD)·
     // 화면 표시 날짜·목록 정렬이 전부 이 값을 쓴다. 원본 노션 페이지의 created_time을
     // 쓰면 URL이 생기기도 전 날짜가 datePublished로 나가서 SEO상 맞지 않는다.
@@ -1566,11 +1585,11 @@ async function main() {
     );
   if (needsMeta.length)
     console.log(
-      `   ⚠️ slug/summary 없는 문서(스킬 STEP 2에서 메타 생성·라이트백 필요):\n` +
+      `   ⚠️ slug/summary/category 없는 문서(스킬 STEP 2에서 메타 생성·라이트백 필요):\n` +
         needsMeta
           .map(
             n =>
-              `      - "${n.meta.title}" (rowId=${n.meta.rowId}, contentPageId=${n.meta.contentPageId})`,
+              `      - "${n.meta.title}" [누락: ${n.lack.join(', ')}] (rowId=${n.meta.rowId}, contentPageId=${n.meta.contentPageId})`,
           )
           .join('\n'),
     );
@@ -1629,11 +1648,14 @@ async function main() {
       };
     if (subPages.length) console.log(`     ↳ 상세 페이지 ${subPages.length}건`);
   }
-  // featured는 changed 루프 밖에서 매번 동기화한다. incremental 기준은 **본문 페이지**의
-  // editedTime이라, DB row의 featured만 바꾸면 본문 시각이 그대로여서 재빌드가 안 걸린다.
+  // featured/category는 changed 루프 밖에서 매번 동기화한다. incremental 기준은 **본문 페이지**의
+  // editedTime이라, DB row의 프로퍼티만 바꾸면 본문 시각이 그대로여서 재빌드가 안 걸린다.
   // (DB 쿼리는 이미 끝났으므로 추가 API 호출 0)
   for (const {meta} of rows)
-    if (manifest[meta.rowId]) manifest[meta.rowId].featured = meta.featured;
+    if (manifest[meta.rowId]) {
+      manifest[meta.rowId].featured = meta.featured;
+      manifest[meta.rowId].categories = meta.categories;
+    }
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
 
   const published = reassembleDist(manifest);
