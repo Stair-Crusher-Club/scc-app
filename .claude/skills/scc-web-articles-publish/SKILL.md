@@ -146,6 +146,8 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 - `web-articles/{slug}/`(커밋본)과 `web-dist/articles/`(배포용) + 목록/sitemap/robots/llms 동시 갱신.
 - **빌드 후 에셋 유실을 반드시 확인한다** — `git status --porcelain web-articles | grep '^ D'` 가 비어야 커밋한다. 빌드 로그의 `⚠️ 다운로드 실패` / `♻️ 기존 에셋 유지` 도 함께 읽는다. (사고: `--force` 재빌드가 콜아웃 아이콘 2개를 prod 에서 지웠다. 지금은 `reuseExistingAsset` 가 막지만, 새 에셋 경로를 추가하면 이 확인이 유일한 그물이다.)
 - **렌더러/템플릿을 고쳤으면 `--force`(전체) 대신 `--only a,b,c`로 단계적 롤아웃**을 고려한다. 지정 slug만 재생성하고 나머지는 커밋된 HTML 그대로 두므로, 39개 전체를 한 번에 갈아엎지 않고 최근 글부터 검증할 수 있다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
+- **`--offline` 은 템플릿을 안 탄다**(커밋된 HTML 복사만) → `--force`/`--only` 와의 조합은 스크립트가 거부한다. 템플릿 수정 반영은 로그가 아니라 산출물 grep 으로 판정한다: `grep -rl '<마커>' web-articles/ | wc -l` 이 상세페이지 수와 같아야 한다.
+- **Notion 붙은 빌드 전에 `--dry`**: `신규/변경 0` 이어야 남의 Notion 편집이 함께 발행되지 않는다.
 
 ### STEP 4 — 시각 검증 (E2E)
 ```bash
