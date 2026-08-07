@@ -280,9 +280,11 @@ describe('extractDeclaredAppDeepLink', () => {
 describe('트래킹 링크 목적지 확인', () => {
   const TRACKING_URL = 'https://link.staircrusher.club/ns539uk';
 
-  function mockFetchHtml(html: string): jest.Mock {
+  const KAKAO_URL = 'https://pf.kakao.com/_xdZMIG?airbridge_referrer=abc';
+
+  function mockFetchHtml(html: string, finalUrl?: string): jest.Mock {
     const fetchMock = jest.fn(() =>
-      Promise.resolve({text: () => Promise.resolve(html)}),
+      Promise.resolve({text: () => Promise.resolve(html), url: finalUrl}),
     );
     (globalThis as {fetch?: unknown}).fetch = fetchMock;
     return fetchMock;
@@ -341,8 +343,9 @@ describe('트래킹 링크 목적지 확인', () => {
     expect(onAppDeepLink).toHaveBeenCalled();
   });
 
-  it('목적지가 웹이면 기존대로 웹뷰에서 연다', async () => {
-    mockFetchHtml(LANDING_HTML_WEB_ONLY);
+  it('목적지가 웹이면 트래킹 URL 이 아니라 최종 목적지를 웹뷰에서 연다', async () => {
+    // 트래킹 URL 을 다시 로드하면 그 네비게이션이 또 "트래킹 링크" 로 판정돼 무한루프가 된다.
+    mockFetchHtml(LANDING_HTML_WEB_ONLY, KAKAO_URL);
     const injectJavaScript = jest.fn();
     const ref = {
       current: {injectJavaScript},
@@ -351,8 +354,22 @@ describe('트래킹 링크 목적지 확인', () => {
     await flush();
     expect(openURL).not.toHaveBeenCalled();
     expect(injectJavaScript).toHaveBeenCalledWith(
-      `window.location.href = ${JSON.stringify(TRACKING_URL)}; true;`,
+      `window.location.href = ${JSON.stringify(KAKAO_URL)}; true;`,
     );
+  });
+
+  it('최종 URL 을 못 읽어 트래킹 URL 을 다시 로드해도 재판정에서 통과시킨다 (무한루프 방지)', async () => {
+    mockFetchHtml(LANDING_HTML_WEB_ONLY); // response.url 없음
+    const {ref} = fakeWebViewRef();
+    handleWebViewOpenWindow(TRACKING_URL, {webViewRef: ref});
+    await flush();
+    // 웹뷰가 실제로 그 URL 로 이동하려 할 때 다시 가로채지 않는다.
+    expect(
+      handleWebViewShouldStartLoad(
+        {url: TRACKING_URL} as unknown as ShouldStartLoadRequest,
+        {webViewRef: ref},
+      ),
+    ).toBe(true);
   });
 
   it('확인이 실패하면 기존 동작(웹뷰 로드)으로 폴백한다', async () => {

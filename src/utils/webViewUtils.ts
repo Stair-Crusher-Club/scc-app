@@ -165,15 +165,20 @@ export function extractDeclaredAppDeepLink(html: string): string | null {
  * 감싸서** 던진 뒤 실패로 간주하고 "앱으로 이동" 버튼 페이지를 그린다 — 우리 앱 안에서는
  * 무엇도 성공할 수 없는 흐름이다. 목적지만 우리가 읽어서 직접 띄우면 이 흐름 전체가 빠진다.
  */
-async function resolveTrackingLinkDeepLink(
-  url: string,
-): Promise<string | null> {
+async function resolveTrackingLink(url: string): Promise<{
+  deepLink: string | null;
+  /** 리다이렉트를 다 따라간 최종 URL. 못 읽으면 null. */
+  finalUrl: string | null;
+}> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   try {
-    const html = await Promise.race([
+    const resolved = await Promise.race([
       fetch(url, {
         headers: {'User-Agent': TRACKING_LINK_RESOLVE_USER_AGENT},
-      }).then(response => response.text()),
+      }).then(async response => ({
+        html: await response.text(),
+        finalUrl: response.url || null,
+      })),
       new Promise<null>(resolve => {
         timeoutId = setTimeout(
           () => resolve(null),
@@ -181,7 +186,10 @@ async function resolveTrackingLinkDeepLink(
         );
       }),
     ]);
-    return html ? extractDeclaredAppDeepLink(html) : null;
+    return {
+      deepLink: resolved ? extractDeclaredAppDeepLink(resolved.html) : null,
+      finalUrl: resolved?.finalUrl ?? null,
+    };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -233,6 +241,35 @@ function loadInWebView(
 }
 
 /**
+ * 목적지 확인이 끝나 "웹뷰에서 열기"로 판정된 트래킹 URL. 다음 판정에서 한 번만 통과시킨다.
+ * (아래 loadTrackingLinkDestination 의 무한루프 주석)
+ */
+let passthroughTrackingUrl: string | null = null;
+
+/**
+ * 트래킹 링크의 목적지가 웹일 때 웹뷰에 로드한다.
+ *
+ * 트래킹 URL 을 그대로 다시 로드하면 그 네비게이션이 onShouldStartLoadWithRequest 로 돌아와
+ * 다시 "트래킹 링크" 로 판정되고(=로드 취소 + 목적지 재확인 + 재로드) 무한루프가 된다.
+ * 사용자에겐 **링크를 눌러도 아무 일도 안 일어나는** 것으로 보인다 — 아티클 푸터의
+ * 카카오톡 채널/뿌클레터 필처럼 목적지가 웹인 트래킹 링크가 전부 여기에 걸렸다.
+ * 리다이렉트는 이미 우리가 따라왔으므로 최종 목적지를 직접 열고(클릭 중복 집계도 없다),
+ * 최종 URL 을 못 읽었을 때만 트래킹 URL 을 한 번 통과시킨다.
+ */
+function loadTrackingLinkDestination(
+  trackingUrl: string,
+  finalUrl: string | null,
+  webViewRef?: RefObject<WebView | null>,
+): void {
+  if (finalUrl && !isTrackingLinkUrl(finalUrl)) {
+    loadInWebView(finalUrl, webViewRef);
+    return;
+  }
+  passthroughTrackingUrl = trackingUrl;
+  loadInWebView(trackingUrl, webViewRef);
+}
+
+/**
  * 웹뷰가 이 URL 을 자기 안에서 로드해야 하는지 판정한다. 로드하지 않는 경우의 처리
  * (앱 화면 띄우기 / 네이티브 위임 / 무시)는 이 함수 안에서 끝낸다.
  */
@@ -274,20 +311,25 @@ function decideWebViewLoad(
   // 트래킹 링크는 웹뷰에 로드하지 않고 목적지를 먼저 확인한다. 앱 화면이면 그 화면을 띄우고,
   // 웹 목적지면 그때 웹뷰에서 연다 (확인 실패/타임아웃도 웹뷰 로드로 폴백 — 기존 동작).
   if (isTrackingLinkUrl(url)) {
-    resolveTrackingLinkDeepLink(url)
-      .then(deepLink => {
+    // 목적지 확인을 이미 끝내고 우리가 로드시킨 URL 이면 그대로 통과시킨다.
+    if (url === passthroughTrackingUrl) {
+      passthroughTrackingUrl = null;
+      return true;
+    }
+    resolveTrackingLink(url)
+      .then(({deepLink, finalUrl}) => {
         if (isStale()) {
           return;
         }
         if (deepLink) {
           handOffToApp(deepLink, opts);
         } else {
-          loadInWebView(url, opts?.webViewRef);
+          loadTrackingLinkDestination(url, finalUrl, opts?.webViewRef);
         }
       })
       .catch(() => {
         if (!isStale()) {
-          loadInWebView(url, opts?.webViewRef);
+          loadTrackingLinkDestination(url, null, opts?.webViewRef);
         }
       });
     return false;
