@@ -1,6 +1,7 @@
 ---
 name: scc-app-release
 description: SCC 앱 OTA 배포 + 웹 배포 절차. "OTA 배포해줘", "앱 출시", "웹 배포", "web-deploy", "프로덕션에 올려줘" 같은 명시적 배포 요청 시에만 사용. 배포는 one-way door — 이 skill의 절차를 벗어나 임의로 배포하지 않는다.
+disable-model-invocation: true
 ---
 
 # SCC App Release — OTA / 웹 배포
