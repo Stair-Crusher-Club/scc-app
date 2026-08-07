@@ -6,6 +6,45 @@ disable-model-invocation: true
 
 # SCC App Release — OTA / 웹 배포
 
+## 배포 표면은 4개고 서로 독립이다 (제일 먼저 볼 것)
+
+**하나를 배포해도 나머지엔 아무 일도 일어나지 않는다.** "배포해줘"를 받으면 이 표에서 이번 변경이 닿는 표면을 **전부 고르고 전부 완주**한다. 한 표면만 하고 "배포 완료"라고 보고하지 않는다.
+
+| 표면 | 트리거 | 안 하면 |
+|---|---|---|
+| prod 앱 | `v*` 태그 push | 앱스토어 사용자에게 안 나감 |
+| sandbox 앱 | `main` push (자동) | 사내 테스트 앱에 안 나감 |
+| **웹 `web.staircrusher.club`** | **로컬 수동** `yarn web:build` + `web-deploy.sh` (**CI 없음**) | 웹은 옛 번들 그대로 — OTA는 여기 안 닿는다 |
+| 원격 에셋 (`web-articles/**/assets`) | S3 업로드 | 앱/웹이 404를 받는다 |
+
+- `src/` 화면 변경은 **네이티브 앱과 웹이 같은 코드를 쓴다**(`/home` = `MainScreen.tsx` → `HomeScreenV2`, 웹 전용 홈 없음). 즉 화면을 고치면 **앱 OTA와 웹 배포가 둘 다 필요**하다. OTA만 하고 끝내는 것이 반복된 실수다. (2026-08-07)
+- **원격 에셋은 앱/웹보다 먼저 올린다.** 앱이 참조하는 URL이 아직 404면 배포해도 이미지가 안 뜨고, 그 전에 로컬 테스트조차 못 한다.
+
+### 에셋만 먼저 올리기 (전체 웹 배포와 분리)
+
+전체 배포는 `--delete` sync라 web-dist 전체가 필요하지만, **신규 에셋 추가는 additive 업로드로 분리**할 수 있다. 기존 사이트를 안 건드리므로 골든패스 없이 즉시 가능하고, 이걸 먼저 해야 로컬에서 앱을 테스트할 수 있다:
+
+```bash
+cd scc-app
+aws-vault exec swann-scc -- aws s3 sync web-articles/ s3://staircrusher-club-web/articles/ \
+  --exclude "*" --include "*/assets/thumb-0.webp" --content-type "image/webp"   # --delete 금지
+curl -s -o /dev/null -w '%{content_type}\n' https://web.staircrusher.club/articles/<slug>/assets/thumb-0.webp
+```
+
+- **`--delete`를 절대 붙이지 않는다** — 붙이면 `articles/` 아래 나머지가 다 지워진다.
+- Lambda@Edge(`seo-handler.js`)는 `uri.includes('.')`면 리라이트 없이 통과시키므로 확장자 있는 에셋은 그냥 서빙된다.
+- **판정은 `%{http_code}`가 아니라 `%{content_type}`으로 한다.** 없는 경로도 SPA fallback HTML을 **200**으로 돌려주므로 200은 존재의 증거가 아니다.
+
+### 함정: FastImage 디스크 캐시가 "실패 응답"을 캐싱한다
+
+에셋 배포 **전에** 앱이 그 URL을 한 번이라도 요청했으면, 200 HTML fallback이 URL 키로 디스크 캐시에 남아 **배포 후에도 계속 회색 placeholder**가 뜬다. 앱 코드/배포를 의심하기 전에 캐시부터 지운다:
+
+```bash
+adb shell run-as club.staircrusher.sandbox rm -rf cache/image_manager_disk_cache cache/image_cache cache/http-cache
+adb shell am force-stop club.staircrusher.sandbox   # 이후 재실행
+```
+(`pm clear`는 앱 데이터까지 날려 로그아웃되므로 캐시 디렉토리만 지운다.)
+
 ## OTA 배포 규칙 (MANDATORY)
 
 - **sandbox 배포 = 태그 없이 `main` push** (`.github/workflows/cd-sandbox.yml`, "OTA Deployment" → `ota-deploy:sandbox`). "sandbox 배포", "샌드박스에서 테스트", 그냥 "main push 해" = 태그 만들지 말고 `git push origin main`만.
@@ -38,6 +77,7 @@ disable-model-invocation: true
 | ② 뿌클로드(prerender→SPA) | `/bbucle-road/`, `/bbucle-road/<slug>/` | prerender HTML(`#root`+`bundle.js`)로 부팅 | 실제 콘텐츠 렌더, **`Child compilation failed`/`Invalid or unexpected token` 없음**, 콘솔 에러 0 |
 | ③ 아티클(정적) | `/articles/<slug>/` | **순수 정적 HTML**(`<article>`, bundle.js 없음) | 정적 콘텐츠 렌더 |
 
+- **포트 스쿼터 함정 (검증 전 필수)**: 다른 clone(`scc-workspace-2`)/세션이 같은 포트에 `serve`를 띄워두면, 내 `serve`는 조용히 실패하고 **curl이 남의 `web-dist`를 검증한다** — 골든패스가 통째로 무효가 된다. 띄우기 전에 `lsof -iTCP:<port> -sTCP:LISTEN -n -P`로 비었는지 확인하고, 점유 중이면 **kill하지 말고**(H1) 빈 포트를 쓴다. (2026-08-07: 5052 점유를 모르고 통과 판정)
 - **정적 서버 함정**: `serve web-dist -s`(SPA 모드)는 `/articles/<slug>/` 디렉토리 요청을 루트 SPA 로 rewrite 해 아티클을 못 띄운다. 아티클(③)은 `-s` **없이** 서빙하거나 파일/curl 로 직접 확인한다(prod 는 S3 디렉토리 인덱스로 정적 서빙). ①②(클라 라우팅)는 `-s` 로.
 - 검증은 Playwright 렌더 + `browser_console_messages` 로 콘솔 에러 확인, 그리고 `curl <url> | grep -E 'Child compilation failed|Invalid or unexpected|id="root"'` 로 HTML 마커까지 본다.
 - 인프라: S3 버킷 `staircrusher-club-web` + CloudFront `E3RDKBHB12EC6A`
