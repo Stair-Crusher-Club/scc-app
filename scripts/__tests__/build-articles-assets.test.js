@@ -109,6 +109,35 @@ describe('ensureThumbnails', () => {
     expect(manifest.a.thumbnail).toBe(`/articles/hello/assets/${THUMB_NAME}`);
   });
 
+  // 소비처(앱 카드/웹 목록)가 전부 16:9 박스다. 파일이 원본 비율이면 소비처의 object-fit
+  // 하나만 빠져도 눌리거나 레터박스가 생긴다 → 파일 단계에서 비율을 확정한다.
+  // resize에 withoutEnlargement를 주면 크롭이 통째로 스킵돼 이 테스트가 깨진다.
+  test.each([
+    ['가로가 긴 원본', 1600, 400],
+    ['세로가 긴 원본', 400, 1600],
+    ['정사각 원본', 800, 800],
+    ['1024보다 작은 원본', 600, 400],
+  ])('%s도 16:9로 중앙 크롭한다', async (_label, w, h) => {
+    const sharp = require('sharp');
+    const srcDir = tmp();
+    const assetsDir = path.join(srcDir, 'x', 'assets');
+    fs.mkdirSync(assetsDir, {recursive: true});
+    await sharp({
+      create: {width: w, height: h, channels: 3, background: '#888'},
+    })
+      .png()
+      .toFile(path.join(assetsDir, 'img-0.png'));
+
+    await ensureThumbnails({a: entryFor('x')}, srcDir);
+
+    const out = await sharp(path.join(assetsDir, THUMB_NAME)).metadata();
+    expect(out.width / out.height).toBeCloseTo(16 / 9, 2);
+    // 확대 금지 — 두 축 다 본다. 폭만 보면 가로가 긴 원본(1600x400)이 세로 부족으로
+    // 1.4배 업스케일되는 걸 놓친다.
+    expect(out.width).toBeLessThanOrEqual(Math.min(1024, w));
+    expect(out.height).toBeLessThanOrEqual(h);
+  });
+
   test('두 번째 호출은 아무것도 다시 만들지 않는다 (idempotent)', async () => {
     const {srcDir} = setup('hello');
     const manifest = {a: entryFor('hello')};

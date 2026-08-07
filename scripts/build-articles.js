@@ -517,8 +517,11 @@ async function downloadImage(url, destDir, idx, prefix = 'img') {
 //  2) pruneUnusedAssets가 markUsed 안 된 파일을 지운다. mtime 비교로 "지워졌으면 다시 만든다"가 되어
 //     prune 화이트리스트를 건드릴 필요가 없다.
 const THUMB_NAME = 'thumb-0.webp';
-const THUMB_WIDTH = 1024; // 앱 카드 260pt@3x=780px + 웹 히어로 카드까지 커버. ponytail: 단일 사이즈, srcset은 필요해지면.
+const THUMB_MAX_WIDTH = 1024; // 앱 카드 260pt@3x=780px + 웹 히어로 카드까지 커버. ponytail: 단일 사이즈, srcset은 필요해지면.
 const THUMB_QUALITY = 78;
+// 소비처(앱 홈 카드, 웹 목록 카드)가 전부 16:9 박스라 파일도 16:9로 잘라둔다. 원본 비율을 유지하면
+// 소비처마다 object-fit/resizeMode에 의존하게 되고, 하나라도 빠뜨리면 눌리거나 레터박스가 생긴다.
+const THUMB_ASPECT = 16 / 9;
 
 async function ensureThumbnails(manifest, srcDir = SRC_DIR) {
   let created = 0;
@@ -538,15 +541,29 @@ async function ensureThumbnails(manifest, srcDir = SRC_DIR) {
       continue;
     }
     sharp = sharp || require('sharp');
+    // 타깃 크기를 원본에서 계산한다. resize에 withoutEnlargement를 주면 sharp가 크롭 자체를
+    // 건너뛰고 원본 비율을 그대로 뱉어서(891x531 → 891x531) 16:9 보장이 깨진다.
+    // 확대 없이 16:9를 채우려면 폭이 원본 폭뿐 아니라 **원본 높이**에도 묶여야 한다 —
+    // 가로가 긴 원본(1024x410)은 세로가 모자라서, 폭만 보고 1024를 잡으면 1.4배 확대된다.
+    const meta = await sharp(srcPath).metadata();
+    const width = Math.round(
+      Math.min(
+        THUMB_MAX_WIDTH,
+        meta.width || THUMB_MAX_WIDTH,
+        (meta.height || THUMB_MAX_WIDTH) * THUMB_ASPECT,
+      ),
+    );
+    const height = Math.round(width / THUMB_ASPECT);
     await sharp(srcPath)
-      .resize({width: THUMB_WIDTH, withoutEnlargement: true})
+      // 가로가 길든 세로가 길든 확대해서 중앙만 남긴다.
+      .resize(width, height, {fit: 'cover', position: 'centre'})
       .webp({quality: THUMB_QUALITY})
       .toFile(destPath);
     entry.thumbnail = thumbUrl;
     created++;
   }
   if (created)
-    console.log(`  🖼️  썸네일 생성 ${created}건 (${THUMB_WIDTH}px webp)`);
+    console.log(`  🖼️  썸네일 생성 ${created}건 (16:9 중앙크롭 webp)`);
   return created;
 }
 
