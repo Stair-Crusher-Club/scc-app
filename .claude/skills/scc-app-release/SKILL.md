@@ -31,6 +31,12 @@ curl -s -o /dev/null -w '%{content_type}\n' https://web.staircrusher.club/articl
 ```
 
 - **`--delete`를 절대 붙이지 않는다** — 붙이면 `articles/` 아래 나머지가 다 지워진다.
+- **신규 추가 vs 내용 교체는 처리가 다르다.** 없던 경로를 새로 올리는 것이면 CloudFront에 캐시될 게 없어 무효화가 불필요하다. 하지만 **같은 경로의 내용을 바꾸면 무효화가 필수**다(에셋엔 `no-cache`가 안 붙는다 — `web-deploy.sh`는 HTML/bundle.js에만 붙인다):
+  ```bash
+  aws-vault exec swann-scc -- aws cloudfront create-invalidation \
+    --distribution-id E3RDKBHB12EC6A --paths "/articles/*"
+  ```
+  판정은 로컬 파일과 prod 응답의 **md5 대조**로 한다 — 200/`content_type`만으로는 옛 바이트가 오는 걸 못 잡는다. 앱에서도 FastImage 캐시를 지워야 새 바이트가 보인다(위 함정 참조).
 - Lambda@Edge(`seo-handler.js`)는 `uri.includes('.')`면 리라이트 없이 통과시키므로 확장자 있는 에셋은 그냥 서빙된다.
 - **판정은 `%{http_code}`가 아니라 `%{content_type}`으로 한다.** 없는 경로도 SPA fallback HTML을 **200**으로 돌려주므로 200은 존재의 증거가 아니다.
 
