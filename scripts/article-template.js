@@ -22,13 +22,15 @@ const GA_SNIPPET = `<script async src="https://www.googletagmanager.com/gtag/js?
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');</script>`;
 
 // 목록 페이지 카테고리 칩. **이 배열이 노출 순서의 유일한 정의**(Figma 72:363 순서).
-// Notion DB `category`(multi_select) 옵션과 문자열이 정확히 일치해야 필터가 동작한다.
+// name: Notion DB `category`(multi_select) 옵션과 문자열이 정확히 일치해야 필터가 동작한다.
+// slug: `/articles?category=<slug>` URL 용 ASCII 키. 이름에 한글과 `/`(맛집/카페)가 있어
+//       그대로 쓰면 percent-encoding 범벅이 되고, data-cat 의 `|` 구분자와도 부딪힐 수 있다.
 const CATEGORIES = [
-  '맛집/카페',
-  '공연/행사',
-  '문화공간',
-  '여행/나들이',
-  '이동/교통',
+  {name: '맛집/카페', slug: 'food'},
+  {name: '공연/행사', slug: 'show'},
+  {name: '문화공간', slug: 'culture'},
+  {name: '여행/나들이', slug: 'travel'},
+  {name: '이동/교통', slug: 'transit'},
 ];
 
 // 푸터 외부 링크. Figma엔 URL이 없어 실서비스(staircrusher.club) 푸터와 레포에서 실측한 값.
@@ -43,6 +45,47 @@ const FOOTER = {
   privacy: 'https://agnica.notion.site/?pvs=143',
   biz: '사업자등록번호 623-82-00565 &nbsp;|&nbsp; 대표 : 박수빈, 이대호 &nbsp;|&nbsp; 서울특별시 강남구 역삼로 172 마루360 5층',
 };
+
+// 상세 페이지 하단 고정 CTA 바 (Figma 72:429/442 PC, 72:459/469 MO).
+// 유입 경로로 메인 버튼이 갈린다:
+//   ?from=kakao (플친 메시지 유입) → ctaUrl 로 보낸다 (이미 플친이므로 콘텐츠 소비로 유도)
+//   그 외                        → 플친 가입으로 보낸다
+// ctaUrl/ctaLabel 은 Notion DB 프로퍼티이고 **비어 있는 게 정상값**이다. 채우는 규칙:
+//   장소 여러 곳 소개  → 저장리스트 트래킹링크 + ctaLabel '소개된 곳 모아보기'
+//   장소 1곳 소개      → 비움 (= 콘텐츠 홈)
+//   장소가 아닌 정보   → 카테고리 트래킹링크 (라벨은 폴백값이 맞다)
+// 상세 규칙은 /scc-web-articles-publish STEP 2.
+const CTA = {
+  home: 'https://link.staircrusher.club/articles_cta_home',
+  browseLabel: '다른 콘텐츠 더 보기',
+  kakaoLabel: '새로운 컨텐츠 알림받기',
+};
+
+/**
+ * 트래킹링크에 campaign 파라미터를 붙인다.
+ * airbridge 링크는 생성 시 campaignParams 를 비워둬야 재사용이 가능하므로(넣으면 URL 파라미터를
+ * 덮어써버린다 — make_links.py 실측) 링크별 구분값은 이렇게 호출 시점에 붙인다.
+ * **이미 있는 키는 덮어쓰지 않는다** — Notion 에 파라미터가 박힌 URL 이 들어와도 안전하게.
+ */
+function withCampaign(url, slug, creative) {
+  const hashAt = url.indexOf('#');
+  const hash = hashAt >= 0 ? url.slice(hashAt) : '';
+  const [base, existing = ''] = (
+    hashAt >= 0 ? url.slice(0, hashAt) : url
+  ).split('?');
+  const have = new Set(
+    existing ? existing.split('&').map(p => p.split('=')[0]) : [],
+  );
+  const added = [
+    ['campaign', 'articles-cta'],
+    ['ad_group', slug],
+    ['ad_creative', creative],
+  ]
+    .filter(([k, v]) => v && !have.has(k))
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
+  const query = [existing, ...added].filter(Boolean).join('&');
+  return base + (query ? `?${query}` : '') + hash;
+}
 
 const PRETENDARD_CDN =
   'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css';
@@ -186,6 +229,27 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
 .f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
 .f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 상세 하단 고정 CTA 바 (Figma 72:429/442 PC, 72:459/469 MO) ===== */
+/* Figma 에 그림자는 없다 — border-top 만. (bbucle-road FloatingBottomBar 는 shadow 를 쓰지만 여긴 아니다) */
+/* safe-area 보정은 넣지 않는다: viewport meta 에 viewport-fit=cover 가 없어 env(safe-area-inset-*)
+   가 규격상 0 이라 죽은 코드가 된다. cover 를 켜면 페이지 전체 레이아웃이 노치 아래로 확장돼
+   아티클 본문까지 영향을 받으므로, 필요해지면 그때 페이지 단위로 결정한다. */
+.cta-bar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;border-top:1px solid var(--g25);padding:16px 0 20px;}
+/* inner 폭을 본문 .wrap(720/24)에 맞춘다 — Figma PC 콘텐츠 674px(1920-623*2)와 사실상 동일 */
+.cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
+.cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
+.cta-icon img{display:block;width:24px;height:24px;}
+.cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
+.cta-main img{display:block;width:52px;height:32px;}
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+.cta-kakao{background:#fae100;color:#050708;display:flex;}
+.cta-browse{background:var(--g90);color:#b8ff55;}
+html[data-cta="list"] .cta-kakao{display:none;}
+html[data-cta="list"] .cta-browse{display:flex;}
+/* 고정 바가 푸터 하단을 덮지 않도록 */
+body.has-cta{padding-bottom:96px;}
+.cta-toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:201;max-width:calc(100% - 32px);background:rgba(0,0,0,.82);color:#fff;font-size:14px;line-height:20px;padding:10px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.cta-toast.on{opacity:1;}
 /* ===== 목록 페이지 ===== */
 /* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
 .lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
@@ -239,6 +303,16 @@ details.htoggle[open]>summary::before{content:"▾ ";}
   .site-footer .lwrap{gap:80px;padding:0 16px;}
   .f-bottom{gap:16px;}
   .f-legalgroup{display:contents;}
+  /* CTA 바 MO (Figma 72:459/469): 바 78px, 아이콘 48, 메인 48, 좌우 16 → inner 358 */
+  .cta-bar{padding-top:10px;}
+  .cta-inner{padding:0 16px;}
+  .cta-icon{width:48px;height:48px;}
+  .cta-main{height:48px;padding:12px 20px;font-size:15px;line-height:22px;}
+  .cta-browse{letter-spacing:0;}
+  .cta-kakao{letter-spacing:-0.3px;}
+  .cta-main img{width:39px;height:24px;}
+  body.has-cta{padding-bottom:78px;}
+  .cta-toast{bottom:92px;}
 }
 `;
 
@@ -292,12 +366,168 @@ function siteFooter() {
 </div></footer>`;
 }
 
+// 카카오 유입 분기를 **페인트 전에** 확정한다. 정적 파일 하나로 두 변형을 서비스하므로
+// (CloudFront 가 쿼리스트링을 캐시 키에 안 넣어도 무관) 이 한 줄이 <head> 에 있어야 깜빡임이 없다.
+const CTA_BRANCH_JS =
+  `<script>if(/[?&]from=kakao(?:&|$)/.test(location.search))` +
+  `document.documentElement.setAttribute('data-cta','list');</script>\n` +
+  // JS 가 없으면 하트/공유는 동작하지 않으므로 숨기고 CTA 링크만 남긴다.
+  `<noscript><style>.cta-icon{display:none}</style></noscript>`;
+
+/** 하단 고정 CTA 바. 두 메인 버튼을 모두 그려두고 CSS 로 하나만 노출한다. */
+function ctaBar(meta) {
+  const browseHref = withCampaign(
+    meta.ctaUrl || CTA.home,
+    meta.slug,
+    'cta-browse',
+  );
+  const browseLabel = meta.ctaLabel || CTA.browseLabel;
+  const kakaoHref = withCampaign(FOOTER.kakao, meta.slug, 'cta-kakao');
+  const icon = (id, file, hidden) =>
+    `<img${id ? ` id="${id}"` : ''} src="/articles/assets/${file}" alt="" width="24" height="24"${hidden ? ' hidden' : ''}>`;
+  return `<div class="cta-bar" data-testid="article-cta-bar"><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" aria-pressed="false" aria-label="도움이 돼요">${icon('cta-heart-off', 'ic-heart.svg')}${icon('cta-heart-on', 'ic-heart-fill.svg', true)}</button>
+<button type="button" class="cta-icon" id="cta-share" aria-label="공유하기">${icon('', 'ic-share.svg')}</button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" href="${escapeAttr(kakaoHref)}" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">${escapeHtml(CTA.kakaoLabel)}</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" href="${escapeAttr(browseHref)}">${escapeHtml(browseLabel)}</a>
+</div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>`;
+}
+
+// 하트(좋아요) + 공유. LIST_JS 와 같은 스타일(IIFE, var, optional chaining 없음)을 따른다.
+//
+// 토큰 주의: SPA(web.staircrusher.club)와 오리진을 공유하므로 localStorage 가 공유된다.
+// SPA 는 `mmkv.default.scc-token` 에 JSON 인코딩된 토큰을 두는데, 여기에 쓰면 로그인 유저의
+// 세션을 덮어쓴다. 그래서 **읽기만** 하고, 쓰기는 `anonymousAccessToken`(bbucle-road 가 이미
+// 익명 좋아요 정체성으로 쓰는 키, 카카오 로그아웃도 의도적으로 보존한다)에만 한다.
+const articleJs = slug => `<script>
+(function(){
+  var heart=document.getElementById('cta-heart'), share=document.getElementById('cta-share');
+  var on=document.getElementById('cta-heart-on'), off=document.getElementById('cta-heart-off');
+  if(!heart||!share||!on||!off) return;
+  var toast=document.getElementById('cta-toast');
+  var API=(function(){try{return localStorage.getItem('sccApiBase')||'';}catch(e){return '';}})()
+    ||'https://api.staircrusher.club';
+  var SLUG=${JSON.stringify(slug).replace(/</g, '\\u003c')};
+  // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
+  var PAGE_URL='${SITE.baseUrl}/articles/'+SLUG;
+  var upvoted=false, busy=false, spaTokenBad=false;
+  function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent=msg; toast.className='cta-toast on';
+    setTimeout(function(){toast.className='cta-toast';},1800);
+  }
+  function paint(){
+    on.hidden=!upvoted; off.hidden=upvoted;
+    heart.setAttribute('aria-pressed',upvoted?'true':'false');
+  }
+  // SPA(로그인 유저) 토큰. 있으면 좋아요를 그 사람 것으로 기록한다. **읽기만 한다.**
+  // 키 포맷이 두 가지다: webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어서 현재는
+  // 'mmkv.default.scc-token'(dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\\scc-token'
+  // (backslash, KEY_WILDCARD) 이 된다. 둘 다 읽어서 alias 변경에 안 깨지게 한다.
+  // (못 읽으면 익명으로 폴백하므로 실패 방향은 안전하다 — 세션이 깨지는 게 아니라 집계 주체만 바뀐다)
+  function readSpaToken(){
+    if(spaTokenBad) return null;
+    var keys=['mmkv.default.scc-token','mmkv.default\\\\scc-token'];
+    for(var i=0;i<keys.length;i++){
+      try{var v=localStorage.getItem(keys[i]);
+        if(v){var t=JSON.parse(v); if(t) return t;}}catch(e){}
+    }
+    return null;
+  }
+  // 익명 정체성. **호출마다 새로 만들면 안 된다** — give 와 cancel 이 다른 유저로 기록돼
+  // 취소가 no-op 이 된다(실측 버그). 캐시된 게 있으면 그걸 쓴다.
+  function anonToken(cb){
+    var t=null;
+    try{t=localStorage.getItem('anonymousAccessToken');}catch(e){}
+    if(t){cb(t);return;}
+    mintToken(cb);
+  }
+  function mintToken(cb){
+    fetch(API+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var t=d&&d.authTokens&&d.authTokens.accessToken;
+        if(t){try{
+          localStorage.setItem('anonymousAccessToken',t);
+          localStorage.setItem('anonymousTokenExpiry',String(Date.now()+315360000000));
+        }catch(e){}}
+        cb(t||null);
+      }).catch(function(){cb(null);});
+  }
+  function post(path,body,token){
+    return fetch(API+path,{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(body)});
+  }
+  // 401 처리는 어느 토큰이 실패했는지에 따라 갈린다.
+  //  - SPA 토큰 만료 → SPA 키는 절대 건드리지 않고 익명 정체성으로 폴백한다.
+  //  - 캐시된 익명 토큰 만료 → 그때만 그 키를 비우고 1회 재발급한다.
+  function send(path,body,cb){
+    var spa=readSpaToken();
+    if(!spa){viaAnon(path,body,cb);return;}
+    post(path,body,spa).then(function(r){
+      if(r.status!==401){cb(r);return;}
+      spaTokenBad=true;   // 남은 호출에서 매번 401 을 한 번 더 맞지 않도록
+      viaAnon(path,body,cb);
+    }).catch(function(){cb(null);});
+  }
+  function viaAnon(path,body,cb){
+    anonToken(function(t){
+      if(!t){cb(null);return;}
+      post(path,body,t).then(function(r){
+        if(r.status!==401){cb(r);return;}
+        try{localStorage.removeItem('anonymousAccessToken');
+          localStorage.removeItem('anonymousTokenExpiry');}catch(e){}
+        mintToken(function(t2){
+          if(!t2){cb(null);return;}
+          post(path,body,t2).then(cb).catch(function(){cb(null);});
+        });
+      }).catch(function(){cb(null);});
+    });
+  }
+  send('/getSccContentDetails',{url:PAGE_URL},function(r){
+    if(!r||!r.ok) return;
+    r.json().then(function(d){
+      if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
+    }).catch(function(){});
+  });
+  heart.addEventListener('click',function(){
+    // 서버에 (type,id,user) unique 제약이 없어서 연타하면 중복 row 가 생기고 취소로 안 지워진다.
+    if(busy) return;
+    busy=true;
+    var next=!upvoted;
+    upvoted=next; paint();
+    log('article_upvote',{slug:SLUG,upvoted:next});
+    send(next?'/giveUpvote':'/cancelUpvote',{targetType:'ARTICLE',id:SLUG},function(r){
+      busy=false;
+      if(!r||!r.ok){upvoted=!next;paint();}  // 실패하면 낙관적 토글을 되돌린다
+    });
+  });
+  share.addEventListener('click',function(){
+    log('article_share',{slug:SLUG});
+    if(navigator.share){navigator.share({title:document.title,url:PAGE_URL}).catch(function(){});return;}
+    // 안드로이드 WebView 등 Web Share 미지원 → 링크 복사로 폴백
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(PAGE_URL)
+        .then(function(){showToast('링크를 복사했어요');})
+        .catch(function(){showToast('링크 복사에 실패했어요');});
+    }else{showToast('링크 복사를 지원하지 않는 브라우저예요');}
+  });
+  [].slice.call(document.querySelectorAll('.cta-main')).forEach(function(a){
+    a.addEventListener('click',function(){
+      log('article_cta_click',{slug:SLUG,variant:a.getAttribute('data-cta-variant')});
+    });
+  });
+})();
+</script>`;
+
 function headCommon(title, desc, canonical, extra) {
   return `<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeAttr(desc)}">
-<link rel="canonical" href="${canonical}">
+<link rel="canonical" href="${escapeAttr(canonical)}">
 ${GA_SNIPPET}
 
 <link rel="stylesheet" as="style" crossorigin href="${PRETENDARD_CDN}">
@@ -307,8 +537,10 @@ ${extra}
 
 /**
  * 개별 아티클 페이지.
- * meta: { title, summary, slug, ogImageUrl, contentHtml, faq[{q,a}], publishedAt, lastEditedTime }
- * 하단 태그 칩 · CTA 박스는 제거됨(2026-08 요청) — 본문 다음 바로 푸터다.
+ * meta: { title, summary, slug, ogImageUrl, contentHtml, faq[{q,a}], publishedAt, lastEditedTime,
+ *         backHref?, ctaUrl?, ctaLabel? }
+ * 본문 흐름 안의 태그 칩 · CTA 박스는 제거됨(2026-08 요청) — 본문 다음 바로 푸터다.
+ * 대신 화면 하단에 **고정** CTA 바가 붙는다 (Figma 72:1445, 별개 요소) — ctaBar() 참조.
  * 주의: summary(=리드 요약)는 본문에 그리지 않는다 (Notion 원본에 없음). meta/JSON-LD에만 사용.
  */
 function renderArticlePage(meta) {
@@ -351,7 +583,7 @@ function renderArticlePage(meta) {
   const og = `<meta property="og:type" content="article">
 <meta property="og:title" content="${escapeAttr(meta.title)}">
 <meta property="og:description" content="${escapeAttr(desc)}">
-<meta property="og:url" content="${url}">
+<meta property="og:url" content="${escapeAttr(url)}">
 <meta property="og:site_name" content="${SITE.name}">
 <meta property="og:image" content="${escapeAttr(ogImage)}">
 <meta name="twitter:card" content="summary_large_image">
@@ -364,11 +596,12 @@ ${ld.map(jsonLd).join('\n')}`;
 <html lang="ko">
 <head>
 ${headCommon(`${meta.title} | ${SITE.name}`, desc, url, og)}
+${CTA_BRANCH_JS}
 </head>
-<body>
+<body class="has-cta">
 ${header()}
 <div class="wrap">
-<a class="back" href="${meta.backHref || '/articles'}">← 목록으로</a>
+<a class="back" href="${escapeAttr(meta.backHref || '/articles')}">← 목록으로</a>
 <article data-testid="article-detail">
 <h1 class="title">${escapeHtml(meta.title)}</h1>
 <div class="article-date">${dateLabel}</div>
@@ -376,6 +609,8 @@ ${meta.contentHtml}
 </article>
 </div>
 ${siteFooter()}
+${ctaBar(meta)}
+${articleJs(meta.slug)}
 </body>
 </html>`;
 }
@@ -385,7 +620,12 @@ const PAGE_SIZE = 12;
 const PAGE_STEP = 6;
 
 // 목록 필터 + 더보기. 서버를 더 부르지 않고 전 글을 DOM에 그려둔 뒤 노출만 토글한다
-// (크롤러는 전 글 링크를 그대로 본다). 초기 HTML 상태 = render()의 첫 결과라 깜빡임이 없다.
+// (크롤러는 전 글 링크를 그대로 본다). `?category=` 가 없으면 초기 HTML 상태 = render()의
+// 첫 결과라 깜빡임이 없고, 있을 때만 한 프레임 리페인트가 생긴다.
+//
+// `?category=<slug>` 는 칩이 선택된 상태를 공유·링크하기 위한 것(상세 CTA 목적지로 쓰인다).
+// 색인용 랜딩페이지가 아니다 — <noscript> 가 칩을 숨기고 전 카드를 노출하므로 봇은 이 파라미터와
+// 무관하게 전 글을 본다. 카테고리별 색인이 필요해지면 정적 파일 + canonical 이 따로 필요하다.
 const LIST_JS = `<script>
 (function(){
   var all=[].slice.call(document.querySelectorAll('.card'));
@@ -394,7 +634,17 @@ const LIST_JS = `<script>
   var feat=document.querySelector('.feat'), sep=document.querySelector('.feat-sep');
   var moreWrap=document.querySelector('.more-wrap'), more=document.querySelector('.more');
   var empty=document.querySelector('.cat-empty');
-  var cat='', limit=${PAGE_SIZE};
+  // 모르는 slug 는 '전체' 로 폴백한다 — 오타 URL 이 빈 목록 + "아직 글이 없어요" 를 띄우면 안 된다.
+  function initialCat(){
+    var m=/[?&]category=([^&#]*)/.exec(location.search);
+    if(!m) return '';
+    var slug=decodeURIComponent(m[1]);
+    for(var i=0;i<tabs.length;i++){
+      if(tabs[i].dataset.slug&&tabs[i].dataset.slug===slug) return tabs[i].dataset.cat||'';
+    }
+    return '';
+  }
+  var cat=initialCat(), limit=${PAGE_SIZE};
   function matching(){
     return all.filter(function(c){
       // 전체: 새로운 글 카드는 상단 히어로로 이미 보이므로 그리드에선 뺀다
@@ -405,6 +655,10 @@ const LIST_JS = `<script>
     var list=matching();
     all.forEach(function(c){c.hidden=true;});
     list.slice(0,limit).forEach(function(c){c.hidden=false;});
+    // SSR HTML 은 '전체' 가 눌린 상태로 박혀 있다(정적 파일 1개라 쿼리를 알 수 없다) → 여기서 맞춘다.
+    tabs.forEach(function(x){
+      x.setAttribute('aria-pressed',(x.dataset.cat||'')===cat?'true':'false');
+    });
     if(feat) feat.hidden=!!cat;
     if(sep) sep.hidden=!!cat;
     if(moreWrap) moreWrap.hidden=list.length<=limit;
@@ -413,7 +667,10 @@ const LIST_JS = `<script>
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
       cat=t.dataset.cat||''; limit=${PAGE_SIZE};
-      tabs.forEach(function(x){x.setAttribute('aria-pressed', x===t?'true':'false');});
+      // replaceState: 칩 선택마다 히스토리를 쌓으면 뒤로가기가 목록 안에서 맴돈다.
+      var slug=t.dataset.slug;
+      history.replaceState(null,'',
+        cat&&slug?'?category='+encodeURIComponent(slug):location.pathname);
       render();
       });
   });
@@ -475,10 +732,10 @@ function renderListPage(articles) {
     .join('\n')}</div>`;
 
   const tabsHtml = `<div class="cat-tabs">
-<button type="button" class="cat" data-cat="" aria-pressed="true">전체</button>
+<button type="button" class="cat" data-cat="" data-slug="" aria-pressed="true">전체</button>
 ${CATEGORIES.map(
   c =>
-    `<button type="button" class="cat" data-cat="${escapeAttr(c)}" aria-pressed="false">${escapeHtml(c)}</button>`,
+    `<button type="button" class="cat" data-cat="${escapeAttr(c.name)}" data-slug="${escapeAttr(c.slug)}" aria-pressed="false">${escapeHtml(c.name)}</button>`,
 ).join('\n')}
 </div>`;
 
@@ -541,7 +798,9 @@ ${LIST_JS}
 module.exports = {
   SITE,
   CATEGORIES,
+  CTA,
   escapeHtml,
+  withCampaign,
   renderArticlePage,
   renderListPage,
 };

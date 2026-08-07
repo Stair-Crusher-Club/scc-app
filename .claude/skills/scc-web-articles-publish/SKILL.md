@@ -72,6 +72,14 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
   - `ogImage` (url, 선택) — 대표 이미지. 없으면 본문 첫 이미지 자동 사용
   - ~~`tags` (multi_select)~~ — **더 이상 렌더되지 않는다**. 상세 하단 태그 칩이 제거되면서(2026-08) 소비처가 사라졌다. 컬럼과 기존 값은 보존하지만 **새로 채우지 않는다**. 되살리려면 `build-articles.js:resolveRow`에서 읽어 `renderArticlePage`로 넘기면 된다
   - `faq` (rich_text, 선택) — `[{"q":"...","a":"..."}]` JSON 문자열 → FAQPage 스키마
+  - `ctaUrl` (url, 선택) / `ctaLabel` (rich_text, 선택) — 상세 하단 고정 CTA 바의 목적지/문구.
+    **비어 있는 게 정상값이다** — 템플릿이 콘텐츠 홈(`articles_cta_home`) + `다른 콘텐츠 더 보기`로 폴백한다.
+    카카오 플친 메시지로 들어온 경우(`?from=kakao`)에만 이 버튼이 노출되고, 그 외에는 플친 가입 CTA가 뜬다.
+    채우는 3버킷 규칙은 STEP 2 참조.
+    > **★ 재빌드 함정**: `featured`/`category`와 달리 CTA는 **상세 HTML 안에** 렌더된다. `reassembleDist`는
+    > 이미 빌드된 `web-articles/<slug>/index.html`을 그대로 복사하므로, Notion에서 CTA만 고치면 **화면이
+    > 안 바뀐다**. `--only <slug>` 또는 `--force`로 그 글을 다시 렌더해야 한다. (manifest에는 감사용으로
+    > 매번 동기화되므로, manifest 값과 HTML이 어긋나 있으면 재렌더가 안 된 것이다.)
 - **`published` 프로퍼티 없음** — 발행 여부 = `web-articles/manifest.json`에 존재하는지로 판단.
 
 ## 콘텐츠 투입: mention row (다른 DB 글을 "옮기기")
@@ -108,6 +116,22 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id> --dry
    - `ogImage`: 본문 내 대표 이미지 1개(없으면 비워둠 → 스크립트가 첫 이미지 사용).
    - `tags`: **생성하지 않는다** (렌더 소비처 없음 — 위 스키마 참고).
    - `faq`: 본문에 Q&A 성격이 있으면 `[{"q","a"}]`로(AEO 핵심). 없으면 생략.
+   - `ctaUrl`/`ctaLabel`: 본문이 소개하는 대상으로 버킷을 판정해 정한다. **대부분 비워두는 게 정답이다.**
+
+     | 버킷 | 판정 | `ctaUrl` | `ctaLabel` |
+     |---|---|---|---|
+     | A. 장소 여러 곳 | 카페/맛집 N곳 등 장소 목록 | 그 목록의 저장리스트 트래킹링크 | `소개된 곳 모아보기` |
+     | B. 장소 1곳 | 단일 공간 심층 소개 | 비움 | 비움 |
+     | C. 장소가 아닌 정보 | 제도·절차·가이드 | 그 글 카테고리의 `articles_cta_<slug>` 링크 | 비움 |
+
+     - **A 버킷인데 저장리스트가 없으면 비워둔다** (홈 폴백). 나중에 저장리스트가 생기면 이 두 칸만 채우면 되고
+       코드 배포가 필요 없다. 저장리스트 발급은 `/scc-create-content-list-type`이 담당하고, **그 스킬이 이미
+       트래킹링크를 알고 있으므로 `slug`와 함께 이 두 칸도 그 스킬이 미리 배정한다** — 이 스킬은 비어 있으면 그대로 둔다.
+     - 이미 값이 있으면 **재생성 금지**(`slug`와 같은 이유 — 유입 리포트가 어긋난다).
+     - 본문 안에 이미 저장리스트 링크(`link.staircrusher.club/<region>_save`)가 있으면 그것을 쓴다. 주의: 같은
+       도메인의 `_kakao`/`_app`/`_donation`/`alone` 링크는 저장리스트가 **아니다**.
+     - C 버킷용 카테고리 링크는 필요한 것만 발급되어 있다(현재 `articles_cta_transit`). 없는 카테고리면
+       비워두고(홈 폴백) 링크를 먼저 발급한다.
 3. MCP `notion-update-page`로 해당 프로퍼티를 **DB에 라이트백**(캐싱 + 사람이 검토·수정 가능).
 
 > **★ faq 라이트백 함정 (MCP)**: `API-patch-page`는 rich_text `content`가 그 자체로 유효한 JSON(맨 앞 `[`/`{`)이면 자동 파싱 후 "should be a string"으로 **거부**한다. 그래서 faq JSON 배열은 그대로 못 쓴다. **해결**: content 앞에 **zero-width space(`​`)를 붙여** 문자열로 저장한다(예: `"​[{\"q\":...}]"`). 빌드가 `build-articles.js`에서 앞쪽 공백/zero-width를 strip 후 `JSON.parse`하므로 정상 복원된다. (병렬 작성 시 인코딩 통일 필수 — prose로 쓰면 FAQPage 스키마 누락.)

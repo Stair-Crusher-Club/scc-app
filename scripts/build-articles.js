@@ -294,6 +294,10 @@ function resolveRow(page) {
   };
   const slug = readText('slug');
   const summary = readText('summary');
+  // 상세 하단 고정 CTA 바의 목적지/문구. **비어 있는 게 정상값**이고 템플릿이 콘텐츠 홈으로
+  // 폴백한다(article-template의 CTA 참조). 채우는 3버킷 규칙은 /scc-web-articles-publish STEP 2.
+  const ctaUrl = readText('ctaUrl');
+  const ctaLabel = readText('ctaLabel');
   let ogImage = '';
   const og = props.ogImage;
   if (og) {
@@ -345,6 +349,8 @@ function resolveRow(page) {
     slug,
     summary,
     ogImage,
+    ctaUrl,
+    ctaLabel,
     categories,
     faq,
     featured,
@@ -972,6 +978,7 @@ async function buildDetailPage(
   nonTitleProps,
   titleName,
   publishedAt,
+  cta, // 부모의 {url, label} — 하위 페이지는 CTA 를 상속한다
 ) {
   const meta = SUBPAGES[row.id] || {};
   const rslug = meta.slug || noHy(row.id).slice(0, 20);
@@ -1016,6 +1023,8 @@ async function buildDetailPage(
     publishedAt,
     lastEditedTime: row.last_edited_time,
     backHref: `/articles/${parentSlug}`,
+    ctaUrl: (cta || {}).url,
+    ctaLabel: (cta || {}).label,
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
   pruneUnusedAssets(assetsDir);
@@ -1079,6 +1088,7 @@ async function renderChildDatabase(dbId, title, ctx) {
           nonTitleProps,
           titleName,
           ctx.publishedAt,
+          ctx.cta,
         );
         ctx.emittedSubPages.push(d.manifest);
         items.push(d);
@@ -1386,6 +1396,9 @@ async function buildArticle(meta, times) {
     imgLayout: layout.img,
     dbLayout: layout.db,
     publishedAt: times.publishedAt, // 상세 페이지도 부모와 같은 발행일을 쓴다
+    // 하위 상세 페이지는 부모의 CTA 를 상속한다. 목록 페이지에 노출되지 않고 카테고리도 없어서
+    // 자기 CTA 를 가질 근거가 없다 (장소별 딥링크는 전 코퍼스에 1개뿐이라 backfill 패턴이 없다).
+    cta: {url: meta.ctaUrl, label: meta.ctaLabel},
   };
   indexHeadings(blocks, ctx);
   const contentHtml = await renderBlocks(blocks, ctx);
@@ -1403,6 +1416,8 @@ async function buildArticle(meta, times) {
     ogImageUrl,
     publishedAt: times.publishedAt,
     lastEditedTime: times.editedTime,
+    ctaUrl: meta.ctaUrl,
+    ctaLabel: meta.ctaLabel,
   });
   fs.writeFileSync(path.join(srcDir, 'index.html'), html);
   pruneUnusedAssets(assetsDir);
@@ -1551,7 +1566,9 @@ async function main() {
     }
     // 경고만 하고 발행은 막지 않는다 — 오타 하나로 살아 있는 SEO 페이지를 내리는 게 더 나쁘다.
     // 잘못된 값은 '전체'에는 나오고 해당 칩으로만 안 걸린다(graceful).
-    const unknown = meta.categories.filter(c => !CATEGORIES.includes(c));
+    const unknown = meta.categories.filter(
+      c => !CATEGORIES.some(x => x.name === c),
+    );
     if (unknown.length)
       console.log(
         `  ⚠️ ${meta.slug}: 목록 칩에 없는 category ${unknown.join(', ')} — 그 카테고리로는 필터링되지 않는다`,
@@ -1706,13 +1723,20 @@ async function main() {
       };
     if (subPages.length) console.log(`     ↳ 상세 페이지 ${subPages.length}건`);
   }
-  // featured/category는 changed 루프 밖에서 매번 동기화한다. incremental 기준은 **본문 페이지**의
+  // featured/category/cta는 changed 루프 밖에서 매번 동기화한다. incremental 기준은 **본문 페이지**의
   // editedTime이라, DB row의 프로퍼티만 바꾸면 본문 시각이 그대로여서 재빌드가 안 걸린다.
   // (DB 쿼리는 이미 끝났으므로 추가 API 호출 0)
+  //
+  // ⚠️ ctaUrl/ctaLabel 은 목록이 아니라 **상세 HTML 안에** 렌더된다. reassembleDist 는 이미 빌드된
+  // web-articles/<slug>/index.html 을 그대로 복사하므로, 여기서 manifest 를 맞춰도 화면은 안 바뀐다.
+  // Notion 에서 CTA 만 고쳤을 때는 `--only <slug>` 또는 `--force` 로 다시 렌더해야 한다.
+  // (manifest 에 넣는 이유는 감사/디버깅용 — 어느 글에 CTA 가 채워져 있는지 한눈에 보려고)
   for (const {meta} of rows)
     if (manifest[meta.rowId]) {
       manifest[meta.rowId].featured = meta.featured;
       manifest[meta.rowId].categories = meta.categories;
+      manifest[meta.rowId].ctaUrl = meta.ctaUrl || '';
+      manifest[meta.rowId].ctaLabel = meta.ctaLabel || '';
     }
   // 빌드 루프 + pruneUnusedAssets가 모두 끝난 뒤여야 한다 (prune이 방금 만든 썸네일을 지운다).
   await ensureThumbnails(manifest);
