@@ -107,7 +107,9 @@ const escapeAttr = escapeHtml;
 const BASE_CSS = `
 :root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
 /* 목록/푸터 디자인 토큰 (Figma) */
---g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;
+/* 좋아요 활성 색 — 앱 팔레트 color.red (src/constant/color.ts) */
+--red:#db0b24;}
 *{box-sizing:border-box;}
 [hidden]{display:none!important;}
 html{-webkit-text-size-adjust:100%;}
@@ -239,6 +241,10 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
 .cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
 .cta-icon img{display:block;width:24px;height:24px;}
+/* 좋아요 누른 상태: 하트와 테두리를 같은 빨강으로 (앱 팔레트 color.red).
+   Figma 에 active 상태 디자인이 없어 디자인시스템 fill variant 기본색(#0C76F7 파랑)을
+   앱 팔레트 red 로 바꿔 쓴다 — ic-heart-fill.svg 의 fill/stroke 도 같은 값이다. */
+.cta-icon[aria-pressed="true"]{border-color:var(--red);}
 .cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
 .cta-main img{display:block;width:52px;height:32px;}
 /* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */

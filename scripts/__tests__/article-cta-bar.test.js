@@ -57,10 +57,31 @@ describe('withCampaign', () => {
 });
 
 describe('CTA 바 렌더', () => {
+  test('좋아요 누른 상태는 하트와 테두리가 같은 빨강이다', () => {
+    const html = article();
+    expect(html).toContain('--red:#db0b24');
+    // aria-pressed 로 테두리 색이 바뀌고, 아이콘 자체도 같은 값이어야 한다
+    expect(html).toContain(
+      '.cta-icon[aria-pressed="true"]{border-color:var(--red);}',
+    );
+    const svg = require('fs').readFileSync(
+      require('path').join(
+        __dirname,
+        '../../web-articles/_assets/ic-heart-fill.svg',
+      ),
+      'utf8',
+    );
+    expect(svg).toContain('fill="#DB0B24"');
+    expect(svg).toContain('stroke="#DB0B24"');
+    expect(svg).not.toContain('#0C76F7'); // 디자인시스템 기본 파랑이 남아있으면 안 된다
+  });
+
   test('두 CTA 모두 새 탭으로 연다', () => {
     const html = article();
     for (const v of ['kakao', 'browse']) {
-      const tag = new RegExp(`<a class="cta-main cta-${v}"[^>]*>`).exec(html)[0];
+      const tag = new RegExp(`<a class="cta-main cta-${v}"[^>]*>`).exec(
+        html,
+      )[0];
       expect(tag).toContain('target="_blank"');
       // 새 탭에 window.opener 를 넘기지 않는다
       expect(tag).toContain('rel="noopener noreferrer"');
