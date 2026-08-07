@@ -25,7 +25,9 @@
 <style>
 :root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
 /* 목록/푸터 디자인 토큰 (Figma) */
---g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;
+/* 좋아요 활성 색 — 앱 팔레트 color.red (src/constant/color.ts) */
+--red:#db0b24;}
 *{box-sizing:border-box;}
 [hidden]{display:none!important;}
 html{-webkit-text-size-adjust:100%;}
@@ -147,6 +149,31 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
 .f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
 .f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 상세 하단 고정 CTA 바 (Figma 72:429/442 PC, 72:459/469 MO) ===== */
+/* Figma 에 그림자는 없다 — border-top 만. (bbucle-road FloatingBottomBar 는 shadow 를 쓰지만 여긴 아니다) */
+/* safe-area 보정은 넣지 않는다: viewport meta 에 viewport-fit=cover 가 없어 env(safe-area-inset-*)
+   가 규격상 0 이라 죽은 코드가 된다. cover 를 켜면 페이지 전체 레이아웃이 노치 아래로 확장돼
+   아티클 본문까지 영향을 받으므로, 필요해지면 그때 페이지 단위로 결정한다. */
+.cta-bar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;border-top:1px solid var(--g25);padding:16px 0 20px;}
+/* inner 폭을 본문 .wrap(720/24)에 맞춘다 — Figma PC 콘텐츠 674px(1920-623*2)와 사실상 동일 */
+.cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
+.cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
+.cta-icon img{display:block;width:24px;height:24px;}
+/* 좋아요 누른 상태: 하트와 테두리를 같은 빨강으로 (앱 팔레트 color.red).
+   Figma 에 active 상태 디자인이 없어 디자인시스템 fill variant 기본색(#0C76F7 파랑)을
+   앱 팔레트 red 로 바꿔 쓴다 — ic-heart-fill.svg 의 fill/stroke 도 같은 값이다. */
+.cta-icon[aria-pressed="true"]{border-color:var(--red);}
+.cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
+.cta-main img{display:block;width:52px;height:32px;}
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+.cta-kakao{background:#fae100;color:#050708;display:flex;}
+.cta-browse{background:var(--g90);color:#b8ff55;}
+html[data-cta="list"] .cta-kakao{display:none;}
+html[data-cta="list"] .cta-browse{display:flex;}
+/* 고정 바가 푸터 하단을 덮지 않도록 */
+body.has-cta{padding-bottom:96px;}
+.cta-toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:201;max-width:calc(100% - 32px);background:rgba(0,0,0,.82);color:#fff;font-size:14px;line-height:20px;padding:10px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.cta-toast.on{opacity:1;}
 /* ===== 목록 페이지 ===== */
 /* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
 .lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
@@ -200,10 +227,22 @@ details.htoggle[open]>summary::before{content:"▾ ";}
   .site-footer .lwrap{gap:80px;padding:0 16px;}
   .f-bottom{gap:16px;}
   .f-legalgroup{display:contents;}
+  /* CTA 바 MO (Figma 72:459/469): 바 78px, 아이콘 48, 메인 48, 좌우 16 → inner 358 */
+  .cta-bar{padding-top:10px;}
+  .cta-inner{padding:0 16px;}
+  .cta-icon{width:48px;height:48px;}
+  .cta-main{height:48px;padding:12px 20px;font-size:15px;line-height:22px;}
+  .cta-browse{letter-spacing:0;}
+  .cta-kakao{letter-spacing:-0.3px;}
+  .cta-main img{width:39px;height:24px;}
+  body.has-cta{padding-bottom:78px;}
+  .cta-toast{bottom:92px;}
 }
 </style>
+<script>if(/[?&]from=kakao(?:&|$)/.test(location.search))document.documentElement.setAttribute('data-cta','list');</script>
+<noscript><style>.cta-icon{display:none}</style></noscript>
 </head>
-<body>
+<body class="has-cta">
 <header class="site-header"><div class="wrap">
   <a href="/articles" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;"><img src="/articles/assets/scc-logo.png" alt="계단뿌셔클럽"><b>계단뿌셔클럽</b></a>
 </div></header>
@@ -245,5 +284,133 @@ details.htoggle[open]>summary::before{content:"▾ ";}
   </div>
 </div>
 </div></footer>
+<div class="cta-bar" data-testid="article-cta-bar"><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" aria-pressed="false" aria-label="도움이 돼요"><img id="cta-heart-off" src="/articles/assets/ic-heart.svg" alt="" width="24" height="24"><img id="cta-heart-on" src="/articles/assets/ic-heart-fill.svg" alt="" width="24" height="24" hidden></button>
+<button type="button" class="cta-icon" id="cta-share" aria-label="공유하기"><img src="/articles/assets/ic-share.svg" alt="" width="24" height="24"></button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" href="https://link.staircrusher.club/articles_footer_kakao?campaign=articles-cta&amp;ad_group=goyang-stadium-accessibility&amp;ad_creative=cta-kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">새로운 컨텐츠 알림받기</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" href="https://link.staircrusher.club/articles_cta_home?campaign=articles-cta&amp;ad_group=goyang-stadium-accessibility&amp;ad_creative=cta-browse" target="_blank" rel="noopener noreferrer">다른 콘텐츠 더 보기</a>
+</div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>
+<script>
+(function(){
+  var heart=document.getElementById('cta-heart'), share=document.getElementById('cta-share');
+  var on=document.getElementById('cta-heart-on'), off=document.getElementById('cta-heart-off');
+  if(!heart||!share||!on||!off) return;
+  var toast=document.getElementById('cta-toast');
+  var API=(function(){try{return localStorage.getItem('sccApiBase')||'';}catch(e){return '';}})()
+    ||'https://api.staircrusher.club';
+  var SLUG="goyang-stadium-accessibility";
+  // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
+  var PAGE_URL='https://web.staircrusher.club/articles/'+SLUG;
+  var upvoted=false, busy=false, spaTokenBad=false;
+  function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent=msg; toast.className='cta-toast on';
+    setTimeout(function(){toast.className='cta-toast';},1800);
+  }
+  function paint(){
+    on.hidden=!upvoted; off.hidden=upvoted;
+    heart.setAttribute('aria-pressed',upvoted?'true':'false');
+  }
+  // SPA(로그인 유저) 토큰. 있으면 좋아요를 그 사람 것으로 기록한다. **읽기만 한다.**
+  // 키 포맷이 두 가지다: webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어서 현재는
+  // 'mmkv.default.scc-token'(dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\scc-token'
+  // (backslash, KEY_WILDCARD) 이 된다. 둘 다 읽어서 alias 변경에 안 깨지게 한다.
+  // (못 읽으면 익명으로 폴백하므로 실패 방향은 안전하다 — 세션이 깨지는 게 아니라 집계 주체만 바뀐다)
+  function readSpaToken(){
+    if(spaTokenBad) return null;
+    var keys=['mmkv.default.scc-token','mmkv.default\\scc-token'];
+    for(var i=0;i<keys.length;i++){
+      try{var v=localStorage.getItem(keys[i]);
+        if(v){var t=JSON.parse(v); if(t) return t;}}catch(e){}
+    }
+    return null;
+  }
+  // 익명 정체성. **호출마다 새로 만들면 안 된다** — give 와 cancel 이 다른 유저로 기록돼
+  // 취소가 no-op 이 된다(실측 버그). 캐시된 게 있으면 그걸 쓴다.
+  function anonToken(cb){
+    var t=null;
+    try{t=localStorage.getItem('anonymousAccessToken');}catch(e){}
+    if(t){cb(t);return;}
+    mintToken(cb);
+  }
+  function mintToken(cb){
+    fetch(API+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var t=d&&d.authTokens&&d.authTokens.accessToken;
+        if(t){try{
+          localStorage.setItem('anonymousAccessToken',t);
+          localStorage.setItem('anonymousTokenExpiry',String(Date.now()+315360000000));
+        }catch(e){}}
+        cb(t||null);
+      }).catch(function(){cb(null);});
+  }
+  function post(path,body,token){
+    return fetch(API+path,{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(body)});
+  }
+  // 401 처리는 어느 토큰이 실패했는지에 따라 갈린다.
+  //  - SPA 토큰 만료 → SPA 키는 절대 건드리지 않고 익명 정체성으로 폴백한다.
+  //  - 캐시된 익명 토큰 만료 → 그때만 그 키를 비우고 1회 재발급한다.
+  function send(path,body,cb){
+    var spa=readSpaToken();
+    if(!spa){viaAnon(path,body,cb);return;}
+    post(path,body,spa).then(function(r){
+      if(r.status!==401){cb(r);return;}
+      spaTokenBad=true;   // 남은 호출에서 매번 401 을 한 번 더 맞지 않도록
+      viaAnon(path,body,cb);
+    }).catch(function(){cb(null);});
+  }
+  function viaAnon(path,body,cb){
+    anonToken(function(t){
+      if(!t){cb(null);return;}
+      post(path,body,t).then(function(r){
+        if(r.status!==401){cb(r);return;}
+        try{localStorage.removeItem('anonymousAccessToken');
+          localStorage.removeItem('anonymousTokenExpiry');}catch(e){}
+        mintToken(function(t2){
+          if(!t2){cb(null);return;}
+          post(path,body,t2).then(cb).catch(function(){cb(null);});
+        });
+      }).catch(function(){cb(null);});
+    });
+  }
+  send('/getSccContentDetails',{url:PAGE_URL},function(r){
+    if(!r||!r.ok) return;
+    r.json().then(function(d){
+      if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
+    }).catch(function(){});
+  });
+  heart.addEventListener('click',function(){
+    // 서버에 (type,id,user) unique 제약이 없어서 연타하면 중복 row 가 생기고 취소로 안 지워진다.
+    if(busy) return;
+    busy=true;
+    var next=!upvoted;
+    upvoted=next; paint();
+    log('article_upvote',{slug:SLUG,upvoted:next});
+    send(next?'/giveUpvote':'/cancelUpvote',{targetType:'ARTICLE',id:SLUG},function(r){
+      busy=false;
+      if(!r||!r.ok){upvoted=!next;paint();}  // 실패하면 낙관적 토글을 되돌린다
+    });
+  });
+  share.addEventListener('click',function(){
+    log('article_share',{slug:SLUG});
+    if(navigator.share){navigator.share({title:document.title,url:PAGE_URL}).catch(function(){});return;}
+    // 안드로이드 WebView 등 Web Share 미지원 → 링크 복사로 폴백
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(PAGE_URL)
+        .then(function(){showToast('링크를 복사했어요');})
+        .catch(function(){showToast('링크 복사에 실패했어요');});
+    }else{showToast('링크 복사를 지원하지 않는 브라우저예요');}
+  });
+  [].slice.call(document.querySelectorAll('.cta-main')).forEach(function(a){
+    a.addEventListener('click',function(){
+      log('article_cta_click',{slug:SLUG,variant:a.getAttribute('data-cta-variant')});
+    });
+  });
+})();
+</script>
 </body>
 </html>
