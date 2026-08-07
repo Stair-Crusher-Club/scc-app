@@ -63,6 +63,18 @@ const ONLY = (arg('only') || '')
 // → yarn web:build가 이걸 돌려, 앱 웹 배포 시에도 web-dist에 /articles가 항상 포함된다
 //   (web-deploy.sh의 `sync --delete`가 /articles를 지우지 않게 하는 구조적 안전장치).
 const OFFLINE = process.argv.includes('--offline');
+// --offline 은 article-template.js 를 호출하지 않고 커밋된 HTML 을 복사만 한다.
+// 따라서 --force/--only(= "템플릿 바꿨으니 다시 렌더해라") 와 조합하면 의미가 상충하고,
+// 성공 로그만 보고 "반영됐다"고 착각하게 된다. 조합 자체를 거부한다.
+// (2026-08-07: `--offline --force` 로 빌드하고 CTA 템플릿 변경이 반영된 줄 알았다)
+if (OFFLINE && (FORCE || ONLY.length) && require.main === module) {
+  console.error(
+    '❌ --offline 은 템플릿을 다시 타지 않습니다(커밋된 HTML 복사만) — ' +
+      `--${FORCE ? 'force' : 'only'} 와 함께 쓸 수 없습니다.\n` +
+      '   템플릿/CSS/인라인JS 를 고쳤다면 NOTION_TOKEN 을 주고 --offline 없이 실행하세요.',
+  );
+  process.exit(1);
+}
 // require.main 가드: 테스트에서 require 할 때 인자 검증으로 process.exit 하면 안 된다.
 if (!OFFLINE && require.main === module) {
   if (!TOKEN) {
