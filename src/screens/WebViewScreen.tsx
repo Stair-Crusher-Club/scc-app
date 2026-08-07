@@ -180,7 +180,10 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
                 ? payload.imageUrls
                 : [],
             });
-            if (payload.title) {
+            // fixedTitle 을 준 호출부는 헤더에 띄울 문구를 이미 정한 것이다 — 페이지의 OG title
+            // 로 덮으면 "공지사항"이 노션 문서 제목으로, 홈 섹션 더보기가 "아티클 | 계단뿌셔클럽"
+            // 으로 바뀐다. OG title 이 필요한 곳(FloatingBar)엔 ogDetail 로 따로 넘어간다.
+            if (payload.title && !fixedTitle) {
               setTitle(payload.title);
             }
           }
@@ -189,7 +192,7 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         // OG 스크립트 외 메시지는 무시 (의도되지 않은 raw postMessage).
       }
     },
-    [currentUrl, navigation],
+    [currentUrl, navigation, fixedTitle],
   );
 
   // 앱의 로그인 상태를 웹에 주입하는 스크립트. 페이지의 BbucleRoadScreen 이

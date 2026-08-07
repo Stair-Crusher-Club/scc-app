@@ -1,3 +1,4 @@
+/* eslint-env node */
 // 회귀: 이미지 다운로드가 실패해도 이미 발행된 에셋이 사라지면 안 된다.
 // 실제 사고 — yeonghee-festival 콜아웃 아이콘 2개가 notion.so/icons 403 + rmrf(srcDir) 조합으로
 // 재빌드에서 소실됐다. (prod 유실)
@@ -9,6 +10,8 @@ const {
   pruneUnusedAssets,
   pruneUnusedSubPages,
   reuseExistingAsset,
+  ensureThumbnails,
+  THUMB_NAME,
 } = require('../build-articles');
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'scc-articles-'));
@@ -72,4 +75,74 @@ test('prune은 이번 빌드에서 안 쓰인 에셋만 지운다 (재사용분�
 
   expect(fs.existsSync(path.join(assetsDir, 'img-2.svg'))).toBe(true);
   expect(fs.existsSync(path.join(assetsDir, 'img-9.png'))).toBe(false);
+});
+
+// 썸네일: 앱 홈/웹 목록이 3~7MB 원본 PNG를 받지 않게 하는 유일한 장치.
+// 빌드는 incremental이고 pruneUnusedAssets가 markUsed 안 된 파일을 지우므로,
+// "매번 다시 만들지 않는다(idempotent) + 원본이 바뀌면 다시 만든다(staleness)"가 핵심 계약이다.
+describe('ensureThumbnails', () => {
+  // 1x1 PNG. sharp가 실제로 디코드할 수 있는 최소 입력.
+  const PNG_1X1 = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64',
+  );
+
+  const setup = slug => {
+    const srcDir = tmp();
+    const assetsDir = path.join(srcDir, slug, 'assets');
+    fs.mkdirSync(assetsDir, {recursive: true});
+    fs.writeFileSync(path.join(assetsDir, 'img-0.png'), PNG_1X1);
+    return {srcDir, assetsDir};
+  };
+
+  const entryFor = slug => ({
+    slug,
+    image: `/articles/${slug}/assets/img-0.png`,
+  });
+
+  test('top-level 엔트리에 썸네일을 만들고 manifest에 thumbnail을 채운다', async () => {
+    const {srcDir, assetsDir} = setup('hello');
+    const manifest = {a: entryFor('hello')};
+
+    expect(await ensureThumbnails(manifest, srcDir)).toBe(1);
+    expect(fs.existsSync(path.join(assetsDir, THUMB_NAME))).toBe(true);
+    expect(manifest.a.thumbnail).toBe(`/articles/hello/assets/${THUMB_NAME}`);
+  });
+
+  test('두 번째 호출은 아무것도 다시 만들지 않는다 (idempotent)', async () => {
+    const {srcDir} = setup('hello');
+    const manifest = {a: entryFor('hello')};
+
+    await ensureThumbnails(manifest, srcDir);
+
+    expect(await ensureThumbnails(manifest, srcDir)).toBe(0);
+    expect(manifest.a.thumbnail).toBeTruthy(); // 재생성 안 해도 필드는 유지된다
+  });
+
+  test('원본이 더 최신이면 다시 만든다 (prune이 지워도 자가 복구)', async () => {
+    const {srcDir, assetsDir} = setup('hello');
+    const manifest = {a: entryFor('hello')};
+    await ensureThumbnails(manifest, srcDir);
+
+    const future = Date.now() / 1000 + 60;
+    fs.utimesSync(path.join(assetsDir, 'img-0.png'), future, future);
+
+    expect(await ensureThumbnails(manifest, srcDir)).toBe(1);
+  });
+
+  test('parent 엔트리(상세 페이지)는 건너뛴다', async () => {
+    const {srcDir, assetsDir} = setup('guide');
+    const manifest = {a: {...entryFor('guide'), parent: 'other'}};
+
+    expect(await ensureThumbnails(manifest, srcDir)).toBe(0);
+    expect(fs.existsSync(path.join(assetsDir, THUMB_NAME))).toBe(false);
+    expect(manifest.a.thumbnail).toBeUndefined();
+  });
+
+  test('원본이 없으면 조용히 건너뛴다', async () => {
+    const manifest = {a: entryFor('missing')};
+
+    expect(await ensureThumbnails(manifest, tmp())).toBe(0);
+    expect(manifest.a.thumbnail).toBeUndefined();
+  });
 });

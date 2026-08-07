@@ -54,6 +54,7 @@ import ToastUtils from '@/utils/ToastUtils';
 
 import {getDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 
+import ArticleSection from './sections/ArticleSection';
 import CategoryChipSection from './sections/CategoryChipSection';
 import FooterButtonsSection from './sections/FooterButtonsSection';
 import MainBannerSection from './sections/MainBannerSection';
@@ -512,6 +513,7 @@ const HomeScreenV2 = ({navigation}: any) => {
                 announcements={homeData?.announcements ?? []}
                 isLoading={isHomeDataLoading}
               />
+              <ArticleSection />
               <MainBannerSection
                 banners={homeData?.mainBanners ?? []}
                 onPanStateChange={handleBannerPanStateChange}

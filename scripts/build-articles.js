@@ -3,7 +3,9 @@
 /**
  * build-articles.js — Notion → web.staircrusher.club/articles 정적 생성기 (결정론적, incremental)
  *
- * 의존성 0: Notion REST API를 node 20 내장 fetch로 직접 호출한다 (package.json/앱 빌드 무관).
+ * 의존성: Notion REST API는 node 20 내장 fetch로 직접 호출한다. 유일한 외부 패키지는 목록 썸네일
+ * 생성용 `sharp`(devDependency)이고, 이것도 실제로 만들 게 있을 때만 lazy require 한다 —
+ * 썸네일이 전부 최신이면 sharp 없이도 이 스크립트는 끝까지 돈다.
  *
  * - article-list DB를 쿼리. 각 row는 두 형태를 모두 지원:
  *     (1) row 제목이 다른 페이지 mention → 그 타깃 페이지가 본문 (link 형태)
@@ -503,6 +505,49 @@ async function downloadImage(url, destDir, idx, prefix = 'img') {
   fs.writeFileSync(path.join(destDir, name), buf);
   markUsed(destDir, name);
   return `assets/${name}`;
+}
+
+// ---------- 목록 썸네일 생성 ----------
+// 대표 이미지가 원본 PNG 그대로라 3~7MB짜리가 260pt 카드/목록 썸네일로 나간다. 앱 홈은 가장 자주
+// 뜨는 화면이라 첫 로드 트래픽이 그대로 노출된다. manifest 전체를 돌며 thumb-0.webp를 만들고
+// `thumbnail` 필드를 채운다 — 소비처(앱 홈, 웹 목록)는 `thumbnail ?? image`로 읽어 폴백이 있다.
+//
+// 렌더 경로(buildArticle)가 아니라 manifest 순회인 이유가 두 개다:
+//  1) 빌드는 incremental이라(:changed 필터) 변경 없는 글은 통째로 스킵된다 → 기존 발행분을 백필 못 한다.
+//  2) pruneUnusedAssets가 markUsed 안 된 파일을 지운다. mtime 비교로 "지워졌으면 다시 만든다"가 되어
+//     prune 화이트리스트를 건드릴 필요가 없다.
+const THUMB_NAME = 'thumb-0.webp';
+const THUMB_WIDTH = 1024; // 앱 카드 260pt@3x=780px + 웹 히어로 카드까지 커버. ponytail: 단일 사이즈, srcset은 필요해지면.
+const THUMB_QUALITY = 78;
+
+async function ensureThumbnails(manifest, srcDir = SRC_DIR) {
+  let created = 0;
+  let sharp = null; // 실제 생성이 필요할 때만 require — 전부 최신이면 미설치 환경에서도 안 깨진다.
+  for (const entry of Object.values(manifest)) {
+    // parent 엔트리(상세 페이지)는 앱·웹 목록 어디서도 썸네일로 안 쓰인다.
+    if (entry.parent || !entry.image) continue;
+    const srcPath = path.join(srcDir, entry.image.replace(/^\/articles\//, ''));
+    if (!fs.existsSync(srcPath)) continue;
+    const destPath = path.join(path.dirname(srcPath), THUMB_NAME);
+    const thumbUrl = `/articles/${entry.slug}/assets/${THUMB_NAME}`;
+    if (
+      fs.existsSync(destPath) &&
+      fs.statSync(destPath).mtimeMs >= fs.statSync(srcPath).mtimeMs
+    ) {
+      entry.thumbnail = thumbUrl;
+      continue;
+    }
+    sharp = sharp || require('sharp');
+    await sharp(srcPath)
+      .resize({width: THUMB_WIDTH, withoutEnlargement: true})
+      .webp({quality: THUMB_QUALITY})
+      .toFile(destPath);
+    entry.thumbnail = thumbUrl;
+    created++;
+  }
+  if (created)
+    console.log(`  🖼️  썸네일 생성 ${created}건 (${THUMB_WIDTH}px webp)`);
+  return created;
 }
 
 // ---------- rich text → inline HTML (Notion 팔레트 그대로) ----------
@@ -1448,6 +1493,13 @@ async function main() {
 
   // offline: Notion 없이 커밋된 소스로 web-dist만 재조립 (yarn web:build에서 호출)
   if (OFFLINE) {
+    // 썸네일은 커밋된 원본만 있으면 만들 수 있다 → offline 실행이 기존 발행분의 백필 수단이다.
+    // 생성 건수가 아니라 manifest 변화로 판정한다: 썸네일 파일은 있는데 thumbnail 필드만 빠진
+    // 상태(예: manifest만 되돌린 경우)도 여기서 복구돼야 한다.
+    const before = JSON.stringify(manifest);
+    await ensureThumbnails(manifest);
+    if (JSON.stringify(manifest) !== before)
+      fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
     const published = reassembleDist(manifest);
     console.log(
       `📴 offline 재조립: ${published.length}건 → web-dist/articles/`,
@@ -1662,6 +1714,8 @@ async function main() {
       manifest[meta.rowId].featured = meta.featured;
       manifest[meta.rowId].categories = meta.categories;
     }
+  // 빌드 루프 + pruneUnusedAssets가 모두 끝난 뒤여야 한다 (prune이 방금 만든 썸네일을 지운다).
+  await ensureThumbnails(manifest);
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
 
   const published = reassembleDist(manifest);
@@ -1680,5 +1734,7 @@ if (require.main === module) {
     pruneUnusedAssets,
     pruneUnusedSubPages,
     reuseExistingAsset,
+    ensureThumbnails,
+    THUMB_NAME,
   };
 }
