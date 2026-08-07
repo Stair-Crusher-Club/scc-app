@@ -57,6 +57,16 @@ describe('withCampaign', () => {
 });
 
 describe('CTA 바 렌더', () => {
+  test('두 CTA 모두 새 탭으로 연다', () => {
+    const html = article();
+    for (const v of ['kakao', 'browse']) {
+      const tag = new RegExp(`<a class="cta-main cta-${v}"[^>]*>`).exec(html)[0];
+      expect(tag).toContain('target="_blank"');
+      // 새 탭에 window.opener 를 넘기지 않는다
+      expect(tag).toContain('rel="noopener noreferrer"');
+    }
+  });
+
   test('두 변형과 분기 스크립트가 모두 들어간다', () => {
     const html = article();
     expect(html).toContain('data-testid="article-cta-bar"');

@@ -389,7 +389,7 @@ function ctaBar(meta) {
 <button type="button" class="cta-icon" id="cta-heart" aria-pressed="false" aria-label="도움이 돼요">${icon('cta-heart-off', 'ic-heart.svg')}${icon('cta-heart-on', 'ic-heart-fill.svg', true)}</button>
 <button type="button" class="cta-icon" id="cta-share" aria-label="공유하기">${icon('', 'ic-share.svg')}</button>
 <a class="cta-main cta-kakao" data-cta-variant="kakao" href="${escapeAttr(kakaoHref)}" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">${escapeHtml(CTA.kakaoLabel)}</a>
-<a class="cta-main cta-browse" data-cta-variant="browse" href="${escapeAttr(browseHref)}">${escapeHtml(browseLabel)}</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" href="${escapeAttr(browseHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(browseLabel)}</a>
 </div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>`;
 }
 
