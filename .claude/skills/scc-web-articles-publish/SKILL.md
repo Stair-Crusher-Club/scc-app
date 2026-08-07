@@ -176,7 +176,8 @@ prod S3에는 나갔는데 `web-articles/` 커밋본이 브랜치에만 있으�
 gh pr merge <번호> --squash --admin --delete-branch
 ```
 - **`--admin` 필요** — 브랜치 보호가 `REVIEW_REQUIRED`라 리뷰어 없이는 `mergeStateStatus: BLOCKED`로 막힌다. 자기 PR은 self-approve가 안 되므로 admin 머지로 완주한다(CI `build`/CodeRabbit은 통과 확인 후).
-- **main push = sandbox OTA 배포 트리거**(`cd-sandbox.yml`). 정상 동작이니 놀라지 말 것. **`v*` 태그는 만들지 않는다** — 그건 prod 앱 OTA다(`/scc-app-release`). 아티클 발행에 앱 prod 배포는 불필요.
+- **main push = sandbox OTA 배포 트리거**(`cd-sandbox.yml`). 정상 동작이니 놀라지 말 것.
+- **prod 앱 홈의 콘텐츠 섹션 반영에는 prod OTA(`v*` 태그, `cd-production.yml`)가 필요하다** — 앱 홈 `ArticleSection`이 번들에 포함된 `web-articles/manifest.json`을 읽기 때문(`src/utils/articles.ts`). 웹(`web.staircrusher.club`)은 STEP 6 배포로 이미 반영되지만 **prod 앱 홈은 아니다**. 발행 완료 보고에 "앱 홈에도 반영하려면 prod OTA가 필요하다"를 한 줄 포함하고, 사용자가 명시 요청하면 `/scc-app-release` 절차로 태그를 단다. **태그 자동 생성 금지**(배포 = 명시 요청만, H4 hook).
 - 머지 후 `gh run list --branch main`으로 OTA Deployment가 도는지만 확인하면 끝.
 
 ## 블록 렌더링 & 디자인 충실도 (Notion ↔ article 1:1)

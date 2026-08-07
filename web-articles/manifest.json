@@ -11,7 +11,8 @@
     "featured": null,
     "categories": [
       "여행/나들이"
-    ]
+    ],
+    "thumbnail": "/articles/wheelchair-accessible-saved-lists/assets/thumb-0.webp"
   },
   "383c9499-b060-8076-a7e1-ef3b18d4e5f1": {
     "slug": "powered-wheelchair-air-travel-guide",
@@ -25,7 +26,8 @@
     "featured": null,
     "categories": [
       "이동/교통"
-    ]
+    ],
+    "thumbnail": "/articles/powered-wheelchair-air-travel-guide/assets/thumb-0.webp"
   },
   "38fc9499-b060-8126-82b6-f888fd7f8c15": {
     "slug": "coex-kiaf-art-fair-accessibility",
@@ -39,7 +41,8 @@
     "featured": null,
     "categories": [
       "공연/행사"
-    ]
+    ],
+    "thumbnail": "/articles/coex-kiaf-art-fair-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-814a-aec4-fe1d3a38ef22": {
     "slug": "war-memorial-archive-accessibility",
@@ -53,7 +56,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/war-memorial-archive-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-819f-a55f-cc7a20505f84": {
     "slug": "seocho-yangjae-library-accessibility",
@@ -67,7 +71,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/seocho-yangjae-library-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-81a8-90c7-d68412769b26": {
     "slug": "ddp-magazine-library-accessibility",
@@ -81,7 +86,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/ddp-magazine-library-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-818f-8177-d45b3d370655": {
     "slug": "kim-young-sam-library-accessibility",
@@ -95,7 +101,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/kim-young-sam-library-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-812c-81a9-dc2392c235be": {
     "slug": "hwadamsup-forest-accessibility",
@@ -109,7 +116,8 @@
     "featured": null,
     "categories": [
       "여행/나들이"
-    ]
+    ],
+    "thumbnail": "/articles/hwadamsup-forest-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-819e-afd6-c3b9566af6bd": {
     "slug": "jeonbuk-museum-of-art-accessibility",
@@ -123,7 +131,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/jeonbuk-museum-of-art-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-8158-b555-e3085c9a63d8": {
     "slug": "haengjusanseong-history-park-accessibility",
@@ -137,7 +146,8 @@
     "featured": null,
     "categories": [
       "여행/나들이"
-    ]
+    ],
+    "thumbnail": "/articles/haengjusanseong-history-park-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-816d-824c-f795f570394a": {
     "slug": "seocho-audeum-museum-accessibility",
@@ -151,7 +161,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/seocho-audeum-museum-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-8101-baf4-c45260f0c71e": {
     "slug": "disabled-call-taxi-guide",
@@ -165,7 +176,8 @@
     "featured": null,
     "categories": [
       "이동/교통"
-    ]
+    ],
+    "thumbnail": "/articles/disabled-call-taxi-guide/assets/thumb-0.webp"
   },
   "38fc9499-b060-8130-b0c1-e27f28239d87": {
     "slug": "culinary-class-wars-accessible-restaurants",
@@ -179,7 +191,8 @@
     "featured": null,
     "categories": [
       "맛집/카페"
-    ]
+    ],
+    "thumbnail": "/articles/culinary-class-wars-accessible-restaurants/assets/thumb-0.webp"
   },
   "38fc9499-b060-8176-b32a-e9dcba83b4d3": {
     "slug": "kspo-dome-concert-hall-accessibility",
@@ -193,7 +206,8 @@
     "featured": null,
     "categories": [
       "공연/행사"
-    ]
+    ],
+    "thumbnail": "/articles/kspo-dome-concert-hall-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-81ff-9b5b-dde126f9cf8e": {
     "slug": "nationwide-accessible-places",
@@ -208,7 +222,8 @@
     "categories": [
       "맛집/카페",
       "여행/나들이"
-    ]
+    ],
+    "thumbnail": "/articles/nationwide-accessible-places/assets/thumb-0.webp"
   },
   "38fc9499-b060-8186-9aff-dc604dbf1fb4": {
     "slug": "bts-accessible-restaurants-seoul",
@@ -222,7 +237,8 @@
     "featured": null,
     "categories": [
       "맛집/카페"
-    ]
+    ],
+    "thumbnail": "/articles/bts-accessible-restaurants-seoul/assets/thumb-0.webp"
   },
   "38fc9499-b060-8117-aabf-fc25f2992e19": {
     "slug": "culinary-class-wars-2-accessible-restaurants",
@@ -236,7 +252,8 @@
     "featured": null,
     "categories": [
       "맛집/카페"
-    ]
+    ],
+    "thumbnail": "/articles/culinary-class-wars-2-accessible-restaurants/assets/thumb-0.webp"
   },
   "38fc9499-b060-8155-aae3-f205c87b9c63": {
     "slug": "goyang-stadium-accessibility",
@@ -250,7 +267,8 @@
     "featured": null,
     "categories": [
       "공연/행사"
-    ]
+    ],
+    "thumbnail": "/articles/goyang-stadium-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-8003-ac61-dd4a92cc31bd": {
     "slug": "diaspora-film-festival-accessibility",
@@ -264,7 +282,8 @@
     "featured": null,
     "categories": [
       "공연/행사"
-    ]
+    ],
+    "thumbnail": "/articles/diaspora-film-festival-accessibility/assets/thumb-0.webp"
   },
   "38fc9499-b060-809d-b02d-d84009a074f7": {
     "slug": "yeonghee-festival-mapo-art-center-accessibility",
@@ -279,7 +298,8 @@
     "categories": [
       "공연/행사",
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/yeonghee-festival-mapo-art-center-accessibility/assets/thumb-0.webp"
   },
   "3aac9499-b060-80a0-afe4-fa9f65d71d03": {
     "slug": "wheelchair-solo-culture-spaces-seoul",
@@ -293,7 +313,8 @@
     "featured": null,
     "categories": [
       "문화공간"
-    ]
+    ],
+    "thumbnail": "/articles/wheelchair-solo-culture-spaces-seoul/assets/thumb-0.webp"
   },
   "3b2c9499-b060-80fd-ad82-ce177d1adcf9": {
     "slug": "gyeongbokgung-wheelchair-accessible-cafes",
@@ -307,7 +328,8 @@
     "featured": 1,
     "categories": [
       "맛집/카페"
-    ]
+    ],
+    "thumbnail": "/articles/gyeongbokgung-wheelchair-accessible-cafes/assets/thumb-0.webp"
   },
   "3b2c9499-b060-8052-9cfc-e3e41489bf24": {
     "slug": "anguk-station-wheelchair-accessible-cafes",
@@ -321,7 +343,8 @@
     "featured": null,
     "categories": [
       "맛집/카페"
-    ]
+    ],
+    "thumbnail": "/articles/anguk-station-wheelchair-accessible-cafes/assets/thumb-0.webp"
   },
   "3b2c9499-b060-8085-a99a-c5f936f7cbbe": {
     "slug": "seochon-wheelchair-accessible-restaurants-cafes",
@@ -335,7 +358,8 @@
     "featured": null,
     "categories": [
       "맛집/카페"
-    ]
+    ],
+    "thumbnail": "/articles/seochon-wheelchair-accessible-restaurants-cafes/assets/thumb-0.webp"
   },
   "19ec9499-b060-80c9-aa97-ea403e6db509": {
     "slug": "disabled-call-taxi-guide/gwangju-disabled-call-taxi",

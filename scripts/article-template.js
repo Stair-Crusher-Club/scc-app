@@ -432,10 +432,14 @@ const fmtDate = iso => (iso || '').slice(0, 10).replace(/-/g, '.');
  */
 function renderListPage(articles) {
   const url = `${SITE.baseUrl}/articles`;
-  const thumb = a =>
-    a.image
-      ? `<img class="thumb" src="${escapeAttr(a.image)}" alt="${escapeAttr(a.title)}" loading="lazy">`
+  // 목록은 압축 썸네일(thumb-0.webp)을 쓴다. 원본 image는 3~7MB짜리라 목록에 그대로 나가면 안 된다.
+  // (상세 페이지 히어로/OG는 계속 원본 image — 거긴 고해상도가 맞다)
+  const thumb = a => {
+    const src = a.thumbnail || a.image;
+    return src
+      ? `<img class="thumb" src="${escapeAttr(src)}" alt="${escapeAttr(a.title)}" loading="lazy">`
       : `<div class="thumb"></div>`;
+  };
   const catAttr = a => escapeAttr((a.categories || []).join('|'));
   const meta = a =>
     `<div class="c-meta"><b>${SITE.name}</b><i></i>${fmtDate(a.publishedAt)}</div>`;
