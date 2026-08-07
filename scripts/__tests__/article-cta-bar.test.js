@@ -57,13 +57,13 @@ describe('withCampaign', () => {
 });
 
 describe('CTA 바 렌더', () => {
-  test('좋아요 누른 상태는 하트와 테두리가 같은 빨강이다', () => {
+  // 사용자 피드백(2026-08-07): 하트 아이콘만 빨강, 버튼 네모 테두리는 기본 회색 유지.
+  // 테두리까지 빨강이면 버튼이 에러 상태처럼 보인다.
+  test('좋아요 누른 상태는 하트만 빨강이고 테두리는 그대로다', () => {
     const html = article();
-    expect(html).toContain('--red:#db0b24');
-    // aria-pressed 로 테두리 색이 바뀌고, 아이콘 자체도 같은 값이어야 한다
-    expect(html).toContain(
-      '.cta-icon[aria-pressed="true"]{border-color:var(--red);}',
-    );
+    expect(html).not.toContain('aria-pressed="true"]{border-color');
+    // 쓰이지 않는 --red 토큰이 되살아나면(= 테두리 규칙 복귀) 실패한다
+    expect(html).not.toContain('--red:');
     const svg = require('fs').readFileSync(
       require('path').join(
         __dirname,
@@ -137,6 +137,26 @@ describe('CTA 바 렌더', () => {
     expect(article()).toContain(
       "var PAGE_URL='https://web.staircrusher.club/articles/'+SLUG",
     );
+  });
+
+  // 사용자 피드백(2026-08-07): 공유는 그냥 URL 이 아니라 유입 집계가 되는 URL 이어야 한다.
+  // 에어브릿지 트래킹링크는 자기 OG 를 서빙해 카톡 미리보기를 깨므로 canonical+campaign 을 쓴다.
+  test('공유는 campaign 파라미터가 붙은 canonical 을 쓴다', () => {
+    const html = article();
+    const shareUrl = /var SHARE_URL="([^"]+)"/.exec(html)[1];
+    expect(shareUrl).toBe(
+      'https://web.staircrusher.club/articles/test-slug' +
+        '?campaign=articles-share&ad_group=test-slug&ad_creative=cta-share',
+    );
+    // Web Share·클립보드 폴백 **둘 다** SHARE_URL 이어야 한다 (한쪽만 바꾸는 실수 방지)
+    const body = html.slice(html.indexOf("log('article_share'"));
+    expect(body).toContain(
+      'navigator.share({title:document.title,url:SHARE_URL})',
+    );
+    expect(body).toContain('writeText(SHARE_URL)');
+    // 좋아요 target 은 파라미터 없는 canonical 이어야 한다 — 둘을 섞으면 카운터가 갈린다
+    expect(body).not.toContain('writeText(PAGE_URL)');
+    expect(shareUrl).not.toContain('link.staircrusher.club');
   });
 
   test('SPA 로그인 토큰 키에는 절대 쓰지 않는다', () => {

@@ -408,6 +408,13 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
             return navState.url;
           });
         }}
+        // 스크롤 관성을 iOS 기본값으로 되돌린다 — **New Architecture 에서는 필수다.**
+        // react-native-webview 의 Fabric codegen spec 은 `decelerationRate?: Double` 을
+        // WithDefault 없이 선언해서, 생성된 Props.h 가 `double decelerationRate{0.0}` 이 된다
+        // (ios/build/generated/.../RNCWebViewSpec/Props.h). prop 을 안 넘기면 0 이 그대로
+        // scrollView.decelerationRate 에 박혀 손을 떼는 순간 스크롤이 멈춘다.
+        // 구 아키텍처 경로(RNCWebViewManager.mm)는 nil 일 때 Normal 로 폴백하므로 이 함정이 없다.
+        decelerationRate="normal"
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />
       {shouldShowFloatingBar && (

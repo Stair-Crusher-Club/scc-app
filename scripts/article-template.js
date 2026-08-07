@@ -62,12 +62,14 @@ const CTA = {
 };
 
 /**
- * 트래킹링크에 campaign 파라미터를 붙인다.
+ * URL 에 campaign 파라미터를 붙인다.
  * airbridge 링크는 생성 시 campaignParams 를 비워둬야 재사용이 가능하므로(넣으면 URL 파라미터를
  * 덮어써버린다 — make_links.py 실측) 링크별 구분값은 이렇게 호출 시점에 붙인다.
  * **이미 있는 키는 덮어쓰지 않는다** — Notion 에 파라미터가 박힌 URL 이 들어와도 안전하게.
+ *
+ * CTA 버튼(트래킹링크)은 `articles-cta`, 공유하기(아티클 canonical)는 `articles-share` 를 쓴다.
  */
-function withCampaign(url, slug, creative) {
+function withCampaign(url, slug, creative, campaign = 'articles-cta') {
   const hashAt = url.indexOf('#');
   const hash = hashAt >= 0 ? url.slice(hashAt) : '';
   const [base, existing = ''] = (
@@ -77,7 +79,7 @@ function withCampaign(url, slug, creative) {
     existing ? existing.split('&').map(p => p.split('=')[0]) : [],
   );
   const added = [
-    ['campaign', 'articles-cta'],
+    ['campaign', campaign],
     ['ad_group', slug],
     ['ad_creative', creative],
   ]
@@ -107,9 +109,7 @@ const escapeAttr = escapeHtml;
 const BASE_CSS = `
 :root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
 /* 목록/푸터 디자인 토큰 (Figma) */
---g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;
-/* 좋아요 활성 색 — 앱 팔레트 color.red (src/constant/color.ts) */
---red:#db0b24;}
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
 *{box-sizing:border-box;}
 [hidden]{display:none!important;}
 html{-webkit-text-size-adjust:100%;}
@@ -241,10 +241,10 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
 .cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
 .cta-icon img{display:block;width:24px;height:24px;}
-/* 좋아요 누른 상태: 하트와 테두리를 같은 빨강으로 (앱 팔레트 color.red).
-   Figma 에 active 상태 디자인이 없어 디자인시스템 fill variant 기본색(#0C76F7 파랑)을
-   앱 팔레트 red 로 바꿔 쓴다 — ic-heart-fill.svg 의 fill/stroke 도 같은 값이다. */
-.cta-icon[aria-pressed="true"]{border-color:var(--red);}
+/* 좋아요 누른 상태는 **하트 아이콘만** 빨강으로 바뀐다 (ic-heart-fill.svg 의 fill/stroke =
+   #DB0B24, 앱 팔레트 color.red). Figma 에 active 상태가 없어 디자인시스템 fill variant 기본색
+   (#0C76F7 파랑)을 앱 red 로 바꿔 썼다. 버튼 테두리는 눌려도 기본 회색 그대로 둔다 — 테두리까지
+   빨강이면 아이콘 강조가 죽고 버튼 자체가 에러 상태처럼 보인다. (사용자 피드백 2026-08-07) */
 .cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
 .cta-main img{display:block;width:52px;height:32px;}
 /* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */
@@ -416,6 +416,18 @@ const articleJs = slug => `<script>
   var SLUG=${JSON.stringify(slug).replace(/</g, '\\u003c')};
   // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
   var PAGE_URL='${SITE.baseUrl}/articles/'+SLUG;
+  // 공유는 canonical + campaign 파라미터로 내보낸다(GA 유입 집계용). 에어브릿지 트래킹링크를
+  // 쓰지 않는 이유: 링크가 자기 OG 를 직접 서빙해서(302 아님, 실측) 카톡 미리보기가 아티클
+  // 원본이 아니라 링크에 복제해둔 값이 된다 — 제목·썸네일이 바뀌면 그대로 stale 해진다.
+  // PAGE_URL 은 좋아요 target 조회용이라 파라미터가 붙으면 안 되므로 별도 상수로 둔다.
+  var SHARE_URL=${JSON.stringify(
+    withCampaign(
+      `${SITE.baseUrl}/articles/${slug}`,
+      slug,
+      'cta-share',
+      'articles-share',
+    ),
+  ).replace(/</g, '\\u003c')};
   var upvoted=false, busy=false, spaTokenBad=false;
   function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
   function showToast(msg){
@@ -512,10 +524,10 @@ const articleJs = slug => `<script>
   });
   share.addEventListener('click',function(){
     log('article_share',{slug:SLUG});
-    if(navigator.share){navigator.share({title:document.title,url:PAGE_URL}).catch(function(){});return;}
+    if(navigator.share){navigator.share({title:document.title,url:SHARE_URL}).catch(function(){});return;}
     // 안드로이드 WebView 등 Web Share 미지원 → 링크 복사로 폴백
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(PAGE_URL)
+      navigator.clipboard.writeText(SHARE_URL)
         .then(function(){showToast('링크를 복사했어요');})
         .catch(function(){showToast('링크 복사에 실패했어요');});
     }else{showToast('링크 복사를 지원하지 않는 브라우저예요');}
