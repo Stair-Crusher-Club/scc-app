@@ -414,7 +414,15 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
         // (ios/build/generated/.../RNCWebViewSpec/Props.h). prop 을 안 넘기면 0 이 그대로
         // scrollView.decelerationRate 에 박혀 손을 떼는 순간 스크롤이 멈춘다.
         // 구 아키텍처 경로(RNCWebViewManager.mm)는 nil 일 때 Normal 로 폴백하므로 이 함정이 없다.
-        decelerationRate="normal"
+        //
+        // **문자열 'normal' 을 쓰면 안드로이드가 크래시한다.** 'normal'→0.998 변환은
+        // WebView.ios.tsx 의 processDecelerationRate 에만 있고 WebView.android.tsx 는
+        // prop 을 그대로 넘긴다. 안드로이드 Fabric 은 뷰 preallocate 시점에
+        // RNCWebViewManagerDelegate 가 `((Double) value)` 로 캐스팅하므로 String 이 오면
+        // ClassCastException 으로 **웹뷰를 여는 순간 앱이 죽는다**(아티클/공지사항/뿌클로드 전부).
+        // 그래서 iOS 가 내부적으로 쓰는 값(0.998)을 직접 넘긴다 — 안드로이드 setDecelerationRate 는
+        // no-op 이라 무해하다(android/src/newarch/.../RNCWebViewManager.java).
+        decelerationRate={0.998}
         contentInset={shouldShowFloatingBar ? {bottom: 80} : undefined}
       />
       {shouldShowFloatingBar && (
