@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {AccessibilityInfo} from 'react-native';
 import Animated, {
   Easing,
@@ -13,6 +13,7 @@ import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color.ts';
 import {font} from '@/constant/font.ts';
 import {AlternativeSearchSuggestionDto} from '@/generated-sources/openapi';
+import {useLogger} from '@/logging/useLogger';
 import {useAlternativeSearchSuggestion} from '@/screens/SearchScreen/useAlternativeSearchSuggestion';
 
 /**
@@ -99,6 +100,22 @@ function AnimatedCta({
     });
   }, [isVisible, progress]);
 
+  // 노출 로깅은 **실제로 보이기 시작한 순간**에 남긴다.
+  // SccXxx 의 trackView 는 마운트 시점에 발사되는데, 이 CTA 는 제안이 도착하면 마운트된 뒤
+  // opacity 0 -> 1 로 등장한다. 스크롤 중에 제안이 도착하면 화면에 보이지 않는 상태로
+  // 마운트되므로, trackView 를 쓰면 사용자가 못 본 노출까지 집계된다.
+  const loggerRef = useRef(useLogger());
+  const hasLoggedViewRef = useRef(false);
+  useEffect(() => {
+    if (isVisible && !hasLoggedViewRef.current) {
+      hasLoggedViewRef.current = true;
+      loggerRef.current.logElementView('search_alternative_search_button', {
+        alternative_search_text: searchText,
+        place_id: placeId,
+      });
+    }
+  }, [isVisible, searchText, placeId]);
+
   const animatedStyle = useAnimatedStyle(() => {
     if (isReduceMotionEnabled) {
       return {opacity: progress.value};
@@ -121,10 +138,6 @@ function AnimatedCta({
       pointerEvents={isVisible ? 'auto' : 'none'}>
       <CtaButton
         elementName="search_alternative_search_button"
-        // 노출(제안 true) 대비 클릭 전환을 볼 수 있게 노출도 함께 남긴다.
-        // placeId는 서버의 제안 판단 로그(ALTERNATIVE_SEARCH_SUGGESTION)와 대조하기 위한 키다 —
-        // "제안은 true였는데 스크롤로 스쳐 노출되지 않은" 케이스를 이 둘의 차이로 본다.
-        trackView
         logParams={{alternative_search_text: searchText, place_id: placeId}}
         activeOpacity={0.8}
         accessibilityRole="button"
