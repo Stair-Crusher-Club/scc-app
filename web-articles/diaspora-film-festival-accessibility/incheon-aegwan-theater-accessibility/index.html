@@ -7,7 +7,54 @@
 <meta name="description" content="인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.">
 <link rel="canonical" href="https://web.staircrusher.club/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-B80XR4HWJE');</script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+(function(){
+  // 앱 인앱 웹뷰: WebViewScreen 의 injectedJavaScriptBeforeContentLoaded 가
+  // 페이지 스크립트보다 먼저 window.__SCC_APP_AUTH__ 를 심어둔다. 그게 앱 유저의 신원이다.
+  // 브라우저: 직전 세션이 남긴 localStorage. 첫 방문자는 신원이 없다(익명계정 발급 전) —
+  // 그 경우 번들의 Logger.setUserId 가 나중에 채운다.
+  //
+  // mmkv 키가 두 포맷인 것은 scripts/article-template.js 의 readSpaToken 과 같은 이유다:
+  // webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어 지금은 'mmkv.default.userInfo'
+  // (dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\\userInfo' (backslash) 가 된다.
+  function readUserId(){
+    try {
+      var injected = window.__SCC_APP_AUTH__;
+      if (injected && injected.userId) return injected.userId;
+    } catch (e) {}
+    var keys = ['mmkv.default.userInfo', 'mmkv.default\\userInfo'];
+    for (var i = 0; i < keys.length; i++) {
+      try {
+        var raw = localStorage.getItem(keys[i]);
+        if (raw) {
+          var user = JSON.parse(raw);
+          if (user && user.id) return user.id;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  // react-native-webview 는 자신이 로드한 모든 페이지에 ReactNativeWebView 를 주입한다
+  // (토큰 주입 여부와 무관). web/utils/isInAppWebView.ts 와 동일한 신호를 쓴다.
+  var surface = window.ReactNativeWebView ? 'app_webview' : 'web';
+  var userId = readUserId();
+
+  var userProperties = {surface: surface};
+  if (userId) userProperties.userId = userId;
+
+  gtag('set', 'user_properties', userProperties);
+  gtag('set', {surface: surface});
+  var config = {user_properties: userProperties};
+  if (userId) config.user_id = userId;
+  gtag('config', 'G-B80XR4HWJE', config);
+})();
+</script>
+<script defer src="/articles-analytics.js"></script>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <meta property="og:type" content="article">
@@ -239,12 +286,12 @@ body.has-cta{padding-bottom:96px;}
 <script>if(/[?&]from=kakao(?:&|$)/.test(location.search))document.documentElement.setAttribute('data-cta','list');</script>
 <noscript><style>.cta-icon{display:none}</style></noscript>
 </head>
-<body class="has-cta">
+<body class="has-cta" data-screen-name="Article" data-slug="diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility">
 <header class="site-header"><div class="wrap">
   <a href="/articles" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;"><img src="/articles/assets/scc-logo.png" alt="계단뿌셔클럽"><b>계단뿌셔클럽</b></a>
 </div></header>
 <div class="wrap">
-<a class="back" href="/articles/diaspora-film-festival-accessibility">← 목록으로</a>
+<a class="back" href="/articles/diaspora-film-festival-accessibility" data-element-name="article_back_to_list">← 목록으로</a>
 <article data-testid="article-detail">
 <h1 class="title">[인천] 애관극장</h1>
 <div class="article-date">2026-07-01</div>
@@ -286,11 +333,11 @@ body.has-cta{padding-bottom:96px;}
   </div>
 </div>
 </div></footer>
-<div class="cta-bar" data-testid="article-cta-bar"><div class="cta-inner">
-<button type="button" class="cta-icon" id="cta-heart" aria-pressed="false" aria-label="도움이 돼요"><img id="cta-heart-off" src="/articles/assets/ic-heart.svg" alt="" width="24" height="24"><img id="cta-heart-on" src="/articles/assets/ic-heart-fill.svg" alt="" width="24" height="24" hidden></button>
-<button type="button" class="cta-icon" id="cta-share" aria-label="공유하기"><img src="/articles/assets/ic-share.svg" alt="" width="24" height="24"></button>
-<a class="cta-main cta-kakao" data-cta-variant="kakao" href="https://link.staircrusher.club/articles_footer_kakao?campaign=articles-cta&amp;ad_group=diaspora-film-festival-accessibility%2Fincheon-aegwan-theater-accessibility&amp;ad_creative=cta-kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">새로운 컨텐츠 알림받기</a>
-<a class="cta-main cta-browse" data-cta-variant="browse" href="https://link.staircrusher.club/articles_cta_home?campaign=articles-cta&amp;ad_group=diaspora-film-festival-accessibility%2Fincheon-aegwan-theater-accessibility&amp;ad_creative=cta-browse" target="_blank" rel="noopener noreferrer">다른 콘텐츠 더 보기</a>
+<div class="cta-bar" data-testid="article-cta-bar" data-element-name="article_cta_bar" data-track-view><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" data-element-name="article_upvote" aria-pressed="false" aria-label="도움이 돼요"><img id="cta-heart-off" src="/articles/assets/ic-heart.svg" alt="" width="24" height="24"><img id="cta-heart-on" src="/articles/assets/ic-heart-fill.svg" alt="" width="24" height="24" hidden></button>
+<button type="button" class="cta-icon" id="cta-share" data-element-name="article_share" aria-label="공유하기"><img src="/articles/assets/ic-share.svg" alt="" width="24" height="24"></button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" data-element-name="article_cta_kakao" href="https://link.staircrusher.club/articles_footer_kakao?campaign=articles-cta&amp;ad_group=diaspora-film-festival-accessibility%2Fincheon-aegwan-theater-accessibility&amp;ad_creative=cta-kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">새로운 컨텐츠 알림받기</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" data-element-name="article_cta_browse" href="https://link.staircrusher.club/articles_cta_home?campaign=articles-cta&amp;ad_group=diaspora-film-festival-accessibility%2Fincheon-aegwan-theater-accessibility&amp;ad_creative=cta-browse" target="_blank" rel="noopener noreferrer">다른 콘텐츠 더 보기</a>
 </div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>
 <script>
 (function(){

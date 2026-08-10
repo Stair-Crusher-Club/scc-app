@@ -1500,6 +1500,43 @@ function writeLlms(articles) {
 }
 
 // ---------- dist 재조립 (Notion 불필요: 커밋된 web-articles/ + manifest만 사용) ----------
+/**
+ * 목록 페이지는 매번 템플릿으로 다시 그리지만 **상세 페이지는 커밋된 HTML 복사**다.
+ * 그래서 템플릿을 고쳐도 상세엔 반영되지 않고, 목록만 새것인 절름발이 배포가 나간다.
+ * (2026-08: CTA 바 때 한 번, GA 계측 때 또 한 번 같은 함정에 빠졌다.)
+ *
+ * 지금 템플릿이 내는 상세 페이지의 필수 마커가 커밋된 HTML 에 없으면 크게 경고한다.
+ * 판정 기준을 "계측 스크립트 태그" 로 두는 이유: head 에 있고, 재발행 없이는 절대 생기지 않는다.
+ */
+function warnIfDetailPagesAreStale() {
+  const MARKER = '/articles-analytics.js';
+  // 목록(DIST_ARTICLES/index.html)은 매번 다시 그리므로 제외하고 상세 페이지만 본다.
+  // **중첩 상세(parent 있는 row 페이지)까지 전수 순회한다** — topLevel 만 검사하면
+  // "부모는 재발행됐지만 자식은 옛 HTML" 인 변종을 조용히 통과시킨다.
+  const detailPages = [];
+  const walk = dir => {
+    for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+      const p = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(p);
+      else if (entry.name === 'index.html' && dir !== DIST_ARTICLES) {
+        detailPages.push(p);
+      }
+    }
+  };
+  walk(DIST_ARTICLES);
+  const stale = detailPages.filter(
+    p => !fs.readFileSync(p, 'utf8').includes(MARKER),
+  );
+  if (stale.length === 0) return;
+  const rel = p => path.relative(DIST_ARTICLES, path.dirname(p));
+  console.warn(
+    `\n⚠️  상세 페이지 ${stale.length}/${detailPages.length}건이 **옛 템플릿**으로 만들어져 있습니다.\n` +
+      `   --offline 은 커밋된 HTML 을 복사만 하므로 템플릿 변경이 상세에 반영되지 않습니다.\n` +
+      `   NOTION_TOKEN 을 주고 --offline 없이 재발행하세요 (/scc-web-articles-publish).\n` +
+      `   예: ${stale.slice(0, 3).map(rel).join(', ')}\n`,
+  );
+}
+
 function reassembleDist(manifest) {
   fs.mkdirSync(DIST_DIR, {recursive: true});
   rmrf(DIST_ARTICLES);
@@ -1524,6 +1561,7 @@ function reassembleDist(manifest) {
     path.join(DIST_ARTICLES, 'index.html'),
     renderListPage(topLevel),
   );
+  warnIfDetailPagesAreStale();
   mergeSitemap(all); // 상세 페이지 URL도 sitemap에 포함(SEO)
   writeRobots();
   writeLlms(all);

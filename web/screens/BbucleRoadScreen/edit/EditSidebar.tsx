@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   편집 모드 전용 사이드바(운영자만 사용) — 계측 대상이 아니다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
 import styled from 'styled-components/native';
@@ -56,13 +59,38 @@ export default function EditSidebar() {
     setLoginError(null);
   }, []);
 
+  // hook 은 early return 앞에서 무조건 호출한다 (react-hooks/rules-of-hooks).
+  const exportToJson = editContext?.exportToJson;
+  const importFromJson = editContext?.importFromJson;
+
+  const handleExportJson = useCallback(async () => {
+    if (!exportToJson) return;
+    const json = exportToJson();
+    try {
+      await navigator.clipboard.writeText(json);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
+  }, [exportToJson]);
+
+  const handleImportJson = useCallback(() => {
+    if (!importFromJson) return;
+    setImportError(null);
+    const success = importFromJson(jsonInput);
+    if (success) {
+      setJsonInput('');
+    } else {
+      setImportError('JSON 파싱 실패. 올바른 형식인지 확인하세요.');
+    }
+  }, [jsonInput, importFromJson]);
+
   if (!editContext) return null;
 
   const {
     data,
     updateData,
-    exportToJson,
-    importFromJson,
     editingRegion,
     startAddingRegion,
     startAddingSeatViewRegion,
@@ -77,27 +105,6 @@ export default function EditSidebar() {
     deleteRegion,
     deleteSeatViewRegion,
   } = editContext;
-
-  const handleExportJson = useCallback(async () => {
-    const json = exportToJson();
-    try {
-      await navigator.clipboard.writeText(json);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-    }
-  }, [exportToJson]);
-
-  const handleImportJson = useCallback(() => {
-    setImportError(null);
-    const success = importFromJson(jsonInput);
-    if (success) {
-      setJsonInput('');
-    } else {
-      setImportError('JSON 파싱 실패. 올바른 형식인지 확인하세요.');
-    }
-  }, [jsonInput, importFromJson]);
 
   return (
     <Container>
@@ -1613,12 +1620,6 @@ const SeatViewEditPanel = styled(View)`
   border: 1px solid #e0e0e0;
 `;
 
-const RegionInfoText = styled(Text)`
-  font-size: 11px;
-  color: #666;
-  margin-top: 8px;
-  font-style: italic;
-`;
 
 const HtmlEditRow = styled(View)`
   flex-direction: row;

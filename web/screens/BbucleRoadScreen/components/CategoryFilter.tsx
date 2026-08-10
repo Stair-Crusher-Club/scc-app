@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   styled() 의 베이스로만 쓰고 렌더 시 `as={SccPressable}` 로 교체한다 — 클릭은 정상 로깅된다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';

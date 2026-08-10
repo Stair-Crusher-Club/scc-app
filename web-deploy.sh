@@ -46,15 +46,20 @@ fi
 # 계속 물어, 배포해도 사용자에게 반영되지 않는다(예: 버튼이 안 먹는 옛 popup 번들).
 # CloudFront invalidation 은 edge 캐시만 비우고 브라우저 캐시는 못 비우므로 origin 헤더로 강제한다.
 # (해시 파일명 asset 은 내용이 바뀌면 이름이 바뀌므로 그대로 둔다.)
-echo -e "${YELLOW}진입 파일(bundle.js/HTML) Cache-Control=no-cache 재설정 중...${NC}"
-aws s3 cp "s3://$BUCKET_NAME/bundle.js" "s3://$BUCKET_NAME/bundle.js" \
-    --metadata-directive REPLACE --cache-control "no-cache" \
-    --content-type "application/javascript" > /dev/null
-if aws s3 ls "s3://$BUCKET_NAME/bundle.js.map" > /dev/null 2>&1; then
-    aws s3 cp "s3://$BUCKET_NAME/bundle.js.map" "s3://$BUCKET_NAME/bundle.js.map" \
+echo -e "${YELLOW}진입 파일(bundle.js/articles-analytics.js/HTML) Cache-Control=no-cache 재설정 중...${NC}"
+# 고정 파일명 진입 청크들 (webpack output.filename='[name].js').
+# articles-analytics.js 는 정적 /articles 페이지의 계측 번들 — 캐시되면 계측 변경이
+# 사용자에게 영영 반영되지 않는다.
+for entry in bundle articles-analytics; do
+    aws s3 cp "s3://$BUCKET_NAME/$entry.js" "s3://$BUCKET_NAME/$entry.js" \
         --metadata-directive REPLACE --cache-control "no-cache" \
-        --content-type "application/json" > /dev/null
-fi
+        --content-type "application/javascript" > /dev/null
+    if aws s3 ls "s3://$BUCKET_NAME/$entry.js.map" > /dev/null 2>&1; then
+        aws s3 cp "s3://$BUCKET_NAME/$entry.js.map" "s3://$BUCKET_NAME/$entry.js.map" \
+            --metadata-directive REPLACE --cache-control "no-cache" \
+            --content-type "application/json" > /dev/null
+    fi
+done
 # 모든 index.html (루트 SPA + bbucle-road prerender + articles 정적) no-cache
 aws s3 cp "s3://$BUCKET_NAME/" "s3://$BUCKET_NAME/" --recursive \
     --exclude "*" --include "*.html" \

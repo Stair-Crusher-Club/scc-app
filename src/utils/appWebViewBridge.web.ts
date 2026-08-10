@@ -24,6 +24,11 @@ export interface AppInjectedAuth {
   baseUrl?: string;
   /** 앱 유저가 미식별(비회원/로그아웃) 상태인지. 토큰 존재만으로는 알 수 없다. */
   isAnonymous: boolean;
+  /**
+   * 앱 유저의 id (비회원도 채번된 값이 있다). 로그아웃 상태면 null.
+   * GA 이벤트를 앱과 같은 신원으로 남기기 위한 것 — bridgeVersion 2 부터.
+   */
+  userId: string | null;
   /** 주입 payload 스키마 버전. 0 = 이 필드가 없는 구버전 앱 = 로그인 위임 미지원. */
   bridgeVersion: number;
 }
@@ -34,7 +39,7 @@ declare global {
   }
 }
 
-import {storage} from '@/atoms/atomForLocal';
+import {getStorageValue, storage} from '@/atoms/atomForLocal';
 
 const APP_MESSAGE_REQUEST_LOGIN = 'SCC_REQUEST_LOGIN';
 
@@ -63,6 +68,9 @@ export function readAppInjectedAuth(): AppInjectedAuth | null {
     // 구앱은 두 필드를 주입하지 않는다. 그 앱은 토큰이 있을 때만 주입하므로
     // 토큰 유무로 익명 여부를 추정하고(구앱에서의 기존 동작과 동일), 위임은 끈다.
     isAnonymous: value.isAnonymous ?? !value.token,
+    // bridgeVersion 1 이하의 구앱은 userId 를 주입하지 않는다 → null.
+    // 그 경우 GA 신원은 web 자체 세션(localStorage)으로 폴백한다(기존 동작).
+    userId: value.userId ?? null,
     bridgeVersion: value.bridgeVersion ?? 0,
   };
 }
@@ -109,6 +117,21 @@ export function syncAppInjectedAuthToStorage(): void {
   if (auth.token) {
     // atomForLocal 인코딩(JSON)에 맞춘다 — KakaoCallbackScreen 과 동일.
     storage.set(APP_TOKEN_KEY, JSON.stringify(auth.token));
+    // 저장된 userInfo 가 앱 신원과 다르면 **버린다**. 웹뷰의 localStorage 는 세션 간
+    // 살아있어서, 예전에 앱이 로그아웃 상태로 웹뷰를 띄웠을 때 web 이 자체 발급한 익명
+    // userInfo 가 남아있을 수 있다. 그게 남아 있으면 useMe 의 _syncUserInfo 가 그 id 로
+    // Logger.setUserId 를 불러 GA 신원을 앱 유저가 아닌 값으로 덮어쓴다.
+    //
+    // 새 userInfo 를 합성하지 않고 삭제만 하는 이유: 브리지엔 nickname 이 없고,
+    // 비회원 판정(isAnonymousUser)이 nickname 을 본다 — 추측한 nickname 을 심으면
+    // 판정이 틀어진다. 삭제하면 "웹뷰 첫 진입"과 동일한 상태이고, 토큰이 있으므로
+    // App.tsx 의 익명 부트스트랩도 다시 돌지 않는다.
+    if (auth.userId) {
+      const storedUserInfo = getStorageValue<{id?: string}>(USER_INFO_KEY);
+      if (storedUserInfo?.id && storedUserInfo.id !== auth.userId) {
+        storage.delete(USER_INFO_KEY);
+      }
+    }
     return;
   }
   // 앱이 로그아웃 상태 → 웹뷰에 남아있는 이전 세션 흔적을 지운다.

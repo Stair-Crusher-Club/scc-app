@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   편집 모드 전용 도구(운영자만 사용) — 계측 대상이 아니다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useRef, useState, useCallback, type ChangeEvent } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';

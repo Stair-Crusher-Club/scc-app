@@ -1,3 +1,8 @@
+/* eslint-disable no-restricted-imports --
+   styled() 베이스. 사용자 액션 버튼(닫기·이전/다음·페이지 dot)은 렌더 시 `as={SccPressable}` 로
+   교체되어 정상 로깅된다. 유일한 raw Touchable 인 ContentWrapper 는 오버레이 클릭이 콘텐츠까지
+   전파되는 걸 막는 용도(stopPropagation)라 사용자 액션이 아니고 계측 대상도 아니다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   View,
@@ -5,7 +10,6 @@ import {
   TouchableOpacity,
   Pressable,
   ScrollView,
-  Text,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
@@ -139,7 +143,6 @@ export default function RegionDetailModal({
     return null;
   }
 
-  const currentImage = allImages[currentIndex];
   const hasMultipleImages = allImages.length > 1;
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < allImages.length - 1;

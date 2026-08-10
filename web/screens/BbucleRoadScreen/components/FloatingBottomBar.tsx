@@ -79,6 +79,7 @@ export default function FloatingBottomBar({
             <SccPressable
               onPress={handleLikePress}
               elementName="bbucle-road-floating-like"
+              trackView
               logParams={{ likeCount, isDesktop }}
               disableLogging={isEditMode}
             >
@@ -96,6 +97,7 @@ export default function FloatingBottomBar({
             <SccPressable
               onPress={handleSharePress}
               elementName="bbucle-road-floating-share"
+              trackView
               logParams={{ isDesktop }}
               disableLogging={isEditMode}
             >
@@ -119,6 +121,7 @@ export default function FloatingBottomBar({
               <SccPressable
                 onPress={onSavePress}
                 elementName="bbucle-road-floating-save"
+                trackView
                 logParams={{ isSaved: !!isSaved, isDesktop }}
                 disabled={isSaveDisabled}
                 disableLogging={isEditMode}
@@ -134,6 +137,7 @@ export default function FloatingBottomBar({
               <SccPressable
                 onPress={handleCTAPress}
                 elementName="bbucle-road-floating-cta"
+                trackView
                 logParams={{ ctaButtonUrl, isDesktop }}
                 disableLogging={isEditMode}
                 style={{ flex: 1 }}

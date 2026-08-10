@@ -31,6 +31,7 @@ export default function BbucleRoadCard({
     return (
       <SccPressable
         elementName="bbucle-road-upcoming-card"
+        trackView
         logParams={{ type: 'upcoming', upcomingId: upcomingData.id }}
         onPress={onPress}>
         <UpcomingCardContainer isDesktop={isDesktop}>
@@ -66,6 +67,7 @@ export default function BbucleRoadCard({
   return (
     <SccPressable
       elementName="bbucle-road-card"
+      trackView
       logParams={{
         bbucleRoadId: data.id,
         title: data.title,

@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   styled() 베이스. 사용자향 TabButton 은 `as={SccPressable}`, 나머지는 편집 모드 전용 도구다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import styled from 'styled-components/native';
@@ -136,13 +139,6 @@ export default function RouteSection({ routeSection, sectionId }: RouteSectionPr
       }));
     },
     [updateRouteSection],
-  );
-
-  const handleDescriptionImageChange = useCallback(
-    (url: string) => {
-      handleUpdateRoute(selectedRouteIndex, { descriptionImageUrl: url });
-    },
-    [handleUpdateRoute, selectedRouteIndex],
   );
 
   const handleInteractiveImageChange = useCallback(

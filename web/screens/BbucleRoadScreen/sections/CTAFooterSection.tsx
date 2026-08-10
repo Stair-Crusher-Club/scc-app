@@ -73,6 +73,7 @@ export default function CTAFooterSection({
           <SccPressable
             onPress={handleCTAPress}
             elementName="bbucle-road-cta-button"
+            trackView
             logParams={{ buttonUrl, isDesktop }}
             disableLogging={isEditMode}
           >

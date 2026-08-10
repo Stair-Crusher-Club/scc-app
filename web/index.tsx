@@ -11,16 +11,38 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 
 import AppRoot from '../App';
-import {syncAppInjectedAuthToStorage} from '@/utils/appWebViewBridge';
+import Logger from '@/logging/Logger';
+import {
+  readAppInjectedAuth,
+  syncAppInjectedAuthToStorage,
+} from '@/utils/appWebViewBridge';
 
 import DailyLoginPrompt from './components/DailyLoginPrompt';
 import {SCC_APP_AUTH_READY_EVENT} from './hooks/useAppInjectedAuth';
 
-// 앱 웹뷰라면 주입된 로그인 상태를 저장소에 먼저 반영한다. 렌더 전에 해야
-// accessToken atom 이 앱 토큰으로 hydrate 되고(익명 부트스트랩 스킵), globalAxios
-// 인터셉터가 첫 요청부터 앱 유저로 인증한다. 로그인/로그아웃 후 재주입도 반영한다.
-syncAppInjectedAuthToStorage();
-window.addEventListener(SCC_APP_AUTH_READY_EVENT, syncAppInjectedAuthToStorage);
+/**
+ * 앱 웹뷰라면 주입된 로그인 상태를 저장소에 먼저 반영한다. 렌더 전에 해야
+ * accessToken atom 이 앱 토큰으로 hydrate 되고(익명 부트스트랩 스킵), globalAxios
+ * 인터셉터가 첫 요청부터 앱 유저로 인증한다. 로그인/로그아웃 후 재주입도 반영한다.
+ *
+ * GA 신원도 같이 세팅한다. index.html 의 head 스니펫(web/gaBootstrap.js)이 이미
+ * 페이지 로드 시점에 주입값을 읽어 심지만, 여기서 한 번 더 부르는 이유가 둘 있다:
+ *   1. 웹뷰 안에서 앱 LoginScreen 으로 로그인하면 앱이 **재주입**한다 — 그때 reload 없이 갱신.
+ *   2. Android 에서 injectedJavaScriptBeforeContentLoaded 가 head 스크립트보다 늦게
+ *      도착하는 경우가 있다. 그 경우 head 스니펫은 신원을 못 읽으므로 여기가 유일한 기회다.
+ * (Logger 를 브리지 모듈이 아니라 여기서 부르는 건 순환 import 회피 —
+ *  Logger 가 surface 판정 때문에 appWebViewBridge 를 import 한다.)
+ */
+function applyAppInjectedAuth(): void {
+  syncAppInjectedAuthToStorage();
+  const userId = readAppInjectedAuth()?.userId;
+  if (userId) {
+    Logger.setUserId(userId);
+  }
+}
+
+applyAppInjectedAuth();
+window.addEventListener(SCC_APP_AUTH_READY_EVENT, applyAppInjectedAuth);
 
 // Reset + mobile frame: on desktop the app is capped at 480px, centered, with a
 // subtle shadow on the sides so the "mobile" boundary is visible. On narrow

@@ -9,7 +9,7 @@ import {
  * scc-app 의 in-app WebView 가 주입한 로그인 상태를 감지하는 web 전용 hook.
  *
  * 앱은 WebViewScreen 에서 허용 origin 의 URL 을 띄울 때:
- *   1. window.__SCC_APP_AUTH__ = { token, baseUrl, isAnonymous, bridgeVersion } 를 set
+ *   1. window.__SCC_APP_AUTH__ = { token, baseUrl, isAnonymous, userId, bridgeVersion } 를 set
  *   2. window.dispatchEvent(new Event('scc-app-auth-ready')) 를 발화
  *
  * `token` 은 null 일 수 있다(앱 로그아웃). 즉 **주입이 왔다 ≠ 로그인돼 있다** —

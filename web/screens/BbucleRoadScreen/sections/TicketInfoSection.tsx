@@ -113,6 +113,7 @@ export default function TicketInfoSection({
                 <SccPressable
                   onPress={() => {}}
                   elementName="bbucle-road-ticket-info-image-click"
+                  trackView
                   logParams={{ imageUrl: displayImageUrl }}
                   disableLogging={isEditMode}
                 >

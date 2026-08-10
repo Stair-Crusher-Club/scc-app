@@ -3,6 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 
+const {GA_BOOTSTRAP_SNIPPET} = require('./web/gaBootstrap');
+
 // Load .env.local file
 const envFile = process.env.ENVFILE || '.env.local';
 const envConfig = dotenv.config({path: envFile}).parsed || {};
@@ -81,10 +83,17 @@ class DensityImageResolverPlugin {
 module.exports = {
   mode: 'development',
   target: 'web',
-  entry: './web/index.tsx',
+  entry: {
+    bundle: './web/index.tsx',
+    // 정적 /articles 페이지 전용 계측 번들. SPA 트리(Logger/react-navigation)를 못 쓰는
+    // 정적 HTML 에도 앱과 동일한 screen_view/element_click/element_view/page_dwell 을 붙인다.
+    'articles-analytics': './web/articlesAnalytics.ts',
+  },
   output: {
     path: path.resolve(__dirname, 'web-dist'),
-    filename: 'bundle.js',
+    // 진입 파일명은 고정 유지 — web-deploy.sh 가 bundle.js/articles-analytics.js 를
+    // 이름으로 찾아 Cache-Control=no-cache 를 다시 씌운다.
+    filename: '[name].js',
     publicPath: '/',
     globalObject: 'this',
   },
@@ -304,6 +313,10 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './web/index.html',
+      // GA 스니펫은 정적 /articles 페이지와 문자열을 공유한다 (web/gaBootstrap.js 주석 참조).
+      // articles-analytics 청크는 정적 페이지 전용이므로 SPA HTML 에 주입하지 않는다.
+      chunks: ['bundle'],
+      templateParameters: {gaBootstrap: GA_BOOTSTRAP_SNIPPET},
     }),
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
