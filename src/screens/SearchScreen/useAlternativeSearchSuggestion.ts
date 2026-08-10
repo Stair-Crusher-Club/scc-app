@@ -1,11 +1,11 @@
+import {useQuery} from '@tanstack/react-query';
 import {useAtomValue} from 'jotai';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import {AlternativeSearchSuggestionDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {
   isAlternativeSearchAtom,
-  searchModeAtom,
   searchRequestIdAtom,
 } from '@/screens/SearchScreen/atoms';
 
@@ -22,7 +22,10 @@ const REQUEST_TIMEOUT_MS = 3000;
  * 포커스된 카드에 대해 "주위 다른 OOO 확인하기" CTA를 띄울지 서버에 물어본다.
  *
  * 로딩 인디케이터를 두지 않는다 — 결과가 없을 수 있는 CTA에서 스피너는 지킬 수 없는 약속이 된다.
- * 대신 요청을 포커스가 확정된 카드 1건으로 좁히고(디바운스), 결과를 카드별로 캐시한다.
+ * 대신 요청을 포커스가 확정된 카드 1건으로 좁힌다(디바운스).
+ *
+ * 캐시·취소·늦은 응답 폐기는 React Query가 queryKey 단위로 처리한다. 직접 구현하면
+ * 취소된 요청의 rejection이 방금 포커스된 카드의 상태를 덮어쓰는 류의 버그가 생긴다.
  */
 export function useAlternativeSearchSuggestion({
   focusedPlaceId,
@@ -42,72 +45,58 @@ export function useAlternativeSearchSuggestion({
 } {
   const {api} = useAppComponents();
   const searchRequestId = useAtomValue(searchRequestIdAtom);
-  const searchMode = useAtomValue(searchModeAtom);
   const isAlternativeSearch = useAtomValue(isAlternativeSearchAtom);
 
-  const [state, setState] = useState<{
-    placeId: string;
-    suggestion: AlternativeSearchSuggestionDto | null;
-  } | null>(null);
+  const isActive = isEnabled && !isAlternativeSearch && !!currentSearchText;
 
-  // 카드 id -> 결과. 검색이 바뀌면(지도 영역 변경/재검색 포함) 통째로 버린다.
-  const cacheRef = useRef(
-    new Map<string, AlternativeSearchSuggestionDto | null>(),
-  );
-  useEffect(() => {
-    cacheRef.current.clear();
-    setState(null);
-  }, [searchRequestId]);
-
-  const isActive =
-    isEnabled &&
-    !isAlternativeSearch &&
-    searchMode === 'place' &&
-    !!currentSearchText;
-
+  // 스냅이 끝나고 SETTLE_DEBOUNCE_MS 동안 머문 카드만 요청 대상이 된다.
+  const [settledPlaceId, setSettledPlaceId] = useState<string | null>(null);
   useEffect(() => {
     if (!isActive || !focusedPlaceId) {
-      setState(null);
+      setSettledPlaceId(null);
       return;
     }
-
-    const cached = cacheRef.current.get(focusedPlaceId);
-    if (cached !== undefined) {
-      setState({placeId: focusedPlaceId, suggestion: cached});
-      return;
-    }
-    setState(null);
-
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      SETTLE_DEBOUNCE_MS + REQUEST_TIMEOUT_MS,
+    const timer = setTimeout(
+      () => setSettledPlaceId(focusedPlaceId),
+      SETTLE_DEBOUNCE_MS,
     );
-    const debounce = setTimeout(async () => {
+    return () => clearTimeout(timer);
+  }, [isActive, focusedPlaceId]);
+
+  const {data} = useQuery<AlternativeSearchSuggestionDto | null>({
+    // searchRequestId를 키에 넣어 재검색(지도 영역 변경 포함) 시 이전 판단을 쓰지 않게 한다.
+    queryKey: [
+      'alternativeSearchSuggestion',
+      searchRequestId,
+      settledPlaceId,
+      currentSearchText,
+    ],
+    enabled: isActive && !!settledPlaceId,
+    // 같은 검색 안에서는 카드마다 한 번만 물어본다.
+    // (gcTime은 기본값을 쓴다 — 지난 검색의 캐시까지 세션 내내 붙들고 있을 이유가 없다)
+    staleTime: Infinity,
+    retry: false,
+    // 실패·타임아웃은 "제안 없음"과 동일하게 조용히 처리한다. 토스트를 띄우지 않는다.
+    throwOnError: false,
+    queryFn: async ({signal}) => {
       try {
         const response = await api.getAlternativeSearchSuggestion(
-          {placeId: focusedPlaceId, currentSearchText: currentSearchText ?? ''},
-          {signal: controller.signal},
+          {
+            placeId: settledPlaceId!,
+            currentSearchText: currentSearchText ?? '',
+          },
+          {signal, timeout: REQUEST_TIMEOUT_MS},
         );
-        const suggestion = response.data.suggestion ?? null;
-        cacheRef.current.set(focusedPlaceId, suggestion);
-        setState({placeId: focusedPlaceId, suggestion});
+        return response.data.suggestion ?? null;
       } catch {
-        // 실패/타임아웃은 "제안 없음"과 동일하게 조용히 처리한다. 다시 포커스되면 재시도.
-        setState({placeId: focusedPlaceId, suggestion: null});
+        return null;
       }
-    }, SETTLE_DEBOUNCE_MS);
-
-    return () => {
-      clearTimeout(debounce);
-      clearTimeout(timeout);
-      controller.abort();
-    };
-  }, [api, isActive, focusedPlaceId, currentSearchText]);
+    },
+  });
 
   return {
     isActive,
-    // 늦게 도착한 응답이 다른 카드에 붙지 않게 id를 대조한다.
-    suggestion: state?.placeId === focusedPlaceId ? state.suggestion : null,
+    // 아직 확정되지 않았거나 다른 카드의 결과면 노출하지 않는다.
+    suggestion: settledPlaceId === focusedPlaceId ? (data ?? null) : null,
   };
 }

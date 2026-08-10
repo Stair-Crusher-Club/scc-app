@@ -218,8 +218,16 @@ const SearchScreenContent = ({
     });
 
   const onAlternativeSearch = (suggestion: AlternativeSearchSuggestionDto) => {
-    // 대체 검색 결과는 무조건 접근레벨 낮은순으로 보여준다.
-    setFilter(prev => ({...prev, sortOption: SortOption.LOW_SCORE}));
+    // 서버는 사용자의 결과 필터를 모른 채 "접근레벨 2 이하가 4곳 이상 있다"를 보장했다.
+    // 필터를 그대로 들고 재검색하면 그 보장이 깨져 빈 결과가 나올 수 있으므로 함께 해제한다.
+    // 정렬은 접근레벨 낮은순으로 고정한다.
+    setFilter({
+      sortOption: SortOption.LOW_SCORE,
+      scoreUnder: null,
+      hasSlope: null,
+      isRegistered: null,
+      hasReview: null,
+    });
     setDraftKeyword(suggestion.searchText);
     onQueryUpdate(
       {
@@ -251,12 +259,15 @@ const SearchScreenContent = ({
         focusedPlaceId={focusedItem?.id ?? null}
         isScrolling={isScrolling}
         currentSearchText={searchQuery.text}
-        isEnabled={!hasAccessiblePlaceInResults}
+        // 요청 모드(searchMode)가 아니라 **응답의 결과 모드**로 판단해야 한다.
+        // "강남역 화장실"처럼 place 엔드포인트로 나갔다가 화장실 결과로 내려오는 검색이 있어,
+        // 요청 모드로 게이팅하면 화장실 카드 위에 슬롯이 잡히고 화장실 id로 제안 요청이 나간다.
+        isEnabled={resultMode === 'place' && !hasAccessiblePlaceInResults}
         onPress={onAlternativeSearch}
       />
     ),
 
-    [searchQuery.text, hasAccessiblePlaceInResults],
+    [searchQuery.text, hasAccessiblePlaceInResults, resultMode],
   );
 
   // SearchScreenContent 의 생명주기는 wrapper 의 activeMainTab 분기가 결정한다:
@@ -343,6 +354,14 @@ const SearchScreenContent = ({
         fromLookup: undefined,
         initSortOption: undefined,
       });
+      return true;
+    }
+    // 검색어 없는 입력 화면 → 지도 엠티뷰로. 여기서 바로 화면을 나가면
+    // 하단 탭바가 없는 입력 화면에서 뒤로가기 한 번에 앱이 종료된다.
+    if (viewState.inputMode) {
+      Keyboard.dismiss();
+      setDraftKeyword(null);
+      setViewState({type: 'map', inputMode: false});
       return true;
     }
     // 초기 상태 → 화면 나가기
