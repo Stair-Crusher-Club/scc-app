@@ -147,7 +147,6 @@ export default function QuickMenuSection({
   return (
     <LogParamsProvider params={{displaySectionName: 'quick_menu_section'}}>
       <Container>
-        <SectionTitle>빠른 메뉴</SectionTitle>
         <ContentColumn>
           <CardsRow>
             <SccPressable
@@ -279,14 +278,6 @@ const Container = styled.View`
   padding-bottom: 20px;
   padding-horizontal: 20px;
   gap: 16px;
-`;
-
-const SectionTitle = styled.Text`
-  color: #16181c;
-  font-size: 20px;
-  font-family: ${font.pretendardSemibold};
-  letter-spacing: -0.4px;
-  line-height: 28px;
 `;
 
 const ContentColumn = styled.View`
