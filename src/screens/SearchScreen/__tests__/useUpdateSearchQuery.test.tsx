@@ -92,8 +92,8 @@ describe('useUpdateSearchQuery', () => {
     expect(store.get(searchQueryAtom).radiusMeter).toBe(1000);
   });
 
-  it('카메라 영역이 있고 호출처가 영역을 명시하지 않으면 카메라 영역을 따라간다', () => {
-    // 시나리오: "이 지역 재검색" / 카테고리 칩 — 기존 동작 회귀 방지
+  it('useCameraRegion=true면 카메라 영역을 따라간다', () => {
+    // 시나리오: "이 지역 재검색" / 지도 모드 카테고리 칩 — 기존 동작 회귀 방지
     const store = createStore();
     store.set(draftCameraRegionAtom, {
       northEast: {latitude: 37.6, longitude: 127.1},
@@ -118,5 +118,36 @@ describe('useUpdateSearchQuery', () => {
     expect(location?.lat).toBeCloseTo(37.5, 6);
     expect(location?.lng).toBeCloseTo(127, 6);
     expect(radiusMeter).toBeGreaterThan(0);
+  });
+
+  it('입력 화면 검색(useCameraRegion 미지정)은 지도 영역에 고정되지 않는다', () => {
+    // 시나리오: 지도를 보다가 검색 바를 눌러 "정자역 맛집" 검색.
+    // draftCameraRegion 이 남아있다는 이유로 그 영역에 갇히면 안 된다.
+    const store = createStore();
+    store.set(draftCameraRegionAtom, {
+      northEast: {latitude: 37.6, longitude: 127.1},
+      southWest: {latitude: 37.4, longitude: 126.9},
+    });
+    // 직전 지도 검색이 atom 에 남긴 영역
+    store.set(searchQueryAtom, {
+      text: '카페',
+      location: {lat: 37.5, lng: 127},
+      radiusMeter: 1776,
+      useCameraRegion: true,
+    });
+
+    const {result} = renderHook(() => useUpdateSearchQuery(), {
+      wrapper: createWrapper(store),
+    });
+
+    act(() => {
+      result.current.updateQuery({text: '정자역 맛집'});
+    });
+
+    const q = store.get(searchQueryAtom);
+    expect(q.text).toBe('정자역 맛집');
+    expect(q.location).toBeNull();
+    expect(q.radiusMeter).toBeNull();
+    expect(q.useCameraRegion).toBe(false);
   });
 });

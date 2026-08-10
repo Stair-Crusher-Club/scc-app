@@ -113,9 +113,11 @@ export default function useSearchRequest() {
       let searchRadius = radiusMeter ?? 20000;
       let rectangleRegion: RectangleSearchRegionDto | undefined;
 
-      // If we have draft camera region, use rectangle search instead of circle
-      // Also use rectangle search when useCameraRegion is true (재검색 버튼)
-      if (draftCameraRegion && (!radiusMeter || useCameraRegion)) {
+      // 지도 영역(rectangle)으로 검색하는 것은 **지도 화면을 보면서 검색한 경우**뿐이다
+      // (useCameraRegion: "이 지역 재검색", 지도 모드 카테고리 칩).
+      // draftCameraRegion 이 남아있다는 이유만으로 고정하면, 검색어 입력 화면에서 한 검색도
+      // 직전에 보던 지도 영역 안에서만 찾게 된다.
+      if (draftCameraRegion && useCameraRegion) {
         rectangleRegion = {
           leftTopLocation: {
             lat: draftCameraRegion.northEast.latitude,
