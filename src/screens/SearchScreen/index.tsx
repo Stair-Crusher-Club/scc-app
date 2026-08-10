@@ -11,7 +11,10 @@ import {Keyboard, Platform, View} from 'react-native';
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
 import {AlternativeSearchSuggestionDto} from '@/generated-sources/openapi';
-import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
+import {
+  getPlaceAccessibilityScore,
+  GOOD_ACCESSIBILITY_MAX_SCORE,
+} from '@/utils/accessibilityCheck';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
@@ -35,9 +38,7 @@ import {
   SearchScreenProvider,
   useSearchScreenContext,
 } from '@/screens/SearchScreen/SearchScreenContext';
-import AlternativeSearchCta, {
-  GOOD_ACCESSIBILITY_MAX_SCORE,
-} from '@/screens/SearchScreen/components/AlternativeSearchCta';
+import AlternativeSearchCta from '@/screens/SearchScreen/components/AlternativeSearchCta';
 import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import SearchMapView, {
@@ -131,7 +132,9 @@ const SearchScreenContent = ({
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
-  const setIsAlternativeSearch = useSetAtom(isAlternativeSearchAtom);
+  const [isAlternativeSearch, setIsAlternativeSearch] = useAtom(
+    isAlternativeSearchAtom,
+  );
   const {setIsFromLookup} = useSearchScreenContext();
 
   const onQueryUpdate = (
@@ -217,6 +220,17 @@ const SearchScreenContent = ({
       return typeof score === 'number' && score <= GOOD_ACCESSIBILITY_MAX_SCORE;
     });
 
+  // 카드 위에 어떤 CTA를 띄울지(또는 아무것도 안 띄울지)의 판단은 이 화면에만 존재한다.
+  // CTA 컴포넌트는 자기 로직으로만(제안 없음/스크롤 중) 스스로를 숨긴다.
+  const shouldShowAlternativeSearchCta =
+    // 요청 모드(searchMode)가 아니라 응답의 결과 모드로 판단해야 한다. "강남역 화장실"처럼
+    // place 엔드포인트로 나갔다가 화장실 결과로 내려오는 검색이 있다.
+    resultMode === 'place' &&
+    !!searchQuery.text &&
+    !hasAccessiblePlaceInResults &&
+    // 대체 검색으로 얻은 결과에서 또 대체 검색을 권하지 않는다.
+    !isAlternativeSearch;
+
   const onAlternativeSearch = (suggestion: AlternativeSearchSuggestionDto) => {
     // 서버는 사용자의 결과 필터를 모른 채 "접근레벨 2 이하가 4곳 이상 있다"를 보장했다.
     // 필터를 그대로 들고 재검색하면 그 보장이 깨져 빈 결과가 나올 수 있으므로 함께 해제한다.
@@ -259,15 +273,11 @@ const SearchScreenContent = ({
         focusedPlaceId={focusedItem?.id ?? null}
         isScrolling={isScrolling}
         currentSearchText={searchQuery.text}
-        // 요청 모드(searchMode)가 아니라 **응답의 결과 모드**로 판단해야 한다.
-        // "강남역 화장실"처럼 place 엔드포인트로 나갔다가 화장실 결과로 내려오는 검색이 있어,
-        // 요청 모드로 게이팅하면 화장실 카드 위에 슬롯이 잡히고 화장실 id로 제안 요청이 나간다.
-        isEnabled={resultMode === 'place' && !hasAccessiblePlaceInResults}
         onPress={onAlternativeSearch}
       />
     ),
 
-    [searchQuery.text, hasAccessiblePlaceInResults, resultMode],
+    [searchQuery.text],
   );
 
   // SearchScreenContent 의 생명주기는 wrapper 의 activeMainTab 분기가 결정한다:
@@ -447,7 +457,11 @@ const SearchScreenContent = ({
               }}
               data={data ?? []}
               resultMode={resultMode}
-              AboveCardsSlot={alternativeSearchCtaSlot}
+              AboveCardsSlot={
+                shouldShowAlternativeSearchCta
+                  ? alternativeSearchCtaSlot
+                  : undefined
+              }
             />
           </View>
           {viewState.inputMode && resultMode === 'place' && (

@@ -113,7 +113,10 @@ describe('useUpdateSearchQuery', () => {
       result.current.updateQuery({useCameraRegion: true});
     });
 
-    expect(store.get(searchQueryAtom).location).toEqual({lat: 37.5, lng: 127});
-    expect(store.get(searchQueryAtom).radiusMeter).toBeGreaterThan(0);
+    // 중심은 37.6/37.4, 127.1/126.9의 평균이라 정확한 이진 부동소수가 아니다.
+    const {location, radiusMeter} = store.get(searchQueryAtom);
+    expect(location?.lat).toBeCloseTo(37.5, 6);
+    expect(location?.lng).toBeCloseTo(127, 6);
+    expect(radiusMeter).toBeGreaterThan(0);
   });
 });

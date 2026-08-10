@@ -20,12 +20,6 @@ import {useAlternativeSearchSuggestion} from '@/screens/SearchScreen/useAlternat
  */
 const SLOT_HEIGHT = 56;
 
-/**
- * "접근 가능"으로 보는 접근레벨의 상한. 0=계단 없음, 1=경사로 있음, 2=계단 1개.
- * 검색 결과에 이 이하가 하나도 없을 때가 대체 검색을 제안할 상황(부정경험)이다.
- */
-export const GOOD_ACCESSIBILITY_MAX_SCORE = 2;
-
 const ENTER_DURATION_MS = 220;
 const EXIT_DURATION_MS = 140;
 // 오버슈트·바운스 금지 — "툭 튀어나오는" 느낌이 나면 안 된다.
@@ -35,30 +29,28 @@ const EXIT_EASING = Easing.out(Easing.ease);
 /**
  * 포커스된 카드 위에 뜨는 "주위 다른 OOO 확인하기" 버튼.
  *
- * 슬롯은 제안 유무와 무관하게 항상 렌더된다 (높이 고정). 제안이 오기 전/스크롤 중에는
- * 버튼만 투명하게 빠진다 — 로딩 인디케이터는 두지 않는다.
+ * **이 CTA를 띄우는 게 적절한 상황인지는 화면(SearchScreen)이 판단한다** — 이 컴포넌트가
+ * 마운트됐다는 것은 이미 "대체 검색을 권할 상황"이라는 뜻이다. 여기서는 자기 로직으로만,
+ * 즉 제안이 없거나 스크롤 중일 때만 스스로를 숨긴다.
+ *
+ * 슬롯은 제안 유무와 무관하게 렌더된다 (높이 고정 — 스와이프 중 카드가 흔들리지 않게).
+ * 제안이 오기 전에는 버튼만 투명하게 빠진다 — 로딩 인디케이터는 두지 않는다.
  */
 export default function AlternativeSearchCta({
   focusedPlaceId,
   isScrolling,
   currentSearchText,
-  isEnabled,
   onPress,
 }: {
   focusedPlaceId: string | null;
   isScrolling: boolean;
   currentSearchText: string | null;
-  isEnabled: boolean;
   onPress: (suggestion: AlternativeSearchSuggestionDto) => void;
 }) {
-  const {isActive, suggestion} = useAlternativeSearchSuggestion({
+  const suggestion = useAlternativeSearchSuggestion({
     focusedPlaceId,
     currentSearchText,
-    isEnabled,
   });
-  // 이번 검색에서 CTA가 뜰 여지가 없으면 슬롯 자리도 잡지 않는다.
-  // (화장실 검색·접근 가능한 결과가 이미 있는 검색에서 카드가 아래로 밀리면 안 된다)
-  if (!isActive) return null;
 
   // 스크롤이 시작되면 결과와 무관하게 즉시 숨긴다.
   const isVisible = !!suggestion && !isScrolling;
@@ -69,6 +61,7 @@ export default function AlternativeSearchCta({
           ("이 버튼은 이 카드 것"이라는 종속성 유지). */}
       <AnimatedCta
         key={focusedPlaceId ?? 'none'}
+        placeId={focusedPlaceId}
         searchText={suggestion?.searchText ?? ''}
         isVisible={isVisible}
         onPress={() => suggestion && onPress(suggestion)}
@@ -78,10 +71,12 @@ export default function AlternativeSearchCta({
 }
 
 function AnimatedCta({
+  placeId,
   searchText,
   isVisible,
   onPress,
 }: {
+  placeId: string | null;
   searchText: string;
   isVisible: boolean;
   onPress: () => void;
@@ -126,7 +121,11 @@ function AnimatedCta({
       pointerEvents={isVisible ? 'auto' : 'none'}>
       <CtaButton
         elementName="search_alternative_search_button"
-        logParams={{searchText}}
+        // 노출(제안 true) 대비 클릭 전환을 볼 수 있게 노출도 함께 남긴다.
+        // placeId는 서버의 제안 판단 로그(ALTERNATIVE_SEARCH_SUGGESTION)와 대조하기 위한 키다 —
+        // "제안은 true였는데 스크롤로 스쳐 노출되지 않은" 케이스를 이 둘의 차이로 본다.
+        trackView
+        logParams={{alternative_search_text: searchText, place_id: placeId}}
         activeOpacity={0.8}
         accessibilityRole="button"
         accessibilityLabel={`주위 다른 ${searchText} 확인하기`}
