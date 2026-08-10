@@ -79,8 +79,14 @@ export default function FloatingBottomBar({
             <SccPressable
               onPress={handleLikePress}
               elementName="bbucle-road-floating-like"
+              trackView
               logParams={{ likeCount, isDesktop }}
               disableLogging={isEditMode}
+              // elementName 은 로깅용이라 스크린리더에 읽히지 않는다. 아이콘+숫자만 있는
+              // 컨트롤이므로 이름과 눌림 상태를 명시한다. (CLAUDE.md / PR #226)
+              accessibilityRole="button"
+              accessibilityLabel="도움이 돼요"
+              accessibilityState={{ selected: isLiked }}
             >
               <LikeButton isDesktop={isDesktop}>
                 {isLiked ? (
@@ -96,8 +102,12 @@ export default function FloatingBottomBar({
             <SccPressable
               onPress={handleSharePress}
               elementName="bbucle-road-floating-share"
+              trackView
               logParams={{ isDesktop }}
               disableLogging={isEditMode}
+              // 아이콘 전용 버튼 — 텍스트가 없어 접근성 이름을 직접 준다. (CLAUDE.md / PR #226)
+              accessibilityRole="button"
+              accessibilityLabel="공유하기"
             >
               <ShareButton isDesktop={isDesktop}>
                 <IcShareWeb width={isDesktop ? 24 : 20} height={isDesktop ? 24 : 20} viewBox="0 0 24 24" color="#16181C" />
@@ -119,6 +129,7 @@ export default function FloatingBottomBar({
               <SccPressable
                 onPress={onSavePress}
                 elementName="bbucle-road-floating-save"
+                trackView
                 logParams={{ isSaved: !!isSaved, isDesktop }}
                 disabled={isSaveDisabled}
                 disableLogging={isEditMode}
@@ -134,6 +145,7 @@ export default function FloatingBottomBar({
               <SccPressable
                 onPress={handleCTAPress}
                 elementName="bbucle-road-floating-cta"
+                trackView
                 logParams={{ ctaButtonUrl, isDesktop }}
                 disableLogging={isEditMode}
                 style={{ flex: 1 }}

@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   여기 Touchable 은 편집 모드 전용 추가/삭제 버튼이다 — 계측 대상이 아니다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';

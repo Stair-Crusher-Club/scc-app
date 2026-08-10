@@ -97,6 +97,13 @@ const App = () => {
   const [webBootstrapDone, setWebBootstrapDone] = useState(
     Platform.OS !== 'web' || !!accessToken,
   );
+
+  // 표면(app/web/app_webview) 디멘션을 setUserId 보다 먼저 심는다 — 신원이 붙기 전에
+  // 나가는 이벤트도 표면으로 나눌 수 있어야 한다.
+  useEffect(() => {
+    Logger.setSurface();
+  }, []);
+
   useEffect(() => {
     if (Platform.OS !== 'web' || accessToken) {
       setWebBootstrapDone(true);

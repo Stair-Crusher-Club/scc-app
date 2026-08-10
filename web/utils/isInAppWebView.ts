@@ -10,7 +10,6 @@
  */
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     ReactNativeWebView?: {
       postMessage: (message: string) => void;

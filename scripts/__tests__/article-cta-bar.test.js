@@ -23,7 +23,7 @@ const article = (over = {}) =>
 // href 는 escapeHtml 을 거쳐 & → &amp; 가 된다.
 const hrefOf = (html, variant) => {
   const m = new RegExp(
-    `<a class="cta-main cta-${variant}" data-cta-variant="${variant}" href="([^"]+)"`,
+    `<a class="cta-main cta-${variant}" data-cta-variant="${variant}"[^>]*? href="([^"]+)"`,
   ).exec(html);
   return m && m[1].replace(/&amp;/g, '&');
 };
@@ -98,7 +98,7 @@ describe('CTA 바 렌더', () => {
     expect(html.indexOf("setAttribute('data-cta','list')")).toBeLessThan(
       headEnd,
     );
-    expect(html).toContain('<body class="has-cta">');
+    expect(html).toContain('<body class="has-cta" data-screen-name="Article"');
   });
 
   test('ctaUrl 이 비면 콘텐츠 홈 + 폴백 문구다 (B 버킷 / 저장리스트 미보유 A 버킷)', () => {

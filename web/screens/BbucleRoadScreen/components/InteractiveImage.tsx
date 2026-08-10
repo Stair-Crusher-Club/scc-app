@@ -1,3 +1,7 @@
+/* eslint-disable no-restricted-imports --
+   이미지 클릭은 offsetX/offsetY 가 필요해 raw Pressable 로 받고 useLogger 로 직접 로깅한다.
+   PointMarker/AddRegionButtonOverlay 는 편집 모드 전용 도구라 계측 대상이 아니다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useState, useCallback, useRef } from 'react';
 import { View, Image, Text, Pressable, LayoutChangeEvent, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';

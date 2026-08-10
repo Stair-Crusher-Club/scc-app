@@ -6,15 +6,11 @@
     <title>계단뿌셔클럽</title>
     <!-- Pretendard 폰트 CDN -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-B80XR4HWJE');
-    </script>
+    <!-- Google tag (gtag.js) — 스니펫 본문은 web/gaBootstrap.js 단일 소스.
+         정적 /articles 페이지(scripts/article-template.js)와 같은 문자열을 쓴다.
+         아래 보간은 html-webpack-plugin(lodash template)에서 raw 삽입이다.
+         주의: 이 주석 안에 보간 구문을 예시로 적으면 lodash 가 그것도 컴파일하려다 빌드가 깨진다. -->
+    <%= gaBootstrap %>
     <!-- Inline SVG favicon to prevent 404 -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23007aff'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='white'%3ES%3C/text%3E%3C/svg%3E">
     <!-- Kakao JavaScript SDK (initialized from the bundle with the env-specific

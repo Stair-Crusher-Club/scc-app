@@ -42,6 +42,7 @@ export default function ArticleSection() {
           <SectionTitle>{SECTION_TITLE}</SectionTitle>
           <SccPressable
             elementName="home_v2_article_more"
+            trackView
             onPress={() =>
               navigation.navigate('Webview', {
                 url: ARTICLES_LIST_URL,
@@ -77,6 +78,8 @@ function ArticleCard({article, index}: {article: Article; index: number}) {
     <SccPressable
       elementName="home_v2_article_card"
       logParams={{slug: article.slug, index}}
+      // 카드가 실제로 보였는지(노출)까지 남긴다 — 가로 스크롤이라 3개 중 일부만 보인다.
+      trackView
       onPress={() =>
         navigation.navigate('Webview', {
           url: article.url,

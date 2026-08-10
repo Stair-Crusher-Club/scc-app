@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
 
-import { color } from '@/constant/color';
 import { SccPressable } from '@/components/SccPressable';
 
 import { DESKTOP_BREAKPOINT } from '../constants/layout';
@@ -103,6 +102,7 @@ export default function StickyTabHeader({
                   <SccPressable
                     onPress={() => onTabPress(section.id)}
                     elementName="bbucle-road-sticky-tab"
+                    trackView
                     logParams={{ tabId: section.id, tabLabel: section.label, isDesktop }}
                     disableLogging={isEditMode}
                   >

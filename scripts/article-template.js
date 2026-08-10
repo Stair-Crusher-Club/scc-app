@@ -15,11 +15,10 @@ const SITE = {
   logo: 'https://web.staircrusher.club/articles/assets/scc-logo.png',
 };
 
-// SPA(web/index.html)와 동일한 GA4 속성. 이 셸은 SPA index.html을 안 타므로 여기에도 넣어야
-// /articles 조회수가 집계된다.
-const GA_ID = 'G-B80XR4HWJE';
-const GA_SNIPPET = `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');</script>`;
+// SPA(web/index.html)와 **동일한 스니펫 문자열**. 이 셸은 SPA index.html을 안 타므로 여기에도
+// 넣어야 /articles 조회수가 집계된다. userId/surface 주입 로직까지 공유해야 앱/웹/앱웹뷰
+// 세 표면의 이벤트 property가 갈리지 않는다 — 그래서 문자열을 복제하지 않고 require 한다.
+const {GA_BOOTSTRAP_SNIPPET: GA_SNIPPET} = require('../web/gaBootstrap');
 
 // 목록 페이지 카테고리 칩. **이 배열이 노출 순서의 유일한 정의**(Figma 72:363 순서).
 // name: Notion DB `category`(multi_select) 옵션과 문자열이 정확히 일치해야 필터가 동작한다.
@@ -391,11 +390,13 @@ function ctaBar(meta) {
   const kakaoHref = withCampaign(FOOTER.kakao, meta.slug, 'cta-kakao');
   const icon = (id, file, hidden) =>
     `<img${id ? ` id="${id}"` : ''} src="/articles/assets/${file}" alt="" width="24" height="24"${hidden ? ' hidden' : ''}>`;
-  return `<div class="cta-bar" data-testid="article-cta-bar"><div class="cta-inner">
-<button type="button" class="cta-icon" id="cta-heart" aria-pressed="false" aria-label="도움이 돼요">${icon('cta-heart-off', 'ic-heart.svg')}${icon('cta-heart-on', 'ic-heart-fill.svg', true)}</button>
-<button type="button" class="cta-icon" id="cta-share" aria-label="공유하기">${icon('', 'ic-share.svg')}</button>
-<a class="cta-main cta-kakao" data-cta-variant="kakao" href="${escapeAttr(kakaoHref)}" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">${escapeHtml(CTA.kakaoLabel)}</a>
-<a class="cta-main cta-browse" data-cta-variant="browse" href="${escapeAttr(browseHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(browseLabel)}</a>
+  // data-element-name: articles-analytics.js 가 위임 리스너로 element_click 을 남기는 키.
+  // CTA 바는 화면 하단 고정이라 노출도 의미가 있어서 data-track-view 로 element_view 도 받는다.
+  return `<div class="cta-bar" data-testid="article-cta-bar" data-element-name="article_cta_bar" data-track-view><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" data-element-name="article_upvote" aria-pressed="false" aria-label="도움이 돼요">${icon('cta-heart-off', 'ic-heart.svg')}${icon('cta-heart-on', 'ic-heart-fill.svg', true)}</button>
+<button type="button" class="cta-icon" id="cta-share" data-element-name="article_share" aria-label="공유하기">${icon('', 'ic-share.svg')}</button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" data-element-name="article_cta_kakao" href="${escapeAttr(kakaoHref)}" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">${escapeHtml(CTA.kakaoLabel)}</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" data-element-name="article_cta_browse" href="${escapeAttr(browseHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(browseLabel)}</a>
 </div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>`;
 }
 
@@ -540,6 +541,12 @@ const articleJs = slug => `<script>
 })();
 </script>`;
 
+// 계측 번들. 앱/SPA 와 같은 shape 의 screen_view/element_click/element_view/page_dwell 을 붙인다.
+// 계측 대상은 아래 마크업의 data-element-name(+노출은 data-track-view)으로 선언한다.
+// defer: 파싱을 막지 않고, DOM 이 준비된 뒤 실행된다.
+const ANALYTICS_SNIPPET =
+  '<script defer src="/articles-analytics.js"></script>';
+
 function headCommon(title, desc, canonical, extra) {
   return `<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -547,6 +554,7 @@ function headCommon(title, desc, canonical, extra) {
 <meta name="description" content="${escapeAttr(desc)}">
 <link rel="canonical" href="${escapeAttr(canonical)}">
 ${GA_SNIPPET}
+${ANALYTICS_SNIPPET}
 
 <link rel="stylesheet" as="style" crossorigin href="${PRETENDARD_CDN}">
 ${extra}
@@ -616,10 +624,10 @@ ${ld.map(jsonLd).join('\n')}`;
 ${headCommon(`${meta.title} | ${SITE.name}`, desc, url, og)}
 ${CTA_BRANCH_JS}
 </head>
-<body class="has-cta">
+<body class="has-cta" data-screen-name="Article" data-slug="${escapeAttr(meta.slug)}">
 ${header()}
 <div class="wrap">
-<a class="back" href="${escapeAttr(meta.backHref || '/articles')}">← 목록으로</a>
+<a class="back" href="${escapeAttr(meta.backHref || '/articles')}" data-element-name="article_back_to_list">← 목록으로</a>
 <article data-testid="article-detail">
 <h1 class="title">${escapeHtml(meta.title)}</h1>
 <div class="article-date">${dateLabel}</div>
@@ -721,7 +729,7 @@ function renderListPage(articles) {
 
   const top = articles[0];
   const featHtml = top
-    ? `<a class="feat" href="/articles/${top.slug}" data-cat="${catAttr(top)}">
+    ? `<a class="feat" href="/articles/${top.slug}" data-cat="${catAttr(top)}" data-element-name="article_list_featured_card" data-track-view data-log-slug="${escapeAttr(top.slug)}">
   ${thumb(top)}
   <div class="feat-body">
     <div class="feat-head">
@@ -740,7 +748,7 @@ function renderListPage(articles) {
       (
         a,
         i,
-      ) => `<a class="card" href="/articles/${a.slug}" data-cat="${catAttr(a)}"${
+      ) => `<a class="card" href="/articles/${a.slug}" data-cat="${catAttr(a)}" data-element-name="article_list_card" data-track-view data-log-slug="${escapeAttr(a.slug)}"${
         i === 0 ? ' data-dup="1"' : ''
       }${i === 0 || i > PAGE_SIZE ? ' hidden' : ''}>
   ${thumb(a)}
@@ -750,10 +758,10 @@ function renderListPage(articles) {
     .join('\n')}</div>`;
 
   const tabsHtml = `<div class="cat-tabs">
-<button type="button" class="cat" data-cat="" data-slug="" aria-pressed="true">전체</button>
+<button type="button" class="cat" data-cat="" data-slug="" data-element-name="article_list_category_all" aria-pressed="true">전체</button>
 ${CATEGORIES.map(
   c =>
-    `<button type="button" class="cat" data-cat="${escapeAttr(c.name)}" data-slug="${escapeAttr(c.slug)}" aria-pressed="false">${escapeHtml(c.name)}</button>`,
+    `<button type="button" class="cat" data-cat="${escapeAttr(c.name)}" data-slug="${escapeAttr(c.slug)}" data-element-name="article_list_category_${escapeAttr(c.slug)}" aria-pressed="false">${escapeHtml(c.name)}</button>`,
 ).join('\n')}
 </div>`;
 
@@ -762,7 +770,7 @@ ${CATEGORIES.map(
 
   const moreHtml = `<div class="more-wrap"${
     articles.length - 1 <= PAGE_SIZE ? ' hidden' : ''
-  }><button type="button" class="more">더 보기</button></div>`;
+  }><button type="button" class="more" data-element-name="article_list_more">더 보기</button></div>`;
 
   const ld = {
     '@context': 'https://schema.org',
@@ -792,7 +800,7 @@ ${jsonLd(ld)}`,
 )}
 <noscript><style>.cat-tabs,.more-wrap{display:none}.cards .card[hidden]:not([data-dup]){display:flex!important}</style></noscript>
 </head>
-<body>
+<body data-screen-name="ArticleList">
 ${header()}
 <div class="lwrap list-page" data-testid="article-list">
 <div class="list-head">

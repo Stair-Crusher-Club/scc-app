@@ -13,7 +13,12 @@ import Config from 'react-native-config';
 
 import BackIcon from '@/assets/icon/ic_v2_arrow_back.svg';
 import CloseIcon from '@/assets/icon/close.svg';
-import {accessTokenAtom, isAnonymousUserAtom, useMe} from '@/atoms/Auth';
+import {
+  accessTokenAtom,
+  ANONYMOUS_USER_TEMPLATE,
+  isAnonymousUserAtom,
+  useMe,
+} from '@/atoms/Auth';
 import {CloseAppBar} from '@/components/AppBar';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import {color} from '@/constant/color';
@@ -51,7 +56,9 @@ const APP_MESSAGE_REQUEST_LOGIN = 'SCC_REQUEST_LOGIN';
 
 // 주입 payload 의 스키마 버전. 웹은 이 값이 있을 때만 로그인 위임을 시도하고,
 // 없으면(= 이 코드가 없는 구버전 앱) 기존 동작으로 폴백한다.
-const AUTH_BRIDGE_VERSION = 1;
+//   1: token/baseUrl/isAnonymous
+//   2: + userId (웹 GA 가 앱 유저와 같은 신원으로 이벤트를 남기기 위함)
+const AUTH_BRIDGE_VERSION = 2;
 
 export interface WebViewScreenParams {
   headerVariant?: 'appbar' | 'navigation';
@@ -208,18 +215,31 @@ const WebViewScreen = ({route, navigation}: ScreenProps<'Webview'>) => {
     // BASE_URL 이 비어있으면 web 측 default(prod) 가 그대로 사용된다.
     // JSON.stringify 로 따옴표/이스케이프 safety 확보.
     const baseUrl = Config.BASE_URL ?? '';
+    // userId 도 주입한다. 이게 없으면 웹뷰 안 web bundle 은 자기 localStorage 의 신원(없거나
+    // 예전 세션이 만든 익명 계정)으로 GA 이벤트를 남긴다 — 실측으로 앱 웹뷰의 web user_id 24개 중
+    // 앱 GA 와 겹치는 것이 0개였다. 익명(비회원) 유저도 채번된 id 가 있으므로 그대로 넘긴다.
+    //
+    // 단 레거시 sentinel `'0'` 은 제외한다. 과거 비회원을 전부 id '0' 으로 저장하던 시기가 있어
+    // 그 값은 신원이 아니고, 그대로 보내면 GA 에서 여러 계정이 한 사용자로 뭉친다.
+    // 앱의 `_syncUserInfo` 도 이 경우 Logger.setUserId 를 호출하지 않고 조기 return 한다
+    // (atoms/Auth.ts) — 웹뷰도 같은 규칙을 따라야 표면 간 신원이 어긋나지 않는다.
+    const loggableUserId =
+      userInfo?.id && userInfo.id !== ANONYMOUS_USER_TEMPLATE.id
+        ? userInfo.id
+        : null;
     return `(function(){
       try {
         window.__SCC_APP_AUTH__ = {
           token: ${JSON.stringify(accessToken ?? null)},
           baseUrl: ${JSON.stringify(baseUrl)},
           isAnonymous: ${isAnonymous ? 'true' : 'false'},
+          userId: ${JSON.stringify(loggableUserId)},
           bridgeVersion: ${AUTH_BRIDGE_VERSION},
         };
         window.dispatchEvent(new Event('scc-app-auth-ready'));
       } catch (_e) {}
     })(); true;`;
-  }, [accessToken, isAnonymous]);
+  }, [accessToken, isAnonymous, userInfo?.id]);
 
   // 로그인 상태가 바뀌면(로그인 완료/로그아웃/cold start 후 atom 늦은 로드) 즉시 재주입한다.
   // 웹뷰 안에서 앱 LoginScreen 으로 로그인한 뒤 웹이 갱신되는 경로가 바로 이것 —

@@ -9,6 +9,11 @@ export interface AppInjectedAuth {
   baseUrl?: string;
   /** 앱 유저가 미식별(비회원/로그아웃) 상태인지. 토큰 존재만으로는 알 수 없다. */
   isAnonymous: boolean;
+  /**
+   * 앱 유저의 id (비회원도 채번된 값이 있다). 로그아웃 상태면 null.
+   * GA 이벤트를 앱과 같은 신원으로 남기기 위한 것 — bridgeVersion 2 부터.
+   */
+  userId: string | null;
   /** 주입 payload 스키마 버전. 0 = 이 필드가 없는 구버전 앱 = 로그인 위임 미지원. */
   bridgeVersion: number;
 }

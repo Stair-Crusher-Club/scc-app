@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   AddSectionButton 은 편집 모드 전용 도구 — 계측 대상이 아니다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
@@ -523,19 +526,22 @@ const SECTION_TEMPLATES: SectionTemplate[] = [
  */
 function EditModeContent({ bbucleRoadId }: { bbucleRoadId: string }) {
   const editContext = useEditMode();
-  if (!editContext) return null;
-
-  const { data, updateData } = editContext;
+  // hook 은 early return 앞에서 무조건 호출한다 (react-hooks/rules-of-hooks).
+  const updateData = editContext?.updateData;
 
   const handleAddSection = useCallback(
     (key: SectionKey, defaultData: NonNullable<BbucleRoadData[SectionKey]>) => {
-      updateData((prev) => ({
+      updateData?.((prev) => ({
         ...prev,
         [key]: defaultData,
       }));
     },
     [updateData],
   );
+
+  if (!editContext) return null;
+
+  const { data } = editContext;
 
   return (
     <EditModeContainer>

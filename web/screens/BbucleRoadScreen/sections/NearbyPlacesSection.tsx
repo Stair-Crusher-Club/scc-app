@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-imports --
+   styled() 베이스. 버튼들은 렌더 시 `as={SccPressable}` 로 교체되어 정상 로깅된다.
+   (터치 컴포넌트는 Scc* 사용 원칙: .eslintrc.js no-restricted-imports) */
 import React, { useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Image } from 'react-native';
 import styled from 'styled-components/native';
@@ -415,6 +418,7 @@ export default function NearbyPlacesSection({
               isDesktop={isDesktop}
               onPress={handleNaverListPress}
               elementName="bbucle-road-naver-list"
+              trackView
               logParams={{ url: naverListUrl }}
               disableLogging={isEditMode}
             >
@@ -425,6 +429,7 @@ export default function NearbyPlacesSection({
               isDesktop={isDesktop}
               onPress={handleMorePlacesPress}
               elementName="bbucle-road-nearby-more"
+              trackView
               logParams={{ url: morePlacesUrl }}
               disableLogging={isEditMode}
             >
