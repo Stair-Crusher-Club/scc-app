@@ -18,6 +18,8 @@ const ITEM_SIDE_PADDING = (width - ITEM_SIZE) / 2;
 type Props<T> = {
   searchResults: T[];
   onFocusedItemChange: (item: T | null) => void;
+  /** 스크롤이 움직이기 시작/멈춤. 카드 위 오버레이가 스크롤을 따라 즉시 숨을 수 있게 알린다. */
+  onScrollStateChange?: (isScrolling: boolean) => void;
   onLayout?: (event: LayoutChangeEvent) => void;
   onCardPress?: (item: T) => void;
   ItemCard: React.FC<{item: T; onPress?: () => void}>;
@@ -28,6 +30,7 @@ function ItemMapList<T extends {id: string}>(
   {
     searchResults,
     onFocusedItemChange,
+    onScrollStateChange,
     onLayout,
     onCardPress,
     ItemCard,
@@ -37,6 +40,25 @@ function ItemMapList<T extends {id: string}>(
 ) {
   const wrapperRef = useRef<View>(null);
   const listRef = useRef<FlatList<T>>(null);
+  // 스크롤 이벤트가 110ms 동안 없으면 멈춘 것으로 본다. onMomentumScrollEnd 만으로는
+  // 웹(react-native-web)과 드래그 후 관성 없이 멈추는 경우를 못 잡는다.
+  const scrollIdleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const isScrollingRef = useRef(false);
+  const onScrollStateChangeRef = useRef(onScrollStateChange);
+  onScrollStateChangeRef.current = onScrollStateChange;
+  const setIsScrolling = (isScrolling: boolean) => {
+    if (isScrollingRef.current === isScrolling) return;
+    isScrollingRef.current = isScrolling;
+    onScrollStateChangeRef.current?.(isScrolling);
+  };
+  const handleScroll = () => {
+    setIsScrolling(true);
+    clearTimeout(scrollIdleTimerRef.current);
+    scrollIdleTimerRef.current = setTimeout(() => setIsScrolling(false), 110);
+  };
+  useEffect(() => () => clearTimeout(scrollIdleTimerRef.current), []);
   // 웹 스냅 시 최신 결과/콜백을 참조하도록 ref 로 감싼다 (effect 는 1회만 attach).
   const onSettleRef = useRef<(index: number) => void>(() => {});
   onSettleRef.current = (index: number) =>
@@ -97,6 +119,8 @@ function ItemMapList<T extends {id: string}>(
         snapToInterval={ITEM_SIZE}
         decelerationRate="fast"
         onLayout={onLayout}
+        scrollEventThrottle={16}
+        onScroll={handleScroll}
         onMomentumScrollEnd={({nativeEvent}) => {
           const index = Math.floor(
             (nativeEvent.contentOffset.x + ITEM_SIZE / 2) / ITEM_SIZE,

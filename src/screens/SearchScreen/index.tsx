@@ -10,6 +10,8 @@ import {Keyboard, Platform, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
+import {AlternativeSearchSuggestionDto} from '@/generated-sources/openapi';
+import {getPlaceAccessibilityScore} from '@/utils/accessibilityCheck';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
@@ -18,6 +20,7 @@ import {
   draftKeywordAtom,
   filterAtom,
   filterModalStateAtom,
+  isAlternativeSearchAtom,
   isToiletSearchKeyword,
   SearchMode,
   searchModeAtom,
@@ -32,6 +35,9 @@ import {
   SearchScreenProvider,
   useSearchScreenContext,
 } from '@/screens/SearchScreen/SearchScreenContext';
+import AlternativeSearchCta, {
+  GOOD_ACCESSIBILITY_MAX_SCORE,
+} from '@/screens/SearchScreen/components/AlternativeSearchCta';
 import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import SearchMapView, {
@@ -125,6 +131,7 @@ const SearchScreenContent = ({
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
+  const setIsAlternativeSearch = useSetAtom(isAlternativeSearchAtom);
   const {setIsFromLookup} = useSearchScreenContext();
 
   const onQueryUpdate = (
@@ -134,10 +141,17 @@ const SearchScreenContent = ({
       shouldAnimate?: boolean;
       shouldRemainInInputMode?: boolean;
       mode?: SearchMode;
+      /** 대체 검색("주위 다른 OOO 확인하기")으로 트리거된 검색인지. */
+      isAlternativeSearch?: boolean;
     },
   ) => {
     const shouldRecordHistory = option.shouldRecordHistory ?? false;
     const shouldAnimate = option.shouldAnimate ?? false;
+    // 대체 검색으로 얻은 결과에서는 CTA를 다시 띄우지 않는다.
+    // 그 외의 모든 검색어 변경은 이 상태를 해제한다.
+    if (queryUpdate.text !== undefined) {
+      setIsAlternativeSearch(option.isAlternativeSearch ?? false);
+    }
     const shouldRemainInInputMode = option.shouldRemainInInputMode ?? false;
 
     // 검색어가 화장실 키워드면 어느 경로(타이핑/히스토리/딥링크)든 칩과 동일하게 toilet 모드로.
@@ -190,6 +204,61 @@ const SearchScreenContent = ({
     }
   };
 
+  // 검색 결과에 접근레벨 2 이하 장소가 하나도 없으면(부정경험) 대체 검색을 제안할 수 있다.
+  // 하나라도 있으면 사용자가 이미 쓸 만한 결과를 얻은 것이므로 제안 자체를 하지 않는다.
+  const hasAccessiblePlaceInResults =
+    resultMode === 'place' &&
+    ((data ?? []) as PlaceListItem[]).some(item => {
+      const score = getPlaceAccessibilityScore({
+        score: item.accessibilityInfo?.accessibilityScore,
+        hasPlaceAccessibility: item.hasPlaceAccessibility,
+        hasBuildingAccessibility: item.hasBuildingAccessibility,
+      });
+      return typeof score === 'number' && score <= GOOD_ACCESSIBILITY_MAX_SCORE;
+    });
+
+  const onAlternativeSearch = (suggestion: AlternativeSearchSuggestionDto) => {
+    // 대체 검색 결과는 무조건 접근레벨 낮은순으로 보여준다.
+    setFilter(prev => ({...prev, sortOption: SortOption.LOW_SCORE}));
+    setDraftKeyword(suggestion.searchText);
+    onQueryUpdate(
+      {
+        text: suggestion.searchText,
+        // 서버가 제안 여부를 판단할 때 실제로 검색해본 영역 그대로 재검색해야
+        // "눌렀는데 결과가 없다"가 발생하지 않는다.
+        location: suggestion.circleRegion.currentLocation,
+        radiusMeter: suggestion.circleRegion.distanceMetersLimit,
+        useCameraRegion: false,
+      },
+      {
+        shouldAnimate: true,
+        shouldRecordHistory: false,
+        mode: 'place',
+        isAlternativeSearch: true,
+      },
+    );
+  };
+
+  const alternativeSearchCtaSlot = useCallback(
+    ({
+      focusedItem,
+      isScrolling,
+    }: {
+      focusedItem: {id: string} | null;
+      isScrolling: boolean;
+    }) => (
+      <AlternativeSearchCta
+        focusedPlaceId={focusedItem?.id ?? null}
+        isScrolling={isScrolling}
+        currentSearchText={searchQuery.text}
+        isEnabled={!hasAccessiblePlaceInResults}
+        onPress={onAlternativeSearch}
+      />
+    ),
+
+    [searchQuery.text, hasAccessiblePlaceInResults],
+  );
+
   // SearchScreenContent 의 생명주기는 wrapper 의 activeMainTab 분기가 결정한다:
   //   - mount   : 사용자가 지도 탭에 진입한 시점. route.params 기반으로 초기 검색 트리거.
   //   - unmount : 다른 메인 탭으로 이동한 시점. 전역 atom 들을 default 로 reset.
@@ -228,6 +297,7 @@ const SearchScreenContent = ({
       setSearchMode('place');
       setSearchRequestId(null);
       setToiletLayerActive(false);
+      setIsAlternativeSearch(false);
       resetHighlightAnimation();
     };
   }, []);
@@ -251,16 +321,18 @@ const SearchScreenContent = ({
       setViewState({type: 'map', inputMode: false});
       return true;
     }
-    // 지도 뷰 + 검색 결과 있음 → SearchInputText의 X 버튼(onClear)과 동일한 효과로 처리
+    // 지도 뷰 + 검색 결과 있음 → 검색어·결과를 지우고 검색어 입력 화면으로.
+    // (X 버튼(onClear)은 지도 empty view로 가는 것과 의도적으로 다르다)
     if (!viewState.inputMode && searchQuery.text) {
       setDraftKeyword('');
-      setViewState({type: 'map', inputMode: false});
+      setViewState({type: 'map', inputMode: true});
       onQueryUpdate(
         {text: ''},
         {
-          shouldRecordHistory: true,
-          shouldRemainInInputMode: false,
-          shouldAnimate: true,
+          shouldRecordHistory: false,
+          // inputMode를 유지해야 검색어 입력 화면에 머문다.
+          shouldRemainInInputMode: true,
+          shouldAnimate: false,
           mode: 'place',
         },
       );
@@ -356,6 +428,7 @@ const SearchScreenContent = ({
               }}
               data={data ?? []}
               resultMode={resultMode}
+              AboveCardsSlot={alternativeSearchCtaSlot}
             />
           </View>
           {viewState.inputMode && resultMode === 'place' && (

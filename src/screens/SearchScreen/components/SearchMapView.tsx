@@ -42,8 +42,12 @@ const SearchMapView = forwardRef<
     data: SearchResultItem[];
     resultMode: SearchMode;
     onRefresh: () => void;
+    AboveCardsSlot?: React.FC<{
+      focusedItem: MapViewItem | null;
+      isScrolling: boolean;
+    }>;
   }
->(({data, resultMode, onRefresh}, ref) => {
+>(({data, resultMode, onRefresh, AboveCardsSlot}, ref) => {
   const [toiletLayerActive, setToiletLayerActive] = useAtom(
     toiletLayerActiveAtom,
   );
@@ -143,6 +147,7 @@ const SearchMapView = forwardRef<
           toiletLayerActive={toiletLayerActive}
           onToiletLayerToggle={handleToiletLayerToggle}
           showToiletLayerToggle={showToiletLayerToggle}
+          AboveCardsSlot={AboveCardsSlot}
         />
       </Wrapper>
     </LogParamsProvider>

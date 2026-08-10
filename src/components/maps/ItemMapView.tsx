@@ -62,6 +62,11 @@ type ItemMapViewProps<T extends MarkerItem> = {
   toiletLayerActive?: boolean;
   onToiletLayerToggle?: () => void;
   showToiletLayerToggle?: boolean;
+  /**
+   * 카드 리스트 바로 위에 렌더할 오버레이. 포커스된 카드에 종속된 UI(대체 검색 CTA 등)를 위해
+   * 포커스 상태와 스크롤 상태를 넘겨준다. 넘기지 않으면 아무것도 렌더하지 않는다.
+   */
+  AboveCardsSlot?: React.FC<{focusedItem: T | null; isScrolling: boolean}>;
 };
 
 const SINGLE_CARD_WIDTH = Math.round(Dimensions.get('window').width * 0.9) - 10;
@@ -82,6 +87,7 @@ const FRefInputComp = <T extends MarkerItem>(
     toiletLayerActive,
     onToiletLayerToggle,
     showToiletLayerToggle,
+    AboveCardsSlot,
   }: ItemMapViewProps<T>,
   ref: ForwardedRef<ItemMapViewHandle<T>>,
 ) => {
@@ -89,6 +95,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const cardsRef = useRef<FlatList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [isCardListScrolling, setIsCardListScrolling] = useState(false);
   // overlay 진입 전 선택된 장소 id를 보존하여, overlay dismiss 시 복원
   const savedSelectedItemIdRef = useRef<string | null>(null);
   const navigation = useNavigation();
@@ -318,27 +325,40 @@ const FRefInputComp = <T extends MarkerItem>(
           </OverlayCardContainer>
         ) : (
           items.length > 0 && (
-            <ItemMapList<T>
-              ref={cardsRef}
-              searchResults={items}
-              initialScrollIndex={
-                selectedItemId
-                  ? Math.max(
-                      0,
-                      items.findIndex(it => it.id === selectedItemId),
-                    )
-                  : undefined
-              }
-              onCardPress={item => {
-                navigation.navigate(pdpScreen, {
-                  placeInfo: {placeId: item.id},
-                });
-              }}
-              onFocusedItemChange={item =>
-                item && onItemSelect(item, false, false)
-              }
-              ItemCard={ItemCard}
-            />
+            <>
+              {AboveCardsSlot && (
+                <AboveCardsSlot
+                  focusedItem={
+                    items.find(it => it.id === selectedItemId) ??
+                    items[0] ??
+                    null
+                  }
+                  isScrolling={isCardListScrolling}
+                />
+              )}
+              <ItemMapList<T>
+                ref={cardsRef}
+                searchResults={items}
+                initialScrollIndex={
+                  selectedItemId
+                    ? Math.max(
+                        0,
+                        items.findIndex(it => it.id === selectedItemId),
+                      )
+                    : undefined
+                }
+                onCardPress={item => {
+                  navigation.navigate(pdpScreen, {
+                    placeInfo: {placeId: item.id},
+                  });
+                }}
+                onFocusedItemChange={item =>
+                  item && onItemSelect(item, false, false)
+                }
+                onScrollStateChange={setIsCardListScrolling}
+                ItemCard={ItemCard}
+              />
+            </>
           )
         )}
       </View>
