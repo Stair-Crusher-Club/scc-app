@@ -68,12 +68,10 @@ describe('GA 부트스트랩 스니펫 (SPA/정적 공유)', () => {
 
   test('mmkv 키는 dot/backslash 두 포맷을 모두 읽는다', () => {
     // webpack alias 유무에 따라 키가 갈린다 — article-template 의 readSpaToken 과 같은 이유.
+    // 브라우저가 실제로 평가할 **소스 텍스트** 를 그대로 검사한다. `\\` 두 글자가 emit 돼야
+    // JS 리터럴로 평가될 때 백슬래시 1개가 된다 (한 글자만 emit 되면 escape 로 먹힌다).
     const keys = /var keys = (\[[^\]]*\]);/.exec(GA_BOOTSTRAP_SNIPPET)[1];
-    // eslint-disable-next-line no-eval -- 브라우저가 평가할 리터럴 그대로를 재현한다
-    expect(eval(keys)).toEqual([
-      'mmkv.default.userInfo',
-      'mmkv.default\\userInfo',
-    ]);
+    expect(keys).toBe("['mmkv.default.userInfo', 'mmkv.default\\\\userInfo']");
   });
 
   test('surface 를 선언적으로 판정한다 (browser 휴리스틱이 아니라)', () => {

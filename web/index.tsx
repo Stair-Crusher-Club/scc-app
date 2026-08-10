@@ -34,10 +34,24 @@ import {SCC_APP_AUTH_READY_EVENT} from './hooks/useAppInjectedAuth';
  *  Logger 가 surface 판정 때문에 appWebViewBridge 를 import 한다.)
  */
 function applyAppInjectedAuth(): void {
+  const auth = readAppInjectedAuth();
   syncAppInjectedAuthToStorage();
-  const userId = readAppInjectedAuth()?.userId;
-  if (userId) {
-    Logger.setUserId(userId);
+  // 주입이 없으면(브라우저) GA 신원은 웹 자체 세션이 소유한다 — 건드리지 않는다.
+  if (!auth) return;
+  // userId 가 비어 있으면(신앱 로그아웃, 또는 userId 를 안 주입하는 구앱) 아무것도 하지 않는다.
+  //
+  // ⚠️ 알려진 한계: 웹뷰 안에서 로그아웃해도 **GA 예약 user_id 는 다음 페이지 로드까지 남는다.**
+  // 실측으로 확인한 것 — 신원을 심는 신뢰 가능한 경로는 부트스트랩의
+  // `gtag('config', ID, {user_id})` 뿐이고(web/gaBootstrap.js), 세션 도중
+  // `gtag('set', {user_id: null})` 로는 지워지지 않는다(probe 이벤트가 계속 옛 uid 를 달고 나갔다).
+  // 동작하지 않는 "지우기" 코드를 두면 고쳐진 것처럼 보여서 더 위험하므로 넣지 않는다.
+  //
+  // 영향은 "웹뷰 안 로그아웃 ~ 다음 페이지 로드" 구간으로 한정된다. 다음 로드에선 주입값도
+  // 저장소도 비어 있어 신원 없이 config 되고, 저장소 정리는 syncAppInjectedAuthToStorage 가
+  // 이미 했으므로 API 인증이 옛 계정으로 남는 일은 없다.
+  // (구앱은 애초에 userId 를 주입하지 않으니 이 분기를 로그아웃으로 해석해서도 안 된다.)
+  if (auth.userId) {
+    Logger.setUserId(auth.userId);
   }
 }
 

@@ -82,6 +82,11 @@ export default function FloatingBottomBar({
               trackView
               logParams={{ likeCount, isDesktop }}
               disableLogging={isEditMode}
+              // elementName 은 로깅용이라 스크린리더에 읽히지 않는다. 아이콘+숫자만 있는
+              // 컨트롤이므로 이름과 눌림 상태를 명시한다. (CLAUDE.md / PR #226)
+              accessibilityRole="button"
+              accessibilityLabel="도움이 돼요"
+              accessibilityState={{ selected: isLiked }}
             >
               <LikeButton isDesktop={isDesktop}>
                 {isLiked ? (
@@ -100,6 +105,9 @@ export default function FloatingBottomBar({
               trackView
               logParams={{ isDesktop }}
               disableLogging={isEditMode}
+              // 아이콘 전용 버튼 — 텍스트가 없어 접근성 이름을 직접 준다. (CLAUDE.md / PR #226)
+              accessibilityRole="button"
+              accessibilityLabel="공유하기"
             >
               <ShareButton isDesktop={isDesktop}>
                 <IcShareWeb width={isDesktop ? 24 : 20} height={isDesktop ? 24 : 20} viewBox="0 0 24 24" color="#16181C" />
