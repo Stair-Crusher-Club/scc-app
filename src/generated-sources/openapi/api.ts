@@ -386,6 +386,25 @@ export type AiSummarySourceTabDto = typeof AiSummarySourceTabDto[keyof typeof Ai
 /**
  * 
  * @export
+ * @interface AlternativeSearchSuggestionDto
+ */
+export interface AlternativeSearchSuggestionDto {
+    /**
+     * 대체 검색어. 버튼 라벨은 \"주위 다른 {searchText} 확인하기\".
+     * @type {string}
+     * @memberof AlternativeSearchSuggestionDto
+     */
+    'searchText': string;
+    /**
+     * 
+     * @type {CircleSearchRegionDto}
+     * @memberof AlternativeSearchSuggestionDto
+     */
+    'circleRegion': CircleSearchRegionDto;
+}
+/**
+ * 
+ * @export
  * @interface ApiErrorResponse
  */
 export interface ApiErrorResponse {
@@ -2443,6 +2462,38 @@ export interface GetAccessibilityRankPost200Response {
 /**
  * 
  * @export
+ * @interface GetAlternativeSearchSuggestionRequestDto
+ */
+export interface GetAlternativeSearchSuggestionRequestDto {
+    /**
+     * 지도 카드에서 현재 포커스된 장소의 ID
+     * @type {string}
+     * @memberof GetAlternativeSearchSuggestionRequestDto
+     */
+    'placeId': string;
+    /**
+     * 현재 화면의 검색어. 대체 검색어가 이 값과 같으면 같은 말을 반복하게 되므로 제안하지 않는다.
+     * @type {string}
+     * @memberof GetAlternativeSearchSuggestionRequestDto
+     */
+    'currentSearchText': string;
+}
+/**
+ * 
+ * @export
+ * @interface GetAlternativeSearchSuggestionResponseDto
+ */
+export interface GetAlternativeSearchSuggestionResponseDto {
+    /**
+     * 
+     * @type {AlternativeSearchSuggestionDto}
+     * @memberof GetAlternativeSearchSuggestionResponseDto
+     */
+    'suggestion'?: AlternativeSearchSuggestionDto;
+}
+/**
+ * 
+ * @export
  * @interface GetBbucleRoadPageRequestDto
  */
 export interface GetBbucleRoadPageRequestDto {
@@ -2936,7 +2987,7 @@ export interface GetReviewActivityReportResponseDto {
  */
 export interface GetSccContentDetailsRequestDto {
     /**
-     * 조회할 컨텐츠의 URL. 서버에서 정규화 후 SccContent를 찾는다. 또한 이 URL 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 도 추론한다.
+     * 조회할 컨텐츠의 URL. 서버에서 정규화 후 SccContent를 찾는다. 또한 이 URL 에서 좋아요 target (BBUCLE_ROAD path id 또는 ARTICLE slug) 도 추론한다. 정적 아티클 페이지에서 보낼 때는 canonical URL (https://web.staircrusher.club/articles/<slug>) 을 쓴다.
      * @type {string}
      * @memberof GetSccContentDetailsRequestDto
      */
@@ -7662,7 +7713,8 @@ export const UpvoteTargetTypeDto = {
     BuildingAccessibility: 'BUILDING_ACCESSIBILITY',
     PlaceReview: 'PLACE_REVIEW',
     ToiletReview: 'TOILET_REVIEW',
-    BbucleRoad: 'BBUCLE_ROAD'
+    BbucleRoad: 'BBUCLE_ROAD',
+    Article: 'ARTICLE'
 } as const;
 
 export type UpvoteTargetTypeDto = typeof UpvoteTargetTypeDto[keyof typeof UpvoteTargetTypeDto];
@@ -8851,6 +8903,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 검색 결과에 접근레벨 2 이하인 장소가 하나도 없을 때(부정경험 상태) 클라이언트가 지도 카드 포커스가 확정될 때마다 호출한다. 해당 장소의 vendor 세부 카테고리(예: 한식)를 대체 검색어 후보로 뽑아 실제 재검색을 시뮬레이션하고, 접근레벨 2 이하 결과가 3개를 초과할 때만 제안을 내려준다. 제안할 것이 없으면 suggestion이 null이다. 비인증 유저도 조회 가능하다. 
+         * @summary 포커스된 장소를 기준으로 대체 검색어를 제안할지 판단한다.
+         * @param {GetAlternativeSearchSuggestionRequestDto} getAlternativeSearchSuggestionRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAlternativeSearchSuggestion: async (getAlternativeSearchSuggestionRequestDto: GetAlternativeSearchSuggestionRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'getAlternativeSearchSuggestionRequestDto' is not null or undefined
+            assertParamExists('getAlternativeSearchSuggestion', 'getAlternativeSearchSuggestionRequestDto', getAlternativeSearchSuggestionRequestDto)
+            const localVarPath = `/getAlternativeSearchSuggestion`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getAlternativeSearchSuggestionRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 뿌클로드 페이지 정보를 조회한다.
          * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
@@ -9538,7 +9630,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다.   (BBUCLE_ROAD: con.staircrusher.club / staircrusherclub.notion.site 의 path id, ARTICLE: web.staircrusher.club/articles/ 이하 경로) - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
          * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
@@ -12150,6 +12242,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 검색 결과에 접근레벨 2 이하인 장소가 하나도 없을 때(부정경험 상태) 클라이언트가 지도 카드 포커스가 확정될 때마다 호출한다. 해당 장소의 vendor 세부 카테고리(예: 한식)를 대체 검색어 후보로 뽑아 실제 재검색을 시뮬레이션하고, 접근레벨 2 이하 결과가 3개를 초과할 때만 제안을 내려준다. 제안할 것이 없으면 suggestion이 null이다. 비인증 유저도 조회 가능하다. 
+         * @summary 포커스된 장소를 기준으로 대체 검색어를 제안할지 판단한다.
+         * @param {GetAlternativeSearchSuggestionRequestDto} getAlternativeSearchSuggestionRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAlternativeSearchSuggestion(getAlternativeSearchSuggestionRequestDto: GetAlternativeSearchSuggestionRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetAlternativeSearchSuggestionResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAlternativeSearchSuggestion(getAlternativeSearchSuggestionRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 뿌클로드 페이지 정보를 조회한다.
          * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
@@ -12344,7 +12447,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다.   (BBUCLE_ROAD: con.staircrusher.club / staircrusherclub.notion.site 의 path id, ARTICLE: web.staircrusher.club/articles/ 이하 경로) - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
          * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
@@ -13216,6 +13319,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getAccessibilityV2Post(getAccessibilityPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * 검색 결과에 접근레벨 2 이하인 장소가 하나도 없을 때(부정경험 상태) 클라이언트가 지도 카드 포커스가 확정될 때마다 호출한다. 해당 장소의 vendor 세부 카테고리(예: 한식)를 대체 검색어 후보로 뽑아 실제 재검색을 시뮬레이션하고, 접근레벨 2 이하 결과가 3개를 초과할 때만 제안을 내려준다. 제안할 것이 없으면 suggestion이 null이다. 비인증 유저도 조회 가능하다. 
+         * @summary 포커스된 장소를 기준으로 대체 검색어를 제안할지 판단한다.
+         * @param {GetAlternativeSearchSuggestionRequestDto} getAlternativeSearchSuggestionRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAlternativeSearchSuggestion(getAlternativeSearchSuggestionRequestDto: GetAlternativeSearchSuggestionRequestDto, options?: any): AxiosPromise<GetAlternativeSearchSuggestionResponseDto> {
+            return localVarFp.getAlternativeSearchSuggestion(getAlternativeSearchSuggestionRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary 뿌클로드 페이지 정보를 조회한다.
          * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
@@ -13392,7 +13505,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getSccContent(getSccContentRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+         * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다.   (BBUCLE_ROAD: con.staircrusher.club / staircrusherclub.notion.site 의 path id, ARTICLE: web.staircrusher.club/articles/ 이하 경로) - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
          * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
          * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
          * @param {*} [options] Override http request option.
@@ -14244,6 +14357,18 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 검색 결과에 접근레벨 2 이하인 장소가 하나도 없을 때(부정경험 상태) 클라이언트가 지도 카드 포커스가 확정될 때마다 호출한다. 해당 장소의 vendor 세부 카테고리(예: 한식)를 대체 검색어 후보로 뽑아 실제 재검색을 시뮬레이션하고, 접근레벨 2 이하 결과가 3개를 초과할 때만 제안을 내려준다. 제안할 것이 없으면 suggestion이 null이다. 비인증 유저도 조회 가능하다. 
+     * @summary 포커스된 장소를 기준으로 대체 검색어를 제안할지 판단한다.
+     * @param {GetAlternativeSearchSuggestionRequestDto} getAlternativeSearchSuggestionRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getAlternativeSearchSuggestion(getAlternativeSearchSuggestionRequestDto: GetAlternativeSearchSuggestionRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getAlternativeSearchSuggestion(getAlternativeSearchSuggestionRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary 뿌클로드 페이지 정보를 조회한다.
      * @param {GetBbucleRoadPageRequestDto} getBbucleRoadPageRequestDto 
@@ -14456,7 +14581,7 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target (e.g. BBUCLE_ROAD path id) 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다. - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
+     * 웹뷰 진입 시 라운드트립 1회로 끝낼 수 있도록 저장 상태와 좋아요 요약을 통합 응답한다. - URL 기준으로 SccContent id + 현재 유저의 저장 여부. - 서버가 URL pattern 에서 좋아요 target 을 추론하여 응답의 upvoteSummary 에 좋아요 요약(totalCount, isUpvoted) 을 채운다.   (BBUCLE_ROAD: con.staircrusher.club / staircrusherclub.notion.site 의 path id, ARTICLE: web.staircrusher.club/articles/ 이하 경로) - 좋아요 개념이 적용되지 않는 URL 이면 upvoteSummary 는 null. - 한 번도 저장된 적 없는 URL이면 sccContentId 는 null 로 응답한다. 
      * @summary 웹뷰 컨텐츠의 저장 상태 + 좋아요 요약을 한 번에 조회한다.
      * @param {GetSccContentDetailsRequestDto} getSccContentDetailsRequestDto 
      * @param {*} [options] Override http request option.

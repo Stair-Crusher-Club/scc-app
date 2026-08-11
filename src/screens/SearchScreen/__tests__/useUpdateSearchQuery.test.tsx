@@ -58,4 +58,117 @@ describe('useUpdateSearchQuery', () => {
     // prev.text가 유지됨
     expect(store.get(searchQueryAtom).text).toBe('서울역');
   });
+
+  it('카메라 영역이 있어도 호출처가 검색 영역을 명시하면 그 영역을 그대로 쓴다', () => {
+    // 시나리오: 대체 검색 — 서버가 제안 판단에 실제로 검색해본 원형 영역으로 재검색해야
+    // "눌렀는데 결과가 없다"가 발생하지 않는다. 카메라 영역으로 덮어쓰면 보장이 깨진다.
+    const store = createStore();
+    store.set(draftCameraRegionAtom, {
+      northEast: {latitude: 37.6, longitude: 127.1},
+      southWest: {latitude: 37.4, longitude: 126.9},
+    });
+    store.set(searchQueryAtom, {
+      text: '대한냉면 정자',
+      location: null,
+      radiusMeter: null,
+    });
+
+    const {result} = renderHook(() => useUpdateSearchQuery(), {
+      wrapper: createWrapper(store),
+    });
+
+    act(() => {
+      result.current.updateQuery({
+        text: '한식',
+        location: {lat: 37.3625, lng: 127.1086},
+        radiusMeter: 1000,
+      });
+    });
+
+    expect(store.get(searchQueryAtom).location).toEqual({
+      lat: 37.3625,
+      lng: 127.1086,
+    });
+    expect(store.get(searchQueryAtom).radiusMeter).toBe(1000);
+  });
+
+  it('useCameraRegion=true면 카메라 영역을 따라간다', () => {
+    // 시나리오: "이 지역 재검색" / 지도 모드 카테고리 칩 — 기존 동작 회귀 방지
+    const store = createStore();
+    store.set(draftCameraRegionAtom, {
+      northEast: {latitude: 37.6, longitude: 127.1},
+      southWest: {latitude: 37.4, longitude: 126.9},
+    });
+    store.set(searchQueryAtom, {
+      text: '카페',
+      location: null,
+      radiusMeter: null,
+    });
+
+    const {result} = renderHook(() => useUpdateSearchQuery(), {
+      wrapper: createWrapper(store),
+    });
+
+    act(() => {
+      result.current.updateQuery({useCameraRegion: true});
+    });
+
+    // 중심은 37.6/37.4, 127.1/126.9의 평균이라 정확한 이진 부동소수가 아니다.
+    const {location, radiusMeter} = store.get(searchQueryAtom);
+    expect(location?.lat).toBeCloseTo(37.5, 6);
+    expect(location?.lng).toBeCloseTo(127, 6);
+    expect(radiusMeter).toBeGreaterThan(0);
+  });
+
+  it('입력 화면 검색은 중심을 지도 위치로 유지하고 반경만 비운다', () => {
+    // 시나리오: 정자역에 지도를 맞춰놓고 검색 바를 눌러 검색.
+    // 반경에 갇히면 안 되지만, 중심까지 비우면 GPS 현위치로 튄다.
+    const store = createStore();
+    store.set(draftCameraRegionAtom, {
+      northEast: {latitude: 37.6, longitude: 127.1},
+      southWest: {latitude: 37.4, longitude: 126.9},
+    });
+    // 직전 지도 검색이 atom 에 남긴 영역
+    store.set(searchQueryAtom, {
+      text: '카페',
+      location: {lat: 37.5, lng: 127},
+      radiusMeter: 1776,
+      useCameraRegion: true,
+    });
+
+    const {result} = renderHook(() => useUpdateSearchQuery(), {
+      wrapper: createWrapper(store),
+    });
+
+    act(() => {
+      result.current.updateQuery({text: '정자역 맛집'});
+    });
+
+    const q = store.get(searchQueryAtom);
+    expect(q.text).toBe('정자역 맛집');
+    // 중심 = 마지막으로 본 지도 중심 (GPS 로 튀지 않는다)
+    expect(q.location?.lat).toBeCloseTo(37.5, 6);
+    expect(q.location?.lng).toBeCloseTo(127, 6);
+    // 반경은 비워서 기본 반경으로 넓게 검색한다
+    expect(q.radiusMeter).toBeNull();
+    expect(q.useCameraRegion).toBe(false);
+  });
+
+  it('지도를 본 적이 없으면 중심도 비워 GPS 현위치로 폴백한다', () => {
+    const store = createStore();
+    store.set(draftCameraRegionAtom, null);
+    store.set(searchQueryAtom, {text: null, location: null, radiusMeter: null});
+
+    const {result} = renderHook(() => useUpdateSearchQuery(), {
+      wrapper: createWrapper(store),
+    });
+
+    act(() => {
+      result.current.updateQuery({text: '정자역 맛집'});
+    });
+
+    const q = store.get(searchQueryAtom);
+    expect(q.location).toBeNull();
+    expect(q.radiusMeter).toBeNull();
+  });
 });

@@ -25,6 +25,7 @@ import RedoIcon from '@/assets/icon/ic_redo.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import ItemMap from '@/components/maps/ItemMap';
 import ItemMapList from '@/components/maps/ItemMapList';
+import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 import {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
@@ -37,8 +38,18 @@ import {useLogger} from '@/logging/useLogger';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 import HeatTelemetry from '@/utils/HeatTelemetry';
 
-// ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
-const CARD_LIST_HEIGHT = 270;
+/**
+ * 플로팅 버튼과 **바로 아래에 있는 것** 사이 간격.
+ * 아래가 카드 캐러셀이면 카드 위 12px, 다른 버튼이면 버튼 사이 12px.
+ */
+const FLOATING_BUTTON_GAP = 12;
+
+/**
+ * 아래에 아무것도 없을 때(빈 지도) 버튼과 navbar/safe area 사이에 **추가로** 주는 간격.
+ * 버튼 자신의 `margin-bottom`([FLOATING_BUTTON_GAP])은 항상 붙어 있으므로 차액만 더한다
+ * (12 + 8 = 20px). 둘 중 하나만 바꿔도 합이 따라오도록 뺄셈으로 적는다.
+ */
+const FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY = 20 - FLOATING_BUTTON_GAP;
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
@@ -51,6 +62,10 @@ type ItemMapViewProps<T extends MarkerItem> = {
   ItemCard: React.FC<{item: T}>;
   isRefreshVisible: boolean;
   onCameraIdle: (region: Region) => void;
+  /**
+   * 화면 고유의 하단 UI(자체 플로팅 버튼 등) 높이. 플로팅 버튼 컬럼 전체를 이만큼 더 띄운다.
+   * 버튼과 바로 아래 요소 사이의 12px 간격은 [FLOATING_BUTTON_GAP] 이 별도로 보장한다.
+   */
   myLocationBottomOffset?: number;
   // 화장실 레이어 overlay
   overlayMarkers?: MarkerItem[];
@@ -62,6 +77,11 @@ type ItemMapViewProps<T extends MarkerItem> = {
   toiletLayerActive?: boolean;
   onToiletLayerToggle?: () => void;
   showToiletLayerToggle?: boolean;
+  /**
+   * 카드 리스트 바로 위에 렌더할 오버레이. 포커스된 카드에 종속된 UI(대체 검색 CTA 등)를 위해
+   * 포커스 상태와 스크롤 상태를 넘겨준다. 넘기지 않으면 아무것도 렌더하지 않는다.
+   */
+  AboveCardsSlot?: React.FC<{focusedItem: T | null; isScrolling: boolean}>;
 };
 
 const SINGLE_CARD_WIDTH = Math.round(Dimensions.get('window').width * 0.9) - 10;
@@ -82,6 +102,7 @@ const FRefInputComp = <T extends MarkerItem>(
     toiletLayerActive,
     onToiletLayerToggle,
     showToiletLayerToggle,
+    AboveCardsSlot,
   }: ItemMapViewProps<T>,
   ref: ForwardedRef<ItemMapViewHandle<T>>,
 ) => {
@@ -89,6 +110,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const cardsRef = useRef<FlatList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [isCardListScrolling, setIsCardListScrolling] = useState(false);
   // overlay 진입 전 선택된 장소 id를 보존하여, overlay dismiss 시 복원
   const savedSelectedItemIdRef = useRef<string | null>(null);
   const navigation = useNavigation();
@@ -235,6 +257,8 @@ const FRefInputComp = <T extends MarkerItem>(
   }
 
   const showOverlayCard = overlayFocusedItem != null && OverlayItemCard != null;
+  // 플로팅 버튼 아래에 카드(캐러셀/overlay)가 깔리는지. 없으면 버튼 아래가 곧 navbar 다.
+  const hasContentBelowButtons = showOverlayCard || items.length > 0;
 
   return (
     <Container>
@@ -283,7 +307,15 @@ const FRefInputComp = <T extends MarkerItem>(
           flexGrow: 1,
           alignSelf: 'stretch',
           justifyContent: 'flex-end',
-          paddingBottom: insets.bottom + tabBarHeight,
+          // tabBarHeight 는 이미 insets.bottom 을 포함한다(getTabBarHeight = 높이 + inset).
+          // 둘을 더하면 하단 인셋이 두 번 잡혀 빈 지도에서 버튼이 과하게 떠오른다.
+          //
+          // 카드가 없으면 버튼 아래가 곧 navbar/safe area 다. 버튼 자신의 margin-bottom
+          // 위에 차액을 더해 20px 이 되게 한다.
+          paddingBottom:
+            (tabBarHeight || insets.bottom) +
+            (myLocationBottomOffset ?? 0) +
+            (hasContentBelowButtons ? 0 : FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY),
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (
@@ -302,12 +334,7 @@ const FRefInputComp = <T extends MarkerItem>(
         <MyLocationButton
           elementName="map_my_location_button"
           onPress={onMyLocationPress}
-          activeOpacity={0.7}
-          style={
-            myLocationBottomOffset != null
-              ? {marginBottom: myLocationBottomOffset}
-              : undefined
-          }>
+          activeOpacity={0.7}>
           <MyLocationIcon width={24} height={24} />
         </MyLocationButton>
         {showOverlayCard ? (
@@ -318,27 +345,45 @@ const FRefInputComp = <T extends MarkerItem>(
           </OverlayCardContainer>
         ) : (
           items.length > 0 && (
-            <ItemMapList<T>
-              ref={cardsRef}
-              searchResults={items}
-              initialScrollIndex={
-                selectedItemId
-                  ? Math.max(
-                      0,
-                      items.findIndex(it => it.id === selectedItemId),
-                    )
-                  : undefined
-              }
-              onCardPress={item => {
-                navigation.navigate(pdpScreen, {
-                  placeInfo: {placeId: item.id},
-                });
-              }}
-              onFocusedItemChange={item =>
-                item && onItemSelect(item, false, false)
-              }
-              ItemCard={ItemCard}
-            />
+            <CardBand pointerEvents="box-none">
+              {/* 카드 밴드 상단에 겹쳐 띄운다(absolute). 레이아웃 흐름에서 빠지므로 플로팅
+                  버튼은 CTA 슬롯이 아니라 **카드** 기준 12px 에 놓인다 — CTA 유무로 버튼
+                  위치가 흔들리지 않는다. */}
+              {AboveCardsSlot && (
+                <AboveCardsSlotContainer pointerEvents="box-none">
+                  <AboveCardsSlot
+                    focusedItem={
+                      items.find(it => it.id === selectedItemId) ??
+                      items[0] ??
+                      null
+                    }
+                    isScrolling={isCardListScrolling}
+                  />
+                </AboveCardsSlotContainer>
+              )}
+              <ItemMapList<T>
+                ref={cardsRef}
+                searchResults={items}
+                initialScrollIndex={
+                  selectedItemId
+                    ? Math.max(
+                        0,
+                        items.findIndex(it => it.id === selectedItemId),
+                      )
+                    : undefined
+                }
+                onCardPress={item => {
+                  navigation.navigate(pdpScreen, {
+                    placeInfo: {placeId: item.id},
+                  });
+                }}
+                onFocusedItemChange={item =>
+                  item && onItemSelect(item, false, false)
+                }
+                onScrollStateChange={setIsCardListScrolling}
+                ItemCard={ItemCard}
+              />
+            </CardBand>
           )
         )}
       </View>
@@ -373,7 +418,7 @@ const MyLocationButton = styled(SccTouchableOpacity)`
   align-self: flex-end;
   background-color: ${() => color.white};
   margin-right: 20px;
-  margin-bottom: 16px;
+  margin-bottom: ${FLOATING_BUTTON_GAP}px;
   border-radius: 100px;
   padding: 8px;
   display: flex;
@@ -425,13 +470,26 @@ const ToiletLayerToggleButton = styled(SccTouchableOpacity)<{active: boolean}>`
   align-self: flex-end;
   background-color: ${({active}) => (active ? ToiletMarkerColor : color.white)};
   margin-right: 20px;
-  margin-bottom: 8px;
+  margin-bottom: ${FLOATING_BUTTON_GAP}px;
   border-radius: 100px;
   padding: 8px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
+`;
+
+/** 카드 캐러셀 밴드. 이 안에서 CTA 슬롯을 absolute 로 겹쳐 놓는다. */
+const CardBand = styled.View`
+  align-self: stretch;
+`;
+
+/** 카드 밴드 상단에 겹쳐 놓는 슬롯. 흐름에서 빠져 플로팅 버튼 위치에 영향을 주지 않는다. */
+const AboveCardsSlotContainer = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
 `;
 
 const OverlayCardContainer = styled.View`

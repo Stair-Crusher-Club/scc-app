@@ -9,15 +9,20 @@ import {Dimensions, FlatList, LayoutChangeEvent, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import attachDragToScroll from '@/components/maps/attachDragToScroll';
+import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 
 const {width} = Dimensions.get('window');
 const ITEM_RATIO = 0.9;
 const ITEM_SIZE = Math.round(width * ITEM_RATIO);
 const ITEM_SIDE_PADDING = (width - ITEM_SIZE) / 2;
+// 스크롤 이벤트가 이만큼 끊기면 멈춘 것으로 본다.
+const SCROLL_IDLE_MS = 110;
 
 type Props<T> = {
   searchResults: T[];
   onFocusedItemChange: (item: T | null) => void;
+  /** 스크롤이 움직이기 시작/멈춤. 카드 위 오버레이가 스크롤을 따라 즉시 숨을 수 있게 알린다. */
+  onScrollStateChange?: (isScrolling: boolean) => void;
   onLayout?: (event: LayoutChangeEvent) => void;
   onCardPress?: (item: T) => void;
   ItemCard: React.FC<{item: T; onPress?: () => void}>;
@@ -28,6 +33,7 @@ function ItemMapList<T extends {id: string}>(
   {
     searchResults,
     onFocusedItemChange,
+    onScrollStateChange,
     onLayout,
     onCardPress,
     ItemCard,
@@ -37,6 +43,64 @@ function ItemMapList<T extends {id: string}>(
 ) {
   const wrapperRef = useRef<View>(null);
   const listRef = useRef<FlatList<T>>(null);
+  // 스크롤 이벤트가 SCROLL_IDLE_MS 동안 없으면 멈춘 것으로 본다. onMomentumScrollEnd 만으로는
+  // 웹(react-native-web)과 드래그 후 관성 없이 멈추는 경우를 못 잡는다.
+  const scrollIdleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const lastScrollOffsetRef = useRef(0);
+  const isScrollingRef = useRef(false);
+  // 최신 콜백/결과를 참조하되 핸들러 정체성은 유지한다.
+  const onScrollStateChangeRef = useRef(onScrollStateChange);
+  onScrollStateChangeRef.current = onScrollStateChange;
+  const onFocusedItemChangeRef = useRef(onFocusedItemChange);
+  onFocusedItemChangeRef.current = onFocusedItemChange;
+  const searchResultsRef = useRef(searchResults);
+  searchResultsRef.current = searchResults;
+
+  const setIsScrolling = (isScrolling: boolean) => {
+    if (isScrollingRef.current === isScrolling) return;
+    isScrollingRef.current = isScrolling;
+    onScrollStateChangeRef.current?.(isScrolling);
+  };
+
+  /**
+   * 멈춤 처리. **포커스 확정과 isScrolling=false를 항상 같이** 내보낸다.
+   * 둘을 따로 내보내면 관성 없이 끝난 드래그에서 "이전 카드의 오버레이가 새 카드 위에
+   * 다시 뜨는" 상태가 생긴다.
+   */
+  const settle = (offsetX: number) => {
+    clearTimeout(scrollIdleTimerRef.current);
+    const index = Math.floor((offsetX + ITEM_SIZE / 2) / ITEM_SIZE);
+    const clamped = Math.min(
+      Math.max(index, 0),
+      Math.max(searchResultsRef.current.length - 1, 0),
+    );
+    onFocusedItemChangeRef.current(searchResultsRef.current[clamped] ?? null);
+    setIsScrolling(false);
+  };
+
+  const handleScroll = (offsetX: number) => {
+    lastScrollOffsetRef.current = offsetX;
+    setIsScrolling(true);
+    clearTimeout(scrollIdleTimerRef.current);
+    scrollIdleTimerRef.current = setTimeout(
+      () => settle(lastScrollOffsetRef.current),
+      SCROLL_IDLE_MS,
+    );
+  };
+
+  useEffect(
+    () => () => {
+      clearTimeout(scrollIdleTimerRef.current);
+      // 스크롤 도중 언마운트되면 부모의 isScrolling이 true로 굳는다.
+      if (isScrollingRef.current) {
+        isScrollingRef.current = false;
+        onScrollStateChangeRef.current?.(false);
+      }
+    },
+    [],
+  );
   // 웹 스냅 시 최신 결과/콜백을 참조하도록 ref 로 감싼다 (effect 는 1회만 attach).
   const onSettleRef = useRef<(index: number) => void>(() => {});
   onSettleRef.current = (index: number) =>
@@ -73,7 +137,7 @@ function ItemMapList<T extends {id: string}>(
       ref={wrapperRef}
       style={{
         width: '100%',
-        height: searchResults.length > 0 ? 242 + 28 : 0,
+        height: searchResults.length > 0 ? CARD_LIST_HEIGHT : 0,
       }}>
       <FlatList
         ref={listRef}
@@ -97,12 +161,11 @@ function ItemMapList<T extends {id: string}>(
         snapToInterval={ITEM_SIZE}
         decelerationRate="fast"
         onLayout={onLayout}
-        onMomentumScrollEnd={({nativeEvent}) => {
-          const index = Math.floor(
-            (nativeEvent.contentOffset.x + ITEM_SIZE / 2) / ITEM_SIZE,
-          );
-          onFocusedItemChange(searchResults[index] || null);
-        }}
+        scrollEventThrottle={16}
+        onScroll={({nativeEvent}) => handleScroll(nativeEvent.contentOffset.x)}
+        onMomentumScrollEnd={({nativeEvent}) =>
+          settle(nativeEvent.contentOffset.x)
+        }
       />
     </View>
   );

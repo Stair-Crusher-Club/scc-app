@@ -6,18 +6,25 @@ import {
 } from '@react-navigation/native';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
-import {Keyboard, Platform, View} from 'react-native';
+import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
+import {AlternativeSearchSuggestionDto} from '@/generated-sources/openapi';
+import {
+  getPlaceAccessibilityScore,
+  GOOD_ACCESSIBILITY_MAX_SCORE,
+} from '@/utils/accessibilityCheck';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
+import {useTabBarStyle} from '@/navigation/useTabBarStyle';
 import {
   draftCameraRegionAtom,
   draftKeywordAtom,
   filterAtom,
   filterModalStateAtom,
+  isAlternativeSearchAtom,
   isToiletSearchKeyword,
   SearchMode,
   searchModeAtom,
@@ -32,6 +39,7 @@ import {
   SearchScreenProvider,
   useSearchScreenContext,
 } from '@/screens/SearchScreen/SearchScreenContext';
+import AlternativeSearchCta from '@/screens/SearchScreen/components/AlternativeSearchCta';
 import SearchHeader from '@/screens/SearchScreen/components/SearchHeader';
 import SearchListView from '@/screens/SearchScreen/components/SearchListView';
 import SearchMapView, {
@@ -125,7 +133,11 @@ const SearchScreenContent = ({
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
   const setSearchHistories = useSetAtom(searchHistoriesAtom);
+  const [isAlternativeSearch, setIsAlternativeSearch] = useAtom(
+    isAlternativeSearchAtom,
+  );
   const {setIsFromLookup} = useSearchScreenContext();
+  const tabBarStyle = useTabBarStyle();
 
   const onQueryUpdate = (
     queryUpdate: Partial<SearchQuery>,
@@ -134,10 +146,17 @@ const SearchScreenContent = ({
       shouldAnimate?: boolean;
       shouldRemainInInputMode?: boolean;
       mode?: SearchMode;
+      /** 대체 검색("주위 다른 OOO 확인하기")으로 트리거된 검색인지. */
+      isAlternativeSearch?: boolean;
     },
   ) => {
     const shouldRecordHistory = option.shouldRecordHistory ?? false;
     const shouldAnimate = option.shouldAnimate ?? false;
+    // 대체 검색으로 얻은 결과에서는 CTA를 다시 띄우지 않는다.
+    // 그 외의 모든 검색어 변경은 이 상태를 해제한다.
+    if (queryUpdate.text !== undefined) {
+      setIsAlternativeSearch(option.isAlternativeSearch ?? false);
+    }
     const shouldRemainInInputMode = option.shouldRemainInInputMode ?? false;
 
     // 검색어가 화장실 키워드면 어느 경로(타이핑/히스토리/딥링크)든 칩과 동일하게 toilet 모드로.
@@ -190,6 +209,79 @@ const SearchScreenContent = ({
     }
   };
 
+  // 검색 결과에 접근레벨 2 이하 장소가 하나도 없으면(부정경험) 대체 검색을 제안할 수 있다.
+  // 하나라도 있으면 사용자가 이미 쓸 만한 결과를 얻은 것이므로 제안 자체를 하지 않는다.
+  const hasAccessiblePlaceInResults =
+    resultMode === 'place' &&
+    ((data ?? []) as PlaceListItem[]).some(item => {
+      const score = getPlaceAccessibilityScore({
+        score: item.accessibilityInfo?.accessibilityScore,
+        hasPlaceAccessibility: item.hasPlaceAccessibility,
+        hasBuildingAccessibility: item.hasBuildingAccessibility,
+      });
+      return typeof score === 'number' && score <= GOOD_ACCESSIBILITY_MAX_SCORE;
+    });
+
+  // 카드 위에 어떤 CTA를 띄울지(또는 아무것도 안 띄울지)의 판단은 이 화면에만 존재한다.
+  // CTA 컴포넌트는 자기 로직으로만(제안 없음/스크롤 중) 스스로를 숨긴다.
+  const shouldShowAlternativeSearchCta =
+    // 요청 모드(searchMode)가 아니라 응답의 결과 모드로 판단해야 한다. "강남역 화장실"처럼
+    // place 엔드포인트로 나갔다가 화장실 결과로 내려오는 검색이 있다.
+    resultMode === 'place' &&
+    !!searchQuery.text &&
+    !hasAccessiblePlaceInResults &&
+    // 대체 검색으로 얻은 결과에서 또 대체 검색을 권하지 않는다.
+    !isAlternativeSearch;
+
+  const onAlternativeSearch = (suggestion: AlternativeSearchSuggestionDto) => {
+    // 서버는 사용자의 결과 필터를 모른 채 "접근레벨 2 이하가 4곳 이상 있다"를 보장했다.
+    // 필터를 그대로 들고 재검색하면 그 보장이 깨져 빈 결과가 나올 수 있으므로 함께 해제한다.
+    // 정렬은 접근레벨 낮은순으로 고정한다.
+    setFilter({
+      sortOption: SortOption.LOW_SCORE,
+      scoreUnder: null,
+      hasSlope: null,
+      isRegistered: null,
+      hasReview: null,
+    });
+    setDraftKeyword(suggestion.searchText);
+    onQueryUpdate(
+      {
+        text: suggestion.searchText,
+        // 서버가 제안 여부를 판단할 때 실제로 검색해본 영역 그대로 재검색해야
+        // "눌렀는데 결과가 없다"가 발생하지 않는다.
+        location: suggestion.circleRegion.currentLocation,
+        radiusMeter: suggestion.circleRegion.distanceMetersLimit,
+        useCameraRegion: false,
+      },
+      {
+        shouldAnimate: true,
+        shouldRecordHistory: false,
+        mode: 'place',
+        isAlternativeSearch: true,
+      },
+    );
+  };
+
+  const alternativeSearchCtaSlot = useCallback(
+    ({
+      focusedItem,
+      isScrolling,
+    }: {
+      focusedItem: {id: string} | null;
+      isScrolling: boolean;
+    }) => (
+      <AlternativeSearchCta
+        focusedPlaceId={focusedItem?.id ?? null}
+        isScrolling={isScrolling}
+        currentSearchText={searchQuery.text}
+        onPress={onAlternativeSearch}
+      />
+    ),
+
+    [searchQuery.text],
+  );
+
   // SearchScreenContent 의 생명주기는 wrapper 의 activeMainTab 분기가 결정한다:
   //   - mount   : 사용자가 지도 탭에 진입한 시점. route.params 기반으로 초기 검색 트리거.
   //   - unmount : 다른 메인 탭으로 이동한 시점. 전역 atom 들을 default 로 reset.
@@ -228,6 +320,7 @@ const SearchScreenContent = ({
       setSearchMode('place');
       setSearchRequestId(null);
       setToiletLayerActive(false);
+      setIsAlternativeSearch(false);
       resetHighlightAnimation();
     };
   }, []);
@@ -251,16 +344,18 @@ const SearchScreenContent = ({
       setViewState({type: 'map', inputMode: false});
       return true;
     }
-    // 지도 뷰 + 검색 결과 있음 → SearchInputText의 X 버튼(onClear)과 동일한 효과로 처리
+    // 지도 뷰 + 검색 결과 있음 → 검색어·결과를 지우고 검색어 입력 화면으로.
+    // (X 버튼(onClear)은 지도 empty view로 가는 것과 의도적으로 다르다)
     if (!viewState.inputMode && searchQuery.text) {
       setDraftKeyword('');
-      setViewState({type: 'map', inputMode: false});
+      setViewState({type: 'map', inputMode: true});
       onQueryUpdate(
         {text: ''},
         {
-          shouldRecordHistory: true,
-          shouldRemainInInputMode: false,
-          shouldAnimate: true,
+          shouldRecordHistory: false,
+          // inputMode를 유지해야 검색어 입력 화면에 머문다.
+          shouldRemainInInputMode: true,
+          shouldAnimate: false,
           mode: 'place',
         },
       );
@@ -271,6 +366,14 @@ const SearchScreenContent = ({
         fromLookup: undefined,
         initSortOption: undefined,
       });
+      return true;
+    }
+    // 검색어 없는 입력 화면 → 지도 엠티뷰로. 여기서 바로 화면을 나가면
+    // 하단 탭바가 없는 입력 화면에서 뒤로가기 한 번에 앱이 종료된다.
+    if (viewState.inputMode) {
+      Keyboard.dismiss();
+      setDraftKeyword(null);
+      setViewState({type: 'map', inputMode: false});
       return true;
     }
     // 초기 상태 → 화면 나가기
@@ -299,19 +402,20 @@ const SearchScreenContent = ({
     // navigation prop은 Stack 기준 타입이지만 실제로는 Tab 안에서 동작하므로
     // tabBarStyle 옵션을 받기 위해 캐스팅한다.
     (navigation as unknown as {setOptions: (o: object) => void}).setOptions({
+      // 이 override 는 navigator screenOptions 의 tabBarStyle 을 통째로 대체하므로
+      // 높이를 함께 넘겨야 한다. 안 그러면 지도 탭만 탭바가 낮아지고,
+      // tabBarHeight 로 하단 여백을 잡는 UI(플로팅 버튼)도 이 화면에서만 어긋난다.
       tabBarStyle: isEmptyView
         ? {
+            ...tabBarStyle,
             position: 'absolute',
             left: 0,
             right: 0,
             bottom: 0,
-            // 웹 전용: 기본 탭바 높이(49px)가 부족해 내용물이 잘리는 문제. 이 override가
-            // 네비게이터 screenOptions 의 height 를 덮어쓰므로 여기서도 풀어준다. (앱 미영향)
-            ...(Platform.OS === 'web' ? {height: 'auto' as const} : {}),
           }
         : {display: 'none'},
     });
-  }, [navigation, isEmptyView]);
+  }, [navigation, isEmptyView, tabBarStyle]);
 
   return (
     <LogParamsProvider
@@ -356,6 +460,11 @@ const SearchScreenContent = ({
               }}
               data={data ?? []}
               resultMode={resultMode}
+              AboveCardsSlot={
+                shouldShowAlternativeSearchCta
+                  ? alternativeSearchCtaSlot
+                  : undefined
+              }
             />
           </View>
           {viewState.inputMode && resultMode === 'place' && (

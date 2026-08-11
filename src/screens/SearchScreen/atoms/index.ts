@@ -77,3 +77,7 @@ export const draftKeywordAtom = atom<string | null>(null);
 export const searchRequestIdAtom = atom<string | null>(null);
 
 export const toiletLayerActiveAtom = atom(false);
+
+// 현재 검색 결과가 "주위 다른 OOO 확인하기"(대체 검색)로 얻어진 것인지.
+// true인 동안에는 대체 검색 CTA를 절대 노출하지 않는다 (대체 검색의 대체 검색 방지).
+export const isAlternativeSearchAtom = atom(false);

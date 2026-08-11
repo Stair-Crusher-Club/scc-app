@@ -7,7 +7,7 @@
 
 ## 작업 후 검증 (MANDATORY)
 
-- 코드 변경 후 `yarn lint` + `yarn tsc --noEmit` 둘 다 0 error가 될 때까지 수정. 통과 전엔 작업 미완료.
+- 코드 변경 후 `yarn lint` + `yarn tsc --noEmit` + `yarn jest` 셋 다 0 error가 될 때까지 수정. 통과 전엔 작업 미완료. **CI(`ci.yaml`)는 lint+type-check만 돌려 jest 실패를 못 잡는다** — 깨진 테스트가 main에 머지된 채 남아 있을 수 있으므로(`5c176cf` 사례) CI 초록불을 테스트 통과로 읽지 않는다.
 - `ios/`·`android/` 네이티브 파일을 변경했다면 push 전 **Release 빌드 검증 필수** — 절차는 `/scc-app-native` (Debug/JS 검사는 네이티브 컴파일 에러를 못 잡는다).
 
 ## 배포

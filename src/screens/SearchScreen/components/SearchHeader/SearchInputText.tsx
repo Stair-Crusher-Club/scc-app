@@ -1,7 +1,8 @@
 import {useAtom} from 'jotai';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {debounce} from 'lodash';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {TextInput} from 'react-native';
 import styled from 'styled-components/native';
 
 import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
@@ -28,6 +29,14 @@ export default function SearchInputText({
   const [searchQuery, _] = useAtom(searchQueryAtom);
   const [viewState, setViewState] = useAtom(viewStateAtom);
   const navigation = useNavigation();
+  const inputRef = useRef<TextInput>(null);
+  // 뒤로가기처럼 코드에서 inputMode로 전환된 경우에도 검색 바를 탭한 것과 동일하게
+  // 키보드가 올라와야 한다 (직접 탭해서 들어온 경우엔 이미 focus라 no-op).
+  useEffect(() => {
+    if (viewState.inputMode) {
+      inputRef.current?.focus();
+    }
+  }, [viewState.inputMode]);
   const debounceSearch = useCallback(
     debounce(
       (keyword: string) => {
@@ -101,6 +110,7 @@ export default function SearchInputText({
           <LeftArrowIcon width={16} height={14} color={color.gray100} />
         </IconButton>
         <Input
+          ref={inputRef}
           style={{marginLeft: 8, marginRight: 12}}
           placeholder={'장소, 주소 검색'}
           placeholderTextColor={color.gray70}
@@ -152,7 +162,7 @@ const Wrapper = styled.View({
   height: 60,
 });
 
-const Input = styled.TextInput({
+const Input = styled(TextInput)({
   flex: 1,
   color: color.black,
   fontFamily: font.pretendardMedium,

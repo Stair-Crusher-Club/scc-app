@@ -2,7 +2,6 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {getActionFromState, getStateFromPath} from '@react-navigation/native';
 import {useAtomValue} from 'jotai';
 import React, {useEffect} from 'react';
-import {Platform} from 'react-native';
 
 import {accessTokenAtom} from '@/atoms/Auth';
 import {color} from '@/constant/color';
@@ -17,6 +16,7 @@ import {
 import {useLogger} from '@/logging/useLogger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {linkingScreensConfig} from '@/navigation/linkingConfig';
+import {useTabBarStyle} from '@/navigation/useTabBarStyle';
 import ToastUtils from '@/utils/ToastUtils';
 import {stripPrefix} from '@/utils/deepLinkUtils';
 import {useCheckAuth} from '@/utils/checkAuth';
@@ -50,6 +50,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
   const accessToken = useAtomValue(accessTokenAtom);
   const checkAuth = useCheckAuth();
   const logger = useLogger();
+  const tabBarStyle = useTabBarStyle();
 
   useEffect(() => {
     const checkIfLoggedIn = async () => {
@@ -104,9 +105,7 @@ export default function MainScreen({navigation}: ScreenProps<'Main'>) {
         tabBarActiveTintColor: color.gray90,
         tabBarInactiveTintColor: color.gray40,
         tabBarLabelStyle: {fontSize: 10, fontWeight: '700'},
-        // 웹 전용: react-navigation 기본 탭바 높이(49px)가 아이콘+라벨에 부족해
-        // 내용물이 잘린다. 웹에서만 고정 높이를 풀어 내용에 맞게 늘린다. (앱 미영향)
-        ...(Platform.OS === 'web' ? {tabBarStyle: {height: 'auto'}} : {}),
+        tabBarStyle,
       }}>
       <Tab.Screen
         name="Home"
