@@ -54,7 +54,7 @@ export default function SearchHistories({
                   searchHistories.filter(s => s !== search) ?? [],
                 );
               }}>
-              <CloseIcon color={color.gray80} width={12} height={12} />
+              <CloseIcon color={color.gray80} width={9} height={9} />
             </RemoveButton>
           </ItemBox>
         ))}
@@ -102,6 +102,7 @@ const ItemBox = styled.View`
 
 const ItemText = styled.Text`
   font-size: 15px;
+  line-height: 22px;
   font-family: ${() => font.pretendardRegular};
   color: ${() => color.black};
 `;
@@ -109,5 +110,5 @@ const ItemText = styled.Text`
 const RemoveButton = styled(SccTouchableOpacity).attrs({
   hitSlop: 12,
 })`
-  padding: 4px;
+  padding: 0 4px 0 8px;
 `;
