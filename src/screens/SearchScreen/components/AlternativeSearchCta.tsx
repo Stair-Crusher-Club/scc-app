@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {AccessibilityInfo} from 'react-native';
 import Animated, {
   Easing,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -58,10 +59,10 @@ export default function AlternativeSearchCta({
 
   return (
     <Slot pointerEvents="box-none">
-      {/* 카드가 바뀌면 라벨이 같더라도 퇴장 후 재등장하도록 key 로 remount 한다
-          ("이 버튼은 이 카드 것"이라는 종속성 유지). */}
+      {/* key 로 remount 하면 퇴장 애니메이션이 재생되기 전에 노드가 사라져 뚝 끊긴다.
+          카드 종속감(라벨이 이 카드 것)은 AnimatedCta 안에서 "퇴장이 끝난 뒤에만 라벨을
+          교체"하는 방식으로 지킨다. */}
       <AnimatedCta
-        key={focusedPlaceId ?? 'none'}
         placeId={focusedPlaceId}
         searchText={suggestion?.searchText ?? ''}
         isVisible={isVisible}
@@ -92,23 +93,38 @@ function AnimatedCta({
     return () => subscription.remove();
   }, []);
 
+  // 퇴장 중에 라벨이 빈 문자열로 바뀌거나 노드가 사라지면 "버벅이며 사라지는" 느낌이 난다.
+  // 보이는 동안의 라벨을 붙잡아 두고, 퇴장이 **끝난 뒤에** 다음 라벨로 교체한다.
+  const [renderedText, setRenderedText] = useState(searchText);
+  useEffect(() => {
+    if (isVisible && searchText) setRenderedText(searchText);
+  }, [isVisible, searchText]);
+
   const progress = useSharedValue(0);
   useEffect(() => {
-    progress.value = withTiming(isVisible ? 1 : 0, {
-      duration: isVisible ? ENTER_DURATION_MS : EXIT_DURATION_MS,
-      easing: isVisible ? ENTER_EASING : EXIT_EASING,
-    });
+    progress.value = withTiming(
+      isVisible ? 1 : 0,
+      {
+        duration: isVisible ? ENTER_DURATION_MS : EXIT_DURATION_MS,
+        easing: isVisible ? ENTER_EASING : EXIT_EASING,
+      },
+      finished => {
+        // 퇴장이 온전히 끝난 뒤에만 라벨을 비운다(다음 카드 라벨로 갈아끼울 준비).
+        if (finished && !isVisible) runOnJS(setRenderedText)('');
+      },
+    );
   }, [isVisible, progress]);
 
   // 노출 로깅은 **실제로 보이기 시작한 순간**에 남긴다.
   // SccXxx 의 trackView 는 마운트 시점에 발사되는데, 이 CTA 는 제안이 도착하면 마운트된 뒤
   // opacity 0 -> 1 로 등장한다. 스크롤 중에 제안이 도착하면 화면에 보이지 않는 상태로
   // 마운트되므로, trackView 를 쓰면 사용자가 못 본 노출까지 집계된다.
+  // key 로 remount 하지 않으므로(퇴장 애니메이션 보존) 카드별로 1회씩 남도록 placeId 를 기록한다.
   const loggerRef = useRef(useLogger());
-  const hasLoggedViewRef = useRef(false);
+  const loggedPlaceIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (isVisible && !hasLoggedViewRef.current) {
-      hasLoggedViewRef.current = true;
+    if (isVisible && placeId && loggedPlaceIdRef.current !== placeId) {
+      loggedPlaceIdRef.current = placeId;
       loggerRef.current.logElementView('search_alternative_search_button', {
         alternative_search_text: searchText,
         place_id: placeId,
@@ -129,7 +145,7 @@ function AnimatedCta({
     };
   });
 
-  if (!searchText) return null;
+  if (!renderedText) return null;
 
   return (
     <Animated.View
@@ -138,12 +154,12 @@ function AnimatedCta({
       pointerEvents={isVisible ? 'auto' : 'none'}>
       <CtaButton
         elementName="search_alternative_search_button"
-        logParams={{alternative_search_text: searchText, place_id: placeId}}
+        logParams={{alternative_search_text: renderedText, place_id: placeId}}
         activeOpacity={0.8}
         accessibilityRole="button"
-        accessibilityLabel={`주위 다른 ${searchText} 확인하기`}
+        accessibilityLabel={`주위 다른 ${renderedText} 확인하기`}
         onPress={onPress}>
-        <CtaText>{`주위 다른 ${searchText} 확인하기`}</CtaText>
+        <CtaText>{`주위 다른 ${renderedText} 확인하기`}</CtaText>
         <ChevronRightIcon width={20} height={20} color={color.white} />
       </CtaButton>
     </Animated.View>
