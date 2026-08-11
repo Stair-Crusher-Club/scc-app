@@ -44,8 +44,12 @@ import HeatTelemetry from '@/utils/HeatTelemetry';
  */
 const FLOATING_BUTTON_GAP = 12;
 
-/** 아래에 아무것도 없을 때(빈 지도) 버튼과 navbar/safe area 사이 간격. */
-const FLOATING_BUTTON_GAP_ON_EMPTY = 20;
+/**
+ * 아래에 아무것도 없을 때(빈 지도) 버튼과 navbar/safe area 사이에 **추가로** 주는 간격.
+ * 버튼 자신의 `margin-bottom`([FLOATING_BUTTON_GAP])은 항상 붙어 있으므로 차액만 더한다
+ * (12 + 8 = 20px). 둘 중 하나만 바꿔도 합이 따라오도록 뺄셈으로 적는다.
+ */
+const FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY = 20 - FLOATING_BUTTON_GAP;
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
@@ -306,14 +310,12 @@ const FRefInputComp = <T extends MarkerItem>(
           // tabBarHeight 는 이미 insets.bottom 을 포함한다(getTabBarHeight = 높이 + inset).
           // 둘을 더하면 하단 인셋이 두 번 잡혀 빈 지도에서 버튼이 과하게 떠오른다.
           //
-          // 카드가 없으면 버튼 아래가 곧 navbar/safe area 다. 버튼 자신의 margin-bottom(12)
+          // 카드가 없으면 버튼 아래가 곧 navbar/safe area 다. 버튼 자신의 margin-bottom
           // 위에 차액을 더해 20px 이 되게 한다.
           paddingBottom:
             (tabBarHeight || insets.bottom) +
             (myLocationBottomOffset ?? 0) +
-            (hasContentBelowButtons
-              ? 0
-              : FLOATING_BUTTON_GAP_ON_EMPTY - FLOATING_BUTTON_GAP),
+            (hasContentBelowButtons ? 0 : FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY),
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (

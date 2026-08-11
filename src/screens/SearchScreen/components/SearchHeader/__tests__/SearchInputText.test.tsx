@@ -35,6 +35,8 @@ jest.mock('@/assets/icon/ic_search.svg', () => {
 // Mock navigation
 jest.mock('@/navigation/useNavigation.ts', () => () => ({
   navigate: jest.fn(),
+  // onClear 가 route.params 를 비운다(5c176cf). 빠지면 `setParams is not a function`.
+  setParams: jest.fn(),
 }));
 
 // Mock SccTouchableOpacity — elementName을 testID로 매핑하여 버튼 식별 가능
