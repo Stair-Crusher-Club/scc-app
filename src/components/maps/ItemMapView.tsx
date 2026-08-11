@@ -40,6 +40,13 @@ import HeatTelemetry from '@/utils/HeatTelemetry';
 // ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
 const CARD_LIST_HEIGHT = 270;
 
+/**
+ * 플로팅 버튼과 **바로 아래에 있는 것** 사이 간격.
+ * 아래가 카드 캐러셀이면 카드 위 12px, 다른 버튼이면 버튼 사이 12px,
+ * 아무것도 없으면 safe area(+탭바) 위 12px 로 항상 동일하다.
+ */
+const FLOATING_BUTTON_GAP = 12;
+
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
   fitToItems: (items: MarkerItem[], padding?: number) => void;
@@ -51,6 +58,10 @@ type ItemMapViewProps<T extends MarkerItem> = {
   ItemCard: React.FC<{item: T}>;
   isRefreshVisible: boolean;
   onCameraIdle: (region: Region) => void;
+  /**
+   * 화면 고유의 하단 UI(자체 플로팅 버튼 등) 높이. 플로팅 버튼 컬럼 전체를 이만큼 더 띄운다.
+   * 버튼과 바로 아래 요소 사이의 12px 간격은 [FLOATING_BUTTON_GAP] 이 별도로 보장한다.
+   */
   myLocationBottomOffset?: number;
   // 화장실 레이어 overlay
   overlayMarkers?: MarkerItem[];
@@ -290,7 +301,8 @@ const FRefInputComp = <T extends MarkerItem>(
           flexGrow: 1,
           alignSelf: 'stretch',
           justifyContent: 'flex-end',
-          paddingBottom: insets.bottom + tabBarHeight,
+          paddingBottom:
+            insets.bottom + tabBarHeight + (myLocationBottomOffset ?? 0),
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (
@@ -309,12 +321,7 @@ const FRefInputComp = <T extends MarkerItem>(
         <MyLocationButton
           elementName="map_my_location_button"
           onPress={onMyLocationPress}
-          activeOpacity={0.7}
-          style={
-            myLocationBottomOffset != null
-              ? {marginBottom: myLocationBottomOffset}
-              : undefined
-          }>
+          activeOpacity={0.7}>
           <MyLocationIcon width={24} height={24} />
         </MyLocationButton>
         {showOverlayCard ? (
@@ -393,7 +400,7 @@ const MyLocationButton = styled(SccTouchableOpacity)`
   align-self: flex-end;
   background-color: ${() => color.white};
   margin-right: 20px;
-  margin-bottom: 16px;
+  margin-bottom: ${FLOATING_BUTTON_GAP}px;
   border-radius: 100px;
   padding: 8px;
   display: flex;
@@ -445,7 +452,7 @@ const ToiletLayerToggleButton = styled(SccTouchableOpacity)<{active: boolean}>`
   align-self: flex-end;
   background-color: ${({active}) => (active ? ToiletMarkerColor : color.white)};
   margin-right: 20px;
-  margin-bottom: 8px;
+  margin-bottom: ${FLOATING_BUTTON_GAP}px;
   border-radius: 100px;
   padding: 8px;
   display: flex;
