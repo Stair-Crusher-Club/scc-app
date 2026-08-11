@@ -43,9 +43,20 @@ gtag('js', new Date());
   // (토큰 주입 여부와 무관). web/utils/isInAppWebView.ts 와 동일한 신호를 쓴다.
   var surface = window.ReactNativeWebView ? 'app_webview' : 'web';
   var userId = readUserId();
+  // 진단용. 앱 웹뷰인데 신원이 없는 케이스가 두 원인으로 뭉쳐 있어 못 갈랐다(2026-08-10 배포 후 실측:
+  // app_webview 74건 중 23건이 신원 없음, 디바이스 3대):
+  //   bridgeVersion=1 → 구앱. userId 를 주입하지 않으므로 localStorage 폴백 → OTA 전파되면 소멸.
+  //   bridgeVersion=2 + userId 없음 → 레거시 '0' 비회원(ANONYMOUS_USER_TEMPLATE.id)이거나 미채번.
+  //     WebViewScreen 이 이 sentinel 을 의도적으로 제외한다 → **OTA 로 안 사라지는 영구 케이스.**
+  // readUserId 안의 injected 는 그 함수 스코프라 여기서 다시 읽는다.
+  var bridge = window.__SCC_APP_AUTH__;
 
   var userProperties = {surface: surface};
   if (userId) userProperties.userId = userId;
+  // 신원 채널(user_id / userId)은 건드리지 않는다 — 진단 키만 추가한다.
+  if (bridge && bridge.bridgeVersion) {
+    userProperties.bridgeVersion = String(bridge.bridgeVersion);
+  }
 
   gtag('set', 'user_properties', userProperties);
   gtag('set', {surface: surface});
