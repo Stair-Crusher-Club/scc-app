@@ -26,6 +26,7 @@ import {
   filterModalStateAtom,
   isAlternativeSearchAtom,
   isToiletSearchKeyword,
+  pinnedPlaceAtom,
   SearchMode,
   searchModeAtom,
   SearchQuery,
@@ -136,6 +137,7 @@ const SearchScreenContent = ({
   const [isAlternativeSearch, setIsAlternativeSearch] = useAtom(
     isAlternativeSearchAtom,
   );
+  const setPinnedPlace = useSetAtom(pinnedPlaceAtom);
   const {setIsFromLookup} = useSearchScreenContext();
   const tabBarStyle = useTabBarStyle();
 
@@ -148,6 +150,8 @@ const SearchScreenContent = ({
       mode?: SearchMode;
       /** 대체 검색("주위 다른 OOO 확인하기")으로 트리거된 검색인지. */
       isAlternativeSearch?: boolean;
+      /** 자동완성에서 고른 장소. 주면 결과를 그 1건으로 고정한다. */
+      pinnedPlace?: PlaceListItem;
     },
   ) => {
     const shouldRecordHistory = option.shouldRecordHistory ?? false;
@@ -157,6 +161,8 @@ const SearchScreenContent = ({
     if (queryUpdate.text !== undefined) {
       setIsAlternativeSearch(option.isAlternativeSearch ?? false);
     }
+    // 어떤 형태든 새 검색 의도가 생기면 장소 고정은 풀린다("이 지역 재검색" 포함).
+    setPinnedPlace(option.pinnedPlace ?? null);
     const shouldRemainInInputMode = option.shouldRemainInInputMode ?? false;
 
     // 검색어가 화장실 키워드면 어느 경로(타이핑/히스토리/딥링크)든 칩과 동일하게 toilet 모드로.
@@ -197,16 +203,18 @@ const SearchScreenContent = ({
       setOnFetchCompleted(_ => {});
     }
   };
-  const onItemSelect = (item: SearchResultItem) => {
-    setViewState({type: 'map', inputMode: false});
-    Keyboard.dismiss();
-    ref.current?.moveToItem(getItemId(item));
-    if (searchQuery.text) {
-      setSearchHistories(prev => {
-        const newHistories = prev.filter(h => h !== searchQuery.text);
-        return [searchQuery.text!, ...newHistories].slice(0, 10);
-      });
-    }
+  // 자동완성 목록에서 장소를 고른 경우. 입력한 글자("대한냉")가 아니라 **고른 장소의
+  // 이름**이 검색어가 되고(히스토리·검색바 모두), 결과는 그 장소 1건짜리 카드 뷰가 된다.
+  const onItemSelect = (item: PlaceListItem) => {
+    onQueryUpdate(
+      {text: item.place.name},
+      {
+        shouldRecordHistory: true,
+        shouldAnimate: true,
+        mode: 'place',
+        pinnedPlace: item,
+      },
+    );
   };
 
   // 검색 결과에 접근레벨 2 이하 장소가 하나도 없으면(부정경험) 대체 검색을 제안할 수 있다.
@@ -321,6 +329,7 @@ const SearchScreenContent = ({
       setSearchRequestId(null);
       setToiletLayerActive(false);
       setIsAlternativeSearch(false);
+      setPinnedPlace(null);
       resetHighlightAnimation();
     };
   }, []);
