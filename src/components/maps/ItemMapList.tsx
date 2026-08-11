@@ -9,7 +9,7 @@ import {Dimensions, FlatList, LayoutChangeEvent, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import attachDragToScroll from '@/components/maps/attachDragToScroll';
-import {CARD_LIST_HEIGHT} from '@/components/maps/ItemMapView';
+import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 
 const {width} = Dimensions.get('window');
 const ITEM_RATIO = 0.9;

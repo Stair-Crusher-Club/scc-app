@@ -25,6 +25,7 @@ import RedoIcon from '@/assets/icon/ic_redo.svg';
 import {currentLocationAtom} from '@/atoms/Location';
 import ItemMap from '@/components/maps/ItemMap';
 import ItemMapList from '@/components/maps/ItemMapList';
+import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 import {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
 import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
@@ -36,9 +37,6 @@ import useNavigation from '@/navigation/useNavigation.ts';
 import {useLogger} from '@/logging/useLogger';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 import HeatTelemetry from '@/utils/HeatTelemetry';
-
-// ItemMapList 카드 컨테이너 고정 높이
-export const CARD_LIST_HEIGHT = 261;
 
 /**
  * 플로팅 버튼과 **바로 아래에 있는 것** 사이 간격.

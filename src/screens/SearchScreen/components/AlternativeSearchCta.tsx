@@ -120,17 +120,26 @@ function AnimatedCta({
   // opacity 0 -> 1 로 등장한다. 스크롤 중에 제안이 도착하면 화면에 보이지 않는 상태로
   // 마운트되므로, trackView 를 쓰면 사용자가 못 본 노출까지 집계된다.
   // key 로 remount 하지 않으므로(퇴장 애니메이션 보존) 카드별로 1회씩 남도록 placeId 를 기록한다.
-  const loggerRef = useRef(useLogger());
+  const logger = useLogger();
+  const loggerRef = useRef(logger);
+  loggerRef.current = logger;
   const loggedPlaceIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (isVisible && placeId && loggedPlaceIdRef.current !== placeId) {
+    // 렌더 가드(`if (!renderedText) return null`)와 조건을 맞춘다. renderedText 가 아직
+    // 비어 노드가 렌더되지 않은 프레임에서 노출로 집계하면 안 된다.
+    if (
+      isVisible &&
+      renderedText &&
+      placeId &&
+      loggedPlaceIdRef.current !== placeId
+    ) {
       loggedPlaceIdRef.current = placeId;
       loggerRef.current.logElementView('search_alternative_search_button', {
-        alternative_search_text: searchText,
+        alternative_search_text: renderedText,
         place_id: placeId,
       });
     }
-  }, [isVisible, searchText, placeId]);
+  }, [isVisible, renderedText, placeId]);
 
   const animatedStyle = useAnimatedStyle(() => {
     if (isReduceMotionEnabled) {
