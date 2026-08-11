@@ -102,17 +102,19 @@ describe('useSearchRequest - 자동완성에서 고른 장소 고정', () => {
       store.set(filterAtom, prev => ({...prev, scoreUnder: ScoreUnder.TWO}));
     });
 
-    await waitFor(() => expect(mockSearchPlacesPost).toHaveBeenCalledTimes(1));
+    // 결과가 확정된 뒤에 호출 수를 본다 — 먼저 세면 첫 요청이 시작된 순간 통과해서
+    // 뒤따르는 중복 요청을 놓친다.
     await waitFor(() =>
       expect(result.current.data).toEqual([{place: {id: 'OTHER'}}]),
     );
+    expect(mockSearchPlacesPost).toHaveBeenCalledTimes(1);
   });
 
   it('고정이 없으면 평소대로 서버 검색을 한다', async () => {
     const {result} = renderWithPin(null);
 
-    await waitFor(() => expect(mockSearchPlacesPost).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.data).toEqual([{place: {id: 'OTHER'}}]);
+    expect(mockSearchPlacesPost).toHaveBeenCalledTimes(1);
   });
 });
