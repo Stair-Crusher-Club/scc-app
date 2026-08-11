@@ -509,10 +509,7 @@ const HomeScreenV2 = ({navigation}: any) => {
               <CategoryChipSection />
             </InnerContainer>
             <WhiteCard onLayout={handleWhiteCardLayout}>
-              <QuickMenuSection
-                announcements={homeData?.announcements ?? []}
-                isLoading={isHomeDataLoading}
-              />
+              <QuickMenuSection />
               <ArticleSection />
               <MainBannerSection
                 banners={homeData?.mainBanners ?? []}
