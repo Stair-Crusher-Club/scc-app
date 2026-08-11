@@ -42,10 +42,12 @@ export const CARD_LIST_HEIGHT = 261;
 
 /**
  * 플로팅 버튼과 **바로 아래에 있는 것** 사이 간격.
- * 아래가 카드 캐러셀이면 카드 위 12px, 다른 버튼이면 버튼 사이 12px,
- * 아무것도 없으면 safe area(+탭바) 위 12px 로 항상 동일하다.
+ * 아래가 카드 캐러셀이면 카드 위 12px, 다른 버튼이면 버튼 사이 12px.
  */
 const FLOATING_BUTTON_GAP = 12;
+
+/** 아래에 아무것도 없을 때(빈 지도) 버튼과 navbar/safe area 사이 간격. */
+const FLOATING_BUTTON_GAP_ON_EMPTY = 20;
 
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
@@ -253,6 +255,8 @@ const FRefInputComp = <T extends MarkerItem>(
   }
 
   const showOverlayCard = overlayFocusedItem != null && OverlayItemCard != null;
+  // 플로팅 버튼 아래에 카드(캐러셀/overlay)가 깔리는지. 없으면 버튼 아래가 곧 navbar 다.
+  const hasContentBelowButtons = showOverlayCard || items.length > 0;
 
   return (
     <Container>
@@ -303,8 +307,15 @@ const FRefInputComp = <T extends MarkerItem>(
           justifyContent: 'flex-end',
           // tabBarHeight 는 이미 insets.bottom 을 포함한다(getTabBarHeight = 높이 + inset).
           // 둘을 더하면 하단 인셋이 두 번 잡혀 빈 지도에서 버튼이 과하게 떠오른다.
+          //
+          // 카드가 없으면 버튼 아래가 곧 navbar/safe area 다. 버튼 자신의 margin-bottom(12)
+          // 위에 차액을 더해 20px 이 되게 한다.
           paddingBottom:
-            (tabBarHeight || insets.bottom) + (myLocationBottomOffset ?? 0),
+            (tabBarHeight || insets.bottom) +
+            (myLocationBottomOffset ?? 0) +
+            (hasContentBelowButtons
+              ? 0
+              : FLOATING_BUTTON_GAP_ON_EMPTY - FLOATING_BUTTON_GAP),
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (
