@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native';
 import {useAtom, useAtomValue, useSetAtom} from 'jotai';
 import React, {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
-import {Keyboard, Platform, View} from 'react-native';
+import {Keyboard, View} from 'react-native';
 
 import {searchHistoriesAtom} from '@/atoms/User';
 import {color} from '@/constant/color.ts';
@@ -18,6 +18,7 @@ import {
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenParams} from '@/navigation/Navigation.screens';
 import useNavigation from '@/navigation/useNavigation';
+import {useTabBarStyle} from '@/navigation/useTabBarStyle';
 import {
   draftCameraRegionAtom,
   draftKeywordAtom,
@@ -136,6 +137,7 @@ const SearchScreenContent = ({
     isAlternativeSearchAtom,
   );
   const {setIsFromLookup} = useSearchScreenContext();
+  const tabBarStyle = useTabBarStyle();
 
   const onQueryUpdate = (
     queryUpdate: Partial<SearchQuery>,
@@ -400,19 +402,20 @@ const SearchScreenContent = ({
     // navigation prop은 Stack 기준 타입이지만 실제로는 Tab 안에서 동작하므로
     // tabBarStyle 옵션을 받기 위해 캐스팅한다.
     (navigation as unknown as {setOptions: (o: object) => void}).setOptions({
+      // 이 override 는 navigator screenOptions 의 tabBarStyle 을 통째로 대체하므로
+      // 높이를 함께 넘겨야 한다. 안 그러면 지도 탭만 탭바가 낮아지고,
+      // tabBarHeight 로 하단 여백을 잡는 UI(플로팅 버튼)도 이 화면에서만 어긋난다.
       tabBarStyle: isEmptyView
         ? {
+            ...tabBarStyle,
             position: 'absolute',
             left: 0,
             right: 0,
             bottom: 0,
-            // 웹 전용: 기본 탭바 높이(49px)가 부족해 내용물이 잘리는 문제. 이 override가
-            // 네비게이터 screenOptions 의 height 를 덮어쓰므로 여기서도 풀어준다. (앱 미영향)
-            ...(Platform.OS === 'web' ? {height: 'auto' as const} : {}),
           }
         : {display: 'none'},
     });
-  }, [navigation, isEmptyView]);
+  }, [navigation, isEmptyView, tabBarStyle]);
 
   return (
     <LogParamsProvider
