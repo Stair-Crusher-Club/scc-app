@@ -18,6 +18,7 @@ import {
   SortOption,
   draftCameraRegionAtom,
   filterAtom,
+  pinnedPlaceAtom,
   SearchMode,
   searchModeAtom,
   searchQueryAtom,
@@ -59,6 +60,7 @@ export default function useSearchRequest() {
   const {text, location, radiusMeter, useCameraRegion} =
     useAtomValue(searchQueryAtom);
   const searchMode = useAtomValue(searchModeAtom);
+  const pinnedPlace = useAtomValue(pinnedPlaceAtom);
   const draftCameraRegion = useAtomValue(draftCameraRegionAtom);
   const viewState = useAtomValue(viewStateAtom);
   const setSearchRequestId = useSetAtom(searchRequestIdAtom);
@@ -85,11 +87,23 @@ export default function useSearchRequest() {
         hasReview,
         useCameraRegion,
         searchMode,
+        pinnedPlaceId: pinnedPlace?.place.id ?? null,
       },
     ],
     queryFn: async ({signal}): Promise<SearchResult | null> => {
       if (!text) {
         return null; // No search text -> Do not call API because it is landing page
+      }
+
+      // 자동완성에서 고른 장소는 그 1건만 보여준다. 서버에 다시 묻지 않는다 —
+      // 장소명으로 재검색하면 동명/유사명 장소가 섞여 "고른 그곳"이 아닌 목록이 된다.
+      // 검색 이벤트도 남기지 않는다: 서버 검색이 일어나지 않았고, 항목 클릭 자체는
+      // SearchItemSummary 가 이미 로깅한다(직전 검색의 search_request_id 로 조인된다).
+      if (pinnedPlace) {
+        const pinnedResult = [pinnedPlace];
+        onFetchCompleted.current?.(pinnedResult);
+        onFetchCompleted.current = () => {};
+        return {mode: 'place', items: pinnedResult};
       }
       let sort;
       let currentLocation;

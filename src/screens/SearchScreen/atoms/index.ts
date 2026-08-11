@@ -1,6 +1,7 @@
 import {atom} from 'jotai';
 
 import {Region} from '@/components/maps/Types.tsx';
+import {PlaceListItem} from '@/generated-sources/openapi';
 
 export type SearchMode = 'place' | 'toilet';
 export const searchModeAtom = atom<SearchMode>('place');
@@ -81,3 +82,9 @@ export const toiletLayerActiveAtom = atom(false);
 // 현재 검색 결과가 "주위 다른 OOO 확인하기"(대체 검색)로 얻어진 것인지.
 // true인 동안에는 대체 검색 CTA를 절대 노출하지 않는다 (대체 검색의 대체 검색 방지).
 export const isAlternativeSearchAtom = atom(false);
+
+// 자동완성 목록에서 특정 장소를 선택했을 때 그 장소. 세팅되어 있으면 검색 결과를
+// 이 장소 1건으로 고정한다(서버 재검색 없음) — 장소명으로 다시 검색하면 동명/유사명
+// 장소가 섞여 "내가 고른 그곳"이 아닌 목록이 나온다.
+// 새로운 검색 의도(onQueryUpdate)가 생기면 항상 해제된다.
+export const pinnedPlaceAtom = atom<PlaceListItem | null>(null);
