@@ -37,8 +37,8 @@ import {useLogger} from '@/logging/useLogger';
 import GeolocationUtils from '@/utils/GeolocationUtils.ts';
 import HeatTelemetry from '@/utils/HeatTelemetry';
 
-// ItemMapList 카드 컨테이너 고정 높이 (242 + 28)
-const CARD_LIST_HEIGHT = 270;
+// ItemMapList 카드 컨테이너 고정 높이
+export const CARD_LIST_HEIGHT = 261;
 
 /**
  * 플로팅 버튼과 **바로 아래에 있는 것** 사이 간격.
@@ -301,8 +301,10 @@ const FRefInputComp = <T extends MarkerItem>(
           flexGrow: 1,
           alignSelf: 'stretch',
           justifyContent: 'flex-end',
+          // tabBarHeight 는 이미 insets.bottom 을 포함한다(getTabBarHeight = 높이 + inset).
+          // 둘을 더하면 하단 인셋이 두 번 잡혀 빈 지도에서 버튼이 과하게 떠오른다.
           paddingBottom:
-            insets.bottom + tabBarHeight + (myLocationBottomOffset ?? 0),
+            (tabBarHeight || insets.bottom) + (myLocationBottomOffset ?? 0),
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (
@@ -332,16 +334,21 @@ const FRefInputComp = <T extends MarkerItem>(
           </OverlayCardContainer>
         ) : (
           items.length > 0 && (
-            <>
+            <CardBand pointerEvents="box-none">
+              {/* 카드 밴드 상단에 겹쳐 띄운다(absolute). 레이아웃 흐름에서 빠지므로 플로팅
+                  버튼은 CTA 슬롯이 아니라 **카드** 기준 12px 에 놓인다 — CTA 유무로 버튼
+                  위치가 흔들리지 않는다. */}
               {AboveCardsSlot && (
-                <AboveCardsSlot
-                  focusedItem={
-                    items.find(it => it.id === selectedItemId) ??
-                    items[0] ??
-                    null
-                  }
-                  isScrolling={isCardListScrolling}
-                />
+                <AboveCardsSlotContainer pointerEvents="box-none">
+                  <AboveCardsSlot
+                    focusedItem={
+                      items.find(it => it.id === selectedItemId) ??
+                      items[0] ??
+                      null
+                    }
+                    isScrolling={isCardListScrolling}
+                  />
+                </AboveCardsSlotContainer>
               )}
               <ItemMapList<T>
                 ref={cardsRef}
@@ -365,7 +372,7 @@ const FRefInputComp = <T extends MarkerItem>(
                 onScrollStateChange={setIsCardListScrolling}
                 ItemCard={ItemCard}
               />
-            </>
+            </CardBand>
           )
         )}
       </View>
@@ -459,6 +466,19 @@ const ToiletLayerToggleButton = styled(SccTouchableOpacity)<{active: boolean}>`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+`;
+
+/** 카드 캐러셀 밴드. 이 안에서 CTA 슬롯을 absolute 로 겹쳐 놓는다. */
+const CardBand = styled.View`
+  align-self: stretch;
+`;
+
+/** 카드 밴드 상단에 겹쳐 놓는 슬롯. 흐름에서 빠져 플로팅 버튼 위치에 영향을 주지 않는다. */
+const AboveCardsSlotContainer = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
 `;
 
 const OverlayCardContainer = styled.View`

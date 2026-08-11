@@ -9,6 +9,7 @@ import {Dimensions, FlatList, LayoutChangeEvent, View} from 'react-native';
 import styled from 'styled-components/native';
 
 import attachDragToScroll from '@/components/maps/attachDragToScroll';
+import {CARD_LIST_HEIGHT} from '@/components/maps/ItemMapView';
 
 const {width} = Dimensions.get('window');
 const ITEM_RATIO = 0.9;
@@ -136,7 +137,7 @@ function ItemMapList<T extends {id: string}>(
       ref={wrapperRef}
       style={{
         width: '100%',
-        height: searchResults.length > 0 ? 242 + 28 : 0,
+        height: searchResults.length > 0 ? CARD_LIST_HEIGHT : 0,
       }}>
       <FlatList
         ref={listRef}
