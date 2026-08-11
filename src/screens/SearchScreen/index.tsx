@@ -264,7 +264,9 @@ const SearchScreenContent = ({
       },
       {
         shouldAnimate: true,
-        shouldRecordHistory: false,
+        // 버튼으로 트리거됐을 뿐 결과적으로 "한식"을 검색한 것과 같다.
+        // 검색바에도 그 검색어가 남으므로 히스토리에도 남아야 일관된다.
+        shouldRecordHistory: true,
         mode: 'place',
         isAlternativeSearch: true,
       },
