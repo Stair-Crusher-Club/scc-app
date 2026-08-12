@@ -30,6 +30,7 @@
 
 - **도메인 hook은 도메인만 책임**: `useSavePlaceList` 같은 도메인 mutation hook에 튜토리얼 진행·이벤트 로깅 같은 cross-cutting concern을 넣지 않는다. hook 이름이 도메인 액션이면 그 도메인 외 행위 금지. (PR #159)
 - **외부 계산값을 주입받지 않는다**: 호출처는 의도만 전달 (`{missionType: 'SAVE_PLACE_LIST'}`), 계산은 hook 내부에서. (PR #159)
+- **상태 해제는 호출부가 아니라 쓰기 진입점 한 곳에서**: 고정/토글/플래그를 무효화해야 하는 지점이 여러 개면(`setFilter` 5곳, 검색 트리거 9곳) 각자 풀게 하지 말고 진입 함수나 atom writer 안에서 강제한다. 하나만 빠져도 "필터가 안 먹는 화면"이 되고, 호출부는 앞으로도 늘어난다. (PR #246·#248, `pinnedPlaceAtom`)
 
 ## API Guidelines
 
