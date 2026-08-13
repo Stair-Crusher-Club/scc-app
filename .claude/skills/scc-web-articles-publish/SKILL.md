@@ -1,6 +1,6 @@
 ---
 name: scc-web-articles-publish
-description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/category/ogImage/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~7을 끝까지 실행해 **prod(web.staircrusher.club) 배포 + main 머지까지 자동으로 완주**한다 — 커밋이나 PR에서 멈추지 않는다.
+description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/category/ogImage/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~8을 끝까지 실행해 **prod(web.staircrusher.club) 배포 + main 머지 + prod OTA(`v*` 태그)까지 자동으로 완주**한다 — 커밋·PR·웹 배포에서 멈추지 않는다(OTA를 안 하면 앱 홈에 새 글이 안 뜬다).
 ---
 
 # SCC Web Articles Publish — Notion → web.staircrusher.club/articles
@@ -12,7 +12,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
 - iframe 아님(`X-Frame-Options`로 막히고 SEO 크레딧이 notion으로 샘). **블록→HTML 1회 변환 후 정적 서빙**.
 - 사람은 **제목+본문만** 작성. 나머지 메타는 스킬이 생성·DB 라이트백.
 - 본문 변환은 **결정론적**(노드 스크립트, LLM 토큰 0). 메타 생성만 LLM, 그것도 **신규/변경분만**.
-- **완주 지점은 prod 배포(STEP 6) + main 머지(STEP 7)** — S3에 안 올라가면 검색 유입 0이고, main에 안 들어가면 다음 재빌드 때 발행본이 날아간다. "배포할까요?"/"머지할까요?"로 멈추지 않는다.
+- **완주 지점은 prod 배포(STEP 6) + main 머지(STEP 7) + prod OTA(STEP 8)** — S3에 안 올라가면 검색 유입 0이고, main에 안 들어가면 다음 재빌드 때 발행본이 날아가고, prod OTA를 안 하면 **앱 홈 콘텐츠 섹션에 새 글이 안 뜬다**(웹만 반영됨). "배포할까요?"/"머지할까요?"/"OTA 할까요?"로 멈추지 않는다.
 
 ## 구성 요소 (이미 레포에 있음)
 
@@ -203,8 +203,21 @@ gh pr merge <번호> --squash --admin --delete-branch
 ```
 - **`--admin` 필요** — 브랜치 보호가 `REVIEW_REQUIRED`라 리뷰어 없이는 `mergeStateStatus: BLOCKED`로 막힌다. 자기 PR은 self-approve가 안 되므로 admin 머지로 완주한다(CI `build`/CodeRabbit은 통과 확인 후).
 - **main push = sandbox OTA 배포 트리거**(`cd-sandbox.yml`). 정상 동작이니 놀라지 말 것.
-- **prod 앱 홈의 콘텐츠 섹션 반영에는 prod OTA(`v*` 태그, `cd-production.yml`)가 필요하다** — 앱 홈 `ArticleSection`이 번들에 포함된 `web-articles/manifest.json`을 읽기 때문(`src/utils/articles.ts`). 웹(`web.staircrusher.club`)은 STEP 6 배포로 이미 반영되지만 **prod 앱 홈은 아니다**. 발행 완료 보고에 "앱 홈에도 반영하려면 prod OTA가 필요하다"를 한 줄 포함하고, 사용자가 명시 요청하면 `/scc-app-release` 절차로 태그를 단다. **태그 자동 생성 금지**(배포 = 명시 요청만, H4 hook).
-- 머지 후 `gh run list --branch main`으로 OTA Deployment가 도는지만 확인하면 끝.
+- 머지 후 `gh run list --branch main`으로 OTA Deployment가 도는지 확인하고 STEP 8로 간다.
+
+### STEP 8 — prod OTA (MANDATORY, 앱 홈 반영은 여기서 된다)
+앱 홈 `ArticleSection`은 **번들에 포함된** `web-articles/manifest.json`을 읽는다(`src/utils/articles.ts`). 웹은 STEP 6으로 이미 반영되지만 **prod 앱 홈은 태그를 달아야 반영된다** — STEP 7까지만 하면 앱 사용자에게는 새 글이 없는 것과 같다. 발행 요청에 이 단계가 포함된다(2026-08-13 사용자 지시).
+
+```bash
+git checkout main && git pull                                  # 머지된 발행본 확인 필수
+git ls-remote --tags origin | grep -o 'refs/tags/v.*' | sed 's|refs/tags/||' \
+  | grep -v '\^{}' | grep -E '^v[0-9]+\.[0-9]+-[0-9]{8}' | sort -V | tail -3   # 오늘 NN 결정
+git tag v1.3-YYYYMMDD-NN && git push origin v1.3-YYYYMMDD-NN   # = prod OTA 트리거
+gh run list --workflow=cd-production.yml -L 3                   # "Production OTA Deployment" 확인
+```
+- 태그 형식 `v{major}.{minor}-YYYYMMDD-NN`. 같은 날 두 번째면 `-02`. 절차 상세는 `/scc-app-release`.
+- **머지 안 된 상태로 태그 금지** — 태그는 main에서 잘리므로, PR이 열려 있으면 새 글 없는 번들이 나간다.
+- 이 스킬 밖에서는 여전히 **태그 자동 생성 금지**(배포 = 명시 요청만, H4 hook). 여기서의 명시 요청은 '발행' 그 자체다 — STEP 6과 같은 예외.
 
 ## 블록 렌더링 & 디자인 충실도 (Notion ↔ article 1:1)
 

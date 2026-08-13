@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>휠체어 탈 때, 국내선 50% 할인 받고 여행가기 | 계단뿌셔클럽</title>
+<meta name="description" content="등록 장애인 중 장애의 정도가 심한 장애인은 본인과 동반 보호자 1명까지 대한항공·아시아나 국내선 일반석 운임을 50% 할인받을 수 있어요. 휠체어 사용자의 국내선 탑승 수속, 탑승교·리프트 이용 팁과 김포–제주 실제 요금 비교까지 정리했습니다.">
+<link rel="canonical" href="https://web.staircrusher.club/articles/domestic-flight-disability-discount">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+(function(){
+  // 앱 인앱 웹뷰: WebViewScreen 의 injectedJavaScriptBeforeContentLoaded 가
+  // 페이지 스크립트보다 먼저 window.__SCC_APP_AUTH__ 를 심어둔다. 그게 앱 유저의 신원이다.
+  // 브라우저: 직전 세션이 남긴 localStorage. 첫 방문자는 신원이 없다(익명계정 발급 전) —
+  // 그 경우 번들의 Logger.setUserId 가 나중에 채운다.
+  //
+  // mmkv 키가 두 포맷인 것은 scripts/article-template.js 의 readSpaToken 과 같은 이유다:
+  // webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어 지금은 'mmkv.default.userInfo'
+  // (dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\\userInfo' (backslash) 가 된다.
+  function readUserId(){
+    try {
+      var injected = window.__SCC_APP_AUTH__;
+      if (injected && injected.userId) return injected.userId;
+    } catch (e) {}
+    var keys = ['mmkv.default.userInfo', 'mmkv.default\\userInfo'];
+    for (var i = 0; i < keys.length; i++) {
+      try {
+        var raw = localStorage.getItem(keys[i]);
+        if (raw) {
+          var user = JSON.parse(raw);
+          if (user && user.id) return user.id;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  // react-native-webview 는 자신이 로드한 모든 페이지에 ReactNativeWebView 를 주입한다
+  // (토큰 주입 여부와 무관). web/utils/isInAppWebView.ts 와 동일한 신호를 쓴다.
+  var surface = window.ReactNativeWebView ? 'app_webview' : 'web';
+  var userId = readUserId();
+  // 진단용. 앱 웹뷰인데 신원이 없는 케이스가 두 원인으로 뭉쳐 있어 못 갈랐다(2026-08-10 배포 후 실측:
+  // app_webview 74건 중 23건이 신원 없음, 디바이스 3대):
+  //   bridgeVersion=1 → 구앱. userId 를 주입하지 않으므로 localStorage 폴백 → OTA 전파되면 소멸.
+  //   bridgeVersion=2 + userId 없음 → 레거시 '0' 비회원(ANONYMOUS_USER_TEMPLATE.id)이거나 미채번.
+  //     WebViewScreen 이 이 sentinel 을 의도적으로 제외한다 → **OTA 로 안 사라지는 영구 케이스.**
+  // readUserId 안의 injected 는 그 함수 스코프라 여기서 다시 읽는다.
+  var bridge = window.__SCC_APP_AUTH__;
+
+  var userProperties = {surface: surface};
+  if (userId) userProperties.userId = userId;
+  // 신원 채널(user_id / userId)은 건드리지 않는다 — 진단 키만 추가한다.
+  if (bridge && bridge.bridgeVersion) {
+    userProperties.bridgeVersion = String(bridge.bridgeVersion);
+  }
+
+  gtag('set', 'user_properties', userProperties);
+  gtag('set', {surface: surface});
+  var config = {user_properties: userProperties};
+  if (userId) config.user_id = userId;
+  gtag('config', 'G-B80XR4HWJE', config);
+})();
+</script>
+<script defer src="/articles-analytics.js"></script>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<meta property="og:type" content="article">
+<meta property="og:title" content="휠체어 탈 때, 국내선 50% 할인 받고 여행가기">
+<meta property="og:description" content="등록 장애인 중 장애의 정도가 심한 장애인은 본인과 동반 보호자 1명까지 대한항공·아시아나 국내선 일반석 운임을 50% 할인받을 수 있어요. 휠체어 사용자의 국내선 탑승 수속, 탑승교·리프트 이용 팁과 김포–제주 실제 요금 비교까지 정리했습니다.">
+<meta property="og:url" content="https://web.staircrusher.club/articles/domestic-flight-disability-discount">
+<meta property="og:site_name" content="계단뿌셔클럽">
+<meta property="og:image" content="https://web.staircrusher.club/articles/domestic-flight-disability-discount/assets/img-0.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="휠체어 탈 때, 국내선 50% 할인 받고 여행가기">
+<meta name="twitter:description" content="등록 장애인 중 장애의 정도가 심한 장애인은 본인과 동반 보호자 1명까지 대한항공·아시아나 국내선 일반석 운임을 50% 할인받을 수 있어요. 휠체어 사용자의 국내선 탑승 수속, 탑승교·리프트 이용 팁과 김포–제주 실제 요금 비교까지 정리했습니다.">
+<meta name="twitter:image" content="https://web.staircrusher.club/articles/domestic-flight-disability-discount/assets/img-0.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"휠체어 탈 때, 국내선 50% 할인 받고 여행가기","description":"등록 장애인 중 장애의 정도가 심한 장애인은 본인과 동반 보호자 1명까지 대한항공·아시아나 국내선 일반석 운임을 50% 할인받을 수 있어요. 휠체어 사용자의 국내선 탑승 수속, 탑승교·리프트 이용 팁과 김포–제주 실제 요금 비교까지 정리했습니다.","image":["https://web.staircrusher.club/articles/domestic-flight-disability-discount/assets/img-0.png"],"datePublished":"2026-08-13T02:27:00.000Z","dateModified":"2026-08-13T02:28:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://web.staircrusher.club/articles/domestic-flight-disability-discount"},"author":{"@type":"Organization","name":"계단뿌셔클럽","url":"https://staircrusher.club"},"publisher":{"@type":"Organization","name":"계단뿌셔클럽","logo":{"@type":"ImageObject","url":"https://web.staircrusher.club/articles/assets/scc-logo.png"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"수동·전동 휠체어를 쓰면 모두 국내선 50% 할인 대상인가요?","acceptedAnswer":{"@type":"Answer","text":"할인은 휠체어 종류가 아니라 등록 장애인 여부로 정해집니다. 등록 장애인 중 장애의 정도가 심한 장애인(종전 1~3급) 본인이면 휠체어 종류와 상관없이 국내선 일반석 운임 50% 할인 대상입니다."}},{"@type":"Question","name":"동반 보호자도 할인을 받을 수 있나요? 꼭 가족이어야 하나요?","acceptedAnswer":{"@type":"Answer","text":"장애의 정도가 심한 장애인은 본인과 동반 보호자 1명까지 국내선 일반석 운임 50% 할인을 받을 수 있습니다. 보호자가 가족이 아니어도 되지만, 예매할 때 동반 보호자로 지정해야 하고 항공사마다 확인 절차가 다를 수 있습니다."}},{"@type":"Question","name":"저가항공(LCC)도 장애인 50% 할인이 되나요?","acceptedAnswer":{"@type":"Answer","text":"대한항공·아시아나항공은 국내선 장애인 할인을 운영합니다. 제주항공·진에어·티웨이·에어부산·에어서울 등 저가항공은 항공사마다 제도 유무와 조건이 달라 예매 전 각 항공사에 직접 확인해야 합니다."}},{"@type":"Question","name":"일반석과 할인석 중 어느 쪽이 더 저렴한가요?","acceptedAnswer":{"@type":"Answer","text":"50% 할인은 일반석 운임에 적용되고, 이미 할인된 할인석은 공항세에만 할인이 붙는 경우가 많습니다. 김포–제주 편도 기준 일반석 172,600원~에 50%를 적용하면 약 86,300원~으로 할인석 141,400원~보다 저렴할 수 있으니, 결제 전 최종 결제액을 직접 비교하세요."}},{"@type":"Question","name":"휠체어 탑승은 언제까지 항공사에 미리 연락해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"출발 48시간 전에 휠체어 종류와 배터리 정보를 전달하면 수속이 빨라집니다. 대한항공은 스페셜 케어 서비스(1588-2001), 아시아나항공은 한가족 서비스(1588-8000)로 접수합니다. 국내선은 당일 대응도 대체로 가능하지만, 전동 휠체어를 쓴다면 최소 48시간 전 사전 접수를 권장합니다."}},{"@type":"Question","name":"탑승교(브릿지) 연결 여부를 예매 전에 알 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"미리 정확히 알기는 어렵고, 큰 기종일수록 브릿지 게이트가 배정될 가능성이 높은 편입니다. 리프트로 탑승할 때는 다른 승객보다 먼저 타거나 마지막에 타는 경우가 많으니 20~30분 여유를 두고 게이트에 도착하는 것을 추천합니다."}}]}</script>
+<style>
+:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
+/* 목록/푸터 디자인 토큰 (Figma) */
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
+*{box-sizing:border-box;}
+[hidden]{display:none!important;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:#fff;color:var(--fg);font-family:"Pretendard",ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px;}
+a{color:inherit;}
+img{max-width:100%;height:auto;}
+/* top bar */
+.site-header{border-bottom:1px solid var(--line);}
+.site-header .wrap{display:flex;align-items:center;gap:8px;height:48px;}
+.site-header img{width:24px;height:24px;border-radius:5px;}
+.site-header b{font-size:15px;font-weight:600;}
+.back{display:inline-flex;align-items:center;gap:5px;margin:22px 0 -6px;color:var(--muted);font-size:14px;text-decoration:none;}
+.back:hover{color:var(--fg);}
+/* article body — Notion 매칭 */
+article{padding:8px 0 72px;}
+h1.title{font-size:40px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;margin:16px 0 6px;}
+.article-date{color:var(--muted);font-size:14px;margin:0 0 26px;}
+article h2{font-size:30px;font-weight:600;line-height:1.3;margin:34px 0 6px;}
+article h3{font-size:24px;font-weight:600;line-height:1.3;margin:26px 0 4px;}
+article h4{font-size:20px;font-weight:600;line-height:1.3;margin:20px 0 2px;}
+article p{margin:0;padding:3px 0;}
+article strong,article b{font-weight:600;}
+/* 링크 텍스트가 생 URL이면 끊길 곳이 없어 페이지 전체가 가로로 늘어난다 */
+article a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);text-underline-offset:2px;overflow-wrap:anywhere;}
+article ul,article ol{margin:0;padding:2px 0 2px 1.7em;}
+article li{padding:2px 0;}
+article li::marker{color:var(--muted);}
+blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
+.callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
+.callout .emoji{flex:0 0 auto;line-height:1.5;}
+.callout .callout-ico{flex:0 0 auto;width:22px;height:22px;margin-top:2px;object-fit:contain;}
+/* flex 아이템 기본 min-width:auto 때문에 내부 nowrap(북마크 카드 URL 등)이 페이지를 밀어낸다 */
+.callout>div{min-width:0;flex:1 1 auto;}
+.callout>div>*:first-child{margin-top:0;padding-top:0;}
+details{margin:3px 0;}
+details summary{cursor:pointer;padding:3px 0;font-weight:600;}
+pre{background:var(--soft);border-radius:4px;padding:16px;overflow:auto;font-size:14px;line-height:1.4;margin:8px 0;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+:not(pre)>code{background:rgba(135,131,120,.15);color:#eb5757;padding:.2em .4em;border-radius:3px;font-size:.86em;}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0;}
+figure{margin:10px 0;}
+figure img{display:block;border-radius:3px;}
+figcaption{color:var(--muted);font-size:14px;margin-top:6px;}
+table{border-collapse:collapse;margin:8px 0;font-size:14px;width:100%;}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+th{background:var(--soft);font-weight:600;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.columns{display:flex;gap:16px;margin:8px 0;}
+.columns>.column{flex:1 1 0;min-width:0;}
+/* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
+figure.db{margin:12px 0;}
+.db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
+.db-wrap table{margin:0;border:0;min-width:100%;table-layout:auto;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;min-width:8em;max-width:24em;}
+.db-title{font-weight:600;font-size:15px;margin:14px 0 6px;}
+.empty{height:1em;margin:0;}
+.db-wrap tr:last-child td{border-bottom:0;}
+.pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* bookmark 블록 → Notion 북마크 카드(좌 썸네일 + 우 제목/설명/URL). 치수는 Notion 실측 */
+a.bookmark{display:flex;flex-wrap:wrap;align-items:stretch;margin:8px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;}
+a.bookmark:hover{background:rgba(55,53,47,.03);}
+.bm-thumb{flex:1 1 100px;min-width:0;height:154px;overflow:hidden;}
+.bm-thumb img{display:block;width:100%;height:100%;object-fit:cover;}
+.bm-body{flex:4 1 180px;min-width:0;display:flex;flex-direction:column;gap:8px;padding:18px 24px 14px;overflow:hidden;}
+a.bookmark.no-thumb .bm-body{padding:12px 16px;}
+.bm-title{font-size:17px;line-height:22px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bm-desc{font-size:13px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.bm-url{margin-top:auto;color:var(--muted);font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
+/* ===== 사이트 푸터 (목록/상세 공용) ===== */
+/* PC/MO가 Figma에서 auto-layout 값이 다르다(108:700 vs 108:859) — 같다고 가정하지 말 것 */
+.site-footer{background:#27272a;padding:60px 0 100px;margin-top:80px;}
+.site-footer .lwrap{display:flex;flex-direction:column;gap:50px;}
+.f-top{display:flex;flex-direction:column;gap:20px;}
+.f-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.f-tagline{color:#fff;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-0.28px;margin:0;}
+.f-logo{display:block;width:208px;height:35px;max-width:100%;}
+.f-pills{display:flex;flex-wrap:wrap;gap:12px;}
+.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
+.f-pills a:hover{background:rgba(255,255,255,.1);}
+.f-pills img{display:block;width:20px;height:20px;}
+.f-bottom{display:flex;flex-direction:column;gap:20px;color:#c1c1c5;font-size:13px;}
+.f-legalgroup{display:flex;flex-direction:column;gap:16px;}
+.f-legal{display:flex;flex-direction:column;gap:4px;}
+.f-legal p{margin:0;}
+.f-copy{font-weight:600;line-height:1.3;}
+.f-biz{font-weight:400;line-height:1.5;}
+.f-links{display:flex;gap:20px;}
+.f-links a{color:#c1c1c5;line-height:1.3;text-decoration:underline;}
+/* 파트너 로고 3개는 한 장의 partners.svg(288x24)를 스프라이트로 잘라 각각 링크로 만든다.
+   좌표는 Figma Layer_1(108:1812) 자식 그룹 실측: 0/100, 124/61, 207/80 */
+.f-partners{display:flex;align-items:flex-start;height:24px;}
+.f-partners a{display:block;background-image:url(/articles/assets/partners.svg);background-repeat:no-repeat;background-size:288px 24px;}
+.f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
+.f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
+.f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 상세 하단 고정 CTA 바 (Figma 72:429/442 PC, 72:459/469 MO) ===== */
+/* Figma 에 그림자는 없다 — border-top 만. (bbucle-road FloatingBottomBar 는 shadow 를 쓰지만 여긴 아니다) */
+/* safe-area 보정은 넣지 않는다: viewport meta 에 viewport-fit=cover 가 없어 env(safe-area-inset-*)
+   가 규격상 0 이라 죽은 코드가 된다. cover 를 켜면 페이지 전체 레이아웃이 노치 아래로 확장돼
+   아티클 본문까지 영향을 받으므로, 필요해지면 그때 페이지 단위로 결정한다. */
+.cta-bar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;border-top:1px solid var(--g25);padding:16px 0 20px;}
+/* inner 폭을 본문 .wrap(720/24)에 맞춘다 — Figma PC 콘텐츠 674px(1920-623*2)와 사실상 동일 */
+.cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
+.cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
+.cta-icon img{display:block;width:24px;height:24px;}
+/* 좋아요 누른 상태는 **하트 아이콘만** 빨강으로 바뀐다 (ic-heart-fill.svg 의 fill/stroke =
+   #DB0B24, 앱 팔레트 color.red). Figma 에 active 상태가 없어 디자인시스템 fill variant 기본색
+   (#0C76F7 파랑)을 앱 red 로 바꿔 썼다. 버튼 테두리는 눌려도 기본 회색 그대로 둔다 — 테두리까지
+   빨강이면 아이콘 강조가 죽고 버튼 자체가 에러 상태처럼 보인다. (사용자 피드백 2026-08-07) */
+.cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
+.cta-main img{display:block;width:52px;height:32px;}
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+.cta-kakao{background:#fae100;color:#050708;display:flex;}
+.cta-browse{background:var(--g90);color:#b8ff55;}
+html[data-cta="list"] .cta-kakao{display:none;}
+html[data-cta="list"] .cta-browse{display:flex;}
+/* 고정 바가 푸터 하단을 덮지 않도록 */
+body.has-cta{padding-bottom:96px;}
+.cta-toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:201;max-width:calc(100% - 32px);background:rgba(0,0,0,.82);color:#fff;font-size:14px;line-height:20px;padding:10px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.cta-toast.on{opacity:1;}
+/* ===== 목록 페이지 ===== */
+/* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
+.lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
+/* padding-top만 — shorthand를 쓰면 .lwrap의 좌우 20px 패딩까지 덮어써서 모바일이 full-bleed 된다 */
+.list-page{padding-top:40px;}
+.list-head h1{font-size:28px;line-height:38px;font-weight:700;color:var(--g90);margin:0;}
+.list-head p{font-size:15px;line-height:22px;letter-spacing:-0.3px;color:var(--g60);margin:4px 0 0;}
+/* 칩 줄(532px)이 모바일 폭을 넘으므로 여기서 가로 스크롤을 흡수한다. 안 하면 페이지가 통째로 가로로 밀린다 */
+.cat-tabs{display:flex;gap:8px;margin:32px -20px 0;padding:0 20px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g60);font-size:15px;line-height:22px;font-weight:500;letter-spacing:-0.3px;padding:6px 14px;border-radius:100px;}
+.cat[aria-pressed="true"]{background:var(--g80);color:var(--g10);font-weight:600;}
+.arts{margin:32px 0 0;}
+.thumb{display:block;object-fit:cover;border-radius:4px;background:var(--g15);}
+.c-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.4px;color:#000;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-meta{display:flex;gap:6px;align-items:center;color:var(--g60);font-size:13px;line-height:18px;letter-spacing:-0.26px;}
+.c-meta b{font-weight:500;}
+.c-meta i{flex:0 0 auto;width:2px;height:2px;border-radius:50%;background:currentColor;}
+.feat{display:flex;gap:30px;align-items:center;text-decoration:none;color:inherit;}
+.feat .thumb{flex:0 0 330px;width:330px;height:186px;}
+.feat-body{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.feat-head{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.badge{color:var(--blue);font-size:13px;line-height:18px;font-weight:700;letter-spacing:-0.26px;}
+.excerpt{color:var(--g90);font-size:15px;line-height:24px;letter-spacing:-0.3px;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.feat-sep{border:0;border-top:1px solid var(--g25);margin:32px 0;}
+.cards{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;row-gap:32px;}
+.card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;}
+.card .thumb{width:100%;aspect-ratio:330/186;}
+.card-body{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.cat-empty{color:var(--g60);font-size:15px;margin:40px 0 0;text-align:center;}
+.more-wrap{display:flex;justify-content:center;margin:40px 0 0;}
+.more{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g80);font-size:16px;line-height:24px;font-weight:500;letter-spacing:-0.32px;padding:12px 28px;border-radius:8px;}
+@media (max-width:700px){
+  h1.title{font-size:30px;}
+  article h2{font-size:25px;}
+  article h3{font-size:21px;}
+  .columns{flex-direction:column;}
+  .list-page{padding-top:30px;}
+  .list-head h1{font-size:24px;line-height:32px;}
+  .list-head p{font-size:14px;line-height:20px;letter-spacing:-0.28px;}
+  .arts{margin-top:24px;}
+  .feat{flex-direction:column;align-items:stretch;gap:12px;}
+  .feat .thumb{flex:none;width:100%;height:auto;aspect-ratio:350/197;}
+  .feat-body{gap:12px;}
+  .feat-sep{margin:28px 0;}
+  .cards{grid-template-columns:1fr;row-gap:28px;}
+  .card .thumb{aspect-ratio:350/197;}
+  /* 푸터는 MO auto-layout(108:859)이 PC(108:700)와 달라서 값을 되돌린다.
+     padding-bottom 은 get_design_context 가 100 이라 답하지만 프레임 실측/픽셀 실측 모두 80 */
+  .site-footer{margin-top:50px;padding-bottom:80px;}
+  .site-footer .lwrap{gap:80px;padding:0 16px;}
+  .f-bottom{gap:16px;}
+  .f-legalgroup{display:contents;}
+  /* CTA 바 MO (Figma 72:459/469): 바 78px, 아이콘 48, 메인 48, 좌우 16 → inner 358 */
+  .cta-bar{padding-top:10px;}
+  .cta-inner{padding:0 16px;}
+  .cta-icon{width:48px;height:48px;}
+  .cta-main{height:48px;padding:12px 20px;font-size:15px;line-height:22px;}
+  .cta-browse{letter-spacing:0;}
+  .cta-kakao{letter-spacing:-0.3px;}
+  .cta-main img{width:39px;height:24px;}
+  body.has-cta{padding-bottom:78px;}
+  .cta-toast{bottom:92px;}
+}
+</style>
+<script>if(/[?&]from=kakao(?:&|$)/.test(location.search))document.documentElement.setAttribute('data-cta','list');</script>
+<noscript><style>.cta-icon{display:none}</style></noscript>
+</head>
+<body class="has-cta" data-screen-name="Article" data-slug="domestic-flight-disability-discount">
+<header class="site-header"><div class="wrap">
+  <a href="/articles" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;"><img src="/articles/assets/scc-logo.png" alt="계단뿌셔클럽"><b>계단뿌셔클럽</b></a>
+</div></header>
+<div class="wrap">
+<a class="back" href="/articles" data-element-name="article_back_to_list">← 목록으로</a>
+<article data-testid="article-detail">
+<h1 class="title">휠체어 탈 때, 국내선 50% 할인 받고 여행가기</h1>
+<div class="article-date">2026-08-13</div>
+<h3 id="f612223e5e97437db18d5c4d31eac230"><span style="background:#f9f3dc;">1. 휠체어 타고 제주 갈 계획이라면? ✈️</span></h3><figure><img src="/articles/domestic-flight-disability-discount/assets/img-0.png" alt="휠체어 탈 때, 국내선 50% 할인 받고 여행가기" loading="lazy"></figure><aside class="callout" style="background:#e5f2fc;"><span class="emoji">💌</span><div>안녕하세요, 윌리예요! 🙌 저는 제주 갈 때 국내선은 거의 <strong>대한항공이나 아시아나</strong>를 타요. 좌석이 조금 더 편한 것도 있지만, 여러 번 타보니 &quot;이거구나&quot; 싶은 이유가 딱 <strong>세 가지</strong> 있더라고요.<br><br>이번 글엔 휠체어를 사용하는 분과 동반인이 국내선을 탈 때 참고할 수 있게, <strong>제 실제 탑승 경험부터 놓치기 쉬운 50% 할인 정보</strong>까지 한 번에 담았어요. 🍯<br><br>제주행/국내여행 항공권 고르는 중이라면, 필요한 것만 쏙쏙 골라 담아 가세요. <em>(2026년 8월 기준!)</em><br><br><em>*윌리: 수동휠체어 30년+, 맛집과 여행을 좋아함, 계뿌클 멤버</em></div></aside><hr><h3 id="ea259cd6c16b4985a987b6bbe04b37e4"><span style="background:#f9f3dc;">2. 대한항공·아시아나를 자주 타는 3가지 이유 👀</span></h3><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="e2645f5ef550497a8e07215c659ca1fb"><span style="color:#487ca5;">1️⃣ 휠체어 수속이 생각보다 빨랐어요</span></h4><p>공항 도착하면 제일 먼저 하는 게 휠체어 확인이랑 탑승 수속이에요. 제가 타봤을 땐 카운터 확인부터 수속까지 <strong>5분 정도</strong>면 끝났어요. 생각보다 금방이죠? <em>(그날 상황·인원에 따라 조금씩 달라질 순 있어요!)</em><br><br>- <strong>수동 휠체어를 쓰면</strong>: 비교적 간단하게 확인하고 바로 수속<br>- <strong>전동 휠체어를 쓰면</strong>: 배터리 종류·정보를 확인하는 단계가 있어 조금 더 걸릴 수 있어요<br><br>💡 전동 휠체어를 쓴다면 공항에 <strong>조금 여유 있게</strong> 도착하는 걸 추천해요! (국제선은 국내선보다 까다로울 수 있어요)</p></div></aside><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="28196b23a8fb4c899898f164e1960b4b"><span style="color:#487ca5;">2️⃣ 탑승교·리프트 안내가 매끄러웠어요</span></h4><p>비행기 탈 때는 게이트랑 항공기가 <strong>어떻게 연결되는지</strong>도 중요해요. 제 경험으론 대한항공·아시아나는 탑승교가 바로 연결되는 경우가 많았고, 탑승교가 없을 때도 <strong>리프트 안내가 매끄러운 편</strong>이었어요.<br><br>단, 탑승 방식은 항공사만으로 정해지지 않아요. 👀 <span style="background:#f0efed;">그날 </span><span style="background:#f0efed;"><strong>기종이나 배정 게이트</strong></span><span style="background:#f0efed;">에 따라 달라질 수 있으니, 티켓을 예매 후 미리 전화해두시는 걸 추천합니다!</span></p><figure><img src="/articles/domestic-flight-disability-discount/assets/img-1.png" alt="휠체어 탈 때, 국내선 50% 할인 받고 여행가기" loading="lazy"></figure></div></aside><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="00ef0281885c4f6caa46c3ade85375cf"><span style="color:#487ca5;">3️⃣ 놓치기 쉬운 국내선(대한항공, 아시아나) 50% 할인! 🍯</span></h4><figure><img src="/articles/domestic-flight-disability-discount/assets/img-2.png" alt="휠체어 탈 때, 국내선 50% 할인 받고 여행가기" loading="lazy"></figure><p>이거, 모르면 진짜 손해!! 항공권 예매할 때 의외로 많이 놓치는 게 <strong>장애인 국내선 운임 할인</strong>이거든요. <strong>장애의 정도가 심한 장애인(종전 1~3급)</strong>은 본인뿐 아니라 <strong>동반 보호자 1명까지</strong> 국내선 일반석 운임의 <strong>50%</strong>를 할인받을 수 있어요.<br><br><strong>👉 본인 + 동반 보호자 1명까지</strong><br><strong>👉 국내선 일반석 운임 50% 할인</strong><br><br><span style="background:#fce9e7;"><strong>여기서 꼭 체크할 점!</strong></span><br><br>일반석 운임에 붙는 할인이라, 이미 할인된 항공권을 고르면 적용이 달라질 수 있어요. 할인석은 <strong>공항세에만</strong> 할인이 붙기도 하거든요. 그래서 예약 화면에서 <strong>일반석과 할인석의 최종 결제액을 직접 비교</strong>해보는 걸 추천해요. <br><br><em>💡 저도 예전엔 &#39;할인석이 제일 싸겠지&#39; 하고 그냥 결제했는데요 😅 알고 보니 일반석에 50%를 붙이면 오히려 더 쌀 때가 많더라고요! 가격 차이가 예상보다 크지 않을 수 있으니 꼭 비교해보세요.</em></p><p>💡 휠체어를 탄다고 해서 50% 할인이 가능한 건 아니에요. 50% 운임 할인 대상은 장애의 정도가 ‘<strong>심한장애</strong>’인 분이니, 꼭 체크해주세요!</p></div></aside><hr><h3 id="949463b9cbd14a02b9116ff2044fc285"><span style="background:#f9f3dc;">3. 실제 요금 비교 (김포–제주 편도 예시)</span></h3><p>예매할 때 놓치기 쉬운 <strong>요금 구조</strong>를 표로 정리했어요. <em>(2026년 7월 예매 기준, 요금은 시점·노선에 따라 달라져요.)</em></p><div class="tbl-wrap"><table><tr><th><strong>구분</strong></th><th><strong>정가</strong></th><th><strong>50% 할인 후</strong></th><th><strong>참고</strong></th></tr><tr><td><strong>일반석</strong></td><td>172,600원~</td><td><strong>약 86,300원~</strong></td><td>50% 할인 적용 대상</td></tr><tr><td><strong>할인석</strong></td><td>141,400원~</td><td>141,400원 (공항세만 50%)</td><td>이미 할인된 좌석이라 운임 할인 제외</td></tr></table></div><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><span class="emoji">💡</span><div>정가만 보면 할인석이 싸 보이지만, <span style="background:#f9f3dc;"><strong>일반석에 50% 할인을 붙이면 오히려 더 쌀 수 있어요.</strong></span> 제주뿐 아니라 <strong>국내선 전체</strong>가 그래요.<br><br><em>단, 요금은 시점·노선에 따라 달라지니 결제 전 마지막으로 두 요금을 한 번 더 비교해주세요!</em><p><em>🌟 그래서 대한항공, 아시아나를 이용해도 상대적으로 부담이 적어요! </em></p></div></aside><p class="empty"></p><hr><h3 id="359c20310ef24a62a1229047373453f7"><span style="background:#f9f3dc;">4. 국내선 꿀팁, 이것만 기억해요 🍯</span></h3><figure><img src="/articles/domestic-flight-disability-discount/assets/img-3.png" alt="휠체어 탈 때, 국내선 50% 할인 받고 여행가기" loading="lazy"></figure><ul><li><span style="color:#487ca5;"><strong>출발 48시간 전, 항공사에 미리 연락하기!</strong></span><br>휠체어 종류랑 배터리 정보를 미리 전달하면 수속이 빨라져요.<aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><strong>항공사별 사전 서비스 접수처</strong><br>- 대한항공: 스페셜 케어 서비스 (고객센터 1588-2001)<br>- 아시아나항공: 한가족 서비스 신청 (고객센터 1588-8000)</div></aside></li><li><span style="color:#487ca5;"><strong>일반석 vs 할인석 요금, 꼭 비교하기</strong></span><br>&#39;일반석&#39;과 &#39;할인석&#39;은 할인 적용이 달라요. 50% 할인 대상은 &#39;<strong>일반석</strong>&#39;이고, 이미 할인된 &#39;할인석&#39;은 공항세만 50%예요. 표기가 헷갈리면 상담원에게 바로 물어보는 게 안전해요.</li><li><span style="color:#487ca5;"><strong>복지카드는 실물로 챙기기</strong></span><br>모바일 복지카드 인정 여부는 항공사·공항 카운터에 따라 달라질 수 있어요.</li><li><span style="color:#487ca5;"><strong>전동 휠체어를 쓴다면 배터리 스펙 미리 확인하기</strong></span><br>리튬이온 배터리 용량(Wh) 규정이 항공사마다 달라요.</li></ul><hr><h3 id="24a52b1bf4f9462a87fcd05ab1f2a7b5"><span style="background:#f9f3dc;">5. 자주 묻는 질문 (FAQ)</span></h3><aside class="callout" style="background:#f9f8f7;"><div><strong>Q1. 수동·전동 휠체어를 쓰면 모두 50% 할인 대상인가요?</strong><br>할인은 휠체어 종류가 아니라 <strong>등록 장애인 여부</strong>로 정해져요. 등록 장애인 중 <strong>장애의 정도가 심한 장애인(종전 1~3급)</strong> 본인이면, 휠체어 종류와 상관없이 50% 할인 대상이에요.</div></aside><aside class="callout" style="background:#f9f8f7;"><div><strong>Q2. 동반 보호자가 꼭 가족이어야 하나요?</strong><br>가족이 아니어도 돼요. 다만 예매할 때 동반 보호자로 지정해야 하고, 항공사마다 확인 절차가 다를 수 있으니 예약 전에 문의해주세요.</div></aside><aside class="callout" style="background:#f9f8f7;"><div><strong>Q3. 대한항공·아시아나 말고 저가항공도 50% 할인되나요?</strong><br>대한항공·아시아나는 국내선 장애인 할인을 운영해요. 저가항공(LCC: 제주항공·진에어·티웨이·에어부산·에어서울 등)은 항공사마다 제도 유무·조건이 달라서, 예매 전에 각 항공사에 직접 확인해주세요.</div></aside><aside class="callout" style="background:#f9f8f7;"><div><strong>Q4. 미리 연락 안 하고 당일 공항에서 탑승 도움, 편의 제공을 요청해도 되나요?</strong><br>국내선은 대체로 당일에도 대응 해주지만, 성수기 등에 따라 상황이 다를 수 있어요. 탑승교 대응 등은 더더욱이요. 안전하게 미리 연락하시는 걸 추천해요. 특히 전동 휠체어를 쓴다면 <strong>최소 48시간 전</strong> 사전 접수를 추천해요. 배터리 규정 확인이나 리프트 배차 조율에 시간이 필요할 수 있어요.</div></aside><aside class="callout" style="background:#f9f8f7;"><div><strong>Q5. 탑승교 연결 여부, 예매 전에 알 수 있나요?</strong><br>미리 정확히 알기는 어려워요. 다만 <strong>큰 기종일수록 브릿지 게이트가 배정될 가능성이 높은 편</strong>이에요. 확실히 알고 싶다면 항공사에 문의해야 하지만, 당일에도 공항 사정에 따라 변경되기도 하니까요. 사전에 어떤 항공편을 이용하고, 보행이 불가능하다는 걸 말해두는 게 안전해요.</div></aside><aside class="callout" style="background:#f9f8f7;"><div><strong>Q6. 리프트로 탈 때 오래 걸리나요?</strong><br>게이트·날씨에 따라 다르지만, 다른 승객보다 먼저 타거나 마지막에 타는 경우가 많아요. <strong>20~30분 여유</strong>를 두고 게이트에 도착하는 걸 추천해요.</div></aside><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><span class="emoji">💛</span><div><strong>다음 콘텐츠도 받아보고 싶다면?</strong><br>카카오톡 친구를 추가해두고, 휠체어 사용자를 위한 장소·경험 추천 정보를 놓치지 마세요!<br><strong>➡️</strong> <a href="https://link.staircrusher.club/domestic_discount" target="_blank" rel="noopener noreferrer"><strong>카카오톡 친구추가하기 [클릭]</strong></a></div></aside><p class="empty"></p><hr><p class="empty"></p><p class="empty"></p><aside class="callout" style="background:#f9f8f7;"><div><strong>🌏 후원으로 넓히는 경험</strong><blockquote><strong>&quot;거기 갈 수 있을까?&quot;</strong><br><br>휠체어 사용자의 외출은 이 질문에서 시작되곤 합니다. 계단뿌셔클럽은 그 질문에 <strong>답을 찾다 지치지 않도록</strong>, 접근성 정보를 모으고 누구나 쉽게 찾을 수 있게 만듭니다. 이 콘텐츠들은 더 좋은 정보가 쌓이고 널리 퍼지기를 바라는 분들의 <strong>후원으로 만들어집니다</strong>.<aside class="callout" style="background:#e5f2fc;"><div>🙌 <a href="https://staircrusher.club/donation" target="_blank" rel="noopener noreferrer"><strong>이 일에 후원자로 함께하기 [클릭]</strong></a></div></aside></blockquote></div></aside><hr><p>계단뿌셔클럽의 고유 콘텐츠 템플릿입니다. 무단복제 및 사용을 금합니다.<br>©2026 계단뿌셔클럽 All Rights Reserved.<br></p><p>*<a href="https://link.staircrusher.club/alone_app" target="_blank" rel="noopener noreferrer">앱 다운로드 받기</a></p>
+</article>
+</div>
+<footer class="site-footer"><div class="lwrap">
+<div class="f-top">
+  <div class="f-brand">
+    <p class="f-tagline">이동약자와 그 친구들의 막힘없는 이동</p>
+    <img class="f-logo" src="/articles/assets/scc-wordmark-white.svg" alt="계단뿌셔클럽" width="208" height="35">
+  </div>
+  <div class="f-pills">
+    <a href="https://link.staircrusher.club/articles_footer_app" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-download.svg" alt="" width="20" height="20">앱 다운로드</a>
+    <a href="https://link.staircrusher.club/articles_footer_kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-kakao.svg" alt="" width="20" height="20">카카오톡</a>
+    <a href="https://link.staircrusher.club/articles_footer_letter" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-mail.svg" alt="" width="20" height="20">뿌클레터</a>
+  </div>
+</div>
+<div class="f-bottom">
+  <div class="f-legalgroup">
+  <div class="f-legal">
+    <p class="f-copy">Copyright ⓒ 계단뿌셔클럽. All Rights Reserved</p>
+    <p class="f-biz">사업자등록번호 623-82-00565 &nbsp;|&nbsp; 대표 : 박수빈, 이대호 &nbsp;|&nbsp; 서울특별시 강남구 역삼로 172 마루360 5층</p>
+  </div>
+  <div class="f-links">
+    <a href="https://agnica.notion.site/07acba336959451fbdddcbd26e8d49b0" target="_blank" rel="noopener noreferrer">서비스 이용약관</a>
+    <a href="https://agnica.notion.site/?pvs=143" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a>
+  </div>
+  </div>
+  <div class="f-partners">
+    <a class="p-acrc" href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회"></a>
+    <a class="p-nts" href="https://www.nts.go.kr/nts/main.do" target="_blank" rel="noopener noreferrer" aria-label="국세청"></a>
+    <a class="p-seoul" href="https://www.seoul.go.kr/main/index.jsp" target="_blank" rel="noopener noreferrer" aria-label="서울특별시"></a>
+  </div>
+</div>
+</div></footer>
+<div class="cta-bar" data-testid="article-cta-bar" data-element-name="article_cta_bar" data-track-view><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" data-element-name="article_upvote" aria-pressed="false" aria-label="도움이 돼요"><img id="cta-heart-off" src="/articles/assets/ic-heart.svg" alt="" width="24" height="24"><img id="cta-heart-on" src="/articles/assets/ic-heart-fill.svg" alt="" width="24" height="24" hidden></button>
+<button type="button" class="cta-icon" id="cta-share" data-element-name="article_share" aria-label="공유하기"><img src="/articles/assets/ic-share.svg" alt="" width="24" height="24"></button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" data-element-name="article_cta_kakao" href="https://link.staircrusher.club/articles_footer_kakao?campaign=articles-cta&amp;ad_group=domestic-flight-disability-discount&amp;ad_creative=cta-kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">새로운 컨텐츠 알림받기</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" data-element-name="article_cta_browse" href="https://link.staircrusher.club/articles_cta_transit?campaign=articles-cta&amp;ad_group=domestic-flight-disability-discount&amp;ad_creative=cta-browse" target="_blank" rel="noopener noreferrer">다른 콘텐츠 더 보기</a>
+</div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>
+<script>
+(function(){
+  var heart=document.getElementById('cta-heart'), share=document.getElementById('cta-share');
+  var on=document.getElementById('cta-heart-on'), off=document.getElementById('cta-heart-off');
+  if(!heart||!share||!on||!off) return;
+  var toast=document.getElementById('cta-toast');
+  var API=(function(){try{return localStorage.getItem('sccApiBase')||'';}catch(e){return '';}})()
+    ||'https://api.staircrusher.club';
+  var SLUG="domestic-flight-disability-discount";
+  // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
+  var PAGE_URL='https://web.staircrusher.club/articles/'+SLUG;
+  // 공유는 canonical + campaign 파라미터로 내보낸다(GA 유입 집계용). 에어브릿지 트래킹링크를
+  // 쓰지 않는 이유: 링크가 자기 OG 를 직접 서빙해서(302 아님, 실측) 카톡 미리보기가 아티클
+  // 원본이 아니라 링크에 복제해둔 값이 된다 — 제목·썸네일이 바뀌면 그대로 stale 해진다.
+  // PAGE_URL 은 좋아요 target 조회용이라 파라미터가 붙으면 안 되므로 별도 상수로 둔다.
+  var SHARE_URL="https://web.staircrusher.club/articles/domestic-flight-disability-discount?campaign=articles-share&ad_group=domestic-flight-disability-discount&ad_creative=cta-share";
+  var upvoted=false, busy=false, spaTokenBad=false;
+  function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent=msg; toast.className='cta-toast on';
+    setTimeout(function(){toast.className='cta-toast';},1800);
+  }
+  function paint(){
+    on.hidden=!upvoted; off.hidden=upvoted;
+    heart.setAttribute('aria-pressed',upvoted?'true':'false');
+  }
+  // SPA(로그인 유저) 토큰. 있으면 좋아요를 그 사람 것으로 기록한다. **읽기만 한다.**
+  // 키 포맷이 두 가지다: webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어서 현재는
+  // 'mmkv.default.scc-token'(dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\scc-token'
+  // (backslash, KEY_WILDCARD) 이 된다. 둘 다 읽어서 alias 변경에 안 깨지게 한다.
+  // (못 읽으면 익명으로 폴백하므로 실패 방향은 안전하다 — 세션이 깨지는 게 아니라 집계 주체만 바뀐다)
+  function readSpaToken(){
+    if(spaTokenBad) return null;
+    var keys=['mmkv.default.scc-token','mmkv.default\\scc-token'];
+    for(var i=0;i<keys.length;i++){
+      try{var v=localStorage.getItem(keys[i]);
+        if(v){var t=JSON.parse(v); if(t) return t;}}catch(e){}
+    }
+    return null;
+  }
+  // 익명 정체성. **호출마다 새로 만들면 안 된다** — give 와 cancel 이 다른 유저로 기록돼
+  // 취소가 no-op 이 된다(실측 버그). 캐시된 게 있으면 그걸 쓴다.
+  function anonToken(cb){
+    var t=null;
+    try{t=localStorage.getItem('anonymousAccessToken');}catch(e){}
+    if(t){cb(t);return;}
+    mintToken(cb);
+  }
+  function mintToken(cb){
+    fetch(API+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var t=d&&d.authTokens&&d.authTokens.accessToken;
+        if(t){try{
+          localStorage.setItem('anonymousAccessToken',t);
+          localStorage.setItem('anonymousTokenExpiry',String(Date.now()+315360000000));
+        }catch(e){}}
+        cb(t||null);
+      }).catch(function(){cb(null);});
+  }
+  function post(path,body,token){
+    return fetch(API+path,{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(body)});
+  }
+  // 401 처리는 어느 토큰이 실패했는지에 따라 갈린다.
+  //  - SPA 토큰 만료 → SPA 키는 절대 건드리지 않고 익명 정체성으로 폴백한다.
+  //  - 캐시된 익명 토큰 만료 → 그때만 그 키를 비우고 1회 재발급한다.
+  function send(path,body,cb){
+    var spa=readSpaToken();
+    if(!spa){viaAnon(path,body,cb);return;}
+    post(path,body,spa).then(function(r){
+      if(r.status!==401){cb(r);return;}
+      spaTokenBad=true;   // 남은 호출에서 매번 401 을 한 번 더 맞지 않도록
+      viaAnon(path,body,cb);
+    }).catch(function(){cb(null);});
+  }
+  function viaAnon(path,body,cb){
+    anonToken(function(t){
+      if(!t){cb(null);return;}
+      post(path,body,t).then(function(r){
+        if(r.status!==401){cb(r);return;}
+        try{localStorage.removeItem('anonymousAccessToken');
+          localStorage.removeItem('anonymousTokenExpiry');}catch(e){}
+        mintToken(function(t2){
+          if(!t2){cb(null);return;}
+          post(path,body,t2).then(cb).catch(function(){cb(null);});
+        });
+      }).catch(function(){cb(null);});
+    });
+  }
+  send('/getSccContentDetails',{url:PAGE_URL},function(r){
+    if(!r||!r.ok) return;
+    r.json().then(function(d){
+      if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
+    }).catch(function(){});
+  });
+  heart.addEventListener('click',function(){
+    // 서버에 (type,id,user) unique 제약이 없어서 연타하면 중복 row 가 생기고 취소로 안 지워진다.
+    if(busy) return;
+    busy=true;
+    var next=!upvoted;
+    upvoted=next; paint();
+    log('article_upvote',{slug:SLUG,upvoted:next});
+    send(next?'/giveUpvote':'/cancelUpvote',{targetType:'ARTICLE',id:SLUG},function(r){
+      busy=false;
+      if(!r||!r.ok){upvoted=!next;paint();}  // 실패하면 낙관적 토글을 되돌린다
+    });
+  });
+  share.addEventListener('click',function(){
+    log('article_share',{slug:SLUG});
+    if(navigator.share){navigator.share({title:document.title,url:SHARE_URL}).catch(function(){});return;}
+    // 안드로이드 WebView 등 Web Share 미지원 → 링크 복사로 폴백
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(SHARE_URL)
+        .then(function(){showToast('링크를 복사했어요');})
+        .catch(function(){showToast('링크 복사에 실패했어요');});
+    }else{showToast('링크 복사를 지원하지 않는 브라우저예요');}
+  });
+  [].slice.call(document.querySelectorAll('.cta-main')).forEach(function(a){
+    a.addEventListener('click',function(){
+      log('article_cta_click',{slug:SLUG,variant:a.getAttribute('data-cta-variant')});
+    });
+  });
+})();
+</script>
+</body>
+</html>

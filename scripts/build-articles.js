@@ -1604,7 +1604,9 @@ async function main() {
 
   // 최초 발행 시각은 slug 기준으로 보존한다. 상세 페이지는 부모 재빌드 때 manifest
   // 엔트리가 지워졌다 다시 생기므로, 삭제 전에 여기서 스냅샷을 떠둬야 날짜가 안 밀린다.
-  const NOW_ISO = new Date().toISOString();
+  // Notion date는 분 단위로 절삭해 돌려주므로, 처음부터 분 단위로 찍어야
+  // 다음 빌드에서 되읽은 값과 manifest/HTML이 어긋나지 않는다.
+  const NOW_ISO = new Date().toISOString().replace(/:\d\d\.\d+Z$/, ':00.000Z');
   const prevPublished = {};
   for (const e of Object.values(manifest))
     if (e.slug && e.publishedAt) prevPublished[e.slug] = e.publishedAt;
