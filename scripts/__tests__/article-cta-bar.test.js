@@ -101,6 +101,72 @@ describe('CTA 바 렌더', () => {
     expect(html).toContain('<body class="has-cta" data-screen-name="Article"');
   });
 
+  // 사용자 피드백(2026-08-13): 카카오로 들어온 뒤 다른 글로 넘어가면 CTA 가 '채널추가'로
+  // 되돌아갔다. 분기 판정을 세션에 남겨 탭이 살아있는 동안 유지한다.
+  // 인라인 스크립트라 실행 테스트가 어려운 다른 케이스들과 달리, 이 스니펫은 전역 3개만
+  // 참조하므로 실제로 돌려서 검증한다.
+  describe('카카오 유입 분기는 세션 동안 유지된다', () => {
+    // <head> 인라인 스크립트를 꺼내 stub 전역으로 실행한다.
+    const run = (search, store, throwing = false) => {
+      const body = /<script>(\(function\(\)\{var k=[\s\S]*?)<\/script>/.exec(
+        article(),
+      )[1];
+      const ss = throwing
+        ? {
+            getItem() {
+              throw new Error('SecurityError');
+            },
+            setItem() {
+              throw new Error('SecurityError');
+            },
+          }
+        : {
+            getItem: k => (k in store ? store[k] : null),
+            setItem: (k, v) => {
+              store[k] = v;
+            },
+          };
+      let attr = null;
+      const doc = {
+        documentElement: {
+          setAttribute: (k, v) => {
+            attr = `${k}=${v}`;
+          },
+        },
+      };
+      // 스니펫이 참조하는 전역 3개만 sandbox 로 넣어준다.
+      require('vm').runInNewContext(body, {
+        location: {search},
+        sessionStorage: ss,
+        document: doc,
+      });
+      return attr;
+    };
+
+    test('?from=kakao 로 들어오면 분기 + 세션에 기록', () => {
+      const store = {};
+      expect(run('?from=kakao', store)).toBe('data-cta=list');
+      expect(store.sccFromKakao).toBe('1');
+    });
+
+    test('같은 세션의 다음 글은 쿼리가 없어도 분기가 유지된다', () => {
+      const store = {};
+      run('?from=kakao', store);
+      expect(run('', store)).toBe('data-cta=list');
+    });
+
+    test('새 세션에서 쿼리 없이 들어오면 플친 가입 CTA 다', () => {
+      expect(run('', {})).toBe(null);
+      // 검색 유입에 다른 파라미터만 붙은 경우도 마찬가지
+      expect(run('?utm_source=google', {})).toBe(null);
+    });
+
+    test('sessionStorage 가 막힌 환경에서도 URL 판정은 살아있다', () => {
+      expect(run('?from=kakao', {}, true)).toBe('data-cta=list');
+      expect(run('', {}, true)).toBe(null);
+    });
+  });
+
   test('ctaUrl 이 비면 콘텐츠 홈 + 폴백 문구다 (B 버킷 / 저장리스트 미보유 A 버킷)', () => {
     const html = article();
     expect(hrefOf(html, 'browse')).toContain(CTA.home);

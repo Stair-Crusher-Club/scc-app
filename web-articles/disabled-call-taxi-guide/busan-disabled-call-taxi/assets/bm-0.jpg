@@ -663,9 +663,9 @@ var lang = "kor"; // 외국어
 							<ul class="notice_list2">
 								
 								<li>
-									<a href="02_brd/brd05_view.asp?idx=214" tabindex="0" title="교통약자(장애인, 임산부) 콜택시 이용 안내(상세화면으로 이동)">
+									<a href="02_brd/brd05_view.asp?idx=214" tabindex="0" title="교통약자(장애인, 임산부) 콜택시 배차 안내(상세화면으로 이동)">
 										<span class="part">자주하는 질문</span>
-										<span class="btxt">교통약자(장애인, 임산부) 콜택시 이용 안내</span>
+										<span class="btxt">교통약자(장애인, 임산부) 콜택시 배차 안내</span>
 										<span class="stxt"> 1. 업무협약으로 자비콜과 부산개인택시운송사업조합 등대콜에서 운영&nbsp; &nbsp;- 총 2,850대​(자비콜 750대, 등대콜 2,100대)&nbsp;&nbsp;2. 콜택시 배차&nbsp; &nbsp;- 호출 시점의 주변 운행차량 상황에 따라 배차&nbsp; &nbsp;- 호출 시 인근을 운행&nbsp;중인 자비콜과 등대콜 차량이 있어야 배차가 되며,&nbsp;&nbsp; &nbsp; &nbsp;호출 인근을 운행하는&nbsp;차량이 적거나 부재시에는 배차가 지연될 수 있습니다.&nbsp;&nbsp;3. 참고로, 배차는 호출 후 약 6분 동안 출발지에서 3km까지 순차적으로 범위를&nbsp;확대하여 차량을 탐색하고&nbsp;&nbsp; &nbsp;차량이 없을 경우 배차실패 문자가 전송됩니다. 이후&nbsp;잠시 기다렸다가 다시 접수하시기 바랍니다.&nbsp;감사합니다.</span>
 										<span class="date">2026.07.31</span>
 									</a>
@@ -868,7 +868,7 @@ var lang = "kor"; // 외국어
 			</div><!-- footer_con -->
 			<div class="web-in">
 				<!--<a title="pdf 파일보기(새 창 열림)" href="https://www.duribal.co.kr/image/common/duribal_web.pdf" target="_blank">-->
-				<a title="pdf 파일보기(새 창 열림)" href="https://www.duribal.co.kr/images/common/duribal_web_.pdf" target="_blank">
+				<a title="pdf 파일보기(새 창 열림)" href="https://www.duribal.co.kr/images/common/duribal_web.pdf" target="_blank">
 					<img class="wa" alt="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인증마크(WA인증마크)" src="/images/common/duribal_web.png" />
 				</a>
 			</div> 
