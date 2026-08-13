@@ -573,5 +573,22 @@
     "editedTime": "2026-05-19T05:25:00.000Z",
     "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
     "parent": "diaspora-film-festival-accessibility"
+  },
+  "3bbc9499-b060-808b-9434-f4443eb0a2c1": {
+    "slug": "domestic-flight-disability-discount",
+    "title": "휠체어 탈 때, 국내선 50% 할인 받고 여행가기",
+    "summary": "등록 장애인 중 장애의 정도가 심한 장애인은 본인과 동반 보호자 1명까지 대한항공·아시아나 국내선 일반석 운임을 50% 할인받을 수 있어요. 휠체어 사용자의 국내선 탑승 수속, 탑승교·리프트 이용 팁과 김포–제주 실제 요금 비교까지 정리했습니다.",
+    "image": "/articles/domestic-flight-disability-discount/assets/img-0.png",
+    "createdTime": "2026-08-11T01:18:00.000Z",
+    "publishedAt": "2026-08-13T02:27:00.000Z",
+    "editedTime": "2026-08-13T02:28:00.000Z",
+    "contentPageId": "3b9c9499-b060-81a9-bd95-ea01f20eb791",
+    "featured": null,
+    "categories": [
+      "이동/교통"
+    ],
+    "ctaUrl": "https://link.staircrusher.club/articles_cta_transit",
+    "ctaLabel": "",
+    "thumbnail": "/articles/domestic-flight-disability-discount/assets/thumb-0.webp"
   }
 }
