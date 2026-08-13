@@ -49,6 +49,9 @@ const FOOTER = {
 // 유입 경로로 메인 버튼이 갈린다:
 //   ?from=kakao (플친 메시지 유입) → ctaUrl 로 보낸다 (이미 플친이므로 콘텐츠 소비로 유도)
 //   그 외                        → 플친 가입으로 보낸다
+// 이 분기는 **세션(탭) 단위로 유지된다** — 한 번 카카오로 들어왔으면 다른 글로 넘어가도
+// 계속 카카오 유입이다. 링크에만 의존하면 두 번째 글부터 CTA 가 '채널추가'로 되돌아가
+// 이미 플친인 사람에게 가입을 다시 권하게 된다. (사용자 피드백 2026-08-13)
 // ctaUrl/ctaLabel 은 Notion DB 프로퍼티이고 **비어 있는 게 정상값**이다. 채우는 규칙:
 //   장소 여러 곳 소개  → 저장리스트 트래킹링크 + ctaLabel '소개된 곳 모아보기'
 //   장소 1곳 소개      → 비움 (= 콘텐츠 홈)
@@ -246,7 +249,8 @@ details.htoggle[open]>summary::before{content:"▾ ";}
    빨강이면 아이콘 강조가 죽고 버튼 자체가 에러 상태처럼 보인다. (사용자 피드백 2026-08-07) */
 .cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
 .cta-main img{display:block;width:52px;height:32px;}
-/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA.
+   ?from=kakao(또는 같은 세션에서 이미 카카오로 들어온 적) 면 head 스크립트가 html[data-cta=list] 를 심는다 */
 .cta-kakao{background:#fae100;color:#050708;display:flex;}
 .cta-browse{background:var(--g90);color:#b8ff55;}
 html[data-cta="list"] .cta-kakao{display:none;}
@@ -373,9 +377,18 @@ function siteFooter() {
 
 // 카카오 유입 분기를 **페인트 전에** 확정한다. 정적 파일 하나로 두 변형을 서비스하므로
 // (CloudFront 가 쿼리스트링을 캐시 키에 안 넣어도 무관) 이 한 줄이 <head> 에 있어야 깜빡임이 없다.
+//
+// 유입 표시는 sessionStorage 에 남긴다 — 탭이 닫히면 같이 사라지는 게 원하는 수명이고
+// (localStorage 면 몇 달 뒤 검색으로 들어온 사람에게까지 카카오 CTA 가 뜬다),
+// 카톡 인앱 브라우저는 링크 탭 하나가 곧 한 세션이라 발송→열람 흐름과 정확히 맞는다.
+// 내부 링크에 ?from=kakao 를 붙여 나르는 방식은 canonical·공유 URL·GA page_location 을
+// 전부 오염시키므로 쓰지 않는다.
 const CTA_BRANCH_JS =
-  `<script>if(/[?&]from=kakao(?:&|$)/.test(location.search))` +
-  `document.documentElement.setAttribute('data-cta','list');</script>\n` +
+  `<script>(function(){var k=/[?&]from=kakao(?:&|$)/.test(location.search);` +
+  // 사파리 프라이빗 등 sessionStorage 가 던지는 환경에선 URL 판정만으로 폴백한다.
+  `try{if(k)sessionStorage.setItem('sccFromKakao','1');` +
+  `else k=!!sessionStorage.getItem('sccFromKakao');}catch(e){}` +
+  `if(k)document.documentElement.setAttribute('data-cta','list');})();</script>\n` +
   // JS 가 없으면 하트/공유는 동작하지 않으므로 숨기고 CTA 링크만 남긴다.
   `<noscript><style>.cta-icon{display:none}</style></noscript>`;
 

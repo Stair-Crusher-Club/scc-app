@@ -220,7 +220,8 @@ details.htoggle[open]>summary::before{content:"▾ ";}
    빨강이면 아이콘 강조가 죽고 버튼 자체가 에러 상태처럼 보인다. (사용자 피드백 2026-08-07) */
 .cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
 .cta-main img{display:block;width:52px;height:32px;}
-/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA. ?from=kakao 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA.
+   ?from=kakao(또는 같은 세션에서 이미 카카오로 들어온 적) 면 head 스크립트가 html[data-cta=list] 를 심는다 */
 .cta-kakao{background:#fae100;color:#050708;display:flex;}
 .cta-browse{background:var(--g90);color:#b8ff55;}
 html[data-cta="list"] .cta-kakao{display:none;}
@@ -294,7 +295,7 @@ body.has-cta{padding-bottom:96px;}
   .cta-toast{bottom:92px;}
 }
 </style>
-<script>if(/[?&]from=kakao(?:&|$)/.test(location.search))document.documentElement.setAttribute('data-cta','list');</script>
+<script>(function(){var k=/[?&]from=kakao(?:&|$)/.test(location.search);try{if(k)sessionStorage.setItem('sccFromKakao','1');else k=!!sessionStorage.getItem('sccFromKakao');}catch(e){}if(k)document.documentElement.setAttribute('data-cta','list');})();</script>
 <noscript><style>.cta-icon{display:none}</style></noscript>
 </head>
 <body class="has-cta" data-screen-name="Article" data-slug="disabled-call-taxi-guide/incheon-disabled-call-taxi">
