@@ -20,7 +20,9 @@
  */
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const {execFileSync} = require('child_process');
 const {
   SITE,
   CATEGORIES,
@@ -483,6 +485,73 @@ function reuseExistingAsset(destDir, idx, prefix) {
   return `assets/${hit}`;
 }
 
+// ---------- 이미지 판별 / HEIF 변환 ----------
+// content-type 을 믿지 않고 매직바이트로 판정한다. Notion presigned URL 은 종종
+// application/octet-stream 을 주고, OG 스크랩 실패는 200 + text/html 을 준다.
+const IMAGE_MAGIC = [
+  [0xff, 0xd8, 0xff], // jpeg
+  [0x89, 0x50, 0x4e, 0x47], // png
+  [0x47, 0x49, 0x46, 0x38], // gif
+];
+
+function isHeif(buf) {
+  // ISO-BMFF: [4..8]='ftyp', 그 다음 브랜드가 heic/heix/mif1/msf1/hevc…
+  if (buf.length < 12 || buf.toString('latin1', 4, 8) !== 'ftyp') return false;
+  return /^(heic|heix|hevc|hevx|mif1|msf1|heim|heis|hevm|hevs)/.test(
+    buf.toString('latin1', 8, 12),
+  );
+}
+
+function isImage(buf, ct = '') {
+  if (buf.length < 12) return false;
+  if (IMAGE_MAGIC.some(sig => sig.every((b, i) => buf[i] === b))) return true;
+  if (
+    buf.toString('latin1', 0, 4) === 'RIFF' &&
+    buf.toString('latin1', 8, 12) === 'WEBP'
+  )
+    return true;
+  if (isHeif(buf)) return true;
+  // svg 는 텍스트라 매직바이트가 없다 — content-type 으로만 통과시킨다.
+  return ct.includes('svg') && buf.toString('utf8', 0, 512).includes('<svg');
+}
+
+// ponytail: macOS 내장 sips. 이 스크립트는 발행 담당자의 맥에서만 도는 파이프라인이라 충분하다.
+// sharp(이미 devDependency)를 먼저 시도하지 않는 이유: 번들된 libheif 가 이 파일들을
+// "Number of references in iref box exceeds security limits" 로 **전부** 거부한다(49/49 실측).
+// 리눅스 CI 로 옮기게 되면 heif-convert(libheif-examples)로 갈아끼운다.
+// HEIF 원본은 예외 없이 아이폰 카메라 풀해상도(4032px)라, 그대로 jpeg 로 풀면 장당 3MB+ 가 된다.
+// 본문 셸은 480px 폭이고 기존 발행 사진들도 median 1280 / p90 2400px 이므로 1600 이면 충분하다.
+const HEIF_MAX_EDGE = 1600;
+
+function heifToJpeg(buf) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scc-heif-'));
+  const src = path.join(dir, 'in.heic');
+  const out = path.join(dir, 'out.jpg');
+  try {
+    fs.writeFileSync(src, buf);
+    execFileSync(
+      'sips',
+      [
+        '-s',
+        'format',
+        'jpeg',
+        '-s',
+        'formatOptions',
+        '85',
+        '-Z',
+        String(HEIF_MAX_EDGE),
+        src,
+        '--out',
+        out,
+      ],
+      {stdio: 'ignore'},
+    );
+    return fs.readFileSync(out);
+  } finally {
+    rmrf(dir);
+  }
+}
+
 async function downloadImage(url, destDir, idx, prefix = 'img') {
   fs.mkdirSync(destDir, {recursive: true});
   let res;
@@ -508,9 +577,25 @@ async function downloadImage(url, destDir, idx, prefix = 'img') {
     }
     throw new Error(`image ${res.status}`);
   }
-  const buf = Buffer.from(await res.arrayBuffer());
+  let buf = Buffer.from(await res.arrayBuffer());
   const ct = res.headers.get('content-type') || '';
-  const ext = ct.includes('png')
+
+  // 확장자를 content-type 에서 뽑되, **모르는 타입을 .jpg 로 뭉개지 않는다.**
+  // 예전 폴백(`: 'jpg'`)은 image 가 아닌 응답까지 .jpg 로 저장해서, 브라우저가 디코드 못 하는
+  // 파일이 조용히 발행됐다(2026-08-14 실측: HEIC 49 + OG 스크랩이 물어온 HTML 페이지 1건 = 50건).
+  // 빌드/테스트는 다 통과하고 페이지만 깨지는 종류라, 여기서 막지 않으면 아무도 못 잡는다.
+  if (!isImage(buf, ct)) {
+    const kept = reuseExistingAsset(destDir, idx, prefix);
+    if (kept) {
+      console.warn(
+        `  ♻️ 이미지가 아닌 응답(${ct || 'unknown'}) → 기존 에셋 유지: ${kept}`,
+      );
+      return kept;
+    }
+    throw new Error(`not an image (${ct || 'unknown'})`);
+  }
+
+  let ext = ct.includes('png')
     ? 'png'
     : ct.includes('webp')
       ? 'webp'
@@ -519,6 +604,14 @@ async function downloadImage(url, destDir, idx, prefix = 'img') {
         : ct.includes('svg')
           ? 'svg'
           : 'jpg';
+
+  // 아이폰에서 올린 사진을 Notion 이 image/heic 그대로 준다. Chrome/Android 는 HEIF 를 디코드
+  // 못 해서 확장자만 .jpg 로 붙이면 발행 페이지에서 깨진 이미지가 된다. jpeg 로 변환해 저장한다.
+  if (isHeif(buf)) {
+    buf = heifToJpeg(buf);
+    ext = 'jpg';
+  }
+
   const name = `${prefix}-${idx}.${ext}`;
   fs.writeFileSync(path.join(destDir, name), buf);
   markUsed(destDir, name);
@@ -1829,5 +1922,7 @@ if (require.main === module) {
     reuseExistingAsset,
     ensureThumbnails,
     THUMB_NAME,
+    isImage,
+    isHeif,
   };
 }

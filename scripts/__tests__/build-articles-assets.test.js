@@ -12,6 +12,8 @@ const {
   reuseExistingAsset,
   ensureThumbnails,
   THUMB_NAME,
+  isImage,
+  isHeif,
 } = require('../build-articles');
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'scc-articles-'));
@@ -173,5 +175,61 @@ describe('ensureThumbnails', () => {
 
     expect(await ensureThumbnails(manifest, tmp())).toBe(0);
     expect(manifest.a.thumbnail).toBeUndefined();
+  });
+});
+
+// 회귀: content-type 을 모르면 .jpg 로 뭉개던 폴백이 브라우저가 못 읽는 파일을 발행했다.
+// 실제 사고 — HEIC 49건 + OG 스크랩이 물어온 HTML 페이지 1건이 .jpg/.png 로 prod 에 나가
+// Chrome 에서 깨진 이미지로 떴다. 빌드·테스트는 전부 통과하는 종류라 여기서 막는다.
+describe('isImage / isHeif (에셋 매직바이트 판정)', () => {
+  const ftyp = brand =>
+    Buffer.concat([
+      Buffer.from([0, 0, 0, 0x18]),
+      Buffer.from('ftyp' + brand, 'latin1'),
+      Buffer.alloc(8),
+    ]);
+
+  it('진짜 이미지는 통과시킨다', () => {
+    const jpeg = Buffer.concat([
+      Buffer.from([0xff, 0xd8, 0xff]),
+      Buffer.alloc(16),
+    ]);
+    const png = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+      Buffer.alloc(16),
+    ]);
+    const webp = Buffer.concat([
+      Buffer.from('RIFF', 'latin1'),
+      Buffer.alloc(4),
+      Buffer.from('WEBP', 'latin1'),
+    ]);
+    expect(isImage(jpeg, 'application/octet-stream')).toBe(true);
+    expect(isImage(png, '')).toBe(true);
+    expect(isImage(webp, '')).toBe(true);
+    expect(
+      isImage(Buffer.from('<svg xmlns="..."></svg>'), 'image/svg+xml'),
+    ).toBe(true);
+  });
+
+  it('HEIF 를 이미지로 인식하되 heic 로 표시한다', () => {
+    for (const brand of ['heic', 'heix', 'mif1', 'hevc']) {
+      expect(isHeif(ftyp(brand))).toBe(true);
+      expect(isImage(ftyp(brand), '')).toBe(true);
+    }
+  });
+
+  it('HTML 응답을 이미지로 통과시키지 않는다', () => {
+    const html = Buffer.from(
+      '<!DOCTYPE html>\n<html lang="ko"><head><meta charset="utf-8">',
+    );
+    expect(isImage(html, 'text/html')).toBe(false);
+    // OG 스크랩 실패가 content-type 을 image 로 주더라도 매직바이트로 걸러야 한다.
+    expect(isImage(html, 'image/jpeg')).toBe(false);
+    expect(isHeif(html)).toBe(false);
+  });
+
+  it('mp4 처럼 ftyp 로 시작하는 비-HEIF 는 거른다', () => {
+    expect(isHeif(ftyp('isom'))).toBe(false);
+    expect(isImage(ftyp('isom'), '')).toBe(false);
   });
 });
