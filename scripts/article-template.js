@@ -419,14 +419,30 @@ function ctaBar(meta) {
 // SPA 는 `mmkv.default.scc-token` 에 JSON 인코딩된 토큰을 두는데, 여기에 쓰면 로그인 유저의
 // 세션을 덮어쓴다. 그래서 **읽기만** 하고, 쓰기는 `anonymousAccessToken`(bbucle-road 가 이미
 // 익명 좋아요 정체성으로 쓰는 키, 카카오 로그아웃도 의도적으로 보존한다)에만 한다.
+//
+// 신원 우선순위는 web/screens/BbucleRoadScreen 의 initializeAuth 와 **같은 사다리**다:
+// 앱 주입(window.__SCC_APP_AUTH__) → localStorage scc-token → 익명.
+// 이 페이지는 정적 HTML 이라 SPA 번들(web/index.tsx)이 안 돌고, 따라서 주입값을 저장소로
+// 옮겨주는 syncAppInjectedAuthToStorage 도 안 돈다 — 여기서 직접 주입값을 읽어야 한다.
+// (실측 버그 2026-08: 앱에 로그인한 유저의 좋아요가 웹뷰 로컬 익명 계정으로 기록됐다.
+//  같은 클릭이 GA 에는 진짜 userId 로 남아서 — gaBootstrap 은 주입값을 읽는다 — 어긋났다.)
 const articleJs = slug => `<script>
 (function(){
   var heart=document.getElementById('cta-heart'), share=document.getElementById('cta-share');
   var on=document.getElementById('cta-heart-on'), off=document.getElementById('cta-heart-off');
   if(!heart||!share||!on||!off) return;
   var toast=document.getElementById('cta-toast');
-  var API=(function(){try{return localStorage.getItem('sccApiBase')||'';}catch(e){return '';}})()
-    ||'https://api.staircrusher.club';
+  // 앱 웹뷰가 주입한 신원. **호출 시점마다** 읽는다 — 안드로이드에서
+  // injectedJavaScriptBeforeContentLoaded 가 head 스크립트보다 늦게 도착하는 사례가
+  // 실측돼 있어(web/index.tsx 주석), 진입 시 한 번만 읽으면 그 레이스에 걸린다.
+  function bridge(){try{return window.__SCC_APP_AUTH__||null;}catch(e){return null;}}
+  // 토큰과 API 서버는 같은 출처여야 한다. sandbox 앱 토큰으로 prod API 를 때리면 401 →
+  // 조용한 익명 폴백이라, 고쳐도 안 고쳐진 것처럼 보여서 검증 자체가 불가능해진다.
+  function apiBase(){
+    var b=bridge(); if(b&&b.baseUrl) return b.baseUrl;
+    try{var v=localStorage.getItem('sccApiBase'); if(v) return v;}catch(e){}
+    return 'https://api.staircrusher.club';
+  }
   var SLUG=${JSON.stringify(slug).replace(/</g, '\\u003c')};
   // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
   var PAGE_URL='${SITE.baseUrl}/articles/'+SLUG;
@@ -442,7 +458,9 @@ const articleJs = slug => `<script>
       'articles-share',
     ),
   ).replace(/</g, '\\u003c')};
-  var upvoted=false, busy=false, spaTokenBad=false;
+  // touched: 사용자가 하트를 한 번이라도 눌렀는지. 늦게 온 상태 조회 응답이 낙관적 토글을
+  // 덮어쓰는 걸 막는다(주입이 늦으면 상태 조회가 두 번 나갈 수 있다).
+  var upvoted=false, busy=false, spaTokenBad=false, touched=false;
   function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
   function showToast(msg){
     if(!toast) return;
@@ -453,13 +471,19 @@ const articleJs = slug => `<script>
     on.hidden=!upvoted; off.hidden=upvoted;
     heart.setAttribute('aria-pressed',upvoted?'true':'false');
   }
-  // SPA(로그인 유저) 토큰. 있으면 좋아요를 그 사람 것으로 기록한다. **읽기만 한다.**
+  // 로그인 세션 토큰(앱 주입 → SPA localStorage 순). 있으면 좋아요를 그 사람 것으로 기록한다.
+  // localStorage 는 **읽기만 한다.**
   // 키 포맷이 두 가지다: webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어서 현재는
   // 'mmkv.default.scc-token'(dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\\scc-token'
   // (backslash, KEY_WILDCARD) 이 된다. 둘 다 읽어서 alias 변경에 안 깨지게 한다.
   // (못 읽으면 익명으로 폴백하므로 실패 방향은 안전하다 — 세션이 깨지는 게 아니라 집계 주체만 바뀐다)
   function readSpaToken(){
     if(spaTokenBad) return null;
+    // 앱 웹뷰라면 주입값이 **유일한 진실**이다 — 토큰 없음(로그아웃)까지 포함해서.
+    // 여기서 localStorage 로 폴백하면 안 된다: 웹뷰 저장소는 세션 간 살아남아 이전 로그인의
+    // scc-token 이 남아 있고, 그러면 앱은 로그아웃/다른 계정인데 좋아요만 옛 계정으로 간다
+    // (BbucleRoadScreen 이 appLoggedOut 으로 막는 것과 같은 split-brain).
+    var b=bridge(); if(b) return b.token||null;
     var keys=['mmkv.default.scc-token','mmkv.default\\\\scc-token'];
     for(var i=0;i<keys.length;i++){
       try{var v=localStorage.getItem(keys[i]);
@@ -476,7 +500,7 @@ const articleJs = slug => `<script>
     mintToken(cb);
   }
   function mintToken(cb){
-    fetch(API+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+    fetch(apiBase()+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(d){
         var t=d&&d.authTokens&&d.authTokens.accessToken;
@@ -488,7 +512,7 @@ const articleJs = slug => `<script>
       }).catch(function(){cb(null);});
   }
   function post(path,body,token){
-    return fetch(API+path,{method:'POST',
+    return fetch(apiBase()+path,{method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body:JSON.stringify(body)});
   }
@@ -518,16 +542,27 @@ const articleJs = slug => `<script>
       }).catch(function(){cb(null);});
     });
   }
-  send('/getSccContentDetails',{url:PAGE_URL},function(r){
-    if(!r||!r.ok) return;
-    r.json().then(function(d){
-      if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
-    }).catch(function(){});
+  function refreshState(){
+    if(touched) return;
+    send('/getSccContentDetails',{url:PAGE_URL},function(r){
+      if(!r||!r.ok||touched) return;
+      r.json().then(function(d){
+        if(touched) return;
+        if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
+      }).catch(function(){});
+    });
+  }
+  refreshState();
+  // 주입이 늦게 도착했거나(안드로이드) 웹뷰 안에서 로그인이 끝나면 앱이 재주입한다.
+  // 그때 신원이 바뀌므로 하트 상태를 다시 읽는다 — 안 그러면 익명 기준 상태로 굳는다.
+  window.addEventListener('scc-app-auth-ready',function(){
+    spaTokenBad=false;   // 새 토큰이 왔으니 직전 401 판정은 버린다
+    refreshState();
   });
   heart.addEventListener('click',function(){
     // 서버에 (type,id,user) unique 제약이 없어서 연타하면 중복 row 가 생기고 취소로 안 지워진다.
     if(busy) return;
-    busy=true;
+    busy=true; touched=true;
     var next=!upvoted;
     upvoted=next; paint();
     log('article_upvote',{slug:SLUG,upvoted:next});
@@ -842,4 +877,7 @@ module.exports = {
   withCampaign,
   renderArticlePage,
   renderListPage,
+  // 하트 JS 실행 테스트용 (scripts/__tests__/article-cta-bar.test.js).
+  // 렌더된 HTML 에서 잘라내는 대신 소스를 그대로 평가해야 "나간 Authorization 헤더"로 판정된다.
+  articleJs,
 };

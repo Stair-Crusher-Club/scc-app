@@ -426,6 +426,23 @@
     "ctaLabel": "",
     "thumbnail": "/articles/domestic-flight-disability-discount/assets/thumb-0.webp"
   },
+  "3bcc9499-b060-8068-ab4c-fdd4cfdddca3": {
+    "slug": "cgv-imax-wheelchair-seats",
+    "title": "🎬 전국 IMAX관 휠체어석 총정리 편",
+    "summary": "전국 CGV IMAX관 24곳의 휠체어석(장애인석) 위치를 스크린 크기순으로 정리했습니다. 앞쪽·뒤쪽 배치, 좌석 수, 열과 좌석 번호, 좌석 배치도 사진까지 예매 전에 한눈에 확인하세요. (2026년 8월 기준)",
+    "image": "/articles/cgv-imax-wheelchair-seats/assets/img-0.png",
+    "createdTime": "2026-08-12T08:03:00.000Z",
+    "publishedAt": "2026-08-14T03:40:00.000Z",
+    "editedTime": "2026-08-14T01:15:00.000Z",
+    "contentPageId": "3bac9499-b060-805f-9393-d101a404cf5e",
+    "featured": null,
+    "categories": [
+      "공연/행사"
+    ],
+    "ctaUrl": "",
+    "ctaLabel": "",
+    "thumbnail": "/articles/cgv-imax-wheelchair-seats/assets/thumb-0.webp"
+  },
   "19ec9499-b060-80c9-aa97-ea403e6db509": {
     "slug": "disabled-call-taxi-guide/gwangju-disabled-call-taxi",
     "title": "광주광역시 콜택시",
@@ -590,22 +607,5 @@
     "editedTime": "2026-05-19T05:25:00.000Z",
     "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
     "parent": "diaspora-film-festival-accessibility"
-  },
-  "3bcc9499-b060-8068-ab4c-fdd4cfdddca3": {
-    "slug": "cgv-imax-wheelchair-seats",
-    "title": "🎬 전국 IMAX관 휠체어석 총정리 편",
-    "summary": "전국 CGV IMAX관 24곳의 휠체어석(장애인석) 위치를 스크린 크기순으로 정리했습니다. 앞쪽·뒤쪽 배치, 좌석 수, 열과 좌석 번호, 좌석 배치도 사진까지 예매 전에 한눈에 확인하세요. (2026년 8월 기준)",
-    "image": "/articles/cgv-imax-wheelchair-seats/assets/img-0.png",
-    "createdTime": "2026-08-12T08:03:00.000Z",
-    "publishedAt": "2026-08-14T03:40:00.000Z",
-    "editedTime": "2026-08-14T01:15:00.000Z",
-    "contentPageId": "3bac9499-b060-805f-9393-d101a404cf5e",
-    "featured": null,
-    "categories": [
-      "공연/행사"
-    ],
-    "ctaUrl": "",
-    "ctaLabel": "",
-    "thumbnail": "/articles/cgv-imax-wheelchair-seats/assets/thumb-0.webp"
   }
 }

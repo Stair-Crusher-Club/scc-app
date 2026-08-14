@@ -1,10 +1,13 @@
 // 상세 하단 고정 CTA 바 (Figma 72:1445). 두 변형을 모두 그려두고 ?from=kakao 로 CSS 토글하므로,
 // "어떤 href/문구가 어느 변형에 붙었는지" 는 렌더 결과 문자열로만 검증할 수 있다.
+const vm = require('vm');
+
 const {
   CTA,
   withCampaign,
   renderArticlePage,
   renderListPage,
+  articleJs,
 } = require('../article-template');
 
 const article = (over = {}) =>
@@ -295,5 +298,152 @@ describe('목록 페이지', () => {
     expect(html).toContain('data-cat="맛집/카페" data-slug="food"');
     // 모르는 slug 는 전체로 폴백해야 한다 (오타 URL 이 빈 목록을 띄우면 안 된다)
     expect(html).toContain("if(!m) return '';");
+  });
+});
+
+// 좋아요 신원은 **나간 요청의 Authorization 헤더로만** 판정할 수 있다. 잘못된 토큰을 보내는
+// 버그는 아무것도 던지지 않아서 lint·tsc·빌드를 전부 통과한다 — 실제로 그렇게 새어나갔다:
+// 앱 로그인 유저의 아티클 좋아요가 웹뷰 로컬 익명 계정으로 기록됐고(Slack "제보자: 익명"),
+// 같은 클릭이 GA 에는 진짜 userId 로 남아 표면 간 신원이 어긋났다.
+// 그래서 구조 불변식이 아니라 스크립트를 **실제로 평가해** 검증한다
+// (하네스 형태는 scripts/__tests__/articles-instrumentation.test.js 와 동일).
+describe('하트 좋아요 신원', () => {
+  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+  const fakeEl = () => ({
+    hidden: false,
+    className: '',
+    textContent: '',
+    handlers: {},
+    addEventListener(type, fn) {
+      this.handlers[type] = fn;
+    },
+    setAttribute() {},
+  });
+
+  /**
+   * 인라인 하트 JS 를 vm 에서 평가하고 하트를 한 번 눌러, 나간 fetch 를 전부 수집한다.
+   * @param injected `window.__SCC_APP_AUTH__` (undefined = 브라우저, 주입 없음)
+   * @param stored   localStorage 초기값
+   */
+  const clickHeart = async ({injected, stored = {}} = {}) => {
+    const js = articleJs('test-slug').replace(/<script[^>]*>|<\/script>/g, '');
+    const requests = [];
+    const nodes = {
+      'cta-heart': fakeEl(),
+      'cta-share': fakeEl(),
+      'cta-heart-on': fakeEl(),
+      'cta-heart-off': fakeEl(),
+      'cta-toast': fakeEl(),
+    };
+    const store = {...stored};
+    const localStorage = {
+      getItem: k => (k in store ? store[k] : null),
+      setItem: (k, v) => {
+        store[k] = String(v);
+      },
+      removeItem: k => {
+        delete store[k];
+      },
+    };
+    const document = {
+      getElementById: id => nodes[id] || null,
+      querySelectorAll: () => [],
+    };
+    const win = {addEventListener() {}};
+    if (injected !== undefined) win.__SCC_APP_AUTH__ = injected;
+    const fetchMock = (url, init) => {
+      requests.push({url, headers: init.headers});
+      const body = url.endsWith('/createAnonymousUser')
+        ? {authTokens: {accessToken: 'minted-anon-token'}, userId: 'anon-1'}
+        : {upvoteSummary: {totalCount: 0, isUpvoted: false}};
+      return Promise.resolve({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve(body),
+      });
+    };
+
+    vm.runInNewContext(js, {
+      window: win,
+      document,
+      localStorage,
+      fetch: fetchMock,
+      setTimeout,
+    });
+    await flush(); // 초기 상태 조회
+    nodes['cta-heart'].handlers.click();
+    await flush(); // 좋아요 요청 (익명 발급 체인 포함)
+    return {requests, store};
+  };
+
+  const authOf = (requests, path) =>
+    requests.find(r => r.url.endsWith(path)).headers.Authorization;
+  const called = (requests, path) => requests.some(r => r.url.endsWith(path));
+
+  // 이번 버그의 회귀 테스트.
+  test('앱 주입 토큰이 있으면 그 유저로 좋아요한다 (익명 계정을 만들지 않는다)', async () => {
+    const {requests} = await clickHeart({
+      injected: {
+        token: 'app-token',
+        baseUrl: '',
+        isAnonymous: false,
+        userId: 'u1',
+      },
+    });
+    expect(authOf(requests, '/giveUpvote')).toBe('Bearer app-token');
+    expect(called(requests, '/createAnonymousUser')).toBe(false);
+    // 상태 조회도 같은 신원이어야 한다 — 아니면 하트가 남의 상태로 그려진다
+    expect(authOf(requests, '/getSccContentDetails')).toBe('Bearer app-token');
+  });
+
+  // 웹뷰 localStorage 는 세션 간 살아남는다. 앱이 로그아웃을 주입했는데 옛 scc-token 으로
+  // 폴백하면 로그아웃한 계정 명의로 좋아요가 남는다 (split-brain).
+  test('앱이 로그아웃을 주입하면 웹뷰에 남은 scc-token 으로 폴백하지 않는다', async () => {
+    const {requests} = await clickHeart({
+      injected: {token: null, baseUrl: '', isAnonymous: false, userId: null},
+      stored: {'mmkv.default.scc-token': JSON.stringify('stale-spa-token')},
+    });
+    expect(authOf(requests, '/giveUpvote')).toBe('Bearer minted-anon-token');
+    expect(called(requests, '/createAnonymousUser')).toBe(true);
+  });
+
+  test('주입이 없으면(브라우저) 기존대로 localStorage 토큰을 쓴다', async () => {
+    const {requests} = await clickHeart({
+      stored: {'mmkv.default.scc-token': JSON.stringify('spa-token')},
+    });
+    expect(authOf(requests, '/giveUpvote')).toBe('Bearer spa-token');
+    expect(called(requests, '/createAnonymousUser')).toBe(false);
+  });
+
+  test('주입도 저장된 토큰도 없으면 익명 정체성을 재사용한다', async () => {
+    const {requests, store} = await clickHeart({
+      stored: {anonymousAccessToken: 'cached-anon-token'},
+    });
+    expect(authOf(requests, '/giveUpvote')).toBe('Bearer cached-anon-token');
+    // 캐시가 있으면 새로 발급하지 않는다 — give/cancel 이 다른 유저가 되면 취소가 no-op
+    expect(called(requests, '/createAnonymousUser')).toBe(false);
+    expect(store.anonymousAccessToken).toBe('cached-anon-token');
+  });
+
+  // 토큰과 API 서버가 어긋나면 401 → 조용한 익명 폴백이라 sandbox 에서 검증이 불가능해진다.
+  test('주입 baseUrl 로 요청을 보낸다', async () => {
+    const {requests} = await clickHeart({
+      injected: {
+        token: 'app-token',
+        baseUrl: 'https://api.dev.example',
+        userId: 'u1',
+      },
+    });
+    expect(requests.length).toBeGreaterThan(0);
+    for (const r of requests)
+      expect(r.url.startsWith('https://api.dev.example/')).toBe(true);
+  });
+
+  test('SPA 토큰 키에는 여전히 쓰지 않는다', async () => {
+    const {store} = await clickHeart({
+      injected: {token: 'app-token', baseUrl: '', userId: 'u1'},
+    });
+    expect(Object.keys(store)).not.toContain('mmkv.default.scc-token');
   });
 });
