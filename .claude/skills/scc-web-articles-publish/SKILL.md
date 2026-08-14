@@ -146,6 +146,7 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 - `web-articles/{slug}/`(커밋본)과 `web-dist/articles/`(배포용) + 목록/sitemap/robots/llms 동시 갱신.
 - **빌드 후 에셋 유실을 반드시 확인한다** — `git status --porcelain web-articles | grep '^ D'` 가 비어야 커밋한다. 빌드 로그의 `⚠️ 다운로드 실패` / `♻️ 기존 에셋 유지` 도 함께 읽는다. (사고: `--force` 재빌드가 콜아웃 아이콘 2개를 prod 에서 지웠다. 지금은 `reuseExistingAsset` 가 막지만, 새 에셋 경로를 추가하면 이 확인이 유일한 그물이다.)
 - **렌더러/템플릿을 고쳤으면 `--force`(전체) 대신 `--only a,b,c`로 단계적 롤아웃**을 고려한다. 지정 slug만 재생성하고 나머지는 커밋된 HTML 그대로 두므로, 39개 전체를 한 번에 갈아엎지 않고 최근 글부터 검증할 수 있다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
+- **`--force` 전체 재생성은 20분 넘게 걸린다 → 반드시 `claude-bg`로 띄운다** (`bash .claude/hooks/lib/claude-bg.sh bash <script>`). Bash 도구는 foreground/background 모두 10분에 kill 되는데, **중간에 죽으면 트리가 깨진 채로 남는다**: `pruneUnusedAssets`가 썸네일을 지운 뒤 `ensureThumbnails`가 다시 만들기 전 구간에서 끊기면 `assets/thumb-0.webp` 23개가 삭제 상태로 남는다. 복구는 같은 빌드를 끝까지 다시 돌리면 된다(멱등). (2026-08-14 실측)
 - **`--offline` 은 템플릿을 안 탄다**(커밋된 HTML 복사만) → `--force`/`--only` 와의 조합은 스크립트가 거부한다. 템플릿 수정 반영은 로그가 아니라 산출물 grep 으로 판정한다: `grep -rl '<마커>' web-articles/ | wc -l` 이 상세페이지 수와 같아야 한다.
 - **`--dry` 보다 `git fetch origin main` 이 먼저다.** 로컬이 뒤처져 있으면 dry-run 이 "신규"라고 찍는 글이 **이미 main·prod 에 나가 있는 글**일 수 있다. 그걸 남의 미발행 원고로 오해해 `--only` 로 빼면, 템플릿 수정이 그 글에만 반영 안 된 채 배포된다(2026-08-13 실제로 그렇게 판단해 7커밋 뒤처진 베이스로 빌드했다). 순서: `git fetch && git status` → 뒤처졌으면 pull → `--dry`.
 - **Notion 붙은 빌드 전에 `--dry`**: `신규/변경 0` 이어야 남의 Notion 편집이 함께 발행되지 않는다.
@@ -165,6 +166,12 @@ npx serve web-dist -l 5050      # `-s` 금지: SPA 폴백이 /articles/<slug>를
 - 같은 스윕을 STEP 7 배포 후 prod origin에서 한 번 더 돌린다(캐시·리라이트까지 포함해 검증).
 
 ### STEP 5 — 커밋 + PR
+- **커밋 직전에 `git fetch origin main` 을 다시 하고, 그 사이 `scripts/article-template.js`(또는 렌더러)가 움직였는지 본다.** STEP 1의 "origin/main 최신화 먼저"는 빌드 **시작** 시점 규칙이라, 20분 넘는 `--force` 재생성 동안 main 이 앞서가면 못 잡는다. 생성 HTML 은 **내 로컬 템플릿의 산출물**이므로, 그 사이 남이 템플릿을 고쳤으면 내 재생성본이 그 수정을 **41개 글 전체에서 조용히 되돌린다** — diff 가 생성물이라 리뷰에서도 눈에 안 띈다.
+  ```bash
+  git fetch origin main -q
+  git diff HEAD origin/main -- scripts/article-template.js scripts/build-articles.js   # 비어야 그대로 커밋 가능
+  ```
+  비어있지 않으면 → 생성물은 버리고(`git checkout -- web-articles`), 내 **소스 변경만** origin/main 위로 옮긴 뒤(`git stash push -- scripts` → 분기 → `stash pop`) **재생성을 다시 돌린다.** 검증은 두 수정이 산출물에 **동시에** 들어갔는지 grep 으로 한다(`grep -rl '<내 마커>' web-articles | wc -l` 과 `grep -rl '<남의 마커>' …` 이 둘 다 상세페이지 수와 같아야 한다). (2026-08-14: `dca735d` 카카오 CTA 수정을 되돌릴 뻔했다)
 - **먼저 브랜치를 확인한다.** 발행 작업은 무관한 feature 브랜치 위에서 시작되기 십상이다(`git branch --show-current`). `git fetch origin main && git checkout -b <branch> origin/main`으로 분기하면 워킹트리의 발행본은 그대로 따라온다(`web-articles/`·`scripts/`는 보통 feature 브랜치와 겹치지 않음).
 - `web-articles/`(manifest + 생성 HTML + 에셋)를 커밋&푸시. (`web-dist/`는 gitignore라 커밋 안 됨)
 - `gh pr create --base main`으로 PR 생성.
