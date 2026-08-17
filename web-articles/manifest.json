@@ -443,6 +443,39 @@
     "ctaLabel": "",
     "thumbnail": "/articles/cgv-imax-wheelchair-seats/assets/thumb-0.webp"
   },
+  "35dc9499-b060-80d2-93f0-d3c75abd9850": {
+    "slug": "diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility",
+    "title": "[인천] 한중문화관",
+    "summary": "인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T13:41:00.000Z",
+    "publishedAt": "2026-07-01T04:58:00.000Z",
+    "editedTime": "2026-05-18T01:31:00.000Z",
+    "contentPageId": "35dc9499-b060-80d2-93f0-d3c75abd9850",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "35dc9499-b060-8064-8145-c6e07bf2e05a": {
+    "slug": "diaspora-film-festival-accessibility/incheon-art-platform-accessibility",
+    "title": "[인천] 인천아트플랫폼",
+    "summary": "인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T13:22:00.000Z",
+    "publishedAt": "2026-07-01T04:58:00.000Z",
+    "editedTime": "2026-05-18T00:47:00.000Z",
+    "contentPageId": "35dc9499-b060-8064-8145-c6e07bf2e05a",
+    "parent": "diaspora-film-festival-accessibility"
+  },
+  "35dc9499-b060-8056-af99-f75c33a6f408": {
+    "slug": "diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility",
+    "title": "[인천] 애관극장",
+    "summary": "인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.",
+    "image": "/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/assets/img-0.png",
+    "createdTime": "2026-05-11T08:55:00.000Z",
+    "publishedAt": "2026-07-01T04:58:00.000Z",
+    "editedTime": "2026-05-19T05:25:00.000Z",
+    "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
+    "parent": "diaspora-film-festival-accessibility"
+  },
   "19ec9499-b060-80c9-aa97-ea403e6db509": {
     "slug": "disabled-call-taxi-guide/gwangju-disabled-call-taxi",
     "title": "광주광역시 콜택시",
@@ -574,38 +607,5 @@
     "editedTime": "2024-10-07T14:56:00.000Z",
     "contentPageId": "a3ec15d8-ffc3-408f-9bc7-6de1a4c30868",
     "parent": "disabled-call-taxi-guide"
-  },
-  "35dc9499-b060-80d2-93f0-d3c75abd9850": {
-    "slug": "diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility",
-    "title": "[인천] 한중문화관",
-    "summary": "인천 한중문화관은 이동약자에게 추천하는 접근성 좋은 공간으로, 4층 공연장에 휠체어석 2석(전용 출입문 폭 150cm)이 있고 1~4층 동일 위치에 장애인화장실, 지하 1층에 장애인 주차구역 4면이 마련돼 있습니다.",
-    "image": "/articles/diaspora-film-festival-accessibility/incheon-hanjung-cultural-center-accessibility/assets/img-0.png",
-    "createdTime": "2026-05-11T13:41:00.000Z",
-    "publishedAt": "2026-07-01T04:58:00.000Z",
-    "editedTime": "2026-05-18T01:31:00.000Z",
-    "contentPageId": "35dc9499-b060-80d2-93f0-d3c75abd9850",
-    "parent": "diaspora-film-festival-accessibility"
-  },
-  "35dc9499-b060-8064-8145-c6e07bf2e05a": {
-    "slug": "diaspora-film-festival-accessibility/incheon-art-platform-accessibility",
-    "title": "[인천] 인천아트플랫폼",
-    "summary": "인천아트플랫폼은 단차 없는 야외 개방형 구조로 휠체어 접근성이 좋으며, C동·E1·G1·G3 전시/상영 공간 모두 휠체어 진입이 가능하고 자동문 야외 장애인화장실(폭 90cm, 안전바·비상벨 구비)을 이용할 수 있습니다.",
-    "image": "/articles/diaspora-film-festival-accessibility/incheon-art-platform-accessibility/assets/img-0.png",
-    "createdTime": "2026-05-11T13:22:00.000Z",
-    "publishedAt": "2026-07-01T04:58:00.000Z",
-    "editedTime": "2026-05-18T00:47:00.000Z",
-    "contentPageId": "35dc9499-b060-8064-8145-c6e07bf2e05a",
-    "parent": "diaspora-film-festival-accessibility"
-  },
-  "35dc9499-b060-8056-af99-f75c33a6f408": {
-    "slug": "diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility",
-    "title": "[인천] 애관극장",
-    "summary": "인천 애관극장은 휠체어 진입이 주차장 후문으로만 가능하고 1·4·5관에만 휠체어석이 있어 방문 전 사전 예매·스태프 문의가 필수이며, 장애인화장실 상태가 열악해 동인천역 화장실 이용을 권장합니다.",
-    "image": "/articles/diaspora-film-festival-accessibility/incheon-aegwan-theater-accessibility/assets/img-0.png",
-    "createdTime": "2026-05-11T08:55:00.000Z",
-    "publishedAt": "2026-07-01T04:58:00.000Z",
-    "editedTime": "2026-05-19T05:25:00.000Z",
-    "contentPageId": "35dc9499-b060-8056-af99-f75c33a6f408",
-    "parent": "diaspora-film-festival-accessibility"
   }
 }
