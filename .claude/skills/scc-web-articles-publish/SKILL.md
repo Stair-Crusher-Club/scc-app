@@ -146,15 +146,16 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 - `web-articles/{slug}/`(커밋본)과 `web-dist/articles/`(배포용) + 목록/sitemap/robots/llms 동시 갱신.
 - **빌드 후 에셋 유실을 반드시 확인한다** — `git status --porcelain web-articles | grep '^ D'` 가 비어야 커밋한다. 빌드 로그의 `⚠️ 다운로드 실패` / `♻️ 기존 에셋 유지` 도 함께 읽는다. (사고: `--force` 재빌드가 콜아웃 아이콘 2개를 prod 에서 지웠다. 지금은 `reuseExistingAsset` 가 막지만, 새 에셋 경로를 추가하면 이 확인이 유일한 그물이다.)
 - **렌더러/템플릿을 고쳤으면 `--force`(전체) 대신 `--only a,b,c`로 단계적 롤아웃**을 고려한다. 지정 slug만 재생성하고 나머지는 커밋된 HTML 그대로 두므로, 39개 전체를 한 번에 갈아엎지 않고 최근 글부터 검증할 수 있다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
-- **`--force` 전체 재생성은 20분 넘게 걸린다 → 반드시 `claude-bg`로 띄운다** (`bash .claude/hooks/lib/claude-bg.sh bash <script>`). Bash 도구는 foreground/background 모두 10분에 kill 되는데, **중간에 죽으면 트리가 깨진 채로 남는다**: `pruneUnusedAssets`가 썸네일을 지운 뒤 `ensureThumbnails`가 다시 만들기 전 구간에서 끊기면 `assets/thumb-0.webp` 23개가 삭제 상태로 남는다. 복구는 같은 빌드를 끝까지 다시 돌리면 된다(멱등). (2026-08-14 실측)
+- **`--force` 전체 재생성은 20분 넘게 걸린다 → 반드시 `claude-bg`로 띄운다** (`bash ../.claude/hooks/lib/claude-bg.sh bash <script>` — cwd 가 `scc-app/` 이라 `../`). Bash 도구는 foreground/background 모두 10분에 kill 되는데, **중간에 죽으면 트리가 깨진 채로 남는다**: `pruneUnusedAssets`가 썸네일을 지운 뒤 `ensureThumbnails`가 다시 만들기 전 구간에서 끊기면 `assets/thumb-0.webp` 23개가 삭제 상태로 남는다. 복구는 같은 빌드를 끝까지 다시 돌리면 된다(멱등). (2026-08-14 실측)
 - **`--offline` 은 템플릿을 안 탄다**(커밋된 HTML 복사만) → `--force`/`--only` 와의 조합은 스크립트가 거부한다. 템플릿 수정 반영은 로그가 아니라 산출물 grep 으로 판정한다: `grep -rl '<마커>' web-articles/ | wc -l` 이 상세페이지 수와 같아야 한다.
 - **`--dry` 보다 `git fetch origin main` 이 먼저다.** 로컬이 뒤처져 있으면 dry-run 이 "신규"라고 찍는 글이 **이미 main·prod 에 나가 있는 글**일 수 있다. 그걸 남의 미발행 원고로 오해해 `--only` 로 빼면, 템플릿 수정이 그 글에만 반영 안 된 채 배포된다(2026-08-13 실제로 그렇게 판단해 7커밋 뒤처진 베이스로 빌드했다). 순서: `git fetch && git status` → 뒤처졌으면 pull → `--dry`.
 - **Notion 붙은 빌드 전에 `--dry`**: `신규/변경 0` 이어야 남의 Notion 편집이 함께 발행되지 않는다.
 
 ### STEP 4 — 시각 검증 (E2E)
 ```bash
-npx serve web-dist -l 5050      # `-s` 금지: SPA 폴백이 /articles/<slug>를 /login으로 가로챈다
+bash ../.claude/hooks/lib/claude-bg.sh npx serve web-dist -l 5050   # `-s` 금지: SPA 폴백이 /articles/<slug>를 /login으로 가로챈다
 ```
+> **★ 맨손 `npx serve … &` 금지** — H1 훅은 "이 세션이 띄운 프로세스"만 kill 을 허용하는데, 그 판정은 claude-bg 추적에 의존한다. (경로가 `../` 인 이유: 이 STEP 들의 cwd 는 `scc-app/` 이고 `claude-bg.sh` 는 워크스페이스 루트에만 있다.) bare `&` 로 띄우면 **내가 띄운 서버를 내가 못 죽여** 세션 정리 때 포트가 남는다(2026-08-14 실측: 5050·5052·5054 3개 잔류).
 - Playwright/브라우저로 `/articles`, 변경된 `/articles/{slug}` 접속 → callout/toggle/이미지/표가 정상인지 확인.
 - HTML 소스에 title/description/canonical/OG/JSON-LD 존재 확인. [Google Rich Results Test]로 Article/FAQPage 검증.
 - **전 페이지 자동 스윕(MANDATORY)** — 눈으로 몇 개만 보면 놓친다. `/articles`에 접속한 뒤 sitemap의 전 URL을 420px iframe에 순차 로드해 한 번에 판정한다(같은 origin이라 `contentDocument` 접근 가능). 실제로 이 스윕이 표 가로넘침·유실된 tab 본문·생 URL 앵커 3건을 잡았다:
@@ -162,7 +163,18 @@ npx serve web-dist -l 5050      # `-s` 금지: SPA 폴백이 /articles/<slug>를
   // 판정: scrollWidth > clientWidth(가로 넘침) / naturalWidth===0(깨진 이미지) /
   //       앵커 텍스트가 생 URL / article 텍스트 길이 200자 미만(본문 유실) /
   //       외부 절대 URL 앵커에 target="_blank" 누락 · 내부(/,#) 앵커에 target="_blank" 오부착
+  //
+  // ★ 오탐 2종을 반드시 보정한다 (안 하면 42페이지 중 42페이지가 "깨졌다"고 나온다):
+  //  (a) 깨진 이미지: 본문 img 는 loading="lazy" 라 화면 밖 iframe 에선 **영원히 안 로드**돼
+  //      naturalWidth===0 이 된다 → 판정 전에 `img.loading='eager'` 로 바꾸고
+  //      `await Promise.all([...d.images].map(i => i.decode().catch(()=>{})))` 로 기다린다.
+  //  (b) 가로 넘침: 표는 .tbl-wrap/.db-wrap 안에서 **스크롤되는 게 정상**이다 →
+  //      조상 중 overflow-x:auto|scroll 이 있으면 제외하고, 페이지 레벨은
+  //      documentElement.scrollWidth > clientWidth 로만 판정한다.
   ```
+  > **★ 스윕 결과는 그 자체로 결함 목록이 아니다** — 오탐 보정 전 42건은 전부 lazy-load 아티팩트였다.
+  > 각 건을 `curl`+`file -b`(실제 바이트) 로 대조해야 결함이다. 이 대조가 실제로 **HEIC 49 + HTML 1 = 50건의
+  > 진짜 깨진 이미지**를 골라냈다(2026-08-14). 반대로 보정 없이 믿었으면 진짜 50건이 오탐 392건에 묻혔다.
 - 같은 스윕을 STEP 7 배포 후 prod origin에서 한 번 더 돌린다(캐시·리라이트까지 포함해 검증).
 
 ### STEP 5 — 커밋 + PR
@@ -194,7 +206,7 @@ git fetch origin main && git rev-parse HEAD origin/main   # 두 해시가 같아
 ```bash
 yarn web:build                                   # ① SPA + bbucle prerender + sitemap + articles(--offline 재조립)
 NOTION_TOKEN=... node scripts/build-articles.js --db <id>   # ② articles를 web-dist에 다시 채움 + sitemap 머지
-npx serve web-dist -l 5052                       # ③ 로컬 확인 (MANDATORY). `-s`는 금지 —
+bash ../.claude/hooks/lib/claude-bg.sh npx serve web-dist -l 5052   # ③ 로컬 확인 (MANDATORY). `-s`는 금지 —
                                                  #    SPA 폴백이 /articles/<slug>를 가로채 /login으로 보낸다
 aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무효화
 ```
