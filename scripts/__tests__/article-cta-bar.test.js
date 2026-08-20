@@ -105,32 +105,39 @@ describe('CTA 바 렌더', () => {
   });
 
   // 사용자 피드백(2026-08-13): 카카오로 들어온 뒤 다른 글로 넘어가면 CTA 가 '채널추가'로
-  // 되돌아갔다. 분기 판정을 세션에 남겨 탭이 살아있는 동안 유지한다.
+  // 되돌아갔다 → 분기 판정을 세션에 남긴다.
+  // 사용자 피드백(2026-08-20): 그 세션 값이 신규 접속에까지 붙어, 파라미터 없이 들어와도
+  // 계속 콘텐츠 CTA 가 떴다 → 세션 값을 물려받는 건 **동일출처 referrer(내부 이동)** 일
+  // 때만으로 좁히고, 신규 접속은 URL 로 다시 판정하며 세션 값을 지운다.
   // 인라인 스크립트라 실행 테스트가 어려운 다른 케이스들과 달리, 이 스니펫은 전역 3개만
   // 참조하므로 실제로 돌려서 검증한다.
-  describe('카카오 유입 분기는 세션 동안 유지된다', () => {
+  describe('카카오 유입 분기 — 내부 이동은 유지, 신규 접속은 재판정', () => {
+    const ORIGIN = 'https://web.staircrusher.club';
+    const INTERNAL = `${ORIGIN}/articles/some-other-article`;
+    const EXTERNAL = 'https://www.google.com/';
+
     // <head> 인라인 스크립트를 꺼내 stub 전역으로 실행한다.
-    const run = (search, store, throwing = false) => {
+    const run = (search, store, {referrer = '', throwing = false} = {}) => {
       const body = /<script>(\(function\(\)\{var k=[\s\S]*?)<\/script>/.exec(
         article(),
       )[1];
+      const boom = () => {
+        throw new Error('SecurityError');
+      };
       const ss = throwing
-        ? {
-            getItem() {
-              throw new Error('SecurityError');
-            },
-            setItem() {
-              throw new Error('SecurityError');
-            },
-          }
+        ? {getItem: boom, setItem: boom, removeItem: boom}
         : {
             getItem: k => (k in store ? store[k] : null),
             setItem: (k, v) => {
               store[k] = v;
             },
+            removeItem: k => {
+              delete store[k];
+            },
           };
       let attr = null;
       const doc = {
+        referrer,
         documentElement: {
           setAttribute: (k, v) => {
             attr = `${k}=${v}`;
@@ -139,7 +146,7 @@ describe('CTA 바 렌더', () => {
       };
       // 스니펫이 참조하는 전역 3개만 sandbox 로 넣어준다.
       require('vm').runInNewContext(body, {
-        location: {search},
+        location: {search, origin: ORIGIN},
         sessionStorage: ss,
         document: doc,
       });
@@ -152,21 +159,49 @@ describe('CTA 바 렌더', () => {
       expect(store.sccFromKakao).toBe('1');
     });
 
-    test('같은 세션의 다음 글은 쿼리가 없어도 분기가 유지된다', () => {
+    // 2026-08-13 회귀 방지 행
+    test('카카오 진입 후 내부 이동은 쿼리가 없어도 분기가 유지된다', () => {
       const store = {};
       run('?from=kakao', store);
-      expect(run('', store)).toBe('data-cta=list');
+      expect(run('', store, {referrer: INTERNAL})).toBe('data-cta=list');
+    });
+
+    // 2026-08-20 수정 대상 행
+    test('같은 탭이라도 신규 접속(referrer 없음)이면 플친 가입 CTA 로 되돌아간다', () => {
+      const store = {};
+      run('?from=kakao', store);
+      expect(run('', store)).toBe(null);
+      // 재판정이 세션 값까지 비워, 이후 내부 이동도 카카오로 오인하지 않는다
+      expect(store.sccFromKakao).toBeUndefined();
+      expect(run('', store, {referrer: INTERNAL})).toBe(null);
+    });
+
+    test('외부 사이트에서 넘어온 경우도 신규 접속으로 재판정한다', () => {
+      const store = {};
+      run('?from=kakao', store);
+      expect(run('', store, {referrer: EXTERNAL})).toBe(null);
     });
 
     test('새 세션에서 쿼리 없이 들어오면 플친 가입 CTA 다', () => {
       expect(run('', {})).toBe(null);
       // 검색 유입에 다른 파라미터만 붙은 경우도 마찬가지
       expect(run('?utm_source=google', {})).toBe(null);
+      // 내부 이동이어도 세션 값이 없으면 카카오가 아니다
+      expect(run('', {}, {referrer: INTERNAL})).toBe(null);
+    });
+
+    test('출처가 우리 도메인을 접두사로만 흉내낸 경우는 내부 이동이 아니다', () => {
+      const store = {};
+      run('?from=kakao', store);
+      expect(
+        run('', store, {referrer: 'https://web.staircrusher.club.evil.com/x'}),
+      ).toBe(null);
     });
 
     test('sessionStorage 가 막힌 환경에서도 URL 판정은 살아있다', () => {
-      expect(run('?from=kakao', {}, true)).toBe('data-cta=list');
-      expect(run('', {}, true)).toBe(null);
+      expect(run('?from=kakao', {}, {throwing: true})).toBe('data-cta=list');
+      expect(run('', {}, {throwing: true})).toBe(null);
+      expect(run('', {}, {referrer: INTERNAL, throwing: true})).toBe(null);
     });
   });
 
