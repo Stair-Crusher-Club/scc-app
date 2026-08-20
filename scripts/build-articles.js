@@ -19,6 +19,7 @@
  * 사용: NOTION_TOKEN=secret node scripts/build-articles.js --db <database_id> [--dry]
  */
 
+const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -65,6 +66,9 @@ const ONLY = (arg('only') || '')
 // → yarn web:build가 이걸 돌려, 앱 웹 배포 시에도 web-dist에 /articles가 항상 포함된다
 //   (web-deploy.sh의 `sync --delete`가 /articles를 지우지 않게 하는 구조적 안전장치).
 const OFFLINE = process.argv.includes('--offline');
+// rerender: 템플릿을 다시 타지만 렌더 입력은 디스크 캐시에서만 읽는다(Notion 무접속).
+// 상세 근거는 아래 "렌더 입력 디스크 캐시" 블록 참조.
+const RERENDER = process.argv.includes('--rerender');
 // --offline 은 article-template.js 를 호출하지 않고 커밋된 HTML 을 복사만 한다.
 // 따라서 --force/--only(= "템플릿 바꿨으니 다시 렌더해라") 와 조합하면 의미가 상충하고,
 // 성공 로그만 보고 "반영됐다"고 착각하게 된다. 조합 자체를 거부한다.
@@ -77,11 +81,21 @@ if (OFFLINE && (FORCE || ONLY.length) && require.main === module) {
   );
   process.exit(1);
 }
+// --rerender 는 --offline 과 달리 템플릿을 다시 탄다(= 템플릿 수정 반영됨). 대신 렌더 입력을
+// 디스크 캐시에서만 읽어 Notion 을 안 탄다. 둘을 같이 주면 어느 쪽이 이기는지 불분명하다.
+if (OFFLINE && RERENDER && require.main === module) {
+  console.error(
+    '❌ --offline 과 --rerender 는 함께 쓸 수 없습니다.\n' +
+      '   --offline = 커밋된 HTML 복사만(템플릿 안 탐) / --rerender = 캐시로 템플릿만 재적용.',
+  );
+  process.exit(1);
+}
 // require.main 가드: 테스트에서 require 할 때 인자 검증으로 process.exit 하면 안 된다.
 if (!OFFLINE && require.main === module) {
-  if (!TOKEN) {
+  // --rerender 는 네트워크를 안 타므로 토큰이 필요 없다(--db 는 캐시 키를 만들 때 쓴다).
+  if (!TOKEN && !RERENDER) {
     console.error(
-      '❌ NOTION_TOKEN 환경변수가 필요합니다. (배포용 재조립만이면 --offline)',
+      '❌ NOTION_TOKEN 환경변수가 필요합니다. (배포용 재조립만이면 --offline, 템플릿만 다시 찍으려면 --rerender)',
     );
     process.exit(1);
   }
@@ -115,7 +129,75 @@ async function fetchWithTimeout(url, opts = {}, ms = 25000, tries = 3) {
   }
   throw lastErr;
 }
+// ---------- 렌더 입력 디스크 캐시 (--rerender 용) ----------
+// 왜: 템플릿/CSS/인라인JS 만 고쳐도 예전엔 --force 로 전 페이지 블록을 Notion 에서 다시
+// 받아야 했다(42페이지 20분+, 그동안 외부 OG/썸네일 transient 실패에 그대로 노출).
+// 렌더 입력(공식 API 응답·v3 레이아웃·북마크 OG)을 디스크에 남겨두면 Notion 무접속으로
+// 템플릿만 다시 찍을 수 있다. 캐시 경계를 네트워크 진입점 4곳에 두므로 렌더 코드는 그대로다.
+//
+// 캐시는 **gitignore** 다(2026-08-20 결정) — 레포 용량을 안 쓰는 대신, 새 클론에서는
+// --rerender 전에 --force 가 1회 선행돼야 한다. 캐시가 없으면 조용히 낡은 결과를 내지 않고
+// 그 slug 를 건너뛰고 --force 를 안내한다(--offline 착각 사고 2026-08-07 의 재발 방지).
+const CACHE_DIR = path.join(__dirname, '..', '.articles-cache');
+const CACHE_V = 1; // 렌더 입력 구조가 바뀌면 올려 캐시를 자동 무효화한다
+const cacheMisses = [];
+
+function cacheFile(kind, key) {
+  const h = crypto.createHash('sha1').update(key).digest('hex');
+  return path.join(CACHE_DIR, `${kind}-${h}.json`);
+}
+function cacheRead(kind, key) {
+  const f = cacheFile(kind, key);
+  if (!fs.existsSync(f)) return undefined;
+  try {
+    const j = JSON.parse(fs.readFileSync(f, 'utf8'));
+    return j.v === CACHE_V ? j.data : undefined;
+  } catch {
+    return undefined; // 깨진 캐시는 미스로 취급한다
+  }
+}
+function cacheWrite(kind, key, data) {
+  try {
+    fs.mkdirSync(CACHE_DIR, {recursive: true});
+    fs.writeFileSync(cacheFile(kind, key), JSON.stringify({v: CACHE_V, data}));
+  } catch (e) {
+    // 캐시 실패로 빌드를 죽이지 않는다 — 다음 --rerender 가 미스로 잡아 --force 를 안내한다
+    console.warn(`  ⚠️ 캐시 기록 실패(${kind}): ${e.message}`);
+  }
+}
+// --rerender 에서 캐시에 없는 입력을 만났을 때.
+// 렌더 도중에 터지면 prepareArticleDir 이 이미 index.html 을 지운 상태라 그 페이지가 빈 채로
+// 남는다. 그래서 아래 hasRenderCache 로 **디렉토리를 건드리기 전에** 걸러내고, 그래도 새는
+// 경우(중첩 블록·자식 DB row)는 여기서 치명 처리해 조용한 반쪽 산출물을 만들지 않는다.
+// 복구는 같은 --force 를 끝까지 다시 돌리면 된다(멱등).
+function cacheMiss(kind, key) {
+  const e = new Error(
+    `--rerender: 캐시에 없는 입력 (${kind}: ${key.slice(0, 80)})\n` +
+      `   이 slug 는 캐시가 불완전합니다 — NOTION_TOKEN 을 주고 --force 로 다시 받으세요.`,
+  );
+  e.__cacheMiss = {kind, key};
+  throw e;
+}
+// 사전 점검: 이 페이지의 **최상위** 렌더 입력 2개가 캐시에 있는지. fetchChildren 이 재귀로
+// 전체 트리를 한 번에 받아 캐시하므로, 이 둘이 있으면 본문 블록은 통째로 있다.
+function hasRenderCache(contentPageId) {
+  const childrenKey = `GET blocks/${contentPageId}/children?page_size=100 `;
+  return (
+    cacheRead('api', childrenKey) !== undefined &&
+    cacheRead('layout', contentPageId) !== undefined
+  );
+}
+
 async function api(method, p, body) {
+  const isRead = method === 'GET' || /\/query$/.test(p);
+  const key = `${method} ${p} ${body ? JSON.stringify(body) : ''}`;
+  if (RERENDER) {
+    // 쓰기(publishedAt 스탬프)는 재렌더에서 하지 않는다 — Notion 을 건드리지 않는 모드다
+    if (!isRead) return {};
+    const hit = cacheRead('api', key);
+    if (hit === undefined) cacheMiss('api', key);
+    return hit;
+  }
   const res = await fetchWithTimeout(`https://api.notion.com/v1/${p}`, {
     method,
     headers: H,
@@ -130,6 +212,7 @@ async function api(method, p, body) {
   const j = await res.json();
   if (j && j.object === 'error')
     throw new Error(`Notion ${j.code}: ${j.message}`);
+  if (isRead) cacheWrite('api', key, j);
   return j;
 }
 async function queryDb(dbId) {
@@ -169,6 +252,16 @@ async function fetchChildren(blockId) {
 // 반환: { img: {blockId → {w,ar,align,full}}, db: {dbBlockId → [{name,width}]}(뷰 순서) }
 const v3val = r => r && r.value && (r.value.value || r.value);
 async function fetchPageLayout(pageId) {
+  if (RERENDER) {
+    const hit = cacheRead('layout', pageId);
+    if (hit === undefined) cacheMiss('layout', pageId);
+    return hit;
+  }
+  const out = await fetchPageLayoutUncached(pageId);
+  cacheWrite('layout', pageId, out);
+  return out;
+}
+async function fetchPageLayoutUncached(pageId) {
   const img = {};
   const db = {};
   try {
@@ -393,6 +486,19 @@ const unent = s =>
     .trim();
 async function fetchOg(url) {
   if (OG_CACHE.has(url)) return OG_CACHE.get(url);
+  if (RERENDER) {
+    // OG 는 실패해도 카드가 URL 폴백으로 렌더되므로(정상 경로) 미스를 slug 스킵으로 올리지
+    // 않는다. 단 조용히 폴백하면 커밋된 HTML 에 있던 제목이 URL 로 되돌아갈 수 있으므로
+    // 반드시 경고한다 — 이게 뜨면 그 페이지는 --force 로 받아야 한다.
+    const hit = cacheRead('og', url);
+    if (hit === undefined)
+      console.warn(
+        `  ⚠️ --rerender: OG 캐시 없음(${url}) → 카드가 URL 폴백으로 렌더될 수 있음`,
+      );
+    const card = hit === undefined ? null : hit;
+    OG_CACHE.set(url, card);
+    return card;
+  }
   let card = null;
   try {
     const res = await fetchWithTimeout(
@@ -425,6 +531,7 @@ async function fetchOg(url) {
     console.warn(`  ⚠️ bookmark OG 조회 실패(${url}): ${e.message}`);
   }
   OG_CACHE.set(url, card);
+  cacheWrite('og', url, card);
   return card;
 }
 
@@ -554,6 +661,14 @@ function heifToJpeg(buf) {
 
 async function downloadImage(url, destDir, idx, prefix = 'img') {
   fs.mkdirSync(destDir, {recursive: true});
+  // --rerender 는 네트워크를 타지 않는다 — 커밋된 에셋을 그대로 재사용한다.
+  // (reuseExistingAsset 이 markUsed 까지 하므로 pruneUnusedAssets 가 지우지 않는다.)
+  // 없으면 그 slug 는 캐시가 불완전한 것이므로 --force 로 넘긴다.
+  if (RERENDER) {
+    const kept = reuseExistingAsset(destDir, idx, prefix);
+    if (!kept) cacheMiss('asset', `${prefix}-${idx} @ ${destDir}`);
+    return kept;
+  }
   let res;
   try {
     res = await fetchWithTimeout(url, {}, 30000, 2);
@@ -1682,7 +1797,24 @@ async function main() {
     return;
   }
 
-  console.log('📥 Notion DB 쿼리...');
+  // --rerender 는 캐시가 통째로 없을 때(새 클론 등)가 가장 흔한 실패다. 첫 DB 쿼리에서
+  // raw 스택을 뱉지 말고 무엇을 해야 하는지 알려준다.
+  if (
+    RERENDER &&
+    cacheRead('api', `POST databases/${DB_ID}/query {}`) === undefined
+  ) {
+    console.error(
+      '❌ --rerender: 렌더 입력 캐시가 없습니다.\n' +
+        `   캐시는 gitignore 라(${path.relative(ROOT, CACHE_DIR)}/) 새 클론에는 없습니다.\n` +
+        '   NOTION_TOKEN 을 주고 --force 로 1회 받으면 캐시가 채워지고, 이후 템플릿 수정은\n' +
+        '   --rerender 로 Notion 무접속·수십 초에 끝납니다.',
+    );
+    process.exit(1);
+  }
+
+  console.log(
+    RERENDER ? '💾 캐시에서 렌더 입력 로드...' : '📥 Notion DB 쿼리...',
+  );
   const allPages = await queryAllPages();
   // [WIP] 글은 파이프라인 진입 전에 걸러낸다. current에서도 빠지므로, 발행된 글에
   // 나중에 [WIP]를 붙이면 삭제 판정에 걸려 prod에서 내려간다.
@@ -1757,7 +1889,8 @@ async function main() {
 
   const changed = rows.filter(r => {
     if (ONLY.length) return ONLY.includes(r.meta.slug);
-    if (FORCE) return true;
+    // --rerender 는 "템플릿이 바뀌었다"는 뜻이므로 --force 와 같이 전 페이지를 다시 찍는다.
+    if (FORCE || RERENDER) return true;
     const prev = manifest[r.meta.rowId];
     return (
       !prev ||
@@ -1863,6 +1996,13 @@ async function main() {
     delete manifest[id];
   }
   for (const {meta, times} of changed) {
+    // --rerender 사전 점검: 캐시가 없으면 **디렉토리를 건드리기 전에** 건너뛴다.
+    // prepareArticleDir 가 index.html 을 먼저 지우므로, 렌더에 들어간 뒤 미스가 나면
+    // 그 페이지가 빈 채로 남는다. 여기서 걸러야 커밋본이 보존된다.
+    if (RERENDER && !hasRenderCache(meta.contentPageId)) {
+      cacheMisses.push(meta.slug);
+      continue;
+    }
     console.log(`  🔧 생성: ${meta.slug}  (${meta.title})`);
     // 이 부모의 기존 상세 페이지 manifest 엔트리 제거 후 재생성(스테일 방지)
     for (const k of Object.keys(manifest))
@@ -1906,6 +2046,17 @@ async function main() {
 
   const published = reassembleDist(manifest);
   console.log(`✅ 완료: 발행 ${published.length}건 → web-dist/articles/`);
+  // 조용히 넘어가면 "성공 로그만 보고 반영됐다고 착각"하는 --offline 함정이 그대로 재현된다.
+  // 스킵된 글은 커밋된 HTML 이 그대로 남아 있어(= 템플릿 변경 미반영) 산출물 grep 이 어긋난다.
+  if (cacheMisses.length) {
+    console.log(
+      `\n⚠️  --rerender 로 다시 찍지 못한 글 ${cacheMisses.length}건 (캐시 없음 — 커밋본 유지됨):\n` +
+        cacheMisses.map(s => `      - ${s}`).join('\n') +
+        `\n   템플릿 변경이 이 글들에는 **반영되지 않았습니다**. 다음 중 하나로 마무리하세요:\n` +
+        `      NOTION_TOKEN=... node scripts/build-articles.js --db <id> --only ${cacheMisses.join(',')}\n` +
+        `      NOTION_TOKEN=... node scripts/build-articles.js --db <id> --force   (전체, 캐시도 새로 채움)`,
+    );
+  }
 }
 
 if (require.main === module) {
@@ -1924,5 +2075,12 @@ if (require.main === module) {
     THUMB_NAME,
     isImage,
     isHeif,
+    // --rerender 캐시 레이어 (scripts/__tests__/build-articles-cache.test.js)
+    cacheRead,
+    cacheWrite,
+    cacheFile,
+    hasRenderCache,
+    CACHE_DIR,
+    CACHE_V,
   };
 }

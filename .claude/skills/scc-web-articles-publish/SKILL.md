@@ -78,7 +78,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
     채우는 3버킷 규칙은 STEP 2 참조.
     > **★ 재빌드 함정**: `featured`/`category`와 달리 CTA는 **상세 HTML 안에** 렌더된다. `reassembleDist`는
     > 이미 빌드된 `web-articles/<slug>/index.html`을 그대로 복사하므로, Notion에서 CTA만 고치면 **화면이
-    > 안 바뀐다**. `--only <slug>` 또는 `--force`로 그 글을 다시 렌더해야 한다. (manifest에는 감사용으로
+    > 안 바뀐다**. `--rerender`(캐시 있으면 수초) 또는 `--only <slug>`/`--force`로 그 글을 다시 렌더해야 한다. (manifest에는 감사용으로
     > 매번 동기화되므로, manifest 값과 HTML이 어긋나 있으면 재렌더가 안 된 것이다.)
 - **`published` 프로퍼티 없음** — 발행 여부 = `web-articles/manifest.json`에 존재하는지로 판단.
 
@@ -145,9 +145,16 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id>
 - 변경분만 블록 fetch + 이미지 다운로드(presigned 만료 대응 — 로컬 에셋으로 커밋) + HTML 생성.
 - `web-articles/{slug}/`(커밋본)과 `web-dist/articles/`(배포용) + 목록/sitemap/robots/llms 동시 갱신.
 - **빌드 후 에셋 유실을 반드시 확인한다** — `git status --porcelain web-articles | grep '^ D'` 가 비어야 커밋한다. 빌드 로그의 `⚠️ 다운로드 실패` / `♻️ 기존 에셋 유지` 도 함께 읽는다. (사고: `--force` 재빌드가 콜아웃 아이콘 2개를 prod 에서 지웠다. 지금은 `reuseExistingAsset` 가 막지만, 새 에셋 경로를 추가하면 이 확인이 유일한 그물이다.)
-- **렌더러/템플릿을 고쳤으면 `--force`(전체) 대신 `--only a,b,c`로 단계적 롤아웃**을 고려한다. 지정 slug만 재생성하고 나머지는 커밋된 HTML 그대로 두므로, 39개 전체를 한 번에 갈아엎지 않고 최근 글부터 검증할 수 있다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
+- **템플릿/CSS/인라인JS만 고쳤으면 `--force`가 아니라 `--rerender`다.** 렌더 입력(Notion 응답·v3 레이아웃·북마크 OG)을 디스크 캐시에서 읽어 **Notion 무접속으로 템플릿만 다시 찍는다** — 실측 42페이지 **1.3초** (`--force`는 20분+). 토큰도 필요 없다. Notion **본문이** 바뀐 게 아니면 `--force`를 쓰지 않는다.
+  ```bash
+  node scripts/build-articles.js --db <id> --rerender    # NOTION_TOKEN 불필요
+  ```
+  - 캐시는 **gitignore**(`.articles-cache/`)다 — **새 클론에서는 `--force` 1회가 선행돼야 한다.** 캐시가 없으면 무엇을 하라고 안내하며 exit 1 한다.
+  - 캐시가 부분적이면 그 slug만 건너뛰고 **커밋본을 그대로 남긴다**(= 템플릿 변경 미반영). 끝에 `⚠️ --rerender 로 다시 찍지 못한 글 N건` + 복구 명령을 찍으므로 **그 경고가 뜨면 반영이 안 끝난 것이다.** 여기서도 판정은 로그가 아니라 산출물 grep으로 한다.
+  - `--offline`과 달리 **템플릿을 탄다.** 둘을 같이 주면 스크립트가 거부한다.
+- **`--force`가 정말 필요할 때만** — 위 `--rerender`가 안 되는 경우(캐시 없음)나 Notion 본문 변경 전체 반영. `--only a,b,c`로 단계적 롤아웃도 여전히 가능하다. (`--only`에 DB에 없는 slug를 주면 경고를 찍는다.)
 - **`--force` 전체 재생성은 20분 넘게 걸린다 → 반드시 `claude-bg`로 띄운다** (`bash ../.claude/hooks/lib/claude-bg.sh bash <script>` — cwd 가 `scc-app/` 이라 `../`). Bash 도구는 foreground/background 모두 10분에 kill 되는데, **중간에 죽으면 트리가 깨진 채로 남는다**: `pruneUnusedAssets`가 썸네일을 지운 뒤 `ensureThumbnails`가 다시 만들기 전 구간에서 끊기면 `assets/thumb-0.webp` 23개가 삭제 상태로 남는다. 복구는 같은 빌드를 끝까지 다시 돌리면 된다(멱등). (2026-08-14 실측)
-- **`--offline` 은 템플릿을 안 탄다**(커밋된 HTML 복사만) → `--force`/`--only` 와의 조합은 스크립트가 거부한다. 템플릿 수정 반영은 로그가 아니라 산출물 grep 으로 판정한다: `grep -rl '<마커>' web-articles/ | wc -l` 이 상세페이지 수와 같아야 한다.
+- **`--offline` 은 템플릿을 안 탄다**(커밋된 HTML 복사만) → `--force`/`--only`/`--rerender` 와의 조합은 스크립트가 거부한다. 템플릿을 태우면서 Notion 을 안 타려면 `--offline` 이 아니라 **`--rerender`** 다. 템플릿 수정 반영은 로그가 아니라 산출물 grep 으로 판정한다: `grep -rl '<마커>' web-articles/ | wc -l` 이 상세페이지 수와 같아야 한다.
 - **`--dry` 보다 `git fetch origin main` 이 먼저다.** 로컬이 뒤처져 있으면 dry-run 이 "신규"라고 찍는 글이 **이미 main·prod 에 나가 있는 글**일 수 있다. 그걸 남의 미발행 원고로 오해해 `--only` 로 빼면, 템플릿 수정이 그 글에만 반영 안 된 채 배포된다(2026-08-13 실제로 그렇게 판단해 7커밋 뒤처진 베이스로 빌드했다). 순서: `git fetch && git status` → 뒤처졌으면 pull → `--dry`.
 - **Notion 붙은 빌드 전에 `--dry`**: `신규/변경 0` 이어야 남의 Notion 편집이 함께 발행되지 않는다.
 

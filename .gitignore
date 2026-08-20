@@ -106,3 +106,7 @@ web-dist/
 .serena/
 
 .playwright-mcp/
+
+# /scc-web-articles-publish 의 --rerender 용 렌더 입력 캐시 (Notion 응답·v3 레이아웃·북마크 OG).
+# 커밋하지 않는다 — 새 클론에서는 --force 1회가 선행돼야 --rerender 가 동작한다.
+.articles-cache/
