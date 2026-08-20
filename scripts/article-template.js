@@ -250,7 +250,7 @@ details.htoggle[open]>summary::before{content:"▾ ";}
 .cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
 .cta-main img{display:block;width:52px;height:32px;}
 /* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA.
-   ?from=kakao(또는 같은 세션에서 이미 카카오로 들어온 적) 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+   ?from=kakao(또는 같은 세션에서 카카오로 들어온 뒤 내부 이동) 면 head 스크립트가 html[data-cta=list] 를 심는다 */
 .cta-kakao{background:#fae100;color:#050708;display:flex;}
 .cta-browse{background:var(--g90);color:#b8ff55;}
 html[data-cta="list"] .cta-kakao{display:none;}
@@ -383,11 +383,18 @@ function siteFooter() {
 // 카톡 인앱 브라우저는 링크 탭 하나가 곧 한 세션이라 발송→열람 흐름과 정확히 맞는다.
 // 내부 링크에 ?from=kakao 를 붙여 나르는 방식은 canonical·공유 URL·GA page_location 을
 // 전부 오염시키므로 쓰지 않는다.
+//
+// 단 세션 값을 물려받는 건 **사이트 내부 이동일 때만**이다(동일출처 referrer). 신규 접속
+// (직접 입력·새로고침·검색 유입)은 URL 로만 다시 판정하고 세션 값을 지운다 — 안 그러면
+// 카톡으로 한 번 들어온 탭이 살아있는 동안 검색 유입자에게까지 계속 콘텐츠 CTA 가 뜬다
+// (탭 복원 기능 때문에 sessionStorage 는 며칠씩 살아남는다). 사용자 리포트 2026-08-20.
 const CTA_BRANCH_JS =
-  `<script>(function(){var k=/[?&]from=kakao(?:&|$)/.test(location.search);` +
+  `<script>(function(){var k=/[?&]from=kakao(?:&|$)/.test(location.search),` +
+  `n=document.referrer.indexOf(location.origin+'/')===0;` +
   // 사파리 프라이빗 등 sessionStorage 가 던지는 환경에선 URL 판정만으로 폴백한다.
   `try{if(k)sessionStorage.setItem('sccFromKakao','1');` +
-  `else k=!!sessionStorage.getItem('sccFromKakao');}catch(e){}` +
+  `else if(n)k=!!sessionStorage.getItem('sccFromKakao');` +
+  `else sessionStorage.removeItem('sccFromKakao');}catch(e){}` +
   `if(k)document.documentElement.setAttribute('data-cta','list');})();</script>\n` +
   // JS 가 없으면 하트/공유는 동작하지 않으므로 숨기고 CTA 링크만 남긴다.
   `<noscript><style>.cta-icon{display:none}</style></noscript>`;
