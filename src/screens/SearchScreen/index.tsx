@@ -217,8 +217,9 @@ const SearchScreenContent = ({
     );
   };
 
-  // 검색 결과에 접근레벨 2 이하 장소가 하나도 없으면(부정경험) 대체 검색을 제안할 수 있다.
-  // 하나라도 있으면 사용자가 이미 쓸 만한 결과를 얻은 것이므로 제안 자체를 하지 않는다.
+  // 결과 목록에 접근레벨 2 이하 장소가 하나라도 있는지. **이 값으로 여기서 게이팅하지 않는다** —
+  // 제안 여부 판정은 서버가 한다(검색어가 지역/카테고리 계열인지 알아야 하고, 그 표준은 서버에만 있다).
+  // 서버는 사용자가 렌더한 결과셋(필터·지도 영역 포함)을 알 수 없으므로 이 사실만 넘겨준다.
   const hasAccessiblePlaceInResults =
     resultMode === 'place' &&
     ((data ?? []) as PlaceListItem[]).some(item => {
@@ -237,7 +238,6 @@ const SearchScreenContent = ({
     // place 엔드포인트로 나갔다가 화장실 결과로 내려오는 검색이 있다.
     resultMode === 'place' &&
     !!searchQuery.text &&
-    !hasAccessiblePlaceInResults &&
     // 대체 검색으로 얻은 결과에서 또 대체 검색을 권하지 않는다.
     !isAlternativeSearch;
 
@@ -285,11 +285,12 @@ const SearchScreenContent = ({
         focusedPlaceId={focusedItem?.id ?? null}
         isScrolling={isScrolling}
         currentSearchText={searchQuery.text}
+        hasAccessiblePlaceInResults={hasAccessiblePlaceInResults}
         onPress={onAlternativeSearch}
       />
     ),
 
-    [searchQuery.text],
+    [searchQuery.text, hasAccessiblePlaceInResults],
   );
 
   // SearchScreenContent 의 생명주기는 wrapper 의 activeMainTab 분기가 결정한다:

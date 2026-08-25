@@ -12,8 +12,13 @@ import {searchRequestIdAtom} from '@/screens/SearchScreen/atoms';
 const SETTLE_DEBOUNCE_MS = 250;
 /**
  * 이보다 늦은 응답은 결과 없음과 동일하게 처리한다. CTA는 늦게 떠도 의미가 없다.
+ *
+ * 3000ms 였을 때 제안 OK 의 58%(147/253)가 버려졌다 — 시뮬레이션이 카카오 외부 API 를 타면
+ * elapsedMs 가 5.1~5.9초로 몰렸기 때문(2026-08 실측). 그 지연 자체는 서버에서 고쳤으므로
+ * (SearchPlacesUseCase.SIMULATION_EXTERNAL_TIMEOUT_MS) 응답은 1~2초에 들어온다.
+ * 5000ms 는 그 뒤의 여유분이다 — 이 값을 다시 줄이려면 서버 elapsedMs 분포를 먼저 확인할 것.
  */
-const REQUEST_TIMEOUT_MS = 3000;
+const REQUEST_TIMEOUT_MS = 5000;
 
 /**
  * 포커스된 카드의 대체 검색 제안을 가져온다. 제안이 없으면 null.
@@ -30,9 +35,15 @@ const REQUEST_TIMEOUT_MS = 3000;
 export function useAlternativeSearchSuggestion({
   focusedPlaceId,
   currentSearchText,
+  hasAccessiblePlaceInResults,
 }: {
   focusedPlaceId: string | null;
   currentSearchText: string | null;
+  /**
+   * 현재 결과 목록에 접근레벨 2 이하 장소가 있는지. 제안 여부 판정은 서버가 하는데,
+   * 서버는 사용자가 렌더한 결과셋(필터·지도 영역 포함)을 알 수 없어서 이 사실만 넘겨준다.
+   */
+  hasAccessiblePlaceInResults: boolean;
 }): AlternativeSearchSuggestionDto | null {
   const {api} = useAppComponents();
   const searchRequestId = useAtomValue(searchRequestIdAtom);
@@ -53,11 +64,14 @@ export function useAlternativeSearchSuggestion({
 
   const {data} = useQuery<AlternativeSearchSuggestionDto | null>({
     // searchRequestId를 키에 넣어 재검색(지도 영역 변경 포함) 시 이전 판단을 쓰지 않게 한다.
+    // hasAccessiblePlaceInResults 도 키에 넣는다 — 서버 판정의 입력이라, 빼면 값이 바뀌어도
+    // 캐시된 이전 판정이 그대로 재사용된다.
     queryKey: [
       'alternativeSearchSuggestion',
       searchRequestId,
       settledPlaceId,
       currentSearchText,
+      hasAccessiblePlaceInResults,
     ],
     enabled: !!settledPlaceId,
     // 같은 검색 안에서는 카드마다 한 번만 물어본다.
@@ -72,6 +86,7 @@ export function useAlternativeSearchSuggestion({
           {
             placeId: settledPlaceId!,
             currentSearchText: currentSearchText ?? '',
+            hasAccessiblePlaceInResults,
           },
           {signal, timeout: REQUEST_TIMEOUT_MS},
         );

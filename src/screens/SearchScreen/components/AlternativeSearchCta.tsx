@@ -42,16 +42,20 @@ export default function AlternativeSearchCta({
   focusedPlaceId,
   isScrolling,
   currentSearchText,
+  hasAccessiblePlaceInResults,
   onPress,
 }: {
   focusedPlaceId: string | null;
   isScrolling: boolean;
   currentSearchText: string | null;
+  /** 결과 목록에 접근레벨 2 이하가 있는지. 판정은 서버가 하고, 이 값은 그 입력이다. */
+  hasAccessiblePlaceInResults: boolean;
   onPress: (suggestion: AlternativeSearchSuggestionDto) => void;
 }) {
   const suggestion = useAlternativeSearchSuggestion({
     focusedPlaceId,
     currentSearchText,
+    hasAccessiblePlaceInResults,
   });
 
   // 스크롤이 시작되면 결과와 무관하게 즉시 숨긴다.
