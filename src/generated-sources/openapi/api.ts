@@ -2477,6 +2477,12 @@ export interface GetAlternativeSearchSuggestionRequestDto {
      * @memberof GetAlternativeSearchSuggestionRequestDto
      */
     'currentSearchText': string;
+    /**
+     * 현재 화면의 검색 결과 목록에 접근레벨 2 이하 장소가 하나라도 있는지. 서버는 사용자가 렌더한 결과셋(필터·지도 영역 포함)을 알 수 없으므로 클라이언트가 알려준다. 검색어가 지역/카테고리 계열일 때 이 값이 true 면 \"이미 쓸 만한 결과를 얻었다\"고 보고 제안하지 않는다. 생략 시 false 로 취급한다 — 구버전 앱은 자기 목록 게이트를 통과한 뒤에만 호출하므로 목록에 접근 가능한 곳이 없었음이 보장된다.
+     * @type {boolean}
+     * @memberof GetAlternativeSearchSuggestionRequestDto
+     */
+    'hasAccessiblePlaceInResults'?: boolean;
 }
 /**
  * 
