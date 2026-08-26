@@ -36,9 +36,11 @@ import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {SccCameraButtons} from '@/native-modules/SccCameraButtons';
+import EntrancePhotoGuideCarousel from '@/screens/PlacePhotoGuideScreen/EntrancePhotoGuideCarousel';
 import HeatTelemetry from '@/utils/HeatTelemetry';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 import ToastUtils from '@/utils/ToastUtils';
+import {useBackHandler} from '@react-native-community/hooks';
 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import CameraDeviceSelect from './CameraDeviceSelect';
@@ -92,9 +94,9 @@ export default function CameraScreen({
   const countdownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-  const hasShownGuideForEnterancePhoto = useAtomValue(
-    hasShownGuideForEntrancePhotoAtom,
-  );
+  const [hasShownGuideForEnterancePhoto, setHasShownGuideForEnterancePhoto] =
+    useAtom(hasShownGuideForEntrancePhotoAtom);
+  const [isEntranceGuideVisible, setIsEntranceGuideVisible] = useState(false);
   const hasShownGuideForReviewPhoto = useAtomValue(
     hasShownGuideForReviewPhotoAtom,
   );
@@ -130,11 +132,9 @@ export default function CameraScreen({
   }, [route.params]);
 
   useEffect(() => {
-    if (
-      isEntranceTarget(route.params.target) &&
-      !hasShownGuideForEnterancePhoto
-    ) {
-      openGuide('place');
+    if (isEntrance && !hasShownGuideForEnterancePhoto) {
+      setIsEntranceGuideVisible(true);
+      setHasShownGuideForEnterancePhoto(true);
     } else if (
       route.params.target === 'review' &&
       !hasShownGuideForReviewPhoto
@@ -147,11 +147,21 @@ export default function CameraScreen({
       openGuide('toilet');
     }
   }, [
+    isEntrance,
     route.params.target,
     hasShownGuideForEnterancePhoto,
     hasShownGuideForReviewPhoto,
     hasShownGuideForToiletPhoto,
   ]);
+
+  // 안드로이드 백 버튼: 예시 사진 오버레이가 열려 있으면 카메라를 나가지 않고 오버레이만 닫는다.
+  useBackHandler(() => {
+    if (isEntranceGuideVisible) {
+      setIsEntranceGuideVisible(false);
+      return true;
+    }
+    return false;
+  });
 
   // 앨범 활성화 안내 툴팁(1-5): 입구 촬영 최초 진입 시 1건만 판정한다.
   useEffect(() => {
@@ -183,7 +193,7 @@ export default function CameraScreen({
     return () => clearTimeout(timeout);
   }, [visibleTooltip]);
 
-  function openGuide(target: 'place' | 'review' | 'toilet') {
+  function openGuide(target: 'review' | 'toilet') {
     navigation.push('PlacePhotoGuide', {target: target});
   }
 
@@ -392,7 +402,7 @@ export default function CameraScreen({
     <ScreenLayout
       isHeaderVisible={true}
       safeAreaEdges={['top', 'bottom']}
-      style={{backgroundColor: color.gray90}}>
+      style={{backgroundColor: color.gray70v2}}>
       <S.Header>
         <S.CancelButton onPress={goBack}>취소</S.CancelButton>
         <S.SubmitButton
@@ -453,7 +463,7 @@ export default function CameraScreen({
             onPress={() => {
               const target = route.params.target;
               if (isEntranceTarget(target)) {
-                openGuide('place');
+                setIsEntranceGuideVisible(true);
               } else if (target === 'review' || target === 'toilet') {
                 openGuide(target);
               }
@@ -528,10 +538,12 @@ export default function CameraScreen({
             </S.PlaceholderRow>
           ) : null}
         </S.TakenPhotos>
-        <S.PhotoCaption>
-          최대 {photoLimit}장까지 촬영할 수 있어요
-          {photoFiles.length === 0 && '\n음량 조절 버튼으로도 촬영이 가능해요'}
-        </S.PhotoCaption>
+        {photoFiles.length === 0 && (
+          <S.PhotoCaption>
+            최대 {photoLimit}장까지 촬영할 수 있어요
+            {'\n음량 조절 버튼으로도 촬영이 가능해요'}
+          </S.PhotoCaption>
+        )}
       </S.TakenPhotosSection>
       <S.ActionsWrapper>
         {visibleTooltip !== null && (
@@ -620,6 +632,11 @@ export default function CameraScreen({
           </S.TimerButtonText>
         </S.TimerButton>
       </S.ActionsWrapper>
+      {isEntranceGuideVisible && (
+        <EntrancePhotoGuideCarousel
+          onDone={() => setIsEntranceGuideVisible(false)}
+        />
+      )}
     </ScreenLayout>
   );
 }

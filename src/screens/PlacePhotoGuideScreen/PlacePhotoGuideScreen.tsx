@@ -5,28 +5,26 @@ import {match} from 'ts-pattern';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import {
-  hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForReviewPhotoAtom,
   hasShownGuideForToiletPhotoAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
-import EntrancePhotoGuideCarousel from './EntrancePhotoGuideCarousel';
 import * as S from './PlacePhotoGuideScreen.style';
 
+// 입구(장소/건물) 촬영 가이드는 CameraScreen 위 오버레이(EntrancePhotoGuideCarousel)로
+// 렌더된다 — 이 화면은 별도 스크린이 필요한 review/toilet 전용이다.
 export interface PlacePhotoGuideScreenParams {
-  target: 'place' | 'review' | 'toilet';
+  target: 'review' | 'toilet';
 }
 
+// 방문리뷰/화장실은 기존 1페이지 가이드를 그대로 유지한다(사용자 확정 사항).
 export default function PlacePhotoGuideScreen({
   route,
   navigation,
 }: ScreenProps<'PlacePhotoGuide'>) {
   const {target} = route.params;
-  const setHasShownGuideForEnterancePhoto = useSetAtom(
-    hasShownGuideForEntrancePhotoAtom,
-  );
   const setHasShownGuideForReviewPhoto = useSetAtom(
     hasShownGuideForReviewPhotoAtom,
   );
@@ -34,38 +32,13 @@ export default function PlacePhotoGuideScreen({
     hasShownGuideForToiletPhotoAtom,
   );
   useEffect(() => {
-    if (target === 'place') {
-      setHasShownGuideForEnterancePhoto(true);
-    } else if (target === 'review') {
+    if (target === 'review') {
       setHasShownGuideForReviewPhoto(true);
     } else if (target === 'toilet') {
       setHasShownGuideForToiletPhoto(true);
     }
   }, []);
 
-  return (
-    <ScreenLayout
-      isHeaderVisible={false}
-      safeAreaEdges={['top', 'bottom']}
-      style={{backgroundColor: '#262629'}}>
-      <S.Header>
-        <S.CloseButton
-          elementName="place_photo_guide_close_button"
-          onPress={navigation.goBack}>
-          <CloseIcon width={24} height={24} color="white" />
-        </S.CloseButton>
-      </S.Header>
-      {target === 'place' ? (
-        <EntrancePhotoGuideCarousel onDone={navigation.goBack} />
-      ) : (
-        <ReviewOrToiletGuide target={target} />
-      )}
-    </ScreenLayout>
-  );
-}
-
-// 방문리뷰/화장실은 기존 1페이지 가이드를 그대로 유지한다(사용자 확정 사항).
-function ReviewOrToiletGuide({target}: {target: 'review' | 'toilet'}) {
   const guideMessages = match(target)
     .with('review', () => [
       '내부 공간이 잘 보이게 촬영해 주세요',
@@ -82,7 +55,17 @@ function ReviewOrToiletGuide({target}: {target: 'review' | 'toilet'}) {
     .exhaustive();
 
   return (
-    <>
+    <ScreenLayout
+      isHeaderVisible={false}
+      safeAreaEdges={['top', 'bottom']}
+      style={{backgroundColor: '#262629'}}>
+      <S.Header>
+        <S.CloseButton
+          elementName="place_photo_guide_close_button"
+          onPress={navigation.goBack}>
+          <CloseIcon width={24} height={24} color="white" />
+        </S.CloseButton>
+      </S.Header>
       <S.SampleImage>
         <Image style={{width: '100%', height: '100%'}} source={guideImage} />
       </S.SampleImage>
@@ -97,6 +80,6 @@ function ReviewOrToiletGuide({target}: {target: 'review' | 'toilet'}) {
           ))}
         </S.BulletPoints>
       </S.GuideMessage>
-    </>
+    </ScreenLayout>
   );
 }

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image} from 'react-native';
+import {Image, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccButton} from '@/components/atoms';
@@ -46,6 +46,7 @@ export default function EntrancePhotoGuideCarousel({
 
   return (
     <Root>
+      <StatusBarSpacer />
       <SampleImageWrapper>
         <Image
           style={{width: '100%', height: '100%'}}
@@ -72,8 +73,17 @@ export default function EntrancePhotoGuideCarousel({
   );
 }
 
+// Figma(113:4962, Camera_example_1): CameraScreen 위에 얹히는 반투명 오버레이다
+// (별도 화면 아님) — #24262b(color.gray80v2) 90% 스크림 뒤로 카메라 화면이 옅게
+// 비친다. review/toilet의 PlacePhotoGuideScreen(별도 화면, 유지)과는 다른 패턴.
 const Root = styled.View({
-  flex: 1,
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: 'rgba(36, 38, 43, 0.9)',
+});
+
+// Figma: 상태바+헤더 영역(123/844 ≈ 14.6%)만큼 이미지 위에 여백을 둔다.
+const StatusBarSpacer = styled.View({
+  height: '14.6%',
 });
 
 const SampleImageWrapper = styled.View({
