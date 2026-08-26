@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtom, useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Dimensions, Platform} from 'react-native';
+import {ActivityIndicator, Animated, Dimensions, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -164,10 +164,24 @@ export default function CameraScreen({
   });
 
   // 앨범 활성화 안내 툴팁(1-5): 입구 촬영 최초 진입 시 1건만 판정한다.
+  // 예시 사진 캐러셀이 떠 있는 동안은 미룬다 — 캐러셀에 가려진 채 5초 타이머가
+  // 만료되어 툴팁을 아예 못 보는 문제가 있었다.
+  const hasJudgedTooltipRef = useRef(false);
   useEffect(() => {
-    if (!isEntrance) {
+    // 캐러셀이 "곧 열릴 예정"인 경우까지 포함해야 한다. 같은 mount 의 effect flush 에서
+    // 캐러셀 effect 가 setIsEntranceGuideVisible(true) 를 호출해도, 바로 뒤 실행되는 이
+    // effect 는 그 렌더의 클로저(false)를 읽기 때문에 isEntranceGuideVisible 만으로는
+    // 최초 진입을 못 막는다 — 캐러셀에 가린 채 5초 타이머가 소진되던 원인.
+    const willOpenEntranceGuide = isEntrance && !hasShownGuideForEnterancePhoto;
+    if (
+      !isEntrance ||
+      isEntranceGuideVisible ||
+      willOpenEntranceGuide ||
+      hasJudgedTooltipRef.current
+    ) {
       return;
     }
+    hasJudgedTooltipRef.current = true;
     const justActivated =
       lastKnownAlbumUploadAllowed === false && isAlbumUploadAllowed === true;
 
@@ -183,15 +197,27 @@ export default function CameraScreen({
       setHasShownCameraGuideTooltip(true);
     }
     setLastKnownAlbumUploadAllowed(isAlbumUploadAllowed);
-  }, [isEntrance]);
+  }, [isEntrance, isEntranceGuideVisible, hasShownGuideForEnterancePhoto]);
 
+  const tooltipOpacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (visibleTooltip === null) {
       return;
     }
-    const timeout = setTimeout(() => setVisibleTooltip(null), 5000);
+    tooltipOpacity.setValue(1);
+    const timeout = setTimeout(() => {
+      Animated.timing(tooltipOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(({finished}) => {
+        if (finished) {
+          setVisibleTooltip(null);
+        }
+      });
+    }, 5000);
     return () => clearTimeout(timeout);
-  }, [visibleTooltip]);
+  }, [visibleTooltip, tooltipOpacity]);
 
   function openGuide(target: 'review' | 'toilet') {
     navigation.push('PlacePhotoGuide', {target: target});
@@ -433,7 +459,7 @@ export default function CameraScreen({
                     '계단/경사로의 높이를 확인할 수 있게\n약간 측면에서 촬영해주세요'
                   }
                 </S.StairsOverlayCaption>
-                <StairsOverlayIcon width={338} height={110} />
+                <StairsOverlayIcon width={340} height={112} />
               </S.StairsOverlay>
             )}
             {countdownDisplay !== null && (
@@ -482,8 +508,9 @@ export default function CameraScreen({
                 contentContainerStyle={{
                   justifyContent: 'center',
                   overflow: 'visible',
-                  gap: 16,
-                  padding: 10,
+                  // 간격은 슬롯 자체의 marginHorizontal 로만 준다 (CameraScreen.style.ts
+                  // PHOTO_SLOT_GAP 참조). 여기에 gap 을 두면 footer 경계에서 이중 계산된다.
+                  paddingVertical: 6,
                   flexGrow: 1,
                 }}
                 data={photoFiles}
@@ -538,16 +565,20 @@ export default function CameraScreen({
             </S.PlaceholderRow>
           ) : null}
         </S.TakenPhotos>
-        {photoFiles.length === 0 && (
-          <S.PhotoCaption>
-            최대 {photoLimit}장까지 촬영할 수 있어요
-            {'\n음량 조절 버튼으로도 촬영이 가능해요'}
-          </S.PhotoCaption>
-        )}
+        <S.PhotoCaptionSlot>
+          {photoFiles.length === 0 && (
+            <S.PhotoCaption>
+              최대 {photoLimit}장까지 촬영할 수 있어요
+              {'\n음량 조절 버튼으로도 촬영이 가능해요'}
+            </S.PhotoCaption>
+          )}
+        </S.PhotoCaptionSlot>
       </S.TakenPhotosSection>
       <S.ActionsWrapper>
         {visibleTooltip !== null && (
-          <S.TooltipAnchor pointerEvents="none">
+          <S.TooltipAnchor
+            pointerEvents="none"
+            style={{opacity: tooltipOpacity}}>
             <Tooltip
               text={
                 visibleTooltip === 'albumLocked'
@@ -556,11 +587,16 @@ export default function CameraScreen({
                     ? '이제, 앨범에 있는 사진을\n바로 등록할 수 있어요!'
                     : '사진 촬영이 어렵다면\n가이드의 도움을 받을 수 있어요!'
               }
-              tailPosition={visibleTooltip === 'guideIntro' ? 104 : 48}
+              // Figma: 앨범 툴팁은 bubble x=28 · 꼬리 8(중심 13) → 절대 41,
+              // 가이드 툴팁은 bubble x=12 · 꼬리 86(중심 91) → 절대 103.
+              // 각 버튼 원 중심(앨범 42.5 / 가이드 103.5)을 가리킨다.
+              bubbleLeft={visibleTooltip === 'guideIntro' ? 12 : 28}
+              tailPosition={visibleTooltip === 'guideIntro' ? 91 : 13}
             />
           </S.TooltipAnchor>
         )}
-        <S.AlbumButton
+        <S.SideButton
+          left={20}
           elementName="camera_album_button"
           disabled={!isAlbumUploadAllowed}
           accessibilityRole="button"
@@ -575,25 +611,34 @@ export default function CameraScreen({
             }
             selectFromAlbum();
           }}>
-          <AlbumIcon width={28} height={28} color="white" />
-          <S.AlbumButtonText>앨범</S.AlbumButtonText>
-        </S.AlbumButton>
+          <S.SideButtonCircle>
+            <AlbumIcon
+              width={S.SIDE_BUTTON_ICON_SIZE}
+              height={S.SIDE_BUTTON_ICON_SIZE}
+              color="white"
+            />
+          </S.SideButtonCircle>
+          <S.SideButtonLabel>앨범</S.SideButtonLabel>
+        </S.SideButton>
         {isEntrance && (
-          <S.GuideButton
+          <S.SideButton
+            left={81}
             elementName="camera_guide_button"
             accessibilityRole="button"
             accessibilityLabel="촬영 가이드"
             accessibilityState={{selected: isGuideOverlayEnabled}}
             onPress={() => setIsGuideOverlayEnabled(on => !on)}>
-            <GuideIcon
-              width={28}
-              height={28}
-              color={isGuideOverlayEnabled ? color.yellow : 'white'}
-            />
-            <S.GuideButtonText isOn={isGuideOverlayEnabled}>
+            <S.SideButtonCircle>
+              <GuideIcon
+                width={S.SIDE_BUTTON_ICON_SIZE}
+                height={S.SIDE_BUTTON_ICON_SIZE}
+                color={isGuideOverlayEnabled ? color.yellow : 'white'}
+              />
+            </S.SideButtonCircle>
+            <S.SideButtonLabel isOn={isGuideOverlayEnabled}>
               가이드
-            </S.GuideButtonText>
-          </S.GuideButton>
+            </S.SideButtonLabel>
+          </S.SideButton>
         )}
         <S.CaptureButton
           elementName="camera_capture_button"
@@ -602,35 +647,47 @@ export default function CameraScreen({
           <S.CaptureInnerDeco />
         </S.CaptureButton>
         {device?.hasFlash && (
-          <S.FlashButton
+          <S.SideButton
+            right={81}
             elementName="camera_flash_button"
             accessibilityRole="button"
             accessibilityLabel="플래시"
             accessibilityState={{selected: flash === 'on'}}
             onPress={toggleFlash}>
-            {flash === 'on' ? (
-              <FlashOnIcon width={28} height={28} />
-            ) : (
-              <FlashOffIcon width={28} height={28} />
-            )}
-            <S.FlashButtonText>플래시</S.FlashButtonText>
-          </S.FlashButton>
+            <S.SideButtonCircle>
+              {flash === 'on' ? (
+                <FlashOnIcon
+                  width={S.SIDE_BUTTON_ICON_SIZE}
+                  height={S.SIDE_BUTTON_ICON_SIZE}
+                />
+              ) : (
+                <FlashOffIcon
+                  width={S.SIDE_BUTTON_ICON_SIZE}
+                  height={S.SIDE_BUTTON_ICON_SIZE}
+                />
+              )}
+            </S.SideButtonCircle>
+            <S.SideButtonLabel>플래시</S.SideButtonLabel>
+          </S.SideButton>
         )}
-        <S.TimerButton
+        <S.SideButton
+          right={20}
           elementName="camera_timer_button"
           logParams={{timerSeconds}}
           accessibilityRole="button"
           accessibilityLabel="타이머"
           onPress={cycleTimer}>
-          <ClockIcon
-            width={24}
-            height={24}
-            color={timerSeconds === 0 ? 'white' : color.yellow}
-          />
-          <S.TimerButtonText isOn={timerSeconds !== 0}>
+          <S.SideButtonCircle>
+            <ClockIcon
+              width={S.SIDE_BUTTON_ICON_SIZE}
+              height={S.SIDE_BUTTON_ICON_SIZE}
+              color={timerSeconds === 0 ? 'white' : color.yellow}
+            />
+          </S.SideButtonCircle>
+          <S.SideButtonLabel isOn={timerSeconds !== 0}>
             {timerSeconds === 0 ? '타이머' : `${timerSeconds}초`}
-          </S.TimerButtonText>
-        </S.TimerButton>
+          </S.SideButtonLabel>
+        </S.SideButton>
       </S.ActionsWrapper>
       {isEntranceGuideVisible && (
         <EntrancePhotoGuideCarousel
