@@ -244,7 +244,7 @@ export default function InfoStep({
                   <PhotosV2
                     value={field.value ?? []}
                     onChange={field.onChange}
-                    target="place"
+                    target="placeEntrance"
                     maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                   />
                 )}

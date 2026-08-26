@@ -1,5 +1,5 @@
 import ImageEditor from '@react-native-community/image-editor';
-import {useAtomValue} from 'jotai';
+import {useAtom, useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Dimensions, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
@@ -11,17 +11,25 @@ import {
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 
 import AlbumIcon from '@/assets/icon/ic_album.svg';
+import GuideIcon from '@/assets/icon/ic_camera_guide.svg';
+import StairsOverlayIcon from '@/assets/icon/ic_camera_overlay_stairs.svg';
 import CircleCloseIcon from '@/assets/icon/ic_circle_close.svg';
 import CircleInfoIcon from '@/assets/icon/ic_circle_info.svg';
 import ClockIcon from '@/assets/icon/ic_clock.svg';
-import FlashIcon from '@/assets/icon/ic_flash.svg';
+import FlashOffIcon from '@/assets/icon/ic_flash_off.svg';
+import FlashOnIcon from '@/assets/icon/ic_flash_on.svg';
 import {featureFlagAtom} from '@/atoms/Auth';
 import {
+  hasShownAlbumLockedTooltipAtom,
+  hasShownCameraGuideTooltipAtom,
   hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForReviewPhotoAtom,
   hasShownGuideForToiletPhotoAtom,
+  isCameraGuideOverlayEnabledAtom,
+  lastKnownAlbumUploadAllowedAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
+import Tooltip from '@/components/Tooltip';
 import {color} from '@/constant/color';
 import {MAX_NUMBER_OF_TAKEN_PHOTOS} from '@/constant/constant';
 import Logger from '@/logging/Logger';
@@ -39,15 +47,33 @@ import CameraPreview from './CameraPreview';
 import * as S from './CameraScreen.style';
 import useCamera from './useCamera';
 
+export type CameraTarget =
+  | 'placeEntrance'
+  | 'buildingEntrance'
+  | 'elevator'
+  | 'review'
+  | 'toilet';
+
+/** 입구(장소/건물) 촬영인지 — 가이드 오버레이·예시 사진·툴팁 노출 분기의 기준. */
+export function isEntranceTarget(target: CameraTarget): boolean {
+  return target === 'placeEntrance' || target === 'buildingEntrance';
+}
+
 export interface CameraScreenParams {
   takenPhotos: ImageFile[];
   onPhotosTaken(photos: ImageFile[]): void;
-  target: 'place' | 'review' | 'toilet' | 'building';
+  target: CameraTarget;
   /** 촬영/선택 가능한 최대 사진 수. 미지정 시 MAX_NUMBER_OF_TAKEN_PHOTOS 사용. */
   maxPhotos?: number;
 }
 
 type TimerSeconds = 0 | 3 | 5 | 10;
+
+const ENTRANCE_PHOTO_SLOT_PLACEHOLDERS = [
+  require('@/assets/img/photo_slot_door.png'),
+  require('@/assets/img/photo_slot_stairs.png'),
+  null, // 3번째 슬롯은 안내 일러스트 없이 빈 칸
+];
 
 export default function CameraScreen({
   route,
@@ -76,8 +102,25 @@ export default function CameraScreen({
     hasShownGuideForToiletPhotoAtom,
   );
   const featureFlag = useAtomValue(featureFlagAtom);
+  const isAlbumUploadAllowed = featureFlag?.isAlbumUploadAllowed ?? false;
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
   const [isLoadingAlbum, setIsLoadingAlbum] = useState(false);
+  const [isGuideOverlayEnabled, setIsGuideOverlayEnabled] = useAtom(
+    isCameraGuideOverlayEnabledAtom,
+  );
+  const [lastKnownAlbumUploadAllowed, setLastKnownAlbumUploadAllowed] = useAtom(
+    lastKnownAlbumUploadAllowedAtom,
+  );
+  const [hasShownAlbumLockedTooltip, setHasShownAlbumLockedTooltip] = useAtom(
+    hasShownAlbumLockedTooltipAtom,
+  );
+  const [hasShownCameraGuideTooltip, setHasShownCameraGuideTooltip] = useAtom(
+    hasShownCameraGuideTooltipAtom,
+  );
+  const [visibleTooltip, setVisibleTooltip] = useState<
+    'albumLocked' | 'albumActivated' | 'guideIntro' | null
+  >(null);
+  const isEntrance = isEntranceTarget(route.params.target);
 
   // 기존 촬영한 이미지 체크
   useEffect(() => {
@@ -87,7 +130,10 @@ export default function CameraScreen({
   }, [route.params]);
 
   useEffect(() => {
-    if (route.params.target === 'place' && !hasShownGuideForEnterancePhoto) {
+    if (
+      isEntranceTarget(route.params.target) &&
+      !hasShownGuideForEnterancePhoto
+    ) {
       openGuide('place');
     } else if (
       route.params.target === 'review' &&
@@ -106,6 +152,36 @@ export default function CameraScreen({
     hasShownGuideForReviewPhoto,
     hasShownGuideForToiletPhoto,
   ]);
+
+  // 앨범 활성화 안내 툴팁(1-5): 입구 촬영 최초 진입 시 1건만 판정한다.
+  useEffect(() => {
+    if (!isEntrance) {
+      return;
+    }
+    const justActivated =
+      lastKnownAlbumUploadAllowed === false && isAlbumUploadAllowed === true;
+
+    if (!isAlbumUploadAllowed) {
+      if (!hasShownAlbumLockedTooltip) {
+        setVisibleTooltip('albumLocked');
+        setHasShownAlbumLockedTooltip(true);
+      }
+    } else if (justActivated) {
+      setVisibleTooltip('albumActivated');
+    } else if (!hasShownCameraGuideTooltip) {
+      setVisibleTooltip('guideIntro');
+      setHasShownCameraGuideTooltip(true);
+    }
+    setLastKnownAlbumUploadAllowed(isAlbumUploadAllowed);
+  }, [isEntrance]);
+
+  useEffect(() => {
+    if (visibleTooltip === null) {
+      return;
+    }
+    const timeout = setTimeout(() => setVisibleTooltip(null), 5000);
+    return () => clearTimeout(timeout);
+  }, [visibleTooltip]);
 
   function openGuide(target: 'place' | 'review' | 'toilet') {
     navigation.push('PlacePhotoGuide', {target: target});
@@ -322,7 +398,7 @@ export default function CameraScreen({
         <S.SubmitButton
           onPress={() => confirm(photoFiles)}
           disabled={photoFiles.length === 0}>
-          {`사진 등록 ${photoFiles.length > 0 ? `(${photoFiles.length})` : ''}`}
+          {`사진 등록${photoFiles.length > 0 ? `(${photoFiles.length})` : ''}`}
         </S.SubmitButton>
       </S.Header>
       <S.CameraContainer maxHeight={cameraMaxHeight}>
@@ -330,6 +406,26 @@ export default function CameraScreen({
           <S.CameraPreviewContainer>
             <CameraPreview ref={camera} device={device} />
             <CameraDeviceSelect device={device} onDeviceSelect={setDevice} />
+            {isEntrance && isGuideOverlayEnabled && photoFiles.length === 0 && (
+              <S.DoorFrameOverlay pointerEvents="none">
+                <S.DoorFrameGroundLineLeft />
+                <S.DoorFrameGroundLineRight />
+                <S.DoorFrameRect />
+                <S.OverlayCaption>
+                  {'문을 프레임 안에\n맞춰주세요'}
+                </S.OverlayCaption>
+              </S.DoorFrameOverlay>
+            )}
+            {isEntrance && isGuideOverlayEnabled && photoFiles.length === 1 && (
+              <S.StairsOverlay pointerEvents="none">
+                <S.StairsOverlayCaption>
+                  {
+                    '계단/경사로의 높이를 확인할 수 있게\n약간 측면에서 촬영해주세요'
+                  }
+                </S.StairsOverlayCaption>
+                <StairsOverlayIcon width={338} height={110} />
+              </S.StairsOverlay>
+            )}
             {countdownDisplay !== null && (
               <S.CountdownOverlay pointerEvents="none">
                 <S.CountdownText>{countdownDisplay}</S.CountdownText>
@@ -350,79 +446,142 @@ export default function CameraScreen({
           </S.AlbumLoadingOverlay>
         )}
       </S.CameraContainer>
-      {route.params.target !== 'building' && (
+      {route.params.target !== 'elevator' && (
         <S.TipsWrapper>
           <S.Tips
             elementName="camera_tips_button"
             onPress={() => {
               const target = route.params.target;
-              if (
-                target === 'place' ||
-                target === 'review' ||
-                target === 'toilet'
-              ) {
+              if (isEntranceTarget(target)) {
+                openGuide('place');
+              } else if (target === 'review' || target === 'toilet') {
                 openGuide(target);
               }
             }}>
             <CircleInfoIcon />
-            <S.Tip>{'사진 촬영 팁  >'}</S.Tip>
+            <S.Tip>{isEntrance ? '예시 사진 >' : '사진 촬영 팁  >'}</S.Tip>
           </S.Tips>
         </S.TipsWrapper>
       )}
-      <S.TakenPhotos>
-        {photoFiles.length === 0 && (
-          <S.NoPhotosTaken>
-            최대 {photoLimit}장까지 촬영할 수 있어요
-            {'\n'}
-            음량 조절 버튼으로도 촬영이 가능해요
-          </S.NoPhotosTaken>
-        )}
-        {photoFiles.length > 0 && (
-          <GestureHandlerRootView>
-            <DraggableFlatList
-              horizontal
-              contentContainerStyle={{
-                justifyContent: 'center',
-                overflow: 'visible',
-                gap: 16,
-                padding: 10,
-                flexGrow: 1,
-              }}
-              data={photoFiles}
-              onDragEnd={({data}) => setPhotoFiles(data)}
-              keyExtractor={(item: ImageFile) => item.uri}
-              renderItem={({item, drag, isActive}) => (
-                <S.TakenPhotoItem
-                  elementName="taken_photo_item"
-                  style={{
-                    opacity: isActive ? 0.5 : 1,
-                    transform: [{scale: isActive ? 1.05 : 1}],
-                  }}
-                  key={item.uri}
-                  onLongPress={drag}
-                  onPress={() => openPreview(photoFiles.indexOf(item))}>
-                  <S.Thumbnail
-                    source={{uri: ImageFileUtils.filepathFromImageFile(item)}}
-                  />
-                  <S.CloseButton
-                    elementName="taken_photo_delete_button"
-                    onPress={() => onPressX(item)}>
-                    <CircleCloseIcon width={24} height={24} />
-                  </S.CloseButton>
-                </S.TakenPhotoItem>
-              )}
-            />
-          </GestureHandlerRootView>
-        )}
-      </S.TakenPhotos>
+      <S.TakenPhotosSection>
+        <S.TakenPhotos>
+          {photoFiles.length > 0 ? (
+            <GestureHandlerRootView>
+              <DraggableFlatList
+                horizontal
+                contentContainerStyle={{
+                  justifyContent: 'center',
+                  overflow: 'visible',
+                  gap: 16,
+                  padding: 10,
+                  flexGrow: 1,
+                }}
+                data={photoFiles}
+                onDragEnd={({data}) => setPhotoFiles(data)}
+                keyExtractor={(item: ImageFile) => item.uri}
+                renderItem={({item, drag, isActive}) => (
+                  <S.TakenPhotoItem
+                    elementName="taken_photo_item"
+                    style={{
+                      opacity: isActive ? 0.5 : 1,
+                      transform: [{scale: isActive ? 1.05 : 1}],
+                    }}
+                    key={item.uri}
+                    onLongPress={drag}
+                    onPress={() => openPreview(photoFiles.indexOf(item))}>
+                    <S.Thumbnail
+                      source={{
+                        uri: ImageFileUtils.filepathFromImageFile(item),
+                      }}
+                    />
+                    <S.CloseButton
+                      elementName="taken_photo_delete_button"
+                      onPress={() => onPressX(item)}>
+                      <CircleCloseIcon width={24} height={24} />
+                    </S.CloseButton>
+                  </S.TakenPhotoItem>
+                )}
+                ListFooterComponent={
+                  isEntrance ? (
+                    <S.PlaceholderRow>
+                      {ENTRANCE_PHOTO_SLOT_PLACEHOLDERS.slice(
+                        photoFiles.length,
+                      ).map((placeholder, i) => (
+                        <S.PlaceholderSlot key={i}>
+                          {placeholder && (
+                            <S.PlaceholderImage source={placeholder} />
+                          )}
+                        </S.PlaceholderSlot>
+                      ))}
+                    </S.PlaceholderRow>
+                  ) : null
+                }
+              />
+            </GestureHandlerRootView>
+          ) : isEntrance ? (
+            <S.PlaceholderRow>
+              {ENTRANCE_PHOTO_SLOT_PLACEHOLDERS.map((placeholder, i) => (
+                <S.PlaceholderSlot key={i}>
+                  {placeholder && <S.PlaceholderImage source={placeholder} />}
+                </S.PlaceholderSlot>
+              ))}
+            </S.PlaceholderRow>
+          ) : null}
+        </S.TakenPhotos>
+        <S.PhotoCaption>
+          최대 {photoLimit}장까지 촬영할 수 있어요
+          {photoFiles.length === 0 && '\n음량 조절 버튼으로도 촬영이 가능해요'}
+        </S.PhotoCaption>
+      </S.TakenPhotosSection>
       <S.ActionsWrapper>
-        {featureFlag?.isAlbumUploadAllowed && (
-          <S.AlbumButton
-            elementName="camera_album_button"
-            onPress={selectFromAlbum}>
-            <AlbumIcon width={28} height={28} />
-            <S.AlbumButtonText>앨범</S.AlbumButtonText>
-          </S.AlbumButton>
+        {visibleTooltip !== null && (
+          <S.TooltipAnchor pointerEvents="none">
+            <Tooltip
+              text={
+                visibleTooltip === 'albumLocked'
+                  ? '1개의 장소를 현장 등록하면\n앨범 등록이 가능해요'
+                  : visibleTooltip === 'albumActivated'
+                    ? '이제, 앨범에 있는 사진을\n바로 등록할 수 있어요!'
+                    : '사진 촬영이 어렵다면\n가이드의 도움을 받을 수 있어요!'
+              }
+              tailPosition={visibleTooltip === 'guideIntro' ? 104 : 48}
+            />
+          </S.TooltipAnchor>
+        )}
+        <S.AlbumButton
+          elementName="camera_album_button"
+          disabled={!isAlbumUploadAllowed}
+          accessibilityRole="button"
+          accessibilityLabel="앨범에서 사진 선택"
+          accessibilityState={{disabled: !isAlbumUploadAllowed}}
+          onPress={() => {
+            if (!isAlbumUploadAllowed) {
+              ToastUtils.show(
+                '1개의 장소를 현장 등록하면 앨범 등록이 가능해요',
+              );
+              return;
+            }
+            selectFromAlbum();
+          }}>
+          <AlbumIcon width={28} height={28} color="white" />
+          <S.AlbumButtonText>앨범</S.AlbumButtonText>
+        </S.AlbumButton>
+        {isEntrance && (
+          <S.GuideButton
+            elementName="camera_guide_button"
+            accessibilityRole="button"
+            accessibilityLabel="촬영 가이드"
+            accessibilityState={{selected: isGuideOverlayEnabled}}
+            onPress={() => setIsGuideOverlayEnabled(on => !on)}>
+            <GuideIcon
+              width={28}
+              height={28}
+              color={isGuideOverlayEnabled ? color.yellow : 'white'}
+            />
+            <S.GuideButtonText isOn={isGuideOverlayEnabled}>
+              가이드
+            </S.GuideButtonText>
+          </S.GuideButton>
         )}
         <S.CaptureButton
           elementName="camera_capture_button"
@@ -433,26 +592,30 @@ export default function CameraScreen({
         {device?.hasFlash && (
           <S.FlashButton
             elementName="camera_flash_button"
+            accessibilityRole="button"
+            accessibilityLabel="플래시"
+            accessibilityState={{selected: flash === 'on'}}
             onPress={toggleFlash}>
-            <FlashIcon
-              width={28}
-              height={28}
-              style={{opacity: flash === 'on' ? 1 : 0.3}}
-            />
+            {flash === 'on' ? (
+              <FlashOnIcon width={28} height={28} />
+            ) : (
+              <FlashOffIcon width={28} height={28} />
+            )}
             <S.FlashButtonText>플래시</S.FlashButtonText>
           </S.FlashButton>
         )}
         <S.TimerButton
           elementName="camera_timer_button"
           logParams={{timerSeconds}}
+          accessibilityRole="button"
+          accessibilityLabel="타이머"
           onPress={cycleTimer}>
           <ClockIcon
             width={24}
             height={24}
-            color="white"
-            style={{opacity: timerSeconds === 0 ? 0.3 : 1}}
+            color={timerSeconds === 0 ? 'white' : color.yellow}
           />
-          <S.TimerButtonText>
+          <S.TimerButtonText isOn={timerSeconds !== 0}>
             {timerSeconds === 0 ? '타이머' : `${timerSeconds}초`}
           </S.TimerButtonText>
         </S.TimerButton>

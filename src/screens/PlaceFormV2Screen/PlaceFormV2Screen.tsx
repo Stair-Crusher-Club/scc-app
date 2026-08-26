@@ -1,3 +1,4 @@
+import {useMe} from '@/atoms/Auth';
 import {
   placeFormV2GuideDismissedAtom,
   placeFormV2GuideDismissedUntilAtom,
@@ -93,6 +94,7 @@ export default function PlaceFormV2Screen({
   const {api} = useAppComponents();
   const queryClient = useQueryClient();
   const pushItems = useSetAtom(pushItemsAtom);
+  const {syncUserInfo} = useMe();
 
   const {uploadImages, uploadProgress} = useImageUploadWithProgress();
   const [stepIndex, setStepIndex] = useState(0);
@@ -254,6 +256,10 @@ export default function PlaceFormV2Screen({
     if (!registered.success) {
       return;
     }
+
+    // PA 등록 성공 직후 앨범 업로드 권한(isAlbumUploadAllowed) 갱신 — 다음 카메라
+    // 진입 전에 반영되도록 fire-and-forget으로 호출한다.
+    syncUserInfo();
 
     if (registered.data) {
       pushItems(registered.data);

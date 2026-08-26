@@ -48,6 +48,75 @@ export const TipsWrapper = styled.View({
   alignItems: 'flex-start',
 });
 
+const DOOR_FRAME_WIDTH = 142;
+
+// 0장 상태: 문 프레임 안내(세로 점선 사각형 + 좌우 지면 점선). 에셋 없이 dashed View로 구현.
+export const DoorFrameOverlay = styled.View({
+  ...StyleSheet.absoluteFillObject,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+export const DoorFrameRect = styled.View({
+  width: DOOR_FRAME_WIDTH,
+  height: '100%',
+  borderWidth: 2,
+  borderStyle: 'dashed',
+  borderColor: 'white',
+});
+
+export const DoorFrameGroundLineLeft = styled.View({
+  position: 'absolute',
+  left: 0,
+  right: '50%',
+  marginRight: DOOR_FRAME_WIDTH / 2,
+  bottom: 0,
+  borderTopWidth: 2,
+  borderStyle: 'dashed',
+  borderColor: 'white',
+});
+
+export const DoorFrameGroundLineRight = styled.View({
+  position: 'absolute',
+  right: 0,
+  left: '50%',
+  marginLeft: DOOR_FRAME_WIDTH / 2,
+  bottom: 0,
+  borderTopWidth: 2,
+  borderStyle: 'dashed',
+  borderColor: 'white',
+});
+
+export const OverlayCaption = styled.Text({
+  position: 'absolute',
+  top: '42%',
+  left: 24,
+  right: 24,
+  color: 'white',
+  fontFamily: font.pretendardMedium,
+  fontSize: 15,
+  lineHeight: 21,
+  textAlign: 'center',
+});
+
+// 1장 상태: 계단/경사로 3D 안내
+export const StairsOverlay = styled.View({
+  ...StyleSheet.absoluteFillObject,
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  paddingBottom: 32,
+});
+
+export const StairsOverlayCaption = styled.Text({
+  color: 'white',
+  fontFamily: font.pretendardMedium,
+  fontSize: 15,
+  lineHeight: 21,
+  textAlign: 'center',
+  paddingHorizontal: 24,
+  marginBottom: 24,
+});
+
 export const Tips = styled(SccPressable)({
   flexDirection: 'row',
   alignItems: 'center',
@@ -65,20 +134,46 @@ export const Tip = styled.Text({
   fontSize: 16,
 });
 
-export const TakenPhotos = styled.View({
+export const TakenPhotosSection = styled.View({
   flex: 1,
+  justifyContent: 'center',
+  gap: 8,
+  paddingVertical: 8,
+});
+
+export const TakenPhotos = styled.View({
   flexDirection: 'row',
   justifyContent: 'center',
   alignItems: 'center',
   gap: 16,
 });
 
-export const NoPhotosTaken = styled.Text({
+export const PhotoCaption = styled.Text({
   color: 'white',
   fontFamily: font.pretendardRegular,
-  fontSize: 16,
+  fontSize: 14,
   textAlign: 'center',
-  lineHeight: 22,
+  lineHeight: 20,
+});
+
+export const PlaceholderRow = styled.View({
+  flexDirection: 'row',
+  gap: 16,
+  paddingHorizontal: 10,
+});
+
+export const PlaceholderSlot = styled.View({
+  width: 56,
+  height: 56,
+  borderRadius: 12,
+  backgroundColor: color.gray80,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+export const PlaceholderImage = styled.Image({
+  width: 28,
+  height: 28,
 });
 
 export const TakenPhotoItem = styled(SccPressable)({});
@@ -160,7 +255,32 @@ export const TimerButton = styled(SccPressable)({
   flexDirection: 'column',
 });
 
-export const TimerButtonText = styled.Text({
+export const TimerButtonText = styled.Text<{isOn?: boolean}>(({isOn}) => ({
+  color: isOn ? color.yellow : 'white',
+  fontFamily: font.pretendardRegular,
+  fontSize: 13,
+  textAlign: 'center',
+  position: 'absolute',
+  bottom: -19, // 6px margin + fontSize 100%
+}));
+
+export const AlbumButton = styled(SccPressable)<{disabled?: boolean}>(
+  ({disabled}) => ({
+    position: 'absolute',
+    bottom: 12,
+    left: 24,
+    width: 48,
+    height: 48,
+    backgroundColor: color.blacka40,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    opacity: disabled ? 0.4 : 1,
+  }),
+);
+
+export const AlbumButtonText = styled.Text({
   color: 'white',
   fontFamily: font.pretendardRegular,
   fontSize: 13,
@@ -169,10 +289,10 @@ export const TimerButtonText = styled.Text({
   bottom: -19, // 6px margin + fontSize 100%
 });
 
-export const AlbumButton = styled(SccPressable)({
+export const GuideButton = styled(SccPressable)({
   position: 'absolute',
   bottom: 12,
-  left: 24,
+  left: 80, // 앨범 버튼(left:24, width:48) 오른쪽에 8px 간격
   width: 48,
   height: 48,
   backgroundColor: color.blacka40,
@@ -182,13 +302,21 @@ export const AlbumButton = styled(SccPressable)({
   flexDirection: 'column',
 });
 
-export const AlbumButtonText = styled.Text({
-  color: 'white',
+export const GuideButtonText = styled.Text<{isOn?: boolean}>(({isOn}) => ({
+  color: isOn ? color.yellow : 'white',
   fontFamily: font.pretendardRegular,
   fontSize: 13,
   textAlign: 'center',
   position: 'absolute',
   bottom: -19, // 6px margin + fontSize 100%
+}));
+
+export const TooltipAnchor = styled.View({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  bottom: '100%',
+  marginBottom: 8,
 });
 
 export const CountdownOverlay = styled.View({

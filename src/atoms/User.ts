@@ -16,6 +16,35 @@ export const hasShownGuideForEntrancePhotoAtom = atomForLocalNonNull<boolean>(
   false,
 );
 
+/**
+ * 마지막으로 관측한 앨범 업로드 허용 여부. "방금 활성화됐다" 판정(카메라 진입 시
+ * lastKnown === false && 현재 true)의 기준값이라 boolean 대신 3치(null 포함) atom을 쓴다.
+ *
+ * null = 아직 관측 전(업데이트 직후의 기존 유저) — 이 상태에서는 활성화 툴팁을 띄우지 않고
+ * 현재 값만 기록한다(strict === false 비교라 null은 자연히 걸러진다).
+ */
+export const lastKnownAlbumUploadAllowedAtom = atomForLocal<boolean>(
+  'lastKnownAlbumUploadAllowed',
+);
+
+// 앨범 비활성 상태에서 "N개 등록하면 앨범이 열려요" 툴팁을 이미 본 유저(최초 1회만 노출).
+export const hasShownAlbumLockedTooltipAtom = atomForLocalNonNull<boolean>(
+  'hasShownAlbumLockedTooltip',
+  false,
+);
+
+// "가이드 버튼" 소개 툴팁을 이미 본 유저(최초 1회만 노출).
+export const hasShownCameraGuideTooltipAtom = atomForLocalNonNull<boolean>(
+  'hasShownCameraGuideTooltip',
+  false,
+);
+
+// 카메라 촬영 가이드 오버레이(프리뷰 위 프레임/계단 안내) on/off. 기본 ON.
+export const isCameraGuideOverlayEnabledAtom = atomForLocalNonNull<boolean>(
+  'isCameraGuideOverlayEnabled',
+  true,
+);
+
 export const hasShownGuideForReviewPhotoAtom = atomForLocalNonNull<boolean>(
   'hasShownGuideForReviewPhoto',
   false,

@@ -105,6 +105,7 @@ export default function BuildingEntranceCorrectionSection({
       <PhotoEditSlots
         title="건물 입구 사진을 확인해주세요"
         description="최대 3장까지 등록 가능해요"
+        target="buildingEntrance"
         existingPhotoUrls={existingBaEntrancePhotoUrls}
         newPhotos={newBaEntrancePhotos}
         deletedExistingIndices={deletedBaEntrancePhotoIndices}

@@ -2,6 +2,7 @@ import React from 'react';
 
 import ImageFile from '@/models/ImageFile';
 import useNavigation from '@/navigation/useNavigation';
+import type {CameraTarget} from '@/screens/CameraScreen';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 
 import CameraIcon from '@/assets/icon/ic_camera2.svg';
@@ -11,7 +12,7 @@ import * as S from './PhotosV2.style';
 interface Props {
   value: ImageFile[];
   maxPhotos: number;
-  target: 'place' | 'review' | 'toilet' | 'building';
+  target: CameraTarget;
   onChange: (photos: ImageFile[]) => void;
 }
 export default function PhotosV2({value, maxPhotos, target, onChange}: Props) {
