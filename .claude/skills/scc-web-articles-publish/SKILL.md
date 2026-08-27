@@ -135,6 +135,10 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id> --dry
 3. MCP `notion-update-page`로 해당 프로퍼티를 **DB에 라이트백**(캐싱 + 사람이 검토·수정 가능).
 
 > **★ faq 라이트백 함정 (MCP)**: `API-patch-page`는 rich_text `content`가 그 자체로 유효한 JSON(맨 앞 `[`/`{`)이면 자동 파싱 후 "should be a string"으로 **거부**한다. 그래서 faq JSON 배열은 그대로 못 쓴다. **해결**: content 앞에 **zero-width space(`​`)를 붙여** 문자열로 저장한다(예: `"​[{\"q\":...}]"`). 빌드가 `build-articles.js`에서 앞쪽 공백/zero-width를 strip 후 `JSON.parse`하므로 정상 복원된다. (병렬 작성 시 인코딩 통일 필수 — prose로 쓰면 FAQPage 스키마 누락.)
+>
+> **★ 이 우회는 MCP 경로에만 필요하다** — Notion REST(`PATCH /v1/pages/{id}`)를 직접 호출하면 plain JSON 문자열이 그대로 통과하고, **DB 에 실제로 저장된 기존 값 22행 전부 맨 앞이 `[`**(zero-width 없음)다. 그러니 저장된 값에 zero-width 가 없는 걸 **손상으로 오해해 고치지 말 것**. 라이트백을 python+REST 로 하면 중첩 JSON 이스케이프 사고도 없고, 되읽어 `JSON.parse` 로 왕복 검증까지 한 번에 된다.
+>
+> **★ faq 파싱 실패는 조용하다** — `build-articles.js` 의 `catch { faq = [] }` 가 삼켜서 빌드는 성공하고 FAQPage 만 사라진다. 판정은 로그가 아니라 산출물로: `grep -o '"@type":"Question"' <slug>/index.html | wc -l` 이 작성한 문항 수와 같아야 한다.
 
 > **★ write-back 시계 함정**: 라이트백은 `last_edited_time`을 올린다. 그래서 STEP 2(라이트백) → STEP 3(빌드, DB 재쿼리) 순서를 지키면, 빌드가 라이트백 **이후**의 시각을 manifest에 저장한다. 다음 실행 땐 사람이 본문을 또 고치지 않는 한 시각이 같아 **스킵**된다. 순서를 어기면 매번 재처리되니 주의.
 
@@ -171,17 +175,26 @@ bash ../.claude/hooks/lib/claude-bg.sh npx serve web-dist -l 5050   # `-s` 금�
   //       앵커 텍스트가 생 URL / article 텍스트 길이 200자 미만(본문 유실) /
   //       외부 절대 URL 앵커에 target="_blank" 누락 · 내부(/,#) 앵커에 target="_blank" 오부착
   //
-  // ★ 오탐 2종을 반드시 보정한다 (안 하면 42페이지 중 42페이지가 "깨졌다"고 나온다):
+  // ★ 오탐 3종을 반드시 보정한다 (안 하면 42페이지 중 42페이지가 "깨졌다"고 나온다):
   //  (a) 깨진 이미지: 본문 img 는 loading="lazy" 라 화면 밖 iframe 에선 **영원히 안 로드**돼
   //      naturalWidth===0 이 된다 → 판정 전에 `img.loading='eager'` 로 바꾸고
   //      `await Promise.all([...d.images].map(i => i.decode().catch(()=>{})))` 로 기다린다.
   //  (b) 가로 넘침: 표는 .tbl-wrap/.db-wrap 안에서 **스크롤되는 게 정상**이다 →
   //      조상 중 overflow-x:auto|scroll 이 있으면 제외하고, 페이지 레벨은
   //      documentElement.scrollWidth > clientWidth 로만 판정한다.
+  //  (c) **말줄임(ellipsis) 요소**: 북마크 카드의 .bm-title/.bm-url 은
+  //      `overflow:hidden + text-overflow:ellipsis + white-space:nowrap` 로 **1줄 말줄임이 의도**다.
+  //      이건 (b)의 overflow-x 조상 검사에 안 걸려서 그대로 두면 오탐이 쏟아진다
+  //      (실측: 44페이지 스윕에서 37건 전부 이 케이스) → 요소 자신의 computed style 이
+  //      textOverflow==='ellipsis' && overflow==='hidden' 이면 제외한다.
   ```
   > **★ 스윕 결과는 그 자체로 결함 목록이 아니다** — 오탐 보정 전 42건은 전부 lazy-load 아티팩트였다.
   > 각 건을 `curl`+`file -b`(실제 바이트) 로 대조해야 결함이다. 이 대조가 실제로 **HEIC 49 + HTML 1 = 50건의
   > 진짜 깨진 이미지**를 골라냈다(2026-08-14). 반대로 보정 없이 믿었으면 진짜 50건이 오탐 392건에 묻혔다.
+  > **★ 개수 셀 때 `grep -c` 금지 — 줄 수를 센다.** 생성 HTML 은 부분 minify 라 한 줄에 여러 건이 몰려 있어
+  > `grep -c '유영국'` 이 1 을 돌려준다(실제 4건). 상세 섹션이 유실된 것처럼 보여 오판하게 된다 →
+  > 개수는 `grep -o … | wc -l`, 구조는 정규식(`<h[1-4]…>(.*?)</h\1>`)으로 **텍스트를 뽑아 눈으로** 확인한다.
+  > heading 안엔 `<span>` 이 중첩돼 있어 `<h3[^>]*>[^<]*</h3>` 같은 패턴은 **아무것도 못 잡는다**.
 - 같은 스윕을 STEP 7 배포 후 prod origin에서 한 번 더 돌린다(캐시·리라이트까지 포함해 검증).
 
 ### STEP 5 — 커밋 + PR
@@ -217,6 +230,24 @@ bash ../.claude/hooks/lib/claude-bg.sh npx serve web-dist -l 5052   # ③ 로컬
                                                  #    SPA 폴백이 /articles/<slug>를 가로채 /login으로 보낸다
 aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무효화
 ```
+- **★ ②가 다시 `신규/변경 1`을 찍으면 그냥 넘기지 말고 diff 를 본다.** 두 원인이 겹쳐 있다:
+  1. `publishedAt` 스탬프는 row 조회 **이후**에 찍히므로 첫 빌드의 manifest `editedTime` 은 **항상 한 빌드 뒤처진다** →
+     다음 빌드가 그 글을 한 번 더 렌더한다(무해, 1회로 수렴).
+  2. 그런데 **작성자가 그 사이 본문을 고쳤을 수도 있다.** 1번이라고 단정하면 남의 본문 수정을 검증 없이 prod 로 보내거나,
+     반대로 커밋에서 빠뜨려 배포본과 main 이 벌어진다.
+  구분법은 **문자 단위 diff** 다 — 생성 HTML 은 minify 라 `git diff` 로는 무엇이 바뀐지 안 보인다:
+  ```bash
+  python3 - <<'P'   # dateModified 만인지 본문인지 가린다
+  import subprocess,difflib
+  F='web-articles/<slug>/index.html'
+  old=subprocess.run(['git','show',f'HEAD:{F}'],capture_output=True,text=True).stdout; new=open(F).read()
+  for t,i1,i2,j1,j2 in difflib.SequenceMatcher(None,old,new,autojunk=False).get_opcodes():
+      if t!='equal': print(t,'\n OLD:',repr(old[i1-70:i2+70]),'\n NEW:',repr(new[j1-70:j2+70]))
+  P
+  ```
+  `dateModified` 만 바뀌었으면 그대로 커밋, **본문이 바뀌었으면 그 수정도 커밋해 main 에 머지한 뒤** 배포한다
+  (2026-08-27 실측: `이달 안에`→`한 달 안에` 작성자 수정이 이 경로로 잡혔다. Notion 본문의 `last_edited_time`
+  을 직접 조회해 편집이 멎었는지 확인하고 나서 진행한다).
 - ③에서 SPA·bbucle·articles 3개 표면이 **모두** 살아있는지 확인 후에만 ④로 간다(`--delete` sync라 빠진 표면은 prod에서 삭제됨):
   ```bash
   curl -s localhost:5052/ -o /dev/null -w '%{http_code}\n'                    # SPA
@@ -245,6 +276,31 @@ gh run list --workflow=cd-production.yml -L 3                   # "Production OT
 - 태그 형식 `v{major}.{minor}-YYYYMMDD-NN`. 같은 날 두 번째면 `-02`. 절차 상세는 `/scc-app-release`.
 - **머지 안 된 상태로 태그 금지** — 태그는 main에서 잘리므로, PR이 열려 있으면 새 글 없는 번들이 나간다.
 - 이 스킬 밖에서는 여전히 **태그 자동 생성 금지**(배포 = 명시 요청만, H4 hook). 여기서의 명시 요청은 '발행' 그 자체다 — STEP 7과 같은 예외.
+
+#### ★ main 에 prod 로 가면 안 되는 앱 코드가 있을 때 — 아티클만 실어보내는 hotfix
+
+main HEAD 에 태그를 달면 **그 시점 main 의 앱 코드가 전부 prod 앱으로 나간다.** 미완성 UI 가 main 에
+올라가 있는 기간(sandbox OTA 는 계속 받아야 해서 되돌리지 않는 경우)에는 태그를 그냥 달면 안 된다.
+`web-articles/` 는 앱 코드와 완전히 분리돼 있어 **마지막 prod 태그 위에 아티클 커밋만 얹으면** 된다:
+
+```bash
+LAST=$(gh run list --workflow=cd-production.yml -L1 --json headBranch --jq '.[0].headBranch')  # 예 v1.3-20260825-01
+git log --oneline $LAST..origin/main -- src/ ios/ android/   # ← prod 로 가면 안 되는 것들 목록화
+git checkout -b hotfix/articles-<slug> $LAST                # H11(origin/main 분기) 의도적 예외
+git cherry-pick <아티클 커밋들>                              # web-articles/ 만 건드린 커밋만
+# 게이트: 앱 코드 변경이 0 이어야 한다
+[ -z "$(git diff --name-only $LAST..HEAD -- src/ ios/ android/ .github/)" ] || echo "STOP: 앱 코드 섞임"
+git push -u origin HEAD && git tag v1.3-YYYYMMDD-NN && git push origin v1.3-YYYYMMDD-NN
+```
+- **검증은 워크플로우가 계산한 changelog 로 한다** — `gh run view <id> --log | grep CHANGELOG` 가
+  `이전 배포(<이전태그>) 이후 변경사항:` 에 아티클 커밋만 나열해야 한다. 내 diff 판단보다 이게 강한 증거다.
+- **태그 push 는 그 태그가 가리키는 ref 의 워크플로우 파일로 실행된다.** 그래서 main 에 나중에 추가한
+  가드(예 `if: vars.PROD_OTA_ENABLED == 'true'`)는 **가드 이전 ref 에 달린 태그를 못 막는다** —
+  이 hotfix 는 그 덕에 repo 변수를 건드리지 않고 나가지만(가드는 main 보호용으로 그대로 둔다),
+  거꾸로 **그 가드를 안전장치로 신뢰하면 안 된다**는 뜻이기도 하다 (2026-08-27 실측).
+- 앱이 참조하는 **원격 에셋(썸네일 등)은 STEP 7 에서 이미 S3 에 올라가 있어야 한다** — 앱보다 먼저.
+- hotfix 브랜치는 태그가 커밋을 붙잡으므로 삭제해도 배포엔 무해하지만, 차단이 풀릴 때까지 아티클을
+  또 발행하면 **같은 태그에서 다시 분기**하게 되니 남겨두는 편이 낫다.
 
 ## 블록 렌더링 & 디자인 충실도 (Notion ↔ article 1:1)
 
@@ -283,3 +339,4 @@ gh run list --workflow=cd-production.yml -L 3                   # "Production OT
 
 ## 범위 밖 (다음 페이즈)
 - **저장 → 로그인 유도**: 백엔드(scc-api/server) 저장 API + 웹 로그인 플로우 필요. 크로스레포라 `/scc-feature`로 별도 진행. (템플릿에 `<!-- TODO -->` 자리만 둠)
+- **본문 이미지 최적화(미착수)**: Notion 원본을 **PNG 그대로** 내려 커밋하므로 `web-articles/` 가 이미 **552MB**, 한 글이 **60\~85MB**(3600×1200 PNG 1장이 7MB)다. 썸네일만 webp 로 압축되고 본문 이미지는 무압축이라 **LCP/Core Web Vitals 를 깎는다 — 이 스킬의 목적(검색 순위)과 정면으로 충돌**한다. 고칠 땐 `build-articles.js` 다운로드 단계에서 webp 변환 + 폭 상한(예 1600px)을 넣고 `--rerender` 로 전 글 재생성하면 되지만, 커밋 히스토리 용량은 그대로 남는다. 발행 작업 중엔 손대지 말 것(43개 글 전체 재생성 + 대용량 diff).
