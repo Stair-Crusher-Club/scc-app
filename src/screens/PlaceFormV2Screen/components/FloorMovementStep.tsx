@@ -219,7 +219,7 @@ export default function FloorMovementStep({
                       <PhotosV2
                         value={field.value ?? []}
                         onChange={field.onChange}
-                        target="place"
+                        target="elevator"
                         maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                       />
                     )}

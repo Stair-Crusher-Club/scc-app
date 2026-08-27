@@ -5,40 +5,41 @@ import {match} from 'ts-pattern';
 
 import CloseIcon from '@/assets/icon/close.svg';
 import {
-  hasShownGuideForEntrancePhotoAtom,
   hasShownGuideForReviewPhotoAtom,
   hasShownGuideForToiletPhotoAtom,
 } from '@/atoms/User';
 import {ScreenLayout} from '@/components/ScreenLayout';
-import {SccPressable} from '@/components/SccPressable';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import * as S from './PlacePhotoGuideScreen.style';
 
+// 입구(장소/건물) 촬영 가이드는 CameraScreen 위 오버레이(EntrancePhotoGuideCarousel)로
+// 렌더된다 — 이 화면은 별도 스크린이 필요한 review/toilet 전용이다.
 export interface PlacePhotoGuideScreenParams {
-  target: 'place' | 'review' | 'toilet';
+  target: 'review' | 'toilet';
 }
 
+// 방문리뷰/화장실은 기존 1페이지 가이드를 그대로 유지한다(사용자 확정 사항).
 export default function PlacePhotoGuideScreen({
   route,
   navigation,
 }: ScreenProps<'PlacePhotoGuide'>) {
   const {target} = route.params;
-  const setHasShownGuideForEnterancePhoto = useSetAtom(
-    hasShownGuideForEntrancePhotoAtom,
-  );
   const setHasShownGuideForReviewPhoto = useSetAtom(
     hasShownGuideForReviewPhotoAtom,
   );
   const setHasShownGuideForToiletPhoto = useSetAtom(
     hasShownGuideForToiletPhotoAtom,
   );
-  //\u2022
+  useEffect(() => {
+    if (target === 'review') {
+      setHasShownGuideForReviewPhoto(true);
+    } else if (target === 'toilet') {
+      setHasShownGuideForToiletPhoto(true);
+    }
+  }, []);
+
   const guideMessages = match(target)
-    .with('place', () => [
-      '매장 출입구가 잘 보이는 사진이 유용해요.',
-      '첫 장은 간판과 출입문이 보이게, 다음 장은 문턱 위주로 찍어주세요.',
-    ])
     .with('review', () => [
       '내부 공간이 잘 보이게 촬영해 주세요',
       '좌석이나 통로가 잘 드러나도록\n다양한 각도에서 찍어주세요',
@@ -48,26 +49,10 @@ export default function PlacePhotoGuideScreen({
       '화장실 넓이, 세면대 높이가 잘 드러나도록\n가슴 높이에서 찍어주세요(키 150cm 이상 기준)',
     ])
     .exhaustive();
-  useEffect(() => {
-    if (target === 'place') {
-      setHasShownGuideForEnterancePhoto(true);
-    } else if (target === 'review') {
-      setHasShownGuideForReviewPhoto(true);
-    } else if (target === 'toilet') {
-      setHasShownGuideForToiletPhoto(true);
-    }
-  }, []);
   const guideImage = match(target)
-    .with('place', () => require('../../assets/img/guide_entrance.png'))
     .with('review', () => require('../../assets/img/guide_review.png'))
     .with('toilet', () => require('../../assets/img/guide_toilet.png'))
     .exhaustive();
-
-  function goToGuide() {
-    navigation.navigate('Webview', {
-      url: 'https://agnica.notion.site/b43c00d499f74083a679db7af91828bc',
-    });
-  }
 
   return (
     <ScreenLayout
@@ -89,16 +74,11 @@ export default function PlacePhotoGuideScreen({
         <S.BulletPoints>
           {guideMessages.map((message, index) => (
             <S.BulletPointContainer key={index}>
-              <S.BulletPoint>{'\u2022'}</S.BulletPoint>
+              <S.BulletPoint>{'•'}</S.BulletPoint>
               <S.GuideMessageContent>{message}</S.GuideMessageContent>
             </S.BulletPointContainer>
           ))}
         </S.BulletPoints>
-        {target === 'place' && (
-          <SccPressable elementName="place_photo_guide" onPress={goToGuide}>
-            <S.More>더 알아보기 {'>'}</S.More>
-          </SccPressable>
-        )}
       </S.GuideMessage>
     </ScreenLayout>
   );

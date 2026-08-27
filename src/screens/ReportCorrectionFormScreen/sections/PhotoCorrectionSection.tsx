@@ -80,6 +80,7 @@ export default function PhotoCorrectionSection({
       <PhotoEditSlots
         title="장소 입구 사진을 확인해주세요"
         description="최대 3장까지 등록 가능해요"
+        target="placeEntrance"
         existingPhotoUrls={entranceImageUrls}
         newPhotos={newEntrancePhotos}
         deletedExistingIndices={deletedEntrancePhotoIndices}
@@ -95,6 +96,7 @@ export default function PhotoCorrectionSection({
         <PhotoEditSlots
           title="매장 엘리베이터 사진을 확인해주세요"
           description="최대 3장까지 등록 가능해요"
+          target="elevator"
           existingPhotoUrls={elevatorImageUrls}
           newPhotos={newElevatorPhotos}
           deletedExistingIndices={deletedElevatorPhotoIndices}
@@ -111,6 +113,7 @@ export default function PhotoCorrectionSection({
         <PhotoEditSlots
           title="건물 입구 사진을 확인해주세요"
           description="최대 3장까지 등록 가능해요"
+          target="buildingEntrance"
           existingPhotoUrls={baEntranceImageUrls}
           newPhotos={newBaEntrancePhotos}
           deletedExistingIndices={deletedBaEntrancePhotoIndices}
@@ -127,6 +130,7 @@ export default function PhotoCorrectionSection({
         <PhotoEditSlots
           title="건물 엘리베이터 사진을 확인해주세요"
           description="최대 3장까지 등록 가능해요"
+          target="elevator"
           existingPhotoUrls={baElevatorImageUrls}
           newPhotos={newBaElevatorPhotos}
           deletedExistingIndices={deletedBaElevatorPhotoIndices}

@@ -31,7 +31,7 @@ import AccessibilityInfoRequestButton, {
   isInfoRequestEligible,
 } from '@/components/AccessibilityInfoRequestButton';
 import ScoreLabel from '@/screens/SearchScreen/components/ScoreLabel';
-import Tooltip from '@/screens/SearchScreen/components/Tooltip';
+import Tooltip from '@/components/Tooltip';
 import XSButton from '@/screens/SearchScreen/components/XSButton';
 import {distanceInMeter, prettyFormatMeter} from '@/utils/DistanceUtils';
 import ShareUtils from '@/utils/ShareUtils';

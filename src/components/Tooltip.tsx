@@ -29,12 +29,7 @@ export default function Tooltip({
 const Wrapper = styled.View<{isCenter: boolean}>`
   width: 100%;
   flex-direction: column;
-  align-items: center;
-  ${({isCenter}) =>
-    isCenter &&
-    `
-    align-items: center;
-  `}
+  align-items: ${({isCenter}) => (isCenter ? 'center' : 'flex-start')};
 `;
 
 const Container = styled.View`

@@ -8,6 +8,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import ImageFile from '@/models/ImageFile';
 import useNavigation from '@/navigation/useNavigation';
+import type {CameraTarget} from '@/screens/CameraScreen';
 import ImageFileUtils from '@/utils/ImageFileUtils';
 
 interface PhotoEditSlotsProps {
@@ -15,6 +16,8 @@ interface PhotoEditSlotsProps {
   title?: string;
   /** 타이틀 아래 보조 설명 (예: "최대 3장까지 등록 가능해요") */
   description?: string;
+  /** 촬영 맥락 — 가이드 오버레이/예시 사진 노출 분기의 기준 */
+  target: CameraTarget;
   /** 기존 원격 사진 URL */
   existingPhotoUrls: string[];
   /** 교체된 기존 사진 (원본 인덱스 -> 새 사진) */
@@ -40,6 +43,7 @@ interface PhotoEditSlotsProps {
 export default function PhotoEditSlots({
   title,
   description,
+  target,
   existingPhotoUrls,
   replacedPhotos,
   newPhotos,
@@ -63,7 +67,7 @@ export default function PhotoEditSlots({
       takenPhotos: newPhotos,
       maxPhotos: Math.max(1, maxPhotos - activeExistingPhotos.length),
       onPhotosTaken: onChangeNewPhotos,
-      target: 'place',
+      target,
     });
   };
 
@@ -76,7 +80,7 @@ export default function PhotoEditSlots({
           onReplaceExisting(originalIndex, photos[0]);
         }
       },
-      target: 'place',
+      target,
     });
   };
 

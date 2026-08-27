@@ -155,6 +155,7 @@ export default function ElevatorCorrectionSection({
           <PhotoEditSlots
             title="매장 엘리베이터 사진을 확인해주세요"
             description="최대 3장까지 등록 가능해요"
+            target="elevator"
             existingPhotoUrls={existingElevatorPhotoUrls}
             newPhotos={newElevatorPhotos}
             deletedExistingIndices={deletedElevatorPhotoIndices}
@@ -169,6 +170,7 @@ export default function ElevatorCorrectionSection({
             <PhotoEditSlots
               title="건물 엘리베이터 사진을 확인해주세요"
               description="최대 3장까지 등록 가능해요"
+              target="elevator"
               existingPhotoUrls={existingBaElevatorPhotoUrls}
               newPhotos={newBaElevatorPhotos}
               deletedExistingIndices={deletedBaElevatorPhotoIndices}

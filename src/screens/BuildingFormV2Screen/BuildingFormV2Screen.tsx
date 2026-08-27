@@ -578,7 +578,7 @@ export default function BuildingFormV2Screen({
                       <PhotosV2
                         value={field.value ?? []}
                         onChange={field.onChange}
-                        target="building"
+                        target="buildingEntrance"
                         maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                       />
                     )}
@@ -776,7 +776,7 @@ export default function BuildingFormV2Screen({
                           <PhotosV2
                             value={field.value ?? []}
                             onChange={field.onChange}
-                            target="building"
+                            target="elevator"
                             maxPhotos={MAX_NUMBER_OF_TAKEN_PHOTOS}
                           />
                         )}

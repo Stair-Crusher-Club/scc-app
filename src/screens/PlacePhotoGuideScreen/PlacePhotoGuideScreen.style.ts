@@ -61,10 +61,3 @@ export const GuideMessageContent = styled.Text({
 export const BulletPoints = styled.View({
   gap: 2,
 });
-
-export const More = styled.Text({
-  color: color.brandColor,
-  fontSize: 14,
-  fontFamily: font.pretendardMedium,
-  textAlign: 'right',
-});

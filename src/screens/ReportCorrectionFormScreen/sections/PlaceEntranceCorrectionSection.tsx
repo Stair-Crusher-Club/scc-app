@@ -163,6 +163,7 @@ export default function PlaceEntranceCorrectionSection({
       <PhotoEditSlots
         title="매장 입구 사진을 확인해주세요"
         description="최대 3장까지 등록 가능해요"
+        target="placeEntrance"
         existingPhotoUrls={existingEntrancePhotoUrls}
         newPhotos={newEntrancePhotos}
         deletedExistingIndices={deletedEntrancePhotoIndices}
