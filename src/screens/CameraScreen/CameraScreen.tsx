@@ -8,6 +8,7 @@ import {
   launchImageLibrary,
   MediaType,
 } from 'react-native-image-picker';
+import Svg, {Line} from 'react-native-svg';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 
 import AlbumIcon from '@/assets/icon/ic_album.svg';
@@ -444,8 +445,12 @@ export default function CameraScreen({
             <CameraDeviceSelect device={device} onDeviceSelect={setDevice} />
             {isEntrance && isGuideOverlayEnabled && photoFiles.length === 0 && (
               <S.DoorFrameOverlay pointerEvents="none">
-                <S.DoorFrameGroundLineLeft />
-                <S.DoorFrameGroundLineRight />
+                <S.DoorFrameGroundLineLeft>
+                  <GroundDashLine />
+                </S.DoorFrameGroundLineLeft>
+                <S.DoorFrameGroundLineRight>
+                  <GroundDashLine />
+                </S.DoorFrameGroundLineRight>
                 <S.DoorFrameRect />
                 <S.OverlayCaption>
                   {'문을 프레임 안에\n맞춰주세요'}
@@ -534,7 +539,8 @@ export default function CameraScreen({
                     <S.CloseButton
                       elementName="taken_photo_delete_button"
                       onPress={() => onPressX(item)}>
-                      <CircleCloseIcon width={24} height={24} />
+                      {/* Figma(btn_delete_img): 20x20 @ 슬롯 rel(40,-4) */}
+                      <CircleCloseIcon width={20} height={20} />
                     </S.CloseButton>
                   </S.TakenPhotoItem>
                 )}
@@ -598,7 +604,7 @@ export default function CameraScreen({
         <S.SideButton
           left={20}
           elementName="camera_album_button"
-          disabled={!isAlbumUploadAllowed}
+          isDimmed={!isAlbumUploadAllowed}
           accessibilityRole="button"
           accessibilityLabel="앨범에서 사진 선택"
           accessibilityState={{disabled: !isAlbumUploadAllowed}}
@@ -695,6 +701,23 @@ export default function CameraScreen({
         />
       )}
     </ScreenLayout>
+  );
+}
+
+// Figma(113:5048/5049): stroke white 2px, dash [4,4]. 컨테이너 폭 전체를 채운다.
+function GroundDashLine() {
+  return (
+    <Svg width="100%" height={2}>
+      <Line
+        x1="0"
+        y1="1"
+        x2="100%"
+        y2="1"
+        stroke="white"
+        strokeWidth={2}
+        strokeDasharray="4,4"
+      />
+    </Svg>
   );
 }
 

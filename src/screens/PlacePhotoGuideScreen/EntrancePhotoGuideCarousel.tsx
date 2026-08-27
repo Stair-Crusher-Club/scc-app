@@ -66,7 +66,7 @@ export default function EntrancePhotoGuideCarousel({
           resizeMode="cover"
         />
       </SampleImageWrapper>
-      <BottomArea>
+      <BottomArea style={{paddingBottom: 20 + insets.bottom}}>
         <CaptionArea>
           <Caption>{page.caption}</Caption>
         </CaptionArea>
@@ -109,10 +109,11 @@ const SampleImageWrapper = styled.View({
   aspectRatio: '390/420',
 });
 
+// 배경(Root)은 인셋 바깥까지 덮지만, 버튼은 하단 인셋(제스처바)과 겹치면 안 되므로
+// paddingBottom 을 인셋만큼 더한다 (호출부에서 insets.bottom 을 주입).
 const BottomArea = styled.View({
   flex: 1,
   paddingHorizontal: 20,
-  paddingBottom: 20,
 });
 
 // Figma(113:4962): 사진 아래(543) ~ 버튼 위(770) 사이에 캡션(628~680)이 세로 가운데로

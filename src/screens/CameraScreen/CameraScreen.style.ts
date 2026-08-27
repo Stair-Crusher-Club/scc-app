@@ -84,15 +84,17 @@ export const DoorFrameRect = styled.View({
   backgroundColor: 'rgba(255, 255, 255, 0.4)',
 });
 
+// Figma(113:5048/5049): y=467 에 좌 123px / 우 124px 점선. 높이 0 인 순수 선이다.
+// RN 의 `borderTopWidth + borderStyle:'dashed'` 는 4변이 균일하지 않으면 안드로이드에서
+// 렌더되지 않아 선이 아예 안 보였다 → SVG Line 으로 그린다(문 프레임 사각형은 4변
+// 균일해서 dashed 가 정상 동작하므로 그대로 둔다).
 export const DoorFrameGroundLineLeft = styled.View({
   position: 'absolute',
   left: 0,
   right: '50%',
   marginRight: DOOR_FRAME_WIDTH / 2,
   bottom: 0,
-  borderTopWidth: 2,
-  borderStyle: 'dashed',
-  borderColor: 'white',
+  height: 2,
 });
 
 export const DoorFrameGroundLineRight = styled.View({
@@ -101,9 +103,7 @@ export const DoorFrameGroundLineRight = styled.View({
   left: '50%',
   marginLeft: DOOR_FRAME_WIDTH / 2,
   bottom: 0,
-  borderTopWidth: 2,
-  borderStyle: 'dashed',
-  borderColor: 'white',
+  height: 2,
 });
 
 export const OverlayCaption = styled.Text({
@@ -266,8 +266,11 @@ export const CaptureInnerDeco = styled.View({
 export const SideButton = styled(SccPressable)<{
   left?: number;
   right?: number;
-  disabled?: boolean;
-}>(({left, right, disabled}) => ({
+  // ⚠️ `disabled` 라는 이름을 쓰면 styled-components 가 그대로 Pressable 로 넘겨
+  // onPress 가 아예 호출되지 않는다 — 앨범 비활성 시 안내 토스트가 안 뜨던 원인.
+  // 스타일 전용 prop 이므로 이름을 분리한다.
+  isDimmed?: boolean;
+}>(({left, right, isDimmed}) => ({
   position: 'absolute',
   top: 11,
   left,
@@ -275,7 +278,7 @@ export const SideButton = styled(SccPressable)<{
   width: SIDE_BUTTON_SIZE,
   alignItems: 'center',
   gap: 6,
-  opacity: disabled ? 0.4 : 1,
+  opacity: isDimmed ? 0.4 : 1,
 }));
 
 export const SideButtonCircle = styled.View({
