@@ -125,7 +125,7 @@ NOTION_TOKEN=... node scripts/build-articles.js --db <database_id> --dry
      | C. 장소가 아닌 정보 | 제도·절차·가이드 | 그 글 카테고리의 `articles_cta_<slug>` 링크 | 비움 |
 
      - **A 버킷인데 저장리스트가 없으면 비워둔다** (홈 폴백). 나중에 저장리스트가 생기면 이 두 칸만 채우면 되고
-       코드 배포가 필요 없다. 저장리스트 발급은 `/scc-create-content-list-type`이 담당하고, **그 스킬이 이미
+       코드 배포가 필요 없다. 저장리스트 발급은 `/scc:create-content-list-type`이 담당하고, **그 스킬이 이미
        트래킹링크를 알고 있으므로 `slug`와 함께 이 두 칸도 그 스킬이 미리 배정한다** — 이 스킬은 비어 있으면 그대로 둔다.
      - 이미 값이 있으면 **재생성 금지**(`slug`와 같은 이유 — 유입 리포트가 어긋난다).
      - 본문 안에 이미 저장리스트 링크(`link.staircrusher.club/<region>_save`)가 있으면 그것을 쓴다. 주의: 같은
