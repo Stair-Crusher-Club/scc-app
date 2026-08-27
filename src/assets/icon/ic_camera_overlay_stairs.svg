@@ -1,6 +1,7 @@
 <svg width="340" height="112" viewBox="0 0 340 112" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M286.668 1L1 34.2691L26.5307 52.6176L312.186 19.5866L286.668 1Z" fill="white" fill-opacity="0.4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4,4"/>
-<path d="M312.191 19.59L312.439 39.3388L338.331 58.0946L52.2363 91.049L26.5712 72.4353L26.53 52.6175L312.191 19.59Z" fill="white" fill-opacity="0.3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4,4"/>
-<path d="M339.004 78.3187L338.334 58.09L52.24 91.0523L52.7675 110.988L339.004 78.3187Z" fill="white" fill-opacity="0.2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4,4"/>
-<path d="M2.0731 73.6417L1 34.27L26.5368 52.6255L26.5605 72.4245L52.2319 91.0508L52.7683 111.004L2.0731 73.6417Z" fill="white" fill-opacity="0.2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4,4"/>
+<path d="M286.668 0.999998L1.00006 34.269L26.5307 52.6175L312.186 19.5866L286.668 0.999998Z" fill="white" fill-opacity="0.4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+<path d="M312.19 19.5897L312.438 39.3385L338.33 58.0942L52.2356 91.0486L26.5705 72.4349L26.5293 52.6171L312.19 19.5897Z" fill="white" fill-opacity="0.3"/>
+<path d="M26.5705 72.4349L312.438 39.3385M312.438 39.3385L338.33 58.0942L52.2356 91.0486L26.5705 72.4349L26.5293 52.6171L312.19 19.5897L312.438 39.3385Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+<path d="M339 78.3198L338.33 58.0911L52.2363 91.0534L52.7638 110.989L339 78.3198Z" fill="white" fill-opacity="0.2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+<path d="M2.07807 73.6371L1.00494 34.2654L26.5417 52.621L26.5654 72.4198L52.2367 91.0462L52.7732 111L2.07807 73.6371Z" fill="white" fill-opacity="0.2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
 </svg>
