@@ -184,6 +184,8 @@ export const TakenPhotos = styled.View({
 
 // 썸네일 행(68) 아래에 absolute 로 놓는다 — 레이아웃 높이를 차지하지 않으므로
 // 문구 유무가 썸네일 행 위치에 영향을 주지 않고, 섹션을 압축시키지도 않는다.
+// Figma(113:5059)는 "최대 N장까지 촬영할 수 있어요" **한 줄**이다. 음량 버튼 안내를
+// 둘째 줄로 덧붙였더니 좁은 화면에서 버튼 영역까지 내려와 겹쳤다.
 export const PhotoCaption = styled.Text({
   position: 'absolute',
   top: 8 + 68 + 8,
