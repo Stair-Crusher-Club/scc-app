@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!) | 계단뿌셔클럽</title>
+<meta name="description" content="휠체어로 갈 수 있는 서울·수도권 미술관 10곳과 진행 중인 전시를 계단뿌셔클럽 크루가 직접 방문해 확인한 접근성 정보(경사로·엘리베이터·장애인화장실)와 함께 정리했습니다. 국립현대미술관 서울·덕수궁, 서울시립미술관, DDP 뮤지엄, 소마미술관 등 실내 코스라 날씨와 상관없이 주말 나들이로 좋습니다.">
+<link rel="canonical" href="https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+(function(){
+  // 앱 인앱 웹뷰: WebViewScreen 의 injectedJavaScriptBeforeContentLoaded 가
+  // 페이지 스크립트보다 먼저 window.__SCC_APP_AUTH__ 를 심어둔다. 그게 앱 유저의 신원이다.
+  // 브라우저: 직전 세션이 남긴 localStorage. 첫 방문자는 신원이 없다(익명계정 발급 전) —
+  // 그 경우 번들의 Logger.setUserId 가 나중에 채운다.
+  //
+  // mmkv 키가 두 포맷인 것은 scripts/article-template.js 의 readSpaToken 과 같은 이유다:
+  // webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어 지금은 'mmkv.default.userInfo'
+  // (dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\\userInfo' (backslash) 가 된다.
+  function readUserId(){
+    try {
+      var injected = window.__SCC_APP_AUTH__;
+      if (injected && injected.userId) return injected.userId;
+    } catch (e) {}
+    var keys = ['mmkv.default.userInfo', 'mmkv.default\\userInfo'];
+    for (var i = 0; i < keys.length; i++) {
+      try {
+        var raw = localStorage.getItem(keys[i]);
+        if (raw) {
+          var user = JSON.parse(raw);
+          if (user && user.id) return user.id;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  // react-native-webview 는 자신이 로드한 모든 페이지에 ReactNativeWebView 를 주입한다
+  // (토큰 주입 여부와 무관). web/utils/isInAppWebView.ts 와 동일한 신호를 쓴다.
+  var surface = window.ReactNativeWebView ? 'app_webview' : 'web';
+  var userId = readUserId();
+  // 진단용. 앱 웹뷰인데 신원이 없는 케이스가 두 원인으로 뭉쳐 있어 못 갈랐다(2026-08-10 배포 후 실측:
+  // app_webview 74건 중 23건이 신원 없음, 디바이스 3대):
+  //   bridgeVersion=1 → 구앱. userId 를 주입하지 않으므로 localStorage 폴백 → OTA 전파되면 소멸.
+  //   bridgeVersion=2 + userId 없음 → 레거시 '0' 비회원(ANONYMOUS_USER_TEMPLATE.id)이거나 미채번.
+  //     WebViewScreen 이 이 sentinel 을 의도적으로 제외한다 → **OTA 로 안 사라지는 영구 케이스.**
+  // readUserId 안의 injected 는 그 함수 스코프라 여기서 다시 읽는다.
+  var bridge = window.__SCC_APP_AUTH__;
+
+  var userProperties = {surface: surface};
+  if (userId) userProperties.userId = userId;
+  // 신원 채널(user_id / userId)은 건드리지 않는다 — 진단 키만 추가한다.
+  if (bridge && bridge.bridgeVersion) {
+    userProperties.bridgeVersion = String(bridge.bridgeVersion);
+  }
+
+  gtag('set', 'user_properties', userProperties);
+  gtag('set', {surface: surface});
+  var config = {user_properties: userProperties};
+  if (userId) config.user_id = userId;
+  gtag('config', 'G-B80XR4HWJE', config);
+})();
+</script>
+<script defer src="/articles-analytics.js"></script>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<meta property="og:type" content="article">
+<meta property="og:title" content="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)">
+<meta property="og:description" content="휠체어로 갈 수 있는 서울·수도권 미술관 10곳과 진행 중인 전시를 계단뿌셔클럽 크루가 직접 방문해 확인한 접근성 정보(경사로·엘리베이터·장애인화장실)와 함께 정리했습니다. 국립현대미술관 서울·덕수궁, 서울시립미술관, DDP 뮤지엄, 소마미술관 등 실내 코스라 날씨와 상관없이 주말 나들이로 좋습니다.">
+<meta property="og:url" content="https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul">
+<meta property="og:site_name" content="계단뿌셔클럽">
+<meta property="og:image" content="https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul/assets/img-0.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)">
+<meta name="twitter:description" content="휠체어로 갈 수 있는 서울·수도권 미술관 10곳과 진행 중인 전시를 계단뿌셔클럽 크루가 직접 방문해 확인한 접근성 정보(경사로·엘리베이터·장애인화장실)와 함께 정리했습니다. 국립현대미술관 서울·덕수궁, 서울시립미술관, DDP 뮤지엄, 소마미술관 등 실내 코스라 날씨와 상관없이 주말 나들이로 좋습니다.">
+<meta name="twitter:image" content="https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul/assets/img-0.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)","description":"휠체어로 갈 수 있는 서울·수도권 미술관 10곳과 진행 중인 전시를 계단뿌셔클럽 크루가 직접 방문해 확인한 접근성 정보(경사로·엘리베이터·장애인화장실)와 함께 정리했습니다. 국립현대미술관 서울·덕수궁, 서울시립미술관, DDP 뮤지엄, 소마미술관 등 실내 코스라 날씨와 상관없이 주말 나들이로 좋습니다.","image":["https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul/assets/img-0.png"],"datePublished":"2026-08-27T06:04:00.000Z","dateModified":"2026-08-27T06:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul"},"author":{"@type":"Organization","name":"계단뿌셔클럽","url":"https://staircrusher.club"},"publisher":{"@type":"Organization","name":"계단뿌셔클럽","logo":{"@type":"ImageObject","url":"https://web.staircrusher.club/articles/assets/scc-logo.png"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"휠체어로 갈 수 있는 서울 미술관은 어디인가요?","acceptedAnswer":{"@type":"Answer","text":"국립현대미술관 서울, 서울시립미술관, DDP 뮤지엄 전시1관, 그라운드시소 이스트·한남, 소마미술관 2관은 경사로 또는 엘리베이터로 진입할 수 있습니다. 국립현대미술관 덕수궁은 정면 입구가 계단이라 직원 안내로 휠체어 리프트나 석조전 뒤쪽 엘리베이터를 이용해야 하며, 방문 전 02-2022-0640으로 동선을 확인하는 것을 권합니다."}},{"@type":"Question","name":"국립현대미술관 서울에서 전시 두 개를 함께 보려면 무엇을 확인해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"엘리베이터마다 이동할 수 있는 층이 다릅니다. 서도호 개인전과 올해의작가상 2026을 함께 관람한다면 탑승 전에 각 엘리베이터가 어느 층까지 가는지 먼저 확인해야 합니다."}},{"@type":"Question","name":"퐁피두센터 한화의 장애인 화장실은 어디에 있나요?","acceptedAnswer":{"@type":"Answer","text":"로비 게이트 바깥쪽에 있습니다. 게이트를 통과한 전시장 안쪽에는 장애인 화장실이 없으므로 게이트를 지나기 전에 이용하는 것이 좋습니다. 로비에서 전시장까지는 엘리베이터를 두 번 갈아타야 합니다."}},{"@type":"Question","name":"휠체어를 무료로 대여할 수 있는 전시장이 있나요?","acceptedAnswer":{"@type":"Answer","text":"DDP 뮤지엄은 지하 2층에서 휠체어를 무료로 대여할 수 있습니다. DDP는 관람과 식사, 카페를 한 건물에서 해결할 수 있어 날씨와 상관없는 실내 코스로 좋습니다."}},{"@type":"Question","name":"지하철역과 바로 연결되는 접근성 좋은 미술관은 어디인가요?","acceptedAnswer":{"@type":"Answer","text":"그라운드시소 이스트는 구의역 3번 출구와 바로 연결되고, 소마미술관 2관은 한성백제역 2번 출구 엘리베이터에서 전용 엘리베이터로 지하 1층 로비까지 이어집니다. 그라운드시소 한남은 지하주차장과 미술관 엘리베이터가 직결됩니다."}},{"@type":"Question","name":"국제갤러리 박서보 전시는 휠체어로 모두 관람할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"K1은 입구와 내부 모두 경사로가 있어 관람할 수 있고, K3는 계단이 없는 단층이지만 골목 안쪽에 있습니다. 한옥관은 입구가 계단만 있고 내부도 좁아 휠체어 진입이 어렵습니다."}}]}</script>
+<style>
+:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
+/* 목록/푸터 디자인 토큰 (Figma) */
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
+*{box-sizing:border-box;}
+[hidden]{display:none!important;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:#fff;color:var(--fg);font-family:"Pretendard",ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px;}
+a{color:inherit;}
+img{max-width:100%;height:auto;}
+/* top bar */
+.site-header{border-bottom:1px solid var(--line);}
+.site-header .wrap{display:flex;align-items:center;gap:8px;height:48px;}
+.site-header img{width:24px;height:24px;border-radius:5px;}
+.site-header b{font-size:15px;font-weight:600;}
+.back{display:inline-flex;align-items:center;gap:5px;margin:22px 0 -6px;color:var(--muted);font-size:14px;text-decoration:none;}
+.back:hover{color:var(--fg);}
+/* article body — Notion 매칭 */
+article{padding:8px 0 72px;}
+h1.title{font-size:40px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;margin:16px 0 6px;}
+.article-date{color:var(--muted);font-size:14px;margin:0 0 26px;}
+article h2{font-size:30px;font-weight:600;line-height:1.3;margin:34px 0 6px;}
+article h3{font-size:24px;font-weight:600;line-height:1.3;margin:26px 0 4px;}
+article h4{font-size:20px;font-weight:600;line-height:1.3;margin:20px 0 2px;}
+article p{margin:0;padding:3px 0;}
+article strong,article b{font-weight:600;}
+/* 링크 텍스트가 생 URL이면 끊길 곳이 없어 페이지 전체가 가로로 늘어난다 */
+article a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);text-underline-offset:2px;overflow-wrap:anywhere;}
+article ul,article ol{margin:0;padding:2px 0 2px 1.7em;}
+article li{padding:2px 0;}
+article li::marker{color:var(--muted);}
+blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
+.callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
+.callout .emoji{flex:0 0 auto;line-height:1.5;}
+.callout .callout-ico{flex:0 0 auto;width:22px;height:22px;margin-top:2px;object-fit:contain;}
+/* flex 아이템 기본 min-width:auto 때문에 내부 nowrap(북마크 카드 URL 등)이 페이지를 밀어낸다 */
+.callout>div{min-width:0;flex:1 1 auto;}
+.callout>div>*:first-child{margin-top:0;padding-top:0;}
+details{margin:3px 0;}
+details summary{cursor:pointer;padding:3px 0;font-weight:600;}
+pre{background:var(--soft);border-radius:4px;padding:16px;overflow:auto;font-size:14px;line-height:1.4;margin:8px 0;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+:not(pre)>code{background:rgba(135,131,120,.15);color:#eb5757;padding:.2em .4em;border-radius:3px;font-size:.86em;}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0;}
+figure{margin:10px 0;}
+figure img{display:block;border-radius:3px;}
+figcaption{color:var(--muted);font-size:14px;margin-top:6px;}
+table{border-collapse:collapse;margin:8px 0;font-size:14px;width:100%;}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+th{background:var(--soft);font-weight:600;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.columns{display:flex;gap:16px;margin:8px 0;}
+.columns>.column{flex:1 1 0;min-width:0;}
+/* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
+figure.db{margin:12px 0;}
+.db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
+.db-wrap table{margin:0;border:0;min-width:100%;table-layout:auto;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;min-width:8em;max-width:24em;}
+.db-title{font-weight:600;font-size:15px;margin:14px 0 6px;}
+.empty{height:1em;margin:0;}
+.db-wrap tr:last-child td{border-bottom:0;}
+.pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* bookmark 블록 → Notion 북마크 카드(좌 썸네일 + 우 제목/설명/URL). 치수는 Notion 실측 */
+a.bookmark{display:flex;flex-wrap:wrap;align-items:stretch;margin:8px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;}
+a.bookmark:hover{background:rgba(55,53,47,.03);}
+.bm-thumb{flex:1 1 100px;min-width:0;height:154px;overflow:hidden;}
+.bm-thumb img{display:block;width:100%;height:100%;object-fit:cover;}
+.bm-body{flex:4 1 180px;min-width:0;display:flex;flex-direction:column;gap:8px;padding:18px 24px 14px;overflow:hidden;}
+a.bookmark.no-thumb .bm-body{padding:12px 16px;}
+.bm-title{font-size:17px;line-height:22px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bm-desc{font-size:13px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.bm-url{margin-top:auto;color:var(--muted);font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
+/* ===== 사이트 푸터 (목록/상세 공용) ===== */
+/* PC/MO가 Figma에서 auto-layout 값이 다르다(108:700 vs 108:859) — 같다고 가정하지 말 것 */
+.site-footer{background:#27272a;padding:60px 0 100px;margin-top:80px;}
+.site-footer .lwrap{display:flex;flex-direction:column;gap:50px;}
+.f-top{display:flex;flex-direction:column;gap:20px;}
+.f-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.f-tagline{color:#fff;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-0.28px;margin:0;}
+.f-logo{display:block;width:208px;height:35px;max-width:100%;}
+.f-pills{display:flex;flex-wrap:wrap;gap:12px;}
+.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
+.f-pills a:hover{background:rgba(255,255,255,.1);}
+.f-pills img{display:block;width:20px;height:20px;}
+.f-bottom{display:flex;flex-direction:column;gap:20px;color:#c1c1c5;font-size:13px;}
+.f-legalgroup{display:flex;flex-direction:column;gap:16px;}
+.f-legal{display:flex;flex-direction:column;gap:4px;}
+.f-legal p{margin:0;}
+.f-copy{font-weight:600;line-height:1.3;}
+.f-biz{font-weight:400;line-height:1.5;}
+.f-links{display:flex;gap:20px;}
+.f-links a{color:#c1c1c5;line-height:1.3;text-decoration:underline;}
+/* 파트너 로고 3개는 한 장의 partners.svg(288x24)를 스프라이트로 잘라 각각 링크로 만든다.
+   좌표는 Figma Layer_1(108:1812) 자식 그룹 실측: 0/100, 124/61, 207/80 */
+.f-partners{display:flex;align-items:flex-start;height:24px;}
+.f-partners a{display:block;background-image:url(/articles/assets/partners.svg);background-repeat:no-repeat;background-size:288px 24px;}
+.f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
+.f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
+.f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 상세 하단 고정 CTA 바 (Figma 72:429/442 PC, 72:459/469 MO) ===== */
+/* Figma 에 그림자는 없다 — border-top 만. (bbucle-road FloatingBottomBar 는 shadow 를 쓰지만 여긴 아니다) */
+/* safe-area 보정은 넣지 않는다: viewport meta 에 viewport-fit=cover 가 없어 env(safe-area-inset-*)
+   가 규격상 0 이라 죽은 코드가 된다. cover 를 켜면 페이지 전체 레이아웃이 노치 아래로 확장돼
+   아티클 본문까지 영향을 받으므로, 필요해지면 그때 페이지 단위로 결정한다. */
+.cta-bar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;border-top:1px solid var(--g25);padding:16px 0 20px;}
+/* inner 폭을 본문 .wrap(720/24)에 맞춘다 — Figma PC 콘텐츠 674px(1920-623*2)와 사실상 동일 */
+.cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
+.cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
+.cta-icon img{display:block;width:24px;height:24px;}
+/* 좋아요 누른 상태는 **하트 아이콘만** 빨강으로 바뀐다 (ic-heart-fill.svg 의 fill/stroke =
+   #DB0B24, 앱 팔레트 color.red). Figma 에 active 상태가 없어 디자인시스템 fill variant 기본색
+   (#0C76F7 파랑)을 앱 red 로 바꿔 썼다. 버튼 테두리는 눌려도 기본 회색 그대로 둔다 — 테두리까지
+   빨강이면 아이콘 강조가 죽고 버튼 자체가 에러 상태처럼 보인다. (사용자 피드백 2026-08-07) */
+.cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
+.cta-main img{display:block;width:52px;height:32px;}
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA.
+   ?from=kakao(또는 같은 세션에서 카카오로 들어온 뒤 내부 이동) 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+.cta-kakao{background:#fae100;color:#050708;display:flex;}
+.cta-browse{background:var(--g90);color:#b8ff55;}
+html[data-cta="list"] .cta-kakao{display:none;}
+html[data-cta="list"] .cta-browse{display:flex;}
+/* 고정 바가 푸터 하단을 덮지 않도록 */
+body.has-cta{padding-bottom:96px;}
+.cta-toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:201;max-width:calc(100% - 32px);background:rgba(0,0,0,.82);color:#fff;font-size:14px;line-height:20px;padding:10px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.cta-toast.on{opacity:1;}
+/* ===== 목록 페이지 ===== */
+/* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
+.lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
+/* padding-top만 — shorthand를 쓰면 .lwrap의 좌우 20px 패딩까지 덮어써서 모바일이 full-bleed 된다 */
+.list-page{padding-top:40px;}
+.list-head h1{font-size:28px;line-height:38px;font-weight:700;color:var(--g90);margin:0;}
+.list-head p{font-size:15px;line-height:22px;letter-spacing:-0.3px;color:var(--g60);margin:4px 0 0;}
+/* 칩 줄(532px)이 모바일 폭을 넘으므로 여기서 가로 스크롤을 흡수한다. 안 하면 페이지가 통째로 가로로 밀린다 */
+.cat-tabs{display:flex;gap:8px;margin:32px -20px 0;padding:0 20px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g60);font-size:15px;line-height:22px;font-weight:500;letter-spacing:-0.3px;padding:6px 14px;border-radius:100px;}
+.cat[aria-pressed="true"]{background:var(--g80);color:var(--g10);font-weight:600;}
+.arts{margin:32px 0 0;}
+.thumb{display:block;object-fit:cover;border-radius:4px;background:var(--g15);}
+.c-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.4px;color:#000;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-meta{display:flex;gap:6px;align-items:center;color:var(--g60);font-size:13px;line-height:18px;letter-spacing:-0.26px;}
+.c-meta b{font-weight:500;}
+.c-meta i{flex:0 0 auto;width:2px;height:2px;border-radius:50%;background:currentColor;}
+.feat{display:flex;gap:30px;align-items:center;text-decoration:none;color:inherit;}
+.feat .thumb{flex:0 0 330px;width:330px;height:186px;}
+.feat-body{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.feat-head{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.badge{color:var(--blue);font-size:13px;line-height:18px;font-weight:700;letter-spacing:-0.26px;}
+.excerpt{color:var(--g90);font-size:15px;line-height:24px;letter-spacing:-0.3px;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.feat-sep{border:0;border-top:1px solid var(--g25);margin:32px 0;}
+.cards{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;row-gap:32px;}
+.card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;}
+.card .thumb{width:100%;aspect-ratio:330/186;}
+.card-body{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.cat-empty{color:var(--g60);font-size:15px;margin:40px 0 0;text-align:center;}
+.more-wrap{display:flex;justify-content:center;margin:40px 0 0;}
+.more{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g80);font-size:16px;line-height:24px;font-weight:500;letter-spacing:-0.32px;padding:12px 28px;border-radius:8px;}
+@media (max-width:700px){
+  h1.title{font-size:30px;}
+  article h2{font-size:25px;}
+  article h3{font-size:21px;}
+  .columns{flex-direction:column;}
+  .list-page{padding-top:30px;}
+  .list-head h1{font-size:24px;line-height:32px;}
+  .list-head p{font-size:14px;line-height:20px;letter-spacing:-0.28px;}
+  .arts{margin-top:24px;}
+  .feat{flex-direction:column;align-items:stretch;gap:12px;}
+  .feat .thumb{flex:none;width:100%;height:auto;aspect-ratio:350/197;}
+  .feat-body{gap:12px;}
+  .feat-sep{margin:28px 0;}
+  .cards{grid-template-columns:1fr;row-gap:28px;}
+  .card .thumb{aspect-ratio:350/197;}
+  /* 푸터는 MO auto-layout(108:859)이 PC(108:700)와 달라서 값을 되돌린다.
+     padding-bottom 은 get_design_context 가 100 이라 답하지만 프레임 실측/픽셀 실측 모두 80 */
+  .site-footer{margin-top:50px;padding-bottom:80px;}
+  .site-footer .lwrap{gap:80px;padding:0 16px;}
+  .f-bottom{gap:16px;}
+  .f-legalgroup{display:contents;}
+  /* CTA 바 MO (Figma 72:459/469): 바 78px, 아이콘 48, 메인 48, 좌우 16 → inner 358 */
+  .cta-bar{padding-top:10px;}
+  .cta-inner{padding:0 16px;}
+  .cta-icon{width:48px;height:48px;}
+  .cta-main{height:48px;padding:12px 20px;font-size:15px;line-height:22px;}
+  .cta-browse{letter-spacing:0;}
+  .cta-kakao{letter-spacing:-0.3px;}
+  .cta-main img{width:39px;height:24px;}
+  body.has-cta{padding-bottom:78px;}
+  .cta-toast{bottom:92px;}
+}
+</style>
+<script>(function(){var k=/[?&]from=kakao(?:&|$)/.test(location.search),n=document.referrer.indexOf(location.origin+'/')===0;try{if(k)sessionStorage.setItem('sccFromKakao','1');else if(n)k=!!sessionStorage.getItem('sccFromKakao');else sessionStorage.removeItem('sccFromKakao');}catch(e){}if(k)document.documentElement.setAttribute('data-cta','list');})();</script>
+<noscript><style>.cta-icon{display:none}</style></noscript>
+</head>
+<body class="has-cta" data-screen-name="Article" data-slug="wheelchair-accessible-art-museums-seoul">
+<header class="site-header"><div class="wrap">
+  <a href="/articles" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;"><img src="/articles/assets/scc-logo.png" alt="계단뿌셔클럽"><b>계단뿌셔클럽</b></a>
+</div></header>
+<div class="wrap">
+<a class="back" href="/articles" data-element-name="article_back_to_list">← 목록으로</a>
+<article data-testid="article-detail">
+<h1 class="title">🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)</h1>
+<div class="article-date">2026-08-27</div>
+<h3 id="3c6c9499b060809d871ecbd9d791afac"><span style="background:#f9f3dc;">1. 한 사람의 기록, 모두를 위한 접근성 정보💙</span></h3><aside class="callout" style="background:#e5f2fc;"><div><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-0.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p>&quot;혼자 기록하기 보다 함께 나누고 싶어요.&quot;<br><br>계단뿌셔클럽의 크루 <u><strong>단쿠님</strong></u>이 보내준 연락이었습니다. 단쿠님은 지난 몇 년간 미술관에 다녀올 때마다 진입로·엘리베이터·화장실을 하나하나 확인해 <u><strong>개인 블로그에 꾸준히 기록</strong></u>해왔다고 해요. 큐레이터의 시선과 휠체어 사용자를 위한 접근성을 함께 담은, 흔치 않은 자료였어요.</p><p>하지만 개인 블로그에 쌓인 기록이다 보니, ‘접근성 정보’가 꼭 필요한 분들이 쉽게 발견하기는 어려웠어요. 그래서, 이동약자와 그 친구들에게 더 잘 전달해줄 수 있는 계뿌클에 문을 두드리신거죠! (접근성 정보를 더 잘 모으기 위해 크루 활동까지 하셨던거였고요!) </p><p>이번 콘텐츠는 단쿠님이 직접 다녀와 확인한 서울·수도권 전시 10곳을, 단쿠님의 목소리 그대로 정리한 큐레이션이에요. 늦여름부터 가을까지, 가보고 싶은 전시를 저장해두고 방문 전 동선까지 함께 확인해보세요. <em>(2026년 8월 기준)</em><br><br><em>*마지막엔 </em><em><strong>미술관 36곳의 접근성이 담긴 저장리스트</strong></em><em>까지 확인하실 수 있으니, 끝까지 살펴봐주세요!!</em></p></div></aside><hr><h3 id="3c6c9499b060801a9188cb6af787bc88"><span style="background:#f9f3dc;">2. 한눈에 보는 10곳 요약표 👀✨</span></h3><div class="tbl-wrap"><table><tr><th><strong>#</strong></th><th><strong>전시명</strong></th><th><strong>전시관</strong></th><th>기간</th><th><strong>접근성 한 줄</strong></th></tr><tr><td>1</td><td><strong>서도호 개인전</strong></td><td>국립현대미술관 서울</td><td>08.27 ~ 27.02.09</td><td>엘리베이터마다 이동 가능한 층이 달라요.</td></tr><tr><td>2</td><td><strong>박서보 : 변하는 변하지 않는</strong></td><td>국제갤러리 K1·K3·한옥</td><td>08.24 ~ 10.18</td><td>K1·K3 관람 가능 / 한옥관 입구는 계단</td></tr><tr><td>3</td><td><strong>유영국 : 산은 내 안에 있다</strong></td><td>서울시립미술관</td><td>05.19 ~ 10.25</td><td>정면 계단 옆 경사로로 진입해요.</td></tr><tr><td>4</td><td><strong>올해의작가상 2026</strong></td><td>국립현대미술관 서울</td><td>07.24 ~ 12.06</td><td>경사로 + 층별 엘리베이터로 이동</td></tr><tr><td>5</td><td><strong>큐비스트 : 시각의 혁신가들</strong></td><td>퐁피두센터 한화</td><td>06.04 ~ 10.04</td><td>엘리베이터 2회 환승 구조</td></tr><tr><td>6</td><td><span style="color:#c4554d;"><strong>키크니 특별전 : 그렸고 그런 사이</strong></span></td><td>DDP 뮤지엄 전시1관</td><td>04.25 ~ 09.06</td><td>지하 2층에서 휠체어 무료 대여</td></tr><tr><td>7</td><td><strong>이대원 : 당신을 슬프게 하는 것은 하나도 없다</strong></td><td>국립현대미술관 덕수궁</td><td>08.06 ~ 11.08</td><td>정면 계단, 엘베 이용 사전 안내 문의 권장 (02-2022-0640)</td></tr><tr><td>8</td><td><strong>조은 원화전 : 오늘의 정원</strong></td><td>그라운드시소 이스트</td><td>07.17 ~ 11.29</td><td>구의역 3번 출구 바로 연결</td></tr><tr><td>9</td><td><span style="color:#c4554d;"><strong>성률 : 여름을 닮은 우리</strong></span></td><td>그라운드시소 한남</td><td>04.30 ~ 09.27</td><td>지하주차장 ↔ 미술관 엘리베이터 직결</td></tr><tr><td>10</td><td><span style="color:#c4554d;"><strong>그림책이 살아있다!</strong></span></td><td>소마미술관 2관</td><td>04.25 ~ 09.06</td><td>한성백제역 2번 출구에서 전용 엘리베이터로 연결</td></tr></table></div><hr><aside class="callout" style="background:#fce9e7;"><span class="emoji">⚠️</span><div><strong>이달 안에 문 닫는 전시 3곳 보고 싶다면 서둘러주세요</strong><ul><li><span style="color:#c4554d;"><strong>키크니 특별전 / 그림책이 살아있다!</strong></span> — 9월 6일 마감 </li><li><span style="color:#c4554d;"><strong>성률 : 여름을 닮은 우리</strong></span> — 9월 27일 마감 </li></ul></div></aside><hr><h3 id="3c6c9499b060809fbf9ce9afb347312a"><span style="background:#f9f3dc;">3. 단쿠님이 직접 다녀와서 남긴 후기 </span></h3><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b060801aa89cc7e5543a64b1">1️⃣ 서도호 개인전 - 국립현대미술관 서울 <em>(~27.02.09)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-1.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p>한국을 대표하는 설치미술가 서도호의 초기작부터 현재 진행 중인 프로젝트까지, <span style="background:#fbebde;"><strong>국내에서 십여 년 만에 열리는 대규모 회고전</strong></span>이에요. 이주·거주, 개인과 공동체, 공간과 기억이라는 작가의 오랜 질문을 한 번에 훑을 수 있어요. 입구에 경사로가 있고 내부에서는 엘리베이터로 이동할 수 있어요. <strong>엘리베이터마다 이동 가능한 층이 달라</strong> 탑승 전 확인이 필요해요.</p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;작가가 던진 질문을 함께 걸어보는 시간이에요. 한 번 놓치면 다음이 언제일지 모를 규모라, 꼭 한 번은 다녀오길 추천해요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b06080a1870cd7089ba3f181">2️⃣ 박서보 : 변하는 변하지 않는 - 국제갤러리 K1·K3·한옥 <em>(~10.18)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-2.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="왼쪽부터 K1, K3 출입구, 내부" loading="lazy"><figcaption>왼쪽부터 K1, K3 출입구, 내부</figcaption></figure><p><strong>박서보 작가 작고 3주기 회고전</strong>으로, <span style="background:#fbebde;"><strong>1960년대부터 2020년대까지 50여 년의 예술적 변화</strong></span>를 40점 안에서 따라갈 수 있어요. <strong>K1은 입구·내부 모두 경사로</strong>가 있어 편하게 관람할 수 있고, K3는 계단 없는 단층이지만 골목 안쪽에 위치해요. <strong>한옥관은 입구가 계단만 있고 내부도 좁아, 휠체어로는 진입이 어려워 보이니</strong> 방문 전 참고해주세요. </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;한 예술가가 걸어온 50여 년의 시간 지도를 따라 걷는 전시예요. K1 → K3 순서로 전시관람을 추천해요!&quot;</p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b06080aeabf7e880679b308a">3️⃣ 유영국 : 산은 내 안에 있다 - 서울시립미술관 <em>(~10.25)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-3.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p>한국 추상미술의 거장 <span style="background:#fbebde;"><strong>유영국이 평생 탐구한 &#39;산&#39;을 강렬한 색과 단순한 형태로 만나는 역대 최대 규모 회고전</strong></span>이에요. 정면 계단 옆 경사로와 자동문으로 진입할 수 있고, 층간 이동은 엘리베이터로 이어져요. 서울시립미술관 &#39;한국 근대 거장전&#39; 시리즈의 첫 프로젝트예요. </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;절제된 색과 형태가 자연을 통째로 옮겨놓은 듯한 울림. 마감 30분 전, 그림 앞에서 고요히 명상해보는 걸 추천해요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b06080949e87c22e2b6d34b2">4️⃣ 올해의작가상 2026 - 국립현대미술관 서울 <em>(~12.06)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-4.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p><span style="background:#fbebde;"><strong>한국 현대미술의 지금을 가장 빠르게 확인할 수 있는 연례 프로젝트</strong></span>예요. 회화·사진·영상·설치까지 다양한 매체가 한자리에 모여, &quot;요즘 한국 미술은 어떤 이야기를 할까?&quot; 궁금할 때 방문해보세요. 입구 경사로 + 층별 엘리베이터까지 접근성확인! </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬  </strong></span><p>&quot;지금 이 순간 한국의 현대 미술이 어디쯤 와 있는지 궁금하다면, &lt;올해의작가상&gt;만큼 재밌고 인사이트가 넘치는 전시가 없습니다.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b0608009af37d2294c1e8a0a">5️⃣ 큐비스트 : 시각의 혁신가들 - 퐁피두센터 한화 <em>(~10.04)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-5.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p>파리 퐁피두센터 소장품으로 만나는 <span style="background:#fbebde;"><strong>20세기 큐비즘 거장들의 원작 전시</strong></span>예요. 피카소·브라크가 사물을 어떻게 다시 보고 다시 그렸는지, 미술사 교과서 속 이미지가 아니라 원작으로 확인할 수 있어요. <strong>로비 → 전시장까지 엘리베이터를 두 번 갈아타야</strong> 하고, <strong>로비 게이트 안쪽에는 장애인 화장실이 없어</strong> 게이트 통과 전에 이용을 권해요. <em>(한화 퐁피두센터의 경우, 샛강역 또는 여의나루역에서 도보 15분 정도 소요) </em></p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;책 속에서만 보던 피카소·브라크의 원작을 서울 한복판에서 만나는, 10월 초까지 전시하니 꼭 다녀오세요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b060802f984acfb0d72ca684">6️⃣ 키크니 특별전 : 그렸고 그런 사이 - DDP 뮤지엄 전시1관 <span style="color:#c4554d;"><em>(~09.06)</em></span></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-6.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p>키크니 작가가 <span style="background:#fbebde;"><strong>사람들의 사연을 그림으로 풀어낸 작품부터 3D 조각·인형·영상·설치</strong></span>까지, 작가의 스펙트럼을 한 번에 볼 수 있어요. 짧은 글·그림이라 현대미술이 어렵게 느껴지는 분에게도 부담이 적어요. <strong>DDP 안에서 관람·식사·카페까지 한 건물에서 해결</strong> 가능해서 실내 코스로 특히 좋아요. </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;DDP라는 복합공간의 편리함과 접근성이 만난 곳. 키크니 작가의 그림이 지친 마음을 조용히 들여다봐줘요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b06080ecb1aadeb862108393">7️⃣ 이대원 : 당신을 슬프게 하는 것은 하나도 없다 - 국립현대미술관 덕수궁 <em>(~11.08)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-7.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p><span style="background:#fbebde;"><strong>밝은 색점과 색선으로 표현한 이대원의 회화를 한자리</strong></span>에서. 화사한 색감이나 복잡한 설명 없이 그림 자체를 오래 바라보고 싶은 날에 잘 맞아요. <strong>정면 입구는 계단이라, 직원 안내로 휠체어 리프트 또는 석조전 뒤쪽 엘리베이터</strong>를 이용해요. (방문 전 <strong>02-2022-0640</strong> 문의 권장) </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;어두운 전시장에 밝게 피어난 과수원 그림들이 극적인 대비를 만들어요. 산책하듯 천천히 거닐어보세요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b060802eb214cada003b7e2c">8️⃣ 조은 원화전 : 오늘의 정원 - 그라운드시소 이스트 <em>(~11.29)</em></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-8.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p><span style="background:#fbebde;"><strong>가장 현대적인 한국화 작가로 불리는 조은의 원화 80여 점</strong></span>. 한지 위 한 방울의 먹이 스스로 길을 내며 만들어낸 정원을 만나요. <strong>구의역 3번 출구와 바로 연결</strong>되고 출입구 앞에 엘리베이터가 있어요. 쇼핑몰 안이라 식사·카페까지 한 건물에서 해결돼요. </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;머무는 시간이 길어질수록 더 많은 것이 보이는 동양화의 매력을 만나보세요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b06080f49c05ef2c05b91a7a">9️⃣ 성률 : 여름을 닮은 우리 - 그라운드시소 한남 <span style="color:#c4554d;"><em>(~09.27)</em></span></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-9.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p><span style="background:#fbebde;"><strong>원화·드로잉·영상 등 140여 점이 청춘의 반짝임을 여름 풍경으로 풀어내요</strong></span>. <strong>지하주차장 ↔ 미술관 엘리베이터 직결</strong>, 장애인 화장실 같은 층에 있어요. 이동 동선이 짧아 편리합니다. </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;매미소리와 나무 사이 빛이 만들어낸 여름 풍경. 이 안에서는 여름을 좋아하는 사람도 싫어하는 사람도 여름이 좋아져요.&quot; </p></div></aside></div></aside><hr><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><div><h4 id="3c6c9499b06080b59005e7bc956c0549">🔟 그림책이 살아있다! - 소마미술관 2관 <span style="color:#c4554d;"><em>(~09.06 )</em></span></h4><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-10.png" style="max-width:min(3600px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure><p><span style="background:#fbebde;"><strong>세계적인 그림책 작가들의 원화 141점 + 미디어·체험 콘텐츠.</strong></span> 아이에게는 그림책의 공간 경험을, 어른에게는 오래된 책과의 재회를 선물해요. <strong>한성백제역 2번 출구 엘리베이터 → 소마미술관 2관 전용 엘리베이터</strong>로 지하 1층 로비 직결. <strong>여름방학 1+1 이벤트 진행 중</strong> → 2관 관람객은 소마미술관 1관 전시를 무료로 볼 수 있어요. </p><aside class="callout" style="background:#f9f8f7;"><div><span style="background:#f9f3dc;"><strong>단쿠님의 한마디 💬 </strong></span><p>&quot;아이 전용 전시라는 오해는 금물! 추억 속 그림책의 원화 앞에서 잠시 어린 시절로 타임머신을 타게 돼요.&quot;</p></div></aside></div></aside><h4 id="3c9c9499b0608088b05ad26236ec7e3c">+ 36곳의 미술관 접근성 정보, 저장리스트로 한번에 확인하세요!</h4><div class="columns"><div class="column"><figure><img src="/articles/wheelchair-accessible-art-museums-seoul/assets/img-11.png" style="max-width:min(432px,100%);margin-left:auto;margin-right:auto;" alt="🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)" loading="lazy"></figure></div><div class="column"><div class="tbl-wrap"><table><tr><th><strong>전시관</strong></th><th>접근레벨</th></tr><tr><td>국립현대미술관 서울</td><td><strong>1</strong></td></tr><tr><td>국제갤러리 K1·K3</td><td>0</td></tr><tr><td>서울시립미술관</td><td><strong>1</strong></td></tr><tr><td>퐁피두센터 한화</td><td><strong>0</strong></td></tr><tr><td>DDP 뮤지엄 전시1관</td><td><strong>0</strong></td></tr><tr><td>국립현대미술관 덕수궁</td><td><strong>5</strong></td></tr><tr><td>그라운드시소 이스트</td><td><strong>0</strong></td></tr><tr><td>그라운드시소 한남</td><td>1</td></tr><tr><td>소마미술관 2관</td><td><strong>0</strong></td></tr></table></div><p class="empty"></p></div></div><blockquote><u><strong>📍</strong></u><a href="https://web.staircrusher.club/place-list/PL_dlY3yztQ" rel="noopener"><u><strong>미술관 갤러리 접근성 36곳, 저장리스트에서 보기[클릭]</strong></u></a><br>전체 미술관, 갤러리의 입구사진 및 화장실 정보는 앱지도에서 현재 위치 기준으로 확인하실 수 있어요. </blockquote><hr><h3 id="3c6c9499b060807da2e2cb00b184b75c"><span style="background:#f9f3dc;">4. 단쿠님이 다녀와서 발견한 ‘미리 알아둘 동선’</span></h3><ul><li><span style="color:#487ca5;"><strong>퐁피두센터 한화</strong></span><ul><li>장애인화장실은 <strong>로비 게이트 바깥쪽</strong>에 있어요. 게이트를 통과하면 장애인화장실이 없으니 참고해주세요.</li></ul></li><li><span style="color:#487ca5;"><strong>국립현대미술관 덕수궁</strong></span><ul><li>정면 출입구에 계단이 있어요.</li><li>휠체어 리프트 또는 석조전 뒤쪽 엘리베이터를 이용할 수 있어 <strong>방문 전 02-2022-0640으로 동선을 확인하는 걸 추천해요.</strong></li></ul></li><li><span style="color:#487ca5;"><strong>국립현대미술관 서울</strong></span><ul><li>엘리베이터마다 이동할 수 있는 층이 달라요. 서도호전과 올해의작가상을 함께 본다면 이동 층을 먼저 확인해주세요. </li></ul></li><li><span style="color:#487ca5;"><strong>한 번 나간 김에 같이 보기 좋은 전시, 동선을 묶으면 하루가 완성돼요</strong></span><ul><li><strong>삼청동 라인</strong>: 국립현대미술관 서울(서도호 + 올해의작가상) → 국제갤러리(박서보)</li><li><strong>정동 라인</strong>: 서울시립미술관(유영국) → 덕수궁(이대원)</li><li><strong>잠실 라인</strong>: 소마미술관(그림책) → 올림픽공원 산책</li></ul></li></ul><aside class="callout" style="background:transparent;border:1px solid rgba(28,19,1,.11);"><span class="emoji">💛</span><div><strong>다음에는 어디 갈까요?</strong><br>전시부터 공연장·카페까지, <strong>직접 확인한 접근성 정보와 함께 갈 만한 곳을 카카오톡으로 보내드려요.</strong><br><u><strong>➡️ 카카오톡 친구추가하기 [클릭]</strong></u></div></aside><hr><h3 id="3c6c9499b060807b8b37e8acaeca53da">5. 함께 보면 좋을 아티클 </h3><a class="bookmark" href="/articles/wheelchair-solo-culture-spaces-seoul" rel="noopener"><span class="bm-thumb"><img src="/articles/wheelchair-solo-culture-spaces-seoul/assets/img-0.png" alt="" loading="lazy"></span><span class="bm-body"><span class="bm-title">휠체어로 떠나는 &#39;나홀로 낭만데이&#39; - 문화공간 5곳</span><span class="bm-desc">혼자서도 다녀올 수 있는 서울의 휠체어 접근 가능한 실내 문화공간 5곳 — 카페꼼마 여의도, 여의도 브라이튼 도서관, 서울영화센터, 영풍문고 종각점, 예술의전당 자유소극장. 계단뿌셔클럽 에디터크루가 직접 방문해 경사로·엘리베이터·장애인 화장실 정보를 정리했습니다.</span><span class="bm-url">https://web.staircrusher.club/articles/wheelchair-solo-culture-spaces-seoul</span></span></a><a class="bookmark" href="/articles/ddp-magazine-library-accessibility" rel="noopener"><span class="bm-thumb"><img src="/articles/ddp-magazine-library-accessibility/assets/img-0.png" alt="" loading="lazy"></span><span class="bm-body"><span class="bm-title">DDP 매거진 라이브러리</span><span class="bm-desc">동대문역사문화공원역(2·4·5호선) 1번 출구 26m 거리 DDP 디자인랩 3층 매거진 라이브러리의 휠체어 접근성 정보. 대형 엘리베이터, 자동문, 평탄한 내부 동선, 지하 1층 장애인 전용주차구역 10면, 장애인 화장실, 휠체어·유아차 대여까지 갖춘 접근성 우수 무료 도서관입니다.</span><span class="bm-url">https://web.staircrusher.club/articles/ddp-magazine-library-accessibility</span></span></a><hr><aside class="callout" style="background:#f9f8f7;"><div><h4 id="3c6c9499b06080a1aa7ee5a0e643700c">🌏 후원으로 넓히는 경험</h4><blockquote><strong>&quot;거기 갈 수 있을까?&quot;</strong><br><br>휠체어 사용자의 외출은 이 질문에서 시작되곤 합니다.<br>계단뿌셔클럽은 그 질문에 <strong>답을 찾다 지치지 않도록</strong>, 접근성 정보를 모으고 누구나 쉽게 찾을 수 있게 만듭니다. 이 콘텐츠들은 더 좋은 정보가 쌓이고 널리 퍼지기를 바라는 분들의 <strong>후원으로 만들어집니다</strong>.<br><br><span style="background:#e5f2fc;"><strong>🙌 </strong></span><a href="https://staircrusher.club/donation" target="_blank" rel="noopener noreferrer"><span style="background:#e5f2fc;"><strong>이 일에 후원자로 함께하기 [클릭]</strong></span></a></blockquote></div></aside><hr><p><em>계단뿌셔클럽의 고유 콘텐츠 템플릿입니다. 무단복제 및 사용을 금합니다.</em><br><em>ⓒ 2026 계단뿌셔클럽 All Rights Reserved.</em></p><p>*<a href="https://link.staircrusher.club/alone_app" target="_blank" rel="noopener noreferrer">앱 다운로드 받기</a></p>
+</article>
+</div>
+<footer class="site-footer"><div class="lwrap">
+<div class="f-top">
+  <div class="f-brand">
+    <p class="f-tagline">이동약자와 그 친구들의 막힘없는 이동</p>
+    <img class="f-logo" src="/articles/assets/scc-wordmark-white.svg" alt="계단뿌셔클럽" width="208" height="35">
+  </div>
+  <div class="f-pills">
+    <a href="https://link.staircrusher.club/articles_footer_app" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-download.svg" alt="" width="20" height="20">앱 다운로드</a>
+    <a href="https://link.staircrusher.club/articles_footer_kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-kakao.svg" alt="" width="20" height="20">카카오톡</a>
+    <a href="https://link.staircrusher.club/articles_footer_letter" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-mail.svg" alt="" width="20" height="20">뿌클레터</a>
+  </div>
+</div>
+<div class="f-bottom">
+  <div class="f-legalgroup">
+  <div class="f-legal">
+    <p class="f-copy">Copyright ⓒ 계단뿌셔클럽. All Rights Reserved</p>
+    <p class="f-biz">사업자등록번호 623-82-00565 &nbsp;|&nbsp; 대표 : 박수빈, 이대호 &nbsp;|&nbsp; 서울특별시 강남구 역삼로 172 마루360 5층</p>
+  </div>
+  <div class="f-links">
+    <a href="https://agnica.notion.site/07acba336959451fbdddcbd26e8d49b0" target="_blank" rel="noopener noreferrer">서비스 이용약관</a>
+    <a href="https://agnica.notion.site/?pvs=143" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a>
+  </div>
+  </div>
+  <div class="f-partners">
+    <a class="p-acrc" href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회"></a>
+    <a class="p-nts" href="https://www.nts.go.kr/nts/main.do" target="_blank" rel="noopener noreferrer" aria-label="국세청"></a>
+    <a class="p-seoul" href="https://www.seoul.go.kr/main/index.jsp" target="_blank" rel="noopener noreferrer" aria-label="서울특별시"></a>
+  </div>
+</div>
+</div></footer>
+<div class="cta-bar" data-testid="article-cta-bar" data-element-name="article_cta_bar" data-track-view><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" data-element-name="article_upvote" aria-pressed="false" aria-label="도움이 돼요"><img id="cta-heart-off" src="/articles/assets/ic-heart.svg" alt="" width="24" height="24"><img id="cta-heart-on" src="/articles/assets/ic-heart-fill.svg" alt="" width="24" height="24" hidden></button>
+<button type="button" class="cta-icon" id="cta-share" data-element-name="article_share" aria-label="공유하기"><img src="/articles/assets/ic-share.svg" alt="" width="24" height="24"></button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" data-element-name="article_cta_kakao" href="https://link.staircrusher.club/articles_footer_kakao?campaign=articles-cta&amp;ad_group=wheelchair-accessible-art-museums-seoul&amp;ad_creative=cta-kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">새로운 컨텐츠 알림받기</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" data-element-name="article_cta_browse" href="https://link.staircrusher.club/articles_cta_home?campaign=articles-cta&amp;ad_group=wheelchair-accessible-art-museums-seoul&amp;ad_creative=cta-browse" target="_blank" rel="noopener noreferrer">다른 콘텐츠 더 보기</a>
+</div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>
+<script>
+(function(){
+  var heart=document.getElementById('cta-heart'), share=document.getElementById('cta-share');
+  var on=document.getElementById('cta-heart-on'), off=document.getElementById('cta-heart-off');
+  if(!heart||!share||!on||!off) return;
+  var toast=document.getElementById('cta-toast');
+  // 앱 웹뷰가 주입한 신원. **호출 시점마다** 읽는다 — 안드로이드에서
+  // injectedJavaScriptBeforeContentLoaded 가 head 스크립트보다 늦게 도착하는 사례가
+  // 실측돼 있어(web/index.tsx 주석), 진입 시 한 번만 읽으면 그 레이스에 걸린다.
+  function bridge(){try{return window.__SCC_APP_AUTH__||null;}catch(e){return null;}}
+  // 토큰과 API 서버는 같은 출처여야 한다. sandbox 앱 토큰으로 prod API 를 때리면 401 →
+  // 조용한 익명 폴백이라, 고쳐도 안 고쳐진 것처럼 보여서 검증 자체가 불가능해진다.
+  function apiBase(){
+    var b=bridge(); if(b&&b.baseUrl) return b.baseUrl;
+    try{var v=localStorage.getItem('sccApiBase'); if(v) return v;}catch(e){}
+    return 'https://api.staircrusher.club';
+  }
+  var SLUG="wheelchair-accessible-art-museums-seoul";
+  // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
+  var PAGE_URL='https://web.staircrusher.club/articles/'+SLUG;
+  // 공유는 canonical + campaign 파라미터로 내보낸다(GA 유입 집계용). 에어브릿지 트래킹링크를
+  // 쓰지 않는 이유: 링크가 자기 OG 를 직접 서빙해서(302 아님, 실측) 카톡 미리보기가 아티클
+  // 원본이 아니라 링크에 복제해둔 값이 된다 — 제목·썸네일이 바뀌면 그대로 stale 해진다.
+  // PAGE_URL 은 좋아요 target 조회용이라 파라미터가 붙으면 안 되므로 별도 상수로 둔다.
+  var SHARE_URL="https://web.staircrusher.club/articles/wheelchair-accessible-art-museums-seoul?campaign=articles-share&ad_group=wheelchair-accessible-art-museums-seoul&ad_creative=cta-share";
+  // touched: 사용자가 하트를 한 번이라도 눌렀는지. 늦게 온 상태 조회 응답이 낙관적 토글을
+  // 덮어쓰는 걸 막는다(주입이 늦으면 상태 조회가 두 번 나갈 수 있다).
+  var upvoted=false, busy=false, spaTokenBad=false, touched=false;
+  function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent=msg; toast.className='cta-toast on';
+    setTimeout(function(){toast.className='cta-toast';},1800);
+  }
+  function paint(){
+    on.hidden=!upvoted; off.hidden=upvoted;
+    heart.setAttribute('aria-pressed',upvoted?'true':'false');
+  }
+  // 로그인 세션 토큰(앱 주입 → SPA localStorage 순). 있으면 좋아요를 그 사람 것으로 기록한다.
+  // localStorage 는 **읽기만 한다.**
+  // 키 포맷이 두 가지다: webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어서 현재는
+  // 'mmkv.default.scc-token'(dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\scc-token'
+  // (backslash, KEY_WILDCARD) 이 된다. 둘 다 읽어서 alias 변경에 안 깨지게 한다.
+  // (못 읽으면 익명으로 폴백하므로 실패 방향은 안전하다 — 세션이 깨지는 게 아니라 집계 주체만 바뀐다)
+  function readSpaToken(){
+    if(spaTokenBad) return null;
+    // 앱 웹뷰라면 주입값이 **유일한 진실**이다 — 토큰 없음(로그아웃)까지 포함해서.
+    // 여기서 localStorage 로 폴백하면 안 된다: 웹뷰 저장소는 세션 간 살아남아 이전 로그인의
+    // scc-token 이 남아 있고, 그러면 앱은 로그아웃/다른 계정인데 좋아요만 옛 계정으로 간다
+    // (BbucleRoadScreen 이 appLoggedOut 으로 막는 것과 같은 split-brain).
+    var b=bridge(); if(b) return b.token||null;
+    var keys=['mmkv.default.scc-token','mmkv.default\\scc-token'];
+    for(var i=0;i<keys.length;i++){
+      try{var v=localStorage.getItem(keys[i]);
+        if(v){var t=JSON.parse(v); if(t) return t;}}catch(e){}
+    }
+    return null;
+  }
+  // 익명 정체성. **호출마다 새로 만들면 안 된다** — give 와 cancel 이 다른 유저로 기록돼
+  // 취소가 no-op 이 된다(실측 버그). 캐시된 게 있으면 그걸 쓴다.
+  function anonToken(cb){
+    var t=null;
+    try{t=localStorage.getItem('anonymousAccessToken');}catch(e){}
+    if(t){cb(t);return;}
+    mintToken(cb);
+  }
+  function mintToken(cb){
+    fetch(apiBase()+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var t=d&&d.authTokens&&d.authTokens.accessToken;
+        if(t){try{
+          localStorage.setItem('anonymousAccessToken',t);
+          localStorage.setItem('anonymousTokenExpiry',String(Date.now()+315360000000));
+        }catch(e){}}
+        cb(t||null);
+      }).catch(function(){cb(null);});
+  }
+  function post(path,body,token){
+    return fetch(apiBase()+path,{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(body)});
+  }
+  // 401 처리는 어느 토큰이 실패했는지에 따라 갈린다.
+  //  - SPA 토큰 만료 → SPA 키는 절대 건드리지 않고 익명 정체성으로 폴백한다.
+  //  - 캐시된 익명 토큰 만료 → 그때만 그 키를 비우고 1회 재발급한다.
+  function send(path,body,cb){
+    var spa=readSpaToken();
+    if(!spa){viaAnon(path,body,cb);return;}
+    post(path,body,spa).then(function(r){
+      if(r.status!==401){cb(r);return;}
+      spaTokenBad=true;   // 남은 호출에서 매번 401 을 한 번 더 맞지 않도록
+      viaAnon(path,body,cb);
+    }).catch(function(){cb(null);});
+  }
+  function viaAnon(path,body,cb){
+    anonToken(function(t){
+      if(!t){cb(null);return;}
+      post(path,body,t).then(function(r){
+        if(r.status!==401){cb(r);return;}
+        try{localStorage.removeItem('anonymousAccessToken');
+          localStorage.removeItem('anonymousTokenExpiry');}catch(e){}
+        mintToken(function(t2){
+          if(!t2){cb(null);return;}
+          post(path,body,t2).then(cb).catch(function(){cb(null);});
+        });
+      }).catch(function(){cb(null);});
+    });
+  }
+  function refreshState(){
+    if(touched) return;
+    send('/getSccContentDetails',{url:PAGE_URL},function(r){
+      if(!r||!r.ok||touched) return;
+      r.json().then(function(d){
+        if(touched) return;
+        if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
+      }).catch(function(){});
+    });
+  }
+  refreshState();
+  // 주입이 늦게 도착했거나(안드로이드) 웹뷰 안에서 로그인이 끝나면 앱이 재주입한다.
+  // 그때 신원이 바뀌므로 하트 상태를 다시 읽는다 — 안 그러면 익명 기준 상태로 굳는다.
+  window.addEventListener('scc-app-auth-ready',function(){
+    spaTokenBad=false;   // 새 토큰이 왔으니 직전 401 판정은 버린다
+    refreshState();
+  });
+  heart.addEventListener('click',function(){
+    // 서버에 (type,id,user) unique 제약이 없어서 연타하면 중복 row 가 생기고 취소로 안 지워진다.
+    if(busy) return;
+    busy=true; touched=true;
+    var next=!upvoted;
+    upvoted=next; paint();
+    log('article_upvote',{slug:SLUG,upvoted:next});
+    send(next?'/giveUpvote':'/cancelUpvote',{targetType:'ARTICLE',id:SLUG},function(r){
+      busy=false;
+      if(!r||!r.ok){upvoted=!next;paint();}  // 실패하면 낙관적 토글을 되돌린다
+    });
+  });
+  share.addEventListener('click',function(){
+    log('article_share',{slug:SLUG});
+    if(navigator.share){navigator.share({title:document.title,url:SHARE_URL}).catch(function(){});return;}
+    // 안드로이드 WebView 등 Web Share 미지원 → 링크 복사로 폴백
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(SHARE_URL)
+        .then(function(){showToast('링크를 복사했어요');})
+        .catch(function(){showToast('링크 복사에 실패했어요');});
+    }else{showToast('링크 복사를 지원하지 않는 브라우저예요');}
+  });
+  [].slice.call(document.querySelectorAll('.cta-main')).forEach(function(a){
+    a.addEventListener('click',function(){
+      log('article_cta_click',{slug:SLUG,variant:a.getAttribute('data-cta-variant')});
+    });
+  });
+})();
+</script>
+</body>
+</html>
