@@ -1,12 +1,11 @@
 <svg width="340" height="112" viewBox="0 0 340 112" fill="none" xmlns="http://www.w3.org/2000/svg">
-<!-- 면을 전부 먼저 깔고(아래), 점선 stroke 를 전부 그 위에 그린다. 원본 export 는 fill/stroke 가
-     문서 순서로 섞여 있어 뒤에 그려진 면이 앞선 점선을 덮어 일부 선이 실선처럼 보였다. -->
-<path d="M286.668 0.999998L1.00006 34.269L26.5307 52.6175L312.186 19.5866L286.668 0.999998Z" fill="white" fill-opacity="0.4"/>
-<path d="M312.19 19.5897L312.438 39.3385L338.33 58.0942L52.2356 91.0486L26.5705 72.4349L26.5293 52.6171L312.19 19.5897Z" fill="white" fill-opacity="0.3"/>
-<path d="M339 78.3198L338.33 58.0911L52.2363 91.0534L52.7638 110.989L339 78.3198Z" fill="white" fill-opacity="0.2"/>
-<path d="M2.07807 73.6371L1.00494 34.2654L26.5417 52.621L26.5654 72.4198L52.2367 91.0462L52.7732 111L2.07807 73.6371Z" fill="white" fill-opacity="0.2"/>
-<path d="M286.668 0.999998L1.00006 34.269L26.5307 52.6175L312.186 19.5866L286.668 0.999998Z" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
-<path d="M26.5705 72.4349L312.438 39.3385M312.438 39.3385L338.33 58.0942L52.2356 91.0486L26.5705 72.4349L26.5293 52.6171L312.19 19.5897L312.438 39.3385Z" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
-<path d="M339 78.3198L338.33 58.0911L52.2363 91.0534L52.7638 110.989L339 78.3198Z" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
-<path d="M2.07807 73.6371L1.00494 34.2654L26.5417 52.621L26.5654 72.4198L52.2367 91.0462L52.7732 111L2.07807 73.6371Z" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+<!-- 계단/경사로 촬영 가이드 와이어프레임. Figma Group 1437258173(338x110) 정점을 그대로 쓰되,
+     인접 면이 공유하는 변을 한 번만 그린다. 면마다 외곽선을 stroke 하면 공유 변이 두 번
+     그려지고 두 점선의 phase 가 어긋나 빈틈이 메워져 실선처럼 보인다(원본 export 의 증상).
+     그리는 순서: 반투명 면 4개 → 점선 변 전체. 면이 점선을 덮지 않는다. -->
+<path d="M286.668 1L1.002 34.267L26.534 52.619L312.188 19.588Z" fill="white" fill-opacity="0.4"/>
+<path d="M312.188 19.588L312.438 39.339L338.33 58.092L52.236 91.049L26.568 72.427L26.534 52.619Z" fill="white" fill-opacity="0.3"/>
+<path d="M339 78.32L338.33 58.092L52.236 91.049L52.769 110.995Z" fill="white" fill-opacity="0.2"/>
+<path d="M2.078 73.637L1.002 34.267L26.534 52.619L26.568 72.427L52.236 91.049L52.769 110.995Z" fill="white" fill-opacity="0.2"/>
+<path d="M286.668 1L1.002 34.267M286.668 1L312.188 19.588M1.002 34.267L26.534 52.619M1.002 34.267L2.078 73.637M26.534 52.619L312.188 19.588M26.534 52.619L26.568 72.427M312.188 19.588L312.438 39.339M312.438 39.339L338.33 58.092M312.438 39.339L26.568 72.427M338.33 58.092L52.236 91.049M338.33 58.092L339 78.32M52.236 91.049L26.568 72.427M52.236 91.049L52.769 110.995M339 78.32L52.769 110.995M52.769 110.995L2.078 73.637" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
 </svg>
