@@ -624,5 +624,22 @@
     "ctaUrl": "https://link.staircrusher.club/yongsan-iparkmall_save",
     "ctaLabel": "소개된 곳 모아보기",
     "thumbnail": "/articles/yongsan-iparkmall-wheelchair-accessible-restaurants/assets/thumb-0.webp"
+  },
+  "3c9c9499-b060-80ce-92a9-df17e777cec2": {
+    "slug": "wheelchair-accessible-art-museums-seoul",
+    "title": "🎨 날씨와 상관 없이 주말에 가기 좋은 미술관 10곳 (전시 추천도 함께!)",
+    "summary": "휠체어로 갈 수 있는 서울·수도권 미술관 10곳과 진행 중인 전시를 계단뿌셔클럽 크루가 직접 방문해 확인한 접근성 정보(경사로·엘리베이터·장애인화장실)와 함께 정리했습니다. 국립현대미술관 서울·덕수궁, 서울시립미술관, DDP 뮤지엄, 소마미술관 등 실내 코스라 날씨와 상관없이 주말 나들이로 좋습니다.",
+    "image": "/articles/wheelchair-accessible-art-museums-seoul/assets/img-0.png",
+    "createdTime": "2026-08-23T15:26:00.000Z",
+    "publishedAt": "2026-08-27T06:04:00.000Z",
+    "editedTime": "2026-08-27T06:00:00.000Z",
+    "contentPageId": "3c5c9499-b060-807f-8140-dbfcb0d6e76c",
+    "featured": null,
+    "categories": [
+      "문화공간"
+    ],
+    "ctaUrl": "",
+    "ctaLabel": "",
+    "thumbnail": "/articles/wheelchair-accessible-art-museums-seoul/assets/thumb-0.webp"
   }
 }
