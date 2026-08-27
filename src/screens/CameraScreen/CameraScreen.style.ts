@@ -164,25 +164,31 @@ export const Tip = styled.Text({
   fontSize: 16,
 });
 
+// 썸네일 행은 섹션 최상단에 고정하고, 안내 문구는 absolute 로 띄운다.
+// 문구가 자리를 차지하면(이전 구현) 좁은 화면에서 섹션(flex:1)이 필요 높이보다 작아져
+// 썸네일 행이 압축되고 아래쪽이 잘렸다 — iPhone 기준 이 섹션에 87px 정도만 남는다.
 export const TakenPhotosSection = styled.View({
   flex: 1,
-  justifyContent: 'center',
-  gap: 8,
-  paddingVertical: 8,
+  justifyContent: 'flex-start',
+  paddingTop: 8,
 });
 
 export const TakenPhotos = styled.View({
   flexDirection: 'row',
   justifyContent: 'center',
   alignItems: 'center',
+  // 56(슬롯) + 6*2(FlatList contentContainer paddingVertical). 압축되면 잘리므로 고정한다.
+  height: 68,
+  flexShrink: 0,
 });
 
-// 캡션(2줄 × lineHeight 20)이 사라져도 썸네일 행이 움직이지 않도록 높이를 고정한다.
-export const PhotoCaptionSlot = styled.View({
-  height: 40,
-});
-
+// 썸네일 행(68) 아래에 absolute 로 놓는다 — 레이아웃 높이를 차지하지 않으므로
+// 문구 유무가 썸네일 행 위치에 영향을 주지 않고, 섹션을 압축시키지도 않는다.
 export const PhotoCaption = styled.Text({
+  position: 'absolute',
+  top: 8 + 68 + 8,
+  left: 0,
+  right: 0,
   color: 'white',
   fontFamily: font.pretendardRegular,
   fontSize: 14,

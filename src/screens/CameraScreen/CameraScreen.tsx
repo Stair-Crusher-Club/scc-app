@@ -571,14 +571,12 @@ export default function CameraScreen({
             </S.PlaceholderRow>
           ) : null}
         </S.TakenPhotos>
-        <S.PhotoCaptionSlot>
-          {photoFiles.length === 0 && (
-            <S.PhotoCaption>
-              최대 {photoLimit}장까지 촬영할 수 있어요
-              {'\n음량 조절 버튼으로도 촬영이 가능해요'}
-            </S.PhotoCaption>
-          )}
-        </S.PhotoCaptionSlot>
+        {photoFiles.length === 0 && (
+          <S.PhotoCaption>
+            최대 {photoLimit}장까지 촬영할 수 있어요
+            {'\n음량 조절 버튼으로도 촬영이 가능해요'}
+          </S.PhotoCaption>
+        )}
       </S.TakenPhotosSection>
       <S.ActionsWrapper>
         {visibleTooltip !== null && (
