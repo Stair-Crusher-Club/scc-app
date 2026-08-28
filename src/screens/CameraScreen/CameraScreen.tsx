@@ -487,24 +487,27 @@ export default function CameraScreen({
         ) : (
           <CameraNotAuthorized />
         )}
-        {route.params.target !== 'elevator' && (
-          <S.TipsAnchor>
-            <S.Tips
-              elementName="camera_tips_button"
-              onPress={() => {
-                const target = route.params.target;
-                if (isEntranceTarget(target)) {
-                  setIsEntranceGuideVisible(true);
-                } else if (target === 'review' || target === 'toilet') {
-                  openGuide(target);
-                }
-              }}>
-              {/* Figma(174:6989): info-circle 20x20 */}
-              <CircleInfoIcon width={20} height={20} />
-              <S.Tip>{isEntrance ? '예시 사진 >' : '사진 촬영 팁  >'}</S.Tip>
-            </S.Tips>
-          </S.TipsAnchor>
-        )}
+        {/* 가이드 버튼(입구 촬영에만 있다)으로 오버레이를 끄면 칩도 같이 감춘다.
+            가이드 버튼이 없는 리뷰/화장실에서 숨기면 되살릴 방법이 없으므로 항상 노출. */}
+        {route.params.target !== 'elevator' &&
+          (!isEntrance || isGuideOverlayEnabled) && (
+            <S.TipsAnchor>
+              <S.Tips
+                elementName="camera_tips_button"
+                onPress={() => {
+                  const target = route.params.target;
+                  if (isEntranceTarget(target)) {
+                    setIsEntranceGuideVisible(true);
+                  } else if (target === 'review' || target === 'toilet') {
+                    openGuide(target);
+                  }
+                }}>
+                {/* Figma(174:6989): info-circle 20x20 */}
+                <CircleInfoIcon width={20} height={20} />
+                <S.Tip>{isEntrance ? '예시 사진 >' : '사진 촬영 팁  >'}</S.Tip>
+              </S.Tips>
+            </S.TipsAnchor>
+          )}
         {isLoadingAlbum && (
           <S.AlbumLoadingOverlay>
             <ActivityIndicator size="large" color="white" />
