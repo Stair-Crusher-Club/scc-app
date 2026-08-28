@@ -98,6 +98,30 @@ ws.on('message', d => {
 
 **주의**: `form.submit()`은 OAuth 흐름에서 동작하지 않는다 (JS 이벤트 핸들러 우회). 반드시 `Input.dispatchMouseEvent`나 DOM click 사용.
 
+## 다른 화면 크기(min/max) 검증 — `wm size` 뒤엔 앱 force-stop 이 필수
+
+디자이너가 같은 화면을 두 높이로 주면(`Camera_guide_min` 694 / `_max` 844) 두 크기를 **실기로** 봐야
+한다. 에뮬레이터 해상도를 논리 dp 로 바꿀 수 있다:
+
+```bash
+adb shell wm size 390x694 && adb shell wm density 160   # 1px = 1dp → 스크린샷 좌표가 그대로 dp
+adb shell am force-stop <pkg> && adb shell am start -a android.intent.action.MAIN \
+  -c android.intent.category.LAUNCHER -n "<pkg>/club.staircrusher.MainActivity"
+adb shell wm size reset && adb shell wm density reset   # 끝나면 반드시 복구
+```
+
+- **RN 루트뷰는 `wm size` 를 런타임에 안 따라간다.** dev 메뉴 Reload 만 하면 옛 크기(폭 ~150px)로
+  찌그러진 채 남아 "레이아웃이 깨졌다"고 오진한다 — **force-stop → 재시작**해야 새 크기를 잡는다.
+- `wm density 160` 을 같이 주면 스크린샷 픽셀 = dp 라 측정이 편하다. 기본 밀도(420)에서는
+  `dp = px / (density/160)` 로 환산한다.
+- 배치 규칙 검증은 눈이 아니라 **픽셀 스캔**으로 한다 — 배경색 런을 찾아 각 구간 높이를 dp 로 뽑으면
+  Figma 실측치와 바로 대조된다:
+  ```python
+  bg=(58,60,69)  # 화면 배경
+  # 한 열을 스캔해 배경/비배경 런의 시작·높이를 dp 로 출력 → 프리뷰 높이, 섹션 간 gap 이 그대로 나온다
+  ```
+  (2026-08-28: 프리뷰 411.4dp 정사각 / gap 20.2 / 썸네일 56.0 / 셔터 77.7 을 이 방법으로 확인)
+
 ## E2E 검증 깊이 (MANDATORY)
 
 **"화면이 떴는지"만 확인하면 불합격.** 각 화면에서 반드시:
