@@ -1,7 +1,7 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtom, useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Animated, Dimensions, Platform} from 'react-native';
+import {ActivityIndicator, Animated, Platform} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -11,6 +11,7 @@ import {
 import Svg, {Line} from 'react-native-svg';
 import {CameraCaptureError, PhotoFile} from 'react-native-vision-camera';
 
+import CloseIcon from '@/assets/icon/close.svg';
 import AlbumIcon from '@/assets/icon/ic_album.svg';
 import GuideIcon from '@/assets/icon/ic_camera_guide.svg';
 import StairsOverlayIcon from '@/assets/icon/ic_camera_overlay_stairs.svg';
@@ -83,8 +84,6 @@ export default function CameraScreen({
   navigation,
 }: ScreenProps<'Camera'>) {
   const initialFocusedIndex = React.useRef(0);
-  const windowHeight = Dimensions.get('window').height;
-  const cameraMaxHeight = windowHeight > 0 ? windowHeight / 2 : 360;
   const {camera, hasPermission, device, setDevice} = useCamera();
   const [photoFiles, setPhotoFiles] = useState<ImageFile[]>([]);
   const [flash, setFlash] = useState<'on' | 'off'>('off');
@@ -429,16 +428,27 @@ export default function CameraScreen({
     <ScreenLayout
       isHeaderVisible={true}
       safeAreaEdges={['top', 'bottom']}
-      style={{backgroundColor: color.gray70v2}}>
+      style={{
+        backgroundColor: color.gray70v2,
+        // Figma(min 694 / max 844): 헤더~버튼행 블록이 safe area 안에서 세로 중앙.
+        justifyContent: 'center',
+      }}>
       <S.Header>
-        <S.CancelButton onPress={goBack}>취소</S.CancelButton>
+        <S.HeaderCloseButton
+          elementName="camera_close_button"
+          accessibilityRole="button"
+          accessibilityLabel="닫기"
+          onPress={goBack}>
+          {/* Figma(174:6980): 24x24 박스 안 글리프 14x14 → viewBox 16 그대로 렌더 */}
+          <CloseIcon width={16} height={16} color="white" />
+        </S.HeaderCloseButton>
         <S.SubmitButton
           onPress={() => confirm(photoFiles)}
           disabled={photoFiles.length === 0}>
-          {`사진 등록${photoFiles.length > 0 ? `(${photoFiles.length})` : ''}`}
+          {`사진 등록(${photoFiles.length}/${photoLimit})`}
         </S.SubmitButton>
       </S.Header>
-      <S.CameraContainer maxHeight={cameraMaxHeight}>
+      <S.CameraContainer>
         {hasPermission && device ? (
           <S.CameraPreviewContainer>
             <CameraPreview ref={camera} device={device} />
@@ -464,7 +474,8 @@ export default function CameraScreen({
                     '계단/경사로의 높이를 확인할 수 있게\n약간 측면에서 촬영해주세요'
                   }
                 </S.StairsOverlayCaption>
-                <StairsOverlayIcon width={340} height={112} />
+                {/* Figma(174:7089): 338x110 */}
+                <StairsOverlayIcon width={338} height={110} />
               </S.StairsOverlay>
             )}
             {countdownDisplay !== null && (
@@ -476,6 +487,27 @@ export default function CameraScreen({
         ) : (
           <CameraNotAuthorized />
         )}
+        {/* 가이드 버튼(입구 촬영에만 있다)으로 오버레이를 끄면 칩도 같이 감춘다.
+            가이드 버튼이 없는 리뷰/화장실에서 숨기면 되살릴 방법이 없으므로 항상 노출. */}
+        {route.params.target !== 'elevator' &&
+          (!isEntrance || isGuideOverlayEnabled) && (
+            <S.TipsAnchor>
+              <S.Tips
+                elementName="camera_tips_button"
+                onPress={() => {
+                  const target = route.params.target;
+                  if (isEntranceTarget(target)) {
+                    setIsEntranceGuideVisible(true);
+                  } else if (target === 'review' || target === 'toilet') {
+                    openGuide(target);
+                  }
+                }}>
+                {/* Figma(174:6989): info-circle 20x20 */}
+                <CircleInfoIcon width={20} height={20} />
+                <S.Tip>{isEntrance ? '예시 사진 >' : '사진 촬영 팁  >'}</S.Tip>
+              </S.Tips>
+            </S.TipsAnchor>
+          )}
         {isLoadingAlbum && (
           <S.AlbumLoadingOverlay>
             <ActivityIndicator size="large" color="white" />
@@ -487,23 +519,6 @@ export default function CameraScreen({
           </S.AlbumLoadingOverlay>
         )}
       </S.CameraContainer>
-      {route.params.target !== 'elevator' && (
-        <S.TipsWrapper>
-          <S.Tips
-            elementName="camera_tips_button"
-            onPress={() => {
-              const target = route.params.target;
-              if (isEntranceTarget(target)) {
-                setIsEntranceGuideVisible(true);
-              } else if (target === 'review' || target === 'toilet') {
-                openGuide(target);
-              }
-            }}>
-            <CircleInfoIcon />
-            <S.Tip>{isEntrance ? '예시 사진 >' : '사진 촬영 팁  >'}</S.Tip>
-          </S.Tips>
-        </S.TipsWrapper>
-      )}
       <S.TakenPhotosSection>
         <S.TakenPhotos>
           {photoFiles.length > 0 ? (
@@ -571,7 +586,7 @@ export default function CameraScreen({
             </S.PlaceholderRow>
           ) : null}
         </S.TakenPhotos>
-        {photoFiles.length === 0 && (
+        {!isEntrance && photoFiles.length === 0 && (
           <S.PhotoCaption>
             최대 {photoLimit}장까지 촬영할 수 있어요
           </S.PhotoCaption>
@@ -618,7 +633,8 @@ export default function CameraScreen({
             <AlbumIcon
               width={S.SIDE_BUTTON_ICON_SIZE}
               height={S.SIDE_BUTTON_ICON_SIZE}
-              color="white"
+              // Figma(174:6959): 비활성 앨범 아이콘은 #A0A2AE
+              color={isAlbumUploadAllowed ? 'white' : color.gray40v2}
             />
           </S.SideButtonCircle>
           <S.SideButtonLabel>앨범</S.SideButtonLabel>
@@ -635,7 +651,7 @@ export default function CameraScreen({
               <GuideIcon
                 width={S.SIDE_BUTTON_ICON_SIZE}
                 height={S.SIDE_BUTTON_ICON_SIZE}
-                color={isGuideOverlayEnabled ? color.yellow : 'white'}
+                color={isGuideOverlayEnabled ? color.yellow30 : 'white'}
               />
             </S.SideButtonCircle>
             <S.SideButtonLabel isOn={isGuideOverlayEnabled}>
@@ -684,7 +700,7 @@ export default function CameraScreen({
             <ClockIcon
               width={S.SIDE_BUTTON_ICON_SIZE}
               height={S.SIDE_BUTTON_ICON_SIZE}
-              color={timerSeconds === 0 ? 'white' : color.yellow}
+              color={timerSeconds === 0 ? 'white' : color.yellow30}
             />
           </S.SideButtonCircle>
           <S.SideButtonLabel isOn={timerSeconds !== 0}>
