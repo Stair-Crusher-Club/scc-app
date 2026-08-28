@@ -62,6 +62,8 @@ export const color = {
   orange30: '#FF9D0A',
   orange40: '#F67600',
 
+  // 카메라 가이드/타이머 ON 컬러 (Figma 174:6964 등)
+  yellow30: '#FFE500',
   yellow: '#FFD900',
   yellow70: '#FF9D0A',
 
