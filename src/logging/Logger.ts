@@ -34,6 +34,16 @@ interface ScreenViewParams {
   extraParams?: Record<string, any>;
 }
 
+/**
+ * 외부 지도앱 공유 텍스트 수신 경로.
+ * `*_cold` 은 앱이 떠 있지 않아 PendingSharedText 를 거치는 경로다.
+ */
+export type SharedTextEntry =
+  | 'android_cold'
+  | 'android_foreground'
+  | 'ios_cold'
+  | 'ios_warm';
+
 interface AppPushOpenParams {
   title: string;
   body: string;
@@ -289,6 +299,25 @@ const Logger = {
     };
     trackEvent('splash_dismissed', eventParams);
     getAnalytics().logEvent('splash_dismissed', eventParams);
+  },
+
+  /**
+   * 외부 지도앱 공유 수신. `screen_view(ResolvingSharedLink)` 는 로그인된 유저만 도달하므로
+   * 비로그인 수신이 통째로 계측에서 빠져 있었다 — 수신 시점에 로그인 여부와 진입 경로를 남긴다.
+   * 비로그인 건이 로그인 후 실제 해석까지 갔는지는 같은 session_id 의
+   * ResolvingSharedLink screen_view 로 이어 본다.
+   */
+  async logSharedTextReceived(params: {
+    entry: SharedTextEntry;
+    isLoggedIn: boolean;
+  }) {
+    logDebug('logSharedTextReceived', params, currUserPropertiesForDebugging);
+    const eventParams = {
+      entry: params.entry,
+      is_logged_in: params.isLoggedIn ? 1 : 0,
+    };
+    trackEvent('shared_text_received', eventParams);
+    getAnalytics().logEvent('shared_text_received', eventParams);
   },
 
   async logAppPushOpen(params: AppPushOpenParams) {

@@ -15,7 +15,7 @@ import DevTool from '@/components/DevTool/DevTool';
 import {setDeferredDeepLinkUrl} from '@/deeplink/DeferredDeepLink';
 import {setPendingSharedText} from '@/deeplink/PendingSharedText';
 import {useLogParams} from '@/logging/LogParamsProvider';
-import Logger from '@/logging/Logger';
+import Logger, {SharedTextEntry} from '@/logging/Logger';
 import {Navigation} from '@/navigation';
 import {
   DEEP_LINK_PREFIXES,
@@ -82,13 +82,22 @@ const RootScreen = () => {
     };
   }, [navigationRef]);
 
-  // 외부 지도앱 공유 텍스트 처리 (Android: ReceiveSharingIntent / iOS: stair-crusher://shared?text=)
-  const handleSharedText = useCallback(
-    (sharedText: string) => {
+  // 외부 지도앱 공유 텍스트 수신 단일 진입점 (Android: ShareIntentModule / iOS: stair-crusher://shared?text=).
+  // 안드/iOS × cold/warm 4개 경로가 전부 여기로 들어와 수신 시점에 1회 계측한다.
+  // 비로그인 수신은 ResolvingSharedLink 를 안 거치므로 그 화면의 screen_view 로는 영영 안 잡힌다
+  // — 로그인 게이트에서 몇 건이 죽는지 보려면 수신 시점 계측이 유일한 방법이다.
+  const receiveSharedText = useCallback(
+    (sharedText: string, entry: SharedTextEntry) => {
       const isLoggedIn = !!getStorageValue<string>('scc-token');
-      if (!isLoggedIn) {
+      Logger.logSharedTextReceived({entry, isLoggedIn});
+
+      // cold start 는 navigation 이 아직 미준비 → PendingSharedText 로 넘기고 MainScreen 이 소비한다.
+      const isColdStart = entry === 'android_cold' || entry === 'ios_cold';
+      if (isColdStart || !isLoggedIn) {
         setPendingSharedText(sharedText);
-        (navigationRef.current?.navigate as any)('Login');
+        if (!isColdStart) {
+          (navigationRef.current?.navigate as any)('Login');
+        }
         return;
       }
       (navigationRef.current?.navigate as any)('ResolvingSharedLink', {
@@ -140,7 +149,7 @@ const RootScreen = () => {
         const text: string | null =
           await ShareIntentModule?.getPendingShareText();
         if (text) {
-          setPendingSharedText(text);
+          receiveSharedText(text, 'android_cold');
         }
       } catch (e) {
         logDebug('ShareIntentModule error', e);
@@ -153,7 +162,7 @@ const RootScreen = () => {
         const text: string | null =
           await ShareIntentModule?.getPendingShareText();
         if (text) {
-          handleSharedText(text);
+          receiveSharedText(text, 'android_foreground');
         }
       } catch (e) {
         logDebug('ShareIntentModule error', e);
@@ -171,7 +180,7 @@ const RootScreen = () => {
     return () => {
       subscription.remove();
     };
-  }, [handleSharedText]);
+  }, [receiveSharedText]);
 
   return (
     <>
@@ -228,7 +237,7 @@ const RootScreen = () => {
                       initialUrl.replace('stair-crusher://shared?text=', ''),
                     );
                     logDebug('iOS Share Extension cold start', sharedText);
-                    setPendingSharedText(sharedText);
+                    receiveSharedText(sharedText, 'ios_cold');
                     return null;
                   }
 
@@ -335,7 +344,7 @@ const RootScreen = () => {
                         const sharedText = decodeURIComponent(
                           url.replace('stair-crusher://shared?text=', ''),
                         );
-                        handleSharedText(sharedText);
+                        receiveSharedText(sharedText, 'ios_warm');
                         return;
                       }
                       // authDeferred=true + 비로그인 → URL 저장 + Login 리다이렉트
