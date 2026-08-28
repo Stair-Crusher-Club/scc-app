@@ -16,21 +16,7 @@ on:
         type: string
 
 jobs:
-  # ⚠️ 킬스위치: repo variable `PROD_OTA_ENABLED` 가 'true' 일 때만 배포한다.
-  # 변수가 없거나 'true' 가 아니면 job 이 깨끗하게 skip 된다(실패 알림 없음).
-  #
-  # 왜: 카메라 사진 가이드 개편 UI 가 main 에 올라가 있지만 디자인이 미완이라 prod 로
-  # 나가면 안 된다. 그런데 앱 변경은 sandbox OTA(main push)를 계속 받아야 해서 main 에
-  # 두어야 한다. 그래서 코드를 되돌리는 대신 prod 경로만 막는다.
-  # 특히 `auto-tag-on-merge.yml` 이 Info.plist/version.properties 변경 시 v* 태그를
-  # 자동 생성하므로, 남의 버전 올림이 우리 UI 를 prod 로 실어 보낼 수 있다.
-  #
-  # 다시 켜기: GitHub → Settings → Secrets and variables → Actions → Variables 에서
-  #           PROD_OTA_ENABLED 를 true 로. 워크플로우 수정 불필요.
-  # 제거 시점: 카메라 가이드 UI 디자인이 확정되어 prod 배포가 승인되면 이 가드를 삭제한다.
-  #           (안 지우면 그때부터 prod OTA 가 조용히 안 나간다)
   deploy:
-    if: vars.PROD_OTA_ENABLED == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -148,16 +134,3 @@ jobs:
         run: |
           CURRENT_GITHUB_ACTION_RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           curl -X POST -H 'Content-type: application/json' --data "{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"[PROD] Scc-App OTA Deployment Failed\", \"text\":\"<!subteam^S052B9WNGCV> iOS: ${{ env.IOS_VERSION }}, Android: ${{ env.ANDROID_VERSION }}\n배포 ref: ${{ env.DEPLOY_REF }} (<$CURRENT_GITHUB_ACTION_RUN_URL|github action run url>)\"}]}" ${{ secrets.SLACK_URL_SCC_SERVER_CHANNEL }}
-
-  # 가드로 배포가 skip 됐을 때, 태그를 단 사람이 이유를 알 수 있게 로그를 남긴다.
-  # (조용히 아무 일도 안 일어나는 상황을 방지)
-  blocked-notice:
-    if: vars.PROD_OTA_ENABLED != 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Prod OTA is currently disabled
-        run: |
-          echo "::warning title=Prod OTA disabled::PROD_OTA_ENABLED 가 'true' 가 아니어서 프로덕션 OTA 배포를 건너뜁니다."
-          echo "카메라 사진 가이드 개편 UI 가 main 에 있으나 디자인 미완 상태라 prod 배포를 일시 차단했습니다."
-          echo "해제: Settings > Secrets and variables > Actions > Variables > PROD_OTA_ENABLED = true"
-          echo "문의: 이 가드는 cd-production.yml 상단 주석 참조."
