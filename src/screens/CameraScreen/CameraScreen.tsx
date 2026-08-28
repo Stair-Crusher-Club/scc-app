@@ -1,7 +1,14 @@
 import ImageEditor from '@react-native-community/image-editor';
 import {useAtom, useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Animated, Platform} from 'react-native';
+import {
+  ActivityIndicator,
+  Animated,
+  Platform,
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+} from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import {
   ImagePickerResponse,
@@ -462,20 +469,28 @@ export default function CameraScreen({
                   <GroundDashLine />
                 </S.DoorFrameGroundLineRight>
                 <S.DoorFrameRect />
-                <S.OverlayCaption>
-                  {'문을 프레임 안에\n맞춰주세요'}
-                </S.OverlayCaption>
+                <S.OverlayCaptionBox>
+                  <ShadowedCaption
+                    Caption={S.OverlayCaption}
+                    text={'문을 프레임 안에\n맞춰주세요'}
+                  />
+                </S.OverlayCaptionBox>
               </S.DoorFrameOverlay>
             )}
             {isEntrance && isGuideOverlayEnabled && photoFiles.length === 1 && (
               <S.StairsOverlay pointerEvents="none">
-                <S.StairsOverlayCaption>
-                  {
+                <ShadowedCaption
+                  Caption={S.StairsOverlayCaption}
+                  text={
                     '계단/경사로의 높이를 확인할 수 있게\n약간 측면에서 촬영해주세요'
                   }
-                </S.StairsOverlayCaption>
-                {/* Figma(174:7089): 338x110 */}
-                <StairsOverlayIcon width={338} height={110} />
+                />
+                {/* Figma(190:8386): 228.3x149.4 (+ stroke 1px 여유) */}
+                <StairsOverlayIcon
+                  width={230}
+                  height={151}
+                  style={{marginLeft: S.StairsOverlayIconOffset}}
+                />
               </S.StairsOverlay>
             )}
             {countdownDisplay !== null && (
@@ -714,6 +729,37 @@ export default function CameraScreen({
         />
       )}
     </ScreenLayout>
+  );
+}
+
+/**
+ * Figma(174:6996 / 190:8385) 는 동일한 DROP_SHADOW 를 **3겹** 쌓아 halo 를 진하게 만든다.
+ * RN Text 는 textShadow 를 1겹만 지원하고, radius 를 키우면 두꺼워지는 대신 퍼져서 옅어진다.
+ * 그래서 같은 문구를 겹쳐 그려 **그림자만 누적**시킨다 — 아래 겹의 글자는 맨 위 겹에 완전히
+ * 가려지므로 글자 자체는 한 겹으로 보인다.
+ */
+const CAPTION_SHADOW_LAYERS = 3;
+
+function ShadowedCaption({
+  Caption,
+  text,
+}: {
+  Caption: React.ComponentType<{
+    style?: StyleProp<TextStyle>;
+    children: React.ReactNode;
+  }>;
+  text: string;
+}) {
+  return (
+    <S.CaptionStack>
+      {/* 흐름에 놓인 맨 아래 겹이 스택 크기를 정하고, 나머지는 그 박스를 채운다. */}
+      {Array.from({length: CAPTION_SHADOW_LAYERS - 1}).map((_, i) => (
+        <Caption key={i} style={StyleSheet.absoluteFillObject}>
+          {text}
+        </Caption>
+      ))}
+      <Caption>{text}</Caption>
+    </S.CaptionStack>
   );
 }
 

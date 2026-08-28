@@ -117,33 +117,52 @@ export const DoorFrameGroundLineRight = styled.View({
   height: 2,
 });
 
+// ShadowedCaption 용 스택. 흐름에 놓인 맨 위 한 겹이 크기를 정하고,
+// 그림자 겹들은 그 박스를 absoluteFill 로 채워 글리프 위치가 정확히 일치한다.
+export const CaptionStack = styled.View({
+  position: 'relative',
+});
+
+// Figma(174:6996): 문구는 흰 상자(문 프레임) 안에서 **상하좌우 중앙**이다.
+// 문 프레임과 이 오버레이의 top/bottom 이 같으므로 오버레이를 채우고 가운데 정렬하면 된다.
+// (Text 에 top:'50%' 를 주면 글자의 *윗변*이 중앙에 와서 아래로 반쪽 밀린다 — 이전 구현의 버그)
+export const OverlayCaptionBox = styled.View({
+  ...StyleSheet.absoluteFillObject,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
 export const OverlayCaption = styled.Text({
-  position: 'absolute',
-  top: '50%',
-  left: 24,
-  right: 24,
+  paddingHorizontal: 24,
   color: 'white',
   fontFamily: font.pretendardMedium,
   fontSize: 15,
   lineHeight: 22,
   textAlign: 'center',
-  // Figma(174:6996): DROP_SHADOW radius 4 / #000000 0.9 / offset(0,0) 3겹.
-  // RN Text 는 textShadow 를 1겹만 지원하므로 동일 파라미터로 근사한다.
+  // Figma(174:6996 / 190:8385): DROP_SHADOW radius 4 / #000000 90% / offset(0,0) **3겹**.
+  // offset(0,0) 은 안드로이드 setShadowLayer 에서 글리프 뒤에 정확히 겹쳐 거의 안 보이므로 1px 을 준다.
+  // 3겹은 ShadowedCaption(같은 문구를 겹쳐 그리기)이 재현한다 — radius 를 키우면 두꺼워지는 게
+  // 아니라 퍼져서 옅어지므로, 두께는 겹 수로만 올린다.
   textShadowColor: 'rgba(0, 0, 0, 0.9)',
-  textShadowOffset: {width: 0, height: 0},
-  textShadowRadius: 4,
+  textShadowOffset: {width: 0, height: 1},
+  textShadowRadius: 5,
 });
 
-// 1장 상태: 계단/경사로 3D 안내.
-// Figma(174:7088/7089, 프리뷰 390 기준): 캡션 y=188(48.2%), SVG y=238~348.
+// 1장 상태: 계단/경사로 3D 안내. Figma 가 190:8213 으로 재작성되어 그래픽·좌표가 전부 바뀌었다.
+// (프리뷰 390 기준) 캡션 y=130(33.3%) h=44 → gap 9 → 계단 그룹 y=183, 228.3x149.4.
 export const StairsOverlay = styled.View({
   position: 'absolute',
-  top: '48.2%',
+  top: '33.3%',
   left: 0,
   right: 0,
   alignItems: 'center',
-  gap: 6,
+  gap: 9,
 });
+
+// Figma(190:8386): 계단 그룹이 x=89.6 에서 시작해 프리뷰 중앙(195)보다 8.6 오른쪽에 있다.
+// 계단이 오른쪽 아래로 내려가는 비대칭 형태라 bbox 중앙과 시각적 중앙이 다르다 — 의도된 배치다.
+// alignItems:'center' 기준으로 8.6 밀려면 마진은 그 두 배.
+export const StairsOverlayIconOffset = 17;
 
 export const StairsOverlayCaption = styled.Text({
   color: 'white',
@@ -152,11 +171,13 @@ export const StairsOverlayCaption = styled.Text({
   lineHeight: 22,
   textAlign: 'center',
   paddingHorizontal: 24,
-  // Figma(174:7088): DROP_SHADOW radius 4 / #000000 0.9 / offset(0,0) 3겹.
-  // RN Text 는 textShadow 를 1겹만 지원하므로 동일 파라미터로 근사한다.
+  // Figma(174:6996 / 190:8385): DROP_SHADOW radius 4 / #000000 90% / offset(0,0) **3겹**.
+  // offset(0,0) 은 안드로이드 setShadowLayer 에서 글리프 뒤에 정확히 겹쳐 거의 안 보이므로 1px 을 준다.
+  // 3겹은 ShadowedCaption(같은 문구를 겹쳐 그리기)이 재현한다 — radius 를 키우면 두꺼워지는 게
+  // 아니라 퍼져서 옅어지므로, 두께는 겹 수로만 올린다.
   textShadowColor: 'rgba(0, 0, 0, 0.9)',
-  textShadowOffset: {width: 0, height: 0},
-  textShadowRadius: 4,
+  textShadowOffset: {width: 0, height: 1},
+  textShadowRadius: 5,
 });
 
 // Figma(174:6988 Frame 508): 99x32, radius 30, #000000 40%, gap 2, padding L6/R8.
