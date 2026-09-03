@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>잠실야구장 가기 전, 휠체어로 가기 좋은 식당·카페 20 | 계단뿌셔클럽</title>
+<meta name="description" content="잠실야구장 근처에서 휠체어로 갈 수 있는 음식점·카페 20곳. 우곱집 잠실본점, 화덕돌곱창 잠실직영점, 후발대 잠실직영점, 크레스타운 잠실점 등 경기 전후 들르기 좋은 곳의 입구 턱·계단 여부를 접근레벨 0~2로 정리했습니다.">
+<link rel="canonical" href="https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B80XR4HWJE"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+(function(){
+  // 앱 인앱 웹뷰: WebViewScreen 의 injectedJavaScriptBeforeContentLoaded 가
+  // 페이지 스크립트보다 먼저 window.__SCC_APP_AUTH__ 를 심어둔다. 그게 앱 유저의 신원이다.
+  // 브라우저: 직전 세션이 남긴 localStorage. 첫 방문자는 신원이 없다(익명계정 발급 전) —
+  // 그 경우 번들의 Logger.setUserId 가 나중에 채운다.
+  //
+  // mmkv 키가 두 포맷인 것은 scripts/article-template.js 의 readSpaToken 과 같은 이유다:
+  // webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어 지금은 'mmkv.default.userInfo'
+  // (dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\\userInfo' (backslash) 가 된다.
+  function readUserId(){
+    try {
+      var injected = window.__SCC_APP_AUTH__;
+      if (injected && injected.userId) return injected.userId;
+    } catch (e) {}
+    var keys = ['mmkv.default.userInfo', 'mmkv.default\\userInfo'];
+    for (var i = 0; i < keys.length; i++) {
+      try {
+        var raw = localStorage.getItem(keys[i]);
+        if (raw) {
+          var user = JSON.parse(raw);
+          if (user && user.id) return user.id;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  // react-native-webview 는 자신이 로드한 모든 페이지에 ReactNativeWebView 를 주입한다
+  // (토큰 주입 여부와 무관). web/utils/isInAppWebView.ts 와 동일한 신호를 쓴다.
+  var surface = window.ReactNativeWebView ? 'app_webview' : 'web';
+  var userId = readUserId();
+  // 진단용. 앱 웹뷰인데 신원이 없는 케이스가 두 원인으로 뭉쳐 있어 못 갈랐다(2026-08-10 배포 후 실측:
+  // app_webview 74건 중 23건이 신원 없음, 디바이스 3대):
+  //   bridgeVersion=1 → 구앱. userId 를 주입하지 않으므로 localStorage 폴백 → OTA 전파되면 소멸.
+  //   bridgeVersion=2 + userId 없음 → 레거시 '0' 비회원(ANONYMOUS_USER_TEMPLATE.id)이거나 미채번.
+  //     WebViewScreen 이 이 sentinel 을 의도적으로 제외한다 → **OTA 로 안 사라지는 영구 케이스.**
+  // readUserId 안의 injected 는 그 함수 스코프라 여기서 다시 읽는다.
+  var bridge = window.__SCC_APP_AUTH__;
+
+  var userProperties = {surface: surface};
+  if (userId) userProperties.userId = userId;
+  // 신원 채널(user_id / userId)은 건드리지 않는다 — 진단 키만 추가한다.
+  if (bridge && bridge.bridgeVersion) {
+    userProperties.bridgeVersion = String(bridge.bridgeVersion);
+  }
+
+  gtag('set', 'user_properties', userProperties);
+  gtag('set', {surface: surface});
+  var config = {user_properties: userProperties};
+  if (userId) config.user_id = userId;
+  gtag('config', 'G-B80XR4HWJE', config);
+})();
+</script>
+<script defer src="/articles-analytics.js"></script>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<meta property="og:type" content="article">
+<meta property="og:title" content="잠실야구장 가기 전, 휠체어로 가기 좋은 식당·카페 20">
+<meta property="og:description" content="잠실야구장 근처에서 휠체어로 갈 수 있는 음식점·카페 20곳. 우곱집 잠실본점, 화덕돌곱창 잠실직영점, 후발대 잠실직영점, 크레스타운 잠실점 등 경기 전후 들르기 좋은 곳의 입구 턱·계단 여부를 접근레벨 0~2로 정리했습니다.">
+<meta property="og:url" content="https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes">
+<meta property="og:site_name" content="계단뿌셔클럽">
+<meta property="og:image" content="https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes/assets/img-0.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="잠실야구장 가기 전, 휠체어로 가기 좋은 식당·카페 20">
+<meta name="twitter:description" content="잠실야구장 근처에서 휠체어로 갈 수 있는 음식점·카페 20곳. 우곱집 잠실본점, 화덕돌곱창 잠실직영점, 후발대 잠실직영점, 크레스타운 잠실점 등 경기 전후 들르기 좋은 곳의 입구 턱·계단 여부를 접근레벨 0~2로 정리했습니다.">
+<meta name="twitter:image" content="https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes/assets/img-0.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"잠실야구장 가기 전, 휠체어로 가기 좋은 식당·카페 20","description":"잠실야구장 근처에서 휠체어로 갈 수 있는 음식점·카페 20곳. 우곱집 잠실본점, 화덕돌곱창 잠실직영점, 후발대 잠실직영점, 크레스타운 잠실점 등 경기 전후 들르기 좋은 곳의 입구 턱·계단 여부를 접근레벨 0~2로 정리했습니다.","image":["https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes/assets/img-0.png"],"datePublished":"2026-09-03T05:04:00.000Z","dateModified":"2026-09-03T05:03:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes"},"author":{"@type":"Organization","name":"계단뿌셔클럽","url":"https://staircrusher.club"},"publisher":{"@type":"Organization","name":"계단뿌셔클럽","logo":{"@type":"ImageObject","url":"https://web.staircrusher.club/articles/assets/scc-logo.png"}}}</script>
+<style>
+:root{--fg:#2c2c2b;--muted:#787774;--line:#e9e9e7;--soft:#f7f6f3;
+/* 목록/푸터 디자인 토큰 (Figma) */
+--g90:#16181c;--g80:#24262b;--g60:#585a64;--g25:#d8d8df;--g15:#f2f2f5;--g10:#f7f8fa;--blue:#0c76f7;}
+*{box-sizing:border-box;}
+[hidden]{display:none!important;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:#fff;color:var(--fg);font-family:"Pretendard",ui-sans-serif,-apple-system,"system-ui","Segoe UI Variable Display","Segoe UI",Helvetica,"Apple SD Gothic Neo","Apple Color Emoji",Arial,sans-serif;font-size:16px;line-height:1.5;word-break:keep-all;}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px;}
+a{color:inherit;}
+img{max-width:100%;height:auto;}
+/* top bar */
+.site-header{border-bottom:1px solid var(--line);}
+.site-header .wrap{display:flex;align-items:center;gap:8px;height:48px;}
+.site-header img{width:24px;height:24px;border-radius:5px;}
+.site-header b{font-size:15px;font-weight:600;}
+.back{display:inline-flex;align-items:center;gap:5px;margin:22px 0 -6px;color:var(--muted);font-size:14px;text-decoration:none;}
+.back:hover{color:var(--fg);}
+/* article body — Notion 매칭 */
+article{padding:8px 0 72px;}
+h1.title{font-size:40px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;margin:16px 0 6px;}
+.article-date{color:var(--muted);font-size:14px;margin:0 0 26px;}
+article h2{font-size:30px;font-weight:600;line-height:1.3;margin:34px 0 6px;}
+article h3{font-size:24px;font-weight:600;line-height:1.3;margin:26px 0 4px;}
+article h4{font-size:20px;font-weight:600;line-height:1.3;margin:20px 0 2px;}
+article p{margin:0;padding:3px 0;}
+article strong,article b{font-weight:600;}
+/* 링크 텍스트가 생 URL이면 끊길 곳이 없어 페이지 전체가 가로로 늘어난다 */
+article a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);text-underline-offset:2px;overflow-wrap:anywhere;}
+article ul,article ol{margin:0;padding:2px 0 2px 1.7em;}
+article li{padding:2px 0;}
+article li::marker{color:var(--muted);}
+blockquote{margin:8px 0;padding-left:14px;border-left:3px solid var(--fg);}
+.callout{display:flex;gap:8px;background:var(--soft);border-radius:4px;padding:16px 16px 16px 12px;margin:8px 0;}
+.callout .emoji{flex:0 0 auto;line-height:1.5;}
+.callout .callout-ico{flex:0 0 auto;width:22px;height:22px;margin-top:2px;object-fit:contain;}
+/* flex 아이템 기본 min-width:auto 때문에 내부 nowrap(북마크 카드 URL 등)이 페이지를 밀어낸다 */
+.callout>div{min-width:0;flex:1 1 auto;}
+.callout>div>*:first-child{margin-top:0;padding-top:0;}
+details{margin:3px 0;}
+details summary{cursor:pointer;padding:3px 0;font-weight:600;}
+pre{background:var(--soft);border-radius:4px;padding:16px;overflow:auto;font-size:14px;line-height:1.4;margin:8px 0;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+:not(pre)>code{background:rgba(135,131,120,.15);color:#eb5757;padding:.2em .4em;border-radius:3px;font-size:.86em;}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0;}
+figure{margin:10px 0;}
+figure img{display:block;border-radius:3px;}
+figcaption{color:var(--muted);font-size:14px;margin-top:6px;}
+table{border-collapse:collapse;margin:8px 0;font-size:14px;width:100%;}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+th{background:var(--soft);font-weight:600;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.columns{display:flex;gap:16px;margin:8px 0;}
+.columns>.column{flex:1 1 0;min-width:0;}
+/* 인라인 DB(식당/장소 카드) → 가로 스크롤 표 + 컬러 pill */
+figure.db{margin:12px 0;}
+.db-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;}
+.db-wrap table{margin:0;border:0;min-width:100%;table-layout:auto;}
+.db-wrap th,.db-wrap td{border:0;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;overflow-wrap:anywhere;min-width:8em;max-width:24em;}
+.db-title{font-weight:600;font-size:15px;margin:14px 0 6px;}
+.empty{height:1em;margin:0;}
+.db-wrap tr:last-child td{border-bottom:0;}
+.pill{display:inline-block;padding:1px 8px;border-radius:4px;font-size:13px;line-height:1.6;}
+/* bookmark 블록 → Notion 북마크 카드(좌 썸네일 + 우 제목/설명/URL). 치수는 Notion 실측 */
+a.bookmark{display:flex;flex-wrap:wrap;align-items:stretch;margin:8px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;}
+a.bookmark:hover{background:rgba(55,53,47,.03);}
+.bm-thumb{flex:1 1 100px;min-width:0;height:154px;overflow:hidden;}
+.bm-thumb img{display:block;width:100%;height:100%;object-fit:cover;}
+.bm-body{flex:4 1 180px;min-width:0;display:flex;flex-direction:column;gap:8px;padding:18px 24px 14px;overflow:hidden;}
+a.bookmark.no-thumb .bm-body{padding:12px 16px;}
+.bm-title{font-size:17px;line-height:22px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bm-desc{font-size:13px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.bm-url{margin-top:auto;color:var(--muted);font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* 카드형 인라인 DB → 링크 카드 그리드(클릭 시 상세 페이지) */
+.db-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.db-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.db-card:hover{border-color:#c8c8c4;}
+.db-card-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--soft);}
+.db-card-body{padding:12px 14px;}
+.db-card-body b{font-size:15px;font-weight:600;}
+.db-card-body p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.db-wrap td a{text-decoration:underline;text-decoration-color:rgba(44,44,43,.35);}
+.db-thumb{width:72px;height:54px;object-fit:cover;border-radius:4px;margin:1px;vertical-align:middle;}
+/* 상세 페이지 상단 프로퍼티 요약 */
+.db-detail-props{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px;padding:12px 14px;background:var(--soft);border-radius:8px;font-size:14px;}
+.db-detail-props .db-prop b{color:var(--muted);font-weight:600;margin-right:4px;}
+/* 목차(TOC) */
+nav.toc{margin:10px 0;padding:12px 16px;background:var(--soft);border-radius:8px;display:flex;flex-direction:column;gap:4px;}
+nav.toc a{color:var(--fg);text-decoration:none;font-size:14px;}
+nav.toc a:hover{text-decoration:underline;}
+nav.toc .toc-l2{padding-left:0;}nav.toc .toc-l3{padding-left:14px;}nav.toc .toc-l1{padding-left:0;font-weight:600;}
+/* heading 토글 */
+details.htoggle>summary{list-style:none;cursor:pointer;}
+details.htoggle>summary::-webkit-details-marker{display:none;}
+details.htoggle>summary>*{display:inline;}
+details.htoggle>summary::before{content:"▸ ";color:var(--muted);}
+details.htoggle[open]>summary::before{content:"▾ ";}
+:target{scroll-margin-top:60px;}
+/* ===== 사이트 푸터 (목록/상세 공용) ===== */
+/* PC/MO가 Figma에서 auto-layout 값이 다르다(108:700 vs 108:859) — 같다고 가정하지 말 것 */
+.site-footer{background:#27272a;padding:60px 0 100px;margin-top:80px;}
+.site-footer .lwrap{display:flex;flex-direction:column;gap:50px;}
+.f-top{display:flex;flex-direction:column;gap:20px;}
+.f-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.f-tagline{color:#fff;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-0.28px;margin:0;}
+.f-logo{display:block;width:208px;height:35px;max-width:100%;}
+.f-pills{display:flex;flex-wrap:wrap;gap:12px;}
+.f-pills a{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border-radius:78px;padding:8px 12px 8px 11px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:-0.24px;text-decoration:none;}
+.f-pills a:hover{background:rgba(255,255,255,.1);}
+.f-pills img{display:block;width:20px;height:20px;}
+.f-bottom{display:flex;flex-direction:column;gap:20px;color:#c1c1c5;font-size:13px;}
+.f-legalgroup{display:flex;flex-direction:column;gap:16px;}
+.f-legal{display:flex;flex-direction:column;gap:4px;}
+.f-legal p{margin:0;}
+.f-copy{font-weight:600;line-height:1.3;}
+.f-biz{font-weight:400;line-height:1.5;}
+.f-links{display:flex;gap:20px;}
+.f-links a{color:#c1c1c5;line-height:1.3;text-decoration:underline;}
+/* 파트너 로고 3개는 한 장의 partners.svg(288x24)를 스프라이트로 잘라 각각 링크로 만든다.
+   좌표는 Figma Layer_1(108:1812) 자식 그룹 실측: 0/100, 124/61, 207/80 */
+.f-partners{display:flex;align-items:flex-start;height:24px;}
+.f-partners a{display:block;background-image:url(/articles/assets/partners.svg);background-repeat:no-repeat;background-size:288px 24px;}
+.f-partners .p-acrc{width:100px;height:24px;background-position:0 0;margin-right:24px;}
+.f-partners .p-nts{width:61px;height:24px;background-position:-124px 0;margin-right:22px;}
+.f-partners .p-seoul{width:80px;height:22px;background-position:-207px 0;}
+/* ===== 상세 하단 고정 CTA 바 (Figma 72:429/442 PC, 72:459/469 MO) ===== */
+/* Figma 에 그림자는 없다 — border-top 만. (bbucle-road FloatingBottomBar 는 shadow 를 쓰지만 여긴 아니다) */
+/* safe-area 보정은 넣지 않는다: viewport meta 에 viewport-fit=cover 가 없어 env(safe-area-inset-*)
+   가 규격상 0 이라 죽은 코드가 된다. cover 를 켜면 페이지 전체 레이아웃이 노치 아래로 확장돼
+   아티클 본문까지 영향을 받으므로, 필요해지면 그때 페이지 단위로 결정한다. */
+.cta-bar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;border-top:1px solid var(--g25);padding:16px 0 20px;}
+/* inner 폭을 본문 .wrap(720/24)에 맞춘다 — Figma PC 콘텐츠 674px(1920-623*2)와 사실상 동일 */
+.cta-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;}
+.cta-icon{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--g25);border-radius:4px;cursor:pointer;}
+.cta-icon img{display:block;width:24px;height:24px;}
+/* 좋아요 누른 상태는 **하트 아이콘만** 빨강으로 바뀐다 (ic-heart-fill.svg 의 fill/stroke =
+   #DB0B24, 앱 팔레트 color.red). Figma 에 active 상태가 없어 디자인시스템 fill variant 기본색
+   (#0C76F7 파랑)을 앱 red 로 바꿔 썼다. 버튼 테두리는 눌려도 기본 회색 그대로 둔다 — 테두리까지
+   빨강이면 아이콘 강조가 죽고 버튼 자체가 에러 상태처럼 보인다. (사용자 피드백 2026-08-07) */
+.cta-main{flex:1 1 0;min-width:0;display:none;align-items:center;justify-content:center;gap:6px;height:60px;border-radius:4px;padding:12px 32px;font-family:inherit;font-size:18px;line-height:26px;font-weight:700;letter-spacing:-0.36px;white-space:nowrap;text-decoration:none;overflow:hidden;}
+.cta-main img{display:block;width:52px;height:32px;}
+/* 기본(파라미터 없음/JS 없음) = 플친 가입 CTA.
+   ?from=kakao(또는 같은 세션에서 카카오로 들어온 뒤 내부 이동) 면 head 스크립트가 html[data-cta=list] 를 심는다 */
+.cta-kakao{background:#fae100;color:#050708;display:flex;}
+.cta-browse{background:var(--g90);color:#b8ff55;}
+html[data-cta="list"] .cta-kakao{display:none;}
+html[data-cta="list"] .cta-browse{display:flex;}
+/* 고정 바가 푸터 하단을 덮지 않도록 */
+body.has-cta{padding-bottom:96px;}
+.cta-toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:201;max-width:calc(100% - 32px);background:rgba(0,0,0,.82);color:#fff;font-size:14px;line-height:20px;padding:10px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.cta-toast.on{opacity:1;}
+/* ===== 목록 페이지 ===== */
+/* 상세 본문(.wrap 720/24, Notion 매칭)과 달리 목록은 Figma 기준 content 690 / MO 350 */
+.lwrap{max-width:730px;margin:0 auto;padding:0 20px;}
+/* padding-top만 — shorthand를 쓰면 .lwrap의 좌우 20px 패딩까지 덮어써서 모바일이 full-bleed 된다 */
+.list-page{padding-top:40px;}
+.list-head h1{font-size:28px;line-height:38px;font-weight:700;color:var(--g90);margin:0;}
+.list-head p{font-size:15px;line-height:22px;letter-spacing:-0.3px;color:var(--g60);margin:4px 0 0;}
+/* 칩 줄(532px)이 모바일 폭을 넘으므로 여기서 가로 스크롤을 흡수한다. 안 하면 페이지가 통째로 가로로 밀린다 */
+.cat-tabs{display:flex;gap:8px;margin:32px -20px 0;padding:0 20px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g60);font-size:15px;line-height:22px;font-weight:500;letter-spacing:-0.3px;padding:6px 14px;border-radius:100px;}
+.cat[aria-pressed="true"]{background:var(--g80);color:var(--g10);font-weight:600;}
+.arts{margin:32px 0 0;}
+.thumb{display:block;object-fit:cover;border-radius:4px;background:var(--g15);}
+.c-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.4px;color:#000;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-meta{display:flex;gap:6px;align-items:center;color:var(--g60);font-size:13px;line-height:18px;letter-spacing:-0.26px;}
+.c-meta b{font-weight:500;}
+.c-meta i{flex:0 0 auto;width:2px;height:2px;border-radius:50%;background:currentColor;}
+.feat{display:flex;gap:30px;align-items:center;text-decoration:none;color:inherit;}
+.feat .thumb{flex:0 0 330px;width:330px;height:186px;}
+.feat-body{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.feat-head{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.badge{color:var(--blue);font-size:13px;line-height:18px;font-weight:700;letter-spacing:-0.26px;}
+.excerpt{color:var(--g90);font-size:15px;line-height:24px;letter-spacing:-0.3px;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.feat-sep{border:0;border-top:1px solid var(--g25);margin:32px 0;}
+.cards{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;row-gap:32px;}
+.card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;}
+.card .thumb{width:100%;aspect-ratio:330/186;}
+.card-body{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.cat-empty{color:var(--g60);font-size:15px;margin:40px 0 0;text-align:center;}
+.more-wrap{display:flex;justify-content:center;margin:40px 0 0;}
+.more{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-family:inherit;background:var(--g15);color:var(--g80);font-size:16px;line-height:24px;font-weight:500;letter-spacing:-0.32px;padding:12px 28px;border-radius:8px;}
+@media (max-width:700px){
+  h1.title{font-size:30px;}
+  article h2{font-size:25px;}
+  article h3{font-size:21px;}
+  .columns{flex-direction:column;}
+  .list-page{padding-top:30px;}
+  .list-head h1{font-size:24px;line-height:32px;}
+  .list-head p{font-size:14px;line-height:20px;letter-spacing:-0.28px;}
+  .arts{margin-top:24px;}
+  .feat{flex-direction:column;align-items:stretch;gap:12px;}
+  .feat .thumb{flex:none;width:100%;height:auto;aspect-ratio:350/197;}
+  .feat-body{gap:12px;}
+  .feat-sep{margin:28px 0;}
+  .cards{grid-template-columns:1fr;row-gap:28px;}
+  .card .thumb{aspect-ratio:350/197;}
+  /* 푸터는 MO auto-layout(108:859)이 PC(108:700)와 달라서 값을 되돌린다.
+     padding-bottom 은 get_design_context 가 100 이라 답하지만 프레임 실측/픽셀 실측 모두 80 */
+  .site-footer{margin-top:50px;padding-bottom:80px;}
+  .site-footer .lwrap{gap:80px;padding:0 16px;}
+  .f-bottom{gap:16px;}
+  .f-legalgroup{display:contents;}
+  /* CTA 바 MO (Figma 72:459/469): 바 78px, 아이콘 48, 메인 48, 좌우 16 → inner 358 */
+  .cta-bar{padding-top:10px;}
+  .cta-inner{padding:0 16px;}
+  .cta-icon{width:48px;height:48px;}
+  .cta-main{height:48px;padding:12px 20px;font-size:15px;line-height:22px;}
+  .cta-browse{letter-spacing:0;}
+  .cta-kakao{letter-spacing:-0.3px;}
+  .cta-main img{width:39px;height:24px;}
+  body.has-cta{padding-bottom:78px;}
+  .cta-toast{bottom:92px;}
+}
+</style>
+<script>(function(){var k=/[?&]from=kakao(?:&|$)/.test(location.search),n=document.referrer.indexOf(location.origin+'/')===0;try{if(k)sessionStorage.setItem('sccFromKakao','1');else if(n)k=!!sessionStorage.getItem('sccFromKakao');else sessionStorage.removeItem('sccFromKakao');}catch(e){}if(k)document.documentElement.setAttribute('data-cta','list');})();</script>
+<noscript><style>.cta-icon{display:none}</style></noscript>
+</head>
+<body class="has-cta" data-screen-name="Article" data-slug="jamsil-stadium-wheelchair-accessible-restaurants-cafes">
+<header class="site-header"><div class="wrap">
+  <a href="/articles" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;"><img src="/articles/assets/scc-logo.png" alt="계단뿌셔클럽"><b>계단뿌셔클럽</b></a>
+</div></header>
+<div class="wrap">
+<a class="back" href="/articles" data-element-name="article_back_to_list">← 목록으로</a>
+<article data-testid="article-detail">
+<h1 class="title">잠실야구장 가기 전, 휠체어로 가기 좋은 식당·카페 20</h1>
+<div class="article-date">2026-09-03</div>
+<figure><img src="/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes/assets/img-0.png" alt="크레스타운 잠실점" loading="lazy"><figcaption>크레스타운 잠실점</figcaption></figure><aside class="callout" style="background:#e8f1ec;"><span class="emoji">⚾</span><div><strong>잠실야구장 가는 날, 야구만 보고 가기엔 아쉽잖아요! </strong><p>잠실야구장 근처 맛집은 많지만, <strong>휠체어로 방문할 때 참고할 접근성 정보까지 같이 찾기는 쉽지 않아요.</strong> 그래서 계뿌클이 경기 전후 들러보기 좋은 <strong>잠실야구장 근처 20곳</strong>을 한 번에 정리했어요.</p><p>야구 보러 가기 전, <strong>오늘 어디 갈지 고민될 때, 이 리스트부터 꺼내보세요!</strong></p></div></aside><h4 id="a6bb2e4339654b12a92257558a817049"><span style="color:#487ca5;"><strong>⚡ 경기 전후, 이런 곳 찾으신다면? 잠실야구장 근처 5곳</strong></span></h4><div class="tbl-wrap"><table><tr><th><strong>추천 장소</strong></th><th><strong>이런 곳을 찾는다면</strong></th><th><strong>분류</strong></th><th><strong>접근 레벨</strong></th></tr><tr><td><strong>우곱집 잠실본점</strong></td><td>한우 곱창·대창·막창 구이가 먹고 싶을 때</td><td>곱창·막창·양</td><td><strong>2</strong></td></tr><tr><td><strong>하우스서울</strong></td><td>크림 유자 팟·피스타치오 빙수 등 이색 시그니처 음료가 마시고 싶을 때</td><td>카페</td><td><strong>2</strong></td></tr><tr><td><strong>화덕돌곱창 잠실직영점</strong></td><td>화덕 돌곱창·대창구이가 먹고 싶을 때</td><td>곱창·막창·양</td><td><strong>0</strong></td></tr><tr><td><strong>크레스타운 잠실점</strong></td><td>커피·샌드위치·스콘으로 가볍게 브런치를 즐기고 싶을 때</td><td>카페·디저트</td><td><strong>1</strong></td></tr><tr><td><strong>후발대 잠실직영점</strong></td><td>삼겹살·특양대창을 함께 즐기고 싶을 때</td><td>육류·고기요리</td><td><strong>0</strong></td></tr></table></div><aside class="callout" style="background:#f9f3dc;"><div><blockquote><strong>접근성까지 확인한 음식점·카페 리스트, 카카오톡 친구 추가하고 편하게 받아보세요!</strong><br><strong>➡️ </strong><a href="https://link.staircrusher.club/scc_content_kakao?ad_creative=cta-kakao&amp;ad_group=jamsil-stadium-wheelchair-accessible-restaurants-cafes&amp;campaign=list-content&amp;content=restaurant-cafe&amp;term=jamsil-stadium" target="_blank" rel="noopener noreferrer"><strong>카카오톡 친구추가하기 [클릭]</strong></a></blockquote></div></aside><h4 id="f88219ce66aa468e8b27c4449f9b574a"><strong>🎯 접근레벨 3초 가이드</strong></h4><div class="tbl-wrap"><table><tr><th><strong>접근레벨</strong></th><th>기준</th><th>이용 난이도</th></tr><tr><td><strong>0</strong></td><td>문턱 없이 출입 가능</td><td>😊 혼자 이용하기 편해요</td></tr><tr><td><strong>1</strong></td><td>낮은 문턱 또는 경사로 있음</td><td>🙂 상황에 따라 도움이 필요해요</td></tr><tr><td><strong>2</strong></td><td>계단 1칸 이상 또는 좁은 출입구</td><td>⚠️ 도움이 필요할 수 있어요</td></tr></table></div><blockquote>⚠️ 접근레벨 2인 곳이 포함돼 있어요. 방문 전 계단 및 진입 방법을 확인해 주세요.</blockquote><h4 id="c7b15def6d6040039b638cbfd91e4d71"><br><strong>📋 </strong>잠실야구장 음식점·카페 20곳은 저장리스트로 만나보세요!</h4><div class="columns"><div class="column"><figure><img src="/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes/assets/img-1.png" alt="잠실야구장 가기 전, 휠체어로 가기 좋은 식당·카페 20" loading="lazy"></figure></div><div class="column"><div class="tbl-wrap"><table><tr><th><strong>#</strong></th><th><strong>장소명</strong></th><th><strong>별점 · 리뷰</strong></th><th><strong>접근레벨</strong></th></tr><tr><td>1</td><td><strong>우곱집 잠실본점</strong></td><td>⭐ 4.85 / 리뷰 6,221</td><td>2</td></tr><tr><td>2</td><td><strong>하우스서울</strong> </td><td>– / 리뷰 815</td><td>2</td></tr><tr><td>3</td><td><strong>화덕돌곱창 잠실직영점</strong> </td><td>⭐ 4.92 / 리뷰 1,215</td><td>0</td></tr><tr><td>4</td><td><strong>크레스타운 잠실점</strong> </td><td>– / 리뷰 377</td><td>1</td></tr><tr><td>5</td><td><strong>후발대 잠실직영점</strong> </td><td>– / 리뷰 4,257</td><td>0</td></tr><tr><td>6</td><td><strong>200도</strong> </td><td>– / 리뷰 387</td><td>2</td></tr><tr><td>7</td><td><strong>해주냉면</strong> </td><td>⭐ 4.4 / 리뷰 3,723</td><td>2</td></tr><tr><td>8</td><td><strong>스타벅스 잠실새내역점</strong> </td><td>⭐ 4.48 / 리뷰 5,627</td><td>1</td></tr><tr><td>9</td><td><strong>샤오롱바오 잠실새내점</strong> </td><td>⭐ 4.89 / 리뷰 2,499</td><td>2</td></tr><tr><td>10</td><td><strong>커피빈 신천역점</strong> </td><td>– / 리뷰 1,606</td><td>2</td></tr><tr><td>11-20</td><td>더 많은 곳은 <a href="https://link.staircrusher.club/jamsil-stadium_save" target="_blank" rel="noopener noreferrer">저장리스트</a>에서<br>만나볼 수 있어요!</td><td></td><td>2</td></tr></table></div></div></div><blockquote><strong>📍 </strong><a href="https://link.staircrusher.club/jamsil-stadium_save" target="_blank" rel="noopener noreferrer"><strong>잠실야구장 음식점·카페 20곳, 저장리스트에서 보기</strong></a><br>전체 20곳의 입구 사진·화장실 정보는 <strong>앱 지도</strong>에서 현재 위치 기준으로 확인할 수 있어요.</blockquote><p class="empty"></p><p class="empty"></p><p class="empty"></p><hr><h3 id="7f7ebe23328e4281907fce562d29f232">🌏 후원으로 넓히는 경험</h3><blockquote><strong>&quot;거기 갈 수 있을까?&quot;</strong><br><br>휠체어 사용자의 외출은 이 질문에서 시작되곤 합니다.<br>계단뿌셔클럽은 그 질문에 <strong>답을 찾다 지치지 않도록</strong>, 접근성 정보를 모으고 누구나 쉽게 찾을 수 있게 만듭니다. 이 콘텐츠들은 더 좋은 정보가 쌓이고 널리 퍼지기를 바라는 분들의 <strong>후원으로 만들어집니다</strong>.<br><br><span style="background:#e5f2fc;"><strong>🙌 </strong></span><a href="https://link.staircrusher.club/scc_content_donation?ad_creative=cta-donation&amp;ad_group=jamsil-stadium-wheelchair-accessible-restaurants-cafes&amp;campaign=list-content&amp;content=restaurant-cafe&amp;term=jamsil-stadium" target="_blank" rel="noopener noreferrer"><strong>이 일에 후원자로 함께하기 [클릭]</strong></a></blockquote><aside class="callout" style="background:#f9f3dc;"><div><blockquote><strong>새 지역, 카톡으로 먼저 받기 💛</strong><br><a href="https://link.staircrusher.club/scc_content_kakao?ad_creative=cta-kakao&amp;ad_group=jamsil-stadium-wheelchair-accessible-restaurants-cafes&amp;campaign=list-content&amp;content=restaurant-cafe&amp;term=jamsil-stadium" target="_blank" rel="noopener noreferrer"><strong>카카오톡 친구추가하기 [클릭]</strong></a></blockquote></div></aside><p class="empty"></p><hr><p>계단뿌셔클럽의 고유 콘텐츠 템플릿입니다. 무단복제 및 사용을 금합니다.<br>©2026 계단뿌셔클럽 All Rights Reserved.</p>
+</article>
+</div>
+<footer class="site-footer"><div class="lwrap">
+<div class="f-top">
+  <div class="f-brand">
+    <p class="f-tagline">이동약자와 그 친구들의 막힘없는 이동</p>
+    <img class="f-logo" src="/articles/assets/scc-wordmark-white.svg" alt="계단뿌셔클럽" width="208" height="35">
+  </div>
+  <div class="f-pills">
+    <a href="https://link.staircrusher.club/articles_footer_app" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-download.svg" alt="" width="20" height="20">앱 다운로드</a>
+    <a href="https://link.staircrusher.club/articles_footer_kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-kakao.svg" alt="" width="20" height="20">카카오톡</a>
+    <a href="https://link.staircrusher.club/articles_footer_letter" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/ic-mail.svg" alt="" width="20" height="20">뿌클레터</a>
+  </div>
+</div>
+<div class="f-bottom">
+  <div class="f-legalgroup">
+  <div class="f-legal">
+    <p class="f-copy">Copyright ⓒ 계단뿌셔클럽. All Rights Reserved</p>
+    <p class="f-biz">사업자등록번호 623-82-00565 &nbsp;|&nbsp; 대표 : 박수빈, 이대호 &nbsp;|&nbsp; 서울특별시 강남구 역삼로 172 마루360 5층</p>
+  </div>
+  <div class="f-links">
+    <a href="https://agnica.notion.site/07acba336959451fbdddcbd26e8d49b0" target="_blank" rel="noopener noreferrer">서비스 이용약관</a>
+    <a href="https://agnica.notion.site/?pvs=143" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a>
+  </div>
+  </div>
+  <div class="f-partners">
+    <a class="p-acrc" href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회"></a>
+    <a class="p-nts" href="https://www.nts.go.kr/nts/main.do" target="_blank" rel="noopener noreferrer" aria-label="국세청"></a>
+    <a class="p-seoul" href="https://www.seoul.go.kr/main/index.jsp" target="_blank" rel="noopener noreferrer" aria-label="서울특별시"></a>
+  </div>
+</div>
+</div></footer>
+<div class="cta-bar" data-testid="article-cta-bar" data-element-name="article_cta_bar" data-track-view><div class="cta-inner">
+<button type="button" class="cta-icon" id="cta-heart" data-element-name="article_upvote" aria-pressed="false" aria-label="도움이 돼요"><img id="cta-heart-off" src="/articles/assets/ic-heart.svg" alt="" width="24" height="24"><img id="cta-heart-on" src="/articles/assets/ic-heart-fill.svg" alt="" width="24" height="24" hidden></button>
+<button type="button" class="cta-icon" id="cta-share" data-element-name="article_share" aria-label="공유하기"><img src="/articles/assets/ic-share.svg" alt="" width="24" height="24"></button>
+<a class="cta-main cta-kakao" data-cta-variant="kakao" data-element-name="article_cta_kakao" href="https://link.staircrusher.club/articles_footer_kakao?campaign=articles-cta&amp;ad_group=jamsil-stadium-wheelchair-accessible-restaurants-cafes&amp;ad_creative=cta-kakao" target="_blank" rel="noopener noreferrer"><img src="/articles/assets/cta-kakao-logo.png" alt="" width="52" height="32">새로운 컨텐츠 알림받기</a>
+<a class="cta-main cta-browse" data-cta-variant="browse" data-element-name="article_cta_browse" href="https://link.staircrusher.club/jamsil-stadium_save?campaign=articles-cta&amp;ad_group=jamsil-stadium-wheelchair-accessible-restaurants-cafes&amp;ad_creative=cta-browse" target="_blank" rel="noopener noreferrer">소개된 곳 모아보기</a>
+</div><div class="cta-toast" id="cta-toast" role="status" aria-live="polite"></div></div>
+<script>
+(function(){
+  var heart=document.getElementById('cta-heart'), share=document.getElementById('cta-share');
+  var on=document.getElementById('cta-heart-on'), off=document.getElementById('cta-heart-off');
+  if(!heart||!share||!on||!off) return;
+  var toast=document.getElementById('cta-toast');
+  // 앱 웹뷰가 주입한 신원. **호출 시점마다** 읽는다 — 안드로이드에서
+  // injectedJavaScriptBeforeContentLoaded 가 head 스크립트보다 늦게 도착하는 사례가
+  // 실측돼 있어(web/index.tsx 주석), 진입 시 한 번만 읽으면 그 레이스에 걸린다.
+  function bridge(){try{return window.__SCC_APP_AUTH__||null;}catch(e){return null;}}
+  // 토큰과 API 서버는 같은 출처여야 한다. sandbox 앱 토큰으로 prod API 를 때리면 401 →
+  // 조용한 익명 폴백이라, 고쳐도 안 고쳐진 것처럼 보여서 검증 자체가 불가능해진다.
+  function apiBase(){
+    var b=bridge(); if(b&&b.baseUrl) return b.baseUrl;
+    try{var v=localStorage.getItem('sccApiBase'); if(v) return v;}catch(e){}
+    return 'https://api.staircrusher.club';
+  }
+  var SLUG="jamsil-stadium-wheelchair-accessible-restaurants-cafes";
+  // canonical 을 slug 로 조립한다 — ?from=kakao 나 로컬 서버 주소에 영향받지 않아야 한다.
+  var PAGE_URL='https://web.staircrusher.club/articles/'+SLUG;
+  // 공유는 canonical + campaign 파라미터로 내보낸다(GA 유입 집계용). 에어브릿지 트래킹링크를
+  // 쓰지 않는 이유: 링크가 자기 OG 를 직접 서빙해서(302 아님, 실측) 카톡 미리보기가 아티클
+  // 원본이 아니라 링크에 복제해둔 값이 된다 — 제목·썸네일이 바뀌면 그대로 stale 해진다.
+  // PAGE_URL 은 좋아요 target 조회용이라 파라미터가 붙으면 안 되므로 별도 상수로 둔다.
+  var SHARE_URL="https://web.staircrusher.club/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes?campaign=articles-share&ad_group=jamsil-stadium-wheelchair-accessible-restaurants-cafes&ad_creative=cta-share";
+  // touched: 사용자가 하트를 한 번이라도 눌렀는지. 늦게 온 상태 조회 응답이 낙관적 토글을
+  // 덮어쓰는 걸 막는다(주입이 늦으면 상태 조회가 두 번 나갈 수 있다).
+  var upvoted=false, busy=false, spaTokenBad=false, touched=false;
+  function log(name,params){if(typeof gtag==='function'){gtag('event',name,params);}}
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent=msg; toast.className='cta-toast on';
+    setTimeout(function(){toast.className='cta-toast';},1800);
+  }
+  function paint(){
+    on.hidden=!upvoted; off.hidden=upvoted;
+    heart.setAttribute('aria-pressed',upvoted?'true':'false');
+  }
+  // 로그인 세션 토큰(앱 주입 → SPA localStorage 순). 있으면 좋아요를 그 사람 것으로 기록한다.
+  // localStorage 는 **읽기만 한다.**
+  // 키 포맷이 두 가지다: webpack 이 react-native-mmkv 를 web/mocks 로 alias 하고 있어서 현재는
+  // 'mmkv.default.scc-token'(dot) 이지만, alias 를 떼면 실제 패키지의 'mmkv.default\scc-token'
+  // (backslash, KEY_WILDCARD) 이 된다. 둘 다 읽어서 alias 변경에 안 깨지게 한다.
+  // (못 읽으면 익명으로 폴백하므로 실패 방향은 안전하다 — 세션이 깨지는 게 아니라 집계 주체만 바뀐다)
+  function readSpaToken(){
+    if(spaTokenBad) return null;
+    // 앱 웹뷰라면 주입값이 **유일한 진실**이다 — 토큰 없음(로그아웃)까지 포함해서.
+    // 여기서 localStorage 로 폴백하면 안 된다: 웹뷰 저장소는 세션 간 살아남아 이전 로그인의
+    // scc-token 이 남아 있고, 그러면 앱은 로그아웃/다른 계정인데 좋아요만 옛 계정으로 간다
+    // (BbucleRoadScreen 이 appLoggedOut 으로 막는 것과 같은 split-brain).
+    var b=bridge(); if(b) return b.token||null;
+    var keys=['mmkv.default.scc-token','mmkv.default\\scc-token'];
+    for(var i=0;i<keys.length;i++){
+      try{var v=localStorage.getItem(keys[i]);
+        if(v){var t=JSON.parse(v); if(t) return t;}}catch(e){}
+    }
+    return null;
+  }
+  // 익명 정체성. **호출마다 새로 만들면 안 된다** — give 와 cancel 이 다른 유저로 기록돼
+  // 취소가 no-op 이 된다(실측 버그). 캐시된 게 있으면 그걸 쓴다.
+  function anonToken(cb){
+    var t=null;
+    try{t=localStorage.getItem('anonymousAccessToken');}catch(e){}
+    if(t){cb(t);return;}
+    mintToken(cb);
+  }
+  function mintToken(cb){
+    fetch(apiBase()+'/createAnonymousUser',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var t=d&&d.authTokens&&d.authTokens.accessToken;
+        if(t){try{
+          localStorage.setItem('anonymousAccessToken',t);
+          localStorage.setItem('anonymousTokenExpiry',String(Date.now()+315360000000));
+        }catch(e){}}
+        cb(t||null);
+      }).catch(function(){cb(null);});
+  }
+  function post(path,body,token){
+    return fetch(apiBase()+path,{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(body)});
+  }
+  // 401 처리는 어느 토큰이 실패했는지에 따라 갈린다.
+  //  - SPA 토큰 만료 → SPA 키는 절대 건드리지 않고 익명 정체성으로 폴백한다.
+  //  - 캐시된 익명 토큰 만료 → 그때만 그 키를 비우고 1회 재발급한다.
+  function send(path,body,cb){
+    var spa=readSpaToken();
+    if(!spa){viaAnon(path,body,cb);return;}
+    post(path,body,spa).then(function(r){
+      if(r.status!==401){cb(r);return;}
+      spaTokenBad=true;   // 남은 호출에서 매번 401 을 한 번 더 맞지 않도록
+      viaAnon(path,body,cb);
+    }).catch(function(){cb(null);});
+  }
+  function viaAnon(path,body,cb){
+    anonToken(function(t){
+      if(!t){cb(null);return;}
+      post(path,body,t).then(function(r){
+        if(r.status!==401){cb(r);return;}
+        try{localStorage.removeItem('anonymousAccessToken');
+          localStorage.removeItem('anonymousTokenExpiry');}catch(e){}
+        mintToken(function(t2){
+          if(!t2){cb(null);return;}
+          post(path,body,t2).then(cb).catch(function(){cb(null);});
+        });
+      }).catch(function(){cb(null);});
+    });
+  }
+  function refreshState(){
+    if(touched) return;
+    send('/getSccContentDetails',{url:PAGE_URL},function(r){
+      if(!r||!r.ok||touched) return;
+      r.json().then(function(d){
+        if(touched) return;
+        if(d&&d.upvoteSummary){upvoted=!!d.upvoteSummary.isUpvoted;paint();}
+      }).catch(function(){});
+    });
+  }
+  refreshState();
+  // 주입이 늦게 도착했거나(안드로이드) 웹뷰 안에서 로그인이 끝나면 앱이 재주입한다.
+  // 그때 신원이 바뀌므로 하트 상태를 다시 읽는다 — 안 그러면 익명 기준 상태로 굳는다.
+  window.addEventListener('scc-app-auth-ready',function(){
+    spaTokenBad=false;   // 새 토큰이 왔으니 직전 401 판정은 버린다
+    refreshState();
+  });
+  heart.addEventListener('click',function(){
+    // 서버에 (type,id,user) unique 제약이 없어서 연타하면 중복 row 가 생기고 취소로 안 지워진다.
+    if(busy) return;
+    busy=true; touched=true;
+    var next=!upvoted;
+    upvoted=next; paint();
+    log('article_upvote',{slug:SLUG,upvoted:next});
+    send(next?'/giveUpvote':'/cancelUpvote',{targetType:'ARTICLE',id:SLUG},function(r){
+      busy=false;
+      if(!r||!r.ok){upvoted=!next;paint();}  // 실패하면 낙관적 토글을 되돌린다
+    });
+  });
+  share.addEventListener('click',function(){
+    log('article_share',{slug:SLUG});
+    if(navigator.share){navigator.share({title:document.title,url:SHARE_URL}).catch(function(){});return;}
+    // 안드로이드 WebView 등 Web Share 미지원 → 링크 복사로 폴백
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(SHARE_URL)
+        .then(function(){showToast('링크를 복사했어요');})
+        .catch(function(){showToast('링크 복사에 실패했어요');});
+    }else{showToast('링크 복사를 지원하지 않는 브라우저예요');}
+  });
+  [].slice.call(document.querySelectorAll('.cta-main')).forEach(function(a){
+    a.addEventListener('click',function(){
+      log('article_cta_click',{slug:SLUG,variant:a.getAttribute('data-cta-variant')});
+    });
+  });
+})();
+</script>
+</body>
+</html>
