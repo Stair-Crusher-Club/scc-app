@@ -83,6 +83,7 @@ adb shell am force-stop club.staircrusher.sandbox   # 이후 재실행
 | ③ 아티클(정적) | `/articles/<slug>/` | **순수 정적 HTML**(`<article>`, bundle.js 없음) | 정적 콘텐츠 렌더 |
 
 - **포트 스쿼터 함정 (검증 전 필수)**: 다른 clone(`scc-workspace-2`)/세션이 같은 포트에 `serve`를 띄워두면, 내 `serve`는 조용히 실패하고 **curl이 남의 `web-dist`를 검증한다** — 골든패스가 통째로 무효가 된다. 띄우기 전에 `lsof -iTCP:<port> -sTCP:LISTEN -n -P`로 비었는지 확인하고, 점유 중이면 **kill하지 말고**(H1) 빈 포트를 쓴다. (2026-08-07: 5052 점유를 모르고 통과 판정)
+- **Chrome 차단 포트 함정**: 5060/5061 같은 포트는 Chrome 이 `ERR_UNSAFE_PORT` 로 거부해 **Playwright 검증이 아예 시작도 못 한다** — `curl` 은 정상 응답하므로 서버는 멀쩡해 보이고 브라우저만 막힌다. 골든패스용 포트는 5070+ 처럼 안전 대역에서 고른다. (2026-09-04 실측)
 - **정적 서버 함정**: `serve web-dist -s`(SPA 모드)는 `/articles/<slug>/` 디렉토리 요청을 루트 SPA 로 rewrite 해 아티클을 못 띄운다. 아티클(③)은 `-s` **없이** 서빙하거나 파일/curl 로 직접 확인한다(prod 는 S3 디렉토리 인덱스로 정적 서빙). ①②(클라 라우팅)는 `-s` 로.
 - 검증은 Playwright 렌더 + `browser_console_messages` 로 콘솔 에러 확인, 그리고 `curl <url> | grep -E 'Child compilation failed|Invalid or unexpected|id="root"'` 로 HTML 마커까지 본다.
 - 인프라: S3 버킷 `staircrusher-club-web` + CloudFront `E3RDKBHB12EC6A`
