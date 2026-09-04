@@ -19,6 +19,9 @@ const INFO_REQUEST_ELIGIBLE_CATEGORIES: PlaceCategoryDto[] = [
   PlaceCategoryDto.Pharmacy,
 ];
 
+/** 정보 요청하기 기능 노출 차단 (프론트엔드 한정). 되살릴 땐 true 로 바꾼다. */
+const INFO_REQUEST_ENABLED = false;
+
 /** 정보 요청하기 버튼 노출 조건 */
 export function isInfoRequestEligible(params: {
   hasPlaceAccessibility: boolean;
@@ -26,6 +29,7 @@ export function isInfoRequestEligible(params: {
   category?: PlaceCategoryDto;
   isConquestMode?: boolean;
 }): boolean {
+  if (!INFO_REQUEST_ENABLED) return false;
   if (params.hasPlaceAccessibility) return false;
   if (params.isConquestMode) return false;
   if (!params.address.startsWith('서울')) return false;
