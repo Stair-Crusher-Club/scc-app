@@ -23,10 +23,42 @@ if [ ! -d "$BUILD_DIR" ]; then
     exit 1
 fi
 
+# 산출물 구성 검증 (업로드 전 fail-fast)
+# 아래 sync 가 --delete 라, web-dist 에 3개 표면(SPA / bbucle-road / articles)이 다 없으면
+# 빠진 표면이 prod 에서 통째로 지워진다. `yarn web:build` 를 통째로 돌리지 않고
+# webpack 만 돌린 산출물로 배포하면 실제로 그렇게 된다.
+echo -e "${YELLOW}산출물 구성 검증 중 (SPA / bbucle-road / articles)...${NC}"
+verify_fail() {
+    echo -e "${RED}❌ $1${NC}"
+    echo "   'yarn web:build' 를 처음부터 다시 실행한 뒤 배포하세요."
+    exit 1
+}
+# ① 메인 앱(SPA): react-native-web 부팅 마커 + 고정 파일명 진입 청크
+grep -q 'id="root"' "$BUILD_DIR/index.html" 2>/dev/null \
+    || verify_fail "$BUILD_DIR/index.html 에 id=\"root\" 가 없습니다 (SPA 표면 누락/손상)."
+for entry in bundle articles-analytics; do
+    [ -s "$BUILD_DIR/$entry.js" ] \
+        || verify_fail "$BUILD_DIR/$entry.js 가 없습니다 (진입 청크 누락)."
+done
+# ② 뿌클로드: generate-og-pages.js 의 prerender 산출물
+grep -q 'id="root"' "$BUILD_DIR/bbucle-road/index.html" 2>/dev/null \
+    || verify_fail "$BUILD_DIR/bbucle-road/index.html 이 없거나 손상됐습니다 (prerender 누락)."
+# ③ 아티클(정적): 커밋된 web-articles/manifest.json 의 top-level 글 수와 1:1 이어야 한다.
+#    build-articles.js 의 reassembleDist 가 parent 없는 항목만 web-dist/articles/<slug>/ 로 복사한다.
+ARTICLES_EXPECTED=$(python3 -c 'import json;m=json.load(open("web-articles/manifest.json"));print(len([a for a in m.values() if not a.get("parent")]))')
+ARTICLES_BUILT=$(find "$BUILD_DIR/articles" -mindepth 2 -maxdepth 2 -name index.html 2>/dev/null | wc -l | tr -d ' ')
+if [ "$ARTICLES_BUILT" != "$ARTICLES_EXPECTED" ]; then
+    verify_fail "아티클 수 불일치: web-dist=$ARTICLES_BUILT, manifest=$ARTICLES_EXPECTED."
+fi
+echo -e "${GREEN}✅ 구성 검증 통과 (아티클 ${ARTICLES_BUILT}건).${NC}"
+
 # S3 버킷 존재 확인
-if ! aws s3 ls "s3://$BUCKET_NAME" > /dev/null 2>&1; then
+# stderr 만 캡처해서 그대로 출력한다 — 예전엔 `2>&1`로 삼켜서 AccessDenied(IAM 권한 부족)와
+# 자격증명 만료를 구분할 수 없었고, 안내문("Terraform이 적용되었는지")이 오진을 유도했다.
+if ! S3_LS_ERR=$(aws s3 ls "s3://$BUCKET_NAME" 2>&1 >/dev/null); then
     echo -e "${RED}Error: S3 버킷 '$BUCKET_NAME'에 접근할 수 없습니다.${NC}"
-    echo "Terraform이 적용되었는지, AWS 자격 증명이 올바른지 확인해주세요."
+    echo "$S3_LS_ERR"
+    echo "→ AccessDenied 면 IAM 권한(s3:ListBucket) 부족, 그 외엔 AWS 자격증명 문제입니다."
     exit 1
 fi
 
@@ -89,18 +121,10 @@ fi
 echo -e "${GREEN}🎉 배포 완료!${NC}"
 
 # URL 출력
-S3_ENDPOINT=$(terraform output -raw s3_website_endpoint 2>/dev/null)
-CLOUDFRONT_DOMAIN=$(terraform output -raw cloudfront_domain_name 2>/dev/null)
-
+# (예전엔 `terraform output` 으로 도메인을 읽었으나 scc-app 에는 .tf 가 없어 항상 빈 값이었고,
+#  terraform 이 없는 CI 러너에서는 `set -e` 때문에 배포 성공 후 스크립트가 죽었다.)
 echo ""
-echo "📍 접근 URL:"
-if [ -n "$S3_ENDPOINT" ] && [ "$S3_ENDPOINT" != "null" ]; then
-    echo "   S3: http://$S3_ENDPOINT"
-fi
-
-if [ -n "$CLOUDFRONT_DOMAIN" ] && [ "$CLOUDFRONT_DOMAIN" != "null" ]; then
-    echo "   CloudFront: https://$CLOUDFRONT_DOMAIN"
-fi
+echo "📍 접근 URL: https://web.staircrusher.club"
 
 echo ""
 echo -e "${YELLOW}💡 팁: CloudFront 배포는 전 세계로 전파되는데 최대 15분이 걸릴 수 있습니다.${NC}"
