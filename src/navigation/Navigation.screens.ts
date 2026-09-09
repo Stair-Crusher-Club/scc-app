@@ -11,6 +11,9 @@ import BuildingFormV2Screen, {
 } from '@/screens/BuildingFormV2Screen';
 import {CameraScreenParams} from '@/screens/CameraScreen';
 import CameraScreen from '@/screens/CameraScreen/CameraScreen';
+import ChallengeConquerTargetPlacesScreen, {
+  ChallengeConquerTargetPlacesScreenParams,
+} from '@/screens/ChallengeConquerTargetPlacesScreen';
 import ChallengeDetailScreen, {
   ChallengeDetailScreenParams,
 } from '@/screens/ChallengeDetailScreen';
@@ -226,7 +229,12 @@ export const MainNavigationScreens: {
   {
     name: 'ChallengeDetail',
     component: ChallengeDetailScreen,
-    options: {headerShown: true, headerTitle: '계단뿌셔 챌린지'},
+    options: {headerShown: true, headerTitle: '챌린지'},
+  },
+  {
+    name: 'ChallengeConquerTargetPlaces',
+    component: ChallengeConquerTargetPlacesScreen,
+    options: {headerShown: false, freezeOnBlur: true},
   },
   {
     name: 'ProfileEditor',
@@ -433,6 +441,7 @@ export type ScreenParams = {
   // 챌린지 탭
   Challenge: undefined;
   ChallengeDetail: ChallengeDetailScreenParams;
+  ChallengeConquerTargetPlaces: ChallengeConquerTargetPlacesScreenParams;
 
   // 메뉴 탭
   Menu: undefined;

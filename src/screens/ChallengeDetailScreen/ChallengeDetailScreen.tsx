@@ -1,7 +1,14 @@
 import {useQuery} from '@tanstack/react-query';
 import {isEmpty} from 'lodash';
 import React, {useEffect, useRef, useState} from 'react';
-import styled from 'styled-components/native';
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import Markdown from 'react-native-markdown-display';
 
 import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
 import {ScreenLayout} from '@/components/ScreenLayout';
@@ -14,29 +21,23 @@ import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
+import {isDismissedToday} from '@/atoms/challengeModalAtoms';
 import {SccButton} from '@/components/atoms';
 import {SafeAreaWrapper} from '@/components/SafeAreaWrapper';
 import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Text,
-  View,
-} from 'react-native';
-import Markdown from 'react-native-markdown-display';
-import * as S from './ChallengeDetailScreen.style';
+import {ChallengeDateFormat} from '@/utils/ChallengeDateFormat';
+import {useCheckAuth} from '@/utils/checkAuth';
+import {cn} from '@/utils/cn';
+
 import ChallengeDetailCompanyModal from './components/ChallengeDetailCompanyModal';
-import ChallengeDetailMetrics from './components/ChallengeDetailMetrics';
 import ChallengeDetailPasscodeBottomSheet from './components/ChallengeDetailPasscodeBottomSheet';
 import ChallengeDetailRankSection from './components/ChallengeDetailRankSection/ChallengeDetailRankSection';
 import ChallengeDetailStatus from './components/ChallengeDetailStatus';
 import ChallengeDetailStickyActionBar from './components/ChallengeDetailStickyActionBar';
 import ChallengeWelcomeModal from './components/ChallengeWelcomeModal';
 import LastMonthRankingModal from './components/LastMonthRankingModal';
-import {isDismissedToday} from '@/atoms/challengeModalAtoms';
-import {useCheckAuth} from '@/utils/checkAuth';
 
 export interface ChallengeDetailScreenParams {
   challengeId: string;
@@ -82,9 +83,10 @@ const ChallengeDetailScreen = ({
     return result.data;
   });
 
+  // 챌린지명이 아니라 '챌린지' 고정 (시안 반영, 24:5368)
   useEffect(() => {
-    navigation.setOptions({headerTitle: challenge?.name ?? '계단뿌셔 챌린지'});
-  }, [challenge]);
+    navigation.setOptions({headerTitle: '챌린지'});
+  }, [navigation]);
 
   // 딥링크 autoJoin=true → 자동 참여 처리
   const autoJoinHandled = useRef(false);
@@ -171,55 +173,95 @@ const ChallengeDetailScreen = ({
     prevY.current = y;
   };
 
+  // ctpl 챌린지는 '남은 매장 보기'가 sticky CTA 역할을 대신하므로 그만큼 노출 조건을 좁힌다.
+  const shouldShowStickyActionBar =
+    hasJoined === true &&
+    challenge?.status !== 'Closed' &&
+    !challenge?.hasConquerTargetPlaceList;
+
   return (
     <LogParamsProvider params={{challenge_id: challengeId}}>
       <ScreenLayout isHeaderVisible={false}>
-        <S.Container onScroll={onScroll} scrollEventThrottle={16}>
-          <S.Contents>
-            <ChallengeStatusBadgesWrapper
-              status={[challenge?.status ?? 'Closed']}
-              isMyChallenge={hasJoined ?? false}
-            />
-            <S.Title>{challenge?.name}</S.Title>
+        <ScrollView
+          className="bg-white"
+          onScroll={onScroll}
+          scrollEventThrottle={16}>
+          <View className="pl-[25px] pr-[20px] pt-[20px] pb-[8px] gap-[8px]">
+            <View className="gap-[4px]">
+              <ChallengeStatusBadges
+                status={[challenge?.status ?? 'Closed']}
+                isMyChallenge={hasJoined ?? false}
+              />
+              <Text className="text-[24px] leading-[34px] font-pretendard-bold text-black">
+                {challenge?.name}
+              </Text>
+            </View>
             {challenge && (
-              <>
-                <ChallengeDetailStatus challenge={challenge} />
-                <ChallengeDetailMetrics
-                  endsAt={challenge.endsAt}
-                  numberOfParticipations={challenge.participationsCount}
-                  goalOfContributions={challenge.goal}
-                  numberOfContributions={challenge.contributionsCount}
+              <View className="flex-row items-center gap-[8px]">
+                <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular text-gray-v2-60">
+                  {ChallengeDateFormat.formatChallengeDetailPeriod(
+                    challenge.startsAt,
+                    challenge.endsAt,
+                  )}
+                </Text>
+                <View className="w-[2px] h-[2px] rounded-full bg-gray-v2-40" />
+                <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular text-gray-v2-60">
+                  {`${challenge.participationsCount}명`}
+                </Text>
+              </View>
+            )}
+          </View>
+          {challenge && (
+            <>
+              <ChallengeDetailStatus challenge={challenge} />
+              {challenge.description ? (
+                <DescriptionRenderer
+                  description={challenge.description}
+                  isCollapsed={isDescriptionCollapsed}
+                  onToggleCollapse={() =>
+                    setIsDescriptionCollapsed(!isDescriptionCollapsed)
+                  }
                 />
-                {challenge?.description ? (
-                  <DescriptionRenderer
-                    description={challenge.description}
-                    isCollapsed={isDescriptionCollapsed}
-                    onToggleCollapse={() =>
-                      setIsDescriptionCollapsed(!isDescriptionCollapsed)
-                    }
-                  />
-                ) : (
-                  <S.GuideText>{`${challenge.name} 챌린지에서 ${
+              ) : (
+                <Text className="px-[25px] mt-[25px] mb-[60px] text-[16px] leading-[26px] font-pretendard-regular text-black">
+                  {`${challenge.name} 챌린지에서 ${
                     challenge.goal
                   }개 장소 정복에 도전해보세요!${
                     !isEmpty(challenge.milestones)
                       ? ` 중간목표 ${challenge.milestones[0]}개를 달성하면 콩알이 친구가 도전을 함께 하게 됩니다🤗`
                       : ''
-                  }`}</S.GuideText>
-                )}
-              </>
-            )}
-            {hasJoined && (
-              <ChallengeDetailRankSection
-                ranks={ranks}
-                myRank={myRank}
-                quests={data?.quests}
-                lastMonthRankImageUrl={challenge?.lastMonthRankImageUrl}
-              />
-            )}
-          </S.Contents>
-        </S.Container>
-        {hasJoined === true && challenge?.status !== 'Closed' && (
+                  }`}
+                </Text>
+              )}
+              {challenge.hasConquerTargetPlaceList && (
+                <View className="px-[25px] pb-[32px]">
+                  <SccTouchableOpacity
+                    elementName="challenge_detail_conquer_target_places"
+                    activeOpacity={0.8}
+                    className="border-[1.5px] border-brand-40 rounded-[8px] px-[28px] py-[12px] items-center justify-center"
+                    onPress={() =>
+                      navigation.navigate('ChallengeConquerTargetPlaces', {
+                        challengeId,
+                      })
+                    }>
+                    <Text className="text-[16px] leading-[24px] tracking-[-0.32px] font-pretendard-semibold text-brand-40">
+                      남은 매장 보기
+                    </Text>
+                  </SccTouchableOpacity>
+                </View>
+              )}
+            </>
+          )}
+          {hasJoined && (
+            <ChallengeDetailRankSection
+              ranks={ranks}
+              myRank={myRank}
+              quests={data?.quests}
+              lastMonthRankImageUrl={challenge?.lastMonthRankImageUrl}
+            />
+          )}
+        </ScrollView>
+        {shouldShowStickyActionBar && (
           <ChallengeDetailStickyActionBar
             visible={visible}
             onGoConquer={() =>
@@ -237,7 +279,7 @@ const ChallengeDetailScreen = ({
         )}
         {hasJoined === false && (
           <SafeAreaWrapper edges={['bottom']}>
-            <S.ButtonContainer>
+            <View className="px-[20px] pt-[20px] pb-[12px] bg-white">
               <SccButton
                 text={'챌린지 참여하기'}
                 textColor="white"
@@ -254,7 +296,7 @@ const ChallengeDetailScreen = ({
                 }}
                 elementName="challenge_detail_join"
               />
-            </S.ButtonContainer>
+            </View>
           </SafeAreaWrapper>
         )}
         <ChallengeDetailCompanyModal
@@ -304,10 +346,6 @@ const ChallengeDetailScreen = ({
 
 export default ChallengeDetailScreen;
 
-const ChallengeStatusBadgesWrapper = styled(ChallengeStatusBadges)`
-  margin: 0 25px 14px 25px;
-`;
-
 interface DescriptionRendererProps {
   description: string;
   isCollapsed: boolean;
@@ -344,22 +382,27 @@ const DescriptionRenderer = ({
   // mainContent의 길이를 체크하여 접기/더보기 필요 여부 결정
   const shouldShowToggle = mainContent.length >= DESCRIPTION_COLLAPSE_THRESHOLD;
 
+  // react-native-markdown-display 는 style prop 으로 style 객체만 받는 서드파티라
+  // NativeWind className 대응이 안 된다 (기존 동작 그대로 유지).
   const markdownStyle = {
     body: {
-      lineHeight: 22,
-      fontSize: 14,
+      lineHeight: 26,
+      fontSize: 16,
+      letterSpacing: -0.08,
+      color: color.gray85,
       fontFamily: font.pretendardRegular,
     },
     link: {
       color: color.brand60,
-      fontSize: 14,
-      lineHeight: 22,
+      fontSize: 16,
+      lineHeight: 26,
+      textDecorationLine: 'underline' as const,
       fontFamily: font.pretendardMedium,
     },
   };
 
   return (
-    <S.Description>
+    <View className="px-[25px] pt-[24px] pb-[12px] gap-[4px]">
       <View>
         <Markdown style={markdownStyle}>
           {isCollapsed && shouldShowToggle
@@ -370,17 +413,12 @@ const DescriptionRenderer = ({
           <SccTouchableOpacity
             elementName="challenge_description_toggle"
             onPress={onToggleCollapse}
-            style={{
-              alignItems: 'flex-end',
-              marginTop: 4,
-            }}>
+            className="items-end mt-[4px]">
             <Text
-              style={{
-                color: color.gray40,
-                fontSize: 14,
-                fontFamily: font.pretendardRegular,
-                textDecorationLine: isCollapsed ? 'underline' : 'none',
-              }}>
+              className={cn(
+                'text-[14px] font-pretendard-regular text-gray-40',
+                isCollapsed && 'underline',
+              )}>
               {isCollapsed ? '더보기' : '접기'}
             </Text>
           </SccTouchableOpacity>
@@ -389,6 +427,6 @@ const DescriptionRenderer = ({
       {linkParagraph && (
         <Markdown style={markdownStyle}>{linkParagraph}</Markdown>
       )}
-    </S.Description>
+    </View>
   );
 };

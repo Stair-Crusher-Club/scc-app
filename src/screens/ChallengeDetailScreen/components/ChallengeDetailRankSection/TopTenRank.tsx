@@ -1,9 +1,7 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import {Text, View} from 'react-native';
 
 import ChallengeRank from '@/components/ChallengeRank';
-import {color} from '@/constant/color';
-import {font} from '@/constant/font';
 import {ChallengeRankDto} from '@/generated-sources/openapi';
 
 interface PropsType {
@@ -12,50 +10,24 @@ interface PropsType {
 
 const TopTenRank = ({ranks}: PropsType) => {
   return (
-    <Container>
-      <Title>챌린지 랭킹</Title>
-      <Desc>랭킹 및 정복 개수는 10분마다 갱신됩니다.</Desc>
-      <ListSection>
-        {ranks.map((rank, index) => {
-          return (
-            <ChallengeRank
-              key={rank.nickname}
-              value={{...rank}}
-              shouldShowUnderline={index < ranks.length - 1}
-            />
-          );
-        })}
-      </ListSection>
-    </Container>
+    <View className="px-[20px] gap-[12px]">
+      <Text className="text-[20px] leading-[28px] tracking-[-0.4px] font-pretendard-bold text-black">
+        챌린지 랭킹
+      </Text>
+      <View className="border border-gray-v2-15 rounded-[12px] py-[5px]">
+        {ranks.map((rank, index) => (
+          <ChallengeRank
+            key={rank.nickname}
+            value={rank}
+            shouldShowUnderline={index < ranks.length - 1}
+          />
+        ))}
+      </View>
+      <Text className="text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
+        정복수는 실시간으로 갱신되며, 랭킹은 10분 단위로 업데이트됩니다.
+      </Text>
+    </View>
   );
 };
 
 export default TopTenRank;
-
-const Container = styled.View({
-  width: '100%',
-  flexDirection: 'column',
-  paddingHorizontal: 15,
-});
-
-const Title = styled.Text({
-  color: color.black,
-  fontSize: 20,
-  fontFamily: font.pretendardBold,
-  padding: 10,
-});
-
-const ListSection = styled.View({
-  borderColor: color.gray10,
-  borderWidth: 1,
-  borderRadius: 12,
-  marginTop: 10,
-  paddingVertical: 5,
-});
-
-const Desc = styled.Text({
-  color: color.gray40,
-  fontFamily: font.pretendardRegular,
-  padding: '0 10px 10px',
-  fontSize: 13,
-});

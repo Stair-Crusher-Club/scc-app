@@ -1260,6 +1260,12 @@ export interface ChallengeDto {
      * @memberof ChallengeDto
      */
     'modalImageUrl'?: string;
+    /**
+     * 이 챌린지가 정복 대상 장소 목록과 연결되어 있는지 여부. true면 \'남은 매장 보기\' 진입점을 노출한다.
+     * @type {boolean}
+     * @memberof ChallengeDto
+     */
+    'hasConquerTargetPlaceList': boolean;
 }
 /**
  * 선택형 필드의 옵션
@@ -3635,6 +3641,62 @@ export interface KakaoTokensDto {
      * @memberof KakaoTokensDto
      */
     'refreshTokenExpiresAt'?: EpochMillisTimestamp;
+}
+/**
+ * 
+ * @export
+ * @interface ListChallengeConquerTargetPlacesRequestDto
+ */
+export interface ListChallengeConquerTargetPlacesRequestDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ListChallengeConquerTargetPlacesRequestDto
+     */
+    'challengeId': string;
+    /**
+     * 정복되지 않은 장소만 내려줄지 여부. 생략 시 true 로 취급한다.
+     * @type {boolean}
+     * @memberof ListChallengeConquerTargetPlacesRequestDto
+     */
+    'onlyUnconquered'?: boolean;
+    /**
+     * 
+     * @type {SearchPlaceSortDto}
+     * @memberof ListChallengeConquerTargetPlacesRequestDto
+     */
+    'sort'?: SearchPlaceSortDto;
+    /**
+     * 
+     * @type {Location}
+     * @memberof ListChallengeConquerTargetPlacesRequestDto
+     */
+    'currentLocation'?: Location;
+}
+/**
+ * 
+ * @export
+ * @interface ListChallengeConquerTargetPlacesResponseDto
+ */
+export interface ListChallengeConquerTargetPlacesResponseDto {
+    /**
+     * 
+     * @type {Array<PlaceListItem>}
+     * @memberof ListChallengeConquerTargetPlacesResponseDto
+     */
+    'items': Array<PlaceListItem>;
+    /**
+     * 챌린지에 연결된 정복 대상 장소의 전체 갯수.
+     * @type {number}
+     * @memberof ListChallengeConquerTargetPlacesResponseDto
+     */
+    'totalCount': number;
+    /**
+     * 그중 이미 정복된 장소의 갯수.
+     * @type {number}
+     * @memberof ListChallengeConquerTargetPlacesResponseDto
+     */
+    'conqueredCount': number;
 }
 /**
  * 
@@ -9986,6 +10048,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * challenge.hasConquerTargetPlaceList 가 true 인 챌린지에서만 호출 가능하다. 연결된 정복 대상 장소 목록이 없으면 400 을 내려준다. 
+         * @summary 챌린지에 연결된 정복 대상 장소 목록을 조회한다.
+         * @param {ListChallengeConquerTargetPlacesRequestDto} listChallengeConquerTargetPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listChallengeConquerTargetPlacesPost: async (listChallengeConquerTargetPlacesRequestDto: ListChallengeConquerTargetPlacesRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'listChallengeConquerTargetPlacesRequestDto' is not null or undefined
+            assertParamExists('listChallengeConquerTargetPlacesPost', 'listChallengeConquerTargetPlacesRequestDto', listChallengeConquerTargetPlacesRequestDto)
+            const localVarPath = `/listChallengeConquerTargetPlaces`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Anonymous required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(listChallengeConquerTargetPlacesRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary 공개된 챌린지 리스트를 조회한다.
          * @param {ListChallengesRequestDto} listChallengesRequestDto 
@@ -12552,6 +12654,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * challenge.hasConquerTargetPlaceList 가 true 인 챌린지에서만 호출 가능하다. 연결된 정복 대상 장소 목록이 없으면 400 을 내려준다. 
+         * @summary 챌린지에 연결된 정복 대상 장소 목록을 조회한다.
+         * @param {ListChallengeConquerTargetPlacesRequestDto} listChallengeConquerTargetPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listChallengeConquerTargetPlacesPost(listChallengeConquerTargetPlacesRequestDto: ListChallengeConquerTargetPlacesRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListChallengeConquerTargetPlacesResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listChallengeConquerTargetPlacesPost(listChallengeConquerTargetPlacesRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * 
          * @summary 공개된 챌린지 리스트를 조회한다.
          * @param {ListChallengesRequestDto} listChallengesRequestDto 
@@ -13599,6 +13712,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         joinChallengePost(joinChallengeRequestDto: JoinChallengeRequestDto, options?: any): AxiosPromise<JoinChallengeResponseDto> {
             return localVarFp.joinChallengePost(joinChallengeRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * challenge.hasConquerTargetPlaceList 가 true 인 챌린지에서만 호출 가능하다. 연결된 정복 대상 장소 목록이 없으면 400 을 내려준다. 
+         * @summary 챌린지에 연결된 정복 대상 장소 목록을 조회한다.
+         * @param {ListChallengeConquerTargetPlacesRequestDto} listChallengeConquerTargetPlacesRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listChallengeConquerTargetPlacesPost(listChallengeConquerTargetPlacesRequestDto: ListChallengeConquerTargetPlacesRequestDto, options?: any): AxiosPromise<ListChallengeConquerTargetPlacesResponseDto> {
+            return localVarFp.listChallengeConquerTargetPlacesPost(listChallengeConquerTargetPlacesRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14692,6 +14815,18 @@ export class DefaultApi extends BaseAPI {
      */
     public joinChallengePost(joinChallengeRequestDto: JoinChallengeRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).joinChallengePost(joinChallengeRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * challenge.hasConquerTargetPlaceList 가 true 인 챌린지에서만 호출 가능하다. 연결된 정복 대상 장소 목록이 없으면 400 을 내려준다. 
+     * @summary 챌린지에 연결된 정복 대상 장소 목록을 조회한다.
+     * @param {ListChallengeConquerTargetPlacesRequestDto} listChallengeConquerTargetPlacesRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public listChallengeConquerTargetPlacesPost(listChallengeConquerTargetPlacesRequestDto: ListChallengeConquerTargetPlacesRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listChallengeConquerTargetPlacesPost(listChallengeConquerTargetPlacesRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
