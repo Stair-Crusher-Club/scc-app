@@ -9,6 +9,7 @@ module.exports = {
     colors: {
       // Brand colors
       brand: {
+        3: '#EFF6FF', // challenge-redesign 추가 (Figma 5:7264)
         5: '#EBF5FF',
         10: '#D6EBFF',
         15: '#B2D7FF',
@@ -38,17 +39,36 @@ module.exports = {
       gray: {
         10: '#F7F7F9',
         15: '#F2F2F5',
+        19: '#EAEAEF', // challenge-redesign 추가 (Figma 5:7264)
         20: '#EBEBEF',
+        22: '#E7E8E9', // challenge-redesign 추가 (Figma 5:7264)
         25: '#DEDEE3',
         30: '#C5C5CE',
         40: '#A1A1AF',
         45: '#9797A6',
+        46: '#9A9B9F', // challenge-redesign 추가 (Figma 5:7264)
         50: '#7A7A88',
+        55: '#6A6A73', // challenge-redesign 추가 (Figma 5:7264)
         60: '#555562',
         70: '#3A3C45',
         80: '#232328',
+        85: '#1E1E1E', // challenge-redesign 추가 (Figma 5:7264)
         90: '#141418',
         100: '#000000',
+      },
+
+      // gray-v2 (challenge-redesign 시안, color.ts의 gray*v2 와 1:1 대응 — 새 값 아님)
+      'gray-v2': {
+        10: '#F7F8FA',
+        15: '#F2F2F5',
+        20: '#E3E4E8',
+        30: '#C3C5CC',
+        40: '#A0A2AE',
+        50: '#767884',
+        60: '#585A64',
+        70: '#3A3C45',
+        80: '#24262B',
+        90: '#16181C',
       },
 
       // Orange colors (override default Tailwind orange)
