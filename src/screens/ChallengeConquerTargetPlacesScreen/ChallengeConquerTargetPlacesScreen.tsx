@@ -185,7 +185,7 @@ export default function ChallengeConquerTargetPlacesScreen({
               prev === 'distance' ? 'accessibility_score' : 'distance',
             )
           }
-          className="h-[30px] min-w-[56px] px-[12px] py-[8px] rounded-[56px] border border-[#EAEAEF] bg-white flex-row items-center justify-center gap-[2px]">
+          className="h-[30px] min-w-[56px] px-[12px] rounded-[56px] border border-[#EAEAEF] bg-white flex-row items-center justify-center gap-[2px]">
           <Text className="text-[13px] leading-[18px] tracking-[-0.26px] font-pretendard-medium text-center text-gray-v2-90">
             {sort === 'distance' ? '가까운순' : '접근레벨 낮은순'}
           </Text>
@@ -197,7 +197,7 @@ export default function ChallengeConquerTargetPlacesScreen({
           accessibilityState={{selected: onlyUnconquered}}
           onPress={() => setOnlyUnconquered(prev => !prev)}
           className={cn(
-            'h-[30px] min-w-[56px] px-[12px] py-[8px] rounded-[56px] border flex-row items-center justify-center gap-[2px]',
+            'h-[30px] min-w-[56px] px-[12px] rounded-[56px] border flex-row items-center justify-center gap-[2px]',
             onlyUnconquered
               ? 'bg-brand-5 border-brand-40'
               : 'bg-white border-[#EAEAEF]',
@@ -283,7 +283,7 @@ export default function ChallengeConquerTargetPlacesScreen({
                 ],
               }}
               className={cn(
-                'absolute self-center h-[40px] pl-[16px] pr-[20px] py-[10px] rounded-[27px] flex-row items-center gap-[4px]',
+                'absolute self-center h-[40px] pl-[16px] pr-[20px] rounded-[27px] flex-row items-center gap-[4px]',
                 viewMode === 'list' ? 'bg-brand-40' : 'bg-white',
               )}>
               {viewMode === 'list' ? (
