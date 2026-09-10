@@ -11,6 +11,7 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
+import {Region, shouldRefitCamera} from '@/components/maps/Types';
 import {color} from '@/constant/color';
 import {PlaceListItem, SearchPlaceSortDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
@@ -43,7 +44,8 @@ export default function ChallengeConquerTargetPlacesScreen({
   const insets = useSafeAreaInsets();
   const pdpScreen = usePlaceDetailScreenName();
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
-  const hasFittedRef = useRef(false);
+  // onCameraIdle 로 갱신되는 "현재 카메라가 보고 있는 영역". 최초 로드 시엔 null.
+  const cameraRegionRef = useRef<Region | null>(null);
 
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [onlyUnconquered, setOnlyUnconquered] = useState(true);
@@ -102,14 +104,21 @@ export default function ChallengeConquerTargetPlacesScreen({
   const totalCount = data?.totalCount ?? 0;
   const conqueredCount = data?.conqueredCount ?? 0;
 
+  // 최초 로드는 항상 fit. 이후 필터/정렬로 items가 바뀌면, 그중 현재 카메라 밖에
+  // 있는 장소가 있을 때만 다시 fit 한다 — 이미 보이는 부분집합이면 카메라를 그대로
+  // 둬 불필요한 점프를 막는다(사용자 피드백: 필터 걸어도 랜딩 fit이 그 필터 결과
+  // 기준이라 전체를 못 보던 문제 + 필터 풀었을 때 화면 밖 장소 재조정 안 되던 문제).
   useEffect(() => {
-    if (items.length > 0 && !hasFittedRef.current) {
-      hasFittedRef.current = true;
+    if (shouldRefitCamera(items, cameraRegionRef.current)) {
       setTimeout(() => {
         mapRef.current?.fitToItems(items, 60);
       }, 300);
     }
   }, [items]);
+
+  const handleCameraIdle = useCallback((region: Region) => {
+    cameraRegionRef.current = region;
+  }, []);
 
   const handleItemPress = useCallback(
     (item: PlaceMarkerItem) => {
@@ -230,7 +239,7 @@ export default function ChallengeConquerTargetPlacesScreen({
                 ItemCard={ConquerTargetItemCard}
                 isRefreshVisible={false}
                 onRefresh={() => {}}
-                onCameraIdle={() => {}}
+                onCameraIdle={handleCameraIdle}
                 myLocationBottomOffset={16}
               />
             </View>

@@ -27,6 +27,36 @@ export interface ChallengeProgressTick {
   showLabel: boolean;
 }
 
+// Figma 원본(Frame648) 실측: 트랙 높이 10px, 점 지름 8px(r=4) — 트랙의 80%.
+export const TICK_DOT_DIAMETER = 8;
+const TICK_DOT_RADIUS = TICK_DOT_DIAMETER / 2;
+// 라벨(짧은 %텍스트)의 근사 중앙정렬 오프셋 — 텍스트 폭 실측 대신 근사치(아래 참고).
+const TICK_LABEL_CENTER_OFFSET = -14;
+
+export interface TickPositionStyle {
+  left?: number | `${number}%`;
+  right?: number;
+  marginLeft?: number;
+}
+
+/**
+ * 0%/100% 눈금은 중앙(percent 그대로)에 놓으면 트랙 밖으로 절반이 삐져나온다
+ * (Figma 원본도 x=1/x=331로 안쪽에 여유를 뒀다) — 양 끝은 트랙 안쪽에 딱 붙이고,
+ * 중간 눈금만 `middleOffset`(보통 -지름/2 또는 라벨 폭 근사치)만큼 중앙정렬한다.
+ */
+export function getTickPositionStyle(
+  percent: number,
+  middleOffset: number,
+): TickPositionStyle {
+  if (percent === 0) {
+    return {left: 0};
+  }
+  if (percent === 100) {
+    return {right: 0};
+  }
+  return {left: `${percent}%`, marginLeft: middleOffset};
+}
+
 const FALLBACK_MIDDLE_PERCENTS = [25, 50, 75];
 // ponytail: 텍스트 폭을 실측하지 않은 근사 임계값 — 이 간격보다 가까운 두 라벨은
 // 겹칠 수 있다고 보고 뒤쪽 라벨을 생략한다(dot은 항상 그린다). 실제로 겹치는
@@ -101,7 +131,8 @@ const ChallengeProgressBar = ({
       <View className="h-[10px] rounded-full bg-gray-v2-15">
         {/* ponytail: fill 폭 · 눈금 위치 전부 props/마일스톤에서 계산되는 런타임 값이라
             Tailwind 정적 className으로 표현 불가 — style이 유일한 방법(Shadow 예외와
-            같은 성격). */}
+            같은 성격). fill이 먼저, 점(dot)이 나중에 렌더돼 겹칠 때 점이 위에 보인다
+            (RN은 나중에 그려진 형제가 위에 쌓인다 — zIndex 불필요). */}
         <View
           className="h-[10px] rounded-full bg-brand-40"
           style={{width: `${fillPercent}%`}}
@@ -109,32 +140,22 @@ const ChallengeProgressBar = ({
         {ticks.map(tick => (
           <View
             key={tick.percent}
-            className="absolute top-1/2 -mt-[2px] w-[4px] h-[4px] rounded-full bg-[#D8D8DF]"
-            style={{left: `${tick.percent}%`, marginLeft: -2}}
+            className="absolute top-1/2 -mt-[4px] w-[8px] h-[8px] rounded-full bg-[#D8D8DF]"
+            style={getTickPositionStyle(tick.percent, -TICK_DOT_RADIUS)}
           />
         ))}
       </View>
       <View className="h-[18px]">
-        {/* 0%는 왼쪽 끝 기준, 100%는 텍스트가 왼쪽으로 자라므로 오른쪽 끝 기준,
-            중간 라벨은 텍스트 폭을 실측하지 않은 근사 중앙정렬(-14px)로 배치한다. */}
+        {/* 라벨은 텍스트 폭을 실측하지 않은 근사 중앙정렬(-14px)로 배치한다. */}
         {ticks.map(tick =>
-          !tick.showLabel ? null : tick.percent === 0 ? (
-            <Text
-              key={tick.percent}
-              className="absolute left-0 text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-              {tick.label}
-            </Text>
-          ) : tick.percent === 100 ? (
-            <Text
-              key={tick.percent}
-              className="absolute right-0 text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-              {tick.label}
-            </Text>
-          ) : (
+          !tick.showLabel ? null : (
             <Text
               key={tick.percent}
               className="absolute text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50"
-              style={{left: `${tick.percent}%`, marginLeft: -14}}>
+              style={getTickPositionStyle(
+                tick.percent,
+                TICK_LABEL_CENTER_OFFSET,
+              )}>
               {tick.label}
             </Text>
           ),

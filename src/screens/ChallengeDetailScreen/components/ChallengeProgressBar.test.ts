@@ -3,6 +3,7 @@ import {describe, expect, it} from '@jest/globals';
 import {
   getChallengeProgressFillPercent,
   getChallengeProgressTicks,
+  getTickPositionStyle,
 } from './ChallengeProgressBar';
 
 describe('getChallengeProgressFillPercent', () => {
@@ -88,5 +89,27 @@ describe('getChallengeProgressTicks', () => {
     for (let i = 1; i < shown.length; i++) {
       expect(shown[i].percent - shown[i - 1].percent).toBeGreaterThanOrEqual(6);
     }
+  });
+});
+
+describe('getTickPositionStyle', () => {
+  it('0% 눈금은 트랙 왼쪽 끝에 딱 붙여 밖으로 삐져나오지 않게 한다', () => {
+    expect(getTickPositionStyle(0, -4)).toEqual({left: 0});
+  });
+
+  it('100% 눈금은 트랙 오른쪽 끝에 딱 붙인다', () => {
+    expect(getTickPositionStyle(100, -4)).toEqual({right: 0});
+  });
+
+  it('중간 눈금은 percent 위치에서 middleOffset 만큼 중앙정렬한다', () => {
+    expect(getTickPositionStyle(30, -4)).toEqual({
+      left: '30%',
+      marginLeft: -4,
+    });
+    // 라벨용 오프셋(-14)도 동일한 규칙을 따른다
+    expect(getTickPositionStyle(30, -14)).toEqual({
+      left: '30%',
+      marginLeft: -14,
+    });
   });
 });
