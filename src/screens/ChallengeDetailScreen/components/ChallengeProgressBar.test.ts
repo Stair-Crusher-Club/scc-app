@@ -4,6 +4,7 @@ import {
   getChallengeProgressFillPercent,
   getChallengeProgressTicks,
   getTickPositionStyle,
+  isReached,
 } from './ChallengeProgressBar';
 
 describe('getChallengeProgressFillPercent', () => {
@@ -111,5 +112,30 @@ describe('getTickPositionStyle', () => {
       left: '30%',
       marginLeft: -14,
     });
+  });
+});
+
+describe('isReached', () => {
+  it('fill 이 0이면 0 눈금조차 달성이 아니다 (트랙이 전부 회색)', () => {
+    expect(isReached(0, 0)).toBe(false);
+    expect(isReached(100, 0)).toBe(false);
+  });
+
+  it('fill 구간 안(<=)의 눈금만 달성이다', () => {
+    // 3/9 = 33.33% 진행 → 0%, 25% 는 달성 / 50% 이상은 미달성
+    const fill = getChallengeProgressFillPercent(3, 9);
+    expect(isReached(0, fill)).toBe(true);
+    expect(isReached(25, fill)).toBe(true);
+    expect(isReached(50, fill)).toBe(false);
+    expect(isReached(100, fill)).toBe(false);
+  });
+
+  it('경계값: 눈금이 fill 과 같으면 달성으로 본다', () => {
+    expect(isReached(50, 50)).toBe(true);
+  });
+
+  it('100% 달성이면 모든 눈금이 달성이다', () => {
+    const fill = getChallengeProgressFillPercent(9, 9);
+    expect([0, 25, 50, 75, 100].every(p => isReached(p, fill))).toBe(true);
   });
 });

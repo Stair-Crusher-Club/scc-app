@@ -1,6 +1,8 @@
 import React from 'react';
 import {Text, View} from 'react-native';
 
+import {cn} from '@/utils/cn';
+
 interface ChallengeProgressBarProps {
   contributionsCount: number;
   goal: number;
@@ -32,6 +34,11 @@ export const TICK_DOT_DIAMETER = 8;
 const TICK_DOT_RADIUS = TICK_DOT_DIAMETER / 2;
 // 라벨(짧은 %텍스트)의 근사 중앙정렬 오프셋 — 텍스트 폭 실측 대신 근사치(아래 참고).
 const TICK_LABEL_CENTER_OFFSET = -14;
+
+/** 눈금이 달성 구간 안에 있는지. fill이 0이면 어떤 눈금도 달성이 아니다. */
+export function isReached(tickPercent: number, fillPercent: number): boolean {
+  return fillPercent > 0 && tickPercent <= fillPercent;
+}
 
 export interface TickPositionStyle {
   left?: number | `${number}%`;
@@ -140,7 +147,15 @@ const ChallengeProgressBar = ({
         {ticks.map(tick => (
           <View
             key={tick.percent}
-            className="absolute top-1/2 -mt-[4px] w-[8px] h-[8px] rounded-full bg-[#D8D8DF]"
+            className={cn(
+              'absolute top-1/2 -mt-[4px] w-[8px] h-[8px] rounded-full',
+              // 달성 구간(fill 위)에 놓인 눈금은 fill(brand-40)보다 진한 파랑으로
+              // 구분한다. Figma 시안엔 달성 상태 눈금이 없어 색만 파생한 값이다.
+              // fill이 0%면 트랙이 전부 회색이므로 0 눈금도 회색으로 둔다.
+              isReached(tick.percent, fillPercent)
+                ? 'bg-brand-60'
+                : 'bg-[#D8D8DF]',
+            )}
             style={getTickPositionStyle(tick.percent, -TICK_DOT_RADIUS)}
           />
         ))}

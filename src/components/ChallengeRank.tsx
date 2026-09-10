@@ -26,21 +26,26 @@ const ChallengeRank = ({
         'flex-row items-center px-[20px] py-[14px] gap-[16px]',
         containerClassName,
       )}>
-      <View className="flex-row items-center min-w-[40px] gap-[4px]">
+      {/* Figma(Frame 584~618): 순위 칸은 전 행 폭 40 고정이고 메달까지 그 안에 들어가
+          닉네임 시작 x가 모든 행에서 같다(dx=76 = pl20 + 40 + gap16) — 메달을 별도
+          Text로 두면 1~3위만 칸이 넓어져 닉네임이 밀린다. h-26 은 Figma 순위 텍스트
+          높이로, 행 높이 54(pt14 + 26 + pb14)를 결정한다. */}
+      <View className="w-[40px] h-[26px] justify-center">
         <Text
+          numberOfLines={1}
           className={cn(
-            'text-[16px]',
+            // absolute + 명시 폭 70: RN 은 absolute 자식에게도 부모 폭을 max-width 로
+            // 물려서, 폭을 안 주면 실기기 이모지 폭 때문에 '1위🥇' 가 '1위…' 로 잘린다.
+            // 넘치는 ~2pt 는 닉네임까지의 gap 16 안에 들어가 겹치지 않는다.
+            'absolute w-[70px] text-[16px] leading-[26px]',
             isTopThree
               ? 'font-pretendard-bold text-brand-50'
               : 'font-pretendard-medium text-gray-60',
           )}>
-          {`${value.rank}위`}
+          {`${value.rank}위${
+            visibleIcon && isTopThree ? getMedalEmoji(value.rank) : ''
+          }`}
         </Text>
-        {visibleIcon && isTopThree && (
-          <Text className="text-[16px] font-pretendard-bold">
-            {getMedalEmoji(value.rank)}
-          </Text>
-        )}
       </View>
       <View className="flex-1">
         {value.companyName && (
@@ -56,7 +61,7 @@ const ChallengeRank = ({
       </View>
       <Text
         className={cn(
-          'text-[14px] tracking-[-0.07px] font-pretendard-regular',
+          'text-[14px] leading-[22px] tracking-[-0.07px] font-pretendard-regular',
           isTopThree ? 'text-brand-50' : 'text-gray-v2-50',
         )}>
         {`${value.contributionCount}개 정복`}
@@ -70,7 +75,7 @@ const ChallengeRank = ({
 
 export default ChallengeRank;
 
-function getMedalEmoji(rank: number): string | null {
+function getMedalEmoji(rank: number): string {
   switch (rank) {
     case 1:
       return '🥇';
@@ -79,6 +84,6 @@ function getMedalEmoji(rank: number): string | null {
     case 3:
       return '🥉';
     default:
-      return null;
+      return '';
   }
 }
