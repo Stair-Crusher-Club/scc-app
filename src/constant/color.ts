@@ -94,6 +94,14 @@ export const color = {
   gray30v2: '#c3c5cc',
   gray15v2: '#f2f2f5',
   gray10v2: '#f7f8fa',
+
+  // challenge-redesign 추가 색상 (Figma 5:7264, tailwind.config.js 와 1:1 대응)
+  brand3: '#EFF6FF',
+  gray19: '#EAEAEF',
+  gray22: '#E7E8E9',
+  gray46: '#9A9B9F',
+  gray55: '#6A6A73',
+  gray85: '#1E1E1E',
 } as const;
 
 export type Color = keyof typeof color;

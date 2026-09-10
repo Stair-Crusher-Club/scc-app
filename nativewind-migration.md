@@ -195,7 +195,7 @@ const Title = styled.Text`
 | 21. **PlaceDetailV2**               |   대기    |   2   |                                                                                 |
 | 22. **ExternalAccessibilityDetail** |   대기    |   2   |                                                                                 |
 | 23. **BuildingFormV2**              |   대기    |   2   |                                                                                 |
-| 24. **ChallengeDetail**             |   대기    |   2   |                                                                                 |
+| 24. **ChallengeDetail**             |   진행    |   2   | 챌린지 화면 개편(Figma 24:5368) 진행 중. 진행바 신설, 랭킹 섹션 색상 분기          |
 | 25. **ProfileEditor**               |   대기    |   2   |                                                                                 |
 | 26. **ProfileEditor/Detail**        |   대기    |   2   |                                                                                 |
 | 27. **Conquerer/Monthly**           |   대기    |   2   | Modal                                                                           |
@@ -210,17 +210,18 @@ const Title = styled.Text`
 | 36. **RegistrationComplete**        |   대기    |   2   | FullScreen Modal                                                                |
 | 37. **ReviewForm/Place**            | 실섭 배포 |   2   |                                                                                 |
 | 38. **ReviewForm/Toilet**           | 실섭 배포 |   2   |                                                                                 |
+| 39. **ChallengeConquerTargetPlaces**|   진행    |   2   | 신규 화면(챌린지 남은 매장 보기). 마이그레이션 대상 아닌 신규 작성 — 트래킹용 행 |
 
 ---
 
 ## 통계
 
-- **총 화면 수**: **38개**
+- **총 화면 수**: **39개**
 - **상태 요약**
-  - 대기: 20개
-  - 진행: 0개
+  - 대기: 19개
+  - 진행: 2개
   - 테썹 배포: 8개
   - QA 완료: 0개
   - 실섭 배포: 10개
   - 삭제: 0개
-- **전체 진척도**: **47%** (18/38)
+- **전체 진척도**: **46%** (18/39)

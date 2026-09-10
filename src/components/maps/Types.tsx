@@ -73,6 +73,41 @@ export function getRegionFromItems(items: MarkerItem[]) {
   };
 }
 
+/** 장소가 카메라 region 밖에 있는지 (location 없는 장소는 판단 불가라 false 취급). */
+export function isItemOutsideRegion(
+  item: {location?: {lat: number; lng: number}},
+  region: Region,
+): boolean {
+  const location = item.location;
+  if (!location) {
+    return false;
+  }
+  return (
+    location.lat > region.northEast.latitude ||
+    location.lat < region.southWest.latitude ||
+    location.lng > region.northEast.longitude ||
+    location.lng < region.southWest.longitude
+  );
+}
+
+/**
+ * 최초 로드(cameraRegion 없음)거나, 필터 변경으로 바뀐 items 중 현재 카메라 밖에
+ * 있는 장소가 하나라도 있으면 다시 fit 해야 한다. 필터 결과가 이미 화면 안에 다
+ * 들어와 있으면(예: 부분집합) 카메라를 그대로 둬 불필요한 점프를 막는다.
+ */
+export function shouldRefitCamera(
+  items: {location?: {lat: number; lng: number}}[],
+  cameraRegion: Region | null,
+): boolean {
+  if (items.length === 0) {
+    return false;
+  }
+  if (!cameraRegion) {
+    return true;
+  }
+  return items.some(item => isItemOutsideRegion(item, cameraRegion));
+}
+
 export function getRegionCorners(region: Region): LatLng[] {
   return [
     // 북동쪽 (우상단)
