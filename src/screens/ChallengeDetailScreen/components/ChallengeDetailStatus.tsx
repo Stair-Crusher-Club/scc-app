@@ -16,6 +16,7 @@ const ChallengeDetailStatus = ({challenge}: PropsType) => {
         <ChallengeProgressBar
           contributionsCount={challenge.contributionsCount}
           goal={challenge.goal}
+          milestones={challenge.milestones}
         />
       );
     case ChallengeStatusDto.Closed:

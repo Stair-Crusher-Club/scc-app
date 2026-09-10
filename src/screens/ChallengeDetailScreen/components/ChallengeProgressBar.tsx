@@ -4,6 +4,8 @@ import {Text, View} from 'react-native';
 interface ChallengeProgressBarProps {
   contributionsCount: number;
   goal: number;
+  /** 중간목표. 비어있으면(또는 goal<=0) 25/50/75% 고정 눈금으로 폴백한다. */
+  milestones?: number[] | null;
 }
 
 /** goal=0(ctpl 비어있음) 0 나눗셈 가드. 정복수>goal 은 100% 로 클램프. */
@@ -17,11 +19,74 @@ export function getChallengeProgressFillPercent(
   return Math.min(contributionsCount / goal, 1) * 100;
 }
 
+export interface ChallengeProgressTick {
+  /** 정확한 위치(소수 가능) — dot 배치에 사용 */
+  percent: number;
+  /** 반올림 표시값 ('0' 또는 'N%') */
+  label: string;
+  showLabel: boolean;
+}
+
+const FALLBACK_MIDDLE_PERCENTS = [25, 50, 75];
+// ponytail: 텍스트 폭을 실측하지 않은 근사 임계값 — 이 간격보다 가까운 두 라벨은
+// 겹칠 수 있다고 보고 뒤쪽 라벨을 생략한다(dot은 항상 그린다). 실제로 겹치는
+// 신고가 오면 onLayout 측정으로 승격.
+const MIN_LABEL_GAP_PERCENT = 6;
+
+/**
+ * 마일스톤 위치를 %로 환산해 진행바 눈금을 만든다. milestones가 비어있거나
+ * goal<=0이면(0 나눗셈 방지) 기존 25/50/75% 고정 눈금으로 폴백한다.
+ * 0%/100%는 항상 양 끝에 포함된다.
+ */
+export function getChallengeProgressTicks(
+  milestones: number[] | undefined | null,
+  goal: number,
+): ChallengeProgressTick[] {
+  const middlePercents = (() => {
+    if (goal <= 0 || !milestones || milestones.length === 0) {
+      return FALLBACK_MIDDLE_PERCENTS;
+    }
+    const percents = milestones
+      // 데이터 오류 방어: 음수/goal 초과 마일스톤은 0~goal로 클램프
+      .map(m => (Math.max(0, Math.min(m, goal)) / goal) * 100)
+      // 0%/100%는 경계 눈금이 이미 담당 — 중복 방지를 위해 중간 구간만 남긴다
+      .filter(p => p > 0 && p < 100);
+    // 반올림 기준 중복 제거 + 정렬 (비정렬/중복 마일스톤 방어)
+    const dedup = new Map<number, number>();
+    for (const p of percents) {
+      const key = Math.round(p);
+      if (!dedup.has(key)) {
+        dedup.set(key, p);
+      }
+    }
+    return Array.from(dedup.values()).sort((a, b) => a - b);
+  })();
+
+  const allPercents = [0, ...middlePercents, 100];
+
+  let lastShownPercent = -Infinity;
+  return allPercents.map((percent, index) => {
+    const isEdge = index === 0 || index === allPercents.length - 1;
+    const showLabel =
+      isEdge || percent - lastShownPercent >= MIN_LABEL_GAP_PERCENT;
+    if (showLabel) {
+      lastShownPercent = percent;
+    }
+    return {
+      percent,
+      label: percent === 0 ? '0' : `${Math.round(percent)}%`,
+      showLabel,
+    };
+  });
+}
+
 const ChallengeProgressBar = ({
   contributionsCount,
   goal,
+  milestones,
 }: ChallengeProgressBarProps) => {
   const fillPercent = getChallengeProgressFillPercent(contributionsCount, goal);
+  const ticks = getChallengeProgressTicks(milestones, goal);
 
   return (
     <View className="px-[25px] h-[88px] justify-center gap-[10px]">
@@ -34,34 +99,46 @@ const ChallengeProgressBar = ({
         </Text>
       </View>
       <View className="h-[10px] rounded-full bg-gray-v2-15">
-        {/* ponytail: fill 폭은 props로 계산되는 런타임 값이라 Tailwind 정적 className으로
-            표현 불가 — style 이 유일한 방법(Shadow 예외와 같은 성격). 눈금 dot 4개는 고정
-            위치라 전부 className(left-1/4 등)으로 처리. */}
+        {/* ponytail: fill 폭 · 눈금 위치 전부 props/마일스톤에서 계산되는 런타임 값이라
+            Tailwind 정적 className으로 표현 불가 — style이 유일한 방법(Shadow 예외와
+            같은 성격). */}
         <View
           className="h-[10px] rounded-full bg-brand-40"
           style={{width: `${fillPercent}%`}}
         />
-        <View className="absolute top-1/2 -mt-[2px] left-1/4 -ml-[2px] w-[4px] h-[4px] rounded-full bg-[#D8D8DF]" />
-        <View className="absolute top-1/2 -mt-[2px] left-1/2 -ml-[2px] w-[4px] h-[4px] rounded-full bg-[#D8D8DF]" />
-        <View className="absolute top-1/2 -mt-[2px] left-3/4 -ml-[2px] w-[4px] h-[4px] rounded-full bg-[#D8D8DF]" />
-        <View className="absolute top-1/2 -mt-[2px] right-0 w-[4px] h-[4px] rounded-full bg-[#D8D8DF]" />
+        {ticks.map(tick => (
+          <View
+            key={tick.percent}
+            className="absolute top-1/2 -mt-[2px] w-[4px] h-[4px] rounded-full bg-[#D8D8DF]"
+            style={{left: `${tick.percent}%`, marginLeft: -2}}
+          />
+        ))}
       </View>
-      <View className="flex-row justify-between">
-        <Text className="text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-          0
-        </Text>
-        <Text className="text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-          25%
-        </Text>
-        <Text className="text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-          50%
-        </Text>
-        <Text className="text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-          75%
-        </Text>
-        <Text className="text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
-          100%
-        </Text>
+      <View className="h-[18px]">
+        {/* 0%는 왼쪽 끝 기준, 100%는 텍스트가 왼쪽으로 자라므로 오른쪽 끝 기준,
+            중간 라벨은 텍스트 폭을 실측하지 않은 근사 중앙정렬(-14px)로 배치한다. */}
+        {ticks.map(tick =>
+          !tick.showLabel ? null : tick.percent === 0 ? (
+            <Text
+              key={tick.percent}
+              className="absolute left-0 text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
+              {tick.label}
+            </Text>
+          ) : tick.percent === 100 ? (
+            <Text
+              key={tick.percent}
+              className="absolute right-0 text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50">
+              {tick.label}
+            </Text>
+          ) : (
+            <Text
+              key={tick.percent}
+              className="absolute text-[13px] leading-[18px] tracking-[-0.26px] text-gray-v2-50"
+              style={{left: `${tick.percent}%`, marginLeft: -14}}>
+              {tick.label}
+            </Text>
+          ),
+        )}
       </View>
     </View>
   );
