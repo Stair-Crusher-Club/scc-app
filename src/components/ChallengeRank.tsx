@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text, View} from 'react-native';
 
+import MarqueeText from '@/components/MarqueeText';
 import {ChallengeRankDto} from '@/generated-sources/openapi';
 import {cn} from '@/utils/cn';
 
@@ -34,10 +35,11 @@ const ChallengeRank = ({
         <Text
           numberOfLines={1}
           className={cn(
-            // absolute + 명시 폭 70: RN 은 absolute 자식에게도 부모 폭을 max-width 로
-            // 물려서, 폭을 안 주면 실기기 이모지 폭 때문에 '1위🥇' 가 '1위…' 로 잘린다.
-            // 넘치는 ~2pt 는 닉네임까지의 gap 16 안에 들어가 겹치지 않는다.
-            'absolute w-[70px] text-[16px] leading-[26px]',
+            // absolute + 명시 폭 46: RN 은 absolute 자식에게도 부모 폭을 max-width 로
+            // 물려서, 폭을 안 주면 이모지 advance(글리프 잉크 11pt 보다 넓다) 때문에
+            // '1위🥇' 가 '1위…' 로 잘린다. 46 은 최장 케이스('1위🥇' 실측 35.81pt,
+            // '10위' 약 29pt)를 담으면서 닉네임 시작(dx 76)과 겹치지 않는 값이다.
+            'absolute w-[46px] text-[16px] leading-[26px]',
             isTopThree
               ? 'font-pretendard-bold text-brand-50'
               : 'font-pretendard-medium text-gray-60',
@@ -53,11 +55,11 @@ const ChallengeRank = ({
             {value.companyName}
           </Text>
         )}
-        <Text
-          numberOfLines={1}
-          className="text-[16px] leading-[24px] tracking-[-0.32px] font-pretendard-medium text-black">
+        {/* 닉네임은 최대 32자(scc_user.nickname varchar(32))라 칸을 넘칠 수 있다 —
+            말줄임 대신 좌우로 왕복시켜 전체를 읽게 한다. */}
+        <MarqueeText className="text-[16px] leading-[24px] tracking-[-0.32px] font-pretendard-medium text-black">
           {value.nickname}
-        </Text>
+        </MarqueeText>
       </View>
       <Text
         className={cn(
