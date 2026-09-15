@@ -199,6 +199,7 @@ export default function ChallengeConquerTargetPlacesScreen({
             : 'challenge_conquer_target_places_list_toggle'
         }
         closeElementName="challenge_conquer_target_places_close"
+        closeIconSize={24}
       />
 
       <LogParamsProvider params={{viewMode}}>

@@ -1,4 +1,3 @@
-import {useQuery} from '@tanstack/react-query';
 import {useSetAtom} from 'jotai';
 import React from 'react';
 import {ScrollView, View} from 'react-native';
@@ -8,8 +7,7 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 
-import useAppComponents from '@/hooks/useAppComponents';
-import GeolocationUtils from '@/utils/GeolocationUtils';
+import {useNearbyConqueredCount} from '@/hooks/useNearbyAccessibilityStatus';
 import {filterAtom, FilterOptions, SortOption} from '../atoms';
 import SearchCategoryIcon, {Icons} from './SearchHeader/SearchCategoryIcon';
 
@@ -119,25 +117,8 @@ interface SearchRecommendPlaceProps {
 export default function SearchRecommendPlace({
   onPressKeyword,
 }: SearchRecommendPlaceProps) {
-  const {api} = useAppComponents();
-
-  const {data} = useQuery<number>({
-    queryKey: ['NearbyAccessibilityStatus'],
-    queryFn: async () => {
-      const currentPosition = await GeolocationUtils.getCurrentPosition();
-      return (
-        (
-          await api.getNearbyAccessibilityStatusPost({
-            currentLocation: {
-              lat: currentPosition.coords.latitude,
-              lng: currentPosition.coords.longitude,
-            },
-            distanceMetersLimit: 500,
-          })
-        )?.data?.conqueredCount ?? 0
-      );
-    },
-  });
+  // 홈이 프리페치해둔 같은 캐시를 구독한다 (중복 호출 제거).
+  const {data} = useNearbyConqueredCount();
   const setFilter = useSetAtom(filterAtom);
 
   if (!data || data < 10) {

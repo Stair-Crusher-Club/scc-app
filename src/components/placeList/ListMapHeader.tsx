@@ -15,6 +15,8 @@ interface ListMapHeaderProps {
   onClose: () => void;
   toggleElementName: string;
   closeElementName: string;
+  /** 닫기 아이콘 크기. 저장리스트 시안은 16, 남은 매장 시안(166:7119)은 24다. */
+  closeIconSize?: number;
 }
 
 export default function ListMapHeader({
@@ -24,6 +26,7 @@ export default function ListMapHeader({
   onClose,
   toggleElementName,
   closeElementName,
+  closeIconSize = 16,
 }: ListMapHeaderProps) {
   return (
     <HeaderRow $isMapMode={viewMode === 'map'}>
@@ -46,7 +49,11 @@ export default function ListMapHeader({
         activeOpacity={0.8}
         hitSlop={14}
         onPress={onClose}>
-        <CloseIcon width={16} height={16} color={color.black} />
+        <CloseIcon
+          width={closeIconSize}
+          height={closeIconSize}
+          color={color.black}
+        />
       </SccTouchableOpacity>
     </HeaderRow>
   );

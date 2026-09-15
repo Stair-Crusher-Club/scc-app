@@ -6,9 +6,7 @@ import {
   ConquerTargetPlaceListDto,
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
-import GeolocationUtils from '@/utils/GeolocationUtils';
-
-const NEARBY_DISTANCE_METERS_LIMIT = 500;
+import {useUnconqueredTargetPlaceListNearby} from '@/hooks/useNearbyAccessibilityStatus';
 
 export interface HomeCtplChallengeCard {
   challengeId: string;
@@ -64,33 +62,8 @@ export function useHomeCtplChallengeCard(): {
     };
   })();
 
-  // 계정 전환 시 stale 되지 않도록 유저 식별자를 키에 포함한다.
-  const {data: nearbyData} = useQuery({
-    queryKey: ['HomeCtplUnconqueredNearby', userInfo?.id],
-    queryFn: async () => {
-      let currentPosition;
-      try {
-        currentPosition = await GeolocationUtils.getCurrentPosition();
-      } catch {
-        // 위치 권한이 없으면 툴팁을 띄울 수 없을 뿐이다 — 쿼리를 에러로 만들지 않는다
-        // (ChallengeConquerTargetPlacesScreen 과 같은 처리).
-        return null;
-      }
-      const result = await api.getNearbyAccessibilityStatusPost({
-        currentLocation: {
-          lat: currentPosition.coords.latitude,
-          lng: currentPosition.coords.longitude,
-        },
-        distanceMetersLimit: NEARBY_DISTANCE_METERS_LIMIT,
-      });
-      // 서버는 값이 null 이면 필드 자체를 생략한다(NON_ABSENT 직렬화) → undefined 가 되는데,
-      // React Query 는 queryFn 이 undefined 를 반환하면 "Query data cannot be undefined" 를
-      // 던진다. 반경 안에 미정복 CTPL 이 없는 **정상 케이스**가 대부분이라 홈 진입마다 터진다.
-      return result?.data?.unconqueredTargetPlaceListNearby ?? null;
-    },
-    // 카드가 없으면(참여중인 CTPL 챌린지 없음) 툴팁도 뜰 수 없으니 조회하지 않는다.
-    enabled: challengeCard != null,
-  });
+  // 홈 프리페치와 같은 캐시를 구독한다 — 키/queryFn 은 useNearbyAccessibilityStatus 한 곳에만 둔다.
+  const {data: nearbyData} = useUnconqueredTargetPlaceListNearby();
 
   return {
     challengeCard,
