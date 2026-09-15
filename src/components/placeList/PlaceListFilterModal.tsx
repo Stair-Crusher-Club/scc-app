@@ -1,4 +1,5 @@
 import {useAtom} from 'jotai';
+import type {PrimitiveAtom} from 'jotai';
 import React, {useState} from 'react';
 import {Dimensions, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
@@ -7,22 +8,28 @@ import {SccButton} from '@/components/atoms';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import BottomSheet from '@/modals/BottomSheet';
+import type {
+  PlaceListFilterModalState,
+  PlaceListFilterOptions,
+  PlaceListSortOption,
+} from '@/screens/PlaceListDetailScreen/atoms';
 import {ScoreUnder} from '@/screens/SearchScreen/atoms';
 import ChipSelector from '@/screens/SearchScreen/modals/ChipSelector';
 import ScoreSelector from '@/screens/SearchScreen/modals/ScoreSelector.tsx';
 
-import {
-  type PlaceListFilterOptions,
-  type PlaceListSortOption,
-  placeListFilterAtom,
-  placeListFilterModalStateAtom,
-} from '../atoms';
-
 const {height} = Dimensions.get('window');
 
-export default function PlaceListFilterModal() {
-  const [savedFilter, setSavedFilter] = useAtom(placeListFilterAtom);
-  const [state, setFilterModalState] = useAtom(placeListFilterModalStateAtom);
+interface PlaceListFilterModalProps {
+  filterAtom: PrimitiveAtom<PlaceListFilterOptions>;
+  modalStateAtom: PrimitiveAtom<PlaceListFilterModalState>;
+}
+
+export default function PlaceListFilterModal({
+  filterAtom,
+  modalStateAtom,
+}: PlaceListFilterModalProps) {
+  const [savedFilter, setSavedFilter] = useAtom(filterAtom);
+  const [state, setFilterModalState] = useAtom(modalStateAtom);
 
   const [draftSortOption, setDraftSortOption] = useState<
     PlaceListFilterOptions['sortOption'] | undefined

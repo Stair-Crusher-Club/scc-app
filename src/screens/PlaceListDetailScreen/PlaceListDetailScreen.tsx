@@ -9,9 +9,6 @@ import {useMe} from '@/atoms/Auth';
 import BookmarkIcon from '@/assets/icon/ic_bookmark.svg';
 import BookmarkOnIcon from '@/assets/icon/ic_bookmark_on.svg';
 import CheckColoredIcon from '@/assets/icon/ic_check_colored.svg';
-import CloseIcon from '@/assets/icon/close.svg';
-import MapIcon from '@/assets/icon/ic_map.svg';
-import MenuIcon from '@/assets/icon/ic_menu.svg';
 import ShareIcon from '@/assets/icon/ic_share_web.svg';
 import StoreAddressFillIcon from '@/assets/icon/ic_store_address_fill.svg';
 import {BadgeShell, BadgeText} from '@/components/BadgeShell';
@@ -21,6 +18,10 @@ import {ScreenLayout} from '@/components/ScreenLayout';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
+import FilterBar from '@/components/placeList/FilterBar';
+import FloatingViewModeButton from '@/components/placeList/FloatingViewModeButton';
+import ListMapHeader from '@/components/placeList/ListMapHeader';
+import PlaceListFilterModal from '@/components/placeList/PlaceListFilterModal';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
@@ -44,8 +45,6 @@ import {useCheckAuth} from '@/utils/checkAuth';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 
 import {placeListFilterAtom, placeListFilterModalStateAtom} from './atoms';
-import FilterBar from './sections/FilterBar';
-import PlaceListFilterModal from './sections/PlaceListFilterModal';
 
 const sccProfileAvatarImage = require('@/assets/img/img_scc_profile_avatar.png');
 
@@ -402,33 +401,18 @@ const PlaceListDetailScreen = ({
   return (
     <LogParamsProvider params={{place_list_id: placeListId}}>
       <Layout isHeaderVisible={false} safeAreaEdges={['top']}>
-        <HeaderRow $isMapMode={viewMode === 'map'}>
-          <HeaderLeftToggle
-            elementName={
-              viewMode === 'list'
-                ? 'place_list_detail_map_toggle'
-                : 'place_list_detail_list_toggle'
-            }
-            activeOpacity={0.8}
-            onPress={toggleViewMode}>
-            {viewMode === 'list' ? (
-              <MapIcon width={24} height={24} color={color.black} />
-            ) : (
-              <MenuIcon width={24} height={24} color={color.black} />
-            )}
-            <HeaderToggleText>
-              {viewMode === 'list' ? '지도' : '목록'}
-            </HeaderToggleText>
-          </HeaderLeftToggle>
-          <HeaderTitle numberOfLines={1}>{title}</HeaderTitle>
-          <SccTouchableOpacity
-            elementName="place_list_detail_close"
-            activeOpacity={0.8}
-            hitSlop={14}
-            onPress={() => navigation.goBack()}>
-            <CloseIcon width={16} height={16} color={color.black} />
-          </SccTouchableOpacity>
-        </HeaderRow>
+        <ListMapHeader
+          viewMode={viewMode}
+          title={title}
+          onToggleViewMode={toggleViewMode}
+          onClose={() => navigation.goBack()}
+          toggleElementName={
+            viewMode === 'list'
+              ? 'place_list_detail_map_toggle'
+              : 'place_list_detail_list_toggle'
+          }
+          closeElementName="place_list_detail_close"
+        />
 
         {isLoading ? (
           <SearchLoading />
@@ -463,14 +447,11 @@ const PlaceListDetailScreen = ({
                   renderItem={renderListItem}
                 />
                 <FloatingViewModeButton
+                  viewMode="list"
                   elementName="place_list_detail_floating_map"
-                  activeOpacity={0.8}
                   onPress={toggleViewMode}
                   style={{bottom: insets.bottom + 24}}
-                  $isBlue>
-                  <MapIcon width={16} height={16} color={color.white} />
-                  <FloatingViewModeText $isBlue>지도보기</FloatingViewModeText>
-                </FloatingViewModeButton>
+                />
               </ListOverlay>
             ) : (
               <>
@@ -513,21 +494,19 @@ const PlaceListDetailScreen = ({
                 </MapRightFloatingContainer>
                 {/* Fix 2: 동적 bottom으로 카드 위에 배치 */}
                 <FloatingViewModeButton
+                  viewMode="map"
                   elementName="place_list_detail_floating_list"
-                  activeOpacity={0.8}
                   onPress={toggleViewMode}
                   style={{bottom: floatingBottom}}
-                  $isBlue={false}>
-                  <MenuIcon width={16} height={16} color="#24262B" />
-                  <FloatingViewModeText $isBlue={false}>
-                    목록보기
-                  </FloatingViewModeText>
-                </FloatingViewModeButton>
+                />
               </>
             )}
           </ContentContainer>
         )}
-        <PlaceListFilterModal />
+        <PlaceListFilterModal
+          filterAtom={placeListFilterAtom}
+          modalStateAtom={placeListFilterModalStateAtom}
+        />
         {showSaveMissionCompleted && (
           <MissionCompletedOverlay
             isVisible={true}
@@ -558,36 +537,6 @@ export default PlaceListDetailScreen;
 
 const Layout = styled(ScreenLayout)`
   background-color: ${color.white};
-`;
-
-const HeaderRow = styled.View<{$isMapMode: boolean}>`
-  flex-direction: row;
-  align-items: center;
-  padding-horizontal: 20px;
-  padding-vertical: 7px;
-  gap: 12px;
-  background-color: ${color.white};
-`;
-
-const HeaderLeftToggle = styled(SccTouchableOpacity)`
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 38px;
-`;
-
-const HeaderToggleText = styled.Text`
-  font-size: 10px;
-  font-family: ${font.pretendardRegular};
-  color: ${color.black};
-`;
-
-const HeaderTitle = styled.Text`
-  flex: 1;
-  font-size: 18px;
-  font-family: ${font.pretendardSemibold};
-  color: ${color.black};
 `;
 
 const HeaderSection = styled.View`
@@ -726,34 +675,6 @@ const ListItemWrapper = styled.View<{isFirst: boolean}>`
   padding: 20px;
   border-top-width: ${({isFirst}) => (isFirst ? '0' : '1px')};
   border-top-color: #eff0f2;
-`;
-
-const FloatingViewModeButton = styled(SccTouchableOpacity)<{$isBlue: boolean}>`
-  position: absolute;
-  bottom: 40px;
-  align-self: center;
-  z-index: 20;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 16px;
-  padding-right: 20px;
-  padding-vertical: 10px;
-  border-radius: 27px;
-  background-color: ${({$isBlue}) => ($isBlue ? '#0C76F7' : color.white)};
-  gap: 4px;
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.23;
-  shadow-radius: 2px;
-  elevation: 8;
-`;
-
-const FloatingViewModeText = styled.Text<{$isBlue: boolean}>`
-  font-family: ${font.pretendardMedium};
-  font-size: 15px;
-  line-height: 22px;
-  letter-spacing: -0.3px;
-  color: ${({$isBlue}) => ($isBlue ? color.white : '#24262B')};
 `;
 
 const MapFilterOverlay = styled.View`

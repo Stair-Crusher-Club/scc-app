@@ -39,6 +39,10 @@ import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {
+  nearbyAccessibilityStatusQueryFn,
+  nearbyAccessibilityStatusQueryKey,
+} from '@/hooks/useNearbyAccessibilityStatus';
 import {useIsForeground} from '@/hooks/useIsForeground';
 import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import Logger from '@/logging/Logger';
@@ -465,20 +469,13 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
 
     // Prefetch nearby accessibility status
-    async function prefetchNearbyAccessibilityStatus() {
-      const currentPosition = await GeolocationUtils.getCurrentPosition();
+    // 응답 전체를 한 캐시에 담는다 — 소비처(검색 추천, 홈 CTPL 카드)가 select 로 각자 필요한
+    // 필드를 뽑는다. 예전엔 여기서 conqueredCount 만 저장하고 소비처마다 키가 달라
+    // 같은 엔드포인트를 3번 호출했다.
+    function prefetchNearbyAccessibilityStatus() {
       queryClient.prefetchQuery({
-        queryKey: ['NearbyAccessibilityStatus'],
-        queryFn: async () =>
-          (
-            await api.getNearbyAccessibilityStatusPost({
-              currentLocation: {
-                lat: currentPosition.coords.latitude,
-                lng: currentPosition.coords.longitude,
-              },
-              distanceMetersLimit: 500,
-            })
-          )?.data?.conqueredCount ?? 0,
+        queryKey: nearbyAccessibilityStatusQueryKey(userInfo?.id),
+        queryFn: nearbyAccessibilityStatusQueryFn(api),
       });
     }
 

@@ -45,6 +45,7 @@ function SearchItemCard({
   hideActions,
   hideScoreIcon,
   hidePlaceTags,
+  rightLabel,
   onPress,
   listQueryKey,
 }: {
@@ -54,6 +55,8 @@ function SearchItemCard({
   hideActions?: boolean;
   hideScoreIcon?: boolean;
   hidePlaceTags?: boolean;
+  /** 카테고리 라벨 자리에 대신 노출할 텍스트(예: CTPL 브랜드명). 미지정 시 기존 카테고리 라벨. */
+  rightLabel?: string;
   onPress?: () => void;
   listQueryKey?: QueryKey;
 }) {
@@ -365,7 +368,9 @@ function SearchItemCard({
           <TitleArea>
             <TextWrapper>
               <TitleText>{item.place.name}</TitleText>
-              <CategoryText>{getPlaceCategoryLabel(item.place)}</CategoryText>
+              <CategoryText>
+                {rightLabel ?? getPlaceCategoryLabel(item.place)}
+              </CategoryText>
             </TextWrapper>
             <LocationBox>
               <DistanceText>{distanceText}</DistanceText>

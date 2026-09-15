@@ -1,13 +1,17 @@
+import {useIsFocused} from '@react-navigation/native';
 import {useSetAtom} from 'jotai';
-import React from 'react';
-import {Dimensions, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Dimensions, Image, View} from 'react-native';
 import styled from 'styled-components/native';
 
+import Tooltip from '@/components/Tooltip';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import {useHomeCtplChallengeCard} from '@/hooks/useHomeCtplChallengeCard';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
+import ChallengeProgressBar from '@/screens/ChallengeDetailScreen/components/ChallengeProgressBar';
 import {searchModeAtom} from '@/screens/SearchScreen/atoms';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -35,9 +39,31 @@ const CONQUER_SPRITE = {
   top: CHARACTER_SIZE * -0.3111,
 };
 
+// 스펙 확정 사항: "홈 진입마다, 몇 초 후 자동 소멸(영구 dismiss 없음)".
+const TOOLTIP_VISIBLE_MS = 4000;
+
 export default function QuickMenuSection() {
   const navigation = useNavigation();
   const setSearchMode = useSetAtom(searchModeAtom);
+  const {challengeCard, unconqueredTargetPlaceListNearby} =
+    useHomeCtplChallengeCard();
+
+  // 홈 탭에 진입(포커스)할 때마다 노출하고 몇 초 뒤 자동으로 닫는다. 영구 dismiss
+  // atom을 두지 않는다 — 매번 다시 보여주는 게 스펙이 확정한 동작이다.
+  const isFocused = useIsFocused();
+  const [showNearbyTooltip, setShowNearbyTooltip] = useState(false);
+  useEffect(() => {
+    if (!isFocused || !unconqueredTargetPlaceListNearby) {
+      setShowNearbyTooltip(false);
+      return;
+    }
+    setShowNearbyTooltip(true);
+    const timer = setTimeout(
+      () => setShowNearbyTooltip(false),
+      TOOLTIP_VISIBLE_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [isFocused, unconqueredTargetPlaceListNearby]);
 
   const goToSearchPlace = () => {
     setSearchMode('place');
@@ -109,6 +135,50 @@ export default function QuickMenuSection() {
             </ConquerActionCard>
           </SccPressable>
         </CardsRow>
+        {challengeCard && (
+          <View>
+            {showNearbyTooltip && (
+              <Tooltip
+                text={`반경 500m내에 정복 안 된 ${challengeCard.displayName}이 있어요`}
+                bubbleLeft={12}
+                tailPosition={13}
+                bubbleColor={color.gray90v2}
+                // Figma 166:7422 실측: 툴팁 꼬리가 카드 상단에 살짝 걸친다.
+                style={{marginBottom: -8}}
+              />
+            )}
+            <SccPressable
+              elementName="home_v2_ctpl_challenge_card"
+              onPress={() =>
+                navigation.navigate('ChallengeConquerTargetPlaces', {
+                  challengeId: challengeCard.challengeId,
+                  initialViewMode: 'map',
+                })
+              }>
+              <ChallengeCard>
+                <ChallengeCardHeader>
+                  <ChallengeCardTitle numberOfLines={2}>
+                    {`${challengeCard.displayName} 정복하기`}
+                  </ChallengeCardTitle>
+                  <ChallengeCardCount>
+                    <ChallengeCardCountNumber>
+                      {challengeCard.contributionsCount}
+                    </ChallengeCardCountNumber>
+                    <ChallengeCardCountGoal>
+                      {` /${challengeCard.goal} 곳`}
+                    </ChallengeCardCountGoal>
+                  </ChallengeCardCount>
+                </ChallengeCardHeader>
+                <ChallengeProgressBar
+                  size="home"
+                  contributionsCount={challengeCard.contributionsCount}
+                  goal={challengeCard.goal}
+                  milestones={challengeCard.milestones}
+                />
+              </ChallengeCard>
+            </SccPressable>
+          </View>
+        )}
       </Container>
     </LogParamsProvider>
   );
@@ -118,11 +188,54 @@ const Container = styled.View`
   padding-top: 24px;
   padding-bottom: 20px;
   padding-horizontal: 20px;
+  gap: 12px;
 `;
 
 const CardsRow = styled.View`
   flex-direction: row;
   gap: 12px;
+`;
+
+const ChallengeCard = styled.View`
+  background-color: ${color.gray15v2};
+  border-radius: 12px;
+  padding: 14px 16px 12px 16px;
+  gap: 4px;
+`;
+
+const ChallengeCardHeader = styled.View`
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 20px;
+`;
+
+const ChallengeCardTitle = styled.Text`
+  flex: 1;
+  color: ${color.gray80v2};
+  font-size: 18px;
+  font-family: ${font.pretendardSemibold};
+  line-height: 26px;
+  letter-spacing: -0.36px;
+`;
+
+const ChallengeCardCount = styled.View`
+  flex-direction: row;
+  align-items: baseline;
+`;
+
+const ChallengeCardCountNumber = styled.Text`
+  color: ${color.brand40};
+  font-size: 24px;
+  font-family: ${font.pretendardMedium};
+  line-height: 32px;
+`;
+
+const ChallengeCardCountGoal = styled.Text`
+  color: ${color.gray50v2};
+  font-size: 15px;
+  font-family: ${font.pretendardMedium};
+  line-height: 22px;
+  letter-spacing: -0.3px;
 `;
 
 const BaseActionCard = styled.View`

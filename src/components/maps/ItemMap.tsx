@@ -46,6 +46,12 @@ const SeoulStation = {
 
 const DefaultRegion: Region = getRegion(SeoulStation);
 
+/** 서버가 내려준 정복 대상 장소 목록(CTPL) 전용 브랜드 마커. 값은 SVG 원문 문자열. */
+export type MarkerIconOverride = {
+  defaultSvg: string;
+  focusedSvg?: string;
+};
+
 export default function ItemMap<T extends MarkerItem>({
   items,
   overlayMarkers,
@@ -57,6 +63,7 @@ export default function ItemMap<T extends MarkerItem>({
   selectedItemId,
   onCameraIdle,
   logoPosition,
+  markerIconOverride,
 }: {
   items: T[];
   overlayMarkers?: MarkerItem[];
@@ -76,6 +83,13 @@ export default function ItemMap<T extends MarkerItem>({
     | 'rightCenter'
     | 'bottomCenter'
     | 'topCenter';
+  /**
+   * 지정하면 `items` 마커의 iconResource 를 이 SVG 로 덮어쓴다(CTPL 브랜드 핀).
+   * iconColor 는 그대로 item.markerIcon.level 기준으로 계산한다 — 네이티브가 SVG
+   * 안의 플레이스홀더 색(#9A9B9F)을 iconColor 로 치환하므로 정복/미정복 대비가
+   * 그대로 따라온다. overlayMarkers(화장실 레이어)에는 적용하지 않는다.
+   */
+  markerIconOverride?: MarkerIconOverride;
 }) {
   const [currentCameraRegion, setCurrentCameraRegion] =
     React.useState<Region | null>(null);
@@ -134,11 +148,14 @@ export default function ItemMap<T extends MarkerItem>({
       isHideCollidedMarkers: false,
       isHideCollidedSymbols: true,
       isHideCollidedCaptions: true,
-      iconResource: getMarkerSvg(
-        item.markerIcon?.icon ?? 'default',
-        isSelected,
-        item.hasReview ?? false,
-      ),
+      iconResource: markerIconOverride
+        ? ((isSelected ? markerIconOverride.focusedSvg : undefined) ??
+          markerIconOverride.defaultSvg)
+        : getMarkerSvg(
+            item.markerIcon?.icon ?? 'default',
+            isSelected,
+            item.hasReview ?? false,
+          ),
       iconColor:
         item.markerIcon?.icon === 'toilet'
           ? ToiletMarkerColor

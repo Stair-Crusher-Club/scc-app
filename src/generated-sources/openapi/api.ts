@@ -1241,7 +1241,7 @@ export interface ChallengeDto {
      * @type {boolean}
      * @memberof ChallengeDto
      */
-    'isB2B'?: boolean;
+    'isB2B': boolean;
     /**
      * 
      * @type {ChallengeB2bFormSchemaDto}
@@ -1266,6 +1266,24 @@ export interface ChallengeDto {
      * @memberof ChallengeDto
      */
     'hasConquerTargetPlaceList': boolean;
+    /**
+     * 
+     * @type {ConquerTargetPlaceListDto}
+     * @memberof ChallengeDto
+     */
+    'conquerTargetPlaceList'?: ConquerTargetPlaceListDto;
+    /**
+     * 참여 환영 팝업 이미지 URL. 지정하면 새 디자인 팝업을 띄운다.
+     * @type {string}
+     * @memberof ChallengeDto
+     */
+    'welcomePopupImageUrl'?: string | null;
+    /**
+     * 참여 환영 팝업 본문 문구. 미지정이면 기존 기본 문구를 쓴다.
+     * @type {string}
+     * @memberof ChallengeDto
+     */
+    'welcomePopupDescription'?: string | null;
 }
 /**
  * 선택형 필드의 옵션
@@ -1565,6 +1583,44 @@ export interface CompleteUserTutorialSavePlaceListMissionContextDto {
      * @memberof CompleteUserTutorialSavePlaceListMissionContextDto
      */
     'placeListId': string;
+}
+/**
+ * 챌린지에 연결된 정복 대상 장소 목록.
+ * @export
+ * @interface ConquerTargetPlaceListDto
+ */
+export interface ConquerTargetPlaceListDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ConquerTargetPlaceListDto
+     */
+    'id': string;
+    /**
+     * 앱 노출용 이름. \'{displayName} 정복하기\', \'정복 안 된 {displayName}이 있어요\', \'N번째 {displayName} 정복 완료!\' 처럼 브랜드명 단독으로 쓰인다. 어드민이 표시명을 비워두면 서버가 목록 이름으로 폴백하므로 항상 값이 있다.
+     * @type {string}
+     * @memberof ConquerTargetPlaceListDto
+     */
+    'displayName': string;
+}
+/**
+ * 정복 대상 장소 목록 전용 지도 마커 아이콘. 값은 SVG 원문 문자열이며 앱이 그대로 네이티브 마커 렌더러에 넘긴다 (원격 URL 미지원).
+ * @export
+ * @interface ConquerTargetPlaceListMarkerIconDto
+ */
+export interface ConquerTargetPlaceListMarkerIconDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ConquerTargetPlaceListMarkerIconDto
+     */
+    'defaultSvg': string;
+    /**
+     * 선택(포커스) 상태 마커. null 이면 defaultSvg 를 그대로 쓴다.
+     * @type {string}
+     * @memberof ConquerTargetPlaceListMarkerIconDto
+     */
+    'focusedSvg'?: string | null;
 }
 /**
  * 
@@ -2871,6 +2927,12 @@ export interface GetNearbyAccessibilityStatusPost200Response {
      * @memberof GetNearbyAccessibilityStatusPost200Response
      */
     'conqueredCount'?: number;
+    /**
+     * 
+     * @type {ConquerTargetPlaceListDto}
+     * @memberof GetNearbyAccessibilityStatusPost200Response
+     */
+    'unconqueredTargetPlaceListNearby'?: ConquerTargetPlaceListDto;
 }
 /**
  * 
@@ -3697,6 +3759,18 @@ export interface ListChallengeConquerTargetPlacesResponseDto {
      * @memberof ListChallengeConquerTargetPlacesResponseDto
      */
     'conqueredCount': number;
+    /**
+     * 
+     * @type {ConquerTargetPlaceListDto}
+     * @memberof ListChallengeConquerTargetPlacesResponseDto
+     */
+    'conquerTargetPlaceList': ConquerTargetPlaceListDto;
+    /**
+     * 
+     * @type {ConquerTargetPlaceListMarkerIconDto}
+     * @memberof ListChallengeConquerTargetPlacesResponseDto
+     */
+    'markerIcon'?: ConquerTargetPlaceListMarkerIconDto;
 }
 /**
  * 
@@ -3746,6 +3820,30 @@ export interface ListChallengesItemDto {
      * @memberof ListChallengesItemDto
      */
     'createdAt': EpochMillisTimestamp;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListChallengesItemDto
+     */
+    'goal'?: number | null;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof ListChallengesItemDto
+     */
+    'milestones'?: Array<number> | null;
+    /**
+     * CTPL 챌린지에서만 채워진다(= 지금까지 정복된 장소 수). 그 외 챌린지는 null — 목록 전체에 기여 수 집계 쿼리를 돌리지 않기 위해서다. 필요하면 getChallenge 를 호출한다.
+     * @type {number}
+     * @memberof ListChallengesItemDto
+     */
+    'contributionsCount'?: number | null;
+    /**
+     * 
+     * @type {ConquerTargetPlaceListDto}
+     * @memberof ListChallengesItemDto
+     */
+    'conquerTargetPlaceList'?: ConquerTargetPlaceListDto;
 }
 /**
  * 
