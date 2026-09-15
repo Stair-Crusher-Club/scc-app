@@ -108,3 +108,27 @@ export function toPlaceMarkerItem(
     },
   };
 }
+
+/**
+ * CTPL(정복 대상 장소 목록) 화면 전용. 접근성 점수 대신 "정복 여부"로 마커 레벨을
+ * 정한다 — level '0'(초록)/'none'(회색)이 MarkerColors 를 통해 그대로 정복/미정복
+ * 대비가 된다(시안과 동일). icon 값 자체는 화면이 markerIconOverride 로 브랜드
+ * SVG 를 덮어씌우므로 무의미하지만, 타입 일관성을 위해 toPlaceMarkerItem 이
+ * 계산한 값을 그대로 둔다.
+ *
+ * toPlaceMarkerItem 의 시그니처 자체를 바꾸지 않는 이유: 기존 호출부들이
+ * `.map(toPlaceMarkerItem)` 처럼 콜백을 직접 참조해서, 2번째 인자를 추가하면
+ * Array.map 이 넘기는 index(number)가 그 자리에 끼어들어 타입 에러가 난다.
+ */
+export function toConquestMarkerItem(
+  item: PlaceListItem,
+): MarkerItem & PlaceListItem {
+  const marker = toPlaceMarkerItem(item);
+  return {
+    ...marker,
+    markerIcon: {
+      icon: marker.markerIcon?.icon ?? 'default',
+      level: item.hasPlaceAccessibility ? '0' : 'none',
+    },
+  };
+}
