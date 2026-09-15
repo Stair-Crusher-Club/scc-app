@@ -26,6 +26,8 @@ import ToastUtils from '@/utils/ToastUtils';
 
 export interface ChallengeConquerTargetPlacesScreenParams {
   challengeId: string;
+  /** 진입 시 보여줄 모드. 홈 진척 카드·정복 완료 축하에서 지도로 바로 랜딩할 때 'map'. */
+  initialViewMode?: 'list' | 'map';
 }
 
 type PlaceMarkerItem = MarkerItem & PlaceListItem;
@@ -39,7 +41,7 @@ export default function ChallengeConquerTargetPlacesScreen({
   route,
   navigation,
 }: ScreenProps<'ChallengeConquerTargetPlaces'>) {
-  const {challengeId} = route.params;
+  const {challengeId, initialViewMode} = route.params;
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
   const pdpScreen = usePlaceDetailScreenName();
@@ -47,7 +49,7 @@ export default function ChallengeConquerTargetPlacesScreen({
   // onCameraIdle 로 갱신되는 "현재 카메라가 보고 있는 영역". 최초 로드 시엔 null.
   const cameraRegionRef = useRef<Region | null>(null);
 
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode ?? 'list');
   const [onlyUnconquered, setOnlyUnconquered] = useState(true);
   const [sort, setSort] = useState<LocalSortOption>('distance');
 
