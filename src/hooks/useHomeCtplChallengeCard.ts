@@ -37,7 +37,9 @@ export function useHomeCtplChallengeCard(): {
   const {userInfo} = useMe();
 
   const {data: challengesData} = useQuery({
-    queryKey: ['ListChallenges', 'InProgress'],
+    // hasJoined 는 유저별 값이라 키에 유저 식별자가 없으면 계정 전환 시 이전 사용자의
+    // 참여 여부가 남아 참여하지도 않은 챌린지 카드가 뜬다.
+    queryKey: ['ListChallenges', 'InProgress', userInfo?.id],
     queryFn: async () =>
       (
         await api.listChallengesPost({
@@ -66,16 +68,25 @@ export function useHomeCtplChallengeCard(): {
   const {data: nearbyData} = useQuery({
     queryKey: ['HomeCtplUnconqueredNearby', userInfo?.id],
     queryFn: async () => {
-      const currentPosition = await GeolocationUtils.getCurrentPosition();
-      return (
-        await api.getNearbyAccessibilityStatusPost({
-          currentLocation: {
-            lat: currentPosition.coords.latitude,
-            lng: currentPosition.coords.longitude,
-          },
-          distanceMetersLimit: NEARBY_DISTANCE_METERS_LIMIT,
-        })
-      )?.data?.unconqueredTargetPlaceListNearby;
+      let currentPosition;
+      try {
+        currentPosition = await GeolocationUtils.getCurrentPosition();
+      } catch {
+        // 위치 권한이 없으면 툴팁을 띄울 수 없을 뿐이다 — 쿼리를 에러로 만들지 않는다
+        // (ChallengeConquerTargetPlacesScreen 과 같은 처리).
+        return null;
+      }
+      const result = await api.getNearbyAccessibilityStatusPost({
+        currentLocation: {
+          lat: currentPosition.coords.latitude,
+          lng: currentPosition.coords.longitude,
+        },
+        distanceMetersLimit: NEARBY_DISTANCE_METERS_LIMIT,
+      });
+      // 서버는 값이 null 이면 필드 자체를 생략한다(NON_ABSENT 직렬화) → undefined 가 되는데,
+      // React Query 는 queryFn 이 undefined 를 반환하면 "Query data cannot be undefined" 를
+      // 던진다. 반경 안에 미정복 CTPL 이 없는 **정상 케이스**가 대부분이라 홈 진입마다 터진다.
+      return result?.data?.unconqueredTargetPlaceListNearby ?? null;
     },
     // 카드가 없으면(참여중인 CTPL 챌린지 없음) 툴팁도 뜰 수 없으니 조회하지 않는다.
     enabled: challengeCard != null,
