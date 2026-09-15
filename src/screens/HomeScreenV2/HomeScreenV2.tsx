@@ -468,7 +468,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     async function prefetchNearbyAccessibilityStatus() {
       const currentPosition = await GeolocationUtils.getCurrentPosition();
       queryClient.prefetchQuery({
-        queryKey: ['NearbyAccessibilityStatus'],
+        queryKey: ['NearbyAccessibilityStatus', userInfo?.id],
         queryFn: async () =>
           (
             await api.getNearbyAccessibilityStatusPost({

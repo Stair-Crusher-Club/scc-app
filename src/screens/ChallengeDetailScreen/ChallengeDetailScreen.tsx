@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
+import IcCalendar from '@/assets/icon/ic_calendar.svg';
+import IcParticipants from '@/assets/icon/ic_participants.svg';
 import ChallengeStatusBadges from '@/components/ChallengeStatusBadges';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {
@@ -121,10 +123,15 @@ const ChallengeDetailScreen = ({
     initialPasscode,
   ]);
 
-  useEffect(() => {
-    // ChallengeWelcomeModal이 표시되어야 하면 LastMonthRankingModal은 표시하지 않음
-    const shouldShowWelcomeModal = joinChallenge.isSuccess && isB2B;
+  // 새 환영팝업(welcomePopupImageUrl/Description 지정) 또는 B2B 기존팝업 중
+  // 하나라도 뜰 조건이면 LastMonthRankingModal은 표시하지 않는다(한 번에 하나만).
+  const shouldShowWelcomeModal =
+    joinChallenge.isSuccess &&
+    (Boolean(challenge?.welcomePopupImageUrl) ||
+      Boolean(challenge?.welcomePopupDescription) ||
+      isB2B);
 
+  useEffect(() => {
     if (
       hasJoined &&
       challenge?.modalImageUrl &&
@@ -133,7 +140,12 @@ const ChallengeDetailScreen = ({
     ) {
       setShowLastMonthRankingModal(true);
     }
-  }, [hasJoined, challenge?.modalImageUrl, challengeId]);
+  }, [
+    hasJoined,
+    challenge?.modalImageUrl,
+    challengeId,
+    shouldShowWelcomeModal,
+  ]);
 
   const prevY = useRef(0);
   const [visible, setVisible] = useState(false);
@@ -197,17 +209,22 @@ const ChallengeDetailScreen = ({
               </Text>
             </View>
             {challenge && (
-              <View className="flex-row items-center gap-[8px]">
-                <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular text-gray-v2-60">
-                  {ChallengeDateFormat.formatChallengeDetailPeriod(
-                    challenge.startsAt,
-                    challenge.endsAt,
-                  )}
-                </Text>
-                <View className="w-[2px] h-[2px] rounded-full bg-gray-v2-40" />
-                <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular text-gray-v2-60">
-                  {`${challenge.participationsCount}명`}
-                </Text>
+              <View className="flex-row items-center gap-[20px]">
+                <View className="flex-row items-center gap-[4px]">
+                  <IcCalendar width={20} height={20} />
+                  <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular text-gray-v2-60">
+                    {ChallengeDateFormat.formatChallengeDetailPeriod(
+                      challenge.startsAt,
+                      challenge.endsAt,
+                    )}
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-[4px]">
+                  <IcParticipants width={20} height={20} />
+                  <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular text-gray-v2-60">
+                    {`${challenge.participationsCount}명`}
+                  </Text>
+                </View>
               </View>
             )}
           </View>
@@ -233,7 +250,7 @@ const ChallengeDetailScreen = ({
                   }`}
                 </Text>
               )}
-              {challenge.hasConquerTargetPlaceList && (
+              {challenge.hasConquerTargetPlaceList && hasJoined && (
                 <View className="px-[25px] pb-[32px]">
                   <SccTouchableOpacity
                     elementName="challenge_detail_conquer_target_places"
@@ -330,7 +347,11 @@ const ChallengeDetailScreen = ({
             joinChallenge.mutate({challengeId, passcode: _passcode});
           }}
         />
-        <ChallengeWelcomeModal visible={joinChallenge.isSuccess && isB2B} />
+        <ChallengeWelcomeModal
+          visible={shouldShowWelcomeModal}
+          imageUrl={challenge?.welcomePopupImageUrl}
+          description={challenge?.welcomePopupDescription}
+        />
         {challenge?.modalImageUrl && (
           <LastMonthRankingModal
             challengeId={challengeId}
@@ -402,31 +423,33 @@ const DescriptionRenderer = ({
   };
 
   return (
-    <View className="px-[25px] pt-[24px] pb-[12px] gap-[4px]">
-      <View>
-        <Markdown style={markdownStyle}>
-          {isCollapsed && shouldShowToggle
-            ? mainContent.substring(0, DESCRIPTION_COLLAPSE_THRESHOLD) + '...'
-            : mainContent}
-        </Markdown>
-        {shouldShowToggle && (
-          <SccTouchableOpacity
-            elementName="challenge_description_toggle"
-            onPress={onToggleCollapse}
-            className="items-end mt-[4px]">
-            <Text
-              className={cn(
-                'text-[14px] font-pretendard-regular text-gray-40',
-                isCollapsed && 'underline',
-              )}>
-              {isCollapsed ? '더보기' : '접기'}
-            </Text>
-          </SccTouchableOpacity>
+    <View className="pt-[24px] pb-[12px]">
+      <View className="mx-[20px] p-[16px] gap-[4px] bg-gray-v2-10 rounded-[12px]">
+        <View>
+          <Markdown style={markdownStyle}>
+            {isCollapsed && shouldShowToggle
+              ? mainContent.substring(0, DESCRIPTION_COLLAPSE_THRESHOLD) + '...'
+              : mainContent}
+          </Markdown>
+          {shouldShowToggle && (
+            <SccTouchableOpacity
+              elementName="challenge_description_toggle"
+              onPress={onToggleCollapse}
+              className="items-end mt-[4px]">
+              <Text
+                className={cn(
+                  'text-[14px] font-pretendard-regular text-gray-40',
+                  isCollapsed && 'underline',
+                )}>
+                {isCollapsed ? '더보기' : '접기'}
+              </Text>
+            </SccTouchableOpacity>
+          )}
+        </View>
+        {linkParagraph && (
+          <Markdown style={markdownStyle}>{linkParagraph}</Markdown>
         )}
       </View>
-      {linkParagraph && (
-        <Markdown style={markdownStyle}>{linkParagraph}</Markdown>
-      )}
     </View>
   );
 };
