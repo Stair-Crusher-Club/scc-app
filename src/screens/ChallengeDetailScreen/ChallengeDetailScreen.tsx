@@ -123,13 +123,10 @@ const ChallengeDetailScreen = ({
     initialPasscode,
   ]);
 
-  // 새 환영팝업(welcomePopupImageUrl/Description 지정) 또는 B2B 기존팝업 중
-  // 하나라도 뜰 조건이면 LastMonthRankingModal은 표시하지 않는다(한 번에 하나만).
+  // 새 환영팝업(welcomePopup 지정) 또는 B2B 기존팝업 중 하나라도 뜰 조건이면
+  // LastMonthRankingModal은 표시하지 않는다(한 번에 하나만).
   const shouldShowWelcomeModal =
-    joinChallenge.isSuccess &&
-    (Boolean(challenge?.welcomePopupImageUrl) ||
-      Boolean(challenge?.welcomePopupDescription) ||
-      isB2B);
+    joinChallenge.isSuccess && (challenge?.welcomePopup != null || isB2B);
 
   useEffect(() => {
     if (
@@ -349,8 +346,8 @@ const ChallengeDetailScreen = ({
         />
         <ChallengeWelcomeModal
           visible={shouldShowWelcomeModal}
-          imageUrl={challenge?.welcomePopupImageUrl}
-          description={challenge?.welcomePopupDescription}
+          imageUrl={challenge?.welcomePopup?.imageUrl}
+          description={challenge?.welcomePopup?.description}
         />
         {challenge?.modalImageUrl && (
           <LastMonthRankingModal

@@ -1273,17 +1273,11 @@ export interface ChallengeDto {
      */
     'conquerTargetPlaceList'?: ConquerTargetPlaceListDto;
     /**
-     * 참여 환영 팝업 이미지 URL. 지정하면 새 디자인 팝업을 띄운다.
-     * @type {string}
+     * 
+     * @type {ChallengeWelcomePopupDto}
      * @memberof ChallengeDto
      */
-    'welcomePopupImageUrl'?: string | null;
-    /**
-     * 참여 환영 팝업 본문 문구. 미지정이면 기존 기본 문구를 쓴다.
-     * @type {string}
-     * @memberof ChallengeDto
-     */
-    'welcomePopupDescription'?: string | null;
+    'welcomePopup'?: ChallengeWelcomePopupDto;
 }
 /**
  * 선택형 필드의 옵션
@@ -1443,6 +1437,25 @@ export const ChallengeStatusDto = {
 export type ChallengeStatusDto = typeof ChallengeStatusDto[keyof typeof ChallengeStatusDto];
 
 
+/**
+ * 챌린지 참여 직후 띄울 환영 팝업. 지정하지 않으면 기존 기본 팝업 동작을 따른다.
+ * @export
+ * @interface ChallengeWelcomePopupDto
+ */
+export interface ChallengeWelcomePopupDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ChallengeWelcomePopupDto
+     */
+    'imageUrl'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ChallengeWelcomePopupDto
+     */
+    'description'?: string | null;
+}
 /**
  * 
  * @export
@@ -2835,6 +2848,19 @@ export interface GetHomeBannersResponseDto {
     'banners': Array<HomeBannerDto>;
 }
 /**
+ * 
+ * @export
+ * @interface GetHomeScreenDataRequestDto
+ */
+export interface GetHomeScreenDataRequestDto {
+    /**
+     * 
+     * @type {Location}
+     * @memberof GetHomeScreenDataRequestDto
+     */
+    'currentLocation'?: Location;
+}
+/**
  * 홈 화면에 필요한 모든 데이터
  * @export
  * @interface GetHomeScreenDataResponseDto
@@ -2870,6 +2896,12 @@ export interface GetHomeScreenDataResponseDto {
      * @memberof GetHomeScreenDataResponseDto
      */
     'homePopups': Array<HomePopupDto>;
+    /**
+     * 
+     * @type {HomeConquerChallengeDto}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'conquerChallenge'?: HomeConquerChallengeDto;
 }
 /**
  * 
@@ -2927,12 +2959,6 @@ export interface GetNearbyAccessibilityStatusPost200Response {
      * @memberof GetNearbyAccessibilityStatusPost200Response
      */
     'conqueredCount'?: number;
-    /**
-     * 
-     * @type {ConquerTargetPlaceListDto}
-     * @memberof GetNearbyAccessibilityStatusPost200Response
-     */
-    'unconqueredTargetPlaceListNearby'?: ConquerTargetPlaceListDto;
 }
 /**
  * 
@@ -3330,6 +3356,49 @@ export interface HomeBannerDto {
      * @memberof HomeBannerDto
      */
     'clickPageTitle': string;
+}
+/**
+ * 홈 quick action 에 노출할 \'정복하기\' 진척 카드. 내가 참여 중이고 정복 대상 장소 목록이 연결된 진행 중 챌린지 하나를 서버가 고른다. 툴팁 노출 여부(hasUnconqueredPlaceNearby)도 이 챌린지의 목록 기준으로 함께 판정하므로 카드와 툴팁이 서로 다른 목록을 가리키는 일이 없다. 
+ * @export
+ * @interface HomeConquerChallengeDto
+ */
+export interface HomeConquerChallengeDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeConquerChallengeDto
+     */
+    'challengeId': string;
+    /**
+     * 브랜드명 단독. \'{displayName} 정복하기\', \'정복 안 된 {displayName}이 있어요\' 에 쓰인다.
+     * @type {string}
+     * @memberof HomeConquerChallengeDto
+     */
+    'displayName': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeConquerChallengeDto
+     */
+    'contributionsCount': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeConquerChallengeDto
+     */
+    'goal': number;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof HomeConquerChallengeDto
+     */
+    'milestones': Array<number>;
+    /**
+     * 요청의 currentLocation 반경 안에 이 목록의 미정복 장소가 남아 있는지. 홈 툴팁 노출 조건. currentLocation 이 없으면 false.
+     * @type {boolean}
+     * @memberof HomeConquerChallengeDto
+     */
+    'hasUnconqueredPlaceNearby': boolean;
 }
 /**
  * 홈 화면 팝업
@@ -3820,30 +3889,6 @@ export interface ListChallengesItemDto {
      * @memberof ListChallengesItemDto
      */
     'createdAt': EpochMillisTimestamp;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListChallengesItemDto
-     */
-    'goal'?: number | null;
-    /**
-     * 
-     * @type {Array<number>}
-     * @memberof ListChallengesItemDto
-     */
-    'milestones'?: Array<number> | null;
-    /**
-     * CTPL 챌린지에서만 채워진다(= 지금까지 정복된 장소 수). 그 외 챌린지는 null — 목록 전체에 기여 수 집계 쿼리를 돌리지 않기 위해서다. 필요하면 getChallenge 를 호출한다.
-     * @type {number}
-     * @memberof ListChallengesItemDto
-     */
-    'contributionsCount'?: number | null;
-    /**
-     * 
-     * @type {ConquerTargetPlaceListDto}
-     * @memberof ListChallengesItemDto
-     */
-    'conquerTargetPlaceList'?: ConquerTargetPlaceListDto;
 }
 /**
  * 
@@ -9494,10 +9539,11 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+         * @param {GetHomeScreenDataRequestDto} [getHomeScreenDataRequestDto] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getHomeScreenData: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getHomeScreenData: async (getHomeScreenDataRequestDto?: GetHomeScreenDataRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/getHomeScreenData`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -9516,9 +9562,12 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(getHomeScreenDataRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -12569,11 +12618,12 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+         * @param {GetHomeScreenDataRequestDto} [getHomeScreenDataRequestDto] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getHomeScreenData(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetHomeScreenDataResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getHomeScreenData(options);
+        async getHomeScreenData(getHomeScreenDataRequestDto?: GetHomeScreenDataRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetHomeScreenDataResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getHomeScreenData(getHomeScreenDataRequestDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -13646,11 +13696,12 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+         * @param {GetHomeScreenDataRequestDto} [getHomeScreenDataRequestDto] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getHomeScreenData(options?: any): AxiosPromise<GetHomeScreenDataResponseDto> {
-            return localVarFp.getHomeScreenData(options).then((request) => request(axios, basePath));
+        getHomeScreenData(getHomeScreenDataRequestDto?: GetHomeScreenDataRequestDto, options?: any): AxiosPromise<GetHomeScreenDataResponseDto> {
+            return localVarFp.getHomeScreenData(getHomeScreenDataRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14716,12 +14767,13 @@ export class DefaultApi extends BaseAPI {
     /**
      * 
      * @summary 홈 화면에 필요한 모든 데이터를 가져온다.
+     * @param {GetHomeScreenDataRequestDto} [getHomeScreenDataRequestDto] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getHomeScreenData(options?: AxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getHomeScreenData(options).then((request) => request(this.axios, this.basePath));
+    public getHomeScreenData(getHomeScreenDataRequestDto?: GetHomeScreenDataRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getHomeScreenData(getHomeScreenDataRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

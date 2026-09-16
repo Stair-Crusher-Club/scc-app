@@ -8,7 +8,7 @@ import Tooltip from '@/components/Tooltip';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {useHomeCtplChallengeCard} from '@/hooks/useHomeCtplChallengeCard';
+import {HomeConquerChallengeDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import ChallengeProgressBar from '@/screens/ChallengeDetailScreen/components/ChallengeProgressBar';
@@ -42,18 +42,24 @@ const CONQUER_SPRITE = {
 // 스펙 확정 사항: "홈 진입마다, 몇 초 후 자동 소멸(영구 dismiss 없음)".
 const TOOLTIP_VISIBLE_MS = 4000;
 
-export default function QuickMenuSection() {
+export default function QuickMenuSection({
+  conquerChallenge,
+}: {
+  /** 홈 quick action 카드+툴팁 데이터. `getHomeScreenData` 응답 그대로 — 서버가 카드와
+   * 툴팁 노출 여부(hasUnconqueredPlaceNearby)를 같은 챌린지 기준으로 함께 판정해 내려준다. */
+  conquerChallenge: HomeConquerChallengeDto | null | undefined;
+}) {
   const navigation = useNavigation();
   const setSearchMode = useSetAtom(searchModeAtom);
-  const {challengeCard, unconqueredTargetPlaceListNearby} =
-    useHomeCtplChallengeCard();
 
   // 홈 탭에 진입(포커스)할 때마다 노출하고 몇 초 뒤 자동으로 닫는다. 영구 dismiss
   // atom을 두지 않는다 — 매번 다시 보여주는 게 스펙이 확정한 동작이다.
   const isFocused = useIsFocused();
   const [showNearbyTooltip, setShowNearbyTooltip] = useState(false);
+  const hasUnconqueredPlaceNearby =
+    conquerChallenge?.hasUnconqueredPlaceNearby ?? false;
   useEffect(() => {
-    if (!isFocused || !unconqueredTargetPlaceListNearby) {
+    if (!isFocused || !hasUnconqueredPlaceNearby) {
       setShowNearbyTooltip(false);
       return;
     }
@@ -63,7 +69,7 @@ export default function QuickMenuSection() {
       TOOLTIP_VISIBLE_MS,
     );
     return () => clearTimeout(timer);
-  }, [isFocused, unconqueredTargetPlaceListNearby]);
+  }, [isFocused, hasUnconqueredPlaceNearby]);
 
   const goToSearchPlace = () => {
     setSearchMode('place');
@@ -135,11 +141,11 @@ export default function QuickMenuSection() {
             </ConquerActionCard>
           </SccPressable>
         </CardsRow>
-        {challengeCard && (
+        {conquerChallenge && (
           <View>
             {showNearbyTooltip && (
               <Tooltip
-                text={`반경 500m내에 정복 안 된 ${challengeCard.displayName}이 있어요`}
+                text={`반경 500m내에 정복 안 된 ${conquerChallenge.displayName}이 있어요`}
                 bubbleLeft={12}
                 tailPosition={13}
                 bubbleColor={color.gray90v2}
@@ -151,29 +157,29 @@ export default function QuickMenuSection() {
               elementName="home_v2_ctpl_challenge_card"
               onPress={() =>
                 navigation.navigate('ChallengeConquerTargetPlaces', {
-                  challengeId: challengeCard.challengeId,
+                  challengeId: conquerChallenge.challengeId,
                   initialViewMode: 'map',
                 })
               }>
               <ChallengeCard>
                 <ChallengeCardHeader>
                   <ChallengeCardTitle numberOfLines={2}>
-                    {`${challengeCard.displayName} 정복하기`}
+                    {`${conquerChallenge.displayName} 정복하기`}
                   </ChallengeCardTitle>
                   <ChallengeCardCount>
                     <ChallengeCardCountNumber>
-                      {challengeCard.contributionsCount}
+                      {conquerChallenge.contributionsCount}
                     </ChallengeCardCountNumber>
                     <ChallengeCardCountGoal>
-                      {` /${challengeCard.goal} 곳`}
+                      {` /${conquerChallenge.goal} 곳`}
                     </ChallengeCardCountGoal>
                   </ChallengeCardCount>
                 </ChallengeCardHeader>
                 <ChallengeProgressBar
                   size="home"
-                  contributionsCount={challengeCard.contributionsCount}
-                  goal={challengeCard.goal}
-                  milestones={challengeCard.milestones}
+                  contributionsCount={conquerChallenge.contributionsCount}
+                  goal={conquerChallenge.goal}
+                  milestones={conquerChallenge.milestones}
                 />
               </ChallengeCard>
             </SccPressable>

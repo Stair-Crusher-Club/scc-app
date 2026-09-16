@@ -1,10 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 
 import {useMe} from '@/atoms/Auth';
-import {
-  ConquerTargetPlaceListDto,
-  GetNearbyAccessibilityStatusPost200Response,
-} from '@/generated-sources/openapi';
+import {GetNearbyAccessibilityStatusPost200Response} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import GeolocationUtils from '@/utils/GeolocationUtils';
 
@@ -13,11 +10,12 @@ export const NEARBY_ACCESSIBILITY_STATUS_DISTANCE_METERS = 500;
 /**
  * `getNearbyAccessibilityStatus` 응답을 **한 캐시에 모아두고** 소비처가 select 로 필요한
  * 필드만 뽑아 쓴다. 키/queryFn 을 소비처마다 따로 쓰면 같은 엔드포인트를 중복 호출한다 —
- * 실제로 홈 프리페치·검색 추천·홈 CTPL 카드가 서로 다른 키로 3번 호출하고 있었고,
- * 프리페치가 채운 캐시는 아무도 쓰지 않았다(키에 유저 식별자를 한쪽에만 추가하면서 갈라졌다).
+ * 실제로 홈 프리페치·검색 추천이 서로 다른 키로 호출하고 있었고, 프리페치가 채운 캐시는
+ * 아무도 쓰지 않았다(키에 유저 식별자를 한쪽에만 추가하면서 갈라졌다).
+ * (참여 챌린지 기준 CTPL 근접 여부는 이제 `getHomeScreenData` 의 `conquerChallenge` 로
+ * 옮겨갔다 — 카드가 고른 챌린지와 다른 챌린지의 반경을 판정하는 버그를 막기 위함.)
  *
- * 응답 필드는 유저별로 달라지므로(`unconqueredTargetPlaceListNearby` 는 참여 챌린지 기준)
- * 키에 유저 식별자를 포함한다.
+ * 응답 필드는 유저별로 달라지므로 키에 유저 식별자를 포함한다.
  */
 export function nearbyAccessibilityStatusQueryKey(userId: string | undefined) {
   return ['NearbyAccessibilityStatus', userId] as const;
@@ -65,16 +63,4 @@ function useNearbyAccessibilityStatus<T>(
 /** 반경 내 내가 정복한 장소 수. */
 export function useNearbyConqueredCount() {
   return useNearbyAccessibilityStatus(data => data?.conqueredCount ?? 0);
-}
-
-/**
- * 반경 내에 아직 정복되지 않은 장소가 남아 있는 CTPL(참여 중 챌린지 기준). 없으면 null.
- * 홈 툴팁 "반경 500m내에 정복 안 된 {displayName}이 있어요" 용.
- */
-export function useUnconqueredTargetPlaceListNearby(): {
-  data: ConquerTargetPlaceListDto | null | undefined;
-} {
-  return useNearbyAccessibilityStatus(
-    data => data?.unconqueredTargetPlaceListNearby ?? null,
-  );
 }
