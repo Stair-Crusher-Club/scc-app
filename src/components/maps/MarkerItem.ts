@@ -120,15 +120,3 @@ export function toPlaceMarkerItem(
  * `.map(toPlaceMarkerItem)` 처럼 콜백을 직접 참조해서, 2번째 인자를 추가하면
  * Array.map 이 넘기는 index(number)가 그 자리에 끼어들어 타입 에러가 난다.
  */
-export function toConquestMarkerItem(
-  item: PlaceListItem,
-): MarkerItem & PlaceListItem {
-  const marker = toPlaceMarkerItem(item);
-  return {
-    ...marker,
-    markerIcon: {
-      icon: marker.markerIcon?.icon ?? 'default',
-      level: item.hasPlaceAccessibility ? '0' : 'none',
-    },
-  };
-}

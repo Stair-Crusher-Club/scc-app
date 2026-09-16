@@ -5,7 +5,7 @@ import {FlatList, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
-import {MarkerItem, toConquestMarkerItem} from '@/components/maps/MarkerItem';
+import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {Region, shouldRefitCamera} from '@/components/maps/Types';
 import {ScreenLayout} from '@/components/ScreenLayout';
 import FilterBar from '@/components/placeList/FilterBar';
@@ -122,13 +122,11 @@ export default function ChallengeConquerTargetPlacesScreen({
   }, [isError, error, navigation]);
 
   const items = useMemo(() => {
-    const marked = data?.items.map(toConquestMarkerItem) ?? [];
+    const marked = data?.items.map(toPlaceMarkerItem) ?? [];
     return filters.isRegistered === true
       ? marked.filter(item => item.hasPlaceAccessibility)
       : marked;
   }, [data?.items, filters.isRegistered]);
-
-  const brandName = data?.conquerTargetPlaceList?.displayName;
   const markerIconOverride = data?.markerIcon
     ? {
         defaultSvg: data.markerIcon.defaultSvg,
@@ -170,11 +168,10 @@ export default function ChallengeConquerTargetPlacesScreen({
         isConquestMode
         hideScoreIcon
         hidePlaceTags
-        rightLabel={brandName}
         listQueryKey={queryKey}
       />
     ),
-    [queryKey, brandName],
+    [queryKey],
   );
 
   const toggleViewMode = useCallback(() => {
@@ -254,7 +251,6 @@ export default function ChallengeConquerTargetPlacesScreen({
                         isConquestMode
                         hideScoreIcon
                         hidePlaceTags
-                        rightLabel={brandName}
                         onPress={() => handleItemPress(item)}
                         listQueryKey={queryKey}
                       />
