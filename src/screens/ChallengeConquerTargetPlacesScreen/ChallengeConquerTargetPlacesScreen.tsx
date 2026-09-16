@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {FlatList, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
+import {getMarkerSvg, MarkerColors} from '@/assets/markers';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {Region, shouldRefitCamera} from '@/components/maps/Types';
@@ -127,12 +128,23 @@ export default function ChallengeConquerTargetPlacesScreen({
       ? marked.filter(item => item.hasPlaceAccessibility)
       : marked;
   }, [data?.items, filters.isRegistered]);
-  const markerIconOverride = data?.markerIcon
-    ? {
-        defaultSvg: data.markerIcon.defaultSvg,
-        focusedSvg: data.markerIcon.focusedSvg ?? undefined,
-      }
-    : undefined;
+  // 정복(등록)된 장소만 브랜드 SVG 핀. 미등록은 실제 접근성 점수가 있어도
+  // 항상 회색 점 마커로 고정한다(iconColor 도 강제) — Figma 166:7080.
+  const markerIconOverride = useCallback(
+    (item: PlaceMarkerItem) =>
+      data?.markerIcon && item.hasPlaceAccessibility
+        ? {
+            defaultSvg: data.markerIcon.defaultSvg,
+            focusedSvg: data.markerIcon.focusedSvg ?? undefined,
+          }
+        : {
+            // getMarkerSvg('default', false, false)는 markers.ts 스위치의 'default'
+            // 케이스로 항상 값을 반환하지만 시그니처상 undefined 가능이라 가드로 폴백.
+            defaultSvg: getMarkerSvg('default', false, false) ?? '',
+            iconColor: MarkerColors.none,
+          },
+    [data?.markerIcon],
+  );
 
   // 최초 로드는 항상 fit. 이후 필터/정렬로 items가 바뀌면, 그중 현재 카메라 밖에
   // 있는 장소가 있을 때만 다시 fit 한다 — 이미 보이는 부분집합이면 카메라를 그대로
@@ -168,6 +180,7 @@ export default function ChallengeConquerTargetPlacesScreen({
         isConquestMode
         hideScoreIcon
         hidePlaceTags
+        hideRegisterShortcuts
         listQueryKey={queryKey}
       />
     ),
@@ -251,6 +264,7 @@ export default function ChallengeConquerTargetPlacesScreen({
                         isConquestMode
                         hideScoreIcon
                         hidePlaceTags
+                        hideRegisterShortcuts
                         onPress={() => handleItemPress(item)}
                         listQueryKey={queryKey}
                       />

@@ -83,7 +83,7 @@ type ItemMapViewProps<T extends MarkerItem> = {
    */
   AboveCardsSlot?: React.FC<{focusedItem: T | null; isScrolling: boolean}>;
   /** CTPL(정복 대상 장소 목록) 전용 브랜드 마커. ItemMap 에 그대로 전달한다. */
-  markerIconOverride?: MarkerIconOverride;
+  markerIconOverride?: (item: T) => MarkerIconOverride | undefined;
 };
 
 const SINGLE_CARD_WIDTH = Math.round(Dimensions.get('window').width * 0.9) - 10;
