@@ -45,6 +45,7 @@ function SearchItemCard({
   hideActions,
   hideScoreIcon,
   hidePlaceTags,
+  hideRegisterShortcuts,
   onPress,
   listQueryKey,
 }: {
@@ -54,6 +55,9 @@ function SearchItemCard({
   hideActions?: boolean;
   hideScoreIcon?: boolean;
   hidePlaceTags?: boolean;
+  /** '건물'/'리뷰' 추가등록 소형 버튼(XSButton)만 숨긴다. registerStatus 'NONE'일 때의
+   * 풀폭 "입구 접근성 등록하기"/"방문 리뷰 등록하기" 버튼에는 영향 없음. */
+  hideRegisterShortcuts?: boolean;
   /** 카테고리 라벨 자리에 대신 노출할 텍스트(예: CTPL 브랜드명). 미지정 시 기존 카테고리 라벨. */
   onPress?: () => void;
   listQueryKey?: QueryKey;
@@ -380,27 +384,29 @@ function SearchItemCard({
               hasReview={hasReview}
               reviewCount={item.accessibilityInfo?.reviewCount}
             />
-            {registerStatus !== 'UNAVAILABLE' && registerStatus !== 'NONE' && (
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-                {registerStatus === 'PLACE_ONLY' && (
-                  <XSButton
-                    text="건물"
-                    hasPlusButton
-                    elementName="place_search_item_card_register_building_accessibility_button"
-                    onPress={() => onRegister('building')}
-                  />
-                )}
-                {isReviewEnabled(item.place) && (
-                  <XSButton
-                    text="리뷰"
-                    hasPlusButton
-                    elementName="place_search_item_card_register_review_button"
-                    onPress={() => onRegister('review')}
-                  />
-                )}
-              </View>
-            )}
+            {!hideRegisterShortcuts &&
+              registerStatus !== 'UNAVAILABLE' &&
+              registerStatus !== 'NONE' && (
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  {registerStatus === 'PLACE_ONLY' && (
+                    <XSButton
+                      text="건물"
+                      hasPlusButton
+                      elementName="place_search_item_card_register_building_accessibility_button"
+                      onPress={() => onRegister('building')}
+                    />
+                  )}
+                  {isReviewEnabled(item.place) && (
+                    <XSButton
+                      text="리뷰"
+                      hasPlusButton
+                      elementName="place_search_item_card_register_review_button"
+                      onPress={() => onRegister('review')}
+                    />
+                  )}
+                </View>
+              )}
           </ExtraArea>
         </InfoArea>
         {registerStatus === 'UNAVAILABLE' ? (

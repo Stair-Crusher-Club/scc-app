@@ -50,6 +50,11 @@ const DefaultRegion: Region = getRegion(SeoulStation);
 export type MarkerIconOverride = {
   defaultSvg: string;
   focusedSvg?: string;
+  /**
+   * 지정하면 item.markerIcon.level 기반 계산 대신 이 색으로 iconColor 를 고정한다.
+   * (예: 미등록 장소를 항상 회색 점으로 — 실제 접근성 점수가 있어도 색이 안 섞이게)
+   */
+  iconColor?: string;
 };
 
 export default function ItemMap<T extends MarkerItem>({
@@ -84,12 +89,14 @@ export default function ItemMap<T extends MarkerItem>({
     | 'bottomCenter'
     | 'topCenter';
   /**
-   * 지정하면 `items` 마커의 iconResource 를 이 SVG 로 덮어쓴다(CTPL 브랜드 핀).
+   * 지정하면 아이템별로 반환값을 판정해 `items` 마커의 iconResource 를 이 SVG 로
+   * 덮어쓴다(CTPL 브랜드 핀). 아이템에 대해 undefined 를 반환하면 그 아이템은
+   * 기존 getMarkerSvg 로 폴백한다 — 브랜드 핀은 조건에 맞는 아이템에만 적용된다.
    * iconColor 는 그대로 item.markerIcon.level 기준으로 계산한다 — 네이티브가 SVG
    * 안의 플레이스홀더 색(#9A9B9F)을 iconColor 로 치환하므로 정복/미정복 대비가
    * 그대로 따라온다. overlayMarkers(화장실 레이어)에는 적용하지 않는다.
    */
-  markerIconOverride?: MarkerIconOverride;
+  markerIconOverride?: (item: T) => MarkerIconOverride | undefined;
 }) {
   const [currentCameraRegion, setCurrentCameraRegion] =
     React.useState<Region | null>(null);
@@ -137,6 +144,7 @@ export default function ItemMap<T extends MarkerItem>({
 
   const nativeMarkerItems = items.map<NativeMarkerItem>((item, index) => {
     const isSelected = item.id === selectedItemId;
+    const iconOverride = markerIconOverride?.(item);
     return {
       id: item.id,
       position: {
@@ -148,18 +156,19 @@ export default function ItemMap<T extends MarkerItem>({
       isHideCollidedMarkers: false,
       isHideCollidedSymbols: true,
       isHideCollidedCaptions: true,
-      iconResource: markerIconOverride
-        ? ((isSelected ? markerIconOverride.focusedSvg : undefined) ??
-          markerIconOverride.defaultSvg)
+      iconResource: iconOverride
+        ? ((isSelected ? iconOverride.focusedSvg : undefined) ??
+          iconOverride.defaultSvg)
         : getMarkerSvg(
             item.markerIcon?.icon ?? 'default',
             isSelected,
             item.hasReview ?? false,
           ),
       iconColor:
-        item.markerIcon?.icon === 'toilet'
+        iconOverride?.iconColor ??
+        (item.markerIcon?.icon === 'toilet'
           ? ToiletMarkerColor
-          : MarkerColors[item.markerIcon?.level ?? 'none'],
+          : MarkerColors[item.markerIcon?.level ?? 'none']),
       zIndex: isSelected
         ? overlayCount + items.length + 1
         : overlayCount + (items.length - index),
