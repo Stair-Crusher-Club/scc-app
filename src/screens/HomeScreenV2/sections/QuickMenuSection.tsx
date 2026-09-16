@@ -8,7 +8,7 @@ import Tooltip from '@/components/Tooltip';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
-import {HomeConquerChallengeDto} from '@/generated-sources/openapi';
+import {HomeQuickActionChallengeDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import ChallengeProgressBar from '@/screens/ChallengeDetailScreen/components/ChallengeProgressBar';
@@ -43,11 +43,12 @@ const CONQUER_SPRITE = {
 const TOOLTIP_VISIBLE_MS = 4000;
 
 export default function QuickMenuSection({
-  conquerChallenge,
+  challenge,
 }: {
-  /** 홈 quick action 카드+툴팁 데이터. `getHomeScreenData` 응답 그대로 — 서버가 카드와
-   * 툴팁 노출 여부(hasUnconqueredPlaceNearby)를 같은 챌린지 기준으로 함께 판정해 내려준다. */
-  conquerChallenge: HomeConquerChallengeDto | null | undefined;
+  /** 홈 quick action 카드+툴팁 데이터. `getHomeScreenData` 응답의 `quickAction.challenge`
+   * 그대로 — 서버가 카드와 툴팁 노출 여부(hasUnconqueredPlaceNearby)를 같은 챌린지 기준으로
+   * 함께 판정해 내려준다. */
+  challenge: HomeQuickActionChallengeDto | null | undefined;
 }) {
   const navigation = useNavigation();
   const setSearchMode = useSetAtom(searchModeAtom);
@@ -57,7 +58,7 @@ export default function QuickMenuSection({
   const isFocused = useIsFocused();
   const [showNearbyTooltip, setShowNearbyTooltip] = useState(false);
   const hasUnconqueredPlaceNearby =
-    conquerChallenge?.hasUnconqueredPlaceNearby ?? false;
+    challenge?.hasUnconqueredPlaceNearby ?? false;
   useEffect(() => {
     if (!isFocused || !hasUnconqueredPlaceNearby) {
       setShowNearbyTooltip(false);
@@ -141,11 +142,11 @@ export default function QuickMenuSection({
             </ConquerActionCard>
           </SccPressable>
         </CardsRow>
-        {conquerChallenge && (
+        {challenge && (
           <View>
             {showNearbyTooltip && (
               <Tooltip
-                text={`반경 500m내에 정복 안 된 ${conquerChallenge.displayName}이 있어요`}
+                text={`반경 500m내에 정복 안 된 ${challenge.displayName}이 있어요`}
                 bubbleLeft={12}
                 tailPosition={13}
                 bubbleColor={color.gray90v2}
@@ -157,29 +158,29 @@ export default function QuickMenuSection({
               elementName="home_v2_ctpl_challenge_card"
               onPress={() =>
                 navigation.navigate('ChallengeConquerTargetPlaces', {
-                  challengeId: conquerChallenge.challengeId,
+                  challengeId: challenge.challengeId,
                   initialViewMode: 'map',
                 })
               }>
               <ChallengeCard>
                 <ChallengeCardHeader>
                   <ChallengeCardTitle numberOfLines={2}>
-                    {`${conquerChallenge.displayName} 정복하기`}
+                    {`${challenge.displayName} 정복하기`}
                   </ChallengeCardTitle>
                   <ChallengeCardCount>
                     <ChallengeCardCountNumber>
-                      {conquerChallenge.contributionsCount}
+                      {challenge.contributionsCount}
                     </ChallengeCardCountNumber>
                     <ChallengeCardCountGoal>
-                      {` /${conquerChallenge.goal} 곳`}
+                      {` /${challenge.goal} 곳`}
                     </ChallengeCardCountGoal>
                   </ChallengeCardCount>
                 </ChallengeCardHeader>
                 <ChallengeProgressBar
                   size="home"
-                  contributionsCount={conquerChallenge.contributionsCount}
-                  goal={conquerChallenge.goal}
-                  milestones={conquerChallenge.milestones}
+                  contributionsCount={challenge.contributionsCount}
+                  goal={challenge.goal}
+                  milestones={challenge.milestones}
                 />
               </ChallengeCard>
             </SccPressable>

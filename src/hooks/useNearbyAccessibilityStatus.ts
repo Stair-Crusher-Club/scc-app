@@ -12,7 +12,7 @@ export const NEARBY_ACCESSIBILITY_STATUS_DISTANCE_METERS = 500;
  * 필드만 뽑아 쓴다. 키/queryFn 을 소비처마다 따로 쓰면 같은 엔드포인트를 중복 호출한다 —
  * 실제로 홈 프리페치·검색 추천이 서로 다른 키로 호출하고 있었고, 프리페치가 채운 캐시는
  * 아무도 쓰지 않았다(키에 유저 식별자를 한쪽에만 추가하면서 갈라졌다).
- * (참여 챌린지 기준 CTPL 근접 여부는 이제 `getHomeScreenData` 의 `conquerChallenge` 로
+ * (참여 챌린지 기준 CTPL 근접 여부는 이제 `getHomeScreenData` 의 `quickAction.challenge` 로
  * 옮겨갔다 — 카드가 고른 챌린지와 다른 챌린지의 반경을 판정하는 버그를 막기 위함.)
  *
  * 응답 필드는 유저별로 달라지므로 키에 유저 식별자를 포함한다.

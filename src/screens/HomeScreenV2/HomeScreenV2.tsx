@@ -96,7 +96,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   // Fetch all home screen data in a single API call.
   // currentLocation 을 쿼리 키에 포함해 GPS 획득 전(위치 없이 1차 호출) → 후(위치 포함
   // 재호출)로 자연스럽게 재조회되게 하고, placeholderData 로 그 사이 깜빡임을 막는다.
-  // conquerChallenge(퀵메뉴 카드+툴팁)는 이 응답 하나에서 나온다 — 별도 쿼리를 만들지 않는다.
+  // quickAction.challenge(퀵메뉴 카드+툴팁)는 이 응답 하나에서 나온다 — 별도 쿼리를 만들지 않는다.
   const {data: homeData, isLoading: isHomeDataLoading} = useQuery({
     queryKey: ['HomeScreenData', currentLocation],
     queryFn: async () => {
@@ -525,7 +525,7 @@ const HomeScreenV2 = ({navigation}: any) => {
               <CategoryChipSection />
             </InnerContainer>
             <WhiteCard onLayout={handleWhiteCardLayout}>
-              <QuickMenuSection conquerChallenge={homeData?.conquerChallenge} />
+              <QuickMenuSection challenge={homeData?.quickAction?.challenge} />
               <ArticleSection />
               <MainBannerSection
                 banners={homeData?.mainBanners ?? []}

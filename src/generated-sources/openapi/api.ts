@@ -2898,10 +2898,10 @@ export interface GetHomeScreenDataResponseDto {
     'homePopups': Array<HomePopupDto>;
     /**
      * 
-     * @type {HomeConquerChallengeDto}
+     * @type {HomeQuickActionDto}
      * @memberof GetHomeScreenDataResponseDto
      */
-    'conquerChallenge'?: HomeConquerChallengeDto;
+    'quickAction'?: HomeQuickActionDto;
 }
 /**
  * 
@@ -3358,49 +3358,6 @@ export interface HomeBannerDto {
     'clickPageTitle': string;
 }
 /**
- * 홈 quick action 에 노출할 \'정복하기\' 진척 카드. 내가 참여 중이고 정복 대상 장소 목록이 연결된 진행 중 챌린지 하나를 서버가 고른다. 툴팁 노출 여부(hasUnconqueredPlaceNearby)도 이 챌린지의 목록 기준으로 함께 판정하므로 카드와 툴팁이 서로 다른 목록을 가리키는 일이 없다. 
- * @export
- * @interface HomeConquerChallengeDto
- */
-export interface HomeConquerChallengeDto {
-    /**
-     * 
-     * @type {string}
-     * @memberof HomeConquerChallengeDto
-     */
-    'challengeId': string;
-    /**
-     * 브랜드명 단독. \'{displayName} 정복하기\', \'정복 안 된 {displayName}이 있어요\' 에 쓰인다.
-     * @type {string}
-     * @memberof HomeConquerChallengeDto
-     */
-    'displayName': string;
-    /**
-     * 
-     * @type {number}
-     * @memberof HomeConquerChallengeDto
-     */
-    'contributionsCount': number;
-    /**
-     * 
-     * @type {number}
-     * @memberof HomeConquerChallengeDto
-     */
-    'goal': number;
-    /**
-     * 
-     * @type {Array<number>}
-     * @memberof HomeConquerChallengeDto
-     */
-    'milestones': Array<number>;
-    /**
-     * 요청의 currentLocation 반경 안에 이 목록의 미정복 장소가 남아 있는지. 홈 툴팁 노출 조건. currentLocation 이 없으면 false.
-     * @type {boolean}
-     * @memberof HomeConquerChallengeDto
-     */
-    'hasUnconqueredPlaceNearby': boolean;
-}
-/**
  * 홈 화면 팝업
  * @export
  * @interface HomePopupDto
@@ -3430,6 +3387,62 @@ export interface HomePopupDto {
      * @memberof HomePopupDto
      */
     'displayOrder': number;
+}
+/**
+ * 홈 quick action 에 노출할 \'정복하기\' 진척 카드. 내가 참여 중이고 정복 대상 장소 목록이 연결된 진행 중 챌린지 하나를 서버가 고른다. 툴팁 노출 여부(hasUnconqueredPlaceNearby)도 이 챌린지의 목록 기준으로 함께 판정하므로 카드와 툴팁이 서로 다른 목록을 가리키는 일이 없다. 
+ * @export
+ * @interface HomeQuickActionChallengeDto
+ */
+export interface HomeQuickActionChallengeDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeQuickActionChallengeDto
+     */
+    'challengeId': string;
+    /**
+     * 브랜드명 단독. \'{displayName} 정복하기\', \'정복 안 된 {displayName}이 있어요\' 에 쓰인다.
+     * @type {string}
+     * @memberof HomeQuickActionChallengeDto
+     */
+    'displayName': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeQuickActionChallengeDto
+     */
+    'contributionsCount': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeQuickActionChallengeDto
+     */
+    'goal': number;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof HomeQuickActionChallengeDto
+     */
+    'milestones': Array<number>;
+    /**
+     * 요청의 currentLocation 반경 안에 이 목록의 미정복 장소가 남아 있는지. 홈 툴팁 노출 조건. currentLocation 이 없으면 false.
+     * @type {boolean}
+     * @memberof HomeQuickActionChallengeDto
+     */
+    'hasUnconqueredPlaceNearby': boolean;
+}
+/**
+ * 홈 quick action 영역. 지금은 정복하기 진척 카드 하나뿐이지만, 이 영역에 노출되는 항목이 늘어날 수 있어 래퍼를 둔다. 
+ * @export
+ * @interface HomeQuickActionDto
+ */
+export interface HomeQuickActionDto {
+    /**
+     * 
+     * @type {HomeQuickActionChallengeDto}
+     * @memberof HomeQuickActionDto
+     */
+    'challenge'?: HomeQuickActionChallengeDto;
 }
 /**
  * 홈 화면 추천 컨텐츠
