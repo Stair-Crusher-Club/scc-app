@@ -93,20 +93,39 @@ const HomeScreenV2 = ({navigation}: any) => {
   const _isForeground = useIsForeground();
   const {userInfo, syncUserInfo} = useMe();
 
+  // 홈 데이터 조회에 쓸 위치는 **처음 확보한 좌표 하나로 고정**한다.
+  // currentLocationAtom 은 ItemMapView 의 watchPosition(enableHighAccuracy, 5s)이 계속
+  // 갱신하므로, 원시 좌표를 쿼리 키에 넣으면 GPS 가 흔들릴 때마다 키가 바뀌어 홈 API 를
+  // 무한 재호출한다(실측: 발열). quickAction 의 hasUnconqueredPlaceNearby 는 "진입 시점에
+  // 반경 500m 안에 미정복 매장이 있나" 판정이라 좌표를 실시간으로 따라갈 필요가 없다.
+  const [homeQueryLocation, setHomeQueryLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  useEffect(() => {
+    if (currentLocation && !homeQueryLocation) {
+      setHomeQueryLocation(currentLocation);
+    }
+  }, [currentLocation, homeQueryLocation]);
+
   // Fetch all home screen data in a single API call.
-  // currentLocation 을 쿼리 키에 포함해 GPS 획득 전(위치 없이 1차 호출) → 후(위치 포함
-  // 재호출)로 자연스럽게 재조회되게 하고, placeholderData 로 그 사이 깜빡임을 막는다.
+  // 위치 획득 전(위치 없이 1차 호출) → 후(고정 좌표로 1회 재조회) 두 번만 돈다.
   // quickAction.challenge(퀵메뉴 카드+툴팁)는 이 응답 하나에서 나온다 — 별도 쿼리를 만들지 않는다.
   const {data: homeData, isLoading: isHomeDataLoading} = useQuery({
-    queryKey: ['HomeScreenData', currentLocation],
+    queryKey: [
+      'HomeScreenData',
+      homeQueryLocation
+        ? `${homeQueryLocation.latitude},${homeQueryLocation.longitude}`
+        : null,
+    ],
     queryFn: async () => {
       const result = (
         await api.getHomeScreenData(
-          currentLocation
+          homeQueryLocation
             ? {
                 currentLocation: {
-                  lat: currentLocation.latitude,
-                  lng: currentLocation.longitude,
+                  lat: homeQueryLocation.latitude,
+                  lng: homeQueryLocation.longitude,
                 },
               }
             : undefined,
@@ -115,6 +134,8 @@ const HomeScreenV2 = ({navigation}: any) => {
       return result;
     },
     placeholderData: keepPreviousData,
+    // 포커스 복귀·리렌더로 재호출되지 않게 한다 (홈은 진입당 1~2회면 충분).
+    staleTime: 5 * 60 * 1000,
   });
 
   const {data: versionData} = useQuery({
