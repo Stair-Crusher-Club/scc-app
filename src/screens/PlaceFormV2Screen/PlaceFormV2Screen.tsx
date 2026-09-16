@@ -12,6 +12,7 @@ import {
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
+  AccessibilityInfoV2Dto,
   Building,
   EntranceDoorType,
   FloorMovingMethodTypeDto,
@@ -29,6 +30,7 @@ import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import {getCtplConquest} from '@/utils/ctplConquest';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
@@ -237,6 +239,22 @@ export default function PlaceFormV2Screen({
     }
     const values = form.getValues();
 
+    // ctpl 정복 완료 축하 중복 등록 가드 — 서버에 재등록 가드가 없어 두 번째
+    // 등록자도 같은 순번을 본다. "등록 진입 시점"(제출 직전) 기준 PA 가 아직
+    // 없었을 때만 축하를 띄운다. PDP 가 이미 캐시해둔 값을 그대로 읽는다(신규
+    // 네트워크 호출 없음) — 캐시가 없으면(딥링크 등 PDP 를 거치지 않은 진입)
+    // 안전하게 "이미 등록됨"으로 간주해 축하를 억제한다.
+    const cachedAccessibility =
+      queryClient.getQueryData<AccessibilityInfoV2Dto>([
+        'PlaceDetailV2',
+        place.id,
+        'Accessibility',
+      ]);
+    const hadPlaceAccessibilityBeforeSubmit =
+      cachedAccessibility === undefined
+        ? true
+        : (cachedAccessibility.placeAccessibilities?.length ?? 0) > 0;
+
     let uploaded: UploadedPhotos;
     try {
       uploaded = await uploadAllPhotos(
@@ -261,7 +279,14 @@ export default function PlaceFormV2Screen({
     // 진입 전에 반영되도록 fire-and-forget으로 호출한다.
     syncUserInfo();
 
-    if (registered.data) {
+    const conquest = hadPlaceAccessibilityBeforeSubmit
+      ? undefined
+      : getCtplConquest(registered.contributedChallengeInfos);
+
+    // 정복 완료 축하가 뜨는 경우 기존 퀘스트 완료 스탬프 팝업은 억제한다 —
+    // pushItems 를 호출하지 않으면 큐가 비어 QuestCompletionModal 렌더 조건
+    // 자체가 성립하지 않는다.
+    if (registered.data && !conquest) {
       pushItems(registered.data);
     }
 
@@ -274,6 +299,7 @@ export default function PlaceFormV2Screen({
         place,
         building,
       },
+      conquest,
     });
   };
 
@@ -712,6 +738,9 @@ async function submitRegistration(
           title: quest.title,
         })),
       ),
+      // ctpl 정복 완료 축하(getCtplConquest)가 필요로 하는 원본 배열. 위 data는
+      // 이미 퀘스트 완료 스탬프용으로 flatMap된 형태라 challenge.goal 등을 잃는다.
+      contributedChallengeInfos: res.data.contributedChallengeInfos,
     };
   } catch (error: any) {
     await Logger.logAccessibilityRegistration({

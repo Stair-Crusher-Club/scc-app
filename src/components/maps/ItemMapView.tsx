@@ -23,7 +23,7 @@ import MyLocationIcon from '@/assets/icon/ic_my_location.svg';
 import ToiletLayerIcon from '@/assets/icon/ic_toilet.svg';
 import RedoIcon from '@/assets/icon/ic_redo.svg';
 import {currentLocationAtom} from '@/atoms/Location';
-import ItemMap from '@/components/maps/ItemMap';
+import ItemMap, {MarkerIconOverride} from '@/components/maps/ItemMap';
 import ItemMapList from '@/components/maps/ItemMapList';
 import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 import {MapViewHandle} from '@/components/maps/MapView';
@@ -82,6 +82,8 @@ type ItemMapViewProps<T extends MarkerItem> = {
    * 포커스 상태와 스크롤 상태를 넘겨준다. 넘기지 않으면 아무것도 렌더하지 않는다.
    */
   AboveCardsSlot?: React.FC<{focusedItem: T | null; isScrolling: boolean}>;
+  /** CTPL(정복 대상 장소 목록) 전용 브랜드 마커. ItemMap 에 그대로 전달한다. */
+  markerIconOverride?: MarkerIconOverride;
 };
 
 const SINGLE_CARD_WIDTH = Math.round(Dimensions.get('window').width * 0.9) - 10;
@@ -103,6 +105,7 @@ const FRefInputComp = <T extends MarkerItem>(
     onToiletLayerToggle,
     showToiletLayerToggle,
     AboveCardsSlot,
+    markerIconOverride,
   }: ItemMapViewProps<T>,
   ref: ForwardedRef<ItemMapViewHandle<T>>,
 ) => {
@@ -289,6 +292,7 @@ const FRefInputComp = <T extends MarkerItem>(
           left: 30,
         }}
         logoPosition="leftBottom"
+        markerIconOverride={markerIconOverride}
       />
       <UpperShadow />
       {isRefreshVisible && (

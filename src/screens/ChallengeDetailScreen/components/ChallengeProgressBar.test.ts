@@ -31,59 +31,55 @@ describe('getChallengeProgressFillPercent', () => {
 });
 
 describe('getChallengeProgressTicks', () => {
-  it('milestones가 있으면 milestone/goal 비율로 눈금을 만든다 (SKI Road Maker 사례)', () => {
+  it('milestones가 있으면 milestone/goal 비율로 눈금을 만든다 (0% 눈금은 없다)', () => {
     const ticks = getChallengeProgressTicks([1000, 3000, 5000], 10000);
-    expect(ticks.map(t => t.label)).toEqual(['0', '10%', '30%', '50%', '100%']);
-    expect(ticks.map(t => t.percent)).toEqual([0, 10, 30, 50, 100]);
-    // 3개뿐이라 전부 표시되어야 한다 (간격 10/20/20/50 모두 임계값 이상)
+    expect(ticks.map(t => t.label)).toEqual(['10%', '30%', '50%', '100%']);
+    expect(ticks.map(t => t.percent)).toEqual([10, 30, 50, 100]);
+    // 4개뿐이라 전부 표시되어야 한다 (간격 20/20/50 모두 임계값 이상)
     expect(ticks.every(t => t.showLabel)).toBe(true);
   });
 
-  it('milestones가 비어있으면 25/50/75% 고정 눈금으로 폴백한다', () => {
+  it('milestones가 비어있으면 100% 마커만 남는다 (25/50/75% 폴백 없음)', () => {
     const ticks = getChallengeProgressTicks([], 240);
-    expect(ticks.map(t => t.label)).toEqual(['0', '25%', '50%', '75%', '100%']);
+    expect(ticks.map(t => t.label)).toEqual(['100%']);
     expect(ticks.every(t => t.showLabel)).toBe(true);
   });
 
-  it('milestones가 undefined/null이어도 폴백한다', () => {
+  it('milestones가 undefined/null이어도 100% 마커만 남는다', () => {
     expect(getChallengeProgressTicks(undefined, 240).map(t => t.label)).toEqual(
-      ['0', '25%', '50%', '75%', '100%'],
+      ['100%'],
     );
     expect(getChallengeProgressTicks(null, 240).map(t => t.label)).toEqual([
-      '0',
-      '25%',
-      '50%',
-      '75%',
       '100%',
     ]);
   });
 
-  it('goal=0 이면 0 나눗셈 없이 25/50/75% 로 폴백한다', () => {
+  it('goal=0 이면 0 나눗셈 없이 100% 마커만 남는다', () => {
     const ticks = getChallengeProgressTicks([100, 200], 0);
-    expect(ticks.map(t => t.label)).toEqual(['0', '25%', '50%', '75%', '100%']);
+    expect(ticks.map(t => t.label)).toEqual(['100%']);
   });
 
   it('milestone이 goal을 초과하면 100%로 클램프되어 경계 눈금에 흡수된다', () => {
     const ticks = getChallengeProgressTicks([15000], 10000);
-    expect(ticks.map(t => t.label)).toEqual(['0', '100%']);
-    expect(ticks.map(t => t.percent)).toEqual([0, 100]);
+    expect(ticks.map(t => t.label)).toEqual(['100%']);
+    expect(ticks.map(t => t.percent)).toEqual([100]);
   });
 
   it('중복/비정렬 마일스톤도 정렬 + 중복 제거되어 깨지지 않는다', () => {
     const ticks = getChallengeProgressTicks([3000, 1000, 1000], 10000);
-    expect(ticks.map(t => t.label)).toEqual(['0', '10%', '30%', '100%']);
+    expect(ticks.map(t => t.label)).toEqual(['10%', '30%', '100%']);
   });
 
-  it('마일스톤이 많고 간격이 좁으면(5개 이상) 겹치는 라벨은 생략하되 dot은 전부 유지한다', () => {
+  it('마일스톤이 많고 간격이 좁으면(5개 이상) 겹치는 라벨은 생략하되 마커는 전부 유지한다', () => {
     // 3%p 간격 10개 — 임계값(6%p)보다 좁아 절반 정도만 라벨이 보여야 한다
     const milestones = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30];
     const ticks = getChallengeProgressTicks(milestones, 100);
-    // dot(전체 눈금)은 0, 10개, 100 = 12개 전부 유지
-    expect(ticks).toHaveLength(12);
+    // 마커(전체 눈금)는 10개 + 100 = 11개 전부 유지 (0% 없음)
+    expect(ticks).toHaveLength(11);
     // 라벨은 일부 생략되어야 한다
     const shown = ticks.filter(t => t.showLabel);
     expect(shown.length).toBeLessThan(ticks.length);
-    // 첫 눈금(0)과 마지막 눈금(100%)은 항상 라벨을 보여준다
+    // 첫 눈금과 마지막 눈금(100%)은 항상 라벨을 보여준다
     expect(ticks[0].showLabel).toBe(true);
     expect(ticks[ticks.length - 1].showLabel).toBe(true);
     // 보여지는 라벨끼리는 항상 임계값(6%p) 이상 떨어져 있다

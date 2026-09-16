@@ -20,17 +20,21 @@ const EDGE_MARGIN = 12;
  * - `tailPosition`: 꼬리 중심의 x 좌표(말풍선 왼쪽 기준). 'center' 면 가운데.
  * - `bubbleLeft`: 말풍선 자체를 부모 왼쪽에서 얼마나 띄울지. 지정하면 말풍선이
  *   내용 너비만큼만 차지하며 그 위치에 놓인다(Figma 는 변형마다 이 값이 다르다).
+ * - `bubbleColor`: 말풍선 + 꼬리 배경색. 기본값은 브랜드 컬러(기존 동작 무변경) —
+ *   홈 CTPL 툴팁(166:7622)처럼 검정 계열(gray-v2-90)이 필요한 곳만 지정한다.
  */
 export default function Tooltip({
   style,
   text,
   tailPosition = 'center',
   bubbleLeft,
+  bubbleColor = color.brandColor,
 }: {
   style?: StyleProp<ViewStyle>;
   text: string;
   tailPosition?: 'center' | number;
   bubbleLeft?: number;
+  bubbleColor?: string;
 }) {
   const isCenter = tailPosition === 'center';
   const {width: windowWidth} = useWindowDimensions();
@@ -39,9 +43,15 @@ export default function Tooltip({
   const maxWidth = windowWidth - (bubbleLeft ?? 0) - EDGE_MARGIN;
   return (
     <Wrapper isCenter={isCenter} style={style}>
-      <Bubble bubbleLeft={bubbleLeft} maxWidth={maxWidth}>
+      <Bubble
+        bubbleLeft={bubbleLeft}
+        maxWidth={maxWidth}
+        bubbleColor={bubbleColor}>
         <BubbleText>{text}</BubbleText>
-        <Tail tailOffset={isCenter ? undefined : (tailPosition as number)} />
+        <Tail
+          tailOffset={isCenter ? undefined : (tailPosition as number)}
+          bubbleColor={bubbleColor}
+        />
       </Bubble>
     </Wrapper>
   );
@@ -53,22 +63,24 @@ const Wrapper = styled.View<{isCenter: boolean}>(({isCenter}) => ({
   alignItems: isCenter ? 'center' : 'flex-start',
 }));
 
-const Bubble = styled.View<{bubbleLeft?: number; maxWidth: number}>(
-  ({bubbleLeft, maxWidth}) => ({
-    marginLeft: bubbleLeft,
-    maxWidth,
-    backgroundColor: color.brandColor,
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 18,
-    // Figma: DROP_SHADOW radius 4 / #000000 0.25 / offset(2,4)
-    shadowColor: '#000000',
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    shadowOffset: {width: 2, height: 4},
-    elevation: 4,
-  }),
-);
+const Bubble = styled.View<{
+  bubbleLeft?: number;
+  maxWidth: number;
+  bubbleColor: string;
+}>(({bubbleLeft, maxWidth, bubbleColor}) => ({
+  marginLeft: bubbleLeft,
+  maxWidth,
+  backgroundColor: bubbleColor,
+  borderRadius: 8,
+  paddingVertical: 6,
+  paddingHorizontal: 18,
+  // Figma: DROP_SHADOW radius 4 / #000000 0.25 / offset(2,4)
+  shadowColor: '#000000',
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+  shadowOffset: {width: 2, height: 4},
+  elevation: 4,
+}));
 
 const BubbleText = styled.Text({
   fontSize: 12,
@@ -82,7 +94,10 @@ const BubbleText = styled.Text({
 // 삼각형을 1px 더 높게 만들고 그만큼 위로 겹친다 — 말풍선 하단과 삼각형 상단이
 // 정확히 같은 y 에 맞닿으면 안드로이드 밀도 스케일링에서 1px 이음새가 보인다.
 // 겹치는 1px 은 말풍선에 가려지므로 노출되는 꼬리 높이는 Figma 그대로 6 이다.
-const Tail = styled.View<{tailOffset: number | undefined}>(({tailOffset}) => ({
+const Tail = styled.View<{
+  tailOffset: number | undefined;
+  bubbleColor: string;
+}>(({tailOffset, bubbleColor}) => ({
   position: 'absolute',
   bottom: -TAIL_HEIGHT,
   // absolute 자식은 alignItems 에 기대지 않고 좌표로 확정한다.
@@ -96,5 +111,5 @@ const Tail = styled.View<{tailOffset: number | undefined}>(({tailOffset}) => ({
   borderTopWidth: TAIL_HEIGHT + TAIL_OVERLAP,
   borderLeftColor: 'transparent',
   borderRightColor: 'transparent',
-  borderTopColor: color.brandColor,
+  borderTopColor: bubbleColor,
 }));

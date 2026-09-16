@@ -1,22 +1,26 @@
 import {useQuery} from '@tanstack/react-query';
+import {atom, useAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {FlatList, Text, View} from 'react-native';
+import {FlatList, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import AngleBracketDownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
-import LeftArrowIcon from '@/assets/icon/ic_arrow_left.svg';
-import MapIcon from '@/assets/icon/ic_map.svg';
-import MenuIcon from '@/assets/icon/ic_menu.svg';
-import {ScreenLayout} from '@/components/ScreenLayout';
-import SccTouchableOpacity from '@/components/SccTouchableOpacity';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {Region, shouldRefitCamera} from '@/components/maps/Types';
-import {color} from '@/constant/color';
+import {ScreenLayout} from '@/components/ScreenLayout';
+import FilterBar from '@/components/placeList/FilterBar';
+import FloatingViewModeButton from '@/components/placeList/FloatingViewModeButton';
+import ListMapHeader from '@/components/placeList/ListMapHeader';
+import PlaceListFilterModal from '@/components/placeList/PlaceListFilterModal';
 import {PlaceListItem, SearchPlaceSortDto} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
+import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
+import type {
+  PlaceListFilterModalState,
+  PlaceListFilterOptions,
+} from '@/screens/PlaceListDetailScreen/atoms';
 import SearchItemCard from '@/screens/SearchScreen/components/SearchItemCard';
 import SearchLoading from '@/screens/SearchScreen/components/SearchLoading';
 import SearchNoResult from '@/screens/SearchScreen/components/SearchNoResult';
@@ -26,20 +30,35 @@ import ToastUtils from '@/utils/ToastUtils';
 
 export interface ChallengeConquerTargetPlacesScreenParams {
   challengeId: string;
+  /** 진입 시 보여줄 모드. 홈 진척 카드·정복 완료 축하에서 지도로 바로 랜딩할 때 'map'. */
+  initialViewMode?: 'list' | 'map';
 }
 
 type PlaceMarkerItem = MarkerItem & PlaceListItem;
 type ViewMode = 'list' | 'map';
-type LocalSortOption = 'distance' | 'accessibility_score';
 
 // ItemMapView 카드 캐러셀 높이 (PlaceListDetailScreen 과 동일 값)
 const MAP_CARD_HEIGHT = 270;
+
+const DEFAULT_FILTERS: PlaceListFilterOptions = {
+  sortOption: 'distance',
+  scoreUnder: null,
+  hasSlope: null,
+  // 기존 onlyUnconquered 기본값(true)과 동일한 의미 — 미정복만 노출.
+  isRegistered: false,
+};
+
+// 1차 spec("전역 atom 재사용 금지")을 지키기 위한 이 화면 전용 모듈 스코프 atom.
+// PlaceListDetailScreen 의 전역 placeListFilterAtom 을 절대 재사용하지 않는다 —
+// 재사용하면 저장리스트 화면과 필터 상태가 섞인다.
+const ctplFilterAtom = atom<PlaceListFilterOptions>(DEFAULT_FILTERS);
+const ctplFilterModalStateAtom = atom<PlaceListFilterModalState>(null);
 
 export default function ChallengeConquerTargetPlacesScreen({
   route,
   navigation,
 }: ScreenProps<'ChallengeConquerTargetPlaces'>) {
-  const {challengeId} = route.params;
+  const {challengeId, initialViewMode} = route.params;
   const {api} = useAppComponents();
   const insets = useSafeAreaInsets();
   const pdpScreen = usePlaceDetailScreenName();
@@ -47,17 +66,20 @@ export default function ChallengeConquerTargetPlacesScreen({
   // onCameraIdle 로 갱신되는 "현재 카메라가 보고 있는 영역". 최초 로드 시엔 null.
   const cameraRegionRef = useRef<Region | null>(null);
 
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [onlyUnconquered, setOnlyUnconquered] = useState(true);
-  const [sort, setSort] = useState<LocalSortOption>('distance');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode ?? 'list');
+  const [filters, setFilters] = useAtom(ctplFilterAtom);
+  const [, setFilterModalState] = useAtom(ctplFilterModalStateAtom);
+
+  // 화면을 벗어나면 다음 진입을 위해 필터를 초기화한다 (PlaceListDetailScreen과 동일 패턴).
+  useEffect(() => {
+    return () => {
+      setFilters(DEFAULT_FILTERS);
+    };
+  }, [setFilters]);
 
   const queryKey = useMemo(
-    () => [
-      'ChallengeConquerTargetPlaces',
-      challengeId,
-      {onlyUnconquered, sort},
-    ],
-    [challengeId, onlyUnconquered, sort],
+    () => ['ChallengeConquerTargetPlaces', challengeId, filters],
+    [challengeId, filters],
   );
 
   const {data, isLoading, isError, error} = useQuery({
@@ -75,11 +97,13 @@ export default function ChallengeConquerTargetPlacesScreen({
       }
       const result = await api.listChallengeConquerTargetPlacesPost({
         challengeId,
-        onlyUnconquered,
+        // 서버는 "미정복만" 필터만 지원한다(onlyConquered 는 없음) — "정복완료만
+        // 보기"는 전체를 받아 클라에서 거른다 (아래 items 참조).
+        onlyUnconquered: filters.isRegistered === false,
         sort:
-          sort === 'distance'
-            ? SearchPlaceSortDto.Distance
-            : SearchPlaceSortDto.AccessibilityScore,
+          filters.sortOption === 'accessibility_score'
+            ? SearchPlaceSortDto.AccessibilityScore
+            : SearchPlaceSortDto.Distance,
         currentLocation,
       });
       return result.data;
@@ -97,12 +121,18 @@ export default function ChallengeConquerTargetPlacesScreen({
     }
   }, [isError, error, navigation]);
 
-  const items = useMemo(
-    () => data?.items.map(toPlaceMarkerItem) ?? [],
-    [data?.items],
-  );
-  const totalCount = data?.totalCount ?? 0;
-  const conqueredCount = data?.conqueredCount ?? 0;
+  const items = useMemo(() => {
+    const marked = data?.items.map(toPlaceMarkerItem) ?? [];
+    return filters.isRegistered === true
+      ? marked.filter(item => item.hasPlaceAccessibility)
+      : marked;
+  }, [data?.items, filters.isRegistered]);
+  const markerIconOverride = data?.markerIcon
+    ? {
+        defaultSvg: data.markerIcon.defaultSvg,
+        focusedSvg: data.markerIcon.focusedSvg ?? undefined,
+      }
+    : undefined;
 
   // 최초 로드는 항상 fit. 이후 필터/정렬로 items가 바뀌면, 그중 현재 카메라 밖에
   // 있는 장소가 있을 때만 다시 fit 한다 — 이미 보이는 부분집합이면 카메라를 그대로
@@ -135,7 +165,7 @@ export default function ChallengeConquerTargetPlacesScreen({
       <SearchItemCard
         item={item}
         isHeightFlex
-        hideActions
+        isConquestMode
         hideScoreIcon
         hidePlaceTags
         listQueryKey={queryKey}
@@ -155,71 +185,28 @@ export default function ChallengeConquerTargetPlacesScreen({
 
   return (
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
-      <View
-        className={cn(
-          'flex-row items-center gap-[8px] h-[50px] px-[20px] py-[10px]',
-          viewMode === 'list' && 'border-b border-gray-v2-15',
-        )}>
-        <SccTouchableOpacity
-          elementName="challenge_conquer_target_places_back"
-          hitSlop={10}
-          onPress={() => navigation.goBack()}>
-          <LeftArrowIcon width={24} height={24} color={color.black} />
-        </SccTouchableOpacity>
-        <Text className="text-[18px] leading-[26px] tracking-[-0.36px] font-pretendard-semibold text-black">
-          {'남은 매장 '}
-          <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-regular">
-            {'('}
-            <Text className="text-brand-40">{conqueredCount}</Text>
-            {`/${totalCount})`}
-          </Text>
-        </Text>
-      </View>
-
-      <View
-        className={cn(
-          'flex-row items-center gap-[6px]',
+      <ListMapHeader
+        viewMode={viewMode}
+        title="남은 매장 보기"
+        onToggleViewMode={toggleViewMode}
+        onClose={() => navigation.goBack()}
+        toggleElementName={
           viewMode === 'list'
-            ? 'bg-gray-v2-10 h-[50px] px-[20px] py-[10px]'
-            : 'bg-white h-[44px] px-[12px] pt-[4px] pb-[10px]',
-        )}>
-        <SccTouchableOpacity
-          elementName="challenge_conquer_target_places_sort"
-          accessibilityRole="button"
-          // ponytail: 옵션이 2개뿐이라 드롭다운 메뉴 대신 탭으로 토글 — 도달 가능한
-          // 결과 집합은 실제 드롭다운과 동일하다. 옵션이 3개 이상 필요해지면 BottomSheet
-          // 선택 UI로 승격한다.
-          onPress={() =>
-            setSort(prev =>
-              prev === 'distance' ? 'accessibility_score' : 'distance',
-            )
-          }
-          className="h-[30px] min-w-[56px] px-[12px] rounded-[56px] border border-[#EAEAEF] bg-white flex-row items-center justify-center gap-[2px]">
-          <Text className="text-[13px] leading-[18px] tracking-[-0.26px] font-pretendard-medium text-center text-gray-v2-90">
-            {sort === 'distance' ? '가까운순' : '접근레벨 낮은순'}
-          </Text>
-          <AngleBracketDownIcon width={16} height={16} color={color.gray90v2} />
-        </SccTouchableOpacity>
-        <SccTouchableOpacity
-          elementName="challenge_conquer_target_places_only_unconquered_toggle"
-          accessibilityRole="button"
-          accessibilityState={{selected: onlyUnconquered}}
-          onPress={() => setOnlyUnconquered(prev => !prev)}
-          className={cn(
-            'h-[30px] min-w-[56px] px-[12px] rounded-[56px] border flex-row items-center justify-center gap-[2px]',
-            onlyUnconquered
-              ? 'bg-brand-5 border-brand-40'
-              : 'bg-white border-[#EAEAEF]',
-          )}>
-          <Text
-            className={cn(
-              'text-[13px] leading-[18px] tracking-[-0.26px] font-pretendard-medium text-center',
-              onlyUnconquered ? 'text-brand-50' : 'text-gray-v2-90',
-            )}>
-            정복 안 된 곳
-          </Text>
-        </SccTouchableOpacity>
-      </View>
+            ? 'challenge_conquer_target_places_map_toggle'
+            : 'challenge_conquer_target_places_list_toggle'
+        }
+        closeElementName="challenge_conquer_target_places_close"
+        closeIconSize={24}
+      />
+
+      <LogParamsProvider params={{viewMode}}>
+        <FilterBar
+          mode={viewMode}
+          filters={filters}
+          onOpenFilterModal={setFilterModalState}
+          visibleChips={['filter', 'sort', 'conquered']}
+        />
+      </LogParamsProvider>
 
       <View className="flex-1">
         {isLoading && !data ? (
@@ -241,6 +228,7 @@ export default function ChallengeConquerTargetPlacesScreen({
                 onRefresh={() => {}}
                 onCameraIdle={handleCameraIdle}
                 myLocationBottomOffset={16}
+                markerIconOverride={markerIconOverride}
               />
             </View>
             {viewMode === 'list' &&
@@ -260,7 +248,7 @@ export default function ChallengeConquerTargetPlacesScreen({
                       <SearchItemCard
                         item={item}
                         isHeightFlex
-                        hideActions
+                        isConquestMode
                         hideScoreIcon
                         hidePlaceTags
                         onPress={() => handleItemPress(item)}
@@ -270,50 +258,23 @@ export default function ChallengeConquerTargetPlacesScreen({
                   )}
                 />
               ))}
-            <SccTouchableOpacity
+            <FloatingViewModeButton
+              viewMode={viewMode}
               elementName={
                 viewMode === 'list'
                   ? 'challenge_conquer_target_places_floating_map'
                   : 'challenge_conquer_target_places_floating_list'
               }
               onPress={toggleViewMode}
-              // ponytail: shadow 는 NativeWind 미지원(마이그레이션 문서 §7-4), bottom 은
-              // 카드 캐러셀 유무에 따른 런타임 계산값이라 style 유지가 불가피하다.
-              style={{
-                bottom: floatingBottom,
-                boxShadow: [
-                  {
-                    offsetX: 0,
-                    offsetY: 2,
-                    blurRadius: 2,
-                    spreadDistance: 0,
-                    color: 'rgba(0, 0, 0, 0.23)',
-                  },
-                ],
-              }}
-              className={cn(
-                'absolute self-center h-[40px] pl-[16px] pr-[20px] rounded-[27px] flex-row items-center gap-[4px]',
-                viewMode === 'list' ? 'bg-brand-40' : 'bg-white',
-              )}>
-              {viewMode === 'list' ? (
-                <>
-                  <MapIcon width={16} height={16} color={color.white} />
-                  <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-medium text-white">
-                    지도보기
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <MenuIcon width={16} height={16} color="#24262B" />
-                  <Text className="text-[15px] leading-[22px] tracking-[-0.3px] font-pretendard-medium text-[#24262B]">
-                    목록보기
-                  </Text>
-                </>
-              )}
-            </SccTouchableOpacity>
+              style={{bottom: floatingBottom}}
+            />
           </>
         )}
       </View>
+      <PlaceListFilterModal
+        filterAtom={ctplFilterAtom}
+        modalStateAtom={ctplFilterModalStateAtom}
+      />
     </ScreenLayout>
   );
 }

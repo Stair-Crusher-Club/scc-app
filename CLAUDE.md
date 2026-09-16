@@ -39,6 +39,7 @@
 - loading/error/success 상태를 UI에서 모두 처리. API 에러는 무시하지 말고 보통 toast로 피드백
 - API 로직은 hook/유틸에 두고 UI 컴포넌트에 넣지 않는다. async/await 선호
 - **refetch 깜빡임 금지**: queryKey 변경/refetch 동안 화면을 빈 상태로 리셋하지 말 것. `placeholderData: keepPreviousData`(react-query v5)로 이전 결과를 유지하다 새 응답으로 override한다 — 칩/리스트/지도 오버레이처럼 위치 변화로 자주 refetch되는 UI에서 특히. (반복 지적)
+- **공유 queryKey를 바꾸면 구독처를 전수 확인한다**: queryKey는 여러 화면이 공유하는 캐시 주소다. 한쪽만 바꾸면 캐시가 조용히 갈라져 **프리페치가 채운 캐시를 아무도 안 쓰게 되고** 같은 API가 중복 호출된다. 바꾸기 전 그 키로 `grep -rn` 해 구독처를 전부 고친다. 키/queryFn은 소비처마다 두지 말고 hook 한 곳에 정의하고 `select`로 필요한 필드만 뽑는다. (실측: 홈 프리페치 키에만 유저 식별자를 추가해 `getNearbyAccessibilityStatus`가 3개 키로 3번 호출, PR #269)
 
 ## Screen Structure
 

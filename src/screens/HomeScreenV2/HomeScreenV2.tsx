@@ -3,8 +3,12 @@ import {
   getMessaging,
 } from '@react-native-firebase/messaging';
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useAtom, useAtomValue, useSetAtom} from 'jotai';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import {useAtom, useAtomValue} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   BackHandler,
@@ -39,6 +43,10 @@ import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
+import {
+  nearbyAccessibilityStatusQueryFn,
+  nearbyAccessibilityStatusQueryKey,
+} from '@/hooks/useNearbyAccessibilityStatus';
 import {useIsForeground} from '@/hooks/useIsForeground';
 import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import Logger from '@/logging/Logger';
@@ -77,7 +85,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   const insets = useSafeAreaInsets();
 
   const accessToken = useAtomValue(accessTokenAtom);
-  const setCurrentLocation = useSetAtom(currentLocationAtom);
+  const [currentLocation, setCurrentLocation] = useAtom(currentLocationAtom);
   const [geolocationErrorReason, setGeolocationErrorReason] =
     useState<GeolocationErrorReason | null>(null);
   const [showAppUpgradeNeeded, setShowAppUpgradeNeeded] = useState(true);
@@ -85,13 +93,28 @@ const HomeScreenV2 = ({navigation}: any) => {
   const _isForeground = useIsForeground();
   const {userInfo, syncUserInfo} = useMe();
 
-  // Fetch all home screen data in a single API call
+  // Fetch all home screen data in a single API call.
+  // currentLocation 을 쿼리 키에 포함해 GPS 획득 전(위치 없이 1차 호출) → 후(위치 포함
+  // 재호출)로 자연스럽게 재조회되게 하고, placeholderData 로 그 사이 깜빡임을 막는다.
+  // quickAction.challenge(퀵메뉴 카드+툴팁)는 이 응답 하나에서 나온다 — 별도 쿼리를 만들지 않는다.
   const {data: homeData, isLoading: isHomeDataLoading} = useQuery({
-    queryKey: ['HomeScreenData'],
+    queryKey: ['HomeScreenData', currentLocation],
     queryFn: async () => {
-      const result = (await api.getHomeScreenData()).data;
+      const result = (
+        await api.getHomeScreenData(
+          currentLocation
+            ? {
+                currentLocation: {
+                  lat: currentLocation.latitude,
+                  lng: currentLocation.longitude,
+                },
+              }
+            : undefined,
+        )
+      ).data;
       return result;
     },
+    placeholderData: keepPreviousData,
   });
 
   const {data: versionData} = useQuery({
@@ -465,20 +488,13 @@ const HomeScreenV2 = ({navigation}: any) => {
     }
 
     // Prefetch nearby accessibility status
-    async function prefetchNearbyAccessibilityStatus() {
-      const currentPosition = await GeolocationUtils.getCurrentPosition();
+    // 응답 전체를 한 캐시에 담는다 — 소비처(검색 추천)가 select 로 필요한 필드를 뽑는다.
+    // 예전엔 여기서 conqueredCount 만 저장하고 소비처마다 키가 달라 같은 엔드포인트를
+    // 여러 번 호출했다.
+    function prefetchNearbyAccessibilityStatus() {
       queryClient.prefetchQuery({
-        queryKey: ['NearbyAccessibilityStatus'],
-        queryFn: async () =>
-          (
-            await api.getNearbyAccessibilityStatusPost({
-              currentLocation: {
-                lat: currentPosition.coords.latitude,
-                lng: currentPosition.coords.longitude,
-              },
-              distanceMetersLimit: 500,
-            })
-          )?.data?.conqueredCount ?? 0,
+        queryKey: nearbyAccessibilityStatusQueryKey(userInfo?.id),
+        queryFn: nearbyAccessibilityStatusQueryFn(api),
       });
     }
 
@@ -509,7 +525,7 @@ const HomeScreenV2 = ({navigation}: any) => {
               <CategoryChipSection />
             </InnerContainer>
             <WhiteCard onLayout={handleWhiteCardLayout}>
-              <QuickMenuSection />
+              <QuickMenuSection challenge={homeData?.quickAction?.challenge} />
               <ArticleSection />
               <MainBannerSection
                 banners={homeData?.mainBanners ?? []}

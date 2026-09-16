@@ -7,21 +7,30 @@ import AngleBracketDownIcon from '@/assets/icon/ic_angle_bracket_down.svg';
 import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
+import type {
+  PlaceListFilterModalState,
+  PlaceListFilterOptions,
+} from '@/screens/PlaceListDetailScreen/atoms';
 
-import type {PlaceListFilterModalState, PlaceListFilterOptions} from '../atoms';
+type FilterChipId = 'filter' | 'sort' | 'slope' | 'score' | 'conquered';
 
 interface FilterBarProps {
   mode: 'list' | 'map';
   filters: PlaceListFilterOptions;
   onOpenFilterModal: (state: PlaceListFilterModalState) => void;
+  /** 노출할 칩 목록. 미지정 시 전체 노출(기존 동작과 동일). */
+  visibleChips?: FilterChipId[];
 }
 
 export default function FilterBar({
   mode,
   filters,
   onOpenFilterModal,
+  visibleChips,
 }: FilterBarProps) {
   const isMap = mode === 'map';
+  const isChipVisible = (chip: FilterChipId) =>
+    visibleChips == null || visibleChips.includes(chip);
 
   const isSortActive = filters.sortOption !== null;
   const isSlopeActive = filters.hasSlope !== null;
@@ -44,71 +53,81 @@ export default function FilterBar({
           paddingHorizontal: isMap ? 12 : 20,
           gap: 6,
         }}>
-        <FilterTextChip
-          elementName="filter_chip"
-          activeOpacity={0.7}
-          $isMap={isMap}
-          onPress={() => onOpenFilterModal('All')}>
-          <FilterIcon width={16} height={16} color="#24262B" />
-          <FilterChipText $isMap={isMap}>필터</FilterChipText>
-        </FilterTextChip>
-        <DropdownChip
-          elementName="filter_sort"
-          activeOpacity={0.7}
-          $isMap={isMap}
-          $active={isSortActive}
-          onPress={() => onOpenFilterModal('sortOption')}>
-          <ChipText $isMap={isMap} $active={isSortActive}>
-            {sortLabel}
-          </ChipText>
-          <AngleBracketDownIcon
-            width={16}
-            height={16}
-            color={
-              isSortActive ? color.brandColor : isMap ? '#24262B' : '#16181C'
-            }
-          />
-        </DropdownChip>
-        <PlainChip
-          elementName="filter_slope"
-          activeOpacity={0.7}
-          $isMap={isMap}
-          $active={isSlopeActive}
-          onPress={() => onOpenFilterModal('hasSlope')}>
-          <ChipText $isMap={isMap} $active={isSlopeActive}>
-            {filters.hasSlope === true
-              ? '경사로 있음'
-              : filters.hasSlope === false
-                ? '경사로 없음'
-                : '경사로 유무'}
-          </ChipText>
-        </PlainChip>
-        <PlainChip
-          elementName="filter_access_level"
-          activeOpacity={0.7}
-          $isMap={isMap}
-          $active={isScoreActive}
-          onPress={() => onOpenFilterModal('scoreUnder')}>
-          <ChipText $isMap={isMap} $active={isScoreActive}>
-            {filters.scoreUnder !== null
-              ? `Lv.${filters.scoreUnder} 이하`
-              : '접근레벨'}
-          </ChipText>
-        </PlainChip>
-        <PlainChip
-          elementName="filter_conquered"
-          activeOpacity={0.7}
-          $isMap={isMap}
-          $active={isRegisteredActive}
-          onPress={() => onOpenFilterModal('isRegistered')}>
-          <ChipText $isMap={isMap} $active={isRegisteredActive}>
-            {filters.isRegistered === true
-              ? '정복완료'
-              : filters.isRegistered === false
-                ? '미정복'
-                : '정복여부'}
-          </ChipText>
-        </PlainChip>
+        {isChipVisible('filter') && (
+          <FilterTextChip
+            elementName="filter_chip"
+            activeOpacity={0.7}
+            $isMap={isMap}
+            onPress={() => onOpenFilterModal('All')}>
+            <FilterIcon width={16} height={16} color="#24262B" />
+            <FilterChipText $isMap={isMap}>필터</FilterChipText>
+          </FilterTextChip>
+        )}
+        {isChipVisible('sort') && (
+          <DropdownChip
+            elementName="filter_sort"
+            activeOpacity={0.7}
+            $isMap={isMap}
+            $active={isSortActive}
+            onPress={() => onOpenFilterModal('sortOption')}>
+            <ChipText $isMap={isMap} $active={isSortActive}>
+              {sortLabel}
+            </ChipText>
+            <AngleBracketDownIcon
+              width={16}
+              height={16}
+              color={
+                isSortActive ? color.brandColor : isMap ? '#24262B' : '#16181C'
+              }
+            />
+          </DropdownChip>
+        )}
+        {isChipVisible('slope') && (
+          <PlainChip
+            elementName="filter_slope"
+            activeOpacity={0.7}
+            $isMap={isMap}
+            $active={isSlopeActive}
+            onPress={() => onOpenFilterModal('hasSlope')}>
+            <ChipText $isMap={isMap} $active={isSlopeActive}>
+              {filters.hasSlope === true
+                ? '경사로 있음'
+                : filters.hasSlope === false
+                  ? '경사로 없음'
+                  : '경사로 유무'}
+            </ChipText>
+          </PlainChip>
+        )}
+        {isChipVisible('score') && (
+          <PlainChip
+            elementName="filter_access_level"
+            activeOpacity={0.7}
+            $isMap={isMap}
+            $active={isScoreActive}
+            onPress={() => onOpenFilterModal('scoreUnder')}>
+            <ChipText $isMap={isMap} $active={isScoreActive}>
+              {filters.scoreUnder !== null
+                ? `Lv.${filters.scoreUnder} 이하`
+                : '접근레벨'}
+            </ChipText>
+          </PlainChip>
+        )}
+        {isChipVisible('conquered') && (
+          <PlainChip
+            elementName="filter_conquered"
+            activeOpacity={0.7}
+            $isMap={isMap}
+            $active={isRegisteredActive}
+            onPress={() => onOpenFilterModal('isRegistered')}>
+            <ChipText $isMap={isMap} $active={isRegisteredActive}>
+              {filters.isRegistered === true
+                ? '정복완료'
+                : filters.isRegistered === false
+                  ? '미정복'
+                  : '정복여부'}
+            </ChipText>
+          </PlainChip>
+        )}
       </ScrollView>
     </FilterContainer>
   );
