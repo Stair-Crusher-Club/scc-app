@@ -12,7 +12,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {Dimensions, FlatList, View} from 'react-native';
+import {Dimensions, FlatList, Platform, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
@@ -209,7 +209,7 @@ const FRefInputComp = <T extends MarkerItem>(
 
   // 네이티브 지도가 실제로 초기화됐는지. Android 는 getMapAsync 로 비동기 초기화되어
   // 그 전에 보낸 카메라 커맨드는 조용히 무시된다 — onCameraIdle 최초 1회를 준비 신호로 쓴다.
-  const isMapReadyRef = useRef(false);
+  const isMapReadyRef = useRef(Platform.OS !== 'android');
   // 이 화면이 fitToItems 로 카메라를 가져갔는가. 가져갔으면 현위치로 옮기지 않는다.
   const hasFitRef = useRef(false);
   const didInitialRecenterRef = useRef(false);

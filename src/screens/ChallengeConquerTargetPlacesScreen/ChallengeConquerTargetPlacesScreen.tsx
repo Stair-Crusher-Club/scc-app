@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import {atom, useAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {FlatList, View} from 'react-native';
+import {FlatList, Platform, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {getMarkerSvg, MarkerColors} from '@/assets/markers';
@@ -70,7 +70,13 @@ export default function ChallengeConquerTargetPlacesScreen({
   // 초기화되어 그 전에 보낸 fitToItems/animateToRegion 커맨드는 native 에서 조용히
   // 무시된다 — onCameraIdle 최초 1회 수신을 "지도 준비됨" 신호로 사용한다
   // (setTimeout 추측 대신 신호 기반. 네이티브 쪽엔 별도 ready 이벤트가 없다).
-  const isMapReadyRef = useRef(false);
+  // 네이티브 지도가 카메라 커맨드를 받을 준비가 됐는지.
+  // Android 는 getMapAsync 로 **비동기** 초기화되어 그 전 커맨드가 조용히 무시되므로
+  // onCameraIdle 최초 수신을 준비 신호로 쓴다. iOS 는 RNTMapView 가 NMFMapView 를 직접
+  // 상속해 **동기**로 만들어지고(getMapAsync 없음), 게다가 사용자가 지도를 만지기 전까지는
+  // onCameraIdle 이 오지 않는다 — iOS 에서 idle 을 기다리면 fit 이 영영 실행되지 않고
+  // "첫 pan 을 해야 그제서야 fit 되는" 증상이 된다. 그래서 iOS 는 처음부터 준비된 것으로 본다.
+  const isMapReadyRef = useRef(Platform.OS !== 'android');
   // fit 이 필요한데 아직 지도가 준비되지 않았을 때 true로 걸어두고, 준비되는 순간
   // (또는 map 모드로 전환되는 순간) 소비한다.
   const needsFitRef = useRef(false);

@@ -8,7 +8,12 @@ import {currentLocationAtom} from '@/atoms/Location.ts';
 import {useDevTool} from '@/components/DevTool/useDevTool';
 import MapViewComponent, {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {getRegionCorners, LatLng, Region} from '@/components/maps/Types.tsx';
+import {
+  getRegionCorners,
+  getRegionFromItems,
+  LatLng,
+  Region,
+} from '@/components/maps/Types.tsx';
 import {useLogger} from '@/logging/useLogger';
 import {Platform} from 'react-native';
 import {
@@ -125,11 +130,16 @@ export default function ItemMap<T extends MarkerItem>({
   //   고정된다"가 이 경로다 — 검색 화면은 fit 이 한참 뒤라 다시 덮어서 안 보였을 뿐이다.
   const initialRegionRef = React.useRef<NativeRegion | null>(null);
   if (initialRegionRef.current === null) {
+    // 지도가 처음 뜰 때 이미 아이템이 있으면 **그 영역으로 시작**한다. 어차피 곧 fitToItems 가
+    // 같은 곳으로 옮길 것이고, 무엇보다 iOS 는 initialRegion 을 0.1초 뒤에 적용해서
+    // (RNTSccMapViewImpl.mm `setInitialRegion` 의 dispatch_after) 그 사이에 실행된 fit 을
+    // 덮어버린다 — 목적지를 같게 맞춰 덮여도 화면이 달라지지 않게 한다.
+    const base = items.length > 0 ? getRegionFromItems(items) : region;
     initialRegionRef.current = {
-      northEastLat: region.northEast.latitude,
-      northEastLng: region.northEast.longitude,
-      southWestLat: region.southWest.latitude,
-      southWestLng: region.southWest.longitude,
+      northEastLat: base.northEast.latitude,
+      northEastLng: base.northEast.longitude,
+      southWestLat: base.southWest.latitude,
+      southWestLng: base.southWest.longitude,
     };
   }
   const nativeRegion: NativeRegion = initialRegionRef.current;
