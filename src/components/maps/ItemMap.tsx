@@ -110,12 +110,24 @@ export default function ItemMap<T extends MarkerItem>({
   const currentLocation = useAtomValue(currentLocationAtom);
   const region = currentLocation ? getRegion(currentLocation) : DefaultRegion;
   const devTool = useDevTool();
-  const nativeRegion: NativeRegion = {
-    northEastLat: region.northEast.latitude,
-    northEastLng: region.northEast.longitude,
-    southWestLat: region.southWest.latitude,
-    southWestLng: region.southWest.longitude,
-  };
+  // initialRegion 은 이름 그대로 **최초 1회** 값이다. 렌더마다 현위치로 다시 계산해
+  // 내려보내면 안 된다.
+  // - 네이티브는 첫 값만 채택하므로 이후 값은 어차피 무의미하고,
+  // - iOS 는 그 "이미 적용됨" 플래그를 0.1초 지연 블록 **안에서** 세운다
+  //   (RNTSccMapViewImpl.mm `setInitialRegion`). 그래서 지도 생성 직후 100ms 안에 위치가
+  //   도착해 prop 이 한 번 더 바뀌면 **카메라 이동이 두 번 예약**되고, 나중 것(현위치)이 그
+  //   사이에 실행된 fitToItems 를 덮는다. "앱 켜자마자 남은 매장 보기로 들어가면 현위치에
+  //   고정된다"가 이 경로다 — 검색 화면은 fit 이 한참 뒤라 다시 덮어서 안 보였을 뿐이다.
+  const initialRegionRef = React.useRef<NativeRegion | null>(null);
+  if (initialRegionRef.current === null) {
+    initialRegionRef.current = {
+      northEastLat: region.northEast.latitude,
+      northEastLng: region.northEast.longitude,
+      southWestLat: region.southWest.latitude,
+      southWestLng: region.southWest.longitude,
+    };
+  }
+  const nativeRegion: NativeRegion = initialRegionRef.current;
   const overlayCount = overlayMarkers?.length ?? 0;
   // Overlay markers (화장실 레이어) — z-index는 항상 place markers보다 낮음
   const nativeOverlayMarkers = (overlayMarkers ?? []).map<NativeMarkerItem>(
