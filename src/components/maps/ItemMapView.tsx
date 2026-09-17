@@ -28,11 +28,7 @@ import ItemMapList from '@/components/maps/ItemMapList';
 import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 import {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {
-  getRegionFromItems,
-  Region,
-  shouldRefitCamera,
-} from '@/components/maps/Types.tsx';
+import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {useIsForeground} from '@/hooks/useIsForeground';
@@ -137,8 +133,18 @@ const FRefInputComp = <T extends MarkerItem>(
   const isFocused = useIsFocused();
   const isForeground = useIsForeground();
   const isActive = isFocused && isForeground;
+  // 네이티브에 마지막으로 보낸 위치추적 모드. fit 직전에 모드를 바꿀 필요가 있는지 판단한다.
+  const positionModeRef = useRef<'normal' | 'direction' | 'compass'>('normal');
+  const setPositionMode = useCallback(
+    (mode: 'normal' | 'direction' | 'compass') => {
+      positionModeRef.current = mode;
+      mapRef.current?.setPositionMode(mode);
+    },
+    [],
+  );
+
   const onMyLocationPress = () => {
-    mapRef.current?.setPositionMode('direction');
+    setPositionMode('direction');
     GeolocationUtils.getCurrentPosition().then(
       position => {
         const location = {
@@ -161,10 +167,10 @@ const FRefInputComp = <T extends MarkerItem>(
     // 현위치로 되돌려버린다(네이티브 moveCamera 는 추적을 해제하지 않는다).
     // 카메라를 현위치로 보내야 하는 경우는 아래 "fit 이 없으면 현위치로 1회" effect 가 맡는다.
     const timer = setTimeout(() => {
-      mapRef.current?.setPositionMode('normal');
+      setPositionMode('normal');
     }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [setPositionMode]);
 
   // 화면이 포커스 + 앱이 foreground 인 동안에만 GPS watch.
   // - useIsFocused: navigation stack 의 다른 화면으로 push 되면 GPS 해제
@@ -201,49 +207,33 @@ const FRefInputComp = <T extends MarkerItem>(
     return () => HeatTelemetry.stop('map_native_view');
   }, []);
 
-  // fitToItems 로 보낸 카메라 이동이 실제로 반영됐는지 다음 onCameraIdle 로 확인하기 위한 기록.
-  const pendingFitRef = useRef<{
-    items: MarkerItem[];
-    padding: number;
-    retried: boolean;
-  } | null>(null);
   // 네이티브 지도가 실제로 초기화됐는지. Android 는 getMapAsync 로 비동기 초기화되어
   // 그 전에 보낸 카메라 커맨드는 조용히 무시된다 — onCameraIdle 최초 1회를 준비 신호로 쓴다.
   const isMapReadyRef = useRef(false);
   // 이 화면이 fitToItems 로 카메라를 가져갔는가. 가져갔으면 현위치로 옮기지 않는다.
   const hasFitRef = useRef(false);
   const didInitialRecenterRef = useRef(false);
-  // 아직 실행되지 않은 fit 카메라 이동의 rAF 핸들 (사용자 조작 시 취소한다).
-  const fitRafRef = useRef<number | null>(null);
 
-  const applyFit = useCallback((_items: MarkerItem[], padding: number) => {
-    const region = getRegionFromItems(_items);
-    // 프로그래매틱 카메라 이동 전에 위치추적(Follow)을 반드시 해제한다.
-    // 이제 Follow 가 켜지는 경로는 현위치 버튼(onMyLocationPress) 하나뿐인데, 그 뒤에
-    // 필터를 바꿔 refit 하면 Follow 가 살아 있는 상태로 카메라를 옮기게 된다. Follow 중에는
-    // 다음 GPS 갱신이 카메라를 현위치로 되돌려 방금 맞춘 fit 이 사라진다 — 사용자 제스처는
-    // Follow 를 자동 해제하지만 moveCamera 는 해제하지 않기 때문이다(실측).
-    // 'normal'(NoFollow)은 현위치 마커는 그대로 두고 카메라만 자유롭게 한다.
-    mapRef.current?.setPositionMode('normal');
-    // 같은 프레임에 이어서 animateToRegion 을 보내면 네이티브가 둘을 한 배치로 처리하면서
-    // 카메라 이동이 통째로 삼켜진다(실측: 이동 후 onCameraIdle 의 span 이 그대로 0.0266).
-    // 한 프레임 띄워 다음 배치로 보내면 반영된다(span 0.0266 → 0.3245).
-    fitRafRef.current = requestAnimationFrame(() => {
-      fitRafRef.current = null;
+  const applyFit = useCallback(
+    (_items: MarkerItem[], padding: number) => {
+      const region = getRegionFromItems(_items);
+      if (positionModeRef.current !== 'normal') {
+        // 현위치 버튼으로 위치추적(Follow)이 켜져 있다 — 먼저 끈다. Follow 중에는 다음 GPS
+        // 갱신이 카메라를 현위치로 되돌려 방금 맞춘 fit 이 사라진다(네이티브의 moveCamera 는
+        // 추적을 해제하지 않는다).
+        // 단 모드 변경과 카메라 이동을 같은 프레임에 보내면 네이티브가 한 배치로 처리하면서
+        // 이동을 통째로 삼킨다(실측: 이동 후에도 onCameraIdle 의 span 이 그대로였다).
+        // 그래서 이때만 한 프레임 띄운다.
+        setPositionMode('normal');
+        requestAnimationFrame(() => {
+          mapRef.current?.animateToRegion(region, padding, 200);
+        });
+        return;
+      }
       mapRef.current?.animateToRegion(region, padding, 200);
-    });
-  }, []);
-
-  // 사용자가 지도를 손으로 움직이면 카메라 주인이 사용자로 넘어간다 — 아직 안 나간 이동을
-  // 취소하고, 이동 결과 검증/재시도도 하지 않는다. (안 그러면 판을 한 뒤에 카메라가
-  // 제자리로 끌려온다)
-  const cancelPendingFit = useCallback(() => {
-    pendingFitRef.current = null;
-    if (fitRafRef.current !== null) {
-      cancelAnimationFrame(fitRafRef.current);
-      fitRafRef.current = null;
-    }
-  }, []);
+    },
+    [setPositionMode],
+  );
 
   // 카메라를 가져갈 fit 이 없을 때만 현위치로 **한 번** 옮긴다.
   // 마운트 때 위치를 알고 있었다면 initialRegion 이 이미 현위치라 아무것도 안 한다.
@@ -267,35 +257,14 @@ const FRefInputComp = <T extends MarkerItem>(
     attemptInitialRecenter();
   }, [attemptInitialRecenter]);
 
-  // 위 한 프레임 분리로도 드물게(실측 30회 중 1회) 이동이 반영되지 않는다. 타이머를 더
-  // 늘려 추측하는 대신 **결과를 보고 한 번만 다시 시도한다** — 이동이 끝나면 오는
-  // onCameraIdle 의 영역에 아이템이 여전히 다 안 들어오면 fit 이 먹지 않은 것이다.
   const handleCameraIdle = useCallback(
     (region: Region, reason?: number) => {
       // 최초 수신 = 네이티브 지도 초기화 완료 신호. 이후 호출은 no-op(이미 true).
-      const wasMapReady = isMapReadyRef.current;
       isMapReadyRef.current = true;
       attemptInitialRecenter();
-      // reason 0 = 사용자 제스처. 단 카메라 변경 이벤트가 없던 **최초** idle 도 네이티브가
-      // 0 으로 보고하므로(초기값 -1 → gesture 매핑) 지도 준비 전 첫 idle 은 제외한다.
-      const isUserGesture = wasMapReady && reason === 0;
-      if (isUserGesture) {
-        cancelPendingFit();
-      } else {
-        const pending = pendingFitRef.current;
-        pendingFitRef.current = null;
-        if (
-          pending &&
-          !pending.retried &&
-          shouldRefitCamera(pending.items, region)
-        ) {
-          pendingFitRef.current = {...pending, retried: true};
-          applyFit(pending.items, pending.padding);
-        }
-      }
       onCameraIdle?.(region, reason);
     },
-    [onCameraIdle, applyFit, attemptInitialRecenter, cancelPendingFit],
+    [onCameraIdle, attemptInitialRecenter],
   );
 
   useImperativeHandle(ref, () => ({
@@ -304,8 +273,6 @@ const FRefInputComp = <T extends MarkerItem>(
     },
     fitToItems: (_items, padding = 30) => {
       hasFitRef.current = true;
-      cancelPendingFit();
-      pendingFitRef.current = {items: _items, padding, retried: false};
       applyFit(_items, padding);
     },
   }));
