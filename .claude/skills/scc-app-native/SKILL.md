@@ -1,5 +1,5 @@
 ---
-name: scc-app-native
+name: scc:app-native
 description: SCC 앱 작업 후 검증 절차 + 네이티브(iOS/Android) 코드 규칙. 코드 변경 후 lint/tsc 검증, ios/android 디렉토리 변경 시 Release 빌드 검증, 네이티브 모듈(RCTBridgeModule/ReactContextBaseJavaModule) 작성 규칙을 다룬다. "네이티브 모듈 추가", "iOS 빌드 깨져", "release 빌드 검증", "브릿지 메서드", "CI에서만 빌드 실패", "Bridgeless" 같은 작업/증상 시, 그리고 scc-app 코드 변경을 마무리할 때 사용.
 ---
 
@@ -79,6 +79,6 @@ val module = reactContext?.getNativeModule(MyModule::class.java)
 
 ## 관련 skill
 
-- 로컬 환경/에뮬레이터 실행: `/scc-local-env`
+- 로컬 환경/에뮬레이터 실행: `/scc:local-env`
 - 에뮬레이터 E2E 테스트: `android-e2e-test.md` (scc-app/.claude/skills/)
-- OTA/웹 배포: `/scc-app-release`
+- OTA/웹 배포: `/scc:app-release`
