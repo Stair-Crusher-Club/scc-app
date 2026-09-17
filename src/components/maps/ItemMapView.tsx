@@ -1,7 +1,7 @@
 import Geolocation from '@react-native-community/geolocation';
 import {BottomTabBarHeightContext} from '@react-navigation/bottom-tabs';
 import {useIsFocused} from '@react-navigation/native';
-import {useSetAtom} from 'jotai';
+import {useAtomValue, useSetAtom} from 'jotai';
 import React, {
   ForwardedRef,
   forwardRef,
@@ -116,6 +116,11 @@ const FRefInputComp = <T extends MarkerItem>(
   const mapRef = useRef<MapViewHandle>(null);
   const cardsRef = useRef<FlatList<T>>(null);
   const setCurrentLocation = useSetAtom(currentLocationAtom);
+  const currentLocation = useAtomValue(currentLocationAtom);
+  // 지도가 처음 뜰 때 현위치를 알고 있었는가. 모르고 있었다면 네이티브가 initialRegion 을
+  // 폴백(서울역)으로 확정해버리므로(SccMapView.kt: 첫 non-null 값만 채택) 위치를 알게 된
+  // 시점에 한 번 옮겨줘야 한다. 알고 있었다면 initialRegion 이 이미 현위치라 옮길 필요가 없다.
+  const knewLocationAtMountRef = useRef(currentLocation != null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isCardListScrolling, setIsCardListScrolling] = useState(false);
   // overlay 진입 전 선택된 장소 id를 보존하여, overlay dismiss 시 복원
@@ -149,9 +154,14 @@ const FRefInputComp = <T extends MarkerItem>(
   };
 
   useEffect(() => {
-    // 초기 현위치 마커 표시 (지도 초기화 대기)
+    // 초기 현위치 마커 표시 (지도 초기화 대기).
+    // 'normal'(NoFollow)은 마커만 띄우고 카메라는 건드리지 않는다 — 이 effect 의 원래 의도가
+    // 마커 표시였고(커밋 6ac989d "현위치 버튼 안 누르더라도 현위치 표시해주기"),
+    // 'direction'(Follow)으로 카메라까지 넘기면 fitToItems 로 맞춘 화면을 다음 GPS 갱신이
+    // 현위치로 되돌려버린다(네이티브 moveCamera 는 추적을 해제하지 않는다).
+    // 카메라를 현위치로 보내야 하는 경우는 아래 "fit 이 없으면 현위치로 1회" effect 가 맡는다.
     const timer = setTimeout(() => {
-      mapRef.current?.setPositionMode('direction');
+      mapRef.current?.setPositionMode('normal');
     }, 100);
     return () => clearTimeout(timer);
   }, []);
@@ -197,16 +207,21 @@ const FRefInputComp = <T extends MarkerItem>(
     padding: number;
     retried: boolean;
   } | null>(null);
+  // 네이티브 지도가 실제로 초기화됐는지. Android 는 getMapAsync 로 비동기 초기화되어
+  // 그 전에 보낸 카메라 커맨드는 조용히 무시된다 — onCameraIdle 최초 1회를 준비 신호로 쓴다.
+  const isMapReadyRef = useRef(false);
+  // 이 화면이 fitToItems 로 카메라를 가져갔는가. 가져갔으면 현위치로 옮기지 않는다.
+  const hasFitRef = useRef(false);
+  const didInitialRecenterRef = useRef(false);
 
   const applyFit = useCallback((_items: MarkerItem[], padding: number) => {
     const region = getRegionFromItems(_items);
     // 프로그래매틱 카메라 이동 전에 위치추적(Follow)을 반드시 해제한다.
-    // 마운트 시 setPositionMode('direction') 으로 Follow 가 걸려 있는데, Follow 상태에선
-    // 다음 GPS 갱신이 카메라를 현위치로 되돌려 방금 맞춘 fit 이 사라진다. 사용자 제스처는
-    // Follow 를 자동 해제하지만 moveCamera 는 해제하지 않아서, "GPS 갱신이 fit 뒤에 오느냐"
-    // 라는 타이밍 운에 따라 같은 조작에도 fit 이 됐다 안 됐다 했다(실측).
-    // 'normal'(NoFollow)은 현위치 마커는 그대로 두고 카메라만 자유롭게 한다 —
-    // 현위치 버튼을 누르면 onMyLocationPress 가 다시 'direction' 으로 되돌린다.
+    // 이제 Follow 가 켜지는 경로는 현위치 버튼(onMyLocationPress) 하나뿐인데, 그 뒤에
+    // 필터를 바꿔 refit 하면 Follow 가 살아 있는 상태로 카메라를 옮기게 된다. Follow 중에는
+    // 다음 GPS 갱신이 카메라를 현위치로 되돌려 방금 맞춘 fit 이 사라진다 — 사용자 제스처는
+    // Follow 를 자동 해제하지만 moveCamera 는 해제하지 않기 때문이다(실측).
+    // 'normal'(NoFollow)은 현위치 마커는 그대로 두고 카메라만 자유롭게 한다.
     mapRef.current?.setPositionMode('normal');
     // 같은 프레임에 이어서 animateToRegion 을 보내면 네이티브가 둘을 한 배치로 처리하면서
     // 카메라 이동이 통째로 삼켜진다(실측: 이동 후 onCameraIdle 의 span 이 그대로 0.0266).
@@ -216,11 +231,36 @@ const FRefInputComp = <T extends MarkerItem>(
     });
   }, []);
 
+  // 카메라를 가져갈 fit 이 없을 때만 현위치로 **한 번** 옮긴다.
+  // 마운트 때 위치를 알고 있었다면 initialRegion 이 이미 현위치라 아무것도 안 한다.
+  // 위치를 몰랐다면 네이티브가 initialRegion 을 서울역 폴백으로 확정해버린 상태라,
+  // 위치를 알게 된 시점에 한 번 옮겨주지 않으면 서울역에 갇힌다.
+  const attemptInitialRecenter = useCallback(() => {
+    if (
+      didInitialRecenterRef.current ||
+      hasFitRef.current ||
+      knewLocationAtMountRef.current ||
+      !isMapReadyRef.current ||
+      !currentLocation
+    ) {
+      return;
+    }
+    didInitialRecenterRef.current = true;
+    mapRef.current?.animateCamera(currentLocation, 0);
+  }, [currentLocation]);
+
+  useEffect(() => {
+    attemptInitialRecenter();
+  }, [attemptInitialRecenter]);
+
   // 위 한 프레임 분리로도 드물게(실측 30회 중 1회) 이동이 반영되지 않는다. 타이머를 더
   // 늘려 추측하는 대신 **결과를 보고 한 번만 다시 시도한다** — 이동이 끝나면 오는
   // onCameraIdle 의 영역에 아이템이 여전히 다 안 들어오면 fit 이 먹지 않은 것이다.
   const handleCameraIdle = useCallback(
     (region: Region) => {
+      // 최초 수신 = 네이티브 지도 초기화 완료 신호. 이후 호출은 no-op(이미 true).
+      isMapReadyRef.current = true;
+      attemptInitialRecenter();
       const pending = pendingFitRef.current;
       pendingFitRef.current = null;
       if (
@@ -233,7 +273,7 @@ const FRefInputComp = <T extends MarkerItem>(
       }
       onCameraIdle?.(region);
     },
-    [onCameraIdle, applyFit],
+    [onCameraIdle, applyFit, attemptInitialRecenter],
   );
 
   useImperativeHandle(ref, () => ({
@@ -241,6 +281,7 @@ const FRefInputComp = <T extends MarkerItem>(
       onItemSelect(_item, true);
     },
     fitToItems: (_items, padding = 30) => {
+      hasFitRef.current = true;
       pendingFitRef.current = {items: _items, padding, retried: false};
       applyFit(_items, padding);
     },

@@ -1,4 +1,4 @@
-import {useIsFocused} from '@react-navigation/native';
+import {CommonActions, useIsFocused} from '@react-navigation/native';
 import {useSetAtom} from 'jotai';
 import React, {useEffect, useState} from 'react';
 import {Dimensions, Image, View} from 'react-native';
@@ -12,6 +12,7 @@ import {HomeQuickActionChallengeDto} from '@/generated-sources/openapi';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import useNavigation from '@/navigation/useNavigation';
 import ChallengeProgressBar from '@/screens/ChallengeDetailScreen/components/ChallengeProgressBar';
+import {buildChallengeMapRoutes} from '@/screens/HomeScreenV2/sections/challengeMapRoutes';
 import {searchModeAtom} from '@/screens/SearchScreen/atoms';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -52,6 +53,26 @@ export default function QuickMenuSection({
 }) {
   const navigation = useNavigation();
   const setSearchMode = useSetAtom(searchModeAtom);
+
+  // 지도로 바로 보내되 챌린지 상세를 아래에 깔아, 지도를 닫으면 홈이 아니라 상세로 떨어지게 한다.
+  // 이 컴포넌트는 Main 탭 네비게이터 안이라 useNavigation() 은 **탭** 네비게이터를 준다.
+  // navigate 는 라우트 이름이 부모로 버블링돼 동작하지만, state 를 조립하는 dispatch 는
+  // 버블링되지 않으므로 Main 을 담고 있는 루트 스택(getParent)으로 올려 보낸다.
+  const goToChallengeMap = (challengeId: string) => {
+    const rootNavigation = navigation.getParent() ?? navigation;
+    rootNavigation.dispatch(state => {
+      const routes = buildChallengeMapRoutes(
+        state.routes,
+        state.index,
+        challengeId,
+      );
+      return CommonActions.reset({
+        ...state,
+        index: routes.length - 1,
+        routes,
+      });
+    });
+  };
 
   // 홈 탭에 진입(포커스)할 때마다 노출하고 몇 초 뒤 자동으로 닫는다. 영구 dismiss
   // atom을 두지 않는다 — 매번 다시 보여주는 게 스펙이 확정한 동작이다.
@@ -156,12 +177,7 @@ export default function QuickMenuSection({
             )}
             <SccPressable
               elementName="home_v2_ctpl_challenge_card"
-              onPress={() =>
-                navigation.navigate('ChallengeConquerTargetPlaces', {
-                  challengeId: challenge.challengeId,
-                  initialViewMode: 'map',
-                })
-              }>
+              onPress={() => goToChallengeMap(challenge.challengeId)}>
               <ChallengeCard>
                 <ChallengeCardHeader>
                   <ChallengeCardTitle numberOfLines={2}>
