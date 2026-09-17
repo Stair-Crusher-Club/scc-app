@@ -692,5 +692,39 @@
     "ctaUrl": "https://link.staircrusher.club/jamsil-stadium_save",
     "ctaLabel": "소개된 곳 모아보기",
     "thumbnail": "/articles/jamsil-stadium-wheelchair-accessible-restaurants-cafes/assets/thumb-0.webp"
+  },
+  "3dec9499-b060-8032-b4ff-c965a6fe0cee": {
+    "slug": "multi-passenger-disabled-call-taxi",
+    "title": "[서울/부산/제주] 휠체어 여러 대가 함께 타는 다인승 장애인콜택시 이용 가이드",
+    "summary": "휠체어 여러 대가 한 차량에 함께 타는 다인승 장애인콜택시는 2026년 9월 기준 서울·부산·제주에서 운영 중입니다. 지역별 휠체어 탑승 대수와 요금, 예약 가능 시기, 타 지역 방문 시 임시 등록 방법까지 한 번에 정리했습니다.",
+    "image": "/articles/multi-passenger-disabled-call-taxi/assets/img-0.png",
+    "createdTime": "2026-09-08T01:54:00.000Z",
+    "publishedAt": "2026-09-17T05:51:00.000Z",
+    "editedTime": "2026-09-17T05:19:00.000Z",
+    "contentPageId": "3d5c9499-b060-815a-a488-e420e5d7d325",
+    "featured": null,
+    "categories": [
+      "이동/교통"
+    ],
+    "ctaUrl": "https://link.staircrusher.club/articles_cta_transit",
+    "ctaLabel": "",
+    "thumbnail": "/articles/multi-passenger-disabled-call-taxi/assets/thumb-0.webp"
+  },
+  "3dcc9499-b060-8105-bdb9-e627ae6a401a": {
+    "slug": "jeju-wheelchair-accessible-cafes",
+    "title": "제주도 카페 20곳 - 휠체어 접근성 한눈에 보기",
+    "summary": "제주도에서 휠체어로 들어갈 수 있는 카페 20곳을 접근 레벨 0~2로 정리했습니다. 오설록 티뮤지엄, 원앤온리, 우유부단처럼 문턱 없이 입장할 수 있는 곳부터 별점·리뷰 수까지 미리 확인하고 제주 여행을 계획하세요.",
+    "image": "/articles/jeju-wheelchair-accessible-cafes/assets/img-0.png",
+    "createdTime": "2026-09-15T09:45:00.000Z",
+    "publishedAt": "2026-09-17T05:51:00.000Z",
+    "editedTime": "2026-09-17T05:51:00.000Z",
+    "contentPageId": "3dcc9499-b060-8105-bdb9-e627ae6a401a",
+    "featured": null,
+    "categories": [
+      "맛집/카페"
+    ],
+    "ctaUrl": "https://link.staircrusher.club/jeju_save",
+    "ctaLabel": "소개된 곳 모아보기",
+    "thumbnail": "/articles/jeju-wheelchair-accessible-cafes/assets/thumb-0.webp"
   }
 }
