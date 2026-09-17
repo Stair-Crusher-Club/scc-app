@@ -151,7 +151,7 @@ const crewInfoAssetsBase: Record<CrusherClubCrewTypeDto, Asset> = {
         empty: require('@/assets/img/crusher_history_quest/empty/flag.png'),
         success: require('@/assets/img/crusher_history_quest/empty/flag.png'),
       },
-      OLIVEYOUNG_CONQUER: {
+      CONQUER_CORE_MISSION: {
         empty: require('@/assets/img/crusher_history_quest/empty/flag.png'),
         success: require('@/assets/img/crusher_history_quest/empty/flag.png'),
       },
@@ -205,7 +205,7 @@ const seasonSuccessOverrides: Record<string, SeasonSuccessOverride> = {
       CONQUER_4: require('@/assets/img/crusher_history_quest/2026fall/success/conquer4.png'),
       CONQUER_5: require('@/assets/img/crusher_history_quest/2026fall/success/conquer5.png'),
       CONQUER_6: require('@/assets/img/crusher_history_quest/2026fall/success/conquer6.png'),
-      OLIVEYOUNG_CONQUER: require('@/assets/img/crusher_history_quest/2026fall/success/oliveyoung_conquer.png'),
+      CONQUER_CORE_MISSION: require('@/assets/img/crusher_history_quest/2026fall/success/conquer_core_mission.png'),
       LONG_REVIEW_CORE_MISSION: require('@/assets/img/crusher_history_quest/2026fall/success/long_review_core_mission.png'),
       LONG_REVIEW_1: require('@/assets/img/crusher_history_quest/2026fall/success/long_review1.png'),
       EDITOR_TIME_1: require('@/assets/img/crusher_history_quest/2026fall/success/editor_time1.png'),

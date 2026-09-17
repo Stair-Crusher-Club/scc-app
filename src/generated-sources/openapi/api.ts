@@ -1917,7 +1917,7 @@ export const CrusherClubQuestCompleteStampTypeDto = {
     Conquer4: 'CONQUER_4',
     Conquer5: 'CONQUER_5',
     Conquer6: 'CONQUER_6',
-    OliveyoungConquer: 'OLIVEYOUNG_CONQUER',
+    ConquerCoreMission: 'CONQUER_CORE_MISSION',
     EditorTime1: 'EDITOR_TIME_1',
     EditorTime2: 'EDITOR_TIME_2',
     TeamOuting: 'TEAM_OUTING',
