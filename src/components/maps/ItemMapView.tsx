@@ -221,16 +221,15 @@ const FRefInputComp = <T extends MarkerItem>(
         // 현위치 버튼으로 위치추적(Follow)이 켜져 있다 — 먼저 끈다. Follow 중에는 다음 GPS
         // 갱신이 카메라를 현위치로 되돌려 방금 맞춘 fit 이 사라진다(네이티브의 moveCamera 는
         // 추적을 해제하지 않는다).
-        // 단 모드 변경과 카메라 이동을 같은 프레임에 보내면 네이티브가 한 배치로 처리하면서
-        // 이동을 통째로 삼킨다(실측: 이동 후에도 onCameraIdle 의 span 이 그대로였다).
-        // 그래서 이때만 한 프레임 띄운다.
         setPositionMode('normal');
-        requestAnimationFrame(() => {
-          mapRef.current?.animateToRegion(region, padding, 200);
-        });
-        return;
       }
-      mapRef.current?.animateToRegion(region, padding, 200);
+      // 카메라 이동은 **항상** 다음 프레임에 보낸다. 이 함수는 onCameraIdle 콜백 안에서
+      // 불리는 경우가 많은데, 같은 프레임에 이어서 커맨드를 보내면 네이티브가 한 배치로
+      // 처리하면서 이동을 통째로 삼킨다(실측: 이동 후에도 onCameraIdle 의 span 이 그대로).
+      // 조건부로 바꿨더니 fit 이 아예 안 먹었다 — 조건 없이 한 프레임 띄운다.
+      requestAnimationFrame(() => {
+        mapRef.current?.animateToRegion(region, padding, 200);
+      });
     },
     [setPositionMode],
   );
