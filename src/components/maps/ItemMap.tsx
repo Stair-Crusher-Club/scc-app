@@ -26,6 +26,9 @@ const DefaultLongitudeDelta = 0.03680795431138506;
 // Corner marker constants
 const CORNER_MARKER_PREFIX = 'debug-corner-';
 
+// 마커 노출 로깅을 프레임당 몇 건씩 나눠 보낼지 (한 조각 ≈ 8ms).
+const PIN_LOG_CHUNK_SIZE = 16;
+
 function getRegion({latitude, longitude}: LatLng): Region {
   return {
     northEast: {
@@ -258,15 +261,29 @@ export default function ItemMap<T extends MarkerItem>({
 
   React.useEffect(() => {
     if (!isFocused) return;
-    items.forEach(item => {
-      if (!loggedPinsRef.current.has(item.id)) {
-        loggedPinsRef.current.add(item.id);
+    const pending = items.filter(item => !loggedPinsRef.current.has(item.id));
+    if (pending.length === 0) return;
+    pending.forEach(item => loggedPinsRef.current.add(item.id));
+    // 마커가 수백 개인 화면(CTPL 정복 대상 361곳)에서 한 번에 돌면 브리지 호출이 JS 스레드를
+    // 묶어 진입 직후 화면이 멈춘다(실측: 361건 175ms, __DEV__ 에선 logDebug 때문에 600ms+).
+    // 프레임 사이로 나눠 보낸다 — 나가는 이벤트는 그대로다.
+    let index = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const flush = () => {
+      for (const item of pending.slice(index, index + PIN_LOG_CHUNK_SIZE)) {
         loggerRef.current.logElementView('search_item_marker', {
           place_id: item.id,
           place_name: item.displayName,
         });
       }
-    });
+      index += PIN_LOG_CHUNK_SIZE;
+      if (index < pending.length) {
+        timer = setTimeout(flush, 0);
+      }
+    };
+    timer = setTimeout(flush, 0);
+    // 화면을 떠나면 남은 조각은 보내지 않는다 — 안 본 마커를 "봤다"고 기록하지 않는 편이 맞다.
+    return () => clearTimeout(timer);
   }, [items, isFocused]);
 
   return (

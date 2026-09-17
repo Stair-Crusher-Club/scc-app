@@ -66,6 +66,15 @@ export default function ChallengeConquerTargetPlacesScreen({
   const mapRef = useRef<ItemMapViewHandle<PlaceMarkerItem>>(null);
   // onCameraIdle 로 갱신되는 "현재 카메라가 보고 있는 영역". 최초 로드 시엔 null.
   const cameraRegionRef = useRef<Region | null>(null);
+  // 네이티브 지도 SDK가 실제로 초기화됐는지. Android는 getMapAsync 로 비동기
+  // 초기화되어 그 전에 보낸 fitToItems/animateToRegion 커맨드는 native 에서 조용히
+  // 무시된다 — onCameraIdle 최초 1회 수신을 "지도 준비됨" 신호로 사용한다
+  // (setTimeout 추측 대신 신호 기반. 네이티브 쪽엔 별도 ready 이벤트가 없다).
+  const isMapReadyRef = useRef(false);
+  // fit 이 필요한데 아직 지도가 준비되지 않았을 때 true로 걸어두고, 준비되는 순간
+  // (또는 map 모드로 전환되는 순간) 소비한다.
+  const needsFitRef = useRef(false);
+  const itemsRef = useRef<PlaceMarkerItem[]>([]);
 
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode ?? 'list');
   const [filters, setFilters] = useAtom(ctplFilterAtom);
@@ -128,6 +137,8 @@ export default function ChallengeConquerTargetPlacesScreen({
       ? marked.filter(item => item.hasPlaceAccessibility)
       : marked;
   }, [data?.items, filters.isRegistered]);
+  // effect 밖(카메라 idle 콜백)에서도 항상 최신 items 로 fit 할 수 있도록 ref 로 미러링.
+  itemsRef.current = items;
   // 정복(등록)된 장소만 브랜드 SVG 핀. 미등록은 실제 접근성 점수가 있어도
   // 항상 회색 점 마커로 고정한다(iconColor 도 강제) — Figma 166:7080.
   const markerIconOverride = useCallback(
@@ -146,21 +157,44 @@ export default function ChallengeConquerTargetPlacesScreen({
     [data?.markerIcon],
   );
 
+  // needsFitRef 가 걸려 있고 지도가 준비된 상태일 때만 실제로 fit을 실행한다.
+  // 준비 전이면 아무것도 하지 않고 남겨둔다 — onCameraIdle 최초 수신 시 다시 호출된다.
+  const attemptFitCamera = useCallback(() => {
+    if (!needsFitRef.current || !isMapReadyRef.current) {
+      return;
+    }
+    needsFitRef.current = false;
+    mapRef.current?.fitToItems(itemsRef.current, 60);
+  }, []);
+
   // 최초 로드는 항상 fit. 이후 필터/정렬로 items가 바뀌면, 그중 현재 카메라 밖에
   // 있는 장소가 있을 때만 다시 fit 한다 — 이미 보이는 부분집합이면 카메라를 그대로
   // 둬 불필요한 점프를 막는다(사용자 피드백: 필터 걸어도 랜딩 fit이 그 필터 결과
   // 기준이라 전체를 못 보던 문제 + 필터 풀었을 때 화면 밖 장소 재조정 안 되던 문제).
   useEffect(() => {
     if (shouldRefitCamera(items, cameraRegionRef.current)) {
-      setTimeout(() => {
-        mapRef.current?.fitToItems(items, 60);
-      }, 300);
+      needsFitRef.current = true;
+      attemptFitCamera();
     }
-  }, [items]);
+  }, [items, attemptFitCamera]);
 
-  const handleCameraIdle = useCallback((region: Region) => {
-    cameraRegionRef.current = region;
-  }, []);
+  // 리스트 모드로 진입해 지도가 opacity:0 으로 숨어 있던 동안 온 준비 신호를 못
+  // 썼을 가능성에 대비해, map 모드로 전환되는 시점에도 pending fit을 한 번 더 확인한다.
+  useEffect(() => {
+    if (viewMode === 'map') {
+      attemptFitCamera();
+    }
+  }, [viewMode, attemptFitCamera]);
+
+  const handleCameraIdle = useCallback(
+    (region: Region) => {
+      cameraRegionRef.current = region;
+      // 최초 수신 = 네이티브 지도 SDK 초기화 완료 신호. 이후 호출은 no-op(이미 true).
+      isMapReadyRef.current = true;
+      attemptFitCamera();
+    },
+    [attemptFitCamera],
+  );
 
   const handleItemPress = useCallback(
     (item: PlaceMarkerItem) => {

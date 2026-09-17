@@ -256,6 +256,7 @@ const ChallengeDetailScreen = ({
                     onPress={() =>
                       navigation.navigate('ChallengeConquerTargetPlaces', {
                         challengeId,
+                        initialViewMode: 'map',
                       })
                     }>
                     <Text className="text-[16px] leading-[24px] tracking-[-0.32px] font-pretendard-semibold text-brand-40">

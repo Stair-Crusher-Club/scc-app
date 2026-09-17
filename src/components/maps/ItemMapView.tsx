@@ -28,7 +28,11 @@ import ItemMapList from '@/components/maps/ItemMapList';
 import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 import {MapViewHandle} from '@/components/maps/MapView';
 import {MarkerItem} from '@/components/maps/MarkerItem.ts';
-import {getRegionFromItems, Region} from '@/components/maps/Types.tsx';
+import {
+  getRegionFromItems,
+  Region,
+  shouldRefitCamera,
+} from '@/components/maps/Types.tsx';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {useIsForeground} from '@/hooks/useIsForeground';
@@ -187,13 +191,58 @@ const FRefInputComp = <T extends MarkerItem>(
     return () => HeatTelemetry.stop('map_native_view');
   }, []);
 
+  // fitToItems 로 보낸 카메라 이동이 실제로 반영됐는지 다음 onCameraIdle 로 확인하기 위한 기록.
+  const pendingFitRef = useRef<{
+    items: MarkerItem[];
+    padding: number;
+    retried: boolean;
+  } | null>(null);
+
+  const applyFit = useCallback((_items: MarkerItem[], padding: number) => {
+    const region = getRegionFromItems(_items);
+    // 프로그래매틱 카메라 이동 전에 위치추적(Follow)을 반드시 해제한다.
+    // 마운트 시 setPositionMode('direction') 으로 Follow 가 걸려 있는데, Follow 상태에선
+    // 다음 GPS 갱신이 카메라를 현위치로 되돌려 방금 맞춘 fit 이 사라진다. 사용자 제스처는
+    // Follow 를 자동 해제하지만 moveCamera 는 해제하지 않아서, "GPS 갱신이 fit 뒤에 오느냐"
+    // 라는 타이밍 운에 따라 같은 조작에도 fit 이 됐다 안 됐다 했다(실측).
+    // 'normal'(NoFollow)은 현위치 마커는 그대로 두고 카메라만 자유롭게 한다 —
+    // 현위치 버튼을 누르면 onMyLocationPress 가 다시 'direction' 으로 되돌린다.
+    mapRef.current?.setPositionMode('normal');
+    // 같은 프레임에 이어서 animateToRegion 을 보내면 네이티브가 둘을 한 배치로 처리하면서
+    // 카메라 이동이 통째로 삼켜진다(실측: 이동 후 onCameraIdle 의 span 이 그대로 0.0266).
+    // 한 프레임 띄워 다음 배치로 보내면 반영된다(span 0.0266 → 0.3245).
+    requestAnimationFrame(() => {
+      mapRef.current?.animateToRegion(region, padding, 200);
+    });
+  }, []);
+
+  // 위 한 프레임 분리로도 드물게(실측 30회 중 1회) 이동이 반영되지 않는다. 타이머를 더
+  // 늘려 추측하는 대신 **결과를 보고 한 번만 다시 시도한다** — 이동이 끝나면 오는
+  // onCameraIdle 의 영역에 아이템이 여전히 다 안 들어오면 fit 이 먹지 않은 것이다.
+  const handleCameraIdle = useCallback(
+    (region: Region) => {
+      const pending = pendingFitRef.current;
+      pendingFitRef.current = null;
+      if (
+        pending &&
+        !pending.retried &&
+        shouldRefitCamera(pending.items, region)
+      ) {
+        pendingFitRef.current = {...pending, retried: true};
+        applyFit(pending.items, pending.padding);
+      }
+      onCameraIdle?.(region);
+    },
+    [onCameraIdle, applyFit],
+  );
+
   useImperativeHandle(ref, () => ({
     moveToItem: _item => {
       onItemSelect(_item, true);
     },
     fitToItems: (_items, padding = 30) => {
-      const region = getRegionFromItems(_items);
-      mapRef.current?.animateToRegion(region, padding, 200);
+      pendingFitRef.current = {items: _items, padding, retried: false};
+      applyFit(_items, padding);
     },
   }));
 
@@ -274,7 +323,7 @@ const FRefInputComp = <T extends MarkerItem>(
         overlayMarkers={overlayMarkers}
         overlaySelectedId={overlayFocusedItem?.id}
         onOverlayMarkerPress={handleOverlayMarkerPress}
-        onCameraIdle={onCameraIdle}
+        onCameraIdle={handleCameraIdle}
         /*
          * 간단하게 하려면 selectedItemId를 그대로 넘기면 되지만,
          * 이렇게 하니 일단 모든 마커가 일반 사이즈로 그려진 다음 onItemSelect()로 인해 items[0]의 마커가 커지는 버벅임이 발생한다.
