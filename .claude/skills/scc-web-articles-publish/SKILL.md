@@ -287,11 +287,13 @@ main HEAD 에 태그를 달면 **그 시점 main 의 앱 코드가 전부 prod �
 LAST=$(gh run list --workflow=cd-production.yml -L1 --json headBranch --jq '.[0].headBranch')  # 예 v1.3-20260825-01
 git log --oneline $LAST..origin/main -- src/ ios/ android/   # ← prod 로 가면 안 되는 것들 목록화
 git checkout -b hotfix/articles-<slug> $LAST                # H11(origin/main 분기) 의도적 예외
+git branch --show-current                                   # ★ 여기서 멈춰 확인 — 아래 참고
 git cherry-pick <아티클 커밋들>                              # web-articles/ 만 건드린 커밋만
 # 게이트: 앱 코드 변경이 0 이어야 한다
 [ -z "$(git diff --name-only $LAST..HEAD -- src/ ios/ android/ .github/)" ] || echo "STOP: 앱 코드 섞임"
 git push -u origin HEAD && git tag v1.3-YYYYMMDD-NN && git push origin v1.3-YYYYMMDD-NN
 ```
+- **체크아웃 성공을 확인하고 나서 태그한다.** 워킹트리에 남의 수정이 있으면 `git checkout -b` 는 실패하는데, 명령을 `;` 로 이어두면 **main 에 그대로 태그가 박혀 prod OTA 가 main 전체를 싣는다**. `git branch --show-current` 로 확인하거나 `&&` 로 잇는다 (2026-09-17 실측: 태그가 main 에 찍혀 실행 취소·태그 삭제로 수습, OTA 스텝은 skipped 였다).
 - **검증은 워크플로우가 계산한 changelog 로 한다** — `gh run view <id> --log | grep CHANGELOG` 가
   `이전 배포(<이전태그>) 이후 변경사항:` 에 아티클 커밋만 나열해야 한다. 내 diff 판단보다 이게 강한 증거다.
 - **태그 push 는 그 태그가 가리키는 ref 의 워크플로우 파일로 실행된다.** 그래서 main 에 나중에 추가한
@@ -313,6 +315,7 @@ git push -u origin HEAD && git tag v1.3-YYYYMMDD-NN && git push origin v1.3-YYYY
   - **컬럼 순서**: 공식 API가 뷰 순서를 안 줌 → `COLUMN_ORDER` 맵(블록 id→컬럼 배열), 새 DB는 갱신. 뷰 순서는 DB public 페이지 `.notion-table-view-header-cell`로 확인.
   - **DB 제목은 표 위** — 인라인 DB 제목은 `<figcaption>`(표 하단)이 아니라 표 위 `<p class="db-title">`로. (Notion 인라인 DB 디자인)
   - **표 셀은 wrap** — `.db-wrap table`에 `white-space:nowrap` 금지(모든 셀 1줄 강제 → 무한 가로 스크롤). `white-space:normal;word-break:keep-all;overflow-wrap:anywhere`로 한글 단어 유지하며 컨테이너 폭에 맞춰 줄바꿈. 표 셀 shift+enter는 아래 `\n`→`<br>` 규칙으로 해결됨.
+- **콜아웃 첫 줄에 딸린 하위 문단은 블록 API가 아예 안 준다** — `GET /v1/blocks/{callout}/children` 이 2022-06-28·2025-09-03 두 버전 모두 그 문단을 빼고 돌려줘서 **빌더가 원리적으로 못 본다**(로그도 안 남고 조용히 유실). 마크다운 엔드포인트(`/v1/pages/{block}/markdown`)에는 보이므로 **판정은 둘의 대조**로 한다 — 빌드 후 마크다운 문장이 생성 HTML 에 다 있는지 grep. 작성자 조치는 잘라내기·붙여넣기가 아니라 **그 줄에서 Shift+Tab 한 번**(콜아웃 직속으로 올려 형제 블록과 같은 레벨로) — 재붙여넣기는 같은 구조로 다시 붙어 두 번 헛돈다 (2026-09-17 실측: 다인승 콜택시 서울 ① 설명 문단).
 - **하위 블록 재귀 필수** — `paragraph`·`to_do`도 `has_children`면 하위를 렌더해야 한다. 안 하면 **문단 하위 섹션·중첩 체크리스트가 통째로 유실**(nationwide '추가 정보' 섹션, 전동휠체어 준비물 6항목 실제 사고).
 - **`tab` 블록 하위 렌더** — 탭 컨테이너는 API가 `tab: {}`(텍스트 없음)로 준다. 하위를 펼치지 않으면 탭 안 본문이 통째로 유실(애관극장 상영관 시야 3섹션 실제 사고).
 - **네이티브 `table`도 `.tbl-wrap`으로 감쌀 것** — 인라인 DB 표(`.db-wrap`)와 달리 `table` 블록은 감싸는 컨테이너가 없으면 **페이지 전체가 가로 스크롤**된다. 생 URL 앵커도 같은 증상 → `article a{overflow-wrap:anywhere}`. STEP 4에서 전 페이지 `scrollWidth > clientWidth` 전수 체크로 잡는다.
