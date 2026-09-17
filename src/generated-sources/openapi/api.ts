@@ -1907,6 +1907,7 @@ export const CrusherClubQuestCompleteStampTypeDto = {
     ShortReview8: 'SHORT_REVIEW_8',
     LongReview1: 'LONG_REVIEW_1',
     LongReview2: 'LONG_REVIEW_2',
+    LongReviewCoreMission: 'LONG_REVIEW_CORE_MISSION',
     AppUsageReview: 'APP_USAGE_REVIEW',
     ConquerQuest: 'CONQUER_QUEST',
     WarmingUpConquer: 'WARMING_UP_CONQUER',
@@ -1914,6 +1915,12 @@ export const CrusherClubQuestCompleteStampTypeDto = {
     Conquer2: 'CONQUER_2',
     Conquer3: 'CONQUER_3',
     Conquer4: 'CONQUER_4',
+    Conquer5: 'CONQUER_5',
+    Conquer6: 'CONQUER_6',
+    OliveyoungConquer: 'OLIVEYOUNG_CONQUER',
+    EditorTime1: 'EDITOR_TIME_1',
+    EditorTime2: 'EDITOR_TIME_2',
+    TeamOuting: 'TEAM_OUTING',
     DailyLifeQuest: 'DAILY_LIFE_QUEST',
     SavedPlaceList: 'SAVED_PLACE_LIST'
 } as const;
