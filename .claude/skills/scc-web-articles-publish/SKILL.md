@@ -1,5 +1,5 @@
 ---
-name: scc-web-articles-publish
+name: scc:web-articles-publish
 description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정적 페이지로 발행해 검색엔진(SEO) + AI답변엔진(AEO/GEO)에 노출시킨다. "노션 글 발행해줘", "아티클 올려줘", "articles 갱신", "노션 콘텐츠 검색에 걸리게", "article list DB 렌더링" 같은 요청 시 사용. 사람은 Notion에 제목+본문만 쓰고, 이 스킬이 메타데이터(slug/summary/category/ogImage/faq)를 LLM으로 생성해 DB에 라이트백한 뒤, 결정론적 노드 스크립트로 본문을 HTML로 변환한다. last_edited_time 기반 incremental — 신규/변경/삭제 문서만 처리해 토큰을 아낀다. STEP 1~8을 끝까지 실행해 **main 머지 + prod(web.staircrusher.club) 배포 + prod OTA(`v*` 태그)까지 자동으로 완주**한다 — 커밋·PR·웹 배포에서 멈추지 않는다(OTA를 안 하면 앱 홈에 새 글이 안 뜬다).
 ---
 
@@ -36,7 +36,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
    - **발행 대상 article-list DB**: `383c9499b06080639b1be2bcdc48981c` (Notion "web.staircrusher.club 아티클").
 4. **의존성**: `yarn add @notionhq/client` (scc-app).
 5. **Lambda 배포(1회)**: `seo-handler.js`의 `/articles` 패턴을 반영하려면 Lambda@Edge 재배포 필요.
-   `/scc-infra-ops` 절차로 `staircrusher-club-web` 모듈 `aws-vault exec swann-scc -- terraform apply`. (사용자 명시 요청 시에만)
+   `/scc:infra-ops` 절차로 `staircrusher-club-web` 모듈 `aws-vault exec swann-scc -- terraform apply`. (사용자 명시 요청 시에만)
 
 ## Notion DB 스키마 (최소화 — 사람은 글만 쓴다)
 
@@ -273,7 +273,7 @@ git ls-remote --tags origin | grep -o 'refs/tags/v.*' | sed 's|refs/tags/||' \
 git tag v1.3-YYYYMMDD-NN && git push origin v1.3-YYYYMMDD-NN   # = prod OTA 트리거
 gh run list --workflow=cd-production.yml -L 3                   # "Production OTA Deployment" 확인
 ```
-- 태그 형식 `v{major}.{minor}-YYYYMMDD-NN`. 같은 날 두 번째면 `-02`. 절차 상세는 `/scc-app-release`.
+- 태그 형식 `v{major}.{minor}-YYYYMMDD-NN`. 같은 날 두 번째면 `-02`. 절차 상세는 `/scc:app-release`.
 - **머지 안 된 상태로 태그 금지** — 태그는 main에서 잘리므로, PR이 열려 있으면 새 글 없는 번들이 나간다.
 - 이 스킬 밖에서는 여전히 **태그 자동 생성 금지**(배포 = 명시 요청만, H4 hook). 여기서의 명시 요청은 '발행' 그 자체다 — STEP 7과 같은 예외.
 
@@ -338,5 +338,5 @@ git push -u origin HEAD && git tag v1.3-YYYYMMDD-NN && git push origin v1.3-YYYY
 - ✅ 엔티티 일관성(계단뿌셔클럽 브랜드/용어), sitemap 등록
 
 ## 범위 밖 (다음 페이즈)
-- **저장 → 로그인 유도**: 백엔드(scc-api/server) 저장 API + 웹 로그인 플로우 필요. 크로스레포라 `/scc-feature`로 별도 진행. (템플릿에 `<!-- TODO -->` 자리만 둠)
+- **저장 → 로그인 유도**: 백엔드(scc-api/server) 저장 API + 웹 로그인 플로우 필요. 크로스레포라 `/scc:feature`로 별도 진행. (템플릿에 `<!-- TODO -->` 자리만 둠)
 - **본문 이미지 최적화(미착수)**: Notion 원본을 **PNG 그대로** 내려 커밋하므로 `web-articles/` 가 이미 **552MB**, 한 글이 **60\~85MB**(3600×1200 PNG 1장이 7MB)다. 썸네일만 webp 로 압축되고 본문 이미지는 무압축이라 **LCP/Core Web Vitals 를 깎는다 — 이 스킬의 목적(검색 순위)과 정면으로 충돌**한다. 고칠 땐 `build-articles.js` 다운로드 단계에서 webp 변환 + 폭 상한(예 1600px)을 넣고 `--rerender` 로 전 글 재생성하면 되지만, 커밋 히스토리 용량은 그대로 남는다. 발행 작업 중엔 손대지 말 것(43개 글 전체 재생성 + 대용량 diff).
