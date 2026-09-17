@@ -82,17 +82,8 @@ const MODAL_CONFIG: Record<
   }
 > = {
   // 26 가을시즌. 키는 DB `crusher_club.quests[].id` 이자 QR 딥링크의 questTypeOrActivityId 다.
-  conquer_crew_a_starting_day_2026fall: {
-    buttonText: '앞으로 잘해봐요!',
-    getTextParts: crusherClubWelcomeTextParts,
-    animation: fall2026StartingDayAnimation,
-  },
-  conquer_crew_b_starting_day_2026fall: {
-    buttonText: '앞으로 잘해봐요!',
-    getTextParts: crusherClubWelcomeTextParts,
-    animation: fall2026StartingDayAnimation,
-  },
-  editor_crew_starting_day_2026fall: {
+  // 세 크루가 스타팅데이를 한자리에서 해서 QR 이 하나고, 세 club 이 이 id 를 공유한다.
+  starting_day_2026fall: {
     buttonText: '앞으로 잘해봐요!',
     getTextParts: crusherClubWelcomeTextParts,
     animation: fall2026StartingDayAnimation,
