@@ -381,9 +381,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     const requestGeolocationPermissionIfNeeded = async () => {
       try {
         const location = await GeolocationUtils.getCurrentPosition();
-        if (geolocationErrorReason !== null) {
-          setGeolocationErrorReason(null);
-        }
+        setGeolocationErrorReason(null);
         setCurrentLocation({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
@@ -398,7 +396,11 @@ const HomeScreenV2 = ({navigation}: any) => {
       }
     };
     requestGeolocationPermissionIfNeeded();
-  }, [navigation, accessToken, syncUserInfo]);
+    // deps 는 accessToken 하나다. navigation·syncUserInfo 는 이 effect 가 쓰지도 않는데
+    // syncUserInfo 가 렌더마다 새로 만들어지는 함수라, 넣어두면
+    // effect 실행 → setCurrentLocation → atom 구독으로 리렌더 → effect 재실행 의
+    // 무한 루프가 된다(실측: 초당 4회 getCurrentPosition + 지도 마커 361개 재생성).
+  }, [accessToken]);
 
   useEffect(() => {
     syncUserInfo();
