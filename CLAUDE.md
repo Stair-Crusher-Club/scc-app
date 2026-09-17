@@ -3,20 +3,20 @@
 ## Project Context
 
 - React Native + TypeScript. ESLint + styled-components. 이벤트 로깅용 SccXxx 커스텀 컴포넌트 + 전역 로깅 registry 사용.
-- New Architecture: `isNewArchEnabled = true` + `bridgelessEnabled = YES` (네이티브 모듈 작성 시 `/scc-app-native` 참조)
+- New Architecture: `isNewArchEnabled = true` + `bridgelessEnabled = YES` (네이티브 모듈 작성 시 `/scc:app-native` 참조)
 
 ## 작업 후 검증 (MANDATORY)
 
 - 코드 변경 후 `yarn lint` + `yarn tsc --noEmit` + `yarn jest` 셋 다 0 error가 될 때까지 수정. 통과 전엔 작업 미완료. **CI(`ci.yaml`)는 lint+type-check만 돌려 jest 실패를 못 잡는다** — 깨진 테스트가 main에 머지된 채 남아 있을 수 있으므로(`5c176cf` 사례) CI 초록불을 테스트 통과로 읽지 않는다.
-- `ios/`·`android/` 네이티브 파일을 변경했다면 push 전 **Release 빌드 검증 필수** — 절차는 `/scc-app-native` (Debug/JS 검사는 네이티브 컴파일 에러를 못 잡는다).
+- `ios/`·`android/` 네이티브 파일을 변경했다면 push 전 **Release 빌드 검증 필수** — 절차는 `/scc:app-native` (Debug/JS 검사는 네이티브 컴파일 에러를 못 잡는다).
 
 ## 배포
 
-- OTA 배포(main 푸시 자동) / 웹 배포(로컬 수동): 반드시 `/scc-app-release` 절차를 따른다. `ota-deploy` 수동 실행 금지, 태그 없이 main 푸시 금지.
+- OTA 배포(main 푸시 자동) / 웹 배포(로컬 수동): 반드시 `/scc:app-release` 절차를 따른다. `ota-deploy` 수동 실행 금지, 태그 없이 main 푸시 금지.
 
 ## Component Guidelines
 
-코드 예제(BottomSheet, 로깅 패턴, SccRemoteImage 등)는 `/scc-app-add-screen` 참조.
+코드 예제(BottomSheet, 로깅 패턴, SccRemoteImage 등)는 `/scc:app-add-screen` 참조.
 
 - **터치 가능한 컴포넌트는 SccXxx**(SccPressable, SccTouchableOpacity 등) + `elementName` prop 필수 (선택: `logParams`, `disableLogging`). `elementName`은 로깅용이라 **스크린리더에 읽히지 않는다** — 아이콘 전용 버튼·라디오·토글 등 텍스트 없는 컨트롤은 `accessibilityRole`/`accessibilityLabel`/`accessibilityState`(selected·checked·disabled)도 함께 준다. (PR #226 리뷰)
 - **원격 URL 이미지는 `SccRemoteImage`** — `<Image source={{uri}}>` 직접 사용 금지
@@ -43,11 +43,11 @@
 
 ## Screen Structure
 
-새 화면 추가 절차(디렉토리, Navigation 등록, 템플릿)는 `/scc-app-add-screen` 참조.
+새 화면 추가 절차(디렉토리, Navigation 등록, 템플릿)는 `/scc:app-add-screen` 참조.
 
 - 화면은 `src/screens/<ScreenName>/`에, 루트는 `ScreenLayout` (navigation 설정과 일치하는 `isHeaderVisible`, 텍스트 입력 화면은 `isKeyboardAvoidingView`)
 - 모달/확인/오버레이는 `BottomSheet` 컴포넌트
-- **전환 중 flash/flicker는 배경색이 아니라 타이밍을 고친다**: 연속 dispatch를 `popTo`/`reset` 단일 액션으로 합친다 (상세: `/scc-app-add-screen`)
+- **전환 중 flash/flicker는 배경색이 아니라 타이밍을 고친다**: 연속 dispatch를 `popTo`/`reset` 단일 액션으로 합친다 (상세: `/scc:app-add-screen`)
 
 ## TypeScript Guidelines
 
@@ -59,10 +59,10 @@
 ## Figma 디자인 구현
 
 - 구현 + 스크린샷 1:1 비교 루프 (Layout → Precision, 반복 실수 방지 포함): `/figma-to-app`
-- 이미지 에셋 추출 (3x PNG REST export, SVG 검증, crop): `/scc-figma-assets` — 프로그래밍으로 이미지 생성 절대 금지
+- 이미지 에셋 추출 (3x PNG REST export, SVG 검증, crop): `/scc:figma-assets` — 프로그래밍으로 이미지 생성 절대 금지
 - 에뮬레이터 E2E (adb 탭/한국어 입력/CDP/검증 깊이): `.claude/skills/android-e2e-test.md`
-- 로컬 환경/env 트러블슈팅: `/scc-local-env`
+- 로컬 환경/env 트러블슈팅: `/scc:local-env`
 
 ---
 
-이 파일은 fact만 담는다. 절차는 skill, 강제 규칙은 workspace `.claude/hooks/` + `/scc-self-review`(D행) 참조. 줄수 상한 120.
+이 파일은 fact만 담는다. 절차는 skill, 강제 규칙은 workspace `.claude/hooks/` + `/scc:self-review`(D행) 참조. 줄수 상한 120.
