@@ -143,6 +143,7 @@ export default function CrusherActivityScreen({
             : params?.questTypeOrActivityId
         }
         recordStatus={recordStatus}
+        season={data?.currentCrusherActivity?.crusherClub.season}
       />
       <ClubQuestCheckInCompleteModal
         visible={visibleCheckInCompleteModal}

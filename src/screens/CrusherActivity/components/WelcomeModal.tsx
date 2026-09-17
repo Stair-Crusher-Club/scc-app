@@ -21,6 +21,8 @@ import WelcomeAnimation from './WelcomeAnimation';
 interface WelcomeModalProps {
   questTypeOrActivityId: string | null | undefined;
   recordStatus: 'idle' | 'loading' | 'success';
+  /** 서버가 내려주는 시즌 표기(예: `'26 가을시즌`). 참여가 아직 없으면 undefined 다. */
+  season?: string;
 }
 
 type AnimationLayer = {
@@ -38,22 +40,66 @@ type ModalAnimationType =
 
 type TextPart = {text: string; bold: boolean};
 
+/**
+ * 스타팅데이 환영 문구. 시즌 표기는 서버 값을 그대로 쓴다 —
+ * 하드코딩하면 시즌이 바뀔 때마다 여기가 옛 시즌으로 남는다.
+ */
+const crusherClubWelcomeTextParts = (
+  nickname: string,
+  season?: string,
+): TextPart[] => [
+  {text: season ? `${season} 크러셔클럽` : '크러셔클럽', bold: true},
+  {text: '에 온 크루\n', bold: false},
+  {text: nickname, bold: true},
+  {text: '님 환영합니다!', bold: false},
+];
+
+/** 26 가을 스타팅데이 — 크루 구분 없이 콩알이 로티 하나를 쓴다(디자인 핸드오프 기준). */
+const fall2026StartingDayAnimation: ModalAnimationType = {
+  type: 'layers',
+  layers: [
+    {
+      type: 'lottie',
+      source: require('@/assets/animations/crusher_activity/starting_day/2026fall/congal_welcome.lottie'),
+      scale: 1.0,
+      offsetY: 30,
+    },
+    {
+      type: 'image',
+      source: require('@/assets/img/img_welcome_text.png'),
+      scale: 1.05,
+      offsetY: -82,
+    },
+  ],
+};
+
 const MODAL_CONFIG: Record<
   string,
   {
     buttonText: string;
-    getTextParts: (nickname: string) => TextPart[];
+    getTextParts: (nickname: string, season?: string) => TextPart[];
     animation: ModalAnimationType;
   }
 > = {
+  // 26 가을시즌. 키는 DB `crusher_club.quests[].id` 이자 QR 딥링크의 questTypeOrActivityId 다.
+  conquer_crew_a_starting_day_2026fall: {
+    buttonText: '앞으로 잘해봐요!',
+    getTextParts: crusherClubWelcomeTextParts,
+    animation: fall2026StartingDayAnimation,
+  },
+  conquer_crew_b_starting_day_2026fall: {
+    buttonText: '앞으로 잘해봐요!',
+    getTextParts: crusherClubWelcomeTextParts,
+    animation: fall2026StartingDayAnimation,
+  },
+  editor_crew_starting_day_2026fall: {
+    buttonText: '앞으로 잘해봐요!',
+    getTextParts: crusherClubWelcomeTextParts,
+    animation: fall2026StartingDayAnimation,
+  },
   STARTING_DAY: {
     buttonText: '앞으로 잘해봐요!',
-    getTextParts: (nickname: string) => [
-      {text: "'26 봄시즌 크러셔클럽", bold: true},
-      {text: '에 온 크루\n', bold: false},
-      {text: nickname, bold: true},
-      {text: '님 환영합니다!', bold: false},
-    ],
+    getTextParts: crusherClubWelcomeTextParts,
     animation: {
       type: 'lottie',
       source: require('@/assets/animations/crusher_activity_welcome.lottie'),
@@ -61,12 +107,7 @@ const MODAL_CONFIG: Record<
   },
   'editor-crew-starting-day': {
     buttonText: '앞으로 잘해봐요!',
-    getTextParts: (nickname: string) => [
-      {text: "'26 봄시즌 크러셔클럽", bold: true},
-      {text: '에 온 크루\n', bold: false},
-      {text: nickname, bold: true},
-      {text: '님 환영합니다!', bold: false},
-    ],
+    getTextParts: crusherClubWelcomeTextParts,
     animation: {
       type: 'layers',
       layers: [
@@ -94,12 +135,7 @@ const MODAL_CONFIG: Record<
   },
   conquer_crew_a_starting_day: {
     buttonText: '앞으로 잘해봐요!',
-    getTextParts: (nickname: string) => [
-      {text: "'26 봄시즌 크러셔클럽", bold: true},
-      {text: '에 온 크루\n', bold: false},
-      {text: nickname, bold: true},
-      {text: '님 환영합니다!', bold: false},
-    ],
+    getTextParts: crusherClubWelcomeTextParts,
     animation: {
       type: 'layers',
       layers: [
@@ -127,12 +163,7 @@ const MODAL_CONFIG: Record<
   },
   conquer_crew_b_starting_day: {
     buttonText: '앞으로 잘해봐요!',
-    getTextParts: (nickname: string) => [
-      {text: "'26 봄시즌 크러셔클럽", bold: true},
-      {text: '에 온 크루\n', bold: false},
-      {text: nickname, bold: true},
-      {text: '님 환영합니다!', bold: false},
-    ],
+    getTextParts: crusherClubWelcomeTextParts,
     animation: {
       type: 'layers',
       layers: [
@@ -199,6 +230,7 @@ function hasImageLayer(animation: ModalAnimationType): boolean {
 export default function WelcomeModal({
   questTypeOrActivityId,
   recordStatus,
+  season,
 }: WelcomeModalProps) {
   const {userInfo} = useMe();
   const {width: viewportWidth} = useWindowDimensions();
@@ -256,7 +288,7 @@ export default function WelcomeModal({
     return null;
   }
 
-  const textParts = config.getTextParts(userInfo?.nickname || '');
+  const textParts = config.getTextParts(userInfo?.nickname || '', season);
 
   const renderAnimation = () => {
     if (config.animation.type === 'image') {
