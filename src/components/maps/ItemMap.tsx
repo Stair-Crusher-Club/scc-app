@@ -81,7 +81,12 @@ export default function ItemMap<T extends MarkerItem>({
   mapRef: React.RefObject<MapViewHandle | null>;
   mapPadding?: {top: number; right: number; bottom: number; left: number};
   selectedItemId: string | null;
-  onCameraIdle?: (region: Region) => void;
+  /**
+   * @param reason 0=gesture(사용자 조작) · 1=control · 2=location · 3=developer.
+   *   예약된 프로그래매틱 카메라 이동을 사용자 조작이 취소해야 해서 위로 올린다.
+   *   (주의: 카메라 변경 이벤트가 한 번도 없던 **최초** idle 은 네이티브가 0 으로 보고한다)
+   */
+  onCameraIdle?: (region: Region, reason?: number) => void;
   logoPosition?:
     | 'leftBottom'
     | 'leftTop'
@@ -344,7 +349,7 @@ export default function ItemMap<T extends MarkerItem>({
           },
         };
         setCurrentCameraRegion(newRegion);
-        onCameraIdle?.(newRegion);
+        onCameraIdle?.(newRegion, nativeEvent.reason);
 
         // reason: 0=gesture, 1=control, 2=location, 3=developer
         if (nativeEvent.reason !== 0) {

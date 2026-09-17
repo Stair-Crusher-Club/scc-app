@@ -65,7 +65,7 @@ type ItemMapViewProps<T extends MarkerItem> = {
   onRefresh: () => void;
   ItemCard: React.FC<{item: T}>;
   isRefreshVisible: boolean;
-  onCameraIdle: (region: Region) => void;
+  onCameraIdle: (region: Region, reason?: number) => void;
   /**
    * 화면 고유의 하단 UI(자체 플로팅 버튼 등) 높이. 플로팅 버튼 컬럼 전체를 이만큼 더 띄운다.
    * 버튼과 바로 아래 요소 사이의 12px 간격은 [FLOATING_BUTTON_GAP] 이 별도로 보장한다.
@@ -213,6 +213,8 @@ const FRefInputComp = <T extends MarkerItem>(
   // 이 화면이 fitToItems 로 카메라를 가져갔는가. 가져갔으면 현위치로 옮기지 않는다.
   const hasFitRef = useRef(false);
   const didInitialRecenterRef = useRef(false);
+  // 아직 실행되지 않은 fit 카메라 이동의 rAF 핸들 (사용자 조작 시 취소한다).
+  const fitRafRef = useRef<number | null>(null);
 
   const applyFit = useCallback((_items: MarkerItem[], padding: number) => {
     const region = getRegionFromItems(_items);
@@ -226,9 +228,21 @@ const FRefInputComp = <T extends MarkerItem>(
     // 같은 프레임에 이어서 animateToRegion 을 보내면 네이티브가 둘을 한 배치로 처리하면서
     // 카메라 이동이 통째로 삼켜진다(실측: 이동 후 onCameraIdle 의 span 이 그대로 0.0266).
     // 한 프레임 띄워 다음 배치로 보내면 반영된다(span 0.0266 → 0.3245).
-    requestAnimationFrame(() => {
+    fitRafRef.current = requestAnimationFrame(() => {
+      fitRafRef.current = null;
       mapRef.current?.animateToRegion(region, padding, 200);
     });
+  }, []);
+
+  // 사용자가 지도를 손으로 움직이면 카메라 주인이 사용자로 넘어간다 — 아직 안 나간 이동을
+  // 취소하고, 이동 결과 검증/재시도도 하지 않는다. (안 그러면 판을 한 뒤에 카메라가
+  // 제자리로 끌려온다)
+  const cancelPendingFit = useCallback(() => {
+    pendingFitRef.current = null;
+    if (fitRafRef.current !== null) {
+      cancelAnimationFrame(fitRafRef.current);
+      fitRafRef.current = null;
+    }
   }, []);
 
   // 카메라를 가져갈 fit 이 없을 때만 현위치로 **한 번** 옮긴다.
@@ -257,23 +271,31 @@ const FRefInputComp = <T extends MarkerItem>(
   // 늘려 추측하는 대신 **결과를 보고 한 번만 다시 시도한다** — 이동이 끝나면 오는
   // onCameraIdle 의 영역에 아이템이 여전히 다 안 들어오면 fit 이 먹지 않은 것이다.
   const handleCameraIdle = useCallback(
-    (region: Region) => {
+    (region: Region, reason?: number) => {
       // 최초 수신 = 네이티브 지도 초기화 완료 신호. 이후 호출은 no-op(이미 true).
+      const wasMapReady = isMapReadyRef.current;
       isMapReadyRef.current = true;
       attemptInitialRecenter();
-      const pending = pendingFitRef.current;
-      pendingFitRef.current = null;
-      if (
-        pending &&
-        !pending.retried &&
-        shouldRefitCamera(pending.items, region)
-      ) {
-        pendingFitRef.current = {...pending, retried: true};
-        applyFit(pending.items, pending.padding);
+      // reason 0 = 사용자 제스처. 단 카메라 변경 이벤트가 없던 **최초** idle 도 네이티브가
+      // 0 으로 보고하므로(초기값 -1 → gesture 매핑) 지도 준비 전 첫 idle 은 제외한다.
+      const isUserGesture = wasMapReady && reason === 0;
+      if (isUserGesture) {
+        cancelPendingFit();
+      } else {
+        const pending = pendingFitRef.current;
+        pendingFitRef.current = null;
+        if (
+          pending &&
+          !pending.retried &&
+          shouldRefitCamera(pending.items, region)
+        ) {
+          pendingFitRef.current = {...pending, retried: true};
+          applyFit(pending.items, pending.padding);
+        }
       }
-      onCameraIdle?.(region);
+      onCameraIdle?.(region, reason);
     },
-    [onCameraIdle, applyFit, attemptInitialRecenter],
+    [onCameraIdle, applyFit, attemptInitialRecenter, cancelPendingFit],
   );
 
   useImperativeHandle(ref, () => ({
@@ -282,6 +304,7 @@ const FRefInputComp = <T extends MarkerItem>(
     },
     fitToItems: (_items, padding = 30) => {
       hasFitRef.current = true;
+      cancelPendingFit();
       pendingFitRef.current = {items: _items, padding, retried: false};
       applyFit(_items, padding);
     },
