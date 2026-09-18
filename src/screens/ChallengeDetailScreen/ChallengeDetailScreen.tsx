@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {isEmpty} from 'lodash';
 import React, {useEffect, useRef, useState} from 'react';
 import {
@@ -20,6 +20,7 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import usePost from '@/hooks/usePost';
+import {invalidateChallengeQueries} from '@/utils/challengeQueryCache';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
@@ -77,6 +78,7 @@ const ChallengeDetailScreen = ({
   const hasPasscode = data?.hasPasscode ?? false;
   const isB2B = data?.isB2B ?? false;
 
+  const queryClient = useQueryClient();
   const joinChallenge = usePost<
     JoinChallengeRequestDto,
     JoinChallengeResponseDto
@@ -84,6 +86,16 @@ const ChallengeDetailScreen = ({
     const result = await api.joinChallengePost(params);
     return result.data;
   });
+
+  // 참여 성공 시 홈 진척 카드·남은 매장 목록도 갱신한다. usePost 는 mutationKey
+  // (= ['ChallengeDetail', challengeId]) 하나만 무효화해서, 참여 직후 홈으로 나가면
+  // staleTime 5분짜리 HomeScreenData 가 옛 값이라 '{브랜드} 정복하기' 카드가 안 뜬다.
+  // 참여 호출부가 4곳(자동참여·CTA·B2B·패스코드)이라 호출부마다 붙이지 않고 여기 한 곳에서 건다.
+  useEffect(() => {
+    if (joinChallenge.isSuccess) {
+      invalidateChallengeQueries(queryClient);
+    }
+  }, [joinChallenge.isSuccess, queryClient]);
 
   // 챌린지명이 아니라 '챌린지' 고정 (시안 반영, 24:5368)
   useEffect(() => {
