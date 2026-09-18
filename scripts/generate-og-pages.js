@@ -106,15 +106,29 @@ async function waitForServer(baseUrl, {tries = 40, delayMs = 250} = {}) {
  */
 async function startServer(port) {
   console.log(`📡 Starting local server on port ${port}...`);
+  // detached: npx -> npm exec -> serve 로 손자까지 생기므로, 자기 프로세스 그룹을 갖게 해
+  //   그룹째(`kill(-pid)`) 내려야 한다. shell/pipe 로 띄우면 server.kill() 이 껍데기에만
+  //   닿아 serve 가 살아남고, 그 파이프 핸들이 이벤트 루프를 붙잡아 스크립트가 끝나지 않는다
+  //   (CI 실측 2026-09-18: "Pre-rendering complete!" 출력 후 2시간 16분 hang).
+  // stdio ignore: serve 출력은 쓰지 않는다. 파이프를 안 열어야 부모가 붙들리지 않는다.
   const server = spawn('npx', ['serve', DIST_DIR, '-l', String(port), '-s'], {
-    stdio: 'pipe',
-    shell: true,
+    stdio: 'ignore',
+    detached: true,
   });
   server.on('error', err => {
     console.error('❌ serve 프로세스 시작 실패:', err);
   });
   await waitForServer(`http://localhost:${port}`);
   return server;
+}
+
+/** spawn 한 serve 를 프로세스 그룹째 내린다. 이미 죽었으면 조용히 넘어간다. */
+function stopServer(server) {
+  try {
+    process.kill(-server.pid, 'SIGTERM');
+  } catch {
+    server.kill();
+  }
 }
 
 /**
@@ -284,7 +298,7 @@ async function main() {
     generateSitemap();
   } finally {
     await browser.close();
-    server.kill();
+    stopServer(server);
   }
 
   console.log('\n🎉 Pre-rendering complete!');
