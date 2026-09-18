@@ -13,10 +13,13 @@ description: SCC 앱 OTA 배포 + 웹 배포 절차. "OTA 배포해줘", "앱 �
 |---|---|---|
 | prod 앱 | `v*` 태그 push | 앱스토어 사용자에게 안 나감 |
 | sandbox 앱 | `main` push (자동) | 사내 테스트 앱에 안 나감 |
-| **웹 `web.staircrusher.club`** | **로컬 수동** `yarn web:build` + `web-deploy.sh` (**CI 없음**) | 웹은 옛 번들 그대로 — OTA는 여기 안 닿는다 |
+| **웹 `web.staircrusher.club`** | `web-deploy.yml` workflow_dispatch(`confirm=deploy`) **또는** 로컬 `yarn web:build` + `web-deploy.sh` | 웹은 옛 번들 그대로 — OTA는 여기 안 닿는다 |
 | 원격 에셋 (`web-articles/**/assets`) | S3 업로드 | 앱/웹이 404를 받는다 |
 
 - `src/` 화면 변경은 **네이티브 앱과 웹이 같은 코드를 쓴다**(`/home` = `MainScreen.tsx` → `HomeScreenV2`, 웹 전용 홈 없음). 즉 화면을 고치면 **앱 OTA와 웹 배포가 둘 다 필요**하다. OTA만 하고 끝내는 것이 반복된 실수다. (2026-08-07)
+- **웹은 CI 로도 배포된다** — `gh workflow run web-deploy.yml --ref main -f confirm=deploy` (OIDC 라 로컬 AWS 자격증명 불필요).
+  단 CI 와 로컬은 **둘 다 `--delete` sync 라 동시에 돌리면 서로의 산출물을 지운다.** 한쪽을 돌리기 전에
+  다른 쪽이 안 도는지 확인한다(CI 는 `web-deploy` concurrency group 을 물지만 로컬 실행은 그 밖이다).
 - **원격 에셋은 앱/웹보다 먼저 올린다.** 앱이 참조하는 URL이 아직 404면 배포해도 이미지가 안 뜨고, 그 전에 로컬 테스트조차 못 한다.
 
 ### 에셋만 먼저 올리기 (전체 웹 배포와 분리)
@@ -69,7 +72,13 @@ adb shell am force-stop club.staircrusher.sandbox   # 이후 재실행
      - 내부적으로 `ENVFILE=subprojects/scc-frontend-build-configurations/production/.env`가 강제되어 `BASE_URL=https://api.staircrusher.club`가 bake 된다.
      - `ENVFILE=.env.local` 같이 native dev용 env 로 빌드하면 `BASE_URL=10.0.2.2:8080`이 박혀 일반 브라우저에서 닿지 못한다. 절대 그렇게 빌드하지 말 것.
   3. **빌드 후 3개 표면 골든패스 테스트 필수 (MANDATORY)** — 아래 "웹 골든패스" 참조. 하나라도 실패하면 배포 금지.
-  4. `aws-vault exec swann-scc -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
+  4. `aws-vault exec swann-scc --prompt=osascript -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
+     - **`--prompt=osascript` 가 핵심이다.** 기본 `terminal` 프롬프트는 MFA 를 `/dev/tty` 로 읽어
+       tty 없는 세션에서 `open /dev/tty: device not configured` 로 죽는다. osascript 는 macOS GUI
+       다이얼로그를 띄우므로 에이전트 세션에서도 그대로 배포된다 (2026-09-18 실측 — 그전까지
+       "MFA 라 못 한다" 고 사용자에게 넘기고 있었다).
+     - 판정은 `%{http_code}` 가 아니라 **로컬 산출물과 prod 응답의 md5 대조**로 한다:
+       `md5 -q web-dist/bundle.js` vs `curl -s https://web.staircrusher.club/bundle.js | md5 -q`.
   5. 배포 후 prod URL 에서 3개 표면 재확인 (curl 로 HTML 마커 검증 — 브라우저 캐시 우회).
 
 ### 웹 골든패스 (배포 전/후 필수) — web.staircrusher.club 은 표면 3개가 각각 다르게 구현·서빙된다
