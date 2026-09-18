@@ -8,10 +8,11 @@ import Skeleton from '@/components/Skeleton';
 
 import BoostersLogoSvg from '@/assets/icon/boosters_logo.svg';
 import FooterAirplaneIcon from '@/assets/icon/ic_footer_airplane.svg';
+import FooterCgvIcon from '@/assets/icon/ic_footer_cgv.svg';
 import FooterCompassIcon from '@/assets/icon/ic_footer_compass.svg';
 import FooterDonationIcon from '@/assets/icon/ic_footer_donation.svg';
 import FooterInfoIcon from '@/assets/icon/ic_footer_info.svg';
-import FooterLongReviewIcon from '@/assets/icon/ic_footer_long_review.svg';
+import FooterNaverCafeIcon from '@/assets/icon/ic_footer_naver_cafe.svg';
 import {SccPressable} from '@/components/SccPressable';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
@@ -27,6 +28,12 @@ const CONTENT_REPORT_URL =
   'https://forms.staircrusher.club/app-feedback?userId={userId}';
 const NOTICE_URL =
   'https://staircrusherclub.notion.site/1d5c9499b0608059994dcebcf13bb53f?v=1d5c9499b06080968da7000c18db4868&source=copy_link';
+// 에디터크루 전용 롱리뷰 창구 2종. 둘 다 인앱 웹뷰가 아니라 외부 브라우저로 연다 —
+// 네이버 카페 글쓰기는 네이버 로그인 세션이 필요하고, CGV 취재 페이지는 Tally 폼을
+// 새 탭으로 여는 구조라 인앱 웹뷰에서는 작성 플로우가 끊긴다.
+const LONG_REVIEW_CGV_URL = 'https://editor-crew.staircrusher.club/#/';
+const LONG_REVIEW_VISIT_URL =
+  'https://cafe.naver.com/f-e/cafes/31665149/menus/62';
 
 const FOOTER_ROW_HEIGHT = 48;
 const FOOTER_ROW_RADIUS = 8;
@@ -98,8 +105,12 @@ export default function FooterButtonsSection({
     });
   };
 
-  const goToLongReview = () => {
-    Linking.openURL('https://forms.gle/UZzVBhjZbPaexerR9');
+  const goToLongReviewCgv = () => {
+    Linking.openURL(LONG_REVIEW_CGV_URL);
+  };
+
+  const goToLongReviewVisit = () => {
+    Linking.openURL(LONG_REVIEW_VISIT_URL);
   };
 
   const goToNotice = () => {
@@ -113,6 +124,34 @@ export default function FooterButtonsSection({
   return (
     <LogParamsProvider params={{displaySectionName: 'footer_buttons_section'}}>
       <Container>
+        {isEditorCrew && (
+          <FooterRowGroup>
+            <SccPressable
+              style={{flex: 1}}
+              elementName="home_v2_footer_long_review_cgv"
+              onPress={goToLongReviewCgv}>
+              <FooterRow>
+                <RowContent>
+                  <FooterCgvIcon width={16} height={16} />
+                  <FooterText>롱리뷰(CGV)</FooterText>
+                </RowContent>
+              </FooterRow>
+            </SccPressable>
+
+            <SccPressable
+              style={{flex: 1}}
+              elementName="home_v2_footer_long_review_visit"
+              onPress={goToLongReviewVisit}>
+              <FooterRow>
+                <RowContent>
+                  <FooterNaverCafeIcon width={16} height={16} />
+                  <FooterText>롱리뷰(방문 후기)</FooterText>
+                </RowContent>
+              </FooterRow>
+            </SccPressable>
+          </FooterRowGroup>
+        )}
+
         {isTutorialEnabled && (
           <SccPressable
             elementName="home_v2_footer_tutorial"
@@ -158,19 +197,6 @@ export default function FooterButtonsSection({
           </FooterRow>
         </SccPressable>
 
-        {isEditorCrew && (
-          <SccPressable
-            elementName="home_v2_footer_long_review"
-            onPress={goToLongReview}>
-            <FooterRow>
-              <RowContent>
-                <FooterLongReviewIcon width={16} height={16} />
-                <FooterText>[크루전용] 롱리뷰 작성하기</FooterText>
-              </RowContent>
-            </FooterRow>
-          </SccPressable>
-        )}
-
         <SccPressable elementName="home_v2_footer_notice" onPress={goToNotice}>
           <FooterRow>
             <RowContent>
@@ -189,6 +215,12 @@ const Container = styled.View`
   padding-vertical: 40px;
   gap: 8px;
   background-color: ${color.gray15};
+`;
+
+// 2열 버튼 행. 한 줄에 두 개를 반반 나눠 쓴다 (Figma 350 = 171 + 8 + 171).
+const FooterRowGroup = styled.View`
+  flex-direction: row;
+  gap: 8px;
 `;
 
 const FooterRow = styled.View<{disabled?: boolean}>`
