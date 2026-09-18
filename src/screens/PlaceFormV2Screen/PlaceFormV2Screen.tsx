@@ -31,6 +31,7 @@ import FormExitConfirmBottomSheet from '@/modals/FormExitConfirmBottomSheet';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {getCtplConquest} from '@/utils/ctplConquest';
+import {invalidateChallengeQueries} from '@/utils/challengeQueryCache';
 import {updateSearchCacheForPlaceAsync} from '@/utils/SearchPlacesUtils';
 import ToastUtils from '@/utils/ToastUtils';
 import {useBackHandler} from '@react-native-community/hooks';
@@ -726,6 +727,9 @@ async function submitRegistration(
     queryClient.invalidateQueries({
       queryKey: ['PlaceDetailV2', placeId],
     });
+
+    // 정복(챌린지 기여)으로 바뀐 남은 매장 목록·챌린지 진척도·홈 카드 갱신.
+    invalidateChallengeQueries(queryClient);
 
     updateSearchCacheForPlaceAsync(api, queryClient, placeId);
 
