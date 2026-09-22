@@ -1598,6 +1598,25 @@ export interface CompleteUserTutorialSavePlaceListMissionContextDto {
     'placeListId': string;
 }
 /**
+ * 정복 완료 축하 화면의 CTPL 별 에셋. 이 객체나 개별 필드가 null 이면 앱이 내장 기본값(도장 로티 / 연두 강조색)을 쓴다. 마커 아이콘과 달리 로티는 용량이 커서 SVG 원문이 아니라 원격 URL 로 내려준다.
+ * @export
+ * @interface ConquerTargetPlaceListCelebrationDto
+ */
+export interface ConquerTargetPlaceListCelebrationDto {
+    /**
+     * 도장 로티 원격 URL. .lottie / .json 둘 다 가능.
+     * @type {string}
+     * @memberof ConquerTargetPlaceListCelebrationDto
+     */
+    'stampAnimationUrl'?: string | null;
+    /**
+     * 제목의 브랜드명 강조색 hex (예: #A7CE49).
+     * @type {string}
+     * @memberof ConquerTargetPlaceListCelebrationDto
+     */
+    'brandColor'?: string | null;
+}
+/**
  * 챌린지에 연결된 정복 대상 장소 목록.
  * @export
  * @interface ConquerTargetPlaceListDto
@@ -1615,6 +1634,12 @@ export interface ConquerTargetPlaceListDto {
      * @memberof ConquerTargetPlaceListDto
      */
     'displayName': string;
+    /**
+     * 
+     * @type {ConquerTargetPlaceListCelebrationDto}
+     * @memberof ConquerTargetPlaceListDto
+     */
+    'celebration'?: ConquerTargetPlaceListCelebrationDto;
 }
 /**
  * 정복 대상 장소 목록 전용 지도 마커 아이콘. 값은 SVG 원문 문자열이며 앱이 그대로 네이티브 마커 렌더러에 넘긴다 (원격 URL 미지원).
@@ -6284,6 +6309,12 @@ export interface RegisterPlaceAccessibilityResponseDtoV2 {
      * @memberof RegisterPlaceAccessibilityResponseDtoV2
      */
     'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+    /**
+     * 이번 등록이 해당 장소의 첫 접근성 정보였는지. 서버에 재등록 가드가 없어 이미 정복된 장소도 기여로 인정되므로, 정복 완료 축하를 첫 정복에만 띄우려면 이 값이 필요하다. 앱은 true 일 때만 축하를 띄운다.
+     * @type {boolean}
+     * @memberof RegisterPlaceAccessibilityResponseDtoV2
+     */
+    'isFirstPlaceAccessibility'?: boolean;
 }
 /**
  * 

@@ -1,5 +1,10 @@
 import React from 'react';
-import {StyleProp, useWindowDimensions, ViewStyle} from 'react-native';
+import {
+  Animated,
+  StyleProp,
+  useWindowDimensions,
+  ViewStyle,
+} from 'react-native';
 import styled from 'styled-components/native';
 
 import {color} from '@/constant/color';
@@ -22,6 +27,9 @@ const EDGE_MARGIN = 12;
  *   내용 너비만큼만 차지하며 그 위치에 놓인다(Figma 는 변형마다 이 값이 다르다).
  * - `bubbleColor`: 말풍선 + 꼬리 배경색. 기본값은 브랜드 컬러(기존 동작 무변경) —
  *   홈 CTPL 툴팁(166:7622)처럼 검정 계열(gray-v2-90)이 필요한 곳만 지정한다.
+ * - `offset`: 앵커(부모) 상단과 툴팁 하단 사이 간격. 음수면 그만큼 앵커 위로
+ *   겹친다. 위치를 조정하는 창구는 이 prop 하나다 — `style` 로 positioning 을
+ *   다시 정의하지 말 것.
  */
 export default function Tooltip({
   style,
@@ -29,12 +37,15 @@ export default function Tooltip({
   tailPosition = 'center',
   bubbleLeft,
   bubbleColor = color.brandColor,
+  offset = 0,
 }: {
+  /** 시각 스타일 전용(opacity 등). positioning 은 컴포넌트가 소유한다. */
   style?: StyleProp<ViewStyle>;
   text: string;
   tailPosition?: 'center' | number;
   bubbleLeft?: number;
   bubbleColor?: string;
+  offset?: number;
 }) {
   const isCenter = tailPosition === 'center';
   const {width: windowWidth} = useWindowDimensions();
@@ -42,7 +53,11 @@ export default function Tooltip({
   // 줄어들지도 않는다 — maxWidth 로 잘라서 텍스트가 감기게 한다.
   const maxWidth = windowWidth - (bubbleLeft ?? 0) - EDGE_MARGIN;
   return (
-    <Wrapper isCenter={isCenter} style={style}>
+    <Wrapper
+      isCenter={isCenter}
+      offset={offset}
+      pointerEvents="none"
+      style={style}>
       <Bubble
         bubbleLeft={bubbleLeft}
         maxWidth={maxWidth}
@@ -57,11 +72,28 @@ export default function Tooltip({
   );
 }
 
-const Wrapper = styled.View<{isCenter: boolean}>(({isCenter}) => ({
-  width: '100%',
-  flexDirection: 'column',
-  alignItems: isCenter ? 'center' : 'flex-start',
-}));
+// 툴팁은 레이아웃에 영향을 주지 않고 형제 위에 뜬다 — 부모(앵커) 상단에 자기
+// 하단을 맞춰 absolute 로 얹는다. 그래서 호출처는 감싸는 View 하나만 두면 되고
+// 툴팁이 나타나거나 사라져도 아래 요소가 밀리지 않는다.
+// - bottom: '100%' 은 높이를 하드코딩하지 않으므로 1줄/2줄, 시스템 글꼴 확대에도
+//   겹침 폭이 유지된다.
+// - zIndex(iOS) 와 elevation(Android) 을 함께 준다. 형제 draw order 를 정하는
+//   속성이 플랫폼별로 다르고, 없으면 나중에 선언된 형제가 꼬리를 덮는다.
+//   같은 부모 안 형제끼리만 비교되므로 조상의 elevation 과는 경쟁하지 않는다.
+// - Animated.View 인 이유: 호출처가 opacity 애니메이션을 style 로 넘긴다.
+const Wrapper = styled(Animated.View)<{isCenter: boolean; offset: number}>(
+  ({isCenter, offset}) => ({
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: '100%',
+    marginBottom: offset,
+    flexDirection: 'column',
+    alignItems: isCenter ? 'center' : 'flex-start',
+    zIndex: 10,
+    elevation: 10,
+  }),
+);
 
 const Bubble = styled.View<{
   bubbleLeft?: number;
