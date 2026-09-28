@@ -127,9 +127,8 @@ describe('getLatestArticles (실제 manifest)', () => {
     for (const article of articles) {
       expect(article.title).not.toBe('');
       expect(article.imageUrl).toMatch(/^https:\/\/web\.staircrusher\.club\//);
-      expect(article.url).toMatch(
-        /^https:\/\/web\.staircrusher\.club\/articles\/[^/]+$/,
-      );
+      // 링크 카드(linkUrl)는 외부 URL 로 곧장 간다 — 절대 https 인지만 본다
+      expect(article.url).toMatch(/^https:\/\/[^/]+\/.+/);
       expect(article.dateLabel).toMatch(/^\d{4}\.\d{2}\.\d{2}$/);
     }
   });
