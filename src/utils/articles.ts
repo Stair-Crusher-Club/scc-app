@@ -26,6 +26,8 @@ export interface ArticleManifestEntry {
   parent?: string;
   /** 압축 썸네일(webp). build-articles.js가 생성. 없으면 원본 image로 폴백. */
   thumbnail?: string;
+  /** 있으면 상세 페이지 없는 링크 카드 — 카드가 곧장 이 URL 로 간다. */
+  linkUrl?: string;
 }
 
 export interface Article {
@@ -61,7 +63,7 @@ export function selectArticles(
       title: entry.title,
       imageUrl: `${WEB_ORIGIN}${entry.thumbnail ?? entry.image}`,
       dateLabel: formatDate(entry.publishedAt),
-      url: `${WEB_ORIGIN}/articles/${entry.slug}`,
+      url: entry.linkUrl || `${WEB_ORIGIN}/articles/${entry.slug}`,
     }));
 }
 

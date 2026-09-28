@@ -779,12 +779,17 @@ function renderListPage(articles) {
       : `<div class="thumb"></div>`;
   };
   const catAttr = a => escapeAttr((a.categories || []).join('|'));
+  // 링크 카드(linkUrl)는 상세 페이지가 없다 — 카드가 곧장 외부 URL 로 간다.
+  const hrefAttrs = a =>
+    a.linkUrl
+      ? `href="${escapeAttr(a.linkUrl)}" target="_blank" rel="noopener noreferrer"`
+      : `href="/articles/${a.slug}"`;
   const meta = a =>
     `<div class="c-meta"><b>${SITE.name}</b><i></i>${fmtDate(a.publishedAt)}</div>`;
 
   const top = articles[0];
   const featHtml = top
-    ? `<a class="feat" href="/articles/${top.slug}" data-cat="${catAttr(top)}" data-element-name="article_list_featured_card" data-track-view data-log-slug="${escapeAttr(top.slug)}">
+    ? `<a class="feat" ${hrefAttrs(top)} data-cat="${catAttr(top)}" data-element-name="article_list_featured_card" data-track-view data-log-slug="${escapeAttr(top.slug)}">
   ${thumb(top)}
   <div class="feat-body">
     <div class="feat-head">
@@ -803,7 +808,7 @@ function renderListPage(articles) {
       (
         a,
         i,
-      ) => `<a class="card" href="/articles/${a.slug}" data-cat="${catAttr(a)}" data-element-name="article_list_card" data-track-view data-log-slug="${escapeAttr(a.slug)}"${
+      ) => `<a class="card" ${hrefAttrs(a)} data-cat="${catAttr(a)}" data-element-name="article_list_card" data-track-view data-log-slug="${escapeAttr(a.slug)}"${
         i === 0 ? ' data-dup="1"' : ''
       }${i === 0 || i > PAGE_SIZE ? ' hidden' : ''}>
   ${thumb(a)}
@@ -832,11 +837,13 @@ ${CATEGORIES.map(
     '@type': 'CollectionPage',
     name: `아티클 | ${SITE.name}`,
     url,
-    hasPart: articles.map(a => ({
-      '@type': 'Article',
-      headline: a.title,
-      url: `${SITE.baseUrl}/articles/${a.slug}`,
-    })),
+    hasPart: articles
+      .filter(a => !a.linkUrl)
+      .map(a => ({
+        '@type': 'Article',
+        headline: a.title,
+        url: `${SITE.baseUrl}/articles/${a.slug}`,
+      })),
   };
 
   return `<!DOCTYPE html>

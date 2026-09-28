@@ -726,5 +726,23 @@
     "ctaUrl": "https://link.staircrusher.club/jeju_save",
     "ctaLabel": "소개된 곳 모아보기",
     "thumbnail": "/articles/jeju-wheelchair-accessible-cafes/assets/thumb-0.webp"
+  },
+  "3e9c9499-b060-815e-9454-dd6a5c7ff5e0": {
+    "slug": "26fall-art-picnic",
+    "title": "🎨 미술관 나들이 지원 이벤트 🎨",
+    "summary": "",
+    "image": "/articles/26fall-art-picnic/assets/img-0.jpg",
+    "createdTime": "2026-09-28T08:22:00.000Z",
+    "publishedAt": "2026-09-28T08:22:00.000Z",
+    "editedTime": "2026-09-28T08:22:00.000Z",
+    "contentPageId": "3e9c9499-b060-815e-9454-dd6a5c7ff5e0",
+    "featured": null,
+    "categories": [
+      "문화공간"
+    ],
+    "ctaUrl": "",
+    "ctaLabel": "",
+    "linkUrl": "https://forms.staircrusher.club/26fall_art_picnic?ref=app_home",
+    "thumbnail": "/articles/26fall-art-picnic/assets/thumb-0.webp"
   }
 }
