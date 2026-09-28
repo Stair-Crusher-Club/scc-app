@@ -405,6 +405,9 @@ function resolveRow(page) {
   // 폴백한다(article-template의 CTA 참조). 채우는 3버킷 규칙은 /scc-web-articles-publish STEP 2.
   const ctaUrl = readText('ctaUrl');
   const ctaLabel = readText('ctaLabel');
+  // linkUrl(url): 값이 있으면 상세 페이지 없이 목록 카드가 곧장 이 URL 로 간다(이벤트 배너 등).
+  // 썸네일은 row 본문의 첫 이미지. /scc:web-articles-publish 'linkUrl' 절 참조.
+  const linkUrl = readText('linkUrl');
   let ogImage = '';
   const og = props.ogImage;
   if (og) {
@@ -458,6 +461,7 @@ function resolveRow(page) {
     ogImage,
     ctaUrl,
     ctaLabel,
+    linkUrl,
     categories,
     faq,
     featured,
@@ -1663,6 +1667,25 @@ async function buildArticle(meta, times) {
   return {image: ctx.firstImage || '', subPages: ctx.emittedSubPages};
 }
 
+// 링크 카드(linkUrl): 상세 HTML 없이 본문 첫 이미지만 목록 썸네일로 받아둔다.
+async function buildLinkCard(meta) {
+  const assetsDir = prepareArticleDir(path.join(SRC_DIR, meta.slug));
+  const img = (await fetchChildren(meta.contentPageId)).find(
+    b => b.type === 'image',
+  );
+  let image = '';
+  if (img) {
+    const d = img.image;
+    const url = d.type === 'external' ? d.external.url : d.file.url;
+    image = `/articles/${meta.slug}/${await downloadImage(url, assetsDir, 0)}`;
+  } else
+    console.warn(
+      `  ⚠️ ${meta.slug}: 링크 카드 본문에 이미지가 없어 썸네일이 비어 있다`,
+    );
+  pruneUnusedAssets(assetsDir);
+  return {image, subPages: []};
+}
+
 // ---------- sitemap / robots / llms ----------
 function mergeSitemap(articles) {
   const sp = path.join(DIST_DIR, 'sitemap.xml');
@@ -1770,9 +1793,11 @@ function reassembleDist(manifest) {
     renderListPage(topLevel),
   );
   warnIfDetailPagesAreStale();
-  mergeSitemap(all); // 상세 페이지 URL도 sitemap에 포함(SEO)
+  // 링크 카드는 /articles/<slug> 페이지가 없으므로 sitemap/llms 에서 뺀다
+  const pages = all.filter(a => !a.linkUrl);
+  mergeSitemap(pages); // 상세 페이지 URL도 sitemap에 포함(SEO)
   writeRobots();
-  writeLlms(all);
+  writeLlms(pages);
   return all;
 }
 
@@ -1849,12 +1874,13 @@ async function main() {
       createdTime = cp.created_time;
       editedTime = cp.last_edited_time;
     }
-    if (!meta.slug || !meta.summary || !meta.categories.length) {
-      const lack = [
-        !meta.slug && 'slug',
-        !meta.summary && 'summary',
-        !meta.categories.length && 'category',
-      ].filter(Boolean);
+    const lack = [
+      !meta.slug && 'slug',
+      // 링크 카드는 상세 페이지가 없어 summary/category 가 선택이다('전체' 탭에만 뜬다)
+      !meta.linkUrl && !meta.summary && 'summary',
+      !meta.linkUrl && !meta.categories.length && 'category',
+    ].filter(Boolean);
+    if (lack.length) {
       needsMeta.push({meta, page, lack});
       continue;
     }
@@ -1913,6 +1939,7 @@ async function main() {
   LINK_MAP = {};
   CARD_BY_PATH = {};
   for (const {meta} of rows) {
+    if (meta.linkUrl) continue; // 상세 페이지가 없다 — 본문 내부 링크 remap 대상이 아니다
     LINK_MAP[noHy(meta.contentPageId)] = `/articles/${meta.slug}`;
     CARD_BY_PATH[`/articles/${meta.slug}`] = {
       title: meta.title,
@@ -2007,7 +2034,9 @@ async function main() {
     // 이 부모의 기존 상세 페이지 manifest 엔트리 제거 후 재생성(스테일 방지)
     for (const k of Object.keys(manifest))
       if (manifest[k].parent === meta.slug) delete manifest[k];
-    const {image, subPages} = await buildArticle(meta, times);
+    const {image, subPages} = meta.linkUrl
+      ? await buildLinkCard(meta)
+      : await buildArticle(meta, times);
     manifest[meta.rowId] = {
       slug: meta.slug,
       title: meta.title,
@@ -2039,6 +2068,9 @@ async function main() {
       manifest[meta.rowId].categories = meta.categories;
       manifest[meta.rowId].ctaUrl = meta.ctaUrl || '';
       manifest[meta.rowId].ctaLabel = meta.ctaLabel || '';
+      // ponytail: 링크 카드 ↔ 일반 글 전환은 본문 재렌더가 필요하다 → `--only <slug>`
+      if (meta.linkUrl) manifest[meta.rowId].linkUrl = meta.linkUrl;
+      else delete manifest[meta.rowId].linkUrl;
     }
   // 빌드 루프 + pruneUnusedAssets가 모두 끝난 뒤여야 한다 (prune이 방금 만든 썸네일을 지운다).
   await ensureThumbnails(manifest);

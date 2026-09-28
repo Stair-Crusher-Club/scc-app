@@ -80,6 +80,10 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
     > 이미 빌드된 `web-articles/<slug>/index.html`을 그대로 복사하므로, Notion에서 CTA만 고치면 **화면이
     > 안 바뀐다**. `--rerender`(캐시 있으면 수초) 또는 `--only <slug>`/`--force`로 그 글을 다시 렌더해야 한다. (manifest에는 감사용으로
     > 매번 동기화되므로, manifest 값과 HTML이 어긋나 있으면 재렌더가 안 된 것이다.)
+- `linkUrl` (url, 선택) — **링크 카드**(이벤트 배너 등). 값이 있으면 **상세 페이지를 만들지 않고** 목록 카드(웹 `/articles`·앱 홈)의 href 가 곧 이 URL 이다(웹은 새 탭, 앱 웹뷰는 현재 뷰).
+  - 필수는 제목 + `slug`(에셋 디렉토리·로그용) + `linkUrl` 뿐. `summary`/`category` 는 선택이고 category 가 없으면 '전체' 탭에만 뜬다. STEP 2 메타 생성 대상 아님(`faq`/`cta` 불필요).
+  - **썸네일 = row 본문의 첫 이미지 블록**(노션 본문에 이미지 한 장 끌어다 놓기). API 로 넣을 땐 File Upload API(`POST /v1/file_uploads` → `/send` → image 블록 `type:"file_upload"`).
+  - sitemap·llms.txt·목록 JSON-LD 에서 빠진다(존재하지 않는 `/articles/<slug>` 를 가리키지 않게). 내리기는 일반 글과 같이 `[WIP]`.
 - **`published` 프로퍼티 없음** — 발행 여부 = `web-articles/manifest.json`에 존재하는지로 판단.
 
 ## 콘텐츠 투입: mention row (다른 DB 글을 "옮기기")
