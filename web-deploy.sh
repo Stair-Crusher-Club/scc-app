@@ -45,7 +45,8 @@ grep -q 'id="root"' "$BUILD_DIR/bbucle-road/index.html" 2>/dev/null \
     || verify_fail "$BUILD_DIR/bbucle-road/index.html 이 없거나 손상됐습니다 (prerender 누락)."
 # ③ 아티클(정적): 커밋된 web-articles/manifest.json 의 top-level 글 수와 1:1 이어야 한다.
 #    build-articles.js 의 reassembleDist 가 parent 없는 항목만 web-dist/articles/<slug>/ 로 복사한다.
-ARTICLES_EXPECTED=$(python3 -c 'import json;m=json.load(open("web-articles/manifest.json"));print(len([a for a in m.values() if not a.get("parent")]))')
+#    링크 카드(linkUrl)는 상세 index.html 이 없으므로 세지 않는다.
+ARTICLES_EXPECTED=$(python3 -c 'import json;m=json.load(open("web-articles/manifest.json"));print(len([a for a in m.values() if not a.get("parent") and not a.get("linkUrl")]))')
 ARTICLES_BUILT=$(find "$BUILD_DIR/articles" -mindepth 2 -maxdepth 2 -name index.html 2>/dev/null | wc -l | tr -d ' ')
 if [ "$ARTICLES_BUILT" != "$ARTICLES_EXPECTED" ]; then
     verify_fail "아티클 수 불일치: web-dist=$ARTICLES_BUILT, manifest=$ARTICLES_EXPECTED."
