@@ -1,4 +1,4 @@
-import {Animated, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 
 import {SccPressable} from '@/components/SccPressable';
@@ -334,15 +334,6 @@ export const SideButtonLabel = styled.Text<{isOn?: boolean}>(({isOn}) => ({
   lineHeight: 18,
   textAlign: 'center',
 }));
-
-// Figma(174:7786): 툴팁(말풍선 44 + 꼬리 6)이 y=611..661, 촬영 버튼 top 은 y=655.
-// ActionsWrapper top = 촬영 버튼 top 이므로 툴팁 top = -44.
-export const TooltipAnchor = styled(Animated.View)({
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  top: -44,
-});
 
 export const CountdownOverlay = styled.View({
   ...StyleSheet.absoluteFillObject,

@@ -12,7 +12,6 @@ import {
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {
-  AccessibilityInfoV2Dto,
   Building,
   EntranceDoorType,
   FloorMovingMethodTypeDto,
@@ -240,22 +239,6 @@ export default function PlaceFormV2Screen({
     }
     const values = form.getValues();
 
-    // ctpl 정복 완료 축하 중복 등록 가드 — 서버에 재등록 가드가 없어 두 번째
-    // 등록자도 같은 순번을 본다. "등록 진입 시점"(제출 직전) 기준 PA 가 아직
-    // 없었을 때만 축하를 띄운다. PDP 가 이미 캐시해둔 값을 그대로 읽는다(신규
-    // 네트워크 호출 없음) — 캐시가 없으면(딥링크 등 PDP 를 거치지 않은 진입)
-    // 안전하게 "이미 등록됨"으로 간주해 축하를 억제한다.
-    const cachedAccessibility =
-      queryClient.getQueryData<AccessibilityInfoV2Dto>([
-        'PlaceDetailV2',
-        place.id,
-        'Accessibility',
-      ]);
-    const hadPlaceAccessibilityBeforeSubmit =
-      cachedAccessibility === undefined
-        ? true
-        : (cachedAccessibility.placeAccessibilities?.length ?? 0) > 0;
-
     let uploaded: UploadedPhotos;
     try {
       uploaded = await uploadAllPhotos(
@@ -280,9 +263,16 @@ export default function PlaceFormV2Screen({
     // 진입 전에 반영되도록 fire-and-forget으로 호출한다.
     syncUserInfo();
 
-    const conquest = hadPlaceAccessibilityBeforeSubmit
-      ? undefined
-      : getCtplConquest(registered.contributedChallengeInfos);
+    // 정복 완료 축하 조건은 둘 다 서버의 사실이다.
+    // ① 참여 중인 CTPL 챌린지의 대상 장소에 기여했는가
+    //    (getCtplConquest 가 보는 conquerTargetPlaceList — 서버가 참여·소속을 판정)
+    // ② 이번 등록이 그 장소의 첫 정복인가 (isFirstPlaceAccessibility)
+    // 서버에 재등록 가드가 없어 ② 가 필요하다. 예전에는 PDP 의 react-query 캐시
+    // 유무로 ② 를 추정했는데, PDP 를 거치지 않는 진입점(SearchItemCard →
+    // PlaceFormV2)에서는 캐시가 없어 CTPL 주 동선 전체에서 축하가 억제됐다.
+    const conquest = registered.isFirstPlaceAccessibility
+      ? getCtplConquest(registered.contributedChallengeInfos)
+      : undefined;
 
     // 정복 완료 축하가 뜨는 경우 기존 퀘스트 완료 스탬프 팝업은 억제한다 —
     // pushItems 를 호출하지 않으면 큐가 비어 QuestCompletionModal 렌더 조건
@@ -745,6 +735,8 @@ async function submitRegistration(
       // ctpl 정복 완료 축하(getCtplConquest)가 필요로 하는 원본 배열. 위 data는
       // 이미 퀘스트 완료 스탬프용으로 flatMap된 형태라 challenge.goal 등을 잃는다.
       contributedChallengeInfos: res.data.contributedChallengeInfos,
+      // 축하를 첫 정복에만 띄우기 위한 서버 판정. 서버가 PA insert 전에 읽은 값이다.
+      isFirstPlaceAccessibility: res.data.isFirstPlaceAccessibility,
     };
   } catch (error: any) {
     await Logger.logAccessibilityRegistration({

@@ -609,24 +609,24 @@ export default function CameraScreen({
       </S.TakenPhotosSection>
       <S.ActionsWrapper>
         {visibleTooltip !== null && (
-          <S.TooltipAnchor
-            pointerEvents="none"
-            style={{opacity: tooltipOpacity}}>
-            <Tooltip
-              text={
-                visibleTooltip === 'albumLocked'
-                  ? '1개의 장소를 현장 등록하면\n앨범 등록이 가능해요'
-                  : visibleTooltip === 'albumActivated'
-                    ? '이제, 앨범에 있는 사진을\n바로 등록할 수 있어요!'
-                    : '사진 촬영이 어렵다면\n가이드의 도움을 받을 수 있어요!'
-              }
-              // Figma: 앨범 툴팁은 bubble x=28 · 꼬리 8(중심 13) → 절대 41,
-              // 가이드 툴팁은 bubble x=12 · 꼬리 86(중심 91) → 절대 103.
-              // 각 버튼 원 중심(앨범 42.5 / 가이드 103.5)을 가리킨다.
-              bubbleLeft={visibleTooltip === 'guideIntro' ? 12 : 28}
-              tailPosition={visibleTooltip === 'guideIntro' ? 91 : 13}
-            />
-          </S.TooltipAnchor>
+          <Tooltip
+            text={
+              visibleTooltip === 'albumLocked'
+                ? '1개의 장소를 현장 등록하면\n앨범 등록이 가능해요'
+                : visibleTooltip === 'albumActivated'
+                  ? '이제, 앨범에 있는 사진을\n바로 등록할 수 있어요!'
+                  : '사진 촬영이 어렵다면\n가이드의 도움을 받을 수 있어요!'
+            }
+            // Figma: 앨범 툴팁은 bubble x=28 · 꼬리 8(중심 13) → 절대 41,
+            // 가이드 툴팁은 bubble x=12 · 꼬리 86(중심 91) → 절대 103.
+            // 각 버튼 원 중심(앨범 42.5 / 가이드 103.5)을 가리킨다.
+            bubbleLeft={visibleTooltip === 'guideIntro' ? 12 : 28}
+            tailPosition={visibleTooltip === 'guideIntro' ? 91 : 13}
+            // Figma(174:7786): 툴팁 y=611..661(높이 50), ActionsWrapper(촬영 버튼)
+            // top 은 655 → 툴팁 하단이 앵커 상단보다 6 아래로 걸친다.
+            offset={-6}
+            style={{opacity: tooltipOpacity}}
+          />
         )}
         <S.SideButton
           left={20}
