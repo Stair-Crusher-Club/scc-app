@@ -84,6 +84,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
   - 필수는 제목 + `slug`(에셋 디렉토리·로그용) + `linkUrl` 뿐. `summary`/`category` 는 선택이고 category 가 없으면 '전체' 탭에만 뜬다. STEP 2 메타 생성 대상 아님(`faq`/`cta` 불필요).
   - **썸네일 = row 본문의 첫 이미지 블록**(노션 본문에 이미지 한 장 끌어다 놓기). API 로 넣을 땐 File Upload API(`POST /v1/file_uploads` → `/send` → image 블록 `type:"file_upload"`).
   - sitemap·llms.txt·목록 JSON-LD 에서 빠진다(존재하지 않는 `/articles/<slug>` 를 가리키지 않게). 내리기는 일반 글과 같이 `[WIP]`.
+  - **manifest 엔트리에 새 종류를 추가하면 소비처 불변식을 전수 확인한다** — `grep -rln 'manifest' web-deploy.sh src scripts`. 링크 카드 때 `web-deploy.sh` 아티클 수 게이트(index.html 개수)와 `src/utils/articles.test.ts`(실제 manifest URL 가정)가 **배포 단계에서야** 깨졌다(2026-09-28, PR #294·#295).
 - **`published` 프로퍼티 없음** — 발행 여부 = `web-articles/manifest.json`에 존재하는지로 판단.
 
 ## 콘텐츠 투입: mention row (다른 DB 글을 "옮기기")
