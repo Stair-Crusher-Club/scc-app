@@ -27,9 +27,9 @@ const EDGE_MARGIN = 12;
  *   내용 너비만큼만 차지하며 그 위치에 놓인다(Figma 는 변형마다 이 값이 다르다).
  * - `bubbleColor`: 말풍선 + 꼬리 배경색. 기본값은 브랜드 컬러(기존 동작 무변경) —
  *   홈 CTPL 툴팁(166:7622)처럼 검정 계열(gray-v2-90)이 필요한 곳만 지정한다.
- * - `offset`: 앵커(부모) 상단과 툴팁 하단 사이 간격. 음수면 그만큼 앵커 위로
- *   겹친다. 위치를 조정하는 창구는 이 prop 하나다 — `style` 로 positioning 을
- *   다시 정의하지 말 것.
+ * - `offset`: 앵커(부모) 상단과 **툴팁 하단(꼬리 끝)** 사이 간격. 음수면 그만큼
+ *   앵커 위로 겹친다. Figma 에서 잰 값을 그대로 넣으면 된다.
+ *   위치를 조정하는 창구는 이 prop 하나다 — `style` 로 positioning 을 다시 정의하지 말 것.
  */
 export default function Tooltip({
   style,
@@ -87,7 +87,12 @@ const Wrapper = styled(Animated.View)<{isCenter: boolean; offset: number}>(
     left: 0,
     right: 0,
     bottom: '100%',
-    marginBottom: offset,
+    // 꼬리는 Bubble 의 absolute 자식이라 Yoga 가 Wrapper 높이에서 제외한다 — 즉
+    // bottom:'100%' 가 앵커 상단에 맞추는 건 꼬리 끝이 아니라 말풍선 밑변이다.
+    // offset 을 "툴팁 하단 기준" 으로 쓰게 하려고 여기서 꼬리 높이를 보정한다.
+    // marginBottom 이 -N 이면 말풍선 하단이 앵커 상단보다 N 내려간다. 꼬리 끝을 N
+    // 내리려면 말풍선은 N-6 만 내려야 하므로 음수 offset 에 꼬리 높이를 더한다.
+    marginBottom: offset + TAIL_HEIGHT,
     flexDirection: 'column',
     alignItems: isCenter ? 'center' : 'flex-start',
     zIndex: 10,

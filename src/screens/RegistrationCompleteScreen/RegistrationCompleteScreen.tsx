@@ -1,6 +1,6 @@
 import {CommonActions} from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 
 import {useMe} from '@/atoms/Auth';
@@ -310,16 +310,29 @@ const ButtonContainer = styled.View({
  * 남고(iOS 의 animations/<id>.json 경로 요구), 그 경우 여기서만 드러난다.
  */
 function ConquestStamp({animationUrl}: {animationUrl?: string}) {
+  // 원격 URL 은 운영이 넣는 자유 문자열이라 404·오타·포맷 오류가 가능하다. 실패하면
+  // 빈 박스가 남지 않도록 내장 기본 로티로 내려앉는다.
+  const [remoteFailed, setRemoteFailed] = useState(false);
+  const useRemote = !!animationUrl && !remoteFailed;
+
   return (
     <ConquestStampBox>
       <LottieView
-        source={animationUrl ? {uri: animationUrl} : conquestStampAnimation}
+        key={useRemote ? 'remote' : 'bundled'}
+        source={useRemote ? {uri: animationUrl} : conquestStampAnimation}
         autoPlay
         loop={false}
         style={conquestStampStyle}
         onAnimationFailure={error => {
+          if (useRemote) {
+            setRemoteFailed(true);
+          }
           Logger.logError(
-            new Error(`Lottie animation error [ctpl_conquest_stamp]: ${error}`),
+            new Error(
+              `Lottie animation error [ctpl_conquest_stamp]${
+                useRemote ? ' (remote)' : ''
+              }: ${error}`,
+            ),
           );
         }}
       />
@@ -329,12 +342,12 @@ function ConquestStamp({animationUrl}: {animationUrl?: string}) {
 
 const conquestStampStyle = {
   position: 'absolute' as const,
-  // 도장 로티 캔버스(375x259.5)는 컨테이너(330px)보다 넓게 그려진 뒤 잘리는 디자인 —
+  // 도장 로티 캔버스(375x260)는 컨테이너(330px)보다 넓게 그려진 뒤 잘리는 디자인 —
   // 좌우를 대칭으로 넘치게 배치한다((330-375)/2 = -22.5). Figma 166:7629 실측.
   top: 12,
   left: -22.5,
   width: 375,
-  height: 259.5,
+  height: 260,
 };
 
 const ConquestContainer = styled.View`
