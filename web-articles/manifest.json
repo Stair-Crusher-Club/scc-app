@@ -744,5 +744,22 @@
     "ctaLabel": "",
     "linkUrl": "https://forms.staircrusher.club/26fall_art_picnic?ref=app_home",
     "thumbnail": "/articles/26fall-art-picnic/assets/thumb-0.webp"
+  },
+  "3ebc9499-b060-80b1-8695-c7808a7f8bef": {
+    "slug": "seoul-autumn-large-cafes-wheelchair",
+    "title": "가을날 가기 좋은 서울·근교 대형 카페 10곳",
+    "summary": "가을에 휠체어로 가기 좋은 서울·경기 대형 카페 10곳. 한강뷰·식물원·베이커리·루프탑 카페를 계단뿌셔클럽 에디터가 직접 다녀와 입구·경사로·엘리베이터·장애인 화장실 등 접근성 정보와 함께 소개해요.",
+    "image": "/articles/seoul-autumn-large-cafes-wheelchair/assets/img-0.png",
+    "createdTime": "2026-09-29T08:33:00.000Z",
+    "publishedAt": "2026-10-01T05:24:00.000Z",
+    "editedTime": "2026-10-01T05:26:00.000Z",
+    "contentPageId": "3eac9499-b060-80da-af41-ddfeda127dcb",
+    "featured": null,
+    "categories": [
+      "맛집/카페"
+    ],
+    "ctaUrl": "https://link.staircrusher.club/7o6ck7?placeListId=PL_SbxuPxhD",
+    "ctaLabel": "소개된 곳 모아보기",
+    "thumbnail": "/articles/seoul-autumn-large-cafes-wheelchair/assets/thumb-0.webp"
   }
 }
