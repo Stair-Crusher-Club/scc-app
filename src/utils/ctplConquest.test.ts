@@ -64,6 +64,48 @@ describe('getCtplConquest', () => {
     });
   });
 
+  it('CTPL 이 축하 에셋을 주면 그대로 싣는다', () => {
+    const infos = [
+      infoOf({
+        id: 'c1',
+        contributionsCount: 1,
+        goal: 10,
+        hasConquerTargetPlaceList: true,
+        conquerTargetPlaceList: {
+          id: 'ctpl-1',
+          displayName: '올리브영',
+          celebration: {
+            stampAnimationUrl: 'https://cdn.example.com/stamp.lottie',
+            brandColor: '#A7CE49',
+          },
+        },
+      }),
+    ];
+    expect(getCtplConquest(infos)).toEqual({
+      challengeId: 'c1',
+      brandName: '올리브영',
+      order: 1,
+      total: 10,
+      stampAnimationUrl: 'https://cdn.example.com/stamp.lottie',
+      brandColor: '#A7CE49',
+    });
+  });
+
+  it('hex 가 아닌 brandColor 는 버려서 앱 기본색으로 폴백시킨다', () => {
+    const infos = [
+      infoOf({
+        id: 'c1',
+        hasConquerTargetPlaceList: true,
+        conquerTargetPlaceList: {
+          id: 'ctpl-1',
+          displayName: '올리브영',
+          celebration: {brandColor: 'red; content: evil'},
+        },
+      }),
+    ];
+    expect(getCtplConquest(infos)?.brandColor).toBeUndefined();
+  });
+
   it('여러 챌린지 중 CTPL 이 연결된 것만 고른다', () => {
     const infos = [
       infoOf({id: 'c1', hasConquerTargetPlaceList: false}),

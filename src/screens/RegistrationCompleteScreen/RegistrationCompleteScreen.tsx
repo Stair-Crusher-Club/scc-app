@@ -1,12 +1,6 @@
 import {CommonActions} from '@react-navigation/native';
-import React, {useEffect} from 'react';
-import {Image} from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 
 import {useMe} from '@/atoms/Auth';
@@ -16,14 +10,16 @@ import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 import {Building, Place} from '@/generated-sources/openapi';
 import {usePlaceDetailScreenName} from '@/hooks/useFeatureFlags';
+import Logger from '@/logging/Logger';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 import {BuildingRegistrationEvent} from '@/screens/PlaceDetailV2Screen/constants';
 import {CtplConquest} from '@/utils/ctplConquest';
 import {useBackHandler} from '@react-native-community/hooks';
 import {REGISTRATION_COMPLETE_CONTENT} from './constants';
 
-const conquestStampGrayImage = require('@/assets/img/img_challenge_conquest_stamp_gray.png');
-const conquestStampGreenImage = require('@/assets/img/img_challenge_conquest_stamp_green.png');
+const conquestStampAnimation = require('@/assets/animations/ctpl_conquest_stamp.lottie');
+/** Figma 166:7626 의 브랜드명 강조색. CTPL 이 자기 색을 주면 그 값이 이긴다. */
+const DEFAULT_CONQUEST_BRAND_COLOR = '#a7ce49';
 
 export interface RegistrationCompleteScreenParams {
   target: 'place' | 'building';
@@ -145,14 +141,17 @@ export default function RegistrationCompleteScreen({
             <ConquestTextBlock>
               <ConquestTitle>
                 {`${conquest.order}번째 `}
-                <ConquestTitleBrand>{`${conquest.brandName} `}</ConquestTitleBrand>
+                <ConquestTitleBrand
+                  brandColor={
+                    conquest.brandColor ?? DEFAULT_CONQUEST_BRAND_COLOR
+                  }>{`${conquest.brandName} `}</ConquestTitleBrand>
                 {'\n정복 완료!'}
               </ConquestTitle>
               <ConquestDescription>
                 {`${userInfo?.nickname ?? '크러셔'}님 덕분에 ${conquest.total}개의 ${conquest.brandName} 중 \n${conquest.order}번째 ${conquest.brandName}을 정복했어요.`}
               </ConquestDescription>
             </ConquestTextBlock>
-            <ConquestStamp />
+            <ConquestStamp animationUrl={conquest.stampAnimationUrl} />
           </ConquestTopBlock>
           <ConquestButtonContainer>
             <SccButton
@@ -303,39 +302,48 @@ const ButtonContainer = styled.View({
 
 // Conquest celebration variant styles
 
-/** 회색 → 연두 도장 크로스페이드. Lottie 파일이 오지 않는 한 reanimated opacity 로 충분. */
-function ConquestStamp() {
-  const progress = useSharedValue(0);
-
-  useEffect(() => {
-    progress.value = withTiming(1, {
-      duration: 700,
-      easing: Easing.out(Easing.ease),
-    });
-  }, [progress]);
-
-  const greenStyle = useAnimatedStyle(() => ({opacity: progress.value}));
+/**
+ * 회색 도장이 연두로 찍히는 로티. 60fps · 0.75초 · 1회 재생 후 마지막 프레임(연두)에서
+ * 멈춘다. CTPL 이 자기 로티 URL 을 주면 그걸 쓰고, 없으면 앱 내장 기본 로티를 쓴다.
+ *
+ * 실패를 조용히 넘기지 않는다 — dotLottie 는 포맷이 어긋나면 크래시 없이 빈 화면만
+ * 남고(iOS 의 animations/<id>.json 경로 요구), 그 경우 여기서만 드러난다.
+ */
+function ConquestStamp({animationUrl}: {animationUrl?: string}) {
+  // 원격 URL 은 운영이 넣는 자유 문자열이라 404·오타·포맷 오류가 가능하다. 실패하면
+  // 빈 박스가 남지 않도록 내장 기본 로티로 내려앉는다.
+  const [remoteFailed, setRemoteFailed] = useState(false);
+  const useRemote = !!animationUrl && !remoteFailed;
 
   return (
     <ConquestStampBox>
-      <Image
-        source={conquestStampGrayImage}
-        resizeMode="contain"
-        style={conquestStampImageStyle}
-      />
-      <Animated.Image
-        source={conquestStampGreenImage}
-        resizeMode="contain"
-        style={[conquestStampImageStyle, greenStyle]}
+      <LottieView
+        key={useRemote ? 'remote' : 'bundled'}
+        source={useRemote ? {uri: animationUrl} : conquestStampAnimation}
+        autoPlay
+        loop={false}
+        style={conquestStampStyle}
+        onAnimationFailure={error => {
+          if (useRemote) {
+            setRemoteFailed(true);
+          }
+          Logger.logError(
+            new Error(
+              `Lottie animation error [ctpl_conquest_stamp]${
+                useRemote ? ' (remote)' : ''
+              }: ${error}`,
+            ),
+          );
+        }}
       />
     </ConquestStampBox>
   );
 }
 
-const conquestStampImageStyle = {
+const conquestStampStyle = {
   position: 'absolute' as const,
-  // 정복 도장 에셋은 컨테이너(330px)보다 넓게(375px) 그려진 뒤 잘리는 디자인 —
-  // 좌우를 대칭으로 넘치게 배치한다((330-375)/2 = -22.5).
+  // 도장 로티 캔버스(375x260)는 컨테이너(330px)보다 넓게 그려진 뒤 잘리는 디자인 —
+  // 좌우를 대칭으로 넘치게 배치한다((330-375)/2 = -22.5). Figma 166:7629 실측.
   top: 12,
   left: -22.5,
   width: 375,
@@ -368,8 +376,8 @@ const ConquestTitle = styled.Text`
   text-align: center;
 `;
 
-const ConquestTitleBrand = styled.Text`
-  color: #a7ce49;
+const ConquestTitleBrand = styled.Text<{brandColor: string}>`
+  color: ${({brandColor}) => brandColor};
 `;
 
 const ConquestDescription = styled.Text`
