@@ -6196,6 +6196,12 @@ export interface RegisterPlaceAccessibilityResponseDtoV2 {
      * @memberof RegisterPlaceAccessibilityResponseDtoV2
      */
     'contributedChallengeInfos'?: Array<ContributedChallengeInfoDto>;
+    /**
+     * 이번 등록이 해당 장소의 첫 접근성 정보였는지. 서버에 재등록 가드가 없어 이미 정복된 장소도 기여로 인정되므로, 정복 완료 축하를 첫 정복에만 띄우려면 이 값이 필요하다. 앱은 true 일 때만 축하를 띄운다.
+     * @type {boolean}
+     * @memberof RegisterPlaceAccessibilityResponseDtoV2
+     */
+    'isFirstPlaceAccessibility'?: boolean;
 }
 /**
  * 
