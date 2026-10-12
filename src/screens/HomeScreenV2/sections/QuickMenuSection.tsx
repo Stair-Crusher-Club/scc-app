@@ -171,8 +171,8 @@ export default function QuickMenuSection({
                 bubbleLeft={12}
                 tailPosition={13}
                 bubbleColor={color.gray90v2}
-                // Figma 166:7422 실측: 툴팁 꼬리가 카드 상단에 살짝 걸친다.
-                style={{marginBottom: -8}}
+                // Figma 166:7422 실측: 툴팁(246x34) 하단이 카드 상단보다 12 아래.
+                offset={-12}
               />
             )}
             <SccPressable
