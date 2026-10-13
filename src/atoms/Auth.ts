@@ -14,6 +14,7 @@ export const ANONYMOUS_USER_TEMPLATE: User = {
   nickname: '비회원',
   mobilityTools: [],
   isNewsLetterSubscriptionAgreed: false,
+  isMarketingPushAgreed: false,
   interestedRegionIds: [],
   interestedThemes: [],
 };

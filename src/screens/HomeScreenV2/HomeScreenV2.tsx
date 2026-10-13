@@ -51,6 +51,7 @@ import {useIsForeground} from '@/hooks/useIsForeground';
 import {useUserTutorialProgress} from '@/hooks/useUserTutorialProgress';
 import Logger from '@/logging/Logger';
 import AppUpgradeNeededBottomSheet from '@/modals/AppUpgradeNeededBottomSheet';
+import MarketingPushAgreementBottomSheet from '@/modals/MarketingPushAgreementBottomSheet';
 import GeolocationPermissionBottomSheet, {
   GeolocationErrorReason,
 } from '@/modals/GeolocationPermissionBottomSheet';
@@ -313,6 +314,13 @@ const HomeScreenV2 = ({navigation}: any) => {
     return activePopup != null ? 'eligible' : 'ineligible';
   })();
 
+  const marketingPushAgreementStatus: HomeOverlayStatus = (() => {
+    if (homeData === undefined) return 'pending'; // API 응답 대기 중
+    return homeData.needsMarketingPushAgreementConfirmation
+      ? 'eligible'
+      : 'ineligible';
+  })();
+
   const overlays: HomeOverlay[] = [
     {
       id: 'tutorial-intro',
@@ -354,6 +362,13 @@ const HomeScreenV2 = ({navigation}: any) => {
             onClose();
           }}
         />
+      ),
+    },
+    {
+      id: 'marketing-push-agreement',
+      status: marketingPushAgreementStatus,
+      render: onClose => (
+        <MarketingPushAgreementBottomSheet isVisible={true} onClose={onClose} />
       ),
     },
   ];

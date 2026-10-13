@@ -2909,6 +2909,12 @@ export interface GetHomeScreenDataResponseDto {
      * @memberof GetHomeScreenDataResponseDto
      */
     'quickAction'?: HomeQuickActionDto;
+    /**
+     * 마케팅 수신동의 확인 팝업을 띄워야 하는지 (한 번도 확인 안 했거나 마지막 확인 후 2년 경과). 비로그인/익명은 false.
+     * @type {boolean}
+     * @memberof GetHomeScreenDataResponseDto
+     */
+    'needsMarketingPushAgreementConfirmation': boolean;
 }
 /**
  * 
@@ -7757,6 +7763,32 @@ export interface UnsavePlaceRequestDto {
     'placeListId'?: string;
 }
 /**
+ * 
+ * @export
+ * @interface UpdateMarketingPushAgreementRequestDto
+ */
+export interface UpdateMarketingPushAgreementRequestDto {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpdateMarketingPushAgreementRequestDto
+     */
+    'isAgreed': boolean;
+}
+/**
+ * 
+ * @export
+ * @interface UpdateMarketingPushAgreementResponseDto
+ */
+export interface UpdateMarketingPushAgreementResponseDto {
+    /**
+     * 
+     * @type {User}
+     * @memberof UpdateMarketingPushAgreementResponseDto
+     */
+    'user': User;
+}
+/**
  * 인증번호로 전화번호 업데이트 요청
  * @export
  * @interface UpdatePhoneNumberWithVerifCodeRequestDto
@@ -8022,6 +8054,12 @@ export interface User {
      * @memberof User
      */
     'isNewsLetterSubscriptionAgreed': boolean;
+    /**
+     * 마케팅 정보(광고성) 푸시 수신 동의 여부.
+     * @type {boolean}
+     * @memberof User
+     */
+    'isMarketingPushAgreed': boolean;
     /**
      * 사용자가 등록한 관심 지역 ID 목록. 윌리의 외출 NUX 튜토리얼의 RegisterUserInterestedRegionsAndThemes 미션에서 설정한다. 한 번도 설정한 적 없으면 빈 배열. 
      * @type {Array<string>}
@@ -12004,6 +12042,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 
+         * @summary 마케팅 정보(광고성) 푸시 수신 동의 여부를 수정한다.
+         * @param {UpdateMarketingPushAgreementRequestDto} updateMarketingPushAgreementRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateMarketingPushAgreementPost: async (updateMarketingPushAgreementRequestDto: UpdateMarketingPushAgreementRequestDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'updateMarketingPushAgreementRequestDto' is not null or undefined
+            assertParamExists('updateMarketingPushAgreementPost', 'updateMarketingPushAgreementRequestDto', updateMarketingPushAgreementRequestDto)
+            const localVarPath = `/updateMarketingPushAgreement`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Identified required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateMarketingPushAgreementRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
          * @summary 인증번호로 전화번호를 검증하고 업데이트한다.
          * @param {UpdatePhoneNumberWithVerifCodeRequestDto} updatePhoneNumberWithVerifCodeRequestDto 
@@ -13218,6 +13296,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 
+         * @summary 마케팅 정보(광고성) 푸시 수신 동의 여부를 수정한다.
+         * @param {UpdateMarketingPushAgreementRequestDto} updateMarketingPushAgreementRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateMarketingPushAgreementPost(updateMarketingPushAgreementRequestDto: UpdateMarketingPushAgreementRequestDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UpdateMarketingPushAgreementResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateMarketingPushAgreementPost(updateMarketingPushAgreementRequestDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
          * @summary 인증번호로 전화번호를 검증하고 업데이트한다.
          * @param {UpdatePhoneNumberWithVerifCodeRequestDto} updatePhoneNumberWithVerifCodeRequestDto 
@@ -14219,6 +14308,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         unsavePlaceList(unsavePlaceListRequestDto: UnsavePlaceListRequestDto, options?: any): AxiosPromise<void> {
             return localVarFp.unsavePlaceList(unsavePlaceListRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary 마케팅 정보(광고성) 푸시 수신 동의 여부를 수정한다.
+         * @param {UpdateMarketingPushAgreementRequestDto} updateMarketingPushAgreementRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateMarketingPushAgreementPost(updateMarketingPushAgreementRequestDto: UpdateMarketingPushAgreementRequestDto, options?: any): AxiosPromise<UpdateMarketingPushAgreementResponseDto> {
+            return localVarFp.updateMarketingPushAgreementPost(updateMarketingPushAgreementRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
          * sendPhoneNumberVerifCodeSms API로 발송된 인증번호와 토큰을 사용하여 전화번호를 검증하고 사용자 프로필에 저장합니다. 
@@ -15407,6 +15506,18 @@ export class DefaultApi extends BaseAPI {
      */
     public unsavePlaceList(unsavePlaceListRequestDto: UnsavePlaceListRequestDto, options?: AxiosRequestConfig) {
         return DefaultApiFp(this.configuration).unsavePlaceList(unsavePlaceListRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary 마케팅 정보(광고성) 푸시 수신 동의 여부를 수정한다.
+     * @param {UpdateMarketingPushAgreementRequestDto} updateMarketingPushAgreementRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public updateMarketingPushAgreementPost(updateMarketingPushAgreementRequestDto: UpdateMarketingPushAgreementRequestDto, options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateMarketingPushAgreementPost(updateMarketingPushAgreementRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
