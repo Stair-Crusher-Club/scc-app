@@ -119,7 +119,7 @@ curl -s -H "X-Figma-Token: $TOKEN" \
 
 ### 6.2 S3 업로드
 ```bash
-aws-vault exec swann-scc -- aws s3 cp image.png \
+aws-vault exec scc -- aws s3 cp image.png \
   s3://scc-dev-accessibility-images-2/$(date +%Y%m%d%H%M%S)_filename.png \
   --acl public-read
 ```

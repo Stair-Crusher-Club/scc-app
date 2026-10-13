@@ -1,7 +1,7 @@
 name: Web Deployment
 
 # web.staircrusher.club (S3 staircrusher-club-web + CloudFront E3RDKBHB12EC6A) 배포.
-# 로컬 `aws-vault exec swann-scc -- ./web-deploy.sh` 경로는 그대로 살아 있고,
+# 로컬 `aws-vault exec scc -- ./web-deploy.sh` 경로는 그대로 살아 있고,
 # 이 워크플로는 AWS 자격증명이 없는 사람도 배포할 수 있도록 OIDC 로 같은 스크립트를 돌린다.
 
 on:

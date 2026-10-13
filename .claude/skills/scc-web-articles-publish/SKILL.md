@@ -36,7 +36,7 @@ description: Notion에 작성한 콘텐츠를 web.staircrusher.club/articles 정
    - **발행 대상 article-list DB**: `383c9499b06080639b1be2bcdc48981c` (Notion "web.staircrusher.club 아티클").
 4. **의존성**: `yarn add @notionhq/client` (scc-app).
 5. **Lambda 배포(1회)**: `seo-handler.js`의 `/articles` 패턴을 반영하려면 Lambda@Edge 재배포 필요.
-   `/scc:infra-ops` 절차로 `staircrusher-club-web` 모듈 `aws-vault exec swann-scc -- terraform apply`. (사용자 명시 요청 시에만)
+   `/scc:infra-ops` 절차로 `staircrusher-club-web` 모듈 `aws-vault exec scc -- terraform apply`. (사용자 명시 요청 시에만)
 
 ## Notion DB 스키마 (최소화 — 사람은 글만 쓴다)
 
@@ -233,7 +233,7 @@ yarn web:build                                   # ① SPA + bbucle prerender + 
 NOTION_TOKEN=... node scripts/build-articles.js --db <id>   # ② articles를 web-dist에 다시 채움 + sitemap 머지
 bash ../.claude/hooks/lib/claude-bg.sh npx serve web-dist -l 5052   # ③ 로컬 확인 (MANDATORY). `-s`는 금지 —
                                                  #    SPA 폴백이 /articles/<slug>를 가로채 /login으로 보낸다
-aws-vault exec swann-scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무효화
+aws-vault exec scc -- ./web-deploy.sh       # ④ S3 sync + CloudFront 무효화
 ```
 - **★ ②가 다시 `신규/변경 1`을 찍으면 그냥 넘기지 말고 diff 를 본다.** 두 원인이 겹쳐 있다:
   1. `publishedAt` 스탬프는 row 조회 **이후**에 찍히므로 첫 빌드의 manifest `editedTime` 은 **항상 한 빌드 뒤처진다** →

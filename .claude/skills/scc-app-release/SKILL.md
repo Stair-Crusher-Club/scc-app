@@ -28,7 +28,7 @@ description: SCC 앱 OTA 배포 + 웹 배포 절차. "OTA 배포해줘", "앱 �
 
 ```bash
 cd scc-app
-aws-vault exec swann-scc -- aws s3 sync web-articles/ s3://staircrusher-club-web/articles/ \
+aws-vault exec scc -- aws s3 sync web-articles/ s3://staircrusher-club-web/articles/ \
   --exclude "*" --include "*/assets/thumb-0.webp" --content-type "image/webp"   # --delete 금지
 curl -s -o /dev/null -w '%{content_type}\n' https://web.staircrusher.club/articles/<slug>/assets/thumb-0.webp
 ```
@@ -36,7 +36,7 @@ curl -s -o /dev/null -w '%{content_type}\n' https://web.staircrusher.club/articl
 - **`--delete`를 절대 붙이지 않는다** — 붙이면 `articles/` 아래 나머지가 다 지워진다.
 - **신규 추가 vs 내용 교체는 처리가 다르다.** 없던 경로를 새로 올리는 것이면 CloudFront에 캐시될 게 없어 무효화가 불필요하다. 하지만 **같은 경로의 내용을 바꾸면 무효화가 필수**다(에셋엔 `no-cache`가 안 붙는다 — `web-deploy.sh`는 HTML/bundle.js에만 붙인다):
   ```bash
-  aws-vault exec swann-scc -- aws cloudfront create-invalidation \
+  aws-vault exec scc -- aws cloudfront create-invalidation \
     --distribution-id E3RDKBHB12EC6A --paths "/articles/*"
   ```
   판정은 로컬 파일과 prod 응답의 **md5 대조**로 한다 — 200/`content_type`만으로는 옛 바이트가 오는 걸 못 잡는다. 앱에서도 FastImage 캐시를 지워야 새 바이트가 보인다(위 함정 참조).
@@ -72,7 +72,7 @@ adb shell am force-stop club.staircrusher.sandbox   # 이후 재실행
      - 내부적으로 `ENVFILE=subprojects/scc-frontend-build-configurations/production/.env`가 강제되어 `BASE_URL=https://api.staircrusher.club`가 bake 된다.
      - `ENVFILE=.env.local` 같이 native dev용 env 로 빌드하면 `BASE_URL=10.0.2.2:8080`이 박혀 일반 브라우저에서 닿지 못한다. 절대 그렇게 빌드하지 말 것.
   3. **빌드 후 3개 표면 골든패스 테스트 필수 (MANDATORY)** — 아래 "웹 골든패스" 참조. 하나라도 실패하면 배포 금지.
-  4. `aws-vault exec swann-scc --prompt=osascript -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
+  4. `aws-vault exec scc --prompt=osascript -- ./web-deploy.sh` (S3 업로드 + CloudFront 무효화)
      - **`--prompt=osascript` 가 핵심이다.** 기본 `terminal` 프롬프트는 MFA 를 `/dev/tty` 로 읽어
        tty 없는 세션에서 `open /dev/tty: device not configured` 로 죽는다. osascript 는 macOS GUI
        다이얼로그를 띄우므로 에이전트 세션에서도 그대로 배포된다 (2026-09-18 실측 — 그전까지
