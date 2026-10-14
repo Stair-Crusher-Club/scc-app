@@ -30,8 +30,8 @@ const MarketingPushAgreementBottomSheet = ({isVisible, onClose}: Props) => {
       <ContentsContainer>
         <Title>혜택·소식 알림을 받아보시겠어요?</Title>
         <Message>
-          계단뿌셔클럽의 이벤트, 챌린지 소식 같은 마케팅 정보를 푸시 알림으로
-          보내드려요. 메뉴 &gt; 설정에서 언제든 바꿀 수 있어요.
+          계단뿌셔클럽이 소개하는 콘텐츠나 이벤트 같은 마케팅 정보를 푸시
+          알림으로 보내드려요. 메뉴 &gt; 설정에서 언제든 바꿀 수 있어요.
         </Message>
       </ContentsContainer>
       <BottomSheetButtonGroup
