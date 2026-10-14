@@ -2,6 +2,7 @@ import React from 'react';
 import {View} from 'react-native';
 
 import {ScreenLayout} from '@/components/ScreenLayout';
+import {isFeatureEnabled} from '@/features/sandboxFeatures';
 import {ScreenProps} from '@/navigation/Navigation.screens';
 
 import BottomButtons from './components/BottomButtons';
@@ -15,7 +16,9 @@ const SettingScreen = ({}: ScreenProps<'Setting'>) => {
       <View className="h-[26px]" />
       <VersionRow />
       <IdRow />
-      <MarketingPushAgreementRow />
+      {isFeatureEnabled('MARKETING_PUSH_AGREEMENT') && (
+        <MarketingPushAgreementRow />
+      )}
       <View className="flex-1" />
       <BottomButtons />
     </ScreenLayout>

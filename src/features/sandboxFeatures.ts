@@ -7,7 +7,10 @@ import Config from 'react-native-config';
  * - sandbox/local에서만 각 플래그의 enabled 값에 따라 동작
  * - 새 QA 기능 추가 시 여기에 플래그 등록
  */
-const SANDBOX_FEATURES = {} as const;
+const SANDBOX_FEATURES = {
+  // 마케팅 푸시 수신동의 홈 팝업 + 설정 토글 (specs/marketing-push-agreement)
+  MARKETING_PUSH_AGREEMENT: true,
+} as const;
 
 type FeatureKey = keyof typeof SANDBOX_FEATURES;
 

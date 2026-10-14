@@ -41,6 +41,7 @@ import {
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {prefetchRemoteImage} from '@/components/SccRemoteImage';
 import {color} from '@/constant/color';
+import {isFeatureEnabled} from '@/features/sandboxFeatures';
 import {GetClientVersionStatusResponseDtoStatusEnum} from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {
@@ -315,6 +316,7 @@ const HomeScreenV2 = ({navigation}: any) => {
   })();
 
   const marketingPushAgreementStatus: HomeOverlayStatus = (() => {
+    if (!isFeatureEnabled('MARKETING_PUSH_AGREEMENT')) return 'ineligible';
     if (homeData === undefined) return 'pending'; // API 응답 대기 중
     return homeData.needsMarketingPushAgreementConfirmation
       ? 'eligible'
