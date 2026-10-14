@@ -2114,5 +2114,12 @@ if (require.main === module) {
     hasRenderCache,
     CACHE_DIR,
     CACHE_V,
+    // 단일 Notion 페이지 → 정적 HTML 재사용 (staircrusher-club-home/tools/build-notion-page.js)
+    retrievePage,
+    fetchChildren,
+    fetchPageLayout,
+    downloadImage,
+    indexHeadings,
+    renderBlocks,
   };
 }
