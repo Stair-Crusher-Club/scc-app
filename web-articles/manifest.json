@@ -382,7 +382,7 @@
     "image": "/articles/anguk-station-wheelchair-accessible-cafes/assets/img-0.png",
     "createdTime": "2026-08-02T14:16:00.000Z",
     "publishedAt": "2026-08-04T09:52:00.000Z",
-    "editedTime": "2026-08-04T09:16:00.000Z",
+    "editedTime": "2026-10-14T11:30:00.000Z",
     "contentPageId": "3b0c9499-b060-8077-a20e-cf4b53c9f0f8",
     "featured": null,
     "categories": [
@@ -778,5 +778,22 @@
     "ctaUrl": "",
     "ctaLabel": "",
     "thumbnail": "/articles/wheelchair-autumn-foliage-near-seoul/assets/thumb-0.webp"
+  },
+  "3fac9499-b060-803c-bffe-f8f91d353d99": {
+    "slug": "yeonhui-wheelchair-accessible-restaurants-cafes",
+    "title": "[휠체어로 가는 연희동] 문턱 낮은 맛집·카페 16곳 with 연희레이",
+    "summary": "휠체어로 갈 수 있는 연희동 맛집·카페 16곳. 연희동 10년 차 로컬 크리에이터 연희레이가 추천한 베이글링하우스·잇웰 연희·이너커피·우동카덴·작은스페인 등을 입구 턱·경사로·출입문 등 접근성 정보와 함께 소개해요.",
+    "image": "/articles/yeonhui-wheelchair-accessible-restaurants-cafes/assets/img-0.png",
+    "createdTime": "2026-10-14T11:30:00.000Z",
+    "publishedAt": "2026-10-15T06:51:00.000Z",
+    "editedTime": "2026-10-15T06:49:00.000Z",
+    "contentPageId": "3f9c9499-b060-80ab-8c1d-e94b8aa221d6",
+    "featured": null,
+    "categories": [
+      "맛집/카페"
+    ],
+    "ctaUrl": "https://link.staircrusher.club/7o6ck7?placeListId=PL_O4W5A1NW",
+    "ctaLabel": "소개된 곳 모아보기",
+    "thumbnail": "/articles/yeonhui-wheelchair-accessible-restaurants-cafes/assets/thumb-0.webp"
   }
 }
