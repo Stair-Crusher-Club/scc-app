@@ -67,6 +67,11 @@ type ItemMapViewProps<T extends MarkerItem> = {
    * 버튼과 바로 아래 요소 사이의 12px 간격은 [FLOATING_BUTTON_GAP] 이 별도로 보장한다.
    */
   myLocationBottomOffset?: number;
+  /**
+   * 카드 캐러셀에서 포커스된 장소 id 가 바뀔 때 알린다(선택이 없으면 첫 장소). 카드 높이가
+   * 장소마다 달라서 카드 위에 붙여야 하는 화면 고유 UI 의 위치를 잡을 때 쓴다.
+   */
+  onFocusedItemIdChange?: (id: string | null) => void;
   // 화장실 레이어 overlay
   overlayMarkers?: MarkerItem[];
   overlayFocusedItem?: MarkerItem | null;
@@ -96,6 +101,7 @@ const FRefInputComp = <T extends MarkerItem>(
     isRefreshVisible,
     onCameraIdle,
     myLocationBottomOffset,
+    onFocusedItemIdChange,
     overlayMarkers,
     overlayFocusedItem,
     onOverlayMarkerPress,
@@ -337,6 +343,13 @@ const FRefInputComp = <T extends MarkerItem>(
       );
     }
   }
+
+  const focusedItemId = selectedItemId ?? items[0]?.id ?? null;
+  const onFocusedItemIdChangeRef = useRef(onFocusedItemIdChange);
+  onFocusedItemIdChangeRef.current = onFocusedItemIdChange;
+  useEffect(() => {
+    onFocusedItemIdChangeRef.current?.(focusedItemId);
+  }, [focusedItemId]);
 
   const showOverlayCard = overlayFocusedItem != null && OverlayItemCard != null;
   // 플로팅 버튼 아래에 카드(캐러셀/overlay)가 깔리는지. 없으면 버튼 아래가 곧 navbar 다.
