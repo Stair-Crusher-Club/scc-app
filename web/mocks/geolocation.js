@@ -17,7 +17,12 @@ const Geolocation = {
       error && error({code: 2, message: 'Geolocation unavailable'});
       return;
     }
-    browserGeo.getCurrentPosition(success, error, options);
+    // 네이티브(Android)처럼 maximumAge 기본값을 무한대로 — 브라우저 기본값 0 은 지도의
+    // watchPosition 이 위치를 받아간 뒤 기기가 가만히 있으면 응답이 영영 오지 않는다.
+    browserGeo.getCurrentPosition(success, error, {
+      maximumAge: Infinity,
+      ...options,
+    });
   },
 
   watchPosition(success, error, options) {
