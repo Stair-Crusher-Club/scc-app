@@ -52,7 +52,13 @@ export default function SearchInputText({
     setDraftKeyword(text);
     debounceSearch(text);
   };
+  // 확정 검색/지우기 뒤에 남은 미리보기 검색이 300ms 늦게 발동하면 방금 정한 검색 조건을 덮어쓴다.
+  const onSubmit = () => {
+    debounceSearch.cancel();
+    onTextUpdate(draftKeyword ?? searchQuery.text ?? '', false);
+  };
   const onClear = () => {
+    debounceSearch.cancel();
     setDraftKeyword('');
     setViewState({type: 'map', inputMode: false});
     onTextUpdate('', false);
@@ -127,17 +133,13 @@ export default function SearchInputText({
               : (searchQuery.text ?? '')
           }
           returnKeyType="search"
-          onSubmitEditing={() => {
-            onTextUpdate(draftKeyword ?? searchQuery.text ?? '', false);
-          }}
+          onSubmitEditing={onSubmit}
           autoFocus={autoFocus}
         />
         <IconButton
           elementName="search_clear_or_submit_button"
           onPress={() => {
-            isTextExists
-              ? onClear()
-              : onTextUpdate(draftKeyword ?? searchQuery.text ?? '', false);
+            isTextExists ? onClear() : onSubmit();
           }}
           activeOpacity={0.6}>
           {isTextExists ? (

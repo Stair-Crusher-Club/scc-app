@@ -352,3 +352,27 @@ describe('SearchInputText - Korean IME race condition', () => {
     expect(queryByTestId('search-icon')).toBeNull();
   });
 });
+
+describe('SearchInputText - 미리보기 debounce', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('확정 검색 뒤에 남은 미리보기 검색이 늦게 발동하지 않는다', () => {
+    // 발동하면 확정 검색의 조건(location)을 덮어써 진행 중 요청이 취소됐다.
+    const store = createTestStore({inputMode: true});
+    const {input, onTextUpdate} = renderSearchInput({store});
+
+    fireEvent.changeText(input, '카페');
+    fireEvent(input, 'submitEditing');
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    expect(onTextUpdate.mock.calls).toEqual([['카페', false]]);
+  });
+});
