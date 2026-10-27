@@ -436,6 +436,10 @@ export default function PlaceDetailV2Screen({
   const showNegativeFeedbackBottomSheet = (type: ReportTargetTypeDto) => {
     checkAuth(
       () => {
+        if (Platform.OS === 'web') {
+          showAppInstallPrompt('이 기능은 앱에서만 이용할 수 있어요');
+          return;
+        }
         setReportTargetType(type);
       },
       undefined,
@@ -506,6 +510,10 @@ export default function PlaceDetailV2Screen({
     checkAuth(
       () => {
         if (!place) return;
+        if (Platform.OS === 'web') {
+          showAppInstallPrompt('이 기능은 앱에서만 이용할 수 있어요');
+          return;
+        }
         navigation.navigate('AddComment', {type: 'place', placeId: place.id});
       },
       undefined,
@@ -517,6 +525,10 @@ export default function PlaceDetailV2Screen({
     checkAuth(
       () => {
         if (!place || !building) return;
+        if (Platform.OS === 'web') {
+          showAppInstallPrompt('이 기능은 앱에서만 이용할 수 있어요');
+          return;
+        }
         navigation.navigate('AddComment', {
           type: 'building',
           placeId: place.id,

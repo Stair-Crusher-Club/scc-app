@@ -3,6 +3,7 @@ import {Platform} from 'react-native';
 
 import {Location} from '@/generated-sources/openapi';
 import LocationConfirmBottomSheet from '@/modals/LocationConfirmBottomSheet';
+import {showAppInstallPrompt} from '@/utils/appInstallPrompt';
 import {getDistanceFromCurrentLocation as getDistanceMetersFromCurrentLocation} from '@/utils/LocationCheckUtils';
 
 interface NavigateWithLocationCheckParams {
@@ -30,11 +31,11 @@ export default function useNavigateWithLocationCheck() {
       type,
       onNavigate,
     }: NavigateWithLocationCheckParams) => {
-      // 웹: 위치 확인 모달은 "현장 방문" 전제라 의미가 없고, 대상(정보등록/리뷰)은
-      // 모두 앱 전용이라 어차피 라우트 게이트가 앱 설치를 유도한다. 모달 없이 바로
-      // 진행해 앱 설치 팝업이 위치 모달에 가려지지 않고 즉시 뜨게 한다.
+      // 웹: 대상(정보등록/리뷰 폼)은 모두 앱 전용이다. 이동하지 않고 여기서 막는다 —
+      // 이동 후 라우트 게이트가 goBack 하는 방식은 폼의 나가기 확인 시트에 막혀
+      // 계속 작성할 수 있었다(PlaceFormV2·BuildingFormV2).
       if (Platform.OS === 'web') {
-        onNavigate();
+        showAppInstallPrompt('이 기능은 앱에서만 이용할 수 있어요');
         return;
       }
       // 거리 체크

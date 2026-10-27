@@ -51,6 +51,13 @@ const FLOATING_BUTTON_GAP = 12;
  */
 const FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY = 20 - FLOATING_BUTTON_GAP;
 
+/**
+ * 카드 캐러셀 아래 여백(safe area + 화면별 오프셋)의 최소값. 폰은 safe area 가 이 간격을
+ * 만들어 주지만, safe area 가 없는 화면(데스크톱 웹, 버튼 내비 Android)에선 카드가
+ * 바닥에 붙는다. 여백이 이미 이보다 크면(safe area, 탭바, 오프셋) 그대로 둔다.
+ */
+const CARD_MIN_BOTTOM_GAP = 16;
+
 export type ItemMapViewHandle<T extends MarkerItem> = {
   moveToItem: (item: T) => void;
   fitToItems: (items: MarkerItem[], padding?: number) => void;
@@ -341,6 +348,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const showOverlayCard = overlayFocusedItem != null && OverlayItemCard != null;
   // 플로팅 버튼 아래에 카드(캐러셀/overlay)가 깔리는지. 없으면 버튼 아래가 곧 navbar 다.
   const hasContentBelowButtons = showOverlayCard || items.length > 0;
+  const cardBottomInset = Math.max(insets.bottom, CARD_MIN_BOTTOM_GAP);
 
   return (
     <Container>
@@ -367,7 +375,7 @@ const FRefInputComp = <T extends MarkerItem>(
         mapPadding={{
           top: 100, // 이 지역 재검색 버튼 높이를 하드코딩으로 고려, 차후 수정 필요
           right: 30,
-          bottom: insets.bottom + CARD_LIST_HEIGHT + 30 + tabBarHeight,
+          bottom: cardBottomInset + CARD_LIST_HEIGHT + 30 + tabBarHeight,
           left: 30,
         }}
         logoPosition="leftBottom"
@@ -395,10 +403,12 @@ const FRefInputComp = <T extends MarkerItem>(
           //
           // 카드가 없으면 버튼 아래가 곧 navbar/safe area 다. 버튼 자신의 margin-bottom
           // 위에 차액을 더해 20px 이 되게 한다.
-          paddingBottom:
+          paddingBottom: Math.max(
             (tabBarHeight || insets.bottom) +
-            (myLocationBottomOffset ?? 0) +
-            (hasContentBelowButtons ? 0 : FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY),
+              (myLocationBottomOffset ?? 0) +
+              (hasContentBelowButtons ? 0 : FLOATING_BUTTON_EXTRA_GAP_ON_EMPTY),
+            hasContentBelowButtons ? CARD_MIN_BOTTOM_GAP : 0,
+          ),
         }}
         pointerEvents="box-none">
         {showToiletLayerToggle && (
