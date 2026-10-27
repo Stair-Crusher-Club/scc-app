@@ -1,11 +1,10 @@
 import {useQuery} from '@tanstack/react-query';
 import {atom, useAtom} from 'jotai';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {FlatList, LayoutChangeEvent, Platform, View} from 'react-native';
+import {FlatList, Platform, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {getMarkerSvg, MarkerColors} from '@/assets/markers';
-import {CARD_LIST_HEIGHT} from '@/components/maps/constants';
 import ItemMapView, {ItemMapViewHandle} from '@/components/maps/ItemMapView';
 import {MarkerItem, toPlaceMarkerItem} from '@/components/maps/MarkerItem';
 import {Region, shouldRefitCamera} from '@/components/maps/Types';
@@ -41,11 +40,9 @@ type ViewMode = 'list' | 'map';
 
 // ItemMapView 카드 캐러셀 높이 (PlaceListDetailScreen 과 동일 값)
 const MAP_CARD_HEIGHT = 270;
-// ItemMapList 의 카드 래퍼 상하 padding(14 * 2). 카드 본문 높이에 더하면 실제 카드 높이다.
-const MAP_CARD_WRAPPER_PADDING = 28;
 // ItemMapView 의 myLocationBottomOffset — 카드 캐러셀 바닥이 safe area 위로 뜨는 높이.
 const MAP_CARD_BOTTOM_OFFSET = 16;
-// 목록보기 버튼과 카드 사이 간격.
+// 목록보기·내 위치 버튼과 포커스된 카드 사이 간격.
 const FLOATING_BUTTON_CARD_GAP = 16;
 
 const DEFAULT_FILTERS: PlaceListFilterOptions = {
@@ -91,9 +88,10 @@ export default function ChallengeConquerTargetPlacesScreen({
 
   // 지도 카드는 정보 없는 장소일수록 짧다(캐러셀 밴드는 고정 높이, 카드는 바닥 정렬).
   // 목록보기 버튼을 밴드 높이로 띄우면 짧은 카드 위에서 버튼이 멀어지므로, 포커스된
-  // 카드의 실제 높이를 재서 그 위 16px 에 붙인다.
-  const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
-  const [cardHeights, setCardHeights] = useState<Record<string, number>>({});
+  // 카드의 실제 높이를 받아 그 위 16px 에 붙인다. 내 위치 버튼은 ItemMapView 가 같은 기준으로 붙인다.
+  const [focusedCardHeight, setFocusedCardHeight] = useState<number | null>(
+    null,
+  );
 
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode ?? 'list');
   const [filters, setFilters] = useAtom(ctplFilterAtom);
@@ -227,23 +225,15 @@ export default function ChallengeConquerTargetPlacesScreen({
   // 무효화가 이 화면의 쿼리를 대상으로 한다 (PlaceListDetailScreen과 동일 패턴).
   const ConquerTargetItemCard = useCallback(
     ({item}: {item: PlaceMarkerItem}) => (
-      <View
-        onLayout={(e: LayoutChangeEvent) => {
-          const {height} = e.nativeEvent.layout;
-          setCardHeights(prev =>
-            prev[item.id] === height ? prev : {...prev, [item.id]: height},
-          );
-        }}>
-        <SearchItemCard
-          item={item}
-          isHeightFlex
-          isConquestMode
-          hideScoreIcon
-          hidePlaceTags
-          hideRegisterShortcuts
-          listQueryKey={queryKey}
-        />
-      </View>
+      <SearchItemCard
+        item={item}
+        isHeightFlex
+        isConquestMode
+        hideScoreIcon
+        hidePlaceTags
+        hideRegisterShortcuts
+        listQueryKey={queryKey}
+      />
     ),
     [queryKey],
   );
@@ -252,13 +242,6 @@ export default function ChallengeConquerTargetPlacesScreen({
     setViewMode(prev => (prev === 'list' ? 'map' : 'list'));
   }, []);
 
-  const focusedCardHeight =
-    focusedItemId != null && cardHeights[focusedItemId] != null
-      ? Math.min(
-          cardHeights[focusedItemId] + MAP_CARD_WRAPPER_PADDING,
-          CARD_LIST_HEIGHT,
-        )
-      : null;
   const floatingBottom =
     viewMode === 'list'
       ? insets.bottom + 24
@@ -316,7 +299,8 @@ export default function ChallengeConquerTargetPlacesScreen({
                 onRefresh={() => {}}
                 onCameraIdle={handleCameraIdle}
                 myLocationBottomOffset={MAP_CARD_BOTTOM_OFFSET}
-                onFocusedItemIdChange={setFocusedItemId}
+                floatingButtonCardGap={FLOATING_BUTTON_CARD_GAP}
+                onFocusedCardHeightChange={setFocusedCardHeight}
                 markerIconOverride={markerIconOverride}
               />
             </View>
