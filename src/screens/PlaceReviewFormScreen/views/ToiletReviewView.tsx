@@ -21,6 +21,12 @@ import {
 import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import useAppComponents from '@/hooks/useAppComponents';
 import {
+  REGISTER_TIMEOUT_MS,
+  REQUEST_ID_HEADER,
+  useIdempotencyKey,
+} from '@/hooks/useIdempotencyKey';
+import {
+  showUploadFailedToast,
   useImageUploadWithProgress,
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
@@ -63,6 +69,7 @@ export default function ToiletReviewView({
   const queryClient = useQueryClient();
   const {userInfo} = useMe();
   const {uploadImages, uploadProgress} = useImageUploadWithProgress();
+  const getIdempotencyKey = useIdempotencyKey();
   const setRecentlyUsedMobilityTool = useSetAtom(recentlyUsedMobilityToolAtom);
 
   const form = useForm<FormValues>({
@@ -85,9 +92,11 @@ export default function ToiletReviewView({
     async ({
       values,
       uploaded,
+      requestId,
     }: {
       values: FormValues;
       uploaded: {images: string[]};
+      requestId: string;
     }) =>
       submitRegistration({
         api,
@@ -95,6 +104,7 @@ export default function ToiletReviewView({
         placeId: place?.id!,
         values,
         uploaded,
+        requestId,
       }),
   );
 
@@ -109,15 +119,22 @@ export default function ToiletReviewView({
           timestamp: Date.now(),
         });
 
+        // 사진 URL 은 업로드마다 달라지므로 업로드 전 입력(로컬 사진 포함)으로 키를 정한다.
+        const requestId = getIdempotencyKey(values);
+
         let uploaded: {images: string[]};
         try {
           uploaded = await uploadAllPhotos({api, values, uploadImages});
-        } catch {
-          ToastUtils.show('사진 업로드를 실패했습니다.');
+        } catch (e) {
+          showUploadFailedToast(e);
           return;
         }
 
-        const registered = await submitMutation.mutateAsync({values, uploaded});
+        const registered = await submitMutation.mutateAsync({
+          values,
+          uploaded,
+          requestId,
+        });
 
         if (!registered) {
           return;
@@ -130,6 +147,7 @@ export default function ToiletReviewView({
       api,
       place,
       uploadImages,
+      getIdempotencyKey,
       setRecentlyUsedMobilityTool,
       submitMutation,
       queryClient,
@@ -177,27 +195,32 @@ async function submitRegistration({
   placeId,
   values,
   uploaded,
+  requestId,
 }: {
   api: DefaultApi;
   queryClient: QueryClient;
   placeId: string;
   values: FormValues;
   uploaded: {images: string[]};
+  requestId: string;
 }) {
   try {
     const isNoneOrEtc =
       values.toiletLocationType === 'NONE' ||
       values.toiletLocationType === 'ETC';
-    await api.registerToiletReviewPost({
-      placeId,
-      mobilityTool: values.mobilityTool,
-      toiletLocationType: values.toiletLocationType,
-      entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
-      comment: values.comment,
-      locationComment: values.locationComment,
-      imageUrls: uploaded.images,
-      floor: isNoneOrEtc ? undefined : values.floor,
-    } as unknown as RegisterToiletReviewRequestDto); // FIXME: update api yaml
+    await api.registerToiletReviewPost(
+      {
+        placeId,
+        mobilityTool: values.mobilityTool,
+        toiletLocationType: values.toiletLocationType,
+        entranceDoorTypes: isNoneOrEtc ? values.doorTypes : [values.doorTypes],
+        comment: values.comment,
+        locationComment: values.locationComment,
+        imageUrls: uploaded.images,
+        floor: isNoneOrEtc ? undefined : values.floor,
+      } as unknown as RegisterToiletReviewRequestDto, // FIXME: update api yaml
+      {headers: {[REQUEST_ID_HEADER]: requestId}, timeout: REGISTER_TIMEOUT_MS},
+    );
 
     queryClient.invalidateQueries({
       queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.ToiletReview],
