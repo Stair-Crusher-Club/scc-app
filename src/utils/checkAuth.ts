@@ -11,9 +11,10 @@ export function useCheckAuth() {
   const navigation = useNavigation<NavigationProp<ScreenParams>>();
   const isAnonymousUser = useAtomValue(isAnonymousUserAtom);
 
-  // 3번째 인자(message)는 네이티브 호환용 자리. 웹의 앱 전용(카메라 등록 등) 기능
-  // 진입은 message 가 아니라 RootScreen 라우트 게이트(APP_ONLY 라우트 진입 시 앱 설치
-  // 유도)가 일괄 처리한다. 도움돼요/저장처럼 웹에서 가능한 액션은 그대로 실행한다.
+  // 3번째 인자(message)는 네이티브 호환용 자리. 웹의 앱 전용(정보 등록·리뷰·신고 등)
+  // 기능은 onAuth 안에서 이동 전에 앱 설치 팝업으로 막는다(useNavigateWithLocationCheck,
+  // PDP 핸들러). RootScreen 라우트 게이트는 그걸 빠져나간 진입의 안전망이다.
+  // 도움돼요/저장처럼 웹에서 가능한 액션은 그대로 실행한다.
   const checkAuth = (
     onAuth: () => void,
     onFailed?: () => void,

@@ -240,7 +240,7 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
           const bounds = new window.naver.maps.LatLngBounds();
           markerObjectsRef.current.forEach(m => bounds.extend(m.getPosition()));
           programmaticMoveRef.current = true;
-          map.fitBounds(bounds, {padding: paddingObject(mapPadding, 60)});
+          map.fitBounds(bounds, fitMargin(mapPadding, 60));
         },
         animateToRegion: (region: Region, padding: number) => {
           const map = mapInstanceRef.current;
@@ -256,7 +256,7 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
             ),
           );
           programmaticMoveRef.current = true;
-          map.fitBounds(bounds, {padding: paddingObject(mapPadding, padding)});
+          map.fitBounds(bounds, fitMargin(mapPadding, padding));
         },
         animateCamera: (center: LatLng, duration: number) => {
           const map = mapInstanceRef.current;
@@ -325,19 +325,20 @@ const MapViewComponent = forwardRef<MapViewHandle, NativeProps>(
   },
 );
 
-function paddingObject(
+// fitBounds 의 margin. 네이버 지도 JS 는 {top,right,bottom,left} 를 그대로 받는다 —
+// {padding: {...}} 로 감싸면 여백 0 으로 취급한다(실측).
+// 네이티브는 mapPadding 을 지도 content inset 으로 두고 fit padding 을 그 안에 따로 적용하므로
+// 웹은 둘을 더해 같은 영역을 만든다.
+function fitMargin(
   mapPadding: NativeProps['mapPadding'],
-  fallback: number,
+  padding: number,
 ): {top: number; right: number; bottom: number; left: number} {
-  if (mapPadding) {
-    return {
-      top: mapPadding.top,
-      right: mapPadding.right,
-      bottom: mapPadding.bottom,
-      left: mapPadding.left,
-    };
-  }
-  return {top: fallback, right: fallback, bottom: fallback, left: fallback};
+  return {
+    top: (mapPadding?.top ?? 0) + padding,
+    right: (mapPadding?.right ?? 0) + padding,
+    bottom: (mapPadding?.bottom ?? 0) + padding,
+    left: (mapPadding?.left ?? 0) + padding,
+  };
 }
 
 export default MapViewComponent;
