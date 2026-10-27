@@ -28,7 +28,10 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
-import {useImageUploadWithProgress} from '@/hooks/useImageUploadWithProgress';
+import {
+  showUploadFailedToast,
+  useImageUploadWithProgress,
+} from '@/hooks/useImageUploadWithProgress';
 import usePost from '@/hooks/usePost';
 import ImageFile from '@/models/ImageFile';
 import {ScreenProps} from '@/navigation/Navigation.screens';
@@ -835,7 +838,7 @@ export default function ReportCorrectionFormScreen({
         finalBaElevatorUrls,
       });
     } catch (e) {
-      ToastUtils.show('사진 업로드를 실패했습니다.');
+      showUploadFailedToast(e);
     } finally {
       setIsUploading(false);
     }

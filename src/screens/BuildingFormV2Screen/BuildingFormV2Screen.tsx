@@ -15,6 +15,7 @@ import {SccPressable} from '@/components/SccPressable';
 import TabBar from '@/components/TabBar';
 import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import {
+  showUploadFailedToast,
   useImageUploadWithProgress,
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
@@ -39,6 +40,10 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
+import {
+  REGISTER_TIMEOUT_MS,
+  useIdempotencyKey,
+} from '@/hooks/useIdempotencyKey';
 import {useKeyboardVisible} from '@/hooks/useKeyboardVisible';
 import usePost from '@/hooks/usePost';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -101,6 +106,7 @@ export default function BuildingFormV2Screen({
   const queryClient = useQueryClient();
 
   const {uploadImages, uploadProgress} = useImageUploadWithProgress();
+  const getIdempotencyKey = useIdempotencyKey();
   const [currentTab, setCurrentTab] = useState<TabType>('entrance');
   const isKeyboardVisible = useKeyboardVisible();
 
@@ -350,9 +356,11 @@ export default function BuildingFormV2Screen({
     async ({
       values,
       uploaded,
+      requestId,
     }: {
       values: FormValues;
       uploaded: UploadedPhotos;
+      requestId: string;
     }) =>
       submitRegistration(
         api,
@@ -361,6 +369,7 @@ export default function BuildingFormV2Screen({
         building.id,
         values,
         uploaded,
+        requestId,
       ),
   );
 
@@ -371,16 +380,22 @@ export default function BuildingFormV2Screen({
           return;
         }
 
+        // 사진 URL 은 업로드마다 달라지므로 업로드 전 입력(로컬 사진 포함)으로 키를 정한다.
+        const requestId = getIdempotencyKey(values);
+
         let uploaded: UploadedPhotos;
         try {
           uploaded = await uploadAllPhotos(api, values, uploadImages);
         } catch (e) {
-          Logger.logError(e as Error);
-          ToastUtils.show('사진 업로드를 실패했습니다.');
+          showUploadFailedToast(e);
           return;
         }
 
-        const registered = await submitMutation.mutateAsync({values, uploaded});
+        const registered = await submitMutation.mutateAsync({
+          values,
+          uploaded,
+          requestId,
+        });
 
         if (!registered.success) {
           return;
@@ -404,6 +419,7 @@ export default function BuildingFormV2Screen({
       building,
       navigation,
       uploadImages,
+      getIdempotencyKey,
       submitMutation,
       queryClient,
       pushItems,
@@ -948,6 +964,7 @@ async function submitRegistration(
   buildingId: string,
   values: FormValues,
   uploaded: UploadedPhotos,
+  requestId: string,
 ) {
   const startTotal = Date.now();
   const imageCount =
@@ -957,37 +974,41 @@ async function submitRegistration(
 
   try {
     const startApiCall = Date.now();
-    const res = await api.registerBuildingAccessibilityV2Post({
-      buildingId,
-      doorDirectionType: mapEntranceDirectionToDoorDirectionType(
-        values.entranceDirection,
-      ),
-      doorDirectionEtcComment:
-        values.entranceDirection === 'etc' &&
-        values.doorDirectionEtcComment?.trim()
-          ? values.doorDirectionEtcComment.trim()
+    const res = await api.registerBuildingAccessibilityV2Post(
+      {
+        buildingId,
+        doorDirectionType: mapEntranceDirectionToDoorDirectionType(
+          values.entranceDirection,
+        ),
+        doorDirectionEtcComment:
+          values.entranceDirection === 'etc' &&
+          values.doorDirectionEtcComment?.trim()
+            ? values.doorDirectionEtcComment.trim()
+            : undefined,
+        entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
+        entranceStairHeightLevel: values.entranceStairHeightLevel,
+        entranceDoorTypes: values.doorTypes,
+        hasSlope: values.hasSlope || false,
+        entranceImageUrls: enteranceImages,
+        hasElevator: values.hasElevator || false,
+        elevatorAccessibility: values.hasElevator
+          ? {
+              imageUrls: elevatorImages,
+              stairInfo: values.elevatorHasStairs
+                ? values.elevatorStairInfo
+                : StairInfo.None,
+              stairHeightLevel: values.elevatorStairHeightLevel,
+              hasSlope:
+                typeof values.elevatorHasSlope === 'boolean'
+                  ? values.elevatorHasSlope
+                  : undefined,
+            }
           : undefined,
-      entranceStairInfo: values.hasStairs ? values.stairInfo : StairInfo.None,
-      entranceStairHeightLevel: values.entranceStairHeightLevel,
-      entranceDoorTypes: values.doorTypes,
-      hasSlope: values.hasSlope || false,
-      entranceImageUrls: enteranceImages,
-      hasElevator: values.hasElevator || false,
-      elevatorAccessibility: values.hasElevator
-        ? {
-            imageUrls: elevatorImages,
-            stairInfo: values.elevatorHasStairs
-              ? values.elevatorStairInfo
-              : StairInfo.None,
-            stairHeightLevel: values.elevatorStairHeightLevel,
-            hasSlope:
-              typeof values.elevatorHasSlope === 'boolean'
-                ? values.elevatorHasSlope
-                : undefined,
-          }
-        : undefined,
-      comment: values.comment || undefined,
-    });
+        comment: values.comment || undefined,
+      },
+      requestId,
+      {timeout: REGISTER_TIMEOUT_MS},
+    );
 
     const durationApiCall = Date.now() - startApiCall;
 

@@ -2,6 +2,7 @@ import {Modal} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 
+import {SccTouchableOpacity} from '@/components/SccTouchableOpacity';
 import {color} from '@/constant/color';
 import {font} from '@/constant/font';
 
@@ -13,6 +14,8 @@ export interface UploadProgressOverlayProps {
   progress: number; // 0-1
   imageSizeMb: number;
   label?: string; // e.g. '입구 사진', '엘리베이터 사진'
+  // 멈춰도 앱을 껐다 켜지 않고 빠져나올 수 있게 — 취소해도 폼 입력은 남는다.
+  onCancel?: () => void;
 }
 
 export function UploadProgressOverlay({
@@ -23,6 +26,7 @@ export function UploadProgressOverlay({
   progress,
   imageSizeMb,
   label,
+  onCancel,
 }: UploadProgressOverlayProps) {
   const photoLabel = label ?? '사진';
   const isRegistering = stage === 'registering';
@@ -38,7 +42,7 @@ export function UploadProgressOverlay({
       visible={visible}
       animationType="fade"
       statusBarTranslucent
-      onRequestClose={() => {}}>
+      onRequestClose={() => onCancel?.()}>
       <Overlay>
         {/* dim 은 Overlay 가 full-screen 으로 담당, 콘텐츠는 SafeContent 안에서 center 정렬 —
             home indicator/nav bar 와 겹치지 않게. */}
@@ -58,6 +62,14 @@ export function UploadProgressOverlay({
             <PercentText>
               {isRegistering ? ' ' : `${progressPercent}%`}
             </PercentText>
+            {onCancel && !isRegistering && (
+              <CancelButton
+                elementName="upload_progress_cancel"
+                accessibilityRole="button"
+                onPress={onCancel}>
+                <CancelText>취소</CancelText>
+              </CancelButton>
+            )}
           </Card>
         </SafeContent>
       </Overlay>
@@ -120,4 +132,17 @@ const PercentText = styled.Text`
   line-height: 18px;
   color: ${color.gray50};
   margin-top: 8px;
+`;
+
+const CancelButton = styled(SccTouchableOpacity)`
+  margin-top: 12px;
+  padding: 8px 24px;
+`;
+
+const CancelText = styled.Text`
+  font-family: ${font.pretendardMedium};
+  font-size: 14px;
+  line-height: 20px;
+  color: ${color.gray70};
+  text-decoration-line: underline;
 `;
