@@ -795,5 +795,22 @@
     "ctaUrl": "https://link.staircrusher.club/7o6ck7?placeListId=PL_O4W5A1NW",
     "ctaLabel": "소개된 곳 모아보기",
     "thumbnail": "/articles/yeonhui-wheelchair-accessible-restaurants-cafes/assets/thumb-0.webp"
+  },
+  "406c9499-b060-81d8-8b93-c17087200520": {
+    "slug": "wheelchair-festival-guide",
+    "title": "휠체어 타고 페스티벌에 가는 법 - 무료 가이드북",
+    "summary": "휠체어로 페스티벌에 가고 싶지만 망설여진다면, DMZ 피스트레인과 부산국제록페스티벌을 다녀온 휠체어 사용자들의 경험을 담은 무료 가이드북을 받아보세요. 주최 측 문의 메일 템플릿, 이동 계획, 현장 즐기는 법, 준비물 체크리스트까지 담았어요.",
+    "image": "/articles/wheelchair-festival-guide/assets/img-0.png",
+    "createdTime": "2026-10-27T10:07:00.000Z",
+    "publishedAt": "2026-10-28T01:45:00.000Z",
+    "editedTime": "2026-10-28T01:08:00.000Z",
+    "contentPageId": "406c9499-b060-81d8-8b93-c17087200520",
+    "featured": null,
+    "categories": [
+      "공연/행사"
+    ],
+    "ctaUrl": "",
+    "ctaLabel": "",
+    "thumbnail": "/articles/wheelchair-festival-guide/assets/thumb-0.webp"
   }
 }
