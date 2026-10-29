@@ -803,7 +803,7 @@
     "image": "/articles/wheelchair-festival-guide/assets/img-0.png",
     "createdTime": "2026-10-27T10:07:00.000Z",
     "publishedAt": "2026-10-28T01:45:00.000Z",
-    "editedTime": "2026-10-28T01:08:00.000Z",
+    "editedTime": "2026-10-28T01:45:00.000Z",
     "contentPageId": "406c9499-b060-81d8-8b93-c17087200520",
     "featured": null,
     "categories": [
@@ -812,5 +812,22 @@
     "ctaUrl": "",
     "ctaLabel": "",
     "thumbnail": "/articles/wheelchair-festival-guide/assets/thumb-0.webp"
+  },
+  "408c9499-b060-80fd-8ec6-fbf5b41124b9": {
+    "slug": "wheelchair-creator-picks-gyeonggi-chuncheon-seoul",
+    "title": "퍼스널컬러부터 전시까지! 크리에이터 추천 5곳｜경기·춘천·서울",
+    "summary": "휠체어를 타는 크리에이터 3명이 추천하는 경기·춘천·서울 나들이 장소 5곳. 퍼스널컨러 진단, 만화책방, 춘천 막국수·리버뷰 카페, 강서 미술관을 엘리베이터·경사로·출입문 등 접근성 정보와 함께 소개해요.",
+    "image": "/articles/wheelchair-creator-picks-gyeonggi-chuncheon-seoul/assets/img-0.png",
+    "createdTime": "2026-10-28T00:47:00.000Z",
+    "publishedAt": "2026-10-29T05:54:00.000Z",
+    "editedTime": "2026-10-29T05:54:00.000Z",
+    "contentPageId": "407c9499-b060-80c1-98b3-e00c76ba5f04",
+    "featured": null,
+    "categories": [
+      "여행/나들이"
+    ],
+    "ctaUrl": "https://link.staircrusher.club/creator_pick_jeongre",
+    "ctaLabel": "소개된 곳 모아보기",
+    "thumbnail": "/articles/wheelchair-creator-picks-gyeonggi-chuncheon-seoul/assets/thumb-0.webp"
   }
 }
