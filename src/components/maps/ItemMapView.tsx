@@ -74,6 +74,17 @@ type ItemMapViewProps<T extends MarkerItem> = {
    * 버튼과 바로 아래 요소 사이의 12px 간격은 [FLOATING_BUTTON_GAP] 이 별도로 보장한다.
    */
   myLocationBottomOffset?: number;
+  /**
+   * 넘기면 내 위치·화장실 버튼을 캐러셀 밴드(고정 높이)가 아니라 **포커스된 카드** 위
+   * 이 값(px)만큼 띄운다. 카드는 정보가 적을수록 짧고 밴드 바닥에 붙어 있어서, 밴드 기준이면
+   * 짧은 카드 위에서 버튼이 멀어진다. 넘기지 않으면 기존처럼 밴드 기준이다.
+   */
+  floatingButtonCardGap?: number;
+  /**
+   * 포커스된 카드의 높이(padding 포함, 밴드 높이로 제한)가 바뀔 때 알린다. 아직 못 쟀으면
+   * null. 화면 고유의 플로팅 UI 를 같은 카드 기준으로 붙일 때 쓴다.
+   */
+  onFocusedCardHeightChange?: (height: number | null) => void;
   // 화장실 레이어 overlay
   overlayMarkers?: MarkerItem[];
   overlayFocusedItem?: MarkerItem | null;
@@ -103,6 +114,8 @@ const FRefInputComp = <T extends MarkerItem>(
     isRefreshVisible,
     onCameraIdle,
     myLocationBottomOffset,
+    floatingButtonCardGap,
+    onFocusedCardHeightChange,
     overlayMarkers,
     overlayFocusedItem,
     onOverlayMarkerPress,
@@ -126,6 +139,7 @@ const FRefInputComp = <T extends MarkerItem>(
   const knewLocationAtMountRef = useRef(currentLocation != null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isCardListScrolling, setIsCardListScrolling] = useState(false);
+  const [cardHeights, setCardHeights] = useState<Record<string, number>>({});
   // overlay 진입 전 선택된 장소 id를 보존하여, overlay dismiss 시 복원
   const savedSelectedItemIdRef = useRef<string | null>(null);
   const navigation = useNavigation();
@@ -345,6 +359,36 @@ const FRefInputComp = <T extends MarkerItem>(
     }
   }
 
+  const handleItemLayout = useCallback((id: string, height: number) => {
+    setCardHeights(prev =>
+      prev[id] === height ? prev : {...prev, [id]: height},
+    );
+  }, []);
+  const focusedItemId = selectedItemId ?? items[0]?.id ?? null;
+  const measuredCardHeight =
+    focusedItemId != null ? cardHeights[focusedItemId] : undefined;
+  const focusedCardHeight =
+    measuredCardHeight != null
+      ? Math.min(measuredCardHeight, CARD_LIST_HEIGHT)
+      : null;
+  const onFocusedCardHeightChangeRef = useRef(onFocusedCardHeightChange);
+  onFocusedCardHeightChangeRef.current = onFocusedCardHeightChange;
+  useEffect(() => {
+    onFocusedCardHeightChangeRef.current?.(focusedCardHeight);
+  }, [focusedCardHeight]);
+  // 버튼 아래 간격은 원래 밴드 위 FLOATING_BUTTON_GAP + (밴드 - 카드) 만큼 벌어진다.
+  // 그만큼에서 원하는 간격을 뺀 값을 아래로 내린다(카드가 밴드만큼 길면 음수 = 위로).
+  // transform 은 레이아웃을 건드리지 않아 카드 밴드 배치가 그대로다.
+  // 화장실 overlay 카드가 떠 있으면 그 카드가 밴드를 차지하므로 건드리지 않는다.
+  const floatingButtonsShiftY =
+    floatingButtonCardGap != null &&
+    focusedCardHeight != null &&
+    !(overlayFocusedItem != null && OverlayItemCard != null)
+      ? FLOATING_BUTTON_GAP +
+        (CARD_LIST_HEIGHT - focusedCardHeight) -
+        floatingButtonCardGap
+      : 0;
+
   const showOverlayCard = overlayFocusedItem != null && OverlayItemCard != null;
   // 플로팅 버튼 아래에 카드(캐러셀/overlay)가 깔리는지. 없으면 버튼 아래가 곧 navbar 다.
   const hasContentBelowButtons = showOverlayCard || items.length > 0;
@@ -411,25 +455,33 @@ const FRefInputComp = <T extends MarkerItem>(
           ),
         }}
         pointerEvents="box-none">
-        {showToiletLayerToggle && (
-          <ToiletLayerToggleButton
-            elementName="map_toilet_layer_toggle"
-            activeOpacity={0.7}
-            onPress={onToiletLayerToggle}
-            active={!!toiletLayerActive}>
-            <ToiletLayerIcon
-              width={24}
-              height={24}
-              color={toiletLayerActive ? color.white : '#24262B'}
-            />
-          </ToiletLayerToggleButton>
-        )}
-        <MyLocationButton
-          elementName="map_my_location_button"
-          onPress={onMyLocationPress}
-          activeOpacity={0.7}>
-          <MyLocationIcon width={24} height={24} />
-        </MyLocationButton>
+        {/* 밴드(뒤에 렌더)의 빈 윗부분으로 내려와도 버튼이 터치를 받도록 zIndex 로 위에 둔다. */}
+        <View
+          pointerEvents="box-none"
+          style={{
+            zIndex: 1,
+            transform: [{translateY: floatingButtonsShiftY}],
+          }}>
+          {showToiletLayerToggle && (
+            <ToiletLayerToggleButton
+              elementName="map_toilet_layer_toggle"
+              activeOpacity={0.7}
+              onPress={onToiletLayerToggle}
+              active={!!toiletLayerActive}>
+              <ToiletLayerIcon
+                width={24}
+                height={24}
+                color={toiletLayerActive ? color.white : '#24262B'}
+              />
+            </ToiletLayerToggleButton>
+          )}
+          <MyLocationButton
+            elementName="map_my_location_button"
+            onPress={onMyLocationPress}
+            activeOpacity={0.7}>
+            <MyLocationIcon width={24} height={24} />
+          </MyLocationButton>
+        </View>
         {showOverlayCard ? (
           <OverlayCardContainer>
             <OverlayCardWrapper>
@@ -474,6 +526,7 @@ const FRefInputComp = <T extends MarkerItem>(
                   item && onItemSelect(item, false, false)
                 }
                 onScrollStateChange={setIsCardListScrolling}
+                onItemLayout={handleItemLayout}
                 ItemCard={ItemCard}
               />
             </CardBand>
