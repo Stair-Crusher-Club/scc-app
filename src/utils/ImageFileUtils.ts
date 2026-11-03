@@ -9,7 +9,8 @@ import ImageFile from '@/models/ImageFile';
 const UPLOAD_TIMEOUT_MS = 30_000;
 // 압축·로컬 파일 읽기는 멈추면 영원히 돌아오지 않는다 — '압축 중' 에서 5분씩 멈춘다는 실사용 보고.
 const PRESIGNED_URL_TIMEOUT_MS = 15_000;
-const COMPRESS_TIMEOUT_MS = 20_000;
+// 성공한 압축은 최근 90일 2.6만 장 중 최대 2.4초(p99.9 0.7초) — 그보다 오래면 느린 게 아니라 멈춘 것.
+const COMPRESS_TIMEOUT_MS = 5_000;
 const READ_FILE_TIMEOUT_MS = 15_000;
 
 type UploadStep = 'presigned_url' | 'compress' | 'read_file' | 's3_upload';

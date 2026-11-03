@@ -62,9 +62,9 @@ afterEach(() => {
 });
 
 describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
-  it('압축이 멈추면 20초 뒤 원본으로 올리고, 멈춤을 Crashlytics 에 보고한다', async () => {
+  it('압축이 멈추면 5초 뒤 원본으로 올리고, 멈춤을 Crashlytics 에 보고한다', async () => {
     const result = ImageFileUtils.uploadImages(api, images);
-    await jest.advanceTimersByTimeAsync(20_000);
+    await jest.advanceTimersByTimeAsync(5_000);
     await jest.advanceTimersByTimeAsync(1); // FakeXhr 응답
 
     await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
@@ -83,7 +83,7 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
       undefined,
       controller.signal,
     );
-    await jest.advanceTimersByTimeAsync(5_000);
+    await jest.advanceTimersByTimeAsync(2_000); // 압축 timeout(5초) 전에 취소
     controller.abort();
 
     await expect(result).rejects.toBeInstanceOf(UploadCancelledError);
