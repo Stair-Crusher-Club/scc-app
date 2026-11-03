@@ -54,7 +54,9 @@ export function UploadProgressOverlay({
                 ? ' '
                 : stage === 'compressing'
                   ? '압축 중'
-                  : `${imageSizeMb.toFixed(2)} MB`}
+                  : imageSizeMb > 0
+                    ? `${imageSizeMb.toFixed(2)} MB`
+                    : '업로드 중'}
             </SizeText>
             <ProgressBarContainer>
               <ProgressBarFill style={{width: `${progressPercent}%`}} />

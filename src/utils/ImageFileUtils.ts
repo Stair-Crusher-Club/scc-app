@@ -9,14 +9,21 @@ import ImageFile from '@/models/ImageFile';
 // 전송 1회의 전체 상한. xhr.timeout 은 Android(OkHttp callTimeout)만 전체 시간이고 iOS(NSURLRequest)는
 // 무응답 시간이라, 조금씩 흐르는 전송이 수 분씩 이어졌다(최근 90일 30초 초과: iOS 111건 / Android 9건).
 const UPLOAD_TIMEOUT_MS = 30_000;
-const UPLOAD_RETRY_DELAYS_MS = [1_000, 2_000];
+const UPLOAD_RETRY_DELAYS_MS = [1_000];
+// 업로드 중 매초 진행 상황을 남긴다 — TCP 연결이 끊긴 채 timeout 만 기다리는 hang 이 실제로 있는지 확인용.
+const HEARTBEAT_INTERVAL_MS = 1_000;
 // 압축·로컬 파일 읽기는 멈추면 영원히 돌아오지 않는다 — '압축 중' 에서 5분씩 멈춘다는 실사용 보고.
 const PRESIGNED_URL_TIMEOUT_MS = 15_000;
 // 성공한 압축은 최근 90일 2.6만 장 중 최대 2.4초(p99.9 0.7초) — 그보다 오래면 느린 게 아니라 멈춘 것.
 const COMPRESS_TIMEOUT_MS = 5_000;
 const READ_FILE_TIMEOUT_MS = 15_000;
 
-type UploadStep = 'presigned_url' | 'compress' | 'read_file' | 's3_upload';
+type UploadStep =
+  | 'presigned_url'
+  | 'compress'
+  | 'read_file'
+  | 's3_upload'
+  | 'retry_wait';
 
 export interface UploadProgress {
   stage: 'compressing' | 'uploading' | 'registering';
@@ -234,7 +241,7 @@ async function uploadToPresignedUrl(
   });
 }
 
-/** 최대 2회 재시도 포함 업로드 (사용자 취소는 재시도하지 않는다) */
+/** 1회 재시도 포함 업로드 (사용자 취소는 재시도하지 않는다) */
 async function uploadToPresignedUrlWithRetry(
   presignedUrl: string,
   imageFileUrl: string,
@@ -255,6 +262,7 @@ async function uploadToPresignedUrlWithRetry(
       if (error instanceof UploadCancelledError) {
         throw error;
       }
+      onStep?.('retry_wait');
       await delay(retryDelay);
     }
   }
@@ -313,10 +321,92 @@ const ImageFileUtils = {
     let step: UploadStep = 'presigned_url';
     let stepStartedAt = Date.now();
     let index = 0;
+    const uploadId = `${startTimeOfTotal}-${Math.random().toString(36).slice(2, 8)}`;
+    // S3 전송 진행 추적 — heartbeat 와 요약값(가장 긴 무진행 구간)의 원천
+    let attempt = 0;
+    let s3ImageIndex = 0;
+    let s3Retries = 0;
+    let bytesSent = 0;
+    let bytesTotal = 0;
+    let lastProgressAt = startTimeOfTotal;
+    let sawProgress = false;
+    let maxNoProgressMillis = 0;
+    let maxNoProgressAtPct = 0;
+    let maxNoProgressImageIndex = 0;
+    let maxFirstProgressMillis = 0;
+    const closeNoProgressGap = () => {
+      if (step !== 's3_upload') {
+        return;
+      }
+      const gap = Date.now() - lastProgressAt;
+      if (gap > maxNoProgressMillis) {
+        maxNoProgressMillis = gap;
+        // 소켓에 쓴 바이트 기준이라 100% 여도 S3 응답을 못 받은 채 멈춘 것일 수 있다
+        maxNoProgressAtPct =
+          bytesTotal > 0 ? Math.floor((100 * bytesSent) / bytesTotal) : 0;
+        maxNoProgressImageIndex = s3ImageIndex;
+      }
+    };
     const enterStep = (next: UploadStep) => {
+      closeNoProgressGap();
       step = next;
       stepStartedAt = Date.now();
+      if (next === 'compress') {
+        attempt = 0;
+        bytesSent = 0;
+        bytesTotal = 0;
+      }
+      if (next === 's3_upload') {
+        attempt += 1;
+        s3ImageIndex = index;
+        if (attempt > 1) {
+          s3Retries += 1;
+        }
+        bytesSent = 0;
+        bytesTotal = 0;
+        lastProgressAt = stepStartedAt;
+        sawProgress = false;
+      }
     };
+    const onS3Progress = (loaded: number, total: number) => {
+      closeNoProgressGap();
+      const now = Date.now();
+      if (!sawProgress) {
+        sawProgress = true;
+        maxFirstProgressMillis = Math.max(
+          maxFirstProgressMillis,
+          now - stepStartedAt,
+        );
+      }
+      lastProgressAt = now;
+      bytesSent = loaded;
+      bytesTotal = total;
+    };
+    const progressSummary = () => ({
+      upload_id: uploadId,
+      s3_retries: s3Retries,
+      max_no_progress_millis: maxNoProgressMillis,
+      max_no_progress_at_pct: maxNoProgressAtPct,
+      max_no_progress_image_index: maxNoProgressImageIndex,
+      max_first_progress_millis: maxFirstProgressMillis,
+    });
+    const heartbeat = setInterval(() => {
+      const now = Date.now();
+      Logger.logUploadImageProgress({
+        upload_id: uploadId,
+        step,
+        image_index: index,
+        image_count: images.length,
+        attempt,
+        bytes_sent: bytesSent,
+        bytes_total: bytesTotal,
+        elapsed_millis: now - startTimeOfTotal,
+        elapsed_millis_in_step: now - stepStartedAt,
+        ...(step === 's3_upload' && {
+          millis_since_progress: now - lastProgressAt,
+        }),
+      });
+    }, HEARTBEAT_INTERVAL_MS);
 
     let durationOfUploadImages: Record<string, number> = {};
     try {
@@ -393,12 +483,22 @@ const ImageFileUtils = {
         }
         const durationCompress = Date.now() - stepStartedAt;
 
-        // Uploading stage — read_file/s3_upload 전환은 재시도까지 포함해 내부에서 알린다
+        // Uploading stage — read_file/s3_upload 전환은 재시도까지 포함해 내부에서 알린다.
+        // 첫 progress 전에 S3 전송이 멈추면 오버레이가 '압축 중' 으로 남아 있었다 — 여기서 먼저 넘긴다.
+        onProgress?.({
+          stage: 'uploading',
+          currentIndex: index,
+          totalImages: images.length,
+          bytesUploaded: 0,
+          totalBytes: 0,
+          imageSizeMb: 0,
+        });
         const startUpload = Date.now();
         const result = await uploadToPresignedUrlWithRetry(
           url,
           compressedUri,
           (loaded, total) => {
+            onS3Progress(loaded, total);
             const imageSizeMb = floor(total / (1024 * 1024), 2);
             onProgress?.({
               stage: 'uploading',
@@ -428,8 +528,10 @@ const ImageFileUtils = {
         uploadedUrls.push(result.url);
       }
 
+      closeNoProgressGap();
       await Logger.logUploadImage({
         ...durationOfUploadImages,
+        ...progressSummary(),
         duration_millis_of_presigned_urls: durationOfGettingPresignedUrls,
         duration_millis_total: Date.now() - startTimeOfTotal,
         image_count: images.length,
@@ -437,6 +539,7 @@ const ImageFileUtils = {
 
       return uploadedUrls;
     } catch (error) {
+      closeNoProgressGap();
       const {errorType, httpStatus} = classifyError(error);
       const {imageMime, imageSizeMb} = extractDebugInfo(error);
       const elapsedMillisInStep = Date.now() - stepStartedAt;
@@ -451,6 +554,7 @@ const ImageFileUtils = {
         step,
         elapsedMillisInStep,
         imageIndex: index,
+        progressSummary: progressSummary(),
       });
       const image = images[index];
       Logger.logError(
@@ -461,6 +565,8 @@ const ImageFileUtils = {
         ),
       );
       throw error;
+    } finally {
+      clearInterval(heartbeat);
     }
   },
 };

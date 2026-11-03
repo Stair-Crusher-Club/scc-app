@@ -14,6 +14,7 @@ jest.mock('@/logging/Logger', () => ({
     logError: jest.fn(),
     logUploadImage: jest.fn(),
     logUploadImageFailed: jest.fn(),
+    logUploadImageProgress: jest.fn(),
   },
 }));
 
@@ -116,23 +117,80 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
     );
   });
 
-  it('S3 전송이 30초를 넘기면 끊고 2회 재시도한 뒤, 3번째에 성공하면 그대로 올린다', async () => {
+  it('S3 전송이 진행 없이 30초 멈추면 끊고 1회 재시도하고, 멈춘 구간을 heartbeat·요약값으로 남긴다', async () => {
     mockCompress.mockResolvedValue('file:///compressed.jpg');
     let sends = 0;
-    // 처음 두 번은 매달리고(iOS 처럼 xhr.timeout 이 안 걸리는 경우), 세 번째는 응답한다
+    // 첫 시도는 progress 없이 매달리고(TCP 가 끊긴 채 복구 안 되는 상황), 재시도는 응답한다
     (global as any).XMLHttpRequest = class extends FakeXhr {
       send() {
         sends += 1;
-        if (sends === 3) {
+        if (sends === 2) {
           super.send();
         }
       }
     };
     const result = ImageFileUtils.uploadImages(api, images);
-    await jest.advanceTimersByTimeAsync(30_000 + 1_000 + 30_000 + 2_000 + 1);
+    await jest.advanceTimersByTimeAsync(30_000 + 1_000 + 1);
 
     await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
-    expect(sends).toBe(3);
-    expect(Logger.logUploadImageFailed).not.toHaveBeenCalled();
+    expect(sends).toBe(2);
+    expect(Logger.logUploadImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        s3_retries: 1,
+        max_no_progress_millis: 30_000,
+        max_no_progress_at_pct: 0,
+        max_no_progress_image_index: 0,
+      }),
+    );
+    const beats = (Logger.logUploadImageProgress as jest.Mock).mock.calls.map(
+      c => c[0] as Record<string, unknown>,
+    );
+    expect(beats).toContainEqual(
+      expect.objectContaining({
+        step: 's3_upload',
+        attempt: 1,
+        bytes_sent: 0,
+        millis_since_progress: 29_000,
+      }),
+    );
+    expect(beats).toContainEqual(
+      expect.objectContaining({step: 'retry_wait', attempt: 1}),
+    );
+    // 끝나면 heartbeat 도 멈춘다
+    const count = beats.length;
+    await jest.advanceTimersByTimeAsync(5_000);
+    expect(Logger.logUploadImageProgress).toHaveBeenCalledTimes(count);
+  });
+
+  it('전송 도중 40% 에서 멈추면 멈춘 지점을 40% 로 남긴다', async () => {
+    mockCompress.mockResolvedValue('file:///compressed.jpg');
+    let sends = 0;
+    (global as any).XMLHttpRequest = class extends FakeXhr {
+      send() {
+        sends += 1;
+        if (sends === 2) {
+          super.send();
+          return;
+        }
+        setTimeout(() => {
+          this.upload.onprogress?.({
+            lengthComputable: true,
+            loaded: 400,
+            total: 1000,
+          });
+        }, 2_000);
+      }
+    };
+    const result = ImageFileUtils.uploadImages(api, images);
+    await jest.advanceTimersByTimeAsync(30_000 + 1_000 + 1);
+
+    await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
+    expect(Logger.logUploadImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        max_no_progress_millis: 28_000,
+        max_no_progress_at_pct: 40,
+        max_first_progress_millis: 2_000,
+      }),
+    );
   });
 });
