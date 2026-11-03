@@ -94,6 +94,22 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
     );
   });
 
+  it('파일 읽기가 timeout 되면 원 fetch 도 abort 해 백그라운드에 남기지 않는다', async () => {
+    mockCompress.mockResolvedValue('file:///compressed.jpg');
+    let fetchSignal: AbortSignal | undefined;
+    (global as any).fetch = (_uri: string, init?: {signal?: AbortSignal}) => {
+      fetchSignal = init?.signal;
+      return new Promise(() => {}); // 읽기가 영원히 멈춤
+    };
+    const result = ImageFileUtils.uploadImages(api, images);
+    const settled = result.catch((e: unknown) => e);
+    // read_file 도 S3 전송 재시도에 포함된다: 15초 + 대기 1초 + 15초
+    await jest.advanceTimersByTimeAsync(15_000 + 1_000 + 15_000);
+
+    expect(String(await settled)).toContain('stalled at read_file');
+    expect(fetchSignal?.aborted).toBe(true);
+  });
+
   it('S3 전송이 progress 없이 멈춘 채 취소돼도 step 은 s3_upload 로 남는다', async () => {
     mockCompress.mockResolvedValue('file:///compressed.jpg');
     // 응답·progress 없이 매달리는 XHR

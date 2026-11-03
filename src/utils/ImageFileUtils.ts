@@ -59,30 +59,40 @@ export class UploadCancelledError extends Error {
 }
 
 /**
- * promise 를 timeout·사용자 취소와 경주시킨다.
- * ponytail: 네이티브 압축 같은 원 작업은 멈추지 못하고 결과만 버린다 — 화면을 푸는 게 목적이라 충분하다.
+ * 작업을 timeout·사용자 취소와 경주시킨다. 지면 run 에 넘긴 signal 을 abort 해 원 작업도 멈춘다.
+ * ponytail: signal 을 못 받는 작업(네이티브 압축 — 라이브러리에 취소 API 가 없다)은 멈추지 못하고 결과만 버린다.
  */
 function guard<T>(
-  promise: Promise<T>,
+  run: (signal: AbortSignal) => Promise<T>,
   step: UploadStep,
   timeoutMs: number,
   signal?: AbortSignal,
 ): Promise<T> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let onAbort: (() => void) | undefined;
   return new Promise<T>((resolve, reject) => {
+    const fail = (error: Error) => {
+      reject(error);
+      controller.abort();
+    };
     if (signal?.aborted) {
-      reject(new UploadCancelledError());
+      fail(new UploadCancelledError());
       return;
     }
-    const onAbort = () => reject(new UploadCancelledError());
-    const timer = setTimeout(
-      () => reject(new UploadStallError(step, timeoutMs)),
+    onAbort = () => fail(new UploadCancelledError());
+    signal?.addEventListener('abort', onAbort);
+    timer = setTimeout(
+      () => fail(new UploadStallError(step, timeoutMs)),
       timeoutMs,
     );
-    signal?.addEventListener('abort', onAbort);
-    promise.then(resolve, reject).finally(() => {
-      clearTimeout(timer);
+    run(controller.signal).then(resolve, reject);
+  }).finally(() => {
+    // 원 작업이 끝내 settle 하지 않아도(멈춘 압축) 정리되게 바깥 promise 기준으로 푼다.
+    clearTimeout(timer);
+    if (onAbort) {
       signal?.removeEventListener('abort', onAbort);
-    });
+    }
   });
 }
 
@@ -164,7 +174,11 @@ async function uploadToPresignedUrl(
   const url = new URL(presignedUrl);
   onStep?.('read_file');
   const imageBody = await guard(
-    fetch(imageFileUrl).then(resp => resp.blob()),
+    s =>
+      // RN 타입 선언의 AbortSignal 이 DOM lib 것과 달라 캐스트한다 — 런타임은 같은 폴리필 객체다.
+      fetch(imageFileUrl, {signal: s as RequestInit['signal']}).then(resp =>
+        resp.blob(),
+      ),
     'read_file',
     READ_FILE_TIMEOUT_MS,
     signal,
@@ -181,8 +195,12 @@ async function uploadToPresignedUrl(
       timedOut = true;
       xhr.abort();
     }, UPLOAD_TIMEOUT_MS);
-    xhr.onloadend = () => clearTimeout(timer);
-    signal?.addEventListener('abort', () => xhr.abort());
+    const abortOnCancel = () => xhr.abort();
+    xhr.onloadend = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', abortOnCancel);
+    };
+    signal?.addEventListener('abort', abortOnCancel);
 
     xhr.upload.onprogress = (e: ProgressEvent) => {
       if (e.lengthComputable) {
@@ -411,13 +429,17 @@ const ImageFileUtils = {
     let durationOfUploadImages: Record<string, number> = {};
     try {
       const uploadUrls = await guard(
-        api
-          .getImageUploadUrlsPost({
-            count: images.length,
-            filenameExtension: 'jpeg',
-            purposeType,
-          })
-          .then(res => res.data.map(data => data.url)),
+        s =>
+          api
+            .getImageUploadUrlsPost(
+              {
+                count: images.length,
+                filenameExtension: 'jpeg',
+                purposeType,
+              },
+              {signal: s},
+            )
+            .then(res => res.data.map(data => data.url)),
         'presigned_url',
         PRESIGNED_URL_TIMEOUT_MS,
         signal,
@@ -456,14 +478,15 @@ const ImageFileUtils = {
         let compressedUri: string;
         try {
           compressedUri = await guard(
-            ImageCompressor.compress(image.uri, {
-              compressionMethod: 'auto',
-              maxWidth: 2560,
-              maxHeight: 2560,
-              quality: 0.7,
-              // HEIC 입력이라도 JPEG로 출력 강제. iOS 26 호환성.
-              output: 'jpg',
-            }),
+            () =>
+              ImageCompressor.compress(image.uri, {
+                compressionMethod: 'auto',
+                maxWidth: 2560,
+                maxHeight: 2560,
+                quality: 0.7,
+                // HEIC 입력이라도 JPEG로 출력 강제. iOS 26 호환성.
+                output: 'jpg',
+              }),
             'compress',
             COMPRESS_TIMEOUT_MS,
             signal,
