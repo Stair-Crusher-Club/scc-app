@@ -115,4 +115,24 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
       expect.objectContaining({errorType: 'cancelled', step: 's3_upload'}),
     );
   });
+
+  it('S3 전송이 30초를 넘기면 끊고 2회 재시도한 뒤, 3번째에 성공하면 그대로 올린다', async () => {
+    mockCompress.mockResolvedValue('file:///compressed.jpg');
+    let sends = 0;
+    // 처음 두 번은 매달리고(iOS 처럼 xhr.timeout 이 안 걸리는 경우), 세 번째는 응답한다
+    (global as any).XMLHttpRequest = class extends FakeXhr {
+      send() {
+        sends += 1;
+        if (sends === 3) {
+          super.send();
+        }
+      }
+    };
+    const result = ImageFileUtils.uploadImages(api, images);
+    await jest.advanceTimersByTimeAsync(30_000 + 1_000 + 30_000 + 2_000 + 1);
+
+    await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
+    expect(sends).toBe(3);
+    expect(Logger.logUploadImageFailed).not.toHaveBeenCalled();
+  });
 });

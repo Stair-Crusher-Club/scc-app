@@ -6,7 +6,10 @@ import {DefaultApi, ImageUploadPurpose} from '@/generated-sources/openapi';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 
+// 전송 1회의 전체 상한. xhr.timeout 은 Android(OkHttp callTimeout)만 전체 시간이고 iOS(NSURLRequest)는
+// 무응답 시간이라, 조금씩 흐르는 전송이 수 분씩 이어졌다(최근 90일 30초 초과: iOS 111건 / Android 9건).
 const UPLOAD_TIMEOUT_MS = 30_000;
+const UPLOAD_RETRY_DELAYS_MS = [1_000, 2_000];
 // 압축·로컬 파일 읽기는 멈추면 영원히 돌아오지 않는다 — '압축 중' 에서 5분씩 멈춘다는 실사용 보고.
 const PRESIGNED_URL_TIMEOUT_MS = 15_000;
 // 성공한 압축은 최근 90일 2.6만 장 중 최대 2.4초(p99.9 0.7초) — 그보다 오래면 느린 게 아니라 멈춘 것.
@@ -166,9 +169,13 @@ async function uploadToPresignedUrl(
       return;
     }
     const xhr = new XMLHttpRequest();
-    xhr.timeout = UPLOAD_TIMEOUT_MS;
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      xhr.abort();
+    }, UPLOAD_TIMEOUT_MS);
+    xhr.onloadend = () => clearTimeout(timer);
     signal?.addEventListener('abort', () => xhr.abort());
-    xhr.onabort = () => reject(new UploadCancelledError());
 
     xhr.upload.onprogress = (e: ProgressEvent) => {
       if (e.lengthComputable) {
@@ -200,14 +207,16 @@ async function uploadToPresignedUrl(
       }
     };
 
-    xhr.ontimeout = () => {
+    xhr.onabort = () => {
       reject(
-        attachDebugInfo(
-          new Error(
-            `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
-          ),
-          debugInfo,
-        ),
+        timedOut
+          ? attachDebugInfo(
+              new Error(
+                `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
+              ),
+              debugInfo,
+            )
+          : new UploadCancelledError(),
       );
     };
 
@@ -225,7 +234,7 @@ async function uploadToPresignedUrl(
   });
 }
 
-/** 1회 재시도 포함 업로드 (사용자 취소는 재시도하지 않는다) */
+/** 최대 2회 재시도 포함 업로드 (사용자 취소는 재시도하지 않는다) */
 async function uploadToPresignedUrlWithRetry(
   presignedUrl: string,
   imageFileUrl: string,
@@ -233,27 +242,29 @@ async function uploadToPresignedUrlWithRetry(
   signal?: AbortSignal,
   onStep?: (step: UploadStep) => void,
 ): Promise<UploadImageResult> {
-  try {
-    return await uploadToPresignedUrl(
-      presignedUrl,
-      imageFileUrl,
-      onProgress,
-      signal,
-      onStep,
-    );
-  } catch (firstError) {
-    if (firstError instanceof UploadCancelledError) {
-      throw firstError;
+  for (const retryDelay of UPLOAD_RETRY_DELAYS_MS) {
+    try {
+      return await uploadToPresignedUrl(
+        presignedUrl,
+        imageFileUrl,
+        onProgress,
+        signal,
+        onStep,
+      );
+    } catch (error) {
+      if (error instanceof UploadCancelledError) {
+        throw error;
+      }
+      await delay(retryDelay);
     }
-    await delay(1000);
-    return await uploadToPresignedUrl(
-      presignedUrl,
-      imageFileUrl,
-      onProgress,
-      signal,
-      onStep,
-    );
   }
+  return await uploadToPresignedUrl(
+    presignedUrl,
+    imageFileUrl,
+    onProgress,
+    signal,
+    onStep,
+  );
 }
 
 const ImageFileUtils = {
@@ -433,7 +444,7 @@ const ImageFileUtils = {
         errorType,
         httpStatus,
         imageCount: images.length,
-        retryCount: 1,
+        retryCount: UPLOAD_RETRY_DELAYS_MS.length,
         errorMessage: error instanceof Error ? error.message : String(error),
         imageMime,
         imageSizeMb,
