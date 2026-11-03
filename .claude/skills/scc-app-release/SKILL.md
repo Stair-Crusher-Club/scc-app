@@ -64,7 +64,7 @@ adb shell am force-stop club.staircrusher.sandbox   # 이후 재실행
 
 ## 웹 배포 규칙
 
-- **웹 배포는 로컬에서 수동 실행한다.** (CI 워크플로우 없음)
+- **웹 배포는 CI(`web-deploy.yml`) 또는 로컬 수동 실행 둘 중 하나다.** 어느 쪽이든 아래 1~3(main 기준·production 빌드·골든패스)은 로컬에서 먼저 통과시킨다 — CI 는 골든패스를 대신하지 않는다. 4번(`web-deploy.sh`)만 CI 로 대체할 수 있다.
 - **모든 배포는 `origin/main` 기준이다 (H19 hook이 차단).** 배포 직전 `git fetch origin main && git rev-parse HEAD origin/main`이 동일해야 하고 추적 파일에 미커밋 변경이 없어야 한다. 로컬 커밋 상태로 배포하면 prod에 뭐가 떴는지 git으로 되짚을 수 없고 롤백 기준도 사라진다. **sandbox 배포 = 무조건 main merge** — 브랜치에서 바로 배포하지 않는다.
 - 배포 절차:
   1. **origin/main == HEAD 확인 후, 그 상태의 워킹트리로 빌드**(web-articles 발행본은 먼저 커밋해 main에 올린다). `git reset --hard`는 쓰지 않는다 — 커밋 안 한 발행본/렌더러 수정을 날린다. main 최신 반영은 `git fetch origin main && git rebase origin/main`로 비파괴적으로.

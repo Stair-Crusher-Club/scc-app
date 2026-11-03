@@ -12,7 +12,7 @@
 
 ## 배포
 
-- OTA 배포(main 푸시 자동) / 웹 배포(로컬 수동): 반드시 `/scc:app-release` 절차를 따른다. `ota-deploy` 수동 실행 금지, 태그 없이 main 푸시 금지.
+- OTA 배포(main 푸시 자동) / 웹 배포(CI `web-deploy.yml` 또는 로컬): 반드시 `/scc:app-release` 절차를 따른다. `ota-deploy` 수동 실행 금지, 태그 없이 main 푸시 금지.
 
 ## Component Guidelines
 
