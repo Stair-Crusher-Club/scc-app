@@ -294,6 +294,7 @@ const HomeScreenV2 = ({navigation}: any) => {
     if (__DEV__ && __DEV_FORCE_INTRO_POPUP__) {
       return tutorialIntroPopupReady ? 'eligible' : 'pending';
     }
+    if (Platform.OS === 'web') return 'ineligible'; // 웹에선 윌리의 외출 인트로 팝업 미노출
     if (isAnonymousUser) return 'ineligible';
     if (
       featureFlags !== null &&
