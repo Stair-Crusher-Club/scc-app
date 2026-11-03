@@ -1,11 +1,29 @@
 import {floor} from 'lodash';
+import {Platform} from 'react-native';
 import {Image as ImageCompressor} from 'react-native-compressor';
 
 import {DefaultApi, ImageUploadPurpose} from '@/generated-sources/openapi';
 import Logger from '@/logging/Logger';
 import ImageFile from '@/models/ImageFile';
 
+// 전송 1회의 전체 상한. xhr.timeout 은 Android(OkHttp callTimeout)만 전체 시간이고 iOS(NSURLRequest)는
+// 무응답 시간이라, 조금씩 흐르는 전송이 수 분씩 이어졌다(최근 90일 30초 초과: iOS 111건 / Android 9건).
 const UPLOAD_TIMEOUT_MS = 30_000;
+const UPLOAD_RETRY_DELAYS_MS = [1_000];
+// 업로드 중 매초 진행 상황을 남긴다 — TCP 연결이 끊긴 채 timeout 만 기다리는 hang 이 실제로 있는지 확인용.
+const HEARTBEAT_INTERVAL_MS = 1_000;
+// 압축·로컬 파일 읽기는 멈추면 영원히 돌아오지 않는다 — '압축 중' 에서 5분씩 멈춘다는 실사용 보고.
+const PRESIGNED_URL_TIMEOUT_MS = 15_000;
+// 성공한 압축은 최근 90일 2.6만 장 중 최대 2.4초(p99.9 0.7초) — 그보다 오래면 느린 게 아니라 멈춘 것.
+const COMPRESS_TIMEOUT_MS = 5_000;
+const READ_FILE_TIMEOUT_MS = 15_000;
+
+type UploadStep =
+  | 'presigned_url'
+  | 'compress'
+  | 'read_file'
+  | 's3_upload'
+  | 'retry_wait';
 
 export interface UploadProgress {
   stage: 'compressing' | 'uploading' | 'registering';
@@ -25,10 +43,81 @@ function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/** 단계가 timeout 안에 안 끝남. 어느 단계에서 멈추는지 Crashlytics 로 추적한다. */
+class UploadStallError extends Error {
+  constructor(step: UploadStep, timeoutMs: number) {
+    super(`Image upload stalled at ${step} for ${timeoutMs / 1000}s`);
+    this.name = 'UploadStallError';
+  }
+}
+
+export class UploadCancelledError extends Error {
+  constructor() {
+    super('Image upload cancelled by user');
+    this.name = 'UploadCancelledError';
+  }
+}
+
+/**
+ * 작업을 timeout·사용자 취소와 경주시킨다. 지면 run 에 넘긴 signal 을 abort 해 원 작업도 멈춘다.
+ * ponytail: signal 을 못 받는 작업(네이티브 압축 — 라이브러리에 취소 API 가 없다)은 멈추지 못하고 결과만 버린다.
+ */
+function guard<T>(
+  run: (signal: AbortSignal) => Promise<T>,
+  step: UploadStep,
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<T> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let onAbort: (() => void) | undefined;
+  return new Promise<T>((resolve, reject) => {
+    const fail = (error: Error) => {
+      reject(error);
+      controller.abort();
+    };
+    if (signal?.aborted) {
+      fail(new UploadCancelledError());
+      return;
+    }
+    onAbort = () => fail(new UploadCancelledError());
+    signal?.addEventListener('abort', onAbort);
+    timer = setTimeout(
+      () => fail(new UploadStallError(step, timeoutMs)),
+      timeoutMs,
+    );
+    run(controller.signal).then(resolve, reject);
+  }).finally(() => {
+    // 원 작업이 끝내 settle 하지 않아도(멈춘 압축) 정리되게 바깥 promise 기준으로 푼다.
+    clearTimeout(timer);
+    if (onAbort) {
+      signal?.removeEventListener('abort', onAbort);
+    }
+  });
+}
+
+/** Crashlytics 는 message 로만 구분되므로 멈춘 단계·이미지 정보를 message 에 싣는다. */
+function withUploadContext(error: unknown, context: string): Error {
+  const e = error instanceof Error ? error : new Error(String(error));
+  e.message = `${e.message} [${context} os=${Platform.OS}]`;
+  return e;
+}
+
+function describeImage(image: ImageFile): string {
+  const ext = image.uri.split('?')[0].split('.').pop()?.toLowerCase();
+  return `${image.width}x${image.height} ext=${ext}`;
+}
+
 function classifyError(error: unknown): {
-  errorType: 'timeout' | 'network' | 'http_error' | 'unknown';
+  errorType: 'timeout' | 'network' | 'http_error' | 'cancelled' | 'unknown';
   httpStatus?: number;
 } {
+  if (error instanceof UploadCancelledError) {
+    return {errorType: 'cancelled'};
+  }
+  if (error instanceof UploadStallError) {
+    return {errorType: 'timeout'};
+  }
   if (error instanceof Error && error.name === 'AbortError') {
     return {errorType: 'timeout'};
   }
@@ -79,14 +168,39 @@ async function uploadToPresignedUrl(
   presignedUrl: string,
   imageFileUrl: string,
   onProgress?: (loaded: number, total: number) => void,
+  signal?: AbortSignal,
+  onStep?: (step: UploadStep) => void,
 ): Promise<UploadImageResult> {
   const url = new URL(presignedUrl);
-  const resp = await fetch(imageFileUrl);
-  const imageBody = await resp.blob();
+  onStep?.('read_file');
+  const imageBody = await guard(
+    s =>
+      // RN 타입 선언의 AbortSignal 이 DOM lib 것과 달라 캐스트한다 — 런타임은 같은 폴리필 객체다.
+      fetch(imageFileUrl, {signal: s as RequestInit['signal']}).then(resp =>
+        resp.blob(),
+      ),
+    'read_file',
+    READ_FILE_TIMEOUT_MS,
+    signal,
+  );
 
   return new Promise<UploadImageResult>((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new UploadCancelledError());
+      return;
+    }
     const xhr = new XMLHttpRequest();
-    xhr.timeout = UPLOAD_TIMEOUT_MS;
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      xhr.abort();
+    }, UPLOAD_TIMEOUT_MS);
+    const abortOnCancel = () => xhr.abort();
+    xhr.onloadend = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', abortOnCancel);
+    };
+    signal?.addEventListener('abort', abortOnCancel);
 
     xhr.upload.onprogress = (e: ProgressEvent) => {
       if (e.lengthComputable) {
@@ -118,14 +232,16 @@ async function uploadToPresignedUrl(
       }
     };
 
-    xhr.ontimeout = () => {
+    xhr.onabort = () => {
       reject(
-        attachDebugInfo(
-          new Error(
-            `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
-          ),
-          debugInfo,
-        ),
+        timedOut
+          ? attachDebugInfo(
+              new Error(
+                `Image upload timed out after ${UPLOAD_TIMEOUT_MS / 1000}s`,
+              ),
+              debugInfo,
+            )
+          : new UploadCancelledError(),
       );
     };
 
@@ -138,22 +254,43 @@ async function uploadToPresignedUrl(
     xhr.open('PUT', url.href);
     xhr.setRequestHeader('content-type', imageBody.type);
     xhr.setRequestHeader('x-amz-acl', 'public-read');
+    onStep?.('s3_upload');
     xhr.send(imageBody);
   });
 }
 
-/** 1회 재시도 포함 업로드 */
+/** 1회 재시도 포함 업로드 (사용자 취소는 재시도하지 않는다) */
 async function uploadToPresignedUrlWithRetry(
   presignedUrl: string,
   imageFileUrl: string,
   onProgress?: (loaded: number, total: number) => void,
+  signal?: AbortSignal,
+  onStep?: (step: UploadStep) => void,
 ): Promise<UploadImageResult> {
-  try {
-    return await uploadToPresignedUrl(presignedUrl, imageFileUrl, onProgress);
-  } catch (_firstError) {
-    await delay(1000);
-    return await uploadToPresignedUrl(presignedUrl, imageFileUrl, onProgress);
+  for (const retryDelay of UPLOAD_RETRY_DELAYS_MS) {
+    try {
+      return await uploadToPresignedUrl(
+        presignedUrl,
+        imageFileUrl,
+        onProgress,
+        signal,
+        onStep,
+      );
+    } catch (error) {
+      if (error instanceof UploadCancelledError) {
+        throw error;
+      }
+      onStep?.('retry_wait');
+      await delay(retryDelay);
+    }
   }
+  return await uploadToPresignedUrl(
+    presignedUrl,
+    imageFileUrl,
+    onProgress,
+    signal,
+    onStep,
+  );
 }
 
 const ImageFileUtils = {
@@ -186,29 +323,132 @@ const ImageFileUtils = {
     const result = await uploadToPresignedUrl(presignedUrlData.url, imageUrl);
     return result.url;
   },
+  /**
+   * 단계마다 timeout 을 걸어 멈춘 채로 남지 않게 한다. 압축이 멈추면 원본으로 올리고,
+   * 나머지 단계는 에러로 끝낸다. `signal` 로 사용자가 언제든 취소할 수 있다.
+   */
   async uploadImages(
     api: DefaultApi,
     images: ImageFile[] = [],
     purposeType?: ImageUploadPurpose,
     onProgress?: (progress: UploadProgress) => void,
+    signal?: AbortSignal,
   ) {
     const startTimeOfTotal = Date.now();
-    const startTimeOfGettingPresignedUrls = Date.now();
-    const uploadUrls = await api
-      .getImageUploadUrlsPost({
-        count: images.length,
-        filenameExtension: 'jpeg',
-        purposeType,
-      })
-      .then(res => res.data.map(data => data.url));
-    const durationOfGettingPresignedUrls =
-      Date.now() - startTimeOfGettingPresignedUrls;
+    // 실패·취소 시 "어디서 멈췄나" 보고용
+    let step: UploadStep = 'presigned_url';
+    let stepStartedAt = Date.now();
+    let index = 0;
+    const uploadId = `${startTimeOfTotal}-${Math.random().toString(36).slice(2, 8)}`;
+    // S3 전송 진행 추적 — heartbeat 와 요약값(가장 긴 무진행 구간)의 원천
+    let attempt = 0;
+    let s3ImageIndex = 0;
+    let s3Retries = 0;
+    let bytesSent = 0;
+    let bytesTotal = 0;
+    let lastProgressAt = startTimeOfTotal;
+    let sawProgress = false;
+    let maxNoProgressMillis = 0;
+    let maxNoProgressAtPct = 0;
+    let maxNoProgressImageIndex = 0;
+    let maxFirstProgressMillis = 0;
+    const closeNoProgressGap = () => {
+      if (step !== 's3_upload') {
+        return;
+      }
+      const gap = Date.now() - lastProgressAt;
+      if (gap > maxNoProgressMillis) {
+        maxNoProgressMillis = gap;
+        // 소켓에 쓴 바이트 기준이라 100% 여도 S3 응답을 못 받은 채 멈춘 것일 수 있다
+        maxNoProgressAtPct =
+          bytesTotal > 0 ? Math.floor((100 * bytesSent) / bytesTotal) : 0;
+        maxNoProgressImageIndex = s3ImageIndex;
+      }
+    };
+    const enterStep = (next: UploadStep) => {
+      closeNoProgressGap();
+      step = next;
+      stepStartedAt = Date.now();
+      if (next === 'compress') {
+        attempt = 0;
+        bytesSent = 0;
+        bytesTotal = 0;
+      }
+      if (next === 's3_upload') {
+        attempt += 1;
+        s3ImageIndex = index;
+        if (attempt > 1) {
+          s3Retries += 1;
+        }
+        bytesSent = 0;
+        bytesTotal = 0;
+        lastProgressAt = stepStartedAt;
+        sawProgress = false;
+      }
+    };
+    const onS3Progress = (loaded: number, total: number) => {
+      closeNoProgressGap();
+      const now = Date.now();
+      if (!sawProgress) {
+        sawProgress = true;
+        maxFirstProgressMillis = Math.max(
+          maxFirstProgressMillis,
+          now - stepStartedAt,
+        );
+      }
+      lastProgressAt = now;
+      bytesSent = loaded;
+      bytesTotal = total;
+    };
+    const progressSummary = () => ({
+      upload_id: uploadId,
+      s3_retries: s3Retries,
+      max_no_progress_millis: maxNoProgressMillis,
+      max_no_progress_at_pct: maxNoProgressAtPct,
+      max_no_progress_image_index: maxNoProgressImageIndex,
+      max_first_progress_millis: maxFirstProgressMillis,
+    });
+    const heartbeat = setInterval(() => {
+      const now = Date.now();
+      Logger.logUploadImageProgress({
+        upload_id: uploadId,
+        step,
+        image_index: index,
+        image_count: images.length,
+        attempt,
+        bytes_sent: bytesSent,
+        bytes_total: bytesTotal,
+        elapsed_millis: now - startTimeOfTotal,
+        elapsed_millis_in_step: now - stepStartedAt,
+        ...(step === 's3_upload' && {
+          millis_since_progress: now - lastProgressAt,
+        }),
+      });
+    }, HEARTBEAT_INTERVAL_MS);
 
     let durationOfUploadImages: Record<string, number> = {};
     try {
+      const uploadUrls = await guard(
+        s =>
+          api
+            .getImageUploadUrlsPost(
+              {
+                count: images.length,
+                filenameExtension: 'jpeg',
+                purposeType,
+              },
+              {signal: s},
+            )
+            .then(res => res.data.map(data => data.url)),
+        'presigned_url',
+        PRESIGNED_URL_TIMEOUT_MS,
+        signal,
+      );
+      const durationOfGettingPresignedUrls = Date.now() - startTimeOfTotal;
+
       const uploadedUrls: string[] = [];
 
-      for (let index = 0; index < images.length; index++) {
+      for (index = 0; index < images.length; index++) {
         const image = images[index];
         const url = uploadUrls[index];
         if (url === undefined) {
@@ -234,33 +474,54 @@ const ImageFileUtils = {
           imageSizeMb: 0,
         });
 
-        const startCompress = Date.now();
+        enterStep('compress');
         let compressedUri: string;
         try {
-          compressedUri = await ImageCompressor.compress(image.uri, {
-            compressionMethod: 'auto',
-            maxWidth: 2560,
-            maxHeight: 2560,
-            quality: 0.7,
-            // HEIC 입력이라도 JPEG로 출력 강제. iOS 26 호환성.
-            output: 'jpg',
-          });
+          compressedUri = await guard(
+            () =>
+              ImageCompressor.compress(image.uri, {
+                compressionMethod: 'auto',
+                maxWidth: 2560,
+                maxHeight: 2560,
+                quality: 0.7,
+                // HEIC 입력이라도 JPEG로 출력 강제. iOS 26 호환성.
+                output: 'jpg',
+              }),
+            'compress',
+            COMPRESS_TIMEOUT_MS,
+            signal,
+          );
         } catch (compressError) {
+          if (compressError instanceof UploadCancelledError) {
+            throw compressError;
+          }
+          // 압축 실패·멈춤은 원본으로 올려 사용자를 막지 않는다. 원인 추적용으로만 보고.
           Logger.logError(
-            compressError instanceof Error
-              ? compressError
-              : new Error(String(compressError)),
+            withUploadContext(
+              compressError,
+              `image=${index + 1}/${images.length} ${describeImage(image)}`,
+            ),
           );
           compressedUri = image.uri;
         }
-        const durationCompress = Date.now() - startCompress;
+        const durationCompress = Date.now() - stepStartedAt;
 
-        // Uploading stage
+        // Uploading stage — read_file/s3_upload 전환은 재시도까지 포함해 내부에서 알린다.
+        // 첫 progress 전에 S3 전송이 멈추면 오버레이가 '압축 중' 으로 남아 있었다 — 여기서 먼저 넘긴다.
+        onProgress?.({
+          stage: 'uploading',
+          currentIndex: index,
+          totalImages: images.length,
+          bytesUploaded: 0,
+          totalBytes: 0,
+          imageSizeMb: 0,
+        });
         const startUpload = Date.now();
         const result = await uploadToPresignedUrlWithRetry(
           url,
           compressedUri,
           (loaded, total) => {
+            onS3Progress(loaded, total);
             const imageSizeMb = floor(total / (1024 * 1024), 2);
             onProgress?.({
               stage: 'uploading',
@@ -271,6 +532,8 @@ const ImageFileUtils = {
               imageSizeMb,
             });
           },
+          signal,
+          enterStep,
         );
         const durationUpload = Date.now() - startUpload;
 
@@ -288,8 +551,10 @@ const ImageFileUtils = {
         uploadedUrls.push(result.url);
       }
 
+      closeNoProgressGap();
       await Logger.logUploadImage({
         ...durationOfUploadImages,
+        ...progressSummary(),
         duration_millis_of_presigned_urls: durationOfGettingPresignedUrls,
         duration_millis_total: Date.now() - startTimeOfTotal,
         image_count: images.length,
@@ -297,21 +562,34 @@ const ImageFileUtils = {
 
       return uploadedUrls;
     } catch (error) {
+      closeNoProgressGap();
       const {errorType, httpStatus} = classifyError(error);
       const {imageMime, imageSizeMb} = extractDebugInfo(error);
+      const elapsedMillisInStep = Date.now() - stepStartedAt;
       await Logger.logUploadImageFailed({
         errorType,
         httpStatus,
         imageCount: images.length,
-        retryCount: 1,
+        retryCount: UPLOAD_RETRY_DELAYS_MS.length,
         errorMessage: error instanceof Error ? error.message : String(error),
         imageMime,
         imageSizeMb,
+        step,
+        elapsedMillisInStep,
+        imageIndex: index,
+        progressSummary: progressSummary(),
       });
+      const image = images[index];
       Logger.logError(
-        error instanceof Error ? error : new Error(String(error)),
+        withUploadContext(
+          error,
+          `step=${step} elapsed_in_step=${elapsedMillisInStep}ms image=${index + 1}/${images.length}` +
+            (image ? ` ${describeImage(image)}` : ''),
+        ),
       );
       throw error;
+    } finally {
+      clearInterval(heartbeat);
     }
   },
 };

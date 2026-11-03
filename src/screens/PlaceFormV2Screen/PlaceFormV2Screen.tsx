@@ -6,6 +6,7 @@ import {
 import {ScreenLayout} from '@/components/ScreenLayout';
 import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import {
+  showUploadFailedToast,
   useImageUploadWithProgress,
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
@@ -23,6 +24,10 @@ import {
 } from '@/generated-sources/openapi';
 import useAppComponents from '@/hooks/useAppComponents';
 import {useFormExitConfirm} from '@/hooks/useFormExitConfirm';
+import {
+  REGISTER_TIMEOUT_MS,
+  useIdempotencyKey,
+} from '@/hooks/useIdempotencyKey';
 import usePost from '@/hooks/usePost';
 import Logger from '@/logging/Logger';
 import {LogParamsProvider} from '@/logging/LogParamsProvider';
@@ -99,6 +104,7 @@ export default function PlaceFormV2Screen({
   const {syncUserInfo} = useMe();
 
   const {uploadImages, uploadProgress} = useImageUploadWithProgress();
+  const getIdempotencyKey = useIdempotencyKey();
   const [stepIndex, setStepIndex] = useState(0);
 
   // 뒤로가기 confirm
@@ -216,9 +222,11 @@ export default function PlaceFormV2Screen({
     async ({
       values,
       uploaded,
+      requestId,
     }: {
       values: PlaceFormV2Values;
       uploaded: UploadedPhotos;
+      requestId: string;
     }) =>
       submitRegistration(
         api,
@@ -230,6 +238,7 @@ export default function PlaceFormV2Screen({
         selectedFloor,
         doorDirection,
         uploaded,
+        requestId,
       ),
   );
 
@@ -238,6 +247,14 @@ export default function PlaceFormV2Screen({
       return;
     }
     const values = form.getValues();
+    // 사진 URL 은 업로드마다 달라지므로 업로드 전 입력(로컬 사진 포함)으로 키를 정한다.
+    const requestId = getIdempotencyKey({
+      values,
+      selectedOption,
+      selectedStandaloneType,
+      selectedFloor,
+      doorDirection,
+    });
 
     let uploaded: UploadedPhotos;
     try {
@@ -248,12 +265,16 @@ export default function PlaceFormV2Screen({
         selectedStandaloneType,
         uploadImages,
       );
-    } catch {
-      ToastUtils.show('사진 업로드를 실패했습니다.');
+    } catch (e) {
+      showUploadFailedToast(e);
       return;
     }
 
-    const registered = await submitMutation.mutateAsync({values, uploaded});
+    const registered = await submitMutation.mutateAsync({
+      values,
+      uploaded,
+      requestId,
+    });
 
     if (!registered.success) {
       return;
@@ -631,6 +652,7 @@ async function submitRegistration(
   selectedFloor: number | undefined,
   doorDirection: BuildingDoorDirectionType | undefined,
   uploaded: UploadedPhotos,
+  requestId: string,
 ) {
   const startTotal = Date.now();
   const imageCount =
@@ -698,7 +720,11 @@ async function submitRegistration(
 
   try {
     const startApiCall = Date.now();
-    const res = await api.registerPlaceAccessibilityV2Post(requestData);
+    const res = await api.registerPlaceAccessibilityV2Post(
+      requestData,
+      requestId,
+      {timeout: REGISTER_TIMEOUT_MS},
+    );
     const durationApiCall = Date.now() - startApiCall;
 
     await Logger.logAccessibilityRegistration({

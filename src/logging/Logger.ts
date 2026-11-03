@@ -164,7 +164,7 @@ const Logger = {
     crashlytics().setAttribute('last_screen', screenName);
   },
 
-  async logUploadImage(metric: Record<string, number>) {
+  async logUploadImage(metric: Record<string, number | string>) {
     logDebug('logUploadImage', metric, currUserPropertiesForDebugging);
     const eventParams = {
       ...metric,
@@ -173,14 +173,27 @@ const Logger = {
     getAnalytics().logEvent('upload_image', eventParams);
   },
 
+  // 업로드 중 1초마다 — 진행이 멈춘 채 timeout 을 기다리는 구간을 보기 위한 heartbeat
+  async logUploadImageProgress(params: Record<string, number | string>) {
+    logDebug('logUploadImageProgress', params, currUserPropertiesForDebugging);
+    trackEvent('upload_image_progress', params);
+    getAnalytics().logEvent('upload_image_progress', params);
+  },
+
   async logUploadImageFailed(params: {
-    errorType: 'timeout' | 'network' | 'http_error' | 'unknown';
+    errorType: 'timeout' | 'network' | 'http_error' | 'cancelled' | 'unknown';
     httpStatus?: number;
     imageCount: number;
     retryCount: number;
     errorMessage: string;
     imageMime?: string;
     imageSizeMb?: number;
+    // 어느 단계에서 얼마나 멈췄다가 실패·취소됐는지
+    step: string;
+    elapsedMillisInStep: number;
+    imageIndex: number;
+    // upload_id·S3 시도 횟수·가장 긴 무진행 구간 — upload_image 와 같은 키
+    progressSummary: Record<string, number | string>;
   }) {
     logDebug('logUploadImageFailed', params, currUserPropertiesForDebugging);
     const eventParams = {
@@ -195,6 +208,10 @@ const Logger = {
       ...(params.imageSizeMb !== undefined && {
         image_size_mb: params.imageSizeMb,
       }),
+      step: params.step,
+      elapsed_millis_in_step: params.elapsedMillisInStep,
+      image_index: params.imageIndex,
+      ...params.progressSummary,
     };
     trackEvent('upload_image_failed', eventParams);
     getAnalytics().logEvent('upload_image_failed', eventParams);

@@ -22,6 +22,12 @@ import {
 import {UploadProgressOverlay} from '@/components/UploadProgressOverlay';
 import useAppComponents from '@/hooks/useAppComponents';
 import {
+  REGISTER_TIMEOUT_MS,
+  REQUEST_ID_HEADER,
+  useIdempotencyKey,
+} from '@/hooks/useIdempotencyKey';
+import {
+  showUploadFailedToast,
   useImageUploadWithProgress,
   UploadImagesFn,
 } from '@/hooks/useImageUploadWithProgress';
@@ -69,6 +75,7 @@ export default function IndoorReviewView({
   const queryClient = useQueryClient();
   const {userInfo} = useMe();
   const {uploadImages, uploadProgress} = useImageUploadWithProgress();
+  const getIdempotencyKey = useIdempotencyKey();
   const form = useForm<FormValues>({
     defaultValues: {
       mobilityTool: getMobilityToolDefaultValue(userInfo?.mobilityTools),
@@ -149,9 +156,11 @@ export default function IndoorReviewView({
     async ({
       values,
       uploaded,
+      requestId,
     }: {
       values: FormValues;
       uploaded: {images: string[]};
+      requestId: string;
     }) =>
       submitRegistration({
         api,
@@ -159,6 +168,7 @@ export default function IndoorReviewView({
         placeId: place?.id!,
         values,
         uploaded,
+        requestId,
       }),
   );
 
@@ -173,15 +183,22 @@ export default function IndoorReviewView({
           timestamp: Date.now(),
         });
 
+        // 사진 URL 은 업로드마다 달라지므로 업로드 전 입력(로컬 사진 포함)으로 키를 정한다.
+        const requestId = getIdempotencyKey(values);
+
         let uploaded: {images: string[]};
         try {
           uploaded = await uploadAllPhotos({api, values, uploadImages});
-        } catch {
-          ToastUtils.show('사진 업로드를 실패했습니다.');
+        } catch (e) {
+          showUploadFailedToast(e);
           return;
         }
 
-        const registered = await submitMutation.mutateAsync({values, uploaded});
+        const registered = await submitMutation.mutateAsync({
+          values,
+          uploaded,
+          requestId,
+        });
 
         if (!registered.success) {
           return;
@@ -198,6 +215,7 @@ export default function IndoorReviewView({
       api,
       place,
       uploadImages,
+      getIdempotencyKey,
       setRecentlyUsedMobilityTool,
       submitMutation,
       queryClient,
@@ -270,27 +288,32 @@ async function submitRegistration({
   placeId,
   values,
   uploaded,
+  requestId,
 }: {
   api: DefaultApi;
   queryClient: QueryClient;
   placeId: string;
   values: FormValues;
   uploaded: {images: string[]};
+  requestId: string;
 }) {
   try {
-    const res = await api.registerPlaceReviewPost({
-      placeId,
-      mobilityTool: values.mobilityTool,
-      recommendedMobilityTypes: [...values.recommendedMobilityTypes],
-      spaciousType: values.spaciousType!,
-      comment: values.comment,
-      seatTypes: values.seatComment
-        ? [...values.seatTypes, values.seatComment]
-        : [...values.seatTypes],
-      orderMethods: [...values.orderMethods],
-      features: [...values.features],
-      imageUrls: uploaded.images,
-    });
+    const res = await api.registerPlaceReviewPost(
+      {
+        placeId,
+        mobilityTool: values.mobilityTool,
+        recommendedMobilityTypes: [...values.recommendedMobilityTypes],
+        spaciousType: values.spaciousType!,
+        comment: values.comment,
+        seatTypes: values.seatComment
+          ? [...values.seatTypes, values.seatComment]
+          : [...values.seatTypes],
+        orderMethods: [...values.orderMethods],
+        features: [...values.features],
+        imageUrls: uploaded.images,
+      },
+      {headers: {[REQUEST_ID_HEADER]: requestId}, timeout: REGISTER_TIMEOUT_MS},
+    );
 
     queryClient.invalidateQueries({
       queryKey: ['PlaceDetailV2', placeId, UpvoteTargetTypeDto.PlaceReview],
