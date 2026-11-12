@@ -192,7 +192,7 @@ repositories {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation("com.naver.maps:map-sdk:3.19.1")
+    implementation("com.naver.maps:map-sdk:3.24.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     // androidsvg-aar을 androidsvg로 교체 (@d11/react-native-fast-image가 androidsvg를 가져옴)
     implementation("com.caverock:androidsvg:1.4")
