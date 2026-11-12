@@ -837,7 +837,7 @@
     "image": "/articles/yeouido-indoor-course-wheelchair/assets/img-0.png",
     "createdTime": "2026-11-02T13:26:00.000Z",
     "publishedAt": "2026-11-05T10:30:00.000Z",
-    "editedTime": "2026-11-05T10:29:00.000Z",
+    "editedTime": "2026-11-05T13:29:00.000Z",
     "contentPageId": "40cc9499-b060-80ec-a174-e64caec8eae8",
     "featured": null,
     "categories": [
@@ -846,5 +846,22 @@
     "ctaUrl": "https://web.staircrusher.club/place-list/PL_yaUyztl8",
     "ctaLabel": "소개된 곳 모아보기",
     "thumbnail": "/articles/yeouido-indoor-course-wheelchair/assets/thumb-0.webp"
+  },
+  "416c9499-b060-816c-98e6-f69bf11c2f39": {
+    "slug": "gwacheon-yongin-family-indoor-course-wheelchair",
+    "title": "[실내 코스 추천 #2] 휠체어 타고 즐기기 좋은 실내 가족 나들이 (과천·용인)",
+    "summary": "휠체어 타고 즐기기 좋은 과천·용인 실내 가족 나들이 코스. 국립과천과학관·경마장오리집·카페 앞마당으로 이어지는 과천 코스와 호암미술관·호암카페 용인 코스를 경사로·엘리베이터·장애인 화장실 등 접근성 정보와 함께 소개해요.",
+    "image": "/articles/gwacheon-yongin-family-indoor-course-wheelchair/assets/img-0.png",
+    "createdTime": "2026-11-10T09:35:00.000Z",
+    "publishedAt": "2026-11-12T04:15:00.000Z",
+    "editedTime": "2026-11-12T01:16:00.000Z",
+    "contentPageId": "414c9499-b060-807e-b533-c0e408b3bb84",
+    "featured": null,
+    "categories": [
+      "여행/나들이"
+    ],
+    "ctaUrl": "https://web.staircrusher.club/place-list/PL_jYF9kdVQ",
+    "ctaLabel": "소개된 곳 모아보기",
+    "thumbnail": "/articles/gwacheon-yongin-family-indoor-course-wheelchair/assets/thumb-0.webp"
   }
 }
