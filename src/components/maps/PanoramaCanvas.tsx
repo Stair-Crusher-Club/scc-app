@@ -16,7 +16,7 @@ export interface PanoramaCanvasProps {
 // 네이버 JS SDK는 키에 등록된 웹 서비스 URL을 referer로 인증한다. WebView 인라인
 // HTML은 origin이 없으므로 등록된 도메인을 baseUrl로 지정해 인증을 통과시킨다.
 const REGISTERED_WEB_ORIGIN = 'https://web.staircrusher.club';
-const NAVER_MAP_KEY_ID = 'y43vn4vgkw';
+const NAVER_MAP_KEY_ID = 'u82m7tyvhq';
 
 function buildHtml(
   {lat, lng}: {lat: number; lng: number},
