@@ -79,7 +79,7 @@
             </intent-filter>
         </activity>
         <meta-data
-            android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="zq19tcdc75" />
+            android:name="com.naver.maps.map.NCP_KEY_ID"
+            android:value="u82m7tyvhq" />
     </application>
 </manifest>
