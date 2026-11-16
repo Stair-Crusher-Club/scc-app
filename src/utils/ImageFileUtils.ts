@@ -1,6 +1,10 @@
 import {floor} from 'lodash';
 import {Platform} from 'react-native';
-import {Image as ImageCompressor} from 'react-native-compressor';
+import {
+  Image as ImageCompressor,
+  UploadType,
+  backgroundUpload,
+} from 'react-native-compressor';
 
 import {DefaultApi, ImageUploadPurpose} from '@/generated-sources/openapi';
 import Logger from '@/logging/Logger';
@@ -16,6 +20,7 @@ const HEARTBEAT_INTERVAL_MS = 1_000;
 const PRESIGNED_URL_TIMEOUT_MS = 15_000;
 // 성공한 압축은 최근 90일 2.6만 장 중 최대 2.4초(p99.9 0.7초) — 그보다 오래면 느린 게 아니라 멈춘 것.
 const COMPRESS_TIMEOUT_MS = 5_000;
+// 웹(uploadToPresignedUrl)만 파일을 JS 로 읽는다 — 앱은 네이티브가 파일에서 바로 올린다
 const READ_FILE_TIMEOUT_MS = 15_000;
 
 type UploadStep =
@@ -163,7 +168,7 @@ class UploadHttpError extends Error {
   }
 }
 
-/** presigned URL에 이미지 업로드 (내부 전용) — XMLHttpRequest 사용으로 progress 지원 */
+/** presigned URL에 이미지 업로드 (웹 전용) — XMLHttpRequest 사용으로 progress 지원 */
 async function uploadToPresignedUrl(
   presignedUrl: string,
   imageFileUrl: string,
@@ -259,6 +264,59 @@ async function uploadToPresignedUrl(
   });
 }
 
+/**
+ * 앱(iOS URLSession·Android OkHttp)이 파일에서 바로 S3 로 올린다 — 파일을 JS Blob 으로 읽어 오지 않는다.
+ * fetch(file://) 는 응답을 setTimeout(0) 뒤에 넘겨서, iOS 에서 JS 타이머가 멈추면 파일을 다 읽고도
+ * 영원히 끝나지 않았다(read_file 멈춤, 2주 21명). 완료·진행률이 네이티브 이벤트로 와서 타이머와 무관하다.
+ */
+async function uploadFileToPresignedUrl(
+  presignedUrl: string,
+  imageFileUrl: string,
+  onProgress?: (loaded: number, total: number) => void,
+  signal?: AbortSignal,
+  onStep?: (step: UploadStep) => void,
+): Promise<UploadImageResult> {
+  const url = new URL(presignedUrl);
+  let size = 0;
+  onStep?.('s3_upload');
+  const response: {status: number} = await guard(
+    s =>
+      backgroundUpload(
+        presignedUrl,
+        // iOS 네이티브는 경로를 file URL 로 다시 감싸서 'file://' 가 붙어 있으면 깨진다 (Android 는 래퍼가 뗀다)
+        imageFileUrl.replace(/^file:\/\//, ''),
+        {
+          httpMethod: 'PUT',
+          uploadType: UploadType.BINARY_CONTENT,
+          mimeType: 'image/jpeg',
+          // presigned URL 서명에 들어간 값과 같아야 한다 — 서버가 jpeg·public-read 로 서명한다
+          headers: {'content-type': 'image/jpeg', 'x-amz-acl': 'public-read'},
+        },
+        (written, total) => {
+          size = total;
+          onProgress?.(written, total);
+        },
+        s,
+      ).catch((error: unknown) => {
+        // 연결 실패·파일 없음 등 네이티브 거절 — XHR onerror 와 같은 network 로 분류되게 한다
+        throw new TypeError(
+          `Network request failed: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }),
+    's3_upload',
+    UPLOAD_TIMEOUT_MS,
+    signal,
+  );
+  // 네이티브는 4xx/5xx 도 resolve 로 돌려준다
+  if (response.status < 200 || response.status >= 300) {
+    throw new UploadHttpError(
+      `Upload image to ${url.origin}${url.pathname} failed with HTTP ${response.status}`,
+      response.status,
+    );
+  }
+  return {url: url.protocol + '//' + url.host + url.pathname, size};
+}
+
 /** 1회 재시도 포함 업로드 (사용자 취소는 재시도하지 않는다) */
 async function uploadToPresignedUrlWithRetry(
   presignedUrl: string,
@@ -267,9 +325,12 @@ async function uploadToPresignedUrlWithRetry(
   signal?: AbortSignal,
   onStep?: (step: UploadStep) => void,
 ): Promise<UploadImageResult> {
+  // 웹은 react-native-compressor 가 없다(webpack alias false) — 브라우저 fetch·XHR 로 올린다
+  const uploadOnce =
+    Platform.OS === 'web' ? uploadToPresignedUrl : uploadFileToPresignedUrl;
   for (const retryDelay of UPLOAD_RETRY_DELAYS_MS) {
     try {
-      return await uploadToPresignedUrl(
+      return await uploadOnce(
         presignedUrl,
         imageFileUrl,
         onProgress,
@@ -284,7 +345,7 @@ async function uploadToPresignedUrlWithRetry(
       await delay(retryDelay);
     }
   }
-  return await uploadToPresignedUrl(
+  return await uploadOnce(
     presignedUrl,
     imageFileUrl,
     onProgress,
