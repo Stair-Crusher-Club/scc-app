@@ -40,6 +40,10 @@ type ViewMode = 'list' | 'map';
 
 // ItemMapView 카드 캐러셀 높이 (PlaceListDetailScreen 과 동일 값)
 const MAP_CARD_HEIGHT = 270;
+// ItemMapView 의 myLocationBottomOffset — 카드 캐러셀 바닥이 safe area 위로 뜨는 높이.
+const MAP_CARD_BOTTOM_OFFSET = 16;
+// 목록보기·내 위치 버튼과 포커스된 카드 사이 간격.
+const FLOATING_BUTTON_CARD_GAP = 16;
 
 const DEFAULT_FILTERS: PlaceListFilterOptions = {
   sortOption: 'distance',
@@ -81,6 +85,13 @@ export default function ChallengeConquerTargetPlacesScreen({
   // (또는 map 모드로 전환되는 순간) 소비한다.
   const needsFitRef = useRef(false);
   const itemsRef = useRef<PlaceMarkerItem[]>([]);
+
+  // 지도 카드는 정보 없는 장소일수록 짧다(캐러셀 밴드는 고정 높이, 카드는 바닥 정렬).
+  // 목록보기 버튼을 밴드 높이로 띄우면 짧은 카드 위에서 버튼이 멀어지므로, 포커스된
+  // 카드의 실제 높이를 받아 그 위 16px 에 붙인다. 내 위치 버튼은 ItemMapView 가 같은 기준으로 붙인다.
+  const [focusedCardHeight, setFocusedCardHeight] = useState<number | null>(
+    null,
+  );
 
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode ?? 'list');
   const [filters, setFilters] = useAtom(ctplFilterAtom);
@@ -234,7 +245,14 @@ export default function ChallengeConquerTargetPlacesScreen({
   const floatingBottom =
     viewMode === 'list'
       ? insets.bottom + 24
-      : insets.bottom + (items.length > 0 ? MAP_CARD_HEIGHT + 16 : 16);
+      : insets.bottom +
+        (items.length === 0
+          ? 16
+          : focusedCardHeight != null
+            ? MAP_CARD_BOTTOM_OFFSET +
+              focusedCardHeight +
+              FLOATING_BUTTON_CARD_GAP
+            : MAP_CARD_HEIGHT + 16);
 
   return (
     <ScreenLayout isHeaderVisible={false} safeAreaEdges={['top']}>
@@ -280,7 +298,9 @@ export default function ChallengeConquerTargetPlacesScreen({
                 isRefreshVisible={false}
                 onRefresh={() => {}}
                 onCameraIdle={handleCameraIdle}
-                myLocationBottomOffset={16}
+                myLocationBottomOffset={MAP_CARD_BOTTOM_OFFSET}
+                floatingButtonCardGap={FLOATING_BUTTON_CARD_GAP}
+                onFocusedCardHeightChange={setFocusedCardHeight}
                 markerIconOverride={markerIconOverride}
               />
             </View>
