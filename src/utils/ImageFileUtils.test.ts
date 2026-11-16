@@ -4,9 +4,21 @@ import type {DefaultApi} from '@/generated-sources/openapi';
 import Logger from '@/logging/Logger';
 import ImageFileUtils, {UploadCancelledError} from '@/utils/ImageFileUtils';
 
+type NativeUpload = (
+  url: string,
+  filePath: string,
+  options: Record<string, unknown>,
+  onProgress?: (written: number, total: number) => void,
+  signal?: AbortSignal,
+) => Promise<{status: number}>;
+
 const mockCompress = jest.fn<(uri: string) => Promise<string>>();
+const mockBackgroundUpload = jest.fn<NativeUpload>();
 jest.mock('react-native-compressor', () => ({
   Image: {compress: (uri: string) => mockCompress(uri)},
+  UploadType: {BINARY_CONTENT: 0, MULTIPART: 1},
+  backgroundUpload: (...args: Parameters<NativeUpload>) =>
+    mockBackgroundUpload(...args),
 }));
 jest.mock('@/logging/Logger', () => ({
   __esModule: true,
@@ -18,42 +30,27 @@ jest.mock('@/logging/Logger', () => ({
   },
 }));
 
-class FakeXhr {
-  upload: {onprogress: ((e: unknown) => void) | null} = {onprogress: null};
-  status = 0;
-  timeout = 0;
-  onload: (() => void) | null = null;
-  onabort: (() => void) | null = null;
-  open() {}
-  setRequestHeader() {}
-  send() {
+/** 다음 틱에 100% progress 후 200 으로 끝나는 네이티브 업로드 */
+const respondOk: NativeUpload = (_url, _path, _options, onProgress) =>
+  new Promise(resolve =>
     setTimeout(() => {
-      this.status = 200;
-      this.onload?.();
-    }, 0);
-  }
-  abort() {
-    this.onabort?.();
-  }
-}
+      onProgress?.(1024, 1024);
+      resolve({status: 200});
+    }, 0),
+  );
+/** progress·응답 없이 매달리는 네이티브 업로드 */
+const hang: NativeUpload = () => new Promise(() => {});
 
 const api = {
   getImageUploadUrlsPost: () =>
     Promise.resolve({data: [{url: 'https://s3.example/a.jpg?sig=1'}]}),
 } as unknown as DefaultApi;
 const images = [{uri: 'file:///photo.heic', width: 3024, height: 4032}];
-const fetchedUris: string[] = [];
+const uploadedPaths = () => mockBackgroundUpload.mock.calls.map(c => c[1]);
 
 beforeEach(() => {
   jest.useFakeTimers();
-  fetchedUris.length = 0;
-  (global as any).XMLHttpRequest = FakeXhr;
-  (global as any).fetch = (uri: string) => {
-    fetchedUris.push(uri);
-    return Promise.resolve({
-      blob: () => Promise.resolve({type: 'image/jpeg', size: 1024}),
-    });
-  };
+  mockBackgroundUpload.mockImplementation(respondOk);
   mockCompress.mockReturnValue(new Promise<string>(() => {})); // 압축이 영원히 멈춤
 });
 
@@ -66,10 +63,10 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
   it('압축이 멈추면 5초 뒤 원본으로 올리고, 멈춤을 Crashlytics 에 보고한다', async () => {
     const result = ImageFileUtils.uploadImages(api, images);
     await jest.advanceTimersByTimeAsync(5_000);
-    await jest.advanceTimersByTimeAsync(1); // FakeXhr 응답
+    await jest.advanceTimersByTimeAsync(1); // 네이티브 응답
 
     await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
-    expect(fetchedUris).toEqual(['file:///photo.heic']);
+    expect(uploadedPaths()).toEqual(['/photo.heic']);
     expect(String((Logger.logError as jest.Mock).mock.calls[0][0])).toContain(
       'stalled at compress',
     );
@@ -88,34 +85,55 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
     controller.abort();
 
     await expect(result).rejects.toBeInstanceOf(UploadCancelledError);
-    expect(fetchedUris).toEqual([]);
+    expect(uploadedPaths()).toEqual([]);
     expect(Logger.logUploadImageFailed).toHaveBeenCalledWith(
       expect.objectContaining({errorType: 'cancelled', step: 'compress'}),
     );
   });
 
-  it('파일 읽기가 timeout 되면 원 fetch 도 abort 해 백그라운드에 남기지 않는다', async () => {
-    mockCompress.mockResolvedValue('file:///compressed.jpg');
-    let fetchSignal: AbortSignal | undefined;
-    (global as any).fetch = (_uri: string, init?: {signal?: AbortSignal}) => {
-      fetchSignal = init?.signal;
-      return new Promise(() => {}); // 읽기가 영원히 멈춤
-    };
+  it('파일을 JS 로 읽지 않고 네이티브가 file:// 를 뗀 경로에서 서명된 헤더로 PUT 한다', async () => {
+    mockCompress.mockResolvedValue('file:///cache/compressed.jpg');
     const result = ImageFileUtils.uploadImages(api, images);
-    const settled = result.catch((e: unknown) => e);
-    // read_file 도 S3 전송 재시도에 포함된다: 15초 + 대기 1초 + 15초
-    await jest.advanceTimersByTimeAsync(15_000 + 1_000 + 15_000);
+    await jest.advanceTimersByTimeAsync(1);
 
-    expect(String(await settled)).toContain('stalled at read_file');
-    expect(fetchSignal?.aborted).toBe(true);
+    await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
+    expect(mockBackgroundUpload).toHaveBeenCalledWith(
+      'https://s3.example/a.jpg?sig=1',
+      '/cache/compressed.jpg',
+      expect.objectContaining({
+        httpMethod: 'PUT',
+        uploadType: 0,
+        headers: {'content-type': 'image/jpeg', 'x-amz-acl': 'public-read'},
+      }),
+      expect.any(Function),
+      expect.anything(),
+    );
+    expect(Logger.logUploadImage).toHaveBeenCalledWith(
+      expect.objectContaining({size_mb_of_image_0: 0}),
+    );
   });
 
-  it('S3 전송이 progress 없이 멈춘 채 취소돼도 step 은 s3_upload 로 남는다', async () => {
-    mockCompress.mockResolvedValue('file:///compressed.jpg');
-    // 응답·progress 없이 매달리는 XHR
-    (global as any).XMLHttpRequest = class extends FakeXhr {
-      send() {}
-    };
+  it('S3 가 4xx 를 돌려주면 성공으로 넘기지 않고 http_error 로 남긴다', async () => {
+    mockCompress.mockResolvedValue('file:///cache/compressed.jpg');
+    mockBackgroundUpload.mockResolvedValue({status: 403});
+    const result = ImageFileUtils.uploadImages(api, images);
+    const settled = result.catch((e: unknown) => e);
+    await jest.advanceTimersByTimeAsync(1_000 + 1); // 재시도 대기 포함
+
+    expect(String(await settled)).toContain('HTTP 403');
+    expect(mockBackgroundUpload).toHaveBeenCalledTimes(2);
+    expect(Logger.logUploadImageFailed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        errorType: 'http_error',
+        httpStatus: 403,
+        step: 's3_upload',
+      }),
+    );
+  });
+
+  it('S3 전송이 progress 없이 멈춘 채 취소되면 네이티브 업로드도 abort 하고 step 은 s3_upload 로 남는다', async () => {
+    mockCompress.mockResolvedValue('file:///cache/compressed.jpg');
+    mockBackgroundUpload.mockImplementation(hang);
     const controller = new AbortController();
     const result = ImageFileUtils.uploadImages(
       api,
@@ -128,28 +146,23 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
     controller.abort();
 
     await expect(result).rejects.toBeInstanceOf(UploadCancelledError);
+    const nativeSignal = mockBackgroundUpload.mock.calls[0][4];
+    expect(nativeSignal?.aborted).toBe(true);
     expect(Logger.logUploadImageFailed).toHaveBeenCalledWith(
       expect.objectContaining({errorType: 'cancelled', step: 's3_upload'}),
     );
   });
 
   it('S3 전송이 진행 없이 30초 멈추면 끊고 1회 재시도하고, 멈춘 구간을 heartbeat·요약값으로 남긴다', async () => {
-    mockCompress.mockResolvedValue('file:///compressed.jpg');
-    let sends = 0;
+    mockCompress.mockResolvedValue('file:///cache/compressed.jpg');
     // 첫 시도는 progress 없이 매달리고(TCP 가 끊긴 채 복구 안 되는 상황), 재시도는 응답한다
-    (global as any).XMLHttpRequest = class extends FakeXhr {
-      send() {
-        sends += 1;
-        if (sends === 2) {
-          super.send();
-        }
-      }
-    };
+    mockBackgroundUpload.mockImplementationOnce(hang);
     const result = ImageFileUtils.uploadImages(api, images);
     await jest.advanceTimersByTimeAsync(30_000 + 1_000 + 1);
 
     await expect(result).resolves.toEqual(['https://s3.example/a.jpg']);
-    expect(sends).toBe(2);
+    expect(mockBackgroundUpload).toHaveBeenCalledTimes(2);
+    expect(mockBackgroundUpload.mock.calls[0][4]?.aborted).toBe(true);
     expect(Logger.logUploadImage).toHaveBeenCalledWith(
       expect.objectContaining({
         s3_retries: 1,
@@ -179,24 +192,13 @@ describe('ImageFileUtils.uploadImages 멈춤 대응', () => {
   });
 
   it('전송 도중 40% 에서 멈추면 멈춘 지점을 40% 로 남긴다', async () => {
-    mockCompress.mockResolvedValue('file:///compressed.jpg');
-    let sends = 0;
-    (global as any).XMLHttpRequest = class extends FakeXhr {
-      send() {
-        sends += 1;
-        if (sends === 2) {
-          super.send();
-          return;
-        }
-        setTimeout(() => {
-          this.upload.onprogress?.({
-            lengthComputable: true,
-            loaded: 400,
-            total: 1000,
-          });
-        }, 2_000);
-      }
-    };
+    mockCompress.mockResolvedValue('file:///cache/compressed.jpg');
+    mockBackgroundUpload.mockImplementationOnce(
+      (_url, _path, _options, onProgress) => {
+        setTimeout(() => onProgress?.(400, 1000), 2_000);
+        return new Promise(() => {});
+      },
+    );
     const result = ImageFileUtils.uploadImages(api, images);
     await jest.advanceTimersByTimeAsync(30_000 + 1_000 + 1);
 
