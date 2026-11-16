@@ -62,6 +62,16 @@ adb shell am force-stop club.staircrusher.sandbox   # 이후 재실행
 - prod 배포 절차: 코드 변경 → lint/tsc 통과 → 커밋 → `v*` 태그 → 태그 push (자동 배포). prod는 태그 없이 푸시하지 않는다.
 - git push/tag는 사용자가 명시적으로 요청한 것만 실행한다 (태그 생성/push는 hook이 ask로 가로챈다). 헷갈리면 워크플로우의 `on: push: branches/tags`를 직접 확인할 것.
 
+## 스토어 릴리스 · 스토어 정보 · 강제 업데이트
+
+- **같은 기능이 플랫폼마다 다른 버전 번호로 나간다.** 네이버 지도 Maps 전환(2026-11) = **iOS 1.3.12 / Android 1.3.14** (Android 만 SDK 수정 1.3.13 → Play 반려 → 1.3.14). 번호만 보고 "iOS 는 낼 게 없다"고 따로 보고하지 말고 **기능 단위로 묶어** 보고한다(사용자 지적 2026-11-16). 현재 스토어 버전: iOS `curl 'https://itunes.apple.com/lookup?id=6444382843&country=kr'`, Android 는 Play 페이지 HTML 의 `[[["1.3.x"]]]`.
+- **스토어 제출용 빌드는 수동 실행이다.** `gh workflow run cd-native-build.yml --ref release-x.y.z-android -f platform=android -f scheme=production` — `prepare_release` 가 브랜치명으로 버전 bump 커밋을 얹는다. Android AAB 는 **Firebase App Distribution 까지만** 자동이고 Play Console 업로드·제출은 사람이 한다(Play API 자격증명 없음). 반려된 버전은 versionCode 가 이미 쓰였으니 **다음 patch 의 새 release 브랜치**로 재제출.
+- **개인정보처리방침·지원 URL 은 코드가 아니라 스토어 콘솔에 있다.**
+  - 개인정보처리방침은 **수정 가능한 구글닥 금지**(Play 반려 사유, 2026-11-13). 공개 노션 `https://agnica.notion.site/17ac9499b06080d9bea9d368564cf271` 을 쓴다. 정책상 **앱 안에도 링크가 있어야** 한다(설정 화면 `PolicyLinkRow`).
+  - App Store 는 ASC API 키 `subprojects/scc-frontend-build-configurations/appstore-key.json`(pyjwt ES256)로 `appInfoLocalizations.privacyPolicyUrl`·`appStoreVersionLocalizations.supportUrl` 을 읽고 고친다. 단 **출시 상태(READY_FOR_SALE)에선 409 `INVALID_STATE`** — 새 버전 레코드가 있을 때만 바뀐다. Play 의 '앱 콘텐츠 > 개인정보처리방침'은 API 가 없다 → 사람.
+  - 미완(2026-11-16): **iOS 개인정보 URL 은 아직 구글닥, 지원 URL `agnica.or.kr/contact/` 는 죽은 도메인** — 다음 iOS 버전 레코드가 생기면 노션 링크 / `https://staircrusher.club/contact/` 로 교체.
+- **강제 업데이트 = 서버 배포다.** 기준 버전은 scc-server `ClientVersionServiceImpl`(user domain)에 하드코딩된 **플랫폼 공통 값 1개** → 바꾸고 prod 태그. 앱은 홈 진입 시 `getClientVersionStatus` 로 판정해 `AppUpgradeNeededBottomSheet` 를 띄운다. 올리기 전 GA `app_info.version` 분포로 영향 인원을, Play 단계적 출시가 100% 인지를 본다(미만이면 안내를 받고도 업데이트를 못 받는 사용자가 생긴다). 검증은 `/createAnonymousUser` 토큰으로 `POST /getClientVersionStatus {"version":"1.3.11"}` → `UPGRADE_NEEDED`.
+
 ## 웹 배포 규칙
 
 - **웹 배포는 CI(`web-deploy.yml`) 또는 로컬 수동 실행 둘 중 하나다.** 어느 쪽이든 아래 1~3(main 기준·production 빌드·골든패스)은 로컬에서 먼저 통과시킨다 — CI 는 골든패스를 대신하지 않는다. 4번(`web-deploy.sh`)만 CI 로 대체할 수 있다.
