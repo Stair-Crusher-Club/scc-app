@@ -25,6 +25,8 @@ type Props<T> = {
   onScrollStateChange?: (isScrolling: boolean) => void;
   onLayout?: (event: LayoutChangeEvent) => void;
   onCardPress?: (item: T) => void;
+  /** 카드 래퍼(padding 포함)의 높이를 알린다. 카드마다 높이가 달라서 카드 기준으로 UI 를 붙일 때 쓴다. */
+  onItemLayout?: (id: string, height: number) => void;
   ItemCard: React.FC<{item: T; onPress?: () => void}>;
   initialScrollIndex?: number;
 };
@@ -36,6 +38,7 @@ function ItemMapList<T extends {id: string}>(
     onScrollStateChange,
     onLayout,
     onCardPress,
+    onItemLayout,
     ItemCard,
     initialScrollIndex,
   }: Props<T>,
@@ -146,7 +149,12 @@ function ItemMapList<T extends {id: string}>(
           paddingHorizontal: ITEM_SIDE_PADDING,
         }}
         renderItem={({item}) => (
-          <Item item={item} onPress={onCardPress} ItemCard={ItemCard} />
+          <Item
+            item={item}
+            onPress={onCardPress}
+            onItemLayout={onItemLayout}
+            ItemCard={ItemCard}
+          />
         )}
         keyExtractor={item => item.id}
         getItemLayout={(_, index) => ({
@@ -174,14 +182,18 @@ function ItemMapList<T extends {id: string}>(
 function Item<T extends {id: string}>({
   item,
   onPress,
+  onItemLayout,
   ItemCard,
 }: {
   item: T;
   onPress?: (item: T) => void;
+  onItemLayout?: (id: string, height: number) => void;
   ItemCard: React.FC<{item: T; onPress?: () => void}>;
 }) {
   return (
-    <ItemWrapper key={item.id}>
+    <ItemWrapper
+      key={item.id}
+      onLayout={e => onItemLayout?.(item.id, e.nativeEvent.layout.height)}>
       <ItemCard item={item} onPress={() => onPress?.(item)} />
     </ItemWrapper>
   );
