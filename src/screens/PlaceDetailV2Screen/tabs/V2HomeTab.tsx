@@ -40,6 +40,10 @@ import {
   PlaceEntranceSection,
   FloorMovementSection,
 } from '../components/EntranceSection';
+import {
+  formatConquerorText,
+  getLatestChallengeCrusherGroup,
+} from '@/utils/conquerorDisplay';
 import {getAccessibilitySections} from '../components/PlaceInfo.utils';
 
 interface Props {
@@ -113,12 +117,8 @@ export default function V2HomeTab({
     hasBuildingAccessibility,
   });
 
-  // 접근성 데이터에서 첫 번째 challengeCrusherGroup 추출
-  const challengeCrusherGroup =
-    placeAccessibilities.find(pa => pa.challengeCrusherGroup)
-      ?.challengeCrusherGroup ??
-    buildingAccessibilities.find(ba => ba.challengeCrusherGroup)
-      ?.challengeCrusherGroup;
+  // 챌린지 그룹이 붙은 등록 중 가장 최근 것 (장소 우선, 없으면 건물)
+  const challengeCrusherGroup = getLatestChallengeCrusherGroup(accessibility);
 
   // ── 가게정보 helpers ──
   const onCopy = () => {
@@ -413,43 +413,6 @@ export default function V2HomeTab({
       </Section>
     </Container>
   );
-}
-
-// ──────────────── Helpers ────────────────
-
-function formatConquerorText(accessibility?: AccessibilityInfoV2Dto): string {
-  const nameSet = new Set<string>();
-
-  const placeItems = accessibility?.placeAccessibilities?.length
-    ? accessibility.placeAccessibilities
-    : accessibility?.placeAccessibility
-      ? [accessibility.placeAccessibility]
-      : [];
-  for (const pa of placeItems) {
-    if (pa.registeredUserName) {
-      nameSet.add(pa.registeredUserName);
-    }
-  }
-
-  const buildingItems = accessibility?.buildingAccessibilities?.length
-    ? accessibility.buildingAccessibilities
-    : accessibility?.buildingAccessibility
-      ? [accessibility.buildingAccessibility]
-      : [];
-  for (const ba of buildingItems) {
-    if (ba.registeredUserName) {
-      nameSet.add(ba.registeredUserName);
-    }
-  }
-
-  const names = Array.from(nameSet);
-  if (names.length === 0) {
-    return '정복자 익명 비밀요원';
-  }
-  if (names.length === 1) {
-    return `정복자 ${names[0]}`;
-  }
-  return `정복자 ${names[0]} 외 ${names.length - 1}명`;
 }
 
 // ──────────────── Styled Components ────────────────
